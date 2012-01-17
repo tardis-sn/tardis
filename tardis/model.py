@@ -2,7 +2,7 @@
 
 import constants
 import numpy as np
-
+import c_distance
 miss_distance = 1e99
 
 class Model(object):
@@ -24,10 +24,16 @@ class OneZoneBaseModel(Model):
         self.r_inner = r_inner
         self.r_outer = r_outer
         self.v_outer = v_outer
-        self.homol_coeff = self.v_outer / self.r_outer
-    
+        self.t_exp = self.r_outer / self.v_outer
+        self.inverse_t_exp = 1 / self.t_exp
+        self.v_inner = self.r_inner / self.t_exp
+        self.ne = 1 / (constants.sigma_thomson * (self.r_outer - self.r_inner))
+        self.ne *= 1.
+        self. inverse_ne = 1 / self.ne
+        
     def compute_distance2outer(self, r, mu):
         #compute distance to the outer layer
+        return c_distance.distance2outer(self.r_outer, r, mu)
         d = np.sqrt(self.r_outer**2 + ((mu**2 - 1.) * r**2)) - (r * mu)
         return d
     
@@ -45,14 +51,20 @@ class OneZoneBaseModel(Model):
     
     def compute_distance2line(self, r, mu, nu, nu_line):
         #computing distance to line
-        cur_v = r * self.homol_coeff
+        cur_v = r * self.inverse_t_exp
         #beta = np.abs(mu) * cur_v / constants.c
-        nu_cmf = nu * (1. - (mu * r * self.homol_coeff / constants.c))
+        nu_cmf = nu * (1. - (mu * r * self.inverse_t_exp * constants.inverse_c))
         #nu_cmf = nu * np.sqrt((1-beta)/(1+beta))
         
         #this_nucmf = this_freq * (1. - (this_mu * v1 * this_r / r1 / CLIGHT));
         if nu_cmf < nu_line:
             return miss_distance
         else:
-            return ((nu_cmf - nu_line) / nu) * constants.c / self.homol_coeff        
+            return ((nu_cmf - nu_line) / nu) * constants.c * self.t_exp
+    
+    def compute_distance2electron(self, r, mu, tau_event):
+        return tau_event * self.inverse_ne * constants.inverse_sigma_thomson
+
+class OneDMultiZoneModel(Model):
+    pass
     
