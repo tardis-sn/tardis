@@ -1,7 +1,7 @@
 # astrophysical constants in cgs units (deprecated - suppose to use astropy constants)
 import numpy as np
 #speed of light
-c = 2.99792458e10
+c = 2.99792458e10 #cm
 inverse_c = 1/c
 #mass of hydrogen atom
 mh = 1.67352e-24
