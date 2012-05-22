@@ -22,23 +22,27 @@ cdef float_type_t miss_distance = 1e99
 cdef float_type_t c = 2.99792458e10 # cm/s
 cdef float_type_t inverse_c = 1 / c
 cdef float_type_t sigma_thomson = 6.652486e-25 #cm^(-2)
+
 cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 
 #variables are restframe if not specified by prefix comov_
 
 
-cdef float_type_t move_packet(double* r, double* mu, double* nu, double* energy, double* distance, double* j, double* nubar):
-    cdef double new_r
-    doppler_factor = (1 - (mu * r * inverse_t_exp * inverse_c))
+cdef float_type_t move_packet(float_type_t* r, float_type_t* mu, float_type_t nu, float_type_t energy, float_type_t distance, float_type_t js, float_type_t nubars, float_type_t inverse_t_exp):
+    
+    cdef float_type_t new_r, doppler_factor
+    
+    doppler_factor = (1 - (mu[0] * r[0] * inverse_t_exp * inverse_c))
     comov_energy = energy * doppler_factor
     comov_nu = nu * doppler_factor
-    j += comov_energy * distance
-    nubar += comov_energy * comov_nu * distance
+    js += comov_energy * distance
+    nubars += comov_energy * comov_nu * distance
     
-    r = sqrt(r**2 + distance**2 + 2 * r * distance * mu)
-    mu = (distance**2 + new_r**2 - r**2) / (2*distance*new_r)
-    
+    new_r = sqrt(r[0]**2 + distance**2 + 2 * r[0] * distance * mu[0])
+    mu[0] = (distance**2 + new_r**2 - r[0]**2) / (2*distance*new_r)
+    r[0] = new_r
     return doppler_factor
+    #return r, mu, doppler_factor
 
 cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float_type_t r_outer):
     return sqrt(r_outer**2 + ((mu**2 - 1.) * r**2)) - (r * mu)
@@ -47,7 +51,7 @@ cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float
 cdef float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_type_t r_inner):
     #compute distance to the inner layer
     #check if intersection is possible?
-    cdef double check
+    cdef float_type_t check
     check = r_inner**2 + (r**2 * (mu**2 - 1.))
     if check < 0:
         return miss_distance
@@ -96,13 +100,13 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     
     cdef int no_of_packets = packets.shape[0]
     cdef int no_of_lines = line_list_nu.shape[0]
-    
+
     #outputs
-    cdef np.ndarray[double, ndim=1] nus = np.zeros(no_of_packets, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] energies = np.zeros(no_of_packets, dtype=np.float64)
+    cdef np.ndarray[float_type_t, ndim=1] nus = np.zeros(no_of_packets, dtype=np.float64)
+    cdef np.ndarray[float_type_t, ndim=1] energies = np.zeros(no_of_packets, dtype=np.float64)
     
-    cdef np.ndarray(double, ndim=1) js = np.zeros(1, dtype=np.float64)
-    cdef np.ndarray(double, ndim=1) nubar = np.zeros(1, dtype=np.float64)
+    cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(1, dtype=np.float64)
+    cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(1, dtype=np.float64)
     
     cdef float_type_t nu_line = 0.0
     cdef float_type_t nu_electron = 0.0
@@ -154,6 +158,8 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         
         cur_line_id = line_list_nu.size - line_list_nu[::-1].searchsorted(comov_current_nu)
         if cur_line_id == line_list_nu.size: last_line=1
+        else: last_line = 0
+        
         
         while True:
             #check if we are at the end of linelist
@@ -180,7 +186,8 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             if (d_outer < d_inner) and (d_outer < d_electron) and (d_outer < d_line):
                 #escaped
                 reabsorbed = 0
-                move_packet(current_r, current_mu, current_nu, current_energy, d_outer, js, nubars)
+                #print "That one got away"
+                move_packet(&current_r, &current_mu, current_nu, current_energy, d_outer, js, nubars, inverse_t_exp)
                 break
             
             #packet reabsorbing into core
@@ -188,12 +195,13 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             elif (d_inner < d_outer) and (d_inner < d_electron) and (d_inner < d_line):
                 #reabsorbed
                 reabsorbed = 1
-                move_packet(current_r, current_mu, current_nu, current_energy, d_inner, js, nubars)
+                #print "another one bites the dust"
+                move_packet(&current_r, &current_mu, current_nu, current_energy, d_inner, js, nubars, inverse_t_exp)
                 break
             
             elif (d_electron < d_outer) and (d_electron < d_inner) and (d_electron < d_line):
             #electron scattering
-                doppler_factor = move_packet(current_r, current_mu, current_nu, current_energy, d_electron, js, nubars)
+                doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_electron, js, nubars, inverse_t_exp)
                 
                 
                 comov_nu = current_nu * doppler_factor
@@ -210,7 +218,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             #Line scattering
                 #It has a chance to hit the line
                 tau_line = tau_lines[cur_line_id]
-                tau_electron = sigma_thompson * ne * d_line
+                tau_electron = sigma_thomson * ne * d_line
                 tau_combined = tau_line + tau_electron
                 prev_r = current_r
                 
@@ -232,20 +240,30 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 if tau_event < tau_combined:
                     #line event happens - move and scatter packet
                     #choose new mu
-                    old_doppler_factor = move_packet(current_r, current_mu, current_nu, current_energy, d_line, js, nubars)
+                    old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, js, nubars, inverse_t_exp)
                     comov_current_energy = current_energy * old_doppler_factor
                     
                     current_mu = 2*np.random.random() - 1
                     inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
                     current_nu = nu_line * inverse_doppler_factor
                     current_energy = comov_current_energy * inverse_doppler_factor
+                    #current_energy = 0.0
                     tau_event = -log(np.random.random())
                 else:
                     tau_event -= tau_line
         
-        if reabsorbed == 0:
+        if current_energy < 0:
+            1/0
+        if reabsorbed == 1:
         #TODO bin them right away
             nus[i] = current_nu
             energies[i] = current_energy
+            
+        elif reabsorbed == 0:
+            nus[i] = current_nu
+            energies[i] = current_energy + 100
+            
+        else:
+            1/0
 
     return nus, energies
