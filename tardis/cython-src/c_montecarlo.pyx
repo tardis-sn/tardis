@@ -15,7 +15,7 @@ cdef extern from "math.h":
 
 ctypedef np.float64_t float_type_t
 
-np.random.seed(25081980)
+np.random.seed(250819801106)
 
 #constants
 cdef float_type_t miss_distance = 1e99
@@ -72,7 +72,7 @@ cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
 
         if comov_nu < nu_line:
             #TODO raise exception
-            print "WARNING comoving nu less than nu_line shouldn't happen"
+            print "WARNING comoving nu less than nu_line shouldn't happen", comov_nu, nu_line, (comov_nu - nu_line)/nu_line
         else:
             return ((comov_nu - nu_line) / nu) * c * t_exp
 
