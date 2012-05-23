@@ -42,7 +42,7 @@ cdef float_type_t move_packet(float_type_t* r, float_type_t* mu, float_type_t nu
     mu[0] = (distance**2 + new_r**2 - r[0]**2) / (2*distance*new_r)
     r[0] = new_r
     return doppler_factor
-    #return r, mu, doppler_factor
+    
 
 cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float_type_t r_outer):
     return sqrt(r_outer**2 + ((mu**2 - 1.) * r**2)) - (r * mu)
@@ -52,6 +52,7 @@ cdef float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_
     #compute distance to the inner layer
     #check if intersection is possible?
     cdef float_type_t check
+    
     check = r_inner**2 + (r**2 * (mu**2 - 1.))
     if check < 0:
         return miss_distance
@@ -157,9 +158,14 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         comov_current_nu = current_nu * (1. - (current_mu * v_inner * inverse_c))
         
         cur_line_id = line_list_nu.size - line_list_nu[::-1].searchsorted(comov_current_nu)
+        
         if cur_line_id == line_list_nu.size: last_line=1
         else: last_line = 0
         
+        #numerical problem: when the particles are sitting on the r_inner and one calculatese d_inner numerical instabilities can make it negative (depending on mu)
+        #Solution we give the packets a little nudge (choosing r_inner*1e-8 as moving distance)
+        
+        move_packet(&current_r, &current_mu, current_nu, current_energy, r_inner*1e-8, js, nubars, inverse_t_exp)
         
         while True:
             #check if we are at the end of linelist
@@ -182,7 +188,17 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     d_line = compute_distance2line(current_r, current_mu, current_nu, nu_line, t_exp, inverse_t_exp)
                 d_electron = compute_distance2electron(current_r, current_mu, tau_event, inverse_ne)
                 
-
+                if current_r <0:
+                    print " aha. r=",current_r, 
+                if d_line < 0:
+                    print "d-line negative"
+                if d_electron < 0:
+                    print "d-electron negative"
+                if d_inner < 0:
+                    print "d-inner negative", current_r, r_inner, d_inner, d_inner/current_r
+                
+                if d_outer < 0:
+                    print "d-outer negative"
             if (d_outer < d_inner) and (d_outer < d_electron) and (d_outer < d_line):
                 #escaped
                 reabsorbed = 0
@@ -228,8 +244,9 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 cur_line_id += 1
                 
                 #check for last line
-                if cur_line_id == no_of_lines:
-                        last_line = 1
+                if cur_line_id >= no_of_lines:
+                    cur_line_id = no_of_lines
+                    last_line = 1
                 
                 #check for same line        
                 if last_line == 0:
@@ -251,6 +268,8 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     tau_event = -log(np.random.random())
                 else:
                     tau_event -= tau_line
+                if tau_event < 0:
+                    print 'ola, what happened here'
         
         if current_energy < 0:
             1/0
