@@ -14,12 +14,11 @@ me = 9.10938188e-28 #grams
 
 
 
+class Plasma(object):
+    pass
 
-#Reading in data
-if True:
-    atomic_data = get_atomic_data(conn)
-    ionize_data = get_ionize_data(conn)
-    energy_data, g_data = get_level_data(conn)
+class LTEPlasma(Plasma):
+    
     
 
 def get_atomic_data(conn):
@@ -82,8 +81,8 @@ def get_level_data(conn, max_atom=30, max_ion=None):
         else:
             old_elem = elem
             old_ion = ion
-            energy_data[ion, elem - 1] = array([energy])
-            g_data[ion, elem - 1] = array([g])
+            energy_data[ion, elem - 1] = np.array([energy])
+            g_data[ion, elem - 1] = np.array([g])
             
     return energy_data, g_data
 
@@ -103,53 +102,52 @@ def calculate_phis(partition_functions, ionize_data, beta):
     
     partition_fractions = ge * partition_functions[1:]/partition_functions[:-1]
     partition_fractions[np.isnan(partition_fractions)] = 0.0
+    partition_fractions[np.isinf(partition_fractions)] = 0.0
     
     phis = partition_fractions * np.exp(-beta * ionize_data)
     
     return phis
     
     
-def calculate_single_ion_populations(phis, atom_density, electron_density=None, max_atom=99):
+def calculate_single_ion_populations(phis, atom_number_density, electron_density=None, max_atom=99):
     #N1 is ground state
     #N(fe) = N1 + N2 + .. = N1 + (N2/N1)*N1 + (N3/N2)*(N2/N1)*N1 + ... = N1(1+ N2/N1+...)
     if electron_density == None:
-        electron_density = np.sum(number_density)
+        electron_density = np.sum(atom_number_density)
     
-    ion_fraction_prod = np.cumprod(phis/ne, axis = 0) # (N2/N1, N3/N2 * N2/N1, ...)
+    ion_fraction_prod = np.cumprod(phis / electron_density, axis = 0) # (N2/N1, N3/N2 * N2/N1, ...)
     ion_fraction_sum = 1 + np.sum(ion_fraction_prod, axis = 0)
-    N1 = atom_density / ion_fraction_sum
+    N1 = atom_number_density / ion_fraction_sum
     #Further Ns
     Nn = N1 * ion_fraction_prod
-    new_ne = np.sum(Nn * (np.arange(max_atom)+1).reshape((max_atom,1)))
-    return np.vstack((N1, Nn)), new_ne
+    new_electron_density = np.sum(Nn * (np.arange(max_atom)+1).reshape((max_atom,1)))
+    return np.vstack((N1, Nn)), new_electron_density
 
-def calculate_ion_populations(T, W, atom_density,
-                            energy_data, g_data, atomic_data, ionize_data,
+def calculate_ion_populations(beta, W, atom_number_density,
+                            partition_functions, atomic_data, ionize_data,
                             max_atom=30, max_ion=30):
-    beta = 1 / (T * kbinev)
-    pdb.set_trace()
-    partition_functions = calculate_partition_functions(energy_data, g_data, beta)
+    #partition_functions = calculate_partition_functions(energy_data, g_data, beta)
     phis = calculate_phis(partition_functions, ionize_data, beta)
     
     #first estimate
-    old_electron_density = np.sum(number_density)
+    old_electron_density = np.sum(atom_number_density)
     while True:
         ion_density, electron_density = \
-            calculate_single_ion_populations(phis, atom_density, old_electron_density, max_atom=max_atom)
+            calculate_single_ion_populations(phis, atom_number_density, old_electron_density, max_atom=max_atom)
         
         if abs(electron_density / old_electron_density - 1) < 0.05: break
-        old_electron_density = electron_density
+        #print "ion population calculation %s" % (abs(electron_density / old_electron_density - 1),)
+        old_electron_density = 0.5*(old_electron_density + electron_density)
     return ion_density, electron_density
         
-def calculate_atom_number_density(abundances, density, atomic_data, max_atom=99):
+def calculate_atom_number_density(named_abundances, density, atomic_data, z2symbol, max_atom=30):
     number_density = np.zeros(max_atom)
-    assert sum(abundances.values()) == 1
+    assert sum(named_abundances.values()) == 1.
     
     for atom in xrange(max_atom):
-        number_density[atom - 1] = (density * abundances.get(atom, 0.)) / (atomic_data['weight'][atom - 1] * u)
+        symbol = z2symbol[atom + 1]
+        abundance = named_abundances.get(symbol, 0.)
+        number_density[atom] = (density * abundance) / (atomic_data['weight'][atom - 1] * u)
     return number_density
 
-test_abundances = {6:0.2, 8: 0.2, 17:0.4, 26:0.2}
-test_density = 1e-8
-test_atom_densities = calculate_atom_number_density(test_abundances, test_density, atomic_data=atomic_data, max_atom=30)
 
