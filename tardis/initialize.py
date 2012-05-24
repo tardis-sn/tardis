@@ -40,7 +40,7 @@ def read_simple_config(fname):
     
     luminosity_inner = 10**(log_l_lsun + constants.log_lsun) # in cgs
     
-    r_inner = vph * t_exp # in cm
+    r_inner = v_inner * time_exp # in cm
     
     t_inner = (luminosity_inner / (4 * np.pi * constants.sigma_sb * r_inner**2))**.25
     
@@ -71,7 +71,7 @@ def read_simple_config(fname):
             'r_inner':r_inner,
             't_inner':t_inner,
             'time_simulation':time_of_simulation,
-            'abundances':named_abundaces,
+            'abundances':named_abundances,
             }
     
 def read_symbol2z(fname=None):
