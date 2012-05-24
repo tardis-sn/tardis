@@ -93,7 +93,8 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 float_type_t r_inner,
                 float_type_t r_outer,
                 float_type_t v_inner,
-                float_type_t ne):
+                float_type_t ne,
+                float_type_t packet_energy):
                 
     cdef float_type_t t_exp = r_inner / v_inner
     cdef float_type_t inverse_t_exp = 1 / t_exp
@@ -148,7 +149,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         if i % 1000 == 0: print "@packet %d" % i
         
         current_nu = packets[i]
-        current_energy = 1.
+        current_energy = packet_energy
         
         current_mu = mus[i]
         current_r = r_inner
