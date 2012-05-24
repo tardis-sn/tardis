@@ -13,7 +13,7 @@ import numpy as np
 import cProfile
 
 def run_simple_test(cfname, conn, no_of_packets=int(1e5)):
-    T, t_exp, vph, dens, named_abundances = initialize.get_simple_config(cfname)
+    T, t_exp, vph, dens, named_abundances = initialize.read_simple_config(cfname)
     beta = T * constants.kbinev
     
     r_inner = t_exp * vph
@@ -21,13 +21,16 @@ def run_simple_test(cfname, conn, no_of_packets=int(1e5)):
     v_outer = vph * (r_outer/r_inner)
     
     W=1.
-    symbol2z = initialize.get_symbol2z(conn)
-    z2symbol = initialize.get_z2symbol(conn)
+    symbol2z = initialize.read_symbol2z()
+    z2symbol = initialize.read_z2symbol()
     atomic_data = plasma.get_atomic_data(conn)
     ionize_data = plasma.get_ionize_data(conn)
     e_data, g_data = plasma.get_level_data(conn)
     
-    atom_number_densities = plasma.calculate_atom_number_density(named_abundances, dens, atomic_data, z2symbol, max_atom=30)
+    
+    
+    abundances = dict([(symbol2z[symbol], value) for symbol, value in named_abundances.items()])
+    atom_number_densities = plasma.calculate_atom_number_density(abundances, dens, atomic_data, max_atom=30)
     partition_functions = plasma.calculate_partition_functions(e_data, g_data, beta)
     
     ion_number_densities, ne = plasma.calculate_ion_populations(beta,

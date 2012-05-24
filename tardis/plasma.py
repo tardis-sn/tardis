@@ -82,8 +82,8 @@ def get_level_data(conn, max_atom=30, max_ion=None):
         else:
             old_elem = elem
             old_ion = ion
-            energy_data[ion, elem - 1] = array([energy])
-            g_data[ion, elem - 1] = array([g])
+            energy_data[ion, elem - 1] = np.array([energy])
+            g_data[ion, elem - 1] = np.array([g])
             
     return energy_data, g_data
 
@@ -125,10 +125,10 @@ def calculate_single_ion_populations(phis, atom_density, electron_density=None, 
 
 def calculate_ion_populations(T, W, atom_density,
                             energy_data, g_data, atomic_data, ionize_data,
+                            partition_functions,
                             max_atom=30, max_ion=30):
     beta = 1 / (T * kbinev)
     pdb.set_trace()
-    partition_functions = calculate_partition_functions(energy_data, g_data, beta)
     phis = calculate_phis(partition_functions, ionize_data, beta)
     
     #first estimate
