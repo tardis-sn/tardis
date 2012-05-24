@@ -22,8 +22,9 @@ class Plasma(object):
 class LTEPlasma(Plasma):
     
     @classmethod
-    def from_db(cls, conf_file, conn, max_atom=30, max_ion=30):
-        trad, t_exp, vph, dens, named_abundances = initialize.read_simple_config(conf_file)
+    def from_db(cls, named_abundances, density, conn, max_atom=30, max_ion=30):
+        
+        
         
         symbol2z = initialize.read_symbol2z()
         
@@ -51,17 +52,16 @@ class LTEPlasma(Plasma):
         
         levels_energy, levels_g = read_level_data(conn, max_atom, max_ion)
         
-        
-        return cls(trad, abundances, dens,
+        return cls(abundances, density,
                    masses=masses, ionize_energy=ionize_energy,
                    levels_energy=levels_energy, levels_g=levels_g,
                    max_atom=max_atom, max_ion=max_ion)
         
             
-    def __init__(self, trad,  abundances, density,
+    def __init__(self, abundances, density,
                 masses=None, ionize_energy=None,
                 levels_energy=None,
-                levels_g=None,
+                levels_g=None, 
                 max_atom=None, max_ion=None):
         """
         ionize_energy
@@ -69,7 +69,6 @@ class LTEPlasma(Plasma):
         ndarray with row being ion, column atom
         
         """
-        self.trad = trad
         self.masses = masses
         self.ionize_energy = ionize_energy
         self.levels_energy = levels_energy
@@ -77,12 +76,28 @@ class LTEPlasma(Plasma):
         self.max_atom = max_atom
         self.max_ion = max_ion
         
-        self.beta = 1 / (trad * constants.kbinev)
         self.atom_number_density = self._calculate_atom_number_density(abundances, density)
         self.electron_density = np.sum(self.atom_number_density)
+
+
+    def update_radiationfield(self, t_rad):
+        self.t_rad = t_rad
+        self.beta = 1 / (t_rad * constants.kbinev)
         self.partition_functions = self._calculate_partition_functions()
         self.ion_number_density, self.electron_density = self._calculate_ion_populations()
-
+        
+    
+    
+    def calculate_tau_sobolev(self, line_list, time_exp):
+        wl = line_list['wl'] * 1e-7
+        C = (np.pi * constants.e**2) / (constants.me * constants.c) #supposed to be (pi*e**2)/(m_e * c)
+        Z = self.partition_functions[line_list['ion'], line_list['atom']-1]
+        g_lower = line_list['g_lower']
+        e_lower = line_list['e_lower']
+        n_lower = (g_lower / Z) * np.exp(-self.beta * e_lower) * self.ion_number_density[line_list['ion'], line_list['atom']-1]
+        tau_sobolev = C * line_list['f_lu'] * wl * time_exp * n_lower
+        return tau_sobolev
+    
     def _calculate_atom_number_density(self, abundances, density):
         #TODO float comparison problematic
         assert sum(abundances) == 1.
@@ -140,9 +155,7 @@ class LTEPlasma(Plasma):
 class NebularPlasma(LTEPlasma):
     
     @classmethod
-    def from_db(cls, conf_file, conn, max_atom=30, max_ion=30):
-        trad, t_exp, vph, dens, named_abundances = initialize.read_simple_config(conf_file)
-        
+    def from_db(cls, named_abundances, density, conn, max_atom=30, max_ion=30):
         symbol2z = initialize.read_symbol2z()
         
         #converting the abundances dictionary dict to an array
@@ -169,25 +182,35 @@ class NebularPlasma(LTEPlasma):
         
         levels_energy, levels_g = read_level_data(conn, max_atom, max_ion)
         
-        w=0.5 
-        return cls(trad, w, abundances, dens,
+        return cls(abundances, density,
                    masses=masses, ionize_energy=ionize_energy,
                    levels_energy=levels_energy, levels_g=levels_g,
                    max_atom=max_atom, max_ion=max_ion)
     
-    def __init__(self, trad, w, abundances, density,
+    def __init__(self, abundances, density,
                 masses=None, ionize_energy=None,
                 levels_energy=None,
                 levels_g=None,
                 max_atom=None, max_ion=None):
-        self.w = w
-        self.telectron = 0.9 * trad
-        LTEPlasma.__init__(self, trad, abundances, density,
+
+        LTEPlasma.__init__(self, abundances, density,
                 masses=masses, ionize_energy=ionize_energy,
                 levels_energy=levels_energy,
                 levels_g=levels_g,
                 max_atom=max_atom, max_ion=max_ion)
     
+    def update_radiationfield(self, t_rad, w, t_electron=None):
+        self.t_rad = t_rad
+        self.w = w
+        
+        if t_electron is None:
+            self.t_electron = 0.9 * self.t_rad
+            
+        self.beta = 1 / (t_rad * constants.kbinev)
+        self.partition_functions = self._calculate_partition_functions()
+        self.ion_number_density, self.electron_density = self._calculate_ion_populations()
+        
+        
     def _calculate_phis(self):
         #calculating ge = 2/(Lambda^3)
         ge = 2 / (np.sqrt(h_cgs**2 / (2 * np.pi * me * (1 / (self.beta*constants.erg2ev)))))**3
@@ -197,10 +220,32 @@ class NebularPlasma(LTEPlasma):
         partition_fractions[np.isinf(partition_fractions)] = 0.0
         #phi = (n_j+1 * ne / nj)
         phis = partition_fractions * np.exp(-self.beta * self.ionize_energy)
-        phis = self.w * (self.telectron/ self.trad)**.5 * phis
+        phis = self.w * (self.t_electron/ self.t_rad)**.5 * phis
         return phis
 
     
+
+
+
+def read_line_list(conn):
+    
+    raw_data = []
+    curs = conn.execute('select wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion from lines')
+    for wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion in curs:
+        gf = 10**loggf
+        f_lu = gf / g_lower
+        f_ul = gf / g_upper
+        raw_data.append((wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion))
+    
+    line_list = np.array(raw_data, dtype = [('wl', np.float64),
+        ('g_lower', np.int64), ('g_upper', np.int64),
+        ('f_lu', np.float64), ('f_ul', np.float64),
+        ('e_lower', np.float64), ('e_upper', np.float64),
+        ('level_id_lower', np.int64), ('level_id_upper', np.int64),
+        ('atom', np.int64), ('ion', np.int64)])
+    
+    return line_list
+
 
         
 def make_levels_table(conn):
