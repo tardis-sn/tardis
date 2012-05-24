@@ -30,13 +30,13 @@ def read_line_list(conn):
     return line_list
 
 
-def compile_sobolev_tau(line_list, partition_functions, ion_population, t_exp):
+def compile_tau_sobolev(line_list, beta, partition_functions, ion_populations, t_exp):
     tau_sobolev = []
-    wl = line_list['wl'] * 1e-7
-    C = 1 #supposed to be (pi*e**2)/(m_e * c)
+    wl = line_list['wl'] * 1e-8
+    
     Z = partition_functions[line_list['ion'], line_list['atom']-1]
     g_lower = line_list['g_lower']
     e_lower = line_list['e_lower']
-    n_lower = (g_lower / Z) * np.exp(-beta * e_lower) * ion_populations[line_list['ion'], line_list['atom']-1]
-    tau_sobolev = C * line_list['f_lu'] * wl * t_exp * n_lower
+    n_lower = (g_lower / Z) * np.exp(-beta * e_lower) * ion_populations[line_list['ion'], line_list['atom'] - 1]
+    tau_sobolev = constants.sobolev_coeff * line_list['f_lu'] * wl * t_exp * n_lower
     return tau_sobolev

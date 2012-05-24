@@ -11,7 +11,7 @@ class Model(object):
 
 
 class OneZoneBaseModel(Model):
-    def __init__(self, r_inner, r_outer, v_outer):
+    def __init__(self, r_inner, r_outer, v_outer, ne):
         """Initialize the model
         Parameters
         r_inner : float
@@ -27,8 +27,7 @@ class OneZoneBaseModel(Model):
         self.t_exp = self.r_outer / self.v_outer
         self.inverse_t_exp = 1 / self.t_exp
         self.v_inner = self.r_inner / self.t_exp
-        self.ne = 1 / (constants.sigma_thomson * (self.r_outer - self.r_inner))
-        self.ne *= 1.
+        self.ne = ne
         self. inverse_ne = 1 / self.ne
         
     def compute_distance2outer(self, r, mu):
@@ -51,12 +50,9 @@ class OneZoneBaseModel(Model):
     
     def compute_distance2line(self, r, mu, nu, nu_line):
         #computing distance to line
-        cur_v = r * self.inverse_t_exp
-        #beta = np.abs(mu) * cur_v / constants.c
+
         nu_cmf = nu * (1. - (mu * r * self.inverse_t_exp * constants.inverse_c))
-        #nu_cmf = nu * np.sqrt((1-beta)/(1+beta))
-        
-        #this_nucmf = this_freq * (1. - (this_mu * v1 * this_r / r1 / CLIGHT));
+
         if nu_cmf < nu_line:
             return miss_distance
         else:
