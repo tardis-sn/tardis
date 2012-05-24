@@ -32,6 +32,7 @@ def read_simple_config(fname):
     #trad = config.getfloat('general', 'trad')
     time_exp = config.getfloat('general', 'time_exp') *  86400.
     v_inner = config.getfloat('general', 'v_inner') * 1e5
+    v_outer = config.getfloat('general', 'v_outer') * 1e5
     density =  config.getfloat('general', 'density')
     log_l_lsun = config.getfloat('general', 'log_l_lsun')
     no_of_packets = int(config.getfloat('general', 'packets'))
@@ -41,6 +42,7 @@ def read_simple_config(fname):
     luminosity_inner = 10**(log_l_lsun + constants.log_lsun) # in cgs
     
     r_inner = v_inner * time_exp # in cm
+    r_outer = v_outer * time_exp # in cm
     
     t_inner = (luminosity_inner / (4 * np.pi * constants.sigma_sb * r_inner**2))**.25
     
@@ -69,6 +71,7 @@ def read_simple_config(fname):
             'packets':no_of_packets,
             'luminosity_inner':luminosity_inner,
             'r_inner':r_inner,
+            'r_outer':r_outer,
             't_inner':t_inner,
             'time_simulation':time_of_simulation,
             'abundances':named_abundances,
