@@ -11,6 +11,9 @@ inverse_c = 1/c
 mh = 1.67352e-24 #  of hydrogen atom
 me = 9.10938188e-28 # electron mass in grams
 
+#luminosities
+log_lsun = 33.585009279902458
+
 
 #charges
 e = 4.80320425e-10
@@ -22,6 +25,8 @@ h = 6.6260755e-27
 kb = 1.38e-16 # erg K^(-1)
 kbinev = kb * erg2ev
 
+#stefan-boltzmann constant
+sigma_sb = 5.67051e-5
 
 #thomson cross section
 sigma_thomson = 6.652486e-25 #cm^(-2)
