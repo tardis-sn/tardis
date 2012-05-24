@@ -77,7 +77,7 @@ class LTEPlasma(Plasma):
         self.max_atom = max_atom
         self.max_ion = max_ion
         
-        self.beta = trad * constants.kbinev
+        self.beta = 1 / (trad * constants.kbinev)
         self.atom_number_density = self._calculate_atom_number_density(abundances, density)
         self.electron_density = np.sum(self.atom_number_density)
         self.partition_functions = self._calculate_partition_functions()
@@ -102,13 +102,14 @@ class LTEPlasma(Plasma):
         partition_fractions = ge * self.partition_functions[1:] / self.partition_functions[:-1]
         partition_fractions[np.isnan(partition_fractions)] = 0.0
         partition_fractions[np.isinf(partition_fractions)] = 0.0
-        
+        #phi = (n_j+1 * ne / nj)
         phis = partition_fractions * np.exp(-self.beta * self.ionize_energy)
         return phis
 
     def _calculate_single_ion_populations(self, phis):
         #N1 is ground state
         #N(fe) = N1 + N2 + .. = N1 + (N2/N1)*N1 + (N3/N2)*(N2/N1)*N1 + ... = N1(1+ N2/N1+...)
+        
         ion_fraction_prod = np.cumprod(phis / self.electron_density, axis = 0) # (N2/N1, N3/N2 * N2/N1, ...)
         ion_fraction_sum = 1 + np.sum(ion_fraction_prod, axis = 0)
         N1 = self.atom_number_density / ion_fraction_sum
@@ -133,6 +134,75 @@ class LTEPlasma(Plasma):
             old_electron_density = 0.5*(old_electron_density + electron_density)
         return ion_density, electron_density
     
+    
+    
+    
+class NebularPlasma(LTEPlasma):
+    
+    @classmethod
+    def from_db(cls, conf_file, conn, max_atom=30, max_ion=30):
+        trad, t_exp, vph, dens, named_abundances = initialize.read_simple_config(conf_file)
+        
+        symbol2z = initialize.read_symbol2z()
+        
+        #converting the abundances dictionary dict to an array
+        abundances = np.zeros(max_atom)
+        
+        for symbol in named_abundances:
+            abundances[symbol2z[symbol]-1] = named_abundances[symbol]
+        
+        
+        masses = initialize.read_atomic_data()['mass'][:max_atom]
+        
+        ionization_data = initialize.read_ionization_data()
+        
+        
+        #reason for max_ion - 1: in energy level data there's unionized, once-ionized, twice-ionized, ...
+        #in ionization_energies, there's only once_ionized, twice_ionized
+        ionize_energy = np.zeros((max_ion - 1, max_atom))
+        
+        for atom, ion, ion_energy in ionization_data:
+            if atom > max_atom or ion >= max_ion:
+                continue
+            ionize_energy[ion-1, atom-1] = ion_energy
+        
+        
+        levels_energy, levels_g = read_level_data(conn, max_atom, max_ion)
+        
+        w=0.5 
+        return cls(trad, w, abundances, dens,
+                   masses=masses, ionize_energy=ionize_energy,
+                   levels_energy=levels_energy, levels_g=levels_g,
+                   max_atom=max_atom, max_ion=max_ion)
+    
+    def __init__(self, trad, w, abundances, density,
+                masses=None, ionize_energy=None,
+                levels_energy=None,
+                levels_g=None,
+                max_atom=None, max_ion=None):
+        self.w = w
+        self.telectron = 0.9 * trad
+        LTEPlasma.__init__(self, trad, abundances, density,
+                masses=masses, ionize_energy=ionize_energy,
+                levels_energy=levels_energy,
+                levels_g=levels_g,
+                max_atom=max_atom, max_ion=max_ion)
+    
+    def _calculate_phis(self):
+        #calculating ge = 2/(Lambda^3)
+        ge = 2 / (np.sqrt(h_cgs**2 / (2 * np.pi * me * (1 / (self.beta*constants.erg2ev)))))**3
+        
+        partition_fractions = ge * self.partition_functions[1:] / self.partition_functions[:-1]
+        partition_fractions[np.isnan(partition_fractions)] = 0.0
+        partition_fractions[np.isinf(partition_fractions)] = 0.0
+        #phi = (n_j+1 * ne / nj)
+        phis = partition_fractions * np.exp(-self.beta * self.ionize_energy)
+        phis = self.w * (self.telectron/ self.trad)**.5 * phis
+        return phis
+
+    
+
+        
 def make_levels_table(conn):
     conn.execute('create temporary table levels as select elem, ion, e_upper * ? * ? as energy, j_upper as j, label_upper as label from lines union select elem, ion, e_lower, j_lower, label_lower from lines', (constants.c, h))
     conn.execute('create index idx_all on levels(elem, ion, energy, j, label)')

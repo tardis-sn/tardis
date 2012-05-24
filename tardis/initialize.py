@@ -29,10 +29,24 @@ def read_ionization_data(fname=None):
 def read_simple_config(fname):
     config = ConfigParser.ConfigParser()
     config.read(fname)
-    trad = config.getfloat('general', 'trad')
-    t_exp = config.getfloat('general', 't_exp') *  86400.
-    vph = config.getfloat('general', 'vph') * 1e5
-    dens =  config.getfloat('general', 'dens')
+    #trad = config.getfloat('general', 'trad')
+    time_exp = config.getfloat('general', 'time_exp') *  86400.
+    v_inner = config.getfloat('general', 'v_inner') * 1e5
+    density =  config.getfloat('general', 'density')
+    log_l_lsun = config.getfloat('general', 'log_l_lsun')
+    no_of_packets = int(config.getfloat('general', 'packets'))
+    # packet energies sum up to 1.
+    
+    
+    luminosity_inner = 10**(log_l_lsun + constants.log_lsun) # in cgs
+    
+    r_inner = vph * t_exp # in cm
+    
+    t_inner = (luminosity_inner / (4 * np.pi * constants.sigma_sb * r_inner**2))**.25
+    
+    time_of_simulation =  1 / luminosity_inner
+    
+    
     oxygen_buffer = config.get('general', 'oxygen_buffer').lower() in ('1','true', 'yes')
     #using oxygen as buffer without checking
     named_abundances = OrderedDict([(key, float(value)) for key, value in config.items('abundance')])
@@ -48,7 +62,17 @@ def read_simple_config(fname):
         for key in named_abundances:
             named_abundances[key] /= abundance_sum
     print named_abundances
-    return trad, t_exp, vph, dens, named_abundances
+    
+    return {'time_exp':time_exp,
+            'v_inner':v_inner,
+            'density':density,
+            'packets':no_of_packets,
+            'luminosity_inner':luminosity_inner,
+            'r_inner':r_inner,
+            't_inner':t_inner,
+            'time_simulation':time_of_simulation,
+            'abundances':named_abundaces,
+            }
     
 def read_symbol2z(fname=None):
     #a lookup dictionary converting between atomic symbols and number
