@@ -16,7 +16,7 @@ me = 9.10938188e-28 #grams
 
 
 #Reading in data
-if True:
+if False:
     atomic_data = get_atomic_data(conn)
     ionize_data = get_ionize_data(conn)
     energy_data, g_data = get_level_data(conn)
@@ -149,7 +149,7 @@ def calculate_atom_number_density(abundances, density, atomic_data, max_atom=99)
         number_density[atom - 1] = (density * abundances.get(atom, 0.)) / (atomic_data['weight'][atom - 1] * u)
     return number_density
 
-test_abundances = {6:0.2, 8: 0.2, 17:0.4, 26:0.2}
-test_density = 1e-8
-test_atom_densities = calculate_atom_number_density(test_abundances, test_density, atomic_data=atomic_data, max_atom=30)
+#test_abundances = {6:0.2, 8: 0.2, 17:0.4, 26:0.2}
+#test_density = 1e-8
+#test_atom_densities = calculate_atom_number_density(test_abundances, test_density, atomic_data=atomic_data, max_atom=30)
 
