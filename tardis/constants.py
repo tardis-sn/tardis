@@ -39,4 +39,4 @@ sobolev_coeff = (np.pi * e**2) / (me * c) #(pi*e^2)/(m_e*c)
 #
 trad_estimator_constant = 0.260944706 * h / kb # (pi**4 / 15)/ (24*zeta(5))
 
-w_estimator_constant = (15/np.pi**4) / (4*pi) *(h/kb)**4
+w_estimator_constant = (15/np.pi**4) / (4*np.pi) *(h/kb)**4
