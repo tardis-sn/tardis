@@ -222,17 +222,6 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     d_line = compute_distance2line(current_r, current_mu, current_nu, nu_line, t_exp, inverse_t_exp)
                 d_electron = compute_distance2electron(current_r, current_mu, tau_event, inverse_ne)
                 
-                if current_r <0:
-                    print " aha. r=",current_r, 
-                if d_line < 0:
-                    print "d-line negative"
-                if d_electron < 0:
-                    print "d-electron negative"
-                if d_inner < 0:
-                    print "d-inner negative", current_r, r_inner, d_inner, d_inner/current_r
-                
-                if d_outer < 0:
-                    print "d-outer negative"
             if (d_outer < d_inner) and (d_outer < d_electron) and (d_outer < d_line):
                 #escaped
                 reabsorbed = 0
