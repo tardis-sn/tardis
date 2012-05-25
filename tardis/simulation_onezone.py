@@ -1,37 +1,58 @@
 import plasma
 import initialize
 import line
+import photon
+import constants
+import numpy as np
+import c_montecarlo
+
 def run_oned(conn, fname):
     initial_config = initialize.read_simple_config(fname)
-    return initial_config
+    #return initial_config
     
-    t_rad = initial_config['t_inner']
+    t_rad = initial_config['t_outer']
+    t_inner = t_rad
+    surface_inner = 4 * np.pi * initial_config['r_inner']**2
     w = 1.
-    energy_of_packet = 1 / initial_config['packets']
+    energy_of_packet = 1. / initial_config['packets']
     
-    sn_plasma = plasma.NebularPlasma.from_db(initial_config['abundances'], inital_config['density'], conn)
+    sn_plasma = plasma.NebularPlasma.from_db(initial_config['abundances'], initial_config['density'], conn)
     
     line_list = line.read_line_list(conn)
-    
+    line_list_nu = constants.c / (line_list['wl'] * 1e-8)
+    print "initial radiation temperature", t_rad
+    volume = (4./3) * np.pi * (initial_config['r_outer']**3 - initial_config['r_inner']**3)
+    i = 0
     while True:
-        sn_plasma.update_radiationfield(t_rad = t_rad)
-        tau_sobolev = sn_plasma.calculate_tau_sobolev(line_list, initial_config['time_exp'])
+        i+=1
+        if i > 10: break
+        sn_plasma.update_radiationfield(t_rad=t_rad, w=w)
+        #return sn_plasma
+        tau_sobolevs = sn_plasma.calculate_tau_sobolev(line_list, initial_config['time_exp'])
         
-        nus = photon.random_blackbody_nu(T, nu_range=(1e8*constants.c / 2000, 1e8*constants.c/ 9000), size=no_of_packets)
-        mus = np.sqrt(np.random.random(no_of_packets))
+        nu_input = photon.random_blackbody_nu(t_inner, nu_range=(1e8*constants.c / 1, 1e8*constants.c/ 100000.), size=initial_config['packets'])
+        mu_input = np.sqrt(np.random.random(initial_config['packets']))
         
         #WRITE!!
-        tau_sobolev = myplasma.calculate_tau_sobolev()
+       
         
         
         #add energy to montecarlo function
-        nu, energy, j_estimator, nubar_estimator = c_montecarlo.run_simple_oned(nus, mus, line_list_nu, tau_sobolevs,
-                    initial_config['r_inner'], initial_config['r_outer'], initial_config['v_inner'], myplasma.electron_density, energy_of_packet)
+        nu, energy, nu_reabsorbed, energy_reabsorbed, j_estimator, nubar_estimator = c_montecarlo.run_simple_oned(nu_input, mu_input, line_list_nu, tau_sobolevs,
+                    initial_config['r_inner'], initial_config['r_outer'], initial_config['v_inner'], sn_plasma.electron_density, energy_of_packet)
         
-        new_trad = constants.trad_estimator_constant * nubar_estimator / j_estimator
-        new_w = constants.w_estimator_constant * j_estimator / new_trad**4 / (inital_config['time_simulation'] * (4/3) * np.pi * (r_outer**3 - r_inner**3))
-        print "trad / new_trad = %.2f/%.2f w / new_w =  %.2f/%.2f" % (trad, new_trad, w, new_w)
-        w = (new_w + w)*.5
-        trad = (new_trad + trad)*.5
+        new_t_rad = constants.trad_estimator_constant * nubar_estimator / j_estimator
+        new_w = constants.w_estimator_constant * j_estimator / (initial_config['time_simulation'] * new_t_rad**4 * volume)
+        
+        emitted_energy_fraction = np.sum(energy[nu != 0]) / 1.
         
         
+        new_t_inner = (initial_config['luminosity_outer'] / (emitted_energy_fraction * constants.sigma_sb * surface_inner ))**.25
+        
+        print "trad / new_trad = %.2f / %.2f\n t_inner / new_t_inner %.2f / %.2f\n w / new_w =  %.5f/%.5f" %\
+                                 (t_rad, new_t_rad, t_inner, new_t_inner, w, new_w)
+        w = (new_w + w) * .5
+        t_rad = (new_t_rad + t_rad) * .5
+        t_inner = (new_t_inner + t_inner) * .5
+        
+    return nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed
