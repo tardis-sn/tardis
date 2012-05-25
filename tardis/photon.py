@@ -58,7 +58,7 @@ def random_blackbody_lambda(T, wl_range=(2000, 12000), size=100):
     norm_cum_blackbody = cum_blackbody / cum_blackbody.max()
     return wl[norm_cum_blackbody.searchsorted(np.random.random(size))]
     
-def random_blackbody_nu(T, nu_range=(1e8*constants.c / 5000, 1e8*constants.c/ 9000), sample=1000, size=int(1e6)):
+def random_blackbody_nu(T, nu_range=(1e8*constants.c / 5000, 1e8*constants.c/ 9000), sample=int(1e6), size=int(1e6)):
     nu = np.linspace(*nu_range, num=sample)
     intens = blackbody_nu(nu, T)
     cum_blackbody = np.cumsum(intens)
