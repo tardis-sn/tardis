@@ -12,10 +12,30 @@ cdef extern from "math.h":
     double sqrt(double)
     double abs(double)
 
+cdef extern from "../randomkit/randomkit.h":
+    ctypedef struct rk_state:
+        unsigned long key[624]
+        int pos
+        int has_gauss
+        double gauss
+
+    ctypedef enum rk_error:
+        RK_NOERR = 0
+        RK_ENODEV = 1
+        RK_ERR_MAX = 2
+    
+    void rk_seed(unsigned long seed, rk_state *state)
+    double rk_double(rk_state *state)
+
+    
 
 ctypedef np.float64_t float_type_t
 
-np.random.seed(250819801106)
+cdef rk_state mt_state
+rk_seed(250819801106, &mt_state)
+
+
+#np.random.seed(250819801106)
 
 #constants
 cdef float_type_t miss_distance = 1e99
@@ -96,7 +116,9 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 float_type_t v_inner,
                 float_type_t ne,
                 float_type_t packet_energy):
-                
+    
+    cdef float_type_t test_random=0.
+    
     cdef float_type_t t_exp = r_inner / v_inner
     cdef float_type_t inverse_t_exp = 1 / t_exp
     cdef float_type_t inverse_ne = 1 / ne
@@ -165,7 +187,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         current_mu = mus[i]
         current_r = r_inner
         
-        tau_event = -log(np.random.random())
+        tau_event = -log(rk_double(&mt_state))
         
         comov_current_nu = current_nu * (1. - (current_mu * v_inner * inverse_c))
         
@@ -236,11 +258,11 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 comov_energy = current_energy * doppler_factor
                 
                 #new mu chosen
-                current_mu = 2*np.random.random() - 1
+                current_mu = 2*rk_double(&mt_state) - 1
                 inverse_doppler_factor = 1/(1 - (current_mu * current_r * inverse_t_exp * inverse_c))
                 current_nu = comov_nu * inverse_doppler_factor
                 current_energy = comov_energy * inverse_doppler_factor
-                tau_event = -log(np.random.random())
+                tau_event = -log(rk_double(&mt_state))
             
             elif (d_line < d_outer) and (d_line < d_inner) and (d_line < d_electron):
             #Line scattering
@@ -272,12 +294,12 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, &js, &nubars, inverse_t_exp)
                     comov_current_energy = current_energy * old_doppler_factor
                     
-                    current_mu = 2*np.random.random() - 1
+                    current_mu = 2*rk_double(&mt_state) - 1
                     inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
                     current_nu = nu_line * inverse_doppler_factor
                     current_energy = comov_current_energy * inverse_doppler_factor
                     #current_energy = 0.0
-                    tau_event = -log(np.random.random())
+                    tau_event = -log(rk_double(&mt_state))
                 else:
                     tau_event -= tau_line
                 if tau_event < 0:
