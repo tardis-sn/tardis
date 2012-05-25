@@ -90,12 +90,12 @@ class LTEPlasma(Plasma):
     
     def calculate_tau_sobolev(self, line_list, time_exp):
         wl = line_list['wl'] * 1e-7
-        C = (np.pi * constants.e**2) / (constants.me * constants.c) #supposed to be (pi*e**2)/(m_e * c)
+        #C = (np.pi * constants.e**2) / (constants.me * constants.c) #supposed to be (pi*e**2)/(m_e * c)
         Z = self.partition_functions[line_list['ion'], line_list['atom']-1]
         g_lower = line_list['g_lower']
         e_lower = line_list['e_lower']
         n_lower = (g_lower / Z) * np.exp(-self.beta * e_lower) * self.ion_number_density[line_list['ion'], line_list['atom']-1]
-        tau_sobolev = C * line_list['f_lu'] * wl * time_exp * n_lower
+        tau_sobolev = constants.sobolev_coeff * line_list['f_lu'] * wl * time_exp * n_lower
         return tau_sobolev
     
     def _calculate_atom_number_density(self, abundances, density):
