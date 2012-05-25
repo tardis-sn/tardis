@@ -27,7 +27,7 @@ def run_oned(conn, fname):
     i = 0
     while True:
         i+=1
-        if i > 10: break
+        if i > 30: break
         sn_plasma.update_radiationfield(t_rad=t_rad, w=w)
         #return sn_plasma
         tau_sobolevs = sn_plasma.calculate_tau_sobolev(line_list, initial_config['time_exp'])
