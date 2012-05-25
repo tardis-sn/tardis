@@ -18,7 +18,9 @@ def run_oned(conn, fname):
     
     sn_plasma = plasma.NebularPlasma.from_db(initial_config['abundances'], initial_config['density'], conn)
     
-    line_list = line.read_line_list(conn)
+    line_list = line.read_line_list(conn, atoms=initial_config['abundances'].keys())
+    
+    print "%d lines used in simulation" % len(line_list)
     line_list_nu = constants.c / (line_list['wl'] * 1e-8)
     print "initial radiation temperature", t_rad
     volume = (4./3) * np.pi * (initial_config['r_outer']**3 - initial_config['r_inner']**3)

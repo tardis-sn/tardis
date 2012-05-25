@@ -2,6 +2,13 @@
 import constants
 import numpy as np
 import initialize
+
+try:
+    import sqlparse
+    sqlparse_available = True
+except ImportError:
+    sqlparse_available = False
+    
 def get_tau_line(nu, f_line, dens_line, t_exp):
     tau_line = constants.sobolev_coeff * f_line * (constants.c / nu) * dens_line * t_exp
     return tau_line
@@ -11,11 +18,32 @@ def get_r_sobolev(r, mu, d_line):
     
     
 def read_line_list(conn, atoms=None, symbol2z=None):
-    #if symbol2z:
-    #    initialize.read_symbol2z()
-        
+    
+            
+    
+    
     raw_data = []
-    curs = conn.execute('select wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion from lines')
+    
+    select_stmt = """SELECT
+                        wl, loggf, g_lower, g_upper, e_lower,
+                        e_upper, level_id_lower, level_id_upper,
+                        atom, ion
+                    FROM
+                        lines
+                """
+    
+    if atoms is not None:
+        if symbol2z is None:
+            symbol2z = initialize.read_symbol2z()
+            select_stmt += """ where atom in (%s)"""
+            
+        atom_list = ','.join([str(symbol2z[atom]) for atom in atoms])
+        curs = conn.execute(select_stmt % atom_list)
+        print atom_list
+    else:
+        curs = conn.execute(select_stmt)
+    
+    
     for wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion in curs:
         gf = 10**loggf
         f_lu = gf / g_lower
