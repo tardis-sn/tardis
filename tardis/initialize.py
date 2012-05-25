@@ -39,14 +39,14 @@ def read_simple_config(fname):
     # packet energies sum up to 1.
     
     
-    luminosity_inner = 10**(log_l_lsun + constants.log_lsun) # in cgs
+    luminosity_outer = 10**(log_l_lsun + constants.log_lsun) # in cgs
     
     r_inner = v_inner * time_exp # in cm
     r_outer = v_outer * time_exp # in cm
     
-    t_inner = (luminosity_inner / (4 * np.pi * constants.sigma_sb * r_inner**2))**.25
+    t_outer = (luminosity_outer / (4 * np.pi * constants.sigma_sb * r_inner**2))**.25
     
-    time_of_simulation =  1 / luminosity_inner
+    time_of_simulation =  1 / luminosity_outer
     
     
     oxygen_buffer = config.get('general', 'oxygen_buffer').lower() in ('1','true', 'yes')
@@ -69,10 +69,10 @@ def read_simple_config(fname):
             'v_inner':v_inner,
             'density':density,
             'packets':no_of_packets,
-            'luminosity_inner':luminosity_inner,
+            'luminosity_outer':luminosity_outer,
             'r_inner':r_inner,
             'r_outer':r_outer,
-            't_inner':t_inner,
+            't_outer':t_outer,
             'time_simulation':time_of_simulation,
             'abundances':named_abundances,
             }
