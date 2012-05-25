@@ -28,15 +28,16 @@ cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 #variables are restframe if not specified by prefix comov_
 
 
-cdef float_type_t move_packet(float_type_t* r, float_type_t* mu, float_type_t nu, float_type_t energy, float_type_t distance, float_type_t js, float_type_t nubars, float_type_t inverse_t_exp):
+cdef float_type_t move_packet(float_type_t* r, float_type_t* mu, float_type_t nu, float_type_t energy, float_type_t distance, float_type_t* js, float_type_t* nubars, float_type_t inverse_t_exp):
     
-    cdef float_type_t new_r, doppler_factor
+    cdef float_type_t new_r, doppler_factor, comov_energy, comov_nu
     
     doppler_factor = (1 - (mu[0] * r[0] * inverse_t_exp * inverse_c))
     comov_energy = energy * doppler_factor
     comov_nu = nu * doppler_factor
-    js += comov_energy * distance
-    nubars += comov_energy * comov_nu * distance
+    js[0] += comov_energy * distance
+    
+    nubars[0] += comov_energy * distance * comov_nu 
     
     new_r = sqrt(r[0]**2 + distance**2 + 2 * r[0] * distance * mu[0])
     mu[0] = (distance**2 + new_r**2 - r[0]**2) / (2*distance*new_r)
@@ -107,8 +108,14 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     cdef np.ndarray[float_type_t, ndim=1] nus = np.zeros(no_of_packets, dtype=np.float64)
     cdef np.ndarray[float_type_t, ndim=1] energies = np.zeros(no_of_packets, dtype=np.float64)
     
-    cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(1, dtype=np.float64)
-    cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(1, dtype=np.float64)
+    cdef np.ndarray[float_type_t, ndim=1] nus_reabsorbed = np.zeros(no_of_packets, dtype=np.float64)
+    cdef np.ndarray[float_type_t, ndim=1] energies_reabsorbed = np.zeros(no_of_packets, dtype=np.float64)
+    
+    
+    cdef float_type_t js = 0
+    cdef float_type_t nubars = 0
+    #cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(1, dtype=np.float64)
+    #cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(1, dtype=np.float64)
     
     cdef float_type_t nu_line = 0.0
     cdef float_type_t nu_electron = 0.0
@@ -116,12 +123,16 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     cdef float_type_t prev_r = 0.0
     cdef float_type_t current_mu = 0.0
     cdef float_type_t current_nu = 0.0
-    cdef float_type_t current_nu_cmf = 0.0
+    cdef float_type_t comov_current_nu = 0.0
+    cdef float_type_t comov_nu = 0.0
+    cdef float_type_t comov_energy = 0.0
+    cdef float_type_t comov_current_energy = 0.0
     cdef float_type_t current_energy = 0.0
     cdef float_type_t energy_electron = 0.0
     
     #doppler factor definition
     cdef float_type_t doppler_factor = 0.0
+    cdef float_type_t old_doppler_factor = 0.0
     cdef float_type_t inverse_doppler_factor = 0.0
     
     cdef float_type_t tau_line = 0.0
@@ -166,7 +177,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         #numerical problem: when the particles are sitting on the r_inner and one calculatese d_inner numerical instabilities can make it negative (depending on mu)
         #Solution we give the packets a little nudge (choosing r_inner*1e-8 as moving distance)
         
-        move_packet(&current_r, &current_mu, current_nu, current_energy, r_inner*1e-8, js, nubars, inverse_t_exp)
+        move_packet(&current_r, &current_mu, current_nu, current_energy, r_inner*1e-8, &js, &nubars, inverse_t_exp)
         
         while True:
             #check if we are at the end of linelist
@@ -204,7 +215,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 #escaped
                 reabsorbed = 0
                 #print "That one got away"
-                move_packet(&current_r, &current_mu, current_nu, current_energy, d_outer, js, nubars, inverse_t_exp)
+                move_packet(&current_r, &current_mu, current_nu, current_energy, d_outer, &js, &nubars, inverse_t_exp)
                 break
             
             #packet reabsorbing into core
@@ -213,12 +224,12 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 #reabsorbed
                 reabsorbed = 1
                 #print "another one bites the dust"
-                move_packet(&current_r, &current_mu, current_nu, current_energy, d_inner, js, nubars, inverse_t_exp)
+                move_packet(&current_r, &current_mu, current_nu, current_energy, d_inner, &js, &nubars, inverse_t_exp)
                 break
             
             elif (d_electron < d_outer) and (d_electron < d_inner) and (d_electron < d_line):
             #electron scattering
-                doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_electron, js, nubars, inverse_t_exp)
+                doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_electron, &js, &nubars, inverse_t_exp)
                 
                 
                 comov_nu = current_nu * doppler_factor
@@ -258,7 +269,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 if tau_event < tau_combined:
                     #line event happens - move and scatter packet
                     #choose new mu
-                    old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, js, nubars, inverse_t_exp)
+                    old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, &js, &nubars, inverse_t_exp)
                     comov_current_energy = current_energy * old_doppler_factor
                     
                     current_mu = 2*np.random.random() - 1
@@ -271,19 +282,19 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     tau_event -= tau_line
                 if tau_event < 0:
                     print 'ola, what happened here'
-        
+            
         if current_energy < 0:
             1/0
         if reabsorbed == 1:
         #TODO bin them right away
-            nus[i] = current_nu
-            energies[i] = current_energy
+            nus_reabsorbed[i] = current_nu
+            energies_reabsorbed[i] = current_energy
             
         elif reabsorbed == 0:
             nus[i] = current_nu
-            energies[i] = current_energy + 100
+            energies[i] = current_energy
             
         else:
             1/0
 
-    return nus, energies
+    return nus, energies, nus_reabsorbed, energies_reabsorbed, js, nubars
