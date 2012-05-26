@@ -51,8 +51,11 @@ cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 cdef float_type_t move_packet(float_type_t* r, float_type_t* mu, float_type_t nu, float_type_t energy, float_type_t distance, float_type_t* js, float_type_t* nubars, float_type_t inverse_t_exp):
     
     cdef float_type_t new_r, doppler_factor, comov_energy, comov_nu
-    
     doppler_factor = (1 - (mu[0] * r[0] * inverse_t_exp * inverse_c))
+    
+    if distance <= 0:
+        return doppler_factor
+    
     comov_energy = energy * doppler_factor
     comov_nu = nu * doppler_factor
     js[0] += comov_energy * distance
@@ -60,7 +63,9 @@ cdef float_type_t move_packet(float_type_t* r, float_type_t* mu, float_type_t nu
     nubars[0] += comov_energy * distance * comov_nu 
     
     new_r = sqrt(r[0]**2 + distance**2 + 2 * r[0] * distance * mu[0])
+    #print "move packet before mu", mu[0], distance, new_r, r[0]
     mu[0] = (distance**2 + new_r**2 - r[0]**2) / (2*distance*new_r)
+    #print "move packet after mu", mu[0]
     r[0] = new_r
     return doppler_factor
     
@@ -185,6 +190,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         current_energy = packet_energy
         
         current_mu = mus[i]
+        #print "initial_mu" , current_mu
         current_r = r_inner
         
         tau_event = -log(rk_double(&mt_state))
@@ -282,12 +288,17 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     #choose new mu
                     old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, &js, &nubars, inverse_t_exp)
                     comov_current_energy = current_energy * old_doppler_factor
-                    
+                    #print '-----'
+                    #print "current_energy before scattering (energy, nu, nu_line, mu)"
+                    #print current_energy, current_nu, nu_line, current_mu
                     current_mu = 2*rk_double(&mt_state) - 1
+                    #print '+++++'
                     inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
                     current_nu = nu_line * inverse_doppler_factor
                     current_energy = comov_current_energy * inverse_doppler_factor
-                    #current_energy = 0.0
+                    #print "current_energy after scattering (energy, nu, nu_line, mu)"
+                    #print current_energy, current_nu, nu_line, current_mu
+                    #print '-----'
                     tau_event = -log(rk_double(&mt_state))
                 else:
                     tau_event -= tau_line

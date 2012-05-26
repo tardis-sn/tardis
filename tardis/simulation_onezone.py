@@ -1,5 +1,6 @@
 import plasma
 import initialize
+import atomic
 import line
 import photon
 import constants
@@ -15,8 +16,9 @@ def run_oned(conn, fname):
     surface_inner = 4 * np.pi * initial_config['r_inner']**2
     w = 1.
     energy_of_packet = 1. / initial_config['packets']
+    atomic_model = atomic.CompleteKuruczAtomModel.from_db(conn)
     
-    sn_plasma = plasma.NebularPlasma.from_db(initial_config['abundances'], initial_config['density'], conn)
+    sn_plasma = plasma.NebularPlasma.from_model(initial_config['abundances'], initial_config['density'], atomic_model)
     
     line_list = line.read_line_list(conn, atoms=initial_config['abundances'].keys())
     
@@ -27,7 +29,7 @@ def run_oned(conn, fname):
     i = 0
     while True:
         i+=1
-        if i > 30: break
+        if i > 1: break
         sn_plasma.update_radiationfield(t_rad=t_rad, w=w)
         #return sn_plasma
         tau_sobolevs = sn_plasma.calculate_tau_sobolev(line_list, initial_config['time_exp'])

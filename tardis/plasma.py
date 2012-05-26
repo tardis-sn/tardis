@@ -18,6 +18,8 @@ me = 9.10938188e-28 #grams
 
 class Plasma(object):
     pass
+    
+    
 
 class LTEPlasma(Plasma):
     
@@ -42,35 +44,35 @@ class LTEPlasma(Plasma):
         
         #reason for max_ion - 1: in energy level data there's unionized, once-ionized, twice-ionized, ...
         #in ionization_energies, there's only once_ionized, twice_ionized
-        ionize_energy = np.zeros((max_ion - 1, max_atom))
+        ionization_energy = np.zeros((max_ion - 1, max_atom))
         
         for atom, ion, ion_energy in ionization_data:
             if atom > max_atom or ion >= max_ion:
                 continue
-            ionize_energy[ion-1, atom-1] = ion_energy
+            ionization_energy[ion-1, atom-1] = ion_energy
         
         
         levels_energy, levels_g = read_level_data(conn, max_atom, max_ion)
         
         return cls(abundances, density,
-                   masses=masses, ionize_energy=ionize_energy,
+                   masses=masses, ionization_energy=ionization_energy,
                    levels_energy=levels_energy, levels_g=levels_g,
                    max_atom=max_atom, max_ion=max_ion)
         
             
     def __init__(self, abundances, density,
-                masses=None, ionize_energy=None,
+                masses=None, ionization_energy=None,
                 levels_energy=None,
                 levels_g=None, 
                 max_atom=None, max_ion=None):
         """
-        ionize_energy
+        ionization_energy
         -------------
         ndarray with row being ion, column atom
         
         """
         self.masses = masses
-        self.ionize_energy = ionize_energy
+        self.ionization_energy = ionization_energy
         self.levels_energy = levels_energy
         self.levels_g = levels_g
         self.max_atom = max_atom
@@ -118,7 +120,7 @@ class LTEPlasma(Plasma):
         partition_fractions[np.isnan(partition_fractions)] = 0.0
         partition_fractions[np.isinf(partition_fractions)] = 0.0
         #phi = (n_j+1 * ne / nj)
-        phis = partition_fractions * np.exp(-self.beta * self.ionize_energy)
+        phis = partition_fractions * np.exp(-self.beta * self.ionization_energy)
         return phis
 
     def _calculate_single_ion_populations(self, phis):
@@ -155,6 +157,17 @@ class LTEPlasma(Plasma):
 class NebularPlasma(LTEPlasma):
     
     @classmethod
+    def from_model(cls, named_abundances, density, atomic_model):
+        abundances = named2array_abundances(named_abundances, max_atom=atomic_model.max_atom)
+        
+        
+        return cls(abundances, density,
+            masses=atomic_model.masses, ionization_energy=atomic_model.ionization_energy,
+            levels_energy=atomic_model.levels_energy, levels_g=atomic_model.levels_g,
+            max_atom=atomic_model.max_atom, max_ion=atomic_model.max_ion,
+            atomic_model=atomic_model)
+    
+    @classmethod
     def from_db(cls, named_abundances, density, conn, max_atom=30, max_ion=30):
         symbol2z = initialize.read_symbol2z()
         
@@ -172,32 +185,33 @@ class NebularPlasma(LTEPlasma):
         
         #reason for max_ion - 1: in energy level data there's unionized, once-ionized, twice-ionized, ...
         #in ionization_energies, there's only once_ionized, twice_ionized
-        ionize_energy = np.zeros((max_ion - 1, max_atom))
+        ionization_energy = np.zeros((max_ion - 1, max_atom))
         
         for atom, ion, ion_energy in ionization_data:
             if atom > max_atom or ion >= max_ion:
                 continue
-            ionize_energy[ion-1, atom-1] = ion_energy
+            ionization_energy[ion-1, atom-1] = ion_energy
         
         
         levels_energy, levels_g = read_level_data(conn, max_atom, max_ion)
         
         return cls(abundances, density,
-                   masses=masses, ionize_energy=ionize_energy,
+                   masses=masses, ionization_energy=ionization_energy,
                    levels_energy=levels_energy, levels_g=levels_g,
                    max_atom=max_atom, max_ion=max_ion)
     
     def __init__(self, abundances, density,
-                masses=None, ionize_energy=None,
+                masses=None, ionization_energy=None,
                 levels_energy=None,
-                levels_g=None,
+                levels_g=None, atomic_model=None,
                 max_atom=None, max_ion=None):
 
         LTEPlasma.__init__(self, abundances, density,
-                masses=masses, ionize_energy=ionize_energy,
+                masses=masses, ionization_energy=ionization_energy,
                 levels_energy=levels_energy,
                 levels_g=levels_g,
                 max_atom=max_atom, max_ion=max_ion)
+        self.atomic_model = atomic_model
     
     def update_radiationfield(self, t_rad, w, t_electron=None):
         self.t_rad = t_rad
@@ -219,8 +233,12 @@ class NebularPlasma(LTEPlasma):
         partition_fractions[np.isnan(partition_fractions)] = 0.0
         partition_fractions[np.isinf(partition_fractions)] = 0.0
         #phi = (n_j+1 * ne / nj)
-        phis = partition_fractions * np.exp(-self.beta * self.ionize_energy)
-        phis = self.w * (self.t_electron/ self.t_rad)**.5 * phis
+        phis = partition_fractions * np.exp(-self.beta * self.ionization_energy)
+        zeta = self.atomic_model.interpolate_recombination_coefficient(self.t_rad)
+        delta = self.atomic_model.calculate_radfield_correction_factor(self.t_rad, self.t_electron, self.w)
+        
+        phis = self.w * (delta*zeta + self.w* (1 - zeta)) * (self.t_electron/ self.t_rad)**.5 * phis
+        
         return phis
 
     
@@ -317,4 +335,13 @@ def get_transition_data(conn, max_atom=99):
     curs = conn.execute('select atom, ion, loggf, level_id_upper, levelid_lower from lines')
     #continue writing for branching
 
-
+def named2array_abundances(named_abundances, max_atom, symbol2z=None):
+        if symbol2z is None:
+            symbol2z = initialize.read_symbol2z()
+        
+        #converting the abundances dictionary dict to an array
+        abundances = np.zeros(max_atom)
+        
+        for symbol in named_abundances:
+            abundances[symbol2z[symbol]-1] = named_abundances[symbol]
+        return abundances
