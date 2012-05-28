@@ -257,6 +257,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 inverse_doppler_factor = 1/(1 - (current_mu * current_r * inverse_t_exp * inverse_c))
                 current_nu = comov_nu * inverse_doppler_factor
                 current_energy = comov_energy * inverse_doppler_factor
+                #currrent_energy = 0.0
                 tau_event = -log(rk_double(&mt_state))
             
             elif (d_line < d_outer) and (d_line < d_inner) and (d_line < d_electron):
@@ -296,6 +297,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
                     current_nu = nu_line * inverse_doppler_factor
                     current_energy = comov_current_energy * inverse_doppler_factor
+                    
                     #print "current_energy after scattering (energy, nu, nu_line, mu)"
                     #print current_energy, current_nu, nu_line, current_mu
                     #print '-----'
@@ -314,6 +316,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             
         elif reabsorbed == 0:
             nus[i] = current_nu
+            #print "emitted packet energy", current_energy
             energies[i] = current_energy
             
         else:
