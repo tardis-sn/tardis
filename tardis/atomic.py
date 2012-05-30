@@ -1,6 +1,7 @@
 # atomic model
 
 from scipy import interpolate
+import line
 import constants
 import initialize
 import numpy as np
@@ -12,7 +13,7 @@ class AtomModel(object):
 
 
 
-class CompleteKuruczAtomModel(AtomModel):
+class KuruczAtomModel(AtomModel):
     @classmethod
     def from_db(cls, conn, max_atom=30, max_ion=30):
         
@@ -129,3 +130,11 @@ def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
             g_data[ion, elem - 1] = np.array([g])
             
     return energy_data, g_data
+
+class KuruczMacroAtomModel(KuruczAtomModel):
+    @classmethod
+    def from_db(cls, conn, max_atom=30, max_ion=30):
+        kurucz_atom_model = KuruczAtomModel.from_db(conn, max_atom=max_atom, max_ion=max_ion)
+        kurucz_atom_model.macro_atom = line.SimpleMacroAtomData.fromdb(conn)
+        return kurucz_atom_model
+    
