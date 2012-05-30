@@ -41,6 +41,7 @@ def read_line_list(conn, atoms=None, symbol2z=None):
     select_stmt = """SELECT
                         id, wl, loggf, g_lower, g_upper, e_lower,
                         e_upper, level_id_lower, level_id_upper,
+                        global_level_id_lower, global_level_id_upper,
                         atom, ion
                     FROM
                         lines
@@ -59,17 +60,18 @@ def read_line_list(conn, atoms=None, symbol2z=None):
         curs = conn.execute(select_stmt)
     
     
-    for id, wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion in curs:
+    for id, wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion in curs:
         gf = 10**loggf
         f_lu = gf / g_lower
         f_ul = gf / g_upper
-        raw_data.append((id, wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion))
+        raw_data.append((id, wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion))
     
     line_list = np.array(raw_data, dtype = [('id', np.int64), ('wl', np.float64),
         ('g_lower', np.int64), ('g_upper', np.int64),
         ('f_lu', np.float64), ('f_ul', np.float64),
         ('e_lower', np.float64), ('e_upper', np.float64),
         ('level_id_lower', np.int64), ('level_id_upper', np.int64),
+        ('global_level_id_lower', np.int64), ('global_level_id_upper', np.int64),
         ('atom', np.int64), ('ion', np.int64)])
     
     return line_list
@@ -166,7 +168,7 @@ class SimpleMacroAtomData(MacroAtomData):
         return vec_jbar_update(self.p_internal_up, self.target_line_id_up)
     
     def calculate_transition_probabilities(self, beta_sobolev, jbar):
-        p_down, type_down, target_line_id_down, target_level_id_down = self.calculate_p_downs(beta_sobolev)
+        p_down, type_down, target_level_id_down, target_line_id_down = self.calculate_p_downs(beta_sobolev)
         p_up, type_up = self.calculate_p_ups(jbar)
         
         #merging probabilites
@@ -175,7 +177,9 @@ class SimpleMacroAtomData(MacroAtomData):
                                target_level_id_down_array, target_level_id_up_array,
                                target_line_id_down_array, target_line_id_up_array):
             p_array = np.hstack((p_up_array, p_down_array))
-            p_array = p_array / np.sum(p_array)
+            norm_p_array = np.sum(p_array)
+            if norm_p_array > 0.0:
+                p_array = p_array / norm_p_array 
             return (p_array,
                     np.hstack((type_up_array, type_down_array)),
                     np.hstack((target_level_id_up_array, target_level_id_down_array)),
@@ -189,11 +193,11 @@ class SimpleMacroAtomData(MacroAtomData):
                                                           target_line_id_down, self.target_line_id_up)
         p_transition_merged = np.hstack(p_transition)
         type_transition_merged = np.hstack(type_transition)
-        target_level_id_merged = np.hstack(target_level_id)
-        target_line_id_merged = np.hstack(target_line_id)
+        target_level_id_merged = np.hstack(target_level_id) - 1
+        target_line_id_merged = np.hstack(target_line_id) - 1
         no_probabilities = self.count_down * 2 + self.count_up
         unroll_reference = np.hstack(([0], np.cumsum(no_probabilities)[:-1]))
-        return (p_transition, type_transition, target_line_id, target_level_id), (p_transition_merged, type_transition_merged, target_line_id_merged, target_level_id_merged), (no_probabilities, unroll_reference),
+        return p_transition_merged, type_transition_merged, target_line_id_merged, target_level_id_merged, no_probabilities, unroll_reference
     
     
 def compile_sobolev_tau(line_list, partition_functions, ion_population, t_exp):

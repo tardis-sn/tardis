@@ -4,8 +4,9 @@
 # cython: wraparound=False
 
 import numpy as np
-from cython.parallel import prange
 cimport numpy as np
+
+from cython.parallel import prange
 
 cdef extern from "math.h":
     double log(double)
@@ -46,7 +47,31 @@ cdef float_type_t sigma_thomson = 6.652486e-25 #cm^(-2)
 cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 
 #variables are restframe if not specified by prefix comov_
-
+cdef long macro_atom(int activate_level,
+                            np.ndarray[float_type_t, ndim=1] p_transition,
+                            np.ndarray[long, ndim=1] type_transition,
+                            np.ndarray[long, ndim=1] target_level_id,
+                            np.ndarray[long, ndim=1] target_line_id,
+                            np.ndarray[long, ndim=1] unroll_reference):
+    
+    while True:
+        event_random = rk_double(&mt_state)
+        #print "at macro random %.2f" % event_random
+        i = unroll_reference[activate_level]
+        #print "unrolled_reference %d" % i
+        p = 0
+        while True:
+            p += p_transition[i]
+            if p > event_random:
+                emit = type_transition[i]
+                activate_level = target_level_id[i]
+                break
+            i += 1
+        if emit == 1:
+            #print "emitted with target_line_id %d" % target_line_id[i]
+            return target_line_id[i]
+        
+        
 
 cdef float_type_t move_packet(float_type_t* r, float_type_t* mu, float_type_t nu, float_type_t energy, float_type_t distance, float_type_t* js, float_type_t* nubars, float_type_t inverse_t_exp):
     
@@ -90,7 +115,8 @@ cdef float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_
 
 cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
                                     float_type_t nu, float_type_t nu_line,
-                                    float_type_t t_exp, float_type_t inverse_t_exp):
+                                    float_type_t t_exp, float_type_t inverse_t_exp,
+                                    float_type_t last_line, float_type_t next_line):
         #computing distance to line
         cdef float_type_t comov_nu, doppler_factor
         doppler_factor = (1. - (mu * r * inverse_t_exp * inverse_c))
@@ -98,7 +124,16 @@ cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
 
         if comov_nu < nu_line:
             #TODO raise exception
-            print "WARNING comoving nu less than nu_line shouldn't happen", comov_nu, nu_line, (comov_nu - nu_line)/nu_line
+            print "WARNING comoving nu less than nu_line shouldn't happen:"
+            print "comov_nu = ", comov_nu
+            print "nu_line", nu_line
+            print "(comov_nu - nu_line) nu_lines", (comov_nu - nu_line)/nu_line
+            print "last_line", last_line
+            print "next_line", next_line
+            print "r", r
+            print "mu", mu
+            print "nu", nu
+            print "doppler_factor", doppler_factor
         else:
             return ((comov_nu - nu_line) / nu) * c * t_exp
 
@@ -120,7 +155,14 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 float_type_t r_outer,
                 float_type_t v_inner,
                 float_type_t ne,
-                float_type_t packet_energy):
+                float_type_t packet_energy,
+                np.ndarray[float_type_t, ndim=1] p_transition,
+                np.ndarray[long, ndim=1] type_transition,
+                np.ndarray[long, ndim=1] target_level_id,
+                np.ndarray[long, ndim=1] target_line_id,
+                np.ndarray[long, ndim=1] unroll_reference,
+                np.ndarray[long, ndim=1] line2level
+                ):
     
     cdef float_type_t test_random=0.
     
@@ -156,7 +198,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     cdef float_type_t comov_current_energy = 0.0
     cdef float_type_t current_energy = 0.0
     cdef float_type_t energy_electron = 0.0
-    
+    cdef long emission_line_id = 0
     #doppler factor definition
     cdef float_type_t doppler_factor = 0.0
     cdef float_type_t old_doppler_factor = 0.0
@@ -195,22 +237,26 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         
         tau_event = -log(rk_double(&mt_state))
         
-        comov_current_nu = current_nu * (1. - (current_mu * v_inner * inverse_c))
         
-        cur_line_id = line_list_nu.size - line_list_nu[::-1].searchsorted(comov_current_nu)
         
-        if cur_line_id == line_list_nu.size: last_line=1
-        else: last_line = 0
+        
         
         #numerical problem: when the particles are sitting on the r_inner and one calculatese d_inner numerical instabilities can make it negative (depending on mu)
         #Solution we give the packets a little nudge (choosing r_inner*1e-8 as moving distance)
         
         move_packet(&current_r, &current_mu, current_nu, current_energy, r_inner*1e-8, &js, &nubars, inverse_t_exp)
         
+        
+        comov_current_nu = current_nu * (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
+        
+        cur_line_id = line_list_nu.size - line_list_nu[::-1].searchsorted(comov_current_nu)
+        
+        if cur_line_id == line_list_nu.size: last_line=1
+        else: last_line = 0
         while True:
             #check if we are at the end of linelist
             if last_line == 0:
-                nu_line  = line_list_nu[cur_line_id]
+                nu_line = line_list_nu[cur_line_id]
             
             
             if close_line == 1:
@@ -225,7 +271,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 if last_line == 1:
                     d_line = 1e99
                 else:
-                    d_line = compute_distance2line(current_r, current_mu, current_nu, nu_line, t_exp, inverse_t_exp)
+                    d_line = compute_distance2line(current_r, current_mu, current_nu, nu_line, t_exp, inverse_t_exp, line_list_nu[cur_line_id-1], line_list_nu[cur_line_id+1])
                 d_electron = compute_distance2electron(current_r, current_mu, tau_event, inverse_ne)
                 
             if (d_outer < d_inner) and (d_outer < d_electron) and (d_outer < d_line):
@@ -279,9 +325,6 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     last_line = 1
                 
                 #check for same line        
-                if last_line == 0:
-                    if abs(line_list_nu[cur_line_id] - nu_line)/nu_line < 1e-7:
-                        close_line = 1
                     
                 #Check for line interaction
                 if tau_event < tau_combined:
@@ -289,13 +332,25 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     #choose new mu
                     old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, &js, &nubars, inverse_t_exp)
                     comov_current_energy = current_energy * old_doppler_factor
-                    #print '-----'
-                    #print "current_energy before scattering (energy, nu, nu_line, mu)"
-                    #print current_energy, current_nu, nu_line, current_mu
+                    
                     current_mu = 2*rk_double(&mt_state) - 1
-                    #print '+++++'
+                    
                     inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
-                    current_nu = nu_line * inverse_doppler_factor
+                    
+                    #here comes the macro atom
+                    activate_level_id = line2level[cur_line_id]
+                    #emission_line_id = macro_atom(activate_level_id,
+                    #                            p_transition,
+                    #                            type_transition,
+                    #                            target_level_id,
+                    #                            target_line_id,
+                    #                            unroll_reference)
+                    emission_line_id = cur_line_id - 1
+                    current_nu = line_list_nu[emission_line_id] * inverse_doppler_factor
+                    nu_line = line_list_nu[emission_line_id]
+                    cur_line_id = emission_line_id + 1
+                    ### end of macro_atom
+                    
                     current_energy = comov_current_energy * inverse_doppler_factor
                     
                     #print "current_energy after scattering (energy, nu, nu_line, mu)"
@@ -306,6 +361,10 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     tau_event -= tau_line
                 if tau_event < 0:
                     print 'ola, what happened here'
+                
+                if last_line == 0:
+                    if abs(line_list_nu[cur_line_id] - nu_line)/nu_line < 1e-7:
+                        close_line = 1
             
         if current_energy < 0:
             1/0

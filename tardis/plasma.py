@@ -14,7 +14,7 @@ h_cgs = 6.62606957e-27
 u = 1.66053886e-24 # atomic mass unit in g
 me = 9.10938188e-28 #grams
 
-    
+Bnu = lambda nu, t: (2 * constants.h * nu**3 / constants.c**2) * exp(1/((constants.h * nu) / (constants.kb * t)))
 
 class Plasma(object):
     pass
@@ -102,7 +102,7 @@ class LTEPlasma(Plasma):
     
     def _calculate_atom_number_density(self, abundances, density):
         #TODO float comparison problematic
-        assert sum(abundances) == 1.
+        assert abs(sum(abundances) - 1) < 1e-12
         number_density = (density * abundances) / (self.masses * u)
     
         return number_density

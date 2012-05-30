@@ -35,7 +35,7 @@ setup(name='tardis',
                    Extension("tardis.c_montecarlo", ["tardis/cython-src/c_montecarlo.pyx"], 
                         include_dirs=[numpy.get_include()],
                         libraries=['m'],
-                        extra_compile_args=['-fopenmp'],
-                        extra_link_args=['-fopenmp'])]    
+                        extra_compile_args=['-g'],
+                        extra_link_args=['-g'])]    
     )
       
