@@ -31,40 +31,53 @@ def convert_float_ndarray(sqlite_binary):
 sqlite3.register_converter('int_ndarray', convert_int_ndarray)
 sqlite3.register_converter('float_ndarray', convert_float_ndarray)
     
-def read_line_list(conn, atoms=None, symbol2z=None):
-    
-            
-    
-    
+def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
     raw_data = []
     
     select_stmt = """SELECT
-                        id, wl, loggf, g_lower, g_upper, e_lower,
+                        lines.id, wl, loggf, g_lower, g_upper, e_lower,
                         e_upper, level_id_lower, level_id_upper,
                         global_level_id_lower, global_level_id_upper,
-                        atom, ion
+                        lines.atom, lines.ion, metastable
                     FROM
                         lines
+                    inner join
+                        levels
+                    ON
+                        global_level_id_lower=levels.id
                     
-                """
+                    where
+                        lines.atom < %(max_atom)d
+                    and
+                        lines.ion <  %(max_ion)d
+                    %(select_atom_stmt)s
+                    order by lines.id
+                """ 
     
     if atoms is not None:
         if symbol2z is None:
             symbol2z = initialize.read_symbol2z()
-            select_stmt += """ where atom in (%s)"""
-            
-        atom_list = ','.join([str(symbol2z[atom]) for atom in atoms])
-        curs = conn.execute(select_stmt % atom_list + 'order by wl')
-        print atom_list
+            atom_list = ','.join([str(symbol2z[atom]) for atom in atoms])
+            select_atom_stmt = """ and atom in (%s)""" % atom_list
     else:
-        curs = conn.execute(select_stmt)
+        select_atom_stmt = ''
+        
+    line_select_stmt = select_stmt % dict(max_atom=max_atom, max_ion=max_ion, select_atom_stmt=select_atom_stmt)
     
+    if sqlparse_available:
+        print sqlparse.format(line_select_stmt, reindent=True)
+    else:
+        print line_select_stmt
+
     
-    for id, wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion in curs:
+    curs = conn.execute(line_select_stmt)
+
+    
+    for id, wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion, metastable in curs:
         gf = 10**loggf
         f_lu = gf / g_lower
         f_ul = gf / g_upper
-        raw_data.append((id, wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion))
+        raw_data.append((id, wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion, metastable))
     
     line_list = np.array(raw_data, dtype = [('id', np.int64), ('wl', np.float64),
         ('g_lower', np.int64), ('g_upper', np.int64),
@@ -72,7 +85,7 @@ def read_line_list(conn, atoms=None, symbol2z=None):
         ('e_lower', np.float64), ('e_upper', np.float64),
         ('level_id_lower', np.int64), ('level_id_upper', np.int64),
         ('global_level_id_lower', np.int64), ('global_level_id_upper', np.int64),
-        ('atom', np.int64), ('ion', np.int64)])
+        ('atom', np.int64), ('ion', np.int64), ('metastable', np.bool)])
     
     return line_list
 
@@ -122,8 +135,32 @@ class SimpleMacroAtomData(MacroAtomData):
         self.target_line_id_up = np.array(line_id_up)
         self.p_internal_up = np.array(p_internal_up)
         
+        self.count_total = 2 * self.count_down + self.count_up
+        self.count_total_sum = np.sum(self.count_total)
+        self.level_references = np.hstack(([0], np.cumsum(self.count_total)[:-1]))
     
-    
+    def merge_arrays(self):
+        self.p_total = -1 * np.ones((self.count_total_sum), dtype=np.float64)
+        self.transition_type_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
+        self.target_line_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
+        self.target_level_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
+        for i, (ref, c_down, c_up, c_total) in enumerate(zip(self.level_references, self.count_down, self.count_up, self.count_total)):
+            p_level_total = np.hstack((self.p_emission_down[i], self.p_internal_down[i], self.p_internal_up[i]))
+            sort_probabilities = np.argsort(p_level_total)[::-1]
+            transition_type_total = np.hstack((np.ones(c_down), np.zeros(c_down + c_up)))
+            target_line_total = np.hstack((self.target_line_id_down[i], self.target_line_id_down[i], self.target_line_id_up[i]))
+            target_level_total = np.hstack((self.target_level_id_down[i], self.target_level_id_down[i], self.target_level_id_up[i]))
+            
+            self.p_total[ref:ref + c_total] = p_level_total[sort_probabilities]
+            self.transition_type_total[ref:ref + c_total] = transition_type_total[sort_probabilities]
+            self.target_line_total[ref:ref + c_total] = target_line_total[sort_probabilities]
+            self.target_level_total[ref:ref + c_total] = target_level_total[sort_probabilities]
+        
+        
+        self.target_line_total -= 1
+        self.target_level_total -= 1
+        
+        
     def calculate_beta_sobolev(self, tau_sobolev):
         
         def safe_beta_sobolev(tau_sobolev):
@@ -200,13 +237,3 @@ class SimpleMacroAtomData(MacroAtomData):
         return p_transition_merged, type_transition_merged, target_line_id_merged, target_level_id_merged, no_probabilities, unroll_reference
     
     
-def compile_sobolev_tau(line_list, partition_functions, ion_population, t_exp):
-    tau_sobolev = []
-    wl = line_list['wl'] * 1e-7
-    C = 1 #supposed to be (pi*e**2)/(m_e * c)
-    Z = partition_functions[line_list['ion'], line_list['atom']-1]
-    g_lower = line_list['g_lower']
-    e_lower = line_list['e_lower']
-    n_lower = (g_lower / Z) * np.exp(-beta * e_lower) * ion_populations[line_list['ion'], line_list['atom']-1]
-    tau_sobolev = C * line_list['f_lu'] * wl * t_exp * n_lower
-    return tau_sobolev

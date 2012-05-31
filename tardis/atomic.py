@@ -34,7 +34,7 @@ class KuruczAtomModel(AtomModel):
             ionization_energy[ion-1, atom-1] = ion_energy
         
         
-        levels_energy, levels_g = read_kurucz_level_data_fromdb(conn, max_atom, max_ion)
+        levels_energy, levels_g, levels_metastable = read_kurucz_level_data_fromdb(conn, max_atom, max_ion)
         
         #factor zeta ML 1993
         recombination_coefficient_interp = read_recombination_coefficients_fromdb(conn, max_atom, max_ion)
@@ -43,13 +43,14 @@ class KuruczAtomModel(AtomModel):
         
         
         return cls(masses=masses, ionization_energy=ionization_energy,
-                   levels_energy=levels_energy, levels_g=levels_g,
+                   levels_energy=levels_energy, levels_g=levels_g, levels_metastable=levels_metastable,
                    recombination_coefficient_interp=recombination_coefficient_interp,
                    max_atom=max_atom, max_ion=max_ion)
     
     def __init__(self, masses=None, ionization_energy=None,
                 levels_energy=None,
                 levels_g=None,
+                levels_metastable=None,
                 recombination_coefficient_interp=None,
                 max_atom=None, max_ion=None):
         self.masses = masses
@@ -58,6 +59,7 @@ class KuruczAtomModel(AtomModel):
         self.levels_g = levels_g
         #unclear switch variable names around?
         self.interpolate_recombination_coefficient = recombination_coefficient_interp
+        self.levels_metastable = levels_metastable
         self.max_atom = max_atom
         self.max_ion = max_ion
     
@@ -91,7 +93,7 @@ def read_recombination_coefficients_fromdb(conn, max_atom=30, max_ion=None):
     
     t_rads = np.linspace(2000, 50000, 10)
     recombination_coefficients = np.ones((max_ion - 1, max_atom, 10)) * 0.5
-    interpolator = interpolate.interp1d(t_rads, recombination_coefficients, kind='linear')
+    interpolator = interpolate.interp1d(t_rads, recombination_coefficients, kind='linear', bounds_error=False, fill_value=1.)
     return interpolator
     
 def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
@@ -100,7 +102,7 @@ def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
     if max_ion == None:
         max_ion = max_atom
     level_select_stmt = """select
-                atom, ion, energy, g, level_id
+                atom, ion, energy, g, metastable, level_id
             from
                 levels
             where
@@ -113,23 +115,24 @@ def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
     curs = conn.execute(level_select_stmt, (max_ion, max_atom))
     energy_data = np.zeros((max_ion, max_atom), dtype='object')
     g_data = np.zeros((max_ion, max_atom), dtype='object')
-    
+    metastable_data = np.zeros((max_ion, max_atom), dtype='object')
     
     old_elem = None
     old_ion = None
     
-    for elem, ion, energy, g, levelid in curs:
+    for elem, ion, energy, g, metastable, levelid in curs:
         if elem == old_elem and ion == old_ion:
             energy_data[ion, elem - 1] = np.append(energy_data[ion, elem - 1], energy)
             g_data[ion, elem - 1] = np.append(g_data[ion, elem - 1], g)
-            
+            metastable_data[ion, elem - 1] = np.append(metastable_data[ion, elem - 1], np.bool(metastable))
         else:
             old_elem = elem
             old_ion = ion
             energy_data[ion, elem - 1] = np.array([energy])
             g_data[ion, elem - 1] = np.array([g])
+            metastable_data[ion, elem - 1] = np.array([np.bool(metastable)], dtype=np.bool)
             
-    return energy_data, g_data
+    return energy_data, g_data, metastable_data
 
 class KuruczMacroAtomModel(KuruczAtomModel):
     @classmethod

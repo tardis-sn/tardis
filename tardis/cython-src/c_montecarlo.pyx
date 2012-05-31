@@ -339,13 +339,13 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     
                     #here comes the macro atom
                     activate_level_id = line2level[cur_line_id]
-                    #emission_line_id = macro_atom(activate_level_id,
-                    #                            p_transition,
-                    #                            type_transition,
-                    #                            target_level_id,
-                    #                            target_line_id,
-                    #                            unroll_reference)
-                    emission_line_id = cur_line_id - 1
+                    emission_line_id = macro_atom(activate_level_id,
+                                                p_transition,
+                                                type_transition,
+                                                target_level_id,
+                                                target_line_id,
+                                                unroll_reference)
+                    #emission_line_id = cur_line_id - 1
                     current_nu = line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = line_list_nu[emission_line_id]
                     cur_line_id = emission_line_id + 1
