@@ -3,6 +3,7 @@ import constants
 import numpy as np
 import initialize
 import sqlite3
+import fastline
 
 try:
     import sqlparse
@@ -138,8 +139,12 @@ class SimpleMacroAtomData(MacroAtomData):
         self.count_total = 2 * self.count_down + self.count_up
         self.count_total_sum = np.sum(self.count_total)
         self.level_references = np.hstack(([0], np.cumsum(self.count_total)[:-1]))
-    
-    def merge_arrays(self):
+        self.line_nus = None
+        self._merge_arrays()
+        
+        
+        
+    def _merge_arrays(self):
         self.p_total = -1 * np.ones((self.count_total_sum), dtype=np.float64)
         self.transition_type_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
         self.target_line_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
@@ -147,7 +152,7 @@ class SimpleMacroAtomData(MacroAtomData):
         for i, (ref, c_down, c_up, c_total) in enumerate(zip(self.level_references, self.count_down, self.count_up, self.count_total)):
             p_level_total = np.hstack((self.p_emission_down[i], self.p_internal_down[i], self.p_internal_up[i]))
             sort_probabilities = np.argsort(p_level_total)[::-1]
-            transition_type_total = np.hstack((np.ones(c_down), np.zeros(c_down + c_up)))
+            transition_type_total = np.hstack((np.ones(c_down), np.zeros(c_down),  np.ones(c_up) *2 ))
             target_line_total = np.hstack((self.target_line_id_down[i], self.target_line_id_down[i], self.target_line_id_up[i]))
             target_level_total = np.hstack((self.target_level_id_down[i], self.target_level_id_down[i], self.target_level_id_up[i]))
             
@@ -156,84 +161,27 @@ class SimpleMacroAtomData(MacroAtomData):
             self.target_line_total[ref:ref + c_total] = target_line_total[sort_probabilities]
             self.target_level_total[ref:ref + c_total] = target_level_total[sort_probabilities]
         
-        
+        self.transition_type_up_filter = self.transition_type_total == 2
         self.target_line_total -= 1
         self.target_level_total -= 1
         
-        
-    def calculate_beta_sobolev(self, tau_sobolev):
-        
-        def safe_beta_sobolev(tau_sobolev):
-            if tau_sobolev > 1e3:
-                return 1 / tau_sobolev
-            elif tau_sobolev < 1e-4:
-                return 1 - 0.5 * tau_sobolev
-            else:
-                return (1 - np.exp(-tau_sobolev)) / tau_sobolev
-        vec_safe_beta_sobolev = np.vectorize(safe_beta_sobolev)
-        beta_sobolev = vec_safe_beta_sobolev(tau_sobolev)
-        
-        return beta_sobolev
+    def read_nus(self, line_list_nu):
+        self.line_nus = line_list_nu[self.target_line_total]
     
-    def calculate_jbar(self, tau_sobolev, nu, t_rad, w, beta_sobolev=None):
-        if beta_sobolev is None: beta_sobolev = self.calculate_beta_sobolev(tau_sobolev)
-        jbar = beta_sobolev * w * Bnu(nu, t_rad)
-        return jbar
-    
-    def calculate_p_downs(self, beta_sobolev):
+    def calculate_probability_coefficients(self, tau_sobolevs, t_rad, w):
+        casted_tau_sobolevs = tau_sobolevs[self.target_line_total]
+        probability_coefficient = np.empty_like(casted_tau_sobolevs)
+        fastline.calculate_beta_sobolev(casted_tau_sobolevs, probability_coefficient)
         
-        def beta_update(p_internal_down, p_emission_down, target_line_id, target_level_id):
-            p_down = np.hstack((p_internal_down * beta_sobolev[target_line_id - 1], p_emission_down * beta_sobolev[target_line_id - 1]))
-            #type is emitting or not
-            type_down = np.hstack((np.zeros_like(p_internal_down, dtype=np.int64),
-                                   np.ones_like(p_emission_down, dtype=np.int64)))
-            target_level_id_down = np.hstack((target_level_id, target_level_id))
-            target_line_id_down = np.hstack((target_line_id, target_line_id))
-            return p_down, type_down, target_level_id_down, target_line_id_down
-        vec_beta_update = np.vectorize(beta_update, otypes = (np.ndarray, np.ndarray, np.ndarray, np.ndarray))
-        return vec_beta_update(self.p_internal_down, self.p_emission_down, self.target_line_id_down, self.target_level_id_down)
+        probability_coefficient[self.transition_type_up_filter] *= w * Bnu(self.line_nus[self.transition_type_up_filter], t_rad)
+        return probability_coefficient
     
-    def calculate_p_ups(self, jbar):
-        
-        def jbar_update(p_internal_up, target_line_id):
-            p_up = p_internal_up * jbar[target_line_id - 1]
-            #type is emitting or not
-            type_up = np.zeros_like(p_up, dtype=np.int64)
-            return p_up, type_up
-        
-        vec_jbar_update = np.vectorize(jbar_update, otypes = (np.ndarray,np.ndarray))
-        return vec_jbar_update(self.p_internal_up, self.target_line_id_up)
     
-    def calculate_transition_probabilities(self, beta_sobolev, jbar):
-        p_down, type_down, target_level_id_down, target_line_id_down = self.calculate_p_downs(beta_sobolev)
-        p_up, type_up = self.calculate_p_ups(jbar)
-        
-        #merging probabilites
-        def merge_probability (p_down_array, p_up_array,
-                               type_down_array, type_up_array,
-                               target_level_id_down_array, target_level_id_up_array,
-                               target_line_id_down_array, target_line_id_up_array):
-            p_array = np.hstack((p_up_array, p_down_array))
-            norm_p_array = np.sum(p_array)
-            if norm_p_array > 0.0:
-                p_array = p_array / norm_p_array 
-            return (p_array,
-                    np.hstack((type_up_array, type_down_array)),
-                    np.hstack((target_level_id_up_array, target_level_id_down_array)),
-                    np.hstack((target_line_id_up_array, target_line_id_down_array)))
-            
-        vec_merge_probability = np.vectorize(merge_probability, otypes=(np.ndarray, np.ndarray, np.ndarray, np.ndarray))
-        p_transition, type_transition, target_level_id, target_line_id = \
-                                    vec_merge_probability(p_down, p_up,
-                                                          type_down, type_up,
-                                                          target_level_id_down, self.target_level_id_up,
-                                                          target_line_id_down, self.target_line_id_up)
-        p_transition_merged = np.hstack(p_transition)
-        type_transition_merged = np.hstack(type_transition)
-        target_level_id_merged = np.hstack(target_level_id) - 1
-        target_line_id_merged = np.hstack(target_line_id) - 1
-        no_probabilities = self.count_down * 2 + self.count_up
-        unroll_reference = np.hstack(([0], np.cumsum(no_probabilities)[:-1]))
-        return p_transition_merged, type_transition_merged, target_line_id_merged, target_level_id_merged, no_probabilities, unroll_reference
     
+    def calculate_transition_probabilities(self, tau_sobolevs, t_rad, w):
+        probability_coefficients = self.calculate_probability_coefficients(tau_sobolevs, t_rad, w)
+        p_total = probability_coefficients * self.p_total
+        fastline.normalize_transition_probabilities(p_total, self.level_references, self.count_total)
+        
+        return p_total
     

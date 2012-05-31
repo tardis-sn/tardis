@@ -36,6 +36,12 @@ setup(name='tardis',
                         include_dirs=[numpy.get_include()],
                         libraries=['m'],
                         extra_compile_args=['-g'],
-                        extra_link_args=['-g'])]    
+                        extra_link_args=['-g']),
+		   Extension("tardis.fastline", ["tardis/cython-src/fastline.pyx"], 
+                        include_dirs=[numpy.get_include()],
+                        libraries=['m'],
+                        extra_compile_args=['-g'],
+                        extra_link_args=['-g'])
+		   ]    
     )
       

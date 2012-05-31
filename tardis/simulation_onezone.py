@@ -74,6 +74,7 @@ def run_oned_macro(conn, fname):
     energy_of_packet = 1. / initial_config['packets']
     atomic_model = atomic.KuruczMacroAtomModel.from_db(conn)
     
+    
     sn_plasma = plasma.NebularPlasma.from_model(initial_config['abundances'], initial_config['density'], atomic_model)
     
     line_list = line.read_line_list(conn)
@@ -83,6 +84,9 @@ def run_oned_macro(conn, fname):
     
     print "%d lines used in simulation" % len(line_list)
     line_list_nu = constants.c / (line_list['wl'] * 1e-8)
+    
+    print "Initializing Macro atom probabilities"
+    atomic_model.macro_atom.read_nus(line_list_nu)
     print "initial radiation temperature", t_rad
     volume = (4./3) * np.pi * (initial_config['r_outer']**3 - initial_config['r_inner']**3)
     i = 0
@@ -94,13 +98,9 @@ def run_oned_macro(conn, fname):
         #return sn_plasma
         tau_sobolevs = sn_plasma.calculate_tau_sobolev(line_list, initial_config['time_exp'])
         
-        print "calculating beta_sobolevs"
-        beta_sobolevs = atomic_model.macro_atom.calculate_beta_sobolev(tau_sobolevs)
-        print "calculating jbars"
-        jbars = atomic_model.macro_atom.calculate_jbar(tau_sobolevs, line_list_nu, t_rad, w, beta_sobolevs)
+        
         print "calculating transition probabilities"
-        p_transition, type_transition, target_line_id, target_level_id, no_probabilities, unroll_reference = \
-            atomic_model.macro_atom.calculate_transition_probabilities(beta_sobolevs, jbars)
+        p_transition = atomic_model.macro_atom.calculate_transition_probabilities(tau_sobolevs, t_rad, w)
         
         nu_input = photon.random_blackbody_nu(t_inner, nu_range=(1e8*constants.c / 1, 1e8*constants.c/ 100000.), size=initial_config['packets'])
         mu_input = np.sqrt(np.random.random(initial_config['packets']))
@@ -122,10 +122,10 @@ def run_oned_macro(conn, fname):
                                                                 sn_plasma.electron_density,
                                                                 energy_of_packet,
                                                                 p_transition,
-                                                                type_transition,
-                                                                target_level_id,
-                                                                target_line_id,
-                                                                unroll_reference,
+                                                                atomic_model.macro_atom.transition_type_total,
+                                                                atomic_model.macro_atom.target_level_total,
+                                                                atomic_model.macro_atom.target_line_total,
+                                                                atomic_model.macro_atom.level_references,
                                                                 line2level)
         
         new_t_rad = constants.trad_estimator_constant * nubar_estimator / j_estimator

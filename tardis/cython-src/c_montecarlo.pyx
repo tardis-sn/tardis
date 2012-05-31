@@ -31,7 +31,7 @@ cdef extern from "../randomkit/randomkit.h":
     
 
 ctypedef np.float64_t float_type_t
-
+ctypedef np.int64_t int_type_t
 cdef rk_state mt_state
 rk_seed(250819801106, &mt_state)
 
@@ -47,12 +47,18 @@ cdef float_type_t sigma_thomson = 6.652486e-25 #cm^(-2)
 cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 
 #variables are restframe if not specified by prefix comov_
-cdef long macro_atom(int activate_level,
+cdef int_type_t macro_atom(int_type_t activate_level,
                             np.ndarray[float_type_t, ndim=1] p_transition,
                             np.ndarray[long, ndim=1] type_transition,
                             np.ndarray[long, ndim=1] target_level_id,
                             np.ndarray[long, ndim=1] target_line_id,
                             np.ndarray[long, ndim=1] unroll_reference):
+    
+    cdef float_type_t event_random = 0.0
+    cdef int_type_t i = 0
+    cdef int_type_t emit = 0
+    cdef float_type_t p
+    
     
     while True:
         event_random = rk_double(&mt_state)
@@ -198,7 +204,9 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     cdef float_type_t comov_current_energy = 0.0
     cdef float_type_t current_energy = 0.0
     cdef float_type_t energy_electron = 0.0
-    cdef long emission_line_id = 0
+    cdef int_type_t emission_line_id = 0
+    cdef int_type_t activate_level_id = 0
+    
     #doppler factor definition
     cdef float_type_t doppler_factor = 0.0
     cdef float_type_t old_doppler_factor = 0.0
