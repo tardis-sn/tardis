@@ -227,11 +227,10 @@ class NebularPlasma(LTEPlasma):
     def _calculate_partition_functions(self, w):
         
         def calc_partition(energy, g, meta):
-            #meta = [0,1,2,3,4,5]
-            #if np.isscalar(meta): return 0
+            if np.isscalar(meta): return 0
             non_meta = np.logical_not(meta)
-            #return np.sum(g[meta]* np.exp(-self.beta * energy[meta])) + w * np.sum(g[non_meta] * np.exp(-self.beta * energy[non_meta]))
-            return np.sum(g * np.exp(-self.beta * energy))
+            return np.sum(g[meta]* np.exp(-self.beta * energy[meta])) + w * np.sum(g[non_meta] * np.exp(-self.beta * energy[non_meta]))
+            #return np.sum(g * np.exp(-self.beta * energy))
                           
         vector_calc_partition = np.vectorize(calc_partition, otypes=[np.float64])
         return vector_calc_partition(self.levels_energy, self.levels_g, self.atomic_model.levels_metastable)
@@ -259,13 +258,13 @@ class NebularPlasma(LTEPlasma):
         Z = self.partition_functions[line_list['ion'], line_list['atom']-1]
         g_lower = line_list['g_lower']
         e_lower = line_list['e_lower']
-        #n_lower = np.empty(len(line_list), dtype=np.float64)
+        n_lower = np.empty(len(line_list), dtype=np.float64)
         ion_number_density = self.ion_number_density[line_list['ion'], line_list['atom']-1]
-        #meta = line_list['metastable']
-        #non_meta = np.logical_not(meta)
-        #n_lower[meta] = (g_lower[meta] / Z[meta]) * np.exp(-self.beta * e_lower[meta]) * ion_number_density[meta]
-        #n_lower[non_meta] = self.w * (g_lower[non_meta] / Z[non_meta]) * np.exp(-self.beta * e_lower[non_meta]) * ion_number_density[non_meta]
-        n_lower = (g_lower / Z) * np.exp(-self.beta * e_lower) * self.ion_number_density[line_list['ion'], line_list['atom']-1]
+        meta = line_list['metastable']
+        non_meta = np.logical_not(meta)
+        n_lower[meta] = (g_lower[meta] / Z[meta]) * np.exp(-self.beta * e_lower[meta]) * ion_number_density[meta]
+        n_lower[non_meta] = self.w * (g_lower[non_meta] / Z[non_meta]) * np.exp(-self.beta * e_lower[non_meta]) * ion_number_density[non_meta]
+        #n_lower = (g_lower / Z) * np.exp(-self.beta * e_lower) * self.ion_number_density[line_list['ion'], line_list['atom']-1]
         tau_sobolev = constants.sobolev_coeff * line_list['f_lu'] * wl * time_exp * n_lower
         return tau_sobolev
 
