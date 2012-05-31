@@ -5,13 +5,27 @@ import line
 import constants
 import initialize
 import numpy as np
+import sqlite3
+
+def convert_int_ndarray(sqlite_binary):
+    if sqlite_binary == '-1':
+        return np.array([], dtype=np.int64)
+    else:
+        return np.frombuffer(sqlite_binary, dtype=np.int64)
+
+def convert_float_ndarray(sqlite_binary):
+    if sqlite_binary == '-1.0':
+        return np.array([], dtype=np.float64)
+    else:
+        return np.frombuffer(sqlite_binary, dtype=np.float64)
+
+sqlite3.register_converter('int_ndarray', convert_int_ndarray)
+sqlite3.register_converter('float_ndarray', convert_float_ndarray)
+
 
 
 class AtomModel(object):
     pass
-
-
-
 
 class KuruczAtomModel(AtomModel):
     @classmethod
@@ -89,10 +103,12 @@ class KuruczAtomModel(AtomModel):
         return delta
         
 
-def read_recombination_coefficients_fromdb(conn, max_atom=30, max_ion=None):
-    
-    t_rads = np.linspace(2000, 50000, 10)
-    recombination_coefficients = np.ones((max_ion - 1, max_atom, 10)) * 0.5
+def read_recombination_coefficients_fromdb(conn, max_atom=30, max_ion=30):
+    curs = conn.execute('select atom, ion, zeta from zeta where atom < %d and ion < %d' % (max_atom, max_ion))
+    t_rads = np.arange(2000, 50000, 20)
+    recombination_coefficients = np.ones((max_ion-1, max_atom, len(t_rads)))
+    for atom, ion, zeta in curs:
+        recombination_coefficients[ion-1, atom-1] = zeta
     interpolator = interpolate.interp1d(t_rads, recombination_coefficients, kind='linear', bounds_error=False, fill_value=1.)
     return interpolator
     
