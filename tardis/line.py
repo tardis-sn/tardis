@@ -32,10 +32,6 @@ sqlite3.register_converter('int_ndarray', convert_int_ndarray)
 sqlite3.register_converter('float_ndarray', convert_float_ndarray)
     
 def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
-    
-            
-    
-    
     raw_data = []
     
     select_stmt = """SELECT
@@ -139,8 +135,32 @@ class SimpleMacroAtomData(MacroAtomData):
         self.target_line_id_up = np.array(line_id_up)
         self.p_internal_up = np.array(p_internal_up)
         
+        self.count_total = 2 * self.count_down + self.count_up
+        self.count_total_sum = np.sum(self.count_total)
+        self.level_references = np.hstack(([0], np.cumsum(self.count_total)[:-1]))
     
-    
+    def merge_arrays(self):
+        self.p_total = -1 * np.ones((self.count_total_sum), dtype=np.float64)
+        self.transition_type_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
+        self.target_line_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
+        self.target_level_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
+        for i, (ref, c_down, c_up, c_total) in enumerate(zip(self.level_references, self.count_down, self.count_up, self.count_total)):
+            p_level_total = np.hstack((self.p_emission_down[i], self.p_internal_down[i], self.p_internal_up[i]))
+            sort_probabilities = np.argsort(p_level_total)[::-1]
+            transition_type_total = np.hstack((np.ones(c_down), np.zeros(c_down + c_up)))
+            target_line_total = np.hstack((self.target_line_id_down[i], self.target_line_id_down[i], self.target_line_id_up[i]))
+            target_level_total = np.hstack((self.target_level_id_down[i], self.target_level_id_down[i], self.target_level_id_up[i]))
+            
+            self.p_total[ref:ref + c_total] = p_level_total[sort_probabilities]
+            self.transition_type_total[ref:ref + c_total] = transition_type_total[sort_probabilities]
+            self.target_line_total[ref:ref + c_total] = target_line_total[sort_probabilities]
+            self.target_level_total[ref:ref + c_total] = target_level_total[sort_probabilities]
+        
+        
+        self.target_line_total -= 1
+        self.target_level_total -= 1
+        
+        
     def calculate_beta_sobolev(self, tau_sobolev):
         
         def safe_beta_sobolev(tau_sobolev):
@@ -217,13 +237,3 @@ class SimpleMacroAtomData(MacroAtomData):
         return p_transition_merged, type_transition_merged, target_line_id_merged, target_level_id_merged, no_probabilities, unroll_reference
     
     
-def compile_sobolev_tau(line_list, partition_functions, ion_population, t_exp):
-    tau_sobolev = []
-    wl = line_list['wl'] * 1e-7
-    C = 1 #supposed to be (pi*e**2)/(m_e * c)
-    Z = partition_functions[line_list['ion'], line_list['atom']-1]
-    g_lower = line_list['g_lower']
-    e_lower = line_list['e_lower']
-    n_lower = (g_lower / Z) * np.exp(-beta * e_lower) * ion_populations[line_list['ion'], line_list['atom']-1]
-    tau_sobolev = C * line_list['f_lu'] * wl * t_exp * n_lower
-    return tau_sobolev
