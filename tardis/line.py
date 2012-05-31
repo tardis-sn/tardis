@@ -31,7 +31,7 @@ def convert_float_ndarray(sqlite_binary):
 sqlite3.register_converter('int_ndarray', convert_int_ndarray)
 sqlite3.register_converter('float_ndarray', convert_float_ndarray)
     
-def read_line_list(conn, atoms=None, symbol2z=None):
+def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
     
             
     
@@ -39,32 +39,49 @@ def read_line_list(conn, atoms=None, symbol2z=None):
     raw_data = []
     
     select_stmt = """SELECT
-                        id, wl, loggf, g_lower, g_upper, e_lower,
+                        lines.id, wl, loggf, g_lower, g_upper, e_lower,
                         e_upper, level_id_lower, level_id_upper,
                         global_level_id_lower, global_level_id_upper,
-                        atom, ion
+                        lines.atom, lines.ion, metastable
                     FROM
                         lines
+                    inner join
+                        levels
+                    ON
+                        global_level_id_lower=levels.id
                     
-                """
+                    where
+                        lines.atom < %(max_atom)d
+                    and
+                        lines.ion <  %(max_ion)d
+                    %(select_atom_stmt)s
+                    order by lines.id
+                """ 
     
     if atoms is not None:
         if symbol2z is None:
             symbol2z = initialize.read_symbol2z()
-            select_stmt += """ where atom in (%s)"""
-            
-        atom_list = ','.join([str(symbol2z[atom]) for atom in atoms])
-        curs = conn.execute(select_stmt % atom_list + 'order by wl')
-        print atom_list
+            atom_list = ','.join([str(symbol2z[atom]) for atom in atoms])
+            select_atom_stmt = """ and atom in (%s)""" % atom_list
     else:
-        curs = conn.execute(select_stmt)
+        select_atom_stmt = ''
+        
+    line_select_stmt = select_stmt % dict(max_atom=max_atom, max_ion=max_ion, select_atom_stmt=select_atom_stmt)
     
+    if sqlparse_available:
+        print sqlparse.format(line_select_stmt, reindent=True)
+    else:
+        print line_select_stmt
+
     
-    for id, wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion in curs:
+    curs = conn.execute(line_select_stmt)
+
+    
+    for id, wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion, metastable in curs:
         gf = 10**loggf
         f_lu = gf / g_lower
         f_ul = gf / g_upper
-        raw_data.append((id, wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion))
+        raw_data.append((id, wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion, metastable))
     
     line_list = np.array(raw_data, dtype = [('id', np.int64), ('wl', np.float64),
         ('g_lower', np.int64), ('g_upper', np.int64),
@@ -72,7 +89,7 @@ def read_line_list(conn, atoms=None, symbol2z=None):
         ('e_lower', np.float64), ('e_upper', np.float64),
         ('level_id_lower', np.int64), ('level_id_upper', np.int64),
         ('global_level_id_lower', np.int64), ('global_level_id_upper', np.int64),
-        ('atom', np.int64), ('ion', np.int64)])
+        ('atom', np.int64), ('ion', np.int64), ('metastable', np.bool)])
     
     return line_list
 
