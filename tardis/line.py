@@ -45,7 +45,6 @@ def read_line_list(conn, atoms=None, symbol2z=None):
                         atom, ion
                     FROM
                         lines
-
                     
                 """
     
