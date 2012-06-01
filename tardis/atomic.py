@@ -105,7 +105,7 @@ class KuruczAtomModel(AtomModel):
 
 def read_recombination_coefficients_fromdb(conn, max_atom=30, max_ion=30):
     curs = conn.execute('select atom, ion, zeta from zeta where atom < %d and ion < %d' % (max_atom, max_ion))
-    t_rads = np.arange(2000, 50000, 20)
+    t_rads = np.arange(2000, 42000, 2000)
     recombination_coefficients = np.ones((max_ion-1, max_atom, len(t_rads)))
     for atom, ion, zeta in curs:
         recombination_coefficients[ion-1, atom-1] = zeta

@@ -36,7 +36,7 @@ def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
     raw_data = []
     
     select_stmt = """SELECT
-                        lines.id, wl, loggf, g_lower, g_upper, e_lower,
+                        lines.id, wl, ? / wl, loggf, g_lower, g_upper, e_lower,
                         e_upper, level_id_lower, level_id_upper,
                         global_level_id_lower, global_level_id_upper,
                         lines.atom, lines.ion, metastable
@@ -71,16 +71,16 @@ def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
         print line_select_stmt
 
     
-    curs = conn.execute(line_select_stmt)
+    curs = conn.execute(line_select_stmt, (constants.c * 1e8,))
 
     
-    for id, wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion, metastable in curs:
+    for id, wl, nu, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion, metastable in curs:
         gf = 10**loggf
         f_lu = gf / g_lower
         f_ul = gf / g_upper
-        raw_data.append((id, wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion, metastable))
+        raw_data.append((id, wl, nu, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, global_level_id_lower, global_level_id_upper, atom, ion, metastable))
     
-    line_list = np.array(raw_data, dtype = [('id', np.int64), ('wl', np.float64),
+    line_list = np.array(raw_data, dtype = [('id', np.int64), ('wl', np.float64), ('nu', np.float64),
         ('g_lower', np.int64), ('g_upper', np.int64),
         ('f_lu', np.float64), ('f_ul', np.float64),
         ('e_lower', np.float64), ('e_upper', np.float64),

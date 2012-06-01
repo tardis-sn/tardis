@@ -41,6 +41,11 @@ setup(name='tardis',
                         include_dirs=[numpy.get_include()],
                         libraries=['m'],
                         extra_compile_args=['-g'],
+                        extra_link_args=['-g']),
+		   Extension("tardis.montecarlo_multizone", ["tardis/cython-src/montecarlo_multizone.pyx"], 
+                        include_dirs=[numpy.get_include()],
+                        libraries=['m'],
+                        extra_compile_args=['-g'],
                         extra_link_args=['-g'])
 		   ]    
     )

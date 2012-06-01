@@ -157,8 +157,9 @@ class LTEPlasma(Plasma):
 class NebularPlasma(LTEPlasma):
     
     @classmethod
-    def from_model(cls, named_abundances, density, atomic_model):
-        abundances = named2array_abundances(named_abundances, max_atom=atomic_model.max_atom)
+    def from_model(cls, abundances, density, atomic_model, abundance_mode='named'):
+        if abundance_mode == 'named':
+            abundances = named2array_abundances(abundances, max_atom=atomic_model.max_atom)
         
         
         return cls(abundances, density,
@@ -253,7 +254,7 @@ class NebularPlasma(LTEPlasma):
         return phis
 
     def calculate_tau_sobolev(self, line_list, time_exp):
-        wl = line_list['wl'] * 1e-7
+        wl = line_list['wl'] * 1e-8
         #C = (np.pi * constants.e**2) / (constants.me * constants.c) #supposed to be (pi*e**2)/(m_e * c)
         Z = self.partition_functions[line_list['ion'], line_list['atom']-1]
         g_lower = line_list['g_lower']
