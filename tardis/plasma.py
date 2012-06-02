@@ -102,7 +102,7 @@ class LTEPlasma(Plasma):
     
     def _calculate_atom_number_density(self, abundances, density):
         #TODO float comparison problematic
-        assert abs(sum(abundances) - 1) < 1e-12
+        assert abs(sum(abundances) - 1) < 1e-3
         number_density = (density * abundances) / (self.masses * u)
     
         return number_density

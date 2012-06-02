@@ -36,6 +36,7 @@ def read_simple_config(fname):
     density =  config.getfloat('general', 'density')
     log_l_lsun = config.getfloat('general', 'log_l_lsun')
     no_of_packets = int(config.getfloat('general', 'packets'))
+    iterations = config.getint('general', 'iterations')
     # packet energies sum up to 1.
     
     
@@ -75,6 +76,7 @@ def read_simple_config(fname):
             't_outer':t_outer,
             'time_simulation':time_of_simulation,
             'abundances':named_abundances,
+            'iterations':iterations
             }
     
 def read_symbol2z(fname=None):

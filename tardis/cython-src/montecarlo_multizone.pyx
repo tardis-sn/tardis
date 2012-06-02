@@ -57,7 +57,7 @@ cdef int_type_t macro_atom(int_type_t activate_level,
                             np.ndarray[int_type_t, ndim=1] target_line_id,
                             np.ndarray[int_type_t, ndim=1] unroll_reference,
 			    int_type_t cur_zone_id):
-    cdef int_type_t emit = 0
+    cdef int_type_t emit, i = 0
     cdef float_type_t p = 0.0
     
     while True:

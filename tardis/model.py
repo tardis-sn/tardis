@@ -7,6 +7,7 @@ import plasma
 miss_distance = 1e99
 
 w7model_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'w7model.dat'))
+w7abundances_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'w7abundances.dat'))
 
 class Model(object):
     pass
@@ -19,7 +20,7 @@ class MultiZoneRadial(Model):
         velocities *= 1e5
         densities = 10**densities
         time_0 = 0.000231481 * 86400
-        return cls(velocities[100::5], densities[100::5], current_time, time_0)
+        return cls(velocities[112::5], densities[112::5], current_time, time_0)
         
     
     def __init__(self, velocities, densities, current_time, time_0):
@@ -46,6 +47,18 @@ class MultiZoneRadial(Model):
         self.abundances = np.empty((self.r_inner.size, abundances.size))
         for i in range(self.r_inner.size):
             self.abundances[i] = abundances.copy()
+            
+    def read_w7_abundances(self):
+        w7_abundances = np.loadtxt(w7abundances_file, usecols=np.arange(1,31))
+        w7ni56_0 = np.loadtxt(w7model_file, usecols=(4,))
+        ni_total = w7_abundances[:,27]
+        ni56, co56, fe56 = set_ni_chain(self.current_time, w7ni56_0)
+        w7_abundances[:,27] += - w7ni56_0 + ni56
+        w7_abundances[:,26] += co56
+        w7_abundances[:,25] += fe56
+        self.abundances = w7_abundances[90::6]
+        #NORMALIZING
+        self.abundances.sum(axis=1).reshape(self.abundances.shape[0],1)
     
     def _initialize_temperature(self, t_rad):
         self.t_rads = np.ones(self.r_inner.size) * t_rad
@@ -82,3 +95,12 @@ class MultiZoneRadial(Model):
             current_plasma.update_radiationfield(t_rad, w)
             self.electron_densities[i] = current_plasma.electron_density
             
+
+def set_ni_chain(time_exp, ni56):
+    t1=6.1
+    t2=77.27
+    ni_abundance_0 = ni56
+    ni_abundance_t=ni_abundance_0*(pow(2, -(time_exp/t1)))
+    co_abundance_t=(t2/(t1-t2))*ni_abundance_0*(pow(2, -time_exp/t1)-pow(2, -time_exp/t2))
+    fe_abundance_t=ni_abundance_0-co_abundance_t-ni_abundance_t
+    return ni_abundance_t, co_abundance_t, fe_abundance_t

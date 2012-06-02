@@ -4,7 +4,7 @@ import numpy as np
 import constants
 class PhotonSource(object):
     pass
-
+np.random.seed(250819801106)
 class SimplePhotonSource(PhotonSource):
     #Draw uniform randomly simple photon packets
     

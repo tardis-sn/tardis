@@ -8,6 +8,7 @@ import numpy as np
 import montecarlo_multizone
 import time
 import model
+import os
 
 def run_onezone(conn, fname):
     initial_config = initialize.read_simple_config(fname)
@@ -170,6 +171,7 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
     w7model.set_line_list(line_list)
     w7model.set_atomic_model(atomic_model)
     w7model.read_abundances_uniform(abundances)
+    #w7model.read_w7_abundances()
     w7model.initialize_plasmas(t_rad)
     
     i = 0
@@ -183,8 +185,10 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
         track_t_inner.append(t_inner)
         track_ws.append(w7model.ws.copy())
         i+=1
-        if i > 5: break
-        
+        if i > initial_config['iterations']: break
+        if os.path.exists('stop_file') or i == initial_config['iterations']:
+            energy_of_packet = 1. / 1e5
+            initial_config['packets'] = 1e5
         #return sn_plasma
         
         tau_sobolevs = w7model.calculate_tau_sobolevs()
