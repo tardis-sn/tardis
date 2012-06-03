@@ -12,7 +12,7 @@ def read_atomic_data(fname=None):
                 pkgutil.get_data('tardis', 'data/atoms.dat')),
                 names=('atom', 'symbol', 'mass'))
     else:
-        data = recfromtxt(fname,
+        data = np.recfromtxt(fname,
                 names=('atom', 'symbol', 'mass'))
     return data
 
@@ -35,7 +35,8 @@ def read_simple_config(fname):
     v_outer = config.getfloat('general', 'v_outer') * 1e5
     density =  config.getfloat('general', 'density')
     log_l_lsun = config.getfloat('general', 'log_l_lsun')
-    no_of_packets = int(config.getfloat('general', 'packets'))
+    calibration_no_of_packets = int(config.getfloat('general', 'calibration_packets'))
+    spectrum_no_of_packets = int(config.getfloat('general', 'spectrum_packets'))
     iterations = config.getint('general', 'iterations')
     # packet energies sum up to 1.
     
@@ -69,14 +70,15 @@ def read_simple_config(fname):
     return {'time_exp':time_exp,
             'v_inner':v_inner,
             'density':density,
-            'packets':no_of_packets,
             'luminosity_outer':luminosity_outer,
             'r_inner':r_inner,
             'r_outer':r_outer,
             't_outer':t_outer,
             'time_simulation':time_of_simulation,
             'abundances':named_abundances,
-            'iterations':iterations
+            'iterations':iterations,
+            'no_of_calibration_packets':calibration_no_of_packets,
+            'no_of_spectrum_packets':spectrum_no_of_packets
             }
     
 def read_symbol2z(fname=None):

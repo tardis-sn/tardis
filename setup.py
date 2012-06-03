@@ -18,7 +18,7 @@ version = '0.01dev'
 # Treat everything in scripts except README.rst as a script to be installed
 scripts = glob.glob('scripts/*')
 try:
-	scripts.remove('scripts/README.rst')
+    scripts.remove('scripts/README.rst')
 except ValueError:
 	pass
 
@@ -31,8 +31,7 @@ setup(name='tardis',
     package_data={'tardis': ['data/*']},
     scripts=scripts,
     cmdclass = {'build_ext': build_ext},
-    ext_modules = [Extension("tardis/c_distance", ["tardis/cython-src/c_distance.pyx"]),
-                   Extension("tardis.c_montecarlo", ["tardis/cython-src/c_montecarlo.pyx"], 
+    ext_modules = [Extension("tardis.c_montecarlo", ["tardis/cython-src/c_montecarlo.pyx", "tardis/randomkit/rk_mt.c"], 
                         include_dirs=[numpy.get_include()],
                         libraries=['m']),
 		   Extension("tardis.fastline", ["tardis/cython-src/fastline.pyx"], 
@@ -40,9 +39,7 @@ setup(name='tardis',
                         libraries=['m']),
 		   Extension("tardis.montecarlo_multizone", ["tardis/cython-src/montecarlo_multizone.pyx"], 
                         include_dirs=[numpy.get_include()],
-                        libraries=['m'],
-                        extra_compile_args=['-g'],
-                        extra_link_args=['-g'])
+                        libraries=['m'])
 		   ]    
     )
       

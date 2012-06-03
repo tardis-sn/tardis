@@ -1,12 +1,13 @@
 
-# cython: profile=False
+# cython: profile=True
 # cython: boundscheck=False
-# cython: cdivision=True
 # cython: wraparound=False
+# cython: cdivision=True
+
 
 import numpy as np
 cimport numpy as np
-
+np.import_array()
 from cython.parallel import prange
 
 cdef extern from "math.h":
@@ -49,6 +50,26 @@ cdef float_type_t sigma_thomson = 6.652486e-25 #cm^(-2)
 
 cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 
+
+
+cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t nu_insert, int_type_t imin, int_type_t imax):
+    #continually narrow search until just one element remains
+    cdef int_type_t imid
+    while (imax - imin > 2):
+        imid = (imin + imax) / 2
+        
+        #code must guarantee the interval is reduced at each iteration
+        #assert(imid < imax);
+        # note: 0 <= imin < imax implies imid will always be less than imax
+   
+        # reduce the search
+        if (nu[imid] < nu_insert):
+            imax = imid + 1
+        else:
+            imin = imid
+        #print imin, imax, imid, imax - imin
+    return imin+1
+    
 #variables are restframe if not specified by prefix comov_
 cdef int_type_t macro_atom(int_type_t activate_level,
                             np.ndarray[float_type_t, ndim=2] p_transition,
@@ -62,12 +83,10 @@ cdef int_type_t macro_atom(int_type_t activate_level,
     
     while True:
         event_random = rk_double(&mt_state)
-        #print "at macro random %.2f" % event_random
         i = unroll_reference[activate_level]
-        #print "unrolled_reference %d" % i
         p = 0.0
         while True:
-            p += p_transition[cur_zone_id][i]
+            p = p + p_transition[cur_zone_id, i]
             if p > event_random:
                 emit = type_transition[i]
                 activate_level = target_level_id[i]
@@ -188,14 +207,12 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 ):
     
     cdef int_type_t no_of_zones = len(r_inner)
-    cdef float_type_t test_random=0.
-    
     cdef float_type_t t_exp = r_inner[0] / v_inner[0]
     cdef float_type_t inverse_t_exp = 1 / t_exp
     cdef np.ndarray[float_type_t, ndim=1] inverse_ne = 1 / ne
     
-    cdef int no_of_packets = packets.shape[0]
-    cdef int no_of_lines = line_list_nu.shape[0]
+    cdef int no_of_packets = packets.size
+    cdef int no_of_lines = line_list_nu.size
 
     #outputs
     cdef np.ndarray[float_type_t, ndim=1] nus = np.zeros(no_of_packets, dtype=np.float64)
@@ -235,7 +252,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     #indices
     cdef int_type_t cur_line_id = 0
     cdef int_type_t cur_zone_id = 0
-    
+    cdef int_type_t current_line_list_id = 0
     #defining distances
     cdef float_type_t d_inner = 0.0
     cdef float_type_t d_outer = 0.0
@@ -266,22 +283,19 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
  
         tau_event = -log(rk_double(&mt_state))
         
-        
-        
-        
-        
-        #numerical problem: when the particles are sitting on the r_inner and one calculatese d_inner numerical instabilities can make it negative (depending on mu)
-        #Solution we give the packets a little nudge (choosing r_inner*1e-8 as moving distance)
-        
-        #move_packet(&current_r, &current_mu, current_nu, current_energy, r_inner*1e-8, js, nubars, inverse_t_exp, cur_zone_id)
-        
+
         
         comov_current_nu = current_nu * (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
         
-        cur_line_id = line_list_nu.size - line_list_nu[::-1].searchsorted(comov_current_nu)
-        
+        #cur_line_id = line_list_nu.size - line_list_nu[::-1].searchsorted(comov_current_nu)
+
+        cur_line_id = binary_search(line_list_nu, comov_current_nu, 0, no_of_lines)
+        current_line_list_id = cur_line_id
+        #print "cur_line_id binary_search %d" % test_line_id
         if cur_line_id == line_list_nu.size: last_line=1
         else: last_line = 0
+
+        # ---- main loop stars
         while True:
                 
 
