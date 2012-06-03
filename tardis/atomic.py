@@ -9,6 +9,9 @@ import initialize
 import numpy as np
 import sqlite3
 
+
+
+
 def convert_int_ndarray(sqlite_binary):
     if sqlite_binary == '-1':
         return np.array([], dtype=np.int64)

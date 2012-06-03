@@ -1,11 +1,11 @@
 #File contains model class
 
-import constants
 import numpy as np
 import os
 import plasma
 miss_distance = 1e99
 
+#TODO use pkgutil to read data files
 w7model_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'w7model.dat'))
 w7abundances_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'w7abundances.dat'))
 

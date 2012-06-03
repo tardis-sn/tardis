@@ -230,7 +230,6 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     cdef float_type_t nu_line = 0.0
     cdef float_type_t nu_electron = 0.0
     cdef float_type_t current_r = 0.0
-    cdef float_type_t prev_r = 0.0
     cdef float_type_t current_mu = 0.0
     cdef float_type_t current_nu = 0.0
     cdef float_type_t comov_current_nu = 0.0
@@ -240,6 +239,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     cdef float_type_t current_energy = 0.0
     cdef float_type_t energy_electron = 0.0
     cdef int_type_t emission_line_id = 0
+
     #doppler factor definition
     cdef float_type_t doppler_factor = 0.0
     cdef float_type_t old_doppler_factor = 0.0
@@ -250,8 +250,8 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
     cdef float_type_t tau_combined = 0.0
     cdef float_type_t tau_event = 0.0
     #indices
-    cdef int_type_t cur_line_id = 0
-    cdef int_type_t cur_zone_id = 0
+    cdef int_type_t current_line_id = 0
+    cdef int_type_t current_zone_id = 0
     cdef int_type_t current_line_list_id = 0
     #defining distances
     cdef float_type_t d_inner = 0.0
@@ -277,7 +277,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         current_mu = mus[i]
         #print "initial_mu" , current_mu
         current_r = r_inner[0]
-        cur_zone_id = 0 
+        current_zone_id = 0
 
         recently_crossed_boundary = 1
  
@@ -289,10 +289,10 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
         
         #cur_line_id = line_list_nu.size - line_list_nu[::-1].searchsorted(comov_current_nu)
 
-        cur_line_id = binary_search(line_list_nu, comov_current_nu, 0, no_of_lines)
-        current_line_list_id = cur_line_id
+        current_line_id = binary_search(line_list_nu, comov_current_nu, 0, no_of_lines)
+        current_line_list_id = current_line_id
         #print "cur_line_id binary_search %d" % test_line_id
-        if cur_line_id == line_list_nu.size: last_line=1
+        if current_line_id == line_list_nu.size: last_line=1
         else: last_line = 0
 
         # ---- main loop stars
@@ -301,7 +301,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
 
             #check if we are at the end of linelist
             if last_line == 0:
-                nu_line = line_list_nu[cur_line_id]
+                nu_line = line_list_nu[current_line_id]
             
             
             if close_line == 1:
@@ -316,26 +316,26 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
 		    #calculation of d_inner
                     d_inner = miss_distance
                 else:
-                    d_inner = compute_distance2inner(current_r, current_mu, r_inner[cur_zone_id])
+                    d_inner = compute_distance2inner(current_r, current_mu, r_inner[current_zone_id])
                     
-                d_outer = compute_distance2outer(current_r, current_mu, r_outer[cur_zone_id])
+                d_outer = compute_distance2outer(current_r, current_mu, r_outer[current_zone_id])
                 if last_line == 1:
                     d_line = miss_distance
                 else:
-                    d_line = compute_distance2line(current_r, current_mu, current_nu, nu_line, t_exp, inverse_t_exp, line_list_nu[cur_line_id-1], line_list_nu[cur_line_id+1], cur_zone_id)
-                d_electron = compute_distance2electron(current_r, current_mu, tau_event, inverse_ne[cur_zone_id])
+                    d_line = compute_distance2line(current_r, current_mu, current_nu, nu_line, t_exp, inverse_t_exp, line_list_nu[current_line_id-1], line_list_nu[current_line_id+1], current_zone_id)
+                d_electron = compute_distance2electron(current_r, current_mu, tau_event, inverse_ne[current_zone_id])
                 
 # ------------------------------------------------------------------------------------------            
             if isnan(d_outer):
                 print '-------- d_outer nan'
-                print current_mu, d_inner, d_outer, cur_zone_id
-                print current_r, current_mu, r_inner[cur_zone_id], r_outer[cur_zone_id]
+                print current_mu, d_inner, d_outer, current_zone_id
+                print current_r, current_mu, r_inner[current_zone_id], r_outer[current_zone_id]
                 print recently_crossed_boundary
                 return 0
             if current_mu == 0.0:
                 print '-------- mu==0.0'
-                print current_mu, d_inner, d_outer, cur_zone_id
-                print current_r, current_mu, r_inner[cur_zone_id], r_outer[cur_zone_id]
+                print current_mu, d_inner, d_outer, current_zone_id
+                print current_r, current_mu, r_inner[current_zone_id], r_outer[current_zone_id]
                 print recently_crossed_boundary
                 return 0
 #            print current_mu, d_inner, d_outer, cur_zone_id
@@ -344,9 +344,9 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             if (d_outer < d_inner) and (d_outer < d_electron) and (d_outer < d_line):
 	        #moving one zone outwards. If it's already in the outermost one this is escaped. Otherwise just move, change the zone index
                 #and flag as an outwards propagating packet
-                move_packet(&current_r, &current_mu, current_nu, current_energy, d_outer, js, nubars, inverse_t_exp, cur_zone_id)
-                if (cur_zone_id < no_of_zones - 1):
-                    cur_zone_id += 1
+                move_packet(&current_r, &current_mu, current_nu, current_energy, d_outer, js, nubars, inverse_t_exp, current_zone_id)
+                if (current_zone_id < no_of_zones - 1):
+                    current_zone_id += 1
                     recently_crossed_boundary = 1
 #                    print "----zone change outwards"
 #                    print cur_zone_id, current_r, r_inner[cur_zone_id], r_outer[cur_zone_id], current_mu
@@ -358,9 +358,9 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     #      
             elif (d_inner < d_outer) and (d_inner < d_electron) and (d_inner < d_line):
     	        #moving one zone inwards. If it's already in the innermost zone this is a reabsorption
-                move_packet(&current_r, &current_mu, current_nu, current_energy, d_inner, js, nubars, inverse_t_exp, cur_zone_id)
-                if cur_zone_id > 0:
-                    cur_zone_id -= 1
+                move_packet(&current_r, &current_mu, current_nu, current_energy, d_inner, js, nubars, inverse_t_exp, current_zone_id)
+                if current_zone_id > 0:
+                    current_zone_id -= 1
 #                    print "----zone change inwards"
 #                    print cur_zone_id, current_r, r_inner[cur_zone_id], r_outer[cur_zone_id], current_mu
                     recently_crossed_boundary = -1
@@ -373,7 +373,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             elif (d_electron < d_outer) and (d_electron < d_inner) and (d_electron < d_line):
             #electron scattering
 #                print "electron scattering happened"
-                doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_electron, js, nubars, inverse_t_exp, cur_zone_id)
+                doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_electron, js, nubars, inverse_t_exp, current_zone_id)
                 
                 
                 comov_nu = current_nu * doppler_factor
@@ -392,19 +392,19 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             elif (d_line < d_outer) and (d_line < d_inner) and (d_line < d_electron):
             #Line scattering
                 #It has a chance to hit the line
-                tau_line = tau_lines[cur_zone_id, cur_line_id]
-                tau_electron = sigma_thomson * ne[cur_zone_id] * d_line
+                tau_line = tau_lines[current_zone_id, current_line_id]
+                tau_electron = sigma_thomson * ne[current_zone_id] * d_line
                 tau_combined = tau_line + tau_electron
                 prev_r = current_r
                 
 
                 
                 
-                cur_line_id += 1
+                current_line_id += 1
                 
                 #check for last line
-                if cur_line_id >= no_of_lines:
-                    cur_line_id = no_of_lines
+                if current_line_id >= no_of_lines:
+                    current_line_id = no_of_lines
                     last_line = 1
                 
                 #check for same line        
@@ -414,7 +414,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
 #                    print "line event happened"
                     #line event happens - move and scatter packet
                     #choose new mu
-                    old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, js, nubars, inverse_t_exp, cur_zone_id)
+                    old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, js, nubars, inverse_t_exp, current_zone_id)
                     comov_current_energy = current_energy * old_doppler_factor
                     
                     current_mu = 2*rk_double(&mt_state) - 1
@@ -422,18 +422,18 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
                     
                     #here comes the macro atom
-                    activate_level_id = line2level[cur_line_id]
+                    activate_level_id = line2level[current_line_id]
                     emission_line_id = macro_atom(activate_level_id,
                                                 p_transition,
                                                 type_transition,
                                                 target_level_id,
                                                 target_line_id,
                                                 unroll_reference,
-		    				 cur_zone_id)
+		    				 current_zone_id)
                     #emission_line_id = cur_line_id - 1
                     current_nu = line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = line_list_nu[emission_line_id]
-                    cur_line_id = emission_line_id + 1
+                    current_line_id = emission_line_id + 1
                     ### end of macro_atom
                     
                     current_energy = comov_current_energy * inverse_doppler_factor
@@ -450,7 +450,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                     print 'ola, what happened here'
                 
                 if last_line == 0:
-                    if abs(line_list_nu[cur_line_id] - nu_line)/nu_line < 1e-7:
+                    if abs(line_list_nu[current_line_id] - nu_line)/nu_line < 1e-7:
                         close_line = 1
 
         if current_energy < 0:
