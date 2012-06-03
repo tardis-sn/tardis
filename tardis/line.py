@@ -145,9 +145,9 @@ class SimpleMacroAtomData(MacroAtomData):
         
         
     def _merge_arrays(self):
-        self.p_total = -1 * np.ones((self.count_total_sum), dtype=np.float64)
+        self.p_total = -1 * np.ones(self.count_total_sum, dtype=np.float64)
         self.transition_type_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
-        self.target_line_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
+        self.target_line_total = -1 * np.ones(self.count_total_sum, dtype=np.int64)
         self.target_level_total = -1 * np.ones((self.count_total_sum), dtype=np.int64)
         for i, (ref, c_down, c_up, c_total) in enumerate(zip(self.level_references, self.count_down, self.count_up, self.count_total)):
             p_level_total = np.hstack((self.p_emission_down[i], self.p_internal_down[i], self.p_internal_up[i]))

@@ -20,7 +20,7 @@ scripts = glob.glob('scripts/*')
 try:
     scripts.remove('scripts/README.rst')
 except ValueError:
-	pass
+    pass
 
 
 setup(name='tardis',
@@ -31,15 +31,13 @@ setup(name='tardis',
     package_data={'tardis': ['data/*']},
     scripts=scripts,
     cmdclass = {'build_ext': build_ext},
-    ext_modules = [Extension("tardis.c_montecarlo", ["tardis/cython-src/c_montecarlo.pyx", "tardis/randomkit/rk_mt.c"], 
+    ext_modules = [Extension("tardis.fastline", ["tardis/cython-src/fastline.pyx"],
                         include_dirs=[numpy.get_include()],
                         libraries=['m']),
-		   Extension("tardis.fastline", ["tardis/cython-src/fastline.pyx"], 
-                        include_dirs=[numpy.get_include()],
-                        libraries=['m']),
-		   Extension("tardis.montecarlo_multizone", ["tardis/cython-src/montecarlo_multizone.pyx"], 
+                   Extension("tardis.montecarlo_multizone", ["tardis/cython-src/montecarlo_multizone.pyx"],
                         include_dirs=[numpy.get_include()],
                         libraries=['m'])
-		   ]    
+		        ],
+    requires=['Cython','numpy', 'scipy']
     )
       

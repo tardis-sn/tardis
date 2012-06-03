@@ -15,12 +15,7 @@ import logging
 def run_multizone(conn, fname, max_atom=30, max_ion=30):
     initial_config = initialize.read_simple_config(fname)
 
-    
-    
-    
-    max_atom = 30
-    max_ion = 30
-    
+
     abundances = plasma.named2array_abundances(initial_config['abundances'], max_atom)
     atomic_model = atomic.KuruczMacroAtomModel.from_db(conn)
     line_list = line.read_line_list(conn)
@@ -43,7 +38,7 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
     track_ws = []
     track_t_rads = []
     track_t_inner = []
-    no_of_packets = 0
+
     while True:
         start_time = time.time()
         track_t_rads.append(w7model.t_rads.copy())

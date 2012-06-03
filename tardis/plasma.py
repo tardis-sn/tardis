@@ -212,6 +212,7 @@ class NebularPlasma(LTEPlasma):
                 levels_energy=levels_energy,
                 levels_g=levels_g,
                 max_atom=max_atom, max_ion=max_ion)
+
         self.atomic_model = atomic_model
     
     def update_radiationfield(self, t_rad, w, t_electron=None):
@@ -357,9 +358,6 @@ def read_level_data(conn, max_atom=30, max_ion=None):
             
     return energy_data, g_data
 
-def get_transition_data(conn, max_atom=99):
-    curs = conn.execute('select atom, ion, loggf, level_id_upper, levelid_lower from lines')
-    #continue writing for branching
 
 def named2array_abundances(named_abundances, max_atom, symbol2z=None):
         if symbol2z is None:

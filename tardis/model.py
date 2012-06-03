@@ -51,7 +51,6 @@ class MultiZoneRadial(Model):
     def read_w7_abundances(self):
         w7_abundances = np.loadtxt(w7abundances_file, usecols=np.arange(1,31))
         w7ni56_0 = np.loadtxt(w7model_file, usecols=(4,))
-        ni_total = w7_abundances[:,27]
         ni56, co56, fe56 = set_ni_chain(self.current_time, w7ni56_0)
         w7_abundances[:,27] += - w7ni56_0 + ni56
         w7_abundances[:,26] += co56

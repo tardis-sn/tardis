@@ -55,7 +55,7 @@ cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t nu_insert, int_type_t imin, int_type_t imax):
     #continually narrow search until just one element remains
     cdef int_type_t imid
-    while (imax - imin > 2):
+    while imax - imin > 2:
         imid = (imin + imax) / 2
         
         #code must guarantee the interval is reduced at each iteration
@@ -311,7 +311,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 #CHECK if 3 lines in a row work
     
             else:
-                if (recently_crossed_boundary == 1):
+                if recently_crossed_boundary == 1:
 		    #if the packet just crossed the inner boundary it will not intersect again unless it interacts. So skip
 		    #calculation of d_inner
                     d_inner = miss_distance
@@ -359,7 +359,7 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             elif (d_inner < d_outer) and (d_inner < d_electron) and (d_inner < d_line):
     	        #moving one zone inwards. If it's already in the innermost zone this is a reabsorption
                 move_packet(&current_r, &current_mu, current_nu, current_energy, d_inner, js, nubars, inverse_t_exp, cur_zone_id)
-                if (cur_zone_id > 0):                   
+                if cur_zone_id > 0:
                     cur_zone_id -= 1
 #                    print "----zone change inwards"
 #                    print cur_zone_id, current_r, r_inner[cur_zone_id], r_outer[cur_zone_id], current_mu
@@ -452,9 +452,10 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
                 if last_line == 0:
                     if abs(line_list_nu[cur_line_id] - nu_line)/nu_line < 1e-7:
                         close_line = 1
-            
+
         if current_energy < 0:
-            1/0
+            #TODO logging warning
+            print "current_energy less than 0"
         if reabsorbed == 1:
         #TODO bin them right away
             nus_reabsorbed[i] = current_nu
@@ -464,8 +465,5 @@ def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
             nus[i] = current_nu
             #print "emitted packet energy", current_energy
             energies[i] = current_energy
-            
-        else:
-            1/0
 
     return nus, energies, nus_reabsorbed, energies_reabsorbed, js, nubars

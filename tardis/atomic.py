@@ -1,5 +1,7 @@
 # atomic model
 
+
+#TODO revisit import statements and reorganize
 from scipy import interpolate
 import line
 import constants
