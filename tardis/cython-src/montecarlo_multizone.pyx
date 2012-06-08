@@ -364,9 +364,10 @@ int_type_t log_packets
                     recently_crossed_boundary = 1
 
                 else:
-                    packet_logger.debug(
-                        'Packet has left the simulation through the outer boundary nu=%s mu=%s energy=%s',
-                        current_nu, current_mu, current_energy)
+                    IF packet_logging == True:
+                        packet_logger.debug(
+                            'Packet has left the simulation through the outer boundary nu=%s mu=%s energy=%s',
+                            current_nu, current_mu, current_energy)
                     reabsorbed = 0
                     #print "That one got away"
                     break
@@ -381,9 +382,10 @@ int_type_t log_packets
                     #                    print cur_zone_id, current_r, r_inner[cur_zone_id], r_outer[cur_zone_id], current_mu
                     recently_crossed_boundary = -1
                 else:
-                    packet_logger.debug(
-                        'Packet has left the simulation through the inner boundary nu=%s mu=%s energy=%s',
-                        current_nu, current_mu, current_energy)
+                    IF packet_logging == True:
+                        packet_logger.debug(
+                            'Packet has left the simulation through the inner boundary nu=%s mu=%s energy=%s',
+                            current_nu, current_mu, current_energy)
                     reabsorbed = 1
                     break
 

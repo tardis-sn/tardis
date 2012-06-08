@@ -37,7 +37,7 @@ class AtomModel(object):
 class KuruczAtomModel(AtomModel):
     @classmethod
     def from_db(cls, conn, max_atom=30, max_ion=30):
-        logger.info('Reading Kurucz model from database')
+        logger.info('Reading Kurucz model from database max atom=%d max ion=%d', max_atom, max_ion)
         symbol2z = initialize.read_symbol2z()
 
         masses = initialize.read_atomic_data()['mass'][:max_atom]
