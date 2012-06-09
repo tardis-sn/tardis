@@ -3,14 +3,12 @@
 import constants
 import numpy as np
 import initialize
+import logging
 
-kbinev = constants.kb * constants.erg2ev
-h = 4.135667516e-15 #eV * s
-h_cgs = 6.62606957e-27
-u = 1.66053886e-24 # atomic mass unit in g
-me = 9.10938188e-28 #grams
+logger = logging.getLogger(__name__)
 
-Bnu = lambda nu, t: (2 * constants.h * nu ** 3 / constants.c ** 2) * exp(1 / ((constants.h * nu) / (constants.kb * t)))
+Bnu = lambda nu, t: (2 * constants.h * nu ** 3 / constants.c ** 2) * np.exp(
+    1 / ((constants.h * nu) / (constants.kb * t)))
 
 class Plasma(object):
     pass
@@ -18,54 +16,19 @@ class Plasma(object):
 
 class LTEPlasma(Plasma):
     @classmethod
-    def from_db(cls, named_abundances, density, conn, max_atom=30, max_ion=30):
-        symbol2z = initialize.read_symbol2z()
-
-        #converting the abundances dictionary dict to an array
-        abundances = np.zeros(max_atom)
-
-        for symbol in named_abundances:
-            abundances[symbol2z[symbol] - 1] = named_abundances[symbol]
-
-        masses = initialize.read_atomic_data()['mass'][:max_atom]
-
-        ionization_data = initialize.read_ionization_data()
+    def from_model(cls, abundances, density, atomic_model, abundance_mode='named'):
+        if abundance_mode == 'named':
+            abundances = named2array_abundances(abundances, max_atom=atomic_model.max_atom)
+        return cls(abundances, density, atomic_model)
 
 
-        #reason for max_ion - 1: in energy level data there's unionized, once-ionized, twice-ionized, ...
-        #in ionization_energies, there's only once_ionized, twice_ionized
-        ionization_energy = np.zeros((max_ion - 1, max_atom))
-
-        for atom, ion, ion_energy in ionization_data:
-            if atom > max_atom or ion >= max_ion:
-                continue
-            ionization_energy[ion - 1, atom - 1] = ion_energy
-
-        levels_energy, levels_g = read_level_data(conn, max_atom, max_ion)
-
-        return cls(abundances, density,
-            masses=masses, ionization_energy=ionization_energy,
-            levels_energy=levels_energy, levels_g=levels_g,
-            max_atom=max_atom, max_ion=max_ion)
-
-
-    def __init__(self, abundances, density,
-                 masses=None, ionization_energy=None,
-                 levels_energy=None,
-                 levels_g=None,
-                 max_atom=None, max_ion=None):
+    def __init__(self, abundances, density, atom_model):
         """
         ionization_energy
         -------------
         ndarray with row being ion, column atom
         
         """
-        self.masses = masses
-        self.ionization_energy = ionization_energy
-        self.levels_energy = levels_energy
-        self.levels_g = levels_g
-        self.max_atom = max_atom
-        self.max_ion = max_ion
 
         self.atom_number_density = self._calculate_atom_number_density(abundances, density)
         self.electron_density = np.sum(self.atom_number_density)
@@ -91,25 +54,26 @@ class LTEPlasma(Plasma):
 
     def _calculate_atom_number_density(self, abundances, density):
         #TODO float comparison problematic
-        assert abs(sum(abundances) - 1) < 1e-3
-        number_density = (density * abundances) / (self.masses * u)
+        if np.abs(np.sum(abundances) - 1) > 1e-10:
+            logger.warn('Abundance fractions don\'t add up to one: %s', np.abs(np.sum(abundances) - 1))
+        number_density = (density * abundances) / (self.atomic_model.masses * constants.u)
 
         return number_density
 
     def _calculate_partition_functions(self):
         z_func = lambda energy, g: np.sum(g * np.exp(-self.beta * energy))
         vector_z_func = np.vectorize(z_func, otypes=[np.float64])
-        return vector_z_func(self.levels_energy, self.levels_g)
+        return vector_z_func(self.atom_model.levels_energy, self.atom_model.levels_g)
 
     def _calculate_phis(self):
         #calculating ge = 2/(Lambda^3)
-        ge = 2 / (np.sqrt(h_cgs ** 2 / (2 * np.pi * me * (1 / (self.beta * constants.erg2ev))))) ** 3
+        ge = 2 / (np.sqrt(h_cgs ** 2 / (2 * np.pi * constants.me * (1 / (self.beta * constants.erg2ev))))) ** 3
 
         partition_fractions = ge * self.partition_functions[1:] / self.partition_functions[:-1]
         partition_fractions[np.isnan(partition_fractions)] = 0.0
         partition_fractions[np.isinf(partition_fractions)] = 0.0
         #phi = (n_j+1 * ne / nj)
-        phis = partition_fractions * np.exp(-self.beta * self.ionization_energy)
+        phis = partition_fractions * np.exp(-self.beta * self.atom_model.ionization_energy)
         return phis
 
     def _calculate_single_ion_populations(self, phis):
@@ -121,7 +85,8 @@ class LTEPlasma(Plasma):
         N1 = self.atom_number_density / ion_fraction_sum
         #Further Ns
         Nn = N1 * ion_fraction_prod
-        new_electron_density = np.sum(Nn * (np.arange(1, self.max_ion).reshape((self.max_ion - 1, 1))))
+        new_electron_density = np.sum(
+            Nn * (np.arange(1, self.atomic_model.max_ion).reshape((self.atomic_model.max_ion - 1, 1))))
         return np.vstack((N1, Nn)), new_electron_density
 
     def _calculate_ion_populations(self):
@@ -143,59 +108,7 @@ class LTEPlasma(Plasma):
 
 class NebularPlasma(LTEPlasma):
     @classmethod
-    def from_model(cls, abundances, density, atomic_model, abundance_mode='named'):
-        if abundance_mode == 'named':
-            abundances = named2array_abundances(abundances, max_atom=atomic_model.max_atom)
 
-        return cls(abundances, density,
-            masses=atomic_model.masses, ionization_energy=atomic_model.ionization_energy,
-            levels_energy=atomic_model.levels_energy, levels_g=atomic_model.levels_g,
-            max_atom=atomic_model.max_atom, max_ion=atomic_model.max_ion,
-            atomic_model=atomic_model)
-
-    @classmethod
-    def from_db(cls, named_abundances, density, conn, max_atom=30, max_ion=30):
-        symbol2z = initialize.read_symbol2z()
-
-        #converting the abundances dictionary dict to an array
-        abundances = np.zeros(max_atom)
-
-        for symbol in named_abundances:
-            abundances[symbol2z[symbol] - 1] = named_abundances[symbol]
-
-        masses = initialize.read_atomic_data()['mass'][:max_atom]
-
-        ionization_data = initialize.read_ionization_data()
-
-
-        #reason for max_ion - 1: in energy level data there's unionized, once-ionized, twice-ionized, ...
-        #in ionization_energies, there's only once_ionized, twice_ionized
-        ionization_energy = np.zeros((max_ion - 1, max_atom))
-
-        for atom, ion, ion_energy in ionization_data:
-            if atom > max_atom or ion >= max_ion:
-                continue
-            ionization_energy[ion - 1, atom - 1] = ion_energy
-
-        levels_energy, levels_g = read_level_data(conn, max_atom, max_ion)
-
-        return cls(abundances, density,
-            masses=masses, ionization_energy=ionization_energy,
-            levels_energy=levels_energy, levels_g=levels_g,
-            max_atom=max_atom, max_ion=max_ion)
-
-    def __init__(self, abundances, density,
-                 masses=None, ionization_energy=None,
-                 levels_energy=None,
-                 levels_g=None, atomic_model=None,
-                 max_atom=None, max_ion=None):
-        LTEPlasma.__init__(self, abundances, density,
-            masses=masses, ionization_energy=ionization_energy,
-            levels_energy=levels_energy,
-            levels_g=levels_g,
-            max_atom=max_atom, max_ion=max_ion)
-
-        self.atomic_model = atomic_model
 
     def update_radiationfield(self, t_rad, w, t_electron=None):
         self.t_rad = t_rad
@@ -217,10 +130,12 @@ class NebularPlasma(LTEPlasma):
             #return np.sum(g * np.exp(-self.beta * energy))
 
         vector_calc_partition = np.vectorize(calc_partition, otypes=[np.float64])
-        return vector_calc_partition(self.levels_energy, self.levels_g, self.atomic_model.levels_metastable)
+        return vector_calc_partition(self.atom_model.levels_energy, self.atom_model.levels_g,
+            self.atomic_model.levels_metastable)
 
 
     def _calculate_phis(self):
+        #phis = N(i+1)/N(i) ???
         #calculating ge = 2/(Lambda^3)
         ge = 2 / (np.sqrt(h_cgs ** 2 / (2 * np.pi * me * (1 / (self.beta * constants.erg2ev))))) ** 3
 
@@ -228,7 +143,7 @@ class NebularPlasma(LTEPlasma):
         partition_fractions[np.isnan(partition_fractions)] = 0.0
         partition_fractions[np.isinf(partition_fractions)] = 0.0
         #phi = (n_j+1 * ne / nj)
-        phis = partition_fractions * np.exp(-self.beta * self.ionization_energy)
+        phis = partition_fractions * np.exp(-self.beta * self.atom_model.ionization_energy)
         zeta = self.atomic_model.interpolate_recombination_coefficient(self.t_rad)
         delta = self.atomic_model.calculate_radfield_correction_factor(self.t_rad, self.t_electron, self.w)
 

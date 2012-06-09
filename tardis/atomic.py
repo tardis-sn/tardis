@@ -10,6 +10,13 @@ import numpy as np
 import sqlite3
 import logging
 
+try:
+    import sqlparse
+
+    sqlparse_available = True
+except ImportError:
+    sqlparse_available = False
+
 logger = logging.getLogger(__name__)
 
 
@@ -56,26 +63,27 @@ class KuruczAtomModel(AtomModel):
 
         levels_energy, levels_g, levels_metastable = read_kurucz_level_data_fromdb(conn, max_atom, max_ion)
 
-        #factor zeta ML 1993
-        recombination_coefficient_interp = read_recombination_coefficients_fromdb(conn, max_atom, max_ion)
+        return cls(masses=masses,
+            ionization_energy=ionization_energy,
+            levels_energy=levels_energy,
+            levels_g=levels_g,
+            levels_metastable=levels_metastable,
+            max_atom=max_atom,
+            max_ion=max_ion)
 
-        return cls(masses=masses, ionization_energy=ionization_energy,
-            levels_energy=levels_energy, levels_g=levels_g, levels_metastable=levels_metastable,
-            recombination_coefficient_interp=recombination_coefficient_interp,
-            max_atom=max_atom, max_ion=max_ion)
-
-    def __init__(self, masses=None, ionization_energy=None,
+    def __init__(self,
+                 masses=None,
+                 ionization_energy=None,
                  levels_energy=None,
                  levels_g=None,
                  levels_metastable=None,
-                 recombination_coefficient_interp=None,
-                 max_atom=None, max_ion=None):
+                 max_atom=None,
+                 max_ion=None):
         self.masses = masses
         self.ionization_energy = ionization_energy
         self.levels_energy = levels_energy
         self.levels_g = levels_g
-        #unclear switch variable names around?
-        self.interpolate_recombination_coefficient = recombination_coefficient_interp
+
         self.levels_metastable = levels_metastable
         self.max_atom = max_atom
         self.max_ion = max_ion
@@ -106,8 +114,54 @@ class KuruczAtomModel(AtomModel):
         return delta
 
 
+class KuruczMacroAtomModel(KuruczAtomModel):
+    @classmethod
+    def from_db(cls, conn, max_atom=30, max_ion=30):
+        kurucz_atom_model = KuruczAtomModel.from_db(conn, max_atom=max_atom, max_ion=max_ion)
+        kurucz_atom_model.macro_atom = line.SimpleMacroAtomData.fromdb(conn)
+        return kurucz_atom_model
+
+
+class CombinedAtomicModel(KuruczAtomModel):
+    """Complex Atomic Model, in addition to reading the Kurucz model.
+        In addition it reads the recombination to ground state coefficient zeta
+        from the zeta table.
+        It also includes reading reading the meta stable levels and transition probabilities
+
+        """
+
+    @classmethod
+    def from_db(cls, conn, max_atom=30, max_ion=30):
+        logger.info('Reading Kurucz model from database max atom=%d max ion=%d', max_atom, max_ion)
+
+        combined_atomic_model = KuruczAtomModel.from_db(conn, max_atom=max_atom, max_ion=max_ion)
+        combined_atomic_model.line_list = line.read_line_list(conn, max_atom=max_atom, max_ion=max_ion)
+        combined_atomic_model.macro_atom = line.SimpleMacroAtomData.fromdb(conn)
+
+        #factor zeta ML 1993
+        combined_atomic_model.recombination_coefficient_interp =\
+        read_recombination_coefficients_fromdb(conn, max_atom, max_ion)
+
+        return combined_atomic_model
+
+
 def read_recombination_coefficients_fromdb(conn, max_atom=30, max_ion=30):
-    curs = conn.execute('select atom, ion, zeta from zeta where atom < %d and ion < %d' % (max_atom, max_ion))
+    select_zeta_stmt = """select
+                            atom, ion, zeta
+                        from
+                            zeta
+                        where
+                                atom < %d
+                            and
+                                ion < %d
+                        """ % (max_atom, max_ion)
+
+    logger.debug('Reading recombination coefficients from db:\n%s\n%s\n%s',
+        '-' * 80,
+        select_zeta_stmt,
+        '-' * 80)
+
+    curs = conn.execute(select_zeta_stmt)
     t_rads = np.arange(2000, 42000, 2000)
     recombination_coefficients = np.ones((max_ion - 1, max_atom, len(t_rads)))
     for atom, ion, zeta in curs:
@@ -122,18 +176,29 @@ def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
     #dtype is object and the cells will contain arrays with the energy levels
     if max_ion == None:
         max_ion = max_atom
+
     level_select_stmt = """select
                 atom, ion, energy, g, metastable, level_id
             from
                 levels
             where
-                    atom <= ?
+                    atom <= %d
                 and
-                    ion < ?
+                    ion < %d
             order by
-                atom, ion, energy"""
+                atom, ion, energy""" % (max_atom, max_ion)
+    if sqlparse_available:
+        logger.debug('Reading level data from db:\n%s\n%s\n%s',
+            '-' * 80,
+            sqlparse.format(level_select_stmt,
+                reindent=True,
+                keyword_case='upper'),
 
-    curs = conn.execute(level_select_stmt, (max_ion, max_atom))
+            '-' * 80)
+    else:
+        logger.debug(level_select_stmt, max_ion, max_atom)
+
+    curs = conn.execute(level_select_stmt)
     energy_data = np.zeros((max_ion, max_atom), dtype='object')
     g_data = np.zeros((max_ion, max_atom), dtype='object')
     metastable_data = np.zeros((max_ion, max_atom), dtype='object')
@@ -154,12 +219,3 @@ def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
             metastable_data[ion, elem - 1] = np.array([np.bool(metastable)], dtype=np.bool)
 
     return energy_data, g_data, metastable_data
-
-
-class KuruczMacroAtomModel(KuruczAtomModel):
-    @classmethod
-    def from_db(cls, conn, max_atom=30, max_ion=30):
-        kurucz_atom_model = KuruczAtomModel.from_db(conn, max_atom=max_atom, max_ion=max_ion)
-        kurucz_atom_model.macro_atom = line.SimpleMacroAtomData.fromdb(conn)
-        return kurucz_atom_model
-    
