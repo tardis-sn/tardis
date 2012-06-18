@@ -55,10 +55,7 @@ def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
                     ON
                         global_level_id_lower=levels.id
                     
-                    where
-                        lines.atom < %(max_atom)d
-                    and
-                        lines.ion <  %(max_ion)d
+
                     %(select_atom_stmt)s
                     order by lines.id
                 """
@@ -78,7 +75,7 @@ def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
             '-' * 20, sqlparse.format(line_select_stmt, reindent=True), '-' * 20)
     else:
         logger.debug('Line list sql selection criteria\n%s\n%s\n%s',
-            '-' * 20, '-' * 20, line_select_stmt)
+            '-' * 20, line_select_stmt, '-' * 20, )
 
     curs = conn.execute(line_select_stmt, (constants.c * 1e8,))
 
@@ -96,7 +93,7 @@ def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
         ('level_id_lower', np.int64), ('level_id_upper', np.int64),
         ('global_level_id_lower', np.int64), ('global_level_id_upper', np.int64),
         ('atom', np.int64), ('ion', np.int64), ('metastable', np.bool)])
-
+    logger.debug('Loaded %d lines', len(line_list))
     return line_list
 
 
@@ -131,9 +128,15 @@ class SimpleMacroAtomData(MacroAtomData):
 
 
     def __init__(self,
-                 count_down, reference_down, line_id_down,
-                 p_internal_down, p_emission_down,
-                 count_up, reference_up, line_id_up, p_internal_up):
+                 count_down,
+                 reference_down,
+                 line_id_down,
+                 p_internal_down,
+                 p_emission_down,
+                 count_up,
+                 reference_up,
+                 line_id_up,
+                 p_internal_up):
         self.count_down = np.array(count_down)
         self.target_level_id_down = np.array(reference_down)
         self.target_line_id_down = np.array(line_id_down)
@@ -146,6 +149,7 @@ class SimpleMacroAtomData(MacroAtomData):
 
         self.count_total = 2 * self.count_down + self.count_up
         self.count_total_sum = np.sum(self.count_total)
+        logger.debug('Loaded %d transition probabilities', self.count_total_sum)
         self.level_references = np.hstack(([0], np.cumsum(self.count_total)[:-1]))
         self.line_nus = None
         self._merge_arrays()

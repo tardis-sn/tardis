@@ -139,7 +139,7 @@ class CombinedAtomicModel(KuruczAtomModel):
         combined_atomic_model.macro_atom = line.SimpleMacroAtomData.fromdb(conn)
 
         #factor zeta ML 1993
-        combined_atomic_model.recombination_coefficient_interp =\
+        combined_atomic_model.interpolate_recombination_coefficient =\
         read_recombination_coefficients_fromdb(conn, max_atom, max_ion)
 
         return combined_atomic_model
@@ -187,6 +187,7 @@ def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
                     ion < %d
             order by
                 atom, ion, energy""" % (max_atom, max_ion)
+
     if sqlparse_available:
         logger.debug('Reading level data from db:\n%s\n%s\n%s',
             '-' * 80,

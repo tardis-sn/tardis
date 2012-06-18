@@ -16,10 +16,10 @@ class Plasma(object):
 
 class LTEPlasma(Plasma):
     @classmethod
-    def from_model(cls, abundances, density, atomic_model, abundance_mode='named'):
+    def from_model(cls, abundances, density, atom_model, abundance_mode='named'):
         if abundance_mode == 'named':
-            abundances = named2array_abundances(abundances, max_atom=atomic_model.max_atom)
-        return cls(abundances, density, atomic_model)
+            abundances = named2array_abundances(abundances, max_atom=atom_model.max_atom)
+        return cls(abundances, density, atom_model)
 
 
     def __init__(self, abundances, density, atom_model):
@@ -29,7 +29,7 @@ class LTEPlasma(Plasma):
         ndarray with row being ion, column atom
         
         """
-
+        self.atom_model = atom_model
         self.atom_number_density = self._calculate_atom_number_density(abundances, density)
         self.electron_density = np.sum(self.atom_number_density)
 
@@ -41,9 +41,8 @@ class LTEPlasma(Plasma):
         self.ion_number_density, self.electron_density = self._calculate_ion_populations()
 
 
-    def calculate_tau_sobolev(self, line_list, time_exp):
-        wl = line_list['wl'] * 1e-7
-        #C = (np.pi * constants.e**2) / (constants.me * constants.c) #supposed to be (pi*e**2)/(m_e * c)
+    def calculate_tau_sobolev(self, time_exp):
+        wl = self.atom_model.line_list['wl'] * 1e-7
         Z = self.partition_functions[line_list['ion'], line_list['atom'] - 1]
         g_lower = line_list['g_lower']
         e_lower = line_list['e_lower']
@@ -53,10 +52,9 @@ class LTEPlasma(Plasma):
         return tau_sobolev
 
     def _calculate_atom_number_density(self, abundances, density):
-        #TODO float comparison problematic
         if np.abs(np.sum(abundances) - 1) > 1e-10:
             logger.warn('Abundance fractions don\'t add up to one: %s', np.abs(np.sum(abundances) - 1))
-        number_density = (density * abundances) / (self.atomic_model.masses * constants.u)
+        number_density = (density * abundances) / (self.atom_model.masses * constants.u)
 
         return number_density
 
@@ -67,7 +65,7 @@ class LTEPlasma(Plasma):
 
     def _calculate_phis(self):
         #calculating ge = 2/(Lambda^3)
-        ge = 2 / (np.sqrt(h_cgs ** 2 / (2 * np.pi * constants.me * (1 / (self.beta * constants.erg2ev))))) ** 3
+        ge = 2 / (np.sqrt(constants.h ** 2 / (2 * np.pi * constants.me * (1 / (self.beta * constants.erg2ev))))) ** 3
 
         partition_fractions = ge * self.partition_functions[1:] / self.partition_functions[:-1]
         partition_fractions[np.isnan(partition_fractions)] = 0.0
@@ -86,7 +84,7 @@ class LTEPlasma(Plasma):
         #Further Ns
         Nn = N1 * ion_fraction_prod
         new_electron_density = np.sum(
-            Nn * (np.arange(1, self.atomic_model.max_ion).reshape((self.atomic_model.max_ion - 1, 1))))
+            Nn * (np.arange(1, self.atom_model.max_ion).reshape((self.atom_model.max_ion - 1, 1))))
         return np.vstack((N1, Nn)), new_electron_density
 
     def _calculate_ion_populations(self):
@@ -107,9 +105,6 @@ class LTEPlasma(Plasma):
 
 
 class NebularPlasma(LTEPlasma):
-    @classmethod
-
-
     def update_radiationfield(self, t_rad, w, t_electron=None):
         self.t_rad = t_rad
         self.w = w
@@ -131,41 +126,57 @@ class NebularPlasma(LTEPlasma):
 
         vector_calc_partition = np.vectorize(calc_partition, otypes=[np.float64])
         return vector_calc_partition(self.atom_model.levels_energy, self.atom_model.levels_g,
-            self.atomic_model.levels_metastable)
+            self.atom_model.levels_metastable)
 
 
     def _calculate_phis(self):
         #phis = N(i+1)/N(i) ???
         #calculating ge = 2/(Lambda^3)
-        ge = 2 / (np.sqrt(h_cgs ** 2 / (2 * np.pi * me * (1 / (self.beta * constants.erg2ev))))) ** 3
+        ge = 2 / (np.sqrt(constants.h ** 2 / (2 * np.pi * constants.me * (1 / (self.beta * constants.erg2ev))))) ** 3
 
         partition_fractions = ge * self.partition_functions[1:] / self.partition_functions[:-1]
         partition_fractions[np.isnan(partition_fractions)] = 0.0
         partition_fractions[np.isinf(partition_fractions)] = 0.0
         #phi = (n_j+1 * ne / nj)
         phis = partition_fractions * np.exp(-self.beta * self.atom_model.ionization_energy)
-        zeta = self.atomic_model.interpolate_recombination_coefficient(self.t_rad)
-        delta = self.atomic_model.calculate_radfield_correction_factor(self.t_rad, self.t_electron, self.w)
+        zeta = self.atom_model.interpolate_recombination_coefficient(self.t_rad)
+        delta = self.atom_model.calculate_radfield_correction_factor(self.t_rad, self.t_electron, self.w)
 
         phis *= self.w * (delta * zeta + self.w * (1 - zeta)) * (self.t_electron / self.t_rad) ** .5
 
         return phis
 
-    def calculate_tau_sobolev(self, line_list, time_exp):
-        wl = line_list['wl'] * 1e-8
+    def calculate_tau_sobolev(self, time_exp):
+        wl = self.atom_model.line_list['wl'] * 1e-8
         #C = (np.pi * constants.e**2) / (constants.me * constants.c) #supposed to be (pi*e**2)/(m_e * c)
-        Z = self.partition_functions[line_list['ion'], line_list['atom'] - 1]
-        g_lower = line_list['g_lower']
-        e_lower = line_list['e_lower']
-        n_lower = np.empty(len(line_list), dtype=np.float64)
-        ion_number_density = self.ion_number_density[line_list['ion'], line_list['atom'] - 1]
-        meta = line_list['metastable']
+        Z = self.partition_functions[self.atom_model.line_list['ion'], self.atom_model.line_list['atom'] - 1]
+        g_lower = self.atom_model.line_list['g_lower']
+        g_upper = self.atom_model.line_list['g_upper']
+
+        e_lower = self.atom_model.line_list['e_lower']
+        e_upper = self.atom_model.line_list['e_upper']
+
+        n_lower = np.empty(len(self.atom_model.line_list), dtype=np.float64)
+        n_upper = np.empty(len(self.atom_model.line_list), dtype=np.float64)
+
+        ion_number_density = self.ion_number_density[
+                             self.atom_model.line_list['ion'], self.atom_model.line_list['atom'] - 1]
+        meta = self.atom_model.line_list['metastable']
         non_meta = np.logical_not(meta)
-        n_lower[meta] = (g_lower[meta] / Z[meta]) * np.exp(-self.beta * e_lower[meta]) * ion_number_density[meta]
+        n_lower[meta] = (g_lower[meta] / Z[meta]) * np.exp(-self.beta * e_lower[meta]) *\
+                        ion_number_density[meta]
         n_lower[non_meta] = self.w * (g_lower[non_meta] / Z[non_meta]) * np.exp(-self.beta * e_lower[non_meta]) *\
                             ion_number_density[non_meta]
-        #n_lower = (g_lower / Z) * np.exp(-self.beta * e_lower) * self.ion_number_density[line_list['ion'], line_list['atom']-1]
-        tau_sobolev = constants.sobolev_coeff * line_list['f_lu'] * wl * time_exp * n_lower
+
+        n_upper[meta] = (g_upper[meta] / Z[meta]) * np.exp(-self.beta * e_upper[meta]) *\
+                        ion_number_density[meta]
+        n_upper[non_meta] = self.w * (g_upper[non_meta] / Z[non_meta]) * np.exp(-self.beta * e_upper[non_meta]) *\
+                            ion_number_density[non_meta]
+        tau_sobolev_correction = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
+        tau_sobolev_correction[np.isnan(tau_sobolev_correction)] = 0.0
+        tau_sobolev = constants.sobolev_coeff * self.atom_model.line_list[
+                                                'f_lu'] * wl * time_exp * n_lower * tau_sobolev_correction
+
         return tau_sobolev
 
 
@@ -187,13 +198,6 @@ def read_line_list(conn):
         ('atom', np.int64), ('ion', np.int64)])
 
     return line_list
-
-
-def make_levels_table(conn):
-    conn.execute(
-        'create temporary table levels as select elem, ion, e_upper * ? * ? as energy, j_upper as j, label_upper as label from lines union select elem, ion, e_lower, j_lower, label_lower from lines'
-        , (constants.c, h))
-    conn.execute('create index idx_all on levels(elem, ion, energy, j, label)')
 
 
 def read_ionize_data_from_db(conn, max_atom=30, max_ion=None):

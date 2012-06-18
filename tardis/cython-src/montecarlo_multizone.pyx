@@ -32,7 +32,7 @@ cdef extern from "../randomkit/randomkit.h":
     void rk_seed(unsigned long seed, rk_state *state)
     double rk_double(rk_state *state)
 
-DEF packet_logging = True
+DEF packet_logging = False
 IF packet_logging == True:
     packet_logger = logging.getLogger('tardis_packet_logger')
 #DEF packet_logging = False

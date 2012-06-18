@@ -76,9 +76,6 @@ class MultiZoneRadial(Model):
             logger.debug(model_string)
 
 
-    def set_line_list(self, line_list):
-        self.line_list = line_list
-
     def set_atomic_model(self, atomic_model):
         self.atomic_model = atomic_model
 
@@ -117,9 +114,9 @@ class MultiZoneRadial(Model):
 
 
     def calculate_tau_sobolevs(self):
-        tau_sobolevs = np.empty((self.r_inner.size, len(self.line_list)))
+        tau_sobolevs = np.empty((self.r_inner.size, len(self.atomic_model.line_list)))
         for i, plasma in enumerate(self.plasmas):
-            tau_sobolevs[i] = plasma.calculate_tau_sobolev(self.line_list, self.current_time)
+            tau_sobolevs[i] = plasma.calculate_tau_sobolev(self.current_time)
         return tau_sobolevs
 
     def calculate_transition_probabilities(self, tau_sobolevs):
