@@ -1,7 +1,6 @@
 import plasma
 import initialize
 import atomic
-import line
 import photon
 import constants
 import numpy as np
@@ -15,17 +14,17 @@ import sqlite3
 
 # Adding logging support
 logger = logging.getLogger(__name__)
-logger.setLevel(logging.DEBUG)
+
 
 def run_multizone(conn, fname, max_atom=30, max_ion=30):
     logger.info("Reading config file %s", fname)
     initial_config = initialize.read_simple_config(fname)
 
     abundances = plasma.named2array_abundances(initial_config['abundances'], max_atom)
-    atomic_model = atomic.KuruczMacroAtomModel.from_db(conn)
-    line_list = line.read_line_list(conn)
-    line2level = line_list['global_level_id_upper'] - 1
-    atomic_model.macro_atom.read_nus(line_list['nu'])
+
+    atomic_model = atomic.CombinedAtomicModel.from_db(conn)
+    line2level = atomic_model.line_list['global_level_id_upper'] - 1
+    atomic_model.macro_atom.read_nus(atomic_model.line_list['nu'])
 
     w7model = model.MultiZoneRadial.from_w7(initial_config['time_exp'])
     #w7model = model.MultiZoneRadial.from_lucy99(11700, initial_config['time_exp'])
@@ -33,14 +32,12 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
     t_inner = t_rad
     surface_inner = 4 * np.pi * w7model.r_inner[0] ** 2
     volume = (4. / 3) * np.pi * (w7model.r_outer ** 3 - w7model.r_inner ** 3)
-    w7model.set_line_list(line_list)
     w7model.set_atomic_model(atomic_model)
     w7model.read_abundances_uniform(abundances)
     #w7model.read_w7_abundances()
     w7model.initialize_plasmas(t_rad)
 
     i = 0
-    print "starting", t_rad
     track_ws = []
     track_t_rads = []
     track_t_inner = []
@@ -68,13 +65,11 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
                 size=no_of_packets))[::-1]
         mu_input = np.sqrt(np.random.random(no_of_packets))
 
-        print "calculating transition probabilities"
-
         logger.info("Start TARDIS MonteCarlo")
         nu, energy, nu_reabsorbed, energy_reabsorbed, j_estimators, nubar_estimators =\
         montecarlo_multizone.run_simple_oned(nu_input,
             mu_input,
-            line_list['nu'],
+            atomic_model.line_list['nu'],
             tau_sobolevs,
             w7model.r_inner,
             w7model.r_outer,
@@ -97,17 +92,19 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
 
         new_t_inner = (initial_config['luminosity_outer'] / (
             emitted_energy_fraction * constants.sigma_sb * surface_inner )) ** .25
-
-        for new_t_rad, new_w, old_trad, old_w in zip(new_t_rads, new_ws, w7model.t_rads, w7model.ws):
-            print "new_trad / t_rad %.2f / %.2f, new_w/w %.5f %.5f" % (new_t_rad, old_trad, new_w, old_w)
-        print '\n\n---'
-        print "new_tinner / t_inner  %.2f / %.2f" % (new_t_inner, t_inner)
+        if logger.getEffectiveLevel() == logging.DEBUG:
+            log_updated_plasma = "Updating radiation field:\n%15s%15s%15s%15s\n" % ('t_rad', 'new_t_rad', 'w', 'new_w')
+            log_updated_plasma += '-' * 80 + '\n'
+            for new_t_rad, new_w, old_trad, old_w in zip(new_t_rads, new_ws, w7model.t_rads, w7model.ws):
+                log_updated_plasma += '%15.2f%15.2f%15.5f%15.5f\n' % (new_t_rad, old_trad, new_w, old_w)
+            logger.debug(log_updated_plasma + '-' * 80)
+            logger.debug("t_inner = %.2f new_tinner = %.2f", t_inner, new_t_inner)
         w7model.ws = (new_ws + w7model.ws) * .5
         w7model.t_rads = (new_t_rads + w7model.t_rads) * .5
         t_inner = (new_t_inner + t_inner) * .5
         w7model.update_model(w7model.t_rads, w7model.ws)
 
-        print "took %.2f s" % (time.time() - start_time)
+        logging.info("Last iteration took %.2f s", (time.time() - start_time))
 
     return nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner
 
