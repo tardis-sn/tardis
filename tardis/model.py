@@ -4,6 +4,7 @@ import numpy as np
 import os
 import plasma
 import logging
+import constants
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +24,7 @@ class MultiZoneRadial(Model):
         velocities, densities = np.loadtxt(w7model_file, usecols=(1, 2), unpack=1)
         velocities *= 1e5
         densities = 10 ** densities
-        time_0 = 0.000231481 * 86400
+        time_0 = 0.000231481 * constants.days2seconds
         return cls(velocities[112::5], densities[112::5], current_time, time_0)
 
     @classmethod
@@ -38,7 +39,7 @@ class MultiZoneRadial(Model):
         :param density_coefficient: see lucy 99
         :return:
         """
-        time_0 = 0.000231481 * 86400
+        time_0 = 0.000231481 * constants.days2seconds
         velocities = np.arange(shells, dtype=np.float64) * shell_velocity + v_inner
         densities = density_coefficient * velocities ** -7
         velocities *= 1e5
