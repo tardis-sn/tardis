@@ -43,3 +43,6 @@ w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / 
 
 #atomic mass unit
 u = 1.66053886e-24 # atomic mass unit in g
+
+#time
+days2seconds = 86400

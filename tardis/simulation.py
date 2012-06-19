@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def run_multizone(conn, fname, max_atom=30, max_ion=30):
     logger.info("Reading config file %s", fname)
-    initial_config = initialize.read_simple_config(fname)
+    initial_config = initialize.read_normal_config(fname)
 
     abundances = plasma.named2array_abundances(initial_config['abundances'], max_atom)
 
