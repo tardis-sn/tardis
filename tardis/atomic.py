@@ -5,10 +5,11 @@
 from scipy import interpolate
 import line
 import constants
-import initialize
 import numpy as np
 import sqlite3
 import logging
+import StringIO
+import pkgutil
 
 try:
     import sqlparse
@@ -18,6 +19,28 @@ except ImportError:
     sqlparse_available = False
 
 logger = logging.getLogger(__name__)
+
+
+def read_atomic_data(fname=None):
+    if fname is None:
+        data = np.recfromtxt(StringIO.StringIO(
+            pkgutil.get_data('tardis', 'data/atoms.dat')),
+            names=('atom', 'symbol', 'mass'))
+    else:
+        data = np.recfromtxt(fname,
+            names=('atom', 'symbol', 'mass'))
+    return data
+
+
+def read_ionization_data(fname=None):
+    if fname is None:
+        data = np.recfromtxt(StringIO.StringIO(
+            pkgutil.get_data('tardis', 'data/ionization.dat')),
+            names=('atom', 'ion', 'energy'))
+    else:
+        data = np.recfromtxt(fname,
+            names=('atom', 'ion', 'energy'))
+    return data
 
 
 def convert_int_ndarray(sqlite_binary):
@@ -45,11 +68,9 @@ class KuruczAtomModel(AtomModel):
     @classmethod
     def from_db(cls, conn, max_atom=30, max_ion=30):
         logger.info('Reading Kurucz model from database max atom=%d max ion=%d', max_atom, max_ion)
-        symbol2z = initialize.read_symbol2z()
+        masses = read_atomic_data()['mass'][:max_atom]
 
-        masses = initialize.read_atomic_data()['mass'][:max_atom]
-
-        ionization_data = initialize.read_ionization_data()
+        ionization_data = read_ionization_data()
 
 
         #reason for max_ion - 1: in energy level data there's unionized, once-ionized, twice-ionized, ...

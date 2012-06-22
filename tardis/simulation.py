@@ -1,6 +1,3 @@
-import plasma
-import initialize
-import atomic
 import photon
 import constants
 import numpy as np
@@ -16,24 +13,18 @@ import sqlite3
 logger = logging.getLogger(__name__)
 
 
-def run_multizone(conn, fname, max_atom=30, max_ion=30):
-    logger.info("Reading config file %s", fname)
-    initial_config = initialize.read_normal_config(fname)
-
-    abundances = plasma.named2array_abundances(initial_config['abundances'], max_atom)
-
-    atomic_model = atomic.CombinedAtomicModel.from_db(conn)
+def run_multizone(config_dict, atomic_model):
     line2level = atomic_model.line_list['global_level_id_upper'] - 1
     atomic_model.macro_atom.read_nus(atomic_model.line_list['nu'])
 
-    w7model = model.MultiZoneRadial.from_w7(initial_config['time_exp'])
-    #w7model = model.MultiZoneRadial.from_lucy99(11700, initial_config['time_exp'])
-    t_rad = initial_config['t_outer']
+    #w7model = model.MultiZoneRadial.from_w7(config_dict['time_exp'])
+    w7model = model.MultiZoneRadial.from_lucy99(config_dict['v_inner'], config_dict['time_exp'])
+    t_rad = config_dict['t_outer']
     t_inner = t_rad
     surface_inner = 4 * np.pi * w7model.r_inner[0] ** 2
     volume = (4. / 3) * np.pi * (w7model.r_outer ** 3 - w7model.r_inner ** 3)
     w7model.set_atomic_model(atomic_model)
-    w7model.read_abundances_uniform(abundances)
+    w7model.read_abundances_uniform(config_dict['abundances'])
     #w7model.read_w7_abundances()
     w7model.initialize_plasmas(t_rad)
 
@@ -48,12 +39,12 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
         track_t_inner.append(t_inner)
         track_ws.append(w7model.ws.copy())
         i += 1
-        if i > initial_config['iterations']: break
-        if os.path.exists('stop_file') or i == initial_config['iterations']:
-            no_of_packets = initial_config['no_of_spectrum_packets']
+        if i > config_dict['iterations']: break
+        if os.path.exists('stop_file') or i == config_dict['iterations']:
+            no_of_packets = config_dict['no_of_spectrum_packets']
             energy_of_packet = 1. / no_of_packets
         else:
-            no_of_packets = initial_config['no_of_calibration_packets']
+            no_of_packets = config_dict['no_of_calibration_packets']
             energy_of_packet = 1. / no_of_packets
 
         #return sn_plasma
@@ -82,15 +73,20 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
             w7model.atomic_model.macro_atom.target_line_total,
             w7model.atomic_model.macro_atom.level_references,
             line2level,
-            log_packets=0)
+            log_packets=0,
+            do_scatter=0)
 
         new_t_rads = constants.trad_estimator_constant * nubar_estimators / j_estimators
         new_ws = constants.w_estimator_constant * j_estimators / (
-            initial_config['time_simulation'] * new_t_rads ** 4 * volume)
+            config_dict['time_of_simulation'] * (new_t_rads ** 4) * volume)
 
         emitted_energy_fraction = np.sum(energy[nu != 0]) / 1.
+        reabsorbed_energy_fraction = np.sum(energy_reabsorbed[nu_reabsorbed != 0]) / 1.
+        #TODO find out where the energy went. reabsorbed + emitted = 0.98
+        print "testing energy fraction emitted energy_fraction %s reabsorbed energy fraction %2 " % (
+        emitted_energy_fraction, reabsorbed_energy_fraction)
 
-        new_t_inner = (initial_config['luminosity_outer'] / (
+        new_t_inner = (config_dict['luminosity_outer'] / (
             emitted_energy_fraction * constants.sigma_sb * surface_inner )) ** .25
         if logger.getEffectiveLevel() == logging.DEBUG:
             log_updated_plasma = "Updating radiation field:\n%15s%15s%15s%15s\n" % ('t_rad', 'new_t_rad', 'w', 'new_w')
@@ -104,7 +100,7 @@ def run_multizone(conn, fname, max_atom=30, max_ion=30):
         t_inner = (new_t_inner + t_inner) * .5
         w7model.update_model(w7model.t_rads, w7model.ws)
 
-        logging.info("Last iteration took %.2f s", (time.time() - start_time))
+        logger.info("Last iteration took %.2f s", (time.time() - start_time))
 
     return nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner
 
