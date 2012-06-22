@@ -28,7 +28,7 @@ class MultiZoneRadial(Model):
         return cls(velocities[112::5], densities[112::5], current_time, time_0)
 
     @classmethod
-    def from_lucy99(cls, v_inner, current_time, shell_velocity=386, shells=20, density_coefficient=3e29):
+    def from_lucy99(cls, v_inner, current_time, no_of_shells=20, v_outer=30000 * 1e5, density_coefficient=3e29):
         """
 
         :param cls:
@@ -40,9 +40,8 @@ class MultiZoneRadial(Model):
         :return:
         """
         time_0 = 0.000231481 * constants.days2seconds
-        velocities = np.arange(shells, dtype=np.float64) * shell_velocity + v_inner
-        densities = density_coefficient * velocities ** -7
-        velocities *= 1e5
+        velocities = 1 / np.linspace(1 / v_inner, 1 / v_outer, no_of_shells)
+        densities = density_coefficient * (velocities * 1e-5) ** -7
         return cls(velocities, densities, current_time, time_0)
 
     def __init__(self, velocities, densities, current_time, time_0):
@@ -105,8 +104,7 @@ class MultiZoneRadial(Model):
         self.plasmas = []
         for i, (current_abundance, current_t, current_w, current_density) in enumerate(
             zip(self.abundances, self.t_rads, self.ws, self.densities_middle)):
-            current_plasma = plasma.NebularPlasma.from_model(current_abundance, current_density, self.atomic_model,
-                abundance_mode='array')
+            current_plasma = plasma.NebularPlasma.from_model(current_abundance, current_density, self.atomic_model)
             current_plasma.update_radiationfield(t_rad=current_t, w=current_w)
             self.plasmas.append(
                 current_plasma

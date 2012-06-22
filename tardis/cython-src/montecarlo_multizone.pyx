@@ -7,7 +7,6 @@
 import numpy as np
 import logging
 
-
 np.import_array()
 from cython.parallel import prange
 
@@ -208,7 +207,8 @@ np.ndarray[int_type_t, ndim=1] target_level_id,
 np.ndarray[int_type_t, ndim=1] target_line_id,
 np.ndarray[int_type_t, ndim=1] unroll_reference,
 np.ndarray[int_type_t, ndim=1] line2level,
-int_type_t log_packets
+int_type_t log_packets,
+int_type_t do_scatter
 ):
     cdef int_type_t no_of_zones = len(r_inner)
     cdef float_type_t t_exp = r_inner[0] / v_inner[0]
@@ -267,7 +267,6 @@ int_type_t log_packets
     cdef int_type_t close_line = 0
     cdef int_type_t reabsorbed = 0
     cdef int_type_t recently_crossed_boundary = 0
-
     cdef int i = 0
 
     for i in range(no_of_packets):
@@ -479,15 +478,17 @@ int_type_t log_packets
                     inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_t_exp * inverse_c))
 
                     #here comes the macro atom
-                    activate_level_id = line2level[current_line_id]
-                    emission_line_id = macro_atom(activate_level_id,
-                        p_transition,
-                        type_transition,
-                        target_level_id,
-                        target_line_id,
-                        unroll_reference,
-                        current_zone_id)
-
+                    if do_scatter == 0:
+                        activate_level_id = line2level[current_line_id]
+                        emission_line_id = macro_atom(activate_level_id,
+                            p_transition,
+                            type_transition,
+                            target_level_id,
+                            target_line_id,
+                            unroll_reference,
+                            current_zone_id)
+                    elif do_scatter == 1:
+                        emission_line_id = current_line_id
                     current_nu = line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = line_list_nu[emission_line_id]
                     current_line_id = emission_line_id + 1

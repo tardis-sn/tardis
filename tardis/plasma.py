@@ -2,7 +2,6 @@
 
 import constants
 import numpy as np
-import initialize
 import logging
 
 logger = logging.getLogger(__name__)
@@ -16,9 +15,7 @@ class Plasma(object):
 
 class LTEPlasma(Plasma):
     @classmethod
-    def from_model(cls, abundances, density, atom_model, abundance_mode='named'):
-        if abundance_mode == 'named':
-            abundances = named2array_abundances(abundances, max_atom=atom_model.max_atom)
+    def from_model(cls, abundances, density, atom_model):
         return cls(abundances, density, atom_model)
 
 
@@ -257,13 +254,3 @@ def read_level_data(conn, max_atom=30, max_ion=None):
     return energy_data, g_data
 
 
-def named2array_abundances(named_abundances, max_atom, symbol2z=None):
-    if symbol2z is None:
-        symbol2z = initialize.read_symbol2z()
-
-    #converting the abundances dictionary dict to an array
-    abundances = np.zeros(max_atom)
-
-    for symbol in named_abundances:
-        abundances[symbol2z[symbol] - 1] = named_abundances[symbol]
-    return abundances

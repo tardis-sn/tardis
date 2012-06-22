@@ -1,7 +1,7 @@
 #calculation for line interaction
 import constants
 import numpy as np
-import initialize
+import config
 import sqlite3
 import fastline
 
@@ -62,7 +62,7 @@ def read_line_list(conn, atoms=None, symbol2z=None, max_atom=50, max_ion=50):
 
     if atoms is not None:
         if symbol2z is None:
-            symbol2z = initialize.read_symbol2z()
+            symbol2z = config.read_symbol2z()
             atom_list = ','.join([str(symbol2z[atom]) for atom in atoms])
             select_atom_stmt = """ and atom in (%s)""" % atom_list
     else:
