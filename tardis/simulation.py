@@ -6,7 +6,6 @@ import time
 import model
 import os
 import logging
-import sqlite3
 
 
 # Adding logging support
@@ -14,9 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 def run_multizone(config_dict, atomic_model):
+    line_interaction_type = config_dict.get('line_interaction_type', 'macro')
     line2level = atomic_model.line_list['global_level_id_upper'] - 1
     atomic_model.macro_atom.read_nus(atomic_model.line_list['nu'])
-
+    line_interaction_type = config_dict.get('line_interaction_type', 'macro')
     #w7model = model.MultiZoneRadial.from_w7(config_dict['time_exp'])
     w7model = model.MultiZoneRadial.from_lucy99(config_dict['v_inner'], config_dict['time_exp'])
     t_rad = config_dict['t_outer']
@@ -27,6 +27,15 @@ def run_multizone(config_dict, atomic_model):
     w7model.read_abundances_uniform(config_dict['abundances'])
     #w7model.read_w7_abundances()
     w7model.initialize_plasmas(t_rad)
+
+    if line_interaction_type == 'macro':
+        do_scatter = 0
+    elif line_interaction_type == 'downbranch':
+        raise ValueError('yet to be implemented')
+    elif line_interaction_type == 'scatter':
+        do_scatter = 1
+    else:
+        raise ValueError('Line interaction type %s not understood' % line_interaction_type)
 
     i = 0
     track_ws = []
@@ -57,6 +66,7 @@ def run_multizone(config_dict, atomic_model):
         mu_input = np.sqrt(np.random.random(no_of_packets))
 
         logger.info("Start TARDIS MonteCarlo")
+
         nu, energy, nu_reabsorbed, energy_reabsorbed, j_estimators, nubar_estimators =\
         montecarlo_multizone.run_simple_oned(nu_input,
             mu_input,
@@ -74,7 +84,7 @@ def run_multizone(config_dict, atomic_model):
             w7model.atomic_model.macro_atom.level_references,
             line2level,
             log_packets=0,
-            do_scatter=0)
+            do_scatter=do_scatter)
 
         new_t_rads = constants.trad_estimator_constant * nubar_estimators / j_estimators
         new_ws = constants.w_estimator_constant * j_estimators / (
@@ -83,8 +93,8 @@ def run_multizone(config_dict, atomic_model):
         emitted_energy_fraction = np.sum(energy[nu != 0]) / 1.
         reabsorbed_energy_fraction = np.sum(energy_reabsorbed[nu_reabsorbed != 0]) / 1.
         #TODO find out where the energy went. reabsorbed + emitted = 0.98
-        print "testing energy fraction emitted energy_fraction %s reabsorbed energy fraction %2 " % (
-        emitted_energy_fraction, reabsorbed_energy_fraction)
+        #print "testing energy fraction emitted energy_fraction %s reabsorbed energy fraction %2 " % (
+        #emitted_energy_fraction, reabsorbed_energy_fraction)
 
         new_t_inner = (config_dict['luminosity_outer'] / (
             emitted_energy_fraction * constants.sigma_sb * surface_inner )) ** .25
@@ -103,17 +113,3 @@ def run_multizone(config_dict, atomic_model):
         logger.info("Last iteration took %.2f s", (time.time() - start_time))
 
     return nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner
-
-
-if __name__ == '__main__':
-    conn = sqlite3.connect('test.db3',
-        detect_types=sqlite3.PARSE_DECLTYPES)
-    (nu_input,
-     energy_of_packet,
-     nu,
-     energy,
-     nu_reabsorbed,
-     energy_reabsorbed,
-     track_t_rads,
-     track_ws,
-     track_t_inner) = run_multizone(conn, 'simple_run.tconf')
