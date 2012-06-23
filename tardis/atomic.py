@@ -160,11 +160,20 @@ class CombinedAtomicModel(KuruczAtomModel):
         combined_atomic_model.macro_atom = line.SimpleMacroAtomData.fromdb(conn)
 
         #factor zeta ML 1993
-        combined_atomic_model.interpolate_recombination_coefficient =\
-        read_recombination_coefficients_fromdb(conn, max_atom, max_ion)
+        combined_atomic_model.recombination_coeffiencents_t_rads, combined_atomic_model.recombination_coeffiencents =\
+            read_recombination_coefficients_fromdb(conn, max_atom, max_ion)
+        #combined_atomic_model.interpolate_recombination_coefficient =\
+        #read_recombination_coefficients_fromdb(conn, max_atom, max_ion)
 
         return combined_atomic_model
 
+    def interpolate_recombination_coefficient(self, t_rad, kind='linear', bounds_error=True, fill_value=1.):
+        interpolator = interpolate.interp1d(self.recombination_coeffiencents_t_rads,
+                                            self.recombination_coeffiencents,
+                                            kind=kind,
+                                            bounds_error=bounds_error,
+                                            fill_value=fill_value)
+        return interpolator(t_rad)
 
 def read_recombination_coefficients_fromdb(conn, max_atom=30, max_ion=30):
     select_zeta_stmt = """select
@@ -187,9 +196,9 @@ def read_recombination_coefficients_fromdb(conn, max_atom=30, max_ion=30):
     recombination_coefficients = np.ones((max_ion - 1, max_atom, len(t_rads)))
     for atom, ion, zeta in curs:
         recombination_coefficients[ion - 1, atom - 1] = zeta
-    interpolator = interpolate.interp1d(t_rads, recombination_coefficients, kind='linear', bounds_error=False,
-        fill_value=1.)
-    return interpolator
+    #interpolator = interpolate.interp1d(t_rads, recombination_coefficients, kind='linear', bounds_error=False,
+    #    fill_value=1.)
+    return t_rads, recombination_coefficients
 
 
 def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):

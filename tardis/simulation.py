@@ -35,7 +35,7 @@ def run_multizone(config_dict, atomic_model):
     elif line_interaction_type == 'scatter':
         do_scatter = 1
     else:
-        raise ValueError('Line interaction type %s not understood' % line_interaction_type)
+        raise ValueError('Line interaction type %s not understood (allowed are macro, downbranch, scatter)' % line_interaction_type)
 
     i = 0
     track_ws = []
