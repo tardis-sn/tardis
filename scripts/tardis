@@ -1,0 +1,49 @@
+#!/usr/bin/env python
+
+from tardis import simulation, synspec, atomic, config
+
+import sqlite3
+import logging
+import argparse
+
+argparse.ArgumentParser
+
+packet_logging_fname = 'tardis_packets.log'
+
+
+logger = logging.getLogger('tardis')
+logger.setLevel(logging.DEBUG)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+console_formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+logger.addHandler(console_handler)
+
+logger = logging.getLogger('tardis_packet_logger')
+logger.setLevel(logging.DEBUG)
+packet_logging_handler = logging.FileHandler(packet_logging_fname, mode='w')
+packet_logging_handler.setLevel(logging.DEBUG)
+packet_logging_formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(packet_logging_formatter)
+logger.addHandler(packet_logging_handler)
+
+
+conn = sqlite3.connect('test.db3', detect_types=sqlite3.PARSE_DECLTYPES)
+
+
+atomic_model = atomic.CombinedAtomicModel.from_db(conn)
+config_dict = config.read_simple_tardis_config('')
+
+
+nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner =\
+    simulation.run_multizone(config_dict, atomic_model)
+
+result = synspec.tardis_result(nu_input,
+                    energy_of_packet,
+                    nu,
+                    energy,
+                    nu_reabsorbed,
+                    energy_reabsorbed,
+                    track_t_rads,
+                    track_ws,
+                    track_t_inner)
