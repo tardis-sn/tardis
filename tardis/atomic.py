@@ -197,13 +197,14 @@ class CombinedAtomicModel(KuruczAtomModel):
             max_atom=max_atom,
             max_ion=max_ion
         )
-
+        self.recombination_coefficients_t_rads = recombination_coefficients_t_rads
+        self.recombination_coefficients = recombination_coefficients
         self.line_list = line_list
         self.macro_atom = macro_atom
 
     def interpolate_recombination_coefficient(self, t_rad, kind='linear', bounds_error=True, fill_value=1.):
-        interpolator = interpolate.interp1d(self.recombination_coeffiencents_t_rads,
-            self.recombination_coeffiencents,
+        interpolator = interpolate.interp1d(self.recombination_coefficients_t_rads,
+            self.recombination_coefficients,
             kind=kind,
             bounds_error=bounds_error,
             fill_value=fill_value)
