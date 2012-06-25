@@ -22,7 +22,6 @@ try:
 except ValueError:
     pass
 
-
 setup(name='tardis',
     description='TARDIS Software - Time And Relative Diffusion in Supernovae',
     author='The TARDIS collaboration',
@@ -30,14 +29,15 @@ setup(name='tardis',
     packages=['tardis'],
     package_data={'tardis': ['data/*']},
     scripts=scripts,
-    cmdclass = {'build_ext': build_ext},
-    ext_modules = [Extension("tardis.fastline", ["tardis/cython-src/fastline.pyx"],
-                        include_dirs=[numpy.get_include()],
-                        libraries=['m']),
-                   Extension("tardis.montecarlo_multizone", ["tardis/cython-src/montecarlo_multizone.pyx"],
-                        include_dirs=[numpy.get_include()],
-                        libraries=['m'])
-		        ],
-    requires=['Cython','numpy', 'scipy']
-    )
+    cmdclass={'build_ext': build_ext},
+    ext_modules=[Extension("tardis.fastline", ["tardis/cython-src/fastline.pyx"],
+        include_dirs=[numpy.get_include()],
+        libraries=['m']),
+                 Extension("tardis.montecarlo_multizone", ["tardis/cython-src/montecarlo_multizone.pyx",
+                                                           "tardis/randomkit/rk_mt.c"],
+                     include_dirs=[numpy.get_include()],
+                     libraries=['m'])
+    ],
+    requires=['Cython', 'numpy', 'scipy']
+)
       
