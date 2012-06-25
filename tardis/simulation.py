@@ -121,5 +121,5 @@ def run_multizone(config_dict, atomic_model):
         energy_reabsorbed,
         track_t_rads,
         track_ws,
-        track_t_tinner)
+        track_t_inner)
     #return nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner
