@@ -7,6 +7,7 @@
 import numpy as np
 import logging
 
+cimport numpy as np
 np.import_array()
 from cython.parallel import prange
 
