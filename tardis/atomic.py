@@ -106,6 +106,8 @@ class KuruczAtomModel(AtomModel):
         self.levels_g = levels_g
 
         self.levels_metastable = levels_metastable
+        if max_atom != 30 or max_ion != 30:
+            logger.warn('max_atom and/or max_ion are not 30 (max_atom=%s max_ion=%s)', max_atom, max_ion)
         self.max_atom = max_atom
         self.max_ion = max_ion
 
@@ -173,7 +175,9 @@ class CombinedAtomicModel(KuruczAtomModel):
             line_list=line_list,
             macro_atom=macro_atom,
             recombination_coefficients_t_rads=recombination_coefficients_t_rads,
-            recombination_coefficients=recombination_coefficients)
+            recombination_coefficients=recombination_coefficients,
+            max_atom=max_atom,
+            max_ion=max_ion)
 
 
     def __init__(self,

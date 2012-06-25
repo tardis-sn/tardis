@@ -6,6 +6,7 @@ import time
 import model
 import os
 import logging
+import synspec
 
 
 # Adding logging support
@@ -35,7 +36,8 @@ def run_multizone(config_dict, atomic_model):
     elif line_interaction_type == 'scatter':
         do_scatter = 1
     else:
-        raise ValueError('Line interaction type %s not understood (allowed are macro, downbranch, scatter)' % line_interaction_type)
+        raise ValueError(
+            'Line interaction type %s not understood (allowed are macro, downbranch, scatter)' % line_interaction_type)
 
     i = 0
     track_ws = []
@@ -111,5 +113,13 @@ def run_multizone(config_dict, atomic_model):
         w7model.update_model(w7model.t_rads, w7model.ws)
 
         logger.info("Last iteration took %.2f s", (time.time() - start_time))
-
-    return nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner
+    return synspec.tardis_result(nu_input,
+        energy_of_packet,
+        nu,
+        energy,
+        nu_reabsorbed,
+        energy_reabsorbed,
+        track_t_rads,
+        track_ws,
+        track_t_tinner)
+    #return nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner
