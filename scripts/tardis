@@ -6,7 +6,7 @@ import sqlite3
 import logging
 import argparse
 
-tardis_description = \
+tardis_description =\
 """TARDIS Supernova Montecarlo Radiative transfer code
 
 Helper programs
@@ -14,13 +14,14 @@ Helper programs
 tardis_write_config - Write default(example) configuration file for use with tardis
 """
 
-parser = argparse.ArgumentParser(description='TARDIS Supernova Montecarlo Radiative transfer code')
+parser = argparse.ArgumentParser(description='TARDIS Supernova Montecarlo Radiative transfer code',
+    usage=tardis_description)
+argparse.ArgumentParser()
 parser.add_argument('conf_file')
 
 args = parser.parse_args()
 
 packet_logging_fname = 'tardis_packets.log'
-
 
 logger = logging.getLogger('tardis')
 logger.setLevel(logging.DEBUG)
@@ -38,23 +39,20 @@ packet_logging_formatter = logging.Formatter('%(name)s - %(levelname)s - %(messa
 console_handler.setFormatter(packet_logging_formatter)
 logger.addHandler(packet_logging_handler)
 
-
 conn = sqlite3.connect('test.db3', detect_types=sqlite3.PARSE_DECLTYPES)
-
 
 atomic_model = atomic.CombinedAtomicModel.from_db(conn)
 config_dict = config.read_simple_tardis_config('lucy99_general_default.ini')
 
-
 nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner =\
-    simulation.run_multizone(config_dict, atomic_model)
+simulation.run_multizone(config_dict, atomic_model)
 
 result = synspec.tardis_result(nu_input,
-                    energy_of_packet,
-                    nu,
-                    energy,
-                    nu_reabsorbed,
-                    energy_reabsorbed,
-                    track_t_rads,
-                    track_ws,
-                    track_t_inner)
+    energy_of_packet,
+    nu,
+    energy,
+    nu_reabsorbed,
+    energy_reabsorbed,
+    track_t_rads,
+    track_ws,
+    track_t_inner)
