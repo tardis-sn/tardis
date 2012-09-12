@@ -4,11 +4,11 @@ from IPython.parallel import require
 
 @require(tardis.simulation)
 def simulation_launcher(config_dict):
-    return tardis.simulation.run_multizone(config_dict, amodel)
+    return tardis.simulation.run_multizone(config_dict, globals()['amodel'])
 
 
-def parallel_macro_multizone(client, default_dict, **kwargs):
-    lbv = client.load_balanced_view()
+def parallel_macro_multizone(lbv, default_dict, **kwargs):
+    #lbv = client.load_balanced_view()
 
     config_dicts = []
 

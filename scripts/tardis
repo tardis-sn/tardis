@@ -6,7 +6,18 @@ import sqlite3
 import logging
 import argparse
 
-argparse.ArgumentParser
+tardis_description = \
+"""TARDIS Supernova Montecarlo Radiative transfer code
+
+Helper programs
+---------------
+tardis_write_config - Write default(example) configuration file for use with tardis
+"""
+
+parser = argparse.ArgumentParser(description='TARDIS Supernova Montecarlo Radiative transfer code')
+parser.add_argument('conf_file')
+
+args = parser.parse_args()
 
 packet_logging_fname = 'tardis_packets.log'
 
@@ -32,7 +43,7 @@ conn = sqlite3.connect('test.db3', detect_types=sqlite3.PARSE_DECLTYPES)
 
 
 atomic_model = atomic.CombinedAtomicModel.from_db(conn)
-config_dict = config.read_simple_tardis_config('')
+config_dict = config.read_simple_tardis_config('lucy99_general_default.ini')
 
 
 nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner =\
