@@ -6,7 +6,7 @@ import numpy as np
 import logging
 import atomic
 import os
-import shutil
+
 
 
 #TODO Fix use pkgutil
@@ -32,9 +32,10 @@ default_lucy99_abundance = dict(C=0.01,
 
 def write_uniform_tardis_config(fname, default_general_fname=default_lucy99_general_fname,
                                default_abundances=default_lucy99_abundance):
-    shutil.copy(default_lucy99_general_fname, fname)
+    general_section = file(default_lucy99_general_fname).read()
     atomic_data = atomic.read_atomic_data()
-    with file(fname, 'a') as fh:
+    with file(fname, 'w') as fh:
+        fh.write(general_section)
         fh.write('\n\n[uniform_abundances]\n')
         fh.write('oxygen_buffer=True\n')
         for line in atomic_data:

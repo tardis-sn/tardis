@@ -1,0 +1,13 @@
+#!/usr/bin/env python
+
+import argparse
+from tardis import config
+
+parser = argparse.ArgumentParser(description='TARDIS write default_example configs')
+parser.add_argument('conf_file')
+parser.add_argument('-type', default='uniform', choices=('uniform',))
+
+args = parser.parse_args()
+
+if args.type == 'uniform':
+    config.write_uniform_tardis_config(args.conf_file)

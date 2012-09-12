@@ -267,7 +267,7 @@ def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
 
             '-' * 80)
     else:
-        logger.debug(level_select_stmt, max_ion, max_atom)
+        logger.debug(level_select_stmt)
 
     curs = conn.execute(level_select_stmt)
     energy_data = np.zeros((max_ion, max_atom), dtype='object')
