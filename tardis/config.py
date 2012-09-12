@@ -6,6 +6,8 @@ import numpy as np
 import logging
 import atomic
 import os
+import shutil
+
 
 #TODO Fix use pkgutil
 
@@ -27,6 +29,18 @@ default_lucy99_abundance = dict(C=0.01,
     Fe=0.07,
     Co=0.01,
     Ni=0.01)
+
+def write_uniform_tardis_config(fname, default_general_fname=default_lucy99_general_fname,
+                               default_abundances=default_lucy99_abundance):
+    shutil.copy(default_lucy99_general_fname, fname)
+    atomic_data = atomic.read_atomic_data()
+    with file(fname, 'a') as fh:
+        fh.write('\n\n[uniform_abundances]\n')
+        fh.write('oxygen_buffer=True\n')
+        for line in atomic_data:
+            if line['symbol'] not in default_abundances:
+                continue
+            fh.write('%s=%.2f\n' % (line['symbol'], default_abundances[line['symbol']]))
 
 
 def read_simple_tardis_config(fname, default_general_fname=default_lucy99_general_fname,
