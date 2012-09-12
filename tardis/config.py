@@ -31,13 +31,13 @@ default_lucy99_abundance = dict(C=0.01,
     Ni=0.01)
 
 def write_uniform_tardis_config(fname, default_general_fname=default_lucy99_general_fname,
-                               default_abundances=default_lucy99_abundance):
+                                default_abundances=default_lucy99_abundance):
     general_section = file(default_lucy99_general_fname).read()
     atomic_data = atomic.read_atomic_data()
     with file(fname, 'w') as fh:
         fh.write(general_section)
         fh.write('\n\n[uniform_abundances]\n')
-        fh.write('oxygen_buffer=True\n')
+        fh.write('oxygen_buffer=False\n')
         for line in atomic_data:
             if line['symbol'] not in default_abundances:
                 continue
@@ -77,7 +77,7 @@ def read_simple_tardis_config(fname, default_general_fname=default_lucy99_genera
 
     tardis_config['luminosity_outer'] = 10 ** (log_l_lsun + constants.log_lsun)
     tardis_config['t_outer'] = (tardis_config['luminosity_outer'] / (
-    4 * np.pi * constants.sigma_sb * tardis_config['r_inner'] ** 2)) ** .25
+        4 * np.pi * constants.sigma_sb * tardis_config['r_inner'] ** 2)) ** .25
     tardis_config['time_of_simulation'] = 1 / tardis_config['luminosity_outer']
 
     logger.debug('Required output luminosity is %s ergs/s => outer temperature %.2f K; duration of simulation %s s',
@@ -90,6 +90,7 @@ def read_simple_tardis_config(fname, default_general_fname=default_lucy99_genera
     tardis_config['iterations'] = config.getint('general', 'iterations')
 
     if 'abund' not in ''.join(config.sections()):
+        print "test", ''.join(config.sections())
         logger.warn('No abundance section specified. Using defaults')
         named_abundances = default_abundances
         oxygen_buffer = False
@@ -102,12 +103,12 @@ def read_simple_tardis_config(fname, default_general_fname=default_lucy99_genera
             oxygen_buffer = True
 
         for atom, abundance in config.items('uniform_abundances'):
-            named_abundances[atom.lower()] = abundance
+            if atom == 'oxygen_buffer':
+                continue
+            named_abundances[atom.lower()] = config.getfloat('uniform_abundances', atom)
     else:
         raise ValueError('only uniform abundances supported at the moment. ')
         #TODO add reading of different abundance specifications
-
-
 
     abundances = named2array_abundances(named_abundances, tardis_config['max_atom'], oxygen_buffer=oxygen_buffer)
     logger.info('Included elements: %s', ','.join(named_abundances.keys()))
@@ -124,6 +125,7 @@ def named2array_abundances(named_abundances, max_atom, oxygen_buffer=True):
 
     for symbol in named_abundances:
         if symbol.lower() == 'o' and oxygen_buffer:
+            print symbol, named_abundances
             logger.warn('Requested oxygen as buffer but specifying an abundance (O=%.2f)' % named_abundances[symbol])
             continue
         abundances[symbol2z[symbol.lower()] - 1] = named_abundances[symbol]
