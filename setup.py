@@ -38,6 +38,6 @@ setup(name='tardis',
                      include_dirs=[numpy.get_include()],
                      libraries=['m'])
     ],
-    requires=['Cython', 'numpy', 'scipy']
+    requires=['Cython', 'numpy', 'scipy', 'texttable']
 )
       
