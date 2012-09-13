@@ -7,7 +7,7 @@ import model
 import os
 import logging
 import synspec
-
+import texttable
 
 
 
@@ -102,13 +102,21 @@ def run_multizone(config_dict, atomic_model):
 
         new_t_inner = (config_dict['luminosity_outer'] / (
             emitted_energy_fraction * constants.sigma_sb * surface_inner )) ** .25
+
+
         if logger.getEffectiveLevel() == logging.DEBUG:
-            log_updated_plasma = "Updating radiation field:\n%15s%15s%15s%15s\n" % ('t_rad', 'new_t_rad', 'w', 'new_w')
-            log_updated_plasma += '-' * 80 + '\n'
-            for new_t_rad, new_w, old_trad, old_w in zip(new_t_rads, new_ws, w7model.t_rads, w7model.ws):
-                log_updated_plasma += '%15.2f%15.2f%15.5f%15.5f\n' % (new_t_rad, old_trad, new_w, old_w)
-            logger.debug(log_updated_plasma + '-' * 80)
+            temp_table = texttable.Texttable()
+            header = ('t_rad', 'new_t_rad', 'w', 'new_w')
+            temp_table.add_row(header)
+            temp_table.set_deco(temp_table.HEADER | temp_table.VLINES)
             logger.debug("t_inner = %.2f new_tinner = %.2f", t_inner, new_t_inner)
+            for new_t_rad, new_w, old_t_rad, old_w in zip(new_t_rads, new_ws, w7model.t_rads, w7model.ws):
+                temp_table.add_row(('%.2f' % old_t_rad, '%.2f' % new_t_rad, '%.4f' % old_w, '%.4f' % new_w))
+            logger.debug('\n\n' + temp_table.draw())
+
+
+
+
         w7model.ws = (new_ws + w7model.ws) * .5
         w7model.t_rads = (new_t_rads + w7model.t_rads) * .5
         t_inner = (new_t_inner + t_inner) * .5
