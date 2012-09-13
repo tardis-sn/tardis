@@ -30,9 +30,9 @@ default_lucy99_abundance = dict(C=0.01,
     Co=0.01,
     Ni=0.01)
 
-def write_uniform_tardis_config(fname, default_general_fname=default_lucy99_general_fname,
+def write_uniform_abundance_config(fname, default_general_fname=default_lucy99_general_fname,
                                 default_abundances=default_lucy99_abundance):
-    general_section = file(default_lucy99_general_fname).read()
+    general_section = file(default_general_fname).read()
     atomic_data = atomic.read_atomic_data()
     with file(fname, 'w') as fh:
         fh.write(general_section)
@@ -44,7 +44,7 @@ def write_uniform_tardis_config(fname, default_general_fname=default_lucy99_gene
             fh.write('%s=%.2f\n' % (line['symbol'], default_abundances[line['symbol']]))
 
 
-def read_simple_tardis_config(fname, default_general_fname=default_lucy99_general_fname,
+def read_uniform_abundance_config(fname, default_general_fname=default_lucy99_general_fname,
                               default_abundances=default_lucy99_abundance):
     """
     Read standard tardis config file
@@ -115,6 +115,47 @@ def read_simple_tardis_config(fname, default_general_fname=default_lucy99_genera
     tardis_config['abundances'] = abundances
 
     return tardis_config
+
+
+def read_shell_config(fname, default_general_fname=default_lucy99_general_fname):
+    tardis_config = {}
+    config = ConfigParser.ConfigParser()
+
+    config.read([default_general_fname, fname])
+
+    tardis_config['max_atom'] = config.getint('general', 'max_atom')
+    if tardis_config['max_atom'] != 30:
+        logger.warn('max_atom is not 30; normal atomic models do not work with this setting')
+
+    tardis_config['max_ion'] = config.getint('general', 'max_ion')
+    if tardis_config['max_ion'] != 30:
+        logger.warn('max_ion is not 30; normal atomic models do not work with this setting')
+
+    tardis_config['time_exp'] = config.getfloat('general', 'time_exp') * constants.days2seconds
+    logger.debug('Time since explosion %.2f s', tardis_config['time_exp'])
+
+    tardis_config['v_inner'] = config.getfloat('general', 'v_inner') * 1e5 # converting from km/s to cm/s
+    tardis_config['r_inner'] = tardis_config['v_inner'] * tardis_config['time_exp']
+    logger.debug('Boundary velocity %.2f cm/s (at %.2f cm)', tardis_config['v_inner'], tardis_config['r_inner'])
+
+    #TODO add luminosity check to get something else than bolometric
+    log_l_lsun = config.getfloat('general', 'log_l_lsun')
+
+    tardis_config['luminosity_outer'] = 10 ** (log_l_lsun + constants.log_lsun)
+    tardis_config['t_outer'] = (tardis_config['luminosity_outer'] / (
+        4 * np.pi * constants.sigma_sb * tardis_config['r_inner'] ** 2)) ** .25
+    tardis_config['time_of_simulation'] = 1 / tardis_config['luminosity_outer']
+
+    logger.debug('Required output luminosity is %s ergs/s => outer temperature %.2f K; duration of simulation %s s',
+        tardis_config['luminosity_outer'],
+        tardis_config['t_outer'],
+        tardis_config['time_of_simulation'])
+
+    tardis_config['no_of_calibration_packets'] = int(config.getfloat('general', 'calibration_packets'))
+    tardis_config['no_of_spectrum_packets'] = int(config.getfloat('general', 'spectrum_packets'))
+    tardis_config['iterations'] = config.getint('general', 'iterations')
+
+
 
 
 def named2array_abundances(named_abundances, max_atom, oxygen_buffer=True):

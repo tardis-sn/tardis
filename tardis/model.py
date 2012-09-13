@@ -44,8 +44,16 @@ class MultiZoneRadial(Model):
         densities = density_coefficient * (velocities * 1e-5) ** -7
         return cls(velocities, densities, current_time, time_0)
 
+
+
     def __init__(self, velocities, densities, current_time, time_0):
-        #constructing zones
+
+        """
+        :param velocities: in km/s
+        :param densities: in g/cm^3 (I think)
+        :param current_time: in seconds
+        :param time_0: in seconds
+        """
         self.v_inner = velocities[:-1]
         self.v_outer = velocities[1:]
 

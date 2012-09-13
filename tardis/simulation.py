@@ -16,10 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 def run_multizone(config_dict, atomic_model):
-    line_interaction_type = config_dict.get('line_interaction_type', 'macro')
     line2level = atomic_model.line_list['global_level_id_upper'] - 1
     atomic_model.macro_atom.read_nus(atomic_model.line_list['nu'])
     line_interaction_type = config_dict.get('line_interaction_type', 'macro')
+
     #w7model = model.MultiZoneRadial.from_w7(config_dict['time_exp'])
     w7model = model.MultiZoneRadial.from_lucy99(config_dict['v_inner'], config_dict['time_exp'])
     t_rad = config_dict['t_outer']
