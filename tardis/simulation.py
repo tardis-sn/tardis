@@ -20,16 +20,18 @@ def run_multizone(config_dict, atomic_model):
     atomic_model.macro_atom.read_nus(atomic_model.line_list['nu'])
     line_interaction_type = config_dict.get('line_interaction_type', 'macro')
 
-    #w7model = model.MultiZoneRadial.from_w7(config_dict['time_exp'])
-    w7model = model.MultiZoneRadial.from_lucy99(config_dict['v_inner'], config_dict['time_exp'])
+    if config_dict['config_type'] == 'uniform_w7':
+        current_model = model.MultiZoneRadial.from_lucy99(config_dict['v_inner'], config_dict['time_exp'])
+    elif config_dict['config_type'] == 'shell':
+        current_model = model.MultiZoneRadial(config_dict['velocities'], config_dict['densities'], )
     t_rad = config_dict['t_outer']
     t_inner = t_rad
-    surface_inner = 4 * np.pi * w7model.r_inner[0] ** 2
-    volume = (4. / 3) * np.pi * (w7model.r_outer ** 3 - w7model.r_inner ** 3)
-    w7model.set_atomic_model(atomic_model)
-    w7model.read_abundances_uniform(config_dict['abundances'])
-    #w7model.read_w7_abundances()
-    w7model.initialize_plasmas(t_rad)
+    surface_inner = 4 * np.pi * current_model.r_inner[0] ** 2
+    volume = (4. / 3) * np.pi * (current_model.r_outer ** 3 - current_model.r_inner ** 3)
+    current_model.set_atomic_model(atomic_model)
+    current_model.read_abundances_uniform(config_dict['abundances'])
+    #current_model.read_w7_abundances()
+    current_model.initialize_plasmas(t_rad)
 
     if line_interaction_type == 'macro':
         do_scatter = 0
@@ -48,9 +50,9 @@ def run_multizone(config_dict, atomic_model):
 
     while True:
         start_time = time.time()
-        track_t_rads.append(w7model.t_rads.copy())
+        track_t_rads.append(current_model.t_rads.copy())
         track_t_inner.append(t_inner)
-        track_ws.append(w7model.ws.copy())
+        track_ws.append(current_model.ws.copy())
         i += 1
         if i > config_dict['iterations']: break
         if os.path.exists('stop_file') or i == config_dict['iterations']:
@@ -62,8 +64,8 @@ def run_multizone(config_dict, atomic_model):
 
         #return sn_plasma
 
-        tau_sobolevs = w7model.calculate_tau_sobolevs()
-        transition_probabilities = w7model.calculate_transition_probabilities(tau_sobolevs)
+        tau_sobolevs = current_model.calculate_tau_sobolevs()
+        transition_probabilities = current_model.calculate_transition_probabilities(tau_sobolevs)
         nu_input = np.sort(
             photon.random_blackbody_nu(t_inner, nu_range=(1e8 * constants.c / 1, 1e8 * constants.c / 100000.),
                 size=no_of_packets))[::-1]
@@ -76,16 +78,16 @@ def run_multizone(config_dict, atomic_model):
             mu_input,
             atomic_model.line_list['nu'],
             tau_sobolevs,
-            w7model.r_inner,
-            w7model.r_outer,
-            w7model.v_inner,
-            w7model.electron_densities,
+            current_model.r_inner,
+            current_model.r_outer,
+            current_model.v_inner,
+            current_model.electron_densities,
             energy_of_packet,
             transition_probabilities,
-            w7model.atomic_model.macro_atom.transition_type_total,
-            w7model.atomic_model.macro_atom.target_level_total,
-            w7model.atomic_model.macro_atom.target_line_total,
-            w7model.atomic_model.macro_atom.level_references,
+            current_model.atomic_model.macro_atom.transition_type_total,
+            current_model.atomic_model.macro_atom.target_level_total,
+            current_model.atomic_model.macro_atom.target_line_total,
+            current_model.atomic_model.macro_atom.level_references,
             line2level,
             log_packets=0,
             do_scatter=do_scatter)
@@ -110,17 +112,17 @@ def run_multizone(config_dict, atomic_model):
             temp_table.add_row(header)
             temp_table.set_deco(temp_table.HEADER | temp_table.VLINES)
             logger.debug("t_inner = %.2f new_tinner = %.2f", t_inner, new_t_inner)
-            for new_t_rad, new_w, old_t_rad, old_w in zip(new_t_rads, new_ws, w7model.t_rads, w7model.ws):
+            for new_t_rad, new_w, old_t_rad, old_w in zip(new_t_rads, new_ws, current_model.t_rads, current_model.ws):
                 temp_table.add_row(('%.2f' % old_t_rad, '%.2f' % new_t_rad, '%.4f' % old_w, '%.4f' % new_w))
             logger.debug('\n\n' + temp_table.draw())
 
 
 
 
-        w7model.ws = (new_ws + w7model.ws) * .5
-        w7model.t_rads = (new_t_rads + w7model.t_rads) * .5
+        current_model.ws = (new_ws + current_model.ws) * .5
+        current_model.t_rads = (new_t_rads + current_model.t_rads) * .5
         t_inner = (new_t_inner + t_inner) * .5
-        w7model.update_model(w7model.t_rads, w7model.ws)
+        current_model.update_model(current_model.t_rads, current_model.ws)
 
         logger.info("Last iteration took %.2f s", (time.time() - start_time))
     return synspec.tardis_result(nu_input,

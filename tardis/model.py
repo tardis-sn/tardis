@@ -19,18 +19,19 @@ class Model(object):
 
 
 class MultiZoneRadial(Model):
+
     @classmethod
     def from_w7(cls, current_time):
         velocities, densities = np.loadtxt(w7model_file, usecols=(1, 2), unpack=1)
         velocities *= 1e5
-        densities = 10 ** densities
         time_0 = 0.000231481 * constants.days2seconds
+        densities = 10 ** densities * (current_time / time_0) ** -3
         return cls(velocities[112::5], densities[112::5], current_time, time_0)
 
     @classmethod
     def from_lucy99(cls, v_inner, current_time, no_of_shells=20, v_outer=30000 * 1e5, density_coefficient=3e29):
-        """
 
+        """
         :param cls:
         :param v_inner: in km/s
         :param current_time: in days
@@ -39,9 +40,12 @@ class MultiZoneRadial(Model):
         :param density_coefficient: see lucy 99
         :return:
         """
+
+
         time_0 = 0.000231481 * constants.days2seconds
         velocities = 1 / np.linspace(1 / v_inner, 1 / v_outer, no_of_shells)
         densities = density_coefficient * (velocities * 1e-5) ** -7
+        densities *= (current_time / time_0) ** -3
         return cls(velocities, densities, current_time, time_0)
 
 
@@ -49,7 +53,7 @@ class MultiZoneRadial(Model):
     def __init__(self, velocities, densities, current_time, time_0):
 
         """
-        :param velocities: in km/s
+        :param velocities: in cm/s
         :param densities: in g/cm^3 (I think)
         :param current_time: in seconds
         :param time_0: in seconds
@@ -64,7 +68,7 @@ class MultiZoneRadial(Model):
         self.r_outer = self.v_outer * current_time
         self.r_middle = 0.5 * (self.r_inner + self.r_outer)
         self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
-        self.densities_middle = (current_time / time_0) ** -3 * densities[1:]
+        self.densities_middle = densities[1:]
 
         if logger.getEffectiveLevel() == logging.DEBUG:
             model_string = "New Model:\n%s\n" % ('-' * 80,)

@@ -52,7 +52,7 @@ def read_uniform_abundance_config(fname, default_general_fname=default_lucy99_ge
     :return:
     """
 
-    tardis_config = {}
+    tardis_config = {'config_type':'uniform_w7'}
     config = ConfigParser.ConfigParser()
 
     config.read([default_general_fname, fname])
