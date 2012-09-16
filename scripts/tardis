@@ -9,6 +9,7 @@ import os
 import pickle
 
 
+
 tardis_description =\
 """TARDIS Supernova Montecarlo Radiative transfer code
 
@@ -48,7 +49,7 @@ logger.addHandler(packet_logging_handler)
 conn = sqlite3.connect(os.path.expanduser(args.atomic_db), detect_types=sqlite3.PARSE_DECLTYPES)
 
 atomic_model = atomic.CombinedAtomicModel.from_db(conn)
-config_dict = config.read_simple_tardis_config(args.config_file)
+config_dict = config.read_uniform_abundance_config(args.config_file)
 
 result = simulation.run_multizone(config_dict, atomic_model)
 
