@@ -43,7 +43,9 @@ class MultiZoneRadial(Model):
 
 
         time_0 = 0.000231481 * constants.days2seconds
-        velocities = 1 / np.linspace(1 / v_inner, 1 / v_outer, no_of_shells)
+
+        #TODO are the shells distributed right? currently just linear.
+        velocities = np.linspace(v_inner, v_outer, no_of_shells, endpoint=True)
         densities = density_coefficient * (velocities * 1e-5) ** -7
         densities *= (current_time / time_0) ** -3
         return cls(velocities, densities, current_time, time_0)
