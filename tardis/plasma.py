@@ -160,13 +160,11 @@ class NebularPlasma(LTEPlasma):
                              self.atom_model.line_list['ion'], self.atom_model.line_list['atom'] - 1]
         meta = self.atom_model.line_list['metastable']
         non_meta = np.logical_not(meta)
-        n_lower[meta] = (g_lower[meta] / Z[meta]) * np.exp(-self.beta * e_lower[meta]) *\
-                        ion_number_density[meta]
+        n_lower[meta] = (g_lower[meta] / Z[meta]) * np.exp(-self.beta * e_lower[meta]) * ion_number_density[meta]
         n_lower[non_meta] = self.w * (g_lower[non_meta] / Z[non_meta]) * np.exp(-self.beta * e_lower[non_meta]) *\
                             ion_number_density[non_meta]
 
-        n_upper[meta] = (g_upper[meta] / Z[meta]) * np.exp(-self.beta * e_upper[meta]) *\
-                        ion_number_density[meta]
+        n_upper[meta] = (g_upper[meta] / Z[meta]) * np.exp(-self.beta * e_upper[meta]) * ion_number_density[meta]
         n_upper[non_meta] = self.w * (g_upper[non_meta] / Z[non_meta]) * np.exp(-self.beta * e_upper[non_meta]) *\
                             ion_number_density[non_meta]
         tau_sobolev_correction = 1 - ((g_lower * n_upper) / (g_upper * n_lower))

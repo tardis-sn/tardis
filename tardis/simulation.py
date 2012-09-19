@@ -20,16 +20,30 @@ def run_multizone(config_dict, atomic_model):
     atomic_model.macro_atom.read_nus(atomic_model.line_list['nu'])
     line_interaction_type = config_dict.get('line_interaction_type', 'macro')
 
+    #DEBUG STATEMENT TAKE OUT
+    line_interaction_type = 'scatter'
+
+
     if config_dict['config_type'] == 'uniform_w7':
-        current_model = model.MultiZoneRadial.from_lucy99(config_dict['v_inner'], config_dict['time_exp'])
+        current_model = model.MultiZoneRadial.from_lucy99(config_dict['v_inner'], config_dict['abundances'],
+                                                          config_dict['time_exp'])
     elif config_dict['config_type'] == 'shell':
-        current_model = model.MultiZoneRadial(config_dict['velocities'], config_dict['densities'], )
+        config_dict['densities'] = np.hstack(([0], config_dict['densities']))
+        current_model = model.MultiZoneRadial(config_dict['velocities'], config_dict['densities'],
+                                config_dict['abundances'], config_dict['time_exp'])
     t_rad = config_dict['t_outer']
+
+    #DEBUG STATEMENT TAKE OUT
+    t_rad = 10000
+    current_model.ws[0]=1.
+    #DEBUG STATEMENT TAKE OUT
     t_inner = t_rad
+
     surface_inner = 4 * np.pi * current_model.r_inner[0] ** 2
     volume = (4. / 3) * np.pi * (current_model.r_outer ** 3 - current_model.r_inner ** 3)
     current_model.set_atomic_model(atomic_model)
-    current_model.read_abundances_uniform(config_dict['abundances'])
+
+    #current_model.read_abundances_uniform(config_dict['abundances'])
     #current_model.read_w7_abundances()
     current_model.initialize_plasmas(t_rad)
 
@@ -64,7 +78,19 @@ def run_multizone(config_dict, atomic_model):
 
         #return sn_plasma
 
+        #DEBUG STATEMENT TAKE OUT
+        #Silicon filter
+        silicon_filter = (atomic_model.line_list['atom'] != 14) #| (atomic_model.line_list['ion'] != 1)
+        #DEBUG STATEMENT TAKE OUT
+
         tau_sobolevs = current_model.calculate_tau_sobolevs()
+
+        #DEBUG STATEMENT TAKE OUT
+        #print "shapes", tau_sobolevs.shape, silicon_filter.shape
+
+        tau_sobolevs[0][silicon_filter] = 0.
+        #DEBUG STATEMENT TAKE OUT
+
         transition_probabilities = current_model.calculate_transition_probabilities(tau_sobolevs)
         nu_input = np.sort(
             photon.random_blackbody_nu(t_inner, nu_range=(1e8 * constants.c / 1, 1e8 * constants.c / 100000.),

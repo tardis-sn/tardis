@@ -25,7 +25,7 @@ parser.add_argument('result_file')
 parser.add_argument('-atomic_db', default='~/.tardis/atomic_db.db3')
 parser.add_argument('-log_file', default=None)
 parser.add_argument('-packet_log_file', default=None)
-
+parser.add_argument('-config_type', default='uniform_w7', choices=('uniform_w7', 'shell'))
 args = parser.parse_args()
 
 packet_logging_fname = 'tardis_packets.log'
@@ -49,7 +49,10 @@ logger.addHandler(packet_logging_handler)
 conn = sqlite3.connect(os.path.expanduser(args.atomic_db), detect_types=sqlite3.PARSE_DECLTYPES)
 
 atomic_model = atomic.CombinedAtomicModel.from_db(conn)
-config_dict = config.read_uniform_abundance_config(args.config_file)
+if args.config_type == 'uniform_w7':
+    config_dict = config.read_uniform_abundance_config(args.config_file)
+elif args.config_type == 'shell':
+    config_dict = config.read_shell_config(args.config_file)
 
 result = simulation.run_multizone(config_dict, atomic_model)
 
