@@ -26,18 +26,21 @@ class MultiZoneRadial(Model):
         velocities *= 1e5
         time_0 = 0.000231481 * constants.days2seconds
         densities = 10 ** densities * (current_time / time_0) ** -3
+        #TODO implement abundances here.
         return cls(velocities[112::5], densities[112::5], current_time, time_0)
 
     @classmethod
-    def from_lucy99(cls, v_inner, current_time, no_of_shells=20, v_outer=30000 * 1e5, density_coefficient=3e29):
+    def from_lucy99(cls, v_inner, abundances, current_time, no_of_shells=20, v_outer=30000 * 1e5,
+                    abundance_mode='uniform', density_coefficient=3e29):
 
         """
         :param cls:
         :param v_inner: in km/s
         :param current_time: in days
         :param shell_velocity: in km/s
-        :param shells: number of shells
+        :param no_of_shells: number of shells
         :param density_coefficient: see lucy 99
+        :param abundance_mode: currently supported uniform, scaled
         :return:
         """
 
@@ -48,22 +51,29 @@ class MultiZoneRadial(Model):
         velocities = np.linspace(v_inner, v_outer, no_of_shells, endpoint=True)
         densities = density_coefficient * (velocities * 1e-5) ** -7
         densities *= (current_time / time_0) ** -3
-        return cls(velocities, densities, current_time, time_0)
+
+        if abundance_mode == 'uniform':
+            model_abundances = np.empty((no_of_shells, abundances.size))
+            for i in xrange(no_of_shells):
+                model_abundances[i] = abundances.copy()
+
+        elif abundance_mode == 'scaled':
+            raise NotImplementedError()
+
+        return cls(velocities, densities, model_abundances, current_time, time_0)
 
 
 
-    def __init__(self, velocities, densities, current_time, time_0):
+    def __init__(self, velocities, densities, abundances, current_time):
 
         """
         :param velocities: in cm/s
         :param densities: in g/cm^3 (I think)
         :param current_time: in seconds
-        :param time_0: in seconds
         """
         self.v_inner = velocities[:-1]
         self.v_outer = velocities[1:]
 
-        self.time_0 = time_0
         self.current_time = current_time
 
         self.r_inner = self.v_inner * current_time
@@ -71,7 +81,7 @@ class MultiZoneRadial(Model):
         self.r_middle = 0.5 * (self.r_inner + self.r_outer)
         self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
         self.densities_middle = densities[1:]
-
+        self.abundances = abundances
         if logger.getEffectiveLevel() == logging.DEBUG:
             model_string = "New Model:\n%s\n" % ('-' * 80,)
             model_string += "% 10s% 10s% 10s% 10s% 10s\n" %\
@@ -93,10 +103,7 @@ class MultiZoneRadial(Model):
     def set_atomic_model(self, atomic_model):
         self.atomic_model = atomic_model
 
-    def read_abundances_uniform(self, abundances):
-        self.abundances = np.empty((self.r_inner.size, abundances.size))
-        for i in range(self.r_inner.size):
-            self.abundances[i] = abundances.copy()
+
 
     def read_w7_abundances(self):
         w7_abundances = np.loadtxt(w7abundances_file, usecols=np.arange(1, 31))
