@@ -18,44 +18,39 @@ logger = logging.getLogger(__name__)
 def run_multizone(config_dict, atomic_model):
     line2level = atomic_model.line_list['global_level_id_upper'] - 1
     atomic_model.macro_atom.read_nus(atomic_model.line_list['nu'])
+
     line_interaction_type = config_dict.get('line_interaction_type', 'macro')
-
-    #DEBUG STATEMENT TAKE OUT
-    line_interaction_type = 'scatter'
-
+    logger.debug('Line interaction type set to \'%s\'' % line_interaction_type)
 
     if config_dict['config_type'] == 'uniform_w7':
         current_model = model.MultiZoneRadial.from_lucy99(config_dict['v_inner'], config_dict['abundances'],
-                                                          config_dict['time_exp'])
-    elif config_dict['config_type'] == 'shell':
-        config_dict['densities'] = np.hstack(([0], config_dict['densities']))
-        current_model = model.MultiZoneRadial(config_dict['velocities'], config_dict['densities'],
-                                config_dict['abundances'], config_dict['time_exp'])
-    t_rad = config_dict['t_outer']
+            config_dict['time_exp'], config_dict['no_of_shells'])
 
-    #DEBUG STATEMENT TAKE OUT
-    t_rad = 10000
-    current_model.ws[0]=1.
-    #DEBUG STATEMENT TAKE OUT
-    t_inner = t_rad
+    elif config_dict['config_type'] == 'shell':
+        current_model = model.MultiZoneRadial(config_dict['velocities'], config_dict['densities'],
+            config_dict['abundances'], config_dict['time_exp'], config_dict['ws'])
 
     surface_inner = 4 * np.pi * current_model.r_inner[0] ** 2
     volume = (4. / 3) * np.pi * (current_model.r_outer ** 3 - current_model.r_inner ** 3)
     current_model.set_atomic_model(atomic_model)
 
-    #current_model.read_abundances_uniform(config_dict['abundances'])
-    #current_model.read_w7_abundances()
-    current_model.initialize_plasmas(t_rad)
+    current_model.initialize_plasmas(config_dict['t_rads'])
 
+    logger.debug('\n\n' + current_model.print_model_table())
+    #TODO temperature initialized wrong. Need to calculate inner temperature not outer temperature
+    t_inner = config_dict['t_rads'][0]
     if line_interaction_type == 'macro':
         do_scatter = 0
+
     elif line_interaction_type == 'downbranch':
-        raise ValueError('yet to be implemented')
+        raise NotImplementedError('downbranch yet to be implemented')
+
     elif line_interaction_type == 'scatter':
         do_scatter = 1
+
     else:
-        raise ValueError(
-            'Line interaction type %s not understood (allowed are macro, downbranch, scatter)' % line_interaction_type)
+        raise ValueError('Line interaction type %s not understood (allowed are macro, downbranch, scatter)'\
+                         % line_interaction_type)
 
     i = 0
     track_ws = []
@@ -78,18 +73,16 @@ def run_multizone(config_dict, atomic_model):
 
         #return sn_plasma
 
-        #DEBUG STATEMENT TAKE OUT
-        #Silicon filter
-        silicon_filter = (atomic_model.line_list['atom'] != 14) #| (atomic_model.line_list['ion'] != 1)
-        #DEBUG STATEMENT TAKE OUT
+
 
         tau_sobolevs = current_model.calculate_tau_sobolevs()
 
-        #DEBUG STATEMENT TAKE OUT
-        #print "shapes", tau_sobolevs.shape, silicon_filter.shape
+        if config_dict['exclude_ions'] is not None:
+            ion_filter = np.zeros_like(atomic_model.line_list['ion']).astype(bool)
+            for ion in config_dict['exclude_ions']:
+                ion_filter = ion_filter | atomic_model.line_list['ion'] != ion - 1
 
-        tau_sobolevs[0][silicon_filter] = 0.
-        #DEBUG STATEMENT TAKE OUT
+            tau_sobolevs[0][ion_filter] = 0.
 
         transition_probabilities = current_model.calculate_transition_probabilities(tau_sobolevs)
         nu_input = np.sort(
@@ -131,7 +124,6 @@ def run_multizone(config_dict, atomic_model):
         new_t_inner = (config_dict['luminosity_outer'] / (
             emitted_energy_fraction * constants.sigma_sb * surface_inner )) ** .25
 
-
         if logger.getEffectiveLevel() == logging.DEBUG:
             temp_table = texttable.Texttable()
             header = ('t_rad', 'new_t_rad', 'w', 'new_w')
@@ -141,9 +133,6 @@ def run_multizone(config_dict, atomic_model):
             for new_t_rad, new_w, old_t_rad, old_w in zip(new_t_rads, new_ws, current_model.t_rads, current_model.ws):
                 temp_table.add_row(('%.2f' % old_t_rad, '%.2f' % new_t_rad, '%.4f' % old_w, '%.4f' % new_w))
             logger.debug('\n\n' + temp_table.draw())
-
-
-
 
         current_model.ws = (new_ws + current_model.ws) * .5
         current_model.t_rads = (new_t_rads + current_model.t_rads) * .5
@@ -160,4 +149,3 @@ def run_multizone(config_dict, atomic_model):
         track_t_rads,
         track_ws,
         track_t_inner)
-    #return nu_input, energy_of_packet, nu, energy, nu_reabsorbed, energy_reabsorbed, track_t_rads, track_ws, track_t_inner

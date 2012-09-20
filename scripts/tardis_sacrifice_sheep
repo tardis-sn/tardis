@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+
+sheep = """
+
+             _.%%%%%%%%%%%%%
+            /- _%%%%%%%%%%%%%
+           (_ %\|%%%%%%%%%%%%
+              %%%$$$$$$$$$$$%
+                S%S%%%*%%%%S
+            ,,,,# #,,,,,,,##,,,,,
+"""
+
+print "Sheep offered to great computational lord in the sky:"
+print sheep

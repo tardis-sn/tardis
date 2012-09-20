@@ -2,12 +2,17 @@
 
 import argparse
 from tardis import config
+import shutil
+import os
 
 parser = argparse.ArgumentParser(description='TARDIS write default_example configs')
 parser.add_argument('conf_file')
-parser.add_argument('-type', default='uniform', choices=('uniform',))
+parser.add_argument('--type', default='uniform', choices=('uniform', 'kasen06'))
 
 args = parser.parse_args()
 
 if args.type == 'uniform':
     config.write_uniform_tardis_config(args.conf_file)
+elif args.type == 'kasen06':
+    kasen06_fname = os.path.abspath(os.path.join(os.path.dirname(config.__file__), 'data', 'kasen06.conf'))
+    shutil.copy(kasen06_fname, args.conf_file)
