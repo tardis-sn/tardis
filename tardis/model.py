@@ -5,6 +5,7 @@ import os
 import plasma
 import logging
 import constants
+import texttable
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,6 @@ class Model(object):
 
 
 class MultiZoneRadial(Model):
-
     @classmethod
     def from_w7(cls, current_time):
         velocities, densities = np.loadtxt(w7model_file, usecols=(1, 2), unpack=1)
@@ -27,12 +27,11 @@ class MultiZoneRadial(Model):
         time_0 = 0.000231481 * constants.days2seconds
         densities = 10 ** densities * (current_time / time_0) ** -3
         #TODO implement abundances here.
-        return cls(velocities[112::5], densities[112::5], current_time, time_0)
+        return cls(velocities[112::5], densities[112::5], current_time)
 
     @classmethod
     def from_lucy99(cls, v_inner, abundances, current_time, no_of_shells=20, v_outer=30000 * 1e5,
                     abundance_mode='uniform', density_coefficient=3e29):
-
         """
         :param cls:
         :param v_inner: in km/s
@@ -43,7 +42,6 @@ class MultiZoneRadial(Model):
         :param abundance_mode: currently supported uniform, scaled
         :return:
         """
-
 
         time_0 = 0.000231481 * constants.days2seconds
 
@@ -60,12 +58,10 @@ class MultiZoneRadial(Model):
         elif abundance_mode == 'scaled':
             raise NotImplementedError()
 
-        return cls(velocities, densities, model_abundances, current_time, time_0)
+        return cls(velocities, densities, model_abundances, current_time)
 
 
-
-    def __init__(self, velocities, densities, abundances, current_time):
-
+    def __init__(self, velocities, densities, abundances, current_time, ws=None):
         """
         :param velocities: in cm/s
         :param densities: in g/cm^3 (I think)
@@ -79,30 +75,19 @@ class MultiZoneRadial(Model):
         self.r_inner = self.v_inner * current_time
         self.r_outer = self.v_outer * current_time
         self.r_middle = 0.5 * (self.r_inner + self.r_outer)
-        self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
+        if ws is None:
+            self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
+        else:
+            self.ws = np.array([(0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle[i] ** 2))) if w < 0\
+                                else w for i, w in enumerate(ws)])
+
         self.densities_middle = densities[1:]
+        print "sdsadsad", self.densities_middle
         self.abundances = abundances
-        if logger.getEffectiveLevel() == logging.DEBUG:
-            model_string = "New Model:\n%s\n" % ('-' * 80,)
-            model_string += "% 10s% 10s% 10s% 10s% 10s\n" %\
-                            ('v_inner', 'v_outer', 'r_inner', 'r_outer', 'density')
-
-            model_string += "% 10s% 10s% 10s% 10s% 10s\n" %\
-                            ('[km/s]', '[km/s]', '[km]', '[km]', '[g/cm^3]')
-            for line in zip(self.v_inner,
-                self.v_outer,
-                self.r_inner,
-                self.r_outer,
-                self.densities_middle):
-                model_string += "% 10.2f% 10.2f% 10.2e% 10.2e% 10.2e\n"
-                model_string = model_string % (line[0] / 1e5, line[1] / 1e5, line[2] / 1e5, line[3] / 1e5, line[4])
-
-            logger.debug(model_string)
 
 
     def set_atomic_model(self, atomic_model):
         self.atomic_model = atomic_model
-
 
 
     def read_w7_abundances(self):
@@ -119,19 +104,32 @@ class MultiZoneRadial(Model):
     def _initialize_temperature(self, t_rad):
         self.t_rads = np.ones(self.r_inner.size) * t_rad
 
-    def initialize_plasmas(self, t_rad):
-        self._initialize_temperature(t_rad)
+    def initialize_plasmas(self, t_rads):
+        #self._initialize_temperature(t_rad)
+        self.t_rads = t_rads
         self.electron_densities = np.empty(self.r_inner.size, dtype=np.float64)
         self.plasmas = []
         for i, (current_abundance, current_t, current_w, current_density) in enumerate(
             zip(self.abundances, self.t_rads, self.ws, self.densities_middle)):
             current_plasma = plasma.NebularPlasma.from_model(current_abundance, current_density, self.atomic_model)
             current_plasma.update_radiationfield(t_rad=current_t, w=current_w)
-            self.plasmas.append(
-                current_plasma
-            )
+            self.plasmas.append(current_plasma)
             self.electron_densities[i] = current_plasma.electron_density
 
+    def print_model_table(self):
+        temp_table = texttable.Texttable()
+        header = ('v_inner', 'v_outer', 'r_inner', 'r_outer', 'density', 't_rad', 'w')
+        temp_table.add_row(header)
+        header = ('[km/s]', '[km/s]', '[km]', '[km]', '[g/cm^3]', '[K]', '[1]')
+        temp_table.add_row(header)
+        temp_table.set_deco(temp_table.HEADER | temp_table.VLINES)
+        #TODO strangely enough '%.2e' doesn't seem to work for densities. needs to set a dot.
+        for v_inner, v_outer, r_inner, r_outer, density, t_rad, w in zip(self.v_inner, self.v_outer, self.r_inner,
+            self.r_outer, self.densities_middle,
+            self.t_rads, self.ws):
+            temp_table.add_row(('%.2f' % (v_inner / 1e5,), '%.2f' % (v_outer / 1e5,), '%.2e' % (r_inner / 1e5,),
+                                '%.2e' % (r_outer / 1e5,), '%.2e .' % density, '%.2f' % t_rad, '%.2f' % w))
+        return temp_table.draw()
 
     def calculate_tau_sobolevs(self):
         tau_sobolevs = np.empty((self.r_inner.size, len(self.atomic_model.line_list)))
