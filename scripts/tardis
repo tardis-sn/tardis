@@ -66,3 +66,11 @@ if args.line_interaction_type is not None:
 result = simulation.run_multizone(config_dict, atomic_model)
 
 pickle.dump(result, file(args.result_file, 'w'))
+
+if args.pdf is not None:
+    import matplotlib, pylab
+
+    matplotlib.use('agg')
+    fig = pylab.figure(1)
+    ax = fig.add_subplot(111)
+    ax.plot(result.output_spec.wave, result.output_spec.flux)
