@@ -1,5 +1,9 @@
-Template package
-================
+TARDIS
+======
 
-This is the documentation for the affiliated package.
+This is the documentation for the TARDIS package.
+
+Introduction
+------------
+
 
