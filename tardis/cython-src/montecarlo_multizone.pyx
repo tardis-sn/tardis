@@ -55,11 +55,14 @@ rk_seed(250819801106, &mt_state)
 cdef float_type_t miss_distance = 1e99
 cdef float_type_t c = 2.99792458e10 # cm/s
 cdef float_type_t inverse_c = 1 / c
-cdef float_type_t sigma_thomson = 6.652486e-25 #cm^(-2)
+#DEBUG STATEMENT TAKE OUT
+#cdef float_type_t sigma_thomson = 6.652486e-25 #cm^(-2)
+cdef float_type_t sigma_thomson = 6.652486e-125 #cm^(-2)
 
 cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 
-cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t nu_insert, int_type_t imin, int_type_t imax):
+cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t nu_insert, int_type_t imin,
+                              int_type_t imax):
     #continually narrow search until just one element remains
     cdef int_type_t imid
     while imax - imin > 2:
@@ -79,12 +82,12 @@ cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t 
 
 #variables are restframe if not specified by prefix comov_
 cdef int_type_t macro_atom(int_type_t activate_level,
-np.ndarray[float_type_t, ndim=2] p_transition,
-np.ndarray[int_type_t, ndim=1] type_transition,
-np.ndarray[int_type_t, ndim=1] target_level_id,
-np.ndarray[int_type_t, ndim=1] target_line_id,
-np.ndarray[int_type_t, ndim=1] unroll_reference,
-int_type_t cur_zone_id):
+                           np.ndarray[float_type_t, ndim=2] p_transition,
+                           np.ndarray[int_type_t, ndim=1] type_transition,
+                           np.ndarray[int_type_t, ndim=1] target_level_id,
+                           np.ndarray[int_type_t, ndim=1] target_line_id,
+                           np.ndarray[int_type_t, ndim=1] unroll_reference,
+                           int_type_t cur_zone_id):
     cdef int_type_t emit, i = 0
     cdef float_type_t p = 0.0
 
@@ -106,14 +109,14 @@ int_type_t cur_zone_id):
             return target_line_id[i]
 
 cdef float_type_t move_packet(float_type_t*r,
-float_type_t*mu,
-float_type_t nu,
-float_type_t energy,
-float_type_t distance,
-np.ndarray[float_type_t, ndim=1] js,
-np.ndarray[float_type_t, ndim=1] nubars,
-float_type_t inverse_t_exp,
-int_type_t cur_zone_id):
+                              float_type_t*mu,
+                              float_type_t nu,
+                              float_type_t energy,
+                              float_type_t distance,
+                              np.ndarray[float_type_t, ndim=1] js,
+                              np.ndarray[float_type_t, ndim=1] nubars,
+                              float_type_t inverse_t_exp,
+                              int_type_t cur_zone_id):
     cdef float_type_t new_r, doppler_factor, comov_energy, comov_nu
     doppler_factor = (1 - (mu[0] * r[0] * inverse_t_exp * inverse_c))
     IF packet_logging == True:
@@ -162,9 +165,9 @@ cdef float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_
             return miss_distance
 
 cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
-float_type_t nu, float_type_t nu_line,
-float_type_t t_exp, float_type_t inverse_t_exp,
-float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id):
+                                        float_type_t nu, float_type_t nu_line,
+                                        float_type_t t_exp, float_type_t inverse_t_exp,
+                                        float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id):
     #computing distance to line
     cdef float_type_t comov_nu, doppler_factor
     doppler_factor = (1. - (mu * r * inverse_t_exp * inverse_c))
@@ -187,29 +190,30 @@ float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id):
 
     return ((comov_nu - nu_line) / nu) * c * t_exp
 
-cdef float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event, float_type_t inverse_ne):
+cdef float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event,
+                                            float_type_t inverse_ne):
     return tau_event * inverse_ne * inverse_sigma_thomson
 
 cdef float_type_t get_r_sobolev(float_type_t r, float_type_t mu, float_type_t d_line):
     return sqrt(r ** 2 + d_line ** 2 + 2 * r * d_line * mu)
 
 def run_simple_oned(np.ndarray[float_type_t, ndim=1] packets,
-np.ndarray[float_type_t, ndim=1] mus,
-np.ndarray[float_type_t, ndim=1] line_list_nu,
-np.ndarray[float_type_t, ndim=2] tau_lines,
-np.ndarray[float_type_t, ndim=1] r_inner,
-np.ndarray[float_type_t, ndim=1] r_outer,
-np.ndarray[float_type_t, ndim=1] v_inner,
-np.ndarray[float_type_t, ndim=1] ne,
-float_type_t packet_energy,
-np.ndarray[float_type_t, ndim=2] p_transition,
-np.ndarray[int_type_t, ndim=1] type_transition,
-np.ndarray[int_type_t, ndim=1] target_level_id,
-np.ndarray[int_type_t, ndim=1] target_line_id,
-np.ndarray[int_type_t, ndim=1] unroll_reference,
-np.ndarray[int_type_t, ndim=1] line2level,
-int_type_t log_packets,
-int_type_t do_scatter
+                    np.ndarray[float_type_t, ndim=1] mus,
+                    np.ndarray[float_type_t, ndim=1] line_list_nu,
+                    np.ndarray[float_type_t, ndim=2] tau_lines,
+                    np.ndarray[float_type_t, ndim=1] r_inner,
+                    np.ndarray[float_type_t, ndim=1] r_outer,
+                    np.ndarray[float_type_t, ndim=1] v_inner,
+                    np.ndarray[float_type_t, ndim=1] ne,
+                    float_type_t packet_energy,
+                    np.ndarray[float_type_t, ndim=2] p_transition,
+                    np.ndarray[int_type_t, ndim=1] type_transition,
+                    np.ndarray[int_type_t, ndim=1] target_level_id,
+                    np.ndarray[int_type_t, ndim=1] target_line_id,
+                    np.ndarray[int_type_t, ndim=1] unroll_reference,
+                    np.ndarray[int_type_t, ndim=1] line2level,
+                    int_type_t log_packets,
+                    int_type_t do_scatter
 ):
     cdef int_type_t no_of_zones = len(r_inner)
     cdef float_type_t t_exp = r_inner[0] / v_inner[0]

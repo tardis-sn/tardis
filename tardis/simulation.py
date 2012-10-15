@@ -8,6 +8,7 @@ import os
 import logging
 import synspec
 import texttable
+import pdb
 
 
 
@@ -80,9 +81,11 @@ def run_multizone(config_dict, atomic_model):
         if config_dict['exclude_ions'] is not None:
             ion_filter = np.zeros_like(atomic_model.line_list['ion']).astype(bool)
             for ion in config_dict['exclude_ions']:
-                ion_filter = ion_filter | atomic_model.line_list['ion'] != ion - 1
+                ion_filter = ion_filter | (atomic_model.line_list['ion'] == ion - 1)
+                logger.debug('Excluding Ion %d (1 is neutral)', ion)
 
             tau_sobolevs[0][ion_filter] = 0.
+        pdb.set_trace()
 
         transition_probabilities = current_model.calculate_transition_probabilities(tau_sobolevs)
         nu_input = np.sort(

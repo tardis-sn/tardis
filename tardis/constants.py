@@ -29,7 +29,8 @@ kbinev = kb * erg2ev
 sigma_sb = 5.67051e-5
 
 #thomson cross section
-sigma_thomson = 6.652486e-25 #cm^(-2)
+#sigma_thomson = 6.652486e-25 #cm^(-2)
+sigma_thomson = 6.652486e-125 #cm^(-2)
 inverse_sigma_thomson = 1 / sigma_thomson
 
 
