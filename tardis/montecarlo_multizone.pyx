@@ -17,7 +17,7 @@ cdef extern from "math.h":
     double abs(double)
     bint isnan(double x)
 
-cdef extern from "../randomkit/randomkit.h":
+cdef extern from "randomkit/randomkit.h":
     ctypedef struct rk_state:
         unsigned long key[624]
         int pos
