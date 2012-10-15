@@ -24,5 +24,10 @@ dist
 
 #special to the tardis project
 tardis/data/w7*
-tardis/cython-src/*.c
-tardis/cython-src/*.html
+tardis/*.c
+tardis/*.html
+
+#special for TARDIS docs
+# Sphinx
+_build
+_generated
