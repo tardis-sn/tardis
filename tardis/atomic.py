@@ -8,7 +8,7 @@ import numpy as np
 import sqlite3
 import logging
 import StringIO
-import pkgutil
+import os
 import h5py
 
 
@@ -21,23 +21,26 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-def read_atomic_data(fname = h5py.File('atoms.hdf5','r')):
+
+default_atom_h5_path = os.path.join( os.path.dirname(__file__), 'data', 'atoms.h5')
+
+
+def read_atomic_data(fname = None):
+
     if fname is None:
-        data = np.recfromtxt(StringIO.StringIO(
-            pkgutil.get_data('tardis', 'data/atoms.dat')),
-            names=('atom', 'symbol', 'mass'))
-    else:
-        data = fname["atomic"]
+        fname = default_atom_h5_path
+    data = h5py.File(fname)
+    data = data['atomic']
     return data
 
 
-def read_ionization_data(fname = h5py.File('atoms.hdf5','r')):
+def read_ionization_data(fname = None):
+
     if fname is None:
-        data = np.recfromtxt(StringIO.StringIO(
-            pkgutil.get_data('tardis', 'data/ionization.dat')),
-            names=('atom', 'ion', 'energy'))
-    else:
-        data = fname["ionization"]
+        fname = default_atom_h5_path
+
+    data = h5py.File(fname)
+    data = data['ionization']
     return data
 
 
