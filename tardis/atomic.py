@@ -1,6 +1,5 @@
 # atomic model
 
-
 #TODO revisit import statements and reorganize
 from scipy import interpolate
 import line
@@ -10,6 +9,8 @@ import sqlite3
 import logging
 import StringIO
 import pkgutil
+import h5py
+
 
 try:
     import sqlparse
@@ -20,28 +21,23 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
-import h5py
-
-def read_atomic_data(fname=None):
+def read_atomic_data(fname = h5py.File('atoms.hdf5','r')):
     if fname is None:
         data = np.recfromtxt(StringIO.StringIO(
             pkgutil.get_data('tardis', 'data/atoms.dat')),
             names=('atom', 'symbol', 'mass'))
     else:
-        data = np.recfromtxt(fname,
-            names=('atom', 'symbol', 'mass'))
-        atom_text = recfromtxt('atoms.dat', names=('z', 'symbol', 'mass'))
+        data = fname["atomic"]
     return data
 
 
-def read_ionization_data(fname=None):
+def read_ionization_data(fname = h5py.File('atoms.hdf5','r')):
     if fname is None:
         data = np.recfromtxt(StringIO.StringIO(
             pkgutil.get_data('tardis', 'data/ionization.dat')),
             names=('atom', 'ion', 'energy'))
     else:
-        data = np.recfromtxt(fname,
-            names=('atom', 'ion', 'energy'))
+        data = fname["ionization"]
     return data
 
 
