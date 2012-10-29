@@ -26,6 +26,20 @@ default_atom_h5_path = os.path.join( os.path.dirname(__file__), 'data', 'atoms.h
 
 
 def read_atomic_data(fname = None):
+    """This function reads the atomic number, symbol, and mass from hdf5 file
+
+    Parameters
+    ----------
+
+    fname : `str`, optional
+        path to atomic.h5 file, if set to None it will read in default data directory
+
+    Returns
+    -------
+
+    data : `~np.recarray`
+        table with fields z, symbol, mass
+    """
 
     if fname is None:
         fname = default_atom_h5_path
@@ -35,6 +49,21 @@ def read_atomic_data(fname = None):
 
 
 def read_ionization_data(fname = None):
+    """This function reads the atomic number, ion number, and ionization energy from hdf5 file
+
+    Parameters
+    ----------
+
+    fname : `str`, optional
+        path to atomic.h5 file, if set to None it will read in default data directory
+
+    Returns
+    -------
+
+    data : `~np.recarray`
+        table with fields z, ion, ionization_energy
+        ..note:: unionized atoms are designated with `ion` = 1
+    """
 
     if fname is None:
         fname = default_atom_h5_path
