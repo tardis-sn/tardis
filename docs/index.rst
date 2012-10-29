@@ -8,7 +8,6 @@ this package is here:
   :maxdepth: 2
 
   tardis/index.rst
-  tardis/atomic.rst
 
 .. note:: Do not edit this page - instead, place all documentation for the
           affiliated package inside ``packagename/``
