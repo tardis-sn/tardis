@@ -20,6 +20,7 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+import h5py
 
 def read_atomic_data(fname=None):
     if fname is None:
@@ -29,6 +30,7 @@ def read_atomic_data(fname=None):
     else:
         data = np.recfromtxt(fname,
             names=('atom', 'symbol', 'mass'))
+        atom_text = recfromtxt('atoms.dat', names=('z', 'symbol', 'mass'))
     return data
 
 
