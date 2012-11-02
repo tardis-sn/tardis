@@ -38,7 +38,7 @@ def read_atomic_data(fname=None):
     -------
 
     data : `~np.recarray`
-        table with fields z, symbol, mass
+        table with fields z[1], symbol, mass[u]
     """
 
     if fname is None:
