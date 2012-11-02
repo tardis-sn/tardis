@@ -1,6 +1,5 @@
 # atomic model
 
-
 #TODO revisit import statements and reorganize
 from scipy import interpolate
 import line
@@ -9,7 +8,9 @@ import numpy as np
 import sqlite3
 import logging
 import StringIO
-import pkgutil
+import os
+import h5py
+
 
 try:
     import sqlparse
@@ -21,25 +22,55 @@ except ImportError:
 logger = logging.getLogger(__name__)
 
 
+default_atom_h5_path = os.path.join( os.path.dirname(__file__), 'data', 'atoms.h5')
+
+
 def read_atomic_data(fname=None):
+    """This function reads the atomic number, symbol, and mass from hdf5 file
+
+    Parameters
+    ----------
+
+    fname : `str`, optional
+        path to atomic.h5 file, if set to None it will read in default data directory
+
+    Returns
+    -------
+
+    data : `~np.recarray`
+        table with fields z[1], symbol, mass[u]
+    """
+
     if fname is None:
-        data = np.recfromtxt(StringIO.StringIO(
-            pkgutil.get_data('tardis', 'data/atoms.dat')),
-            names=('atom', 'symbol', 'mass'))
-    else:
-        data = np.recfromtxt(fname,
-            names=('atom', 'symbol', 'mass'))
+        fname = default_atom_h5_path
+    data = h5py.File(fname)
+    data = data['atomic']
     return data
 
 
 def read_ionization_data(fname=None):
+    """This function reads the atomic number, ion number, and ionization energy from hdf5 file
+
+    Parameters
+    ----------
+
+    fname : `str`, optional
+        path to atomic.h5 file, if set to None it will read in default data directory
+
+    Returns
+    -------
+
+    data : `~np.recarray`
+        table with fields z[1], ion[1], ionization_energy[eV]
+        .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
+                  to twice ionized ion=2, etc.
+    """
+
     if fname is None:
-        data = np.recfromtxt(StringIO.StringIO(
-            pkgutil.get_data('tardis', 'data/ionization.dat')),
-            names=('atom', 'ion', 'energy'))
-    else:
-        data = np.recfromtxt(fname,
-            names=('atom', 'ion', 'energy'))
+        fname = default_atom_h5_path
+
+    data = h5py.File(fname)
+    data = data['ionization']
     return data
 
 
