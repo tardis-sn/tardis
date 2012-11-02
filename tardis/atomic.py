@@ -61,8 +61,9 @@ def read_ionization_data(fname=None):
     -------
 
     data : `~np.recarray`
-        table with fields z, ion, ionization_energy
-        ..note:: unionized atoms are designated with `ion` = 1
+        table with fields z[1], ion[1], ionization_energy[eV]
+        .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
+                  to twice ionized ion=2, etc.
     """
 
     if fname is None:
