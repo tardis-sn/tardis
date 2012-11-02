@@ -48,7 +48,7 @@ def read_atomic_data(fname=None):
     return data
 
 
-def read_ionization_data(fname = None):
+def read_ionization_data(fname=None):
     """This function reads the atomic number, ion number, and ionization energy from hdf5 file
 
     Parameters
