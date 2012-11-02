@@ -92,8 +92,26 @@ sqlite3.register_converter('float_ndarray', convert_float_ndarray)
 
 
 class AtomModel(object):
-    pass
+    """
+    Atomic Model class which contains masses, ionization energy, levels energy, levels_g, level_metastable,
+    max_atom and max_ion.
+    """
 
+    @classmethod
+    def from_hdf5(cls, fname=None):
+
+
+    def __init__(self, atomic_masses=None, ionization_energy=None, levels_energy=None, levels_g=None, levels_metastable=None,
+                 max_atom=None, max_ion=None):
+        self.atomic_masses = atomic_masses
+        self.ionization_energy = ionization_energy
+        self.levels_energy = levels_energy
+        self.levels_g = levels_g
+        self.levels_metastable = levels_metastable
+        if max_atom != 30 or max_ion != 30:
+            logger.warn('max_atom and/or max_ion are not 30 (max_atom=%s max_ion=%s)', max_atom, max_ion)
+        self.max_atom = max_atom
+        self.max_ion = max_ion
 
 class KuruczAtomModel(AtomModel):
     @classmethod
@@ -123,14 +141,8 @@ class KuruczAtomModel(AtomModel):
             max_atom=max_atom,
             max_ion=max_ion)
 
-    def __init__(self,
-                 masses=None,
-                 ionization_energy=None,
-                 levels_energy=None,
-                 levels_g=None,
-                 levels_metastable=None,
-                 max_atom=None,
-                 max_ion=None):
+    def __init__(self, masses=None, ionization_energy=None, levels_energy=None, levels_g=None, levels_metastable=None,
+                 max_atom=None, max_ion=None):
         self.masses = masses
         self.ionization_energy = ionization_energy
         self.levels_energy = levels_energy
@@ -212,7 +224,7 @@ class CombinedAtomicModel(KuruczAtomModel):
 
 
     def __init__(self,
-                 masses=None,
+                 atomic_masses=None,
                  ionization_energy=None,
                  levels_energy=None,
                  levels_g=None,
@@ -224,7 +236,7 @@ class CombinedAtomicModel(KuruczAtomModel):
                  max_atom=None,
                  max_ion=None):
         KuruczAtomModel.__init__(self,
-            masses=masses,
+            atomic_masses=atomic_masses,
             ionization_energy=ionization_energy,
             levels_energy=levels_energy,
             levels_g=levels_g,
