@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 default_atom_h5_path = os.path.join( os.path.dirname(__file__), 'data', 'atoms.h5')
 
 
-def read_atomic_data(fname = None):
+def read_atomic_data(fname=None):
     """This function reads the atomic number, symbol, and mass from hdf5 file
 
     Parameters
