@@ -7,7 +7,6 @@ import constants
 import numpy as np
 import sqlite3
 import logging
-import StringIO
 import os
 import h5py
 
@@ -21,10 +20,9 @@ except ImportError:
 
 logger = logging.getLogger(__name__)
 
+default_atom_h5_path = os.path.join(os.path.dirname(__file__), 'data', 'atom_data.h5')
 
-default_atom_h5_path = os.path.join( os.path.dirname(__file__), 'data', 'atoms.h5')
-
-
+#TODO update to astropy.Table
 def read_atomic_data(fname=None):
     """This function reads the atomic number, symbol, and mass from hdf5 file
 
@@ -44,10 +42,10 @@ def read_atomic_data(fname=None):
     if fname is None:
         fname = default_atom_h5_path
     data = h5py.File(fname)
-    data = data['atomic']
+    data = data['simple_atomic_data']
     return data
 
-
+#TODO update to astropy.Table
 def read_ionization_data(fname=None):
     """This function reads the atomic number, ion number, and ionization energy from hdf5 file
 
@@ -154,16 +152,17 @@ class KuruczAtomModel(AtomModel):
         threshold_filter = (self.ionization_energy <= xi_threshold) & (self.ionization_energy > 0)
         delta[threshold_filter] = (t_electron / (departure_coefficient * w * t_rad)) *\
                                   np.exp((delta[threshold_filter] / (constants.kbinev * t_rad))\
-                                  - (delta[threshold_filter] / (constants.kbinev * t_electron)))
+                                         - (delta[threshold_filter] / (constants.kbinev * t_electron)))
 
         threshold_filter = (self.ionization_energy > xi_threshold) & (self.ionization_energy > 0)
         #Formula 20 ML 1993
         delta[self.ionization_energy > xi_threshold] = 1 -\
                                                        np.exp((delta[threshold_filter] / (constants.kbinev * t_rad))\
-                                                       - (xi_threshold / (constants.kbinev * t_rad))) +\
+                                                              - (xi_threshold / (constants.kbinev * t_rad))) +\
                                                        (t_electron / (departure_coefficient * w * t_rad)) *\
                                                        np.exp((delta[threshold_filter] / (constants.kbinev * t_rad))\
-                                                       - (delta[threshold_filter] / (constants.kbinev * t_electron)))
+                                                              - (
+                                                           delta[threshold_filter] / (constants.kbinev * t_electron)))
 
         return delta
 
