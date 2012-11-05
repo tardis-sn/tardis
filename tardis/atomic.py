@@ -10,6 +10,10 @@ import logging
 import os
 import h5py
 
+from astropy import table, units
+
+from collections import OrderedDict
+
 
 try:
     import sqlparse
@@ -23,7 +27,7 @@ logger = logging.getLogger(__name__)
 default_atom_h5_path = os.path.join(os.path.dirname(__file__), 'data', 'atom_data.h5')
 
 #TODO update to astropy.Table
-def read_atomic_data(fname=None):
+def read_basic_atom_data(fname=None):
     """This function reads the atomic number, symbol, and mass from hdf5 file
 
     Parameters
@@ -42,7 +46,14 @@ def read_atomic_data(fname=None):
     if fname is None:
         fname = default_atom_h5_path
     data = h5py.File(fname)
-    data = data['simple_atomic_data']
+
+    data = np.asarray(data['basic_atom_data'])
+
+    data = table.Table(data)
+
+    #converting mass column from u to g
+    data['mass'] = units.Unit('u').to('g', data['mass'])
+
     return data
 
 #TODO update to astropy.Table
@@ -68,8 +79,9 @@ def read_ionization_data(fname=None):
         fname = default_atom_h5_path
 
     data = h5py.File(fname)
-    data = data['ionization']
-    return data
+    data = np.asarray(data['ionization'])
+
+    return table.Table(data)
 
 
 def convert_int_ndarray(sqlite_binary):
@@ -90,7 +102,23 @@ sqlite3.register_converter('float_ndarray', convert_float_ndarray)
 
 
 class AtomModel(object):
-    pass
+    @classmethod
+    def from_hdf5(cls, fname=None):
+        atom_data = read_basic_atom_data(fname)
+        ionization_data = read_ionization_data(fname)
+
+        return cls(basic_atom_data=atom_data, ionization_data=ionization_data, levels=None, lines=None)
+
+
+    def __init__(self, basic_atom_data, ionization_data, levels, lines):
+        self.basic_atom_data = basic_atom_data
+        self.ionization_data = ionization_data
+        self.levels = levels
+        self.lines = lines
+
+        self.symbol2z = OrderedDict(zip(self.basic_atom_data['symbol'], self.basic_atom_data['z']))
+        self.z2symbol = OrderedDict(zip(self.basic_atom_data['z'], self.basic_atom_data['symbol']))
+        self.atom_mass = OrderedDict(self.basic_atom_data['z', 'mass'])
 
 
 class KuruczAtomModel(AtomModel):
