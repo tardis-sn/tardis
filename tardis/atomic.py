@@ -26,6 +26,11 @@ logger = logging.getLogger(__name__)
 
 default_atom_h5_path = os.path.join(os.path.dirname(__file__), 'data', 'atom_data.h5')
 
+
+@PendingDeprecationWarning
+def read_atomic_data(fname=None):
+    return read_basic_atom_data(fname)
+
 #TODO update to astropy.Table
 def read_basic_atom_data(fname=None):
     """This function reads the atomic number, symbol, and mass from hdf5 file
