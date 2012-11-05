@@ -118,7 +118,15 @@ class AtomModel(object):
 
         self.symbol2z = OrderedDict(zip(self.basic_atom_data['symbol'], self.basic_atom_data['z']))
         self.z2symbol = OrderedDict(zip(self.basic_atom_data['z'], self.basic_atom_data['symbol']))
+
         self.atom_mass = OrderedDict(self.basic_atom_data['z', 'mass'])
+
+        self.ionization_data_index = dict(
+            [((line['z'], line['ion']), i) for i, line in enumerate(self.ionization_data)])
+
+
+    def get_ionization_energy(self, z, ion):
+        return self.ionization_data[self.ionization_data_index[z, ion]]['ionization_energy']
 
 
 class KuruczAtomModel(AtomModel):
