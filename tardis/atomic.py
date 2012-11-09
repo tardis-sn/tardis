@@ -87,7 +87,7 @@ def read_ionization_data(fname=None):
     -------
 
     data : `~np.recarray`
-        table with fields z[1], ion[1], ionization_energy[eV]
+        table with fields atom_number[1], ion[1], ionization_energy[eV]
         .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
                   to twice ionized ion=2, etc.
     """
@@ -166,17 +166,17 @@ class AtomData(object):
         self.levels = levels
         self.lines = lines
 
-        self.symbol2z = OrderedDict(zip(self.basic_atom_data['symbol'], self.basic_atom_data['z']))
-        self.z2symbol = OrderedDict(zip(self.basic_atom_data['z'], self.basic_atom_data['symbol']))
+        self.symbol2atomic_number = OrderedDict(zip(self.basic_atom_data['symbol'], self.basic_atom_data['z']))
+        self.atomic_number2symbol = OrderedDict(zip(self.basic_atom_data['atomic_number'], self.basic_atom_data['symbol']))
 
-        self.atom_mass = OrderedDict(self.basic_atom_data['z', 'mass'])
+        self.atom_mass = OrderedDict(self.basic_atom_data['atomic_number', 'mass'])
 
         self.ionization_data_index = dict(
-            [((line['z'], line['ion']), i) for i, line in enumerate(self.ionization_data)])
+            [((line['atomic_number'], line['ion_number']), i) for i, line in enumerate(self.ionization_data)])
 
 
-    def get_ionization_energy(self, z, ion):
-        return self.ionization_data[self.ionization_data_index[z, ion]]['ionization_energy']
+    def get_ionization_energy(self, atomic_number, ion):
+        return self.ionization_data[self.ionization_data_index[atomic_number, ion]]['ionization_energy']
 
 
 class KuruczAtomModel(AtomData):
