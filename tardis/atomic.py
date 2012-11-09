@@ -31,7 +31,7 @@ default_atom_h5_path = os.path.join(os.path.dirname(__file__), 'data', 'atom_dat
 def read_atomic_data(fname=None):
     return read_basic_atom_data(fname)
 
-#TODO update to astropy.Table
+
 def read_basic_atom_data(fname=None):
     """This function reads the atomic number, symbol, and mass from hdf5 file
 
@@ -53,13 +53,15 @@ def read_basic_atom_data(fname=None):
 
     h5_file = h5py.File(fname)
     dataset = h5_file['basic_atom_data']
-    data = np.asarray(dataset.data)
+    data = np.asarray(dataset)
     data_units = dataset.attrs['units']
 
     data_table = table.Table(data)
     for i, col_unit in enumerate(data_units):
         if col_unit == 'n':
             data_table.columns[i].units = None
+        elif col_unit == '1':
+            data_table.columns[i].units = units.Unit(1)
         else:
             data_table.columns[i].units = units.Unit(col_unit)
 
@@ -71,7 +73,7 @@ def read_basic_atom_data(fname=None):
 
     return data_table
 
-#TODO update to astropy.Table
+
 def read_ionization_data(fname=None):
     """This function reads the atomic number, ion number, and ionization energy from hdf5 file
 
@@ -93,10 +95,24 @@ def read_ionization_data(fname=None):
     if fname is None:
         fname = default_atom_h5_path
 
-    data = h5py.File(fname)
-    data = np.asarray(data['ionization'])
+    h5_file = h5py.File(fname)
+    dataset = h5_file['ionization_data']
+    data = np.asarray(dataset)
+    data_units = dataset.attrs['units']
 
-    return table.Table(data)
+    data_table = table.Table(data)
+    for i, col_unit in enumerate(data_units):
+        if col_unit == 'n':
+            data_table.columns[i].units = None
+        elif col_unit == '1':
+            data_table.columns[i].units = units.Unit(1)
+        else:
+            data_table.columns[i].units = units.Unit(col_unit)
+
+    data_table.columns['ionization_energy'].convert_units_to('erg')
+    h5_file.close()
+
+    return data_table
 
 
 def convert_int_ndarray(sqlite_binary):
@@ -116,11 +132,11 @@ sqlite3.register_converter('int_ndarray', convert_int_ndarray)
 sqlite3.register_converter('float_ndarray', convert_float_ndarray)
 
 
-class AtomModel(object):
+class AtomData(object):
     """
     Class for storing atomic data
 
-    AtomModel
+    AtomData
     ---------
 
     Parameters
@@ -133,7 +149,6 @@ class AtomModel(object):
         containing the ionization data: z, ion, and ionization energy
         ::important to note here is that ion describes the final ion state
             e.g. H I - H II is described with ion=2
-
 
     """
 
@@ -164,7 +179,7 @@ class AtomModel(object):
         return self.ionization_data[self.ionization_data_index[z, ion]]['ionization_energy']
 
 
-class KuruczAtomModel(AtomModel):
+class KuruczAtomModel(AtomData):
     @classmethod
     def from_db(cls, conn, max_atom=30, max_ion=30):
         logger.info('Reading Kurucz model from database max atom=%d max ion=%d', max_atom, max_ion)
