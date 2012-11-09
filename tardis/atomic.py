@@ -86,7 +86,7 @@ def read_ionization_data(fname=None):
     Returns
     -------
 
-    data : `~np.recarray`
+    data : `~astropy.table.Table`
         table with fields z[1], ion[1], ionization_energy[eV]
         .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
                   to twice ionized ion=2, etc.
