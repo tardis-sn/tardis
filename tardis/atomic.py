@@ -44,22 +44,32 @@ def read_basic_atom_data(fname=None):
     Returns
     -------
 
-    data : `~np.recarray`
+    data : `~astropy.table.Table`
         table with fields z[1], symbol, mass[u]
     """
 
     if fname is None:
         fname = default_atom_h5_path
-    data = h5py.File(fname)
 
-    data = np.asarray(data['basic_atom_data'])
+    h5_file = h5py.File(fname)
+    dataset = h5_file['basic_atom_data']
+    data = np.asarray(dataset.data)
+    data_units = dataset.attrs['units']
 
-    data = table.Table(data)
+    data_table = table.Table(data)
+    for i, col_unit in enumerate(data_units):
+        if col_unit == 'n':
+            data_table.columns[i].units = None
+        else:
+            data_table.columns[i].units = units.Unit(col_unit)
+
+    h5_file.close()
+
+    data_table.columns['mass'].convert_units_to('g')
 
     #converting mass column from u to g
-    data['mass'] = units.Unit('u').to('g', data['mass'])
 
-    return data
+    return data_table
 
 #TODO update to astropy.Table
 def read_ionization_data(fname=None):
@@ -107,6 +117,26 @@ sqlite3.register_converter('float_ndarray', convert_float_ndarray)
 
 
 class AtomModel(object):
+    """
+    Class for storing atomic data
+
+    AtomModel
+    ---------
+
+    Parameters
+    ----------
+
+    basic_atom_data: ~astropy.table.Table
+        containing the basic atom data: z, symbol, and mass
+
+    ionization_data: ~astropy.table.Table
+        containing the ionization data: z, ion, and ionization energy
+        ::important to note here is that ion describes the final ion state
+            e.g. H I - H II is described with ion=2
+
+
+    """
+
     @classmethod
     def from_hdf5(cls, fname=None):
         atom_data = read_basic_atom_data(fname)
