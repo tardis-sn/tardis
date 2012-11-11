@@ -32,6 +32,46 @@ def read_atomic_data(fname=None):
     return read_basic_atom_data(fname)
 
 
+def read_hdf5_data(fname, dset_name):
+    """This function reads the dataset (dset_name) from the hdf5 file (fname).
+    In addition it uses the attribute 'units' and parses it to the `~astropy.table.Table` constructor.
+
+    Parameters
+    ----------
+
+    fname : `str`, optional
+        path to atomic.h5 file, if set to None it will read in default data directory
+
+    Returns
+    -------
+
+    data : `~astropy.table.Table`
+        returns the respective
+    """
+
+    if fname is None:
+        fname = default_atom_h5_path
+
+    h5_file = h5py.File(fname)
+    dataset = h5_file[dset_name]
+    data = np.asarray(dataset)
+    data_units = dataset.attrs['units']
+
+    data_table = table.Table(data)
+
+    for i, col_unit in enumerate(data_units):
+        if col_unit == 'n':
+            data_table.columns[i].units = None
+        elif col_unit == '1':
+            data_table.columns[i].units = units.Unit(1)
+        else:
+            data_table.columns[i].units = units.Unit(col_unit)
+
+    h5_file.close()
+
+    return data_table
+
+
 def read_basic_atom_data(fname=None):
     """This function reads the atomic number, symbol, and mass from hdf5 file
 
@@ -48,28 +88,8 @@ def read_basic_atom_data(fname=None):
         table with fields z[1], symbol, mass[u]
     """
 
-    if fname is None:
-        fname = default_atom_h5_path
-
-    h5_file = h5py.File(fname)
-    dataset = h5_file['basic_atom_data']
-    data = np.asarray(dataset)
-    data_units = dataset.attrs['units']
-
-    data_table = table.Table(data)
-    for i, col_unit in enumerate(data_units):
-        if col_unit == 'n':
-            data_table.columns[i].units = None
-        elif col_unit == '1':
-            data_table.columns[i].units = units.Unit(1)
-        else:
-            data_table.columns[i].units = units.Unit(col_unit)
-
-    h5_file.close()
-
+    data_table = read_hdf5_data(fname, 'basic_atom_data')
     data_table.columns['mass'].convert_units_to('g')
-
-    #converting mass column from u to g
 
     return data_table
 
@@ -92,25 +112,8 @@ def read_ionization_data(fname=None):
                   to twice ionized ion=2, etc.
     """
 
-    if fname is None:
-        fname = default_atom_h5_path
-
-    h5_file = h5py.File(fname)
-    dataset = h5_file['ionization_data']
-    data = np.asarray(dataset)
-    data_units = dataset.attrs['units']
-
-    data_table = table.Table(data)
-    for i, col_unit in enumerate(data_units):
-        if col_unit == 'n':
-            data_table.columns[i].units = None
-        elif col_unit == '1':
-            data_table.columns[i].units = units.Unit(1)
-        else:
-            data_table.columns[i].units = units.Unit(col_unit)
-
+    data_table = read_hdf5_data(fname, 'ionization_data')
     data_table.columns['ionization_energy'].convert_units_to('erg')
-    h5_file.close()
 
     return data_table
 
@@ -167,7 +170,8 @@ class AtomData(object):
         self.lines = lines
 
         self.symbol2atomic_number = OrderedDict(zip(self.basic_atom_data['symbol'], self.basic_atom_data['z']))
-        self.atomic_number2symbol = OrderedDict(zip(self.basic_atom_data['atomic_number'], self.basic_atom_data['symbol']))
+        self.atomic_number2symbol = OrderedDict(
+            zip(self.basic_atom_data['atomic_number'], self.basic_atom_data['symbol']))
 
         self.atom_mass = OrderedDict(self.basic_atom_data['atomic_number', 'mass'])
 

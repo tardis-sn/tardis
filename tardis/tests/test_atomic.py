@@ -4,13 +4,18 @@ __author__ = 'maryam'
 
 from tardis import atomic
 from numpy import testing
+from astropy import units
+
 
 def test_atomic_h5_readin():
-    data = atomic.read_atomic_data()
-    assert data['symbol'][25] == "Fe"
-
+    data = atomic.read_basic_atom_data()
+    assert data['atomic_number'][13] == 14
+    assert data['symbol'][13] == "Si"
+    si_mass = units.Unit('g').to('u', data['mass'][13])
+    testing.assert_almost_equal(si_mass, 28.085, decimal=4)
 
 
 def test_ionization_h5_readin():
     data = atomic.read_ionization_data()
-    testing.assert_almost_equal(data['ionization_energy'][0],13.59844, decimal=4)
+    HI_ionization = units.Unit('erg').to('eV', data['ionization_energy'][0])
+    testing.assert_almost_equal(HI_ionization, 13.59844, decimal=4)
