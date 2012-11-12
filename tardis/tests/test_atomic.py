@@ -23,4 +23,4 @@ def test_ionization_h5_readin():
 
 def test_atom_levels():
     atom_data = atomic.AtomData.from_hdf5()
-    raise Exception('test the atom_data thorughly')
+    raise Exception('test the atom_data thoroughly')

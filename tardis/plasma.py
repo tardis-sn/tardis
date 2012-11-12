@@ -3,7 +3,7 @@
 import constants
 import numpy as np
 import logging
-from astropy import table
+from astropy import table, units
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,10 @@ class Plasma(object):
         self.density = density
 
         #Converting abundances
-        abundance_table = [(self.atom_model.symbol2atomic_number[key], value) for key, value in abundances.items()]
+        abundance_table = zip(
+            *[(self.atom_model.symbol2atomic_number[key], value) for key, value in abundances.items()])
         abundance_table = table.Table(abundance_table, names=('atomic_number', 'abundance_fraction'))
+
 
         #Normalizing Abundances
 
@@ -44,7 +46,16 @@ class Plasma(object):
 
         self.abundances = abundance_table
 
-        self.atom_number_density = None
+        self._calculate_atom_number_densities()
+
+
+    def _calculate_atom_number_densities(self):
+        atom_masses = np.array(
+            [self.atom_model._atom['mass'][atomic_number - 1] for atomic_number in self.abundances['atomic_number']])
+        number_density = (self.density * self.abundances['abundance_fraction']) / atom_masses
+
+        number_density_col = table.Column('number_density', number_density, units=units.Unit(1))
+        self.abundances.add_column(number_density_col)
 
 
 class LTEPlasma(Plasma):
