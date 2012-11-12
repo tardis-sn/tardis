@@ -19,3 +19,8 @@ def test_ionization_h5_readin():
     data = atomic.read_ionization_data()
     HI_ionization = units.Unit('erg').to('eV', data['ionization_energy'][0])
     testing.assert_almost_equal(HI_ionization, 13.59844, decimal=4)
+
+
+def test_atom_levels():
+    atom_data = atomic.AtomData.from_hdf5()
+    raise Exception('test the atom_data thorughly')
