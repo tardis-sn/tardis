@@ -131,9 +131,8 @@ def read_levels_data(fname=None):
     -------
 
     data : `~astropy.table.Table`
-        table with fields z[1], ion[1], ionization_energy[eV]
-        .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
-                  to twice ionized ion=2, etc.
+        table with fields ### FILL IN DATA###
+
     """
 
     data_table = read_hdf5_data(fname, 'levels_data')
@@ -155,9 +154,7 @@ def read_lines_data(fname=None):
     -------
 
     data : `~astropy.table.Table`
-        table with fields z[1], ion[1], ionization_energy[eV]
-        .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
-                  to twice ionized ion=2, etc.
+        table with fields ### FILL IN DATA###
     """
 
     data_table = read_hdf5_data(fname, 'lines_data')
