@@ -118,6 +118,54 @@ def read_ionization_data(fname=None):
     return data_table
 
 
+def read_levels_data(fname=None):
+    """This function reads the atomic number, ion number, and ionization energy from hdf5 file
+
+    Parameters
+    ----------
+
+    fname : `str`, optional
+        path to atomic.h5 file, if set to None it will read in default data directory
+
+    Returns
+    -------
+
+    data : `~astropy.table.Table`
+        table with fields z[1], ion[1], ionization_energy[eV]
+        .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
+                  to twice ionized ion=2, etc.
+    """
+
+    data_table = read_hdf5_data(fname, 'levels_data')
+    #data_table.columns['ionization_energy'].convert_units_to('erg')
+
+    return data_table
+
+
+def read_lines_data(fname=None):
+    """This function reads the atomic number, ion number, and ionization energy from hdf5 file
+
+    Parameters
+    ----------
+
+    fname : `str`, optional
+        path to atomic.h5 file, if set to None it will read in default data directory
+
+    Returns
+    -------
+
+    data : `~astropy.table.Table`
+        table with fields z[1], ion[1], ionization_energy[eV]
+        .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
+                  to twice ionized ion=2, etc.
+    """
+
+    data_table = read_hdf5_data(fname, 'lines_data')
+    #data_table.columns['ionization_energy'].convert_units_to('erg')
+
+    return data_table
+
+
 def convert_int_ndarray(sqlite_binary):
     if sqlite_binary == '-1':
         return np.array([], dtype=np.int64)
@@ -159,28 +207,43 @@ class AtomData(object):
     def from_hdf5(cls, fname=None):
         atom_data = read_basic_atom_data(fname)
         ionization_data = read_ionization_data(fname)
+        levels_data = read_levels_data(fname)
+        lines_data = read_lines_data(fname)
 
-        return cls(basic_atom_data=atom_data, ionization_data=ionization_data, levels=None, lines=None)
-
-
-    def __init__(self, basic_atom_data, ionization_data, levels, lines):
-        self.basic_atom_data = basic_atom_data
-        self.ionization_data = ionization_data
-        self.levels = levels
-        self.lines = lines
-
-        self.symbol2atomic_number = OrderedDict(zip(self.basic_atom_data['symbol'], self.basic_atom_data['z']))
-        self.atomic_number2symbol = OrderedDict(
-            zip(self.basic_atom_data['atomic_number'], self.basic_atom_data['symbol']))
-
-        self.atom_mass = OrderedDict(self.basic_atom_data['atomic_number', 'mass'])
-
-        self.ionization_data_index = dict(
-            [((line['atomic_number'], line['ion_number']), i) for i, line in enumerate(self.ionization_data)])
+        return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
+            lines_data=lines_data)
 
 
-    def get_ionization_energy(self, atomic_number, ion):
-        return self.ionization_data[self.ionization_data_index[atomic_number, ion]]['ionization_energy']
+    def __init__(self, atom_data, ionization_data, levels_data, lines_data):
+        self._atom = atom_data
+        self._ion = ionization_data
+        self._levels = levels_data
+        self._lines = lines_data
+
+        self.symbol2atomic_number = OrderedDict(zip(self._atom['symbol'], self._atom['atomic_number']))
+        self.atomic_number2symbol = OrderedDict(zip(self._atom['atomic_number'], self._atom['symbol']))
+
+        self.ion_index = dict(
+            [((line['atomic_number'], line['ion_number']), i) for i, line in enumerate(self._ion)])
+
+
+    def get_ion(self, atomic_number, ion=None):
+        table_filter = self._ion['atomic_number'] == atomic_number
+
+        if ion is not None:
+            table_filter = table_filter & (self._ion['ion_number'] == ion)
+
+        return self._ion[table_filter]
+
+
+    def get_level(self, atomic_number, ion_number, level=None):
+        table_filter = (self._levels['atomic_number'] == atomic_number) &\
+                       (self._levels['ion_number'] == ion_number)
+
+        if level is not None:
+            table_filter = table_filter & self._levels['level_number'] == level
+
+        return self._levels[table_filter]
 
 
 class KuruczAtomModel(AtomData):
