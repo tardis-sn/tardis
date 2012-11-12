@@ -8,6 +8,7 @@ This is the documentation for the TARDIS package.
 
    introduction
    atomic
+   plasma
 
 
 

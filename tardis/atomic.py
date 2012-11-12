@@ -136,6 +136,7 @@ def read_levels_data(fname=None):
     """
 
     data_table = read_hdf5_data(fname, 'levels_data')
+    data_table.columns['energy'].convert_units_to('erg')
     #data_table.columns['ionization_energy'].convert_units_to('erg')
 
     return data_table
@@ -224,7 +225,7 @@ class AtomData(object):
             [((line['atomic_number'], line['ion_number']), i) for i, line in enumerate(self._ion)])
 
 
-    def get_ion(self, atomic_number, ion=None):
+    def get_ions(self, atomic_number, ion=None):
         table_filter = self._ion['atomic_number'] == atomic_number
 
         if ion is not None:
@@ -233,7 +234,7 @@ class AtomData(object):
         return self._ion[table_filter]
 
 
-    def get_level(self, atomic_number, ion_number, level=None):
+    def get_levels(self, atomic_number, ion_number, level=None):
         table_filter = (self._levels['atomic_number'] == atomic_number) &\
                        (self._levels['ion_number'] == ion_number)
 
