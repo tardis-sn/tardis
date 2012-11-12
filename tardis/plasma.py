@@ -3,6 +3,7 @@
 import constants
 import numpy as np
 import logging
+from astropy import table
 
 logger = logging.getLogger(__name__)
 
@@ -10,7 +11,40 @@ Bnu = lambda nu, t: (2 * constants.h * nu ** 3 / constants.c ** 2) * np.exp(
     1 / ((constants.h * nu) / (constants.kb * t)))
 
 class Plasma(object):
-    pass
+    """
+    Model for Plasma
+
+    Parameters
+    ----------
+
+    abundances: `dict`
+        A dictionary with the abundances for each element
+
+
+
+    """
+
+    #TODO make density a astropy.quantity
+    def __init__(self, abundances, density, atom_model, density_unit='g/cm^3'):
+        self.atom_model = atom_model
+        self.density = density
+
+        #Converting abundances
+        abundance_table = [(self.atom_model.symbol2atomic_number[key], value) for key, value in abundances.items()]
+        abundance_table = table.Table(abundance_table, names=('atomic_number', 'abundance_fraction'))
+
+        #Normalizing Abundances
+
+        abundance_sum = abundance_table['abundance_fraction'].sum()
+
+        if abs(abundance_sum - 1) > 1e-5:
+            logger.warn('Abundances do not add up to 1 (Sum = %.4f). Renormalizing', (abundance_sum))
+
+        abundance_table['abundance_fraction'] /= abundance_sum
+
+        self.abundances = abundance_table
+
+        self.atom_number_density = None
 
 
 class LTEPlasma(Plasma):
