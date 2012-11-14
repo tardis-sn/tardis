@@ -25,7 +25,7 @@ class Plasma(object):
 
     density: `float`
         density in g/cm^3
-        ::warning::
+        .. warning::
             Will later use the keyword `density_unit`
 
     atom_data: `~tardis.atomic.AtomData`-object
@@ -67,11 +67,17 @@ class Plasma(object):
 
     def calculate_partition_functions(self, temperature):
         """
-        Calculate partition functions for the ions
+        Calculate partition functions for the ions using the following formula:
+        .. math::
+            Z_{j} = \sum_{i=0}^{max(levels)} g_i * e^{-E_i / (k_\textrm{b} T)}
 
         Parameters
         ----------
+
         temperature: `float`
+
+
+
 
 
         Returns
