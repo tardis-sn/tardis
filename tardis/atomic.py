@@ -234,14 +234,22 @@ class AtomData(object):
         return self._ion[table_filter]
 
 
-    def get_levels(self, atomic_number, ion_number, level=None):
+    def get_levels(self, atomic_number, ion_number, level_number=None):
         table_filter = (self._levels['atomic_number'] == atomic_number) &\
                        (self._levels['ion_number'] == ion_number)
 
-        if level is not None:
-            table_filter = table_filter & self._levels['level_number'] == level
+        if level_number is not None:
+            table_filter = table_filter & (self._levels['level_number'] == level_number)
 
         return self._levels[table_filter]
+
+    def get_levels_idx(self):
+        level_dict = {}
+
+        for i, level in enumerate(self._levels):
+            level_dict[(level[0], level[1], level[2])] = i
+
+        return level_dict
 
 
 class KuruczAtomModel(AtomData):
