@@ -6,11 +6,24 @@ __author__ = 'wkerzend'
 from ..import atomic, plasma
 from numpy import testing
 import pytest
-from astropy import units
+import numpy as np
+from astropy import units, table
 
 atom_model = atomic.AtomData.from_hdf5()
 
 fe_mass = atom_model._atom[25]['mass']
+
+
+def read_nist_data(fname):
+    data = np.genfromtxt(fname, skip_header=3, delimiter='|', usecols=(2, 3),
+        converters={3: lambda s: float(s.strip().strip('?[]'))}, names=('j', 'energy'))
+    table.Table(data)
+
+
+nist_si1 = read_nist_data('data/nist_si1.dat')
+nist_si2 = read_nist_data('data/nist_si2.dat')
+nist_si3 = read_nist_data('data/nist_si3.dat')
+
 
 @pytest.mark.parametrize(("abundances", "abundance_fraction_fe"), [
     (dict(Fe=0.5, Ni=0.5), 0.5),
