@@ -20,11 +20,12 @@ class Plasma(object):
     abundances: `dict`
         A dictionary with the abundances for each element
 
-    temperature: `float`
+    temperature: `~float`
         Temperature in Kelvin for the plasma
 
     density: `float`
         density in g/cm^3
+
         .. warning::
             Will later use the keyword `density_unit`
 
@@ -67,22 +68,19 @@ class Plasma(object):
 
     def calculate_partition_functions(self, temperature):
         """
-        Calculate partition functions for the ions using the following formula:
+        Calculate partition functions for the ions using the following formula, where
+        :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
 
-        :math:`Z_{j} = \\sum_{i=0}^{max levels} g_i \\times e^{-E_i / (k_\\textrm{b} T)}`
-
-
-        Parameters
-        ----------
-
-        temperature: `float`
-
-
+        .. math::
+            Z_{i,j} = \\sum_{k=0}^{max(k)_{i,j}} g_k \\times e^{-E_k / (k_\\textrm{b} T)}
 
 
 
         Returns
         -------
+
+        partition_functions: `~astropy.table.Table`
+            with fields atomic_number, ion_number, partition_function
 
         """
 

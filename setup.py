@@ -3,6 +3,7 @@
 
 # Use "distribute" - the setuptools fork that supports python 3.
 from distribute_setup import use_setuptools
+
 use_setuptools()
 
 from distutils.command import sdist
@@ -46,7 +47,7 @@ setup_helpers.adjust_compiler()
 if not release:
     version += get_git_devstr(False)
 generate_version_py(PACKAGENAME, version, release,
-                    setup_helpers.get_debug_option())
+    setup_helpers.get_debug_option())
 
 # Use the find_packages tool to locate all packages and modules
 packagenames = find_packages()
@@ -71,7 +72,7 @@ cmdclassd = {'test': setup_helpers.setup_test_command(PACKAGENAME),
              # commandline arguments
              'install': setup_helpers.AstropyInstall
 
-             }
+}
 
 if setup_helpers.HAVE_CYTHON and not release:
     from Cython.Distutils import build_ext
@@ -91,7 +92,7 @@ setup_helpers.cmdclassd = cmdclassd
 extensions = []
 
 # A dictionary to keep track of all package data to install
-package_data = {PACKAGENAME: ['data/*']}
+package_data = {PACKAGENAME: ['data/*', 'tests/data/*']}
 
 # A dictionary to keep track of extra packagedir mappings
 package_dirs = {}
@@ -101,27 +102,25 @@ package_dirs = {}
 # data.  See the docstring for setup_helpers.update_package_files for
 # more details.
 setup_helpers.update_package_files(PACKAGENAME, extensions, package_data,
-                                   packagenames, package_dirs)
-
-
+    packagenames, package_dirs)
 
 setup(name=PACKAGENAME,
-      version=version,
-      description=DESCRIPTION,
-      packages=packagenames,
-      package_data=package_data,
-      package_dir=package_dirs,
-      ext_modules=extensions,
-      scripts=scripts,
-      requires=['astropy', 'numpy', 'scipy'],
-      install_requires=['astropy'],
-      provides=[PACKAGENAME],
-      author=AUTHOR,
-      author_email=AUTHOR_EMAIL,
-      license=LICENSE,
-      url=URL,
-      long_description=LONG_DESCRIPTION,
-      cmdclass=cmdclassd,
-      zip_safe=False,
-      use_2to3=True
-      )
+    version=version,
+    description=DESCRIPTION,
+    packages=packagenames,
+    package_data=package_data,
+    package_dir=package_dirs,
+    ext_modules=extensions,
+    scripts=scripts,
+    requires=['astropy', 'numpy', 'scipy'],
+    install_requires=['astropy'],
+    provides=[PACKAGENAME],
+    author=AUTHOR,
+    author_email=AUTHOR_EMAIL,
+    license=LICENSE,
+    url=URL,
+    long_description=LONG_DESCRIPTION,
+    cmdclass=cmdclassd,
+    zip_safe=False,
+    use_2to3=True
+)
