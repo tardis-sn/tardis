@@ -6,9 +6,11 @@ All atomic data files are stored in an hdf5 file
 
 hdf5
 ----
-All atomic data are stored in hdf5 files, in tables. The atomic data table contains information on atomic number,
-symbol, mass; and the ionization data table contains atomic number, ion number, and ionization energy information.
-Tables contain attributes which contains units.
+All atomic data are stored in hdf5 files.
+The atomic data table contains information on atomic number, symbol, and masses.
+The ionization data table contains atomic number, ion number, and ionization energy information.
+The levels data table contains
+
 
 
 
@@ -40,6 +42,44 @@ Ionization Data
 | ionization energy      | Ionization Energy of atom    | eV       |
 +------------------------+------------------------------+----------+
 
+Levels Data
+
+
++------------------------+------------------------------+----------+
+|Name                    | Description                  | Symbol   |
++========================+==============================+==========+
+| atomic_number(z)       | Atomic Number                | 1        |
++------------------------+------------------------------+----------+
+| ion number             | Ion Number                   | 1        |
++------------------------+------------------------------+----------+
+| level number           | Level Number                 | 1        |
++------------------------+------------------------------+----------+
+| energy                 |                              |          |
++------------------------+------------------------------+----------+
+| g                      |                              |          |
++------------------------+------------------------------+----------+
+| metastable             |                              |          |
++------------------------+------------------------------+----------+
+
+Lines Data
+
++------------------------+------------------------------+----------+
+|Name                    | Description                  | Symbol   |
++========================+==============================+==========+
+| wavelength             |                              |          |
++------------------------+------------------------------+----------+
+| atomic_number(z)       | Atomic Number                | 1        |
++------------------------+------------------------------+----------+
+| ion number             | Ion Number                   | 1        |
++------------------------+------------------------------+----------+
+| f_ul                   |                              |          |
++------------------------+------------------------------+----------+
+| f_lu                   |                              |          |
++------------------------+------------------------------+----------+
+| level_id_l             |                              |          |
++------------------------+------------------------------+----------+
+| level_od_l             |                              |          |
++------------------------+------------------------------+----------+
 
 
 

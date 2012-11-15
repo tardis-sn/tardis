@@ -119,7 +119,8 @@ def read_ionization_data(fname=None):
 
 
 def read_levels_data(fname=None):
-    """This function reads the atomic number, ion number, and ionization energy from hdf5 file
+    """This function reads atomic number, ion number, level_number, energy, g, metastable
+    information from hdf5 file.
 
     Parameters
     ----------
@@ -131,8 +132,7 @@ def read_levels_data(fname=None):
     -------
 
     data : `~astropy.table.Table`
-        table with fields ### FILL IN DATA###
-
+        table with fields z[1], ion[1], level_number, energy, g, metastable
     """
 
     data_table = read_hdf5_data(fname, 'levels_data')
@@ -143,7 +143,8 @@ def read_levels_data(fname=None):
 
 
 def read_lines_data(fname=None):
-    """This function reads the atomic number, ion number, and ionization energy from hdf5 file
+    """This function reads the wavelength, atomic number, ion number, f_ul, f_l and level id information
+     from hdf5 file
 
     Parameters
     ----------
