@@ -156,7 +156,7 @@ def read_lines_data(fname=None):
     -------
 
     data : `~astropy.table.Table`
-        table with fields ### FILL IN DATA###
+        table with fields wavelength, atomic_number, ion_number, f_ul, f_lu, level_id_lower, level_id_upper.
     """
 
     data_table = read_hdf5_data(fname, 'lines_data')
