@@ -76,6 +76,8 @@ class Plasma(object):
 
 
 class LTEPlasma(Plasma):
+
+
     def calculate_partition_functions(self, temperature):
         """
         Calculate partition functions for the ions using the following formula, where
