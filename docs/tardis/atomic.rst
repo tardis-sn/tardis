@@ -12,14 +12,12 @@ Tables contain attributes which contain units.
 
 Tables
 ------
-::
+the following data is contained in hdf5 file ``atom_data.h5``
 
-    atom_data.h5
 Atomic Data
 ***********
-::
+dataset contains ``basic_atom_data``
 
-    basic_atom_data
 +------------------------+--------------------------------+---------+
 | Name                   | Description                    | Symbol  |
 +========================+================================+=========+
@@ -33,9 +31,8 @@ Atomic Data
 
 Ionization Data
 ***************
-::
+dataset contains ``ionization_data``
 
-    ionization data
 +------------------------+------------------------------+----------+
 |Name                    | Description                  | Symbol   |
 +========================+==============================+==========+
@@ -49,9 +46,8 @@ Ionization Data
 
 Levels Data
 ***********
-::
+dataset contains ``levels_data``
 
-    levels_data
 +------------------------+------------------------------+----------+
 |Name                    | Description                  | Symbol   |
 +========================+==============================+==========+
@@ -71,13 +67,12 @@ Levels Data
 
 Lines Data
 **********
-::
+dataset contains ``lines_data``
 
-    lines_data
 +------------------------+------------------------------+----------+
 |Name                    | Description                  | Symbol   |
 +========================+==============================+==========+
-| wavelength             |                              |          |
+| wavelength             | Waveslength                  |          |
 +------------------------+------------------------------+----------+
 | atomic_number(z)       | Atomic Number                | 1        |
 +------------------------+------------------------------+----------+
