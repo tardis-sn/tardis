@@ -94,20 +94,20 @@ class LTEPlasma(Plasma):
 
         """
 
-    unique_atom_ion = np.unique(self.atom_data._levels.__array__()[['atomic_number', 'ion_number']])
-    beta = 1 / (constants.cgs.k_B * temperature)
-    partition_table = []
-    for atomic_number, ion_number in unique_atom_ion:
-        levels = self.atom_data.get_levels(atomic_number, ion_number)
-        partition_function = np.sum(levels['g'] * np.exp(-levels['energy'] * beta))
-        partition_table.append((atomic_number, ion_number, partition_function))
+        unique_atom_ion = np.unique(self.atom_data._levels.__array__()[['atomic_number', 'ion_number']])
+        beta = 1 / (constants.cgs.k_B * temperature)
+        partition_table = []
+        for atomic_number, ion_number in unique_atom_ion:
+            levels = self.atom_data.get_levels(atomic_number, ion_number)
+            partition_function = np.sum(levels['g'] * np.exp(-levels['energy'] * beta))
+            partition_table.append((atomic_number, ion_number, partition_function))
 
-    partition_table = np.array(partition_table, dtype=[('atomic_number', np.int),
-                                                       ('ion_number', np.int),
-                                                       ('partition_function', np.float)])
+        partition_table = np.array(partition_table, dtype=[('atomic_number', np.int),
+                                                           ('ion_number', np.int),
+                                                           ('partition_function', np.float)])
 
-    partition_table = table.Table(partition_table)
-    return partition_table
+        partition_table = table.Table(partition_table)
+        return partition_table
 
 
 
