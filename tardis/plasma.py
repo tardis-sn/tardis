@@ -17,19 +17,19 @@ class Plasma(object):
     Parameters
     ----------
 
-    abundances: `dict`
+    abundances : `dict`
         A dictionary with the abundances for each element
 
-    temperature: `~float`
+    temperature : `~float`
         Temperature in Kelvin for the plasma
 
-    density: `float`
+    density : `float`
         density in g/cm^3
 
         .. warning::
-            Will later use the keyword `density_unit`
+            Instead of g/cm^ will later use the keyword `density_unit` as unit
 
-    atom_data: `~tardis.atomic.AtomData`-object
+    atom_data : `~tardis.atomic.AtomData`-object
 
     """
 
@@ -59,6 +59,14 @@ class Plasma(object):
 
 
     def _calculate_atom_number_densities(self):
+        """
+        Calculates the atom number density, using the following formula, where Z is the atomic number
+        and X is the abundance fraction
+
+        .. math::
+            N_{Z} = \\frac{\\rho_\\textrm{total}\\times \\textrm{X}_\\textrm{Z}}{m_\\textrm{Z}}
+
+        """
         atom_masses = np.array(
             [self.atom_data._atom['mass'][atomic_number - 1] for atomic_number in self.abundances['atomic_number']])
         number_density = (self.density * self.abundances['abundance_fraction']) / atom_masses
@@ -66,6 +74,8 @@ class Plasma(object):
         number_density_col = table.Column('number_density', number_density, units=units.Unit(1))
         self.abundances.add_column(number_density_col)
 
+
+class LTEPlasma(Plasma):
     def calculate_partition_functions(self, temperature):
         """
         Calculate partition functions for the ions using the following formula, where
@@ -79,28 +89,26 @@ class Plasma(object):
         Returns
         -------
 
-        partition_functions: `~astropy.table.Table`
+        partition_functions : `~astropy.table.Table`
             with fields atomic_number, ion_number, partition_function
 
         """
 
-        unique_atom_ion = np.unique(self.atom_data._levels.__array__()[['atomic_number', 'ion_number']])
-        beta = 1 / (constants.cgs.k_B * temperature)
-        partition_table = []
-        for atomic_number, ion_number in unique_atom_ion:
-            levels = self.atom_data.get_levels(atomic_number, ion_number)
-            partition_function = np.sum(levels['g'] * np.exp(-levels['energy'] * beta))
-            partition_table.append((atomic_number, ion_number, partition_function))
+    unique_atom_ion = np.unique(self.atom_data._levels.__array__()[['atomic_number', 'ion_number']])
+    beta = 1 / (constants.cgs.k_B * temperature)
+    partition_table = []
+    for atomic_number, ion_number in unique_atom_ion:
+        levels = self.atom_data.get_levels(atomic_number, ion_number)
+        partition_function = np.sum(levels['g'] * np.exp(-levels['energy'] * beta))
+        partition_table.append((atomic_number, ion_number, partition_function))
 
-        partition_table = np.array(partition_table, dtype=[('atomic_number', np.int),
-                                                           ('ion_number', np.int),
-                                                           ('partition_function', np.float)])
+    partition_table = np.array(partition_table, dtype=[('atomic_number', np.int),
+                                                       ('ion_number', np.int),
+                                                       ('partition_function', np.float)])
 
-        partition_table = table.Table(partition_table)
-        return partition_table
+    partition_table = table.Table(partition_table)
+    return partition_table
 
-    def _caluclate_phis(self):
-        pass
 
 
 class LTEPlasma(Plasma):
