@@ -117,8 +117,11 @@ class LTEPlasma(Plasma):
     def update_t_rad(self, t_rad):
         """
            This functions updates the radiation temperature `t_rad` and calculates the beta_rad
-           Parameters. Then calculating :math:`g_e = `Then will calculate the partition functions, followed by the phis
-           (using `calculate_saha`)
+           Parameters. Then calculating :math:`g_e=2/ \\left(\\sqrt{\\frac{h^2}{2\\pi m_e k_\\textrm{B} T}}\\right)^3`.
+           Next will calculate the partition functions, followed by the phis
+           (using `calculate_saha`).
+
+           Parameters
            ----------
            t_rad : float
 
@@ -167,14 +170,16 @@ class LTEPlasma(Plasma):
 
     def calculate_saha(self):
         """
-        Calculating the ionization equilibrium using the Saha equation
+        Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
+        j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
+        and :math:`\chi` is the ionization energy.
 
         .. math::
 
-            Lambda = \\sqrt{aa}
-            g_e = 2 / \\Lambda^3
 
-            \\Phi_{i,j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}}
+            \\Phi_{i,j} = \\frac{N_{i, j+1} n_e}{N_{i, j}}
+
+            \\Phi_{i, j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}} e^{\chi_{j\\rightarrow j+1}/k_\\textrm{B}T}
 
 
 
