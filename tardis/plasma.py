@@ -4,6 +4,7 @@
 import numpy as np
 import logging
 from astropy import table, units, constants
+from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +21,7 @@ class Plasma(object):
     abundances : `dict`
         A dictionary with the abundances for each element
 
-    temperature : `~float`
+    t_rad : `~float`
         Temperature in Kelvin for the plasma
 
     density : `float`
@@ -34,9 +35,41 @@ class Plasma(object):
     """
 
     #TODO make density a astropy.quantity
-    def __init__(self, abundances, temperature, density, atom_data, density_unit='g/cm^3'):
+    def __init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3'):
         self.atom_data = atom_data
         self.density = density
+
+        self.abundances = self.calculate_atom_number_densities(abundances)
+
+        #Filtering the levels data
+        levels_filter = np.zeros(len(self.atom_data._levels)).astype(np.bool)
+
+        for atomic_number in self.abundances['atomic_number']:
+            levels_filter = levels_filter | (self.atom_data._levels['atomic_number'] == atomic_number)
+
+        self.levels = self.atom_data._levels[levels_filter]
+
+        #Filtering the lines data
+
+        lines_filter = np.zeros(len(self.atom_data._lines)).astype(np.bool)
+
+        for atomic_number in self.abundances['atomic_number']:
+            lines_filter = lines_filter | (self.atom_data._lines['atomic_number'] == atomic_number)
+
+        self.lines = self.atom_data._lines[lines_filter]
+
+        self.update_t_rad(t_rad)
+
+
+    def calculate_atom_number_densities(self, abundances):
+        """
+        Calculates the atom number density, using the following formula, where Z is the atomic number
+        and X is the abundance fraction
+
+        .. math::
+            N_{Z} = \\frac{\\rho_\\textrm{total}\\times \\textrm{X}_\\textrm{Z}}{m_\\textrm{Z}}
+
+        """
 
         #Converting abundances
         abundance_table = zip(
@@ -53,32 +86,52 @@ class Plasma(object):
 
         abundance_table['abundance_fraction'] /= abundance_sum
 
-        self.abundances = abundance_table
-
-        self._calculate_atom_number_densities()
-
-
-    def _calculate_atom_number_densities(self):
-        """
-        Calculates the atom number density, using the following formula, where Z is the atomic number
-        and X is the abundance fraction
-
-        .. math::
-            N_{Z} = \\frac{\\rho_\\textrm{total}\\times \\textrm{X}_\\textrm{Z}}{m_\\textrm{Z}}
-
-        """
         atom_masses = np.array(
-            [self.atom_data._atom['mass'][atomic_number - 1] for atomic_number in self.abundances['atomic_number']])
-        number_density = (self.density * self.abundances['abundance_fraction']) / atom_masses
+            [self.atom_data._atom['mass'][atomic_number - 1] for atomic_number in abundance_table['atomic_number']])
+        number_density = (self.density * abundance_table['abundance_fraction']) / atom_masses
 
         number_density_col = table.Column('number_density', number_density, units=units.Unit(1))
-        self.abundances.add_column(number_density_col)
+        abundance_table.add_column(number_density_col)
+
+        return abundance_table
+
+    def update_t_rad(self, t_rad):
+        """
+        This functions updates the radiation temperature `t_rad` and calculates the beta_rad
+        Parameters
+        ----------
+        t_rad : float
+
+
+        """
+        self.t_rad = t_rad
+        self.beta_rad = 1 / (constants.cgs.k_B.real * t_rad)
 
 
 class LTEPlasma(Plasma):
+    def __init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3'):
+        Plasma.__init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3')
+
+        self.update_t_rad(t_rad)
+
+    def update_t_rad(self, t_rad):
+        """
+           This functions updates the radiation temperature `t_rad` and calculates the beta_rad
+           Parameters. Then calculating :math:`g_e = `Then will calculate the partition functions, followed by the phis
+           (using `calculate_saha`)
+           ----------
+           t_rad : float
 
 
-    def calculate_partition_functions(self, temperature):
+       """
+        Plasma.update_t_rad(self, t_rad)
+
+        self.partition_functions = self.calculate_partition_functions()
+
+        self.ge = 2 / (np.sqrt(constants.cgs.h.real ** 2 /\
+                               (2 * np.pi * constants.cgs.m_e.real * (1 / (self.beta_rad ))))) ** 3
+
+    def calculate_partition_functions(self):
         """
         Calculate partition functions for the ions using the following formula, where
         :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
@@ -96,12 +149,12 @@ class LTEPlasma(Plasma):
 
         """
 
-        unique_atom_ion = np.unique(self.atom_data._levels.__array__()[['atomic_number', 'ion_number']])
-        beta = 1 / (constants.cgs.k_B * temperature)
+        unique_atom_ion = np.unique(self.levels.__array__()[['atomic_number', 'ion_number']])
+
         partition_table = []
         for atomic_number, ion_number in unique_atom_ion:
             levels = self.atom_data.get_levels(atomic_number, ion_number)
-            partition_function = np.sum(levels['g'] * np.exp(-levels['energy'] * beta))
+            partition_function = np.sum(levels['g'] * np.exp(-levels['energy'] * self.beta_rad))
             partition_table.append((atomic_number, ion_number, partition_function))
 
         partition_table = np.array(partition_table, dtype=[('atomic_number', np.int),
@@ -112,7 +165,53 @@ class LTEPlasma(Plasma):
         return partition_table
 
 
+    def calculate_saha(self):
+        """
+        Calculating the ionization equilibrium using the Saha equation
 
+        .. math::
+
+            Lambda = \\sqrt{aa}
+            g_e = 2 / \\Lambda^3
+
+            \\Phi_{i,j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}}
+
+
+
+
+        """
+        denominators = []
+        numerators = []
+        phis = []
+        atomic_numbers = []
+        for atomic_number in self.abundances['atomic_number']:
+            partition_functions_filter = self.partition_functions['atomic_number'] == atomic_number
+            current_partition_functions = self.partition_functions[partition_functions_filter]
+
+            phi_value = self.ge * current_partition_functions['partition_function'][1:] /\
+                        current_partition_functions['partition_function'][:-1]
+
+            phi_value *= np.exp(-self.beta_rad *\
+                                self.atom_data.get_ions(atomic_number)['ionization_energy'][:len(phi_value)])
+            phis += list(phi_value)
+            denominators += list(current_partition_functions['ion_number'][:-1])
+            numerators += list(current_partition_functions['ion_number'][1:])
+            atomic_numbers += [atomic_number] * len(phi_value)
+
+
+
+        #phi = (n_j+1 * ne / nj)
+        table_columns = []
+        table_columns.append(table.Column('atomic_number', atomic_numbers))
+        table_columns.append(table.Column('numerator', numerators))
+        table_columns.append(table.Column('denominator', denominators))
+        table_columns.append(table.Column('phi', phis))
+
+        phi_table = table.Table(table_columns)
+
+        return phi_table
+
+"""
 class LTEPlasma(Plasma):
     @classmethod
     def from_model(cls, abundances, density, atom_model):
@@ -120,12 +219,12 @@ class LTEPlasma(Plasma):
 
 
     def __init__(self, abundances, density, atom_model):
-        """
+        \"""
         ionization_energy
         -------------
         ndarray with row being ion, column atom
         
-        """
+        \"""
         self.atom_model = atom_model
         self.atom_number_density = self._calculate_atom_number_density(abundances, density)
         self.electron_density = np.sum(self.atom_number_density)
@@ -201,6 +300,7 @@ class LTEPlasma(Plasma):
             old_electron_density = 0.5 * (old_electron_density + electron_density)
         return ion_density, electron_density
 
+"""
 
 class NebularPlasma(LTEPlasma):
     def update_radiationfield(self, t_rad, w, t_electron=None):
