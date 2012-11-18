@@ -7,24 +7,12 @@ from ..import atomic, plasma
 from numpy import testing
 import pytest
 import numpy as np
-from astropy import units, table
+from astropy import units, table, constants
 import os
 
 atom_model = atomic.AtomData.from_hdf5()
 
 fe_mass = atom_model._atom[25]['mass']
-
-
-def read_nist_data(fname):
-    #raise Exception(os.getcwd())
-    data = np.genfromtxt(fname, skip_header=3, delimiter='|', usecols=(2, 3),
-        converters={3: lambda s: float(s.strip().strip('?[]'))}, names=('j', 'energy'))
-    table.Table(data)
-
-tests_data_dir = os.path.join('tardis', 'tests', 'data')
-nist_si1 = read_nist_data(os.path.join(tests_data_dir, 'nist_si1.dat'))
-#nist_si2 = read_nist_data('tardis/tests/data/nist_si2.dat')
-#nist_si3 = read_nist_data('tardis/tests/data/nist_si3.dat')
 
 
 @pytest.mark.parametrize(("abundances", "abundance_fraction_fe"), [
@@ -51,6 +39,8 @@ def test_number_abundances(abundances, density, number_abundances_fe):
     fe_test = (plasma_model.abundances[fe_filter]['number_density'][0] - number_abundances_fe)
     fe_test /= (plasma_model.abundances[fe_filter]['number_density'][0] + number_abundances_fe)
     assert abs(fe_test) < 1e-7
+
+
 
 
 
