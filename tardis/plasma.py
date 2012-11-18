@@ -8,8 +8,8 @@ from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
 
-Bnu = lambda nu, t: (2 * constants.h * nu ** 3 / constants.c ** 2) * np.exp(
-    1 / ((constants.h * nu) / (constants.kb * t)))
+#Bnu = lambda nu, t: (2 * constants.h * nu ** 3 / constants.c ** 2) * np.exp(
+#    1 / ((constants.h * nu) / (constants.kb * t)))
 
 class Plasma(object):
     """
@@ -41,23 +41,21 @@ class Plasma(object):
 
         self.abundances = self.calculate_atom_number_densities(abundances)
 
-        #Filtering the levels data
+        #Filtering the levels & lines data
         levels_filter = np.zeros(len(self.atom_data._levels)).astype(np.bool)
-
-        for atomic_number in self.abundances['atomic_number']:
-            levels_filter = levels_filter | (self.atom_data._levels['atomic_number'] == atomic_number)
-
-        self.levels = self.atom_data._levels[levels_filter]
-
-        #Filtering the lines data
-
         lines_filter = np.zeros(len(self.atom_data._lines)).astype(np.bool)
 
         for atomic_number in self.abundances['atomic_number']:
+            levels_filter = levels_filter | (self.atom_data._levels['atomic_number'] == atomic_number)
             lines_filter = lines_filter | (self.atom_data._lines['atomic_number'] == atomic_number)
 
+        self.levels = self.atom_data._levels[levels_filter]
         self.lines = self.atom_data._lines[lines_filter]
 
+        self.lines['wavelength'].convert_units_to('cm')
+
+        level_tuple = [tuple(item) for item in self.levels.__array__()[['atomic_number', 'ion_number', 'level_number']]]
+        self.levels_dict = dict(zip(level_tuple, np.arange(len(self.levels))))
         self.update_t_rad(t_rad)
 
 
@@ -110,29 +108,52 @@ class Plasma(object):
 
 class LTEPlasma(Plasma):
     def __init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3'):
-        Plasma.__init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3')
+        Plasma.__init__(self, abundances, t_rad, density, atom_data, density_unit=density_unit)
 
         self.update_t_rad(t_rad)
 
-    def update_t_rad(self, t_rad):
+
+    def update_t_rad(self, t_rad, n_e_convergence_threshold=0.05):
         """
-           This functions updates the radiation temperature `t_rad` and calculates the beta_rad
-           Parameters. Then calculating :math:`g_e=2/ \\left(\\sqrt{\\frac{h^2}{2\\pi m_e k_\\textrm{B} T}}\\right)^3`.
-           Next will calculate the partition functions, followed by the phis
-           (using `calculate_saha`).
+            This functions updates the radiation temperature `t_rad` and calculates the beta_rad
+            Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
+            Next will calculate the partition functions, followed by the phis
+            (using `calculate_saha`).
 
-           Parameters
-           ----------
-           t_rad : float
+            Parameters
+            ----------
+            t_rad : float
 
+            n_e_convergence_threshold : float
+                The electron density convergence threshold. The number to stop when iterating over calculating the
+                ionization balance.
 
        """
         Plasma.update_t_rad(self, t_rad)
 
         self.partition_functions = self.calculate_partition_functions()
 
-        self.ge = 2 / (np.sqrt(constants.cgs.h.real ** 2 /\
-                               (2 * np.pi * constants.cgs.m_e.real * (1 / (self.beta_rad ))))) ** 3
+        self.ge = ((2 * np.pi * constants.cgs.m_e / self.beta_rad) / (constants.cgs.h ** 2)) ** 1.5
+
+        #Calculate the Saha ionization balance fractions
+        phis = self.calculate_saha()
+
+        #initialize electron density with the sum of number densities
+        electron_density = np.sum(self.abundances['number_density'])
+
+        n_e_iterations = 0
+
+        while True:
+            ionization_balance, new_electron_density = self.calculate_ionization_balance(phis, electron_density)
+            n_e_iterations += 1
+            if abs(new_electron_density - electron_density) / electron_density < n_e_convergence_threshold: break
+            electron_density = 0.5 * (new_electron_density + electron_density)
+
+        logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
+
+        self.ion_densities = ionization_balance
+        self.calculate_level_populations()
+
 
     def calculate_partition_functions(self):
         """
@@ -167,7 +188,6 @@ class LTEPlasma(Plasma):
         partition_table = table.Table(partition_table)
         return partition_table
 
-
     def calculate_saha(self):
         """
         Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
@@ -179,10 +199,7 @@ class LTEPlasma(Plasma):
 
             \\Phi_{i,j} = \\frac{N_{i, j+1} n_e}{N_{i, j}}
 
-            \\Phi_{i, j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}} e^{\chi_{j\\rightarrow j+1}/k_\\textrm{B}T}
-
-
-
+            \\Phi_{i, j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}} e^{-\chi_{j\\rightarrow j+1}/k_\\textrm{B}T}
 
         """
         denominators = []
@@ -216,98 +233,94 @@ class LTEPlasma(Plasma):
 
         return phi_table
 
-"""
-class LTEPlasma(Plasma):
-    @classmethod
-    def from_model(cls, abundances, density, atom_model):
-        return cls(abundances, density, atom_model)
+
+    def calculate_ionization_balance(self, phis, electron_density):
+        """
+        Calculate the ionization balance
+
+        .. math::
+            N(X) = N_1 + N_2 + N_3 + \\dots
+
+            N(X) = (N_2/N_1) \\times N_1 + (N3/N2) \\times (N_2/N_1) \\times N_1 + \\dots
+
+            N(X) = N1(1 + N_2/N_1 + (N_3/N_2) \\times (N_2/N_1) + \\dots
 
 
-    def __init__(self, abundances, density, atom_model):
-        \"""
-        ionization_energy
-        -------------
-        ndarray with row being ion, column atom
-        
-        \"""
-        self.atom_model = atom_model
-        self.atom_number_density = self._calculate_atom_number_density(abundances, density)
-        self.electron_density = np.sum(self.atom_number_density)
+        """
+
+        atomic_numbers = []
+        ion_numbers = []
+        ion_densities = []
+
+        new_electron_density = 0
+
+        for atomic_number, abundance_fraction, number_density in self.abundances:
+            atomic_number_filter = phis['atomic_number'] == atomic_number
+            current_phis = phis[atomic_number_filter]
+            phis_product = np.cumprod(current_phis['phi'] / electron_density)
+            neutral_atom_density = number_density / (1 + np.sum(phis_product))
+
+            atomic_numbers += [atomic_number] * (len(current_phis) + 1)
+            ion_numbers += [0] + list(current_phis['numerator'])
+
+            ion_densities += [neutral_atom_density] + list(neutral_atom_density * phis_product)
+
+        table_columns = []
+        table_columns.append(table.Column('atomic_number', atomic_numbers))
+        table_columns.append(table.Column('ion_number', ion_numbers))
+        table_columns.append(table.Column('number_density', ion_densities))
+
+        ion_densities = table.Table(table_columns)
+
+        new_electron_density = np.sum(ion_densities['number_density'] * ion_densities['ion_number'])
+
+        return ion_densities, new_electron_density
 
 
-    def update_radiationfield(self, t_rad):
-        self.t_rad = t_rad
-        self.beta = 1 / (t_rad * constants.kbinev)
-        self.partition_functions = self._calculate_partition_functions()
-        self.ion_number_density, self.electron_density = self._calculate_ion_populations()
+    def calculate_level_populations(self):
+        if 'number_density' not in self.levels.dtype.names:
+            n_levels = table.Column('number_density', np.empty_like(self.levels['atomic_number']).astype(np.float),
+                dtype=np.float)
+            self.levels.add_column(n_levels)
 
+        n_levels = self.levels['number_density']
+
+        for atomic_number, ion_number, partition_function in self.partition_functions:
+            ion_density_filter = self.ion_densities['atomic_number'] == atomic_number
+            ion_density_filter = ion_density_filter & (self.ion_densities['ion_number'] == ion_number)
+
+            current_ion_density = self.ion_densities[ion_density_filter]['number_density'][0]
+
+            level_filter = self.levels['atomic_number'] == atomic_number
+            level_filter = level_filter & (self.levels['ion_number'] == ion_number)
+
+            current_levels = self.levels[level_filter]
+
+            n_levels[level_filter] = (current_levels['g'] / partition_function) * current_ion_density *\
+                                     np.exp(-self.beta_rad * current_levels['energy'])
 
     def calculate_tau_sobolev(self, time_exp):
-        wl = self.atom_model.line_list['wl'] * 1e-7
-        Z = self.partition_functions[self.atom_model.line_list['ion'], self.atom_model.line_list['atom'] - 1]
-        g_lower = self.atom_model.line_list['g_lower']
-        e_lower = self.atom_model.line_list['e_lower']
-        n_lower = (g_lower / Z) * np.exp(-self.beta * e_lower) *\
-                  self.ion_number_density[self.atom_model.line_list['ion'],
-                                          self.atom_model.line_list['atom'] - 1]
-        tau_sobolev = constants.sobolev_coeff * self.atom_model.line_list['f_lu'] * wl * time_exp * n_lower
+        @np.vectorize
+        def get_n_lower(atomic_number, ion_number, level_number):
+            level_id = self.levels_dict[(atomic_number, ion_number, level_number)]
+            return self.levels[level_id]['number_density']
+
+        n_lower = get_n_lower(self.lines['atomic_number'], self.lines['ion_number'], self.lines['level_id_lower'])
+
+        #(pi*e^2)/(m_e*c)
+
+        sobolev_coefficient = ((np.pi * constants.cgs.e.real ** 2) / (constants.cgs.m_e * constants.cgs.c))
+        tau_sobolev = sobolev_coefficient * self.lines['f_lu'] * self.lines['wavelength'] * time_exp * n_lower
+
         return tau_sobolev
 
-    def _calculate_atom_number_density(self, abundances, density):
-        if np.abs(np.sum(abundances) - 1) > 1e-10:
-            logger.warn('Abundance fractions don\'t add up to one: %s', np.abs(np.sum(abundances) - 1))
-        number_density = (density * abundances) / (self.atom_model.masses * constants.u)
-
-        return number_density
-
-    def _calculate_partition_functions(self):
-        z_func = lambda energy, g: np.sum(g * np.exp(-self.beta * energy))
-        vector_z_func = np.vectorize(z_func, otypes=[np.float64])
-        return vector_z_func(self.atom_model.levels_energy, self.atom_model.levels_g)
-
-    def _calculate_phis(self):
-        #calculating ge = 2/(Lambda^3)
-        ge = 2 / (np.sqrt(constants.h ** 2 / (2 * np.pi * constants.me * (1 / (self.beta * constants.erg2ev))))) ** 3
-
-        partition_fractions = ge * self.partition_functions[1:] / self.partition_functions[:-1]
-        partition_fractions[np.isnan(partition_fractions)] = 0.0
-        partition_fractions[np.isinf(partition_fractions)] = 0.0
-        #phi = (n_j+1 * ne / nj)
-        phis = partition_fractions * np.exp(-self.beta * self.atom_model.ionization_energy)
-        return phis
-
-    def _calculate_single_ion_populations(self, phis):
-        #N1 is ground state
-        #N(fe) = N1 + N2 + .. = N1 + (N2/N1)*N1 + (N3/N2)*(N2/N1)*N1 + ... = N1(1+ N2/N1+...)
-
-        ion_fraction_prod = np.cumprod(phis / self.electron_density, axis=0) # (N2/N1, N3/N2 * N2/N1, ...)
-        ion_fraction_sum = 1 + np.sum(ion_fraction_prod, axis=0)
-        N1 = self.atom_number_density / ion_fraction_sum
-        #Further Ns
-        Nn = N1 * ion_fraction_prod
-        new_electron_density = np.sum(
-            Nn * (np.arange(1, self.atom_model.max_ion).reshape((self.atom_model.max_ion - 1, 1))))
-        return np.vstack((N1, Nn)), new_electron_density
-
-    def _calculate_ion_populations(self):
-        #partition_functions = calculate_partition_functions(energy_data, g_data, beta)
-        phis = self._calculate_phis()
-
-        #first estimate
-        electron_density = np.sum(self.atom_number_density)
-        old_electron_density = self.electron_density
-        while True:
-            ion_density, electron_density =\
-            self._calculate_single_ion_populations(phis)
-
-            if abs(electron_density / old_electron_density - 1) < 0.05: break
-
-            old_electron_density = 0.5 * (old_electron_density + electron_density)
-        return ion_density, electron_density
-
-"""
 
 class NebularPlasma(LTEPlasma):
+    def __init__(self, abundances, t_rad, w, density, atom_data, density_unit='g/cm^3', t_electron=None):
+        Plasma.__init__(self, abundances, t_rad, density, atom_data, density_unit=density_unit)
+
+        self.update_t_rad(t_rad, w, t_electron)
+
     def update_radiationfield(self, t_rad, w, t_electron=None):
         self.t_rad = t_rad
         self.w = w
@@ -315,21 +328,49 @@ class NebularPlasma(LTEPlasma):
         if t_electron is None:
             self.t_electron = 0.9 * self.t_rad
 
-        self.beta = 1 / (t_rad * constants.kbinev)
+        self.beta_rad = 1 / (t_rad * constants.cgs.k_B)
+
         self.partition_functions = self._calculate_partition_functions(self.w)
+
         self.ion_number_density, self.electron_density = self._calculate_ion_populations()
 
-    def _calculate_partition_functions(self, w):
-        def calc_partition(energy, g, meta):
-            if np.isscalar(meta): return 0
-            non_meta = np.logical_not(meta)
-            return np.sum(g[meta] * np.exp(-self.beta * energy[meta])) + w * np.sum(
-                g[non_meta] * np.exp(-self.beta * energy[non_meta]))
-            #return np.sum(g * np.exp(-self.beta * energy))
 
-        vector_calc_partition = np.vectorize(calc_partition, otypes=[np.float64])
-        return vector_calc_partition(self.atom_model.levels_energy, self.atom_model.levels_g,
-            self.atom_model.levels_metastable)
+    def calculate_partition_functions(self):
+        """
+        Calculate partition functions for the ions using the following formula, where
+        :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
+
+        .. math::
+            Z_{i,j} = \\sum_{k=0}^{max(k)_{i,j}} g_k \\times e^{-E_k / (k_\\textrm{b} T)}
+
+
+
+        Returns
+        -------
+
+        partition_functions : `~astropy.table.Table`
+            with fields atomic_number, ion_number, partition_function
+
+        """
+
+        unique_atom_ion = np.unique(self.levels.__array__()[['atomic_number', 'ion_number']])
+
+        partition_table = []
+        for atomic_number, ion_number in unique_atom_ion:
+            levels = self.atom_data.get_levels(atomic_number, ion_number)
+            partition_function = np.sum(levels['g'][levels['meta']] * np.exp(-levels['energy'][levels['meta']]\
+                                                                             * self.beta_rad))
+            partition_function += np.sum(levels['g'][~levels['meta']] * np.exp(-levels['energy'][~levels['meta']]\
+                                                                               * self.beta_rad))
+
+            partition_table.append((atomic_number, ion_number, partition_function))
+
+        partition_table = np.array(partition_table, dtype=[('atomic_number', np.int),
+                                                           ('ion_number', np.int),
+                                                           ('partition_function', np.float)])
+
+        partition_table = table.Table(partition_table)
+        return partition_table
 
 
     def _calculate_phis(self):
@@ -381,80 +422,5 @@ class NebularPlasma(LTEPlasma):
         return tau_sobolev
 
 
-def read_line_list(conn):
-    raw_data = []
-    curs = conn.execute(
-        'select wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion from lines')
-    for wl, loggf, g_lower, g_upper, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion in curs:
-        gf = 10 ** loggf
-        f_lu = gf / g_lower
-        f_ul = gf / g_upper
-        raw_data.append((wl, g_lower, g_upper, f_lu, f_ul, e_lower, e_upper, level_id_lower, level_id_upper, atom, ion))
-
-    line_list = np.array(raw_data, dtype=[('wl', np.float64),
-                                          ('g_lower', np.int64), ('g_upper', np.int64),
-                                          ('f_lu', np.float64), ('f_ul', np.float64),
-                                          ('e_lower', np.float64), ('e_upper', np.float64),
-                                          ('level_id_lower', np.int64), ('level_id_upper', np.int64),
-                                          ('atom', np.int64), ('ion', np.int64)])
-
-    return line_list
-
-
-def read_ionize_data_from_db(conn, max_atom=30, max_ion=None):
-    if max_ion == None: max_ion = max_atom
-    ionize_data = np.zeros((max_ion, max_atom))
-    ionize_select_stmt = """select
-                    atom, ion, ionize_ev
-                from
-                    ionization
-                where
-                    atom <= ?
-                and
-                    ion <= ?"""
-
-    curs = conn.execute(ionize_select_stmt, (max_atom, max_ion))
-
-    for atom, ion, ionize in curs:
-        ionize_data[ion - 1, atom - 1] = ionize
-
-    return ionize_data
-
-
-def read_level_data(conn, max_atom=30, max_ion=None):
-    #Constructing Matrix with atoms columns and ions rows
-    #dtype is object and the cells will contain arrays with the energy levels
-    if max_ion == None:
-        max_ion = max_atom
-    level_select_stmt = """select
-                atom, ion, energy, g, level_id
-            from
-                levels
-            where
-                    atom <= ?
-                and
-                    ion < ?
-            order by
-                atom, ion, energy"""
-
-    curs = conn.execute(level_select_stmt, (max_ion, max_atom))
-    energy_data = np.zeros((max_ion, max_atom), dtype='object')
-    g_data = np.zeros((max_ion, max_atom), dtype='object')
-
-    old_elem = None
-    old_ion = None
-
-    for elem, ion, energy, g, levelid in curs:
-        if elem == old_elem and ion == old_ion:
-            energy_data[ion, elem - 1] = np.append(energy_data[ion, elem - 1], energy)
-            g_data[ion, elem - 1] = np.append(g_data[ion, elem - 1], g)
-
-        else:
-            old_elem = elem
-            old_ion = ion
-            energy_data[ion, elem - 1] = np.array([energy])
-            g_data[ion, elem - 1] = np.array([g])
-
-    return energy_data, g_data
 
 
