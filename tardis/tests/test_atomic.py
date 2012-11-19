@@ -22,24 +22,23 @@ def test_ionization_h5_readin():
 
 
 def test_atom_levels():
-    atom_data = atomic.AtomData.from_hdf5()._levels
-    assert atom_data[0]['level_number'] == atom_data[0]['energy']
-    for i in range(len(atom_data)):
-        assert atom_data[i][0] == 14
-        assert atom_data[i][1] == 1
-        assert atom_data[i][2] == i
+    levels_data = atomic.AtomData.from_hdf5()._levels
+    level_idx = levels_data['level_number'] == 0
+    assert levels_data['energy'][level_idx] == 0.0
+
 
 def test_atom_lines():
-    atom_data = atomic.AtomData.from_hdf5()
-    wavelength = atom_data._lines['wavelength'][0]
-    testing.assert_almost_equal(wavelength, 711.338999, decimal=4)
-    assert atom_data._lines['atomic_number'][0] == 14
-    assert atom_data._lines['ion_number'][0] == 1
-    f_ul = atom_data._lines['f_ul'][0]
-    testing.assert_almost_equal(f_ul, 0.018532, decimal=4)
-    f_lu = atom_data._lines['f_lu'][0]
-    testing.assert_almost_equal(f_lu, 0.037065, decimal=4)
-    assert atom_data._lines['level_id_lower'][0] == 0
-    assert atom_data._lines['level_id_upper'][0] == 113
+    lines_data = atomic.AtomData.from_hdf5()._lines
+    assert min(abs(lines_data['wavelength']-6347.109)) == 0
+
+
+#    assert atom_data._lines['atomic_number'][0] == 14
+#    assert atom_data._lines['ion_number'][0] == 1
+#    f_ul = atom_data._lines['f_ul'][0]
+#    testing.assert_almost_equal(f_ul, 0.018532, decimal=4)
+#    f_lu = atom_data._lines['f_lu'][0]
+#    testing.assert_almost_equal(f_lu, 0.037065, decimal=4)
+#    assert atom_data._lines['level_id_lower'][0] == 0
+#    assert atom_data._lines['level_id_upper'][0] == 113
 
 
