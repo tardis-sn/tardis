@@ -32,7 +32,7 @@ def test_atom_lines():
     assert min(abs(lines_data['wavelength']-6347.109)) == 0
 
 
-#    assert atom_data._lines['atomic_number'][0] == 14
+
 #    assert atom_data._lines['ion_number'][0] == 1
 #    f_ul = atom_data._lines['f_ul'][0]
 #    testing.assert_almost_equal(f_ul, 0.018532, decimal=4)
