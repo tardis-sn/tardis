@@ -278,6 +278,17 @@ class LTEPlasma(Plasma):
 
 
     def calculate_level_populations(self):
+        """
+        Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
+        With the following formula:
+        .. math::
+            \\frac{g_k}{Z_{i,j}} \\times N_{i, j} \\times e^{-\\beta_\\textrm{rad} \\times E_k}
+
+
+
+        :return:
+        """
+
         if 'number_density' not in self.levels.dtype.names:
             n_levels = table.Column('number_density', np.empty_like(self.levels['atomic_number']).astype(np.float),
                 dtype=np.float)
