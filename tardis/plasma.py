@@ -18,7 +18,7 @@ class Plasma(object):
     Parameters
     ----------
 
-    abundances : `dict`
+    abundances : `~dict`
         A dictionary with the abundances for each element
 
     t_rad : `~float`
@@ -243,7 +243,9 @@ class LTEPlasma(Plasma):
 
             N(X) = (N_2/N_1) \\times N_1 + (N3/N2) \\times (N_2/N_1) \\times N_1 + \\dots
 
-            N(X) = N1(1 + N_2/N_1 + (N_3/N_2) \\times (N_2/N_1) + \\dots
+            N(X) = N_1(1 + N_2/N_1 + (N_3/N_2) \\times (N_2/N_1) + \\dots
+
+            N(X) = N_1(1+ \\Phi_{i,j}/N_e + \\Phi_{i, j}/N_e \\times \\Phi_{i, j+1}/N_e + \\dots)
 
 
         """
@@ -280,7 +282,9 @@ class LTEPlasma(Plasma):
     def calculate_level_populations(self):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
-        With the following formula:
+        :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
+        j is the ion number and k is the level number.
+
         .. math::
             \\frac{g_k}{Z_{i,j}} \\times N_{i, j} \\times e^{-\\beta_\\textrm{rad} \\times E_k}
 
