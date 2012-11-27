@@ -57,15 +57,15 @@ After running exactley through the same steps as `Plasma`, `LTEPlasma` will star
 
 The next step is to calculate the ionization balance using the `Saha ionization equation <http://en.wikipedia.org/wiki/Saha_ionization_equation>`_.
 and then calculating the Number density of the ions (and an electron number density) in a second step.
-First :math:`g_e=\left(\frac{2 \pi m_e k_\textrm{B}T_\textrm{rad}}{h^2}\right)^{3/2}` is calculated, followed by calculating
-the ion fractions.
+First :math:`g_e=\left(\frac{2 \pi m_e k_\textrm{B}T_\textrm{rad}}{h^2}\right)^{3/2}` is calculated (in `LTEPlasma.update_t_rad`),
+ followed by calculating the ion fractions (`LTEPlasma.calculate_saha`).
 
 .. math::
 
     \frac{N_{i, j+1}\times N_e}{N_{i, j}} &= \Phi_{i, (j+1)/j} \\
     \Phi_{i, (j+1)/j} &= g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} e^{-\chi_{j\rightarrow j+1}/k_\textrm{B}T}\\
 
-In the second step, we calculate in an iterative process the electron density and the number density for each ion species.
+In the second step (`LTEPlasma.calculate_ionization_balance`), we calculate in an iterative process the electron density and the number density for each ion species.
 
 .. math::
     N(X) &= N_1 + N_2 + N_3 + \dots\\
@@ -80,7 +80,7 @@ ion species number densities we recalculated the electron density by weighting t
 ion number (e.g. neutral ion number densities don't contribute at all to the electron number density, once ionized contribute with a
 factor of 1, twice ionized contribute with a factor of two, ....).
 
-Finally we calculate the level populations, by using the calculated ion species number densities:
+Finally we calculate the level populations (`LTEPlasma.calculate_level_populations`), by using the calculated ion species number densities:
 
 .. math::
     N_{i, j, k} = \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k}
@@ -131,7 +131,7 @@ Here's an example::
                    28          8           23 ...  11      False 1.03092538574e-198
                    28          8           24 ...   7      False 5.66496972859e-199
                    28          8           25 ...   7      False 4.37244215215e-199
-                   
+
     >>> print my_plasma.update_t_rad(5000)
     atomic_number ion_number level_number ...  g  metastable number_density
     ------------- ---------- ------------ ... --- ---------- --------------
