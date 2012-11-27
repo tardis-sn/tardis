@@ -88,6 +88,72 @@ Finally we calculate the level populations, by using the calculated ion species 
 This concludes the calculation of the plasma. In the code, the next step is calculating the :math:`\tau_\textrm{Sobolev}` using
 the quantities calculated here.
 
+Here's an example::
+
+    >>> from tardis import atomic, plasma
+    >>> atom_data = atomic.AtomData.from_hdf5()
+    >>> my_plasma = lasma.LTEPlasma({'Fe':0.5, 'Ni':0.5}, 10000, 1e-13, atom_data)
+    >>> print my_plasma.partition_functions
+    atomic_number ion_number partition_function
+    ------------- ---------- ------------------
+               26          0      59.6505567482
+               26          1      66.8959778772
+               26          2      28.1862532138
+               26          3      6.56910482208
+               26          4      24.4529907641
+               26          5      26.1068211267
+               26          6      18.4458984351
+               26          7      8.60710657603
+              ...        ...                ...
+               28          1      19.3995555128
+               28          2      20.1680211885
+               28          3      26.6331919318
+               28          4      23.6553761087
+               28          6      20.9840329365
+               28          7      21.7719521018
+               28          8      15.7179889906
+    >>> print my_plasma.levels # The last column has been calculated and changes when updating the t_rad
+        atomic_number ion_number level_number ...  g  metastable   number_density
+        ------------- ---------- ------------ ... --- ---------- ------------------
+                   26          0            0 ...   9       True  0.000169596945909
+                   26          0            1 ...   7       True  0.000124246414266
+                   26          0            2 ...   5       True  8.51442728653e-05
+                   26          0            3 ...   3       True  4.97509739812e-05
+                   26          0            4 ...   1       True  1.63704372998e-05
+                   26          0            5 ...  11       True  7.64985795918e-05
+                   26          0            6 ...   9       True  5.86784715998e-05
+                   26          0            7 ...   7       True  4.33893909491e-05
+                  ...        ...          ... ... ...        ...                ...
+                   28          8           19 ...   9      False 2.37668235834e-198
+                   28          8           20 ...   7      False 9.05523315872e-199
+                   28          8           21 ...   5      False 5.65796533522e-199
+                   28          8           22 ...   9      False 9.46379424911e-199
+                   28          8           23 ...  11      False 1.03092538574e-198
+                   28          8           24 ...   7      False 5.66496972859e-199
+                   28          8           25 ...   7      False 4.37244215215e-199
+                   
+    >>> print my_plasma.update_t_rad(5000)
+    atomic_number ion_number level_number ...  g  metastable number_density
+    ------------- ---------- ------------ ... --- ---------- --------------
+               26          0            0 ...   9       True  12715.9908741
+               26          0            1 ...   7       True  8774.58025089
+               26          0            2 ...   5       True  5768.96016405
+               26          0            3 ...   3       True   3282.7558399
+               26          0            4 ...   1       True  1066.29463495
+               26          0            5 ...  11       True  2116.75561292
+               26          0            6 ...   9       True  1522.20007689
+               26          0            7 ...   7       True   1070.1033671
+              ...        ...          ... ... ...        ...            ...
+               28          8           19 ...   9      False            0.0
+               28          8           20 ...   7      False            0.0
+               28          8           21 ...   5      False            0.0
+               28          8           22 ...   9      False            0.0
+               28          8           23 ...  11      False            0.0
+               28          8           24 ...   7      False            0.0
+               28          8           25 ...   7      False            0.0
+
+
+
 
 Nebular Plasma
 ==============
