@@ -204,6 +204,17 @@ class AtomData(object):
 
     @classmethod
     def from_hdf5(cls, fname=None):
+        """
+        Function to read all the atom data from a special TARDIS HDF5 File.
+
+        Parameters
+        ----------
+
+        fname: str, optional
+            the default for this is `None` and then it will use the very limited atomic_data shipped with TARDIS
+            For more complex atomic data please contact the authors.
+        """
+
         atom_data = read_basic_atom_data(fname)
         ionization_data = read_ionization_data(fname)
         levels_data = read_levels_data(fname)
@@ -251,6 +262,63 @@ class AtomData(object):
             level_dict[(level[0], level[1], level[2])] = i
 
         return level_dict
+
+
+class NebularAtomData(AtomData):
+    """
+    Class for storing atomic data. This is a special class geared towards use with the `tardis.plasma.NebularPlasma`-class.
+    It contains a way of storing Recombination coefficients and can calculate Zeta values ??STUART please add more info??
+
+
+    AtomData
+    ---------
+
+    Parameters
+    ----------
+
+    basic_atom_data: ~astropy.table.Table
+        containing the basic atom data: z, symbol, and mass
+
+    ionization_data: ~astropy.table.Table
+        containing the ionization data: z, ion, and ionization energy
+        ::important to note here is that ion describes the final ion state
+            e.g. H I - H II is described with ion=2
+
+    """
+
+    @classmethod
+    def from_hdf5(cls, fname=None):
+        """
+        Function to read all the atom data from a special TARDIS HDF5 File.
+
+        Parameters
+        ----------
+
+        fname: str, optional
+            the default for this is `None` and then it will use the very limited atomic_data shipped with TARDIS
+            For more complex atomic data please contact the authors.
+        """
+
+        atom_data = read_basic_atom_data(fname)
+        ionization_data = read_ionization_data(fname)
+        levels_data = read_levels_data(fname)
+        lines_data = read_lines_data(fname)
+
+        return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
+            lines_data=lines_data)
+
+
+    def calculate_radiation_field_correction(self):
+        """
+        Calculating radiation field correction factors according to :cite:`1993A&A...279..447M`
+
+        Hello
+
+        .. bibliography:: tardis.bib
+            :all:
+        """
+
+        pass
 
 
 class KuruczAtomModel(AtomData):

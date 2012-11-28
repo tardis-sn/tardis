@@ -1,5 +1,5 @@
-Atomic
-======
+Atomic Data
+===========
 .. currentmodule:: tardis.atomic
 
 
@@ -8,6 +8,12 @@ hdf5
 All atomic data are stored in `hdf5 files <http://h5py.alfven.org/docs/intro/quick.html/>`_  which contain `Tables`_
 that include mass, ionization, levels and lines data.
 Tables contain attributes which contain units.
+
+
+
+
+Calculating radiation field correction factors according to :cite:`1993A&A...279..447M`
+
 
 
 Tables
@@ -86,6 +92,9 @@ dataset contains ``lines_data``
 +------------------------+------------------------------+----------+
 | level_id_upper         | Lower level id               |          |
 +------------------------+------------------------------+----------+
+
+
+.. bibliography:: tardis.bib
 
 
 

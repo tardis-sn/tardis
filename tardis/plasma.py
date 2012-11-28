@@ -33,7 +33,6 @@ class Plasma(object):
     atom_data : `~tardis.atomic.AtomData`-object
 
     """
-
     #TODO make density a astropy.quantity
     def __init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3'):
         self.atom_data = atom_data
@@ -57,6 +56,12 @@ class Plasma(object):
         level_tuple = [tuple(item) for item in self.levels.__array__()[['atomic_number', 'ion_number', 'level_number']]]
         self.levels_dict = dict(zip(level_tuple, np.arange(len(self.levels))))
         self.update_t_rad(t_rad)
+
+    def validate_atom_data(self):
+        required_attributes = ['_lines', '_levels']
+        for attribute in required_attributes:
+            if not hasattr(self.atom_data, attribute):
+                raise ValueError('AtomData incomplete missing')
 
 
     def calculate_atom_number_densities(self, abundances):
@@ -107,6 +112,28 @@ class Plasma(object):
 
 
 class LTEPlasma(Plasma):
+    """
+    Model for Plasma using a local thermodynamic equilibrium approximation.
+
+    Parameters
+    ----------
+
+    abundances : `~dict`
+       A dictionary with the abundances for each element
+
+    t_rad : `~float`
+       Temperature in Kelvin for the plasma
+
+    density : `float`
+       density in g/cm^3
+
+       .. warning::
+           Instead of g/cm^ will later use the keyword `density_unit` as unit
+
+    atom_data : `~tardis.atomic.AtomData`-object
+
+    """
+
     def __init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3'):
         Plasma.__init__(self, abundances, t_rad, density, atom_data, density_unit=density_unit)
 
@@ -331,12 +358,37 @@ class LTEPlasma(Plasma):
 
 
 class NebularPlasma(LTEPlasma):
-    def __init__(self, abundances, t_rad, w, density, atom_data, density_unit='g/cm^3', t_electron=None):
+    """
+    Model for Plasma using the Nebular approximation
+
+    Parameters
+    ----------
+
+    abundances : `~dict`
+       A dictionary with the abundances for each element
+
+    t_rad : `~float`
+       Temperature in Kelvin for the plasma
+
+    density : `float`
+       density in g/cm^3
+
+       .. warning::
+           Instead of g/cm^ will later use the keyword `density_unit` as unit
+
+    atom_data : `~tardis.atomic.AtomData`-object
+
+    t_electron : `~float`, or `None`
+        the electron temperature. if set to `None` we assume the electron temperature is 0.9 * radiation temperature
+
+    """
+
+    def __init__(self, abundances, t_rad, w, density, atom_data, t_electron=None, density_unit='g/cm^3'):
         Plasma.__init__(self, abundances, t_rad, density, atom_data, density_unit=density_unit)
+        self.update_t_rad(t_rad, t_electron, w)
 
-        self.update_t_rad(t_rad, w, t_electron)
 
-    def update_radiationfield(self, t_rad, w, t_electron=None):
+    def update_radiationfield(self, t_rad, t_electron, w):
         self.t_rad = t_rad
         self.w = w
 
@@ -356,7 +408,8 @@ class NebularPlasma(LTEPlasma):
         :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
 
         .. math::
-            Z_{i,j} = \\sum_{k=0}^{max(k)_{i,j}} g_k \\times e^{-E_k / (k_\\textrm{b} T)}
+            Z_{i,j} = \\underbrace{\\sum_{k=0}^{max(k)_{i,j}} g_k \\times e^{-E_k / (k_\\textrm{b} T)}}_\\textrm{metastable levels} +
+                    \\underbrace{W\\times\\sum_{k=0}^{max(k)_{i,j}} g_k \\times e^{-E_k / (k_\\textrm{b} T)}}_\\textrm{non-metastable levels}
 
 
 
@@ -375,8 +428,9 @@ class NebularPlasma(LTEPlasma):
             levels = self.atom_data.get_levels(atomic_number, ion_number)
             partition_function = np.sum(levels['g'][levels['meta']] * np.exp(-levels['energy'][levels['meta']]\
                                                                              * self.beta_rad))
-            partition_function += np.sum(levels['g'][~levels['meta']] * np.exp(-levels['energy'][~levels['meta']]\
-                                                                               * self.beta_rad))
+            partition_function += self.w * np.sum(
+                levels['g'][~levels['meta']] * np.exp(-levels['energy'][~levels['meta']]\
+                                                      * self.beta_rad))
 
             partition_table.append((atomic_number, ion_number, partition_function))
 
@@ -386,6 +440,54 @@ class NebularPlasma(LTEPlasma):
 
         partition_table = table.Table(partition_table)
         return partition_table
+
+
+    def calculate_saha(self):
+        def calculate_saha(self):
+            """
+            Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
+            j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
+            and :math:`\chi` is the ionization energy.
+
+            .. math::
+
+
+                \\Phi_{i,j} = \\frac{N_{i, j+1} n_e}{N_{i, j}}
+
+                \\Phi_{i, j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}} e^{-\chi_{j\\rightarrow j+1}/k_\\textrm{B}T}
+
+            """
+
+        denominators = []
+        numerators = []
+        phis = []
+        atomic_numbers = []
+        for atomic_number in self.abundances['atomic_number']:
+            partition_functions_filter = self.partition_functions['atomic_number'] == atomic_number
+            current_partition_functions = self.partition_functions[partition_functions_filter]
+
+            phi_value = self.ge * current_partition_functions['partition_function'][1:] /\
+                        current_partition_functions['partition_function'][:-1]
+
+            phi_value *= np.exp(-self.beta_rad *\
+                                self.atom_data.get_ions(atomic_number)['ionization_energy'][:len(phi_value)])
+            phis += list(phi_value)
+            denominators += list(current_partition_functions['ion_number'][:-1])
+            numerators += list(current_partition_functions['ion_number'][1:])
+            atomic_numbers += [atomic_number] * len(phi_value)
+
+
+
+        #phi = (n_j+1 * ne / nj)
+        table_columns = []
+        table_columns.append(table.Column('atomic_number', atomic_numbers))
+        table_columns.append(table.Column('numerator', numerators))
+        table_columns.append(table.Column('denominator', denominators))
+        table_columns.append(table.Column('phi', phis))
+
+        phi_table = table.Table(table_columns)
+
+        return phi_table
 
 
     def _calculate_phis(self):
