@@ -27,7 +27,6 @@
 
 # Load all of the global Astropy configuration
 from astropy.sphinx.conf import *
-
 extensions.append('sphinxcontrib.bibtex')
 
 # -- General configuration ----------------------------------------------------

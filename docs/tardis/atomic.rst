@@ -94,7 +94,7 @@ dataset contains ``lines_data``
 +------------------------+------------------------------+----------+
 
 
-.. bibliography:: tardis.bib
+
 
 
 
