@@ -143,7 +143,8 @@ def read_levels_data(fname=None):
 
 
 def read_lines_data(fname=None):
-    """This function reads the wavelength, atomic number, ion number, f_ul, f_l and level id information
+    """
+    This function reads the wavelength, atomic number, ion number, f_ul, f_l and level id information
      from hdf5 file
 
     Parameters
@@ -164,6 +165,35 @@ def read_lines_data(fname=None):
 
     return data_table
 
+
+
+def read_zeta_data(fname):
+    """
+    This function reads the recombination coefficient data from the HDF5 file
+
+
+    :return:
+    """
+
+
+    if fname is None:
+        raise ValueError('fname can not be None when trying to use NebularAtom')
+
+    if not os.path.exists(fname):
+        raise IOError('HDF5 File doesn\'t exist')
+
+    h5_file = h5py.File(fname)
+
+    if 'zeta_data' not in h5_file.keys():
+        raise ValueError('zeta_data not available in this HDF5-data file. It can not be used with NebularAtomData')
+
+    zeta_data = h5_file['zeta_data']
+    zeta_interp = {}
+    t_rads = zeta_data.attrs['t_rad']
+    for line in zeta_data:
+        zeta_interp[tuple(map(int, line[:2]))] = interpolate.interp1d(t_rads, line[2:])
+
+    return zeta_interp
 
 def convert_int_ndarray(sqlite_binary):
     if sqlite_binary == '-1':
@@ -298,27 +328,21 @@ class NebularAtomData(AtomData):
             the default for this is `None` and then it will use the very limited atomic_data shipped with TARDIS
             For more complex atomic data please contact the authors.
         """
-
+        zeta_data = read_zeta_data(fname)
         atom_data = read_basic_atom_data(fname)
         ionization_data = read_ionization_data(fname)
         levels_data = read_levels_data(fname)
         lines_data = read_lines_data(fname)
 
         return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-            lines_data=lines_data)
+            lines_data=lines_data, zeta_data=zeta_data)
 
 
-    def calculate_radiation_field_correction(self):
-        """
-        Calculating radiation field correction factors according to :cite:`1993A&A...279..447M`
+    def __init__(self, atom_data, ionization_data, levels_data, lines_data, zeta_data):
+        super(NebularAtomData, self).__init__(atom_data, ionization_data, levels_data, lines_data)
+        self.zeta_data = zeta_data
 
-        Hello
 
-        .. bibliography:: tardis.bib
-            :all:
-        """
-
-        pass
 
 
 class KuruczAtomModel(AtomData):
