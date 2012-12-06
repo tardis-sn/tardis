@@ -177,7 +177,7 @@ def read_zeta_data(fname):
 
 
     if fname is None:
-        raise ValueError('fname can not be None when trying to use NebularAtom')
+        raise ValueError('fname can not be "None" when trying to use NebularAtom')
 
     if not os.path.exists(fname):
         raise IOError('HDF5 File doesn\'t exist')
