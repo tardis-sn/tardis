@@ -166,11 +166,16 @@ in :cite:`2002A&A...384..725L`. Then we calculate the downward emission probabil
 upward internal transition probabilities in :cite:`2003A&A...403..261L`.
 
 .. math::
-    p_\textrm{emission down}&= {\cal R}_{\textrm{upper}\rightarrow\textrm{lower}}\,(\epsilon_\textrm{upper} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
-    p_\textrm{internal up}&={\cal R}_{\textrm{lower}\rightarrow\textrm{upper}}\,\epsilon_{lower}/{\cal D}_{lower}\\
-    p_\textrm{internal down}&= {\cal R}_{\textrm{upper}\rightarrow\textrm{lower}}\,\epsilon_\textrm{lower}/{\cal D}_{upper}\\,
+    p_\textrm{emission down}&= {\cal R}_{\textrm{i}\rightarrow\textrm{lower}}\,(\epsilon_\textrm{upper} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
+    p_\textrm{internal down}&= {\cal R}_{\textrm{i}\rightarrow\textrm{lower}}\,\epsilon_\textrm{lower}/{\cal D}_{i}\\,
+    p_\textrm{internal up}&={\cal R}_{\textrm{i}\rightarrow\textrm{upper}}\,\epsilon_{i}/{\cal D}_{i}\\,
 
-we ignore the probability to emit a k-packet as TARDIS only works with photon packets. Next we calculate the radidative
+where :math:`i` is the current level, :math:`\epsilon` is the energy of the level, and :math:`{\cal R}` is the radiative
+ rates.
+
+
+We ignore the probability to emit a k-packet as TARDIS only works with photon packets.
+Next we calculate the radidative
 rates using equation 10 in :cite:`2003A&A...403..261L`.
 
 .. math::
@@ -211,25 +216,29 @@ we get
 This results in the transition probabilities:
 
 .. math::
-    p_\textrm{emission down}&= C_\textrm{Einstein} 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}
-                                       \beta_\textrm{Sobolev}n_\textrm{upper}\,(\epsilon_\textrm{upper} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
-    p_\textrm{internal up}&=C_\textrm{Einstein}\frac{1}{h\nu} f_{\textrm{lower}\rightarrow\textrm{upper}}
-                                        (n_\textrm{lower}-\frac{g_\textrm{lower}}{g_\textrm{upper}}n_\textrm{upper})
-                                                    \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{lower}/{\cal D}_{lower}\\
-    p_\textrm{internal down}&= C_\textrm{Einstein} 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}
-                                       \beta_\textrm{Sobolev}n_\textrm{upper}\,\epsilon_\textrm{lower}/{\cal D}_{upper}\\,
+    p_\textrm{emission down}&= C_\textrm{Einstein} 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                       \beta_\textrm{Sobolev}n_\textrm{i}\,(\epsilon_\textrm{i} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
+    p_\textrm{internal down}&= C_\textrm{Einstein} 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                       \beta_\textrm{Sobolev}n_\textrm{i}\,\epsilon_\textrm{lower}/{\cal D}_{i}\\
+    p_\textrm{internal up}&=C_\textrm{Einstein}\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}
+                                        (n_\textrm{i}-\frac{g_\textrm{i}}{g_\textrm{upper}}n_\textrm{upper})
+                                                    \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{i}/{\cal D}_{i}\\,
 
-and as we will normalise the transition probabilities numerically later on we can drop some constants (all transition
-probabilities need to add up to one):
+and as we will normalise the transition probabilities numerically later,  we can get rid of :math:`C_\textrm{Einstein}`,
+ :math:`\frac{1}{{\cal D}_i}` and number densities
 
 .. math::
-    p_\textrm{emission down}&= 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}
-                                       \beta_\textrm{Sobolev}n_\textrm{upper}\,(\epsilon_\textrm{upper} - \epsilon_\textrm{lower})\\
-    p_\textrm{internal up}&=\frac{1}{h\nu} f_{\textrm{lower}\rightarrow\textrm{upper}}
-                                        (n_\textrm{lower}-\frac{g_\textrm{lower}}{g_\textrm{upper}}n_\textrm{upper})
-                                                    \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{lower}\\
-    p_\textrm{internal down}&=  2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}
-                                       \beta_\textrm{Sobolev}n_\textrm{upper}\,\epsilon_\textrm{lower}\\
+    p_\textrm{emission down}&= 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                       \beta_\textrm{Sobolev}\,(\epsilon_\textrm{i} - \epsilon_\textrm{lower})\\
+    p_\textrm{internal down}&=  2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                       \beta_\textrm{Sobolev}\,\epsilon_\textrm{lower}\\
+    p_\textrm{internal up}&=\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}
+                                        (1-\frac{g_\textrm{i}}{g_\textrm{upper}}\frac{n_\textrm{upper}}{n_i})
+                                                    \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{i}\\
+                &= \frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}
+                                                           (1-\frac{g_\textrm{i}}{g_\textrm{upper}}
+                                                            e^{-\frac{(\epsilon_\textrm{upper}-\epsilon_\textrm{i})}{k_\textrm{B} T_\textrm{rad}}})
+                                                                       \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{i}\\
 
 
 
