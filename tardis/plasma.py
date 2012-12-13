@@ -108,7 +108,7 @@ class Plasma(object):
 
         """
         self.t_rad = t_rad
-        self.beta_rad = 1 / (constants.cgs.k_B.real * t_rad)
+        self.beta_rad = 1 / (constants.cgs.k_B.value * t_rad)
 
 
 class LTEPlasma(Plasma):
@@ -156,11 +156,11 @@ class LTEPlasma(Plasma):
                 ionization balance.
 
        """
-        super(LTEPlasma, self).update_radiationfield(self, t_rad)
+        Plasma.update_radiationfield(self, t_rad)
 
         self.partition_functions = self.calculate_partition_functions()
 
-        self.ge = ((2 * np.pi * constants.cgs.m_e / self.beta_rad) / (constants.cgs.h ** 2)) ** 1.5
+        self.ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
 
         #Calculate the Saha ionization balance fractions
         phis = self.calculate_saha()
@@ -358,7 +358,7 @@ class LTEPlasma(Plasma):
 
         #(pi*e^2)/(m_e*c)
 
-        sobolev_coefficient = ((np.pi * constants.cgs.e.real ** 2) / (constants.cgs.m_e * constants.cgs.c))
+        sobolev_coefficient = ((np.pi * constants.cgs.e.value ** 2) / (constants.cgs.m_e.value * constants.cgs.c.value))
 
         tau_sobolev = sobolev_coefficient * self.lines['f_lu'] * self.lines['wavelength'] * time_exp * n_lower * \
                       (1 - ((g_lower * n_upper) / (g_upper * n_lower)))
@@ -404,12 +404,12 @@ class NebularPlasma(LTEPlasma):
         if t_electron is None:
             self.t_electron = 0.9 * self.t_rad
 
-        self.beta_rad = 1 / (t_rad * constants.cgs.k_B)
-        self.beta_electron = 1 / (self.t_electron * constants.cgs.k_B)
+        self.beta_rad = 1 / (t_rad * constants.cgs.k_B.value)
+        self.beta_electron = 1 / (self.t_electron * constants.cgs.k_B.value)
 
         self.partition_functions = self.calculate_partition_functions()
 
-        self.ge = ((2 * np.pi * constants.cgs.m_e / self.beta_rad) / (constants.cgs.h ** 2)) ** 1.5
+        self.ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
 
         #Calculate the Saha ionization balance fractions
         phis = self.calculate_saha()
