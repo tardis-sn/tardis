@@ -6,6 +6,8 @@ import logging
 from astropy import table, units, constants
 from collections import OrderedDict
 
+from pandas import Series, Index
+
 logger = logging.getLogger(__name__)
 
 #Bnu = lambda nu, t: (2 * constants.h * nu ** 3 / constants.c ** 2) * np.exp(
@@ -66,21 +68,19 @@ class Plasma(object):
         """
 
         #Converting abundances
-        abundance_table = zip(
-            *[(self.atom_data.symbol2atomic_number[key], value) for key, value in abundances.items()])
-        abundance_table = table.Table(abundance_table, names=('atomic_number', 'abundance_fraction'))
+        atomic_numbers = [self.atom_data.symbol2atomic_number[key] for key in abundances.value()]
+        tmp_abundance_series = Series(abundances.keys, index=Index(atomic_numbers, dtype=np.int, name='atomic_number'))
+
 
 
         #Normalizing Abundances
 
-        abundance_sum = abundance_table['abundance_fraction'].sum()
+        abundance_sum = tmp_abundances_series.sum()
 
         if abs(abundance_sum - 1) > 1e-5:
             logger.warn('Abundances do not add up to 1 (Sum = %.4f). Renormalizing', (abundance_sum))
 
-        abundance_table['abundance_fraction'] /= abundance_sum
-
-        return abundance_table
+        tmp_abundance_series /= abundance_sum
 
         atom_masses = np.array(
             [self.atom_data._atom['mass'][atomic_number - 1] for atomic_number in abundance_table['atomic_number']])
