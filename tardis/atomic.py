@@ -14,6 +14,7 @@ from astropy import table, units
 
 from collections import OrderedDict
 
+from pandas import DataFrame
 
 try:
     import sqlparse
@@ -161,10 +162,10 @@ def read_lines_data(fname=None):
     """
 
     data_table = read_hdf5_data(fname, 'lines_data')
+    data_table.columns['wavelength'].convert_units_to('cm')
     #data_table.columns['ionization_energy'].convert_units_to('erg')
 
     return data_table
-
 
 
 def read_zeta_data(fname):
@@ -174,7 +175,6 @@ def read_zeta_data(fname):
 
     :return:
     """
-
 
     if fname is None:
         raise ValueError('fname can not be "None" when trying to use NebularAtom')
@@ -194,6 +194,7 @@ def read_zeta_data(fname):
         zeta_interp[tuple(map(int, line[:2]))] = interpolate.interp1d(t_rads, line[2:])
 
     return zeta_interp
+
 
 def convert_int_ndarray(sqlite_binary):
     if sqlite_binary == '-1':
@@ -255,43 +256,20 @@ class AtomData(object):
 
 
     def __init__(self, atom_data, ionization_data, levels_data, lines_data):
-        self._atom = atom_data
-        self._ion = ionization_data
-        self._levels = levels_data
-        self._lines = lines_data
+        self.atom_data = DataFrame(atom_data.__array__())
+        self.atom_data.set_index('atomic_number', inplace=True)
 
-        self.symbol2atomic_number = OrderedDict(zip(self._atom['symbol'], self._atom['atomic_number']))
-        self.atomic_number2symbol = OrderedDict(zip(self._atom['atomic_number'], self._atom['symbol']))
+        self.ionization_data = DataFrame(ionization_data.__array__())
+        self.ionization_data.set_index('atomic_data', 'ion_number', inplace=True)
 
-        self.ion_index = dict(
-            [((line['atomic_number'], line['ion_number']), i) for i, line in enumerate(self._ion)])
+        self.levels = DataFrame(levels_data.__array__())
+        self.levels_data.set_index('atomic_data', 'ion_number', 'level_number', inplace=True)
 
+        self.lines_data = DataFrame(lines_data.__array__())
+        self.lines_data.set_index('atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper')
 
-    def get_ions(self, atomic_number, ion=None):
-        table_filter = self._ion['atomic_number'] == atomic_number
-
-        if ion is not None:
-            table_filter = table_filter & (self._ion['ion_number'] == ion)
-
-        return self._ion[table_filter]
-
-
-    def get_levels(self, atomic_number, ion_number, level_number=None):
-        table_filter = (self._levels['atomic_number'] == atomic_number) &\
-                       (self._levels['ion_number'] == ion_number)
-
-        if level_number is not None:
-            table_filter = table_filter & (self._levels['level_number'] == level_number)
-
-        return self._levels[table_filter]
-
-    def get_levels_idx(self):
-        level_dict = {}
-
-        for i, level in enumerate(self._levels):
-            level_dict[(level[0], level[1], level[2])] = i
-
-        return level_dict
+        self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'], self.atom_data['atomic_number']))
+        self.atomic_number2symbol = OrderedDict(zip(self.atom_data['atomic_number'], self.atom_data['symbol']))
 
 
 class NebularAtomData(AtomData):
@@ -344,231 +322,3 @@ class NebularAtomData(AtomData):
 
 
 
-
-class KuruczAtomModel(AtomData):
-    @classmethod
-    def from_db(cls, conn, max_atom=30, max_ion=30):
-        logger.info('Reading Kurucz model from database max atom=%d max ion=%d', max_atom, max_ion)
-        masses = read_atomic_data()['mass'][:max_atom]
-
-        ionization_data = read_ionization_data()
-
-
-        #reason for max_ion - 1: in energy level data there's unionized, once-ionized, twice-ionized, ...
-        #in ionization_energies, there's only once_ionized, twice_ionized
-        ionization_energy = np.zeros((max_ion - 1, max_atom))
-
-        for atom, ion, ion_energy in ionization_data:
-            if atom > max_atom or ion >= max_ion:
-                continue
-            ionization_energy[ion - 1, atom - 1] = ion_energy
-
-        levels_energy, levels_g, levels_metastable = read_kurucz_level_data_fromdb(conn, max_atom, max_ion)
-
-        return cls(masses=masses,
-            ionization_energy=ionization_energy,
-            levels_energy=levels_energy,
-            levels_g=levels_g,
-            levels_metastable=levels_metastable,
-            max_atom=max_atom,
-            max_ion=max_ion)
-
-    def __init__(self,
-                 masses=None,
-                 ionization_energy=None,
-                 levels_energy=None,
-                 levels_g=None,
-                 levels_metastable=None,
-                 max_atom=None,
-                 max_ion=None):
-        self.masses = masses
-        self.ionization_energy = ionization_energy
-        self.levels_energy = levels_energy
-        self.levels_g = levels_g
-
-        self.levels_metastable = levels_metastable
-        if max_atom != 30 or max_ion != 30:
-            logger.warn('max_atom and/or max_ion are not 30 (max_atom=%s max_ion=%s)', max_atom, max_ion)
-        self.max_atom = max_atom
-        self.max_ion = max_ion
-
-    def calculate_radfield_correction_factor(self, t_rad, t_electron, w, departure_coefficient=None,
-                                             xi_threshold_species=(1, 19)):
-    #factor delta ML 1993
-        if departure_coefficient is None:
-            departure_coefficient = 1 / float(w)
-        delta = np.ones((self.max_ion - 1, self.max_atom))
-        xi_threshold = self.ionization_energy[xi_threshold_species]
-
-        #Formula 15 ML 1993
-        threshold_filter = (self.ionization_energy <= xi_threshold) & (self.ionization_energy > 0)
-        delta[threshold_filter] = (t_electron / (departure_coefficient * w * t_rad)) *\
-                                  np.exp((delta[threshold_filter] / (constants.kbinev * t_rad))\
-                                         - (delta[threshold_filter] / (constants.kbinev * t_electron)))
-
-        threshold_filter = (self.ionization_energy > xi_threshold) & (self.ionization_energy > 0)
-        #Formula 20 ML 1993
-        delta[self.ionization_energy > xi_threshold] = 1 -\
-                                                       np.exp((delta[threshold_filter] / (constants.kbinev * t_rad))\
-                                                              - (xi_threshold / (constants.kbinev * t_rad))) +\
-                                                       (t_electron / (departure_coefficient * w * t_rad)) *\
-                                                       np.exp((delta[threshold_filter] / (constants.kbinev * t_rad))\
-                                                              - (
-                                                           delta[threshold_filter] / (constants.kbinev * t_electron)))
-
-        return delta
-
-
-class KuruczMacroAtomModel(KuruczAtomModel):
-    @classmethod
-    def from_db(cls, conn, max_atom=30, max_ion=30):
-        kurucz_atom_model = KuruczAtomModel.from_db(conn, max_atom=max_atom, max_ion=max_ion)
-        kurucz_atom_model.macro_atom = line.SimpleMacroAtomData.fromdb(conn)
-        return kurucz_atom_model
-
-
-class CombinedAtomicModel(KuruczAtomModel):
-    """Complex Atomic Model, in addition to reading the Kurucz model.
-        In addition it reads the recombination to ground state coefficient zeta
-        from the zeta table.
-        It also includes reading reading the meta stable levels and transition probabilities
-
-        """
-
-    @classmethod
-    def from_db(cls, conn, max_atom=30, max_ion=30):
-        logger.info('Reading Kurucz model from database max atom=%d max ion=%d', max_atom, max_ion)
-
-        combined_atomic_model = KuruczAtomModel.from_db(conn, max_atom=max_atom, max_ion=max_ion)
-        line_list = line.read_line_list(conn, max_atom=max_atom, max_ion=max_ion)
-        macro_atom = line.SimpleMacroAtomData.fromdb(conn)
-
-        #factor zeta ML 1993
-        recombination_coefficients_t_rads, recombination_coefficients =\
-        read_recombination_coefficients_fromdb(conn,
-            max_atom,
-            max_ion)
-
-        return cls(masses=combined_atomic_model.masses,
-            ionization_energy=combined_atomic_model.ionization_energy,
-            levels_energy=combined_atomic_model.levels_energy,
-            levels_g=combined_atomic_model.levels_g,
-            levels_metastable=combined_atomic_model.levels_metastable,
-            line_list=line_list,
-            macro_atom=macro_atom,
-            recombination_coefficients_t_rads=recombination_coefficients_t_rads,
-            recombination_coefficients=recombination_coefficients,
-            max_atom=max_atom,
-            max_ion=max_ion)
-
-
-    def __init__(self,
-                 masses=None,
-                 ionization_energy=None,
-                 levels_energy=None,
-                 levels_g=None,
-                 levels_metastable=None,
-                 line_list=None,
-                 macro_atom=None,
-                 recombination_coefficients_t_rads=None,
-                 recombination_coefficients=None,
-                 max_atom=None,
-                 max_ion=None):
-        KuruczAtomModel.__init__(self,
-            masses=masses,
-            ionization_energy=ionization_energy,
-            levels_energy=levels_energy,
-            levels_g=levels_g,
-            levels_metastable=levels_metastable,
-            max_atom=max_atom,
-            max_ion=max_ion
-        )
-        self.recombination_coefficients_t_rads = recombination_coefficients_t_rads
-        self.recombination_coefficients = recombination_coefficients
-        self.line_list = line_list
-        self.macro_atom = macro_atom
-
-    def interpolate_recombination_coefficient(self, t_rad, kind='linear', bounds_error=True, fill_value=1.):
-        interpolator = interpolate.interp1d(self.recombination_coefficients_t_rads,
-            self.recombination_coefficients,
-            kind=kind,
-            bounds_error=bounds_error,
-            fill_value=fill_value)
-        return interpolator(t_rad)
-
-
-def read_recombination_coefficients_fromdb(conn, max_atom=30, max_ion=30):
-    select_zeta_stmt = """select
-                            atom, ion, zeta
-                        from
-                            zeta
-                        where
-                                atom < %d
-                            and
-                                ion < %d
-                        """ % (max_atom, max_ion)
-
-    logger.debug('Reading recombination coefficients from db:\n%s\n%s\n%s',
-        '-' * 80,
-        select_zeta_stmt,
-        '-' * 80)
-
-    curs = conn.execute(select_zeta_stmt)
-    t_rads = np.arange(2000, 42000, 2000)
-    recombination_coefficients = np.ones((max_ion - 1, max_atom, len(t_rads)))
-    for atom, ion, zeta in curs:
-        recombination_coefficients[ion - 1, atom - 1] = zeta
-        #interpolator = interpolate.interp1d(t_rads, recombination_coefficients, kind='linear', bounds_error=False,
-    #    fill_value=1.)
-    return t_rads, recombination_coefficients
-
-
-def read_kurucz_level_data_fromdb(conn, max_atom=30, max_ion=None):
-    #Constructing Matrix with atoms columns and ions rows
-    #dtype is object and the cells will contain arrays with the energy levels
-    if max_ion == None:
-        max_ion = max_atom
-
-    level_select_stmt = """select
-                atom, ion, energy, g, metastable, level_id
-            from
-                levels
-            where
-                    atom <= %d
-                and
-                    ion < %d
-            order by
-                atom, ion, energy""" % (max_atom, max_ion)
-
-    if sqlparse_available:
-        logger.debug('Reading level data from db:\n%s\n%s\n%s',
-            '-' * 80,
-            sqlparse.format(level_select_stmt,
-                reindent=True,
-                keyword_case='upper'),
-
-            '-' * 80)
-    else:
-        logger.debug(level_select_stmt)
-
-    curs = conn.execute(level_select_stmt)
-    energy_data = np.zeros((max_ion, max_atom), dtype='object')
-    g_data = np.zeros((max_ion, max_atom), dtype='object')
-    metastable_data = np.zeros((max_ion, max_atom), dtype='object')
-
-    old_elem = None
-    old_ion = None
-
-    for elem, ion, energy, g, metastable, levelid in curs:
-        if elem == old_elem and ion == old_ion:
-            energy_data[ion, elem - 1] = np.append(energy_data[ion, elem - 1], energy)
-            g_data[ion, elem - 1] = np.append(g_data[ion, elem - 1], g)
-            metastable_data[ion, elem - 1] = np.append(metastable_data[ion, elem - 1], np.bool(metastable))
-        else:
-            old_elem = elem
-            old_ion = ion
-            energy_data[ion, elem - 1] = np.array([energy])
-            g_data[ion, elem - 1] = np.array([g])
-            metastable_data[ion, elem - 1] = np.array([np.bool(metastable)], dtype=np.bool)
-
-    return energy_data, g_data, metastable_data

@@ -40,25 +40,16 @@ class Plasma(object):
 
         self.abundances = self.calculate_atom_number_densities(abundances)
 
-        #Filtering the levels & lines data
-        levels_filter = np.zeros(len(self.atom_data._levels)).astype(np.bool)
-        lines_filter = np.zeros(len(self.atom_data._lines)).astype(np.bool)
+        return None
+        levels_atom_filter = atom_data.levels['atomic_number'].map(lambda x: x in self.abundances['atomic_number'])
+        self.levels = atom_data.levels[levels_atom_filter]
 
-        for atomic_number in self.abundances['atomic_number']:
-            levels_filter = levels_filter | (self.atom_data._levels['atomic_number'] == atomic_number)
-            lines_filter = lines_filter | (self.atom_data._lines['atomic_number'] == atomic_number)
-
-        self.levels = self.atom_data._levels[levels_filter]
-        self.lines = self.atom_data._lines[lines_filter]
-
-        self.lines['wavelength'].convert_units_to('cm')
-
-        level_tuple = [tuple(item) for item in self.levels.__array__()[['atomic_number', 'ion_number', 'level_number']]]
-        self.levels_dict = dict(zip(level_tuple, np.arange(len(self.levels))))
+        lines_atom_filter = atom_data.lines['atomic_number'].map(lambda x: x in self.abundances['atomic_number'])
+        self.lines = atom_data.levels[lines_atom_filter]
 
 
     def validate_atom_data(self):
-        required_attributes = ['_lines', '_levels']
+        required_attributes = ['lines', 'levels']
         for attribute in required_attributes:
             if not hasattr(self.atom_data, attribute):
                 raise ValueError('AtomData incomplete missing')
@@ -88,6 +79,8 @@ class Plasma(object):
             logger.warn('Abundances do not add up to 1 (Sum = %.4f). Renormalizing', (abundance_sum))
 
         abundance_table['abundance_fraction'] /= abundance_sum
+
+        return abundance_table
 
         atom_masses = np.array(
             [self.atom_data._atom['mass'][atomic_number - 1] for atomic_number in abundance_table['atomic_number']])
@@ -347,8 +340,10 @@ class LTEPlasma(Plasma):
             level_id = self.levels_dict[(atomic_number, ion_number, level_number)]
             return level_id
 
-        level_id_lower = get_level_idx(self.lines['atomic_number'], self.lines['ion_number'], self.lines['level_id_lower'])
-        level_id_upper = get_level_idx(self.lines['atomic_number'], self.lines['ion_number'], self.lines['level_id_upper'])
+        level_id_lower = get_level_idx(self.lines['atomic_number'], self.lines['ion_number'],
+            self.lines['level_id_lower'])
+        level_id_upper = get_level_idx(self.lines['atomic_number'], self.lines['ion_number'],
+            self.lines['level_id_upper'])
 
         n_lower = self.levels['number_density'][level_id_lower]
         n_upper = self.levels['number_density'][level_id_upper]
@@ -360,7 +355,7 @@ class LTEPlasma(Plasma):
 
         sobolev_coefficient = ((np.pi * constants.cgs.e.value ** 2) / (constants.cgs.m_e.value * constants.cgs.c.value))
 
-        tau_sobolev = sobolev_coefficient * self.lines['f_lu'] * self.lines['wavelength'] * time_exp * n_lower * \
+        tau_sobolev = sobolev_coefficient * self.lines['f_lu'] * self.lines['wavelength'] * time_exp * n_lower *\
                       (1 - ((g_lower * n_upper) / (g_upper * n_lower)))
 
         return tau_sobolev
@@ -458,11 +453,12 @@ class NebularPlasma(LTEPlasma):
         partition_table = []
         for atomic_number, ion_number in unique_atom_ion:
             levels = self.atom_data.get_levels(atomic_number, ion_number)
-            partition_function = np.sum(levels['g'][levels['metastable']] * np.exp(-levels['energy'][levels['metastable']]\
-                                                                             * self.beta_rad))
+            partition_function = np.sum(
+                levels['g'][levels['metastable']] * np.exp(-levels['energy'][levels['metastable']]\
+                                                           * self.beta_rad))
             partition_function += self.w * np.sum(
                 levels['g'][~levels['metastable']] * np.exp(-levels['energy'][~levels['metastable']]\
-                                                      * self.beta_rad))
+                                                            * self.beta_rad))
 
             partition_table.append((atomic_number, ion_number, partition_function))
 
@@ -501,7 +497,6 @@ class NebularPlasma(LTEPlasma):
 
         """
 
-
         phi_table = super(NebularPlasma, self).calculate_saha()
         phi_table = self.calculate_radiation_field_correction(phi_table)
         zetas = []
@@ -510,8 +505,7 @@ class NebularPlasma(LTEPlasma):
 
         phi_table.add_column(table.Column('zeta', zetas))
 
-
-        phi_table['phi'] *= self.w * (phi_table['delta'][:,0] * phi_table['zeta'] + self.w * (1 - phi_table['zeta'])) *\
+        phi_table['phi'] *= self.w * (phi_table['delta'][:, 0] * phi_table['zeta'] + self.w * (1 - phi_table['zeta'])) *\
                             (self.t_electron / self.t_rad) ** .5
 
         return phi_table
@@ -586,7 +580,6 @@ class NebularPlasma(LTEPlasma):
         return phi_table
 
 
-
     def calculate_level_populations(self):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
@@ -625,9 +618,9 @@ class NebularPlasma(LTEPlasma):
             #boolean index array
             current_meta = current_levels['metastable']
             current_number_density[current_meta] = (current_levels['g'][current_meta] / partition_function) *\
-                                                   current_ion_density * \
+                                                   current_ion_density *\
                                                    np.exp(-self.beta_rad * current_levels['energy'][current_meta])
 
             current_number_density[~current_meta] = self.w * (current_levels['g'][~current_meta] / partition_function) *\
-                                                   current_ion_density *\
-                                                   np.exp(-self.beta_rad * current_levels['energy'][~current_meta])
+                                                    current_ion_density *\
+                                                    np.exp(-self.beta_rad * current_levels['energy'][~current_meta])
