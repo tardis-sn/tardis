@@ -260,13 +260,11 @@ class AtomData(object):
         self.atom_data.set_index('atomic_number', inplace=True)
 
         self.ionization_data = DataFrame(ionization_data.__array__())
-        self.ionization_data.set_index('atomic_number', 'ion_number', inplace=True)
+        self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
 
         self.levels_data = DataFrame(levels_data.__array__())
-        self.levels_data.set_index('atomic_number', 'ion_number', 'level_number', inplace=True)
 
         self.lines_data = DataFrame(lines_data.__array__())
-        self.lines_data.set_index('atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper')
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
