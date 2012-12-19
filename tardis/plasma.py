@@ -9,6 +9,8 @@ from collections import OrderedDict
 from pandas import DataFrame, Series, Index
 import pandas as pd
 
+import  macro_atom
+
 logger = logging.getLogger(__name__)
 import pdb
 #Bnu = lambda nu, t: (2 * constants.h * nu ** 3 / constants.c ** 2) * np.exp(
@@ -18,6 +20,20 @@ import pdb
 #Defining soboleve constant
 
 sobolev_coefficient = ((np.pi * constants.cgs.e.value ** 2) / (constants.cgs.m_e.value * constants.cgs.c.value))
+
+
+def intensity_black_body(nu, beta_rad):
+    """
+        Calculate the intensity of a black-body according to the following formula
+
+        .. math::
+            I(\\nu, T) = \frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
+
+    """
+
+    return ((constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2)) * 1 / (
+        np.exp(constants.cgs.h.value * nu * beta_rad) - 1)
+
 
 class Plasma(object):
     """
@@ -45,7 +61,8 @@ class Plasma(object):
 
     """
     #TODO make density a astropy.quantity
-    def __init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3', max_ion_number=None):
+    def __init__(self, abundances, density, atom_data, density_unit='g/cm^3', max_ion_number=None,
+                 use_macro_atom=False):
         self.atom_data = atom_data
         self.density = density
 
@@ -62,6 +79,22 @@ class Plasma(object):
             self.levels_data = self.levels_data[self.levels_data['ion_number'] <= max_ion_number]
             self.lines_data = self.lines_data[self.lines_data['ion_number'] <= max_ion_number]
 
+        if use_macro_atom:
+            if not hasattr(atom_data, 'macro_atom_data'):
+                raise ValueError('The currently supplied AtomData object does not have the Macro Atom Data')
+
+            macro_atom_filter = atom_data.macro_atom_data['atomic_number'].isin(self.abundances.index)
+            macro_atom_counts_filter = atom_data.macro_atom_counts['atomic_number'].isin(self.abundances.index)
+
+            self.macro_atom_data = atom_data.macro_atom_data[macro_atom_filter]
+            self.macro_atom_counts = atom_data.macro_atom_counts[macro_atom_counts_filter]
+
+            if max_ion_number is not None:
+                self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['ion_number'] <= max_ion_number]
+                self.macro_atom_counts = self.macro_atom_counts[self.macro_atom_counts['ion_number'] <= max_ion_number]
+
+            self.macro_lines = self.lines_data.set_index('line_id')
+            self.macro_atom_data.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
 
         # Setting the indices
         self.levels_data.set_index(['atomic_number', 'ion_number', 'level_number'], inplace=True)
@@ -143,11 +176,12 @@ class LTEPlasma(Plasma):
 
     """
 
-    def __init__(self, abundances, t_rad, density, atom_data, density_unit='g/cm^3', max_ion_number=None):
-        Plasma.__init__(self, abundances, t_rad, density, atom_data, density_unit=density_unit,
-            max_ion_number=max_ion_number)
+    def __init__(self, abundances, density, atom_data, density_unit='g/cm^3', max_ion_number=None,
+                 use_macro_atom=False):
+        Plasma.__init__(self, abundances, density, atom_data, density_unit=density_unit,
+            max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
+
         self.ion_number_density = None
-        #self.update_radiationfield(t_rad)
 
 
     def update_radiationfield(self, t_rad, n_e_convergence_threshold=0.05):
@@ -177,7 +211,6 @@ class LTEPlasma(Plasma):
 
         #initialize electron density with the sum of number densities
         electron_density = self.abundances['number_density'].sum()
-        self.calculate_ionization_balance(phis, electron_density)
 
         n_e_iterations = 0
 
@@ -235,14 +268,15 @@ class LTEPlasma(Plasma):
 
         """
         phis = {}
-        for atomic_number, part_funcs in self.partition_functions.groupby(level=['atomic_number']):
-            part_funcs = part_funcs.dropna()
 
-            ionization_energy = self.atom_data.ionization_data.ix[part_funcs.index[1:]]['ionization_energy'].values
-            current_phis = self.ge * (part_funcs[1:].values / part_funcs[:-1].values) * np.exp(
-                -self.beta_rad * ionization_energy)
-            phis[atomic_number] = current_phis
-            #pdb.set_trace()
+        def calculate_phis(group):
+            return group[1:] / group[:-1].values
+
+        phis = self.partition_functions.groupby(level='atomic_number').apply(calculate_phis)
+
+        phis = Series(phis.values, phis.index.droplevel(0))
+
+        phis *= self.ge * np.exp(-self.beta_rad * self.atom_data.ionization_data.ix[phis.index]['ionization_energy'])
 
         return phis
 
@@ -266,8 +300,8 @@ class LTEPlasma(Plasma):
         if self.ion_number_density is None:
             self.ion_number_density = pd.Series(index=self.partition_functions.index.copy())
 
-        for atomic_number in phis:
-            current_phis = phis[atomic_number] / electron_density
+        for atomic_number, groups in phis.groupby(level='atomic_number'):
+            current_phis = groups.values / electron_density
             phis_product = np.cumproduct(current_phis)
 
             neutral_atom_density = self.abundances.ix[atomic_number]['number_density'] / (1 + np.sum(phis_product))
@@ -312,7 +346,7 @@ class LTEPlasma(Plasma):
         .. math::
             C_\\textrm{Sobolev} = \\frac{\\pi e^2}{m_e c}
 
-            \\tau_\\textrm{Sobolev} = C_\\textrm{Sobolev}\,  \\lambda\\, f_{\\textrm{lower}\\rightarrow\\textrm{upper}}\,
+            \\tau_\\textrm{Sobolev} = C_\\textrm{Sobolev}\,  \\lambda\\, f_{\\textrm{lower}\\rightarrow\\textrm{upper}}\\,
                 t_\\textrm{explosion}\, N_\\textrm{lower}
 
 
@@ -324,10 +358,36 @@ class LTEPlasma(Plasma):
 
         """
 
-        tau_sobolev = sobolev_coefficient * self.lines_data['f_lu'] * self.lines_data['wavelength'] *\
-                      time_exp * self.level_populations.ix[self.lines_data.index].values
+        self.lines_data['tau_sobolev'] = sobolev_coefficient * self.lines_data['f_lu'] * self.lines_data['wavelength'] *\
+                                         time_exp * self.level_populations.ix[self.lines_data.index].values
 
-        return tau_sobolev
+
+    def update_macro_atom(self, only_branching=False, ):
+        """
+            Updating the Macro Atom computations
+
+        """
+
+        #def normalize
+        macro_lines = self.lines_data.set_index('line_id')
+        tau_sobolevs = macro_lines['tau_sobolev'].ix[self.macro_atom_data['transition_line_id']].values
+        beta_sobolevs = np.empty_like(tau_sobolevs)
+
+        macro_atom.calculate_beta_sobolev(tau_sobolevs, beta_sobolevs)
+
+        self.macro_atom_data['transition_probability'] *= beta_sobolevs
+
+        transition_up_filter = self.macro_atom_data['transition_type'] == 1
+        nus = macro_lines['nu'].ix[self.macro_atom_data.ix[transition_up_filter]['transition_line_id']]
+
+        j_nus = intensity_black_body(nus.values, self.beta_rad)
+        transition_probabilities = self.macro_atom_data['transition_probability'].__array__()
+        transition_probabilities[transition_up_filter.__array__()] *= j_nus
+
+        reference_levels = np.hstack((0, self.macro_atom_counts['count_total'].__array__().cumsum()))
+
+        #Normalizing the probabilities
+        macro_atom.normalize_transition_probabilities(self.macro_atom_data['transition_probability'], reference_levels)
 
 
 class NebularPlasma(LTEPlasma):
@@ -356,46 +416,45 @@ class NebularPlasma(LTEPlasma):
 
     """
 
-    def __init__(self, abundances, t_rad, w, density, atom_data, t_electron=None, density_unit='g/cm^3'):
-        Plasma.__init__(self, abundances, t_rad, density, atom_data, density_unit=density_unit)
-        self.update_radiationfield(t_rad, t_electron, w)
+    def __init__(self, abundances, density, atom_data, t_electron=None, density_unit='g/cm^3', max_ion_number=None,
+                 use_macro_atom=False):
+        Plasma.__init__(self, abundances, density, atom_data, density_unit=density_unit, max_ion_number=max_ion_number,
+            use_macro_atom=use_macro_atom)
 
+        self.ion_number_density = None
 
-    def update_radiationfield(self, t_rad, t_electron, w, n_e_convergence_threshold=0.05):
-        self.t_rad = t_rad
+    def update_radiationfield(self, t_rad, w, t_electron=None, n_e_convergence_threshold=0.05):
+        Plasma.update_radiationfield(self, t_rad)
+
         self.w = w
 
         if t_electron is None:
             self.t_electron = 0.9 * self.t_rad
 
-        self.beta_rad = 1 / (t_rad * constants.cgs.k_B.value)
         self.beta_electron = 1 / (self.t_electron * constants.cgs.k_B.value)
 
         self.partition_functions = self.calculate_partition_functions()
 
         self.ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
-
         #Calculate the Saha ionization balance fractions
         phis = self.calculate_saha()
 
         #initialize electron density with the sum of number densities
-        electron_density = np.sum(self.abundances['number_density'])
+        electron_density = self.abundances['number_density'].sum()
 
         n_e_iterations = 0
 
         while True:
-            ionization_balance, new_electron_density = self.calculate_ionization_balance(phis, electron_density)
+            self.calculate_ionization_balance(phis, electron_density)
+            ion_numbers = np.array([item[1] for item in self.ion_number_density.index])
+            new_electron_density = np.sum(self.ion_number_density.values * ion_numbers)
             n_e_iterations += 1
             if abs(new_electron_density - electron_density) / electron_density < n_e_convergence_threshold: break
             electron_density = 0.5 * (new_electron_density + electron_density)
 
         logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
 
-        self.ion_densities = ionization_balance
         self.calculate_level_populations()
-
-
-        #self.ion_number_density, self.electron_density = self._calculate_ion_populations()
 
 
     def calculate_partition_functions(self):
@@ -417,26 +476,18 @@ class NebularPlasma(LTEPlasma):
 
         """
 
-        unique_atom_ion = np.unique(self.levels.__array__()[['atomic_number', 'ion_number']])
 
-        partition_table = []
-        for atomic_number, ion_number in unique_atom_ion:
-            levels = self.atom_data.get_levels(atomic_number, ion_number)
-            partition_function = np.sum(
-                levels['g'][levels['metastable']] * np.exp(-levels['energy'][levels['metastable']]\
-                                                           * self.beta_rad))
-            partition_function += self.w * np.sum(
-                levels['g'][~levels['metastable']] * np.exp(-levels['energy'][~levels['metastable']]\
-                                                            * self.beta_rad))
+        def group_calculate_partition_function(group):
+            metastable = group['metastable'].values
+            meta_z = np.sum(group['g'].values[metastable] * np.exp(-group['energy'].values[metastable] * self.beta_rad))
+            non_meta_z = np.sum(
+                group['g'].values[~metastable] * np.exp(-group['energy'].values[~metastable] * self.beta_rad))
+            return meta_z + self.w * non_meta_z
 
-            partition_table.append((atomic_number, ion_number, partition_function))
 
-        partition_table = np.array(partition_table, dtype=[('atomic_number', np.int),
-                                                           ('ion_number', np.int),
-                                                           ('partition_function', np.float)])
-
-        partition_table = table.Table(partition_table)
-        return partition_table
+        partition_functions = self.levels_data.groupby(level=['atomic_number', 'ion_number']).apply(
+            group_calculate_partition_function)
+        return partition_functions
 
 
     def calculate_saha(self):
@@ -466,21 +517,22 @@ class NebularPlasma(LTEPlasma):
 
         """
 
-        phi_table = super(NebularPlasma, self).calculate_saha()
-        phi_table = self.calculate_radiation_field_correction(phi_table)
-        zetas = []
-        for line in phi_table:
-            zetas.append(self.atom_data.zeta_data[(line['atomic_number'], line['numerator'])](self.t_rad))
+        phis = super(NebularPlasma, self).calculate_saha()
 
-        phi_table.add_column(table.Column('zeta', zetas))
+        delta = self.calculate_radiation_field_correction()
 
-        phi_table['phi'] *= self.w * (phi_table['delta'][:, 0] * phi_table['zeta'] + self.w * (1 - phi_table['zeta'])) *\
-                            (self.t_electron / self.t_rad) ** .5
+        zeta = Series(index=phis.index)
 
-        return phi_table
+        for idx in zeta.index:
+            zeta.ix[idx] = self.atom_data.zeta_data[idx](self.t_rad)
+
+        phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) *\
+                (self.t_electron / self.t_rad) ** .5
+
+        return phis
 
 
-    def calculate_radiation_field_correction(self, phi_table, departure_coefficient=None,
+    def calculate_radiation_field_correction(self, departure_coefficient=None,
                                              chi_threshold_species=(20, 1)):
         """
         Calculating radiation field correction factors according to Mazzali & Lucy 1993 (:cite:`1993A&A...279..447M`; henceforth ML93)
@@ -510,6 +562,7 @@ class NebularPlasma(LTEPlasma):
         ----------
         phi_table : `~astropy.table.Table`
             a table containing the field 'atomic_number', 'ion_number', 'phi'
+
         departure_coefficient : `~float` or `~None`, optional
             departure coefficient (:math:`b_1` in ML93) For the default (`None`) it is set to 1/W.
 
@@ -528,25 +581,21 @@ class NebularPlasma(LTEPlasma):
         if departure_coefficient is None:
             departure_coefficient = 1 / float(self.w)
 
-        chi_threshold = self.atom_data.get_ions(*chi_threshold_species)['ionization_energy']
-        deltas = []
-        for line in phi_table:
-            current_chi = self.atom_data.get_ions(line['atomic_number'], line['numerator'])['ionization_energy']
+        chi_threshold = self.atom_data.ionization_data['ionization_energy'].ix[chi_threshold_species]
 
-            delta = (self.t_electron / (self.w * self.t_rad)) *\
-                    np.exp(self.beta_rad * chi_threshold - self.beta_electron * current_chi)
-            #TODO check this Stuart - there seems to be an error in Formula 15 in ML93
-            if chi_threshold >= current_chi:
-                deltas.append(delta)
+        radiation_field_correction = DataFrame(index=self.atom_data.ionization_data.index)
+        radiation_field_correction = (self.t_electron / (departure_coefficient * self.w * self.t_rad)) *\
+                                     np.exp(self.beta_rad * chi_threshold - self.beta_electron *
+                                            self.atom_data.ionization_data['ionization_energy'])
 
+        less_than_chi_threshold = self.atom_data.ionization_data['ionization_energy'] < chi_threshold
 
-            else:
-                delta = 1 - np.exp(self.beta_rad * chi_threshold - self.beta_rad * current_chi) + delta
-                deltas.append(delta)
+        radiation_field_correction[less_than_chi_threshold] += 1 -\
+                                                               np.exp(self.beta_rad * chi_threshold - self.beta_rad *
+                                                                      self.atom_data.ionization_data[
+                                                                      less_than_chi_threshold]['ionization_energy'])
 
-        phi_table.add_column(table.Column('delta', deltas))
-
-        return phi_table
+        return radiation_field_correction
 
 
     def calculate_level_populations(self):
@@ -564,32 +613,21 @@ class NebularPlasma(LTEPlasma):
         This function updates the 'number_density' column on the levels table (or adds it if non-existing)
         """
 
-        if 'number_density' not in self.levels.dtype.names:
-            n_levels = table.Column('number_density', np.empty_like(self.levels['atomic_number']).astype(np.float),
-                dtype=np.float)
-            self.levels.add_column(n_levels)
+        atom_ion_index = self.levels_data.index.droplevel(level=2)
 
-        n_levels = self.levels['number_density']
+        #partition_functions = Z
 
-        for atomic_number, ion_number, partition_function in self.partition_functions:
-            ion_density_filter = self.ion_densities['atomic_number'] == atomic_number
-            ion_density_filter = ion_density_filter & (self.ion_densities['ion_number'] == ion_number)
+        Z = self.partition_functions.ix[atom_ion_index]
 
-            current_ion_density = self.ion_densities[ion_density_filter]['number_density'][0]
+        ion_number_density = self.ion_number_density.ix[atom_ion_index]
 
-            level_filter = self.levels['atomic_number'] == atomic_number
-            level_filter = level_filter & (self.levels['ion_number'] == ion_number)
-
-            current_levels = self.levels[level_filter]
-            current_number_density = n_levels[level_filter]
+        level_populations = (self.levels_data['g'].values / Z.values) * ion_number_density.values *\
+                            np.exp(-self.beta_rad * self.levels_data['energy'].values)
 
 
-            #boolean index array
-            current_meta = current_levels['metastable']
-            current_number_density[current_meta] = (current_levels['g'][current_meta] / partition_function) *\
-                                                   current_ion_density *\
-                                                   np.exp(-self.beta_rad * current_levels['energy'][current_meta])
+        #only change compared to the LTEPlasma
+        level_populations[self.levels_data['metastable']] *= self.w
 
-            current_number_density[~current_meta] = self.w * (current_levels['g'][~current_meta] / partition_function) *\
-                                                    current_ion_density *\
-                                                    np.exp(-self.beta_rad * current_levels['energy'][~current_meta])
+        self.level_populations = Series(level_populations, index=self.levels_data.index)
+
+

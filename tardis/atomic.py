@@ -162,7 +162,6 @@ def read_lines_data(fname=None):
     """
 
     data_table = read_hdf5_data(fname, 'lines_data')
-    data_table.columns['wavelength'].convert_units_to('cm')
     #data_table.columns['ionization_energy'].convert_units_to('erg')
 
     return data_table
@@ -196,21 +195,23 @@ def read_zeta_data(fname):
     return zeta_interp
 
 
-def convert_int_ndarray(sqlite_binary):
-    if sqlite_binary == '-1':
-        return np.array([], dtype=np.int64)
-    else:
-        return np.frombuffer(sqlite_binary, dtype=np.int64)
+def read_macro_atom_data(fname):
+    if fname is None:
+        raise ValueError('fname can not be "None" when trying to use NebularAtom')
 
+    if not os.path.exists(fname):
+        raise IOError('HDF5 File doesn\'t exist')
 
-def convert_float_ndarray(sqlite_binary):
-    if sqlite_binary == '-1.0':
-        return np.array([], dtype=np.float64)
-    else:
-        return np.frombuffer(sqlite_binary, dtype=np.float64)
+    h5_file = h5py.File(fname)
 
-sqlite3.register_converter('int_ndarray', convert_int_ndarray)
-sqlite3.register_converter('float_ndarray', convert_float_ndarray)
+    if 'macro_atom_data' not in h5_file.keys():
+        raise ValueError('Macro Atom Data (macro_atom_data) is not in this HDF5-data file. '
+                         'It is needed for complex line interaction')
+    macro_atom_data = h5_file['macro_atom_data']
+
+    macro_atom_counts = h5_file['macro_atom_counts']
+
+    return macro_atom_data, macro_atom_counts
 
 
 class AtomData(object):
@@ -265,6 +266,7 @@ class AtomData(object):
         self.levels_data = DataFrame(levels_data.__array__())
 
         self.lines_data = DataFrame(lines_data.__array__())
+        self.lines_data['nu'] = units.Unit('angstrom').to('Hz', self.lines_data['wavelength'], units.spectral())
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
@@ -310,13 +312,14 @@ class NebularAtomData(AtomData):
         levels_data = read_levels_data(fname)
         lines_data = read_lines_data(fname)
 
+        macro_atom_data, macro_atom_counts = read_macro_atom_data(fname)
+
         return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-            lines_data=lines_data, zeta_data=zeta_data)
+            lines_data=lines_data, zeta_data=zeta_data, macro_atom_data=(macro_atom_data, macro_atom_counts))
 
 
-    def __init__(self, atom_data, ionization_data, levels_data, lines_data, zeta_data):
+    def __init__(self, atom_data, ionization_data, levels_data, lines_data, zeta_data, macro_atom_data):
         super(NebularAtomData, self).__init__(atom_data, ionization_data, levels_data, lines_data)
         self.zeta_data = zeta_data
-
-
-
+        self.macro_atom_data = DataFrame(macro_atom_data[0].__array__())
+        self.macro_atom_counts = DataFrame(macro_atom_data[1].__array__())
