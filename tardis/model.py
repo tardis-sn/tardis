@@ -15,6 +15,7 @@ miss_distance = 1e99
 w7model_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'w7model.dat'))
 w7abundances_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data', 'w7abundances.dat'))
 
+
 class Model(object):
     pass
 

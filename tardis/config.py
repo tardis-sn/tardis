@@ -19,17 +19,18 @@ default_lucy99_general_fname = os.path.abspath(os.path.join(os.path.dirname(__fi
 
 logger = logging.getLogger(__name__)
 
-default_lucy99_abundance = dict(C=0.01,
-    O=0.01,
-    Ne=0.01,
-    Mg=0.01,
-    Si=0.45,
-    S=0.35,
-    Ar=0.04,
-    Ca=0.03,
-    Fe=0.07,
-    Co=0.01,
-    Ni=0.01)
+default_lucy99_abundance = OrderedDict()
+default_lucy99_abundance['C'] = 0.01
+default_lucy99_abundance['O'] = 0.01
+default_lucy99_abundance['Ne'] = 0.01
+default_lucy99_abundance['Mg'] = 0.01
+default_lucy99_abundance['Si'] = 0.45
+default_lucy99_abundance['S'] = 0.35
+default_lucy99_abundance['Ar'] = 0.04
+default_lucy99_abundance['Ca'] = 0.03
+default_lucy99_abundance['Fe'] = 0.07
+default_lucy99_abundance['Co'] = 0.01
+default_lucy99_abundance['Ni'] = 0.01
 
 def write_uniform_abundance_config(fname, default_general_fname=default_lucy99_general_fname,
                                    default_abundances=default_lucy99_abundance):

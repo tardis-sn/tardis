@@ -2,10 +2,7 @@
 
 #TODO revisit import statements and reorganize
 from scipy import interpolate
-import line
-import constants
 import numpy as np
-import sqlite3
 import logging
 import os
 import h5py
