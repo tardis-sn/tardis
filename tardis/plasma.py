@@ -22,7 +22,7 @@ import pdb
 sobolev_coefficient = ((np.pi * constants.cgs.e.value ** 2) / (constants.cgs.m_e.value * constants.cgs.c.value))
 
 
-def intensity_black_body(nu, beta_rad):
+def intensity_black_body(nu, T):
     """
         Calculate the intensity of a black-body according to the following formula
 
@@ -30,6 +30,7 @@ def intensity_black_body(nu, beta_rad):
             I(\\nu, T) = \frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
     """
+    beta_rad = 1 / (constants.cgs.k_B.value * T)
 
     return ((constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2)) * 1 / (
         np.exp(constants.cgs.h.value * nu * beta_rad) - 1)
@@ -380,7 +381,7 @@ class LTEPlasma(BasePlasma):
         transition_up_filter = self.macro_atom_data['transition_type'] == 1
         nus = macro_lines['nu'].ix[self.macro_atom_data.ix[transition_up_filter]['transition_line_id']]
 
-        j_nus = intensity_black_body(nus.values, self.beta_rad)
+        j_nus = intensity_black_body(nus.values, self.t_rad)
         transition_probabilities = self.macro_atom_data['transition_probability'].__array__()
         transition_probabilities[transition_up_filter.__array__()] *= j_nus
 

@@ -8,7 +8,7 @@ import plasma
 
 
 
-class SimplePacketSource(object):
+class SimplePacketSource:
     """Initializing photon source
         Parameters
         ----------
@@ -56,15 +56,15 @@ class SimplePacketSource(object):
         Parameters
         ----------
 
-        number_of_packets : `int`
+        number_of_packets : any number
             number of packets
 
         T : `float`
             temperature
 
         """
-
-        self.packet_nus = self.random_blackbody_lambda(T, number_of_packets)
+        number_of_packets = int(number_of_packets)
+        self.packet_nus = self.random_blackbody_nu(T, number_of_packets)
         self.packet_mus = np.sqrt(np.random.random(size=number_of_packets))
         self.packet_energies = np.ones(number_of_packets) / number_of_packets
 
