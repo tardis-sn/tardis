@@ -26,6 +26,7 @@ cdef float inv_c2 = 1/(c**2)
 def intensity_black_body(np.ndarray[double, ndim=1] nus, double beta_rad, np.ndarray[double, ndim=1] j_nus):
     cdef c1 = h_cgs * inv_c2
     cdef float j_nu, nu
+    cdef int i
 
     for i in range(len(nus)):
         nu = nus[i]

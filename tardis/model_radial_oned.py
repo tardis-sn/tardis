@@ -62,9 +62,9 @@ class Radial1DModel(object):
 
     def __init__(self, velocities, densities, abundances, time_explosion, atom_data, ws=None, plasma_type='lte',
                  initial_t_rad=10000):
-        no_of_shells = len(velocities) - 1
+        self.no_of_shells = len(velocities) - 1
 
-        logger.info('Assuming %d shells' % no_of_shells)
+        logger.info('Assuming %d shells' % self.no_of_shells)
 
 
         #setting time_explosion
@@ -80,7 +80,7 @@ class Radial1DModel(object):
 
         self.volumes = (4. / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)
         #initializing densities
-        assert len(densities) == no_of_shells
+        assert len(densities) == self.no_of_shells
 
         self.densities_middle = densities
 
@@ -88,9 +88,9 @@ class Radial1DModel(object):
         #initializing abundances
         if isinstance(abundances, dict):
             logger.info('Only one abundance - assuming uniform abundance stratification')
-            self.abundances = [abundances] * no_of_shells
+            self.abundances = [abundances] * self.no_of_shells
         else:
-            assert len(abundances) == no_of_shells
+            assert len(abundances) == self.no_of_shells
             self.abundances = abundances
 
 
@@ -124,9 +124,9 @@ class Radial1DModel(object):
         #initializing temperatures
 
         if np.isscalar(initial_t_rad):
-            self.t_rads = [initial_t_rad] * no_of_shells
+            self.t_rads = [initial_t_rad] * self.no_of_shells
         else:
-            assert len(initial_t_rad) == no_of_shells
+            assert len(initial_t_rad) == self.no_of_shells
             self.t_rads = np.array(initial_t_rad, dtype=np.float64)
 
         self.initialize_plasmas(plasma_type)

@@ -66,7 +66,6 @@ def read_lucy99_abundances(fname=None):
     if fname is None:
         fname = os.path.join(data_dir, 'abundance_sets.h5')
 
-    print fname
     lucy99 = h5py.File(fname)['lucy99']
 
     logger.info("Choosing uniform abundance set 'lucy99':\n %s", pd.DataFrame(lucy99.__array__()))
@@ -149,12 +148,22 @@ def parse_general_section(config_dict, general_config):
     general_config.plasma_type = config_dict.pop('plasma_type')
 
     #reading line interaction type
-    general_config.line_interaction_type = config_dict.pop('plasma_type')
+    general_config.line_interaction_type = config_dict.pop('line_interaction_type')
 
     #reading number of packets and iterations
     general_config.calibration_packets = int(float(config_dict.pop('calibration_packets')))
     general_config.spectrum_packets = int(float(config_dict.pop('spectrum_packets')))
     general_config.iterations = int(float(config_dict.pop('iterations')))
+
+
+    #TODO fix quantity spectral in astropy
+
+    start_spectrum_value, start_spectrum_unit = config_dict.pop('start_spectrum').split()
+    general_config.start_spectrum = units.Quantity(float(start_spectrum_value), start_spectrum_unit).value
+    end_spectrum_value, end_spectrum_unit = config_dict.pop('start_spectrum').split()
+    general_config.end_spectrum = units.Quantity(float(end_spectrum_value), end_spectrum_unit).value
+
+
 
 
 
