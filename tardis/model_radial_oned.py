@@ -57,7 +57,7 @@ class Radial1DModel(object):
         tardis_config = config_reader.read_config(fname)
 
         return cls(tardis_config.velocities, tardis_config.densities, tardis_config.abundances,
-            tardis_config.time_explosion, atom_data, plasma_type=plasma_type)
+            tardis_config.time_explosion, atom_data, plasma_type=tardis_config.plasma_type)
 
 
     def __init__(self, velocities, densities, abundances, time_explosion, atom_data, ws=None, plasma_type='lte',
