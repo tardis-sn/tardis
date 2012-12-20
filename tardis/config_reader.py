@@ -77,7 +77,7 @@ def read_lucy99_abundances(fname=None):
 def read_config(fname):
     config_object = ConfigParser()
     config_object.read(fname)
-    tardis_configuration = Namespace()
+    tardis_configuration = TardisConfiguration()
     general_dict = dict(config_object.items('general'))
     parse_general_section(general_dict, tardis_configuration)
     abundance_dict = dict(config_object.items('abundances'))
@@ -85,7 +85,7 @@ def read_config(fname):
     return tardis_configuration
 
 
-class Namespace(object):
+class TardisConfiguration(object):
     pass
 
 
@@ -145,10 +145,18 @@ def parse_general_section(config_dict, general_config):
         raise ValueError('Curently only density_set = w7_branch85 is supported')
 
 
+    #reading plasma type
+    general_config.plasma_type = config_dict.pop('plasma_type')
+
+    #reading line interaction type
+    general_config.line_interaction_type = config_dict.pop('plasma_type')
+
     #reading number of packets and iterations
     general_config.calibration_packets = int(float(config_dict.pop('calibration_packets')))
     general_config.spectrum_packets = int(float(config_dict.pop('spectrum_packets')))
     general_config.iterations = int(float(config_dict.pop('iterations')))
+
+
 
     if config_dict != {}:
         logger.warn('Not all config options parsed - ignored %s' % config_dict)
