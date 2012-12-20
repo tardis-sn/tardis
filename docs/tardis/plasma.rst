@@ -1,33 +1,33 @@
-Plasma
+BasePlasma
 ******
 .. currentmodule:: tardis.plasma
 
-This module calculates the ionization balance and level populations in the Plasma, give a abundance fraction, temperature
+This module calculates the ionization balance and level populations in the BasePlasma, give a abundance fraction, temperature
 and density. After calculating the state of the plasma, these classes are able to calculate :math:`\tau_\textrm{sobolev}`
-for the supernova radiative transfer. The simplest Plasma (`Plasma`) only calculates the atom number densities, but serves
-as a base for all Plasma classes. The next more complex class is `LTEPlasma` which will calculate the aforementioned quantities in
+for the supernova radiative transfer. The simplest BasePlasma (`BasePlasma`) only calculates the atom number densities, but serves
+as a base for all BasePlasma classes. The next more complex class is `LTEPlasma` which will calculate the aforementioned quantities in
 Local Thermal Equilibrium conditions (LTE). The `NebularPlasma`-class inherits from `LTEPlasma` and uses a more complex
-description of the Plasma (for details see `Nebular Plasma`_).
+description of the BasePlasma (for details see `Nebular BasePlasma`_).
 
 .. important::
     In this documentation we use the indices :math:`i, j, k` to mean atomic number, ion number and level number respectively.
 
 
 
-Base Plasma
+Base BasePlasma
 ===========
 
-`Plasma` serves as the base class for all plasmas and can just calculate the atom number densities for a given input of
+`BasePlasma` serves as the base class for all plasmas and can just calculate the atom number densities for a given input of
 abundance fraction.
 
 .. math::
     N_{atom} = \rho_\textrm{total} \times \textrm{Abundance fraction} / m_\textrm{atom}
 
 In the next step the line and level tables are purged of entries that are not represented in the
-abundance fractions are saved in `Plasma.levels` and `Plasma.lines`. Finally, the function `Plasma.update_t_rad` is called
+abundance fractions are saved in `BasePlasma.levels` and `BasePlasma.lines`. Finally, the function `BasePlasma.update_t_rad` is called
 at the end of initialization to update the plasma conditions to a new :math:`T_\textrm{radiation field}` (with the give t_rad).
-This function is the same in the other plasma classes and does the main part of the calculation. In the case of `Plasma` this is only
-setting `Plasma.beta_rad` to :math:`\frac{1}{k_\textrm{B}T_\textrm{rad}}`.
+This function is the same in the other plasma classes and does the main part of the calculation. In the case of `BasePlasma` this is only
+setting `BasePlasma.beta_rad` to :math:`\frac{1}{k_\textrm{B}T_\textrm{rad}}`.
 
 
 Here's an example how to instantiate a simple base plasma::
@@ -35,7 +35,7 @@ Here's an example how to instantiate a simple base plasma::
 
     >>> from tardis import atomic, plasma
     >>> atom_data = atomic.AtomData.from_hdf5()
-    >>> my_plasma = plasma.Plasma({'Fe':0.5, 'Ni':0.5}, 10000, 1e-13, atom_data)
+    >>> my_plasma = plasma.BasePlasma({'Fe':0.5, 'Ni':0.5}, 10000, 1e-13, atom_data)
     >>> print my_plasma.abundances
     atomic_number abundance_fraction number_density
     ------------- ------------------ --------------
@@ -44,11 +44,11 @@ Here's an example how to instantiate a simple base plasma::
 
 
 
-LTE Plasma
+LTE BasePlasma
 ==========
 
-The `LTEPlasma` plasma class is the child of `Plasma` but is the first class that actually calculates plasma conditions.
-After running exactley through the same steps as `Plasma`, `LTEPlasma` will start calculating the `partition functions <http://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)>`_.
+The `LTEPlasma` plasma class is the child of `BasePlasma` but is the first class that actually calculates plasma conditions.
+After running exactley through the same steps as `BasePlasma`, `LTEPlasma` will start calculating the `partition functions <http://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)>`_.
 
 .. math::
     Z_{i, j} = \sum_{k=0}^{max (k)} g_k \times e^{-E_k / (k_\textrm{b} T)}
@@ -155,10 +155,10 @@ Here's an example::
 
 
 
-Nebular Plasma
+Nebular BasePlasma
 ==============
 
-The `NebularPlasma` class is a more complex description of the Plasma state than the `LTEPlasma`. It takes a dilution factor
+The `NebularPlasma` class is a more complex description of the BasePlasma state than the `LTEPlasma`. It takes a dilution factor
 (W) into account, which deals with the dilution of the radiation field due to geometric, line-blocking and other effects.
 
 

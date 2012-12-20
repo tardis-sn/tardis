@@ -35,9 +35,9 @@ def intensity_black_body(nu, beta_rad):
         np.exp(constants.cgs.h.value * nu * beta_rad) - 1)
 
 
-class Plasma(object):
+class BasePlasma(object):
     """
-    Model for Plasma
+    Model for BasePlasma
 
     Parameters
     ----------
@@ -153,9 +153,9 @@ class Plasma(object):
         self.beta_rad = 1 / (constants.cgs.k_B.value * t_rad)
 
 
-class LTEPlasma(Plasma):
+class LTEPlasma(BasePlasma):
     """
-    Model for Plasma using a local thermodynamic equilibrium approximation.
+    Model for BasePlasma using a local thermodynamic equilibrium approximation.
 
     Parameters
     ----------
@@ -178,7 +178,7 @@ class LTEPlasma(Plasma):
 
     def __init__(self, abundances, density, atom_data, density_unit='g/cm^3', max_ion_number=None,
                  use_macro_atom=False):
-        Plasma.__init__(self, abundances, density, atom_data, density_unit=density_unit,
+        BasePlasma.__init__(self, abundances, density, atom_data, density_unit=density_unit,
             max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
 
         self.ion_number_density = None
@@ -200,7 +200,7 @@ class LTEPlasma(Plasma):
                 ionization balance.
 
        """
-        Plasma.update_radiationfield(self, t_rad)
+        BasePlasma.update_radiationfield(self, t_rad)
 
         self.partition_functions = self.calculate_partition_functions()
 
@@ -221,7 +221,7 @@ class LTEPlasma(Plasma):
             n_e_iterations += 1
             if abs(new_electron_density - electron_density) / electron_density < n_e_convergence_threshold: break
             electron_density = 0.5 * (new_electron_density + electron_density)
-
+        self.electron_density = new_electron_density
         logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
 
         self.calculate_level_populations()
@@ -392,7 +392,7 @@ class LTEPlasma(Plasma):
 
 class NebularPlasma(LTEPlasma):
     """
-    Model for Plasma using the Nebular approximation
+    Model for BasePlasma using the Nebular approximation
 
     Parameters
     ----------
@@ -418,13 +418,14 @@ class NebularPlasma(LTEPlasma):
 
     def __init__(self, abundances, density, atom_data, t_electron=None, density_unit='g/cm^3', max_ion_number=None,
                  use_macro_atom=False):
-        Plasma.__init__(self, abundances, density, atom_data, density_unit=density_unit, max_ion_number=max_ion_number,
+        BasePlasma.__init__(self, abundances, density, atom_data, density_unit=density_unit,
+            max_ion_number=max_ion_number,
             use_macro_atom=use_macro_atom)
 
         self.ion_number_density = None
 
     def update_radiationfield(self, t_rad, w, t_electron=None, n_e_convergence_threshold=0.05):
-        Plasma.update_radiationfield(self, t_rad)
+        BasePlasma.update_radiationfield(self, t_rad)
 
         self.w = w
 
@@ -452,6 +453,7 @@ class NebularPlasma(LTEPlasma):
             if abs(new_electron_density - electron_density) / electron_density < n_e_convergence_threshold: break
             electron_density = 0.5 * (new_electron_density + electron_density)
 
+        self.electron_density = new_electron_density
         logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
 
         self.calculate_level_populations()
