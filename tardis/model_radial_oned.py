@@ -137,6 +137,13 @@ class Radial1DModel(object):
         return np.array([plasma.electron_density for plasma in self.plasmas])
 
 
+    @property
+    def tau_sobolevs(self):
+        tau_sobolevs = []
+        for plasma in self.plasmas:
+            tau_sobolevs.append(plasma.lines_data[['nu', 'tau_sobolev']].values)
+        return tau_sobolevs
+
     def initialize_plasmas(self, plasma_type):
         self.plasmas = []
 
