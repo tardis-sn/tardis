@@ -22,5 +22,23 @@ def test_ionization_h5_readin():
 
 
 def test_atom_levels():
-    atom_data = atomic.AtomData.from_hdf5()
-    raise Exception('test the atom_data thoroughly')
+    levels_data = atomic.AtomData.from_hdf5()._levels
+    level_idx = levels_data['level_number'] == 0
+    assert levels_data['energy'][level_idx] == 0.0
+
+
+def test_atom_lines():
+    lines_data = atomic.AtomData.from_hdf5()._lines
+    assert min(abs(lines_data['wavelength']-6347.109)) == 0
+
+
+
+#    assert atom_data._lines['ion_number'][0] == 1
+#    f_ul = atom_data._lines['f_ul'][0]
+#    testing.assert_almost_equal(f_ul, 0.018532, decimal=4)
+#    f_lu = atom_data._lines['f_lu'][0]
+#    testing.assert_almost_equal(f_lu, 0.037065, decimal=4)
+#    assert atom_data._lines['level_id_lower'][0] == 0
+#    assert atom_data._lines['level_id_upper'][0] == 113
+
+
