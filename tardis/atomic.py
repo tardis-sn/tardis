@@ -264,8 +264,8 @@ class AtomData(object):
         self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
 
         self.levels_data = DataFrame(levels_data.__array__())
-        tmp_levels_index = pd.MultiIndex.from_arrays(levels_data['atomic_number'], levels_data['ion_number'],
-            levels_data['level_number'], names=('atomic_number', 'ion_number', 'level_number'))
+        tmp_levels_index = pd.MultiIndex.from_arrays([levels_data['atomic_number'], levels_data['ion_number'],
+            levels_data['level_number']])
 
         self.levels_index = pd.Series(np.arange(len(levels_data), dtype=int), index=tmp_levels_index)
 
@@ -273,7 +273,16 @@ class AtomData(object):
         self.lines_data = DataFrame(lines_data.__array__())
         self.lines_data['nu'] = units.Unit('angstrom').to('Hz', self.lines_data['wavelength'], units.spectral())
         self.lines_data['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines_data['wavelength'])
-        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines_data)
+        tmp_lines_upper_index = pd.MultiIndex.from_arrays([lines_data['atomic_number'], lines_data['ion_number'],
+                                                           lines_data['level_number_upper']])
+        self.lines_index_upper = pd.Series(np.arange(len(lines_data)), index = tmp_lines_upper_index)
+
+        tmp_lines_lower_index = pd.MultiIndex.from_arrays([lines_data['atomic_number'], lines_data['ion_number'],
+                                                           lines_data['level_number_lower']])
+        self.lines_index_lower = pd.Series(np.arange(len(lines_data)), index = tmp_lines_lower_index)
+
+
+    #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines_data)
         #self.lines_inde
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
