@@ -16,6 +16,12 @@ import pdb
 logger = logging.getLogger(__name__)
 
 
+
+def run_radial1d(radial1d_model, packet_source):
+    return montecarlo_multizone.montecarlo_radial1d(radial1d_model, packet_source)
+
+
+
 def run_multizone(config_dict, atomic_model):
     line2level = atomic_model.line_list['global_level_id_upper'] - 1
     atomic_model.macro_atom.read_nus(atomic_model.line_list['nu'])
