@@ -151,7 +151,7 @@ class Radial1DModel(object):
 
     def initialize_plasmas(self, plasma_type):
         self.plasmas = []
-        self.line_lists_nu = []
+        self.line_list_nu = None
         self.line_lists_tau_sobolev = []
 
         if plasma_type == 'lte':
@@ -159,11 +159,9 @@ class Radial1DModel(object):
             zip(self.abundances, self.t_rads, self.densities_middle):
                 current_plasma = self.plasma_class(current_abundances, current_density, self.atom_data)
                 current_plasma.update_radiationfield(current_t_rad)
-                current_plasma.update_radiationfield(current_t_rad)
-                current_plasma.calculate_tau_sobolev(self.time_explosion)
+                self.line_lists_tau_sobolev.append(current_plasma.calculate_tau_sobolev(self.time_explosion))
+                if self.line_list_nu is None:
+                    self.line_list_nu = self.atom_data.lines_data['nu'].values[current_plasma.lines_index_upper.values]
                 self.plasmas.append(current_plasma)
-                self.line_lists_nu.append(current_plasma.lines_data['nu'].values)
-                self.line_lists_tau_sobolev.append(current_plasma.lines_data['tau_sobolev'].values)
 
-        self.line_lists_nu = np.array(self.line_lists_nu, dtype=float)
         self.line_lists_tau_sobolev = np.array(self.line_lists_tau_sobolev, dtype=float)

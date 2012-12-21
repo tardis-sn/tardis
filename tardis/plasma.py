@@ -6,7 +6,7 @@ import logging
 from astropy import table, units, constants
 from collections import OrderedDict
 
-from pandas import DataFrame, Series, Index
+from pandas import DataFrame, Series, Index, lib as pdlib
 import pandas as pd
 
 import  macro_atom
@@ -69,16 +69,38 @@ class BasePlasma(object):
 
         self.abundances = self.calculate_atom_number_densities(abundances)
 
-        # Filtering the levels & lines data for unnecesary atoms
-        levels_atom_filter = atom_data.levels_data['atomic_number'].isin(self.abundances.index)
-        self.levels_data = atom_data.levels_data[levels_atom_filter]
 
-        lines_atom_filter = atom_data.lines_data['atomic_number'].isin(self.abundances.index)
-        self.lines_data = atom_data.lines_data[lines_atom_filter]
+        levels_atom_filter = pd.lib.ismember(atom_data.levels_index.index.get_level_values(0),
+                                                set(self.abundances.index.values))
+        self.levels_index = atom_data.levels_index[levels_atom_filter]
+
+        lines_atom_upper_filter = pd.lib.ismember(atom_data.lines_index_upper.index.get_level_values(0),
+                                                set(self.abundances.index.values))
+        lines_atom_lower_filter = pd.lib.ismember(atom_data.lines_index_lower.index.get_level_values(0),
+                                                set(self.abundances.index.values))
+
+        self.lines_index_upper = atom_data.lines_index_upper[lines_atom_upper_filter]
+        self.lines_index_lower = atom_data.lines_index_lower[lines_atom_lower_filter]
+
 
         if max_ion_number is not None:
-            self.levels_data = self.levels_data[self.levels_data['ion_number'] <= max_ion_number]
-            self.lines_data = self.lines_data[self.lines_data['ion_number'] <= max_ion_number]
+            self.levels_index = self.levels_index[self.levels_index.index.get_level_values(1) <= max_ion_number]
+            self.lines_index_upper = self.lines_index_upper[self.lines_index_upper.index.get_level_values(1) <= max_ion_number]
+            self.lines_index_lower = self.lines_index_lower[self.lines_index_lower.index.get_level_values(1) <= max_ion_number]
+
+        self.levels_index_local = Series(np.arange(len(self.levels_index),dtype=int), index=self.levels_index.index)
+        self.lines_index_upper_local = Series(np.arange(len(self.lines_index_upper), dtype=int), index=self.lines_index_upper)
+        self.lines_index_lower_local = Series(np.arange(len(self.lines_index_lower), dtype=int), index=self.lines_index_lower)
+
+
+
+        #calculating lower line indices and pointing to the level_index
+        self.lines_lower_index2levels_index = self.levels_index_local.ix[self.lines_index_lower.index]
+
+
+        self.atom_ion_index = None
+        self.levels_index_local2atom_ion_index = None
+
 
         if use_macro_atom:
             if not hasattr(atom_data, 'macro_atom_data'):
@@ -97,9 +119,6 @@ class BasePlasma(object):
             self.macro_lines = self.lines_data.set_index('line_id')
             self.macro_atom_data.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
 
-        # Setting the indices
-        self.levels_data.set_index(['atomic_number', 'ion_number', 'level_number'], inplace=True)
-        self.lines_data.set_index(['atomic_number', 'ion_number', 'level_number_lower'], inplace=True)
 
 
     def validate_atom_data(self):
@@ -248,10 +267,18 @@ class LTEPlasma(BasePlasma):
 
 
         def group_calculate_partition_function(group):
-            return np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
+            current_idx = group.values
+            return np.sum(self.atom_data.levels_data['g'].values[current_idx] *
+                        np.exp(-self.atom_data.levels_data['energy'].values[current_idx] * self.beta_rad))
 
-        partition_functions = self.levels_data.groupby(level=['atomic_number', 'ion_number']).apply(
+        partition_functions = self.levels_index.groupby(level=['atomic_number', 'ion_number']).apply(
             group_calculate_partition_function)
+
+        if self.atom_ion_index is None:
+            self.atom_ion_index = Series(np.arange(len(partition_functions)), partition_functions.index)
+            self.levels_index_local2atom_ion_index = self.atom_ion_index.ix[self.levels_index.index.droplevel(2)].values
+
+
         return partition_functions
 
     def calculate_saha(self):
@@ -325,18 +352,19 @@ class LTEPlasma(BasePlasma):
         :return:
         """
 
-        atom_ion_index = self.levels_data.index.droplevel(level=2)
 
         #partition_functions = Z
 
-        Z = self.partition_functions.ix[atom_ion_index]
+        Z = self.partition_functions.values[self.levels_index_local2atom_ion_index]
 
-        ion_number_density = self.ion_number_density.ix[atom_ion_index]
+        ion_number_density = self.ion_number_density.values[self.levels_index_local2atom_ion_index]
 
-        level_populations = (self.levels_data['g'].values / Z.values) * ion_number_density.values *\
-                            np.exp(-self.beta_rad * self.levels_data['energy'].values)
 
-        self.level_populations = Series(level_populations, index=self.levels_data.index)
+        levels_g = self.atom_data.levels_data['g'].values[self.levels_index.values]
+        levels_energy = self.atom_data.levels_data['energy'].values[self.levels_index.values]
+        level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
+
+        self.level_populations = Series(level_populations, index=self.levels_index.index)
 
     def calculate_tau_sobolev(self, time_exp):
         """
@@ -359,9 +387,10 @@ class LTEPlasma(BasePlasma):
 
         """
 
-        self.lines_data['tau_sobolev'] = sobolev_coefficient * self.lines_data['f_lu'] * self.lines_data['wavelength'] *\
-                                         time_exp * self.level_populations.ix[self.lines_data.index].values
-
+        f_lu = self.atom_data.lines_data['f_lu'].values[self.lines_index_lower.values]
+        wavelength = self.atom_data.lines_data['wavelength_cm'].values[self.lines_index_lower.values]
+        n_lower = self.level_populations.values[self.lines_lower_index2levels_index]
+        return sobolev_coefficient * f_lu * wavelength *time_exp * n_lower
 
     def update_macro_atom(self, only_branching=False, ):
         """
