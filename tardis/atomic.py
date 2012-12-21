@@ -13,6 +13,8 @@ from collections import OrderedDict
 
 from pandas import DataFrame
 
+import pandas as pd
+
 try:
     import sqlparse
 
@@ -254,6 +256,7 @@ class AtomData(object):
 
 
     def __init__(self, atom_data, ionization_data, levels_data, lines_data):
+
         self.atom_data = DataFrame(atom_data.__array__())
         self.atom_data.set_index('atomic_number', inplace=True)
 
@@ -261,9 +264,17 @@ class AtomData(object):
         self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
 
         self.levels_data = DataFrame(levels_data.__array__())
+        tmp_levels_index = pd.MultiIndex.from_arrays(levels_data['atomic_number'], levels_data['ion_number'],
+            levels_data['level_number'], names=('atomic_number', 'ion_number', 'level_number'))
+
+        self.levels_index = pd.Series(np.arange(len(levels_data), dtype=int), index=tmp_levels_index)
+
 
         self.lines_data = DataFrame(lines_data.__array__())
         self.lines_data['nu'] = units.Unit('angstrom').to('Hz', self.lines_data['wavelength'], units.spectral())
+        self.lines_data['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines_data['wavelength'])
+        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines_data)
+        #self.lines_inde
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
