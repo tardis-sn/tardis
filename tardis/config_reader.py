@@ -158,14 +158,10 @@ def parse_general_section(config_dict, general_config):
 
     #TODO fix quantity spectral in astropy
 
-    start_spectrum_value, start_spectrum_unit = config_dict.pop('start_spectrum').split()
-    general_config.start_spectrum = units.Quantity(float(start_spectrum_value), start_spectrum_unit).value
-    end_spectrum_value, end_spectrum_unit = config_dict.pop('start_spectrum').split()
-    general_config.end_spectrum = units.Quantity(float(end_spectrum_value), end_spectrum_unit).value
-
-
-
-
+    spectrum_start_value, spectrum_end_unit = config_dict.pop('spectrum_start').split()
+    general_config.spectrum_start = units.Quantity(float(spectrum_start_value), spectrum_end_unit).value
+    spectrum_end_value, spectrum_end_unit = config_dict.pop('spectrum_end').split()
+    general_config.spectrum_end = units.Quantity(float(spectrum_end_value), spectrum_end_unit).value
 
     if config_dict != {}:
         logger.warn('Not all config options parsed - ignored %s' % config_dict)

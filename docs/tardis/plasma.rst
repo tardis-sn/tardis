@@ -1,4 +1,4 @@
-BasePlasma
+Plasma
 ******
 .. currentmodule:: tardis.plasma
 
@@ -14,7 +14,7 @@ description of the BasePlasma (for details see `Nebular BasePlasma`_).
 
 
 
-Base BasePlasma
+Base Plasma
 ===========
 
 `BasePlasma` serves as the base class for all plasmas and can just calculate the atom number densities for a given input of
@@ -44,7 +44,7 @@ Here's an example how to instantiate a simple base plasma::
 
 
 
-LTE BasePlasma
+LTE Plasma
 ==========
 
 The `LTEPlasma` plasma class is the child of `BasePlasma` but is the first class that actually calculates plasma conditions.
@@ -155,10 +155,10 @@ Here's an example::
 
 
 
-Nebular BasePlasma
+Nebular Plasma
 ==============
 
-The `NebularPlasma` class is a more complex description of the BasePlasma state than the `LTEPlasma`. It takes a dilution factor
+The `NebularPlasma` class is a more complex description of the Plasma state than the `LTEPlasma`. It takes a dilution factor
 (W) into account, which deals with the dilution of the radiation field due to geometric, line-blocking and other effects.
 
 
