@@ -80,12 +80,79 @@ def read_config(fname):
     general_dict = dict(config_object.items('general'))
     parse_general_section(general_dict, tardis_configuration)
     abundance_dict = dict(config_object.items('abundances'))
-    tardis_configuration.abundances = parse_abundance_section(abundance_dict)
+    tardis_configuration.set_abundances(parse_abundance_section(abundance_dict))
     return tardis_configuration
 
 
 class TardisConfiguration(object):
-    pass
+    def __init__(self):
+        self.velocities = None
+        self.densities = None
+        self.abundances = None
+        self.initial_t_rad = 10000
+        self.t_rad_inner = 10000.0 #TODO calculate
+        self.ws = None
+        self.no_of_shells = None
+
+
+    def set_velocities(self, velocities=None, v_inner=None, v_outer=None, v_sampling='linear'):
+        """
+        Setting the velocities
+
+        :param velocities:
+        :param v_inner:
+        :param v_outer:
+        :param v_sampling:
+
+
+        """
+        if self.no_of_shells is None:
+            raise ValueError('Can not set abundances before number of shells have been set')
+
+        if v_sampling == 'linear':
+            self.velocities = np.linspace(v_inner, v_outer, self.no_of_shells + 1)
+        else:
+            raise ValueError('Currently only v_sampling = linear is possible')
+
+
+    def set_abundances(self, abundances):
+        """
+        Setting the abundances
+
+        abundances: `dict` or `list`
+            if a dict is given the assumed mode is uniform, if a list is given it must contain only lists
+
+
+        """
+        if self.no_of_shells is None:
+            raise ValueError('Can not set abundances before number of shells have been set')
+
+        if isinstance(abundances, dict):
+            self.abundances = [abundances] * self.no_of_shells
+
+
+    def set_densities(self, densities):
+        """
+
+        :param densities:
+        :return:
+        """
+
+        self.densities = densities
+
+    def final_preparation(self):
+        """
+        Does the final preparation for the configuration object
+
+        Generates the atoms needed in the simulation
+
+        :return:
+        """
+        self.selected_atoms = set()
+        for shell_abundance in self.abundances:
+            self.selected_atoms.update(shell_abundance.keys())
+
+            #self.required_atomic_number = set([atom_data.symbol2atomic_number[item] for item in required_atoms])
 
 
 def parse_abundance_section(abundance_dict):
@@ -119,6 +186,7 @@ def parse_general_section(config_dict, general_config):
     #reading number of shells
     no_of_shells = int(config_dict.pop('zones'))
 
+    general_config.no_of_shells = no_of_shells
 
     #reading velocities
     #set of velocities currently supported are v_inner, v_outer and v_sampling linear
@@ -130,10 +198,8 @@ def parse_general_section(config_dict, general_config):
     v_outer = units.Quantity(float(v_outer_value), v_outer_unit).to('cm/s').value
 
     v_sampling = config_dict.pop('v_sampling')
-    if v_sampling == 'linear':
-        general_config.velocities = np.linspace(v_inner, v_outer, no_of_shells)
-    else:
-        raise ValueError('Currently only v_sampling = linear is possible')
+
+    general_config.set_velocities(v_inner=v_inner, v_outer=v_outer, v_sampling=v_sampling)
 
     density_set = config_dict.pop('density_set')
 
@@ -146,6 +212,14 @@ def parse_general_section(config_dict, general_config):
 
     #reading plasma type
     general_config.plasma_type = config_dict.pop('plasma_type')
+
+
+    #reading initial t_rad
+    if 'initial_t_rad' in config_dict:
+        general_config.initial_t_rad = float(config_dict.pop('initial_t_rad'))
+    else:
+        logger.warn('No initial shell temperature specified (initial_t_rad) - using default 10000 K')
+
 
     #reading line interaction type
     general_config.line_interaction_type = config_dict.pop('line_interaction_type')
