@@ -62,63 +62,12 @@ class BasePlasma(object):
 
     """
     #TODO make density a astropy.quantity
-    def __init__(self, abundances, density, atom_data, density_unit='g/cm^3', max_ion_number=None,
+    def __init__(self, abundances, atom_data, density_unit='g/cm^3', max_ion_number=None,
                  use_macro_atom=False):
         self.atom_data = atom_data
-        self.density = density
-
-        self.abundances = self.calculate_atom_number_densities(abundances)
-
-
-        levels_atom_filter = pd.lib.ismember(atom_data.levels_index.index.get_level_values(0),
-                                                set(self.abundances.index.values))
-        self.levels_index = atom_data.levels_index[levels_atom_filter]
-
-        lines_atom_upper_filter = pd.lib.ismember(atom_data.lines_index_upper.index.get_level_values(0),
-                                                set(self.abundances.index.values))
-        lines_atom_lower_filter = pd.lib.ismember(atom_data.lines_index_lower.index.get_level_values(0),
-                                                set(self.abundances.index.values))
-
-        self.lines_index_upper = atom_data.lines_index_upper[lines_atom_upper_filter]
-        self.lines_index_lower = atom_data.lines_index_lower[lines_atom_lower_filter]
-
-
-        if max_ion_number is not None:
-            self.levels_index = self.levels_index[self.levels_index.index.get_level_values(1) <= max_ion_number]
-            self.lines_index_upper = self.lines_index_upper[self.lines_index_upper.index.get_level_values(1) <= max_ion_number]
-            self.lines_index_lower = self.lines_index_lower[self.lines_index_lower.index.get_level_values(1) <= max_ion_number]
-
-        self.levels_index_local = Series(np.arange(len(self.levels_index),dtype=int), index=self.levels_index.index)
-        self.lines_index_upper_local = Series(np.arange(len(self.lines_index_upper), dtype=int), index=self.lines_index_upper)
-        self.lines_index_lower_local = Series(np.arange(len(self.lines_index_lower), dtype=int), index=self.lines_index_lower)
-
-
-
-        #calculating lower line indices and pointing to the level_index
-        self.lines_lower_index2levels_index = self.levels_index_local.ix[self.lines_index_lower.index]
-
-
-        self.atom_ion_index = None
-        self.levels_index_local2atom_ion_index = None
-
-
-        if use_macro_atom:
-            if not hasattr(atom_data, 'macro_atom_data'):
-                raise ValueError('The currently supplied AtomData object does not have the Macro Atom Data')
-
-            macro_atom_filter = atom_data.macro_atom_data['atomic_number'].isin(self.abundances.index)
-            macro_atom_counts_filter = atom_data.macro_atom_counts['atomic_number'].isin(self.abundances.index)
-
-            self.macro_atom_data = atom_data.macro_atom_data[macro_atom_filter]
-            self.macro_atom_counts = atom_data.macro_atom_counts[macro_atom_counts_filter]
-
-            if max_ion_number is not None:
-                self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['ion_number'] <= max_ion_number]
-                self.macro_atom_counts = self.macro_atom_counts[self.macro_atom_counts['ion_number'] <= max_ion_number]
-
-            self.macro_lines = self.lines_data.set_index('line_id')
-            self.macro_atom_data.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
-
+        self.selected_atoms = self.atom_data.selected_atoms
+        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
+        self.abundances = abundances
 
 
     def validate_atom_data(self):
@@ -127,38 +76,6 @@ class BasePlasma(object):
             if not hasattr(self.atom_data, attribute):
                 raise ValueError('AtomData incomplete missing')
 
-
-    def calculate_atom_number_densities(self, abundances):
-        """
-        Calculates the atom number density, using the following formula, where Z is the atomic number
-        and X is the abundance fraction
-
-        .. math::
-            N_{Z} = \\frac{\\rho_\\textrm{total}\\times \\textrm{X}_\\textrm{Z}}{m_\\textrm{Z}}
-
-        """
-
-        #Converting abundances
-        atomic_numbers = [self.atom_data.symbol2atomic_number[key] for key in abundances.keys()]
-        abundance_fractions = Series(abundances.values(),
-            index=Index(atomic_numbers, dtype=np.int, name='atomic_number'),
-            name='abundance_fraction')
-
-
-
-        #Normalizing Abundances
-
-        abundance_sum = abundance_fractions.sum()
-
-        if abs(abundance_sum - 1) > 1e-5:
-            logger.warn('Abundances do not add up to 1 (Sum = %.4f). Renormalizing', (abundance_sum))
-
-        abundance_fractions /= abundance_sum
-
-        number_densities = (abundance_fractions * self.density) /\
-                           self.atom_data.atom_data.ix[abundance_fractions.index]['mass']
-
-        return DataFrame({'abundance_fraction': abundance_fractions, 'number_density': number_densities})
 
     def update_radiationfield(self, t_rad):
         """
@@ -196,9 +113,9 @@ class LTEPlasma(BasePlasma):
 
     """
 
-    def __init__(self, abundances, density, atom_data, density_unit='g/cm^3', max_ion_number=None,
+    def __init__(self, abundances, atom_data, max_ion_number=None,
                  use_macro_atom=False):
-        BasePlasma.__init__(self, abundances, density, atom_data, density_unit=density_unit,
+        BasePlasma.__init__(self, abundances, atom_data,
             max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
 
         self.ion_number_density = None
@@ -267,17 +184,16 @@ class LTEPlasma(BasePlasma):
 
 
         def group_calculate_partition_function(group):
-            current_idx = group.values
-            return np.sum(self.atom_data.levels_data['g'].values[current_idx] *
-                        np.exp(-self.atom_data.levels_data['energy'].values[current_idx] * self.beta_rad))
+            return np.sum(group['g'] *
+                          np.exp(-group['energy'] * self.beta_rad))
 
-        partition_functions = self.levels_index.groupby(level=['atomic_number', 'ion_number']).apply(
+        partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
             group_calculate_partition_function)
 
-        if self.atom_ion_index is None:
-            self.atom_ion_index = Series(np.arange(len(partition_functions)), partition_functions.index)
-            self.levels_index_local2atom_ion_index = self.atom_ion_index.ix[self.levels_index.index.droplevel(2)].values
-
+        if self.atom_data.atom_ion_index is None:
+            self.atom_data.atom_ion_index = Series(np.arange(len(partition_functions)), partition_functions.index)
+            self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
+                                                         self.atom_data.levels.index.droplevel(2)].values
 
         return partition_functions
 
@@ -355,16 +271,15 @@ class LTEPlasma(BasePlasma):
 
         #partition_functions = Z
 
-        Z = self.partition_functions.values[self.levels_index_local2atom_ion_index]
+        Z = self.partition_functions.values[self.atom_data.levels_index2atom_ion_index]
 
-        ion_number_density = self.ion_number_density.values[self.levels_index_local2atom_ion_index]
+        ion_number_density = self.ion_number_density.values[self.atom_data.levels_index2atom_ion_index]
 
-
-        levels_g = self.atom_data.levels_data['g'].values[self.levels_index.values]
-        levels_energy = self.atom_data.levels_data['energy'].values[self.levels_index.values]
+        levels_g = self.atom_data.levels['g'].values
+        levels_energy = self.atom_data.levels['energy'].values
         level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
 
-        self.level_populations = Series(level_populations, index=self.levels_index.index)
+        self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
 
     def calculate_tau_sobolev(self, time_exp):
         """
@@ -387,10 +302,10 @@ class LTEPlasma(BasePlasma):
 
         """
 
-        f_lu = self.atom_data.lines_data['f_lu'].values[self.lines_index_lower.values]
-        wavelength = self.atom_data.lines_data['wavelength_cm'].values[self.lines_index_lower.values]
-        n_lower = self.level_populations.values[self.lines_lower_index2levels_index]
-        return sobolev_coefficient * f_lu * wavelength *time_exp * n_lower
+        f_lu = self.atom_data.lines['f_lu'].values
+        wavelength = self.atom_data.lines['wavelength_cm'].values
+        n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
+        return sobolev_coefficient * f_lu * wavelength * time_exp * n_lower
 
     def update_macro_atom(self, only_branching=False, ):
         """
@@ -446,9 +361,9 @@ class NebularPlasma(LTEPlasma):
 
     """
 
-    def __init__(self, abundances, density, atom_data, t_electron=None, density_unit='g/cm^3', max_ion_number=None,
+    def __init__(self, abundances, atom_data, t_electron=None, density_unit='g/cm^3', max_ion_number=None,
                  use_macro_atom=False):
-        BasePlasma.__init__(self, abundances, density, atom_data, density_unit=density_unit,
+        BasePlasma.__init__(self, abundances, atom_data, density_unit=density_unit,
             max_ion_number=max_ion_number,
             use_macro_atom=use_macro_atom)
 
@@ -508,19 +423,21 @@ class NebularPlasma(LTEPlasma):
 
         """
 
-
         def group_calculate_partition_function(group):
-            metastable = group['metastable'].values
-            meta_z = np.sum(group['g'].values[metastable] * np.exp(-group['energy'].values[metastable] * self.beta_rad))
-            non_meta_z = np.sum(
-                group['g'].values[~metastable] * np.exp(-group['energy'].values[~metastable] * self.beta_rad))
+            metastable = group['metastable']
+            meta_z = np.sum(group['g'][metastable] * np.exp(-group['energy'][metastable] * self.beta_rad))
+            non_meta_z = np.sum(group['g'][~metastable] * np.exp(-group['energy'][~metastable] * self.beta_rad))
             return meta_z + self.w * non_meta_z
 
-
-        partition_functions = self.levels_data.groupby(level=['atomic_number', 'ion_number']).apply(
+        partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
             group_calculate_partition_function)
-        return partition_functions
 
+        if self.atom_data.atom_ion_index is None:
+            self.atom_data.atom_ion_index = Series(np.arange(len(partition_functions)), partition_functions.index)
+            self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
+                                                         self.atom_data.levels.index.droplevel(2)].values
+
+        return partition_functions
 
     def calculate_saha(self):
         """
@@ -615,7 +532,6 @@ class NebularPlasma(LTEPlasma):
 
         chi_threshold = self.atom_data.ionization_data['ionization_energy'].ix[chi_threshold_species]
 
-        radiation_field_correction = DataFrame(index=self.atom_data.ionization_data.index)
         radiation_field_correction = (self.t_electron / (departure_coefficient * self.w * self.t_rad)) *\
                                      np.exp(self.beta_rad * chi_threshold - self.beta_electron *
                                             self.atom_data.ionization_data['ionization_energy'])
@@ -644,22 +560,17 @@ class NebularPlasma(LTEPlasma):
 
         This function updates the 'number_density' column on the levels table (or adds it if non-existing)
         """
+        Z = self.partition_functions.values[self.atom_data.levels_index2atom_ion_index]
 
-        atom_ion_index = self.levels_data.index.droplevel(level=2)
+        ion_number_density = self.ion_number_density.values[self.atom_data.levels_index2atom_ion_index]
 
-        #partition_functions = Z
-
-        Z = self.partition_functions.ix[atom_ion_index]
-
-        ion_number_density = self.ion_number_density.ix[atom_ion_index]
-
-        level_populations = (self.levels_data['g'].values / Z.values) * ion_number_density.values *\
-                            np.exp(-self.beta_rad * self.levels_data['energy'].values)
+        levels_g = self.atom_data.levels['g'].values
+        levels_energy = self.atom_data.levels['energy'].values
+        level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
 
 
-        #only change compared to the LTEPlasma
-        level_populations[self.levels_data['metastable']] *= self.w
+        #only change between lte plasma and nebular
+        level_populations[~self.atom_data.levels['metastable']] *= self.w
 
-        self.level_populations = Series(level_populations, index=self.levels_data.index)
-
+        self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
 

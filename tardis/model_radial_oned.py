@@ -4,6 +4,7 @@ import numpy as np
 import plasma, atomic, packet_source
 import logging
 import config_reader
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,8 @@ class Radial1DModel(object):
 
         Parameters
         ----------
+
+        tardis_configuration : `tardis.config_reader.TardisConfiguration`
 
         velocities : `np.ndarray`
             an array with n+1 (for n shells) velocities (in cm/s) for each of the boundaries (velocities[0] describing
@@ -54,87 +57,98 @@ class Radial1DModel(object):
     """
 
     @classmethod
-    def from_config(cls, fname, atom_data, plasma_type='lte'):
+    def from_config_file(cls, fname, atom_data):
         tardis_config = config_reader.read_config(fname)
-        packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.spectrum_start, tardis_config.spectrum_end)
-        packet_src.create_packets(tardis_config.spectrum_packets, T=10000)
-        return cls(tardis_config.velocities, tardis_config.densities, tardis_config.abundances,
-            tardis_config.time_explosion, atom_data, packet_src, plasma_type=tardis_config.plasma_type)
+        model_obj = cls(tardis_config, atom_data)
+
+        return model_obj
 
 
-    def __init__(self, velocities, densities, abundances, time_explosion, atom_data, packet_source, ws=None, plasma_type='lte',
-                 line_interaction_type='scatter', initial_t_rad=10000, ):
-        self.no_of_shells = len(velocities) - 1
+    def __init__(self, configuration_object, atom_data):
+        #final preparation for configuration object
+        configuration_object.final_preparation()
+
+
+        #final preparation for atom_data object - currently building data
+        atom_data.prepare_atom_data(configuration_object)
+
+        self.atom_data = atom_data
+
+        self.packet_src = packet_source.SimplePacketSource.from_wavelength(configuration_object.spectrum_start,
+            configuration_object.spectrum_end)
+
+        self.packet_src.create_packets(configuration_object.spectrum_packets, configuration_object.t_rad_inner)
+
+        self.no_of_shells = configuration_object.no_of_shells
 
         logger.info('Assuming %d shells' % self.no_of_shells)
 
 
         #setting time_explosion
-        self.time_explosion = time_explosion
+        self.time_explosion = configuration_object.time_explosion
 
         #initializing velocities and radii
-        self.v_inner = velocities[:-1]
-        self.v_outer = velocities[1:]
+        self.v_inner = configuration_object.velocities[:-1]
+        self.v_outer = configuration_object.velocities[1:]
 
-        self.r_inner = self.v_inner * time_explosion
-        self.r_outer = self.v_outer * time_explosion
+        self.r_inner = self.v_inner * self.time_explosion
+        self.r_outer = self.v_outer * self.time_explosion
         self.r_middle = 0.5 * (self.r_inner + self.r_outer)
 
         self.volumes = (4. / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)
         #initializing densities
-        assert len(densities) == self.no_of_shells
+        assert len(configuration_object.densities) == self.no_of_shells
 
-        self.densities_middle = densities
+        self.densities_middle = configuration_object.densities
 
-
-        #initializing abundances
-        if isinstance(abundances, dict):
-            logger.info('Only one abundance - assuming uniform abundance stratification')
-            self.abundances = [abundances] * self.no_of_shells
-        else:
-            assert len(abundances) == self.no_of_shells
-            self.abundances = abundances
 
 
 
         #Selecting plasma class
-        self.plasma_type = plasma_type
-        if plasma_type == 'lte':
+        self.plasma_type = configuration_object.plasma_type
+        if self.plasma_type == 'lte':
             self.plasma_class = plasma.LTEPlasma
-            if ws is not None:
+            if configuration_object.ws is not None:
                 raise ValueError(
                     "the dilution factor W ('ws') can only be specified when selecting plasma_type='nebular'")
 
-        elif plasma_type == 'nebular':
+        elif self.plasma_type == 'nebular':
             self.plasma_class = plasma.NebularPlasma
-            if not isinstance(atom_data, atomic.NebularAtomData):
-                raise ValueError("Requiring Nebular Atom data for 'nebular' plasma_type")
+            if not self.atom_data.has_zeta_data:
+                raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma_type")
         else:
             raise ValueError("Currently this model only supports 'lte' or 'nebular'")
 
-        if line_interaction_type == 'scatter':
+        if configuration_object.line_interaction_type == 'scatter':
             self.line_interaction_id = 0
 
         #setting atom data and checking for consistency
         self.atom_data = atom_data
-        self.packet_source = packet_source
+
+        #initializing abundances
+        self.abundances = configuration_object.abundances
+        self.number_densities = []
+        for abundance, density in zip(self.abundances, self.densities_middle):
+            self.number_densities.append(calculate_atom_number_densities(self.atom_data, abundance, density))
+
+
 
         #setting dilution factors
-        if ws is None:
+        if configuration_object.ws is None:
             self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
         else:
             self.ws = np.array([(0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle[i] ** 2))) if w < 0\
-                                else w for i, w in enumerate(ws)])
+                                else w for i, w in enumerate(configuration_object.ws)])
 
         #initializing temperatures
 
-        if np.isscalar(initial_t_rad):
-            self.t_rads = [initial_t_rad] * self.no_of_shells
+        if np.isscalar(configuration_object.initial_t_rad):
+            self.t_rads = [configuration_object.initial_t_rad] * self.no_of_shells
         else:
-            assert len(initial_t_rad) == self.no_of_shells
-            self.t_rads = np.array(initial_t_rad, dtype=np.float64)
+            assert len(configuration_object.initial_t_rad) == self.no_of_shells
+            self.t_rads = np.array(configuration_object.initial_t_rad, dtype=np.float64)
 
-        self.initialize_plasmas(plasma_type)
+        self.initialize_plasmas(configuration_object.plasma_type)
 
 
     @property
@@ -142,26 +156,77 @@ class Radial1DModel(object):
         return np.array([plasma.electron_density for plasma in self.plasmas])
 
 
-#    @property
-#    def tau_sobolevs(self):
-#        tau_sobolevs = []
-#        for plasma in self.plasmas:
-#            tau_sobolevs.append(plasma.lines_data[['nu', 'tau_sobolev']].values)
-#        return tau_sobolevs
+    #    @property
+    #    def tau_sobolevs(self):
+    #        tau_sobolevs = []
+    #        for plasma in self.plasmas:
+    #            tau_sobolevs.append(plasma.lines_data[['nu', 'tau_sobolev']].values)
+    #        return tau_sobolevs
 
     def initialize_plasmas(self, plasma_type):
         self.plasmas = []
-        self.line_list_nu = None
-        self.line_lists_tau_sobolev = []
+        self.tau_sobolevs = []
+        self.line_list_nu = self.atom_data.lines['nu']
 
         if plasma_type == 'lte':
-            for (current_abundances, current_t_rad, current_density) in\
-            zip(self.abundances, self.t_rads, self.densities_middle):
-                current_plasma = self.plasma_class(current_abundances, current_density, self.atom_data)
+            for (current_abundances, current_t_rad) in\
+            zip(self.number_densities, self.t_rads):
+                current_plasma = self.plasma_class(current_abundances, self.atom_data)
                 current_plasma.update_radiationfield(current_t_rad)
-                self.line_lists_tau_sobolev.append(current_plasma.calculate_tau_sobolev(self.time_explosion))
-                if self.line_list_nu is None:
-                    self.line_list_nu = self.atom_data.lines_data['nu'].values[current_plasma.lines_index_upper.values]
+                self.tau_sobolevs.append(current_plasma.calculate_tau_sobolev(self.time_explosion))
                 self.plasmas.append(current_plasma)
 
-        self.line_lists_tau_sobolev = np.array(self.line_lists_tau_sobolev, dtype=float)
+
+        elif plasma_type == 'nebular':
+            for (current_abundances, current_t_rad, w) in\
+            zip(self.number_densities, self.t_rads, self.ws):
+                current_plasma = self.plasma_class(current_abundances, self.atom_data)
+                current_plasma.update_radiationfield(current_t_rad, w)
+                self.tau_sobolevs.append(current_plasma.calculate_tau_sobolev(self.time_explosion))
+                self.plasmas.append(current_plasma)
+
+            self.tau_sobolevs = np.array(self.tau_sobolevs, dtype=float)
+
+            # update plasmas
+
+    def update_plasmas(self):
+        self.tau_sobolevs = []
+        for current_plasma in self.plasmas:
+            current_plasma.update_radiationfield(20000)
+            self.tau_sobolevs.append(current_plasma.calculate_tau_sobolev(self.time_explosion))
+
+
+def calculate_atom_number_densities(atom_data, abundances, density):
+    """
+    Calculates the atom number density, using the following formula, where Z is the atomic number
+    and X is the abundance fraction
+
+    .. math::
+        N_{Z} = \\frac{\\rho_\\textrm{total}\\times \\textrm{X}_\\textrm{Z}}{m_\\textrm{Z}}
+
+    """
+
+    #Converting abundances
+
+
+
+    abundance_fractions = pd.Series(abundances.values(),
+        index=pd.Index([atom_data.symbol2atomic_number[item] for item in abundances.keys()],
+            dtype=np.int, name='atomic_number'), name='abundance_fraction')
+
+
+
+    #Normalizing Abundances
+
+    abundance_sum = abundance_fractions.sum()
+
+    if abs(abundance_sum - 1) > 1e-5:
+        logger.warn('Abundances do not add up to 1 (Sum = %.4f). Renormalizing', (abundance_sum))
+
+    abundance_fractions /= abundance_sum
+
+    number_densities = (abundance_fractions * density) /\
+                       atom_data.atom_data.ix[abundance_fractions.index]['mass']
+
+    return pd.DataFrame({'abundance_fraction': abundance_fractions, 'number_density': number_densities})
+
