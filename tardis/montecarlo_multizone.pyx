@@ -87,28 +87,31 @@ cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t 
     return imin + 1
 
 #variables are restframe if not specified by prefix comov_
-cdef int_type_t macro_atom(int_type_t activate_level,
-                           np.ndarray[float_type_t, ndim=2] p_transition,
-                           np.ndarray[int_type_t, ndim=1] type_transition,
-                           np.ndarray[int_type_t, ndim=1] target_level_id,
-                           np.ndarray[int_type_t, ndim=1] target_line_id,
-                           np.ndarray[int_type_t, ndim=1] unroll_reference,
-                           int_type_t cur_zone_id):
+cdef inline int_type_t macro_atom(int_type_t activate_level,
+                                  np.ndarray[float_type_t, ndim=2] p_transition,
+                                  np.ndarray[int_type_t, ndim=1] type_transition,
+                                  np.ndarray[int_type_t, ndim=1] target_level_id,
+                                  np.ndarray[int_type_t, ndim=1] target_line_id,
+                                  np.ndarray[int_type_t, ndim=1] unroll_reference,
+                                  int_type_t cur_zone_id):
     cdef int_type_t emit, i = 0
     cdef float_type_t p, event_random = 0.0
-
+    #    print "Activating Level %d" % activate_level
     while True:
         event_random = rk_double(&mt_state)
         i = unroll_reference[activate_level]
+        #        print "jumping to block_references %d" % i
         p = 0.0
         while True:
             p = p + p_transition[cur_zone_id, i]
             if p > event_random:
                 emit = type_transition[i]
+                #                print "assuming transition_id %d" % emit
                 activate_level = target_level_id[i]
                 break
             i += 1
-        if emit == 1:
+
+        if emit == -1:
             IF packet_logging == True:
                 packet_logger.debug('Emitting in level %d', activate_level + 1)
 
@@ -200,7 +203,7 @@ cdef float_type_t compute_distance2electron(float_type_t r, float_type_t mu, flo
                                             float_type_t inverse_ne):
     return tau_event * inverse_ne * inverse_sigma_thomson
 
-cdef float_type_t get_r_sobolev(float_type_t r, float_type_t mu, float_type_t d_line):
+cdef inline float_type_t get_r_sobolev(float_type_t r, float_type_t mu, float_type_t d_line):
     return sqrt(r ** 2 + d_line ** 2 + 2 * r * d_line * mu)
 
 def montecarlo_radial1d(model):
@@ -280,9 +283,23 @@ def montecarlo_radial1d(model):
 
     cdef int_type_t line_interaction_id = model.line_interaction_id
 
+    #macro atom & downbranch
+    cdef np.ndarray[float_type_t, ndim=2] transition_probabilities
+    cdef np.ndarray[int_type_t, ndim=1] line2macro_level_upper
+    cdef np.ndarray[int_type_t, ndim=1] macro_block_references
+    cdef np.ndarray[int_type_t, ndim=1] transition_type
+    cdef np.ndarray[int_type_t, ndim=1] destination_level_id
+    cdef np.ndarray[int_type_t, ndim=1] transition_line_id
+
+    if model.line_interaction_id >= 1:
+        line2macro_level_upper = model.atom_data.lines_upper2macro_reference_idx
+        macro_block_references = model.atom_data.macro_atom_references['block_references'].values
+        transition_probabilities = model.transition_probabilities
+        transition_type = model.atom_data.macro_atom_data['transition_type'].values
+        destination_level_id = model.atom_data.macro_atom_data['destination_level_idx'].values.astype(np.int64)
+        transition_line_id = model.atom_data.macro_atom_data['lines_idx'].values
 
     ######## Setting up the output ########
-
     cdef np.ndarray[float_type_t, ndim=1] output_nus = np.zeros(no_of_packets, dtype=np.float64)
     cdef np.ndarray[float_type_t, ndim=1] output_energies = np.zeros(no_of_packets, dtype=np.float64)
 
@@ -334,6 +351,7 @@ def montecarlo_radial1d(model):
 
     for i in range(no_of_packets):
         if i % (no_of_packets / 5) == 0:
+        #if i % 100 == 0:
             print "At packet %d of %d" % (i, no_of_packets)
             #logger.info("At packet %d of %d", i, no_of_packets)
 
@@ -588,7 +606,7 @@ def montecarlo_radial1d(model):
                 # ------------------------------ LOGGING ----------------------
                     IF packet_logging == True:
                         packet_logger.debug('Line interaction happening. Activating macro atom at level %d',
-                            line2level[current_line_id] + 1)
+                            line2macro_level_upper[current_line_id] + 1)
                         # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
                     old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, js,
@@ -603,18 +621,15 @@ def montecarlo_radial1d(model):
 
                     if line_interaction_id == 0: #scatter
                         emission_line_id = current_line_id
-                    elif line_interaction_id == 1:# downbranch
-                        pass
-                    elif line_interaction_id == 2: #macro atom
-                        pass
-                        #                        activate_level_id = line2level_upper[current_line_id]
-                    #                        emission_line_id = macro_atom(activate_level_id,
-                    #                            p_transition,
-                    #                            type_transition,
-                    #                            target_level_id,
-                    #                            target_line_id,
-                    #                            unroll_reference,
-                    #                           current_shell_id)
+                    elif line_interaction_id >= 1:# downbranch & macro
+                        activate_level_id = line2macro_level_upper[current_line_id]
+                        emission_line_id = macro_atom(activate_level_id,
+                            transition_probabilities,
+                            transition_type,
+                            destination_level_id,
+                            transition_line_id,
+                            macro_block_references,
+                            current_shell_id)
 
                     current_nu = line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = line_list_nu[emission_line_id]

@@ -307,32 +307,37 @@ class LTEPlasma(BasePlasma):
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
         return sobolev_coefficient * f_lu * wavelength * time_exp * n_lower
 
-    def update_macro_atom(self, only_branching=False, ):
+    def update_macro_atom(self, tau_sobolevs, j_nu_factor=1.):
         """
             Updating the Macro Atom computations
 
         """
 
-        #def normalize
-        macro_lines = self.lines_data.set_index('line_id')
-        tau_sobolevs = macro_lines['tau_sobolev'].ix[self.macro_atom_data['transition_line_id']].values
-        beta_sobolevs = np.empty_like(tau_sobolevs)
+        macro_tau_sobolevs = tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values]
 
-        macro_atom.calculate_beta_sobolev(tau_sobolevs, beta_sobolevs)
+        beta_sobolevs = np.empty_like(macro_tau_sobolevs)
 
-        self.macro_atom_data['transition_probability'] *= beta_sobolevs
+        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
 
-        transition_up_filter = self.macro_atom_data['transition_type'] == 1
-        nus = macro_lines['nu'].ix[self.macro_atom_data.ix[transition_up_filter]['transition_line_id']]
+        transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * beta_sobolevs
 
-        j_nus = intensity_black_body(nus.values, self.t_rad)
-        transition_probabilities = self.macro_atom_data['transition_probability'].__array__()
+        transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
+        nus = self.atom_data.lines['nu'].values[self.atom_data.macro_atom_data['lines_idx'].values][
+              transition_up_filter]
+
+        j_nus = j_nu_factor * intensity_black_body(nus, self.t_rad)
+
         transition_probabilities[transition_up_filter.__array__()] *= j_nus
 
-        reference_levels = np.hstack((0, self.macro_atom_counts['count_total'].__array__().cumsum()))
+        reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
 
         #Normalizing the probabilities
-        macro_atom.normalize_transition_probabilities(self.macro_atom_data['transition_probability'], reference_levels)
+        #TODO speedup possibility save the new blockreferences with 0 and last block
+        block_references = np.hstack((self.atom_data.macro_atom_references['block_references'],
+                                      len(self.atom_data.macro_atom_data)))
+        macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
+
+        return transition_probabilities
 
 
 class NebularPlasma(LTEPlasma):

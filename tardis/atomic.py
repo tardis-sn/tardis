@@ -317,10 +317,8 @@ class AtomData(object):
         tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
                                                                self.lines['level_number_lower']])
 
-        lines_lower2level = pd.Series(np.arange(len(self.lines), dtype=int), index=tmp_lines_lower2level_idx)
+        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values
 
-        self.lines_lower2level_idx = self.levels_index.ix[lines_lower2level.index].values
-        #self.lines_upper2level_idx = self.lines
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
@@ -333,17 +331,34 @@ class AtomData(object):
 
             if configuration_object.line_interaction_type == 'downbranch':
                 self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['transition_type'] == -1]
-                self.macro_atom_references['count_total'] = self.macro_atom_data['count_down']
-
-            self.macro_atom_references['block_references'] = np.hstack((0,
-                                                                        np.cumsum(self.macro_atom_references[
-                                                                                  'count_total'].values[:-1])))
+                self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['count_down'] > 0]
+                self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']
+                self.macro_atom_references['block_references'] = np.hstack((0,
+                                                                            np.cumsum(self.macro_atom_references[
+                                                                                      'count_down'].values[:-1])))
+            elif configuration_object.line_interaction_type == 'macroatom':
+                self.macro_atom_references['block_references'] = np.hstack((0,
+                                                                            np.cumsum(self.macro_atom_references[
+                                                                                      'count_total'].values[:-1])))
 
             self.macro_atom_references.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
+            self.macro_atom_references['references_idx'] = np.arange(len(self.macro_atom_references))
+
             self.macro_atom_data['lines_idx'] = self.lines_index.ix[self.macro_atom_data['transition_line_id']].values
 
+            tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays(
+                [self.lines['atomic_number'], self.lines['ion_number'],
+                 self.lines['level_number_upper']])
 
+            self.lines_upper2macro_reference_idx = self.macro_atom_references['references_idx'].ix[
+                                                   tmp_lines_upper2level_idx].values
 
+            tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([self.macro_atom_data['atomic_number'],
+                                                                         self.macro_atom_data['ion_number'],
+                                                                         self.macro_atom_data[
+                                                                         'destination_level_number']])
 
+            self.macro_atom_data['destination_level_idx'] = self.macro_atom_references['references_idx'].ix[
+                                                            tmp_macro_destination_level_idx].values
 
 
