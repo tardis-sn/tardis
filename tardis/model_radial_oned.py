@@ -119,8 +119,17 @@ class Radial1DModel(object):
         else:
             raise ValueError("Currently this model only supports 'lte' or 'nebular'")
 
+
+        #TODO shift this to tardis configuration
         if configuration_object.line_interaction_type == 'scatter':
             self.line_interaction_id = 0
+        elif configuration_object.line_interaction_type == 'downbranch':
+            self.line_interaction_id = 1
+        elif configuration_object.line_interaction_type == 'macroatom':
+            self.line_interaction_id = 2
+        else:
+            raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
+
 
         #setting atom data and checking for consistency
         self.atom_data = atom_data
@@ -168,24 +177,41 @@ class Radial1DModel(object):
         self.tau_sobolevs = []
         self.line_list_nu = self.atom_data.lines['nu']
 
+        if self.line_interaction_id in (1, 2):
+            self.transition_probabilities = []
+
         if plasma_type == 'lte':
             for (current_abundances, current_t_rad) in\
             zip(self.number_densities, self.t_rads):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data)
                 current_plasma.update_radiationfield(current_t_rad)
-                self.tau_sobolevs.append(current_plasma.calculate_tau_sobolev(self.time_explosion))
+                current_tau_sobolevs = current_plasma.calculate_tau_sobolev(self.time_explosion)
+                self.tau_sobolevs.append(current_tau_sobolevs)
+
+                if self.line_interaction_id in (1, 2):
+                    self.transition_probabilities.append(current_plasma.update_macro_atom(current_tau_sobolevs).values)
+
                 self.plasmas.append(current_plasma)
 
 
         elif plasma_type == 'nebular':
-            for (current_abundances, current_t_rad, w) in\
+            for (current_abundances, current_t_rad, current_w) in\
             zip(self.number_densities, self.t_rads, self.ws):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data)
-                current_plasma.update_radiationfield(current_t_rad, w)
-                self.tau_sobolevs.append(current_plasma.calculate_tau_sobolev(self.time_explosion))
+                current_plasma.update_radiationfield(current_t_rad, current_w)
+                current_tau_sobolevs = current_plasma.calculate_tau_sobolev(self.time_explosion)
+                self.tau_sobolevs.append(current_tau_sobolevs)
+
+                if self.line_interaction_id in (1, 2):
+                    self.transition_probabilities.append(current_plasma.update_macro_atom(current_tau_sobolevs,
+                        j_nu_factor=current_w).values)
+
                 self.plasmas.append(current_plasma)
 
-            self.tau_sobolevs = np.array(self.tau_sobolevs, dtype=float)
+        self.tau_sobolevs = np.array(self.tau_sobolevs, dtype=float)
+
+        if self.line_interaction_id in (1, 2):
+            self.transition_probabilities = np.array(self.transition_probabilities, dtype=np.float64)
 
             # update plasmas
 
