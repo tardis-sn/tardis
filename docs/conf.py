@@ -26,7 +26,26 @@
 # be accessible, and the documentation will not build correctly.
 
 # Load all of the global Astropy configuration
-from astropy.sphinx.conf import *
+
+import sphinx_bootstrap_theme
+
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.todo',
+    'sphinx.ext.coverage',
+#    'sphinx.ext.pngmath',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.inheritance_diagram',
+    'numpydoc',
+#    'astropy.sphinx.ext.numpydoc',
+#    'astropy.sphinx.ext.astropyautosummary',
+#    'astropy.sphinx.ext.automodsumm',
+    'astropy.sphinx.ext.automodapi'
+]
+
+
 extensions.append('sphinxcontrib.bibtex')
 
 # -- General configuration ----------------------------------------------------
@@ -36,11 +55,12 @@ extensions.append('sphinxcontrib.bibtex')
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns.append('_templates')
+exclude_patterns = ['_build', '_templates']
+#exclude_patterns.append('_templates')
 
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
-rst_epilog += """
+rst_epilog = """
 """
 
 # -- Project information ------------------------------------------------------
@@ -50,6 +70,8 @@ project = u'TARDIS'
 author = u'Stuart Sim & Wolfgang Kerzendorf'
 copyright = u'2012, ' + author
 
+master_doc = 'index'
+#default_role = 'obj'
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
 # built documents.
@@ -78,6 +100,8 @@ release = tardis.__version__
 # a list of builtin themes. To override the custom theme, set this to the
 # name of a builtin theme or the name of a custom theme in html_theme_path.
 #html_theme = None
+html_theme = 'bootstrap'
+html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}

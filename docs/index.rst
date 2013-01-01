@@ -1,13 +1,21 @@
-Documentation
-=============
+TARDIS
+******
 
-This is an affiliated package for the AstroPy package. The documentation for
-this package is here:
+This is the documentation for the TARDIS package.
 
 .. toctree::
-  :maxdepth: 2
+   :maxdepth: 2
 
-  tardis/index.rst
+   introduction
+   atomic
+   plasma
+   montecarlo
+   glossary
+   zreferences
 
-.. note:: Do not edit this page - instead, place all documentation for the
-          affiliated package inside ``packagename/``
+
+
+
+
+
+
