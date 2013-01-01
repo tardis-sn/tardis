@@ -13,6 +13,8 @@ from collections import OrderedDict
 
 from pandas import DataFrame
 
+import pandas as pd
+
 try:
     import sqlparse
 
@@ -206,7 +208,7 @@ def read_macro_atom_data(fname):
                          'It is needed for complex line interaction')
     macro_atom_data = h5_file['macro_atom_data']
 
-    macro_atom_counts = h5_file['macro_atom_counts']
+    macro_atom_counts = h5_file['macro_atom_references']
 
     return macro_atom_data, macro_atom_counts
 
@@ -232,7 +234,7 @@ class AtomData(object):
     """
 
     @classmethod
-    def from_hdf5(cls, fname=None):
+    def from_hdf5(cls, fname=None, use_macro_atom=False, use_zeta_data=False):
         """
         Function to read all the atom data from a special TARDIS HDF5 File.
 
@@ -242,6 +244,9 @@ class AtomData(object):
         fname: str, optional
             the default for this is `None` and then it will use the very limited atomic_data shipped with TARDIS
             For more complex atomic data please contact the authors.
+
+        use_macro_atom:
+            default `False`. Set to `True`, if you want to read in macro_atom_data
         """
 
         atom_data = read_basic_atom_data(fname)
@@ -249,11 +254,34 @@ class AtomData(object):
         levels_data = read_levels_data(fname)
         lines_data = read_lines_data(fname)
 
+        if use_macro_atom:
+            macro_atom_data = read_macro_atom_data(fname)
+        else:
+            macro_atom_data = None
+
+        if use_zeta_data:
+            zeta_data = read_zeta_data(fname)
+        else:
+            zeta_data = None
         return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-            lines_data=lines_data)
+            lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data)
 
 
-    def __init__(self, atom_data, ionization_data, levels_data, lines_data):
+    def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None):
+        if macro_atom_data is not None:
+            self.has_macro_atom = True
+            self.macro_atom_data_all = DataFrame(macro_atom_data[0].__array__())
+            self.macro_atom_references_all = DataFrame(macro_atom_data[1].__array__())
+
+        else:
+            self.has_macro_atom = False
+
+        if zeta_data is not None:
+            self.zeta_data = zeta_data
+            self.has_zeta_data = True
+        else:
+            self.has_zeta_data = False
+
         self.atom_data = DataFrame(atom_data.__array__())
         self.atom_data.set_index('atomic_number', inplace=True)
 
@@ -264,59 +292,73 @@ class AtomData(object):
 
         self.lines_data = DataFrame(lines_data.__array__())
         self.lines_data['nu'] = units.Unit('angstrom').to('Hz', self.lines_data['wavelength'], units.spectral())
+        self.lines_data['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines_data['wavelength'])
+
+
+        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines_data)
+        #self.lines_inde
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
 
 
-class NebularAtomData(AtomData):
-    """
-    Class for storing atomic data. This is a special class geared towards use with the `tardis.plasma.NebularPlasma`-class.
-    It contains a way of storing Recombination coefficients and can calculate Zeta values ??STUART please add more info??
+    def prepare_atom_data(self, configuration_object):
+        self.selected_atoms = configuration_object.selected_atoms
+        self.selected_atomic_numbers = [self.symbol2atomic_number[item] for item in configuration_object.selected_atoms]
+
+        self.levels = self.levels_data[self.levels_data['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
+
+        self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
+        #cutting levels_lines
+        self.lines = self.lines_data[self.lines_data['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=pd.Index(self.lines['line_id']))
+
+        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
+                                                               self.lines['level_number_lower']])
+
+        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values
+
+        self.atom_ion_index = None
+        self.levels_index2atom_ion_index = None
+
+        if self.has_macro_atom and not (configuration_object.line_interaction_type == 'scatter'):
+            self.macro_atom_data = self.macro_atom_data_all[
+                                   self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)]
+            self.macro_atom_references = self.macro_atom_references_all[
+                                         self.macro_atom_references_all['atomic_number'].isin(
+                                             self.selected_atomic_numbers)]
+
+            if configuration_object.line_interaction_type == 'downbranch':
+                self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['transition_type'] == -1]
+                self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['count_down'] > 0]
+                self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']
+                self.macro_atom_references['block_references'] = np.hstack((0,
+                                                                            np.cumsum(self.macro_atom_references[
+                                                                                      'count_down'].values[:-1])))
+            elif configuration_object.line_interaction_type == 'macroatom':
+                self.macro_atom_references['block_references'] = np.hstack((0,
+                                                                            np.cumsum(self.macro_atom_references[
+                                                                                      'count_total'].values[:-1])))
+
+            self.macro_atom_references.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
+            self.macro_atom_references['references_idx'] = np.arange(len(self.macro_atom_references))
+
+            self.macro_atom_data['lines_idx'] = self.lines_index.ix[self.macro_atom_data['transition_line_id']].values
+
+            tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays(
+                [self.lines['atomic_number'], self.lines['ion_number'],
+                 self.lines['level_number_upper']])
+
+            self.lines_upper2macro_reference_idx = self.macro_atom_references['references_idx'].ix[
+                                                   tmp_lines_upper2level_idx].values
+
+            tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([self.macro_atom_data['atomic_number'],
+                                                                         self.macro_atom_data['ion_number'],
+                                                                         self.macro_atom_data[
+                                                                         'destination_level_number']])
+
+            self.macro_atom_data['destination_level_idx'] = self.macro_atom_references['references_idx'].ix[
+                                                            tmp_macro_destination_level_idx].values
 
 
-    AtomData
-    ---------
-
-    Parameters
-    ----------
-
-    basic_atom_data: ~astropy.table.Table
-        containing the basic atom data: z, symbol, and mass
-
-    ionization_data: ~astropy.table.Table
-        containing the ionization data: z, ion, and ionization energy
-        ::important to note here is that ion describes the final ion state
-            e.g. H I - H II is described with ion=2
-
-    """
-
-    @classmethod
-    def from_hdf5(cls, fname=None):
-        """
-        Function to read all the atom data from a special TARDIS HDF5 File.
-
-        Parameters
-        ----------
-
-        fname: str, optional
-            the default for this is `None` and then it will use the very limited atomic_data shipped with TARDIS
-            For more complex atomic data please contact the authors.
-        """
-        zeta_data = read_zeta_data(fname)
-        atom_data = read_basic_atom_data(fname)
-        ionization_data = read_ionization_data(fname)
-        levels_data = read_levels_data(fname)
-        lines_data = read_lines_data(fname)
-
-        macro_atom_data, macro_atom_counts = read_macro_atom_data(fname)
-
-        return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-            lines_data=lines_data, zeta_data=zeta_data, macro_atom_data=(macro_atom_data, macro_atom_counts))
-
-
-    def __init__(self, atom_data, ionization_data, levels_data, lines_data, zeta_data, macro_atom_data):
-        super(NebularAtomData, self).__init__(atom_data, ionization_data, levels_data, lines_data)
-        self.zeta_data = zeta_data
-        self.macro_atom_data = DataFrame(macro_atom_data[0].__array__())
-        self.macro_atom_counts = DataFrame(macro_atom_data[1].__array__())
