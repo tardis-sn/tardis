@@ -7,7 +7,6 @@ from astropy import units
 import plasma
 
 
-
 class SimplePacketSource:
     """Initializing photon source
         Parameters
@@ -23,8 +22,6 @@ class SimplePacketSource:
     @classmethod
     def from_wavelength(cls, wavelength_start, wavelength_end, wavelength_unit='angstrom', seed=250819801106,
                         blackbody_sampling=int(1e6)):
-
-
         """Initializing from wavelength
 
         Parameters
@@ -42,14 +39,13 @@ class SimplePacketSource:
         return cls(nu_start, nu_end, seed=seed)
 
     def __init__(self, nu_start, nu_end, seed=250819801106, blackbody_sampling=int(1e6)):
-
         self.nu_start = nu_start
         self.nu_end = nu_end
         self.blackbody_sampling = blackbody_sampling
         np.random.seed(seed)
 
 
-    def create_packets(self, number_of_packets, T):
+    def create_packets(self, number_of_packets, t_rad):
         """
         Creating a new random number of packets, with a certain temperature
 
@@ -59,15 +55,14 @@ class SimplePacketSource:
         number_of_packets : any number
             number of packets
 
-        T : `float`
-            temperature
+        t_rad : `float`
+            radiation temperature
 
         """
         number_of_packets = int(number_of_packets)
-        self.packet_nus = self.random_blackbody_nu(T, number_of_packets)
+        self.packet_nus = self.random_blackbody_nu(t_rad, number_of_packets)
         self.packet_mus = np.sqrt(np.random.random(size=number_of_packets))
         self.packet_energies = np.ones(number_of_packets) / number_of_packets
-
 
 
     def random_blackbody_nu(self, T, number_of_packets):
@@ -87,7 +82,7 @@ class SimplePacketSource:
         intensity = plasma.intensity_black_body(nu, T)
         cum_blackbody = np.cumsum(intensity)
         norm_cum_blackbody = cum_blackbody / cum_blackbody.max()
-        return nu[norm_cum_blackbody.searchsorted(np.random.random(number_of_packets))] + \
+        return nu[norm_cum_blackbody.searchsorted(np.random.random(number_of_packets))] +\
                np.random.random(size=number_of_packets) * (nu[1] - nu[0])
 
 
