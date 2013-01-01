@@ -87,13 +87,13 @@ cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t 
     return imin + 1
 
 #variables are restframe if not specified by prefix comov_
-cdef inline int_type_t macro_atom(int_type_t activate_level,
-                                  np.ndarray[float_type_t, ndim=2] p_transition,
-                                  np.ndarray[int_type_t, ndim=1] type_transition,
-                                  np.ndarray[int_type_t, ndim=1] target_level_id,
-                                  np.ndarray[int_type_t, ndim=1] target_line_id,
-                                  np.ndarray[int_type_t, ndim=1] unroll_reference,
-                                  int_type_t cur_zone_id):
+cdef inline int_type_t macro_atom(long activate_level,
+                                  double [:, :] p_transition,
+                                  long [:] type_transition,
+                                  long [:] target_level_id,
+                                  long [:] target_line_id,
+                                  long [:] unroll_reference,
+                                  long cur_zone_id):
     cdef int_type_t emit, i = 0
     cdef float_type_t p, event_random = 0.0
     #    print "Activating Level %d" % activate_level
@@ -156,6 +156,7 @@ cdef float_type_t move_packet(float_type_t*r,
     return doppler_factor
 
 cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float_type_t r_outer):
+    cdef float_type_t d_outer
     d_outer = sqrt(r_outer ** 2 + ((mu ** 2 - 1.) * r ** 2)) - (r * mu)
     return d_outer
 
