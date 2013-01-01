@@ -3,6 +3,13 @@ Atomic Data
 .. currentmodule:: tardis.atomic
 
 
+The atomic data for tardis is stored in `hdf5 files <http://www.h5py.org/>`_. TARDIS ships with a
+relatively simple atomic dataset which only contains silicon lines and levels. TARDIS also has a full atomic dataset which contains
+the complete Kurucz dataset (`<http://kurucz.harvard.edu/LINELISTS/GFALL/>`_). This full dataset also contains recombination
+coefficients from the ground state (:math:`\zeta-\textrm{factor}` used in :ref:`calc_zeta_label`) and data for calculating the
+branching or macro atom line interaction (:ref:`macroatom`).
+
+
 Indices
 -------
 
@@ -30,7 +37,7 @@ Tables
 the following data is contained in hdf5 file ``atom_data.h5``
 
 Atomic Data
-***********
+^^^^^^^^^^^
 dataset contains ``basic_atom_data``
 
 +------------------------+--------------------------------+---------+
@@ -45,7 +52,7 @@ dataset contains ``basic_atom_data``
 
 
 Ionization Data
-***************
+^^^^^^^^^^^^^^^
 dataset contains ``ionization_data``
 
 +------------------------+------------------------------+----------+
@@ -60,7 +67,7 @@ dataset contains ``ionization_data``
 
 
 Levels Data
-***********
+^^^^^^^^^^^
 dataset contains ``levels_data``
 
 +------------------------+------------------------------+----------+
@@ -81,7 +88,7 @@ dataset contains ``levels_data``
 
 
 Lines Data
-**********
+^^^^^^^^^^
 dataset contains ``lines_data``
 
 +------------------------+------------------------------+----------+
@@ -102,8 +109,3 @@ dataset contains ``lines_data``
 | level_id_upper         | Lower level id               |          |
 +------------------------+------------------------------+----------+
 
-
-
-
-
-.. automodapi:: tardis.atomic

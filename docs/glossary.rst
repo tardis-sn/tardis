@@ -1,5 +1,5 @@
 Glossary
-********
+========
 
 .. glossary::
     meta-stable
