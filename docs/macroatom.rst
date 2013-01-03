@@ -1,3 +1,5 @@
+.. _macroatom:
+
 Macro Atom
 ----------
 
@@ -15,33 +17,6 @@ the first is a long one-dimensional array containing the probabilities. Each lev
 part of each set contains the upwards probabilities (internal upward), the second part the downwards probabilities
 (internal downward), and the last part is the downward and emission probability.
 
-+--------------------------+
-|Probabilities             |
-+==========================+
-| P\ :sub:`internal up` 1  |
-+--------------------------+
-| P\ :sub:`internal up` 2  |
-+--------------------------+
-|...                       |
-+--------------------------+
-| P\ :sub:`internal up` n  |
-+--------------------------+
-| P\ :sub:`internal down` 1|
-+--------------------------+
-| P\ :sub:`internal down` 2|
-+--------------------------+
-|...                       |
-+--------------------------+
-| P\ :sub:`internal down` n|
-+--------------------------+
-| P\ :sub:`emission down` 1|
-+--------------------------+
-| P\ :sub:`emission down` 2|
-+--------------------------+
-|...                       |
-+--------------------------+
-| P\ :sub:`emission down` n|
-+--------------------------+
 
 each set is stacked after the other one to make one long one dimensional `~numpy.ndarray`.
 

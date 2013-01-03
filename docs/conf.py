@@ -27,7 +27,19 @@
 
 # Load all of the global Astropy configuration
 
+intersphinx_mapping = {
+    'python': ('http://docs.python.org/', None),
+    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
+    'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
+    'matplotlib': ('http://matplotlib.sourceforge.net/', None),
+    'astropy': ('http://www.astropy.org/', None),
+    'h5py': ('http://h5py.alfven.org/docs-2.1/', None),
+    'pandas' : ('http://pandas.pydata.org/pandas-docs/dev/', None)
+}
+
+
 import sphinx_bootstrap_theme
+import matplotlib.sphinxext.plot_directive
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -42,9 +54,11 @@ extensions = [
 #    'astropy.sphinx.ext.numpydoc',
 #    'astropy.sphinx.ext.astropyautosummary',
 #    'astropy.sphinx.ext.automodsumm',
-    'astropy.sphinx.ext.automodapi'
+    'astropy.sphinx.ext.automodapi',
+    'sphinxcontrib.blockdiag'
 ]
 
+extensions += [matplotlib.sphinxext.plot_directive.__name__]
 
 extensions.append('sphinxcontrib.bibtex')
 
@@ -68,7 +82,7 @@ rst_epilog = """
 # This does not *have* to match the package name, but typically does
 project = u'TARDIS'
 author = u'Stuart Sim & Wolfgang Kerzendorf'
-copyright = u'2012, ' + author
+copyright = u'2013, ' + author
 
 master_doc = 'index'
 #default_role = 'obj'

@@ -223,13 +223,26 @@ class AtomData(object):
     Parameters
     ----------
 
-    basic_atom_data: ~astropy.table.Table
+    basic_atom_data : `~astropy.table.Table`
         containing the basic atom data: z, symbol, and mass
 
-    ionization_data: ~astropy.table.Table
+    ionization_data : ~astropy.table.Table
         containing the ionization data: z, ion, and ionization energy
         ::important to note here is that ion describes the final ion state
             e.g. H I - H II is described with ion=2
+
+    levels_data : ~astropy.table.Table
+        containing the levels data: z, ion, level_number, energy, g
+
+    lines_data : ~astropy.table.Table
+        containing the lines data: wavelength, z, ion, levels_number_lower,
+        levels_number_upper, f_lu, f_ul
+
+    macro_atom_data : tuple of ~astropy.table.Table
+        default ~None, a tuple of the macro-atom data and macro-atom references
+
+    zeta_data : ~dict of interpolation objects
+        default ~None
 
     """
 
@@ -302,16 +315,39 @@ class AtomData(object):
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
 
 
-    def prepare_atom_data(self, configuration_object):
-        self.selected_atoms = configuration_object.selected_atoms
-        self.selected_atomic_numbers = [self.symbol2atomic_number[item] for item in configuration_object.selected_atoms]
+    def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None):
+        """
+        Prepares the atom data to set the lines, levels and if requested macro atom data.
+        This function mainly cuts the `levels_data` and `lines_data` by discarding any data that is not needed (any data
+        for atoms that are not needed
+
+        Parameters
+        ----------
+
+        selected_atoms : `~set`
+            set of selected atom numbers, e.g. set([14, 26])
+
+        line_interaction_type : `~str`
+            can be 'scatter', 'downbranch' or 'macroatom'
+
+        max_ion_number : `~int`
+            maximum ion number to be included in the calculation
+
+        """
+
+        self.selected_atomic_numbers = selected_atomic_numbers
 
         self.levels = self.levels_data[self.levels_data['atomic_number'].isin(self.selected_atomic_numbers)]
+        if max_ion_number is not None:
+            self.levels = self.levels[self.levels['ion_number'] <= max_ion_number]
         self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
         self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
         #cutting levels_lines
         self.lines = self.lines_data[self.lines_data['atomic_number'].isin(self.selected_atomic_numbers)]
+        if max_ion_number is not None:
+            self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
+
         self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=pd.Index(self.lines['line_id']))
 
         tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
@@ -322,21 +358,24 @@ class AtomData(object):
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
-        if self.has_macro_atom and not (configuration_object.line_interaction_type == 'scatter'):
+        if self.has_macro_atom and not (line_interaction_type == 'scatter'):
             self.macro_atom_data = self.macro_atom_data_all[
                                    self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)]
+            if max_ion_number is not None:
+                self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['ion_number'] <= max_ion_number]
             self.macro_atom_references = self.macro_atom_references_all[
                                          self.macro_atom_references_all['atomic_number'].isin(
                                              self.selected_atomic_numbers)]
-
-            if configuration_object.line_interaction_type == 'downbranch':
+            if max_ion_number is not None:
+                self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['ion_number'] <= max_ion_number]
+            if line_interaction_type == 'downbranch':
                 self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['transition_type'] == -1]
                 self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['count_down'] > 0]
-                self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']
+                self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']/2
                 self.macro_atom_references['block_references'] = np.hstack((0,
                                                                             np.cumsum(self.macro_atom_references[
                                                                                       'count_down'].values[:-1])))
-            elif configuration_object.line_interaction_type == 'macroatom':
+            elif line_interaction_type == 'macroatom':
                 self.macro_atom_references['block_references'] = np.hstack((0,
                                                                             np.cumsum(self.macro_atom_references[
                                                                                       'count_total'].values[:-1])))

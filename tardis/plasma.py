@@ -65,8 +65,8 @@ class BasePlasma(object):
     def __init__(self, abundances, atom_data, density_unit='g/cm^3', max_ion_number=None,
                  use_macro_atom=False):
         self.atom_data = atom_data
-        self.selected_atoms = self.atom_data.selected_atoms
-        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
+#        self.selected_atoms = self.atom_data.selected_atoms
+#        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
         self.abundances = abundances
 
 
