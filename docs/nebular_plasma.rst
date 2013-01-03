@@ -81,5 +81,8 @@ by using the calculated ion species number densities:
 This concludes the calculation of the nebular plasma. In the code, the next step is calculating the :math:`\tau_\textrm{Sobolev}` using
 the quantities calculated here.
 
-Here's an example::
-    l;dskfslkdfjsldkfjs
+
+.. plot:: plasma_plots/nebular_ionization_balance_w.5.py
+    :include-source:
+
+.. plot:: plasma_plots/nebular_ionization_balance_w1.py

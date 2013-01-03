@@ -9,10 +9,17 @@ as a base for all BasePlasma classes. The next more complex class is `LTEPlasma
 Local Thermal Equilibrium conditions (LTE). The `NebularPlasma`-class inherits from `LTEPlasma` and uses a more complex
 description of the BasePlasma (for details see `Nebular Plasma`_).
 
-.. important::
+.. note::
     In this documentation we use the indices :math:`i, j, k` to mean atomic number, ion number and level number respectively.
 
+All plasma calculations follow the same basic procedure in calculating the plasma state.
+This is always accomplished with the function ``update_radiationfield``. This block diagram shows the basic procedure
 
+.. blockdiag::
+
+    blockdiag update_radfield{
+      calculate_partition_functions -> "calculate ge" -> calculate_saha -> "iterate over calculate_ionization_balance" -> calculate_level_populations;
+    }
 
 Base Plasma
 -----------
@@ -43,6 +50,8 @@ Here's an example how to instantiate a simple base plasma::
                26                0.5  539183641.472
 
 
+
+
 .. include:: lte_plasma.rst
 
 .. include:: nebular_plasma.rst
@@ -71,4 +80,5 @@ This function calculates the Sobolev optical depth :math:`\tau_\textrm{Sobolev}`
 
 .. include:: macroatom.rst
 
+.. automodapi:: tardis.plasma
 
