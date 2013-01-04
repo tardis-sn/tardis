@@ -65,6 +65,8 @@ class SimplePacketSource:
         self.packet_energies = np.ones(number_of_packets) / number_of_packets
 
 
+
+
     def random_blackbody_nu(self, T, number_of_packets):
         """
         Creating the random nus for the energy packets

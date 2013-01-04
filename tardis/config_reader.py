@@ -90,7 +90,7 @@ class TardisConfiguration(object):
         self.densities = None
         self.abundances = None
         self.initial_t_rad = 10000
-        self.t_rad_inner = 10000.0 #TODO calculate
+        self.t_inner = 10000.0 #TODO calculate
         self.ws = None
         self.no_of_shells = None
 
