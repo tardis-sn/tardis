@@ -7,6 +7,9 @@ This is the documentation for the TARDIS package.
    :maxdepth: 2
 
    introduction
+   installation
+   configuration
+   running
    atomic
    plasma
    montecarlo

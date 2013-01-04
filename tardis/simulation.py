@@ -1,4 +1,3 @@
-import photon
 import constants
 import numpy as np
 import montecarlo_multizone
@@ -9,7 +8,7 @@ import logging
 import synspec
 import texttable
 import pdb
-
+import pandas as pd
 
 
 # Adding logging support
@@ -17,9 +16,24 @@ logger = logging.getLogger(__name__)
 
 
 
-def run_radial1d(radial1d_model, packet_source):
-    return montecarlo_multizone.montecarlo_radial1d(radial1d_model, packet_source)
+def run_radial1d(radial1d_model):
+    for i in range(9):
+        out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model)
+        updated_t_rads = radial1d_model.calculate_updated_trads(nubar_estimators, j_estimators)
+        updated_ws = radial1d_model.calculate_updated_ws(j_estimators, updated_t_rads)
 
+
+        new_trads = 0.5 * (radial1d_model.t_rads + updated_t_rads)
+        new_ws = 0.5 * (radial1d_model.ws + updated_ws)
+
+        print pd.DataFrame({'t_rads': radial1d_model.t_rads, 'updated_t_rads':updated_t_rads, 'new_trads':new_trads,
+                            'ws': radial1d_model.ws, 'updated_ws':updated_ws, 'new_ws':new_ws})
+
+
+new_t_inner = (config_dict['luminosity_outer'] / (
+    emitted_energy_fraction * constants.sigma_sb * surface_inner )) ** .25
+
+        radial1d_model.update_plasmas(new_trads, new_ws)
 
 
 def run_multizone(config_dict, atomic_model):
