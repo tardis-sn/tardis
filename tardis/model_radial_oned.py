@@ -83,7 +83,6 @@ class Radial1DModel(object):
         self.packet_src = packet_source.SimplePacketSource.from_wavelength(configuration_object.spectrum_start,
             configuration_object.spectrum_end)
 
-        self.packet_src.create_packets(configuration_object.spectrum_packets, configuration_object.t_rad_inner)
 
         self.no_of_shells = configuration_object.no_of_shells
 
@@ -109,10 +108,17 @@ class Radial1DModel(object):
 
         self.time_of_simulation = configuration_object.time_of_simulation
 
+        self.t_inner = configuration_object.t_inner
+
+        self.luminosity_outer = configuration_object.luminosity_outer
+
+        self.no_of_packets = configuration_object.calibration_packets
+
+        self.create_packets()
 
 
 
-        #Selecting plasma class
+    #Selecting plasma class
         self.plasma_type = configuration_object.plasma_type
         if self.plasma_type == 'lte':
             self.plasma_class = plasma.LTEPlasma
@@ -128,16 +134,6 @@ class Radial1DModel(object):
             raise ValueError("Currently this model only supports 'lte' or 'nebular'")
 
 
-        #TODO shift this to tardis configuration
-        if configuration_object.line_interaction_type == 'scatter':
-            self.line_interaction_id = 0
-        elif configuration_object.line_interaction_type == 'downbranch':
-            self.line_interaction_id = 1
-        elif configuration_object.line_interaction_type == 'macroatom':
-            self.line_interaction_id = 2
-        else:
-            raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
-
 
         #setting atom data and checking for consistency
         self.atom_data = atom_data
@@ -148,13 +144,12 @@ class Radial1DModel(object):
         for abundance, density in zip(self.abundances, self.densities_middle):
             self.number_densities.append(calculate_atom_number_densities(self.atom_data, abundance, density))
 
-        selected_atomic_numbers = self.number_densities[0].index.values.astype(int)
-        #final preparation for atom_data object - currently building data
-        atom_data.prepare_atom_data(selected_atomic_numbers,
-            line_interaction_type=configuration_object.line_interaction_type, max_ion_number=None)
+        self.selected_atomic_numbers = self.number_densities[0].index.values.astype(int)
+
+        self.line_interaction_type = configuration_object.line_interaction_type
 
 
-        #setting dilution factors
+    #setting dilution factors
         if configuration_object.ws is None:
             self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
         else:
@@ -175,6 +170,33 @@ class Radial1DModel(object):
     @property
     def electron_density(self):
         return np.array([plasma.electron_density for plasma in self.plasmas])
+
+    @property
+    def line_interaction_type(self):
+        return self._line_interaction_type
+
+    @line_interaction_type.setter
+    def line_interaction_type(self, value):
+        if value == 'scatter':
+            self.line_interaction_id = 0
+        elif value == 'downbranch':
+            self.line_interaction_id = 1
+        elif value == 'macroatom':
+            self.line_interaction_id = 2
+        else:
+            raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
+
+        self._line_interaction_type = value
+        #final preparation for atom_data object - currently building data
+        self.atom_data.prepare_atom_data(self.selected_atomic_numbers,
+            line_interaction_type=self.line_interaction_type, max_ion_number=None)
+
+
+
+    def create_packets(self):
+        #Energy emitted from the inner boundary
+        self.emitted_inner_energy = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0]**2 * (self.t_inner)**4
+        self.packet_src.create_packets(self.no_of_packets, self.t_inner)
 
     def initialize_plasmas(self):
         self.plasmas = []
