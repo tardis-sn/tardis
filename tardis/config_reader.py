@@ -94,6 +94,8 @@ class TardisConfiguration(object):
         self.ws = None
         self.no_of_shells = None
 
+        self._luminosity_outer = None
+        self.time_of_simulation = None
 
     def set_velocities(self, velocities=None, v_inner=None, v_outer=None, v_sampling='linear'):
         """
@@ -130,6 +132,14 @@ class TardisConfiguration(object):
         if isinstance(abundances, dict):
             self.abundances = [abundances] * self.no_of_shells
 
+    @property
+    def luminosity_outer(self):
+        return self._luminosity_outer
+
+    @luminosity_outer.setter
+    def luminosity_outer(self, value):
+        self._luminosity_outer = value
+        self.time_of_simulation = 1 / self.luminosity_outer
 
     def set_densities(self, densities):
         """
@@ -179,9 +189,9 @@ def parse_general_section(config_dict, general_config):
     #Reading luminosity, special unit log_l_sun is luminosity given in log10 of solar units
     luminosity_value, luminosity_unit = config_dict.pop('luminosity').split()
     if luminosity_unit == 'log_lsun':
-        general_config.luminosity = 10 ** (float(luminosity_value) + np.log10(constants.cgs.L_sun.value))
+        general_config.luminosity_outer = 10 ** (float(luminosity_value) + np.log10(constants.cgs.L_sun.value))
     else:
-        general_config.luminosity = units.Quantity(float(luminosity_value), luminosity_unit)
+        general_config.luminosity_outer = units.Quantity(float(luminosity_value), luminosity_unit).to('erg/s').value
 
     #reading number of shells
     no_of_shells = int(config_dict.pop('zones'))

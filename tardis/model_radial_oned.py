@@ -5,8 +5,17 @@ import plasma, atomic, packet_source
 import logging
 import config_reader
 import pandas as pd
+from astropy import constants
 
 logger = logging.getLogger(__name__)
+
+c = constants.cgs.c.value
+h = constants.cgs.h.value
+kb = constants.cgs.k_B.value
+
+trad_estimator_constant = 0.260944706 * h / kb # (pi**4 / 15)/ (24*zeta(5))
+
+w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
 
 
 class Radial1DModel(object):
@@ -69,9 +78,6 @@ class Radial1DModel(object):
         configuration_object.final_preparation()
 
 
-        #final preparation for atom_data object - currently building data
-        atom_data.prepare_atom_data(configuration_object)
-
         self.atom_data = atom_data
 
         self.packet_src = packet_source.SimplePacketSource.from_wavelength(configuration_object.spectrum_start,
@@ -100,6 +106,8 @@ class Radial1DModel(object):
         assert len(configuration_object.densities) == self.no_of_shells
 
         self.densities_middle = configuration_object.densities
+
+        self.time_of_simulation = configuration_object.time_of_simulation
 
 
 
@@ -140,6 +148,10 @@ class Radial1DModel(object):
         for abundance, density in zip(self.abundances, self.densities_middle):
             self.number_densities.append(calculate_atom_number_densities(self.atom_data, abundance, density))
 
+        selected_atomic_numbers = self.number_densities[0].index.values.astype(int)
+        #final preparation for atom_data object - currently building data
+        atom_data.prepare_atom_data(selected_atomic_numbers,
+            line_interaction_type=configuration_object.line_interaction_type, max_ion_number=None)
 
 
         #setting dilution factors
@@ -157,50 +169,41 @@ class Radial1DModel(object):
             assert len(configuration_object.initial_t_rad) == self.no_of_shells
             self.t_rads = np.array(configuration_object.initial_t_rad, dtype=np.float64)
 
-        self.initialize_plasmas(configuration_object.plasma_type)
+        self.initialize_plasmas()
 
 
     @property
     def electron_density(self):
         return np.array([plasma.electron_density for plasma in self.plasmas])
 
-
-    #    @property
-    #    def tau_sobolevs(self):
-    #        tau_sobolevs = []
-    #        for plasma in self.plasmas:
-    #            tau_sobolevs.append(plasma.lines_data[['nu', 'tau_sobolev']].values)
-    #        return tau_sobolevs
-
-    def initialize_plasmas(self, plasma_type):
+    def initialize_plasmas(self):
         self.plasmas = []
-        self.tau_sobolevs = []
+        self.tau_sobolevs = np.empty((self.no_of_shells, len(self.atom_data.lines)))
         self.line_list_nu = self.atom_data.lines['nu']
 
         if self.line_interaction_id in (1, 2):
             self.transition_probabilities = []
 
-        if plasma_type == 'lte':
-            for (current_abundances, current_t_rad) in\
-            zip(self.number_densities, self.t_rads):
+        if self.plasma_type == 'lte':
+            for i, (current_abundances, current_t_rad) in\
+            enumerate(zip(self.number_densities, self.t_rads)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data)
                 current_plasma.update_radiationfield(current_t_rad)
-                current_tau_sobolevs = current_plasma.calculate_tau_sobolev(self.time_explosion)
-                self.tau_sobolevs.append(current_tau_sobolevs)
+                self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
 
+                #TODO change this
                 if self.line_interaction_id in (1, 2):
-                    self.transition_probabilities.append(current_plasma.update_macro_atom(current_tau_sobolevs).values)
+                    self.transition_probabilities.append(current_plasma.update_macro_atom(self.tau_sobolevs[i]).values)
 
                 self.plasmas.append(current_plasma)
 
 
-        elif plasma_type == 'nebular':
-            for (current_abundances, current_t_rad, current_w) in\
-            zip(self.number_densities, self.t_rads, self.ws):
+        elif self.plasma_type == 'nebular':
+            for i, (current_abundances, current_t_rad, current_w) in\
+            enumerate(zip(self.number_densities, self.t_rads, self.ws)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data)
                 current_plasma.update_radiationfield(current_t_rad, current_w)
-                current_tau_sobolevs = current_plasma.calculate_tau_sobolev(self.time_explosion)
-                self.tau_sobolevs.append(current_tau_sobolevs)
+                self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
 
                 if self.line_interaction_id in (1, 2):
                     self.transition_probabilities.append(current_plasma.update_macro_atom(current_tau_sobolevs,
@@ -215,11 +218,27 @@ class Radial1DModel(object):
 
             # update plasmas
 
-    def update_plasmas(self):
-        self.tau_sobolevs = []
-        for current_plasma in self.plasmas:
-            current_plasma.update_radiationfield(20000)
-            self.tau_sobolevs.append(current_plasma.calculate_tau_sobolev(self.time_explosion))
+    def calculate_updated_trads(self, nubar_estimators, j_estimators):
+        return trad_estimator_constant * nubar_estimators / j_estimators
+
+    def calculate_updated_ws(self, j_estimators, updated_t_rads):
+        return w_estimator_constant * j_estimators / (self.time_of_simulation * (updated_t_rads ** 4) * self.volumes)
+
+
+    def update_plasmas(self, updated_t_rads, updated_ws=None):
+        if self.plasma_type == 'lte':
+            self.t_rads = updated_t_rads
+            for i, (current_plasma, new_trad) in enumerate(zip(self.plasmas, updated_t_rads, updated_ws)):
+                current_plasma.update_radiationfield(new_trad)
+                self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
+
+        elif self.plasma_type == 'nebular':
+            self.t_rads = updated_t_rads
+            self.ws = updated_ws
+            for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, updated_t_rads, updated_ws)):
+                current_plasma.update_radiationfield(new_trad, new_ws)
+                self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
+
 
 
 def calculate_atom_number_densities(atom_data, abundances, density):

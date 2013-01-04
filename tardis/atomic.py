@@ -348,6 +348,8 @@ class AtomData(object):
         if max_ion_number is not None:
             self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
 
+        self.lines.sort('wavelength', inplace=True)
+
         self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=pd.Index(self.lines['line_id']))
 
         tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
@@ -371,7 +373,7 @@ class AtomData(object):
             if line_interaction_type == 'downbranch':
                 self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['transition_type'] == -1]
                 self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['count_down'] > 0]
-                self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']/2
+                self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']
                 self.macro_atom_references['block_references'] = np.hstack((0,
                                                                             np.cumsum(self.macro_atom_references[
                                                                                       'count_down'].values[:-1])))
@@ -393,9 +395,8 @@ class AtomData(object):
                                                    tmp_lines_upper2level_idx].values
 
             tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([self.macro_atom_data['atomic_number'],
-                                                                         self.macro_atom_data['ion_number'],
-                                                                         self.macro_atom_data[
-                                                                         'destination_level_number']])
+                                                                     self.macro_atom_data['ion_number'],
+                                                                     self.macro_atom_data['destination_level_number']])
 
             self.macro_atom_data['destination_level_idx'] = self.macro_atom_references['references_idx'].ix[
                                                             tmp_macro_destination_level_idx].values

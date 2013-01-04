@@ -1,4 +1,4 @@
 Configuration Files
 ===================
 
-lks;dlfksdlfkjdslkfjdslkjflsdkjfdslkjfldskjfdslkjflkj.
+.. literalinclude:: example_configs/example_configuration.ini

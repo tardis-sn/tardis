@@ -7,6 +7,8 @@
 import numpy as np
 import logging
 
+from astropy import constants
+
 cimport numpy as np
 np.import_array()
 
@@ -59,7 +61,7 @@ rk_seed(250819801106, &mt_state)
 
 #constants
 cdef float_type_t miss_distance = 1e99
-cdef float_type_t c = 2.99792458e10 # cm/s
+cdef float_type_t c = constants.cgs.c.value # cm/s
 cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
 cdef float_type_t sigma_thomson = 6.652486e-25 #cm^(-2)
@@ -684,6 +686,8 @@ def montecarlo_radial1d(model):
             output_energies[i] = current_energy
 
             #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
     return output_nus, output_energies, js, nubars
 
 
