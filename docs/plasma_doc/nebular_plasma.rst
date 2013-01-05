@@ -82,7 +82,7 @@ This concludes the calculation of the nebular plasma. In the code, the next step
 the quantities calculated here.
 
 
-.. plot:: plasma_plots/nebular_ionization_balance_w.5.py
+.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance_w.5.py
     :include-source:
 
-.. plot:: plasma_plots/nebular_ionization_balance_w1.py
+.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance_w1.py
