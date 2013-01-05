@@ -15,6 +15,21 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
+def run_single_radial1d(radial1d_model):
+    """
+    Run a single 1D radial simulation
+
+    Parameters
+    ----------
+
+    radial1d_model : `~tardis.model_radial_oned.Radial1DModel`
+
+
+    """
+
+    out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model)
+
+
 
 def run_radial1d(radial1d_model):
     for i in range(9):

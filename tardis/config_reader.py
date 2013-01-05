@@ -1,5 +1,6 @@
-#Module to read the rather complex config data
-#Currently the configuration file is documented in tardis/data/example_configuration.ini
+# Module to read the rather complex config data
+# Currently the configuration file is documented in
+# tardis/data/example_configuration.ini
 
 from astropy import constants, units
 from ConfigParser import ConfigParser
@@ -12,6 +13,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+
 
 def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.9999584, density_coefficient=3e29):
     """
@@ -68,7 +70,8 @@ def read_lucy99_abundances(fname=None):
 
     lucy99 = h5py.File(fname)['lucy99']
 
-    logger.info("Choosing uniform abundance set 'lucy99':\n %s", pd.DataFrame(lucy99.__array__()))
+    logger.info("Choosing uniform abundance set 'lucy99':\n %s",
+                pd.DataFrame(lucy99.__array__()))
 
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
@@ -80,22 +83,40 @@ def read_config(fname):
     general_dict = dict(config_object.items('general'))
     parse_general_section(general_dict, tardis_configuration)
     abundance_dict = dict(config_object.items('abundances'))
-    tardis_configuration.set_abundances(parse_abundance_section(abundance_dict))
+    tardis_configuration.set_abundances(
+        parse_abundance_section(abundance_dict))
     return tardis_configuration
 
 
 class TardisConfiguration(object):
+    """
+    Tardis configuration class
+    """
+
     def __init__(self):
         self.velocities = None
         self.densities = None
         self.abundances = None
         self.initial_t_rad = 10000
-        self.t_inner = 10000.0 #TODO calculate
+        self.t_inner = 10000.0  # TODO calculate
         self.ws = None
         self.no_of_shells = None
 
         self._luminosity_outer = None
         self.time_of_simulation = None
+
+    @property
+    def number_of_packets(self):
+        """
+
+        returns the right number of packets with single run and will keep track of iterations with
+        multirun
+
+        """
+        if self.simulation_type == 'single_run':
+            return self.single_run_packets
+        else:
+            raise ValueError('Currently only single_run supported')
 
     def set_velocities(self, velocities=None, v_inner=None, v_outer=None, v_sampling='linear'):
         """
@@ -112,10 +133,10 @@ class TardisConfiguration(object):
             raise ValueError('Can not set abundances before number of shells have been set')
 
         if v_sampling == 'linear':
-            self.velocities = np.linspace(v_inner, v_outer, self.no_of_shells + 1)
+            self.velocities = np.linspace(
+                v_inner, v_outer, self.no_of_shells + 1)
         else:
             raise ValueError('Currently only v_sampling = linear is possible')
-
 
     def set_abundances(self, abundances):
         """
@@ -162,11 +183,13 @@ class TardisConfiguration(object):
         for shell_abundance in self.abundances:
             self.selected_atoms.update(shell_abundance.keys())
 
-            #self.required_atomic_number = set([atom_data.symbol2atomic_number[item] for item in required_atoms])
+            # self.required_atomic_number =
+            # set([atom_data.symbol2atomic_number[item] for item in
+            # required_atoms])
 
 
 def parse_abundance_section(abundance_dict):
-    
+
     abundance_set = abundance_dict.get('abundance_set', None)
 
     if abundance_set == 'lucy99':
@@ -183,59 +206,68 @@ def parse_general_section(config_dict, general_config):
     if model_type != 'radial1d':
         raise ValueError("Only supporting 'radial1d' at the moment")
 
-    #reading time since explosion
-    time_explosion_value, time_explosion_unit = config_dict.pop('time_explosion').split()
-    general_config.time_explosion = units.Quantity(float(time_explosion_value), time_explosion_unit).to('s').value
+    # reading time since explosion
+    time_explosion_value, time_explosion_unit = config_dict.pop(
+        'time_explosion').split()
+    general_config.time_explosion = units.Quantity(
+        float(time_explosion_value), time_explosion_unit).to('s').value
 
-    #Reading luminosity, special unit log_l_sun is luminosity given in log10 of solar units
+    # Reading luminosity, special unit log_l_sun is luminosity given in log10
+    # of solar units
     luminosity_value, luminosity_unit = config_dict.pop('luminosity').split()
     if luminosity_unit == 'log_lsun':
-        general_config.luminosity_outer = 10 ** (float(luminosity_value) + np.log10(constants.cgs.L_sun.value))
+        general_config.luminosity_outer = 10 ** (
+            float(luminosity_value) + np.log10(constants.cgs.L_sun.value))
     else:
-        general_config.luminosity_outer = units.Quantity(float(luminosity_value), luminosity_unit).to('erg/s').value
+        general_config.luminosity_outer = units.Quantity(
+            float(luminosity_value), luminosity_unit).to('erg/s').value
 
-    #reading number of shells
+    # reading number of shells
     no_of_shells = int(config_dict.pop('zones'))
 
     general_config.no_of_shells = no_of_shells
 
-    #reading velocities
-    #set of velocities currently supported are v_inner, v_outer and v_sampling linear
+    # reading velocities
+    # set of velocities currently supported are v_inner, v_outer and
+    # v_sampling linear
 
     v_inner_value, v_inner_unit = config_dict.pop('v_inner').split()
-    v_inner = units.Quantity(float(v_inner_value), v_inner_unit).to('cm/s').value
+    v_inner = units.Quantity(
+        float(v_inner_value), v_inner_unit).to('cm/s').value
 
     v_outer_value, v_outer_unit = config_dict.pop('v_outer').split()
-    v_outer = units.Quantity(float(v_outer_value), v_outer_unit).to('cm/s').value
+    v_outer = units.Quantity(
+        float(v_outer_value), v_outer_unit).to('cm/s').value
 
     v_sampling = config_dict.pop('v_sampling')
 
-    general_config.set_velocities(v_inner=v_inner, v_outer=v_outer, v_sampling=v_sampling)
+    general_config.set_velocities(
+        v_inner=v_inner, v_outer=v_outer, v_sampling=v_sampling)
 
     density_set = config_dict.pop('density_set')
 
     if density_set == 'w7_branch85':
-        general_config.densities = calculate_w7_branch85_densities(general_config.velocities,
+        general_config.densities = calculate_w7_branch85_densities(
+            general_config.velocities,
             general_config.time_explosion)
     else:
-        raise ValueError('Curently only density_set = w7_branch85 is supported')
+        raise ValueError(
+            'Curently only density_set = w7_branch85 is supported')
 
-
-    #reading plasma type
+    # reading plasma type
     general_config.plasma_type = config_dict.pop('plasma_type')
 
-
-    #reading initial t_rad
+    # reading initial t_rad
     if 'initial_t_rad' in config_dict:
         general_config.initial_t_rad = float(config_dict.pop('initial_t_rad'))
     else:
         logger.warn('No initial shell temperature specified (initial_t_rad) - using default 10000 K')
 
+    # reading line interaction type
+    general_config.line_interaction_type = config_dict.pop(
+        'line_interaction_type')
 
-    #reading line interaction type
-    general_config.line_interaction_type = config_dict.pop('line_interaction_type')
-
-    #reading number of packets and iterations
+    # reading number of packets and iterations
     if 'single_run_packets' in config_dict:
 
         if [item for item in ('spectrum_packets', 'calibration_packets') if item in config_dict]:
@@ -243,21 +275,28 @@ def parse_general_section(config_dict, general_config):
                                  '"single_run_packets" in config file')
 
         general_config.simulation_type = 'single_run'
-        general_config.spectrum_packets = int(float(config_dict.pop('single_run_packets')))
+        general_config.single_run_packets = int(
+            float(config_dict.pop('single_run_packets')))
     elif len([item for item in ('spectrum_packets', 'calibration_packets', 'iterations') if item in config_dict]) == 3:
-        general_config.calibration_packets = int(float(config_dict.pop('calibration_packets')))
-        general_config.spectrum_packets = int(float(config_dict.pop('spectrum_packets')))
+        general_config.calibration_packets = int(
+            float(config_dict.pop('calibration_packets')))
+        general_config.spectrum_packets = int(
+            float(config_dict.pop('spectrum_packets')))
         general_config.iterations = int(float(config_dict.pop('iterations')))
     else:
         raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or'
                          ' "single_run_packets" in config file')
 
-    #TODO fix quantity spectral in astropy
+    # TODO fix quantity spectral in astropy
 
-    spectrum_start_value, spectrum_end_unit = config_dict.pop('spectrum_start').split()
-    general_config.spectrum_start = units.Quantity(float(spectrum_start_value), spectrum_end_unit).value
-    spectrum_end_value, spectrum_end_unit = config_dict.pop('spectrum_end').split()
-    general_config.spectrum_end = units.Quantity(float(spectrum_end_value), spectrum_end_unit).value
+    spectrum_start_value, spectrum_end_unit = config_dict.pop(
+        'spectrum_start').split()
+    general_config.spectrum_start = units.Quantity(
+        float(spectrum_start_value), spectrum_end_unit).value
+    spectrum_end_value, spectrum_end_unit = config_dict.pop(
+        'spectrum_end').split()
+    general_config.spectrum_end = units.Quantity(
+        float(spectrum_end_value), spectrum_end_unit).value
 
     if config_dict != {}:
         logger.warn('Not all config options parsed - ignored %s' % config_dict)
