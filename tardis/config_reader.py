@@ -166,6 +166,7 @@ class TardisConfiguration(object):
 
 
 def parse_abundance_section(abundance_dict):
+    
     abundance_set = abundance_dict.get('abundance_set', None)
 
     if abundance_set == 'lucy99':
@@ -235,10 +236,21 @@ def parse_general_section(config_dict, general_config):
     general_config.line_interaction_type = config_dict.pop('line_interaction_type')
 
     #reading number of packets and iterations
-    general_config.calibration_packets = int(float(config_dict.pop('calibration_packets')))
-    general_config.spectrum_packets = int(float(config_dict.pop('spectrum_packets')))
-    general_config.iterations = int(float(config_dict.pop('iterations')))
+    if 'single_run_packets' in config_dict:
 
+        if [item for item in ('spectrum_packets', 'calibration_packets') if item in config_dict]:
+                raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or '
+                                 '"single_run_packets" in config file')
+
+        general_config.simulation_type = 'single_run'
+        general_config.spectrum_packets = int(float(config_dict.pop('single_run_packets')))
+    elif len([item for item in ('spectrum_packets', 'calibration_packets', 'iterations') if item in config_dict]) == 3:
+        general_config.calibration_packets = int(float(config_dict.pop('calibration_packets')))
+        general_config.spectrum_packets = int(float(config_dict.pop('spectrum_packets')))
+        general_config.iterations = int(float(config_dict.pop('iterations')))
+    else:
+        raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or'
+                         ' "single_run_packets" in config file')
 
     #TODO fix quantity spectral in astropy
 
