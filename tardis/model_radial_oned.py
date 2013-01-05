@@ -228,7 +228,7 @@ class Radial1DModel(object):
                 self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
 
                 if self.line_interaction_id in (1, 2):
-                    self.transition_probabilities.append(current_plasma.update_macro_atom(current_tau_sobolevs,
+                    self.transition_probabilities.append(current_plasma.update_macro_atom(self.tau_sobolevs[i],
                         j_nu_factor=current_w).values)
 
                 self.plasmas.append(current_plasma)
