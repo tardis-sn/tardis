@@ -11,7 +11,7 @@ This is the documentation for the TARDIS package.
    configuration
    running
    atomic
-   plasma
+   plasma_doc/plasma
    montecarlo
    glossary
    zreferences

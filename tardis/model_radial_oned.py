@@ -77,6 +77,7 @@ class Radial1DModel(object):
         #final preparation for configuration object
         configuration_object.final_preparation()
 
+        self.configuration_object = configuration_object
 
         self.atom_data = atom_data
 
@@ -112,7 +113,7 @@ class Radial1DModel(object):
 
         self.luminosity_outer = configuration_object.luminosity_outer
 
-        self.no_of_packets = configuration_object.calibration_packets
+        self.no_of_packets = configuration_object.number_of_packets
 
         self.create_packets()
 
