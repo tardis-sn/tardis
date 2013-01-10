@@ -352,6 +352,9 @@ def montecarlo_radial1d(model):
     cdef int_type_t recently_crossed_boundary = 0
     cdef int i = 0
 
+    line_id_in = []
+    line_id_out = []
+
     for i in range(no_of_packets):
         if i % (no_of_packets / 5) == 0:
         #if i % 100 == 0:
@@ -634,6 +637,9 @@ def montecarlo_radial1d(model):
                             macro_block_references,
                             current_shell_id)
 
+                    line_id_in.append(current_line_id)
+                    line_id_out.append(emission_line_id)
+
                     current_nu = line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = line_list_nu[emission_line_id]
                     current_line_id = emission_line_id + 1
@@ -688,7 +694,7 @@ def montecarlo_radial1d(model):
             #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-    return output_nus, output_energies, js, nubars
+    return output_nus, output_energies, js, nubars, line_id_in, line_id_out
 
 
 
