@@ -92,7 +92,7 @@ def read_lucy99_abundances(fname=None):
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
 
-def read_config(fname):
+def read_config(fname, atomic_data=None):
     config_object = ConfigParser()
     config_object.read(fname)
     tardis_configuration = TardisConfiguration()
@@ -100,7 +100,7 @@ def read_config(fname):
     parse_general_section(general_dict, tardis_configuration)
     abundance_dict = dict(config_object.items('abundances'))
     tardis_configuration.set_abundances(
-        parse_abundance_section(abundance_dict))
+        parse_abundance_section(abundance_dict, atomic_data))
     return tardis_configuration
 
 
