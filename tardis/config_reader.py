@@ -41,6 +41,22 @@ def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.999958
     return densities[1:]
 
 
+def calculate_exponentail_densities(velocities, velocity_0, rho_0, exponent):
+    """
+
+    :param velocities: Array like list of velocities
+    :param velocity_0: Velocity at the inner boundary
+    :param rho_0: density at velocity_0
+    :param exponent: exponent used in the powerlaw
+    :return: Array like density structure
+
+    This function computes a descret exponential density profile.
+    math: \rho = \rho_0 \times \left( \frac{v_0}{v} \right)^n
+    """
+    densities = rho_0 * (velocity_0 / velocities) ** exponent
+    return  densities
+
+
 def read_w7_densities(fname=None):
     """
         Reading the density set for W7 in the density set h5 file
@@ -71,7 +87,7 @@ def read_lucy99_abundances(fname=None):
     lucy99 = h5py.File(fname)['lucy99']
 
     logger.info("Choosing uniform abundance set 'lucy99':\n %s",
-                pd.DataFrame(lucy99.__array__()))
+        pd.DataFrame(lucy99.__array__()))
 
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
@@ -104,6 +120,8 @@ class TardisConfiguration(object):
 
         self._luminosity_outer = None
         self.time_of_simulation = None
+        self.exponential_n_factor = 1
+        self.exponential_rho_0 = None
 
     @property
     def number_of_packets(self):
@@ -188,15 +206,38 @@ class TardisConfiguration(object):
             # required_atoms])
 
 
-def parse_abundance_section(abundance_dict):
+def parse_abundance_section(abundance_dict, atomic_data=None ):
+    if atomic_data is None: # fallback in case no atomic dataset is given!
+        atomic_data = {"H": "1"}
+        logger.warn('Using fallback because no atomic dataset is given')
 
     abundance_set = abundance_dict.get('abundance_set', None)
 
     if abundance_set == 'lucy99':
         abundances = read_lucy99_abundances()
     else:
-        raise ValueError('Currently only abundance_set=lucy99 supported')
+        #Added by Michi
+        abundance_set = dict()
+        print(atomic_data.values())
 
+        for current_name in atomic_data.values():
+            current_cont = abundance_dict.get(current_name.lower(), 0.)
+            #print(current_cont)
+            print(current_name)
+
+            abundance_set[current_name.lower()] = float(current_cont)
+        print(abundance_set.values())
+
+        abundances_sum = sum(abundance_set.values())
+        if abundances_sum < 1.:
+            abundance_set['he'] = 1 - abundances_sum
+        elif  abundances_sum > 1:
+            for current_name in abundance_set:
+                abundance_set[current_name] *= 1. / abundances_sum
+
+
+        #raise ValueError('Currently only abundance_set=lucy99 supported')
+        abundances = abundance_set
     return abundances
 
 
@@ -250,9 +291,19 @@ def parse_general_section(config_dict, general_config):
         general_config.densities = calculate_w7_branch85_densities(
             general_config.velocities,
             general_config.time_explosion)
+    elif density_set == 'exponential':
+        #TODO:Add here the function call which generates the exponential density profile. The easy way from tonight don't  work as expected!!
+        if ('exponential_n_factor' in config_dict):
+            try:
+                general_config.exponential_n_factor = float(config_dict.pop('exponential_n_factor'))
+            except ValueError:
+                logger.warn(
+                    'If density_set=exponential is set the exponential_n_factor(float) has to be specified. Using the default density_set=10! ')
+            general_config.densities = calculate_exponentail_densities(general_config.velocities, v_inner,
+                general_config.exponential_rho_0, general_config.exponential_n_factor)
     else:
         raise ValueError(
-            'Curently only density_set = w7_branch85 is supported')
+            'Curently only density_set = w7_branch85 or density_set = exponential are supported')
 
     # reading plasma type
     general_config.plasma_type = config_dict.pop('plasma_type')
@@ -269,10 +320,9 @@ def parse_general_section(config_dict, general_config):
 
     # reading number of packets and iterations
     if 'single_run_packets' in config_dict:
-
         if [item for item in ('spectrum_packets', 'calibration_packets') if item in config_dict]:
-                raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or '
-                                 '"single_run_packets" in config file')
+            raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or '
+                             '"single_run_packets" in config file')
 
         general_config.simulation_type = 'single_run'
         general_config.single_run_packets = int(
