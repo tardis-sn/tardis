@@ -54,7 +54,7 @@ def calculate_exponentail_densities(velocities, velocity_0, rho_0, exponent):
     math: \rho = \rho_0 \times \left( \frac{v_0}{v} \right)^n
     """
     densities = rho_0 * (velocity_0 / velocities) ** exponent
-    return  densities
+    return  densities[1:]
 
 
 def read_w7_densities(fname=None):
@@ -120,8 +120,9 @@ class TardisConfiguration(object):
 
         self._luminosity_outer = None
         self.time_of_simulation = None
-        self.exponential_n_factor = 1
-        self.exponential_rho_0 = None
+        self.exponential_n_factor = 10
+        self.exponential_rho_0 = 10e5
+        self.simulation_type = 'single_run'
 
     @property
     def number_of_packets(self):
@@ -208,8 +209,10 @@ class TardisConfiguration(object):
 
 def parse_abundance_section(abundance_dict, atomic_data=None ):
     if atomic_data is None: # fallback in case no atomic dataset is given!
-        atomic_data = {"H": "1"}
+        atomic_dict = {"H": "1"}
         logger.warn('Using fallback because no atomic dataset is given')
+    else:
+        atomic_dict = dict(atomic_data.symbol2atomic_number)
 
     abundance_set = abundance_dict.get('abundance_set', None)
 
@@ -218,25 +221,27 @@ def parse_abundance_section(abundance_dict, atomic_data=None ):
     else:
         #Added by Michi
         abundance_set = dict()
-        print(atomic_data.values())
+        print(atomic_dict.values())
 
-        for current_name in atomic_data.values():
+        for current_name in atomic_dict.keys():
             current_cont = abundance_dict.get(current_name.lower(), 0.)
             #print(current_cont)
             print(current_name)
+            if current_cont != 0:
+                abundance_set[current_name] = float(current_cont)
 
-            abundance_set[current_name.lower()] = float(current_cont)
         print(abundance_set.values())
 
         abundances_sum = sum(abundance_set.values())
         if abundances_sum < 1.:
-            abundance_set['he'] = 1 - abundances_sum
+            abundance_set['H'] = 1 - abundances_sum
         elif  abundances_sum > 1:
             for current_name in abundance_set:
                 abundance_set[current_name] *= 1. / abundances_sum
 
 
         #raise ValueError('Currently only abundance_set=lucy99 supported')
+
         abundances = abundance_set
     return abundances
 
@@ -293,14 +298,17 @@ def parse_general_section(config_dict, general_config):
             general_config.time_explosion)
     elif density_set == 'exponential':
         #TODO:Add here the function call which generates the exponential density profile. The easy way from tonight don't  work as expected!!
-        if ('exponential_n_factor' in config_dict):
+        if (('exponential_n_factor' in config_dict) & ('exponential_rho0' in config_dict)):
             try:
                 general_config.exponential_n_factor = float(config_dict.pop('exponential_n_factor'))
+                general_config.exponential_rho_0 = float(config_dict.pop('exponential_rho0'))
             except ValueError:
                 logger.warn(
-                    'If density_set=exponential is set the exponential_n_factor(float) has to be specified. Using the default density_set=10! ')
+                    'If density_set=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified. Using the default density_set=10! ')
+
             general_config.densities = calculate_exponentail_densities(general_config.velocities, v_inner,
                 general_config.exponential_rho_0, general_config.exponential_n_factor)
+            print(general_config.densities)
     else:
         raise ValueError(
             'Curently only density_set = w7_branch85 or density_set = exponential are supported')
