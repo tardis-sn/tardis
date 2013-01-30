@@ -61,6 +61,10 @@ class MultiZoneRadial(Model):
 
         return cls(velocities, densities, model_abundances, current_time)
 
+    @classmethod
+    def vstruct_exponential(cls, roh0, v_inner, abundances, current_time, no_of_shells=20, v_outer=30000 * 1e5 ):
+    #Legacy
+        densities = roh0 * (current_time / time_0) ** -3
 
     def __init__(self, velocities, densities, abundances, current_time, ws=None):
         """

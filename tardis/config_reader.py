@@ -5,6 +5,7 @@
 from astropy import constants, units
 from ConfigParser import ConfigParser
 import logging
+import SOAPpy.wstools.logging
 import numpy as np
 import os
 import h5py
@@ -84,7 +85,7 @@ def read_lucy99_abundances(fname=None):
     if fname is None:
         fname = os.path.join(data_dir, 'abundance_sets.h5')
 
-    lucy99 = h5py.File(fname)['lucy99']
+    lucy99 = h5py.File(fname, 'r')['lucy99']
 
     logger.info("Choosing uniform abundance set 'lucy99':\n %s",
         pd.DataFrame(lucy99.__array__()))
@@ -208,6 +209,18 @@ class TardisConfiguration(object):
 
 
 def parse_abundance_section(abundance_dict, atomic_data=None ):
+    """
+    Parse the abundance dictionary depending on the witch abundance_set is chosen. If "lucy99" is selected the code uses
+    the lucy99 abundances stored in abundance.hd5.In case that no abundance_set is given you can speechify the
+    abundances in the config like "Fe = 0.5". Note that if the sum is greater 1 they will be normalised. In the case <1
+    the difference to one will be added to "H".
+
+    :param abundance_dict: The abundances section of  the config dictionary. See Configparser!
+    :param atomic_data: The tardis standard atomic data set containing the symbol to atomic number data set. If instead
+    of the data set" "None" is given the code expects an abundance_set as hd5 like lucy99.
+    :return: abundances: A dictionary with entries  for all abundances which are not null. Currently the code only
+    supports homogeneous abundances over all shells; hence abundances dictionary did't contain any shell information.
+    """
     if atomic_data is None: # fallback in case no atomic dataset is given!
         atomic_dict = {"H": "1"}
         logger.warn('Using fallback because no atomic dataset is given')
