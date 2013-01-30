@@ -27,39 +27,33 @@ def run_single_radial1d(radial1d_model):
 
     """
 
-    out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model)
-
+    out_nu, out_energy, j_estimators, nubar_estimators = montecarlo_multizone.montecarlo_radial1d(radial1d_model)
 
 
 def run_radial1d(radial1d_model):
     for i in range(9):
-        out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model)
+        out_nu, out_energy, j_estimators, nubar_estimators = montecarlo_multizone.montecarlo_radial1d(radial1d_model)
         updated_t_rads = radial1d_model.calculate_updated_trads(nubar_estimators, j_estimators)
         updated_ws = radial1d_model.calculate_updated_ws(j_estimators, updated_t_rads)
-
 
         new_trads = 0.5 * (radial1d_model.t_rads + updated_t_rads)
         new_ws = 0.5 * (radial1d_model.ws + updated_ws)
 
-        print pd.DataFrame({'t_rads': radial1d_model.t_rads, 'updated_t_rads':updated_t_rads, 'new_trads':new_trads,
-                            'ws': radial1d_model.ws, 'updated_ws':updated_ws, 'new_ws':new_ws})[::5]
-
+        print pd.DataFrame({'t_rads': radial1d_model.t_rads, 'updated_t_rads': updated_t_rads, 'new_trads': new_trads,
+                            'ws': radial1d_model.ws, 'updated_ws': updated_ws, 'new_ws': new_ws})[::5]
 
         emitted_energy = radial1d_model.emitted_inner_energy * np.sum(out_energy[out_energy >= 0]) / 1.
 
-        print "Luminosity emitted = %.5e Luminosity requested = %.5e" % (emitted_energy, radial1d_model.luminosity_outer)
-        new_t_inner = radial1d_model.t_inner * (emitted_energy / radial1d_model.luminosity_outer)**-.25
+        print "Luminosity emitted = %.5e Luminosity requested = %.5e" % (
+        emitted_energy, radial1d_model.luminosity_outer)
+        new_t_inner = radial1d_model.t_inner * (emitted_energy / radial1d_model.luminosity_outer) ** -.25
         print "new t_inner = %.2f" % (new_t_inner,)
 
         radial1d_model.t_inner = 0.5 * (new_t_inner + radial1d_model.t_inner)
         radial1d_model.create_packets()
         radial1d_model.update_plasmas(new_trads, new_ws)
 
-    return synspec.get_lambda_spec(out_nu, out_energy, 500*1e-8, 20000*1e-8, samples=1000)
-
-
-
-
+    return synspec.get_lambda_spec(out_nu, out_energy, 500 * 1e-8, 20000 * 1e-8, samples=1000)
 
 
 def run_multizone(config_dict, atomic_model):
