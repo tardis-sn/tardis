@@ -118,7 +118,6 @@ class Radial1DModel(object):
         self.create_packets()
 
 
-
     #Selecting plasma class
         self.plasma_type = configuration_object.plasma_type
         if self.plasma_type == 'lte':
@@ -192,6 +191,15 @@ class Radial1DModel(object):
         self.atom_data.prepare_atom_data(self.selected_atomic_numbers,
             line_interaction_type=self.line_interaction_type, max_ion_number=None)
 
+    @property
+    def t_inner(self):
+        return self._t_inner
+
+    @t_inner.setter
+    def t_inner(self, value):
+        self._t_inner = value
+        self.luminosity_inner = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0]**2 * self._t_inner**4
+        self.time_of_simulation = 1 / self.luminosity_inner
 
 
     def create_packets(self):
