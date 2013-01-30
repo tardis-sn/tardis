@@ -32,7 +32,7 @@ def run_single_radial1d(radial1d_model):
 
 
 def run_radial1d(radial1d_model):
-    for i in range(50):
+    for i in range(9):
         out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model)
         updated_t_rads = radial1d_model.calculate_updated_trads(nubar_estimators, j_estimators)
         updated_ws = radial1d_model.calculate_updated_ws(j_estimators, updated_t_rads)
