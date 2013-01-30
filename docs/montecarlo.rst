@@ -15,4 +15,15 @@ line_interaction_id == 2: macro
 Radiationfield estimators
 -------------------------
 
-For W
+During the monte-carlo run wie collect two estimators for the radiation field:
+
+.. math::
+
+    J_\textrm{estimator} &= \sum{\epsilon l}
+    \bar{\nu}_\textrm{estimator} &=  \sum{\epsilon \nu l},
+
+where :math:`\epsilon, \nu` are comoving energy and comoving frequency of a packet respectively.
+
+
+
+These estimators help us t t
