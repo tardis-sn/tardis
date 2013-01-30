@@ -32,7 +32,7 @@ def run_single_radial1d(radial1d_model):
 
 
 def run_radial1d(radial1d_model):
-    for i in range(9):
+    for i in range(50):
         out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model)
         updated_t_rads = radial1d_model.calculate_updated_trads(nubar_estimators, j_estimators)
         updated_ws = radial1d_model.calculate_updated_ws(j_estimators, updated_t_rads)
@@ -46,8 +46,10 @@ def run_radial1d(radial1d_model):
 
 
         emitted_energy = radial1d_model.emitted_inner_energy * np.sum(out_energy[out_energy >= 0]) / 1.
+        absorbed_energy = radial1d_model.emitted_inner_energy * np.sum(out_energy[out_energy < 0]) / 1.
 
-        print "Luminosity emitted = %.5e Luminosity requested = %.5e" % (emitted_energy, radial1d_model.luminosity_outer)
+        print "Luminosity emitted = %.5e Luminosity absorbed = %.5e Luminosity requested = %.5e" % (emitted_energy,
+                                                                                    absorbed_energy,radial1d_model.luminosity_outer)
         new_t_inner = radial1d_model.t_inner * (emitted_energy / radial1d_model.luminosity_outer)**-.25
         print "new t_inner = %.2f" % (new_t_inner,)
 
