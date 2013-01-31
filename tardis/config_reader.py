@@ -179,7 +179,6 @@ class TardisConfiguration(object):
     @luminosity_outer.setter
     def luminosity_outer(self, value):
         self._luminosity_outer = value
-        self.time_of_simulation = 1 / self.luminosity_outer
 
     def set_densities(self, densities):
         """
