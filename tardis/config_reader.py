@@ -41,17 +41,33 @@ def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.999958
     return densities[1:]
 
 
-def calculate_exponentail_densities(velocities, velocity_0, rho_0, exponent):
+def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
     """
 
-    :param velocities: Array like list of velocities
-    :param velocity_0: Velocity at the inner boundary
-    :param rho_0: density at velocity_0
-    :param exponent: exponent used in the powerlaw
-    :return: Array like density structure
-
     This function computes a descret exponential density profile.
-    math: \rho = \rho_0 \times \left( \frac{v_0}{v} \right)^n
+    :math:`\\rho = \\rho_0 \\times \\left( \\frac{v_0}{v} \\right)^n`
+
+    Parameters
+    ----------
+
+    velocities : Array like list
+                velocities in km/s
+
+    velocity_0 : ~float
+        Velocity at the inner boundary
+
+
+    rho_0 : ~float
+        density at velocity_0
+
+    exponent : ~float
+        exponent used in the powerlaw
+
+    Returns
+    -------
+
+    Array like density structure
+
     """
     densities = rho_0 * (velocity_0 / velocities) ** exponent
     return  densities[1:]
@@ -206,7 +222,7 @@ class TardisConfiguration(object):
             # required_atoms])
 
 
-def parse_abundance_section(abundance_dict, atomic_data=None ):
+def parse_abundance_section(abundance_dict, atomic_data=None):
     if atomic_data is None: # fallback in case no atomic dataset is given!
         atomic_dict = {"H": "1"}
         logger.warn('Using fallback because no atomic dataset is given')
@@ -214,9 +230,10 @@ def parse_abundance_section(abundance_dict, atomic_data=None ):
         atomic_dict = dict(atomic_data.symbol2atomic_number)
 
     abundance_set = abundance_dict.get('abundance_set', None)
-
     if abundance_set == 'lucy99':
         abundances = read_lucy99_abundances()
+
+    
     else:
         #Added by Michi
         abundance_set = dict()
@@ -305,7 +322,7 @@ def parse_general_section(config_dict, general_config):
                 logger.warn(
                     'If density_set=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified. Using the default density_set=10! ')
 
-            general_config.densities = calculate_exponentail_densities(general_config.velocities, v_inner,
+            general_config.densities = calculate_exponential_densities(general_config.velocities, v_inner,
                 general_config.exponential_rho_0, general_config.exponential_n_factor)
             print(general_config.densities)
     else:
