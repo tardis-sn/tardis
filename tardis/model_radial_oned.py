@@ -81,8 +81,8 @@ class Radial1DModel(object):
 
         self.atom_data = atom_data
 
-        self.packet_src = packet_source.SimplePacketSource.from_wavelength(configuration_object.spectrum_start,
-            configuration_object.spectrum_end)
+        self.packet_src = packet_source.SimplePacketSource.from_wavelength(configuration_object.spectrum_start_wave,
+            configuration_object.spectrum_end_wave)
 
 
         self.no_of_shells = configuration_object.no_of_shells
@@ -117,6 +117,11 @@ class Radial1DModel(object):
 
         self.create_packets()
 
+        spec_nu = np.linspace(configuration_object.spectrum_start_nu, configuration_object.spectrum_end_nu, configuration_object.spectrum_bins+1)
+        
+        self.spec_bin_numin = spec_nu[:-1]
+        self.spec_bin_numax = spec_nu[1:]
+        self.spec_bin_flux = np.zeros_like(self.spec_bin_numin)
 
     #Selecting plasma class
         self.plasma_type = configuration_object.plasma_type
