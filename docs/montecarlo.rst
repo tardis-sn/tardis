@@ -39,7 +39,7 @@ where the evaluation comes from the mean value of
 
 .. math::
 
-    \bar{x} = \frac{ \int_0^{\infty} x^4 dx/ (\exp{x} - 1)}{int_0^{\infty} x^3 dx/ (\exp{x} - 1)} = \frac{24 \zeta(5)}{\pi^4/15}
+    \bar{x} = \frac{ \int_0^{\infty} x^4 dx/ (\exp{x} - 1)}{\int_0^{\infty} x^3 dx/ (\exp{x} - 1)} = \frac{24 \zeta(5)}{\pi^4/15}
 
 and so
 
@@ -48,7 +48,18 @@ and so
     T_{R} &= \frac{\pi^4}{15} \frac{1}{24 \zeta(5)} \frac{h}{k_{B}} \frac{\bar{\nu}_\textrm{estimator}}{J_\textrm{estimator}} \\
     &= 0.260945 \frac{h}{k_{B}} \frac{\bar{\nu}_\textrm{estimator}}{J_\textrm{estimator}}.
 
+With the radiation temperature known, we can then obtain our estimate for for the dilution factor. Our radiation field model in the 
+nebular approximation is
 
+..math::
 
+    J = W B(T_{R}) = W \frac{\sigma_{SB}}{\pi} T_{R}^4,
 
-These estimators help us t t
+i.e. a dilute blackbody. Therefore we use our value of the mean intensity derrived from the estimator (above) to obtain the 
+dilution factor
+
+..math::
+
+    W = \frac{\pi J}{\sigma_{SB} T_{R}^4} = \frac{1}{4\sigma_{SB} T_{R}^4\, \Delta t\, V} J_\textrm{estimator}.
+
+There endeth the lesson.
