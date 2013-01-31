@@ -233,7 +233,7 @@ def parse_abundance_section(abundance_dict, atomic_data=None):
     if abundance_set == 'lucy99':
         abundances = read_lucy99_abundances()
 
-    
+
     else:
         #Added by Michi
         abundance_set = dict()
