@@ -2,11 +2,9 @@ import constants
 import numpy as np
 import montecarlo_multizone
 import time
-import model
 import os
 import logging
 import synspec
-import texttable
 import pdb
 import pandas as pd
 
