@@ -13,7 +13,7 @@ c = constants.cgs.c.value
 h = constants.cgs.h.value
 kb = constants.cgs.k_B.value
 
-trad_estimator_constant = 0.260944706 * h / kb # (pi**4 / 15)/ (24*zeta(5))
+
 
 w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
 
@@ -249,11 +249,34 @@ class Radial1DModel(object):
 
             # update plasmas
 
-    def calculate_updated_trads(self, nubar_estimators, j_estimators):
-        return trad_estimator_constant * nubar_estimators / j_estimators
+    def calculate_updated_radiationfield(self, nubar_estimator, j_estimator):
+        """
+        Calculate an updated radiation field from the :math:`\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
+        calculated in the montecarlo simulation. The details of the calculation can be found in the documentation.
 
-    def calculate_updated_ws(self, j_estimators, updated_t_rads):
-        return w_estimator_constant * j_estimators / (self.time_of_simulation * (updated_t_rads ** 4) * self.volumes)
+        Parameters
+        ----------
+
+        nubar_estimator : ~np.ndarray (float)
+
+        j_estimator : ~np.ndarray (float)
+
+        Returns
+        -------
+
+        updated_t_rads : ~np.ndarray (float)
+
+        updated_ws : ~np.ndarray (float)
+
+        """
+        trad_estimator_constant = 0.260944706 * h / kb # (pi**4 / 15)/ (24*zeta(5))
+
+        updated_t_rads = trad_estimator_constant * nubar_estimator / j_estimator
+        updated_ws = j_estimator / (4 * constants.cgs.sigma_sb.value * updated_t_rads**4 * self.time_of_simulation * self.volumes)
+
+        return updated_t_rads, updated_ws
+
+
 
 
     def update_plasmas(self, updated_t_rads, updated_ws=None):

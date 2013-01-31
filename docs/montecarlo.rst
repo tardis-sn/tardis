@@ -51,14 +51,14 @@ and so
 With the radiation temperature known, we can then obtain our estimate for for the dilution factor. Our radiation field model in the 
 nebular approximation is
 
-..math::
+.. math::
 
     J = W B(T_{R}) = W \frac{\sigma_{SB}}{\pi} T_{R}^4,
 
 i.e. a dilute blackbody. Therefore we use our value of the mean intensity derrived from the estimator (above) to obtain the 
 dilution factor
 
-..math::
+.. math::
 
     W = \frac{\pi J}{\sigma_{SB} T_{R}^4} = \frac{1}{4\sigma_{SB} T_{R}^4\, \Delta t\, V} J_\textrm{estimator}.
 
