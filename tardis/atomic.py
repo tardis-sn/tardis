@@ -357,8 +357,16 @@ class AtomData(object):
 
         self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values
 
+        tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
+                                                               self.lines['level_number_upper']])
+
+        self.lines_upper2level_idx = self.levels_index.ix[tmp_lines_upper2level_idx].values
+
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
+
+
+        self.lines
 
         if self.has_macro_atom and not (line_interaction_type == 'scatter'):
             self.macro_atom_data = self.macro_atom_data_all[
