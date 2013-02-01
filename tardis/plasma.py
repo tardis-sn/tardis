@@ -114,11 +114,12 @@ class LTEPlasma(BasePlasma):
     """
 
     def __init__(self, abundances, atom_data, max_ion_number=None,
-                 use_macro_atom=False):
+                 use_macro_atom=False, nlte_species = []):
         BasePlasma.__init__(self, abundances, atom_data,
             max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
 
         self.ion_number_density = None
+        self.nlte_species = nlte_species
 
 
     def update_radiationfield(self, t_rad, n_e_convergence_threshold=0.05):
@@ -164,15 +165,13 @@ class LTEPlasma(BasePlasma):
         self.calculate_level_populations()
 
 
-    def calculate_partition_functions(self):
+    def calculate_partition_functions(self, nlte_initialize=False):
         """
         Calculate partition functions for the ions using the following formula, where
         :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
 
         .. math::
             Z_{i,j} = \\sum_{k=0}^{max(k)_{i,j}} g_k \\times e^{-E_k / (k_\\textrm{b} T)}
-
-
 
         Returns
         -------
@@ -184,11 +183,19 @@ class LTEPlasma(BasePlasma):
 
 
         def group_calculate_partition_function(group):
+            if not nlte_initialize and group.index[0][:2] in self.nlte_species:
+                logger.debug('Ignoring species %s as an NLTE species' % (group.index[0][:2], ))
+                print 'Ignoring species %s as an NLTE species' % (group.index[0][:2], )
+                return
+
+
             return np.sum(group['g'] *
                           np.exp(-group['energy'] * self.beta_rad))
 
         partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
             group_calculate_partition_function)
+
+
 
         if self.atom_data.atom_ion_index is None:
             self.atom_data.atom_ion_index = Series(np.arange(len(partition_functions)), partition_functions.index)
@@ -267,9 +274,6 @@ class LTEPlasma(BasePlasma):
 
         :return:
         """
-
-
-        #partition_functions = Z
 
         Z = self.partition_functions.values[self.atom_data.levels_index2atom_ion_index]
 
