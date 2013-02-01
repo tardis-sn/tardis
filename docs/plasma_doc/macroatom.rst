@@ -59,9 +59,9 @@ with :math:`\beta_\textrm{Sobolev} = \frac{1}{\tau_\textrm{Sobolev}}(1-e^{-\tau_
 using the Einstein coefficients
 
 .. math::
-    A_{\textrm{upper}\rightarrow\textrm{lower}} &= \frac{8 \nu^2 \pi^2 e^2}{m_e c}~
+    A_{\textrm{upper}\rightarrow\textrm{lower}} &= \frac{8 \nu^2 \pi^2 e^2}{m_e c^3}~
         \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}\\
-    A_{\textrm{upper}\rightarrow\textrm{lower}} &= \underbrace{\frac{4 \pi^2 e^2}{m_e c}}_{C_\textrm{Einstein}}~2 \nu^2
+    A_{\textrm{upper}\rightarrow\textrm{lower}} &= \underbrace{\frac{4 \pi^2 e^2}{m_e c}}_{C_\textrm{Einstein}}~ \frac{2\nu^2}{c^2}
             \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}\\
     B_{\textrm{lower}\rightarrow\textrm{upper}} &= \frac{4\pi^2 e^2}{m_e h\nu c}\,f_{\textrm{lower}\rightarrow\textrm{upper}}\\
     B_{\textrm{lower}\rightarrow\textrm{upper}} &= \underbrace{\frac{4 \pi^2 e^2}{m_e c}}_{C_\textrm{Einstein}}\frac{1}{h\nu} f_{\textrm{lower}\rightarrow\textrm{upper}}\\
@@ -73,7 +73,7 @@ we get
 
 .. math::
     {\cal R}_{\textrm{upper}\rightarrow\textrm{lower}} &=
-        C_\textrm{Einstein} 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}
+        C_\textrm{Einstein} \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}
         \beta_\textrm{Sobolev}n_\textrm{upper}\\
 
     {\cal R}_{\textrm{lower}\rightarrow\textrm{upper}} &=
@@ -84,9 +84,9 @@ we get
 This results in the transition probabilities:
 
 .. math::
-    p_\textrm{emission down}&= C_\textrm{Einstein} 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+    p_\textrm{emission down}&= C_\textrm{Einstein} \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
                                        \beta_\textrm{Sobolev}n_\textrm{i}\,(\epsilon_\textrm{i} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
-    p_\textrm{internal down}&= C_\textrm{Einstein} 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+    p_\textrm{internal down}&= C_\textrm{Einstein} \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
                                        \beta_\textrm{Sobolev}n_\textrm{i}\,\epsilon_\textrm{lower}/{\cal D}_{i}\\
     p_\textrm{internal up}&=C_\textrm{Einstein}\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}
                                         (n_\textrm{i}-\frac{g_\textrm{i}}{g_\textrm{upper}}n_\textrm{upper})
@@ -96,9 +96,9 @@ and as we will normalise the transition probabilities numerically later,  we can
  :math:`\frac{1}{{\cal D}_i}` and number densities.
 
 .. math::
-    p_\textrm{emission down}&= 2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+    p_\textrm{emission down}&= \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
                                        \beta_\textrm{Sobolev}\,(\epsilon_\textrm{i} - \epsilon_\textrm{lower})\\
-    p_\textrm{internal down}&=  2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+    p_\textrm{internal down}&=  \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
                                        \beta_\textrm{Sobolev}\,\epsilon_\textrm{lower}\\
     p_\textrm{internal up}&=\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}
                                         \underbrace{(1-\frac{g_\textrm{i}}{g_\textrm{upper}}\frac{n_\textrm{upper}}{n_i})}
@@ -112,10 +112,10 @@ There are two parts for each of the probabilities, one that is pre-computed by `
 and one that is computed during the plasma calculations:
 
 .. math::
-        p_\textrm{emission down}&= \underbrace{2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+        p_\textrm{emission down}&= \underbrace{\frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
                                            (\epsilon_\textrm{i} - \epsilon_\textrm{lower})}_\textrm{pre-computed}
                                            \,\beta_\textrm{Sobolev}\\
-        p_\textrm{internal down} &= \underbrace{2 \nu^2 \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+        p_\textrm{internal down} &= \underbrace{\frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
                                            \epsilon_\textrm{lower}}_\textrm{pre-computed}\,\beta_\textrm{Sobolev}\\
         p_\textrm{internal up} &= \underbrace{\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}}_\textrm{pre-computed}
                                                         \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{i}\\,

@@ -68,6 +68,7 @@ class BasePlasma(object):
 #        self.selected_atoms = self.atom_data.selected_atoms
 #        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
         self.abundances = abundances
+        self.initialize = True
 
 
     def validate_atom_data(self):
@@ -140,7 +141,7 @@ class LTEPlasma(BasePlasma):
        """
         BasePlasma.update_radiationfield(self, t_rad)
 
-        self.partition_functions = self.calculate_partition_functions()
+        self.calculate_partition_functions(initialize=self.initialize)
 
         self.ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
 
@@ -163,15 +164,23 @@ class LTEPlasma(BasePlasma):
         logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
 
         self.calculate_level_populations()
+        if self.initialize:
+            self.initialize = False
 
 
-    def calculate_partition_functions(self, nlte_initialize=False):
+    def calculate_partition_functions(self, initialize=False):
         """
         Calculate partition functions for the ions using the following formula, where
         :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
 
         .. math::
             Z_{i,j} = \\sum_{k=0}^{max(k)_{i,j}} g_k \\times e^{-E_k / (k_\\textrm{b} T)}
+
+
+
+        if self.initialize is True set the first time the partition functions are initialized.
+        This will set a self.partition_functions and initialize with LTE conditions.
+
 
         Returns
         -------
@@ -182,27 +191,40 @@ class LTEPlasma(BasePlasma):
         """
 
 
+
+
         def group_calculate_partition_function(group):
-            if not nlte_initialize and group.index[0][:2] in self.nlte_species:
-                logger.debug('Ignoring species %s as an NLTE species' % (group.index[0][:2], ))
-                print 'Ignoring species %s as an NLTE species' % (group.index[0][:2], )
-                return
-
-
             return np.sum(group['g'] *
                           np.exp(-group['energy'] * self.beta_rad))
 
-        partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
-            group_calculate_partition_function)
 
 
+        if self.initialize:
+            logger.debug('Initializing the partition functions and indices')
 
-        if self.atom_data.atom_ion_index is None:
-            self.atom_data.atom_ion_index = Series(np.arange(len(partition_functions)), partition_functions.index)
+            self.partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
+                group_calculate_partition_function)
+
+
+            self.atom_data.atom_ion_index = Series(np.arange(len(self.partition_functions)), self.partition_functions.index)
             self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
                                                          self.atom_data.levels.index.droplevel(2)].values
+        else:
+            if not hasattr(self, 'partition_functions'):
+                raise ValueError("Called calculate partition_functions without initializing at least once")
 
-        return partition_functions
+            for group, species in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
+                if species in self.nlte_species:
+                    logger.debug('Ignoring species %s as NLTE species' % (species, ))
+                    ##### MAKE MAGIC HAPPEN WITH calculating the partition functions differently
+
+                    continue
+
+                self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
+
+
+
+
 
     def calculate_saha(self):
         """
@@ -218,7 +240,6 @@ class LTEPlasma(BasePlasma):
             \\Phi_{i, j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}} e^{-\chi_{j\\rightarrow j+1}/k_\\textrm{B}T}
 
         """
-        phis = {}
 
         def calculate_phis(group):
             return group[1:] / group[:-1].values
@@ -263,7 +284,7 @@ class LTEPlasma(BasePlasma):
 
     def calculate_level_populations(self):
         """
-        Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
+        Calculate the level populations and storing in self.level_populations table.
         :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
         j is the ion number and k is the level number.
 
@@ -284,6 +305,16 @@ class LTEPlasma(BasePlasma):
         level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
 
         self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
+
+    def calculate_nlte_level_populations(self):
+        """
+        Calculating the NLTE level populations for specific ions
+
+        """
+
+
+
+
 
     def calculate_tau_sobolev(self, time_exp):
         """
