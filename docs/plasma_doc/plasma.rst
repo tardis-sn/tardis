@@ -92,6 +92,8 @@ This function calculates the Sobolev optical depth :math:`\tau_\textrm{Sobolev}`
 
 
 .. include:: macroatom.rst
+.. include:: nlte.rst
+
 
 .. automodapi:: tardis.plasma
 
