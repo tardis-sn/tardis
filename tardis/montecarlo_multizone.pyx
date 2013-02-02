@@ -42,6 +42,147 @@ cdef extern from "randomkit/randomkit.h":
     void rk_seed(unsigned long seed, rk_state *state)
     float_type_t rk_double(rk_state *state)
 
+cdef np.ndarray x
+cdef class StorageModel:
+    cdef np.ndarray packet_nus_a
+    cdef float_type_t* packet_nus
+    cdef np.ndarray packet_mus_a
+    cdef float_type_t* packet_mus
+    cdef np.ndarray packet_energies_a
+    cdef float_type_t* packet_energies
+    cdef int_type_t no_of_packets
+    cdef int_type_t no_of_shells
+    cdef np.ndarray r_inner_a
+    cdef float_type_t* r_inner
+    cdef np.ndarray r_outer_a
+    cdef float_type_t* r_outer
+    cdef np.ndarray v_inner_a
+    cdef float_type_t* v_inner
+    cdef float_type_t time_explosion
+    cdef float_type_t inverse_time_explosion
+    cdef np.ndarray electron_density_a
+    cdef float_type_t* electron_density
+    cdef np.ndarray inverse_electron_density_a
+    cdef float_type_t* inverse_electron_density
+    cdef np.ndarray line_list_nu_a
+    cdef float_type_t* line_list_nu
+    cdef np.ndarray line_lists_tau_sobolevs_a
+    cdef float_type_t* line_lists_tau_sobolevs
+    cdef int_type_t line_lists_tau_sobolevs_nd
+    cdef int_type_t no_of_lines
+    cdef int_type_t line_interaction_id
+    cdef np.ndarray transition_probabilities_a
+    cdef float_type_t* transition_probabilities
+    cdef int_type_t transition_probabilities_nd
+    cdef np.ndarray line2macro_level_upper_a
+    cdef int_type_t* line2macro_level_upper
+    cdef np.ndarray macro_block_references_a
+    cdef int_type_t* macro_block_references
+    cdef np.ndarray transition_type_a
+    cdef int_type_t* transition_type
+    cdef np.ndarray destination_level_id_a
+    cdef int_type_t* destination_level_id
+    cdef np.ndarray transition_line_id_a
+    cdef int_type_t* transition_line_id
+    cdef np.ndarray js_a
+    cdef float_type_t* js
+    cdef np.ndarray nubars_a
+    cdef float_type_t* nubars
+    
+    def __init__(self,model):
+        cdef np.ndarray[float_type_t, ndim=1] packet_nus = model.packet_src.packet_nus
+        self.packet_nus_a=packet_nus
+        self.packet_nus=<float_type_t*> self.packet_nus_a.data
+        #
+        cdef np.ndarray[float_type_t, ndim=1] packet_mus = model.packet_src.packet_mus
+        self.packet_mus_a=packet_mus
+        self.packet_mus=<float_type_t*> self.packet_mus_a.data
+        #
+        cdef np.ndarray[float_type_t, ndim=1] packet_energies = model.packet_src.packet_energies
+        self.packet_energies_a=packet_energies
+        self.packet_energies=<float_type_t*> self.packet_energies_a.data
+        #
+        self.no_of_packets = packet_nus.size
+        #@@@ Setup of Geometry @@@
+        self.no_of_shells = model.no_of_shells
+        cdef np.ndarray[float_type_t, ndim=1] r_inner = model.r_inner
+        self.r_inner_a =r_inner
+        self.r_inner=<float_type_t*> self.r_inner_a.data
+        #
+        cdef np.ndarray[float_type_t, ndim=1] r_outer = model.r_outer
+        self.r_outer_a =r_outer
+        self.r_outer=<float_type_t*> self.r_outer_a.data
+        #
+        cdef np.ndarray[float_type_t, ndim=1] v_inner = model.v_inner
+        self.v_inner_a =v_inner
+        self.v_inner=<float_type_t*> self.v_inner_a.data
+        #@@@ Setup the rest @@@
+        #times
+        self.time_explosion = model.time_explosion
+        self.inverse_time_explosion = 1 / model.time_explosion
+        #electron density
+        cdef np.ndarray[float_type_t, ndim=1] electron_density = model.electron_density
+        self.electron_density_a=electron_density
+        self.electron_density=<float_type_t*> self.electron_density_a.data
+        #
+        cdef np.ndarray[float_type_t, ndim=1] inverse_electron_density = 1 / electron_density
+        self.inverse_electron_density_a=inverse_electron_density
+        self.inverse_electron_density=<float_type_t*> self.inverse_electron_density_a.data
+        #Line lists
+        cdef np.ndarray[float_type_t, ndim=1] line_list_nu = model.line_list_nu.values
+        self.line_list_nu_a=line_list_nu
+        self.line_list_nu=<float_type_t*> self.line_list_nu_a.data
+        #
+        self.no_of_lines = line_list_nu.size
+        cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.tau_sobolevs
+        self.line_lists_tau_sobolevs_a=line_lists_tau_sobolevs
+        self.line_lists_tau_sobolevs = <float_type_t*>self.line_lists_tau_sobolevs_a.data
+        self.line_lists_tau_sobolevs_nd = self.line_lists_tau_sobolevs_a.shape[0]
+        
+        #
+        self.line_interaction_id = model.line_interaction_id
+        #macro atom & downbranch
+        cdef np.ndarray[float_type_t, ndim=2] transition_probabilities
+        cdef np.ndarray[int_type_t, ndim=1] line2macro_level_upper
+        cdef np.ndarray[int_type_t, ndim=1] macro_block_references
+        cdef np.ndarray[int_type_t, ndim=1] transition_type
+        cdef np.ndarray[int_type_t, ndim=1] destination_level_id
+        cdef np.ndarray[int_type_t, ndim=1] transition_line_id
+        if model.line_interaction_id >= 1:
+            transition_probabilities=model.transition_probabilities
+            self.transition_probabilities_a=transition_probabilities
+            self.transition_probabilities = <float_type_t*>self.transition_probabilities_a.data
+            self.transition_probabilities_nd = self.transition_probabilities_a.shape[0]
+            #
+            line2macro_level_upper=model.atom_data.lines_upper2macro_reference_idx
+            self.line2macro_level_upper_a=line2macro_level_upper
+            self.line2macro_level_upper=<int_type_t*> self.line2macro_level_upper_a.data
+            macro_block_references=model.atom_data.macro_atom_references['block_references'].values
+            self.macro_block_references_a=macro_block_references
+            self.macro_block_references=<int_type_t*> self.macro_block_references_a.data
+            transition_type=model.atom_data.macro_atom_references['block_references'].values
+            self.transition_type_a=transition_type
+            self.transition_type=<int_type_t*> self.transition_type_a.data
+            destination_level_id=model.atom_data.macro_atom_data['destination_level_idx'].values.astype(np.int64)
+            self.destination_level_id_a=destination_level_id
+            self.destination_level_id=<int_type_t*> self.destination_level_id_a.data
+            transition_line_id=model.atom_data.macro_atom_data['lines_idx'].values
+            self.transition_line_id_a=transition_line_id
+            self.destination_level_id=<int_type_t*> self.transition_line_id_a.data
+
+        cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(model.no_of_shells, dtype=np.float64)
+        cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(model.no_of_shells, dtype=np.float64)
+        self.js_a = js
+        self.js=<float_type_t*> self.js_a.data
+        self.nubars_a = nubars
+        self.nubars=<float_type_t*> self.nubars_a.data
+ 
+
+    #
+    #
+    #
+     
+
 DEF packet_logging = False
 IF packet_logging == True:
     packet_logger = logging.getLogger('tardis_packet_logger')
@@ -69,7 +210,7 @@ cdef float_type_t sigma_thomson = 6.652486e-25 #cm^(-2)
 
 cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
 
-cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t nu_insert, int_type_t imin,
+cdef int_type_t binary_search(float_type_t* nu, float_type_t nu_insert, int_type_t imin,
                               int_type_t imax):
     #continually narrow search until just one element remains
     cdef int_type_t imid
@@ -90,11 +231,12 @@ cdef int_type_t binary_search(np.ndarray[float_type_t, ndim=1] nu, float_type_t 
 
 #variables are restframe if not specified by prefix comov_
 cdef inline int_type_t macro_atom(long activate_level,
-                                  double [:, :] p_transition,
-                                  long [:] type_transition,
-                                  long [:] target_level_id,
-                                  long [:] target_line_id,
-                                  long [:] unroll_reference,
+                                  float_type_t* p_transition,
+                                  int_type_t p_transition_nd,
+                                  int_type_t* type_transition,
+                                  int_type_t* target_level_id,
+                                  int_type_t* target_line_id,
+                                  int_type_t* unroll_reference,
                                   long cur_zone_id):
     cdef int_type_t emit, i = 0
     cdef float_type_t p, event_random = 0.0
@@ -105,7 +247,7 @@ cdef inline int_type_t macro_atom(long activate_level,
         #        print "jumping to block_references %d" % i
         p = 0.0
         while True:
-            p = p + p_transition[cur_zone_id, i]
+            p = p + p_transition[cur_zone_id * p_transition_nd + i]
             if p > event_random:
                 emit = type_transition[i]
                 #                print "assuming transition_id %d" % emit
@@ -124,8 +266,8 @@ cdef float_type_t move_packet(float_type_t*r,
                               float_type_t nu,
                               float_type_t energy,
                               float_type_t distance,
-                              np.ndarray[float_type_t, ndim=1] js,
-                              np.ndarray[float_type_t, ndim=1] nubars,
+                              float_type_t* js,
+                              float_type_t* nubars,
                               float_type_t inverse_t_exp,
                               int_type_t cur_zone_id):
     cdef float_type_t new_r, doppler_factor, comov_energy, comov_nu
@@ -246,81 +388,118 @@ def montecarlo_radial1d(model):
 
     """
 
-    ######## Setting up packets ########
-
-    cdef np.ndarray[float_type_t, ndim=1] packet_nus = model.packet_src.packet_nus
-    cdef np.ndarray[float_type_t, ndim=1] packet_mus = model.packet_src.packet_mus
-    cdef np.ndarray[float_type_t, ndim=1] packet_energies = model.packet_src.packet_energies
-
-    cdef int_type_t no_of_packets = packet_nus.size
-
-    ######## Setting up the model ########
-
-    #@@@ Setup of Geometry @@@
-
-    cdef int no_of_shells = model.no_of_shells
-
-    cdef np.ndarray[float_type_t, ndim=1] r_inner = model.r_inner
-    cdef np.ndarray[float_type_t, ndim=1] r_outer = model.r_outer
-    cdef np.ndarray[float_type_t, ndim=1] v_inner = model.v_inner
-
-
-    #@@@ Setup the rest @@@
-    #times
-    cdef float_type_t time_explosion = model.time_explosion
-    cdef float_type_t inverse_time_explosion = 1 / time_explosion
-
-
-    #electron density
-    cdef np.ndarray[float_type_t, ndim=1] electron_density = model.electron_density
-    cdef np.ndarray[float_type_t, ndim=1] inverse_electron_density = 1 / electron_density
-
-
-
-    #Line lists
-
-    cdef np.ndarray[float_type_t, ndim=1] line_list_nu = model.line_list_nu
-    cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.tau_sobolevs
-
-    cdef int_type_t no_of_lines = line_list_nu.size
-
-    cdef int_type_t line_interaction_id = model.line_interaction_id
-
-    #macro atom & downbranch
-    cdef np.ndarray[float_type_t, ndim=2] transition_probabilities
-    cdef np.ndarray[int_type_t, ndim=1] line2macro_level_upper
-    cdef np.ndarray[int_type_t, ndim=1] macro_block_references
-    cdef np.ndarray[int_type_t, ndim=1] transition_type
-    cdef np.ndarray[int_type_t, ndim=1] destination_level_id
-    cdef np.ndarray[int_type_t, ndim=1] transition_line_id
-
-    if model.line_interaction_id >= 1:
-        line2macro_level_upper = model.atom_data.lines_upper2macro_reference_idx
-        macro_block_references = model.atom_data.macro_atom_references['block_references'].values
-        transition_probabilities = model.transition_probabilities
-        transition_type = model.atom_data.macro_atom_data['transition_type'].values
-        destination_level_id = model.atom_data.macro_atom_data['destination_level_idx'].values.astype(np.int64)
-        transition_line_id = model.atom_data.macro_atom_data['lines_idx'].values
+    storage = StorageModel(model)
 
     ######## Setting up the output ########
-    cdef np.ndarray[float_type_t, ndim=1] output_nus = np.zeros(no_of_packets, dtype=np.float64)
-    cdef np.ndarray[float_type_t, ndim=1] output_energies = np.zeros(no_of_packets, dtype=np.float64)
-
-    cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(no_of_shells, dtype=np.float64)
-    cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(no_of_shells, dtype=np.float64)
-
+    cdef np.ndarray[float_type_t, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
+    cdef np.ndarray[float_type_t, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
 
     ######## Setting up the running variable ########
     cdef float_type_t nu_line = 0.0
-    cdef float_type_t nu_electron = 0.0
+    #cdef float_type_t nu_electron = 0.0
     cdef float_type_t current_r = 0.0
     cdef float_type_t current_mu = 0.0
     cdef float_type_t current_nu = 0.0
     cdef float_type_t comov_current_nu = 0.0
+    #cdef float_type_t comov_nu = 0.0
+    #cdef float_type_t comov_energy = 0.0
+    #cdef float_type_t comov_current_energy = 0.0
+    cdef float_type_t current_energy = 0.0
+    #cdef float_type_t energy_electron = 0.0
+    #cdef int_type_t emission_line_id = 0
+
+    #doppler factor definition
+    #cdef float_type_t doppler_factor = 0.0
+    #cdef float_type_t old_doppler_factor = 0.0
+    #cdef float_type_t inverse_doppler_factor = 0.0
+
+    #cdef float_type_t tau_line = 0.0
+    #cdef float_type_t tau_electron = 0.0
+    #cdef float_type_t tau_combined = 0.0
+    #cdef float_type_t tau_event = 0.0
+
+    #indices
+    cdef int_type_t current_line_id = 0
+    cdef int_type_t current_shell_id = 0
+
+    #defining distances
+    #cdef float_type_t d_inner = 0.0
+    #cdef float_type_t d_outer = 0.0
+    #cdef float_type_t d_line = 0.0
+    #cdef float_type_t d_electron = 0.0
+
+    #Flags for close lines and last line, etc
+    cdef int_type_t last_line = 0
+    cdef int_type_t close_line = 0
+    cdef int_type_t reabsorbed = 0
+    cdef int_type_t recently_crossed_boundary = 0
+    cdef int i = 0
+
+    for i in range(storage.no_of_packets):
+        if i % (storage.no_of_packets / 5) == 0:
+        #if i % 100 == 0:
+            print "At packet %d of %d" % (i, storage.no_of_packets)
+            #logger.info("At packet %d of %d", i, no_of_packets)
+
+            
+        #setting up the properties of the packet
+        current_nu = storage.packet_nus[i]
+        current_energy = storage.packet_energies[i]
+        current_mu = storage.packet_mus[i]
+
+        #Location of the packet
+        current_shell_id = 0
+        current_r = storage.r_inner[0]
+
+        #Comoving current nu
+        comov_current_nu = current_nu * (1 - (current_mu * current_r * storage.inverse_time_explosion * inverse_c))
+
+        #linelists
+        current_line_id = binary_search(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines)
+        if current_line_id == storage.no_of_lines:
+            #setting flag that the packet is off the red end of the line list
+            last_line = 1
+        else:
+            last_line = 0
+            #print "storage.no_of_lines %d" % (storage.no_of_lines)
+            #print "current_line_id %d" % (current_line_id)
+            #print "storage.line_list_nu[current_line_id] %g" % (storage.line_list_nu[current_line_id])
+            #print "current_nu %g comov_current_nu %g" % (current_nu, comov_current_nu)
+            #return
+
+
+        #### FLAGS ####
+        #Packet recently crossed the inner boundary
+        recently_crossed_boundary = 1
+
+        reabsorbed = montecarlo_one_packet(storage, &current_nu, &current_energy, &current_mu, &current_shell_id, &current_r, &comov_current_nu, &current_line_id, &last_line, &close_line, &recently_crossed_boundary, 0)
+
+
+        if reabsorbed == 1: #reabsorbed
+            output_nus[i] = -current_nu
+            output_energies[i] = -current_energy
+
+        elif reabsorbed == 0: #emitted
+            output_nus[i] = current_nu
+            output_energies[i] = current_energy
+
+            #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+    return output_nus, output_energies, storage.js_a, storage.nubars_a
+
+#
+#
+#
+#
+#
+cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t* current_nu, float_type_t* current_energy, float_type_t* current_mu, int_type_t* current_shell_id, float_type_t* current_r, float_type_t* comov_current_nu, int_type_t* current_line_id, int_type_t* last_line, int_type_t* close_line, int_type_t* recently_crossed_boundary, int_type_t virtual_particle_flag):
+
+    
+    cdef float_type_t nu_electron = 0.0
     cdef float_type_t comov_nu = 0.0
     cdef float_type_t comov_energy = 0.0
     cdef float_type_t comov_current_energy = 0.0
-    cdef float_type_t current_energy = 0.0
     cdef float_type_t energy_electron = 0.0
     cdef int_type_t emission_line_id = 0
 
@@ -334,361 +513,309 @@ def montecarlo_radial1d(model):
     cdef float_type_t tau_combined = 0.0
     cdef float_type_t tau_event = 0.0
 
-    #indices
-    cdef int current_line_id = 0
-    cdef int current_shell_id = 0
-    cdef int current_line_list_id = 0
-
+    
     #defining distances
     cdef float_type_t d_inner = 0.0
     cdef float_type_t d_outer = 0.0
     cdef float_type_t d_line = 0.0
     cdef float_type_t d_electron = 0.0
 
-    #Flags for close lines and last line, etc
-    cdef int_type_t last_line = 0
-    cdef int_type_t close_line = 0
     cdef int_type_t reabsorbed = 0
-    cdef int_type_t recently_crossed_boundary = 0
-    cdef int i = 0
+    cdef float_type_t nu_line =0.0
 
-    for i in range(no_of_packets):
-        if i % (no_of_packets / 5) == 0:
-        #if i % 100 == 0:
-            print "At packet %d of %d" % (i, no_of_packets)
-            #logger.info("At packet %d of %d", i, no_of_packets)
+    #Initializing tau_event
+    tau_event = -log(rk_double(&mt_state))
 
 
+    #@@@ MAIN LOOP START @@@
+    #-----------------------
 
-        #setting up the properties of the packet
-        current_nu = packet_nus[i]
-        current_energy = packet_energies[i]
-        current_mu = packet_mus[i]
+    while True:
+        #check if we are at the end of linelist
+        if last_line[0] == 0:
+            nu_line = storage.line_list_nu[current_line_id[0]]
 
-        #Location of the packet
-        current_shell_id = 0
-        current_r = r_inner[0]
+        #check if the last line was the same nu as the current line
+        if close_line[0] == 1:
+            #if yes set the distance to the line to 0.0
+            d_line = 0.0
+            #reset close_line
+            close_line[0] = 0
 
-        #Comoving current nu
-        comov_current_nu = current_nu * (1 - (current_mu * current_r * inverse_time_explosion * inverse_c))
+            #CHECK if 3 lines in a row work
 
-        #linelists
-        current_line_id = binary_search(line_list_nu, comov_current_nu, 0, no_of_lines)
-        if current_line_id == no_of_lines:
-            #setting flag that the packet is off the red end of the line list
-            last_line = 1
-        else:
-            last_line = 0
+        else:# -- if close line didn't happen start calculating the the distances
 
-        #### FLAGS ####
-        #Packet recently crossed the inner boundary
-        recently_crossed_boundary = 1
+            # ------------------ INNER DISTANCE CALCULATION ---------------------
+            if recently_crossed_boundary[0] == 1:
+                #if the packet just crossed the inner boundary it will not intersect again unless it interacts. So skip
+                #calculation of d_inner
+                d_inner = miss_distance
+            else:
+                #compute distance to the inner shell
+                d_inner = compute_distance2inner(current_r[0], current_mu[0], storage.r_inner[current_shell_id[0]])
+                # ^^^^^^^^^^^^^^^^^^ INNER DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
 
-        #Initializing tau_event
-        tau_event = -log(rk_double(&mt_state))
+            # ------------------ OUTER DISTANCE CALCULATION ---------------------
+            #computer distance to the outer shell basically always possible
+            d_outer = compute_distance2outer(current_r[0], current_mu[0], storage.r_outer[current_shell_id[0]])
+            # ^^^^^^^^^^^^^^^^^^ OUTER DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
 
-
-        #@@@ MAIN LOOP START @@@
-        #-----------------------
-
-        while True:
-            #check if we are at the end of linelist
-            if last_line == 0:
-                nu_line = line_list_nu[current_line_id]
-
-            #check if the last line was the same nu as the current line
-            if close_line == 1:
-                #if yes set the distance to the line to 0.0
-                d_line = 0.0
-                #reset close_line
-                close_line = 0
-
-                #CHECK if 3 lines in a row work
-
-            else:# -- if close line didn't happen start calculating the the distances
-
-                # ------------------ INNER DISTANCE CALCULATION ---------------------
-                if recently_crossed_boundary == 1:
-                    #if the packet just crossed the inner boundary it will not intersect again unless it interacts. So skip
-                    #calculation of d_inner
-                    d_inner = miss_distance
-                else:
-                    #compute distance to the inner shell
-                    d_inner = compute_distance2inner(current_r, current_mu, r_inner[current_shell_id])
-                    # ^^^^^^^^^^^^^^^^^^ INNER DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
-
-                # ------------------ OUTER DISTANCE CALCULATION ---------------------
-                #computer distance to the outer shell basically always possible
-                d_outer = compute_distance2outer(current_r, current_mu, r_outer[current_shell_id])
-                # ^^^^^^^^^^^^^^^^^^ OUTER DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
-
-                # ------------------ LINE DISTANCE CALCULATION ---------------------
-                if last_line == 1:
-                    d_line = miss_distance
-                else:
-                    d_line = compute_distance2line(current_r, current_mu, current_nu, nu_line, time_explosion,
-                        inverse_time_explosion,
-                        line_list_nu[current_line_id - 1], line_list_nu[current_line_id + 1], current_shell_id)
-                    # ^^^^^^^^^^^^^^^^^^ LINE DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
-
-                # ------------------ ELECTRON DISTANCE CALCULATION ---------------------
-                d_electron = compute_distance2electron(current_r, current_mu, tau_event,
-                    inverse_electron_density[current_shell_id])
-                # ^^^^^^^^^^^^^^^^^^ ELECTRON DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
+            # ------------------ LINE DISTANCE CALCULATION ---------------------
+            if last_line[0] == 1:
+                d_line = miss_distance
+            else:
+                d_line = compute_distance2line(current_r[0], current_mu[0], current_nu[0], nu_line, storage.time_explosion,
+                    storage.inverse_time_explosion,
+                    storage.line_list_nu[current_line_id[0] - 1], storage.line_list_nu[current_line_id[0] + 1], current_shell_id[0])
+                # ^^^^^^^^^^^^^^^^^^ LINE DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
 
 
-            # ------------------------------ LOGGING ---------------------- (with precompiler IF)
-            IF packet_logging == True:
-                packet_logger.debug('%s\nCurrent packet state:\n'
-                                    'current_mu=%s\n'
-                                    'current_nu=%s\n'
-                                    'current_energy=%s\n'
-                                    'd_inner=%s\n'
-                                    'd_outer=%s\n'
-                                    'd_electron=%s\n'
-                                    'd_line=%s\n%s',
-                    '-' * 80,
-                    current_mu,
-                    current_nu,
-                    current_energy,
-                    d_inner,
-                    d_outer,
-                    d_electron,
-                    d_line,
-                    '-' * 80)
-
-                if isnan(d_inner) or d_inner < 0:
-                    packet_logger.warning('d_inner is nan or less than 0')
-                if isnan(d_outer) or d_outer < 0:
-                    packet_logger.warning('d_outer is nan or less than 0')
-                if isnan(d_electron) or d_electron < 0:
-                    packet_logger.warning('d_electron is nan or less than 0')
-                if isnan(d_line) or d_line < 0:
-                    packet_logger.warning('d_line is nan or less than 0')
-
-                    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-            # ------------------------ PROPAGATING OUTWARDS ---------------------------
-            if (d_outer < d_inner) and (d_outer < d_electron) and (d_outer < d_line):
-                #moving one zone outwards. If it's already in the outermost one this is escaped. Otherwise just move, change the zone index
-                #and flag as an outwards propagating packet
-                move_packet(&current_r, &current_mu, current_nu, current_energy, d_outer, js, nubars,
-                    inverse_time_explosion,
-                    current_shell_id)
-                if (current_shell_id < no_of_shells - 1): # jump to next shell
-                    current_shell_id += 1
-                    recently_crossed_boundary = 1
+            # ------------------ ELECTRON DISTANCE CALCULATION ---------------------
+            d_electron = compute_distance2electron(current_r[0], current_mu[0], tau_event,
+                storage.inverse_electron_density[current_shell_id[0]])
+            # ^^^^^^^^^^^^^^^^^^ ELECTRON DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
 
 
+        # ------------------------------ LOGGING ---------------------- (with precompiler IF)
+        IF packet_logging == True:
+            packet_logger.debug('%s\nCurrent packet state:\n'
+                                'current_mu=%s\n'
+                                'current_nu=%s\n'
+                                'current_energy=%s\n'
+                                'd_inner=%s\n'
+                                'd_outer=%s\n'
+                                'd_electron=%s\n'
+                                'd_line=%s\n%s',
+                '-' * 80,
+                current_mu[0],
+                current_nu[0],
+                current_energy[0],
+                d_inner,
+                d_outer,
+                d_electron,
+                d_line,
+                '-' * 80)
 
-                else:
-                    # ------------------------------ LOGGING ---------------------- (with precompiler IF)
-                    IF packet_logging == True:
-                        packet_logger.debug(
-                            'Packet has left the simulation through the outer boundary nu=%s mu=%s energy=%s',
-                            current_nu, current_mu, current_energy)
-
-                    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-                    reabsorbed = 0
-                    #print "That one got away"
-                    break
-                    #
-            # ^^^^^^^^^^^^^^^^^^^^^^^^^^ PROPAGATING OUTWARDS ^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-            # ------------------------ PROPAGATING inwards ---------------------------
-            elif (d_inner < d_outer) and (d_inner < d_electron) and (d_inner < d_line):
-                #moving one zone inwards. If it's already in the innermost zone this is a reabsorption
-                move_packet(&current_r, &current_mu, current_nu, current_energy, d_inner, js, nubars,
-                    inverse_time_explosion,
-                    current_shell_id)
-                if current_shell_id > 0:
-                    current_shell_id -= 1
-                    recently_crossed_boundary = -1
-
-                else:
-                    # ------------------------------ LOGGING ---------------------- (with precompiler IF)
-                    IF packet_logging == True:
-                        packet_logger.debug(
-                            'Packet has left the simulation through the inner boundary nu=%s mu=%s energy=%s',
-                            current_nu, current_mu, current_energy)
-                    reabsorbed = 1
-                    break
-                    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-            # ^^^^^^^^^^^^^^^^^^^^^^^^^^ PROPAGATING INWARDS ^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-            # ------------------------ ELECTRON SCATTER EVENT ELECTRON ---------------------------
-            elif (d_electron < d_outer) and (d_electron < d_inner) and (d_electron < d_line):
-                # ------------------------------ LOGGING ----------------------
-                IF packet_logging == True:
-                    packet_logger.debug('%s\nElectron scattering occuring\n'
-                                        'current_nu=%s\n'
-                                        'current_mu=%s\n'
-                                        'current_energy=%s\n',
-                        '-' * 80,
-                        current_nu,
-                        current_mu,
-                        current_energy)
+            if isnan(d_inner) or d_inner < 0:
+                packet_logger.warning('d_inner is nan or less than 0')
+            if isnan(d_outer) or d_outer < 0:
+                packet_logger.warning('d_outer is nan or less than 0')
+            if isnan(d_electron) or d_electron < 0:
+                packet_logger.warning('d_electron is nan or less than 0')
+            if isnan(d_line) or d_line < 0:
+                packet_logger.warning('d_line is nan or less than 0')
 
                 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+        # ------------------------ PROPAGATING OUTWARDS ---------------------------
+        if (d_outer < d_inner) and (d_outer < d_electron) and (d_outer < d_line):
+            #moving one zone outwards. If it's already in the outermost one this is escaped. Otherwise just move, change the zone index
+            #and flag as an outwards propagating packet
+            move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_outer, storage.js, storage.nubars,
+                storage.inverse_time_explosion,
+                current_shell_id[0])
+            if (current_shell_id[0] < storage.no_of_shells - 1): # jump to next shell
+                current_shell_id[0] += 1
+                recently_crossed_boundary[0] = 1
 
-                doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_electron, js, nubars
-                    , inverse_time_explosion, current_shell_id)
 
-                comov_nu = current_nu * doppler_factor
-                comov_energy = current_energy * doppler_factor
 
-                #new mu chosen
-                current_mu = 2 * rk_double(&mt_state) - 1
-                inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_time_explosion * inverse_c))
-                current_nu = comov_nu * inverse_doppler_factor
-                current_energy = comov_energy * inverse_doppler_factor
+            else:
+                # ------------------------------ LOGGING ---------------------- (with precompiler IF)
+                IF packet_logging == True:
+                    packet_logger.debug(
+                        'Packet has left the simulation through the outer boundary nu=%s mu=%s energy=%s',
+                        current_nu[0], current_mu[0], current_energy[0])
+
+                # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                reabsorbed = 0
+                #print "That one got away"
+                break
+                #
+        # ^^^^^^^^^^^^^^^^^^^^^^^^^^ PROPAGATING OUTWARDS ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+        # ------------------------ PROPAGATING inwards ---------------------------
+        elif (d_inner < d_outer) and (d_inner < d_electron) and (d_inner < d_line):
+            #moving one zone inwards. If it's already in the innermost zone this is a reabsorption
+            move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_inner, storage.js, storage.nubars,
+                storage.inverse_time_explosion,
+                current_shell_id[0])
+            if current_shell_id[0] > 0:
+                current_shell_id[0] -= 1
+                recently_crossed_boundary[0] = -1
+
+            else:
+                # ------------------------------ LOGGING ---------------------- (with precompiler IF)
+                IF packet_logging == True:
+                    packet_logger.debug(
+                        'Packet has left the simulation through the inner boundary nu=%s mu=%s energy=%s',
+                        current_nu[0], current_mu[0], current_energy[0])
+                reabsorbed = 1
+                break
+                # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        # ^^^^^^^^^^^^^^^^^^^^^^^^^^ PROPAGATING INWARDS ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+        # ------------------------ ELECTRON SCATTER EVENT ELECTRON ---------------------------
+        elif (d_electron < d_outer) and (d_electron < d_inner) and (d_electron < d_line):
+            # ------------------------------ LOGGING ----------------------
+            IF packet_logging == True:
+                packet_logger.debug('%s\nElectron scattering occuring\n'
+                                    'current_nu=%s\n'
+                                    'current_mu=%s\n'
+                                    'current_energy=%s\n',
+                    '-' * 80,
+                    current_nu[0],
+                    current_mu[0],
+                    current_energy[0])
+
+            # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+            doppler_factor = move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_electron, storage.js, storage.nubars
+                , storage.inverse_time_explosion, current_shell_id[0])
+
+            comov_nu = current_nu[0] * doppler_factor
+            comov_energy = current_energy[0] * doppler_factor
+
+            #new mu chosen
+            current_mu[0] = 2 * rk_double(&mt_state) - 1
+            inverse_doppler_factor = 1 / (1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
+            current_nu[0] = comov_nu * inverse_doppler_factor
+            current_energy[0] = comov_energy * inverse_doppler_factor
+
+            # ------------------------------ LOGGING ----------------------
+            IF packet_logging == True:
+                packet_logger.debug('Electron scattering occured\n'
+                                    'current_nu=%s\n'
+                                    'current_mu=%s\n'
+                                    'current_energy=%s\n%s',
+                    current_nu[0],
+                    current_mu[0],
+                    current_energy[0],
+                    '-' * 80)
+                # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+            tau_event = -log(rk_double(&mt_state))
+
+            #scattered so can re-cross a boundary now
+            recently_crossed_boundary[0] = 0
+        # ^^^^^^^^^^^^^^^^^^^^^^^^^ SCATTER EVENT ELECTRON ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+        # ------------------------ ELECTRON SCATTER EVENT ELECTRON ---------------------------
+        elif (d_line < d_outer) and (d_line < d_inner) and (d_line < d_electron):
+        #Line scattering
+            #It has a chance to hit the line
+
+            tau_line = storage.line_lists_tau_sobolevs[current_shell_id[0]*storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
+            tau_electron = sigma_thomson * storage.electron_density[current_shell_id[0]] * d_line
+            tau_combined = tau_line + tau_electron
+
+            # ------------------------------ LOGGING ----------------------
+            IF packet_logging == True:
+                packet_logger.debug('%s\nEntering line scattering routine\n'
+                                    'Scattering at line %d (nu=%s)\n'
+                                    'tau_line=%s\n'
+                                    'tau_electron=%s\n'
+                                    'tau_combined=%s\n'
+                                    'tau_event=%s\n',
+                    '-' * 80,
+                    current_line_id[0] + 1,
+                    storage.line_list_nu[current_line_id[0]],
+                    tau_line,
+                    tau_electron,
+                    tau_combined,
+                    tau_event)
+                # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+            #Advancing to next line
+            current_line_id[0] += 1
+
+            #check for last line
+            if current_line_id[0] >= storage.no_of_lines:
+                current_line_id[0] = storage.no_of_lines
+                last_line[0] = 1
+
+
+
+            #Check for line interaction
+            if tau_event < tau_combined:
+            #line event happens - move and scatter packet
+            #choose new mu
+            # ------------------------------ LOGGING ----------------------
+            #IF packet_logging == True:
+            #      packet_logger.debug('Line interaction happening. Activating macro atom at level %d',
+            #          line2macro_level_upper[current_line_id] + 1)
+                    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+                old_doppler_factor = move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_line, storage.js,
+                    storage.nubars, storage.inverse_time_explosion, current_shell_id[0])
+                comov_current_energy = current_energy[0] * old_doppler_factor
+
+                current_mu[0] = 2 * rk_double(&mt_state) - 1
+
+                inverse_doppler_factor = 1 / (1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
+
+                #here comes the macro atom
+
+                if storage.line_interaction_id == 0: #scatter
+                    emission_line_id = current_line_id[0]
+                elif storage.line_interaction_id >= 1:# downbranch & macro
+                    activate_level_id = storage.line2macro_level_upper[current_line_id[0]]
+                    emission_line_id = macro_atom(activate_level_id,
+                        storage.transition_probabilities,
+                        storage.transition_probabilities_nd,
+                        storage.transition_type,
+                        storage.destination_level_id,
+                        storage.transition_line_id,
+                        storage.macro_block_references,
+                        current_shell_id[0])
+
+                current_nu[0] = storage.line_list_nu[emission_line_id] * inverse_doppler_factor
+                nu_line = storage.line_list_nu[emission_line_id]
+                current_line_id[0] = emission_line_id + 1
+
+                IF packet_logging == True:
+                    packet_logger.debug('Line interaction over. New Line %d (nu=%s; rest)', emission_line_id + 1,
+                        storage.line_list_nu[emission_line_id])
+
+                current_energy[0] = comov_current_energy * inverse_doppler_factor
+
+                # getting new tau_event
+                tau_event = -log(rk_double(&mt_state))
+
+                # reseting recently crossed boundary - can intersect with inner boundary again
+                recently_crossed_boundary[0] = 0
+
+            else: #tau_event > tau_line no interaction so far
+                #reducing event tau to take this probability into account
+                tau_event -= tau_line
 
                 # ------------------------------ LOGGING ----------------------
                 IF packet_logging == True:
-                    packet_logger.debug('Electron scattering occured\n'
-                                        'current_nu=%s\n'
-                                        'current_mu=%s\n'
-                                        'current_energy=%s\n%s',
-                        current_nu,
-                        current_mu,
-                        current_energy,
+                    packet_logger.debug('No line interaction happened. Tau_event decreasing %s\n%s', tau_event,
                         '-' * 80)
                     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-                tau_event = -log(rk_double(&mt_state))
-
-                #scattered so can re-cross a boundary now
-                recently_crossed_boundary = 0
-            # ^^^^^^^^^^^^^^^^^^^^^^^^^ SCATTER EVENT ELECTRON ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-            # ------------------------ ELECTRON SCATTER EVENT ELECTRON ---------------------------
-            elif (d_line < d_outer) and (d_line < d_inner) and (d_line < d_electron):
-            #Line scattering
-                #It has a chance to hit the line
-
-                tau_line = line_lists_tau_sobolevs[current_shell_id, current_line_id]
-                tau_electron = sigma_thomson * electron_density[current_shell_id] * d_line
-                tau_combined = tau_line + tau_electron
-
-                # ------------------------------ LOGGING ----------------------
-                IF packet_logging == True:
-                    packet_logger.debug('%s\nEntering line scattering routine\n'
-                                        'Scattering at line %d (nu=%s)\n'
-                                        'tau_line=%s\n'
-                                        'tau_electron=%s\n'
-                                        'tau_combined=%s\n'
-                                        'tau_event=%s\n',
-                        '-' * 80,
-                        current_line_id + 1,
-                        line_list_nu[current_line_id],
-                        tau_line,
-                        tau_electron,
-                        tau_combined,
-                        tau_event)
+            # ------------------------------ LOGGING ----------------------
+            IF packet_logging == True: #THIS SHOULD NEVER HAPPEN
+                if tau_event < 0:
+                    logging.warn('tau_event less than 0: %s', tau_event)
                     # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-                #Advancing to next line
-                current_line_id += 1
+            if last_line[0] == 0: #Next line is basically the same just making sure we take this into account
+                if abs(storage.line_list_nu[current_line_id[0]] - nu_line) / nu_line < 1e-7:
+                    close_line[0] = 1
+                    # ^^^^^^^^^^^^^^^^^^^^^^^^^ SCATTER EVENT LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-                #check for last line
-                if current_line_id >= no_of_lines:
-                    current_line_id = no_of_lines
-                    last_line = 1
+    # ------------------------------ LOGGING ----------------------
+    IF packet_logging == True: #SHOULD NEVER HAPPEN
+        if current_energy[0] < 0:
+            logging.warn('Outcoming energy less than 0: %s', current_energy)
+            # ^^^^^^^^^^^^^^^^^^^^^^^^^ SCATTER EVENT LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
-
-                #Check for line interaction
-                if tau_event < tau_combined:
-                #line event happens - move and scatter packet
-                #choose new mu
-                # ------------------------------ LOGGING ----------------------
-                    IF packet_logging == True:
-                        packet_logger.debug('Line interaction happening. Activating macro atom at level %d',
-                            line2macro_level_upper[current_line_id] + 1)
-                        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-                    old_doppler_factor = move_packet(&current_r, &current_mu, current_nu, current_energy, d_line, js,
-                        nubars, inverse_time_explosion, current_shell_id)
-                    comov_current_energy = current_energy * old_doppler_factor
-
-                    current_mu = 2 * rk_double(&mt_state) - 1
-
-                    inverse_doppler_factor = 1 / (1 - (current_mu * current_r * inverse_time_explosion * inverse_c))
-
-                    #here comes the macro atom
-
-                    if line_interaction_id == 0: #scatter
-                        emission_line_id = current_line_id
-                    elif line_interaction_id >= 1:# downbranch & macro
-                        activate_level_id = line2macro_level_upper[current_line_id]
-                        emission_line_id = macro_atom(activate_level_id,
-                            transition_probabilities,
-                            transition_type,
-                            destination_level_id,
-                            transition_line_id,
-                            macro_block_references,
-                            current_shell_id)
-
-                    current_nu = line_list_nu[emission_line_id] * inverse_doppler_factor
-                    nu_line = line_list_nu[emission_line_id]
-                    current_line_id = emission_line_id + 1
-
-                    IF packet_logging == True:
-                        packet_logger.debug('Line interaction over. New Line %d (nu=%s; rest)', emission_line_id + 1,
-                            line_list_nu[emission_line_id])
-
-                    current_energy = comov_current_energy * inverse_doppler_factor
-
-                    # getting new tau_event
-                    tau_event = -log(rk_double(&mt_state))
-
-                    # reseting recently crossed boundary - can intersect with inner boundary again
-                    recently_crossed_boundary = 0
-
-                else: #tau_event > tau_line no interaction so far
-                    #reducing event tau to take this probability into account
-                    tau_event -= tau_line
-
-                    # ------------------------------ LOGGING ----------------------
-                    IF packet_logging == True:
-                        packet_logger.debug('No line interaction happened. Tau_event decreasing %s\n%s', tau_event,
-                            '-' * 80)
-                        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-                # ------------------------------ LOGGING ----------------------
-                IF packet_logging == True: #THIS SHOULD NEVER HAPPEN
-                    if tau_event < 0:
-                        logging.warn('tau_event less than 0: %s', tau_event)
-                        # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-                if last_line == 0: #Next line is basically the same just making sure we take this into account
-                    if abs(line_list_nu[current_line_id] - nu_line) / nu_line < 1e-7:
-                        close_line = 1
-                        # ^^^^^^^^^^^^^^^^^^^^^^^^^ SCATTER EVENT LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-        # ------------------------------ LOGGING ----------------------
-        IF packet_logging == True: #SHOULD NEVER HAPPEN
-            if current_energy < 0:
-                logging.warn('Outcoming energy less than 0: %s', current_energy)
-                # ^^^^^^^^^^^^^^^^^^^^^^^^^ SCATTER EVENT LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-        if reabsorbed == 1: #reabsorbed
-            output_nus[i] = -current_nu
-            output_energies[i] = -current_energy
-
-        elif reabsorbed == 0: #emitted
-            output_nus[i] = current_nu
-            output_energies[i] = current_energy
-
-            #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-    return output_nus, output_energies, js, nubars
-
-
-
+    return reabsorbed
