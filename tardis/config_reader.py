@@ -8,11 +8,34 @@ import logging
 import numpy as np
 import os
 import h5py
+import re
 import pandas as pd
+from tardis import atomic
 
 logger = logging.getLogger(__name__)
 
 data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+
+
+def reformat_element_symbol(element_symbol):
+    """
+    Reformat the string so the first letter is uppercase and all subsequent letters lowercase
+
+    Parameters
+    ----------
+        element_symbol: str
+
+    Returns
+    -------
+        reformated element symbol
+    """
+
+    #Reformating element to appropriate list
+    element_str = list(element_symbol)
+    element_str[0] = element_str[0].upper()
+    element_str[1:] = [item.lower() for item in element_str[1:]]
+    return ''.join(element_str)
+
 
 
 def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.9999584, density_coefficient=3e29):
@@ -108,22 +131,25 @@ def read_lucy99_abundances(fname=None):
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
 
-def read_config(fname, atomic_data=None):
-    config_object = ConfigParser()
-    config_object.read(fname)
-    tardis_configuration = TardisConfiguration()
-    general_dict = dict(config_object.items('general'))
-    parse_general_section(general_dict, tardis_configuration)
-    abundance_dict = dict(config_object.items('abundances'))
-    tardis_configuration.set_abundances(
-        parse_abundance_section(abundance_dict, atomic_data))
-    return tardis_configuration
-
 
 class TardisConfiguration(object):
     """
     Tardis configuration class
     """
+
+    @classmethod
+    def from_file(cls, fname, args=None):
+        config_parse_object = ConfigParser()
+        config_parse_object.read(fname)
+        general_dict = dict(config_parse_object.items('general'))
+        abundance_dict = dict(config_parse_object.items('abundances'))
+
+        config_object = cls()
+        config_object.parse_general_section(general_dict)
+        config_object.parse_abundance_section(abundance_dict)
+        return config_object
+
+
 
     def __init__(self):
         self.velocities = None
@@ -140,6 +166,178 @@ class TardisConfiguration(object):
         self.exponential_rho_0 = 10e5
         self.simulation_type = 'single_run'
 
+
+    def parse_general_section(self, config_dict):
+        model_type = config_dict.pop('model_type')
+
+        if model_type != 'radial1d':
+            raise ValueError("Only supporting 'radial1d' at the moment")
+
+        # reading time since explosion
+        time_explosion_value, time_explosion_unit = config_dict.pop('time_explosion').split()
+        self.time_explosion = units.Quantity(float(time_explosion_value), time_explosion_unit).to('s').value
+
+        # Reading luminosity, special unit log_l_sun is luminosity given in log10
+        # of solar units
+        luminosity_value, luminosity_unit = config_dict.pop('luminosity').split()
+        if luminosity_unit == 'log_lsun':
+            self.luminosity_outer = 10 ** (
+                float(luminosity_value) + np.log10(constants.cgs.L_sun.value))
+        else:
+            self.luminosity_outer = units.Quantity(
+                float(luminosity_value), luminosity_unit).to('erg/s').value
+
+        # reading number of shells
+        no_of_shells = int(config_dict.pop('zones'))
+
+        self.no_of_shells = no_of_shells
+
+        # reading velocities
+        # set of velocities currently supported are v_inner, v_outer and
+        # v_sampling linear
+
+        v_inner_value, v_inner_unit = config_dict.pop('v_inner').split()
+        v_inner = units.Quantity(
+            float(v_inner_value), v_inner_unit).to('cm/s').value
+
+        v_outer_value, v_outer_unit = config_dict.pop('v_outer').split()
+        v_outer = units.Quantity(
+            float(v_outer_value), v_outer_unit).to('cm/s').value
+
+        v_sampling = config_dict.pop('v_sampling')
+
+        self.set_velocities(
+            v_inner=v_inner, v_outer=v_outer, v_sampling=v_sampling)
+
+        density_set = config_dict.pop('density_set')
+
+
+        if density_set == 'w7_branch85':
+            self.densities = calculate_w7_branch85_densities(
+                self.velocities,
+                self.time_explosion)
+        elif density_set == 'exponential':
+            #TODO:Add here the function call which generates the exponential density profile. The easy way from tonight don't  work as expected!!
+            if not (('exponential_n_factor' in config_dict) and ('exponential_rho0' in config_dict)):
+                raise ValueError('If density_set=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified.')
+
+            self.exponential_n_factor = float(config_dict.pop('exponential_n_factor'))
+            self.exponential_rho_0 = float(config_dict.pop('exponential_rho0'))
+
+            self.densities = calculate_exponential_densities(self.velocities, v_inner,
+                self.exponential_rho_0, self.exponential_n_factor)
+
+        else:
+            raise ValueError(
+                'Curently only density_set = w7_branch85 or density_set = exponential are supported')
+
+        # reading plasma type
+        self.plasma_type = config_dict.pop('plasma_type')
+
+        # reading initial t_rad
+        if 'initial_t_rad' in config_dict:
+            self.initial_t_rad = float(config_dict.pop('initial_t_rad'))
+        else:
+            logger.warn('No initial shell temperature specified (initial_t_rad) - using default 10000 K')
+
+        # reading line interaction type
+        self.line_interaction_type = config_dict.pop(
+            'line_interaction_type')
+
+        if 'atom_data_file' not in config_dict:
+            raise ValueError("Please specify a filename with the keyword 'atom_data_file'")
+
+        if self.line_interaction_type == 'scatter':
+            self.atom_data = atomic.AtomData.from_hdf5(config_dict['atom_data_file'])
+        else:
+            self.atom_data = atomic.AtomData.from_hdf5(config_dict['atom_data_file'], use_macro_atom=True,
+                                                        use_zeta_data=True)
+
+
+        # reading number of packets and iterations
+        if 'single_run_packets' in config_dict:
+            if [item for item in ('spectrum_packets', 'calibration_packets') if item in config_dict]:
+                raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or '
+                                 '"single_run_packets" in config file')
+
+            self.simulation_type = 'single_run'
+            self.single_run_packets = int(
+                float(config_dict.pop('single_run_packets')))
+        elif len([item for item in ('spectrum_packets', 'calibration_packets', 'iterations') if item in config_dict]) == 3:
+            self.calibration_packets = int(
+                float(config_dict.pop('calibration_packets')))
+            self.spectrum_packets = int(
+                float(config_dict.pop('spectrum_packets')))
+            self.iterations = int(float(config_dict.pop('iterations')))
+        else:
+            raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or'
+                             ' "single_run_packets" in config file')
+
+        # TODO fix quantity spectral in astropy
+
+        spectrum_start_value, spectrum_end_unit = config_dict.pop(
+            'spectrum_start').split()
+        self.spectrum_start = units.Quantity(
+            float(spectrum_start_value), spectrum_end_unit).value
+        spectrum_end_value, spectrum_end_unit = config_dict.pop(
+            'spectrum_end').split()
+        self.spectrum_end = units.Quantity(
+            float(spectrum_end_value), spectrum_end_unit).value
+
+        if config_dict != {}:
+            logger.warn('Not all config options parsed - ignored %s' % config_dict)
+
+    def parse_abundance_section(self, abundance_dict):
+        abundances = {}
+        abundance_set = abundance_dict.pop('abundance_set', None)
+        if abundance_set == 'lucy99':
+            abundances = read_lucy99_abundances()
+        elif abundance_set is not None:
+            raise ValueError("Currently only 'lucy99' abundance_set supported")
+
+        self.nlte_species = []
+        species_pattern = re.compile('\s*([a-zA-Z]*)(\d*)\s*')
+        if 'nlte_species' in abundance_dict:
+            for species_symbol in abundance_dict.pop('nlte_species').split(','):
+                species_match = species_pattern.match(species_symbol)
+                if species_match is None:
+                    raise ValueError("'nlte_species' element %s could not be matched to a valid species notation (e.g. Ca2)")
+                species_element, species_ion = species_match.groups()
+                species_element = reformat_element_symbol(species_element)
+                if species_element not in self.atom_data.symbol2atomic_number:
+                    raise ValueError("Element provided in NLTE species %s unknown" % species_element)
+                self.nlte_species.append((self.atom_data.symbol2atomic_number[species_element], int(species_ion) - 1))
+
+
+        for element in abundance_dict:
+            element_symbol = reformat_element_symbol(element)
+            if element_symbol not in self.atom_data.symbol2atomic_number:
+                raise ValueError('Element %s provided in config unknown' % element_symbol)
+            if element_symbol in abundances:
+                logger.debug('Element %s already in abundances - overwriting %g with %g', (element_symbol,
+                                                                               abundances[element_symbol],
+                                                                               abundance_dict[element]))
+            abundances[element_symbol] = float(abundance_dict[element])
+
+        self.set_abundances(abundances)
+
+
+
+
+    @property
+    def line_interaction_type(self):
+        return self._line_interaction_type
+
+    @line_interaction_type.setter
+    def line_interaction_type(self, value):
+
+        if value not in ('scatter', 'downbranch', 'macroatom'):
+            raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
+        self._line_interaction_type = value
+
+
+
+
     @property
     def number_of_packets(self):
         """
@@ -152,6 +350,8 @@ class TardisConfiguration(object):
             return self.single_run_packets
         else:
             raise ValueError('Currently only single_run supported')
+
+
 
     def set_velocities(self, velocities=None, v_inner=None, v_outer=None, v_sampling='linear'):
         """
@@ -222,157 +422,3 @@ class TardisConfiguration(object):
             # required_atoms])
 
 
-def parse_abundance_section(abundance_dict, atomic_data=None):
-    if atomic_data is None: # fallback in case no atomic dataset is given!
-        atomic_dict = {"H": "1"}
-        logger.warn('Using fallback because no atomic dataset is given')
-    else:
-        atomic_dict = dict(atomic_data.symbol2atomic_number)
-
-    abundance_set = abundance_dict.get('abundance_set', None)
-    if abundance_set == 'lucy99':
-        abundances = read_lucy99_abundances()
-
-
-    else:
-        #Added by Michi
-        abundance_set = dict()
-        print(atomic_dict.values())
-
-        for current_name in atomic_dict.keys():
-            current_cont = abundance_dict.get(current_name.lower(), 0.)
-            #print(current_cont)
-            print(current_name)
-            if current_cont != 0:
-                abundance_set[current_name] = float(current_cont)
-
-        print(abundance_set.values())
-
-        abundances_sum = sum(abundance_set.values())
-        if abundances_sum < 1.:
-            abundance_set['H'] = 1 - abundances_sum
-        elif  abundances_sum > 1:
-            for current_name in abundance_set:
-                abundance_set[current_name] *= 1. / abundances_sum
-
-
-        #raise ValueError('Currently only abundance_set=lucy99 supported')
-
-        abundances = abundance_set
-    return abundances
-
-
-def parse_general_section(config_dict, general_config):
-    model_type = config_dict.pop('model_type')
-
-    if model_type != 'radial1d':
-        raise ValueError("Only supporting 'radial1d' at the moment")
-
-    # reading time since explosion
-    time_explosion_value, time_explosion_unit = config_dict.pop(
-        'time_explosion').split()
-    general_config.time_explosion = units.Quantity(
-        float(time_explosion_value), time_explosion_unit).to('s').value
-
-    # Reading luminosity, special unit log_l_sun is luminosity given in log10
-    # of solar units
-    luminosity_value, luminosity_unit = config_dict.pop('luminosity').split()
-    if luminosity_unit == 'log_lsun':
-        general_config.luminosity_outer = 10 ** (
-            float(luminosity_value) + np.log10(constants.cgs.L_sun.value))
-    else:
-        general_config.luminosity_outer = units.Quantity(
-            float(luminosity_value), luminosity_unit).to('erg/s').value
-
-    # reading number of shells
-    no_of_shells = int(config_dict.pop('zones'))
-
-    general_config.no_of_shells = no_of_shells
-
-    # reading velocities
-    # set of velocities currently supported are v_inner, v_outer and
-    # v_sampling linear
-
-    v_inner_value, v_inner_unit = config_dict.pop('v_inner').split()
-    v_inner = units.Quantity(
-        float(v_inner_value), v_inner_unit).to('cm/s').value
-
-    v_outer_value, v_outer_unit = config_dict.pop('v_outer').split()
-    v_outer = units.Quantity(
-        float(v_outer_value), v_outer_unit).to('cm/s').value
-
-    v_sampling = config_dict.pop('v_sampling')
-
-    general_config.set_velocities(
-        v_inner=v_inner, v_outer=v_outer, v_sampling=v_sampling)
-
-    density_set = config_dict.pop('density_set')
-
-    if density_set == 'w7_branch85':
-        general_config.densities = calculate_w7_branch85_densities(
-            general_config.velocities,
-            general_config.time_explosion)
-    elif density_set == 'exponential':
-        #TODO:Add here the function call which generates the exponential density profile. The easy way from tonight don't  work as expected!!
-        if (('exponential_n_factor' in config_dict) & ('exponential_rho0' in config_dict)):
-            try:
-                general_config.exponential_n_factor = float(config_dict.pop('exponential_n_factor'))
-                general_config.exponential_rho_0 = float(config_dict.pop('exponential_rho0'))
-            except ValueError:
-                logger.warn(
-                    'If density_set=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified. Using the default density_set=10! ')
-
-            general_config.densities = calculate_exponential_densities(general_config.velocities, v_inner,
-                general_config.exponential_rho_0, general_config.exponential_n_factor)
-            print(general_config.densities)
-    else:
-        raise ValueError(
-            'Curently only density_set = w7_branch85 or density_set = exponential are supported')
-
-    # reading plasma type
-    general_config.plasma_type = config_dict.pop('plasma_type')
-
-    # reading initial t_rad
-    if 'initial_t_rad' in config_dict:
-        general_config.initial_t_rad = float(config_dict.pop('initial_t_rad'))
-    else:
-        logger.warn('No initial shell temperature specified (initial_t_rad) - using default 10000 K')
-
-    # reading line interaction type
-    general_config.line_interaction_type = config_dict.pop(
-        'line_interaction_type')
-
-    # reading number of packets and iterations
-    if 'single_run_packets' in config_dict:
-        if [item for item in ('spectrum_packets', 'calibration_packets') if item in config_dict]:
-            raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or '
-                             '"single_run_packets" in config file')
-
-        general_config.simulation_type = 'single_run'
-        general_config.single_run_packets = int(
-            float(config_dict.pop('single_run_packets')))
-    elif len([item for item in ('spectrum_packets', 'calibration_packets', 'iterations') if item in config_dict]) == 3:
-        general_config.calibration_packets = int(
-            float(config_dict.pop('calibration_packets')))
-        general_config.spectrum_packets = int(
-            float(config_dict.pop('spectrum_packets')))
-        general_config.iterations = int(float(config_dict.pop('iterations')))
-    else:
-        raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or'
-                         ' "single_run_packets" in config file')
-
-    # TODO fix quantity spectral in astropy
-
-    spectrum_start_value, spectrum_end_unit = config_dict.pop(
-        'spectrum_start').split()
-    general_config.spectrum_start = units.Quantity(
-        float(spectrum_start_value), spectrum_end_unit).value
-    spectrum_end_value, spectrum_end_unit = config_dict.pop(
-        'spectrum_end').split()
-    general_config.spectrum_end = units.Quantity(
-        float(spectrum_end_value), spectrum_end_unit).value
-
-    if config_dict != {}:
-        logger.warn('Not all config options parsed - ignored %s' % config_dict)
-
-    return general_config
