@@ -141,6 +141,9 @@ class LTEPlasma(BasePlasma):
        """
         BasePlasma.update_radiationfield(self, t_rad)
 
+        ##### take out and change to a setting method later ######
+        self.j_blues = intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
+
         self.calculate_partition_functions(initialize=self.initialize)
 
         self.ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
@@ -311,6 +314,46 @@ class LTEPlasma(BasePlasma):
         Calculating the NLTE level populations for specific ions
 
         """
+        if not hasattr(self, 'beta_sobolevs'):
+            self.beta_sobolevs = np.empty_like(self.atom_data.lines['nu'].values)
+        else:
+            macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
+
+        stim_em = []
+        for species in self.nlte_species:
+                number_of_levels = self.level_populations.ix[species].size
+                rates_matrix = np.zeros((number_of_levels, number_of_levels), dtype=np.float64)
+
+                for i, (line_id, line) in enumerate(self.atom_data.lines.iterrows()):
+                    atomic_number = line['atomic_number']
+                    ion_number = line['ion_number']
+                    if (atomic_number, ion_number) != species:
+                        continue
+
+                    n_lower = self.level_populations.ix[atomic_number, ion_number, line['level_number_lower']]
+                    n_upper = self.level_populations.ix[atomic_number, ion_number, line['level_number_upper']]
+
+                    stimulated_emission_term = (1 - (n_upper * line['B_ul'])/(n_lower * line['B_lu']))
+                    if line['level_number_upper'] > 4 or line['level_number_lower'] >4:
+                        continue
+#                    r_lu = 5.
+#                    r_ul = 10.
+                    cur_beta_sobolev = 5.
+                    r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[i] * stimulated_emission_term
+                    r_ul = line['A_ul'] * cur_beta_sobolev
+
+                    rates_matrix[line['level_number_upper'], line['level_number_lower']] = r_lu
+                    rates_matrix[line['level_number_lower'], line['level_number_upper']] = r_ul
+
+                    rates_matrix[line['level_number_lower'], line['level_number_lower']] -= r_lu
+                    rates_matrix[line['level_number_upper'], line['level_number_upper']] -= r_ul
+
+
+                return rates_matrix, stim_em
+
+
+
+
 
 
 
@@ -340,7 +383,7 @@ class LTEPlasma(BasePlasma):
         f_lu = self.atom_data.lines['f_lu'].values
         wavelength = self.atom_data.lines['wavelength_cm'].values
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
-        return sobolev_coefficient * f_lu * wavelength * time_exp * n_lower
+        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * time_exp * n_lower
 
     def update_macro_atom(self, tau_sobolevs, j_nu_factor=1.):
         """
@@ -357,12 +400,10 @@ class LTEPlasma(BasePlasma):
         transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * beta_sobolevs
 
         transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
-        nus = self.atom_data.lines['nu'].values[self.atom_data.macro_atom_data['lines_idx'].values][
-              transition_up_filter]
 
-        j_nus = j_nu_factor * intensity_black_body(nus, self.t_rad)
+        j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values]
 
-        transition_probabilities[transition_up_filter.__array__()] *= j_nus
+        transition_probabilities[transition_up_filter.__array__()] *= j_blues
 
         reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
 
