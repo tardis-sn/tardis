@@ -32,7 +32,7 @@ def intensity_black_body(nu, T):
     """
     beta_rad = 1 / (constants.cgs.k_B.value * T)
 
-    return ((constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2))  / (
+    return (2 * (constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2))  / (
         np.exp(constants.cgs.h.value * nu * beta_rad) - 1)
 
 
@@ -333,14 +333,24 @@ class LTEPlasma(BasePlasma):
                     n_lower = self.level_populations.ix[atomic_number, ion_number, line['level_number_lower']]
                     n_upper = self.level_populations.ix[atomic_number, ion_number, line['level_number_upper']]
 
+                    g_lower = self.atom_data.levels.ix[atomic_number, ion_number, line['level_number_lower']]['g']
+                    g_upper = self.atom_data.levels.ix[atomic_number, ion_number, line['level_number_upper']]['g']
+
+
                     stimulated_emission_term = (1 - (n_upper * line['B_ul'])/(n_lower * line['B_lu']))
-                    if line['level_number_upper'] > 4 or line['level_number_lower'] >4:
-                        continue
 #                    r_lu = 5.
 #                    r_ul = 10.
-                    cur_beta_sobolev = 5.
+                    cur_beta_sobolev = self.beta_sobolevs[i]
                     r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[i] * stimulated_emission_term
                     r_ul = line['A_ul'] * cur_beta_sobolev
+
+                    print "r_lu / r_ul = %.4e n_u/n_l = %.4e g_u/g_l * e^(-h nu *beta_rad) =%.4e, accuracy=%.4e" % (r_lu/r_ul,
+                                                                                                     n_upper/n_lower,
+                                                                                                     g_upper/float(g_lower) * np.exp(-constants.cgs.h.value*line['nu'] * self.beta_rad),
+                                                                                                     (r_lu/r_ul - g_upper/float(g_lower) * np.exp(-constants.cgs.h.value*line['nu'] * self.beta_rad))/(r_lu/r_ul))
+                    print "n_lower*r_lu %.4e, n_upper*r_ul %.4e, difference %.4e" % (n_lower*r_lu, n_upper*r_ul, (n_lower*r_lu - n_upper*r_ul))
+                    print "g_lower = %.4e, g_upper=%.4e" % (g_lower, g_upper)
+                    print "r_lu = %.4e r_ul = %.4e level_number_lower=%d level_number_upper = %d" % (r_lu, r_ul, line['level_number_lower'], line['level_number_upper'])
 
                     rates_matrix[line['level_number_upper'], line['level_number_lower']] = r_lu
                     rates_matrix[line['level_number_lower'], line['level_number_upper']] = r_ul
