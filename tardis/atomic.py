@@ -401,4 +401,13 @@ class AtomData(object):
             self.macro_atom_data['destination_level_idx'] = self.macro_atom_references['references_idx'].ix[
                                                             tmp_macro_destination_level_idx].values
 
+    def set_nlte_mask(self, nlte_species):
+        self.nlte_mask = np.zeros(self.levels.shape[0]).astype(bool)
+
+        for species in nlte_species:
+            current_mask = (self.levels.index.get_level_values(0) == species[0]) & \
+                           (self.levels.index.get_level_values(1) == species[1])
+
+            self.nlte_mask |= current_mask
+
 

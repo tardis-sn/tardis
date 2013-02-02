@@ -65,37 +65,31 @@ class Radial1DModel(object):
 
     """
 
-    @classmethod
-    def from_config_file(cls, fname, atom_data):
-        tardis_config = config_reader.read_config(fname)
-        model_obj = cls(tardis_config, atom_data)
-
-        return model_obj
 
 
-    def __init__(self, configuration_object, atom_data):
+    def __init__(self, tardis_config):
         #final preparation for configuration object
-        configuration_object.final_preparation()
+        tardis_config.final_preparation()
 
-        self.configuration_object = configuration_object
+        self.tardis_config = tardis_config
 
-        self.atom_data = atom_data
+        self.atom_data = tardis_config.atom_data
 
-        self.packet_src = packet_source.SimplePacketSource.from_wavelength(configuration_object.spectrum_start,
-            configuration_object.spectrum_end)
+        self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.spectrum_start,
+            tardis_config.spectrum_end)
 
 
-        self.no_of_shells = configuration_object.no_of_shells
+        self.no_of_shells = tardis_config.no_of_shells
 
         logger.info('Assuming %d shells' % self.no_of_shells)
 
 
         #setting time_explosion
-        self.time_explosion = configuration_object.time_explosion
+        self.time_explosion = tardis_config.time_explosion
 
         #initializing velocities and radii
-        self.v_inner = configuration_object.velocities[:-1]
-        self.v_outer = configuration_object.velocities[1:]
+        self.v_inner = tardis_config.velocities[:-1]
+        self.v_outer = tardis_config.velocities[1:]
 
         self.r_inner = self.v_inner * self.time_explosion
         self.r_outer = self.v_outer * self.time_explosion
@@ -103,26 +97,26 @@ class Radial1DModel(object):
 
         self.volumes = (4. / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)
         #initializing densities
-        assert len(configuration_object.densities) == self.no_of_shells
+        assert len(tardis_config.densities) == self.no_of_shells
 
-        self.densities_middle = configuration_object.densities
+        self.densities_middle = tardis_config.densities
 
-        self.time_of_simulation = configuration_object.time_of_simulation
+        self.time_of_simulation = tardis_config.time_of_simulation
 
-        self.t_inner = configuration_object.t_inner
+        self.t_inner = tardis_config.t_inner
 
-        self.luminosity_outer = configuration_object.luminosity_outer
+        self.luminosity_outer = tardis_config.luminosity_outer
 
-        self.no_of_packets = configuration_object.number_of_packets
+        self.no_of_packets = tardis_config.number_of_packets
 
         self.create_packets()
 
 
     #Selecting plasma class
-        self.plasma_type = configuration_object.plasma_type
+        self.plasma_type = tardis_config.plasma_type
         if self.plasma_type == 'lte':
             self.plasma_class = plasma.LTEPlasma
-            if configuration_object.ws is not None:
+            if tardis_config.ws is not None:
                 raise ValueError(
                     "the dilution factor W ('ws') can only be specified when selecting plasma_type='nebular'")
 
@@ -135,34 +129,32 @@ class Radial1DModel(object):
 
 
 
-        #setting atom data and checking for consistency
-        self.atom_data = atom_data
 
         #initializing abundances
-        self.abundances = configuration_object.abundances
+        self.abundances = tardis_config.abundances
         self.number_densities = []
         for abundance, density in zip(self.abundances, self.densities_middle):
             self.number_densities.append(calculate_atom_number_densities(self.atom_data, abundance, density))
 
         self.selected_atomic_numbers = self.number_densities[0].index.values.astype(int)
 
-        self.line_interaction_type = configuration_object.line_interaction_type
+        self.line_interaction_type = tardis_config.line_interaction_type
 
 
     #setting dilution factors
-        if configuration_object.ws is None:
+        if tardis_config.ws is None:
             self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
         else:
             self.ws = np.array([(0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle[i] ** 2))) if w < 0\
-                                else w for i, w in enumerate(configuration_object.ws)])
+                                else w for i, w in enumerate(tardis_config.ws)])
 
         #initializing temperatures
 
-        if np.isscalar(configuration_object.initial_t_rad):
-            self.t_rads = [configuration_object.initial_t_rad] * self.no_of_shells
+        if np.isscalar(tardis_config.initial_t_rad):
+            self.t_rads = [tardis_config.initial_t_rad] * self.no_of_shells
         else:
-            assert len(configuration_object.initial_t_rad) == self.no_of_shells
-            self.t_rads = np.array(configuration_object.initial_t_rad, dtype=np.float64)
+            assert len(tardis_config.initial_t_rad) == self.no_of_shells
+            self.t_rads = np.array(tardis_config.initial_t_rad, dtype=np.float64)
 
         self.initialize_plasmas()
 
@@ -218,7 +210,7 @@ class Radial1DModel(object):
         if self.plasma_type == 'lte':
             for i, (current_abundances, current_t_rad) in\
             enumerate(zip(self.number_densities, self.t_rads)):
-                current_plasma = self.plasma_class(current_abundances, self.atom_data)
+                current_plasma = self.plasma_class(current_abundances, self.atom_data, nlte_species=self.tardis_config.nlte_species)
                 current_plasma.update_radiationfield(current_t_rad)
                 self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
 
