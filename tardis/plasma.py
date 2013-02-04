@@ -62,13 +62,14 @@ class BasePlasma(object):
 
     """
     #TODO make density a astropy.quantity
-    def __init__(self, abundances, atom_data, density_unit='g/cm^3', max_ion_number=None,
+    def __init__(self, abundances, atom_data, time_explosion, density_unit='g/cm^3', max_ion_number=None,
                  use_macro_atom=False):
         self.atom_data = atom_data
 #        self.selected_atoms = self.atom_data.selected_atoms
 #        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
         self.abundances = abundances
         self.initialize = True
+        self.time_explosion = time_explosion
 
 
     def validate_atom_data(self):
@@ -114,9 +115,9 @@ class LTEPlasma(BasePlasma):
 
     """
 
-    def __init__(self, abundances, atom_data, max_ion_number=None,
+    def __init__(self, abundances, atom_data, time_explosion, max_ion_number=None,
                  use_macro_atom=False, nlte_species = []):
-        BasePlasma.__init__(self, abundances, atom_data,
+        BasePlasma.__init__(self, abundances, atom_data, time_explosion,
             max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
 
         self.ion_number_density = None
@@ -167,6 +168,8 @@ class LTEPlasma(BasePlasma):
         logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
 
         self.calculate_level_populations()
+        self.calculate_tau_sobolev()
+        self.calculate_nlte_level_populations()
         if self.initialize:
             self.initialize = False
 
@@ -216,7 +219,7 @@ class LTEPlasma(BasePlasma):
             if not hasattr(self, 'partition_functions'):
                 raise ValueError("Called calculate partition_functions without initializing at least once")
 
-            for group, species in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
+            for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
                 if species in self.nlte_species:
                     logger.debug('Ignoring species %s as NLTE species' % (species, ))
                     ##### MAKE MAGIC HAPPEN WITH calculating the partition functions differently
@@ -294,9 +297,6 @@ class LTEPlasma(BasePlasma):
         .. math::
             \\frac{g_k}{Z_{i,j}} \\times N_{i, j} \\times e^{-\\beta_\\textrm{rad} \\times E_k}
 
-
-
-        :return:
         """
 
         Z = self.partition_functions.values[self.atom_data.levels_index2atom_ion_index]
@@ -307,7 +307,12 @@ class LTEPlasma(BasePlasma):
         levels_energy = self.atom_data.levels['energy'].values
         level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
 
-        self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
+        if self.initialize:
+            self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
+
+        else:
+            level_populations = Series(level_populations, index=self.atom_data.levels.index)
+            self.level_populations.update(level_populations[~self.atom_data.nlte_mask])
 
     def calculate_nlte_level_populations(self):
         """
@@ -319,47 +324,39 @@ class LTEPlasma(BasePlasma):
         else:
             macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
 
-        stim_em = []
         for species in self.nlte_species:
-                number_of_levels = self.level_populations.ix[species].size
-                rates_matrix = np.zeros((number_of_levels, number_of_levels), dtype=np.float64)
+            number_of_levels = self.level_populations.ix[species].size
+            rates_matrix = np.zeros((number_of_levels, number_of_levels), dtype=np.float64)
 
-                for i, (line_id, line) in enumerate(self.atom_data.lines.iterrows()):
-                    atomic_number = line['atomic_number']
-                    ion_number = line['ion_number']
-                    if (atomic_number, ion_number) != species:
-                        continue
+            for i, (line_id, line) in enumerate(self.atom_data.lines.iterrows()):
+                atomic_number = line['atomic_number']
+                ion_number = line['ion_number']
+                if (atomic_number, ion_number) != species:
+                    continue
 
-                    n_lower = self.level_populations.ix[atomic_number, ion_number, line['level_number_lower']]
-                    n_upper = self.level_populations.ix[atomic_number, ion_number, line['level_number_upper']]
-
-                    g_lower = self.atom_data.levels.ix[atomic_number, ion_number, line['level_number_lower']]['g']
-                    g_upper = self.atom_data.levels.ix[atomic_number, ion_number, line['level_number_upper']]['g']
+                n_lower = self.level_populations.ix[atomic_number, ion_number, line['level_number_lower']]
+                n_upper = self.level_populations.ix[atomic_number, ion_number, line['level_number_upper']]
 
 
-                    stimulated_emission_term = (1 - (n_upper * line['B_ul'])/(n_lower * line['B_lu']))
-#                    r_lu = 5.
-#                    r_ul = 10.
-                    cur_beta_sobolev = self.beta_sobolevs[i]
-                    r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[i] * stimulated_emission_term
-                    r_ul = line['A_ul'] * cur_beta_sobolev
-
-                    print "r_lu / r_ul = %.4e n_u/n_l = %.4e g_u/g_l * e^(-h nu *beta_rad) =%.4e, accuracy=%.4e" % (r_lu/r_ul,
-                                                                                                     n_upper/n_lower,
-                                                                                                     g_upper/float(g_lower) * np.exp(-constants.cgs.h.value*line['nu'] * self.beta_rad),
-                                                                                                     (r_lu/r_ul - g_upper/float(g_lower) * np.exp(-constants.cgs.h.value*line['nu'] * self.beta_rad))/(r_lu/r_ul))
-                    print "n_lower*r_lu %.4e, n_upper*r_ul %.4e, difference %.4e" % (n_lower*r_lu, n_upper*r_ul, (n_lower*r_lu - n_upper*r_ul))
-                    print "g_lower = %.4e, g_upper=%.4e" % (g_lower, g_upper)
-                    print "r_lu = %.4e r_ul = %.4e level_number_lower=%d level_number_upper = %d" % (r_lu, r_ul, line['level_number_lower'], line['level_number_upper'])
-
-                    rates_matrix[line['level_number_upper'], line['level_number_lower']] = r_lu
-                    rates_matrix[line['level_number_lower'], line['level_number_upper']] = r_ul
-
-                    rates_matrix[line['level_number_lower'], line['level_number_lower']] -= r_lu
-                    rates_matrix[line['level_number_upper'], line['level_number_upper']] -= r_ul
 
 
-                return rates_matrix, stim_em
+                cur_beta_sobolev = self.beta_sobolevs[i]
+
+                stimulated_emission_term = (1 - (n_upper * line['B_ul'])/(n_lower * line['B_lu']))
+                r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[i] * stimulated_emission_term
+                r_ul = line['A_ul'] * cur_beta_sobolev
+
+
+                rates_matrix[line['level_number_upper'], line['level_number_lower']] = r_lu
+                rates_matrix[line['level_number_lower'], line['level_number_upper']] = r_ul
+
+                rates_matrix[line['level_number_lower'], line['level_number_lower']] -= r_lu
+                rates_matrix[line['level_number_upper'], line['level_number_upper']] -= r_ul
+
+            rates_matrix[0] = 1.0
+            x = np.zeros(rates_matrix.shape[0])
+            x[0] = 1.0
+            self.level_populations.ix[species] = np.linalg.solve(rates_matrix, x) * self.ion_number_density.ix[species]
 
 
 
@@ -369,7 +366,8 @@ class LTEPlasma(BasePlasma):
 
 
 
-    def calculate_tau_sobolev(self, time_exp):
+
+    def calculate_tau_sobolev(self):
         """
         This function calculates the Sobolev optical depth :math:`\\tau_\\textrm{Sobolev}`
 
@@ -393,7 +391,7 @@ class LTEPlasma(BasePlasma):
         f_lu = self.atom_data.lines['f_lu'].values
         wavelength = self.atom_data.lines['wavelength_cm'].values
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
-        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * time_exp * n_lower
+        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower
 
     def update_macro_atom(self, tau_sobolevs, j_nu_factor=1.):
         """
