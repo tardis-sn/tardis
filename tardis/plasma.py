@@ -21,6 +21,9 @@ import pdb
 
 sobolev_coefficient = ((np.pi * constants.cgs.e.value ** 2) / (constants.cgs.m_e.value * constants.cgs.c.value))
 
+class PlasmaException(Exception):
+    pass
+
 
 def intensity_black_body(nu, T):
     """
@@ -32,7 +35,7 @@ def intensity_black_body(nu, T):
     """
     beta_rad = 1 / (constants.cgs.k_B.value * T)
 
-    return (2 * (constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2))  / (
+    return (2 * (constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2)) / (
         np.exp(constants.cgs.h.value * nu * beta_rad) - 1)
 
 
@@ -65,8 +68,8 @@ class BasePlasma(object):
     def __init__(self, abundances, atom_data, time_explosion, density_unit='g/cm^3', max_ion_number=None,
                  use_macro_atom=False):
         self.atom_data = atom_data
-#        self.selected_atoms = self.atom_data.selected_atoms
-#        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
+        #        self.selected_atoms = self.atom_data.selected_atoms
+        #        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
         self.abundances = abundances
         self.initialize = True
         self.time_explosion = time_explosion
@@ -116,7 +119,7 @@ class LTEPlasma(BasePlasma):
     """
 
     def __init__(self, abundances, atom_data, time_explosion, max_ion_number=None,
-                 use_macro_atom=False, nlte_species = []):
+                 use_macro_atom=False, nlte_species=[]):
         BasePlasma.__init__(self, abundances, atom_data, time_explosion,
             max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
 
@@ -197,12 +200,9 @@ class LTEPlasma(BasePlasma):
         """
 
 
-
-
         def group_calculate_partition_function(group):
             return np.sum(group['g'] *
                           np.exp(-group['energy'] * self.beta_rad))
-
 
 
         if self.initialize:
@@ -211,8 +211,8 @@ class LTEPlasma(BasePlasma):
             self.partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
                 group_calculate_partition_function)
 
-
-            self.atom_data.atom_ion_index = Series(np.arange(len(self.partition_functions)), self.partition_functions.index)
+            self.atom_data.atom_ion_index = Series(np.arange(len(self.partition_functions)),
+                self.partition_functions.index)
             self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
                                                          self.atom_data.levels.index.droplevel(2)].values
         else:
@@ -221,15 +221,12 @@ class LTEPlasma(BasePlasma):
 
             for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
                 if species in self.nlte_species:
-                    logger.debug('Ignoring species %s as NLTE species' % (species, ))
-                    ##### MAKE MAGIC HAPPEN WITH calculating the partition functions differently
-
-                    continue
-
-                self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
-
-
-
+                    ground_level_population = self.level_populations[species][0]
+                    self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] *\
+                                                           np.sum(self.level_populations[
+                                                                  species].values / ground_level_population)
+                else:
+                    self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
 
 
     def calculate_saha(self):
@@ -277,6 +274,7 @@ class LTEPlasma(BasePlasma):
 
         if self.ion_number_density is None:
             self.ion_number_density = pd.Series(index=self.partition_functions.index.copy())
+            self.cleaned_levels = pd.Series(index=self.partition_functions.index.copy())
 
         for atomic_number, groups in phis.groupby(level='atomic_number'):
             current_phis = groups.values / electron_density
@@ -319,6 +317,7 @@ class LTEPlasma(BasePlasma):
         Calculating the NLTE level populations for specific ions
 
         """
+
         if not hasattr(self, 'beta_sobolevs'):
             self.beta_sobolevs = np.empty_like(self.atom_data.lines['nu'].values)
         else:
@@ -337,15 +336,14 @@ class LTEPlasma(BasePlasma):
                 n_lower = self.level_populations.ix[atomic_number, ion_number, line['level_number_lower']]
                 n_upper = self.level_populations.ix[atomic_number, ion_number, line['level_number_upper']]
 
-
-
-
                 cur_beta_sobolev = self.beta_sobolevs[i]
 
-                stimulated_emission_term = (1 - (n_upper * line['B_ul'])/(n_lower * line['B_lu']))
+                stimulated_emission_term = (1 - (n_upper * line['B_ul']) / (n_lower * line['B_lu']))
+
+                if stimulated_emission_term < 0:
+                    print "problem stim em < 0"
                 r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[i] * stimulated_emission_term
                 r_ul = line['A_ul'] * cur_beta_sobolev
-
 
                 rates_matrix[line['level_number_upper'], line['level_number_lower']] = r_lu
                 rates_matrix[line['level_number_lower'], line['level_number_upper']] = r_ul
@@ -358,13 +356,24 @@ class LTEPlasma(BasePlasma):
             x[0] = 1.0
             self.level_populations.ix[species] = np.linalg.solve(rates_matrix, x) * self.ion_number_density.ix[species]
 
+            #Cleaning Level populations
+            self.cleaned_levels.ix[species] = 0
+            for i in xrange(1, number_of_levels):
+                n_upper = self.level_populations.ix[species][i]
+                n_lower = self.level_populations.ix[species][i - 1]
 
+                g_upper = float(self.atom_data.levels.ix[species]['g'][i])
+                g_lower = float(self.atom_data.levels.ix[species]['g'][i - 1])
 
+                current_stim_ems = (n_upper / n_lower) * (g_lower / g_upper)
 
-
-
-
-
+                if current_stim_ems > 1.:
+                    self.level_populations.ix[species[0], species[1], i] = (1 - 1e-12) * (g_upper / g_lower) * n_lower
+                    self.cleaned_levels.ix[species] += 1
+                #### After cleaning check if the normalization is good:
+            if abs((self.level_populations.ix[species].sum() / self.ion_number_density.ix[species] - 1)) > 0.02:
+                logger.warn("NLTE populations (after cleaning) does not sum up to 1 within 2% (%.2f / 1.0)",
+                    ((1 - self.level_populations.ix[species].sum() / self.ion_number_density.ix[species])))
 
 
     def calculate_tau_sobolev(self):
@@ -393,7 +402,7 @@ class LTEPlasma(BasePlasma):
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
         self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower
 
-    def update_macro_atom(self, tau_sobolevs, j_nu_factor=1.):
+    def update_macro_atom(self, tau_sobolevs):
         """
             Updating the Macro Atom computations
 
@@ -450,13 +459,16 @@ class NebularPlasma(LTEPlasma):
 
     """
 
-    def __init__(self, abundances, atom_data, t_electron=None, density_unit='g/cm^3', max_ion_number=None,
+    def __init__(self, abundances, atom_data, time_explosion, nlte_species=[], t_electron=None, density_unit='g/cm^3',
+                 max_ion_number=None,
                  use_macro_atom=False):
-        BasePlasma.__init__(self, abundances, atom_data, density_unit=density_unit,
+        BasePlasma.__init__(self, abundances, atom_data, time_explosion=time_explosion, density_unit=density_unit,
             max_ion_number=max_ion_number,
             use_macro_atom=use_macro_atom)
 
         self.ion_number_density = None
+        self.nlte_species = nlte_species
+
 
     def update_radiationfield(self, t_rad, w, t_electron=None, n_e_convergence_threshold=0.05):
         BasePlasma.update_radiationfield(self, t_rad)
@@ -468,7 +480,10 @@ class NebularPlasma(LTEPlasma):
 
         self.beta_electron = 1 / (self.t_electron * constants.cgs.k_B.value)
 
-        self.partition_functions = self.calculate_partition_functions()
+        ##### take out and change to a setting method later ######
+        self.j_blues = self.w * intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
+
+        self.calculate_partition_functions()
 
         self.ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
         #Calculate the Saha ionization balance fractions
@@ -489,8 +504,14 @@ class NebularPlasma(LTEPlasma):
 
         self.electron_density = new_electron_density
         logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
+        if self.initialize:
+            self.calculate_level_populations()
 
-        self.calculate_level_populations()
+        self.calculate_tau_sobolev()
+        self.calculate_nlte_level_populations()
+
+        if self.initialize:
+            self.initialize = False
 
 
     def calculate_partition_functions(self):
@@ -518,15 +539,30 @@ class NebularPlasma(LTEPlasma):
             non_meta_z = np.sum(group['g'][~metastable] * np.exp(-group['energy'][~metastable] * self.beta_rad))
             return meta_z + self.w * non_meta_z
 
-        partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
-            group_calculate_partition_function)
 
-        if self.atom_data.atom_ion_index is None:
-            self.atom_data.atom_ion_index = Series(np.arange(len(partition_functions)), partition_functions.index)
+        if self.initialize:
+            logger.debug('Initializing the partition functions and indices')
+
+            self.partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
+                group_calculate_partition_function)
+
+            self.atom_data.atom_ion_index = Series(np.arange(len(self.partition_functions)),
+                self.partition_functions.index)
             self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
                                                          self.atom_data.levels.index.droplevel(2)].values
+        else:
+            if not hasattr(self, 'partition_functions'):
+                raise ValueError("Called calculate partition_functions without initializing at least once")
 
-        return partition_functions
+            for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
+                if species in self.nlte_species:
+                    ground_level_population = self.level_populations[species][0]
+                    self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] *\
+                                                           np.sum(self.level_populations[
+                                                                  species].values / ground_level_population)
+                else:
+                    self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
+
 
     def calculate_saha(self):
         """
@@ -662,4 +698,12 @@ class NebularPlasma(LTEPlasma):
         level_populations[~self.atom_data.levels['metastable']] *= self.w
 
         self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
+
+        if self.initialize:
+            self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
+
+        else:
+            level_populations = Series(level_populations, index=self.atom_data.levels.index)
+            self.level_populations.update(level_populations[~self.atom_data.nlte_mask])
+
 
