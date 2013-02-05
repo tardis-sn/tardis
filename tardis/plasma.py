@@ -145,8 +145,8 @@ class LTEPlasma(BasePlasma):
        """
         BasePlasma.update_radiationfield(self, t_rad)
 
-        ##### take out and change to a setting method later ######
-        self.j_blues = intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
+        if self.initialize:
+            self.set_j_blues()
 
         self.calculate_partition_functions(initialize=self.initialize)
 
@@ -175,6 +175,9 @@ class LTEPlasma(BasePlasma):
         self.calculate_nlte_level_populations()
         if self.initialize:
             self.initialize = False
+
+    def set_j_blues(self):
+        self.j_blues = intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
 
 
     def calculate_partition_functions(self, initialize=False):
@@ -370,7 +373,7 @@ class LTEPlasma(BasePlasma):
                 if current_stim_ems > 1.:
                     self.level_populations.ix[species[0], species[1], i] = (1 - 1e-12) * (g_upper / g_lower) * n_lower
                     self.cleaned_levels.ix[species] += 1
-                #### After cleaning check if the normalization is good:
+                    #### After cleaning check if the normalization is good:
             if abs((self.level_populations.ix[species].sum() / self.ion_number_density.ix[species] - 1)) > 0.02:
                 logger.warn("NLTE populations (after cleaning) does not sum up to 1 within 2% (%.2f / 1.0)",
                     ((1 - self.level_populations.ix[species].sum() / self.ion_number_density.ix[species])))
@@ -402,13 +405,13 @@ class LTEPlasma(BasePlasma):
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
         self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower
 
-    def update_macro_atom(self, tau_sobolevs):
+    def update_macro_atom(self):
         """
             Updating the Macro Atom computations
 
         """
 
-        macro_tau_sobolevs = tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values]
+        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values]
 
         beta_sobolevs = np.empty_like(macro_tau_sobolevs)
 
@@ -418,7 +421,7 @@ class LTEPlasma(BasePlasma):
 
         transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
 
-        j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values]
+        j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
 
         transition_probabilities[transition_up_filter.__array__()] *= j_blues
 
@@ -480,8 +483,8 @@ class NebularPlasma(LTEPlasma):
 
         self.beta_electron = 1 / (self.t_electron * constants.cgs.k_B.value)
 
-        ##### take out and change to a setting method later ######
-        self.j_blues = self.w * intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
+        if self.initialize:
+            self.set_j_blues()
 
         self.calculate_partition_functions()
 
@@ -513,6 +516,8 @@ class NebularPlasma(LTEPlasma):
         if self.initialize:
             self.initialize = False
 
+    def set_j_blues(self):
+        self.j_blues = self.w * intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
 
     def calculate_partition_functions(self):
         """

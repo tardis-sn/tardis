@@ -37,7 +37,6 @@ def reformat_element_symbol(element_symbol):
     return ''.join(element_str)
 
 
-
 def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.9999584, density_coefficient=3e29):
     """
         Generated densities from the fit to W7 in Branch 85 page 620 (citation missing)
@@ -131,7 +130,6 @@ def read_lucy99_abundances(fname=None):
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
 
-
 class TardisConfiguration(object):
     """
     Tardis configuration class
@@ -150,7 +148,6 @@ class TardisConfiguration(object):
         return config_object
 
 
-
     def __init__(self):
         self.velocities = None
         self.densities = None
@@ -164,7 +161,6 @@ class TardisConfiguration(object):
         self.time_of_simulation = None
         self.exponential_n_factor = 10
         self.exponential_rho_0 = 10e5
-        self.simulation_type = 'single_run'
 
 
     def parse_general_section(self, config_dict):
@@ -211,7 +207,6 @@ class TardisConfiguration(object):
 
         density_set = config_dict.pop('density_set')
 
-
         if density_set == 'w7_branch85':
             self.densities = calculate_w7_branch85_densities(
                 self.velocities,
@@ -219,7 +214,8 @@ class TardisConfiguration(object):
         elif density_set == 'exponential':
             #TODO:Add here the function call which generates the exponential density profile. The easy way from tonight don't  work as expected!!
             if not (('exponential_n_factor' in config_dict) and ('exponential_rho0' in config_dict)):
-                raise ValueError('If density_set=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified.')
+                raise ValueError(
+                    'If density_set=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified.')
 
             self.exponential_n_factor = float(config_dict.pop('exponential_n_factor'))
             self.exponential_rho_0 = float(config_dict.pop('exponential_rho0'))
@@ -247,34 +243,21 @@ class TardisConfiguration(object):
         if 'atom_data_file' not in config_dict:
             raise ValueError("Please specify a filename with the keyword 'atom_data_file'")
 
-        if self.line_interaction_type == 'scatter':
+        if self.plasma_type.lower == 'lte':
             self.atom_data = atomic.AtomData.from_hdf5(config_dict['atom_data_file'])
         else:
             self.atom_data = atomic.AtomData.from_hdf5(config_dict['atom_data_file'], use_macro_atom=True,
-                                                        use_zeta_data=True)
+                use_zeta_data=True)
 
 
         # reading number of packets and iterations
-        if 'single_run_packets' in config_dict:
-            if [item for item in ('spectrum_packets', 'calibration_packets') if item in config_dict]:
-                raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or '
-                                 '"single_run_packets" in config file')
-
-            self.simulation_type = 'single_run'
-            self.single_run_packets = int(
-                float(config_dict.pop('single_run_packets')))
-        elif len([item for item in ('spectrum_packets', 'calibration_packets', 'iterations') if item in config_dict]) == 3:
-            self.calibration_packets = int(
-                float(config_dict.pop('calibration_packets')))
-            self.spectrum_packets = int(
-                float(config_dict.pop('spectrum_packets')))
+        if 'iterations' in config_dict and 'no_of_packets' in config_dict:
             self.iterations = int(float(config_dict.pop('iterations')))
+            self.no_of_packets = int(float(config_dict.pop('no_of_packets')))
         else:
-            raise ValueError('Please specify either "spectrum_packets"/"calibration_packets"/"iterations" or'
-                             ' "single_run_packets" in config file')
+            raise ValueError("'no_of_packets' and 'iterations' needs to be set in the configuration")
 
         # TODO fix quantity spectral in astropy
-
         spectrum_start_value, spectrum_end_unit = config_dict.pop(
             'spectrum_start').split()
         self.spectrum_start = units.Quantity(
@@ -301,13 +284,13 @@ class TardisConfiguration(object):
             for species_symbol in abundance_dict.pop('nlte_species').split(','):
                 species_match = species_pattern.match(species_symbol)
                 if species_match is None:
-                    raise ValueError("'nlte_species' element %s could not be matched to a valid species notation (e.g. Ca2)")
+                    raise ValueError(
+                        "'nlte_species' element %s could not be matched to a valid species notation (e.g. Ca2)")
                 species_element, species_ion = species_match.groups()
                 species_element = reformat_element_symbol(species_element)
                 if species_element not in self.atom_data.symbol2atomic_number:
                     raise ValueError("Element provided in NLTE species %s unknown" % species_element)
                 self.nlte_species.append((self.atom_data.symbol2atomic_number[species_element], int(species_ion) - 1))
-
 
         for element in abundance_dict:
             element_symbol = reformat_element_symbol(element)
@@ -315,13 +298,11 @@ class TardisConfiguration(object):
                 raise ValueError('Element %s provided in config unknown' % element_symbol)
             if element_symbol in abundances:
                 logger.debug('Element %s already in abundances - overwriting %g with %g', (element_symbol,
-                                                                               abundances[element_symbol],
-                                                                               abundance_dict[element]))
+                                                                                           abundances[element_symbol],
+                                                                                           abundance_dict[element]))
             abundances[element_symbol] = float(abundance_dict[element])
 
         self.set_abundances(abundances)
-
-
 
 
     @property
@@ -330,27 +311,9 @@ class TardisConfiguration(object):
 
     @line_interaction_type.setter
     def line_interaction_type(self, value):
-
         if value not in ('scatter', 'downbranch', 'macroatom'):
             raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
         self._line_interaction_type = value
-
-
-
-
-    @property
-    def number_of_packets(self):
-        """
-
-        returns the right number of packets with single run and will keep track of iterations with
-        multirun
-
-        """
-        if self.simulation_type == 'single_run':
-            return self.single_run_packets
-        else:
-            raise ValueError('Currently only single_run supported')
-
 
 
     def set_velocities(self, velocities=None, v_inner=None, v_outer=None, v_sampling='linear'):

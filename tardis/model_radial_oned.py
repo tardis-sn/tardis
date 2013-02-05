@@ -6,14 +6,13 @@ import logging
 import config_reader
 import pandas as pd
 from astropy import constants
+from copy import deepcopy
 
 logger = logging.getLogger(__name__)
 
 c = constants.cgs.c.value
 h = constants.cgs.h.value
 kb = constants.cgs.k_B.value
-
-
 
 w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
 
@@ -66,7 +65,6 @@ class Radial1DModel(object):
     """
 
 
-
     def __init__(self, tardis_config):
         #final preparation for configuration object
         tardis_config.final_preparation()
@@ -77,7 +75,6 @@ class Radial1DModel(object):
 
         self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.spectrum_start,
             tardis_config.spectrum_end)
-
 
         self.no_of_shells = tardis_config.no_of_shells
 
@@ -107,12 +104,12 @@ class Radial1DModel(object):
 
         self.luminosity_outer = tardis_config.luminosity_outer
 
-        self.no_of_packets = tardis_config.number_of_packets
-
+        self.no_of_packets = tardis_config.no_of_packets
+        self.iterations = tardis_config.iterations
         self.create_packets()
 
 
-    #Selecting plasma class
+        #Selecting plasma class
         self.plasma_type = tardis_config.plasma_type
         if self.plasma_type == 'lte':
             self.plasma_class = plasma.LTEPlasma
@@ -141,7 +138,7 @@ class Radial1DModel(object):
         self.line_interaction_type = tardis_config.line_interaction_type
 
 
-    #setting dilution factors
+        #setting dilution factors
         if tardis_config.ws is None:
             self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
         else:
@@ -190,13 +187,14 @@ class Radial1DModel(object):
     @t_inner.setter
     def t_inner(self, value):
         self._t_inner = value
-        self.luminosity_inner = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0]**2 * self._t_inner**4
+        self.luminosity_inner = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0] ** 2 * self._t_inner ** 4
         self.time_of_simulation = 1 / self.luminosity_inner
 
 
     def create_packets(self):
         #Energy emitted from the inner boundary
-        self.emitted_inner_energy = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0]**2 * (self.t_inner)**4
+        self.emitted_inner_energy = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0] ** 2 * (
+            self.t_inner) ** 4
         self.packet_src.create_packets(self.no_of_packets, self.t_inner)
 
     def initialize_plasmas(self):
@@ -210,13 +208,14 @@ class Radial1DModel(object):
         if self.plasma_type == 'lte':
             for i, (current_abundances, current_t_rad) in\
             enumerate(zip(self.number_densities, self.t_rads)):
-                current_plasma = self.plasma_class(current_abundances, self.atom_data, nlte_species=self.tardis_config.nlte_species)
+                current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
+                    nlte_species=self.tardis_config.nlte_species)
                 current_plasma.update_radiationfield(current_t_rad)
-                self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
+                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
                 #TODO change this
                 if self.line_interaction_id in (1, 2):
-                    self.transition_probabilities.append(current_plasma.update_macro_atom(self.tau_sobolevs[i]).values)
+                    self.transition_probabilities.append(current_plasma.update_macro_atom().values)
 
                 self.plasmas.append(current_plasma)
 
@@ -224,13 +223,13 @@ class Radial1DModel(object):
         elif self.plasma_type == 'nebular':
             for i, (current_abundances, current_t_rad, current_w) in\
             enumerate(zip(self.number_densities, self.t_rads, self.ws)):
-                current_plasma = self.plasma_class(current_abundances, self.atom_data)
+                current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
+                    nlte_species=self.tardis_config.nlte_species)
                 current_plasma.update_radiationfield(current_t_rad, current_w)
-                self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
+                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
                 if self.line_interaction_id in (1, 2):
-                    self.transition_probabilities.append(current_plasma.update_macro_atom(self.tau_sobolevs[i],
-                        j_nu_factor=current_w).values)
+                    self.transition_probabilities.append(current_plasma.update_macro_atom().values)
 
                 self.plasmas.append(current_plasma)
 
@@ -264,27 +263,27 @@ class Radial1DModel(object):
         trad_estimator_constant = 0.260944706 * h / kb # (pi**4 / 15)/ (24*zeta(5))
 
         updated_t_rads = trad_estimator_constant * nubar_estimator / j_estimator
-        updated_ws = j_estimator / (4 * constants.cgs.sigma_sb.value * updated_t_rads**4 * self.time_of_simulation * self.volumes)
+        updated_ws = j_estimator / (
+            4 * constants.cgs.sigma_sb.value * updated_t_rads ** 4 * self.time_of_simulation * self.volumes)
 
         return updated_t_rads, updated_ws
-
-
 
 
     def update_plasmas(self, updated_t_rads, updated_ws=None):
         if self.plasma_type == 'lte':
             self.t_rads = updated_t_rads
             for i, (current_plasma, new_trad) in enumerate(zip(self.plasmas, updated_t_rads, updated_ws)):
+                current_plasma.set_j_blues()
                 current_plasma.update_radiationfield(new_trad)
-                self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
+                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
         elif self.plasma_type == 'nebular':
             self.t_rads = updated_t_rads
             self.ws = updated_ws
             for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, updated_t_rads, updated_ws)):
+                current_plasma.set_j_blues()
                 current_plasma.update_radiationfield(new_trad, new_ws)
-                self.tau_sobolevs[i] = current_plasma.calculate_tau_sobolev(self.time_explosion)
-
+                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
 
 def calculate_atom_number_densities(atom_data, abundances, density):
@@ -321,3 +320,14 @@ def calculate_atom_number_densities(atom_data, abundances, density):
 
     return pd.DataFrame({'abundance_fraction': abundance_fractions, 'number_density': number_densities})
 
+
+class ModelHistory(object):
+    """
+    Records the history of the model
+    """
+
+    def __init__(self):
+        self.plasmas = []
+
+    def store_all(self, radial1d_mdl):
+        self.plasmas.append(deepcopy(radial1d_mdl))
