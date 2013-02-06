@@ -117,12 +117,11 @@ class Radial1DModel(object):
 
         self.create_packets()
 
-        spec_nu = np.linspace(configuration_object.spectrum_start_nu, configuration_object.spectrum_end_nu, configuration_object.spectrum_bins+1)
+        self.spec_virt_nu = np.linspace(configuration_object.spectrum_start_nu, configuration_object.spectrum_end_nu, configuration_object.spectrum_bins+1)
         
-        self.spec_bin_numin = spec_nu[:-1]
-        self.spec_bin_numax = spec_nu[1:]
-        self.spec_bin_flux = np.zeros_like(self.spec_bin_numin)
-
+        self.spec_virt_flux_nu = np.zeros_like(self.spec_virt_nu)
+        
+        
     #Selecting plasma class
         self.plasma_type = configuration_object.plasma_type
         if self.plasma_type == 'lte':
