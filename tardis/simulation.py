@@ -2,11 +2,9 @@ import constants
 import numpy as np
 import montecarlo_multizone
 import time
-import model
 import os
 import logging
 import synspec
-import texttable
 import pdb
 import pandas as pd
 
@@ -27,13 +25,13 @@ def run_single_radial1d(radial1d_model):
 
     """
 
-    out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model)
+    out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model,0)
 
 
 
 def run_radial1d(radial1d_model):
-    for i in range(9):
-        out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model)
+    for i in range(10):
+        out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model,0)
         updated_t_rads, updated_ws = radial1d_model.calculate_updated_radiationfield(nubar_estimators, j_estimators)
 
 
@@ -55,7 +53,14 @@ def run_radial1d(radial1d_model):
         radial1d_model.t_inner = 0.5 * (new_t_inner + radial1d_model.t_inner)
         radial1d_model.create_packets()
         radial1d_model.update_plasmas(new_trads, new_ws)
+        spec_nu_flux = np.histogram(out_nu, weights=out_energy, bins=radial1d_model.spec_virt_nu)
 
+
+    #trying out the virtual packets bit
+    out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model,10)
+        
+        #return out_energy
+    return spec_nu_flux
     return synspec.get_lambda_spec(out_nu, out_energy, 500*1e-8, 20000*1e-8, samples=1000)
 
 
