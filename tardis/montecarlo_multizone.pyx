@@ -6,6 +6,8 @@
 
 import numpy as np
 import logging
+import time
+
 
 from astropy import constants
 
@@ -142,7 +144,7 @@ cdef class StorageModel:
         cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.tau_sobolevs
         self.line_lists_tau_sobolevs_a=line_lists_tau_sobolevs
         self.line_lists_tau_sobolevs = <float_type_t*>self.line_lists_tau_sobolevs_a.data
-        self.line_lists_tau_sobolevs_nd = self.line_lists_tau_sobolevs_a.shape[0]
+        self.line_lists_tau_sobolevs_nd = self.line_lists_tau_sobolevs_a.shape[1]
         
         #
         self.line_interaction_id = model.line_interaction_id
@@ -157,7 +159,7 @@ cdef class StorageModel:
             transition_probabilities=model.transition_probabilities
             self.transition_probabilities_a=transition_probabilities
             self.transition_probabilities = <float_type_t*>self.transition_probabilities_a.data
-            self.transition_probabilities_nd = self.transition_probabilities_a.shape[0]
+            self.transition_probabilities_nd = self.transition_probabilities_a.shape[1]
             #
             line2macro_level_upper=model.atom_data.lines_upper2macro_reference_idx
             self.line2macro_level_upper_a=line2macro_level_upper
@@ -165,15 +167,18 @@ cdef class StorageModel:
             macro_block_references=model.atom_data.macro_atom_references['block_references'].values
             self.macro_block_references_a=macro_block_references
             self.macro_block_references=<int_type_t*> self.macro_block_references_a.data
-            transition_type=model.atom_data.macro_atom_references['block_references'].values
+            transition_type=model.atom_data.macro_atom_data['transition_type'].values
             self.transition_type_a=transition_type
             self.transition_type=<int_type_t*> self.transition_type_a.data
-            destination_level_id=model.atom_data.macro_atom_data['destination_level_idx'].values.astype(np.int64)
+            destination_level_id=model.atom_data.macro_atom_data['destination_level_idx'].values
+            #print "preparing stuff " , destination_level_id[0], destination_level_id[5], destination_level_id[10]
             self.destination_level_id_a=destination_level_id
+            #print "preparing stuff(2) " , self.destination_level_id_a[0], self.destination_level_id_a[5], self.destination_level_id_a[10]
             self.destination_level_id=<int_type_t*> self.destination_level_id_a.data
+            #print "preparing stuff(3) " , self.destination_level_id[0], self.destination_level_id[5], self.destination_level_id[10]
             transition_line_id=model.atom_data.macro_atom_data['lines_idx'].values
             self.transition_line_id_a=transition_line_id
-            self.destination_level_id=<int_type_t*> self.transition_line_id_a.data
+            self.transition_line_id=<int_type_t*> self.transition_line_id_a.data
 
         cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(model.no_of_shells, dtype=np.float64)
         cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(model.no_of_shells, dtype=np.float64)
@@ -240,31 +245,48 @@ cdef int_type_t binary_search(float_type_t* nu, float_type_t nu_insert, int_type
     return imin + 1
 
 #variables are restframe if not specified by prefix comov_
-cdef inline int_type_t macro_atom(long activate_level,
+cdef inline int_type_t macro_atom(int_type_t activate_level,
                                   float_type_t* p_transition,
                                   int_type_t p_transition_nd,
                                   int_type_t* type_transition,
                                   int_type_t* target_level_id,
                                   int_type_t* target_line_id,
                                   int_type_t* unroll_reference,
-                                  long cur_zone_id):
+                                  int_type_t cur_zone_id):
     cdef int_type_t emit, i = 0
     cdef float_type_t p, event_random = 0.0
-    #    print "Activating Level %d" % activate_level
+    #print "Activating Level %d" % activate_level
     while True:
         event_random = rk_double(&mt_state)
+        #activate_level = 7
         i = unroll_reference[activate_level]
+        #i_end = unroll_reference[activate_level + 1]
+        #print "checking tprops %.5g" % (p_transition[cur_zone_id * p_transition_nd +i: cur_zone_id * p_transition_nd +i_end)
         #        print "jumping to block_references %d" % i
         p = 0.0
+        #cur_zone_id=10
+
+        #print "bunch of numbers %g %g %g %g %g %g %g %g %g" % ( p_transition[i], p_transition[i+1], p_transition[i+2], p_transition[i+3], p_transition[i+4], p_transition[i+5], p_transition[i+6], p_transition[i+7], p_transition[i+8])
+        #print "new bunch of numbers %g %g %g %g %g %g %g %g %g" % ( p_transition[cur_zone_id * p_transition_nd + i], p_transition[cur_zone_id * p_transition_nd + i+1], p_transition[cur_zone_id * p_transition_nd + i+2], p_transition[cur_zone_id * p_transition_nd + i+3], p_transition[cur_zone_id * p_transition_nd + i+4], p_transition[cur_zone_id * p_transition_nd + i+5], p_transition[cur_zone_id * p_transition_nd + i+6], p_transition[cur_zone_id * p_transition_nd + i+7], p_transition[cur_zone_id * p_transition_nd + i+8])
+        #print "p_transition_nd %g" % p_transition_nd
+
+        
         while True:
             p = p + p_transition[cur_zone_id * p_transition_nd + i]
+            #print " p %g %g %g" % (p, cur_zone_id, i)
             if p > event_random:
                 emit = type_transition[i]
                 #                print "assuming transition_id %d" % emit
                 activate_level = target_level_id[i]
+                #print "reActivating Level %g %g" % (activate_level, i)
                 break
             i += 1
+            if i == unroll_reference[activate_level+1]:
+                print "overrolling!"
+                print "activate level %g unroll_reference[activate_level] %g unroll_reference[activate_level+1] %g i %g %g %g" % (activate_level, unroll_reference[activate_level], unroll_reference[activate_level+1], i, event_random, p)
+                time.sleep(10000000)
 
+                #print "I just broke " , emit
         if emit == -1:
             IF packet_logging == True:
                 packet_logger.debug('Emitting in level %d', activate_level + 1)
@@ -899,6 +921,9 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t* c
                         emission_line_id = current_line_id[0] - 1
                     elif storage.line_interaction_id >= 1:# downbranch & macro
                         activate_level_id = storage.line2macro_level_upper[current_line_id[0] - 1]
+                        #print "HERE %g %g" %(current_line_id[0], activate_level_id)
+                        #print "DEST " , (storage.destination_level_id[0], storage.destination_level_id[5], storage.destination_level_id[10])
+                        #print "DEST " , (storage.macro_block_references[0], storage.macro_block_references[5], storage.macro_block_references[10])
                         emission_line_id = macro_atom(activate_level_id,
                             storage.transition_probabilities,
                             storage.transition_probabilities_nd,
