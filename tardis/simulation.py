@@ -25,7 +25,7 @@ def run_single_radial1d(radial1d_model):
 
     """
 
-    out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model,0)
+    out_nu, out_energy, j_estimators, nubar_estimators = montecarlo_multizone.montecarlo_radial1d(radial1d_model, 0)
 
 
 def run_radial1d(radial1d_model, save_history=None):
@@ -54,15 +54,17 @@ def run_radial1d(radial1d_model, save_history=None):
         spec_nu_flux = np.histogram(out_nu, weights=out_energy, bins=radial1d_model.spec_virt_nu)
 
 
-    #trying out the virtual packets bit
-    out_nu, out_energy, j_estimators, nubar_estimators =  montecarlo_multizone.montecarlo_radial1d(radial1d_model,10)
-        
+        #trying out the virtual packets bit
+        out_nu, out_energy, j_estimators, nubar_estimators = montecarlo_multizone.montecarlo_radial1d(radial1d_model,
+            10)
+
         #return out_energy
-    return spec_nu_flux
-    return synspec.get_lambda_spec(out_nu, out_energy, 500*1e-8, 20000*1e-8, samples=1000)
+
+
         if save_history is not None:
             save_history.store_all(radial1d_model)
 
-    return synspec.get_lambda_spec(out_nu, out_energy, 500 * 1e-8, 20000 * 1e-8, samples=1000)
+    return spec_nu_flux
+
 
 

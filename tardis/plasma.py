@@ -168,7 +168,7 @@ class LTEPlasma(BasePlasma):
             if abs(new_electron_density - electron_density) / electron_density < n_e_convergence_threshold: break
             electron_density = 0.5 * (new_electron_density + electron_density)
         self.electron_density = new_electron_density
-        logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
+        logger.debug('Took %d iterations to converge on electron density' % n_e_iterations)
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
@@ -506,7 +506,7 @@ class NebularPlasma(LTEPlasma):
             electron_density = 0.5 * (new_electron_density + electron_density)
 
         self.electron_density = new_electron_density
-        logger.info('Took %d iterations to converge on electron density' % n_e_iterations)
+        logger.debug('Took %d iterations to converge on electron density' % n_e_iterations)
         if self.initialize:
             self.calculate_level_populations()
 

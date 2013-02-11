@@ -159,8 +159,6 @@ class TardisConfiguration(object):
 
         self._luminosity_outer = None
         self.time_of_simulation = None
-        self.exponential_n_factor = 10
-        self.exponential_rho_0 = 10e5
 
 
     def parse_general_section(self, config_dict):
@@ -205,7 +203,7 @@ class TardisConfiguration(object):
         self.set_velocities(
             v_inner=v_inner, v_outer=v_outer, v_sampling=v_sampling)
 
-        density_set = config_dict.pop('density_set')
+        density_set = config_dict.pop('density')
 
         if density_set == 'w7_branch85':
             self.densities = calculate_w7_branch85_densities(
@@ -215,7 +213,7 @@ class TardisConfiguration(object):
             #TODO:Add here the function call which generates the exponential density profile. The easy way from tonight don't  work as expected!!
             if not (('exponential_n_factor' in config_dict) and ('exponential_rho0' in config_dict)):
                 raise ValueError(
-                    'If density_set=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified.')
+                    'If density=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified.')
 
             self.exponential_n_factor = float(config_dict.pop('exponential_n_factor'))
             self.exponential_rho_0 = float(config_dict.pop('exponential_rho0'))
@@ -223,30 +221,40 @@ class TardisConfiguration(object):
             self.densities = calculate_exponential_densities(self.velocities, v_inner,
                 self.exponential_rho_0, self.exponential_n_factor)
 
+
         else:
-            raise ValueError(
-                'Curently only density_set = w7_branch85 or density_set = exponential are supported')
+            try:
+                density = float(density_set)
+            except ValueError:
+                raise ValueError(
+                    'Currently only density = w7_branch85 or density = exponential,'
+                    ' or specifying a uniform density (with a number) are supported')
+            self.densities = np.ones(self.no_of_shells) * density
+
 
         # reading plasma type
         self.plasma_type = config_dict.pop('plasma_type')
 
         # reading initial t_rad
         if 'initial_t_rad' in config_dict:
-            self.initial_t_rad = float(config_dict.pop('initial_t_rad'))
+            initial_t_rad_value, initial_t_rad_unit = config_dict.pop('initial_t_rad').split()
+            self.initial_t_rad = units.Quantity(float(initial_t_rad_value), initial_t_rad_unit).to('K').value
+            logger.info('Selected %g K as initial temperature', self.initial_t_rad)
         else:
             logger.warn('No initial shell temperature specified (initial_t_rad) - using default 10000 K')
 
         # reading line interaction type
-        self.line_interaction_type = config_dict.pop(
-            'line_interaction_type')
+        self.line_interaction_type = config_dict.pop('line_interaction_type')
 
-        if 'atom_data_file' not in config_dict:
+        atom_data_file = config_dict.pop('atom_data_file', None)
+
+        if atom_data_file is None:
             raise ValueError("Please specify a filename with the keyword 'atom_data_file'")
 
         if self.plasma_type.lower == 'lte':
-            self.atom_data = atomic.AtomData.from_hdf5(config_dict['atom_data_file'])
+            self.atom_data = atomic.AtomData.from_hdf5(atom_data_file)
         else:
-            self.atom_data = atomic.AtomData.from_hdf5(config_dict['atom_data_file'], use_macro_atom=True,
+            self.atom_data = atomic.AtomData.from_hdf5(atom_data_file, use_macro_atom=True,
                 use_zeta_data=True)
 
 
@@ -257,15 +265,43 @@ class TardisConfiguration(object):
         else:
             raise ValueError("'no_of_packets' and 'iterations' needs to be set in the configuration")
 
-        # TODO fix quantity spectral in astropy
+        last_no_of_packets = config_dict.pop('last_no_of_packets', None)
+        if last_no_of_packets is not None:
+            self.last_no_of_packets = int(float(last_no_of_packets))
+            logger.info('Last iteration will have %g packets', self.last_no_of_packets)
+
+        no_of_virtual_packets = config_dict.pop('no_of_virtual_packets', None)
+
+        if no_of_virtual_packets is not None:
+            self.no_of_virtual_packets = int(float(no_of_virtual_packets))
+            logger.info('Activating Virtual packets for last iteration (%g)', self.no_of_virtual_packets)
+
         spectrum_start_value, spectrum_end_unit = config_dict.pop(
             'spectrum_start').split()
-        self.spectrum_start = units.Quantity(
-            float(spectrum_start_value), spectrum_end_unit).value
-        spectrum_end_value, spectrum_end_unit = config_dict.pop(
-            'spectrum_end').split()
-        self.spectrum_end = units.Quantity(
-            float(spectrum_end_value), spectrum_end_unit).value
+        spectrum_start = units.Quantity(float(spectrum_start_value), spectrum_end_unit).to('angstrom',
+            units.spectral()).value
+
+        spectrum_end_value, spectrum_end_unit = config_dict.pop('spectrum_end').split()
+        spectrum_end = units.Quantity(float(spectrum_end_value), spectrum_end_unit).to('angstrom',
+            units.spectral()).value
+
+        self.spectrum_bins = int(float(config_dict.pop('spectrum_bins')))
+
+        if spectrum_end > spectrum_start:
+            logger.debug('Converted spectrum start/end to angstrom %.4g %.4g', spectrum_start, spectrum_end)
+            self.spectrum_start = spectrum_start
+            self.spectrum_end = spectrum_end
+
+        else:
+            logger.warn('Spectrum Start > Spectrum End in wavelength space - flipped them')
+
+            logger.debug('Converted spectrum start/end to angstrom %.4g %.4g', spectrum_end, spectrum_start)
+
+            self.spectrum_start = spectrum_end
+            self.spectrum_end = spectrum_start
+
+        self.spectrum_start_nu = units.Quantity(self.spectrum_end, 'angstrom').to('Hz', units.spectral())
+        self.spectrum_end_nu = units.Quantity(self.spectrum_start, 'angstrom').to('Hz', units.spectral())
 
         if config_dict != {}:
             logger.warn('Not all config options parsed - ignored %s' % config_dict)
