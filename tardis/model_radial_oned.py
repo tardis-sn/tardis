@@ -108,6 +108,13 @@ class Radial1DModel(object):
         self.iterations = tardis_config.iterations
         self.create_packets()
 
+        self.spec_virt_nu = np.linspace(configuration_object.spectrum_start_nu, configuration_object.spectrum_end_nu, configuration_object.spectrum_bins+1)
+        
+        self.spec_virt_flux_nu = np.zeros_like(self.spec_virt_nu)
+        
+        
+    #Selecting plasma class
+        self.plasma_type = configuration_object.plasma_type
 
         #Selecting plasma class
         self.plasma_type = tardis_config.plasma_type
