@@ -13,6 +13,7 @@ This is the documentation for the TARDIS package.
    atomic
    plasma_doc/plasma
    montecarlo
+   testing/index.rst
    glossary
    zreferences
 

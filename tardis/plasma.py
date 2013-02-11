@@ -32,7 +32,7 @@ def intensity_black_body(nu, T):
     """
     beta_rad = 1 / (constants.cgs.k_B.value * T)
 
-    return ((constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2)) * 1 / (
+    return ((constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2))  / (
         np.exp(constants.cgs.h.value * nu * beta_rad) - 1)
 
 
