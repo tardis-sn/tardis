@@ -8,7 +8,7 @@ import os
 
 import sys
 #from setuptools import setup, find_packages
-
+import numpy as np
 
 # Set affiliated package-specific settings
 PACKAGENAME = 'tardis'
@@ -62,6 +62,7 @@ setup(name=PACKAGENAME,
     package_dir=package_dir,
     package_data=package_data,
     ext_modules=extensions,
+    include_dirs=[np.get_include()],
     scripts=scripts,
     requires=['astropy', 'numpy', 'scipy'],
     install_requires=['astropy'],

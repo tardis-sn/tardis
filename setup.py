@@ -23,7 +23,7 @@ else:
 builtins._PACKAGE_SETUP_ = True
 
 from astropy import setup_helpers
-from astropy.version_helper import get_git_devstr, generate_version_py
+from astropy.version_helpers import get_git_devstr, generate_version_py
 
 # Set affiliated package-specific settings
 PACKAGENAME = 'tardis'
@@ -42,7 +42,7 @@ release = 'dev' not in version
 
 # Adjust the compiler in case the default on this platform is to use a
 # broken one.
-setup_helpers.adjust_compiler()
+setup_helpers.adjust_compiler(PACKAGENAME)
 
 if not release:
     version += get_git_devstr(False)
