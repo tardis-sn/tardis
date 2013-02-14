@@ -92,7 +92,7 @@ def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
 
     """
     densities = rho_0 * (velocity_0 / velocities) ** exponent
-    return  densities[1:]
+    return densities[1:]
 
 
 def read_w7_densities(fname=None):
@@ -125,7 +125,7 @@ def read_lucy99_abundances(fname=None):
     lucy99 = h5py.File(fname)['lucy99']
 
     logger.info("Choosing uniform abundance set 'lucy99':\n %s",
-        pd.DataFrame(lucy99.__array__()))
+                pd.DataFrame(lucy99.__array__()))
 
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
@@ -219,7 +219,7 @@ class TardisConfiguration(object):
             self.exponential_rho_0 = float(config_dict.pop('exponential_rho0'))
 
             self.densities = calculate_exponential_densities(self.velocities, v_inner,
-                self.exponential_rho_0, self.exponential_n_factor)
+                                                             self.exponential_rho_0, self.exponential_n_factor)
 
 
         else:
@@ -255,7 +255,7 @@ class TardisConfiguration(object):
             self.atom_data = atomic.AtomData.from_hdf5(atom_data_file)
         else:
             self.atom_data = atomic.AtomData.from_hdf5(atom_data_file, use_macro_atom=True,
-                use_zeta_data=True)
+                                                       use_zeta_data=True)
 
 
         # reading number of packets and iterations
@@ -269,21 +269,25 @@ class TardisConfiguration(object):
         if last_no_of_packets is not None:
             self.last_no_of_packets = int(float(last_no_of_packets))
             logger.info('Last iteration will have %g packets', self.last_no_of_packets)
+        else:
+            self.last_no_of_packets = None
 
         no_of_virtual_packets = config_dict.pop('no_of_virtual_packets', None)
 
         if no_of_virtual_packets is not None:
             self.no_of_virtual_packets = int(float(no_of_virtual_packets))
             logger.info('Activating Virtual packets for last iteration (%g)', self.no_of_virtual_packets)
+        else:
+            self.no_of_virtual_packets = None
 
         spectrum_start_value, spectrum_end_unit = config_dict.pop(
             'spectrum_start').split()
         spectrum_start = units.Quantity(float(spectrum_start_value), spectrum_end_unit).to('angstrom',
-            units.spectral()).value
+                                                                                           units.spectral()).value
 
         spectrum_end_value, spectrum_end_unit = config_dict.pop('spectrum_end').split()
         spectrum_end = units.Quantity(float(spectrum_end_value), spectrum_end_unit).to('angstrom',
-            units.spectral()).value
+                                                                                       units.spectral()).value
 
         self.spectrum_bins = int(float(config_dict.pop('spectrum_bins')))
 
@@ -302,6 +306,18 @@ class TardisConfiguration(object):
 
         self.spectrum_start_nu = units.Quantity(self.spectrum_end, 'angstrom').to('Hz', units.spectral())
         self.spectrum_end_nu = units.Quantity(self.spectrum_start, 'angstrom').to('Hz', units.spectral())
+
+        sn_distance = config_dict.pop('sn_distance', None)
+
+        if sn_distance is not None:
+            if sn_distance.strip().lower() == 'lum_density':
+                logger.info('Luminosity density requested setting distance to sqrt(1/(4*pi))')
+                self.sn_distance = np.sqrt(1 / (4 * np.pi))
+            else:
+                sn_distance_value, sn_distance_unit = sn_distance.split()
+                self.sn_distance = units.Quantity(sn_distance_value, sn_distance_unit).to('cm').value
+        else:
+            self.sn_distance = None
 
         if config_dict != {}:
             logger.warn('Not all config options parsed - ignored %s' % config_dict)

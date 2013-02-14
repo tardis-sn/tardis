@@ -5,8 +5,9 @@ import plasma, atomic, packet_source
 import logging
 import config_reader
 import pandas as pd
-from astropy import constants
+from astropy import constants, units
 from copy import deepcopy
+import pdb
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +75,7 @@ class Radial1DModel(object):
         self.atom_data = tardis_config.atom_data
 
         self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.spectrum_start,
-            tardis_config.spectrum_end)
+                                                                           tardis_config.spectrum_end)
 
         self.no_of_shells = tardis_config.no_of_shells
 
@@ -105,10 +106,11 @@ class Radial1DModel(object):
         self.iterations = tardis_config.iterations
         self.create_packets()
 
-        self.spec_virtual_nu = np.linspace(tardis_config.spectrum_start_nu, tardis_config.spectrum_end_nu,
-            tardis_config.spectrum_bins + 1)
+        self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu, tardis_config.spectrum_end_nu,
+                                        tardis_config.spectrum_bins + 1)
+        self.spec_nu = self.spec_nu_bins[:-1]
 
-        self.spec_virtual_flux_nu = np.zeros_like(self.spec_virtual_nu)
+        self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
 
 
         #Selecting plasma class
@@ -144,8 +146,8 @@ class Radial1DModel(object):
         if tardis_config.ws is None:
             self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
         else:
-            self.ws = np.array([(0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle[i] ** 2))) if w < 0\
-                                else w for i, w in enumerate(tardis_config.ws)])
+            self.ws = np.array([(0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle[i] ** 2))) if w < 0 \
+                                    else w for i, w in enumerate(tardis_config.ws)])
 
         #initializing temperatures
 
@@ -180,7 +182,7 @@ class Radial1DModel(object):
         self._line_interaction_type = value
         #final preparation for atom_data object - currently building data
         self.atom_data.prepare_atom_data(self.selected_atomic_numbers,
-            line_interaction_type=self.line_interaction_type, max_ion_number=None)
+                                         line_interaction_type=self.line_interaction_type, max_ion_number=None)
 
     @property
     def t_inner(self):
@@ -193,11 +195,14 @@ class Radial1DModel(object):
         self.time_of_simulation = 1 / self.luminosity_inner
 
 
-    def create_packets(self):
+    def create_packets(self, no_of_packets=None):
         #Energy emitted from the inner boundary
         self.emitted_inner_energy = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0] ** 2 * (
             self.t_inner) ** 4
-        self.packet_src.create_packets(self.no_of_packets, self.t_inner)
+
+        if no_of_packets is None:
+            no_of_packets = self.no_of_packets
+        self.packet_src.create_packets(no_of_packets, self.t_inner)
 
     def initialize_plasmas(self):
         self.plasmas = []
@@ -208,10 +213,10 @@ class Radial1DModel(object):
             self.transition_probabilities = []
 
         if self.plasma_type == 'lte':
-            for i, (current_abundances, current_t_rad) in\
-            enumerate(zip(self.number_densities, self.t_rads)):
+            for i, (current_abundances, current_t_rad) in \
+                enumerate(zip(self.number_densities, self.t_rads)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
-                    nlte_species=self.tardis_config.nlte_species)
+                                                   nlte_species=self.tardis_config.nlte_species)
                 current_plasma.update_radiationfield(current_t_rad)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
@@ -223,10 +228,10 @@ class Radial1DModel(object):
 
 
         elif self.plasma_type == 'nebular':
-            for i, (current_abundances, current_t_rad, current_w) in\
-            enumerate(zip(self.number_densities, self.t_rads, self.ws)):
+            for i, (current_abundances, current_t_rad, current_w) in \
+                enumerate(zip(self.number_densities, self.t_rads, self.ws)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
-                    nlte_species=self.tardis_config.nlte_species)
+                                                   nlte_species=self.tardis_config.nlte_species)
                 current_plasma.update_radiationfield(current_t_rad, current_w)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
@@ -287,6 +292,31 @@ class Radial1DModel(object):
                 current_plasma.update_radiationfield(new_trad, new_ws)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
+    def calculate_spectrum(self, out_nu, out_energy, distance=None):
+        self.out_nu = out_nu
+        self.out_energy = out_energy
+
+        if distance is None:
+            logger.info('Distance to supernova not selected assuming 10 pc for calculation of spectra')
+            distance = units.Quantity(10, 'pc').to('cm').value
+
+        self.spec_flux_nu = np.histogram(out_nu[out_nu > 0], weights=out_energy[out_nu > 0], bins=self.spec_nu_bins)[0]
+
+        flux_scale = self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) * (4 * np.pi * distance ** 2)
+
+        self.spec_flux_nu /= flux_scale
+
+        self.spec_virtual_flux_nu /= flux_scale
+
+        self.spec_reabsorbed_nu = np.histogram(out_nu[out_nu < 0], weights=out_energy[out_nu < 0], bins=self.spec_nu_bins)[0]
+        self.spec_reabsorbed_nu /= flux_scale
+
+        self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
+
+        self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.cgs.c / 1e8)
+        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.cgs.c / 1e8)
+        self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.cgs.c / 1e8)
+
 
 def calculate_atom_number_densities(atom_data, abundances, density):
     """
@@ -303,8 +333,8 @@ def calculate_atom_number_densities(atom_data, abundances, density):
 
 
     abundance_fractions = pd.Series(abundances.values(),
-        index=pd.Index([atom_data.symbol2atomic_number[item] for item in abundances.keys()],
-            dtype=np.int, name='atomic_number'), name='abundance_fraction')
+                                    index=pd.Index([atom_data.symbol2atomic_number[item] for item in abundances.keys()],
+                                                   dtype=np.int, name='atomic_number'), name='abundance_fraction')
 
 
 
@@ -317,7 +347,7 @@ def calculate_atom_number_densities(atom_data, abundances, density):
 
     abundance_fractions /= abundance_sum
 
-    number_densities = (abundance_fractions * density) /\
+    number_densities = (abundance_fractions * density) / \
                        atom_data.atom_data.ix[abundance_fractions.index]['mass']
 
     return pd.DataFrame({'abundance_fraction': abundance_fractions, 'number_density': number_densities})
