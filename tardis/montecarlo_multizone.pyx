@@ -46,6 +46,9 @@ cdef extern from "randomkit/randomkit.h":
 
 cdef np.ndarray x
 cdef class StorageModel:
+    """
+    Class for storing the arrays in a cythonized way (as pointers). This ensures fast access during the calculations.
+    """
     cdef np.ndarray packet_nus_a
     cdef float_type_t*packet_nus
     cdef np.ndarray packet_mus_a
@@ -169,11 +172,14 @@ cdef class StorageModel:
             transition_type = model.atom_data.macro_atom_data['transition_type'].values
             self.transition_type_a = transition_type
             self.transition_type = <int_type_t*> self.transition_type_a.data
+
+            #Destination level is not needed and/or generated for downbranch
             destination_level_id = model.atom_data.macro_atom_data['destination_level_idx'].values
             #print "preparing stuff " , destination_level_id[0], destination_level_id[5], destination_level_id[10]
             self.destination_level_id_a = destination_level_id
             #print "preparing stuff(2) " , self.destination_level_id_a[0], self.destination_level_id_a[5], self.destination_level_id_a[10]
             self.destination_level_id = <int_type_t*> self.destination_level_id_a.data
+
             #print "preparing stuff(3) " , self.destination_level_id[0], self.destination_level_id[5], self.destination_level_id[10]
             transition_line_id = model.atom_data.macro_atom_data['lines_idx'].values
             self.transition_line_id_a = transition_line_id
@@ -185,11 +191,11 @@ cdef class StorageModel:
         self.js = <float_type_t*> self.js_a.data
         self.nubars_a = nubars
         self.nubars = <float_type_t*> self.nubars_a.data
-        self.spectrum_start_nu = model.spec_virt_nu.min()
-        self.spectrum_end_nu = model.spec_virt_nu.max()
-        self.spectrum_delta_nu = model.spec_virt_nu[1] - model.spec_virt_nu[0]
+        self.spectrum_start_nu = model.spec_nu_bins.min()
+        self.spectrum_end_nu = model.spec_nu_bins.max()
+        self.spectrum_delta_nu = model.spec_nu_bins[1] - model.spec_nu_bins[0]
 
-        cdef np.ndarray[float_type_t, ndim=1] spectrum_virt_nu = model.spec_virt_flux_nu
+        cdef np.ndarray[float_type_t, ndim=1] spectrum_virt_nu = model.spec_virtual_flux_nu
         self.spectrum_virt_nu = <float_type_t*> spectrum_virt_nu.data
         #
         #
@@ -281,8 +287,9 @@ cdef inline int_type_t macro_atom(int_type_t activate_level,
             if i == unroll_reference[activate_level + 1]:
                 print "overrolling!"
                 print "activate level %g unroll_reference[activate_level] %g unroll_reference[activate_level+1] %g i %g %g %g" % (
-                activate_level, unroll_reference[activate_level], unroll_reference[activate_level + 1], i, event_random,
-                p)
+                    activate_level, unroll_reference[activate_level], unroll_reference[activate_level + 1], i,
+                    event_random,
+                    p)
                 time.sleep(10000000)
 
                 #print "I just broke " , emit
@@ -389,7 +396,7 @@ cdef float_type_t compute_distance2electron(float_type_t r, float_type_t mu, flo
 cdef inline float_type_t get_r_sobolev(float_type_t r, float_type_t mu, float_type_t d_line):
     return sqrt(r ** 2 + d_line ** 2 + 2 * r * d_line * mu)
 
-def montecarlo_radial1d(model, int_type_t virtual_packet_flag):
+def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     """
     Parameters
     ---------
@@ -491,13 +498,15 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag):
         #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
         #print "I'M STARTING A VIRTUAL FOR A NEW PACKET"
             reabsorbed = montecarlo_one_packet(storage, &current_nu, &current_energy, &current_mu, &current_shell_id,
-                &current_r, &current_line_id, &last_line, &close_line, &recently_crossed_boundary, virtual_packet_flag,
-                -1)
+                                               &current_r, &current_line_id, &last_line, &close_line,
+                                               &recently_crossed_boundary, virtual_packet_flag,
+                                               -1)
 
             #print "I'M ABOUT TO START A REAL PACKET"
         #Now can do the propagation of the real packet
         reabsorbed = montecarlo_one_packet(storage, &current_nu, &current_energy, &current_mu, &current_shell_id,
-            &current_r, &current_line_id, &last_line, &close_line, &recently_crossed_boundary, virtual_packet_flag, 0)
+                                           &current_r, &current_line_id, &last_line, &close_line,
+                                           &recently_crossed_boundary, virtual_packet_flag, 0)
 
         if reabsorbed == 1: #reabsorbed
             output_nus[i] = -current_nu
@@ -543,7 +552,8 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
     if (virtual_mode == 0):
         #print "I'M DOING A REAL PACKET"
         reabsorbed = montecarlo_one_packet_loop(storage, current_nu, current_energy, current_mu, current_shell_id,
-            current_r, current_line_id, last_line, close_line, recently_crossed_boundary, virtual_packet_flag, 0)
+                                                current_r, current_line_id, last_line, close_line,
+                                                recently_crossed_boundary, virtual_packet_flag, 0)
     else:
         #print "I'M DOING AN EXTRACT"
         for i in range(virtual_packet_flag):
@@ -570,7 +580,7 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
             #the virtual packets are spawned with known comoving frame energy and frequency
 
             doppler_factor_ratio = (1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c)) / (
-            1 - (current_mu_virt * current_r_virt * storage.inverse_time_explosion * inverse_c))
+                1 - (current_mu_virt * current_r_virt * storage.inverse_time_explosion * inverse_c))
 
             current_energy_virt = current_energy[0] * doppler_factor_ratio
             current_nu_virt = current_nu[0] * doppler_factor_ratio
@@ -580,11 +590,12 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
             #print "current_nu_virt %g current_energy_virt %g current_mu_virt %g current_shell_id_virt %g current_r_virt %g comov_current_nu_virt %g current_line_id_virt %g last_line_virt %g close_line_virt %g recently_crossed_boundary_virt %g virtual_packet_flag %g " % (current_nu_virt , current_energy_virt , current_mu_virt , current_shell_id_virt , current_r_virt, comov_current_nu_virt, current_line_id_virt, last_line_virt, close_line_virt, recently_crossed_boundary_virt, virtual_packet_flag)
             #print "r_inner %g r_outer %g" % (storage.r_inner[current_shell_id[0]], storage.r_outer[current_shell_id[0]])
             reabsorbed = montecarlo_one_packet_loop(storage, &current_nu_virt, &current_energy_virt, &current_mu_virt,
-                &current_shell_id_virt, &current_r_virt, &current_line_id_virt, &last_line_virt, &close_line_virt,
-                &recently_crossed_boundary_virt, virtual_packet_flag, 1)
+                                                    &current_shell_id_virt, &current_r_virt, &current_line_id_virt,
+                                                    &last_line_virt, &close_line_virt,
+                                                    &recently_crossed_boundary_virt, virtual_packet_flag, 1)
 
-            #
-            #Need to add here lines of code to actually put this packet into an output spectrum, which should belong to storage.
+
+            #Putting the virtual nu into the output spectrum
             if (current_nu_virt < storage.spectrum_end_nu) and (current_nu_virt > storage.spectrum_start_nu):
                 virt_id_nu = floor(( current_nu_virt - storage.spectrum_start_nu) / storage.spectrum_delta_nu)
                 storage.spectrum_virt_nu[virt_id_nu] += current_energy_virt * weight
@@ -677,10 +688,11 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                 d_line = miss_distance
             else:
                 d_line = compute_distance2line(current_r[0], current_mu[0], current_nu[0], nu_line,
-                    storage.time_explosion,
-                    storage.inverse_time_explosion,
-                    storage.line_list_nu[current_line_id[0] - 1], storage.line_list_nu[current_line_id[0] + 1],
-                    current_shell_id[0])
+                                               storage.time_explosion,
+                                               storage.inverse_time_explosion,
+                                               storage.line_list_nu[current_line_id[0] - 1],
+                                               storage.line_list_nu[current_line_id[0] + 1],
+                                               current_shell_id[0])
                 # ^^^^^^^^^^^^^^^^^^ LINE DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
 
             # ------------------ ELECTRON DISTANCE CALCULATION ---------------------
@@ -689,7 +701,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                 d_electron = miss_distance
             else:
                 d_electron = compute_distance2electron(current_r[0], current_mu[0], tau_event,
-                    storage.inverse_electron_density[current_shell_id[0]])
+                                                       storage.inverse_electron_density[current_shell_id[0]])
                 # ^^^^^^^^^^^^^^^^^^ ELECTRON DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -703,15 +715,15 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                 'd_outer=%s\n'
                                 'd_electron=%s\n'
                                 'd_line=%s\n%s',
-                '-' * 80,
-                current_mu[0],
-                current_nu[0],
-                current_energy[0],
-                d_inner,
-                d_outer,
-                d_electron,
-                d_line,
-                '-' * 80)
+                                '-' * 80,
+                                current_mu[0],
+                                current_nu[0],
+                                current_energy[0],
+                                d_inner,
+                                d_outer,
+                                d_electron,
+                                d_line,
+                                '-' * 80)
 
             if isnan(d_inner) or d_inner < 0:
                 packet_logger.warning('d_inner is nan or less than 0')
@@ -735,8 +747,8 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             #moving one zone outwards. If it's already in the outermost one this is escaped. Otherwise just move, change the zone index
             #and flag as an outwards propagating packet
             move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_outer, storage.js, storage.nubars,
-                storage.inverse_time_explosion,
-                current_shell_id[0], virtual_packet)
+                        storage.inverse_time_explosion,
+                        current_shell_id[0], virtual_packet)
             #for a virtual packet, add on the opacity contribution from the continuum
             if (virtual_packet > 0):
                 tau_event += (d_outer * storage.electron_density[current_shell_id[0]] * sigma_thomson)
@@ -769,8 +781,8 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
         elif (d_inner <= d_outer) and (d_inner <= d_electron) and (d_inner < d_line):
             #moving one zone inwards. If it's already in the innermost zone this is a reabsorption
             move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_inner, storage.js, storage.nubars,
-                storage.inverse_time_explosion,
-                current_shell_id[0], virtual_packet)
+                        storage.inverse_time_explosion,
+                        current_shell_id[0], virtual_packet)
 
             #for a virtual packet, add on the opacity contribution from the continuum
             if (virtual_packet > 0):
@@ -806,15 +818,15 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                     'current_nu=%s\n'
                                     'current_mu=%s\n'
                                     'current_energy=%s\n',
-                    '-' * 80,
-                    current_nu[0],
-                    current_mu[0],
-                    current_energy[0])
+                                    '-' * 80,
+                                    current_nu[0],
+                                    current_mu[0],
+                                    current_energy[0])
 
             # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
             doppler_factor = move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_electron,
-                storage.js, storage.nubars
+                                         storage.js, storage.nubars
                 , storage.inverse_time_explosion, current_shell_id[0], virtual_packet)
 
             comov_nu = current_nu[0] * doppler_factor
@@ -823,7 +835,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             #new mu chosen
             current_mu[0] = 2 * rk_double(&mt_state) - 1
             inverse_doppler_factor = 1 / (
-            1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
+                1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
             current_nu[0] = comov_nu * inverse_doppler_factor
             current_energy[0] = comov_energy * inverse_doppler_factor
             # ------------------------------ LOGGING ----------------------
@@ -832,10 +844,10 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                     'current_nu=%s\n'
                                     'current_mu=%s\n'
                                     'current_energy=%s\n%s',
-                    current_nu[0],
-                    current_mu[0],
-                    current_energy[0],
-                    '-' * 80)
+                                    current_nu[0],
+                                    current_mu[0],
+                                    current_energy[0],
+                                    '-' * 80)
                 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
             tau_event = -log(rk_double(&mt_state))
@@ -846,7 +858,8 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             if (virtual_packet_flag > 0):
                 #print "AN ELECTRON SCATTERING HAPPENED: CALLING VIRTUAL PARTICLES!!!!!!"
                 montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r,
-                    current_line_id, last_line, close_line, recently_crossed_boundary, virtual_packet_flag, 1)
+                                      current_line_id, last_line, close_line, recently_crossed_boundary,
+                                      virtual_packet_flag, 1)
 
         # ^^^^^^^^^^^^^^^^^^^^^^^^^ SCATTER EVENT LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -856,7 +869,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             #It has a chance to hit the line
 
             tau_line = storage.line_lists_tau_sobolevs[
-                       current_shell_id[0] * storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
+                current_shell_id[0] * storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
             tau_electron = sigma_thomson * storage.electron_density[current_shell_id[0]] * d_line
             tau_combined = tau_line + tau_electron
 
@@ -868,13 +881,13 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                     'tau_electron=%s\n'
                                     'tau_combined=%s\n'
                                     'tau_event=%s\n',
-                    '-' * 80,
-                    current_line_id[0] + 1,
-                    storage.line_list_nu[current_line_id[0]],
-                    tau_line,
-                    tau_electron,
-                    tau_combined,
-                    tau_event)
+                                    '-' * 80,
+                                    current_line_id[0] + 1,
+                                    storage.line_list_nu[current_line_id[0]],
+                                    tau_line,
+                                    tau_electron,
+                                    tau_combined,
+                                    tau_event)
                 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
             #Advancing to next line
@@ -903,13 +916,14 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
 
                     old_doppler_factor = move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_line,
-                        storage.js,
-                        storage.nubars, storage.inverse_time_explosion, current_shell_id[0], virtual_packet)
+                                                     storage.js,
+                                                     storage.nubars, storage.inverse_time_explosion,
+                                                     current_shell_id[0], virtual_packet)
 
                     current_mu[0] = 2 * rk_double(&mt_state) - 1
 
                     inverse_doppler_factor = 1 / (
-                    1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
+                        1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
 
                     comov_nu = current_nu[0] * old_doppler_factor
                     comov_energy = current_energy[0] * old_doppler_factor
@@ -938,13 +952,13 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                         #print "DEST " , (storage.destination_level_id[0], storage.destination_level_id[5], storage.destination_level_id[10])
                         #print "DEST " , (storage.macro_block_references[0], storage.macro_block_references[5], storage.macro_block_references[10])
                         emission_line_id = macro_atom(activate_level_id,
-                            storage.transition_probabilities,
-                            storage.transition_probabilities_nd,
-                            storage.transition_type,
-                            storage.destination_level_id,
-                            storage.transition_line_id,
-                            storage.macro_block_references,
-                            current_shell_id[0])
+                                                      storage.transition_probabilities,
+                                                      storage.transition_probabilities_nd,
+                                                      storage.transition_type,
+                                                      storage.destination_level_id,
+                                                      storage.transition_line_id,
+                                                      storage.macro_block_references,
+                                                      current_shell_id[0])
 
                     current_nu[0] = storage.line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = storage.line_list_nu[emission_line_id]
@@ -952,7 +966,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
                     IF packet_logging == True:
                         packet_logger.debug('Line interaction over. New Line %d (nu=%s; rest)', emission_line_id + 1,
-                            storage.line_list_nu[emission_line_id])
+                                            storage.line_list_nu[emission_line_id])
 
 
 
@@ -972,13 +986,14 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
                         virtual_close_line = 0
                         if last_line[
-                           0] == 0: #Next line is basically the same just making sure we take this into account
+                            0] == 0: #Next line is basically the same just making sure we take this into account
                             if abs(storage.line_list_nu[current_line_id[0]] - nu_line) / nu_line < 1e-7:
                                 virtual_close_line = 1
 
                         montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id,
-                            current_r, current_line_id, last_line, &virtual_close_line, recently_crossed_boundary,
-                            virtual_packet_flag, 1)
+                                              current_r, current_line_id, last_line, &virtual_close_line,
+                                              recently_crossed_boundary,
+                                              virtual_packet_flag, 1)
                         virtual_close_line = 0
 
                 else: #tau_event > tau_line no interaction so far
@@ -988,7 +1003,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                     # ------------------------------ LOGGING ----------------------
                     IF packet_logging == True:
                         packet_logger.debug('No line interaction happened. Tau_event decreasing %s\n%s', tau_event,
-                            '-' * 80)
+                                            '-' * 80)
                         # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
             # ------------------------------ LOGGING ----------------------

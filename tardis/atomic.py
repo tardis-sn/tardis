@@ -6,6 +6,7 @@ import numpy as np
 import logging
 import os
 import h5py
+import pdb
 
 from astropy import table, units, constants
 
@@ -277,7 +278,7 @@ class AtomData(object):
         else:
             zeta_data = None
         return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-            lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data)
+                   lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data)
 
 
     def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None):
@@ -365,33 +366,40 @@ class AtomData(object):
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
-        einstein_coeff = (4*np.pi**2*constants.cgs.e.value**2)/(constants.cgs.m_e.value * constants.cgs.c.value)
+        einstein_coeff = (4 * np.pi ** 2 * constants.cgs.e.value ** 2) / (
+            constants.cgs.m_e.value * constants.cgs.c.value)
 
         self.lines['B_lu'] = self.lines['f_lu'] * einstein_coeff / (constants.cgs.h.value * self.lines['nu'])
         self.lines['B_ul'] = self.lines['f_ul'] * einstein_coeff / (constants.cgs.h.value * self.lines['nu'])
-        self.lines['A_ul'] = einstein_coeff * 2 * self.lines['nu']**2 / constants.cgs.c.value**2 * self.lines['f_ul']
+        self.lines['A_ul'] = einstein_coeff * 2 * self.lines['nu'] ** 2 / constants.cgs.c.value ** 2 * self.lines[
+            'f_ul']
 
         if self.has_macro_atom and not (line_interaction_type == 'scatter'):
             self.macro_atom_data = self.macro_atom_data_all[
-                                   self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)]
+                self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)]
+
             if max_ion_number is not None:
                 self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['ion_number'] <= max_ion_number]
+
             self.macro_atom_references = self.macro_atom_references_all[
-                                         self.macro_atom_references_all['atomic_number'].isin(
-                                             self.selected_atomic_numbers)]
+                self.macro_atom_references_all['atomic_number'].isin(
+                    self.selected_atomic_numbers)]
             if max_ion_number is not None:
-                self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['ion_number'] <= max_ion_number]
+                self.macro_atom_references = self.macro_atom_references[
+                    self.macro_atom_references['ion_number'] <= max_ion_number]
+
             if line_interaction_type == 'downbranch':
-                self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['transition_type'] == -1]
+                self.macro_atom_data = self.macro_atom_data[(self.macro_atom_data['transition_type'] == -1).values]
+
                 self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['count_down'] > 0]
                 self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']
                 self.macro_atom_references['block_references'] = np.hstack((0,
                                                                             np.cumsum(self.macro_atom_references[
-                                                                                      'count_down'].values[:-1])))
+                                                                                          'count_down'].values[:-1])))
             elif line_interaction_type == 'macroatom':
                 self.macro_atom_references['block_references'] = np.hstack((0,
                                                                             np.cumsum(self.macro_atom_references[
-                                                                                      'count_total'].values[:-1])))
+                                                                                          'count_total'].values[:-1])))
 
             self.macro_atom_references.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
             self.macro_atom_references['references_idx'] = np.arange(len(self.macro_atom_references))
@@ -403,14 +411,19 @@ class AtomData(object):
                  self.lines['level_number_upper']])
 
             self.lines_upper2macro_reference_idx = self.macro_atom_references['references_idx'].ix[
-                                                   tmp_lines_upper2level_idx].values
+                tmp_lines_upper2level_idx].values
 
             tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([self.macro_atom_data['atomic_number'],
-                                                                     self.macro_atom_data['ion_number'],
-                                                                     self.macro_atom_data['destination_level_number']])
+                                                                         self.macro_atom_data['ion_number'],
+                                                                         self.macro_atom_data[
+                                                                             'destination_level_number']])
 
-            self.macro_atom_data['destination_level_idx'] = self.macro_atom_references['references_idx'].ix[
-                                                            tmp_macro_destination_level_idx].values
+            if line_interaction_type == 'macroatom':
+                self.macro_atom_data['destination_level_idx'] = self.macro_atom_references['references_idx'].ix[
+                    tmp_macro_destination_level_idx].values
+            elif line_interaction_type == 'downbranch':
+                self.macro_atom_data['destination_level_idx'] = (np.ones(len(self.macro_atom_data)) * -1).astype(
+                    np.int64)
 
     def set_nlte_mask(self, nlte_species):
         self.nlte_mask = np.zeros(self.levels.shape[0]).astype(bool)
