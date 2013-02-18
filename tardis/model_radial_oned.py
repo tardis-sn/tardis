@@ -106,6 +106,8 @@ class Radial1DModel(object):
         self.iterations = tardis_config.iterations
         self.create_packets()
 
+        self.sigma_thomson = tardis_config.sigma_thomson
+
         self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu, tardis_config.spectrum_end_nu,
                                         tardis_config.spectrum_bins + 1)
         self.spec_nu = self.spec_nu_bins[:-1]
