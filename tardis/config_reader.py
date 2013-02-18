@@ -319,8 +319,21 @@ class TardisConfiguration(object):
         else:
             self.sn_distance = None
 
+        disable_electron_scattering = config_dict.pop('disable_electron_scattering', None)
+        print "disable electron scattering"
+        if disable_electron_scattering is None or disable_electron_scattering.lower().startswith('f'):
+            print "no electron scattering switched on"
+            self.sigma_thomson = None
+        else:
+            logger.warn('Disabling electron scattering - this is not physical')
+            self.sigma_thomson = 1e-200
+
+
         if config_dict != {}:
             logger.warn('Not all config options parsed - ignored %s' % config_dict)
+
+
+
 
     def parse_abundance_section(self, abundance_dict):
         abundances = {}
