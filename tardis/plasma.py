@@ -127,7 +127,7 @@ class LTEPlasma(BasePlasma):
         self.nlte_species = nlte_species
 
 
-    def update_radiationfield(self, t_rad, n_e_convergence_threshold=0.05):
+    def update_radiationfield(self, t_rad, t_electron=None, n_e_convergence_threshold=0.05):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -144,6 +144,12 @@ class LTEPlasma(BasePlasma):
 
        """
         BasePlasma.update_radiationfield(self, t_rad)
+
+
+        if t_electron is None:
+            self.t_electron = t_rad * 0.9
+        else:
+            self.t_electron = t_electron
 
         if self.initialize:
             self.set_j_blues()
@@ -336,8 +342,11 @@ class LTEPlasma(BasePlasma):
                 if (atomic_number, ion_number) != species:
                     continue
 
-                n_lower = self.level_populations.ix[atomic_number, ion_number, line['level_number_lower']]
-                n_upper = self.level_populations.ix[atomic_number, ion_number, line['level_number_upper']]
+                level_number_lower = line['level_number_lower']
+                level_number_upper = line['level_number_upper']
+
+                n_lower = self.level_populations.ix[atomic_number, ion_number, level_number_lower]
+                n_upper = self.level_populations.ix[atomic_number, ion_number, level_number_upper]
 
                 cur_beta_sobolev = self.beta_sobolevs[i]
 
@@ -345,14 +354,17 @@ class LTEPlasma(BasePlasma):
 
                 if stimulated_emission_term < 0:
                     print "problem stim em < 0"
-                r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[i] * stimulated_emission_term
-                r_ul = line['A_ul'] * cur_beta_sobolev
 
-                rates_matrix[line['level_number_upper'], line['level_number_lower']] = r_lu
-                rates_matrix[line['level_number_lower'], line['level_number_upper']] = r_ul
+                C_lu, C_ul = self.atom_data.get_collision_coefficients(atomic_number, ion_number, level_number_lower,
+                                                                    level_number_upper, self.t_electron)
+                r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[i] * stimulated_emission_term + C_lu * self.electron_density
+                r_ul = line['A_ul'] * cur_beta_sobolev + C_ul * self.electron_density
 
-                rates_matrix[line['level_number_lower'], line['level_number_lower']] -= r_lu
-                rates_matrix[line['level_number_upper'], line['level_number_upper']] -= r_ul
+                rates_matrix[level_number_upper, level_number_lower] = r_lu
+                rates_matrix[level_number_lower, level_number_upper] = r_ul
+
+                rates_matrix[level_number_lower, level_number_lower] -= r_lu
+                rates_matrix[level_number_upper, level_number_upper] -= r_ul
 
             rates_matrix[0] = 1.0
             x = np.zeros(rates_matrix.shape[0])
