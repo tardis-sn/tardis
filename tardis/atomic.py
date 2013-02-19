@@ -194,6 +194,26 @@ def read_zeta_data(fname):
 
     return zeta_interp
 
+def read_collision_data(fname):
+
+    if fname is None:
+        raise ValueError('fname can not be "None" when trying to use NebularAtom')
+
+    if not os.path.exists(fname):
+        raise IOError('HDF5 File doesn\'t exist')
+
+
+    h5_file = h5py.File(fname)
+
+    if 'collision_data' not in h5_file.keys():
+        raise ValueError('collision_data not available in this HDF5-data file. It can not be used with NLTE')
+
+
+    collision_data = np.array(h5_file['collision_data'])
+    collision_temperatures = h5_file['collision_data'].attrs['temperatures']
+
+    return collision_data, collision_temperatures
+
 
 def read_macro_atom_data(fname):
     if fname is None:
@@ -248,7 +268,7 @@ class AtomData(object):
     """
 
     @classmethod
-    def from_hdf5(cls, fname=None, use_macro_atom=False, use_zeta_data=False):
+    def from_hdf5(cls, fname=None, use_macro_atom=False, use_zeta_data=False, use_collision_data=False):
         """
         Function to read all the atom data from a special TARDIS HDF5 File.
 
@@ -277,11 +297,24 @@ class AtomData(object):
             zeta_data = read_zeta_data(fname)
         else:
             zeta_data = None
+
+
+        if use_collision_data:
+            collision_data, collision_data_temperatures = read_collision_data(fname)
+        else:
+            collision_data = None
+
+
+
         return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-                   lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data)
+                   lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
+                   collision_data=(collision_data, collision_data_temperatures))
 
 
-    def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None):
+    def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
+                collision_data=None):
+
+
         if macro_atom_data is not None:
             self.has_macro_atom = True
             self.macro_atom_data_all = DataFrame(macro_atom_data[0].__array__())
@@ -296,6 +329,18 @@ class AtomData(object):
         else:
             self.has_zeta_data = False
 
+        if collision_data is not None:
+            self.collision_data = DataFrame(collision_data[0])
+            self.collision_data_temperatures = collision_data[1]
+            self.collision_data.set_index(['atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper'],
+                                          inplace=True)
+
+            self.has_collision_data = True
+        else:
+            self.has_collision_data = False
+
+
+
         self.atom_data = DataFrame(atom_data.__array__())
         self.atom_data.set_index('atomic_number', inplace=True)
 
@@ -307,6 +352,8 @@ class AtomData(object):
         self.lines_data = DataFrame(lines_data.__array__())
         self.lines_data['nu'] = units.Unit('angstrom').to('Hz', self.lines_data['wavelength'], units.spectral())
         self.lines_data['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines_data['wavelength'])
+
+
 
 
         #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines_data)
@@ -433,6 +480,22 @@ class AtomData(object):
                            (self.levels.index.get_level_values(1) == species[1])
 
             self.nlte_mask |= current_mask
+
+    def get_collision_coefficients(self, atomic_number, ion_number, level_number_lower, level_number_upper, t_electron):
+        if self.has_collision_data:
+            try:
+                C_lus = self.collision_data.ix[(atomic_number, ion_number, level_number_lower, level_number_upper)].values[1:]
+                C_lu = np.interp(t_electron, self.collision_data_temperatures, C_lus)
+                C_ul = C_lu * self.collision_data.ix[(atomic_number, ion_number, level_number_lower, level_number_upper)].values[0]
+
+            except pd.core.indexing.IndexingError:
+                C_lu = 0
+                C_ul = 0
+
+            return C_lu, C_ul
+
+        else:
+            return 0., 0.
 
 
 
