@@ -11,9 +11,9 @@ import pdb
 
 logger = logging.getLogger(__name__)
 
-c = constants.cgs.c.value
-h = constants.cgs.h.value
-kb = constants.cgs.k_B.value
+c = constants.c.cgs.value
+h = constants.h.cgs.value
+kb = constants.k_B.cgs.value
 
 w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
 
@@ -193,13 +193,13 @@ class Radial1DModel(object):
     @t_inner.setter
     def t_inner(self, value):
         self._t_inner = value
-        self.luminosity_inner = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0] ** 2 * self._t_inner ** 4
+        self.luminosity_inner = 4 * np.pi * constants.sigma_sb.cgs.value * self.r_inner[0] ** 2 * self._t_inner ** 4
         self.time_of_simulation = 1 / self.luminosity_inner
 
 
     def create_packets(self, no_of_packets=None):
         #Energy emitted from the inner boundary
-        self.emitted_inner_energy = 4 * np.pi * constants.cgs.sigma_sb.value * self.r_inner[0] ** 2 * (
+        self.emitted_inner_energy = 4 * np.pi * constants.sigma_sb.cgs.value * self.r_inner[0] ** 2 * (
             self.t_inner) ** 4
 
         if no_of_packets is None:
@@ -273,7 +273,7 @@ class Radial1DModel(object):
 
         updated_t_rads = trad_estimator_constant * nubar_estimator / j_estimator
         updated_ws = j_estimator / (
-            4 * constants.cgs.sigma_sb.value * updated_t_rads ** 4 * self.time_of_simulation * self.volumes)
+            4 * constants.sigma_sb.cgs.value * updated_t_rads ** 4 * self.time_of_simulation * self.volumes)
 
         return updated_t_rads, updated_ws
 
@@ -315,9 +315,9 @@ class Radial1DModel(object):
 
         self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
 
-        self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.cgs.c / 1e8)
-        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.cgs.c / 1e8)
-        self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.cgs.c / 1e8)
+        self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
+        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs/ 1e8)
+        self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
 
 
 def calculate_atom_number_densities(atom_data, abundances, density):

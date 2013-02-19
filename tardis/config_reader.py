@@ -176,7 +176,7 @@ class TardisConfiguration(object):
         luminosity_value, luminosity_unit = config_dict.pop('luminosity').split()
         if luminosity_unit == 'log_lsun':
             self.luminosity_outer = 10 ** (
-                float(luminosity_value) + np.log10(constants.cgs.L_sun.value))
+                float(luminosity_value) + np.log10(constants.L_sun.cgs.value))
         else:
             self.luminosity_outer = units.Quantity(
                 float(luminosity_value), luminosity_unit).to('erg/s').value

@@ -232,7 +232,7 @@ rk_seed(250819801106, &mt_state)
 
 #constants
 cdef float_type_t miss_distance = 1e99
-cdef float_type_t c = constants.cgs.c.value # cm/s
+cdef float_type_t c = constants.c.cgs.value # cm/s
 cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
 #cdef float_type_t sigma_thomson = 6.652486e-25

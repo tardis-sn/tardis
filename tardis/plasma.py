@@ -19,7 +19,7 @@ import pdb
 
 #Defining soboleve constant
 
-sobolev_coefficient = ((np.pi * constants.cgs.e.value ** 2) / (constants.cgs.m_e.value * constants.cgs.c.value))
+sobolev_coefficient = ((np.pi * constants.e.gauss.value ** 2) / (constants.m_e.cgs.value * constants.c.cgs.value))
 
 class PlasmaException(Exception):
     pass
@@ -33,10 +33,10 @@ def intensity_black_body(nu, T):
             I(\\nu, T) = \frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
     """
-    beta_rad = 1 / (constants.cgs.k_B.value * T)
+    beta_rad = 1 / (constants.k_B.cgs.value * T)
 
-    return (2 * (constants.cgs.h.value * nu ** 3) / (constants.cgs.c.value ** 2)) / (
-        np.exp(constants.cgs.h.value * nu * beta_rad) - 1)
+    return (2 * (constants.h.cgs.value * nu ** 3) / (constants.c.cgs.value ** 2)) / (
+        np.exp(constants.h.cgs.value * nu * beta_rad) - 1)
 
 
 class BasePlasma(object):
@@ -92,7 +92,7 @@ class BasePlasma(object):
 
         """
         self.t_rad = t_rad
-        self.beta_rad = 1 / (constants.cgs.k_B.value * t_rad)
+        self.beta_rad = 1 / (constants.k_B.cgs.value * t_rad)
 
 
 class LTEPlasma(BasePlasma):
@@ -156,7 +156,7 @@ class LTEPlasma(BasePlasma):
 
         self.calculate_partition_functions(initialize=self.initialize)
 
-        self.ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
+        self.ge = ((2 * np.pi * constants.m_e.cgs.value / self.beta_rad) / (constants.h.cgs.value ** 2)) ** 1.5
 
         #Calculate the Saha ionization balance fractions
         phis = self.calculate_saha()
@@ -493,14 +493,14 @@ class NebularPlasma(LTEPlasma):
         if t_electron is None:
             self.t_electron = 0.9 * self.t_rad
 
-        self.beta_electron = 1 / (self.t_electron * constants.cgs.k_B.value)
+        self.beta_electron = 1 / (self.t_electron * constants.k_B.cgs.value)
 
         if self.initialize:
             self.set_j_blues()
 
         self.calculate_partition_functions()
 
-        self.ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
+        self.ge = ((2 * np.pi * constants.m_e.cgs.value / self.beta_rad) / (constants.h.cgs.value ** 2)) ** 1.5
         #Calculate the Saha ionization balance fractions
         phis = self.calculate_saha()
 

@@ -11,15 +11,15 @@ cimport numpy as np
 
 ctypedef np.int64_t int_type_t
 
-from astropy.constants import cgs
+from astropy import constants
 
 cdef extern from "math.h":
     double exp(double)
 
 
-cdef double h_cgs = cgs.h.value
-cdef double c = cgs.c.value
-cdef double kb = cgs.k_B.value
+cdef double h_cgs = constants.h.cgs.value
+cdef double c = constants.c.cgs.value
+cdef double kb = constants.k_B.cgs.value
 cdef double inv_c2 = 1 / (c ** 2)
 
 
