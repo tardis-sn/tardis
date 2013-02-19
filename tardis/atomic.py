@@ -413,12 +413,12 @@ class AtomData(object):
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
-        einstein_coeff = (4 * np.pi ** 2 * constants.cgs.e.value ** 2) / (
-            constants.cgs.m_e.value * constants.cgs.c.value)
+        einstein_coeff = (4 * np.pi ** 2 * constants.e.gauss.value ** 2) / (
+            constants.m_e.cgs.value * constants.c.cgs.value)
 
-        self.lines['B_lu'] = self.lines['f_lu'] * einstein_coeff / (constants.cgs.h.value * self.lines['nu'])
-        self.lines['B_ul'] = self.lines['f_ul'] * einstein_coeff / (constants.cgs.h.value * self.lines['nu'])
-        self.lines['A_ul'] = einstein_coeff * 2 * self.lines['nu'] ** 2 / constants.cgs.c.value ** 2 * self.lines[
+        self.lines['B_lu'] = self.lines['f_lu'] * einstein_coeff / (constants.h.cgs.value * self.lines['nu'])
+        self.lines['B_ul'] = self.lines['f_ul'] * einstein_coeff / (constants.h.cgs.value * self.lines['nu'])
+        self.lines['A_ul'] = einstein_coeff * 2 * self.lines['nu'] ** 2 / constants.c.cgs.value ** 2 * self.lines[
             'f_ul']
 
         if self.has_macro_atom and not (line_interaction_type == 'scatter'):
