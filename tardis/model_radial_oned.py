@@ -3,10 +3,12 @@
 import numpy as np
 import plasma, atomic, packet_source
 import logging
-import config_reader
+
 import pandas as pd
 from astropy import constants, units
 from copy import deepcopy
+import os
+import yaml
 import pdb
 
 logger = logging.getLogger(__name__)
@@ -16,6 +18,8 @@ h = constants.h.cgs.value
 kb = constants.k_B.cgs.value
 
 w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
+
+synpp_default_yaml = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
 
 
 class Radial1DModel(object):
@@ -310,14 +314,31 @@ class Radial1DModel(object):
 
         self.spec_virtual_flux_nu /= flux_scale
 
-        self.spec_reabsorbed_nu = np.histogram(out_nu[out_nu < 0], weights=out_energy[out_nu < 0], bins=self.spec_nu_bins)[0]
+        self.spec_reabsorbed_nu =
+        np.histogram(out_nu[out_nu < 0], weights=out_energy[out_nu < 0], bins=self.spec_nu_bins)[0]
         self.spec_reabsorbed_nu /= flux_scale
 
         self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
 
         self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
-        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs/ 1e8)
+        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
         self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
+
+    def create_synpp_yaml(self, fname):
+        if not self.atom_data.has_synpp_refs:
+            raise ValueError(
+                'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
+
+        self.atom_data.synpp_refs['ref_log_tau'] = -99.0
+        for key, value in self.atom_data.synpp_refs.iterrows():
+            try:
+                tau_sobolev_idx = self.atom_data.lines_index.ix[value['line_id']]
+            except KeyError:
+                continue
+
+            self.atom_data.synpp_refs['ref_log_tau'].ix[key] = np.log10(self.plasmas[0].tau_sobolevs[tau_sobolev_idx])
+
+        yaml
 
 
 def calculate_atom_number_densities(atom_data, abundances, density):
