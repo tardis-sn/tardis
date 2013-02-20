@@ -251,14 +251,11 @@ class TardisConfiguration(object):
         if atom_data_file is None:
             raise ValueError("Please specify a filename with the keyword 'atom_data_file'")
 
-        if self.plasma_type.lower == 'lte':
-            self.atom_data = atomic.AtomData.from_hdf5(atom_data_file)
-        else:
-            self.atom_data = atomic.AtomData.from_hdf5(atom_data_file, use_macro_atom=True,
-                                                       use_zeta_data=True)
+        self.atom_data = atomic.AtomData.from_hdf5(atom_data_file)
 
-
-        # reading number of packets and iterations
+        if self.plasma_type.lower == 'nebular' and not self.atom_data.has_zeta_data:
+            raise ValueError('The specified AtomData set does not contain zeta data needed for nebular approximation')
+            # reading number of packets and iterations
         if 'iterations' in config_dict and 'no_of_packets' in config_dict:
             self.iterations = int(float(config_dict.pop('iterations')))
             self.no_of_packets = int(float(config_dict.pop('no_of_packets')))
@@ -328,11 +325,8 @@ class TardisConfiguration(object):
             logger.warn('Disabling electron scattering - this is not physical')
             self.sigma_thomson = 1e-200
 
-
         if config_dict != {}:
             logger.warn('Not all config options parsed - ignored %s' % config_dict)
-
-
 
 
     def parse_abundance_section(self, abundance_dict):
