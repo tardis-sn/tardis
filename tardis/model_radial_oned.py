@@ -320,7 +320,8 @@ class Radial1DModel(object):
 
         self.spec_virtual_flux_nu /= flux_scale
 
-        self.spec_reabsorbed_nu = np.histogram(out_nu[out_nu < 0], weights=out_energy[out_nu < 0], bins=self.spec_nu_bins)[0]
+        self.spec_reabsorbed_nu = \
+            np.histogram(out_nu[out_nu < 0], weights=out_energy[out_nu < 0], bins=self.spec_nu_bins)[0]
         self.spec_reabsorbed_nu /= flux_scale
 
         self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
@@ -424,8 +425,6 @@ class ModelHistory(object):
         self.ws['iter%d' % iteration] = radial1d_mdl.ws
 
         current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
-        print "@@@@@ ITERATION %d level pop of shell 0 14, 0, 0=%g" % (
-        iteration, radial1d_mdl.plasmas[0].level_populations.ix[14, 0, 0])
         for i, plasma in enumerate(radial1d_mdl.plasmas):
             current_level_populations[i] = plasma.level_populations
 
