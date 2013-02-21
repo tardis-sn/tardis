@@ -9,7 +9,7 @@ from collections import OrderedDict
 from pandas import DataFrame, Series, Index, lib as pdlib
 import pandas as pd
 
-import  macro_atom
+import macro_atom
 
 logger = logging.getLogger(__name__)
 import pdb
@@ -20,6 +20,7 @@ import pdb
 #Defining soboleve constant
 
 sobolev_coefficient = ((np.pi * constants.e.gauss.value ** 2) / (constants.m_e.cgs.value * constants.c.cgs.value))
+
 
 class PlasmaException(Exception):
     pass
@@ -121,7 +122,7 @@ class LTEPlasma(BasePlasma):
     def __init__(self, abundances, atom_data, time_explosion, max_ion_number=None,
                  use_macro_atom=False, nlte_species=[]):
         BasePlasma.__init__(self, abundances, atom_data, time_explosion,
-            max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
+                            max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
 
         self.ion_number_density = None
         self.nlte_species = nlte_species
@@ -144,7 +145,6 @@ class LTEPlasma(BasePlasma):
 
        """
         BasePlasma.update_radiationfield(self, t_rad)
-
 
         if t_electron is None:
             self.t_electron = t_rad * 0.9
@@ -179,6 +179,7 @@ class LTEPlasma(BasePlasma):
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
         self.calculate_nlte_level_populations()
+
         if self.initialize:
             self.initialize = False
 
@@ -221,9 +222,9 @@ class LTEPlasma(BasePlasma):
                 group_calculate_partition_function)
 
             self.atom_data.atom_ion_index = Series(np.arange(len(self.partition_functions)),
-                self.partition_functions.index)
+                                                   self.partition_functions.index)
             self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
-                                                         self.atom_data.levels.index.droplevel(2)].values
+                self.atom_data.levels.index.droplevel(2)].values
         else:
             if not hasattr(self, 'partition_functions'):
                 raise ValueError("Called calculate partition_functions without initializing at least once")
@@ -231,9 +232,9 @@ class LTEPlasma(BasePlasma):
             for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
                 if species in self.nlte_species:
                     ground_level_population = self.level_populations[species][0]
-                    self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] *\
+                    self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] * \
                                                            np.sum(self.level_populations[
-                                                                  species].values / ground_level_population)
+                                                                      species].values / ground_level_population)
                 else:
                     self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
 
@@ -356,8 +357,9 @@ class LTEPlasma(BasePlasma):
                     print "problem stim em < 0"
 
                 C_lu, C_ul = self.atom_data.get_collision_coefficients(atomic_number, ion_number, level_number_lower,
-                                                                    level_number_upper, self.t_electron)
-                r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[i] * stimulated_emission_term + C_lu * self.electron_density
+                                                                       level_number_upper, self.t_electron)
+                r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[
+                    i] * stimulated_emission_term + C_lu * self.electron_density
                 r_ul = line['A_ul'] * cur_beta_sobolev + C_ul * self.electron_density
 
                 rates_matrix[level_number_upper, level_number_lower] = r_lu
@@ -388,7 +390,7 @@ class LTEPlasma(BasePlasma):
                     #### After cleaning check if the normalization is good:
             if abs((self.level_populations.ix[species].sum() / self.ion_number_density.ix[species] - 1)) > 0.02:
                 logger.warn("NLTE populations (after cleaning) does not sum up to 1 within 2% (%.2f / 1.0)",
-                    ((1 - self.level_populations.ix[species].sum() / self.ion_number_density.ix[species])))
+                            ((1 - self.level_populations.ix[species].sum() / self.ion_number_density.ix[species])))
 
 
     def calculate_tau_sobolev(self):
@@ -478,8 +480,8 @@ class NebularPlasma(LTEPlasma):
                  max_ion_number=None,
                  use_macro_atom=False):
         BasePlasma.__init__(self, abundances, atom_data, time_explosion=time_explosion, density_unit=density_unit,
-            max_ion_number=max_ion_number,
-            use_macro_atom=use_macro_atom)
+                            max_ion_number=max_ion_number,
+                            use_macro_atom=use_macro_atom)
 
         self.ion_number_density = None
         self.nlte_species = nlte_species
@@ -519,9 +521,8 @@ class NebularPlasma(LTEPlasma):
 
         self.electron_density = new_electron_density
         logger.debug('Took %d iterations to converge on electron density' % n_e_iterations)
-        if self.initialize:
-            self.calculate_level_populations()
 
+        self.calculate_level_populations()
         self.calculate_tau_sobolev()
         self.calculate_nlte_level_populations()
 
@@ -564,9 +565,9 @@ class NebularPlasma(LTEPlasma):
                 group_calculate_partition_function)
 
             self.atom_data.atom_ion_index = Series(np.arange(len(self.partition_functions)),
-                self.partition_functions.index)
+                                                   self.partition_functions.index)
             self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
-                                                         self.atom_data.levels.index.droplevel(2)].values
+                self.atom_data.levels.index.droplevel(2)].values
         else:
             if not hasattr(self, 'partition_functions'):
                 raise ValueError("Called calculate partition_functions without initializing at least once")
@@ -574,9 +575,9 @@ class NebularPlasma(LTEPlasma):
             for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
                 if species in self.nlte_species:
                     ground_level_population = self.level_populations[species][0]
-                    self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] *\
+                    self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] * \
                                                            np.sum(self.level_populations[
-                                                                  species].values / ground_level_population)
+                                                                      species].values / ground_level_population)
                 else:
                     self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
 
@@ -617,7 +618,7 @@ class NebularPlasma(LTEPlasma):
         for idx in zeta.index:
             zeta.ix[idx] = self.atom_data.zeta_data[idx](self.t_rad)
 
-        phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) *\
+        phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) * \
                 (self.t_electron / self.t_rad) ** .5
 
         return phis
@@ -674,16 +675,16 @@ class NebularPlasma(LTEPlasma):
 
         chi_threshold = self.atom_data.ionization_data['ionization_energy'].ix[chi_threshold_species]
 
-        radiation_field_correction = (self.t_electron / (departure_coefficient * self.w * self.t_rad)) *\
+        radiation_field_correction = (self.t_electron / (departure_coefficient * self.w * self.t_rad)) * \
                                      np.exp(self.beta_rad * chi_threshold - self.beta_electron *
                                             self.atom_data.ionization_data['ionization_energy'])
 
         less_than_chi_threshold = self.atom_data.ionization_data['ionization_energy'] < chi_threshold
 
-        radiation_field_correction[less_than_chi_threshold] += 1 -\
+        radiation_field_correction[less_than_chi_threshold] += 1 - \
                                                                np.exp(self.beta_rad * chi_threshold - self.beta_rad *
                                                                       self.atom_data.ionization_data[
-                                                                      less_than_chi_threshold]['ionization_energy'])
+                                                                          less_than_chi_threshold]['ionization_energy'])
 
         return radiation_field_correction
 

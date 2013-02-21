@@ -33,7 +33,7 @@ def run_radial1d(radial1d_model, save_history=None):
         logger.info('At run %d of %d', i + 1, radial1d_model.iterations)
         out_nu, out_energy, j_estimators, nubar_estimators = montecarlo_multizone.montecarlo_radial1d(radial1d_model)
         if save_history is not None:
-            save_history.store_all(radial1d_model)
+            save_history.store_all(radial1d_model, i)
 
         updated_t_rads, updated_ws = radial1d_model.calculate_updated_radiationfield(nubar_estimators, j_estimators)
 
@@ -66,7 +66,14 @@ def run_radial1d(radial1d_model, save_history=None):
     logger.info('Doing last run')
     out_nu, out_energy, j_estimators, nubar_estimators = montecarlo_multizone.montecarlo_radial1d(radial1d_model,
                                                                                                   virtual_packet_flag=radial1d_model.tardis_config.no_of_virtual_packets)
+
     radial1d_model.calculate_spectrum(out_nu, out_energy, distance=radial1d_model.tardis_config.sn_distance)
+
+    if save_history is not None:
+        save_history.store_all(radial1d_model, radial1d_model.iterations - 1)
+        save_history.finalize()
+
+
 
 
 

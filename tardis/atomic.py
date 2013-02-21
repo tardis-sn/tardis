@@ -377,7 +377,8 @@ class AtomData(object):
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
 
 
-    def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None):
+    def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
+                          nlte_species=[]):
         """
         Prepares the atom data to set the lines, levels and if requested macro atom data.
         This function mainly cuts the `levels_data` and `lines_data` by discarding any data that is not needed (any data
@@ -398,6 +399,8 @@ class AtomData(object):
         """
 
         self.selected_atomic_numbers = selected_atomic_numbers
+
+        self.nlte_species = nlte_species
 
         self.levels = self.levels_data[self.levels_data['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
@@ -486,7 +489,13 @@ class AtomData(object):
                 self.macro_atom_data['destination_level_idx'] = (np.ones(len(self.macro_atom_data)) * -1).astype(
                     np.int64)
 
+        #Setting NLTE species
+        self.set_nlte_mask(nlte_species)
+
+
     def set_nlte_mask(self, nlte_species):
+
+        logger.debug('Setting NLTE Species Mask for %s' % nlte_species)
         self.nlte_mask = np.zeros(self.levels.shape[0]).astype(bool)
 
         for species in nlte_species:
