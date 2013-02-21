@@ -223,6 +223,7 @@ class Radial1DModel(object):
                 enumerate(zip(self.number_densities, self.t_rads)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
                                                    nlte_species=self.tardis_config.nlte_species)
+                logger.debug('Initializing Shell %d Plasma with T=%.3f' % (i, current_t_rad))
                 current_plasma.update_radiationfield(current_t_rad)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
@@ -238,7 +239,9 @@ class Radial1DModel(object):
                 enumerate(zip(self.number_densities, self.t_rads, self.ws)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
                                                    nlte_species=self.tardis_config.nlte_species)
+                logger.debug('Initializing Shell %d Plasma with T=%.3f W=%.4f' % (i, current_t_rad, current_w))
                 current_plasma.update_radiationfield(current_t_rad, current_w)
+
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
                 if self.line_interaction_id in (1, 2):
@@ -285,8 +288,10 @@ class Radial1DModel(object):
     def update_plasmas(self, updated_t_rads, updated_ws=None):
         if self.plasma_type == 'lte':
             self.t_rads = updated_t_rads
-            for i, (current_plasma, new_trad) in enumerate(zip(self.plasmas, updated_t_rads, updated_ws)):
+            for i, (current_plasma, new_trad) in enumerate(zip(self.plasmas, updated_t_rads)):
                 current_plasma.set_j_blues()
+
+                logger.debug('Updating Shell %d Plasma with T=%.3f' % (i, new_trad))
                 current_plasma.update_radiationfield(new_trad)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
@@ -295,6 +300,7 @@ class Radial1DModel(object):
             self.ws = updated_ws
             for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, updated_t_rads, updated_ws)):
                 current_plasma.set_j_blues()
+                logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, new_trad, new_ws))
                 current_plasma.update_radiationfield(new_trad, new_ws)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
@@ -324,7 +330,7 @@ class Radial1DModel(object):
         self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
         self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
 
-    def create_synpp_yaml(self, fname):
+    def create_synpp_yaml(self, fname, lines_db=None):
         if not self.atom_data.has_synpp_refs:
             raise ValueError(
                 'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
@@ -338,7 +344,34 @@ class Radial1DModel(object):
 
             self.atom_data.synpp_refs['ref_log_tau'].ix[key] = np.log10(self.plasmas[0].tau_sobolevs[tau_sobolev_idx])
 
-        yaml
+        relevant_synpp_refs = self.atom_data.synpp_refs[self.atom_data.synpp_refs['ref_log_tau'] > -50]
+
+        yaml_reference = yaml.load(file(synpp_default_yaml))
+
+        if lines_db is not None:
+            yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'lines')
+            yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'refs.dat')
+
+        yaml_setup = yaml_reference['setups'][0]
+
+        yaml_setup['ions'] = []
+        yaml_setup['log_tau'] = []
+        yaml_setup['active'] = []
+        yaml_setup['temp'] = []
+        yaml_setup['v_min'] = []
+        yaml_setup['v_max'] = []
+        yaml_setup['aux'] = []
+
+        for species, synpp_ref in relevant_synpp_refs.iterrows():
+            yaml_setup['ions'].append(100 * species[0] + species[1])
+            yaml_setup['log_tau'].append(float(synpp_ref['ref_log_tau']))
+            yaml_setup['active'].append(True)
+            yaml_setup['temp'].append(yaml_setup['t_phot'])
+            yaml_setup['v_min'].append(yaml_reference['opacity']['v_ref'])
+            yaml_setup['v_max'].append(yaml_reference['grid']['v_outer_max'])
+            yaml_setup['aux'].append(1e200)
+
+        yaml.dump(yaml_reference, file(fname, 'w'))
 
 
 def calculate_atom_number_densities(atom_data, abundances, density):
@@ -381,8 +414,25 @@ class ModelHistory(object):
     Records the history of the model
     """
 
-    def __init__(self):
-        self.plasmas = []
+    def __init__(self, tardis_config):
+        self.t_rads = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        self.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        self.level_populations = {}
 
-    def store_all(self, radial1d_mdl):
-        self.plasmas.append(deepcopy(radial1d_mdl))
+
+    def store_all(self, radial1d_mdl, iteration):
+        self.t_rads['iter%d' % iteration] = radial1d_mdl.t_rads
+        self.ws['iter%d' % iteration] = radial1d_mdl.ws
+
+        current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
+        print "@@@@@ ITERATION %d level pop of shell 0 14, 0, 0=%g" % (
+        iteration, radial1d_mdl.plasmas[0].level_populations.ix[14, 0, 0])
+        for i, plasma in enumerate(radial1d_mdl.plasmas):
+            current_level_populations[i] = plasma.level_populations
+
+        self.level_populations['iter%d' % iteration] = current_level_populations.copy()
+
+    def finalize(self):
+        self.level_populations = pd.Panel.from_dict(self.level_populations)
+
+
