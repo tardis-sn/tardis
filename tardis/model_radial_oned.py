@@ -320,8 +320,7 @@ class Radial1DModel(object):
 
         self.spec_virtual_flux_nu /= flux_scale
 
-        self.spec_reabsorbed_nu =
-        np.histogram(out_nu[out_nu < 0], weights=out_energy[out_nu < 0], bins=self.spec_nu_bins)[0]
+        self.spec_reabsorbed_nu = np.histogram(out_nu[out_nu < 0], weights=out_energy[out_nu < 0], bins=self.spec_nu_bins)[0]
         self.spec_reabsorbed_nu /= flux_scale
 
         self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
