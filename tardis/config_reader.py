@@ -317,9 +317,9 @@ class TardisConfiguration(object):
             self.sn_distance = None
 
         disable_electron_scattering = config_dict.pop('disable_electron_scattering', None)
-        print "disable electron scattering"
+
         if disable_electron_scattering is None or disable_electron_scattering.lower().startswith('f'):
-            print "no electron scattering switched on"
+            logger.info("Electron scattering switched on")
             self.sigma_thomson = None
         else:
             logger.warn('Disabling electron scattering - this is not physical')

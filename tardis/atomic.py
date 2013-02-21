@@ -284,7 +284,10 @@ class AtomData(object):
         """
 
         if fname is None:
+
             fname = default_atom_h5_path
+            if not os.path.exists(fname):
+                raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
 
         atom_data = read_basic_atom_data(fname)
         ionization_data = read_ionization_data(fname)

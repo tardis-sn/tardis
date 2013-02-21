@@ -108,7 +108,6 @@ class Radial1DModel(object):
 
         self.no_of_packets = tardis_config.no_of_packets
         self.iterations = tardis_config.iterations
-        self.create_packets()
 
         self.sigma_thomson = tardis_config.sigma_thomson
 
