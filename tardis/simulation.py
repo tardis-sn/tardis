@@ -31,6 +31,7 @@ def run_single_radial1d(radial1d_model):
 def run_radial1d(radial1d_model, save_history=None):
     for i in xrange(radial1d_model.iterations - 1):
         logger.info('At run %d of %d', i + 1, radial1d_model.iterations)
+        radial1d_model.create_packets()
         out_nu, out_energy, j_estimators, nubar_estimators = montecarlo_multizone.montecarlo_radial1d(radial1d_model)
         if save_history is not None:
             save_history.store_all(radial1d_model, i)
@@ -54,16 +55,15 @@ def run_radial1d(radial1d_model, save_history=None):
 
         radial1d_model.t_inner = 0.5 * (new_t_inner + radial1d_model.t_inner)
 
-        if (i + 2) == radial1d_model.iterations and radial1d_model.tardis_config.last_no_of_packets is not None:
-            radial1d_model.create_packets(radial1d_model.tardis_config.last_no_of_packets)
-        else:
-            radial1d_model.create_packets()
-
         radial1d_model.update_plasmas(new_trads, new_ws)
         #spec_nu_flux = np.histogram(out_nu, weights=out_energy, bins=radial1d_model.spec_virt_nu)
 
     #Finished second to last loop running one more time
     logger.info('Doing last run')
+    if radial1d_model.tardis_config.last_no_of_packets is not None:
+        radial1d_model.create_packets(radial1d_model.tardis_config.last_no_of_packets)
+    else:
+        radial1d_model.create_packets()
     out_nu, out_energy, j_estimators, nubar_estimators = montecarlo_multizone.montecarlo_radial1d(radial1d_model,
                                                                                                   virtual_packet_flag=radial1d_model.tardis_config.no_of_virtual_packets)
 
