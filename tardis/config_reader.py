@@ -11,6 +11,7 @@ import h5py
 import re
 import pandas as pd
 from tardis import atomic
+import tardis
 
 logger = logging.getLogger(__name__)
 
@@ -164,6 +165,9 @@ class TardisConfiguration(object):
     def parse_general_section(self, config_dict):
         model_type = config_dict.pop('model_type')
 
+        log_level = config_dict.pop('log_level', "INFO")
+        tardis.logger.setLevel(getattr(logging, log_level.upper()))
+
         if model_type != 'radial1d':
             raise ValueError("Only supporting 'radial1d' at the moment")
 
@@ -234,6 +238,8 @@ class TardisConfiguration(object):
 
         # reading plasma type
         self.plasma_type = config_dict.pop('plasma_type')
+        #
+        self.radiative_rates_type = config_dict.pop('radiative_rates_type')
 
         # reading initial t_rad
         if 'initial_t_rad' in config_dict:
@@ -252,6 +258,9 @@ class TardisConfiguration(object):
             raise ValueError("Please specify a filename with the keyword 'atom_data_file'")
 
         self.atom_data = atomic.AtomData.from_hdf5(atom_data_file)
+
+        logger.info("Loaded atom data with UUID=%s", self.atom_data.uuid1)
+        logger.info("Loaded atom data with MD5=%s", self.atom_data.md5)
 
         if self.plasma_type.lower == 'nebular' and not self.atom_data.has_zeta_data:
             raise ValueError('The specified AtomData set does not contain zeta data needed for nebular approximation')
@@ -324,6 +333,8 @@ class TardisConfiguration(object):
         else:
             logger.warn('Disabling electron scattering - this is not physical')
             self.sigma_thomson = 1e-200
+
+
 
         if config_dict != {}:
             logger.warn('Not all config options parsed - ignored %s' % config_dict)

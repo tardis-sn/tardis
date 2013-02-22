@@ -67,12 +67,13 @@ class BasePlasma(object):
     """
     #TODO make density a astropy.quantity
     def __init__(self, abundances, atom_data, time_explosion, density_unit='g/cm^3', max_ion_number=None,
-                 use_macro_atom=False):
+                 use_macro_atom=False, zone_id=None):
         self.atom_data = atom_data
         #        self.selected_atoms = self.atom_data.selected_atoms
         #        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
         self.abundances = abundances
         self.initialize = True
+        self.zone_id = zone_id
         self.time_explosion = time_explosion
 
 
@@ -120,9 +121,9 @@ class LTEPlasma(BasePlasma):
     """
 
     def __init__(self, abundances, atom_data, time_explosion, max_ion_number=None,
-                 use_macro_atom=False, nlte_species=[]):
+                 use_macro_atom=False, nlte_species=[], zone_id=None):
         BasePlasma.__init__(self, abundances, atom_data, time_explosion,
-                            max_ion_number=max_ion_number, use_macro_atom=use_macro_atom)
+                            max_ion_number=max_ion_number, use_macro_atom=use_macro_atom, zone_id=zone_id)
 
         self.ion_number_density = None
         self.nlte_species = nlte_species
@@ -150,9 +151,6 @@ class LTEPlasma(BasePlasma):
             self.t_electron = t_rad * 0.9
         else:
             self.t_electron = t_electron
-
-        if self.initialize:
-            self.set_j_blues()
 
         self.calculate_partition_functions(initialize=self.initialize)
 
@@ -183,8 +181,12 @@ class LTEPlasma(BasePlasma):
         if self.initialize:
             self.initialize = False
 
-    def set_j_blues(self):
-        self.j_blues = intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
+    def set_j_blues(self, j_blues=None):
+        if j_blues is None:
+            self.j_blues = intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
+        else:
+            self.j_blues = j_blues
+
 
 
     def calculate_partition_functions(self, initialize=False):
@@ -338,13 +340,13 @@ class LTEPlasma(BasePlasma):
             rates_matrix = np.zeros((number_of_levels, number_of_levels), dtype=np.float64)
 
             for i, (line_id, line) in enumerate(self.atom_data.lines.iterrows()):
-                atomic_number = line['atomic_number']
-                ion_number = line['ion_number']
+                atomic_number = int(line['atomic_number'])
+                ion_number = int(line['ion_number'])
                 if (atomic_number, ion_number) != species:
                     continue
 
-                level_number_lower = line['level_number_lower']
-                level_number_upper = line['level_number_upper']
+                level_number_lower = int(line['level_number_lower'])
+                level_number_upper = int(line['level_number_upper'])
 
                 n_lower = self.level_populations.ix[atomic_number, ion_number, level_number_lower]
                 n_upper = self.level_populations.ix[atomic_number, ion_number, level_number_upper]
@@ -354,7 +356,8 @@ class LTEPlasma(BasePlasma):
                 stimulated_emission_term = (1 - (n_upper * line['B_ul']) / (n_lower * line['B_lu']))
 
                 if stimulated_emission_term < 0:
-                    print "problem stim em < 0"
+                    logger.warn('Stimulated emission term less than 0 %g n_upper=%g n_lower=%g (zone_id=%s)',
+                                stimulated_emission_term, n_upper, n_lower, self.zone_id )
 
                 C_lu, C_ul = self.atom_data.get_collision_coefficients(atomic_number, ion_number, level_number_lower,
                                                                        level_number_upper, self.t_electron)
@@ -375,6 +378,7 @@ class LTEPlasma(BasePlasma):
 
             #Cleaning Level populations
             self.cleaned_levels.ix[species] = 0
+            self.lowest_cleaned_level = 100000
             for i in xrange(1, number_of_levels):
                 n_upper = self.level_populations.ix[species][i]
                 n_lower = self.level_populations.ix[species][i - 1]
@@ -385,12 +389,26 @@ class LTEPlasma(BasePlasma):
                 current_stim_ems = (n_upper / n_lower) * (g_lower / g_upper)
 
                 if current_stim_ems > 1.:
+
                     self.level_populations.ix[species[0], species[1], i] = (1 - 1e-12) * (g_upper / g_lower) * n_lower
                     self.cleaned_levels.ix[species] += 1
+                    self.lowest_cleaned_level = min(i, self.lowest_cleaned_level)
                     #### After cleaning check if the normalization is good:
+
+
             if abs((self.level_populations.ix[species].sum() / self.ion_number_density.ix[species] - 1)) > 0.02:
-                logger.warn("NLTE populations (after cleaning) does not sum up to 1 within 2% (%.2f / 1.0)",
-                            ((1 - self.level_populations.ix[species].sum() / self.ion_number_density.ix[species])))
+                logger.warn("NLTE populations (after cleaning) does not sum up to 1 within 2 percent "
+                            "(%.2f / 1.0 - zone id = %s, lowest_cleaned_level=%d)",
+                            ((1 - self.level_populations.ix[species].sum() / self.ion_number_density.ix[species])),
+                            self.zone_id, self.lowest_cleaned_level)
+
+            logger.debug('Number of cleaned levels %d of %d (zone id =%s)', self.cleaned_levels.ix[species],
+                         self.level_populations.ix[species].count(), self.zone_id)
+
+            if float(self.cleaned_levels.ix[species])/self.level_populations.ix[species].count() > 0.5:
+                logger.warn('Number of cleaned levels very high %d of %d (zone id=%s, , lowest_cleaned_level=%d)',
+                            self.cleaned_levels.ix[species],
+                            self.level_populations.ix[species].count(), self.zone_id, self.lowest_cleaned_level)
 
 
     def calculate_tau_sobolev(self):
@@ -425,7 +443,7 @@ class LTEPlasma(BasePlasma):
 
         """
 
-        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values]
+        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values.astype(int)]
 
         beta_sobolevs = np.empty_like(macro_tau_sobolevs)
 
@@ -478,10 +496,10 @@ class NebularPlasma(LTEPlasma):
 
     def __init__(self, abundances, atom_data, time_explosion, nlte_species=[], t_electron=None, density_unit='g/cm^3',
                  max_ion_number=None,
-                 use_macro_atom=False):
+                 use_macro_atom=False, zone_id=None):
         BasePlasma.__init__(self, abundances, atom_data, time_explosion=time_explosion, density_unit=density_unit,
                             max_ion_number=max_ion_number,
-                            use_macro_atom=use_macro_atom)
+                            use_macro_atom=use_macro_atom, zone_id=zone_id)
 
         self.ion_number_density = None
         self.nlte_species = nlte_species
@@ -497,8 +515,6 @@ class NebularPlasma(LTEPlasma):
 
         self.beta_electron = 1 / (self.t_electron * constants.k_B.cgs.value)
 
-        if self.initialize:
-            self.set_j_blues()
 
         self.calculate_partition_functions()
 
@@ -529,8 +545,11 @@ class NebularPlasma(LTEPlasma):
         if self.initialize:
             self.initialize = False
 
-    def set_j_blues(self):
-        self.j_blues = self.w * intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
+    def set_j_blues(self, j_blues=None):
+        if j_blues is None:
+            self.j_blues = self.w * intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
+        else:
+            self.j_blues = j_blues
 
     def calculate_partition_functions(self):
         """

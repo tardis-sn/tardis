@@ -74,6 +74,12 @@ cdef class StorageModel:
     cdef np.ndarray line_lists_tau_sobolevs_a
     cdef float_type_t*line_lists_tau_sobolevs
     cdef int_type_t line_lists_tau_sobolevs_nd
+
+    #J_BLUES initialize
+    cdef np.ndarray line_lists_j_blues_a
+    cdef float_type_t*line_lists_j_blues
+    cdef int_type_t line_lists_j_blues_nd
+
     cdef int_type_t no_of_lines
     cdef int_type_t line_interaction_id
     cdef np.ndarray transition_probabilities_a
@@ -148,10 +154,17 @@ cdef class StorageModel:
         self.line_list_nu = <float_type_t*> self.line_list_nu_a.data
         #
         self.no_of_lines = line_list_nu.size
+
         cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.tau_sobolevs
         self.line_lists_tau_sobolevs_a = line_lists_tau_sobolevs
         self.line_lists_tau_sobolevs = <float_type_t*> self.line_lists_tau_sobolevs_a.data
         self.line_lists_tau_sobolevs_nd = self.line_lists_tau_sobolevs_a.shape[1]
+
+        cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blues
+        model.j_blues[:] = 0.0
+        self.line_lists_j_blues_a = line_lists_j_blues
+        self.line_lists_j_blues = <float_type_t*> self.line_lists_j_blues_a.data
+        self.line_lists_j_blues_nd = self.line_lists_j_blues_a.shape[1]
 
         #
         self.line_interaction_id = model.line_interaction_id
@@ -356,6 +369,24 @@ cdef float_type_t move_packet(float_type_t*r,
     #if ((((mu[0] * r[0] + distance) / new_r) < 0.0) and (mu[0] > 0.0)):
 
     return doppler_factor
+
+
+
+cdef void increment_j_blue_estimator(int_type_t* current_line_id, float_type_t* current_nu, float_type_t* current_energy,
+                                     float_type_t* mu, float_type_t* r, float_type_t d_line, int_type_t j_blue_idx,
+                                     StorageModel storage):
+    cdef float_type_t comov_energy, r_interaction, mu_interaction, distance, doppler_factor
+
+    distance = d_line
+
+    r_interaction = sqrt(r[0] ** 2 + distance ** 2 + 2 * r[0] * distance * mu[0])
+    mu_interaction = (mu[0] * r[0] + distance) / r_interaction
+
+    doppler_factor = (1 - (mu_interaction * r_interaction * storage.inverse_time_explosion * inverse_c))
+
+    comov_energy = current_energy[0] * doppler_factor
+    storage.line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
+
 
 cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float_type_t r_outer):
     cdef float_type_t d_outer
@@ -654,6 +685,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
     cdef float_type_t nu_line = 0.0
 
     cdef int_type_t virtual_close_line = 0
+    cdef int_type_t j_blue_idx = -1
 
     #Initializing tau_event if it's a real packet
     if (virtual_packet == 0):
@@ -881,9 +913,15 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
         elif (d_line <= d_outer) and (d_line <= d_inner) and (d_line <= d_electron):
         #Line scattering
             #It has a chance to hit the line
+            if virtual_packet == 0:
+                j_blue_idx = current_shell_id[0] * storage.line_lists_j_blues_nd + current_line_id[0]
+                increment_j_blue_estimator(current_line_id, current_nu, current_energy, current_mu, current_r,  d_line,
+                                           j_blue_idx, storage)
 
             tau_line = storage.line_lists_tau_sobolevs[
                 current_shell_id[0] * storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
+
+
             tau_electron = storage.sigma_thomson * storage.electron_density[current_shell_id[0]] * d_line
             tau_combined = tau_line + tau_electron
 
@@ -973,6 +1011,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                                       storage.transition_line_id,
                                                       storage.macro_block_references,
                                                       current_shell_id[0])
+
 
                     current_nu[0] = storage.line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = storage.line_list_nu[emission_line_id]
