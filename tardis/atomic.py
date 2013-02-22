@@ -294,7 +294,9 @@ class AtomData(object):
         levels_data = read_levels_data(fname)
         lines_data = read_lines_data(fname)
 
-        h5_datasets = h5py.File(fname).keys()
+        with h5py.File(fname) as h5_file:
+            h5_datasets = h5_file.keys()
+
 
         if 'macro_atom_data' in h5_datasets:
             macro_atom_data = read_macro_atom_data(fname)
@@ -316,10 +318,15 @@ class AtomData(object):
         else:
             synpp_refs = None
 
-        return cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
+        atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
                    lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
                    collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs)
 
+        with h5py.File(fname) as h5_file:
+            atom_data.uuid1 = h5_file.attrs['uuid1']
+            atom_data.md5 = h5_file.attrs['md5']
+
+        return atom_data
 
     def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
                  collision_data=None, synpp_refs=None):
@@ -519,6 +526,12 @@ class AtomData(object):
             except pd.core.indexing.IndexingError:
                 C_lu = 0
                 C_ul = 0
+                logger.debug('Could not find collision data for atom=%d ion=%d lvl_lower=%d lvl_upper=%d',
+                             atomic_number, ion_number, level_number_lower, level_number_upper)
+            else:
+                logger.debug('Found collision data for atom=%d ion=%d lvl_lower=%d lvl_upper=%d',
+                             atomic_number, ion_number, level_number_lower, level_number_upper)
+
 
             return C_lu, C_ul
 

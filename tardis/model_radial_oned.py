@@ -120,6 +120,7 @@ class Radial1DModel(object):
 
         #Selecting plasma class
         self.plasma_type = tardis_config.plasma_type
+        self.radiative_rates_type = tardis_config.radiative_rates_type
         if self.plasma_type == 'lte':
             self.plasma_class = plasma.LTEPlasma
             if tardis_config.ws is not None:
@@ -221,8 +222,16 @@ class Radial1DModel(object):
             for i, (current_abundances, current_t_rad) in \
                 enumerate(zip(self.number_densities, self.t_rads)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
-                                                   nlte_species=self.tardis_config.nlte_species)
+                                                   nlte_species=self.tardis_config.nlte_species, zone_id=i)
                 logger.debug('Initializing Shell %d Plasma with T=%.3f' % (i, current_t_rad))
+                if self.radiative_rates_type in ('lte', 'detailed'):
+                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
+                    current_plasma.set_j_blues(j_blues)
+                else:
+                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
+                                     ' be "lte" or "detailed"' % (self.plasma_type))
+
+                current_plasma.set_j_blues(j_blues)
                 current_plasma.update_radiationfield(current_t_rad)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
@@ -237,8 +246,17 @@ class Radial1DModel(object):
             for i, (current_abundances, current_t_rad, current_w) in \
                 enumerate(zip(self.number_densities, self.t_rads, self.ws)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
-                                                   nlte_species=self.tardis_config.nlte_species)
+                                                   nlte_species=self.tardis_config.nlte_species, zone_id=i)
                 logger.debug('Initializing Shell %d Plasma with T=%.3f W=%.4f' % (i, current_t_rad, current_w))
+                if self.radiative_rates_type in ('lte',):
+                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
+                elif self.radiative_rates_type in ('nebular', 'detailed'):
+                    j_blues = current_w * plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
+                else:
+                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
+                             ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
+
+                current_plasma.set_j_blues(j_blues)
                 current_plasma.update_radiationfield(current_t_rad, current_w)
 
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
@@ -249,6 +267,7 @@ class Radial1DModel(object):
                 self.plasmas.append(current_plasma)
 
         self.tau_sobolevs = np.array(self.tau_sobolevs, dtype=float)
+        self.j_blues = np.zeros_like(self.tau_sobolevs)
 
         if self.line_interaction_id in (1, 2):
             self.transition_probabilities = np.array(self.transition_probabilities, dtype=np.float64)
@@ -283,14 +302,27 @@ class Radial1DModel(object):
 
         return updated_t_rads, updated_ws
 
+    def normalize_j_blues(self):
+        norm_factor = (constants.c.cgs.value * self.time_explosion /
+                       (4 * np.pi * self.time_of_simulation * self.volumes)).reshape((self.volumes.shape[0], 1))
+        self.j_blues *= norm_factor
+
 
     def update_plasmas(self, updated_t_rads, updated_ws=None):
         if self.plasma_type == 'lte':
             self.t_rads = updated_t_rads
             for i, (current_plasma, new_trad) in enumerate(zip(self.plasmas, updated_t_rads)):
-                current_plasma.set_j_blues()
-
                 logger.debug('Updating Shell %d Plasma with T=%.3f' % (i, new_trad))
+                if self.radiative_rates_type == 'lte':
+                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
+                elif self.radiative_rates_type == 'detailed':
+                    j_blues = self.j_blues[i]
+                else:
+                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
+                             ' be "lte" or "detailed"' % (self.plasma_type))
+
+                current_plasma.set_j_blues(j_blues)
+
                 current_plasma.update_radiationfield(new_trad)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
@@ -298,10 +330,24 @@ class Radial1DModel(object):
             self.t_rads = updated_t_rads
             self.ws = updated_ws
             for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, updated_t_rads, updated_ws)):
-                current_plasma.set_j_blues()
                 logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, new_trad, new_ws))
+
+                if self.radiative_rates_type == 'lte':
+                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
+                elif self.radiative_rates_type == 'nebular':
+                    j_blues = new_ws * plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
+
+                elif self.radiative_rates_type == 'detailed':
+                    j_blues = self.j_blues[i]
+                else:
+                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
+                                     ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
+
+                current_plasma.set_j_blues(j_blues)
+
                 current_plasma.update_radiationfield(new_trad, new_ws)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
+
 
     def calculate_spectrum(self, out_nu, out_energy, distance=None):
         self.out_nu = out_nu
@@ -417,6 +463,7 @@ class ModelHistory(object):
         self.t_rads = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
         self.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
         self.level_populations = {}
+        self.j_blues = {}
 
 
     def store_all(self, radial1d_mdl, iteration):
@@ -424,12 +471,16 @@ class ModelHistory(object):
         self.ws['iter%d' % iteration] = radial1d_mdl.ws
 
         current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
+        current_j_blues = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
         for i, plasma in enumerate(radial1d_mdl.plasmas):
             current_level_populations[i] = plasma.level_populations
+            current_j_blues[i] = plasma.j_blues
 
         self.level_populations['iter%d' % iteration] = current_level_populations.copy()
+        self.j_blues['iter%d' % iteration] = current_j_blues.copy()
 
     def finalize(self):
         self.level_populations = pd.Panel.from_dict(self.level_populations)
+        self.j_blues = pd.Panel.from_dict(self.j_blues)
 
 
