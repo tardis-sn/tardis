@@ -284,10 +284,10 @@ class AtomData(object):
         """
 
         if fname is None:
-
             fname = default_atom_h5_path
-            if not os.path.exists(fname):
-                raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
+
+        if not os.path.exists(fname):
+            raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
 
         atom_data = read_basic_atom_data(fname)
         ionization_data = read_ionization_data(fname)
@@ -296,7 +296,6 @@ class AtomData(object):
 
         with h5py.File(fname) as h5_file:
             h5_datasets = h5_file.keys()
-
 
         if 'macro_atom_data' in h5_datasets:
             macro_atom_data = read_macro_atom_data(fname)
@@ -319,8 +318,8 @@ class AtomData(object):
             synpp_refs = None
 
         atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-                   lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
-                   collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs)
+                        lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
+                        collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs)
 
         with h5py.File(fname) as h5_file:
             atom_data.uuid1 = h5_file.attrs['uuid1']
@@ -531,7 +530,6 @@ class AtomData(object):
             else:
                 logger.debug('Found collision data for atom=%d ion=%d lvl_lower=%d lvl_upper=%d',
                              atomic_number, ion_number, level_number_lower, level_number_upper)
-
 
             return C_lu, C_ul
 
