@@ -58,8 +58,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         velocities = units.Quantity(np.append([0], velocities), 'km/s').to('cm/s')
         mean_densities_0 = units.Quantity(10**mean_densities_0, 'g/cm^3')
 
-        mean_densities = calculate_density_after_time(time_of_model.value, mean_densities_0,
-                                                                      time_explosion)
+        mean_densities = calculate_density_after_time(mean_densities_0, time_of_model.value, time_explosion)
 
 
         #Verifying information
