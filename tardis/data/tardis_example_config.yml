@@ -1,0 +1,99 @@
+#New configuration for TARDIS based on YAML
+#IMPORTANT any pure floats need to have a +/- after the e e.g. 2e+5
+#Hopefully pyyaml will fix this soon.
+---
+#Currently only simple1d is allowed
+config_type: simple1d
+
+#luminosity any astropy.unit convertible to erg/s
+#special unit log_lsun(log(luminosity) - log(L_sun)
+luminosity: 9.44 log_lsun
+
+#time since explosion
+time_explosion: 18 day
+
+
+atom_data: kurucz_atom_tmp.h5
+
+plasma:
+    initial_t_inner: 10000 K
+    initial_t_rad: 10000 K
+    disable_electron_scattering: no
+    plasma_type: nebular
+    radiative_rates_type: nebular
+    #line interaction type - currently supported are scatter, downbranch and macroatom
+    line_interaction_type : macroatom
+
+
+
+model:
+    structure:
+        no_of_shells : 20
+        file:
+            type : artis
+            name : artis_model.dat
+            v_lowest: 10000.0 km/s
+            v_highest: 20000.0 km/s
+
+
+        velocity:
+            type : linear
+            v_inner : 1e4 km/s
+            v_outer : 2e4 km/s
+        
+        
+        density:
+            #showing different configuration options separated by comments
+            #simple uniform:
+            #---------------
+            type : uniform
+            value : 1e-12 g/cm^3
+            #---------------
+
+            #branch85_w7 - fit of seven order polynomial to W7 (like Branch 85):
+            #---------------
+            #type : branch85_w7
+            #value : 1e-12
+            #time_0 : 19.9999584 s# default, no need to change!
+            #density_coefficient : 3e29 # default, no need to change!
+            #---------------
+                
+    
+    abundances:
+        file:
+            type : artis
+            name : artis_abundances.dat
+        
+#        abundance_set:
+#            type: uniform
+#            name: lucy99
+#        nlte_species : []
+#        sI : 1.5
+#        ca: 1.5
+        
+            
+
+montecarlo:
+    seed: 23111963171620
+    no_of_packets : 2.e+4
+    iterations: 1
+    last_no_of_packets: 2.0e+4
+    no_of_virtual_packets: 10
+
+
+spectrum:
+    start : 500 angstrom
+    end : 20000 angstrom
+    bins : 1000
+    sn_distance : lum_density
+
+
+    
+    
+
+
+
+    
+
+
+
