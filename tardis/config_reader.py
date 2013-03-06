@@ -12,7 +12,7 @@ import re
 import pandas as pd
 from tardis import atomic
 import yaml
-import tardis
+
 import pdb
 
 import pprint
