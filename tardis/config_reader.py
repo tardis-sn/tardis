@@ -39,6 +39,56 @@ def calculate_density_after_time(densities, time_0, time_explosion):
     return densities * (time_explosion / time_0) ** -3
 
 
+def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
+    """
+
+    This function computes a descret exponential density profile.
+    :math:`\\rho = \\rho_0 \\times \\left( \\frac{v_0}{v} \\right)^n`
+
+    Parameters
+    ----------
+
+    velocities : Array like list
+                velocities in km/s
+
+    velocity_0 : ~float
+        Velocity at the inner boundary
+
+
+    rho_0 : ~float
+        density at velocity_0
+
+    exponent : ~float
+        exponent used in the powerlaw
+
+    Returns
+    -------
+
+    Array like density structure
+
+    """
+    densities = rho_0 * (velocity_0 / velocities) ** exponent
+    return densities[1:]
+
+def calculate_velocities( v_inner=None, v_outer=None, v_sampling='linear'):
+    """
+    calculates the velocity shells. At the moment only linear v sampling is supported.
+
+    :param velocities:
+    :param v_inner:
+    :param v_outer:
+    :param v_sampling:
+
+
+    """
+
+    if v_sampling == 'linear':
+        velocities = np.linspace(
+            v_inner, v_outer, self.no_of_shells + 1)
+    else:
+        raise ValueError('Currently only v_sampling = linear is possible')
+    return  velocities
+
 def parse_density_file_section(density_file_dict, time_explosion):
 
     density_file_parser = {}
@@ -159,8 +209,34 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
 
         densities = calculate_density_after_time(densities, time_0, time_explosion)
 
+
+
         return densities
     density_parser['branch85_w7'] = parse_branch85
+
+    def parse_exponential(density_dict,no_of_shells_v_inner, v_outer, time_explosion):
+        time_0 = density_dict.pop('time_0',19.9999584)
+        if isinstance(time_0, basestring):
+            time_0 = parse2quantity(time_0).to('s').value
+        else:
+            logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
+        try:
+            rho_0 = density_dict.pop('rho')
+        except KeyError:
+            rho_0 = 1e-2
+            logger.warning('rho_o was not given in the config! Using %g', rho_0)
+        try:
+            exponent = density_dict.pop('exponent')
+        except:
+            exponent = 2
+            logger.warning('exponent was not given in the config file! Using %f', exponent)
+
+
+        velocities = calculate_velocities(v_inner=v_inner, v_outer=v_outer)
+        densities = calculate_exponential_densities(velocities, v_inner, rho_0, exponent)
+
+        return densities
+    density_parser['exponential'] = parse_exponential
 
     try:
         parser = density_parser[density_dict['type']]
@@ -236,36 +312,6 @@ def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.999958
     return densities[1:]
 
 
-def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
-    """
-
-    This function computes a descret exponential density profile.
-    :math:`\\rho = \\rho_0 \\times \\left( \\frac{v_0}{v} \\right)^n`
-
-    Parameters
-    ----------
-
-    velocities : Array like list
-                velocities in km/s
-
-    velocity_0 : ~float
-        Velocity at the inner boundary
-
-
-    rho_0 : ~float
-        density at velocity_0
-
-    exponent : ~float
-        exponent used in the powerlaw
-
-    Returns
-    -------
-
-    Array like density structure
-
-    """
-    densities = rho_0 * (velocity_0 / velocities) ** exponent
-    return densities[1:]
 
 
 def read_w7_densities(fname=None):
@@ -384,7 +430,6 @@ class TardisConfiguration(object):
             if structure_dict != {}:
                 logger.warn('Accepted file for structure (density/velocity) structure ignoring all other arguments: \n%s\n',
                             pprint.pformat(structure_dict, indent=4))
-
         else:
             #requiring all keys: no_of_shells, velocity, density
             if not all([item in structure_dict.keys() for item in ('no_of_shells', 'velocity', 'density')]):
