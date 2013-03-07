@@ -214,7 +214,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
             logger.warning('exponent was not given in the config file! Using %f', exponent)
 
         velocities = 0.5 * (v_inner + v_outer)
-        densities = calculate_exponential_densities(velocities, v_inner, rho_0, exponent)
+        densities = calculate_exponential_densities(velocities, v_inner[0], rho_0, exponent)
 
         return densities
     density_parser['exponential'] = parse_exponential
@@ -573,26 +573,6 @@ class TardisConfiguration(object):
 
         return cls(config_dict)
 
-
-    def set_velocities(self, velocities=None, v_inner=None, v_outer=None, v_sampling='linear'):
-        """
-        Setting the velocities
-
-        :param velocities:
-        :param v_inner:
-        :param v_outer:
-        :param v_sampling:
-
-
-        """
-        if self.no_of_shells is None:
-            raise ValueError('Can not set abundances before number of shells have been set')
-
-        if v_sampling == 'linear':
-            self.velocities = np.linspace(
-                v_inner, v_outer, self.no_of_shells + 1)
-        else:
-            raise ValueError('Currently only v_sampling = linear is possible')
 
     def set_abundances(self, abundances):
         """
