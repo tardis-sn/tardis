@@ -70,24 +70,6 @@ def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
     densities = rho_0 * (velocity_0 / velocities) ** exponent
     return densities[1:]
 
-def calculate_velocities( v_inner=None, v_outer=None, v_sampling='linear'):
-    """
-    calculates the velocity shells. At the moment only linear v sampling is supported.
-
-    :param velocities:
-    :param v_inner:
-    :param v_outer:
-    :param v_sampling:
-
-
-    """
-
-    if v_sampling == 'linear':
-        velocities = np.linspace(
-            v_inner, v_outer, self.no_of_shells + 1)
-    else:
-        raise ValueError('Currently only v_sampling = linear is possible')
-    return  velocities
 
 def parse_density_file_section(density_file_dict, time_explosion):
 
@@ -227,12 +209,11 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
         try:
             exponent = density_dict.pop('exponent')
-        except:
+        except KeyError:
             exponent = 2
             logger.warning('exponent was not given in the config file! Using %f', exponent)
 
-
-        velocities = calculate_velocities(v_inner=v_inner, v_outer=v_outer)
+        velocities = 0.5 * (v_inner + v_outer)
         densities = calculate_exponential_densities(velocities, v_inner, rho_0, exponent)
 
         return densities
