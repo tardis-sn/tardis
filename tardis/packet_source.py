@@ -45,7 +45,7 @@ class SimplePacketSource:
         np.random.seed(seed)
 
 
-    def create_packets(self, number_of_packets, t_rad):
+    def create_packets(self, number_of_packets, t_rad, seed=None):
         """
         Creating a new random number of packets, with a certain temperature
 
@@ -59,6 +59,9 @@ class SimplePacketSource:
             radiation temperature
 
         """
+        if seed is not None:
+            np.random.seed(seed)
+
         number_of_packets = int(number_of_packets)
         self.packet_nus = self.random_blackbody_nu(t_rad, number_of_packets)
         self.packet_mus = np.sqrt(np.random.random(size=number_of_packets))
