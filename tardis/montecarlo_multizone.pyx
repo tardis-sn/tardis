@@ -43,12 +43,18 @@ cdef extern from "randomkit/randomkit.h":
 
     void rk_seed(unsigned long seed, rk_state *state)
     float_type_t rk_double(rk_state *state)
+cdef rk_state mt_state
+
 
 cdef np.ndarray x
 cdef class StorageModel:
     """
     Class for storing the arrays in a cythonized way (as pointers). This ensures fast access during the calculations.
     """
+
+
+
+
     cdef np.ndarray packet_nus_a
     cdef float_type_t*packet_nus
     cdef np.ndarray packet_mus_a
@@ -110,6 +116,9 @@ cdef class StorageModel:
 
 
     def __init__(self, model):
+
+        rk_seed(250819801106, &mt_state)
+
         cdef np.ndarray[float_type_t, ndim=1] packet_nus = model.packet_src.packet_nus
         self.packet_nus_a = packet_nus
         self.packet_nus = <float_type_t*> self.packet_nus_a.data
@@ -237,8 +246,7 @@ logger = logging.getLogger(__name__)
 
 
 
-cdef rk_state mt_state
-rk_seed(250819801106, &mt_state)
+
 
 
 

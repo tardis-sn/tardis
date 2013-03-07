@@ -1,12 +1,13 @@
 # building of radial_oned_model
 
 import numpy as np
-import plasma, atomic, packet_source
+import plasma, packet_source
 import logging
+import pylab
 
 import pandas as pd
 from astropy import constants, units
-from copy import deepcopy
+import montecarlo_multizone
 import os
 import yaml
 import pdb
@@ -72,8 +73,6 @@ class Radial1DModel(object):
 
     def __init__(self, tardis_config):
         #final preparation for configuration object
-        tardis_config.final_preparation()
-
         self.tardis_config = tardis_config
 
         self.atom_data = tardis_config.atom_data
@@ -87,26 +86,23 @@ class Radial1DModel(object):
         self.time_explosion = tardis_config.time_explosion
 
         #initializing velocities and radii
-        self.v_inner = tardis_config.velocities[:-1]
-        self.v_outer = tardis_config.velocities[1:]
+        self.v_inner = tardis_config.v_inner
+        self.v_outer = tardis_config.v_outer
 
         self.r_inner = self.v_inner * self.time_explosion
         self.r_outer = self.v_outer * self.time_explosion
         self.r_middle = 0.5 * (self.r_inner + self.r_outer)
 
         self.volumes = (4. / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)
-        #initializing densities
-        assert len(tardis_config.densities) == self.no_of_shells
 
-        self.densities_middle = tardis_config.densities
+        self.mean_densities = tardis_config.mean_densities
 
-        self.time_of_simulation = tardis_config.time_of_simulation
+        self.t_inner = tardis_config.initial_t_inner
 
-        self.t_inner = tardis_config.t_inner
-
-        self.luminosity_outer = tardis_config.luminosity_outer
+        self.luminosity_outer = tardis_config.luminosity
 
         self.no_of_packets = tardis_config.no_of_packets
+        self.current_no_of_packets = tardis_config.no_of_packets
         self.iterations = tardis_config.iterations
 
         self.sigma_thomson = tardis_config.sigma_thomson
@@ -139,26 +135,21 @@ class Radial1DModel(object):
 
         #initializing abundances
         self.abundances = tardis_config.abundances
-        self.number_densities = []
-        for abundance, density in zip(self.abundances, self.densities_middle):
-            self.number_densities.append(calculate_atom_number_densities(self.atom_data, abundance, density))
 
-        self.selected_atomic_numbers = self.number_densities[0].index.values.astype(int)
+        self.number_densities = tardis_config.number_densities
+
+        self.selected_atomic_numbers = self.number_densities.columns
 
         self.line_interaction_type = tardis_config.line_interaction_type
 
 
         #setting dilution factors
-        if tardis_config.ws is None:
-            self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
-        else:
-            self.ws = np.array([(0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle[i] ** 2))) if w < 0 \
-                                    else w for i, w in enumerate(tardis_config.ws)])
+        self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
 
         #initializing temperatures
 
         if np.isscalar(tardis_config.initial_t_rad):
-            self.t_rads = [tardis_config.initial_t_rad] * self.no_of_shells
+            self.t_rads = np.ones(self.no_of_shells) * tardis_config.initial_t_rad
         else:
             assert len(tardis_config.initial_t_rad) == self.no_of_shells
             self.t_rads = np.array(tardis_config.initial_t_rad, dtype=np.float64)
@@ -189,6 +180,10 @@ class Radial1DModel(object):
         #final preparation for atom_data object - currently building data
         self.atom_data.prepare_atom_data(self.selected_atomic_numbers,
                                          line_interaction_type=self.line_interaction_type, max_ion_number=None)
+        if self.line_interaction_id in (1,2):
+            self.calculate_transition_probabilities()
+
+
 
     @property
     def t_inner(self):
@@ -201,13 +196,13 @@ class Radial1DModel(object):
         self.time_of_simulation = 1 / self.luminosity_inner
 
 
-    def create_packets(self, no_of_packets=None):
+    def create_packets(self):
         #Energy emitted from the inner boundary
         self.emitted_inner_energy = 4 * np.pi * constants.sigma_sb.cgs.value * self.r_inner[0] ** 2 * (
             self.t_inner) ** 4
 
-        if no_of_packets is None:
-            no_of_packets = self.no_of_packets
+
+        no_of_packets = self.current_no_of_packets
         self.packet_src.create_packets(no_of_packets, self.t_inner)
 
     def initialize_plasmas(self):
@@ -219,8 +214,8 @@ class Radial1DModel(object):
             self.transition_probabilities = []
 
         if self.plasma_type == 'lte':
-            for i, (current_abundances, current_t_rad) in \
-                enumerate(zip(self.number_densities, self.t_rads)):
+            for i, ((tmp_index, current_abundances), current_t_rad) in \
+                enumerate(zip(self.number_densities.iterrows(), self.t_rads)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
                                                    nlte_species=self.tardis_config.nlte_species, zone_id=i)
                 logger.debug('Initializing Shell %d Plasma with T=%.3f' % (i, current_t_rad))
@@ -235,16 +230,13 @@ class Radial1DModel(object):
                 current_plasma.update_radiationfield(current_t_rad)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
-                #TODO change this
-                if self.line_interaction_id in (1, 2):
-                    self.transition_probabilities.append(current_plasma.update_macro_atom().values)
 
                 self.plasmas.append(current_plasma)
 
 
         elif self.plasma_type == 'nebular':
-            for i, (current_abundances, current_t_rad, current_w) in \
-                enumerate(zip(self.number_densities, self.t_rads, self.ws)):
+            for i, ((tmp_index, current_abundances), current_t_rad, current_w) in \
+                enumerate(zip(self.number_densities.iterrows(), self.t_rads, self.ws)):
                 current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
                                                    nlte_species=self.tardis_config.nlte_species, zone_id=i)
                 logger.debug('Initializing Shell %d Plasma with T=%.3f W=%.4f' % (i, current_t_rad, current_w))
@@ -261,18 +253,23 @@ class Radial1DModel(object):
 
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
-                if self.line_interaction_id in (1, 2):
-                    self.transition_probabilities.append(current_plasma.update_macro_atom().values)
-
                 self.plasmas.append(current_plasma)
 
         self.tau_sobolevs = np.array(self.tau_sobolevs, dtype=float)
         self.j_blues = np.zeros_like(self.tau_sobolevs)
 
         if self.line_interaction_id in (1, 2):
-            self.transition_probabilities = np.array(self.transition_probabilities, dtype=np.float64)
+            self.calculate_transition_probabilities()
 
             # update plasmas
+
+    def calculate_transition_probabilities(self):
+        self.transition_probabilities = []
+
+        for current_plasma in self.plasmas:
+            self.transition_probabilities.append(current_plasma.update_macro_atom().values)
+
+        self.transition_probabilities = np.array(self.transition_probabilities, dtype=np.float64)
 
     def calculate_updated_radiationfield(self, nubar_estimator, j_estimator):
         """
@@ -308,10 +305,9 @@ class Radial1DModel(object):
         self.j_blues *= norm_factor
 
 
-    def update_plasmas(self, updated_t_rads, updated_ws=None):
+    def update_plasmas(self):
         if self.plasma_type == 'lte':
-            self.t_rads = updated_t_rads
-            for i, (current_plasma, new_trad) in enumerate(zip(self.plasmas, updated_t_rads)):
+            for i, (current_plasma, new_trad) in enumerate(zip(self.plasmas, self.t_rads)):
                 logger.debug('Updating Shell %d Plasma with T=%.3f' % (i, new_trad))
                 if self.radiative_rates_type == 'lte':
                     j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
@@ -327,11 +323,8 @@ class Radial1DModel(object):
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
         elif self.plasma_type == 'nebular':
-            self.t_rads = updated_t_rads
-            self.ws = updated_ws
-            for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, updated_t_rads, updated_ws)):
+            for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
                 logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, new_trad, new_ws))
-
                 if self.radiative_rates_type == 'lte':
                     j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
                 elif self.radiative_rates_type == 'nebular':
@@ -348,16 +341,19 @@ class Radial1DModel(object):
                 current_plasma.update_radiationfield(new_trad, new_ws)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
+        if self.line_interaction_id in (1, 2):
+            self.calculate_transition_probabilities()
 
-    def calculate_spectrum(self, out_nu, out_energy, distance=None):
-        self.out_nu = out_nu
-        self.out_energy = out_energy
 
-        if distance is None:
+    def calculate_spectrum(self):
+
+        if self.tardis_config.sn_distance is None:
             logger.info('Distance to supernova not selected assuming 10 pc for calculation of spectra')
             distance = units.Quantity(10, 'pc').to('cm').value
-
-        self.spec_flux_nu = np.histogram(out_nu[out_nu > 0], weights=out_energy[out_nu > 0], bins=self.spec_nu_bins)[0]
+        else:
+            distance = self.tardis_config.sn_distance
+        self.spec_flux_nu = np.histogram(self.montecarlo_nu[self.montecarlo_nu > 0],
+                            weights=self.montecarlo_energies[self.montecarlo_energies > 0], bins=self.spec_nu_bins)[0]
 
         flux_scale = self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) * (4 * np.pi * distance ** 2)
 
@@ -366,7 +362,8 @@ class Radial1DModel(object):
         self.spec_virtual_flux_nu /= flux_scale
 
         self.spec_reabsorbed_nu = \
-            np.histogram(out_nu[out_nu < 0], weights=out_energy[out_nu < 0], bins=self.spec_nu_bins)[0]
+            np.histogram(self.montecarlo_nu[self.montecarlo_nu < 0],
+                         weights=self.montecarlo_energies[self.montecarlo_nu < 0], bins=self.spec_nu_bins)[0]
         self.spec_reabsorbed_nu /= flux_scale
 
         self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
@@ -374,6 +371,81 @@ class Radial1DModel(object):
         self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
         self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
         self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
+
+
+    def simulate(self, update_radiation_field=True, enable_virtual=False):
+        self.create_packets()
+        self.spec_virtual_flux_nu[:] = 0.0
+        if enable_virtual:
+            self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators = \
+                montecarlo_multizone.montecarlo_radial1d(self,
+                                                        virtual_packet_flag=self.tardis_config.no_of_virtual_packets)
+        else:
+            self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators = \
+                montecarlo_multizone.montecarlo_radial1d(self)
+
+        self.normalize_j_blues()
+
+
+        self.calculate_spectrum()
+
+        if update_radiation_field:
+            self.update_radiationfield()
+            self.update_plasmas()
+
+
+
+    def update_radiationfield(self, update_mode='dampened', damping_constant=0.5, log_sampling=5):
+        """
+        Updating radiatiantion field
+
+        Parameters
+        ----------
+
+        nubar_estimators : ~np.ndarray
+        j_estimators : ~np.ndarray
+        update_mode : 'damped' or 'direct'
+
+        damping_constant :
+        """
+
+        updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
+
+
+
+        if update_mode in ('dampened', 'direct'):
+            if update_mode == 'direct':
+                damping_constant = 1.0
+
+            old_t_rads = self.t_rads.copy()
+            old_ws = self.ws.copy()
+            self.t_rads += damping_constant * (updated_t_rads - self.t_rads)
+            self.ws += damping_constant * (updated_ws - self.ws)
+
+            emitted_energy = self.emitted_inner_energy * \
+                             np.sum(self.montecarlo_energies[self.montecarlo_energies >= 0]) / 1.
+            absorbed_energy = self.emitted_inner_energy * \
+                              np.sum(self.montecarlo_energies[self.montecarlo_energies < 0]) / -1.
+
+
+            updated_t_inner = self.t_inner * (emitted_energy / self.luminosity_outer) ** -.25
+
+            self.t_inner += damping_constant * (updated_t_inner - self.t_inner)
+
+        temperature_logging = pd.DataFrame({'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'new_trads': self.t_rads,
+                      'ws': old_ws, 'updated_ws': updated_ws, 'new_ws': self.ws})
+        temperature_logging.index.name = 'Shell'
+
+        temperature_logging = str(temperature_logging[::log_sampling])
+
+        temperature_logging = ''.join(['\t%s\n' % item for item in temperature_logging.split('\n')])
+
+        logger.info('Plasma stratification:\n%s\n', temperature_logging)
+        logger.info("Luminosity emitted = %.5e Luminosity absorbed = %.5e Luminosity requested = %.5e", emitted_energy,
+                    absorbed_energy,
+                    self.luminosity_outer)
+        logger.info('Calculating new t_inner = %.3f', updated_t_inner)
+
 
     def create_synpp_yaml(self, fname, lines_db=None):
         if not self.atom_data.has_synpp_refs:
@@ -418,40 +490,26 @@ class Radial1DModel(object):
 
         yaml.dump(yaml_reference, file(fname, 'w'))
 
-
-def calculate_atom_number_densities(atom_data, abundances, density):
-    """
-    Calculates the atom number density, using the following formula, where Z is the atomic number
-    and X is the abundance fraction
-
-    .. math::
-        N_{Z} = \\frac{\\rho_\\textrm{total}\\times \\textrm{X}_\\textrm{Z}}{m_\\textrm{Z}}
-
-    """
-
-    #Converting abundances
-
-
-
-    abundance_fractions = pd.Series(abundances.values(),
-                                    index=pd.Index([atom_data.symbol2atomic_number[item] for item in abundances.keys()],
-                                                   dtype=np.int, name='atomic_number'), name='abundance_fraction')
+    def plot_spectrum(self, ax=None, mode='wavelength', virtual=True):
+        if ax is None:
+            ax = pylab.gca()
+        if mode == 'wavelength':
+            x = self.spec_angstrom
+            if virtual:
+                y = self.spec_virtual_flux_angstrom
+            else:
+                y = self.spec_flux_angstrom
+            xlabel = 'Wavelength [\AA]'
+            if self.tardis_config.lum_density:
+                ylabel = 'Flux [erg s^-1 cm^-2 \AA^-1]'
+            else:
+                ylabel = 'Flux [erg s^-1 \AA^-1]'
 
 
 
-    #Normalizing Abundances
-
-    abundance_sum = abundance_fractions.sum()
-
-    if abs(abundance_sum - 1) > 1e-5:
-        logger.warn('Abundances do not add up to 1 (Sum = %.4f). Renormalizing', (abundance_sum))
-
-    abundance_fractions /= abundance_sum
-
-    number_densities = (abundance_fractions * density) / \
-                       atom_data.atom_data.ix[abundance_fractions.index]['mass']
-
-    return pd.DataFrame({'abundance_fraction': abundance_fractions, 'number_density': number_densities})
+        ax.plot(x, y)
+        ax.set_xlabel(xlabel)
+        ax.set_ylabel(ylabel)
 
 
 class ModelHistory(object):

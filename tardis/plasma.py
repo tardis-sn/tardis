@@ -160,7 +160,7 @@ class LTEPlasma(BasePlasma):
         phis = self.calculate_saha()
 
         #initialize electron density with the sum of number densities
-        electron_density = self.abundances['number_density'].sum()
+        electron_density = self.abundances.sum()
 
         n_e_iterations = 0
 
@@ -292,7 +292,7 @@ class LTEPlasma(BasePlasma):
             current_phis = groups.values / electron_density
             phis_product = np.cumproduct(current_phis)
 
-            neutral_atom_density = self.abundances.ix[atomic_number]['number_density'] / (1 + np.sum(phis_product))
+            neutral_atom_density = self.abundances.ix[atomic_number] / (1 + np.sum(phis_product))
             ion_densities = [neutral_atom_density] + list(neutral_atom_density * phis_product)
 
             self.ion_number_density.ix[atomic_number] = ion_densities
@@ -546,7 +546,7 @@ class NebularPlasma(LTEPlasma):
         phis = self.calculate_saha()
 
         #initialize electron density with the sum of number densities
-        electron_density = self.abundances['number_density'].sum()
+        electron_density = self.abundances.sum()
 
         n_e_iterations = 0
 
@@ -658,7 +658,12 @@ class NebularPlasma(LTEPlasma):
         zeta = Series(index=phis.index)
 
         for idx in zeta.index:
-            zeta.ix[idx] = self.atom_data.zeta_data[idx](self.t_rad)
+            try:
+                current_zeta = self.atom_data.zeta_data[idx](self.t_rad)
+            except KeyError:
+                current_zeta = 1.0
+
+            zeta.ix[idx] = current_zeta
 
         phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) * \
                 (self.t_electron / self.t_rad) ** .5
