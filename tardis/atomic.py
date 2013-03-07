@@ -52,17 +52,17 @@ def read_hdf5_data(fname, dset_name):
     h5_file = h5py.File(fname)
     dataset = h5_file[dset_name]
     data = np.asarray(dataset)
-    data_units = dataset.attrs['units']
+#    data_units = dataset.attrs['units']
 
     data_table = table.Table(data)
 
-    for i, col_unit in enumerate(data_units):
-        if col_unit == 'n':
-            data_table.columns[i].units = None
-        elif col_unit == '1':
-            data_table.columns[i].units = units.Unit(1)
-        else:
-            data_table.columns[i].units = units.Unit(col_unit)
+#    for i, col_unit in enumerate(data_units):
+#        if col_unit == 'n':
+#            data_table.columns[i].units = None
+#        elif col_unit == '1':
+#            data_table.columns[i].units = units.Unit(1)
+#        else:
+#            data_table.columns[i].units = units.Unit(col_unit)
 
     h5_file.close()
 
@@ -86,7 +86,7 @@ def read_basic_atom_data(fname=None):
     """
 
     data_table = read_hdf5_data(fname, 'basic_atom_data')
-    data_table.columns['mass'].convert_units_to('g')
+#    data_table.columns['mass'] = units.Unit('u').to('g', data_table['mass'])
 
     return data_table
 
@@ -110,7 +110,7 @@ def read_ionization_data(fname=None):
     """
 
     data_table = read_hdf5_data(fname, 'ionization_data')
-    data_table.columns['ionization_energy'].convert_units_to('erg')
+    #data_table.columns['ionization_energy'] = units.Unit('eV').to('erg', data_table.columns['ionization_energy'])
 
     return data_table
 
@@ -133,8 +133,9 @@ def read_levels_data(fname=None):
     """
 
     data_table = read_hdf5_data(fname, 'levels_data')
-    data_table.columns['energy'].convert_units_to('erg')
-    #data_table.columns['ionization_energy'].convert_units_to('erg')
+    #data_table.columns['energy'].convert_units_to('erg')
+    #data_table.columns['energy'] = units.Unit('eV').to('erg', data_table.columns['energy'])
+
 
     return data_table
 
@@ -395,11 +396,14 @@ class AtomData(object):
 
         self.atom_data = DataFrame(atom_data.__array__())
         self.atom_data.set_index('atomic_number', inplace=True)
+        self.atom_data.mass = units.Unit('u').to('g', self.atom_data.mass.values)
 
         self.ionization_data = DataFrame(ionization_data.__array__())
         self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
+        self.ionization_data.ionization_energy = units.Unit('eV').to('erg', self.ionization_data.ionization_energy.values)
 
         self.levels_data = DataFrame(levels_data.__array__())
+        self.levels_data.energy = units.Unit('eV').to('erg', self.levels_data.energy.values)
 
         self.lines_data = DataFrame(lines_data.__array__())
         self.lines_data.set_index('line_id', inplace=True)
@@ -469,13 +473,6 @@ class AtomData(object):
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
-        einstein_coeff = (4 * np.pi ** 2 * constants.e.gauss.value ** 2) / (
-            constants.m_e.cgs.value * constants.c.cgs.value)
-
-        self.lines['B_lu'] = self.lines['f_lu'] * einstein_coeff / (constants.h.cgs.value * self.lines['nu'])
-        self.lines['B_ul'] = self.lines['f_ul'] * einstein_coeff / (constants.h.cgs.value * self.lines['nu'])
-        self.lines['A_ul'] = einstein_coeff * 2 * self.lines['nu'] ** 2 / constants.c.cgs.value ** 2 * self.lines[
-            'f_ul']
 
         if self.has_macro_atom and not (line_interaction_type == 'scatter'):
             self.macro_atom_data = self.macro_atom_data_all[
