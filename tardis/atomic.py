@@ -215,6 +215,17 @@ def read_collision_data(fname):
 
     return collision_data, collision_temperatures
 
+def read_ion_cx_data(fname):
+    try:
+        h5_file = h5py.File(fname)
+        ion_cx_th_data = h5_file['ionization_cx_threshold']
+        ion_cx_sp_data = h5_file['ionization_cx_support']
+        return ion_cx_th_data, ion_cx_sp_data
+    except IOError, err:
+        print(err.errno)
+        print(err)
+        logger.critical('Cannot import. Error opening the file to read ionization_cx')
+
 
 def read_macro_atom_data(fname):
     if fname is None:
@@ -318,9 +329,15 @@ class AtomData(object):
         else:
             synpp_refs = None
 
+
+        if 'ion_cx_data' in h5_datasets and 'ion_cx_data' in h5_datasets:
+            ion_cx_data = read_ion_cx_data(fname)
+        else:
+            ion_cx_data = None
+
         atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
                         lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
-                        collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs)
+                        collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs, ion_cx_data = ion_cx_data)
 
         with h5py.File(fname) as h5_file:
             atom_data.uuid1 = h5_file.attrs['uuid1']
@@ -329,7 +346,7 @@ class AtomData(object):
         return atom_data
 
     def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
-                 collision_data=None, synpp_refs=None):
+                 collision_data=None, synpp_refs=None,ion_cx_data = None):
 
 
         if macro_atom_data is not None:
@@ -339,6 +356,17 @@ class AtomData(object):
 
         else:
             self.has_macro_atom = False
+
+        if ion_cx_data is not None:
+            self.has_ion_cx_data = True
+            #TODO:Farm a panda here
+            self.ion_cx_th_data = DataFrame(np.array(ion_cx_data[0]))
+            self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_id'], inplace=True)
+
+            self.ion_cx_sp_data = DataFrame(np.array(ion_cx_data[1]))
+            self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_id'])
+        else:
+            self.has_ion_cx_data = False
 
         if zeta_data is not None:
             self.zeta_data = zeta_data
@@ -351,6 +379,8 @@ class AtomData(object):
             self.collision_data_temperatures = collision_data[1]
             self.collision_data.set_index(['atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper'],
                                           inplace=True)
+
+
 
             self.has_collision_data = True
         else:
