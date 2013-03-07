@@ -437,6 +437,29 @@ class LTEPlasma(BasePlasma):
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
         self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower
 
+    def calculate_bound_free(self):
+        """
+        :return:
+        """
+        nu_bins = range(1000, 10000, 1000) #TODO: get the binning from the input file.
+        try:
+            bf = np.zeros(len(self.atom_data.levels), len(self.atom_data.selected_atomic_numbers), len(nu_bins))
+        except AttributeError:
+            logger.critical("Err creating the bf array.")
+
+        phis = self.calculate_saha()
+        nnlevel = self.level_populations
+        for nu in nu_bins:
+            for i,(level_id,level) in enumerate(self.atom_data.levels.iterrows()):
+                atomic_number = level.name[0]
+                ion_number = level.name[1]
+                level_number = level.name[2]
+                sigma_bf_th = self.atom_data.ion_cx_th.ix[atomic_number,ion_number,level_number]
+                phi = phis.ix[atomic_number,ion_number]
+
+
+
+
     def update_macro_atom(self):
         """
             Updating the Macro Atom computations
