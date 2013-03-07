@@ -214,7 +214,6 @@ class TardisConfiguration(object):
                 self.velocities,
                 self.time_explosion)
         elif density_set == 'exponential':
-            #TODO:Add here the function call which generates the exponential density profile. The easy way from tonight don't  work as expected!!
             if not (('exponential_n_factor' in config_dict) and ('exponential_rho0' in config_dict)):
                 raise ValueError(
                     'If density=exponential is set the exponential_n_factor(float) and exponential_rho_0 have to be specified.')
