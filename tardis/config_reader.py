@@ -67,8 +67,8 @@ def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
     Array like density structure
 
     """
-    densities = rho_0 * (velocity_0 / velocities) ** exponent
-    return densities[1:]
+    densities = rho_0 * np.power((velocity_0 / velocities), exponent)
+    return densities
 
 
 def parse_density_file_section(density_file_dict, time_explosion):
@@ -196,14 +196,14 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
         return densities
     density_parser['branch85_w7'] = parse_branch85
 
-    def parse_exponential(density_dict,no_of_shells_v_inner, v_outer, time_explosion):
+    def parse_exponential(density_dict,no_of_shells, v_inner, v_outer, time_explosion):
         time_0 = density_dict.pop('time_0',19.9999584)
         if isinstance(time_0, basestring):
             time_0 = parse2quantity(time_0).to('s').value
         else:
             logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
         try:
-            rho_0 = density_dict.pop('rho')
+            rho_0 = float(density_dict.pop('rho_0'))
         except KeyError:
             rho_0 = 1e-2
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
@@ -358,8 +358,11 @@ class TardisConfiguration(object):
         :param args:
         :return:
         """
-
-        yaml_dict = yaml.load(file(fname))
+        try:
+            yaml_dict = yaml.load(file(fname))
+        except IOError as e:
+            logger.critical('No config file named: %s', fname)
+            raise e
         if yaml_dict['config_type'] not in ['simple1d']:
             raise TardisConfigError('Only config_type=simple1d allowed at the moment.')
 
@@ -387,8 +390,20 @@ class TardisConfiguration(object):
         config_dict['time_explosion'] = time_explosion
 
         # reading time since explosion
-        time_explosion_value, time_explosion_unit = config_dict.pop('time_explosion').split()
-        self.time_explosion = units.Quantity(float(time_explosion_value), time_explosion_unit).to('s').value
+        try:
+            time_explosion_value = float(config_dict.pop('time_explosion'))
+            time_explosion_unit = 's'
+            logger.warning('The config contains no unit for the explosion time.  Assuming the time was given in seconds')
+        except ValueError as ve:
+            try:
+                time_explosion_value, time_explosion_unit = config_dict.pop('time_explosion').split()
+            except AttributeError as ae:
+                logger.critical('The config contains no valide explosion time. Abort!')
+                logger.critical(str(ae))
+                raise ve
+
+        time_explosion = units.Quantity(float(time_explosion_value), time_explosion_unit).to('s').value
+        config_dict['time_explosion'] = time_explosion
 
         if 'log_lsun' in yaml_dict['luminosity']:
             luminosity_value, luminosity_unit = yaml_dict['luminosity'].split()
@@ -396,8 +411,6 @@ class TardisConfiguration(object):
         else:
             config_dict['luminosity'] =  parse2quantity(yaml_dict['luminosity'])
 
-        # reading number of shells
-        no_of_shells = int(config_dict.pop('zones'))
 
         #Trying to figure out the structure (number of shells)
         structure_dict = yaml_dict['model'].pop('structure')
@@ -463,8 +476,6 @@ class TardisConfiguration(object):
                     raise ValueError("Element provided in NLTE species %s unknown" % species_element)
                 nlte_species.append((atom_data.symbol2atomic_number[species_element], int(species_ion) - 1))
 
-        # reading line interaction type
-        self.line_interaction_type = config_dict.pop('line_interaction_type')
 
         for element in abundances_dict:
             element_symbol = reformat_element_symbol(element)
@@ -475,27 +486,15 @@ class TardisConfiguration(object):
 
             abundances[z] = float(abundances_dict[element])
 
-        logger.info("Loaded atom data with UUID=%s", self.atom_data.uuid1)
-        logger.info("Loaded atom data with MD5=%s", self.atom_data.md5)
 
         config_dict['abundances'] = abundances
         config_dict['nlte_species'] = nlte_species
 
-        last_no_of_packets = config_dict.pop('last_no_of_packets', None)
-        if last_no_of_packets is not None:
-            self.last_no_of_packets = int(float(last_no_of_packets))
-            logger.info('Last iteration will have %g packets', self.last_no_of_packets)
-        else:
-            self.last_no_of_packets = None
 
         ########### DOING PLASMA SECTION ###############
 
         plasma_section = yaml_dict.pop('plasma')
 
-        spectrum_start_value, spectrum_end_unit = config_dict.pop(
-            'spectrum_start').split()
-        spectrum_start = units.Quantity(float(spectrum_start_value), spectrum_end_unit).to('angstrom',
-                                                                                           units.spectral()).value
 
         config_dict['initial_t_rad'] = parse2quantity(plasma_section['initial_t_rad']).to('K').value
         config_dict['initial_t_inner'] = parse2quantity(plasma_section['initial_t_inner']).to('K').value
@@ -512,10 +511,7 @@ class TardisConfiguration(object):
             raise TardisConfigError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
         config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
-            logger.debug('Converted spectrum start/end to angstrom %.4g %.4g', spectrum_end, spectrum_start)
 
-            self.spectrum_start = spectrum_end
-            self.spectrum_end = spectrum_start
 
         config_dict.update(yaml_dict.pop('montecarlo', {}))
 
@@ -535,8 +531,6 @@ class TardisConfiguration(object):
         spectrum_end = parse2quantity(spectrum_section['end']).to('angstrom', units.spectral())
         spectrum_bins = int(spectrum_section['bins'])
 
-        if config_dict != {}:
-            logger.warn('Not all config options parsed - ignored %s' % config_dict)
 
 
         if spectrum_end > spectrum_start:
@@ -574,17 +568,9 @@ class TardisConfiguration(object):
         return cls(config_dict)
 
 
-    def set_abundances(self, abundances):
-        """
-        Setting the abundances
-
-        abundances: `dict` or `list`
-            if a dict is given the assumed mode is uniform, if a list is given it must contain only lists
 
 
-        """
-        if self.no_of_shells is None:
-            raise ValueError('Can not set abundances before number of shells have been set')
+
 
     def __init__(self, config_dict):
 
@@ -593,14 +579,8 @@ class TardisConfiguration(object):
 
         self.number_densities = self.calculate_number_densities()
 
-    def set_densities(self, densities):
-        """
 
-        :param densities:
-        :return:
-        """
 
-        self.densities = densities
 
     def calculate_number_densities(self):
         abundances = self.abundances
