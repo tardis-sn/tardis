@@ -382,25 +382,12 @@ class TardisConfiguration(object):
         atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
         config_dict['atom_data'] = atom_data
         #Next finding the time of explosion
-        if 'time_explosion' not in yaml_dict.keys():
-            raise TardisConfigError('No time_explosion found - essential for simulation')
-        else:
-            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s').value
 
-        config_dict['time_explosion'] = time_explosion
-
-        # reading time since explosion
         try:
-            time_explosion_value = float(config_dict.pop('time_explosion'))
-            time_explosion_unit = 's'
-            logger.warning('The config contains no unit for the explosion time.  Assuming the time was given in seconds')
-        except ValueError as ve:
-            try:
-                time_explosion_value, time_explosion_unit = config_dict.pop('time_explosion').split()
-            except AttributeError as ae:
-                logger.critical('The config contains no valide explosion time. Abort!')
-                logger.critical(str(ae))
-                raise ve
+            time_explosion_value, time_explosion_unit = parse2quantity(yaml_dict['time_explosion']).to('s')
+        except AttributeError as ae:
+            logger.critical(str(ae))
+            raise ae
 
         time_explosion = units.Quantity(float(time_explosion_value), time_explosion_unit).to('s').value
         config_dict['time_explosion'] = time_explosion
