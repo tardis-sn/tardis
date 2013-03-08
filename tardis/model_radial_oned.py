@@ -180,8 +180,6 @@ class Radial1DModel(object):
         #final preparation for atom_data object - currently building data
         self.atom_data.prepare_atom_data(self.selected_atomic_numbers,
                                          line_interaction_type=self.line_interaction_type, max_ion_number=None)
-        if self.line_interaction_id in (1,2):
-            self.calculate_transition_probabilities()
 
 
 
