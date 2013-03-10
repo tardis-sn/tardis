@@ -52,17 +52,17 @@ def read_hdf5_data(fname, dset_name):
     h5_file = h5py.File(fname)
     dataset = h5_file[dset_name]
     data = np.asarray(dataset)
-#    data_units = dataset.attrs['units']
+    #    data_units = dataset.attrs['units']
 
     data_table = table.Table(data)
 
-#    for i, col_unit in enumerate(data_units):
-#        if col_unit == 'n':
-#            data_table.columns[i].units = None
-#        elif col_unit == '1':
-#            data_table.columns[i].units = units.Unit(1)
-#        else:
-#            data_table.columns[i].units = units.Unit(col_unit)
+    #    for i, col_unit in enumerate(data_units):
+    #        if col_unit == 'n':
+    #            data_table.columns[i].units = None
+    #        elif col_unit == '1':
+    #            data_table.columns[i].units = units.Unit(1)
+    #        else:
+    #            data_table.columns[i].units = units.Unit(col_unit)
 
     h5_file.close()
 
@@ -86,7 +86,7 @@ def read_basic_atom_data(fname=None):
     """
 
     data_table = read_hdf5_data(fname, 'basic_atom_data')
-#    data_table.columns['mass'] = units.Unit('u').to('g', data_table['mass'])
+    #    data_table.columns['mass'] = units.Unit('u').to('g', data_table['mass'])
 
     return data_table
 
@@ -215,6 +215,7 @@ def read_collision_data(fname):
 
     return collision_data, collision_temperatures
 
+
 def read_ion_cx_data(fname):
     try:
         h5_file = h5py.File(fname)
@@ -329,7 +330,6 @@ class AtomData(object):
         else:
             synpp_refs = None
 
-
         if 'ion_cx_data' in h5_datasets and 'ion_cx_data' in h5_datasets:
             ion_cx_data = read_ion_cx_data(fname)
         else:
@@ -337,7 +337,8 @@ class AtomData(object):
 
         atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
                         lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
-                        collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs, ion_cx_data = ion_cx_data)
+                        collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs,
+                        ion_cx_data=ion_cx_data)
 
         with h5py.File(fname) as h5_file:
             atom_data.uuid1 = h5_file.attrs['uuid1']
@@ -346,7 +347,7 @@ class AtomData(object):
         return atom_data
 
     def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
-                 collision_data=None, synpp_refs=None,ion_cx_data = None):
+                 collision_data=None, synpp_refs=None, ion_cx_data=None):
 
 
         if macro_atom_data is not None:
@@ -380,8 +381,6 @@ class AtomData(object):
             self.collision_data.set_index(['atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper'],
                                           inplace=True)
 
-
-
             self.has_collision_data = True
         else:
             self.has_collision_data = False
@@ -400,7 +399,8 @@ class AtomData(object):
 
         self.ionization_data = DataFrame(ionization_data.__array__())
         self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
-        self.ionization_data.ionization_energy = units.Unit('eV').to('erg', self.ionization_data.ionization_energy.values)
+        self.ionization_data.ionization_energy = units.Unit('eV').to('erg',
+                                                                     self.ionization_data.ionization_energy.values)
 
         self.levels_data = DataFrame(levels_data.__array__())
         self.levels_data.energy = units.Unit('eV').to('erg', self.levels_data.energy.values)
@@ -472,7 +472,6 @@ class AtomData(object):
 
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
-
 
         if self.has_macro_atom and not (line_interaction_type == 'scatter'):
             self.macro_atom_data = self.macro_atom_data_all[
@@ -562,6 +561,10 @@ class AtomData(object):
 
         else:
             return 0., 0.
+
+    def __repr__(self):
+        return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
+               (self.uuid1, self.md5, self.lines_data.atomic_number.count(), self.levels_data.energy.count())
 
 
 

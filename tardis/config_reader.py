@@ -25,6 +25,7 @@ data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
 density_structure_fileparser = {}
 
+
 class TardisConfigError(ValueError):
     pass
 
@@ -34,6 +35,7 @@ def parse2quantity(quantity_string):
 
     value = float(value_string)
     return units.Quantity(value, unit_string)
+
 
 def calculate_density_after_time(densities, time_0, time_explosion):
     return densities * (time_explosion / time_0) ** -3
@@ -72,7 +74,6 @@ def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
 
 
 def parse_density_file_section(density_file_dict, time_explosion):
-
     density_file_parser = {}
 
     def parse_artis_density(density_file_dict, time_explosion):
@@ -88,7 +89,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         velocities, mean_densities_0 = np.recfromtxt(density_file, skip_header=2, usecols=(1, 2), unpack=True)
         #converting densities from log(g/cm^3) to g/cm^3 and stretching it to the current ti
         velocities = units.Quantity(np.append([0], velocities), 'km/s').to('cm/s')
-        mean_densities_0 = units.Quantity(10**mean_densities_0, 'g/cm^3')
+        mean_densities_0 = units.Quantity(10 ** mean_densities_0, 'g/cm^3')
 
         mean_densities = calculate_density_after_time(mean_densities_0, time_of_model.value, time_explosion)
 
@@ -97,7 +98,8 @@ def parse_density_file_section(density_file_dict, time_explosion):
         if len(mean_densities) == no_of_shells:
             logger.debug('Verified ARTIS file %s (no_of_shells=length of dataset)', density_file)
         else:
-            raise TardisConfigError('Error in ARTIS file %s - Number of shells not the same as dataset length' % density_file)
+            raise TardisConfigError(
+                'Error in ARTIS file %s - Number of shells not the same as dataset length' % density_file)
 
         min_shell = 0
         max_shell = no_of_shells
@@ -105,13 +107,11 @@ def parse_density_file_section(density_file_dict, time_explosion):
         v_inner = velocities[:-1]
         v_outer = velocities[1:]
 
-        volumes = (4 * np.pi /3) * (time_of_model**3) * ( v_outer**3 - v_inner**3)
+        volumes = (4 * np.pi / 3) * (time_of_model ** 3) * ( v_outer ** 3 - v_inner ** 3)
         masses = (volumes * mean_densities_0 / constants.M_sun).to(1)
 
         logger.info('Read ARTIS configuration file %s - found %d zones with total mass %g Msun', density_file,
                     no_of_shells, sum(masses.value))
-
-
 
         if 'v_lowest' in density_file_dict:
             v_lowest = parse2quantity(density_file_dict['v_lowest']).to('cm/s').value
@@ -142,9 +142,6 @@ def parse_density_file_section(density_file_dict, time_explosion):
     return parser(density_file_dict, time_explosion)
 
 
-
-
-
 def parse_velocity_section(velocity_dict, no_of_shells):
     velocity_parser = {}
 
@@ -163,6 +160,7 @@ def parse_velocity_section(velocity_dict, no_of_shells):
                                 (velocity_parser.keys(), velocity_dict['type']))
     return parser(velocity_dict, no_of_shells)
 
+
 def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
     density_parser = {}
 
@@ -170,6 +168,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
     #Parse density uniform
     def parse_uniform(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
         return np.ones(no_of_shells) * parse2quantity(density_dict['value']).to('g cm^-3').value
+
     density_parser['uniform'] = parse_uniform
 
     #Parse density branch85 w7
@@ -184,20 +183,20 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
         density_coefficient = density_dict.pop('density_coefficient', None)
         if density_coefficient is None:
             density_coefficient = 3e29
-            logger.debug('density_coefficient not supplied for density type branch85 - using sensible default %g', density_coefficient)
+            logger.debug('density_coefficient not supplied for density type branch85 - using sensible default %g',
+                         density_coefficient)
 
         velocities = 0.5 * (v_inner + v_outer)
         densities = density_coefficient * (velocities * 1e-5) ** -7
 
         densities = calculate_density_after_time(densities, time_0, time_explosion)
 
-
-
         return densities
+
     density_parser['branch85_w7'] = parse_branch85
 
-    def parse_exponential(density_dict,no_of_shells, v_inner, v_outer, time_explosion):
-        time_0 = density_dict.pop('time_0',19.9999584)
+    def parse_exponential(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
+        time_0 = density_dict.pop('time_0', 19.9999584)
         if isinstance(time_0, basestring):
             time_0 = parse2quantity(time_0).to('s').value
         else:
@@ -217,6 +216,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
         densities = calculate_exponential_densities(velocities, v_inner[0], rho_0, exponent)
 
         return densities
+
     density_parser['exponential'] = parse_exponential
 
     try:
@@ -234,8 +234,9 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
         fname = abundance_file_dict['name']
         max_atom = 30
         logger.info("Parsing ARTIS Abundance section from shell %d to %d", min_shell, max_shell)
-        abundances.values[:,:max_atom] = np.loadtxt(fname)[min_shell:max_shell, 1:]
+        abundances.values[:, :max_atom] = np.loadtxt(fname)[min_shell:max_shell, 1:]
         return abundances
+
     abundance_file_parser['artis'] = parse_artis
 
     try:
@@ -291,8 +292,6 @@ def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.999958
     densities = calculate_density_after_time(densities, time_0, time_explosion)
 
     return densities[1:]
-
-
 
 
 def read_w7_densities(fname=None):
@@ -384,19 +383,18 @@ class TardisConfiguration(object):
         #Next finding the time of explosion
 
         try:
-            time_explosion_value, time_explosion_unit = parse2quantity(yaml_dict['time_explosion']).to('s')
+            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s')
         except AttributeError as ae:
             logger.critical(str(ae))
             raise ae
 
-        time_explosion = units.Quantity(float(time_explosion_value), time_explosion_unit).to('s').value
         config_dict['time_explosion'] = time_explosion
 
         if 'log_lsun' in yaml_dict['luminosity']:
             luminosity_value, luminosity_unit = yaml_dict['luminosity'].split()
             config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value))
         else:
-            config_dict['luminosity'] =  parse2quantity(yaml_dict['luminosity'])
+            config_dict['luminosity'] = parse2quantity(yaml_dict['luminosity'])
 
 
         #Trying to figure out the structure (number of shells)
@@ -405,21 +403,25 @@ class TardisConfiguration(object):
         #first let's try to see if there's a file keyword
         if 'file' in structure_dict.keys():
             density_file_section = structure_dict.pop('file')
-            v_inner, v_outer, mean_densities, min_shell, max_shell = parse_density_file_section(density_file_section, time_explosion)
+            v_inner, v_outer, mean_densities, min_shell, max_shell = parse_density_file_section(density_file_section,
+                                                                                                time_explosion)
 
             no_of_shells = len(v_inner)
             if structure_dict != {}:
-                logger.warn('Accepted file for structure (density/velocity) structure ignoring all other arguments: \n%s\n',
-                            pprint.pformat(structure_dict, indent=4))
+                logger.warn(
+                    'Accepted file for structure (density/velocity) structure ignoring all other arguments: \n%s\n',
+                    pprint.pformat(structure_dict, indent=4))
         else:
             #requiring all keys: no_of_shells, velocity, density
             if not all([item in structure_dict.keys() for item in ('no_of_shells', 'velocity', 'density')]):
-                raise TardisConfigError('If file-section is not given to structure-section, one needs to provide all: no_of_shells, velocity, density')
+                raise TardisConfigError(
+                    'If file-section is not given to structure-section, one needs to provide all: no_of_shells, velocity, density')
 
             no_of_shells = structure_dict['no_of_shells']
 
             v_inner, v_outer = parse_velocity_section(structure_dict['velocity'], no_of_shells)
-            mean_densities = parse_density_section(structure_dict['density'], no_of_shells, v_inner, v_outer, time_explosion)
+            mean_densities = parse_density_section(structure_dict['density'], no_of_shells, v_inner, v_outer,
+                                                   time_explosion)
 
         config_dict['v_inner'] = v_inner
         config_dict['v_outer'] = v_outer
@@ -440,14 +442,11 @@ class TardisConfiguration(object):
         if 'abundance_set' in abundances_dict.keys():
             abundance_set_dict = abundances_dict.pop('abundance_set')
             print "abundance set not implemented currently"
-#            abundance_set = abundance_dict.pop('abundance_set', None)
-#            if abundance_set == 'lucy99':
-#                abundances = read_lucy99_abundances()
-#            elif abundance_set is not None:
-#                raise ValueError("Currently only 'lucy99' abundance_set supported")
-
-
-
+        #            abundance_set = abundance_dict.pop('abundance_set', None)
+        #            if abundance_set == 'lucy99':
+        #                abundances = read_lucy99_abundances()
+        #            elif abundance_set is not None:
+        #                raise ValueError("Currently only 'lucy99' abundance_set supported")
 
         nlte_species = []
         if 'nlte_species' in abundances_dict.keys():
@@ -463,7 +462,6 @@ class TardisConfiguration(object):
                     raise ValueError("Element provided in NLTE species %s unknown" % species_element)
                 nlte_species.append((atom_data.symbol2atomic_number[species_element], int(species_ion) - 1))
 
-
         for element in abundances_dict:
             element_symbol = reformat_element_symbol(element)
             if element_symbol not in atom_data.symbol2atomic_number:
@@ -473,7 +471,6 @@ class TardisConfiguration(object):
 
             abundances[z] = float(abundances_dict[element])
 
-
         config_dict['abundances'] = abundances
         config_dict['nlte_species'] = nlte_species
 
@@ -481,7 +478,6 @@ class TardisConfiguration(object):
         ########### DOING PLASMA SECTION ###############
 
         plasma_section = yaml_dict.pop('plasma')
-
 
         config_dict['initial_t_rad'] = parse2quantity(plasma_section['initial_t_rad']).to('K').value
         config_dict['initial_t_inner'] = parse2quantity(plasma_section['initial_t_inner']).to('K').value
@@ -498,8 +494,6 @@ class TardisConfiguration(object):
             raise TardisConfigError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
         config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
-
-
         config_dict.update(yaml_dict.pop('montecarlo', {}))
 
         disable_electron_scattering = plasma_section['disable_electron_scattering']
@@ -512,13 +506,11 @@ class TardisConfiguration(object):
             config_dict['sigma_thomson'] = 1e-200
 
 
-    ##### spectrum section ######
+            ##### spectrum section ######
         spectrum_section = yaml_dict.pop('spectrum')
         spectrum_start = parse2quantity(spectrum_section['start']).to('angstrom', units.spectral())
         spectrum_end = parse2quantity(spectrum_section['end']).to('angstrom', units.spectral())
         spectrum_bins = int(spectrum_section['bins'])
-
-
 
         if spectrum_end > spectrum_start:
             logger.debug('Converted spectrum start/end to angstrom %.4g %.4g', spectrum_start, spectrum_end)
@@ -555,18 +547,12 @@ class TardisConfiguration(object):
         return cls(config_dict)
 
 
-
-
-
-
     def __init__(self, config_dict):
 
         for key in config_dict:
             setattr(self, key, config_dict[key])
 
         self.number_densities = self.calculate_number_densities()
-
-
 
 
     def calculate_number_densities(self):
