@@ -335,6 +335,7 @@ class LTEPlasma(BasePlasma):
             macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
 
         for species in self.nlte_species:
+            logger.info('Calculating rates for species %s', species)
             number_of_levels = self.level_populations.ix[species].size
             rates_matrix = np.zeros((number_of_levels, number_of_levels), dtype=np.float64)
 
