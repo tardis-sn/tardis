@@ -45,15 +45,11 @@ cdef extern from "randomkit/randomkit.h":
     float_type_t rk_double(rk_state *state)
 cdef rk_state mt_state
 
-
 cdef np.ndarray x
 cdef class StorageModel:
     """
     Class for storing the arrays in a cythonized way (as pointers). This ensures fast access during the calculations.
     """
-
-
-
 
     cdef np.ndarray packet_nus_a
     cdef float_type_t*packet_nus
@@ -112,8 +108,6 @@ cdef class StorageModel:
 
     cdef float_type_t sigma_thomson
     cdef float_type_t inverse_sigma_thomson
-
-
 
     def __init__(self, model):
 
@@ -256,9 +250,7 @@ cdef float_type_t miss_distance = 1e99
 cdef float_type_t c = constants.c.cgs.value # cm/s
 cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
-#cdef float_type_t sigma_thomson = 6.652486e-25
-cdef float_type_t sigma_thomson = 6.652486e-125
-cdef float_type_t inverse_sigma_thomson = 1 / sigma_thomson
+
 
 
 
@@ -378,10 +370,8 @@ cdef float_type_t move_packet(float_type_t*r,
 
     return doppler_factor
 
-
-
-cdef void increment_j_blue_estimator(int_type_t* current_line_id, float_type_t* current_nu, float_type_t* current_energy,
-                                     float_type_t* mu, float_type_t* r, float_type_t d_line, int_type_t j_blue_idx,
+cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*current_nu, float_type_t*current_energy,
+                                     float_type_t*mu, float_type_t*r, float_type_t d_line, int_type_t j_blue_idx,
                                      StorageModel storage):
     cdef float_type_t comov_energy, r_interaction, mu_interaction, distance, doppler_factor
 
@@ -394,7 +384,6 @@ cdef void increment_j_blue_estimator(int_type_t* current_line_id, float_type_t* 
 
     comov_energy = current_energy[0] * doppler_factor
     storage.line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
-
 
 cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float_type_t r_outer):
     cdef float_type_t d_outer
@@ -923,12 +912,11 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             #It has a chance to hit the line
             if virtual_packet == 0:
                 j_blue_idx = current_shell_id[0] * storage.line_lists_j_blues_nd + current_line_id[0]
-                increment_j_blue_estimator(current_line_id, current_nu, current_energy, current_mu, current_r,  d_line,
+                increment_j_blue_estimator(current_line_id, current_nu, current_energy, current_mu, current_r, d_line,
                                            j_blue_idx, storage)
 
             tau_line = storage.line_lists_tau_sobolevs[
                 current_shell_id[0] * storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
-
 
             tau_electron = storage.sigma_thomson * storage.electron_density[current_shell_id[0]] * d_line
             tau_combined = tau_line + tau_electron
@@ -1019,7 +1007,6 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                                       storage.transition_line_id,
                                                       storage.macro_block_references,
                                                       current_shell_id[0])
-
 
                     current_nu[0] = storage.line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = storage.line_list_nu[emission_line_id]

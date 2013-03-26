@@ -188,7 +188,6 @@ class LTEPlasma(BasePlasma):
             self.j_blues = j_blues
 
 
-
     def calculate_partition_functions(self, initialize=False):
         """
         Calculate partition functions for the ions using the following formula, where
@@ -357,7 +356,7 @@ class LTEPlasma(BasePlasma):
 
                 if stimulated_emission_term < 0:
                     logger.warn('Stimulated emission term less than 0 %g n_upper=%g n_lower=%g (zone_id=%s)',
-                                stimulated_emission_term, n_upper, n_lower, self.zone_id )
+                                stimulated_emission_term, n_upper, n_lower, self.zone_id)
 
                 C_lu, C_ul = self.atom_data.get_collision_coefficients(atomic_number, ion_number, level_number_lower,
                                                                        level_number_upper, self.t_electron)
@@ -389,12 +388,10 @@ class LTEPlasma(BasePlasma):
                 current_stim_ems = (n_upper / n_lower) * (g_lower / g_upper)
 
                 if current_stim_ems > 1.:
-
                     self.level_populations.ix[species[0], species[1], i] = (1 - 1e-12) * (g_upper / g_lower) * n_lower
                     self.cleaned_levels.ix[species] += 1
                     self.lowest_cleaned_level = min(i, self.lowest_cleaned_level)
                     #### After cleaning check if the normalization is good:
-
 
             if abs((self.level_populations.ix[species].sum() / self.ion_number_density.ix[species] - 1)) > 0.02:
                 logger.warn("NLTE populations (after cleaning) does not sum up to 1 within 2 percent "
@@ -405,7 +402,7 @@ class LTEPlasma(BasePlasma):
             logger.debug('Number of cleaned levels %d of %d (zone id =%s)', self.cleaned_levels.ix[species],
                          self.level_populations.ix[species].count(), self.zone_id)
 
-            if float(self.cleaned_levels.ix[species])/self.level_populations.ix[species].count() > 0.5:
+            if float(self.cleaned_levels.ix[species]) / self.level_populations.ix[species].count() > 0.5:
                 logger.warn('Number of cleaned levels very high %d of %d (zone id=%s, , lowest_cleaned_level=%d)',
                             self.cleaned_levels.ix[species],
                             self.level_populations.ix[species].count(), self.zone_id, self.lowest_cleaned_level)
@@ -450,14 +447,12 @@ class LTEPlasma(BasePlasma):
         phis = self.calculate_saha()
         nnlevel = self.level_populations
         for nu in nu_bins:
-            for i,(level_id,level) in enumerate(self.atom_data.levels.iterrows()):
+            for i, (level_id, level) in enumerate(self.atom_data.levels.iterrows()):
                 atomic_number = level.name[0]
                 ion_number = level.name[1]
                 level_number = level.name[2]
-                sigma_bf_th = self.atom_data.ion_cx_th.ix[atomic_number,ion_number,level_number]
-                phi = phis.ix[atomic_number,ion_number]
-
-
+                sigma_bf_th = self.atom_data.ion_cx_th.ix[atomic_number, ion_number, level_number]
+                phi = phis.ix[atomic_number, ion_number]
 
 
     def update_macro_atom(self):
@@ -537,7 +532,6 @@ class NebularPlasma(LTEPlasma):
             self.t_electron = 0.9 * self.t_rad
 
         self.beta_electron = 1 / (self.t_electron * constants.k_B.cgs.value)
-
 
         self.calculate_partition_functions()
 
