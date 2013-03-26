@@ -383,7 +383,7 @@ class TardisConfiguration(object):
         #Next finding the time of explosion
 
         try:
-            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s')
+            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s').value
         except AttributeError as ae:
             logger.critical(str(ae))
             raise ae
@@ -442,7 +442,7 @@ class TardisConfiguration(object):
         if 'abundance_set' in abundances_dict.keys():
             abundance_set_dict = abundances_dict.pop('abundance_set')
             print "abundance set not implemented currently"
-        #            abundance_set = abundance_dict.pop('abundance_set', None)
+            #            abundance_set = abundance_dict.pop('abundance_set', None)
         #            if abundance_set == 'lucy99':
         #                abundances = read_lucy99_abundances()
         #            elif abundance_set is not None:
