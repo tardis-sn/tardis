@@ -494,7 +494,15 @@ class TardisConfiguration(object):
             raise TardisConfigError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
         config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
-        config_dict.update(yaml_dict.pop('montecarlo', {}))
+        montecarlo_section = yaml_dict.pop('montecarlo')
+
+        if 'last_no_of_packets' not in montecarlo_section:
+            montecarlo_section['last_no_of_packets'] = None
+
+        if 'no_of_virtual_packets' not in montecarlo_section:
+            montecarlo_section['no_of_virtual_packets'] = 0
+
+        config_dict.update(montecarlo_section)
 
         disable_electron_scattering = plasma_section['disable_electron_scattering']
 
