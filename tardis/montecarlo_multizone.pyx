@@ -311,11 +311,12 @@ cdef inline int_type_t macro_atom(int_type_t activate_level,
                 break
             i += 1
             if i == unroll_reference[activate_level + 1]:
-                print "overrolling!"
-                print "activate level %g unroll_reference[activate_level] %g unroll_reference[activate_level+1] %g i %g %g %g" % (
-                    activate_level, unroll_reference[activate_level], unroll_reference[activate_level + 1], i,
-                    event_random,
-                    p)
+                logger.warn("overrolling!")
+                logger.warn(
+                    "activate level %g unroll_reference[activate_level] %g unroll_reference[activate_level+1] %g i event_random=%g p=%g %g" % (
+                        activate_level, unroll_reference[activate_level], unroll_reference[activate_level + 1], i,
+                        event_random,
+                        p))
                 time.sleep(10000000)
 
                 #print "I just broke " , emit
