@@ -474,6 +474,8 @@ class LTEPlasma(BasePlasma):
 
         j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
 
+        j_blues[j_blues == 0.0] = 1e-14
+
         transition_probabilities[transition_up_filter.__array__()] *= j_blues
 
         reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
