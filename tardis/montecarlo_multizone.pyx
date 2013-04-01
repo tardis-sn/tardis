@@ -313,7 +313,7 @@ cdef inline int_type_t macro_atom(int_type_t activate_level,
             if i == unroll_reference[activate_level + 1]:
                 logger.warn("overrolling!")
                 logger.warn(
-                    "activate level %g unroll_reference[activate_level] %g unroll_reference[activate_level+1] %g i event_random=%g p=%g %g" % (
+                    "activate level %g unroll_reference[activate_level] %g unroll_reference[activate_level+1] %g i=%g event_random=%g current_p=%g" % (
                         activate_level, unroll_reference[activate_level], unroll_reference[activate_level + 1], i,
                         event_random,
                         p))
@@ -385,6 +385,7 @@ cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*cu
 
     comov_energy = current_energy[0] * doppler_factor
     storage.line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
+    #print "incrementing j_blues = %g" % storage.line_lists_j_blues[j_blue_idx]
 
 cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float_type_t r_outer):
     cdef float_type_t d_outer

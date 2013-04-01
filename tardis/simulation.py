@@ -13,7 +13,6 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 
-
 def run_radial1d(radial1d_model, save_history=None):
     for i in xrange(radial1d_model.iterations - 1):
         logger.info('At run %d of %d', i + 1, radial1d_model.iterations)
@@ -26,8 +25,7 @@ def run_radial1d(radial1d_model, save_history=None):
     if radial1d_model.tardis_config.last_no_of_packets is not None:
         radial1d_model.current_no_of_packets = radial1d_model.tardis_config.last_no_of_packets
 
-    radial1d_model.simulate(enable_virtual=True)
-
+    radial1d_model.simulate(enable_virtual=True, update_radiation_field=False)
 
     if save_history is not None:
         save_history.store_all(radial1d_model, radial1d_model.iterations - 1)
