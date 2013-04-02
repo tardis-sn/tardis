@@ -22,6 +22,7 @@ except:  # There are several types of exceptions that can occur here
 import glob
 import os
 from setuptools import setup, find_packages
+from distutils.core import Extension
 
 #A dirty hack to get around some early import/configurations ambiguities
 if sys.version_info[0] >= 3:
@@ -73,8 +74,14 @@ packagenames = filter_packages(find_packages())
 scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
            if fname != 'README.rst']
 
+
+
 # Additional C extensions that are not Cython-based should be added here.
-extensions = []
+randomkit_files = ['tardis/randomkit/rk_isaac.c', 'tardis/randomkit/rk_mt.c', 'tardis/randomkit/rk_primitive.c',
+                   'tardis/randomkit/rk_sobol.c']
+
+extensions = [Extension('tardis.montecarlo_multizone',
+                        ['tardis/montecarlo_multizone.pyx'] + randomkit_files)]
 
 # A dictionary to keep track of all package data to install
 package_data = {PACKAGENAME: ['data/*']}
