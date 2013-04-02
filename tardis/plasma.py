@@ -331,8 +331,8 @@ class LTEPlasma(BasePlasma):
 
         if not hasattr(self, 'beta_sobolevs'):
             self.beta_sobolevs = np.empty_like(self.atom_data.lines['nu'].values)
-        else:
-            macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
+
+        macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
 
         for species in self.nlte_species:
             logger.info('Calculating rates for species %s', species)
@@ -344,7 +344,7 @@ class LTEPlasma(BasePlasma):
                 ion_number = int(line['ion_number'])
                 if (atomic_number, ion_number) != species:
                     continue
-
+                pdb.set_trace()
                 level_number_lower = int(line['level_number_lower'])
                 level_number_upper = int(line['level_number_upper'])
 
@@ -375,6 +375,7 @@ class LTEPlasma(BasePlasma):
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
             self.level_populations.ix[species] = np.linalg.solve(rates_matrix, x) * self.ion_number_density.ix[species]
+
 
             #Cleaning Level populations
             self.cleaned_levels.ix[species] = 0
