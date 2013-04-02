@@ -513,6 +513,11 @@ class TardisConfiguration(object):
             logger.warn('Disabling electron scattering - this is not physical')
             config_dict['sigma_thomson'] = 1e-200
 
+        if 'w_epsilon' in plasma_section:
+            config_dict['w_epsilon'] = plasma_section['w_epsilon']
+        else:
+            logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
+
 
             ##### spectrum section ######
         spectrum_section = yaml_dict.pop('spectrum')

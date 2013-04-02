@@ -539,6 +539,9 @@ class AtomData(object):
 
             self.nlte_mask |= current_mask
 
+    def prepare_nlte_indices(self, nlte_species):
+        pass
+
     def get_collision_coefficients(self, atomic_number, ion_number, level_number_lower, level_number_upper, t_electron):
         if self.has_collision_data:
             try:
