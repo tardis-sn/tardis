@@ -12,6 +12,8 @@ import os
 import yaml
 import pdb
 
+from .plasma import intensity_black_body
+
 logger = logging.getLogger(__name__)
 
 c = constants.c.cgs.value
@@ -182,7 +184,6 @@ class Radial1DModel(object):
                                          line_interaction_type=self.line_interaction_type, max_ion_number=None)
 
 
-
     @property
     def t_inner(self):
         return self._t_inner
@@ -198,7 +199,6 @@ class Radial1DModel(object):
         #Energy emitted from the inner boundary
         self.emitted_inner_energy = 4 * np.pi * constants.sigma_sb.cgs.value * self.r_inner[0] ** 2 * (
             self.t_inner) ** 4
-
 
         no_of_packets = self.current_no_of_packets
         self.packet_src.create_packets(no_of_packets, self.t_inner)
@@ -228,7 +228,6 @@ class Radial1DModel(object):
                 current_plasma.update_radiationfield(current_t_rad)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
-
                 self.plasmas.append(current_plasma)
 
 
@@ -244,7 +243,7 @@ class Radial1DModel(object):
                     j_blues = current_w * plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
                 else:
                     raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
-                             ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
+                                     ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
 
                 current_plasma.set_j_blues(j_blues)
                 current_plasma.update_radiationfield(current_t_rad, current_w)
@@ -301,7 +300,11 @@ class Radial1DModel(object):
         norm_factor = (constants.c.cgs.value * self.time_explosion /
                        (4 * np.pi * self.time_of_simulation * self.volumes)).reshape((self.volumes.shape[0], 1))
         self.j_blues *= norm_factor
-
+        for i, current_j_blue in enumerate(self.j_blues):
+            nus = self.atom_data.lines.nu[current_j_blue == 0.0].values
+            self.j_blues[i][self.j_blues[i] == 0.0] = self.tardis_config.w_epsilon * intensity_black_body(nus,
+                                                                                                          self.plasmas[
+                                                                                                              i].t_rad)
 
     def update_plasmas(self):
         if self.plasma_type == 'lte':
@@ -313,7 +316,7 @@ class Radial1DModel(object):
                     j_blues = self.j_blues[i]
                 else:
                     raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
-                             ' be "lte" or "detailed"' % (self.plasma_type))
+                                     ' be "lte" or "detailed"' % (self.plasma_type))
 
                 current_plasma.set_j_blues(j_blues)
 
@@ -351,7 +354,8 @@ class Radial1DModel(object):
         else:
             distance = self.tardis_config.sn_distance
         self.spec_flux_nu = np.histogram(self.montecarlo_nu[self.montecarlo_nu > 0],
-                            weights=self.montecarlo_energies[self.montecarlo_energies > 0], bins=self.spec_nu_bins)[0]
+                                         weights=self.montecarlo_energies[self.montecarlo_energies > 0],
+                                         bins=self.spec_nu_bins)[0]
 
         flux_scale = self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) * (4 * np.pi * distance ** 2)
 
@@ -377,20 +381,18 @@ class Radial1DModel(object):
         if enable_virtual:
             self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators = \
                 montecarlo_multizone.montecarlo_radial1d(self,
-                                                        virtual_packet_flag=self.tardis_config.no_of_virtual_packets)
+                                                         virtual_packet_flag=self.tardis_config.no_of_virtual_packets)
         else:
             self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators = \
                 montecarlo_multizone.montecarlo_radial1d(self)
 
         self.normalize_j_blues()
 
-
         self.calculate_spectrum()
 
         if update_radiation_field:
             self.update_radiationfield()
             self.update_plasmas()
-
 
 
     def update_radiationfield(self, update_mode='dampened', damping_constant=0.5, log_sampling=5):
@@ -409,8 +411,6 @@ class Radial1DModel(object):
 
         updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
 
-
-
         if update_mode in ('dampened', 'direct'):
             if update_mode == 'direct':
                 damping_constant = 1.0
@@ -425,13 +425,13 @@ class Radial1DModel(object):
             absorbed_energy = self.emitted_inner_energy * \
                               np.sum(self.montecarlo_energies[self.montecarlo_energies < 0]) / -1.
 
-
             updated_t_inner = self.t_inner * (emitted_energy / self.luminosity_outer) ** -.25
 
             self.t_inner += damping_constant * (updated_t_inner - self.t_inner)
 
-        temperature_logging = pd.DataFrame({'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'new_trads': self.t_rads,
-                      'ws': old_ws, 'updated_ws': updated_ws, 'new_ws': self.ws})
+        temperature_logging = pd.DataFrame(
+            {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'new_trads': self.t_rads,
+             'ws': old_ws, 'updated_ws': updated_ws, 'new_ws': self.ws})
         temperature_logging.index.name = 'Shell'
 
         temperature_logging = str(temperature_logging[::log_sampling])
@@ -502,8 +502,6 @@ class Radial1DModel(object):
                 ylabel = 'Flux [erg s^-1 cm^-2 \AA^-1]'
             else:
                 ylabel = 'Flux [erg s^-1 \AA^-1]'
-
-
 
         ax.plot(x, y)
         ax.set_xlabel(xlabel)
