@@ -517,7 +517,7 @@ class TardisConfiguration(object):
             config_dict['w_epsilon'] = plasma_section['w_epsilon']
         else:
             logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
-
+            config_dict['w_epsilon'] = 1e-10
 
             ##### spectrum section ######
         spectrum_section = yaml_dict.pop('spectrum')
