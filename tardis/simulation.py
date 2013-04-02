@@ -1,17 +1,8 @@
-import constants
-import numpy as np
-import montecarlo_multizone
-import time
-import os
 import logging
-import synspec
-import pdb
-import pandas as pd
 
 
 # Adding logging support
 logger = logging.getLogger(__name__)
-
 
 
 def run_radial1d(radial1d_model, save_history=None):
@@ -26,8 +17,7 @@ def run_radial1d(radial1d_model, save_history=None):
     if radial1d_model.tardis_config.last_no_of_packets is not None:
         radial1d_model.current_no_of_packets = radial1d_model.tardis_config.last_no_of_packets
 
-    radial1d_model.simulate(enable_virtual=True)
-
+    radial1d_model.simulate(enable_virtual=True, update_radiation_field=False)
 
     if save_history is not None:
         save_history.store_all(radial1d_model, radial1d_model.iterations - 1)

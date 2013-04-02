@@ -343,6 +343,7 @@ class AtomData(object):
         with h5py.File(fname) as h5_file:
             atom_data.uuid1 = h5_file.attrs['uuid1']
             atom_data.md5 = h5_file.attrs['md5']
+            logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
 
         return atom_data
 
@@ -538,6 +539,9 @@ class AtomData(object):
                            (self.levels.index.get_level_values(1) == species[1])
 
             self.nlte_mask |= current_mask
+
+    def prepare_nlte_indices(self, nlte_species):
+        pass
 
     def get_collision_coefficients(self, atomic_number, ion_number, level_number_lower, level_number_upper, t_electron):
         if self.has_collision_data:
