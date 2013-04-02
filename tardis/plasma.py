@@ -344,7 +344,7 @@ class LTEPlasma(BasePlasma):
                 ion_number = int(line['ion_number'])
                 if (atomic_number, ion_number) != species:
                     continue
-                pdb.set_trace()
+
                 level_number_lower = int(line['level_number_lower'])
                 level_number_upper = int(line['level_number_upper'])
 
