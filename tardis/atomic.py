@@ -343,6 +343,7 @@ class AtomData(object):
         with h5py.File(fname) as h5_file:
             atom_data.uuid1 = h5_file.attrs['uuid1']
             atom_data.md5 = h5_file.attrs['md5']
+            logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
 
         return atom_data
 
