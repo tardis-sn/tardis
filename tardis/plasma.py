@@ -330,7 +330,7 @@ class LTEPlasma(BasePlasma):
         """
 
         if not hasattr(self, 'beta_sobolevs'):
-            self.beta_sobolevs = np.empty_like(self.atom_data.lines['nu'].values)
+            self.beta_sobolevs = np.zeros_like(self.atom_data.lines['nu'].values)
 
         macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
 
@@ -465,7 +465,7 @@ class LTEPlasma(BasePlasma):
 
         macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values.astype(int)]
 
-        beta_sobolevs = np.empty_like(macro_tau_sobolevs)
+        beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
 
         macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
 

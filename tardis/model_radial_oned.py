@@ -205,7 +205,7 @@ class Radial1DModel(object):
 
     def initialize_plasmas(self):
         self.plasmas = []
-        self.tau_sobolevs = np.empty((self.no_of_shells, len(self.atom_data.lines)))
+        self.tau_sobolevs = np.zeros((self.no_of_shells, len(self.atom_data.lines)))
         self.line_list_nu = self.atom_data.lines['nu']
 
         if self.line_interaction_id in (1, 2):
