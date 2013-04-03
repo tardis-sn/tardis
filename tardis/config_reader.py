@@ -383,7 +383,7 @@ class TardisConfiguration(object):
         #Next finding the time of explosion
 
         try:
-            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s')
+            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s').value
         except AttributeError as ae:
             logger.critical(str(ae))
             raise ae
@@ -442,7 +442,7 @@ class TardisConfiguration(object):
         if 'abundance_set' in abundances_dict.keys():
             abundance_set_dict = abundances_dict.pop('abundance_set')
             print "abundance set not implemented currently"
-        #            abundance_set = abundance_dict.pop('abundance_set', None)
+            #            abundance_set = abundance_dict.pop('abundance_set', None)
         #            if abundance_set == 'lucy99':
         #                abundances = read_lucy99_abundances()
         #            elif abundance_set is not None:
@@ -494,7 +494,15 @@ class TardisConfiguration(object):
             raise TardisConfigError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
         config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
-        config_dict.update(yaml_dict.pop('montecarlo', {}))
+        montecarlo_section = yaml_dict.pop('montecarlo')
+
+        if 'last_no_of_packets' not in montecarlo_section:
+            montecarlo_section['last_no_of_packets'] = None
+
+        if 'no_of_virtual_packets' not in montecarlo_section:
+            montecarlo_section['no_of_virtual_packets'] = 0
+
+        config_dict.update(montecarlo_section)
 
         disable_electron_scattering = plasma_section['disable_electron_scattering']
 
@@ -505,6 +513,11 @@ class TardisConfiguration(object):
             logger.warn('Disabling electron scattering - this is not physical')
             config_dict['sigma_thomson'] = 1e-200
 
+        if 'w_epsilon' in plasma_section:
+            config_dict['w_epsilon'] = plasma_section['w_epsilon']
+        else:
+            logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
+            config_dict['w_epsilon'] = 1e-10
 
             ##### spectrum section ######
         spectrum_section = yaml_dict.pop('spectrum')
