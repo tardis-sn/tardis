@@ -415,22 +415,26 @@ cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
     doppler_factor = (1. - (mu * r * inverse_t_exp * inverse_c))
     comov_nu = nu * doppler_factor
 
-    if comov_nu < nu_line:
-        #TODO raise exception
-        print "WARNING comoving nu less than nu_line shouldn't happen:"
-        print "comov_nu = ", comov_nu
-        print "nu_line", nu_line
-        print "(comov_nu - nu_line) nu_lines", (comov_nu - nu_line) / nu_line
-        print "last_line", last_line
-        print "next_line", next_line
-        print "r", r
-        print "mu", mu
-        print "nu", nu
-        print "doppler_factor", doppler_factor
-        print "cur_zone_id", cur_zone_id
-        #raise Exception('wrong')
+    #check if the comov_nu is smaller then nu_line
+    if (comov_nu < nu_line):
+            return miss_distance
+    else:
 
-    return ((comov_nu - nu_line) / nu) * c * t_exp
+        if comov_nu < nu_line:
+            #TODO raise exception
+            print "WARNING comoving nu less than nu_line shouldn't happen:"
+            print "comov_nu = ", comov_nu
+            print "nu_line", nu_line
+            print "(comov_nu - nu_line) nu_lines", (comov_nu - nu_line) / nu_line
+            print "last_line", last_line
+            print "next_line", next_line
+            print "r", r
+            print "mu", mu
+            print "nu", nu
+            print "doppler_factor", doppler_factor
+            print "cur_zone_id", cur_zone_id
+            #raise Exception('wrong')
+        return ((comov_nu - nu_line) / nu) * c * t_exp
 
 cdef float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event,
                                             float_type_t inverse_ne):
@@ -697,6 +701,11 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
     #-----------------------
 
     while True:
+
+        #Check if current is smaller than the nu of the line with the highest frequency
+        if current_nu[0] < storage.line_list_nu[storage.no_of_lines - 1]:
+            last_line[0] = 1
+
         #check if we are at the end of linelist
         if last_line[0] == 0:
             nu_line = storage.line_list_nu[current_line_id[0]]
