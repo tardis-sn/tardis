@@ -7,6 +7,8 @@ import logging
 import os
 import h5py
 
+import pdb
+
 from astropy import table, units, constants
 
 from collections import OrderedDict
@@ -546,11 +548,9 @@ class AtomData(object):
     def get_collision_coefficients(self, atomic_number, ion_number, level_number_lower, level_number_upper, t_electron):
         if self.has_collision_data:
             try:
-                C_lus = self.collision_data.ix[
-                            (atomic_number, ion_number, level_number_lower, level_number_upper)].values[1:]
-                C_lu = np.interp(t_electron, self.collision_data_temperatures, C_lus)
-                C_ul = C_lu * self.collision_data.ix[
-                    (atomic_number, ion_number, level_number_lower, level_number_upper)].values[0]
+                collision_data = self.collision_data.ix[
+                    (atomic_number, ion_number, level_number_lower, level_number_upper)]
+
 
             except pd.core.indexing.IndexingError:
                 C_lu = 0
@@ -558,6 +558,12 @@ class AtomData(object):
                 logger.debug('Could not find collision data for atom=%d ion=%d lvl_lower=%d lvl_upper=%d',
                              atomic_number, ion_number, level_number_lower, level_number_upper)
             else:
+                C_ul = np.interp(t_electron, self.collision_data_temperatures, collision_data.values[2:])
+                g_ratio = collision_data['g_ratio']
+                delta_e = collision_data['delta_e']
+                C_lu = C_ul * np.exp(-delta_e / t_electron) / g_ratio
+                #(atomic_number, ion_number, level_number_lower, level_number_upper)].values[0]
+
                 logger.debug('Found collision data for atom=%d ion=%d lvl_lower=%d lvl_upper=%d',
                              atomic_number, ion_number, level_number_lower, level_number_upper)
 

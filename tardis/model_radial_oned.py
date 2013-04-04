@@ -120,13 +120,13 @@ class Radial1DModel(object):
         self.plasma_type = tardis_config.plasma_type
         self.radiative_rates_type = tardis_config.radiative_rates_type
         if self.plasma_type == 'lte':
-            self.plasma_class = plasma.LTEPlasma
+            plasma_class = plasma.LTEPlasma
             if tardis_config.ws is not None:
                 raise ValueError(
                     "the dilution factor W ('ws') can only be specified when selecting plasma_type='nebular'")
 
         elif self.plasma_type == 'nebular':
-            self.plasma_class = plasma.NebularPlasma
+            plasma_class = plasma.NebularPlasma
             if not self.atom_data.has_zeta_data:
                 raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma_type")
         else:
@@ -156,7 +156,7 @@ class Radial1DModel(object):
             assert len(tardis_config.initial_t_rad) == self.no_of_shells
             self.t_rads = np.array(tardis_config.initial_t_rad, dtype=np.float64)
 
-        self.initialize_plasmas()
+        self.initialize_plasmas(plasma_class)
 
 
     @property
@@ -203,7 +203,7 @@ class Radial1DModel(object):
         no_of_packets = self.current_no_of_packets
         self.packet_src.create_packets(no_of_packets, self.t_inner)
 
-    def initialize_plasmas(self):
+    def initialize_plasmas(self, plasma_class):
         self.plasmas = []
         self.tau_sobolevs = np.zeros((self.no_of_shells, len(self.atom_data.lines)))
         self.line_list_nu = self.atom_data.lines['nu']
@@ -214,8 +214,8 @@ class Radial1DModel(object):
         if self.plasma_type == 'lte':
             for i, ((tmp_index, current_abundances), current_t_rad) in \
                 enumerate(zip(self.number_densities.iterrows(), self.t_rads)):
-                current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
-                                                   nlte_species=self.tardis_config.nlte_species, zone_id=i)
+                current_plasma = plasma_class(current_abundances, self.atom_data, self.time_explosion,
+                                              nlte_species=self.tardis_config.nlte_species, zone_id=i)
                 logger.debug('Initializing Shell %d Plasma with T=%.3f' % (i, current_t_rad))
                 if self.radiative_rates_type in ('lte', 'detailed'):
                     j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
@@ -234,8 +234,8 @@ class Radial1DModel(object):
         elif self.plasma_type == 'nebular':
             for i, ((tmp_index, current_abundances), current_t_rad, current_w) in \
                 enumerate(zip(self.number_densities.iterrows(), self.t_rads, self.ws)):
-                current_plasma = self.plasma_class(current_abundances, self.atom_data, self.time_explosion,
-                                                   nlte_species=self.tardis_config.nlte_species, zone_id=i)
+                current_plasma = plasma_class(current_abundances, self.atom_data, self.time_explosion,
+                                              nlte_species=self.tardis_config.nlte_species, zone_id=i)
                 logger.debug('Initializing Shell %d Plasma with T=%.3f W=%.4f' % (i, current_t_rad, current_w))
                 if self.radiative_rates_type in ('lte',):
                     j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
@@ -506,6 +506,10 @@ class Radial1DModel(object):
         ax.plot(x, y)
         ax.set_xlabel(xlabel)
         ax.set_ylabel(ylabel)
+
+    def save_spectrum(self, prefix):
+        np.savetxt(prefix + '_virtual_spec.dat', zip(self.spec_angstrom, self.spec_virtual_flux_angstrom))
+        np.savetxt(prefix + '_spec.dat', zip(self.spec_angstrom, self.spec_flux_angstrom))
 
 
 class ModelHistory(object):
