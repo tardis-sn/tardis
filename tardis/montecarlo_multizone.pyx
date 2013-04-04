@@ -522,6 +522,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
         #linelists
         current_line_id = binary_search(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines)
+
         if current_line_id == storage.no_of_lines:
             #setting flag that the packet is off the red end of the line list
             last_line = 1
