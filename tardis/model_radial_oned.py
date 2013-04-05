@@ -181,7 +181,8 @@ class Radial1DModel(object):
         self._line_interaction_type = value
         #final preparation for atom_data object - currently building data
         self.atom_data.prepare_atom_data(self.selected_atomic_numbers,
-                                         line_interaction_type=self.line_interaction_type, max_ion_number=None)
+                                         line_interaction_type=self.line_interaction_type, max_ion_number=None,
+                                         nlte_species=self.tardis_config.nlte_species)
 
 
     @property
@@ -209,7 +210,13 @@ class Radial1DModel(object):
         self.line_list_nu = self.atom_data.lines['nu']
 
         if self.line_interaction_id in (1, 2):
+            if self.line_interaction_id == 1:
+                logger.info('Downbranch selected - creating transition probabilities')
+            else:
+                logger.info('Macroatom selected - creating transition probabilties')
             self.transition_probabilities = []
+        else:
+            logger.info('Scattering selected - no transition probabilities created')
 
         if self.plasma_type == 'lte':
             for i, ((tmp_index, current_abundances), current_t_rad) in \
@@ -522,23 +529,30 @@ class ModelHistory(object):
         self.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
         self.level_populations = {}
         self.j_blues = {}
+        self.tau_sobolevs = {}
 
 
     def store_all(self, radial1d_mdl, iteration):
         self.t_rads['iter%d' % iteration] = radial1d_mdl.t_rads
         self.ws['iter%d' % iteration] = radial1d_mdl.ws
 
+        #current_ion_populations = pd.DataFrame(index=radial1d_mdl.atom_data.)
         current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
         current_j_blues = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
+        current_tau_sobolevs = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
         for i, plasma in enumerate(radial1d_mdl.plasmas):
             current_level_populations[i] = plasma.level_populations
             current_j_blues[i] = plasma.j_blues
+            current_tau_sobolevs[i] = plasma.tau_sobolevs
 
         self.level_populations['iter%d' % iteration] = current_level_populations.copy()
         self.j_blues['iter%d' % iteration] = current_j_blues.copy()
+        self.tau_sobolevs['iter%d' % iteration] = current_tau_sobolevs.copy()
+
 
     def finalize(self):
         self.level_populations = pd.Panel.from_dict(self.level_populations)
         self.j_blues = pd.Panel.from_dict(self.j_blues)
+        self.tau_sobolevs = pd.Panel.from_dict(self.tau_sobolevs)
 
 

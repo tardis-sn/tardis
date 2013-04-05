@@ -321,7 +321,7 @@ class LTEPlasma(BasePlasma):
 
         else:
             level_populations = Series(level_populations, index=self.atom_data.levels.index)
-            self.level_populations.update(level_populations[~self.atom_data.nlte_mask])
+            self.level_populations[~self.atom_data.nlte_mask] = level_populations[~self.atom_data.nlte_mask]
 
     def calculate_nlte_level_populations(self):
         """
@@ -757,8 +757,6 @@ class NebularPlasma(LTEPlasma):
 
         #only change between lte plasma and nebular
         level_populations[~self.atom_data.levels['metastable']] *= self.w
-
-        self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
 
         if self.initialize:
             self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
