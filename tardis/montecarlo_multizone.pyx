@@ -256,6 +256,25 @@ cdef float_type_t inverse_c = 1 / c
 
 cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_t imin,
                               int_type_t imax):
+    cdef int_type_t imid
+    # print('start bin search')
+    while (imin < imax):
+        imid = imin + (imin + imax) / 2
+        # print("imid = %d" %imid)
+        # print("nu[imid]= %g" %nu[imid])
+        # print("nu_insert %g" %nu_insert)
+
+
+
+        if (nu[imid] > nu_insert) and (nu[imid + 1] <= nu_insert):
+            # print('end bin search')
+            return imid +1
+        elif (nu[imid] < nu_insert):
+            return binary_search(nu,nu_insert,imid+1,imax)
+        else:
+            return binary_search(nu,nu_insert,imin,imid - 1)
+
+"""
     #continually narrow search until just one element remains
     cdef int_type_t imid
     while imax - imin > 2:
@@ -272,7 +291,7 @@ cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_
             imin = imid
             #print imin, imax, imid, imax - imin
     return imin + 1
-
+"""
 #variables are restframe if not specified by prefix comov_
 cdef inline int_type_t macro_atom(int_type_t activate_level,
                                   float_type_t*p_transition,
@@ -417,6 +436,7 @@ cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
 
     #check if the comov_nu is smaller then nu_line
     if (comov_nu < nu_line):
+            print("-->WARNING comoving nu less than nu_line shouldn't happen:")
             return miss_distance
     else:
 
@@ -526,7 +546,14 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
         #linelists
         current_line_id = binary_search(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines)
-        if current_line_id == storage.no_of_lines:
+        ###DEBUG####
+        # print("current_nu = %g" %current_nu)
+        # print("current_line_id = %d"%current_line_id)
+        # print("current_nu_line = %g"%storage.line_list_nu[current_line_id])
+        # print("no of lines: %d"% storage.no_of_lines)
+
+
+        if current_line_id == 0:#storage.no_of_lines:
             #setting flag that the packet is off the red end of the line list
             last_line = 1
         else:
@@ -703,7 +730,8 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
     while True:
 
         #Check if current is smaller than the nu of the line with the highest frequency
-        if current_nu[0] < storage.line_list_nu[storage.no_of_lines - 1]:
+        if current_nu[0] < storage.line_list_nu[storage.no_of_lines - 1] and last_line[0] == 0:
+            print("WARNING comoving nu less than nu_line shouldn't happen; MAIN LOOP")
             last_line[0] = 1
 
         #check if we are at the end of linelist
