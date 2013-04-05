@@ -436,8 +436,9 @@ cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
 
     #check if the comov_nu is smaller then nu_line
     if (comov_nu < nu_line):
+            #No longer required. Maybe we should change this to an asert.
             print("-->WARNING comoving nu less than nu_line shouldn't happen:")
-            return miss_distance
+            return -1 #miss_distance
     else:
 
         if comov_nu < nu_line:
@@ -731,6 +732,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
         #Check if current is smaller than the nu of the line with the highest frequency
         if current_nu[0] < storage.line_list_nu[storage.no_of_lines - 1] and last_line[0] == 0:
+            #No longer required.
             print("WARNING comoving nu less than nu_line shouldn't happen; MAIN LOOP")
             last_line[0] = 1
 
