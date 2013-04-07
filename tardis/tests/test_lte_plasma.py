@@ -123,7 +123,8 @@ class TestLTEPlasmaCalculations:
             assert ion_number_density_delta <0.05
 
     def test_level_populations(self, t_rad ):
-        pass
+
+
 
 
 
