@@ -410,7 +410,7 @@ class LTEPlasma(BasePlasma):
                          self.level_populations.ix[species].count(), self.zone_id)
 
             if float(self.cleaned_levels.ix[species]) / self.level_populations.ix[species].count() > 0.5:
-                logger.warn('Number of cleaned levels very high %d of %d (zone id=%s, , lowest_cleaned_level=%d)',
+                logger.warn('Number of cleaned levels very high %d of %d (zone id=%s, lowest_cleaned_level=%d)',
                             self.cleaned_levels.ix[species],
                             self.level_populations.ix[species].count(), self.zone_id, self.lowest_cleaned_level)
 

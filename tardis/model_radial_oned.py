@@ -534,9 +534,9 @@ class ModelHistory(object):
 
 
     def store_all(self, radial1d_mdl, iteration):
-        self.t_rads['iter%d' % iteration] = radial1d_mdl.t_rads
-        self.ws['iter%d' % iteration] = radial1d_mdl.ws
-        self.electron_density['iter%d' % iteration] = radial1d_mdl.electron_density
+        self.t_rads['iter%03d' % iteration] = radial1d_mdl.t_rads
+        self.ws['iter%03d' % iteration] = radial1d_mdl.ws
+        self.electron_density['iter%03d' % iteration] = radial1d_mdl.electron_density
 
         #current_ion_populations = pd.DataFrame(index=radial1d_mdl.atom_data.)
         current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
@@ -547,9 +547,9 @@ class ModelHistory(object):
             current_j_blues[i] = plasma.j_blues
             current_tau_sobolevs[i] = plasma.tau_sobolevs
 
-        self.level_populations['iter%d' % iteration] = current_level_populations.copy()
-        self.j_blues['iter%d' % iteration] = current_j_blues.copy()
-        self.tau_sobolevs['iter%d' % iteration] = current_tau_sobolevs.copy()
+        self.level_populations['iter%03d' % iteration] = current_level_populations.copy()
+        self.j_blues['iter%03d' % iteration] = current_j_blues.copy()
+        self.tau_sobolevs['iter%03d' % iteration] = current_tau_sobolevs.copy()
 
 
     def finalize(self):
