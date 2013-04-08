@@ -527,6 +527,7 @@ class ModelHistory(object):
     def __init__(self, tardis_config):
         self.t_rads = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
         self.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        self.electron_density = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
         self.level_populations = {}
         self.j_blues = {}
         self.tau_sobolevs = {}
@@ -535,6 +536,7 @@ class ModelHistory(object):
     def store_all(self, radial1d_mdl, iteration):
         self.t_rads['iter%d' % iteration] = radial1d_mdl.t_rads
         self.ws['iter%d' % iteration] = radial1d_mdl.ws
+        self.electron_density['iter%d' % iteration] = radial1d_mdl.electron_density
 
         #current_ion_populations = pd.DataFrame(index=radial1d_mdl.atom_data.)
         current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
