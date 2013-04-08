@@ -529,6 +529,7 @@ class AtomData(object):
 
         #Setting NLTE species
         self.set_nlte_mask(nlte_species)
+        self.prepare_collision_coefficient_matrix(nlte_species)
 
 
     def set_nlte_mask(self, nlte_species):
@@ -544,6 +545,33 @@ class AtomData(object):
 
     def prepare_nlte_indices(self, nlte_species):
         pass
+
+    def prepare_collision_coefficient_matrix(self, nlte_species):
+        self.C_ul_interpolator = {}
+        self.delta_E_matrices = {}
+        self.g_ratio_matrices = {}
+        collision_group = self.collision_data.groupby(level=['atomic_number', 'ion_number'])
+        for species in nlte_species:
+            no_of_levels = self.levels.ix[species].energy.count()
+            C_ul_matrix = np.zeros((no_of_levels, no_of_levels, len(self.collision_data_temperatures)))
+            delta_E_matrix = np.zeros((no_of_levels, no_of_levels))
+            g_ratio_matrix = np.zeros((no_of_levels, no_of_levels))
+
+            for (atomic_number, ion_number, level_number_lower, level_number_upper), line in \
+                collision_group.get_group(species).iterrows():
+                C_ul_matrix[level_number_lower, level_number_upper, :] = line.values[2:]
+                delta_E_matrix[level_number_lower, level_number_upper] = line['delta_e']
+                g_ratio_matrix[level_number_lower, level_number_upper] = line['g_ratio']
+            self.C_ul_interpolator[species] = interpolate.interp1d(self.collision_data_temperatures, C_ul_matrix)
+            self.delta_E_matrices[species] = delta_E_matrix
+            self.g_ratio_matrices[species] = g_ratio_matrix
+
+
+    def get_collision_matrix(self, species, t_electron):
+        c_ul_matrix = self.C_ul_interpolator[species][t_electron]
+        c_lu_matrix = c_ul_matrix * np.exp(-self.delta_E_matrices[species] / t_electron) / self.g_ratio_matrices[
+            species]
+        return c_ul_matrix + c_lu_matrix
 
     def get_collision_coefficients(self, atomic_number, ion_number, level_number_lower, level_number_upper, t_electron):
         if self.has_collision_data:
