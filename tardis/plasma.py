@@ -351,7 +351,11 @@ class LTEPlasma(BasePlasma):
                 n_lower = self.level_populations.ix[atomic_number, ion_number, level_number_lower]
                 n_upper = self.level_populations.ix[atomic_number, ion_number, level_number_upper]
 
-                cur_beta_sobolev = self.beta_sobolevs[i]
+                #cur_beta_sobolev = self.beta_sobolevs[i]
+                #cur_j_blue = self.j_blues[i]
+
+                cur_beta_sobolev = 1.0
+                cur_j_blue = 0.0
 
                 stimulated_emission_term = (1 - (n_upper * line['B_ul']) / (n_lower * line['B_lu']))
 
@@ -361,8 +365,9 @@ class LTEPlasma(BasePlasma):
 
                 C_lu, C_ul = self.atom_data.get_collision_coefficients(atomic_number, ion_number, level_number_lower,
                                                                        level_number_upper, self.t_electron)
-                r_lu = line['B_lu'] * cur_beta_sobolev * self.j_blues[
-                    i] * stimulated_emission_term + C_lu * self.electron_density
+
+                r_lu = line[
+                           'B_lu'] * cur_beta_sobolev * cur_j_blue * stimulated_emission_term + C_lu * self.electron_density
                 r_ul = line['A_ul'] * cur_beta_sobolev + C_ul * self.electron_density
 
                 rates_matrix[level_number_upper, level_number_lower] = r_lu
