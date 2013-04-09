@@ -367,7 +367,7 @@ class LTEPlasma(BasePlasma):
 
             stimulated_emission_matrix = np.zeros_like(r_ul_matrix)
             stimulated_emission_matrix.ravel()[r_lu_index] = 1 - (level_populations[lnu] * B_uls) / (
-            level_populations[lnl] * B_lus)
+                level_populations[lnl] * B_lus)
 
             r_lu_matrix = np.zeros_like(r_ul_matrix)
             r_lu_matrix.ravel()[r_lu_index] = B_lus * j_blues[lines_index] * beta_sobolevs[lines_index]
@@ -376,6 +376,9 @@ class LTEPlasma(BasePlasma):
             collision_matrix = self.atom_data.get_collision_matrix(species, self.t_electron) * self.electron_density
 
             rates_matrix2 = r_lu_matrix + r_ul_matrix + collision_matrix
+
+            for i in xrange(number_of_levels):
+                rates_matrix2[i, i] = -np.sum(rates_matrix2[:, i])
 
             print "new_matrix took %s" % (time.time() - start_time)
 
@@ -423,19 +426,18 @@ class LTEPlasma(BasePlasma):
                 rates_matrix[level_number_lower, level_number_lower] -= r_lu
                 rates_matrix[level_number_upper, level_number_upper] -= r_ul
 
-
-
-            # add them like this later:
-            #for i in range(29)
-            #    rates_matrix[i, i] = -np.sum(collision_matrix[:, i])
             print "old_matrix took %s" % (time.time() - start_time)
-            pdb.set_trace()
 
             rates_matrix[0] = 1.0
+            rates_matrix2[0] = 1.0
+
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
+            relative_level_populations = np.linalg.solve(rates_matrix, x)
+            relative_level_populations2 = np.linalg.solve(rates_matrix2, x)
 
-            self.level_populations.ix[species] = np.linalg.solve(rates_matrix, x) * self.ion_number_density.ix[species]
+            1 / 0
+            self.level_populations.ix[species] = relative_level_populations * self.ion_number_density.ix[species]
 
 
             #Cleaning Level populations
