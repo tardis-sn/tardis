@@ -529,31 +529,57 @@ class AtomData(object):
 
         self.nlte_data = NLTEData(self, nlte_species)
 
-        #Setting NLTE species
-        self.set_nlte_mask(nlte_species)
-        self.prepare_collision_coefficient_matrix(nlte_species)
+
+    def __repr__(self):
+        return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
+               (self.uuid1, self.md5, self.lines_data.atomic_number.count(), self.levels_data.energy.count())
 
 
-    def set_nlte_mask(self, nlte_species):
+class NLTEData(object):
+    def __init__(self, atom_data, nlte_species):
+        logger.info('Preparing the NLTE data')
+        self.atom_data = atom_data
+        self.lines = atom_data.lines.reset_index()
+        self.nlte_species = nlte_species
+        self._init_indices()
+        self._create_nlte_mask()
 
-        logger.debug('Setting NLTE Species Mask for %s' % nlte_species)
+
+    def _init_indices(self):
+        self.lines_idx = {}
+        self.lines_level_number_lower = {}
+        self.lines_level_number_upper = {}
+        self.A_uls = {}
+        self.B_uls = {}
+        self.B_lus = {}
+
+        for species in self.nlte_species:
+            lines_idx = np.where((self.lines.atomic_number == species[0]) &
+                                 (self.lines.ion_number == species[1]))
+            self.lines_idx[species] = lines_idx
+            self.lines_level_number_lower[species] = self.lines.level_number_lower.values[lines_idx].astype(int)
+            self.lines_level_number_upper[species] = self.lines.level_number_upper.values[lines_idx].astype(int)
+
+            self.A_uls[species] = self.atom_data.lines.A_ul.values[lines_idx]
+            self.B_uls[species] = self.atom_data.lines.B_ul.values[lines_idx]
+            self.B_lus[species] = self.atom_data.lines.B_lu.values[lines_idx]
+
+    def _create_nlte_mask(self):
         self.nlte_mask = np.zeros(self.levels.shape[0]).astype(bool)
 
-        for species in nlte_species:
-            current_mask = (self.levels.index.get_level_values(0) == species[0]) & \
-                           (self.levels.index.get_level_values(1) == species[1])
+        for species in self.nlte_species:
+            current_mask = (self.atom_data.levels.index.get_level_values(0) == species[0]) & \
+                           (self.atom_data.levels.index.get_level_values(1) == species[1])
 
             self.nlte_mask |= current_mask
 
-    def prepare_nlte_indices(self, nlte_species):
-        pass
 
-    def prepare_collision_coefficient_matrix(self, nlte_species):
+    def _create_collision_coefficient_matrix(self):
         self.C_ul_interpolator = {}
         self.delta_E_matrices = {}
         self.g_ratio_matrices = {}
-        collision_group = self.collision_data.groupby(level=['atomic_number', 'ion_number'])
-        for species in nlte_species:
+        collision_group = self.atom_data.collision_data.groupby(level=['atomic_number', 'ion_number'])
+        for species in self.nlte_species:
             no_of_levels = self.levels.ix[species].energy.count()
             C_ul_matrix = np.zeros((no_of_levels, no_of_levels, len(self.collision_data_temperatures)))
             delta_E_matrix = np.zeros((no_of_levels, no_of_levels))
@@ -579,58 +605,4 @@ class AtomData(object):
         c_lu_matrix = c_ul_matrix * np.exp(-self.delta_E_matrices[species] / t_electron) * self.g_ratio_matrices[
             species]
         return c_ul_matrix + c_lu_matrix.transpose()
-
-    def get_collision_coefficients(self, atomic_number, ion_number, level_number_lower, level_number_upper, t_electron):
-        if self.has_collision_data:
-            try:
-                collision_data = self.collision_data.ix[
-                    (atomic_number, ion_number, level_number_lower, level_number_upper)]
-
-
-            except pd.core.indexing.IndexingError:
-                C_lu = 0
-                C_ul = 0
-                logger.debug('Could not find collision data for atom=%d ion=%d lvl_lower=%d lvl_upper=%d',
-                             atomic_number, ion_number, level_number_lower, level_number_upper)
-            else:
-                C_ul = np.interp(t_electron, self.collision_data_temperatures, collision_data.values[2:])
-                g_ratio = collision_data['g_ratio']
-                delta_e = collision_data['delta_e']
-                C_lu = C_ul * np.exp(-delta_e / t_electron) / g_ratio
-                #(atomic_number, ion_number, level_number_lower, level_number_upper)].values[0]
-
-                logger.debug('Found collision data for atom=%d ion=%d lvl_lower=%d lvl_upper=%d',
-                             atomic_number, ion_number, level_number_lower, level_number_upper)
-
-            return C_lu, C_ul
-
-        else:
-            return 0., 0.
-
-    def __repr__(self):
-        return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
-               (self.uuid1, self.md5, self.lines_data.atomic_number.count(), self.levels_data.energy.count())
-
-
-class NLTEData(object):
-    def __init__(self, atom_data, nlte_species):
-        self.atom_data = atom_data
-        self.lines = atom_data.lines.reset_index()
-        self.nlte_species = nlte_species
-        self._init_indices()
-        pass
-
-    def _init_indices(self):
-        self.lines_idx = {}
-        self.lines_level_number_lower = {}
-        self.lines_level_number_upper = {}
-        self.lines_matrix_idx = {}
-        for species in self.nlte_species:
-            self.lines_idx[species] = np.where((self.lines.atomic_number == species[0]) &
-                                               (self.lines.ion_number == species[1]))
-            self.lines_level_number_lower[species] = self.lines.level_number_lower.values[
-                self.lines_idx[species]].astype(int)
-            self.lines_level_number_upper[species] = self.lines.level_number_upper.values[
-                self.lines_idx[species]].astype(int)
-
 
