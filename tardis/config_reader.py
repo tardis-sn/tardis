@@ -519,7 +519,15 @@ class TardisConfiguration(object):
             logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
             config_dict['w_epsilon'] = 1e-10
 
-            ##### spectrum section ######
+        ##### NLTE Section #####
+
+        nlte_section = yaml_dict.pop('nlte', None)
+        if nlte_section is None:
+            config_dict['coronal_case'] = False
+
+        config_dict['coronal_case'] = nlte_section['coronal_case']
+
+        ##### spectrum section ######
         spectrum_section = yaml_dict.pop('spectrum')
         spectrum_start = parse2quantity(spectrum_section['start']).to('angstrom', units.spectral())
         spectrum_end = parse2quantity(spectrum_section['end']).to('angstrom', units.spectral())

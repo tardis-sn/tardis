@@ -4,7 +4,6 @@
 import numpy as np
 import logging
 from astropy import table, units, constants
-from collections import OrderedDict
 
 from pandas import DataFrame, Series, Index, lib as pdlib
 import pandas as pd
@@ -14,9 +13,7 @@ import macro_atom
 logger = logging.getLogger(__name__)
 import pdb
 
-import time
-#Bnu = lambda nu, t: (2 * constants.h * nu ** 3 / constants.c ** 2) * np.exp(
-#    1 / ((constants.h * nu) / (constants.kb * t)))
+
 
 
 #Defining soboleve constant
@@ -131,7 +128,7 @@ class LTEPlasma(BasePlasma):
         self.nlte_species = nlte_species
 
 
-    def update_radiationfield(self, t_rad, t_electron=None, n_e_convergence_threshold=0.05):
+    def update_radiationfield(self, t_rad, t_electron=None, n_e_convergence_threshold=0.05, coronal_case=False):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -178,7 +175,7 @@ class LTEPlasma(BasePlasma):
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
-        self.calculate_nlte_level_populations()
+        self.calculate_nlte_level_populations(coronal_case=coronal_case)
 
         if self.initialize:
             self.initialize = False
@@ -323,9 +320,10 @@ class LTEPlasma(BasePlasma):
 
         else:
             level_populations = Series(level_populations, index=self.atom_data.levels.index)
-            self.level_populations[~self.atom_data.nlte_mask] = level_populations[~self.atom_data.nlte_mask]
+            self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_mask])
 
-    def calculate_nlte_level_populations(self, coronal_case=True):
+
+    def calculate_nlte_level_populations(self, coronal_case=False):
         """
         Calculating the NLTE level populations for specific ions
 
@@ -352,9 +350,9 @@ class LTEPlasma(BasePlasma):
             lnu = self.atom_data.nlte_data.lines_level_number_upper[species]
 
             lines_index = self.atom_data.nlte_data.lines_idx[species]
-            A_uls = self.atom_data.lines.A_ul.values[lines_index]
-            B_uls = self.atom_data.lines.B_ul.values[lines_index]
-            B_lus = self.atom_data.lines.B_lu.values[lines_index]
+            A_uls = self.atom_data.nlte_data.A_uls[species]
+            B_uls = self.atom_data.nlte_data.B_uls[species]
+            B_lus = self.atom_data.nlte_data.B_lus[species]
 
             r_lu_index = lnu * number_of_levels + lnl
             r_ul_index = lnl * number_of_levels + lnu
@@ -371,7 +369,8 @@ class LTEPlasma(BasePlasma):
             r_lu_matrix.ravel()[r_lu_index] = B_lus * j_blues[lines_index] * beta_sobolevs[lines_index]
             r_lu_matrix *= stimulated_emission_matrix
 
-            collision_matrix = self.atom_data.get_collision_matrix(species, self.t_electron) * self.electron_density
+            collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species,
+                                                                             self.t_electron) * self.electron_density
 
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
 
@@ -536,7 +535,7 @@ class NebularPlasma(LTEPlasma):
         self.nlte_species = nlte_species
 
 
-    def update_radiationfield(self, t_rad, w, t_electron=None, n_e_convergence_threshold=0.05):
+    def update_radiationfield(self, t_rad, w, t_electron=None, n_e_convergence_threshold=0.05, coronal_case=False):
         BasePlasma.update_radiationfield(self, t_rad)
 
         self.w = w
@@ -570,7 +569,7 @@ class NebularPlasma(LTEPlasma):
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
-        self.calculate_nlte_level_populations()
+        self.calculate_nlte_level_populations(coronal_case=coronal_case)
 
         if self.initialize:
             self.initialize = False
@@ -774,6 +773,6 @@ class NebularPlasma(LTEPlasma):
 
         else:
             level_populations = Series(level_populations, index=self.atom_data.levels.index)
-            self.level_populations.update(level_populations[~self.atom_data.nlte_mask])
+            self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_mask])
 
 
