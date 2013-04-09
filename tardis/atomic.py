@@ -543,6 +543,7 @@ class NLTEData(object):
         self.nlte_species = nlte_species
         self._init_indices()
         self._create_nlte_mask()
+        self._create_collision_coefficient_matrix()
 
 
     def _init_indices(self):
@@ -565,7 +566,7 @@ class NLTEData(object):
             self.B_lus[species] = self.atom_data.lines.B_lu.values[lines_idx]
 
     def _create_nlte_mask(self):
-        self.nlte_mask = np.zeros(self.levels.shape[0]).astype(bool)
+        self.nlte_mask = np.zeros(self.atom_data.levels.energy.count()).astype(bool)
 
         for species in self.nlte_species:
             current_mask = (self.atom_data.levels.index.get_level_values(0) == species[0]) & \
@@ -580,8 +581,8 @@ class NLTEData(object):
         self.g_ratio_matrices = {}
         collision_group = self.atom_data.collision_data.groupby(level=['atomic_number', 'ion_number'])
         for species in self.nlte_species:
-            no_of_levels = self.levels.ix[species].energy.count()
-            C_ul_matrix = np.zeros((no_of_levels, no_of_levels, len(self.collision_data_temperatures)))
+            no_of_levels = self.atom_data.levels.ix[species].energy.count()
+            C_ul_matrix = np.zeros((no_of_levels, no_of_levels, len(self.atom_data.collision_data_temperatures)))
             delta_E_matrix = np.zeros((no_of_levels, no_of_levels))
             g_ratio_matrix = np.zeros((no_of_levels, no_of_levels))
 
@@ -590,8 +591,9 @@ class NLTEData(object):
                 C_ul_matrix[level_number_lower, level_number_upper, :] = line.values[2:]
                 delta_E_matrix[level_number_lower, level_number_upper] = line['delta_e']
                 #TODO TARDISATOMIC fix change the g_ratio to be the otherway round - I flip them now here.
-                g_ratio_matrix[level_number_lower, level_number_upper] = 1 / line['g_ratio']
-            self.C_ul_interpolator[species] = interpolate.interp1d(self.collision_data_temperatures, C_ul_matrix)
+                g_ratio_matrix[level_number_lower, level_number_upper] = line['g_ratio']
+            self.C_ul_interpolator[species] = interpolate.interp1d(self.atom_data.collision_data_temperatures,
+                                                                   C_ul_matrix)
             self.delta_E_matrices[species] = delta_E_matrix
 
             self.g_ratio_matrices[species] = g_ratio_matrix
