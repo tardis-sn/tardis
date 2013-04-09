@@ -545,7 +545,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         current_energy = current_energy / (1 - (current_mu * current_r * storage.inverse_time_explosion * inverse_c))
 
         #linelists
-        current_line_id = binary_search(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines)
+        current_line_id = getNextLineId(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines)
         ###DEBUG####
         # print("current_nu = %g" %current_nu)
         # print("current_line_id = %d"%current_line_id)
