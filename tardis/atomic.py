@@ -527,6 +527,8 @@ class AtomData(object):
                 self.macro_atom_data['destination_level_idx'] = (np.ones(len(self.macro_atom_data)) * -1).astype(
                     np.int64)
 
+        self.nlte_data = NLTEData(self, nlte_species)
+
         #Setting NLTE species
         self.set_nlte_mask(nlte_species)
         self.prepare_collision_coefficient_matrix(nlte_species)
@@ -561,17 +563,22 @@ class AtomData(object):
                 collision_group.get_group(species).iterrows():
                 C_ul_matrix[level_number_lower, level_number_upper, :] = line.values[2:]
                 delta_E_matrix[level_number_lower, level_number_upper] = line['delta_e']
-                g_ratio_matrix[level_number_lower, level_number_upper] = line['g_ratio']
+                #TODO TARDISATOMIC fix change the g_ratio to be the otherway round - I flip them now here.
+                g_ratio_matrix[level_number_lower, level_number_upper] = 1 / line['g_ratio']
             self.C_ul_interpolator[species] = interpolate.interp1d(self.collision_data_temperatures, C_ul_matrix)
             self.delta_E_matrices[species] = delta_E_matrix
+
             self.g_ratio_matrices[species] = g_ratio_matrix
 
 
     def get_collision_matrix(self, species, t_electron):
-        c_ul_matrix = self.C_ul_interpolator[species][t_electron]
-        c_lu_matrix = c_ul_matrix * np.exp(-self.delta_E_matrices[species] / t_electron) / self.g_ratio_matrices[
+        c_ul_matrix = self.C_ul_interpolator[species](t_electron)
+
+        c_ul_matrix[np.isnan(c_ul_matrix)] = 0.0
+        #TODO in tardisatomic the g_ratio is the other way round - here I'll flip it in prepare_collision matrix
+        c_lu_matrix = c_ul_matrix * np.exp(-self.delta_E_matrices[species] / t_electron) * self.g_ratio_matrices[
             species]
-        return c_ul_matrix + c_lu_matrix
+        return c_ul_matrix + c_lu_matrix.transpose()
 
     def get_collision_coefficients(self, atomic_number, ion_number, level_number_lower, level_number_upper, t_electron):
         if self.has_collision_data:
@@ -605,6 +612,25 @@ class AtomData(object):
                (self.uuid1, self.md5, self.lines_data.atomic_number.count(), self.levels_data.energy.count())
 
 
+class NLTEData(object):
+    def __init__(self, atom_data, nlte_species):
+        self.atom_data = atom_data
+        self.lines = atom_data.lines.reset_index()
+        self.nlte_species = nlte_species
+        self._init_indices()
+        pass
 
+    def _init_indices(self):
+        self.lines_idx = {}
+        self.lines_level_number_lower = {}
+        self.lines_level_number_upper = {}
+        self.lines_matrix_idx = {}
+        for species in self.nlte_species:
+            self.lines_idx[species] = np.where((self.lines.atomic_number == species[0]) &
+                                               (self.lines.ion_number == species[1]))
+            self.lines_level_number_lower[species] = self.lines.level_number_lower.values[
+                self.lines_idx[species]].astype(int)
+            self.lines_level_number_upper[species] = self.lines.level_number_upper.values[
+                self.lines_idx[species]].astype(int)
 
 
