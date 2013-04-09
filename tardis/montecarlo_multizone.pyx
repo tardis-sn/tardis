@@ -254,32 +254,31 @@ cdef float_type_t inverse_c = 1 / c
 
 
 
-cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_t imin,
+
+cdef int_type_t getNextLineId(float_type_t*nu, float_type_t nu_insert, int_type_t imin,
                               int_type_t imax):
-    cdef int_type_t imid
-    # print('start bin search')
-    while (imin < imax):
-        imid = imin + (imin + imax) / 2
-        # print("imid = %d" %imid)
-        # print("nu[imid]= %g" %nu[imid])
+    # print('startNextLineId')
+    if nu_insert > nu[imin]:
+        # print("nu[imin]= %g" %nu[imin])
         # print("nu_insert %g" %nu_insert)
+        return imin
+    elif nu_insert < nu[imax]:
+        # print("nu[imax]= %g" %nu[imax])
+        # print("nu_insert %g" %nu_insert)
+        return imax +1
+    else:
+        # print('start bin search')
+        # print("nu[imax]= %g" %nu[imax])
+        # print("nu[imin]= %g" %nu[imin])
+        # print("nu_insert %g" %nu_insert)
+        return binary_search(nu,nu_insert,imin,imax)
 
+cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_t imin,
+                                  int_type_t imax):
 
-
-        if (nu[imid] > nu_insert) and (nu[imid + 1] <= nu_insert):
-            # print('end bin search')
-            return imid +1
-        elif (nu[imid] < nu_insert):
-            return binary_search(nu,nu_insert,imid+1,imax)
-        else:
-            return binary_search(nu,nu_insert,imin,imid - 1)
-
-"""
-    #continually narrow search until just one element remains
     cdef int_type_t imid
     while imax - imin > 2:
         imid = (imin + imax) / 2
-
         #code must guarantee the interval is reduced at each iteration
         #assert(imid < imax);
         # note: 0 <= imin < imax implies imid will always be less than imax
@@ -291,7 +290,7 @@ cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_
             imin = imid
             #print imin, imax, imid, imax - imin
     return imin + 1
-"""
+
 #variables are restframe if not specified by prefix comov_
 cdef inline int_type_t macro_atom(int_type_t activate_level,
                                   float_type_t*p_transition,
