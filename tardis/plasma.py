@@ -325,7 +325,7 @@ class LTEPlasma(BasePlasma):
             level_populations = Series(level_populations, index=self.atom_data.levels.index)
             self.level_populations[~self.atom_data.nlte_mask] = level_populations[~self.atom_data.nlte_mask]
 
-    def calculate_nlte_level_populations(self, coronal_case=False):
+    def calculate_nlte_level_populations(self, coronal_case=True):
         """
         Calculating the NLTE level populations for specific ions
 
@@ -347,8 +347,6 @@ class LTEPlasma(BasePlasma):
             logger.info('Calculating rates for species %s', species)
             number_of_levels = self.level_populations.ix[species].size
 
-            #new RATES MATRIX
-            start_time = time.time()
             level_populations = self.level_populations.ix[species].values
             lnl = self.atom_data.nlte_data.lines_level_number_lower[species]
             lnu = self.atom_data.nlte_data.lines_level_number_upper[species]
@@ -375,70 +373,20 @@ class LTEPlasma(BasePlasma):
 
             collision_matrix = self.atom_data.get_collision_matrix(species, self.t_electron) * self.electron_density
 
-            rates_matrix2 = r_lu_matrix + r_ul_matrix + collision_matrix
+            rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
 
             for i in xrange(number_of_levels):
-                rates_matrix2[i, i] = -np.sum(rates_matrix2[:, i])
-
-            print "new_matrix took %s" % (time.time() - start_time)
-
-            start_time = time.time()
-
-            # old_rates_matrix
-
-            rates_matrix = np.zeros((number_of_levels, number_of_levels), dtype=np.float64)
-
-            for i, (line_id, line) in enumerate(self.atom_data.lines.iterrows()):
-                atomic_number = int(line['atomic_number'])
-                ion_number = int(line['ion_number'])
-                if (atomic_number, ion_number) != species:
-                    continue
-
-                level_number_lower = int(line['level_number_lower'])
-                level_number_upper = int(line['level_number_upper'])
-
-                n_lower = self.level_populations.ix[atomic_number, ion_number, level_number_lower]
-                n_upper = self.level_populations.ix[atomic_number, ion_number, level_number_upper]
-
-                cur_beta_sobolev = beta_sobolevs[i]
-                cur_j_blue = j_blues[i]
-
-                stimulated_emission_term = (1 - (n_upper * line['B_ul']) / (n_lower * line['B_lu']))
-
-                if stimulated_emission_term < 0:
-                    logger.warn('Stimulated emission term less than 0 %g n_upper=%g n_lower=%g (zone_id=%s)',
-                                stimulated_emission_term, n_upper, n_lower, self.zone_id)
-
-                C_lu, C_ul = self.atom_data.get_collision_coefficients(atomic_number, ion_number, level_number_lower,
-                                                                       level_number_upper, self.t_electron)
-
-                r_lu = line[
-                           'B_lu'] * cur_beta_sobolev * cur_j_blue * stimulated_emission_term + C_lu * self.electron_density
-                #r_lu = stimulated_emission_term
-
-                r_ul = line['A_ul'] * cur_beta_sobolev + C_ul * self.electron_density
-                #r_ul = line['A_ul'] * cur_beta_sobolev
-                #r_ul = 0.0
-
-                rates_matrix[level_number_upper, level_number_lower] = r_lu
-                rates_matrix[level_number_lower, level_number_upper] = r_ul
-
-                rates_matrix[level_number_lower, level_number_lower] -= r_lu
-                rates_matrix[level_number_upper, level_number_upper] -= r_ul
-
-            print "old_matrix took %s" % (time.time() - start_time)
+                rates_matrix[i, i] = -np.sum(rates_matrix[:, i])
 
             rates_matrix[0] = 1.0
-            rates_matrix2[0] = 1.0
 
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
             relative_level_populations = np.linalg.solve(rates_matrix, x)
-            relative_level_populations2 = np.linalg.solve(rates_matrix2, x)
 
-            1 / 0
             self.level_populations.ix[species] = relative_level_populations * self.ion_number_density.ix[species]
 
+            1 / 0
 
             #Cleaning Level populations
             self.cleaned_levels.ix[species] = 0
