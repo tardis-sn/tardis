@@ -7,7 +7,7 @@ from numpy import testing
 from astropy import units
 
 
-'''def test_atomic_h5_readin():
+def test_atomic_h5_readin():
     data = atomic.read_basic_atom_data()
     assert data['atomic_number'][13] == 14
     assert data['symbol'][13] == "Si"
@@ -24,4 +24,4 @@ def test_ionization_h5_readin():
 def test_atom_levels():
     atom_data = atomic.AtomData.from_hdf5()
     raise Exception('test the atom_data thoroughly')
-    pass'''
+    pass
