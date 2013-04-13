@@ -128,7 +128,8 @@ class LTEPlasma(BasePlasma):
         self.nlte_species = nlte_species
 
 
-    def update_radiationfield(self, t_rad, t_electron=None, n_e_convergence_threshold=0.05, coronal_case=False):
+    def update_radiationfield(self, t_rad, t_electron=None, n_e_convergence_threshold=0.05, coronal_approximation=False,
+                              classical_nebular=False):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -175,7 +176,8 @@ class LTEPlasma(BasePlasma):
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
-        self.calculate_nlte_level_populations(coronal_case=coronal_case)
+        self.calculate_nlte_level_populations(coronal_approximation=coronal_approximation,
+                                              classical_nebular=classical_nebular)
 
         if self.initialize:
             self.initialize = False
@@ -323,7 +325,7 @@ class LTEPlasma(BasePlasma):
             self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_mask])
 
 
-    def calculate_nlte_level_populations(self, coronal_case=False):
+    def calculate_nlte_level_populations(self, coronal_approximation=False, classical_nebular=False):
         """
         Calculating the NLTE level populations for specific ions
 
@@ -334,12 +336,16 @@ class LTEPlasma(BasePlasma):
 
         macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
 
-        if coronal_case:
+        if coronal_approximation:
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
             j_blues = np.zeros_like(self.j_blues)
         else:
             beta_sobolevs = self.beta_sobolevs
             j_blues = self.j_blues
+
+        if classical_nebular:
+            print "setting classical nebular = True"
+            beta_sobolevs[:] = 1.0
 
         for species in self.nlte_species:
             logger.info('Calculating rates for species %s', species)
@@ -365,6 +371,8 @@ class LTEPlasma(BasePlasma):
             stimulated_emission_matrix.ravel()[r_lu_index] = 1 - (level_populations[lnu] * B_uls) / (
                 level_populations[lnl] * B_lus)
 
+            #stimulated_emission_matrix[stimulated_emission_matrix < 0.] = 0.0
+
             r_lu_matrix = np.zeros_like(r_ul_matrix)
             r_lu_matrix.ravel()[r_lu_index] = B_lus * j_blues[lines_index] * beta_sobolevs[lines_index]
             r_lu_matrix *= stimulated_emission_matrix
@@ -385,8 +393,10 @@ class LTEPlasma(BasePlasma):
 
             self.level_populations.ix[species] = relative_level_populations * self.ion_number_density.ix[species]
 
-            1 / 0
+            return
 
+
+"""
             #Cleaning Level populations
             self.cleaned_levels.ix[species] = 0
             self.lowest_cleaned_level = 100000
@@ -418,84 +428,86 @@ class LTEPlasma(BasePlasma):
                 logger.warn('Number of cleaned levels very high %d of %d (zone id=%s, lowest_cleaned_level=%d)',
                             self.cleaned_levels.ix[species],
                             self.level_populations.ix[species].count(), self.zone_id, self.lowest_cleaned_level)
+"""
 
 
-    def calculate_tau_sobolev(self):
-        """
-        This function calculates the Sobolev optical depth :math:`\\tau_\\textrm{Sobolev}`
-
-
-
-        .. math::
-            C_\\textrm{Sobolev} = \\frac{\\pi e^2}{m_e c}
-
-            \\tau_\\textrm{Sobolev} = C_\\textrm{Sobolev}\,  \\lambda\\, f_{\\textrm{lower}\\rightarrow\\textrm{upper}}\\,
-                t_\\textrm{explosion}\, N_\\textrm{lower}
+def calculate_tau_sobolev(self):
+    """
+    This function calculates the Sobolev optical depth :math:`\\tau_\\textrm{Sobolev}`
 
 
 
-        .. note::
-            Currently we're ignoring the term for stimulated emission:
-                :math:`(1 - \\frac{g_\\textrm{lower}}{g_\\textrm{upper}}\\frac{N_\\textrm{upper}}{N_\\textrm{lower}})`
+    .. math::
+        C_\\textrm{Sobolev} = \\frac{\\pi e^2}{m_e c}
+
+        \\tau_\\textrm{Sobolev} = C_\\textrm{Sobolev}\,  \\lambda\\, f_{\\textrm{lower}\\rightarrow\\textrm{upper}}\\,
+            t_\\textrm{explosion}\, N_\\textrm{lower}
 
 
-        """
 
-        f_lu = self.atom_data.lines['f_lu'].values
-        wavelength = self.atom_data.lines['wavelength_cm'].values
-        n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
-        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower
-
-    def calculate_bound_free(self):
-        """
-        :return:
-        """
-        nu_bins = range(1000, 10000, 1000) #TODO: get the binning from the input file.
-        try:
-            bf = np.zeros(len(self.atom_data.levels), len(self.atom_data.selected_atomic_numbers), len(nu_bins))
-        except AttributeError:
-            logger.critical("Err creating the bf array.")
-
-        phis = self.calculate_saha()
-        nnlevel = self.level_populations
-        for nu in nu_bins:
-            for i, (level_id, level) in enumerate(self.atom_data.levels.iterrows()):
-                atomic_number = level.name[0]
-                ion_number = level.name[1]
-                level_number = level.name[2]
-                sigma_bf_th = self.atom_data.ion_cx_th.ix[atomic_number, ion_number, level_number]
-                phi = phis.ix[atomic_number, ion_number]
+    .. note::
+        Currently we're ignoring the term for stimulated emission:
+            :math:`(1 - \\frac{g_\\textrm{lower}}{g_\\textrm{upper}}\\frac{N_\\textrm{upper}}{N_\\textrm{lower}})`
 
 
-    def update_macro_atom(self):
-        """
-            Updating the Macro Atom computations
+    """
 
-        """
+    f_lu = self.atom_data.lines['f_lu'].values
+    wavelength = self.atom_data.lines['wavelength_cm'].values
+    n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
+    self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower
 
-        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values.astype(int)]
 
-        beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
+def calculate_bound_free(self):
+    """
+    :return:
+    """
+    nu_bins = range(1000, 10000, 1000) #TODO: get the binning from the input file.
+    try:
+        bf = np.zeros(len(self.atom_data.levels), len(self.atom_data.selected_atomic_numbers), len(nu_bins))
+    except AttributeError:
+        logger.critical("Err creating the bf array.")
 
-        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
+    phis = self.calculate_saha()
+    nnlevel = self.level_populations
+    for nu in nu_bins:
+        for i, (level_id, level) in enumerate(self.atom_data.levels.iterrows()):
+            atomic_number = level.name[0]
+            ion_number = level.name[1]
+            level_number = level.name[2]
+            sigma_bf_th = self.atom_data.ion_cx_th.ix[atomic_number, ion_number, level_number]
+            phi = phis.ix[atomic_number, ion_number]
 
-        transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * beta_sobolevs
 
-        transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
+def update_macro_atom(self):
+    """
+        Updating the Macro Atom computations
 
-        j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
+    """
 
-        transition_probabilities[transition_up_filter.__array__()] *= j_blues
+    macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values.astype(int)]
 
-        reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
+    beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
 
-        #Normalizing the probabilities
-        #TODO speedup possibility save the new blockreferences with 0 and last block
-        block_references = np.hstack((self.atom_data.macro_atom_references['block_references'],
-                                      len(self.atom_data.macro_atom_data)))
-        macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
+    macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
 
-        return transition_probabilities
+    transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * beta_sobolevs
+
+    transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
+
+    j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
+
+    transition_probabilities[transition_up_filter.__array__()] *= j_blues
+
+    reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
+
+    #Normalizing the probabilities
+    #TODO speedup possibility save the new blockreferences with 0 and last block
+    block_references = np.hstack((self.atom_data.macro_atom_references['block_references'],
+                                  len(self.atom_data.macro_atom_data)))
+    macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
+
+    return transition_probabilities
 
 
 class NebularPlasma(LTEPlasma):
@@ -535,7 +547,8 @@ class NebularPlasma(LTEPlasma):
         self.nlte_species = nlte_species
 
 
-    def update_radiationfield(self, t_rad, w, t_electron=None, n_e_convergence_threshold=0.05, coronal_case=False):
+    def update_radiationfield(self, t_rad, w, t_electron=None, n_e_convergence_threshold=0.05,
+                              coronal_approximation=False, classical_nebular=True):
         BasePlasma.update_radiationfield(self, t_rad)
 
         self.w = w
@@ -569,7 +582,8 @@ class NebularPlasma(LTEPlasma):
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
-        self.calculate_nlte_level_populations(coronal_case=coronal_case)
+        self.calculate_nlte_level_populations(coronal_approximation=coronal_approximation,
+                                              classical_nebular=classical_nebular)
 
         if self.initialize:
             self.initialize = False

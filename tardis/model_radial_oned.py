@@ -232,7 +232,9 @@ class Radial1DModel(object):
                                      ' be "lte" or "detailed"' % (self.plasma_type))
 
                 current_plasma.set_j_blues(j_blues)
-                current_plasma.update_radiationfield(current_t_rad, coronal_case=self.tardis_config.coronal_case)
+                current_plasma.update_radiationfield(current_t_rad,
+                                                     coronal_approximation=self.tardis_config.coronal_approximation,
+                                                     classical_nebular=self.tardis_config.classical_nebular)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
                 self.plasmas.append(current_plasma)
@@ -254,7 +256,8 @@ class Radial1DModel(object):
 
                 current_plasma.set_j_blues(j_blues)
                 current_plasma.update_radiationfield(current_t_rad, current_w,
-                                                     coronal_case=self.tardis_config.coronal_case)
+                                                     coronal_approximation=self.tardis_config.coronal_approximation,
+                                                     classical_nebular=self.tardis_config.classical_nebular)
 
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
@@ -328,7 +331,9 @@ class Radial1DModel(object):
 
                 current_plasma.set_j_blues(j_blues)
 
-                current_plasma.update_radiationfield(new_trad, coronal_case=self.tardis_config.coronal_case)
+                current_plasma.update_radiationfield(new_trad,
+                                                     coronal_approximation=self.tardis_config.coronal_approximation,
+                                                     classical_nebular=self.tardis_config.classical_nebular)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
         elif self.plasma_type == 'nebular':
@@ -347,7 +352,9 @@ class Radial1DModel(object):
 
                 current_plasma.set_j_blues(j_blues)
 
-                current_plasma.update_radiationfield(new_trad, new_ws, coronal_case=self.tardis_config.coronal_case)
+                current_plasma.update_radiationfield(new_trad, new_ws,
+                                                     coronal_approximation=self.tardis_config.coronal_approximation,
+                                                     classical_nebular=self.tardis_config.classical_nebular)
                 self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
         if self.line_interaction_id in (1, 2):
