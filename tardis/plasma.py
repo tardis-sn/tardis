@@ -82,22 +82,29 @@ class BasePlasma(object):
         :return:
         """
 
-        abundance_sum =
+        number_density = pd.Series(index=np.arange(1, 120))
         for symbol in abundance:
-            symbol = reformat_element_symbol(symbol)
+            element_symbol = reformat_element_symbol(symbol)
+            if element_symbol not in atom_data.symbol2atomic_number:
+                raise ValueError('Element %s provided in config unknown' % element_symbol)
 
-            if all(abundances[atomic_number].isnull()):
-                del abundances[atomic_number]
-                continue
-            else:
-                abundances[abundances[atomic_number].isnull()] == 0.0
+            z = atom_data.symbol2atomic_number[element_symbol]
 
-        #normalizing
-        abundances = abundances.divide(abundances.sum(axis=1), axis=0)
-        atom_mass = self.atom_data.atom_data.ix[abundances.columns].mass
-        number_densities = (abundances.mul(self.mean_densities, axis=0)).divide(atom_mass)
+            number_density.ix[z] = abundance[symbol]
 
-        return number_densities
+        number_density = number_density[~number_density.isnull()]
+
+        abundance_sum = number_density.sum()
+
+        if abs(abundance_sum - 1.) > 0.02:
+            logger.warning('Abundances do not sum up to 1 (%g)- normalizing', abundance_sum)
+
+        number_density /= abundance_sum
+
+        number_density *= density
+        number_density /= atom_data.atom_data.mass[number_density.index]
+
+        return number_density
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, t_electron=None, use_macro_atom=False,
