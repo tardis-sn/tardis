@@ -64,16 +64,31 @@ class BasePlasma(object):
         maximum used ionization of atom used in the calculation (inclusive the number)
 
     """
-    #TODO make density a astropy.quantity
-    def __init__(self, abundances, atom_data, time_explosion, density_unit='g/cm^3', max_ion_number=None,
-                 use_macro_atom=False, zone_id=None):
+
+    @classmethod
+    def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, t_electron=None,
+                       use_macro_atom=False, zone_id=None, nlte_species=[]):
+
+
+    def __init__(self, t_rad, w, number_density, atom_data, time_explosion, t_electron=None, use_macro_atom=False,
+                 zone_id=None, nlte_species=[]):
+        self.number_density = number_density
         self.atom_data = atom_data
-        #        self.selected_atoms = self.atom_data.selected_atoms
-        #        self.selected_atomic_numbers = self.atom_data.selected_atomic_numbers
-        self.abundances = abundances
         self.initialize = True
         self.zone_id = zone_id
         self.time_explosion = time_explosion
+        self.update_radiationfield(t_rad, w)
+        self.nlte_species = nlte_species
+
+
+    @property
+    def t_rad(self):
+        return self._t_rad
+
+    @t_rad.setter
+    def t_rad(self, value):
+        self._t_rad = value
+        self._beta_rad = 1 / (constants.k_B.cgs.value * self._t_rad)
 
 
     def validate_atom_data(self):
@@ -83,7 +98,7 @@ class BasePlasma(object):
                 raise ValueError('AtomData incomplete missing')
 
 
-    def update_radiationfield(self, t_rad):
+    def update_radiationfield(self, t_rad, w):
         """
         This functions updates the radiation temperature `t_rad` and calculates the beta_rad
         Parameters
@@ -93,7 +108,7 @@ class BasePlasma(object):
 
         """
         self.t_rad = t_rad
-        self.beta_rad = 1 / (constants.k_B.cgs.value * t_rad)
+        self.w = w
 
 
 class LTEPlasma(BasePlasma):
@@ -119,9 +134,9 @@ class LTEPlasma(BasePlasma):
 
     """
 
-    def __init__(self, abundances, atom_data, time_explosion, max_ion_number=None,
-                 use_macro_atom=False, nlte_species=[], zone_id=None):
-        BasePlasma.__init__(self, abundances, atom_data, time_explosion,
+    def __init__(self, number_density, atom_data, time_explosion, max_ion_number=None,
+                 use_macro_atom=False, zone_id=None):
+        BasePlasma.__init__(self, number_density, atom_data, time_explosion,
                             max_ion_number=max_ion_number, use_macro_atom=use_macro_atom, zone_id=zone_id)
 
         self.ion_number_density = None
@@ -160,7 +175,7 @@ class LTEPlasma(BasePlasma):
         phis = self.calculate_saha()
 
         #initialize electron density with the sum of number densities
-        electron_density = self.abundances.sum()
+        electron_density = self.number_density.sum()
 
         n_e_iterations = 0
 
@@ -292,7 +307,7 @@ class LTEPlasma(BasePlasma):
             current_phis = groups.values / electron_density
             phis_product = np.cumproduct(current_phis)
 
-            neutral_atom_density = self.abundances.ix[atomic_number] / (1 + np.sum(phis_product))
+            neutral_atom_density = self.number_density.ix[atomic_number] / (1 + np.sum(phis_product))
             ion_densities = [neutral_atom_density] + list(neutral_atom_density * phis_product)
 
             self.ion_number_density.ix[atomic_number] = ion_densities
@@ -536,10 +551,11 @@ class NebularPlasma(LTEPlasma):
 
     """
 
-    def __init__(self, abundances, atom_data, time_explosion, nlte_species=[], t_electron=None, density_unit='g/cm^3',
+    def __init__(self, number_density, atom_data, time_explosion, nlte_species=[], t_electron=None,
+                 density_unit='g/cm^3',
                  max_ion_number=None,
                  use_macro_atom=False, zone_id=None):
-        BasePlasma.__init__(self, abundances, atom_data, time_explosion=time_explosion, density_unit=density_unit,
+        BasePlasma.__init__(self, number_density, atom_data, time_explosion=time_explosion, density_unit=density_unit,
                             max_ion_number=max_ion_number,
                             use_macro_atom=use_macro_atom, zone_id=zone_id)
 
@@ -565,7 +581,7 @@ class NebularPlasma(LTEPlasma):
         phis = self.calculate_saha()
 
         #initialize electron density with the sum of number densities
-        electron_density = self.abundances.sum()
+        electron_density = self.number_density.sum()
 
         n_e_iterations = 0
 
