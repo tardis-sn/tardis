@@ -1,17 +1,16 @@
 #Calculations of the Plasma conditions
 
-#import constants
+
 import numpy as np
 import logging
-from astropy import table, units, constants
-
-from pandas import DataFrame, Series, Index, lib as pdlib
+from astropy import constants
 import pandas as pd
-
 import macro_atom
 
+from .config_reader import reformat_element_symbol
+
 logger = logging.getLogger(__name__)
-import pdb
+
 
 
 
@@ -68,6 +67,37 @@ class BasePlasma(object):
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, t_electron=None,
                        use_macro_atom=False, zone_id=None, nlte_species=[]):
+        """
+        :param cls:
+        :param t_rad:
+        :param w:
+        :param abundance:
+        :param density:
+        :param atom_data:
+        :param time_explosion:
+        :param t_electron:
+        :param use_macro_atom:
+        :param zone_id:
+        :param nlte_species:
+        :return:
+        """
+
+        abundance_sum =
+        for symbol in abundance:
+            symbol = reformat_element_symbol(symbol)
+
+            if all(abundances[atomic_number].isnull()):
+                del abundances[atomic_number]
+                continue
+            else:
+                abundances[abundances[atomic_number].isnull()] == 0.0
+
+        #normalizing
+        abundances = abundances.divide(abundances.sum(axis=1), axis=0)
+        atom_mass = self.atom_data.atom_data.ix[abundances.columns].mass
+        number_densities = (abundances.mul(self.mean_densities, axis=0)).divide(atom_mass)
+
+        return number_densities
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, t_electron=None, use_macro_atom=False,
@@ -238,8 +268,8 @@ class LTEPlasma(BasePlasma):
             self.partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
                 group_calculate_partition_function)
 
-            self.atom_data.atom_ion_index = Series(np.arange(len(self.partition_functions)),
-                                                   self.partition_functions.index)
+            self.atom_data.atom_ion_index = pd.Series(np.arange(len(self.partition_functions)),
+                                                      self.partition_functions.index)
             self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
                 self.atom_data.levels.index.droplevel(2)].values
         else:
@@ -276,7 +306,7 @@ class LTEPlasma(BasePlasma):
 
         phis = self.partition_functions.groupby(level='atomic_number').apply(calculate_phis)
 
-        phis = Series(phis.values, phis.index.droplevel(0))
+        phis = pd.Series(phis.values, phis.index.droplevel(0))
 
         phis *= self.ge * np.exp(-self.beta_rad * self.atom_data.ionization_data.ix[phis.index]['ionization_energy'])
 
@@ -333,10 +363,10 @@ class LTEPlasma(BasePlasma):
         level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
 
         if self.initialize:
-            self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
+            self.level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
 
         else:
-            level_populations = Series(level_populations, index=self.atom_data.levels.index)
+            level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
             self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_mask])
 
 
@@ -642,8 +672,8 @@ class NebularPlasma(LTEPlasma):
             self.partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
                 group_calculate_partition_function)
 
-            self.atom_data.atom_ion_index = Series(np.arange(len(self.partition_functions)),
-                                                   self.partition_functions.index)
+            self.atom_data.atom_ion_index = pd.Series(np.arange(len(self.partition_functions)),
+                                                      self.partition_functions.index)
             self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
                 self.atom_data.levels.index.droplevel(2)].values
         else:
@@ -691,7 +721,7 @@ class NebularPlasma(LTEPlasma):
 
         delta = self.calculate_radiation_field_correction()
 
-        zeta = Series(index=phis.index)
+        zeta = pd.Series(index=phis.index)
 
         for idx in zeta.index:
             try:
@@ -799,10 +829,10 @@ class NebularPlasma(LTEPlasma):
         level_populations[~self.atom_data.levels['metastable']] *= self.w
 
         if self.initialize:
-            self.level_populations = Series(level_populations, index=self.atom_data.levels.index)
+            self.level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
 
         else:
-            level_populations = Series(level_populations, index=self.atom_data.levels.index)
+            level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
             self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_mask])
 
 
