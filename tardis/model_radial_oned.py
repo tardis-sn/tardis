@@ -275,7 +275,7 @@ class Radial1DModel(object):
         self.transition_probabilities = []
 
         for current_plasma in self.plasmas:
-            self.transition_probabilities.append(current_plasma.update_macro_atom().values)
+            self.transition_probabilities.append(current_plasma.calculate_transition_probabilities().values)
 
         self.transition_probabilities = np.array(self.transition_probabilities, dtype=np.float64)
 
