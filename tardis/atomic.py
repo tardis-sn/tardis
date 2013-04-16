@@ -543,7 +543,8 @@ class NLTEData(object):
         self.nlte_species = nlte_species
         self._init_indices()
         self._create_nlte_mask()
-        self._create_collision_coefficient_matrix()
+        if atom_data.has_collision_data:
+            self._create_collision_coefficient_matrix()
 
 
     def _init_indices(self):

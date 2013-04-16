@@ -521,20 +521,7 @@ class TardisConfiguration(object):
 
         ##### NLTE Section #####
 
-        nlte_section = yaml_dict.pop('nlte', None)
-        if nlte_section is None:
-            config_dict['coronal_approximation'] = False
-            config_dict['classical_nebular'] = False
-        else:
-            config_dict['coronal_approximation'] = nlte_section['coronal_approximation']
-            config_dict['classical_nebular'] = nlte_section['classical_nebular']
-
-            if config_dict['coronal_approximation']:
-                logger.warn(
-                    'Using the coronal approximation - this is only for debuggging (j_blues=0.0 and beta_sobolevs=1.0)')
-
-            if config_dict['classical_nebular']:
-                logger.warn('Using classical nebular is for debugging only (beta_sobolevs=1.0)')
+        config_dict['nlte_options'] = yaml_dict.pop('nlte', {})
 
 
 

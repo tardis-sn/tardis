@@ -6,7 +6,7 @@ import logging
 from astropy import constants
 import pandas as pd
 import macro_atom
-
+import pdb
 from .config_reader import reformat_element_symbol
 
 logger = logging.getLogger(__name__)
@@ -65,7 +65,7 @@ class BasePlasma(object):
     """
 
     @classmethod
-    def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, t_electron=None,
+    def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
                        use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
         """
         :param cls:
@@ -104,9 +104,9 @@ class BasePlasma(object):
         number_density *= density
         number_density /= atom_data.atom_data.mass[number_density.index]
 
-        return cls(t_rad=t_rad, w=w, number_density=number_density, atom_data=atom_data, time_explosion=time_explosion,
-                   t_electron=t_electron, use_macro_atom=use_macro_atom, zone_id=zone_id, nlte_species=nlte_species,
-                   nlte_options=nlte_options, saha_treatment=saha_treatment)
+        return cls(t_rad=t_rad, w=w, number_density=number_density, atom_data=atom_data, j_blues=j_blues,
+                   time_explosion=time_explosion, t_electron=t_electron, use_macro_atom=use_macro_atom, zone_id=zone_id,
+                   nlte_species=nlte_species, nlte_options=nlte_options, saha_treatment=saha_treatment)
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
@@ -162,7 +162,7 @@ class BasePlasma(object):
             self.link_t_rad_electron = 0.9
             self._t_electron = None
         else:
-            self._t_electron = self.link_t_rad_electron * self.trad
+            self._t_electron = value
 
         self.beta_electron = 1 / (constants.k_B.cgs.value * self.t_electron)
 
@@ -544,10 +544,10 @@ class BasePlasma(object):
             r_ul_matrix.ravel()[r_ul_index] *= beta_sobolevs[lines_index]
 
             stimulated_emission_matrix = np.zeros_like(r_ul_matrix)
-            stimulated_emission_matrix.ravel()[r_lu_index] = 1 - (level_populations[lnu] * B_uls) / (
-                level_populations[lnl] * B_lus)
+            stimulated_emission_matrix.ravel()[r_lu_index] = 1 - ((level_populations[lnu] * B_uls) / (
+                level_populations[lnl] * B_lus))
 
-            #stimulated_emission_matrix[stimulated_emission_matrix < 0.] = 0.0
+            stimulated_emission_matrix[stimulated_emission_matrix < 0.] = 0.0
 
             r_lu_matrix = np.zeros_like(r_ul_matrix)
             r_lu_matrix.ravel()[r_lu_index] = B_lus * j_blues[lines_index] * beta_sobolevs[lines_index]
@@ -651,17 +651,18 @@ class LTEPlasma(BasePlasma):
     """
 
     @classmethod
-    def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, t_electron=None,
+    def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
                        use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None):
         return super(LTEPlasma, cls).from_abundance(t_rad, 1., abundance, density, atom_data, time_explosion,
-                                                    t_electron=t_electron, use_macro_atom=use_macro_atom,
-                                                    nlte_species=nlte_species, nlte_options=nlte_options,
-                                                    zone_id=zone_id)
+                                                    j_blues=j_blues, t_electron=t_electron,
+                                                    use_macro_atom=use_macro_atom, nlte_species=nlte_species,
+                                                    nlte_options=nlte_options, zone_id=zone_id)
 
-    def __init__(self, t_rad, number_density, atom_data, time_explosion, w=1., t_electron=None, use_macro_atom=False,
+    def __init__(self, t_rad, number_density, atom_data, time_explosion, w=1., j_blues=None, t_electron=None,
+                 use_macro_atom=False,
                  nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='lte'):
-        super(LTEPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, t_electron=t_electron,
-                                        use_macro_atom=use_macro_atom, nlte_species=nlte_species,
+        super(LTEPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
+                                        t_electron=t_electron, use_macro_atom=use_macro_atom, nlte_species=nlte_species,
                                         nlte_options=nlte_options, zone_id=zone_id, saha_treatment=saha_treatment)
 
 
@@ -691,11 +692,13 @@ class NebularPlasma(BasePlasma):
 
     """
 
-    def __init__(self, t_rad, w, number_density, atom_data, time_explosion, t_electron=None, use_macro_atom=False,
+    def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
+                 use_macro_atom=False,
                  nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='lte'):
-        super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, t_electron=t_electron,
-                                            use_macro_atom=use_macro_atom, nlte_species=nlte_species,
-                                            nlte_options=nlte_options, zone_id=zone_id, saha_treatment=saha_treatment)
+        super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
+                                            t_electron=t_electron, use_macro_atom=use_macro_atom,
+                                            nlte_species=nlte_species, nlte_options=nlte_options, zone_id=zone_id,
+                                            saha_treatment=saha_treatment)
 
 
 
