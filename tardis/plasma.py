@@ -329,7 +329,7 @@ class BasePlasma(object):
 
         """
 
-        phis = super(NebularPlasma, self).calculate_saha()
+        phis = self.calculate_saha_lte()
 
         delta = self.calculate_radiation_field_correction()
 
