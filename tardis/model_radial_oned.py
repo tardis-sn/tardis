@@ -22,7 +22,7 @@ kb = constants.k_B.cgs.value
 
 w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
 
-synpp_default_yaml = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
+synpp_default_yaml_fname = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
 
 
 class Radial1DModel(object):
@@ -121,7 +121,7 @@ class Radial1DModel(object):
         self.radiative_rates_type = tardis_config.radiative_rates_type
         if self.plasma_type == 'lte':
             plasma_class = plasma.LTEPlasma
-            if tardis_config.ws is not None:
+            if hasattr(tardis_config, 'ws') and tardis_config.ws is not None:
                 raise ValueError(
                     "the dilution factor W ('ws') can only be specified when selecting plasma_type='nebular'")
 
@@ -146,7 +146,10 @@ class Radial1DModel(object):
 
 
         #setting dilution factors
-        self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
+        if self.plasma_type == 'lte':
+            self.ws = np.ones_like(self.r_middle)
+        else:
+            self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
 
         #initializing temperatures
 
@@ -218,50 +221,26 @@ class Radial1DModel(object):
         else:
             logger.info('Scattering selected - no transition probabilities created')
 
-        if self.plasma_type == 'lte':
-            for i, ((tmp_index, current_abundances), current_t_rad) in \
-                enumerate(zip(self.number_densities.iterrows(), self.t_rads)):
-                current_plasma = plasma_class(current_abundances, self.atom_data, self.time_explosion,
-                                              nlte_species=self.tardis_config.nlte_species, zone_id=i)
-                logger.debug('Initializing Shell %d Plasma with T=%.3f' % (i, current_t_rad))
-                if self.radiative_rates_type in ('lte', 'detailed'):
-                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
-                    current_plasma.set_j_blues(j_blues)
-                else:
-                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
-                                     ' be "lte" or "detailed"' % (self.plasma_type))
+        for i, ((tmp_index, number_density), current_t_rad, current_w) in \
+            enumerate(zip(self.number_densities.iterrows(), self.t_rads, self.ws)):
 
-                current_plasma.set_j_blues(j_blues)
-                current_plasma.update_radiationfield(current_t_rad,
-                                                     coronal_approximation=self.tardis_config.coronal_approximation,
-                                                     classical_nebular=self.tardis_config.classical_nebular)
-                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
+            logger.debug('Initializing Shell %d Plasma with T=%.3f W=%.4f' % (i, current_t_rad, current_w))
+            if self.radiative_rates_type in ('lte',):
+                j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
+            elif self.radiative_rates_type in ('nebular', 'detailed'):
+                j_blues = current_w * plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
+            else:
+                raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
+                                 ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
 
-                self.plasmas.append(current_plasma)
+            current_plasma = plasma_class(t_rad=current_t_rad, w=current_w, number_density=number_density,
+                                          atom_data=self.atom_data, time_explosion=self.time_explosion,
+                                          nlte_species=self.tardis_config.nlte_species,
+                                          nlte_options=self.tardis_config.nlte_options, zone_id=i, j_blues=j_blues)
 
+            self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
-        elif self.plasma_type == 'nebular':
-            for i, ((tmp_index, current_abundances), current_t_rad, current_w) in \
-                enumerate(zip(self.number_densities.iterrows(), self.t_rads, self.ws)):
-                current_plasma = plasma_class(current_abundances, self.atom_data, self.time_explosion,
-                                              nlte_species=self.tardis_config.nlte_species, zone_id=i)
-                logger.debug('Initializing Shell %d Plasma with T=%.3f W=%.4f' % (i, current_t_rad, current_w))
-                if self.radiative_rates_type in ('lte',):
-                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
-                elif self.radiative_rates_type in ('nebular', 'detailed'):
-                    j_blues = current_w * plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
-                else:
-                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
-                                     ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
-
-                current_plasma.set_j_blues(j_blues)
-                current_plasma.update_radiationfield(current_t_rad, current_w,
-                                                     coronal_approximation=self.tardis_config.coronal_approximation,
-                                                     classical_nebular=self.tardis_config.classical_nebular)
-
-                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
-
-                self.plasmas.append(current_plasma)
+            self.plasmas.append(current_plasma)
 
         self.tau_sobolevs = np.array(self.tau_sobolevs, dtype=float)
         self.j_blues = np.zeros_like(self.tau_sobolevs)
@@ -318,44 +297,24 @@ class Radial1DModel(object):
                                                                                                               i].t_rad)
 
     def update_plasmas(self):
-        if self.plasma_type == 'lte':
-            for i, (current_plasma, new_trad) in enumerate(zip(self.plasmas, self.t_rads)):
-                logger.debug('Updating Shell %d Plasma with T=%.3f' % (i, new_trad))
-                if self.radiative_rates_type == 'lte':
-                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
-                elif self.radiative_rates_type == 'detailed':
-                    j_blues = self.j_blues[i]
-                else:
-                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
-                                     ' be "lte" or "detailed"' % (self.plasma_type))
+        for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
+            logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, new_trad, new_ws))
+            if self.radiative_rates_type == 'lte':
+                j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
+            elif self.radiative_rates_type == 'nebular':
+                j_blues = new_ws * plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
 
-                current_plasma.set_j_blues(j_blues)
+            elif self.radiative_rates_type == 'detailed':
+                j_blues = self.j_blues[i]
+            else:
+                raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
+                                 ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
 
-                current_plasma.update_radiationfield(new_trad,
-                                                     coronal_approximation=self.tardis_config.coronal_approximation,
-                                                     classical_nebular=self.tardis_config.classical_nebular)
-                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
-
-        elif self.plasma_type == 'nebular':
-            for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
-                logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, new_trad, new_ws))
-                if self.radiative_rates_type == 'lte':
-                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
-                elif self.radiative_rates_type == 'nebular':
-                    j_blues = new_ws * plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
-
-                elif self.radiative_rates_type == 'detailed':
-                    j_blues = self.j_blues[i]
-                else:
-                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
-                                     ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
-
-                current_plasma.set_j_blues(j_blues)
-
-                current_plasma.update_radiationfield(new_trad, new_ws,
-                                                     coronal_approximation=self.tardis_config.coronal_approximation,
-                                                     classical_nebular=self.tardis_config.classical_nebular)
-                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
+            current_plasma.set_j_blues(j_blues)
+            if self.plasma_type == 'lte':
+                new_ws = 1.0
+            current_plasma.update_radiationfield(new_trad, w=new_ws)
+            self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
         if self.line_interaction_id in (1, 2):
             self.calculate_transition_probabilities()
@@ -461,6 +420,7 @@ class Radial1DModel(object):
 
 
     def create_synpp_yaml(self, fname, lines_db=None):
+        logger.warning('Currently only works with Si and a special setup')
         if not self.atom_data.has_synpp_refs:
             raise ValueError(
                 'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
@@ -476,14 +436,21 @@ class Radial1DModel(object):
 
         relevant_synpp_refs = self.atom_data.synpp_refs[self.atom_data.synpp_refs['ref_log_tau'] > -50]
 
-        yaml_reference = yaml.load(file(synpp_default_yaml))
+        yaml_reference = yaml.load(file(synpp_default_yaml_fname))
 
         if lines_db is not None:
             yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'lines')
             yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'refs.dat')
 
-        yaml_setup = yaml_reference['setups'][0]
+        yaml_reference['output']['min_wl'] = float(self.spec_angstrom.min())
+        yaml_reference['output']['max_wl'] = float(self.spec_angstrom.max())
 
+        yaml_reference['opacity']['v_ref'] = float(self.v_inner[0] / 1e8)
+        yaml_reference['grid']['v_outer_max'] = float(self.v_outer[-1] / 1e8)
+
+        #pdb.set_trace()
+
+        yaml_setup = yaml_reference['setups'][0]
         yaml_setup['ions'] = []
         yaml_setup['log_tau'] = []
         yaml_setup['active'] = []
@@ -501,7 +468,8 @@ class Radial1DModel(object):
             yaml_setup['v_max'].append(yaml_reference['grid']['v_outer_max'])
             yaml_setup['aux'].append(1e200)
 
-        yaml.dump(yaml_reference, file(fname, 'w'))
+        yaml.dump(yaml_reference, stream=file(fname, 'w'), explicit_start=True)
+
 
     def plot_spectrum(self, ax=None, mode='wavelength', virtual=True):
         if ax is None:
