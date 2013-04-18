@@ -203,7 +203,13 @@ class BasePlasma(object):
             self.calculate_ion_populations(phis)
             ion_numbers = np.array([item[1] for item in self.ion_populations.index])
             new_electron_density = np.sum(self.ion_populations.values * ion_numbers)
+            if np.isnan(new_electron_density):
+                raise PlasmaException('electron density just turned "nan" - aborting')
+
             n_e_iterations += 1
+            if n_e_iterations > 100:
+                logger.warn('electron density iterations above 100 (%d) - something is probably wrong', n_e_iterations)
+
             if abs(
                             new_electron_density - self.electron_density) / self.electron_density < n_e_convergence_threshold: break
             self.electron_density = 0.5 * (new_electron_density + self.electron_density)
