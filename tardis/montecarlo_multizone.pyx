@@ -374,7 +374,7 @@ cdef float_type_t move_packet(float_type_t*r,
 cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*current_nu, float_type_t*current_energy,
                                      float_type_t*mu, float_type_t*r, float_type_t d_line, int_type_t j_blue_idx,
                                      StorageModel storage):
-    cdef float_type_t comov_energy, r_interaction, mu_interaction, distance, doppler_factor
+    cdef float_type_t comov_energy, comov_nu, r_interaction, mu_interaction, distance, doppler_factor
 
     distance = d_line
 
@@ -384,6 +384,8 @@ cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*cu
     doppler_factor = (1 - (mu_interaction * r_interaction * storage.inverse_time_explosion * inverse_c))
 
     comov_energy = current_energy[0] * doppler_factor
+    comov_nu = current_nu[0] * doppler_factor
+
     storage.line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
     #print "incrementing j_blues = %g" % storage.line_lists_j_blues[j_blue_idx]
 
@@ -522,6 +524,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
         #linelists
         current_line_id = binary_search(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines)
+
         if current_line_id == storage.no_of_lines:
             #setting flag that the packet is off the red end of the line list
             last_line = 1
