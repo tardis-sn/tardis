@@ -6,6 +6,7 @@ import logging
 import pylab
 
 import pandas as pd
+from pandas.io.pytables import HDFStore
 from astropy import constants, units
 import montecarlo_multizone
 import os
@@ -499,14 +500,25 @@ class ModelHistory(object):
     """
     Records the history of the model
     """
+    _store_attributes = ['t_rads', 'ws', 'electron_density', 'j_blues', 'tau_sobolevs']
 
-    def __init__(self, tardis_config):
-        self.t_rads = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        self.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        self.electron_density = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        self.level_populations = {}
-        self.j_blues = {}
-        self.tau_sobolevs = {}
+    @classmethod
+    def from_hdf5(cls, fname):
+        history_store = HDFStore(fname)
+        for attribute in cls._store_attributes:
+            setattr(cls, attribute, history_store[attribute])
+        history_store.close()
+
+    @classmethod
+    def from_tardis_config(cls, tardis_config):
+        history = cls()
+        history.t_rads = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        history.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        history.electron_density = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        history.level_populations = {}
+        history.j_blues = {}
+        history.tau_sobolevs = {}
+        return history
 
 
     def store_all(self, radial1d_mdl, iteration):
@@ -532,5 +544,13 @@ class ModelHistory(object):
         self.level_populations = pd.Panel.from_dict(self.level_populations)
         self.j_blues = pd.Panel.from_dict(self.j_blues)
         self.tau_sobolevs = pd.Panel.from_dict(self.tau_sobolevs)
+
+    def to_hdf5(self, fname, complevel=9, complib='bzip2'):
+        if os.path.exists(fname):
+            logger.warning('Overwrite %s with current history', fname)
+        history_store = HDFStore(fname, mode='w', complevel=complevel, complib=complib)
+        for attribute in self._store_attributes:
+            history_store[attribute] = getattr(self, attribute)
+        history_store.close()
 
 
