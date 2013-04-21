@@ -203,7 +203,13 @@ class BasePlasma(object):
             self.calculate_ion_populations(phis)
             ion_numbers = np.array([item[1] for item in self.ion_populations.index])
             new_electron_density = np.sum(self.ion_populations.values * ion_numbers)
+            if np.isnan(new_electron_density):
+                raise PlasmaException('electron density just turned "nan" - aborting')
+
             n_e_iterations += 1
+            if n_e_iterations > 100:
+                logger.warn('electron density iterations above 100 (%d) - something is probably wrong', n_e_iterations)
+
             if abs(
                             new_electron_density - self.electron_density) / self.electron_density < n_e_convergence_threshold: break
             self.electron_density = 0.5 * (new_electron_density + self.electron_density)
@@ -329,7 +335,7 @@ class BasePlasma(object):
 
         """
 
-        phis = super(NebularPlasma, self).calculate_saha()
+        phis = self.calculate_saha_lte()
 
         delta = self.calculate_radiation_field_correction()
 
@@ -590,14 +596,13 @@ class BasePlasma(object):
 
         transition_probabilities[transition_up_filter.__array__()] *= j_blues
 
-        reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
+        #reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
 
         #Normalizing the probabilities
         #TODO speedup possibility save the new blockreferences with 0 and last block
         block_references = np.hstack((self.atom_data.macro_atom_references['block_references'],
                                       len(self.atom_data.macro_atom_data)))
         macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
-
         return transition_probabilities
 
     def set_j_blues(self, j_blues=None):
@@ -694,7 +699,7 @@ class NebularPlasma(BasePlasma):
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
                  use_macro_atom=False,
-                 nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='lte'):
+                 nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='nebular'):
         super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
                                             t_electron=t_electron, use_macro_atom=use_macro_atom,
                                             nlte_species=nlte_species, nlte_options=nlte_options, zone_id=zone_id,

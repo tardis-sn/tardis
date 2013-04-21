@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_radial1d(radial1d_model, save_history=None):
+    #while True:
     for i in xrange(radial1d_model.iterations - 1):
         logger.info('At run %d of %d', i + 1, radial1d_model.iterations)
         radial1d_model.simulate()        #spec_nu_flux = np.histogram(out_nu, weights=out_energy, bins=radial1d_model.spec_virt_nu)
