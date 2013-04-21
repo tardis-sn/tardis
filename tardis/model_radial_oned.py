@@ -510,41 +510,68 @@ class ModelHistory(object):
         history_store.close()
 
     @classmethod
-    def from_tardis_config(cls, tardis_config):
+    def from_tardis_config(cls, tardis_config, store_t_rads=False, store_ws=False, store_electron_density=False,
+                           store_level_populations=False, store_j_blues=False, store_tau_sobolevs=False):
         history = cls()
-        history.t_rads = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        history.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        history.electron_density = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        #history.level_populations = {}
-        #history.j_blues = {}
-        #history.tau_sobolevs = {}
+        cls.store_t_rads = store_t_rads
+        cls.store_ws = store_ws
+        cls.store_electron_density = store_electron_density
+        cls.store_level_populations = store_level_populations
+        cls.store_j_blues = store_j_blues
+        cls.store_tau_sobolves = store_tau_sobolevs
+
+        if store_t_rads:
+            history.t_rads = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        if store_ws:
+            history.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        if store_electron_density:
+            history.electron_density = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
+        if store_level_populations:
+            history.level_populations = {}
+        if store_j_blues:
+            history.j_blues = {}
+        if store_tau_sobolevs:
+            history.tau_sobolevs = {}
+
         return history
 
 
-    def store_all(self, radial1d_mdl, iteration):
-        self.t_rads['iter%03d' % iteration] = radial1d_mdl.t_rads
-        self.ws['iter%03d' % iteration] = radial1d_mdl.ws
-        self.electron_density['iter%03d' % iteration] = radial1d_mdl.electron_density
+    def store(self, radial1d_mdl, iteration):
+        if self.store_t_rads:
+            self.t_rads['iter%03d' % iteration] = radial1d_mdl.t_rads
+        if self.store_ws:
+            self.ws['iter%03d' % iteration] = radial1d_mdl.ws
+        if self.store_electron_density:
+            self.electron_density['iter%03d' % iteration] = radial1d_mdl.electron_density
 
-        #current_ion_populations = pd.DataFrame(index=radial1d_mdl.atom_data.)
-#        current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
-#        current_j_blues = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
-#        current_tau_sobolevs = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
-#        for i, plasma in enumerate(radial1d_mdl.plasmas):
-#            current_level_populations[i] = plasma.level_populations
-#            current_j_blues[i] = plasma.j_blues
-#            current_tau_sobolevs[i] = plasma.tau_sobolevs
-
- #       self.level_populations['iter%03d' % iteration] = current_level_populations.copy()
- #       self.j_blues['iter%03d' % iteration] = current_j_blues.copy()
- #       self.tau_sobolevs['iter%03d' % iteration] = current_tau_sobolevs.copy()
+        if self.store_level_populations:
+            current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
+        if self.store_j_blues:
+            current_j_blues = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
+        if self.store_tau_sobolves:
+            current_tau_sobolevs = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
+        for i, plasma in enumerate(radial1d_mdl.plasmas):
+            if self.store_level_populations:
+                current_level_populations[i] = plasma.level_populations
+            if self.store_j_blues:
+                current_j_blues[i] = plasma.j_blues
+            if self.store_tau_sobolves:
+                current_tau_sobolevs[i] = plasma.tau_sobolevs
+        if self.store_level_populations:
+            self.level_populations['iter%03d' % iteration] = current_level_populations.copy()
+        if self.store_j_blues:
+            self.j_blues['iter%03d' % iteration] = current_j_blues.copy()
+        if self.store_tau_sobolves:
+            self.tau_sobolevs['iter%03d' % iteration] = current_tau_sobolevs.copy()
 
 
     def finalize(self):
-        pass
-        #self.level_populations = pd.Panel.from_dict(self.level_populations)
-        #self.j_blues = pd.Panel.from_dict(self.j_blues)
-        #self.tau_sobolevs = pd.Panel.from_dict(self.tau_sobolevs)
+        if self.store_level_populations:
+            self.level_populations = pd.Panel.from_dict(self.level_populations)
+        if self.store_j_blues:
+            self.j_blues = pd.Panel.from_dict(self.j_blues)
+        if self.store_tau_sobolves:
+            self.tau_sobolevs = pd.Panel.from_dict(self.tau_sobolevs)
 
     def to_hdf5(self, fname, complevel=9, complib='bzip2'):
         if os.path.exists(fname):
