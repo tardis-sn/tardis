@@ -596,14 +596,13 @@ class BasePlasma(object):
 
         transition_probabilities[transition_up_filter.__array__()] *= j_blues
 
-        reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
+        #reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
 
         #Normalizing the probabilities
         #TODO speedup possibility save the new blockreferences with 0 and last block
         block_references = np.hstack((self.atom_data.macro_atom_references['block_references'],
                                       len(self.atom_data.macro_atom_data)))
         macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
-
         return transition_probabilities
 
     def set_j_blues(self, j_blues=None):
