@@ -329,7 +329,7 @@ class BasePlasma(object):
 
         """
 
-        phis = super(NebularPlasma, self).calculate_saha()
+        phis = self.calculate_saha_lte()
 
         delta = self.calculate_radiation_field_correction()
 
@@ -694,7 +694,7 @@ class NebularPlasma(BasePlasma):
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
                  use_macro_atom=False,
-                 nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='lte'):
+                 nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='nebular'):
         super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
                                             t_electron=t_electron, use_macro_atom=use_macro_atom,
                                             nlte_species=nlte_species, nlte_options=nlte_options, zone_id=zone_id,
