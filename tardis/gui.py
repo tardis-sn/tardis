@@ -53,6 +53,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
             return None
         return (self.arraydata[index.column()][index.row()])
 
+# assumes that qt has already been initialized in ipython with "%gui qt"s
 app = QtCore.QCoreApplication.instance()
 if app is None:
     app = QtGui.QApplication([])
