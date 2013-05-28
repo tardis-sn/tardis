@@ -41,10 +41,10 @@ class MyTableModel(QtCore.QAbstractTableModel):
         self.arraydata.append(datain)
 
     def rowCount(self, parent):
-        return len(self.arraydata)
+        return len(self.arraydata[0])
 
     def columnCount(self, parent):
-        return len(self.arraydata[0])
+        return len(self.arraydata)
 
     def data(self, index, role):
         if not index.isValid():
