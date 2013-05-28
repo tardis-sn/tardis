@@ -2,13 +2,27 @@ import sys
 from PyQt4 import QtGui, QtCore
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
+import numpy
 
 class ModelViewer(QtGui.QWidget):
     def __init__(self, parent=None):
+
+        # assumes that qt has already been initialized in ipython with "%gui qt"
+        app = QtCore.QCoreApplication.instance()
+        if app is None:
+            app = QtGui.QApplication([])
+
+        try:
+            from IPython.lib.guisupport import start_event_loop_qt4
+            start_event_loop_qt4(app)
+        except ImportError:
+            app.exec_()
+
         QtGui.QWidget.__init__(self, parent)
 
         self.setGeometry(300, 300, 400, 300)
         self.setWindowTitle('Data Table')
+        self.tablemodel = ModelViewer(self)
 
         # quit = QtGui.QPushButton('Close', self)
         # quit.setGeometry(10, 10, 60, 35)
@@ -21,13 +35,13 @@ class ModelViewer(QtGui.QWidget):
         :param Radial1DModel: object with attribute t_rads,
         :return: Affective method, opens window to display table
         """
-        tablemodel = MyTableModel(self)
-        tablemodel.add_data(model)
-        tableview = QtGui.QTableView()
-        tableview.setModel(tablemodel)
+
+        self.tablemodel.add_data(model)
+        self.tableview = QtGui.QTableView()
+        self.tableview.setModel(self.tablemodel)
 
         layout = QtGui.QVBoxLayout(self)
-        layout.addWidget(tableview)
+        layout.addWidget(self.tableview)
         self.setLayout(layout)
 
         self.show()
@@ -38,7 +52,11 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
     def add_data(self, datain):
         self.arraydata = []
-        self.arraydata.append(datain)
+        data = list(datain)
+        if type((data)[0]) == numpy.float64:
+            for index, item in enumerate(data):
+                data[index] = float(item)
+        self.arraydata.append(data)
 
     def rowCount(self, parent):
         return len(self.arraydata[0])
@@ -53,17 +71,6 @@ class MyTableModel(QtCore.QAbstractTableModel):
             return None
         return (self.arraydata[index.column()][index.row()])
 
-# assumes that qt has already been initialized in ipython with "%gui qt"s
-app = QtCore.QCoreApplication.instance()
-if app is None:
-    app = QtGui.QApplication([])
-
-try:
-    from IPython.lib.guisupport import start_event_loop_qt4
-    start_event_loop_qt4(app)
-except ImportError:
-    app.exec_()
-
 if __name__ == '__main__':
     mdl = ModelViewer()
-    mdl.show_model([1, 2, 3])
+    mdl.show_model([numpy.float64(17126371.28374891624), numpy.float64(21276.89398667946923698464694), numpy.float64(3893164.141592654)])
