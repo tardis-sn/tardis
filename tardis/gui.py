@@ -7,7 +7,7 @@ class ModelViewer(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
-        self.setGeometry(300, 300, 400, 180)
+        self.setGeometry(300, 300, 400, 300)
         self.setWindowTitle('Data Table')
 
         # quit = QtGui.QPushButton('Close', self)
@@ -51,7 +51,7 @@ class MyTableModel(QtCore.QAbstractTableModel):
             return None
         elif role != QtCore.Qt.DisplayRole:
             return None
-        return (self.arraydata[index.row()][index.column()])
+        return (self.arraydata[index.column()][index.row()])
 
 app = QtCore.QCoreApplication.instance()
 if app is None:
