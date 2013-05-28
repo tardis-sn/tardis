@@ -7,7 +7,7 @@ class ModelViewer(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
-        self.setGeometry(1000, 1000, 200, 80)
+        self.setGeometry(300, 300, 400, 180)
         self.setWindowTitle('Data Table')
 
         # quit = QtGui.QPushButton('Close', self)
@@ -53,13 +53,16 @@ class MyTableModel(QtCore.QAbstractTableModel):
             return None
         return (self.arraydata[index.row()][index.column()])
 
-if __name__ == '__main__':
-    app = QtCore.QCoreApplication.instance()
-    if app is None:
-        app = QtGui.QApplication([])
+app = QtCore.QCoreApplication.instance()
+if app is None:
+    app = QtGui.QApplication([])
 
-    try:
-        from IPython.lib.guisupport import start_event_loop_qt4
-        start_event_loop_qt4(app)
-    except ImportError:
-        app.exec_()
+try:
+    from IPython.lib.guisupport import start_event_loop_qt4
+    start_event_loop_qt4(app)
+except ImportError:
+    app.exec_()
+
+if __name__ == '__main__':
+    mdl = ModelViewer()
+    mdl.show_model([1, 2, 3])
