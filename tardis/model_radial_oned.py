@@ -383,15 +383,17 @@ class Radial1DModel(object):
     def simulate(self, update_radiation_field=True, enable_virtual=False):
         self.create_packets()
         self.spec_virtual_flux_nu[:] = 0.0
+
         if enable_virtual:
-            self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
-            last_line_interaction_in_id, last_line_interaction_out_id = \
-                montecarlo_multizone.montecarlo_radial1d(self,
-                                                         virtual_packet_flag=self.tardis_config.no_of_virtual_packets)
+            no_of_virtual_packets = self.tardis_config.no_of_virtual_packets
         else:
-            self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
-            last_line_interaction_in_id, last_line_interaction_out_id = \
-                montecarlo_multizone.montecarlo_radial1d(self)
+            no_of_virtual_packets = 0
+
+        self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
+        last_line_interaction_in_id, last_line_interaction_out_id, \
+        self.last_interaction_type, self.last_line_interaction_shell_id = \
+            montecarlo_multizone.montecarlo_radial1d(self,
+                                                     virtual_packet_flag=no_of_virtual_packets)
 
         self.normalize_j_blues()
 
