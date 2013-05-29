@@ -385,17 +385,21 @@ class Radial1DModel(object):
         self.spec_virtual_flux_nu[:] = 0.0
         if enable_virtual:
             self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
-            self.last_line_interaction_in_id, self.last_line_interaction_out_id = \
+            last_line_interaction_in_id, last_line_interaction_out_id = \
                 montecarlo_multizone.montecarlo_radial1d(self,
                                                          virtual_packet_flag=self.tardis_config.no_of_virtual_packets)
         else:
             self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
-            self.last_line_interaction_in_id, self.last_line_interaction_out_id = \
+            last_line_interaction_in_id, last_line_interaction_out_id = \
                 montecarlo_multizone.montecarlo_radial1d(self)
 
         self.normalize_j_blues()
 
         self.calculate_spectrum()
+        self.last_line_interaction_in_id = self.atom_data.lines_index.index.values[last_line_interaction_in_id]
+        self.last_line_interaction_in_id[last_line_interaction_in_id == -1] = -1
+        self.last_line_interaction_out_id = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
+        self.last_line_interaction_out_id[last_line_interaction_out_id == -1] = -1
 
         if update_radiation_field:
             self.update_radiationfield()
