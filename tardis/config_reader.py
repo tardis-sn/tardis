@@ -101,7 +101,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
             raise TardisConfigError(
                 'Error in ARTIS file %s - Number of shells not the same as dataset length' % density_file)
 
-        min_shell = 0
+        min_shell = 1
         max_shell = no_of_shells
 
         v_inner = velocities[:-1]
@@ -117,7 +117,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
             v_lowest = parse2quantity(density_file_dict['v_lowest']).to('cm/s').value
             min_shell = v_inner.value.searchsorted(v_lowest)
         else:
-            min_shell = 0
+            min_shell = 1
 
         if 'v_highest' in density_file_dict:
             v_highest = parse2quantity(density_file_dict['v_highest']).to('cm/s').value
@@ -519,6 +519,10 @@ class TardisConfiguration(object):
             logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
             config_dict['w_epsilon'] = 1e-10
 
+        if 'convergence_criteria' in montecarlo_section:
+            config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
+        else:
+            config_dict['convergence_criteria'] = {}
         ##### NLTE Section #####
 
         config_dict['nlte_options'] = yaml_dict.pop('nlte', {})
