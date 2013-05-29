@@ -64,10 +64,10 @@ cdef class StorageModel:
     cdef float_type_t*output_energies
 
     cdef np.ndarray last_line_interaction_in_id_a
-    cdef float_type_t*last_line_interaction_in_id
+    cdef int_type_t*last_line_interaction_in_id
 
     cdef np.ndarray last_line_interaction_out_id_a
-    cdef float_type_t*last_line_interaction_out_id
+    cdef int_type_t*last_line_interaction_out_id
 
     cdef int_type_t no_of_packets
     cdef int_type_t no_of_shells
@@ -228,16 +228,16 @@ cdef class StorageModel:
         self.output_energies_a = output_energies
         self.output_energies = <float_type_t*> self.output_energies_a.data
 
-        cdef np.ndarray[float_type_t, ndim=1] last_line_interaction_in_id = -1 * np.ones(self.no_of_packets,
-                                                                                         dtype=np.int64)
-        cdef np.ndarray[float_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(self.no_of_packets,
-                                                                                          dtype=np.int64)
+        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_in_id = -1 * np.ones(self.no_of_packets,
+                                                                                       dtype=np.int64)
+        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(self.no_of_packets,
+                                                                                        dtype=np.int64)
 
         self.last_line_interaction_in_id_a = last_line_interaction_in_id
-        self.last_line_interaction_in_id = <float_type_t*> self.last_line_interaction_in_id_a.data
+        self.last_line_interaction_in_id = <int_type_t*> self.last_line_interaction_in_id_a.data
 
         self.last_line_interaction_out_id_a = last_line_interaction_out_id
-        self.last_line_interaction_out_id = <float_type_t*> self.last_line_interaction_out_id_a.data
+        self.last_line_interaction_out_id = <int_type_t*> self.last_line_interaction_out_id_a.data
 
         cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(model.no_of_shells, dtype=np.float64)
         cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(model.no_of_shells, dtype=np.float64)
@@ -600,7 +600,8 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
             #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    return storage.output_nus_a, storage.output_energies_a, storage.js_a, storage.nubars_a, storage.last_line_interaction_in_id_a, storage.last_line_interaction_out_id_a
+    return storage.output_nus_a, storage.output_energies_a, storage.js_a, storage.nubars_a, \
+           storage.last_line_interaction_in_id_a, storage.last_line_interaction_out_id_a
 
 #
 #

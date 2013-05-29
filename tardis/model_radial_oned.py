@@ -384,11 +384,13 @@ class Radial1DModel(object):
         self.create_packets()
         self.spec_virtual_flux_nu[:] = 0.0
         if enable_virtual:
-            self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators = \
+            self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
+            self.last_line_interaction_in_id, self.last_line_interaction_out_id = \
                 montecarlo_multizone.montecarlo_radial1d(self,
                                                          virtual_packet_flag=self.tardis_config.no_of_virtual_packets)
         else:
-            self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators = \
+            self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
+            self.last_line_interaction_in_id, self.last_line_interaction_out_id = \
                 montecarlo_multizone.montecarlo_radial1d(self)
 
         self.normalize_j_blues()
@@ -416,7 +418,6 @@ class Radial1DModel(object):
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
 
-
         emitted_energy = self.emitted_inner_energy * \
                          np.sum(self.montecarlo_energies[self.montecarlo_energies >= 0]) / 1.
         absorbed_energy = self.emitted_inner_energy * \
@@ -440,20 +441,18 @@ class Radial1DModel(object):
                 new_convergence_t_rad_gradient = np.copysign(1, updated_t_rads - self.t_rads).astype(int)
                 new_convergence_w_gradient = np.copysign(1, updated_ws - self.ws).astype(int)
                 if self.convergence_t_inner_gradient != new_convergence_t_inner_gradient:
-                    self.convergence_t_inner_index +=1
+                    self.convergence_t_inner_index += 1
 
                 self.convergence_t_rad_index[new_convergence_t_rad_gradient != self.convergence_t_rad_gradient] += 1
                 self.convergence_w_index[new_convergence_w_gradient != self.convergence_w_index] += 1
 
-
-            self.convergence_t_rad_index[self.convergence_t_rad_index > (len(self.convergence_parameters) - 1)] =\
+            self.convergence_t_rad_index[self.convergence_t_rad_index > (len(self.convergence_parameters) - 1)] = \
                 len(self.convergence_parameters) - 1
-            self.convergence_w_index[self.convergence_w_index > (len(self.convergence_parameters) - 1)] =\
+            self.convergence_w_index[self.convergence_w_index > (len(self.convergence_parameters) - 1)] = \
                 len(self.convergence_parameters) - 1
 
             if self.convergence_t_inner_index > (len(self.convergence_parameters_t_inner) - 1):
                 self.convergence_t_inner_index = len(self.convergence_parameters_t_inner) - 1
-
 
             current_t_inner_convergence_damping = self.convergence_parameters_t_inner[self.convergence_t_inner_index]
             current_t_rad_convergence_damping = self.convergence_parameters[self.convergence_t_rad_index]
@@ -463,16 +462,13 @@ class Radial1DModel(object):
             self.ws += current_w_convergence_damping * (updated_ws - self.ws)
             self.t_inner += current_t_inner_convergence_damping * (updated_t_inner - self.t_inner)
 
-
-
-
-
         converged_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
         converged_ws = abs(old_ws - updated_ws) / updated_ws
 
         self.temperature_logging = pd.DataFrame(
             {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'converged_t_rads': converged_t_rads,
-             'new_trads': self.t_rads, 'ws': old_ws, 'updated_ws': updated_ws, 'converged_ws':converged_ws, 'new_ws': self.ws})
+             'new_trads': self.t_rads, 'ws': old_ws, 'updated_ws': updated_ws, 'converged_ws': converged_ws,
+             'new_ws': self.ws})
         self.temperature_logging.index.name = 'Shell'
 
         temperature_logging = str(self.temperature_logging[::log_sampling])
@@ -576,8 +572,10 @@ class ModelHistory(object):
         history_store.close()
 
     @classmethod
-    def from_tardis_config(cls, tardis_config, store_t_rads=False, store_ws=False, store_convergence=False, store_electron_density=False,
-                           store_level_populations=False, store_j_blues=False, store_tau_sobolevs=False, store_t_inner=False):
+    def from_tardis_config(cls, tardis_config, store_t_rads=False, store_ws=False, store_convergence=False,
+                           store_electron_density=False,
+                           store_level_populations=False, store_j_blues=False, store_tau_sobolevs=False,
+                           store_t_inner=False):
         history = cls()
         cls.store_t_rads = store_t_rads
         cls.store_ws = store_ws
