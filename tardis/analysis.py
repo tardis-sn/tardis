@@ -85,8 +85,8 @@ class LastLineInteraction(object):
         line_list_in = self.model.atom_data.lines.ix[last_line_interaction_in_id]
         line_list_out = self.model.atom_data.lines.ix[last_line_interaction_out_id]
 
-        mask_in = (line_list_out['wavelength'] > self.wavelength_start) & (
-        line_list_out['wavelength'] < self.wavelength_end)
+        mask_in = (line_list_out['wavelength'] > self.wavelength_start.to(u.angstrom).value) & \
+                  (line_list_out['wavelength'] < self.wavelength_end.to(u.angstrom).value)
         mask_out = mask_in.copy()
         if self.atomic_number is not None:
             mask_in &= line_list_in.atomic_number == self.atomic_number
@@ -96,11 +96,38 @@ class LastLineInteraction(object):
             mask_in &= line_list_in.ion_number == self.ion_number
             mask_out &= line_list_out.ion_number == self.ion_number
 
-        self.last_line_list_in = line_list_in[mask_in]
-        self.last_line_list_out = line_list_out[mask_out]
+        self.last_line_list_in = line_list_in[mask_in].reset_index()
+        self.last_line_list_out = line_list_out[mask_out].reset_index()
 
         self.contributing_last = self.last_line_list_in.groupby(['atomic_number', 'ion_number'])['wavelength'].count()
         self.contributing_last = self.contributing_last.astype(float) / self.contributing_last.sum()
+
+
+    def plot_wave_in_out(self, fig, do_clf=True, plot_resonance=True):
+        if do_clf:
+            fig.clf()
+        ax = fig.add_subplot(111)
+        wave_in = self.last_line_list_in['wavelength']
+        wave_out = self.last_line_list_out['wavelength']
+
+        if plot_resonance:
+            min_wave = np.min([wave_in.min(), wave_out.min()])
+            max_wave = np.max([wave_in.max(), wave_out.max()])
+            ax.plot([min_wave, max_wave], [min_wave, max_wave], 'b-')
+
+        ax.plot(wave_in, wave_out, 'b.', picker=True)
+        ax.set_xlabel('Last interaction Wave in')
+        ax.set_ylabel('Last interaction Wave out')
+
+        def onpick(event):
+            print "-" * 80
+            print "Line_in:\n%s" % self.last_line_list_in.ix[event.ind]
+            print "\n\n"
+            print "Line_out:\n%s" % self.last_line_list_in.ix[event.ind]
+            print "^" * 80
+
+        fig.canvas.mpl_connect('pick_event', onpick)
+
 
 
 
