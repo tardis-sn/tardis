@@ -46,11 +46,29 @@ class ModelViewer(QtGui.QWidget):
         self.setLayout(self.layout)
         self.show()
 
+    def update_data(self, model=None):
+        if model is not None:
+            self.tablemodel.arraydata = []
+            self.add_data(model.t_rads.tolist())
+            self.add_data(model.ws.tolist())
+        for r in range(self.tablemodel.rowCount()):
+            for c in range(self.tablemodel.columnCount()):
+                index = self.tablemodel.createIndex(r, c)
+                self.tablemodel.setData(index, QtCore.QVariant(self.tablemodel.arraydata[c][r]))
+
+
     def add_data(self, datain):
         self.tablemodel.add_data(datain)
 
     def close_all_widgets(self, layout):
         for i in range(layout.count()): layout.itemAt(i).widget().close()
+
+# class QTableWidgetNew(QtGui.QTableWidget):
+#     def __init__(self):
+#         QtGui.QTableWidget.__init__(self)
+#
+#     def setModel(self, model):
+#         QtGui.QAbstractItemView.setModel(self, model)
 
 class MyTableModel(QtCore.QAbstractTableModel):
     def __init__(self, headerdata, parent=None, *args):
@@ -59,20 +77,12 @@ class MyTableModel(QtCore.QAbstractTableModel):
         self.headerdata = headerdata
 
     def add_data(self, datain):
-        if datain is not None:
-            # if type(data[0]) == np.float64:
-            #     for index, item in enumerate(data):
-            #         data[index] = float(item)
-            #     self.arraydata.append(data)
-            # elif type(data[0]) == list:
-            #     for index, item in enumerate(data):
-            #         self.a
-            self.arraydata.append(datain)
+        self.arraydata.append(datain)
 
-    def rowCount(self, parent):
+    def rowCount(self, parent=QtCore.QModelIndex()):
         return len(self.arraydata[0])
 
-    def columnCount(self, parent):
+    def columnCount(self, parent=QtCore.QModelIndex()):
         return len(self.arraydata)
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
@@ -82,9 +92,18 @@ class MyTableModel(QtCore.QAbstractTableModel):
             return QtCore.QVariant(self.headerdata[section])
         return QtCore.QVariant()
 
-    def data(self, index, role):
+    def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid():
             return None
         elif role != QtCore.Qt.DisplayRole:
             return None
         return (self.arraydata[index.column()][index.row()])
+
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        if not index.isValid():
+            return False
+        elif role != QtCore.Qt.EditRole:
+            return False
+        self.arraydata[index.column()][index.row()] = value
+        self.emit(SIGNAL('dataChanged(const QModelIndex &, const QModelIndex &)'), index, index)
+        return True
