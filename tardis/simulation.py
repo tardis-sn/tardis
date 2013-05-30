@@ -7,15 +7,17 @@ logger = logging.getLogger(__name__)
 
 def run_radial1d(radial1d_model, save_history=None):
     remaining_runs = radial1d_model.iterations - 1
-    while True:
-        logger.info('Remaining run %d', remaining_runs)
-        radial1d_model.simulate()
-        if save_history is not None:
-            save_history.store(radial1d_model)
 
-        remaining_runs -= 1
-        if remaining_runs == 0:
-            break
+    if remaining_runs > 0:
+        while True:
+            logger.info('Remaining run %d', remaining_runs)
+            radial1d_model.simulate()
+            if save_history is not None:
+                save_history.store(radial1d_model)
+
+            remaining_runs -= 1
+            if remaining_runs == 0:
+                break
 
     #Finished second to last loop running one more time
     logger.info('Doing last run')

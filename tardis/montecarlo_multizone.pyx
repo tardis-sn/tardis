@@ -69,6 +69,12 @@ cdef class StorageModel:
     cdef np.ndarray last_line_interaction_out_id_a
     cdef int_type_t*last_line_interaction_out_id
 
+    cdef np.ndarray last_line_interaction_shell_id_a
+    cdef int_type_t*last_line_interaction_shell_id
+
+    cdef np.ndarray last_interaction_type_a
+    cdef int_type_t*last_interaction_type
+
     cdef int_type_t no_of_packets
     cdef int_type_t no_of_shells
     cdef np.ndarray r_inner_a
@@ -233,14 +239,27 @@ cdef class StorageModel:
         cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(self.no_of_packets,
                                                                                         dtype=np.int64)
 
+        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_shell_id = -1 * np.ones(self.no_of_packets,
+                                                                                          dtype=np.int64)
+
+        cdef np.ndarray[int_type_t, ndim=1] last_interaction_type = -1 * np.ones(self.no_of_packets,
+                                                                                 dtype=np.int64)
+
         self.last_line_interaction_in_id_a = last_line_interaction_in_id
         self.last_line_interaction_in_id = <int_type_t*> self.last_line_interaction_in_id_a.data
 
         self.last_line_interaction_out_id_a = last_line_interaction_out_id
         self.last_line_interaction_out_id = <int_type_t*> self.last_line_interaction_out_id_a.data
 
+        self.last_line_interaction_shell_id_a = last_line_interaction_shell_id
+        self.last_line_interaction_shell_id = <int_type_t*> last_line_interaction_shell_id.data
+
+        self.last_interaction_type_a = last_interaction_type
+        self.last_interaction_type = <int_type_t*> last_interaction_type.data
+
         cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(model.no_of_shells, dtype=np.float64)
         cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(model.no_of_shells, dtype=np.float64)
+
         self.js_a = js
         self.js = <float_type_t*> self.js_a.data
         self.nubars_a = nubars
@@ -601,7 +620,9 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
             #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
 
     return storage.output_nus_a, storage.output_energies_a, storage.js_a, storage.nubars_a, \
-           storage.last_line_interaction_in_id_a, storage.last_line_interaction_out_id_a
+           storage.last_line_interaction_in_id_a, storage.last_line_interaction_out_id_a, storage.last_interaction_type_a, \
+           storage.last_line_interaction_shell_id_a
+
 
 #
 #
@@ -917,6 +938,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             comov_nu = current_nu[0] * doppler_factor
             comov_energy = current_energy[0] * doppler_factor
 
+
             #new mu chosen
             current_mu[0] = 2 * rk_double(&mt_state) - 1
             inverse_doppler_factor = 1 / (
@@ -940,6 +962,9 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             #scattered so can re-cross a boundary now
             recently_crossed_boundary[0] = 0
             #We've had an electron scattering event in the SN. This corresponds to a source term - we need to spawn virtual packets now
+
+            storage.last_interaction_type[storage.current_packet_id] = 1
+
             if (virtual_packet_flag > 0):
                 #print "AN ELECTRON SCATTERING HAPPENED: CALLING VIRTUAL PARTICLES!!!!!!"
                 montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r,
@@ -1038,6 +1063,8 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                         emission_line_id = current_line_id[0] - 1
                     elif storage.line_interaction_id >= 1:# downbranch & macro
                         storage.last_line_interaction_in_id[storage.current_packet_id] = current_line_id[0] - 1
+                        storage.last_line_interaction_shell_id[storage.current_packet_id] = current_shell_id[0]
+                        storage.last_interaction_type[storage.current_packet_id] = 2
                         activate_level_id = storage.line2macro_level_upper[current_line_id[0] - 1]
                         #print "HERE %g %g" %(current_line_id[0], activate_level_id)
                         #print "DEST " , (storage.destination_level_id[0], storage.destination_level_id[5], storage.destination_level_id[10])
