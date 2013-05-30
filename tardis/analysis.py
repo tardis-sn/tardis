@@ -34,7 +34,9 @@ class LastLineInteraction(object):
         self._wavelength_end = 1 * u.m
         self._atomic_number = None
         self._ion_number = None
+        self.packets_angstrom = u.Quantity(self.model.montecarlo_nu, 'Hz').to('angstrom', u.spectral()).value
         self.update_last_interaction()
+
 
     @property
     def wavelength_start(self):
@@ -77,6 +79,12 @@ class LastLineInteraction(object):
         self.update_last_interaction()
 
     def update_last_interaction(self):
+        mask_in = (self.packets_angstrom > self.wavelength_start.to(u.angstrom).value) & \
+                  (self.packets_angstrom < self.wavelength_end.to(u.angstrom).value)
+        mask_out = mask_in.copy()
+
+        mask_in = mask_in[self.model.last_line_interaction_in_id != -1]
+        mask_out = mask_out[self.model.last_line_interaction_in_id != -1]
         last_line_interaction_in_id = self.model.last_line_interaction_in_id[
             self.model.last_line_interaction_in_id != -1]
         last_line_interaction_out_id = self.model.last_line_interaction_out_id[
@@ -85,9 +93,6 @@ class LastLineInteraction(object):
         line_list_in = self.model.atom_data.lines.ix[last_line_interaction_in_id]
         line_list_out = self.model.atom_data.lines.ix[last_line_interaction_out_id]
 
-        mask_in = (line_list_out['wavelength'] > self.wavelength_start.to(u.angstrom).value) & \
-                  (line_list_out['wavelength'] < self.wavelength_end.to(u.angstrom).value)
-        mask_out = mask_in.copy()
         if self.atomic_number is not None:
             mask_in &= line_list_in.atomic_number == self.atomic_number
             mask_out &= line_list_out.atomic_number == self.atomic_number
@@ -101,6 +106,7 @@ class LastLineInteraction(object):
 
         self.contributing_last = self.last_line_list_in.groupby(['atomic_number', 'ion_number'])['wavelength'].count()
         self.contributing_last = self.contributing_last.astype(float) / self.contributing_last.sum()
+        self.current_no_packets = len(self.last_line_list_in)
 
 
     def plot_wave_in_out(self, fig, do_clf=True, plot_resonance=True):
@@ -121,9 +127,11 @@ class LastLineInteraction(object):
 
         def onpick(event):
             print "-" * 80
-            print "Line_in:\n%s" % self.last_line_list_in.ix[event.ind]
+            print "Line_in (%d/%d):\n%s" % (
+            len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
             print "\n\n"
-            print "Line_out:\n%s" % self.last_line_list_in.ix[event.ind]
+            print "Line_out (%d/%d):\n%s" % (
+            len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
             print "^" * 80
 
         fig.canvas.mpl_connect('pick_event', onpick)
