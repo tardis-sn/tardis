@@ -10,7 +10,6 @@ class ModelViewer(QtGui.QWidget):
         app = QtCore.QCoreApplication.instance()
         if app is None:
             app = QtGui.QApplication([])
-
         try:
             from IPython.lib.guisupport import start_event_loop_qt4
             start_event_loop_qt4(app)
@@ -25,12 +24,6 @@ class ModelViewer(QtGui.QWidget):
         self.tableview = QtGui.QTableView()
         self.layout = QtGui.QVBoxLayout()
 
-        # quit = QtGui.QPushButton('Close', self)
-        # quit.setGeometry(10, 10, 60, 35)
-        #
-        # self.connect(quit, QtCore.SIGNAL('clicked()'),
-        #              self, QtCore.SLOT('close()'))
-
     def show_model(self, model=None):
         """
         :param Radial1DModel: object with attribute t_rads, ws
@@ -41,7 +34,6 @@ class ModelViewer(QtGui.QWidget):
             self.add_data(model.t_rads.tolist())
             self.add_data(model.ws.tolist())
         self.tableview.setModel(self.tablemodel)
-        #self.close_all_widgets(self.layout)
         self.layout.addWidget(self.tableview)
         self.setLayout(self.layout)
         self.show()
@@ -56,19 +48,8 @@ class ModelViewer(QtGui.QWidget):
                 index = self.tablemodel.createIndex(r, c)
                 self.tablemodel.setData(index, QtCore.QVariant(self.tablemodel.arraydata[c][r]))
 
-
     def add_data(self, datain):
         self.tablemodel.add_data(datain)
-
-    def close_all_widgets(self, layout):
-        for i in range(layout.count()): layout.itemAt(i).widget().close()
-
-# class QTableWidgetNew(QtGui.QTableWidget):
-#     def __init__(self):
-#         QtGui.QTableWidget.__init__(self)
-#
-#     def setModel(self, model):
-#         QtGui.QAbstractItemView.setModel(self, model)
 
 class MyTableModel(QtCore.QAbstractTableModel):
     def __init__(self, headerdata, parent=None, *args):
