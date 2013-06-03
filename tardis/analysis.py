@@ -2,6 +2,8 @@
 
 from astropy import units as u
 import numpy as np
+from matplotlib.widgets import Lasso
+from matplotlib import path
 
 
 def get_last_line_interaction(wavelength_start, wavelength_end, model):
@@ -128,13 +130,17 @@ class LastLineInteraction(object):
         def onpick(event):
             print "-" * 80
             print "Line_in (%d/%d):\n%s" % (
-            len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
+                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
             print "\n\n"
             print "Line_out (%d/%d):\n%s" % (
-            len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
+                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
             print "^" * 80
 
+        def onpress(event):
+            pass
+
         fig.canvas.mpl_connect('pick_event', onpick)
+        fig.canvas.mpl_connect('on_press', onpress)
 
 
 
