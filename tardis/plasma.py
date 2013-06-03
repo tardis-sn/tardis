@@ -6,7 +6,7 @@ import logging
 from astropy import constants
 import pandas as pd
 import macro_atom
-import pdb
+
 from .config_reader import reformat_element_symbol
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 #Defining soboleve constant
-
 sobolev_coefficient = ((np.pi * constants.e.gauss.value ** 2) / (constants.m_e.cgs.value * constants.c.cgs.value))
 
 
@@ -45,41 +44,76 @@ class BasePlasma(object):
     Parameters
     ----------
 
-    abundances : `~dict`
-        A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
-
     t_rad : `~float`
-        Temperature in Kelvin for the plasma
+        radiation temperature in K
 
-    density : `float`
-        density in g/cm^3
+    w : `~float`
+        dilution factor W
 
-        .. warning::
-            Instead of g/cm^ will later use the keyword `density_unit` as unit
+    number_density : `~pandas.Series`
+        Series where the index describes the atomic number and the value is the number density
 
-    atom_data : `~tardis.atomic.AtomData`-object
+    atom_data : `tardis.atomic.AtomData`
 
-    max_ion_number : `~int`
-        maximum used ionization of atom used in the calculation (inclusive the number)
+    time_explosion : `~float`
+        time since explosion in seconds
 
+    j_blues=None : `~numpy.ndarray`, optional
+        mean intensity at the blue side of the line (the default is `None` and implies that they are calculated
+        according to the selected Plasma)
+
+    t_electron : `~float`, optional
+        electron temperature in K (the default is `None` and implies to set it to 0.9 * t_rad)
+
+    use_macro_atom : `~bool`, optional
+        flag to enable the macroatom calculation - this should be used in conjunction with the macroatom or downbranch
+        line interaction
+
+    nlte_species : `~list`-like, optional
+        what species to use for NLTE calculations (e.g. [(20,1), (14, 1)] for Ca II and Si II; default is [])
+
+    nlte_options={} : `dict`-like, optional
+        NLTE options mainly for debugging purposes - please refer to the configuration documentation for additional
+        information
+
+    zone_id=None : `int`, optional
+        What zone_id this plasma represents. Mainly for logging purposes.
+
+    saha_treatment : `str`, optional
+        Describes what Saha treatment to use for ionization calculations. The options are `lte` or `nebular`
+
+    Returns
+    -------
+
+    `tardis.plasma.BasePlasma`
     """
 
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
                        use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
         """
-        :param cls:
-        :param t_rad:
-        :param w:
-        :param abundance:
-        :param density:
-        :param atom_data:
-        :param time_explosion:
-        :param t_electron:
-        :param use_macro_atom:
-        :param zone_id:
-        :param nlte_species:
-        :return:
+        Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
+        All other parameters are the same as the normal initializer
+
+
+        Parameters
+        ----------
+
+        abundances : `~dict`
+            A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
+
+        abundances : `~dict`
+        A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
+
+
+        density : `~float`
+            density in g/cm^3
+
+
+        Returns
+        -------
+
+        `Baseplasma` object
         """
 
         number_density = pd.Series(index=np.arange(1, 120))
@@ -612,8 +646,10 @@ class BasePlasma(object):
             self.j_blues = j_blues
 
     def calculate_bound_free(self):
+        #TODO DOCUMENTATION missing!!!
         """
-        :return:
+        None
+
         """
         nu_bins = range(1000, 10000, 1000) #TODO: get the binning from the input file.
         try:
@@ -633,31 +669,12 @@ class BasePlasma(object):
 
 
 class LTEPlasma(BasePlasma):
-    """
-    Model for BasePlasma using a local thermodynamic equilibrium approximation.
-
-    Parameters
-    ----------
-
-    abundances : `~dict`
-       A dictionary with the abundances for each element
-
-    t_rad : `~float`
-       Temperature in Kelvin for the plasma
-
-    density : `float`
-       density in g/cm^3
-
-       .. warning::
-           Instead of g/cm^ will later use the keyword `density_unit` as unit
-
-    atom_data : `~tardis.atomic.AtomData`-object
-
-    """
+    __doc__ = BasePlasma.__doc__
 
     @classmethod
     def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
                        use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None):
+        __doc__ = BasePlasma.from_abundance.__doc__
         return super(LTEPlasma, cls).from_abundance(t_rad, 1., abundance, density, atom_data, time_explosion,
                                                     j_blues=j_blues, t_electron=t_electron,
                                                     use_macro_atom=use_macro_atom, nlte_species=nlte_species,
@@ -672,30 +689,7 @@ class LTEPlasma(BasePlasma):
 
 
 class NebularPlasma(BasePlasma):
-    """
-    Model for BasePlasma using the Nebular approximation
-
-    Parameters
-    ----------
-
-    abundances : `~dict`
-       A dictionary with the abundances for each element
-
-    t_rad : `~float`
-       Temperature in Kelvin for the plasma
-
-    density : `float`
-       density in g/cm^3
-
-       .. warning::
-           Instead of g/cm^ will later use the keyword `density_unit` as unit
-
-    atom_data : `~tardis.atomic.AtomData`-object
-
-    t_electron : `~float`, or `None`
-        the electron temperature. if set to `None` we assume the electron temperature is 0.9 * radiation temperature
-
-    """
+    __doc__ = BasePlasma.__doc__
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
                  use_macro_atom=False,
