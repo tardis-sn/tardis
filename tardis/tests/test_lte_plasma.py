@@ -1,5 +1,3 @@
-__author__ = 'wkerzend'
-
 import os
 import numpy as np
 from astropy import constants, table, units
@@ -7,6 +5,8 @@ from numpy import testing
 import pytest
 from tardis import plasma, atomic
 
+
+"""
 atom_model = atomic.AtomData.from_hdf5()
 
 
@@ -119,3 +119,4 @@ class TestLTEPlasmaCalculations:
 
 
 
+"""
