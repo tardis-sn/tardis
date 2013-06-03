@@ -352,10 +352,19 @@ class TardisConfiguration(object):
         """
         Reading in from a YAML file and commandline args. Preferring commandline args when given
 
-        :param cls:
-        :param fname:
-        :param args:
-        :return:
+        Parameters
+        ----------
+
+        fname : filename for the yaml file
+
+        args : namespace object
+            Not implemented Yet
+
+        Returns
+        -------
+
+        `tardis.config_reader.TardisConfiguration`
+
         """
         try:
             yaml_dict = yaml.load(file(fname))
@@ -523,7 +532,7 @@ class TardisConfiguration(object):
             config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
         else:
             config_dict['convergence_criteria'] = {}
-        ##### NLTE Section #####
+            ##### NLTE Section #####
 
         config_dict['nlte_options'] = yaml_dict.pop('nlte', {})
 
