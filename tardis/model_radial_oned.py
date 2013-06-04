@@ -514,6 +514,19 @@ class Radial1DModel(object):
 
         yaml.dump(yaml_reference, stream=file(fname, 'w'), explicit_start=True)
 
+    def to_hdf5(self, buffer_or_fname, path=''):
+        if isinstance(buffer_or_fname, basestring):
+            hdf_store = pd.HDFStore(buffer_or_fname)
+        elif isinstance(buffer_or_fname, pd.HDFStore):
+            hdf_store = buffer_or_fname
+        else:
+            raise IOError('Please specify either a filename or an HDFStore')
+
+        for i, plasma in enumerate(self.plasmas):
+            plasma.to_hdf5(hdf_store, os.path.join(path, 'plasma%d' % i))
+
+        return hdf_store
+
 
     def plot_spectrum(self, ax=None, mode='wavelength', virtual=True):
         if ax is None:

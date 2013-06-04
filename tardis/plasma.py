@@ -6,7 +6,7 @@ import logging
 from astropy import constants
 import pandas as pd
 import macro_atom
-
+import os
 from .config_reader import reformat_element_symbol
 
 logger = logging.getLogger(__name__)
@@ -141,6 +141,10 @@ class BasePlasma(object):
         return cls(t_rad=t_rad, w=w, number_density=number_density, atom_data=atom_data, j_blues=j_blues,
                    time_explosion=time_explosion, t_electron=t_electron, use_macro_atom=use_macro_atom, zone_id=zone_id,
                    nlte_species=nlte_species, nlte_options=nlte_options, saha_treatment=saha_treatment)
+
+    @classmethod
+    def from_hdf5(cls, hdf5store):
+        self.ge = xxxxx
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
@@ -470,7 +474,6 @@ class BasePlasma(object):
         #TODO see if self.ion_populations is None is needed (first class should be enough)
         if not hasattr(self, 'ion_populations') or self.ion_populations is None:
             self.ion_populations = pd.Series(index=self.partition_functions.index.copy())
-            self.cleaned_levels = pd.Series(index=self.partition_functions.index.copy())
 
         for atomic_number, groups in phis.groupby(level='atomic_number'):
             current_phis = groups.values / self.electron_density
@@ -666,6 +669,37 @@ class BasePlasma(object):
                 level_number = level.name[2]
                 sigma_bf_th = self.atom_data.ion_cx_th.ix[atomic_number, ion_number, level_number]
                 phi = phis.ix[atomic_number, ion_number]
+
+
+    def to_hdf5(self, hdf5_store, path):
+        """
+
+        param hdf5_store:
+        :param path:
+        :return:
+        """
+
+        partition_functions_path = os.path.join(path, 'partition_functions')
+        self.partition_functions.to_hdf(hdf5_store, partition_functions_path)
+
+        ion_populations_path = os.path.join(path, 'ion_populations')
+        self.ion_populations.to_hdf(hdf5_store, ion_populations_path)
+
+        level_populations_path = os.path.join(path, 'level_populations')
+        self.level_populations.to_hdf(hdf5_store, level_populations_path)
+
+        j_blues_path = os.path.join(path, 'j_blues')
+        pd.Series(self.j_blues).to_hdf(hdf5_store, j_blues_path)
+
+        number_density_path = os.path.join(path, 'number_density')
+        self.number_density.to_hdf(hdf5_store, number_density_path)
+
+        tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
+        pd.Series(self.tau_sobolevs).to_hdf(hdf5_store, tau_sobolevs_path)
+
+        transition_probabilities_path = os.path.join(path, 'transition_probabilities')
+        transition_probabilities = self.calculate_transition_probabilities()
+        pd.Series(transition_probabilities).to_hdf(hdf5_store, transition_probabilities_path)
 
 
 class LTEPlasma(BasePlasma):
