@@ -181,7 +181,7 @@ class Radial1DModel(object):
 
 
     @property
-    def electron_density(self):
+    def electron_densities(self):
         return np.array([plasma.electron_density for plasma in self.plasmas])
 
     @property
@@ -525,6 +525,14 @@ class Radial1DModel(object):
         for i, plasma in enumerate(self.plasmas):
             plasma.to_hdf5(hdf_store, os.path.join(path, 'plasma%d' % i))
 
+        t_rads_path = os.path.join(path, 't_rads')
+        pd.Series(self.t_rads).to_hdf(hdf_store, t_rads_path)
+
+        ws_path = os.path.join(path, 'ws')
+        pd.Series(self.ws).to_hdf(hdf_store, ws_path)
+
+        electron_densities_path = os.path.join(path, 'electron_densities')
+        pd.Series(self.electron_densities).to_hdf(hdf_store, electron_densities_path)
         return hdf_store
 
 
