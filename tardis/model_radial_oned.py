@@ -125,7 +125,12 @@ class Radial1DModel(object):
         #reading the convergence criteria
         self.converged = False
         self.convergence_type = tardis_config.convergence_type
+        self.t_inner_convergence_parameters = tardis_config.t_inner_convergence_parameters
+        self.t_rad_convergence_parameters = tardis_config.t_rad_convergence_parameters
+        self.w_convergence_parameters = tardis_config.w_convergence_parameters
 
+        if self.convergence_type == 'specific':
+            self.global_convergence_parameters = tardis_config.global_convergence_parameters.copy()
 
 
 
@@ -388,8 +393,6 @@ class Radial1DModel(object):
         self.iterations_executed += 1
         self.iterations_remaining -= 1
 
-        if self.gui is not None:
-            self.gui.update(self)
         if update_radiation_field:
             self.update_radiationfield()
             self.update_plasmas()
@@ -416,13 +419,14 @@ class Radial1DModel(object):
         convergence_t_inner = abs(old_t_inner - updated_t_inner) / updated_t_inner
 
         if self.convergence_type == 'damped':
-            self.t_rads += self.convergence_damping_constant * (updated_t_rads - self.t_rads)
-            self.ws += self.convergence_damping_constant * (updated_ws - self.ws)
-            self.t_inner += self.convergence_damping_constant * (updated_t_inner - self.t_inner)
+            self.t_rads += self.t_rad_convergence_parameters['damping_constant'] * (updated_t_rads - self.t_rads)
+            self.ws += self.w_convergence_parameters['damping_constant'] * (updated_ws - self.ws)
+            self.t_inner += self.w_convergence_parameters['damping_constant'] * (updated_t_inner - self.t_inner)
+
         elif self.convergence_type == 'specific':
             self.t_rads += self.t_rad_convergence_parameters['damping_constant'] * (updated_t_rads - self.t_rads)
             self.ws += self.w_convergence_parameters['damping_constant'] * (updated_ws - self.ws)
-            self.t_inner += self.t_inner_convergence['damping_constant'] * (updated_t_inner - self.t_inner)
+            self.t_inner += self.t_inner_convergence_parameters['damping_constant'] * (updated_t_inner - self.t_inner)
 
             t_rad_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
                                / self.no_of_shells) > self.t_rad_convergence_parameters['fraction']
