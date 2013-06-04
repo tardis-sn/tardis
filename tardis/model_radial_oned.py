@@ -109,7 +109,10 @@ class Radial1DModel(object):
 
         self.no_of_packets = tardis_config.no_of_packets
         self.current_no_of_packets = tardis_config.no_of_packets
-        self.iterations = tardis_config.iterations
+
+        self.iterations_max_requested = tardis_config.iterations
+        self.iterations_remaining = self.iterations_max_requested - 1
+        self.iterations_executed = 0
 
         self.sigma_thomson = tardis_config.sigma_thomson
 
@@ -119,12 +122,14 @@ class Radial1DModel(object):
 
         self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
 
+        self.gui = None
+
         #setting up convergence criteria - should go into the config reader
         if self.tardis_config.convergence_criteria == {}:
             logger.warning('No convergence criteria selected - just damping by 0.5')
             self.convergence_type = 'damped'
             self.convergence_damping_constant = 0.5
-            self.convergence_status = None
+            self.converged = None
 
         elif self.tardis_config.convergence_criteria['type'] == 'undampened':
             self.convergence_type = 'undampened'
@@ -138,7 +143,7 @@ class Radial1DModel(object):
             global_convergence_parameters['damping_constant'] = \
                 self.tardis_config.convergence_criteria['damping_constant']
             global_convergence_parameters['threshold'] = self.tardis_config.convergence_criteria['threshold']
-            global_convergence_parameters['hold'] = self.tardis_config.convergence_criteria['hold']
+
             global_convergence_parameters['fraction'] = self.tardis_config.convergence_criteria['fraction']
 
             if 't_inner' in self.tardis_config.convergence_criteria:
@@ -178,9 +183,12 @@ class Radial1DModel(object):
             else:
                 w_convergence = global_convergence_parameters.copy()
 
+            global_convergence_parameters['hold'] = self.tardis_config.convergence_criteria['hold']
+            self.global_convergence_parameters = global_convergence_parameters
             self.t_inner_convergence = t_inner_convergence
             self.t_rad_convergence_parameters = t_rad_convergence
             self.w_convergence_parameters = w_convergence
+            self.converged = False
 
 
         else:
@@ -442,6 +450,11 @@ class Radial1DModel(object):
         self.last_line_interaction_out_id = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
         self.last_line_interaction_out_id[last_line_interaction_out_id == -1] = -1
 
+        self.iterations_executed += 1
+        self.iterations_remaining -= 1
+
+        if self.gui is not None:
+            self.gui.update(self)
         if update_radiation_field:
             self.update_radiationfield()
             self.update_plasmas()
@@ -485,7 +498,14 @@ class Radial1DModel(object):
             t_inner_converged = convergence_t_inner < self.t_rad_convergence_parameters['threshold']
 
             if t_rad_converged and t_inner_converged and w_converged:
-                logger.warn('Currently the code has converged')
+                if not self.converged:
+                    self.converged = True
+                    self.iterations_remaining = self.global_convergence_parameters['hold']
+
+            else:
+                if self.converged:
+                    self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
+                    self.converged = False
 
         self.temperature_logging = pd.DataFrame(
             {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'converged_t_rads': convergence_t_rads,
