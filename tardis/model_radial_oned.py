@@ -119,25 +119,11 @@ class Radial1DModel(object):
 
         self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
 
-        #setting up convergence criteria
+        #setting up convergence criteria - should go into the config reader
         if self.tardis_config.convergence_criteria == {}:
             logger.warning('No convergence criteria selected - just damping by 0.5')
             self.convergence_type = 'damped'
             self.convergence_damping_constant = 0.5
-            self.convergence_status = None
-
-        elif self.tardis_config.convergence_criteria['type'] == 'tighten':
-            self.convergence_type = 'tighten'
-            self.convergence_parameters = np.array(self.tardis_config.convergence_criteria['tighten_parameters'])
-            self.convergence_parameters_t_inner = np.array(self.tardis_config.convergence_criteria['tighten_t_inner'])
-            self.convergence_t_inner_index = 0
-            self.convergence_t_rad_index = np.zeros(self.no_of_shells, int)
-            self.convergence_w_index = np.zeros(self.no_of_shells, int)
-
-            self.convergence_t_rad_gradient = None
-            self.convergence_t_inner_gradient = None
-            self.convergence_w_gradient = None
-
             self.convergence_status = None
 
         elif self.tardis_config.convergence_criteria['type'] == 'undampened':
@@ -145,48 +131,57 @@ class Radial1DModel(object):
             self.convergence_criteria = self.tardis_config.convergence_criteria['t_inner_convergence']
 
         elif self.tardis_config.convergence_criteria['type'] == 'specific':
+
             self.convergence_type = 'specific'
 
-            global_convergence = {}
-            global_convergence['damping'] = self.tardis_config.convergence_criteria['damped']
-            global_convergence['threshold'] = self.tardis_config.convergence_criteria['threshold']
-            global_convergence['hold'] = self.tardis_config.convergence_criteria['hold']
-            global_convergence['fraction'] = self.tardis_config.convergence_criteria['fraction']
+            global_convergence_parameters = {}
+            global_convergence_parameters['damping_constant'] = \
+                self.tardis_config.convergence_criteria['damping_constant']
+            global_convergence_parameters['threshold'] = self.tardis_config.convergence_criteria['threshold']
+            global_convergence_parameters['hold'] = self.tardis_config.convergence_criteria['hold']
+            global_convergence_parameters['fraction'] = self.tardis_config.convergence_criteria['fraction']
 
             if 't_inner' in self.tardis_config.convergence_criteria:
                 t_inner_convergence_criteria = self.tardis_config.convergence_criteria['t_inner']
                 t_inner_convergence = {}
-                for param in global_convergence.keys():
+                for param in global_convergence_parameters.keys():
                     if param == 'fraction':
                         continue
                     if param in t_inner_convergence_criteria:
                         t_inner_convergence[param] = t_inner_convergence_criteria[param]
                     else:
-                        t_inner_convergence[param] = global_convergence[param]
+                        t_inner_convergence[param] = global_convergence_parameters[param]
+            else:
+                t_inner_convergence = global_convergence_parameters.copy()
 
             if 't_rad' in self.tardis_config.convergence_criteria:
                 t_rad_convergence_criteria = self.tardis_config.convergence_criteria['t_rad']
                 t_rad_convergence = {}
-                for param in global_convergence.keys():
+                for param in global_convergence_parameters.keys():
                     if param in t_inner_convergence_criteria:
                         t_rad_convergence[param] = t_rad_convergence_criteria[param]
                     else:
-                        t_rad_convergence[param] = global_convergence[param]
+                        t_rad_convergence[param] = global_convergence_parameters[param]
+            else:
+                t_rad_convergence = global_convergence_parameters.copy()
 
             if 'w' in self.tardis_config.convergence_criteria:
                 w_convergence_criteria = self.tardis_config.convergence_criteria['w']
                 w_convergence = {}
-                for param in global_convergence.keys():
+                for param in global_convergence_parameters.keys():
                     if param == 'fraction':
                         continue
                     if param in w_convergence_criteria:
                         w_convergence[param] = w_convergence_criteria[param]
                     else:
-                        w_convergence[param] = global_convergence[param]
+                        w_convergence[param] = global_convergence_parameters[param]
+            else:
+                w_convergence = global_convergence_parameters.copy()
 
             self.t_inner_convergence = t_inner_convergence
-            self.t_rad_convergence = t_rad_convergence
-            self.w_convergence = w_convergence
+            self.t_rad_convergence_parameters = t_rad_convergence
+            self.w_convergence_parameters = w_convergence
+
 
         else:
             raise ValueError("convergence criteria unclear %s", self.tardis_config.convergence_criteria)
@@ -454,19 +449,13 @@ class Radial1DModel(object):
 
     def update_radiationfield(self, log_sampling=5):
         """
-        Updating radiatiantion field
-
-        Parameters
-        ----------
-
-        nubar_estimators : ~np.ndarray
-        j_estimators : ~np.ndarray
-
+        Updating radiation field
         """
 
         updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
+        old_t_inner = self.t_inner
 
         emitted_energy = self.emitted_inner_energy * \
                          np.sum(self.montecarlo_energies[self.montecarlo_energies >= 0]) / 1.
@@ -474,50 +463,33 @@ class Radial1DModel(object):
                           np.sum(self.montecarlo_energies[self.montecarlo_energies < 0]) / -1.
         updated_t_inner = self.t_inner * (emitted_energy / self.luminosity_outer) ** -.25
 
+        convergence_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
+        convergence_ws = abs(old_ws - updated_ws) / updated_ws
+        convergence_t_inner = abs(old_t_inner - updated_t_inner) / updated_t_inner
+
         if self.convergence_type == 'damped':
             self.t_rads += self.convergence_damping_constant * (updated_t_rads - self.t_rads)
             self.ws += self.convergence_damping_constant * (updated_ws - self.ws)
             self.t_inner += self.convergence_damping_constant * (updated_t_inner - self.t_inner)
+        elif self.convergence_type == 'specific':
+            self.t_rads += self.t_rad_convergence_parameters['damping_constant'] * (updated_t_rads - self.t_rads)
+            self.ws += self.w_convergence_parameters['damping_constant'] * (updated_ws - self.ws)
+            self.t_inner += self.t_inner_convergence['damping_constant'] * (updated_t_inner - self.t_inner)
 
+            t_rad_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
+                               / self.no_of_shells) > self.t_rad_convergence_parameters['fraction']
 
-        elif self.convergence_type == 'tighten':
-            if self.convergence_t_rad_gradient is None:
-                logger.info('Initializing convergence gradients')
-                self.convergence_t_inner_gradient = np.copysign(1, updated_t_inner - self.t_inner).astype(int)
-                self.convergence_t_rad_gradient = np.copysign(1, updated_t_rads - self.t_rads).astype(int)
-                self.convergence_w_gradient = np.copysign(1, updated_ws - self.ws).astype(int)
-            else:
-                new_convergence_t_inner_gradient = np.copysign(1, updated_t_inner - self.t_inner).astype(int)
-                new_convergence_t_rad_gradient = np.copysign(1, updated_t_rads - self.t_rads).astype(int)
-                new_convergence_w_gradient = np.copysign(1, updated_ws - self.ws).astype(int)
-                if self.convergence_t_inner_gradient != new_convergence_t_inner_gradient:
-                    self.convergence_t_inner_index += 1
+            w_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
+                           / self.no_of_shells) > self.t_rad_convergence_parameters['fraction']
 
-                self.convergence_t_rad_index[new_convergence_t_rad_gradient != self.convergence_t_rad_gradient] += 1
-                self.convergence_w_index[new_convergence_w_gradient != self.convergence_w_index] += 1
+            t_inner_converged = convergence_t_inner < self.t_rad_convergence_parameters['threshold']
 
-            self.convergence_t_rad_index[self.convergence_t_rad_index > (len(self.convergence_parameters) - 1)] = \
-                len(self.convergence_parameters) - 1
-            self.convergence_w_index[self.convergence_w_index > (len(self.convergence_parameters) - 1)] = \
-                len(self.convergence_parameters) - 1
-
-            if self.convergence_t_inner_index > (len(self.convergence_parameters_t_inner) - 1):
-                self.convergence_t_inner_index = len(self.convergence_parameters_t_inner) - 1
-
-            current_t_inner_convergence_damping = self.convergence_parameters_t_inner[self.convergence_t_inner_index]
-            current_t_rad_convergence_damping = self.convergence_parameters[self.convergence_t_rad_index]
-            current_w_convergence_damping = self.convergence_parameters[self.convergence_t_rad_index]
-
-            self.t_rads += current_t_rad_convergence_damping * (updated_t_rads - self.t_rads)
-            self.ws += current_w_convergence_damping * (updated_ws - self.ws)
-            self.t_inner += current_t_inner_convergence_damping * (updated_t_inner - self.t_inner)
-
-        converged_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
-        converged_ws = abs(old_ws - updated_ws) / updated_ws
+            if t_rad_converged and t_inner_converged and w_converged:
+                logger.warn('Currently the code has converged')
 
         self.temperature_logging = pd.DataFrame(
-            {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'converged_t_rads': converged_t_rads,
-             'new_trads': self.t_rads, 'ws': old_ws, 'updated_ws': updated_ws, 'converged_ws': converged_ws,
+            {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'converged_t_rads': convergence_t_rads,
+             'new_trads': self.t_rads, 'ws': old_ws, 'updated_ws': updated_ws, 'converged_ws': convergence_ws,
              'new_ws': self.ws})
         self.temperature_logging.index.name = 'Shell'
 
