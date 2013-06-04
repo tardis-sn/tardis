@@ -1,8 +1,12 @@
-import sys
-from PyQt4 import QtGui, QtCore
-from PyQt4.QtCore import *
-from PyQt4.QtGui import *
+import sys, os
 import numpy as np
+import matplotlib
+import matplotlib.pylab as plt
+from matplotlib.patches import Circle, Wedge
+from matplotlib.collections import PatchCollection
+from matplotlib.figure import *
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from PyQt4 import QtGui, QtCore
 
 class ModelViewer(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -18,11 +22,12 @@ class ModelViewer(QtGui.QWidget):
 
         QtGui.QWidget.__init__(self, parent)
 
-        self.setGeometry(300, 300, 400, 300)
-        self.setWindowTitle('Data Table')
+        self.setGeometry(100, 100, 965, 600)
+        self.setWindowTitle('Shell Viewer')
         self.tablemodel = MyTableModel(["t_rad", "Ws"])
         self.tableview = QtGui.QTableView()
-        self.layout = QtGui.QVBoxLayout()
+        self.graph = MatplotlibWidget()
+        self.layout = QtGui.QHBoxLayout()
 
     def show_model(self, model=None):
         """
@@ -34,8 +39,10 @@ class ModelViewer(QtGui.QWidget):
             self.add_data(model.t_rads.tolist())
             self.add_data(model.ws.tolist())
         self.tableview.setModel(self.tablemodel)
+        self.layout.addWidget(self.graph)
         self.layout.addWidget(self.tableview)
         self.setLayout(self.layout)
+        self.plot()
         self.show()
 
     def update_data(self, model=None):
@@ -50,6 +57,17 @@ class ModelViewer(QtGui.QWidget):
 
     def add_data(self, datain):
         self.tablemodel.add_data(datain)
+
+    def plot(self):
+        for i in range(20):
+            globals()["shell_" + str(i)] = Wedge((0,0), i + 1, 0, 360, width=0.1)
+            # globals()["shell_" + str(i)].picker = True
+            self.graph.ax.add_patch(globals()["shell_" + str(i)])
+
+        #patches = []
+        #self.graph.ax.add_patch(shell_0)
+        self.graph.ax.axis(xmin=-20,xmax=20,ymin=-20,ymax=20)
+        self.graph.draw()
 
 class MyTableModel(QtCore.QAbstractTableModel):
     def __init__(self, headerdata, parent=None, *args):
@@ -88,3 +106,24 @@ class MyTableModel(QtCore.QAbstractTableModel):
         self.arraydata[index.column()][index.row()] = value
         self.emit(SIGNAL('dataChanged(const QModelIndex &, const QModelIndex &)'), index, index)
         return True
+
+class MatplotlibWidget(FigureCanvas):
+
+    def __init__(self):
+        self.figure = Figure()
+        self.ax = self.figure.add_subplot(111)
+
+        FigureCanvas.__init__(self, self.figure)
+        FigureCanvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        FigureCanvas.updateGeometry(self)
+
+    #     cid = self.figure.canvas.mpl_connect('button_press_event', self.onclick)
+    #
+    # def onclick(event):
+    #     print 'button=%d, x=%d, y=%d, xdata=%f, ydata=%f'% (
+    #     event.button, event.x, event.y, event.xdata, event.ydata)
+    #
+    # def pick_handler(event):
+    #     mouseevent = event.mouseevent
+    #     artist = event.artist
+    #     print event
