@@ -124,75 +124,7 @@ class Radial1DModel(object):
 
         self.gui = None
 
-        #setting up convergence criteria - should go into the config reader
-        if self.tardis_config.convergence_criteria == {}:
-            logger.warning('No convergence criteria selected - just damping by 0.5')
-            self.convergence_type = 'damped'
-            self.convergence_damping_constant = 0.5
-            self.converged = None
 
-        elif self.tardis_config.convergence_criteria['type'] == 'undampened':
-            self.convergence_type = 'undampened'
-            self.convergence_criteria = self.tardis_config.convergence_criteria['t_inner_convergence']
-
-        elif self.tardis_config.convergence_criteria['type'] == 'specific':
-
-            self.convergence_type = 'specific'
-
-            global_convergence_parameters = {}
-            global_convergence_parameters['damping_constant'] = \
-                self.tardis_config.convergence_criteria['damping_constant']
-            global_convergence_parameters['threshold'] = self.tardis_config.convergence_criteria['threshold']
-
-            global_convergence_parameters['fraction'] = self.tardis_config.convergence_criteria['fraction']
-
-            if 't_inner' in self.tardis_config.convergence_criteria:
-                t_inner_convergence_criteria = self.tardis_config.convergence_criteria['t_inner']
-                t_inner_convergence = {}
-                for param in global_convergence_parameters.keys():
-                    if param == 'fraction':
-                        continue
-                    if param in t_inner_convergence_criteria:
-                        t_inner_convergence[param] = t_inner_convergence_criteria[param]
-                    else:
-                        t_inner_convergence[param] = global_convergence_parameters[param]
-            else:
-                t_inner_convergence = global_convergence_parameters.copy()
-
-            if 't_rad' in self.tardis_config.convergence_criteria:
-                t_rad_convergence_criteria = self.tardis_config.convergence_criteria['t_rad']
-                t_rad_convergence = {}
-                for param in global_convergence_parameters.keys():
-                    if param in t_inner_convergence_criteria:
-                        t_rad_convergence[param] = t_rad_convergence_criteria[param]
-                    else:
-                        t_rad_convergence[param] = global_convergence_parameters[param]
-            else:
-                t_rad_convergence = global_convergence_parameters.copy()
-
-            if 'w' in self.tardis_config.convergence_criteria:
-                w_convergence_criteria = self.tardis_config.convergence_criteria['w']
-                w_convergence = {}
-                for param in global_convergence_parameters.keys():
-                    if param == 'fraction':
-                        continue
-                    if param in w_convergence_criteria:
-                        w_convergence[param] = w_convergence_criteria[param]
-                    else:
-                        w_convergence[param] = global_convergence_parameters[param]
-            else:
-                w_convergence = global_convergence_parameters.copy()
-
-            global_convergence_parameters['hold'] = self.tardis_config.convergence_criteria['hold']
-            self.global_convergence_parameters = global_convergence_parameters
-            self.t_inner_convergence = t_inner_convergence
-            self.t_rad_convergence_parameters = t_rad_convergence
-            self.w_convergence_parameters = w_convergence
-            self.converged = False
-
-
-        else:
-            raise ValueError("convergence criteria unclear %s", self.tardis_config.convergence_criteria)
 
         #Selecting plasma class
         self.plasma_type = tardis_config.plasma_type

@@ -528,11 +528,68 @@ class TardisConfiguration(object):
             logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
             config_dict['w_epsilon'] = 1e-10
 
+        #PARSING convergence section
+        convergence_variables = ['t_inner', 't_rad', 'w']
         if 'convergence_criteria' in montecarlo_section:
+
+
+            convergence_section = montecarlo_section['convergence_criteria']
+
+            if convergence_section['type'] == 'damped':
+                config_dict['convergence_type'] == 'damped'
+                global_damping_constant = convergence_section['damping_constant']
+
+                for convergence_variable in convergence_variables:
+                    convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
+                    current_convergence_parameters = {}
+                    config_dict[convergence_parameter_name] = current_convergence_parameters
+
+                    if convergence_variable in convergence_section:
+                        current_convergence_parameters['damping_constant'] \
+                            = convergence_section[convergence_variable]['damping_constant']
+                    else:
+                        current_convergence_parameters['damping_constant'] = global_damping_constant
+
+            elif convergence_section['type'] == 'specific':
+
+                config_dict['convergence_type'] = 'specific'
+
+                global_convergence_parameters = {}
+                global_convergence_parameters['damping_constant'] = convergence_section['damping_constant']
+                global_convergence_parameters['threshold'] = convergence_section['threshold']
+
+                global_convergence_parameters['fraction'] = convergence_section['fraction']
+
+                for convergence_variable in convergence_variables:
+                    convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
+                    current_convergence_parameters = {}
+                    config_dict[convergence_parameter_name] = current_convergence_parameters
+                    if convergence_variable in convergence_section:
+                        for param in global_convergence_parameters.keys():
+                            if param == 'fraction' and convergence_variable == 't_inner':
+                                continue
+                            if param in convergence_section[convergence_variable]:
+                                current_convergence_parameters[param] = convergence_section[convergence_variable][param]
+                            else:
+                                current_convergence_parameters[param] = global_convergence_parameters[param]
+                    else:
+                        config_dict[convergence_parameter_name] = global_convergence_parameters.copy()
+
+                global_convergence_parameters['hold'] = convergence_section['hold']
+
+            else:
+                raise ValueError("convergence criteria unclear %s", convergence_section['type'])
+
             config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
         else:
-            config_dict['convergence_criteria'] = {}
-            ##### NLTE Section #####
+            logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
+            config_dict['convergence_type'] = 'specific'
+            for convergence_variable in convergence_variables:
+                convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
+                config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
+
+
+        ##### NLTE Section #####
 
         config_dict['nlte_options'] = yaml_dict.pop('nlte', {})
 
