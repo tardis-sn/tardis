@@ -563,6 +563,7 @@ class TardisConfiguration(object):
                 for convergence_variable in convergence_variables:
                     convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
                     current_convergence_parameters = {}
+
                     config_dict[convergence_parameter_name] = current_convergence_parameters
                     if convergence_variable in convergence_section:
                         for param in global_convergence_parameters.keys():
@@ -576,11 +577,12 @@ class TardisConfiguration(object):
                         config_dict[convergence_parameter_name] = global_convergence_parameters.copy()
 
                 global_convergence_parameters['hold'] = convergence_section['hold']
+                config_dict['global_convergence_parameters'] = global_convergence_parameters
 
             else:
                 raise ValueError("convergence criteria unclear %s", convergence_section['type'])
 
-            config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
+                #config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
         else:
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
             config_dict['convergence_type'] = 'specific'
