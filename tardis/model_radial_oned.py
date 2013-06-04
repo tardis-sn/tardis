@@ -116,13 +116,16 @@ class Radial1DModel(object):
 
         self.sigma_thomson = tardis_config.sigma_thomson
 
-        self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu, tardis_config.spectrum_end_nu,
+        self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu.value, tardis_config.spectrum_end_nu.value,
                                         tardis_config.spectrum_bins + 1)
         self.spec_nu = self.spec_nu_bins[:-1]
 
         self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
 
-        self.gui = None
+        #reading the convergence criteria
+        self.converged = False
+        self.convergence_type = tardis_config.convergence_type
+
 
 
 
