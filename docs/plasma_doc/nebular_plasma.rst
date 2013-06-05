@@ -44,13 +44,13 @@ and the species ionization threshold (from the ground state) :math:`\chi_0`.
 **For** :math:`\chi_\textrm{T} \ge \chi_0`
 
 .. math::
-    \delta = \frac{T_\textrm{e}}{b_1 W T_\textrm{R}} \exp(\frac{\chi_\textrm{T}}{k T_\textrm{R}} -
+\delta = \frac{T_\textrm{e}}{b_1 W T_\textrm{R}} \exp(\frac{\chi_\textrm{T}}{k T_\textrm{R}} -
     \frac{\chi_0}{k T_\textrm{e}})
 
 **For** :math:`\chi_\textrm{T} < \chi_0`
 
 .. math::
-    \delta = 1 - \exp(\frac{\chi_\textrm{T}}{k T_\textrm{R}} - \frac{\chi_0}{k T_\textrm{R}}) +
+\delta = 1 - \exp(\frac{\chi_\textrm{T}}{k T_\textrm{R}} - \frac{\chi_0}{k T_\textrm{R}}) +
     \frac{T_\textrm{e}}{b_1 W T_\textrm{R}} \exp(\frac{\chi_\textrm{T}}{k T_\textrm{R}} -
     \frac{\chi_0}{k T_\textrm{e}}),
 
@@ -61,7 +61,7 @@ dilution factor.
 Now we can calculate the ionization balance using equation 14 in :cite:`1993A&A...279..447M`:
 
 .. math::
-        \Phi_{i,j} &= \frac{N_{i, j+1} n_e}{N_{i, j}} \\
+\Phi_{i,j} &= \frac{N_{i, j+1} n_e}{N_{i, j}} \\
 
         \Phi_{i, j} &= W \times[\delta \zeta + W ( 1 - \zeta)] \left(\frac{T_\textrm{e}}{T_\textrm{R}}\right)^{1/2}
         \Phi_{i, j}(\textrm{LTE}) \\
@@ -81,8 +81,9 @@ by using the calculated ion species number densities:
 This concludes the calculation of the nebular plasma. In the code, the next step is calculating the :math:`\tau_\textrm{Sobolev}` using
 the quantities calculated here.
 
+Example Calculations
+^^^^^^^^^^^^^^^^^^^^
 
-.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance_w.5.py
-    :include-source:
+.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance.py
+:include-source:
 
-.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance_w1.py
