@@ -14,8 +14,6 @@ import yaml
 
 import itertools
 
-import pdb
-
 from .plasma import intensity_black_body
 
 logger = logging.getLogger(__name__)
@@ -533,6 +531,20 @@ class Radial1DModel(object):
 
         electron_densities_path = os.path.join(path, 'electron_densities')
         pd.Series(self.electron_densities).to_hdf(hdf_store, electron_densities_path)
+
+        last_line_interaction_in_id_path = os.path.join(path, 'last_line_interaction_in_id')
+        pd.Series(self.last_line_interaction_in_id).to_hdf(hdf_store, last_line_interaction_in_id_path)
+
+        last_line_interaction_out_id_path = os.path.join(path, 'last_line_interaction_out_id')
+        pd.Series(self.last_line_interaction_out_id).to_hdf(hdf_store, last_line_interaction_out_id_path)
+
+        spectrum = pd.DataFrame.from_dict(dict(wave=self.spec_angstrom, self.spec_flux_angstrom))
+        spectrum.to_hdf(hdf_store, os.path.join(path, 'spectrum'))
+
+        spectrum_virtual = pd.DataFrame.from_dict(dict(wave=self.spec_angstrom, self.spec_virtual_flux_angstrom))
+        spectrum_virtual.to_hdf(hdf_store, os.path.join(path, 'spectrum_virtual'))
+
+        hdf_store.flush()
         return hdf_store
 
 
