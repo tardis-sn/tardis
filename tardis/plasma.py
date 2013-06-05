@@ -65,10 +65,6 @@ class BasePlasma(object):
     t_electron : `~float`, optional
         electron temperature in K (the default is `None` and implies to set it to 0.9 * t_rad)
 
-    use_macro_atom : `~bool`, optional
-        flag to enable the macroatom calculation - this should be used in conjunction with the macroatom or downbranch
-        line interaction
-
     nlte_species : `~list`-like, optional
         what species to use for NLTE calculations (e.g. [(20,1), (14, 1)] for Ca II and Si II; default is [])
 
@@ -90,7 +86,7 @@ class BasePlasma(object):
 
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+                       nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -139,16 +135,16 @@ class BasePlasma(object):
         number_density /= atom_data.atom_data.mass[number_density.index]
 
         return cls(t_rad=t_rad, w=w, number_density=number_density, atom_data=atom_data, j_blues=j_blues,
-                   time_explosion=time_explosion, t_electron=t_electron, use_macro_atom=use_macro_atom, zone_id=zone_id,
+                   time_explosion=time_explosion, t_electron=t_electron, zone_id=zone_id,
                    nlte_species=nlte_species, nlte_options=nlte_options, saha_treatment=saha_treatment)
 
     @classmethod
     def from_hdf5(cls, hdf5store):
-        self.ge = xxxxx
+        pass
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+                 nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
         self.number_density = number_density
         self.electron_density = self.number_density.sum()
 
@@ -335,6 +331,8 @@ class BasePlasma(object):
 
         """
 
+        logger.debug('Calculating Saha using LTE approximation')
+
         def calculate_phis(group):
             return group[1:] / group[:-1].values
 
@@ -373,6 +371,7 @@ class BasePlasma(object):
 
         """
 
+        logger.debug('Calculating Saha using Nebular approximation')
         phis = self.calculate_saha_lte()
 
         delta = self.calculate_radiation_field_correction()
@@ -707,30 +706,38 @@ class LTEPlasma(BasePlasma):
 
     @classmethod
     def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None):
+                       nlte_species=[], nlte_options={}, zone_id=None):
         __doc__ = BasePlasma.from_abundance.__doc__
         return super(LTEPlasma, cls).from_abundance(t_rad, 1., abundance, density, atom_data, time_explosion,
                                                     j_blues=j_blues, t_electron=t_electron,
-                                                    use_macro_atom=use_macro_atom, nlte_species=nlte_species,
+                                                    nlte_species=nlte_species,
                                                     nlte_options=nlte_options, zone_id=zone_id)
 
     def __init__(self, t_rad, number_density, atom_data, time_explosion, w=1., j_blues=None, t_electron=None,
-                 use_macro_atom=False,
                  nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='lte'):
         super(LTEPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                        t_electron=t_electron, use_macro_atom=use_macro_atom, nlte_species=nlte_species,
+                                        t_electron=t_electron, nlte_species=nlte_species,
                                         nlte_options=nlte_options, zone_id=zone_id, saha_treatment=saha_treatment)
 
 
 class NebularPlasma(BasePlasma):
     __doc__ = BasePlasma.__doc__
 
+    @classmethod
+    def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
+                       nlte_species=[], nlte_options={}, zone_id=None):
+        return super(NebularPlasma, cls).from_abundance(t_rad, w, abundance, density, atom_data, time_explosion,
+                                                        j_blues=j_blues, t_electron=t_electron,
+                                                        nlte_species=nlte_species,
+                                                        nlte_options=nlte_options, zone_id=zone_id,
+                                                        saha_treatment='nebular')
+
+
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 use_macro_atom=False,
                  nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='nebular'):
         super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                            t_electron=t_electron, use_macro_atom=use_macro_atom,
-                                            nlte_species=nlte_species, nlte_options=nlte_options, zone_id=zone_id,
+                                            t_electron=t_electron, nlte_species=nlte_species, nlte_options=nlte_options,
+                                            zone_id=zone_id,
                                             saha_treatment=saha_treatment)
 
 
