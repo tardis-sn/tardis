@@ -34,9 +34,8 @@ intersphinx_mapping = {
     'matplotlib': ('http://matplotlib.sourceforge.net/', None),
     'astropy': ('http://www.astropy.org/', None),
     'h5py': ('http://h5py.alfven.org/docs-2.1/', None),
-    'pandas' : ('http://pandas.pydata.org/pandas-docs/dev/', None)
+    'pandas': ('http://pandas.pydata.org/pandas-docs/dev/', None)
 }
-
 
 import sphinx_bootstrap_theme
 import matplotlib.sphinxext.plot_directive
@@ -46,18 +45,19 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
-#    'sphinx.ext.pngmath',
+    #    'sphinx.ext.pngmath',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
     'sphinx.ext.inheritance_diagram',
     'numpydoc',
-#    'astropy.sphinx.ext.numpydoc',
-#    'astropy.sphinx.ext.astropyautosummary',
-#    'astropy.sphinx.ext.automodsumm',
+    #    'astropy.sphinx.ext.numpydoc',
+    #    'astropy.sphinx.ext.astropyautosummary',
+    #    'astropy.sphinx.ext.automodsumm',
     'astropy.sphinx.ext.automodapi',
     'sphinxcontrib.blockdiag'
 ]
-
+## get's rid of many toctree contains errors: see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
+numpydoc_show_class_members = False
 extensions += [matplotlib.sphinxext.plot_directive.__name__]
 
 extensions.append('sphinxcontrib.bibtex')

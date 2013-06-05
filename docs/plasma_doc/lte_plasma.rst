@@ -5,7 +5,7 @@ The `LTEPlasma` plasma class is the child of `BasePlasma` but is the first class
 After running exactley through the same steps as `BasePlasma`, `LTEPlasma` will start calculating the `partition functions <http://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)>`_.
 
 .. math::
-    Z_{i, j} = \sum_{k=0}^{max (k)} g_k \times e^{-E_k / (k_\textrm{b} T)}
+Z_{i, j} = \sum_{k=0}^{max (k)} g_k \times e^{-E_k / (k_\textrm{b} T)}
 
 , where Z is the partition function, g is the degeneracy factor, E the energy of the level and T the temperature of the radiation field.
 
@@ -22,7 +22,7 @@ followed by calculating the ion fractions (`LTEPlasma.calculate_saha`).
 In the second step (`LTEPlasma.calculate_ionization_balance`), we calculate in an iterative process the electron density and the number density for each ion species.
 
 .. math::
-    N(X) &= N_1 + N_2 + N_3 + \dots\\
+N(X) &= N_1 + N_2 + N_3 + \dots\\
     N(X) &= N_1 + \frac{N_2}{N_1} N_1 + \frac{N_3}{N_2}\frac{N_2}{N_1} N_1 + \frac{N_4}{N_3}\frac{N_3}{N_2}\frac{N_2}{N_1} N_1 + \dots\\
     N(X) &= N_1 (1 + \frac{N_2}{N_1} + \frac{N_3}{N_2}\frac{N_2}{N_1} + \frac{N_4}{N_3}\frac{N_3}{N_2}\frac{N_2}{N_1} + \dots)\\
     N(X) &= N_1 \underbrace{(1 + \frac{\Phi_{i, 2/1}}{N_e} + \frac{\Phi_{i, 2/2}}{N_e}\frac{\Phi_{i, 2/1}}{N_e} +
@@ -37,11 +37,11 @@ factor of 1, twice ionized contribute with a factor of two, ....).
 Finally we calculate the level populations (`LTEPlasma.calculate_level_populations`), by using the calculated ion species number densities:
 
 .. math::
-    N_{i, j, k} = \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k}
+N_{i, j, k} = \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k}
 
 This concludes the calculation of the plasma. In the code, the next step is calculating the :math:`\tau_\textrm{Sobolev}` using
 the quantities calculated here.
 
-#.. plot:: plasma_doc/plasma_plots/lte_ionization_balance.py
-#    :include-source:
+.. plot:: plasma_doc/plasma_plots/lte_ionization_balance.py
+:include-source:
 
