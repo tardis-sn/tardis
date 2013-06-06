@@ -85,5 +85,5 @@ Example Calculations
 ^^^^^^^^^^^^^^^^^^^^
 
 .. plot:: plasma_doc/plasma_plots/nebular_ionization_balance.py
-:include-source:
+    :include-source:
 
