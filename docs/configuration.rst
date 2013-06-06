@@ -259,6 +259,8 @@ Config Reader
 
 The YAML file is read by using a classmethod of the `TardisConfiguration.from_yaml`.
 
-.. automodapi: tardis.config_reader
+
+
+.. automodapi:: tardis.config_reader
 
 
