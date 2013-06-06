@@ -53,12 +53,12 @@ class BasePlasma(object):
     number_density : `~pandas.Series`
         Series where the index describes the atomic number and the value is the number density
 
-    atom_data : `tardis.atomic.AtomData`
-
+    atom_data : :class:`~tardis.atomic.AtomData` object
+        with the necessary information
     time_explosion : `~float`
         time since explosion in seconds
 
-    j_blues=None : `~numpy.ndarray`, optional
+    j_blues=None : :class:`~numpy.ndarray`, optional
         mean intensity at the blue side of the line (the default is `None` and implies that they are calculated
         according to the selected Plasma)
 
@@ -357,7 +357,7 @@ class BasePlasma(object):
         The :math:`\\zeta` factor for different temperatures is read in to the `~tardis.atomic.NebularAtomData` and then
         interpolated for the current temperature.
 
-        The :math:`\\delta` factor is calculated with :method:`calculate_radiation_field_correction`.
+        The :math:`\\delta` factor is calculated with :meth:`calculate_radiation_field_correction`.
 
         Finally the ionization balance is adjusted (as equation 14 in :cite:`1993A&A...279..447M`):
 

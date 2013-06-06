@@ -3,7 +3,6 @@
 import numpy as np
 import plasma, packet_source
 import logging
-import pylab
 
 import pandas as pd
 from pandas.io.pytables import HDFStore
@@ -548,9 +547,7 @@ class Radial1DModel(object):
         return hdf_store
 
 
-    def plot_spectrum(self, ax=None, mode='wavelength', virtual=True):
-        if ax is None:
-            ax = pylab.gca()
+    def plot_spectrum(self, ax, mode='wavelength', virtual=True):
         if mode == 'wavelength':
             x = self.spec_angstrom
             if virtual:

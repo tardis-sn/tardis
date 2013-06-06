@@ -1,5 +1,3 @@
-.. _macroatom:
-
 Macro Atom
 ----------
 
