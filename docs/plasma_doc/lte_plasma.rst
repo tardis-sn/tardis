@@ -22,7 +22,7 @@ followed by calculating the ion fractions (`LTEPlasma.calculate_saha`).
 In the second step (`LTEPlasma.calculate_ionization_balance`), we calculate in an iterative process the electron density and the number density for each ion species.
 
 .. math::
-N(X) &= N_1 + N_2 + N_3 + \dots\\
+    N(X) &= N_1 + N_2 + N_3 + \dots\\
     N(X) &= N_1 + \frac{N_2}{N_1} N_1 + \frac{N_3}{N_2}\frac{N_2}{N_1} N_1 + \frac{N_4}{N_3}\frac{N_3}{N_2}\frac{N_2}{N_1} N_1 + \dots\\
     N(X) &= N_1 (1 + \frac{N_2}{N_1} + \frac{N_3}{N_2}\frac{N_2}{N_1} + \frac{N_4}{N_3}\frac{N_3}{N_2}\frac{N_2}{N_1} + \dots)\\
     N(X) &= N_1 \underbrace{(1 + \frac{\Phi_{i, 2/1}}{N_e} + \frac{\Phi_{i, 2/2}}{N_e}\frac{\Phi_{i, 2/1}}{N_e} +
@@ -37,11 +37,11 @@ factor of 1, twice ionized contribute with a factor of two, ....).
 Finally we calculate the level populations (`LTEPlasma.calculate_level_populations`), by using the calculated ion species number densities:
 
 .. math::
-N_{i, j, k} = \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k}
+    N_{i, j, k} = \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k}
 
 This concludes the calculation of the plasma. In the code, the next step is calculating the :math:`\tau_\textrm{Sobolev}` using
 the quantities calculated here.
 
 .. plot:: plasma_doc/plasma_plots/lte_ionization_balance.py
-:include-source:
+    :include-source:
 

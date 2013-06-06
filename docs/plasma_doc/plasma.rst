@@ -1,3 +1,5 @@
+.. _plasmas:
+
 Plasma
 ======
 .. currentmodule:: tardis.plasma
