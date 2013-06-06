@@ -514,7 +514,7 @@ class BasePlasma(object):
 
         else:
             level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
-            self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_mask])
+            self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
 
 
     def calculate_tau_sobolev(self):
@@ -541,7 +541,25 @@ class BasePlasma(object):
         f_lu = self.atom_data.lines['f_lu'].values
         wavelength = self.atom_data.lines['wavelength_cm'].values
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
-        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower
+        n_upper = self.level_populations.values[self.atom_data.lines_upper2level_idx]
+
+        g_lower = self.atom_data.levels.g.values[self.atom_data.lines_lower2level_idx]
+        g_upper = self.atom_data.levels.g.values[self.atom_data.lines_upper2level_idx]
+
+
+        self.stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
+
+        self.stimulated_emission_factor[np.isnan[self.stimulated_emission_factor]] = 1.
+
+        negative_stimulated_emission_mask = [self.stimulated_emission_factor[self.atom_data.nlte_data.nlte_lines_mask] < 0.]
+
+        self.stimulated_emission_factor[negative_stimulated_emission_mask] = 0.0
+
+        if any(self.stimulated_emission_factor < 0.0):
+            raise PlasmaException('Stimulated Emission Factor negtive - population inversion!')
+
+        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
+                            self.stimulated_emission_factor
 
     def calculate_nlte_level_populations(self):
         """
@@ -620,6 +638,7 @@ class BasePlasma(object):
 
         macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values.astype(int)]
 
+
         beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
 
         macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
@@ -629,8 +648,10 @@ class BasePlasma(object):
         transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
 
         j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
+        macro_stimulated_emission = self.stimulated_emission_factor[
+            self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
 
-        transition_probabilities[transition_up_filter.__array__()] *= j_blues
+        transition_probabilities[transition_up_filter.__array__()] *= j_blues * macro_stimulated_emission
 
         #reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
 
