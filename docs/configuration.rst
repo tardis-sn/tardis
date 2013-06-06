@@ -4,7 +4,8 @@ Configuration File
 .. :currentmodule:: tardis.config_reader
 
 TARDIS uses the `YAML markup language <https://en.wikipedia.org/wiki/YAML>`_ for its configuration files. There are several sections which allow different
-settings for the different aspects of the TARDIS calculation.
+settings for the different aspects of the TARDIS calculation. An example configuration file can be downloaded
+:download:`here <example_configs/full_configuration.yml>`.
 
 .. warning::
     One should note that currently floats in YAML need to be specified in a special format:
@@ -259,3 +260,5 @@ Config Reader
 The YAML file is read by using a classmethod of the `TardisConfiguration.from_yaml`.
 
 .. automodapi: tardis.config_reader
+
+
