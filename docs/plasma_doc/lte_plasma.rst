@@ -5,7 +5,7 @@ The `LTEPlasma` plasma class is the child of `BasePlasma` but is the first class
 After running exactley through the same steps as `BasePlasma`, `LTEPlasma` will start calculating the `partition functions <http://en.wikipedia.org/wiki/Partition_function_(statistical_mechanics)>`_.
 
 .. math::
-Z_{i, j} = \sum_{k=0}^{max (k)} g_k \times e^{-E_k / (k_\textrm{b} T)}
+    Z_{i, j} = \sum_{k=0}^{max (k)} g_k \times e^{-E_k / (k_\textrm{b} T)}
 
 , where Z is the partition function, g is the degeneracy factor, E the energy of the level and T the temperature of the radiation field.
 

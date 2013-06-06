@@ -4,14 +4,14 @@ TARDIS
 This is the documentation for the TARDIS package.
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 1
 
     introduction
     installation
-    configuration
     running
+    configuration
     atomic
-    plasma_doc/plasma
+    plasma
     montecarlo
     glossary
     zreferences

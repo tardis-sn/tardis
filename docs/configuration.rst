@@ -1,3 +1,5 @@
+.. _config-file:
+
 Configuration File
 ==================
 
@@ -257,7 +259,7 @@ parameter ``lum_density`` which sets the distance to :math:`\sqrt{\frac{1}{4 \pi
 Config Reader
 ^^^^^^^^^^^^^
 
-The YAML file is read by using a classmethod of the `TardisConfiguration.from_yaml`.
+The YAML file is read by using a classmethod of the :meth:`~tardis.config_reader.TardisConfiguration.from_yaml`.
 
 
 

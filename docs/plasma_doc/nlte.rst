@@ -1,5 +1,3 @@
-.. _nlte:
-
 NLTE treatment
 --------------
 
