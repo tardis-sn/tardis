@@ -42,6 +42,9 @@ Finally we calculate the level populations (`LTEPlasma.calculate_level_populatio
 This concludes the calculation of the plasma. In the code, the next step is calculating the :math:`\tau_\textrm{Sobolev}` using
 the quantities calculated here.
 
+Example Calculations
+^^^^^^^^^^^^^^^^^^^^
+
 .. plot:: plasma_doc/plasma_plots/lte_ionization_balance.py
     :include-source:
 

@@ -85,12 +85,10 @@ This function calculates the Sobolev optical depth :math:`\tau_\textrm{Sobolev}`
 
     \tau_\textrm{Sobolev} = C_\textrm{Sobolev}\,  \lambda\, f_{\textrm{lower}\rightarrow\textrm{upper}}\,
         t_\textrm{explosion}\, N_\textrm{lower}
+        (1 - \frac{g_\textrm{lower}}{g_\textrm{upper}}\frac{N_\textrm{upper}}{N_\textrm{lower}})
 
 
 
-.. note::
-    Currently we're ignoring the term for stimulated emission:
-        :math:`(1 - \frac{g_\textrm{lower}}{g_\textrm{upper}}\frac{N_\textrm{upper}}{N_\textrm{lower}})`
 
 
 .. include:: macroatom.rst

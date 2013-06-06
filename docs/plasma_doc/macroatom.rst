@@ -106,7 +106,7 @@ and as we will normalise the transition probabilities numerically later,  we can
                                                     \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{i}\\,
 
 
-Like, when calculating :ref:`tau_sobolev` we assume the 'stimulated emission term' is negligible and we set it to 1.
+
 
 There are two parts for each of the probabilities, one that is pre-computed by `~tardisatomic` and is in the HDF5 File,
 and one that is computed during the plasma calculations:
@@ -118,4 +118,6 @@ and one that is computed during the plasma calculations:
         p_\textrm{internal down} &= \underbrace{\frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
                                            \epsilon_\textrm{lower}}_\textrm{pre-computed}\,\beta_\textrm{Sobolev}\\
         p_\textrm{internal up} &= \underbrace{\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}}_\textrm{pre-computed}
-                                                        \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{i}\\,
+                                                        \beta_\textrm{Sobolev} J_{\nu}^{b}\,
+                                                        (1-\frac{g_\textrm{i}}{g_\textrm{upper}}\frac{n_\textrm{upper}}{n_i})
+                                                        \,\epsilon_{i}.
