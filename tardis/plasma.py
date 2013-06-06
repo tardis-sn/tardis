@@ -549,14 +549,19 @@ class BasePlasma(object):
 
         self.stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
 
-        self.stimulated_emission_factor[np.isnan[self.stimulated_emission_factor]] = 1.
+        self.stimulated_emission_factor[np.isnan(self.stimulated_emission_factor)] = 1.
 
         negative_stimulated_emission_mask = [self.stimulated_emission_factor[self.atom_data.nlte_data.nlte_lines_mask] < 0.]
 
         self.stimulated_emission_factor[negative_stimulated_emission_mask] = 0.0
 
-        if any(self.stimulated_emission_factor < 0.0):
-            raise PlasmaException('Stimulated Emission Factor negtive - population inversion!')
+        if np.any(self.stimulated_emission_factor < 0.0):
+            population_inversion = self.atom_data.lines[self.stimulated_emission_factor < 0.0][['atomic_number',
+                                                                                                'ion_number',
+                                                                                                'level_number_lower',
+                                                                                                'level_number_upper']]
+            self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0] = 0.0
+            logger.critical("Population inversion occuring - non physical: \n %s " % population_inversion)
 
         self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
                             self.stimulated_emission_factor
