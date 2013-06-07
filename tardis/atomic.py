@@ -567,13 +567,16 @@ class NLTEData(object):
             self.B_lus[species] = self.atom_data.lines.B_lu.values[lines_idx]
 
     def _create_nlte_mask(self):
-        self.nlte_mask = np.zeros(self.atom_data.levels.energy.count()).astype(bool)
+        self.nlte_levels_mask = np.zeros(self.atom_data.levels.energy.count()).astype(bool)
+        self.nlte_lines_mask = np.zeros(self.atom_data.lines.wavelength.count()).astype(bool)
 
         for species in self.nlte_species:
-            current_mask = (self.atom_data.levels.index.get_level_values(0) == species[0]) & \
+            current_levels_mask = (self.atom_data.levels.index.get_level_values(0) == species[0]) & \
                            (self.atom_data.levels.index.get_level_values(1) == species[1])
-
-            self.nlte_mask |= current_mask
+            current_lines_mask = (self.atom_data.lines.atomic_number.values == species[0]) & \
+                           (self.atom_data.lines.ion_number.values == species[1])
+            self.nlte_levels_mask |= current_levels_mask
+            self.nlte_lines_mask |= current_lines_mask
 
 
     def _create_collision_coefficient_matrix(self):

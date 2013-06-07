@@ -57,6 +57,24 @@ cdef class StorageModel:
     cdef float_type_t*packet_mus
     cdef np.ndarray packet_energies_a
     cdef float_type_t*packet_energies
+    ######## Setting up the output ########
+    cdef np.ndarray output_nus_a
+    cdef float_type_t*output_nus
+    cdef np.ndarray output_energies_a
+    cdef float_type_t*output_energies
+
+    cdef np.ndarray last_line_interaction_in_id_a
+    cdef int_type_t*last_line_interaction_in_id
+
+    cdef np.ndarray last_line_interaction_out_id_a
+    cdef int_type_t*last_line_interaction_out_id
+
+    cdef np.ndarray last_line_interaction_shell_id_a
+    cdef int_type_t*last_line_interaction_shell_id
+
+    cdef np.ndarray last_interaction_type_a
+    cdef int_type_t*last_interaction_type
+
     cdef int_type_t no_of_packets
     cdef int_type_t no_of_shells
     cdef np.ndarray r_inner_a
@@ -67,10 +85,10 @@ cdef class StorageModel:
     cdef float_type_t*v_inner
     cdef float_type_t time_explosion
     cdef float_type_t inverse_time_explosion
-    cdef np.ndarray electron_density_a
-    cdef float_type_t*electron_density
-    cdef np.ndarray inverse_electron_density_a
-    cdef float_type_t*inverse_electron_density
+    cdef np.ndarray electron_densities_a
+    cdef float_type_t*electron_densities
+    cdef np.ndarray inverse_electron_densities_a
+    cdef float_type_t*inverse_electron_densities
     cdef np.ndarray line_list_nu_a
     cdef float_type_t*line_list_nu
     cdef np.ndarray line_lists_tau_sobolevs_a
@@ -108,6 +126,7 @@ cdef class StorageModel:
 
     cdef float_type_t sigma_thomson
     cdef float_type_t inverse_sigma_thomson
+    cdef int_type_t current_packet_id
 
     def __init__(self, model):
 
@@ -144,13 +163,13 @@ cdef class StorageModel:
         self.time_explosion = model.time_explosion
         self.inverse_time_explosion = 1 / model.time_explosion
         #electron density
-        cdef np.ndarray[float_type_t, ndim=1] electron_density = model.electron_density
-        self.electron_density_a = electron_density
-        self.electron_density = <float_type_t*> self.electron_density_a.data
+        cdef np.ndarray[float_type_t, ndim=1] electron_densities = model.electron_densities
+        self.electron_densities_a = electron_densities
+        self.electron_densities = <float_type_t*> self.electron_densities_a.data
         #
-        cdef np.ndarray[float_type_t, ndim=1] inverse_electron_density = 1 / electron_density
-        self.inverse_electron_density_a = inverse_electron_density
-        self.inverse_electron_density = <float_type_t*> self.inverse_electron_density_a.data
+        cdef np.ndarray[float_type_t, ndim=1] inverse_electron_densities = 1 / electron_densities
+        self.inverse_electron_densities_a = inverse_electron_densities
+        self.inverse_electron_densities = <float_type_t*> self.inverse_electron_densities_a.data
         #Line lists
         cdef np.ndarray[float_type_t, ndim=1] line_list_nu = model.line_list_nu.values
         self.line_list_nu_a = line_list_nu
@@ -206,8 +225,41 @@ cdef class StorageModel:
             self.transition_line_id_a = transition_line_id
             self.transition_line_id = <int_type_t*> self.transition_line_id_a.data
 
+        cdef np.ndarray[float_type_t, ndim=1] output_nus = np.zeros(self.no_of_packets, dtype=np.float64)
+        cdef np.ndarray[float_type_t, ndim=1] output_energies = np.zeros(self.no_of_packets, dtype=np.float64)
+
+        self.output_nus_a = output_nus
+        self.output_nus = <float_type_t*> self.output_nus_a.data
+
+        self.output_energies_a = output_energies
+        self.output_energies = <float_type_t*> self.output_energies_a.data
+
+        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_in_id = -1 * np.ones(self.no_of_packets,
+                                                                                       dtype=np.int64)
+        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(self.no_of_packets,
+                                                                                        dtype=np.int64)
+
+        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_shell_id = -1 * np.ones(self.no_of_packets,
+                                                                                          dtype=np.int64)
+
+        cdef np.ndarray[int_type_t, ndim=1] last_interaction_type = -1 * np.ones(self.no_of_packets,
+                                                                                 dtype=np.int64)
+
+        self.last_line_interaction_in_id_a = last_line_interaction_in_id
+        self.last_line_interaction_in_id = <int_type_t*> self.last_line_interaction_in_id_a.data
+
+        self.last_line_interaction_out_id_a = last_line_interaction_out_id
+        self.last_line_interaction_out_id = <int_type_t*> self.last_line_interaction_out_id_a.data
+
+        self.last_line_interaction_shell_id_a = last_line_interaction_shell_id
+        self.last_line_interaction_shell_id = <int_type_t*> last_line_interaction_shell_id.data
+
+        self.last_interaction_type_a = last_interaction_type
+        self.last_interaction_type = <int_type_t*> last_interaction_type.data
+
         cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(model.no_of_shells, dtype=np.float64)
         cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(model.no_of_shells, dtype=np.float64)
+
         self.js_a = js
         self.js = <float_type_t*> self.js_a.data
         self.nubars_a = nubars
@@ -225,6 +277,8 @@ cdef class StorageModel:
             self.sigma_thomson = model.sigma_thomson
 
         self.inverse_sigma_thomson = 1 / self.sigma_thomson
+
+        self.current_packet_id = -1
         #
         #
         #
@@ -480,6 +534,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
     storage = StorageModel(model)
 
+
     ######## Setting up the output ########
     cdef np.ndarray[float_type_t, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     cdef np.ndarray[float_type_t, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
@@ -507,7 +562,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         if i % (storage.no_of_packets / 5) == 0:
             logger.info("At packet %d of %d", i, storage.no_of_packets)
 
-
+        storage.current_packet_id = i
         #setting up the properties of the packet
         current_nu = storage.packet_nus[i]
         current_energy = storage.packet_energies[i]
@@ -555,16 +610,19 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                                            &recently_crossed_boundary, virtual_packet_flag, 0)
 
         if reabsorbed == 1: #reabsorbed
-            output_nus[i] = -current_nu
-            output_energies[i] = -current_energy
+            storage.output_nus[i] = -current_nu
+            storage.output_energies[i] = -current_energy
 
         elif reabsorbed == 0: #emitted
-            output_nus[i] = current_nu
-            output_energies[i] = current_energy
+            storage.output_nus[i] = current_nu
+            storage.output_energies[i] = current_energy
 
             #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    return output_nus, output_energies, storage.js_a, storage.nubars_a
+    return storage.output_nus_a, storage.output_energies_a, storage.js_a, storage.nubars_a, \
+           storage.last_line_interaction_in_id_a, storage.last_line_interaction_out_id_a, storage.last_interaction_type_a, \
+           storage.last_line_interaction_shell_id_a
+
 
 #
 #
@@ -748,7 +806,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                 d_electron = miss_distance
             else:
                 d_electron = compute_distance2electron(current_r[0], current_mu[0], tau_event,
-                                                       storage.inverse_electron_density[current_shell_id[0]] * \
+                                                       storage.inverse_electron_densities[current_shell_id[0]] * \
                                                        storage.inverse_sigma_thomson)
                 # ^^^^^^^^^^^^^^^^^^ ELECTRON DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
 
@@ -799,7 +857,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                         current_shell_id[0], virtual_packet)
             #for a virtual packet, add on the opacity contribution from the continuum
             if (virtual_packet > 0):
-                tau_event += (d_outer * storage.electron_density[current_shell_id[0]] * storage.sigma_thomson)
+                tau_event += (d_outer * storage.electron_densities[current_shell_id[0]] * storage.sigma_thomson)
             else:
                 tau_event = -log(rk_double(&mt_state))
 
@@ -834,7 +892,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
             #for a virtual packet, add on the opacity contribution from the continuum
             if (virtual_packet > 0):
-                tau_event += (d_inner * storage.electron_density[current_shell_id[0]] * storage.sigma_thomson)
+                tau_event += (d_inner * storage.electron_densities[current_shell_id[0]] * storage.sigma_thomson)
             else:
                 tau_event = -log(rk_double(&mt_state))
 
@@ -880,6 +938,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             comov_nu = current_nu[0] * doppler_factor
             comov_energy = current_energy[0] * doppler_factor
 
+
             #new mu chosen
             current_mu[0] = 2 * rk_double(&mt_state) - 1
             inverse_doppler_factor = 1 / (
@@ -903,6 +962,9 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             #scattered so can re-cross a boundary now
             recently_crossed_boundary[0] = 0
             #We've had an electron scattering event in the SN. This corresponds to a source term - we need to spawn virtual packets now
+
+            storage.last_interaction_type[storage.current_packet_id] = 1
+
             if (virtual_packet_flag > 0):
                 #print "AN ELECTRON SCATTERING HAPPENED: CALLING VIRTUAL PARTICLES!!!!!!"
                 montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r,
@@ -923,7 +985,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             tau_line = storage.line_lists_tau_sobolevs[
                 current_shell_id[0] * storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
 
-            tau_electron = storage.sigma_thomson * storage.electron_density[current_shell_id[0]] * d_line
+            tau_electron = storage.sigma_thomson * storage.electron_densities[current_shell_id[0]] * d_line
             tau_combined = tau_line + tau_electron
 
             # ------------------------------ LOGGING ----------------------
@@ -1000,6 +1062,9 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                     if storage.line_interaction_id == 0: #scatter
                         emission_line_id = current_line_id[0] - 1
                     elif storage.line_interaction_id >= 1:# downbranch & macro
+                        storage.last_line_interaction_in_id[storage.current_packet_id] = current_line_id[0] - 1
+                        storage.last_line_interaction_shell_id[storage.current_packet_id] = current_shell_id[0]
+                        storage.last_interaction_type[storage.current_packet_id] = 2
                         activate_level_id = storage.line2macro_level_upper[current_line_id[0] - 1]
                         #print "HERE %g %g" %(current_line_id[0], activate_level_id)
                         #print "DEST " , (storage.destination_level_id[0], storage.destination_level_id[5], storage.destination_level_id[10])
@@ -1012,7 +1077,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                                       storage.transition_line_id,
                                                       storage.macro_block_references,
                                                       current_shell_id[0])
-
+                    storage.last_line_interaction_out_id[storage.current_packet_id] = emission_line_id
                     current_nu[0] = storage.line_list_nu[emission_line_id] * inverse_doppler_factor
                     nu_line = storage.line_list_nu[emission_line_id]
                     current_line_id[0] = emission_line_id + 1

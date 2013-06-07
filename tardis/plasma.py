@@ -6,7 +6,7 @@ import logging
 from astropy import constants
 import pandas as pd
 import macro_atom
-import pdb
+import os
 from .config_reader import reformat_element_symbol
 
 logger = logging.getLogger(__name__)
@@ -16,7 +16,6 @@ logger = logging.getLogger(__name__)
 
 
 #Defining soboleve constant
-
 sobolev_coefficient = ((np.pi * constants.e.gauss.value ** 2) / (constants.m_e.cgs.value * constants.c.cgs.value))
 
 
@@ -29,7 +28,7 @@ def intensity_black_body(nu, T):
         Calculate the intensity of a black-body according to the following formula
 
         .. math::
-            I(\\nu, T) = \frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
+            I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
     """
     beta_rad = 1 / (constants.k_B.cgs.value * T)
@@ -45,41 +44,72 @@ class BasePlasma(object):
     Parameters
     ----------
 
-    abundances : `~dict`
-        A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
-
     t_rad : `~float`
-        Temperature in Kelvin for the plasma
+        radiation temperature in K
 
-    density : `float`
-        density in g/cm^3
+    w : `~float`
+        dilution factor W
 
-        .. warning::
-            Instead of g/cm^ will later use the keyword `density_unit` as unit
+    number_density : `~pandas.Series`
+        Series where the index describes the atomic number and the value is the number density
 
-    atom_data : `~tardis.atomic.AtomData`-object
+    atom_data : :class:`~tardis.atomic.AtomData` object
+        with the necessary information
+    time_explosion : `~float`
+        time since explosion in seconds
 
-    max_ion_number : `~int`
-        maximum used ionization of atom used in the calculation (inclusive the number)
+    j_blues=None : :class:`~numpy.ndarray`, optional
+        mean intensity at the blue side of the line (the default is `None` and implies that they are calculated
+        according to the selected Plasma)
 
+    t_electron : `~float`, optional
+        electron temperature in K (the default is `None` and implies to set it to 0.9 * t_rad)
+
+    nlte_species : `~list`-like, optional
+        what species to use for NLTE calculations (e.g. [(20,1), (14, 1)] for Ca II and Si II; default is [])
+
+    nlte_options={} : `dict`-like, optional
+        NLTE options mainly for debugging purposes - please refer to the configuration documentation for additional
+        information
+
+    zone_id=None : `int`, optional
+        What zone_id this plasma represents. Mainly for logging purposes.
+
+    saha_treatment : `str`, optional
+        Describes what Saha treatment to use for ionization calculations. The options are `lte` or `nebular`
+
+    Returns
+    -------
+
+    `tardis.plasma.BasePlasma`
     """
 
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+                       nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
         """
-        :param cls:
-        :param t_rad:
-        :param w:
-        :param abundance:
-        :param density:
-        :param atom_data:
-        :param time_explosion:
-        :param t_electron:
-        :param use_macro_atom:
-        :param zone_id:
-        :param nlte_species:
-        :return:
+        Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
+        All other parameters are the same as the normal initializer
+
+
+        Parameters
+        ----------
+
+        abundances : `~dict`
+            A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
+
+        abundances : `~dict`
+        A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
+
+
+        density : `~float`
+            density in g/cm^3
+
+
+        Returns
+        -------
+
+        `Baseplasma` object
         """
 
         number_density = pd.Series(index=np.arange(1, 120))
@@ -105,12 +135,16 @@ class BasePlasma(object):
         number_density /= atom_data.atom_data.mass[number_density.index]
 
         return cls(t_rad=t_rad, w=w, number_density=number_density, atom_data=atom_data, j_blues=j_blues,
-                   time_explosion=time_explosion, t_electron=t_electron, use_macro_atom=use_macro_atom, zone_id=zone_id,
+                   time_explosion=time_explosion, t_electron=t_electron, zone_id=zone_id,
                    nlte_species=nlte_species, nlte_options=nlte_options, saha_treatment=saha_treatment)
+
+    @classmethod
+    def from_hdf5(cls, hdf5store):
+        pass
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+                 nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
         self.number_density = number_density
         self.electron_density = self.number_density.sum()
 
@@ -203,7 +237,13 @@ class BasePlasma(object):
             self.calculate_ion_populations(phis)
             ion_numbers = np.array([item[1] for item in self.ion_populations.index])
             new_electron_density = np.sum(self.ion_populations.values * ion_numbers)
+            if np.isnan(new_electron_density):
+                raise PlasmaException('electron density just turned "nan" - aborting')
+
             n_e_iterations += 1
+            if n_e_iterations > 100:
+                logger.warn('electron density iterations above 100 (%d) - something is probably wrong', n_e_iterations)
+
             if abs(
                             new_electron_density - self.electron_density) / self.electron_density < n_e_convergence_threshold: break
             self.electron_density = 0.5 * (new_electron_density + self.electron_density)
@@ -291,6 +331,8 @@ class BasePlasma(object):
 
         """
 
+        logger.debug('Calculating Saha using LTE approximation')
+
         def calculate_phis(group):
             return group[1:] / group[:-1].values
 
@@ -315,7 +357,7 @@ class BasePlasma(object):
         The :math:`\\zeta` factor for different temperatures is read in to the `~tardis.atomic.NebularAtomData` and then
         interpolated for the current temperature.
 
-        The :math:`\\delta` factor is calculated with :method:`calculate_radiation_field_correction`.
+        The :math:`\\delta` factor is calculated with :meth:`calculate_radiation_field_correction`.
 
         Finally the ionization balance is adjusted (as equation 14 in :cite:`1993A&A...279..447M`):
 
@@ -329,6 +371,7 @@ class BasePlasma(object):
 
         """
 
+        logger.debug('Calculating Saha using Nebular approximation')
         phis = self.calculate_saha_lte()
 
         delta = self.calculate_radiation_field_correction()
@@ -430,7 +473,6 @@ class BasePlasma(object):
         #TODO see if self.ion_populations is None is needed (first class should be enough)
         if not hasattr(self, 'ion_populations') or self.ion_populations is None:
             self.ion_populations = pd.Series(index=self.partition_functions.index.copy())
-            self.cleaned_levels = pd.Series(index=self.partition_functions.index.copy())
 
         for atomic_number, groups in phis.groupby(level='atomic_number'):
             current_phis = groups.values / self.electron_density
@@ -472,7 +514,7 @@ class BasePlasma(object):
 
         else:
             level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
-            self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_mask])
+            self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
 
 
     def calculate_tau_sobolev(self):
@@ -499,7 +541,48 @@ class BasePlasma(object):
         f_lu = self.atom_data.lines['f_lu'].values
         wavelength = self.atom_data.lines['wavelength_cm'].values
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
-        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower
+        n_upper = self.level_populations.values[self.atom_data.lines_upper2level_idx]
+
+        g_lower = self.atom_data.levels.g.values[self.atom_data.lines_lower2level_idx]
+        g_upper = self.atom_data.levels.g.values[self.atom_data.lines_upper2level_idx]
+
+
+        self.stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
+
+        self.stimulated_emission_factor[np.isnan(self.stimulated_emission_factor)] = 1.
+
+        negative_stimulated_emission_mask = [self.stimulated_emission_factor[self.atom_data.nlte_data.nlte_lines_mask] < 0.]
+
+        self.stimulated_emission_factor[negative_stimulated_emission_mask] = 0.0
+
+        if np.any(self.stimulated_emission_factor < 0.0):
+            population_inversion = self.atom_data.lines[self.stimulated_emission_factor < 0.0][['atomic_number',
+                                                                                                'ion_number',
+                                                                                                'level_number_lower',
+                                                                                                'level_number_upper']]
+
+            for i, (line_id, population_inversion_line) in enumerate(population_inversion.iterrows()):
+                atomic_number = population_inversion_line['atomic_number']
+                ion_number = population_inversion_line['ion_number']
+
+                level_lower = self.atom_data.levels.ix[atomic_number,
+                                                        ion_number,
+                                                        population_inversion_line['level_number_lower']]
+                level_upper = self.atom_data.levels.ix[atomic_number,
+                                                        ion_number,
+                                                        population_inversion_line['level_number_upper']]
+
+                if level_lower['metastable'] or level_upper['metastable']:
+                    logger.debug("Population inversion occuring with a metastable level: \n %s ",
+                                    population_inversion_line)
+                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
+                else:
+                    logger.critical("Population inversion occuring with a non-metastable level, this is unphysical: \n %s ",
+                                    population_inversion_line)
+
+
+        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
+                            self.stimulated_emission_factor
 
     def calculate_nlte_level_populations(self):
         """
@@ -578,6 +661,7 @@ class BasePlasma(object):
 
         macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values.astype(int)]
 
+
         beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
 
         macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
@@ -587,17 +671,18 @@ class BasePlasma(object):
         transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
 
         j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
+        macro_stimulated_emission = self.stimulated_emission_factor[
+            self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
 
-        transition_probabilities[transition_up_filter.__array__()] *= j_blues
+        transition_probabilities[transition_up_filter.__array__()] *= j_blues * macro_stimulated_emission
 
-        reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
+        #reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
 
         #Normalizing the probabilities
         #TODO speedup possibility save the new blockreferences with 0 and last block
         block_references = np.hstack((self.atom_data.macro_atom_references['block_references'],
                                       len(self.atom_data.macro_atom_data)))
         macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
-
         return transition_probabilities
 
     def set_j_blues(self, j_blues=None):
@@ -607,8 +692,10 @@ class BasePlasma(object):
             self.j_blues = j_blues
 
     def calculate_bound_free(self):
+        #TODO DOCUMENTATION missing!!!
         """
-        :return:
+        None
+
         """
         nu_bins = range(1000, 10000, 1000) #TODO: get the binning from the input file.
         try:
@@ -627,77 +714,74 @@ class BasePlasma(object):
                 phi = phis.ix[atomic_number, ion_number]
 
 
+    def to_hdf5(self, hdf5_store, path):
+        """
+
+        param hdf5_store:
+        :param path:
+        :return:
+        """
+
+        partition_functions_path = os.path.join(path, 'partition_functions')
+        self.partition_functions.to_hdf(hdf5_store, partition_functions_path)
+
+        ion_populations_path = os.path.join(path, 'ion_populations')
+        self.ion_populations.to_hdf(hdf5_store, ion_populations_path)
+
+        level_populations_path = os.path.join(path, 'level_populations')
+        self.level_populations.to_hdf(hdf5_store, level_populations_path)
+
+        j_blues_path = os.path.join(path, 'j_blues')
+        pd.Series(self.j_blues).to_hdf(hdf5_store, j_blues_path)
+
+        number_density_path = os.path.join(path, 'number_density')
+        self.number_density.to_hdf(hdf5_store, number_density_path)
+
+        tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
+        pd.Series(self.tau_sobolevs).to_hdf(hdf5_store, tau_sobolevs_path)
+
+        transition_probabilities_path = os.path.join(path, 'transition_probabilities')
+        transition_probabilities = self.calculate_transition_probabilities()
+        pd.Series(transition_probabilities).to_hdf(hdf5_store, transition_probabilities_path)
+
+
 class LTEPlasma(BasePlasma):
-    """
-    Model for BasePlasma using a local thermodynamic equilibrium approximation.
-
-    Parameters
-    ----------
-
-    abundances : `~dict`
-       A dictionary with the abundances for each element
-
-    t_rad : `~float`
-       Temperature in Kelvin for the plasma
-
-    density : `float`
-       density in g/cm^3
-
-       .. warning::
-           Instead of g/cm^ will later use the keyword `density_unit` as unit
-
-    atom_data : `~tardis.atomic.AtomData`-object
-
-    """
+    __doc__ = BasePlasma.__doc__
 
     @classmethod
     def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       use_macro_atom=False, nlte_species=[], nlte_options={}, zone_id=None):
+                       nlte_species=[], nlte_options={}, zone_id=None):
+        __doc__ = BasePlasma.from_abundance.__doc__
         return super(LTEPlasma, cls).from_abundance(t_rad, 1., abundance, density, atom_data, time_explosion,
                                                     j_blues=j_blues, t_electron=t_electron,
-                                                    use_macro_atom=use_macro_atom, nlte_species=nlte_species,
+                                                    nlte_species=nlte_species,
                                                     nlte_options=nlte_options, zone_id=zone_id)
 
     def __init__(self, t_rad, number_density, atom_data, time_explosion, w=1., j_blues=None, t_electron=None,
-                 use_macro_atom=False,
                  nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='lte'):
         super(LTEPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                        t_electron=t_electron, use_macro_atom=use_macro_atom, nlte_species=nlte_species,
+                                        t_electron=t_electron, nlte_species=nlte_species,
                                         nlte_options=nlte_options, zone_id=zone_id, saha_treatment=saha_treatment)
 
 
 class NebularPlasma(BasePlasma):
-    """
-    Model for BasePlasma using the Nebular approximation
+    __doc__ = BasePlasma.__doc__
 
-    Parameters
-    ----------
+    @classmethod
+    def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
+                       nlte_species=[], nlte_options={}, zone_id=None):
+        return super(NebularPlasma, cls).from_abundance(t_rad, w, abundance, density, atom_data, time_explosion,
+                                                        j_blues=j_blues, t_electron=t_electron,
+                                                        nlte_species=nlte_species,
+                                                        nlte_options=nlte_options, zone_id=zone_id,
+                                                        saha_treatment='nebular')
 
-    abundances : `~dict`
-       A dictionary with the abundances for each element
-
-    t_rad : `~float`
-       Temperature in Kelvin for the plasma
-
-    density : `float`
-       density in g/cm^3
-
-       .. warning::
-           Instead of g/cm^ will later use the keyword `density_unit` as unit
-
-    atom_data : `~tardis.atomic.AtomData`-object
-
-    t_electron : `~float`, or `None`
-        the electron temperature. if set to `None` we assume the electron temperature is 0.9 * radiation temperature
-
-    """
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 use_macro_atom=False,
                  nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='nebular'):
         super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                            t_electron=t_electron, use_macro_atom=use_macro_atom,
-                                            nlte_species=nlte_species, nlte_options=nlte_options, zone_id=zone_id,
+                                            t_electron=t_electron, nlte_species=nlte_species, nlte_options=nlte_options,
+                                            zone_id=zone_id,
                                             saha_treatment=saha_treatment)
 
 

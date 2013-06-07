@@ -3,6 +3,7 @@
 
 import sys
 import imp
+import numpy as np
 
 try:
     # This incantation forces distribute to be used (over setuptools) if it is
@@ -104,7 +105,8 @@ setup(name=PACKAGENAME,
       package_dir=package_dirs,
       ext_modules=extensions,
       scripts=scripts,
-      requires=['astropy'],
+      include_dirs=[np.get_include()],
+      requires=['astropy', 'numpy', 'pandas', 'scipy'],
       install_requires=['astropy'],
       provides=[PACKAGENAME],
       author=AUTHOR,

@@ -1,3 +1,5 @@
+.. _montecarlo:
+
 Radiative Monte Carlo
 =====================
 
