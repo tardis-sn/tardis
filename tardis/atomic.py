@@ -573,8 +573,8 @@ class NLTEData(object):
         for species in self.nlte_species:
             current_levels_mask = (self.atom_data.levels.index.get_level_values(0) == species[0]) & \
                            (self.atom_data.levels.index.get_level_values(1) == species[1])
-            current_lines_mask = (self.atom_data.lines['atomic_number'].value == species[0]) & \
-                           (self.atom_data.lines['ion_number'].value == species[1])
+            current_lines_mask = (self.atom_data.lines.atomic_number.values == species[0]) & \
+                           (self.atom_data.lines.ion_number.values == species[1])
             self.nlte_levels_mask |= current_levels_mask
             self.nlte_lines_mask |= current_lines_mask
 
