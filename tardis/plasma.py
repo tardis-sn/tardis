@@ -560,8 +560,26 @@ class BasePlasma(object):
                                                                                                 'ion_number',
                                                                                                 'level_number_lower',
                                                                                                 'level_number_upper']]
-            self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0] = 0.0
-            logger.critical("Population inversion occuring - non physical: \n %s " % population_inversion)
+
+            for i, (line_id, population_inversion_line) in enumerate(population_inversion.iterrows()):
+                atomic_number = population_inversion_line['atomic_number']
+                ion_number = population_inversion_line['ion_number']
+
+                level_lower = self.atom_data.levels.ix[atomic_number,
+                                                        ion_number,
+                                                        population_inversion_line['level_number_lower']]
+                level_upper = self.atom_data.levels.ix[atomic_number,
+                                                        ion_number,
+                                                        population_inversion_line['level_number_upper']]
+
+                if level_lower['metastable'] or level_upper['metastable']:
+                    logger.debug("Population inversion occuring with a metastable level: \n %s ",
+                                    population_inversion_line)
+                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
+                else:
+                    logger.critical("Population inversion occuring with a non-metastable level, this is unphysical: \n %s ",
+                                    population_inversion_line)
+
 
         self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
                             self.stimulated_emission_factor
