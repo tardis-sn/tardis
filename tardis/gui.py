@@ -1,5 +1,6 @@
 import sys, os
 import numpy as np
+import pdb
 import matplotlib
 import matplotlib.pylab as plt
 from matplotlib.patches import Circle, Wedge
@@ -59,14 +60,14 @@ class ModelViewer(QtGui.QWidget):
         self.tablemodel.add_data(datain)
 
     def plot(self):
-        for i in range(20):
-            globals()["shell_" + str(i)] = Wedge((0,0), i + 1, 0, 360, width=0.1)
-            # globals()["shell_" + str(i)].picker = True
+        # set title and axis labels
+        num_shells = 2
+        for i in range(num_shells):
+            globals()["shell_" + str(i)] = Shell((0,0), i + 1, 0.1, picker=self.graph.shell_picker)
             self.graph.ax.add_patch(globals()["shell_" + str(i)])
-
         #patches = []
         #self.graph.ax.add_patch(shell_0)
-        self.graph.ax.axis(xmin=-20,xmax=20,ymin=-20,ymax=20)
+        self.graph.ax.axis(xmin=-num_shells,xmax=num_shells,ymin=-num_shells,ymax=num_shells)
         self.graph.draw()
 
 class MyTableModel(QtCore.QAbstractTableModel):
@@ -117,13 +118,48 @@ class MatplotlibWidget(FigureCanvas):
         FigureCanvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         FigureCanvas.updateGeometry(self)
 
-    #     cid = self.figure.canvas.mpl_connect('button_press_event', self.onclick)
-    #
-    # def onclick(event):
+        cid = self.figure.canvas.mpl_connect('pick_event', self.onpick)
+
+    # def onclick(self, event):
     #     print 'button=%d, x=%d, y=%d, xdata=%f, ydata=%f'% (
     #     event.button, event.x, event.y, event.xdata, event.ydata)
-    #
-    # def pick_handler(event):
-    #     mouseevent = event.mouseevent
-    #     artist = event.artist
-    #     print event
+
+    def onpick(self, event):
+        mouseevent = event.mouseevent
+        shell = event.artist
+        #ind = event.ind
+        print 'Picked event:', event, mouseevent.xdata, mouseevent.ydata, shell.get_out_radius()
+
+    def shell_picker(self, shell, mouseevent):
+        """
+        find the points within a certain distance from the mouseclick in
+        data coords and attach some extra attributes, pickx and picky
+        which are the data points that were picked
+        """
+        tolerance = 0.03 # distance that click is allowed from shell, based on matplotlib data coordinates
+        if mouseevent.xdata is None:
+            return False, dict()
+        mouse_r2 = mouseevent.xdata ** 2 + mouseevent.ydata ** 2
+        if (shell.get_in_radius() - tolerance) ** 2 < mouse_r2 < (shell.get_out_radius() + tolerance) ** 2:
+            return True, dict()
+        return False, dict()
+
+class Shell(matplotlib.patches.Wedge):
+
+    def __init__(self, center, r, width, **kwargs):
+        matplotlib.patches.Wedge.__init__(self, center, r, 0, 360, width=width, **kwargs)
+        self.center = center
+        self.radius = r
+        self.width = width
+
+    def get_out_radius(self):
+        return self.radius
+
+    def get_in_radius(self):
+        return self.radius - self.width
+
+    def get_center(self):
+        return self.center
+
+    def get_width(self):
+        return self.width
