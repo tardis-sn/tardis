@@ -27,7 +27,7 @@ class ModelViewer(QtGui.QWidget):
         self.setWindowTitle('Shell Viewer')
         self.tablemodel = MyTableModel(["t_rad", "Ws"])
         self.tableview = QtGui.QTableView()
-        self.graph = MatplotlibWidget()
+        self.graph = MatplotlibWidget(self)
         self.layout = QtGui.QHBoxLayout()
 
     def show_model(self, model=None):
@@ -61,14 +61,20 @@ class ModelViewer(QtGui.QWidget):
 
     def plot(self):
         # set title and axis labels
-        num_shells = 2
+        num_shells = 20
         for i in range(num_shells):
-            globals()["shell_" + str(i)] = Shell((0,0), i + 1, 0.1, picker=self.graph.shell_picker)
+            globals()["shell_" + str(i)] = Shell(i + 1, (0,0), i + 1, 0.2, picker=self.graph.shell_picker)
             self.graph.ax.add_patch(globals()["shell_" + str(i)])
         #patches = []
         #self.graph.ax.add_patch(shell_0)
-        self.graph.ax.axis(xmin=-num_shells,xmax=num_shells,ymin=-num_shells,ymax=num_shells)
+        self.graph.ax.axis(xmin=0,xmax=num_shells,ymin=0,ymax=num_shells)
         self.graph.draw()
+
+    # def process_figure_action_queue(self):
+    #     if len(self.graph.action_queue):
+    #         if 'shellClicked' in self.graph.action_queue.keys():
+    #             print self.graph.action_queue['shellClicked']
+    #             self.tableview.selectRow(self.graph.action_queue['shellClicked'] - 1)
 
 class MyTableModel(QtCore.QAbstractTableModel):
     def __init__(self, headerdata, parent=None, *args):
@@ -110,9 +116,11 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
 class MatplotlibWidget(FigureCanvas):
 
-    def __init__(self):
+    def __init__(self, parent):
+        self.parent = parent
         self.figure = Figure()
         self.ax = self.figure.add_subplot(111)
+        self.action_queue = {}
 
         FigureCanvas.__init__(self, self.figure)
         FigureCanvas.setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
@@ -129,6 +137,8 @@ class MatplotlibWidget(FigureCanvas):
         shell = event.artist
         #ind = event.ind
         print 'Picked event:', event, mouseevent.xdata, mouseevent.ydata, shell.get_out_radius()
+        #self.action_queue['shellClicked'] = shell.get_index()
+        self.parent.tableview.selectRow(shell.get_index() - 1)
 
     def shell_picker(self, shell, mouseevent):
         """
@@ -136,7 +146,7 @@ class MatplotlibWidget(FigureCanvas):
         data coords and attach some extra attributes, pickx and picky
         which are the data points that were picked
         """
-        tolerance = 0.03 # distance that click is allowed from shell, based on matplotlib data coordinates
+        tolerance = 0.05 # distance that click is allowed from shell, based on matplotlib data coordinates
         if mouseevent.xdata is None:
             return False, dict()
         mouse_r2 = mouseevent.xdata ** 2 + mouseevent.ydata ** 2
@@ -146,11 +156,15 @@ class MatplotlibWidget(FigureCanvas):
 
 class Shell(matplotlib.patches.Wedge):
 
-    def __init__(self, center, r, width, **kwargs):
-        matplotlib.patches.Wedge.__init__(self, center, r, 0, 360, width=width, **kwargs)
+    def __init__(self, index, center, r, width, **kwargs):
+        matplotlib.patches.Wedge.__init__(self, center, r, 0, 90, width=width, **kwargs)
+        self.index = index
         self.center = center
         self.radius = r
         self.width = width
+
+    def get_index(self):
+        return self.index
 
     def get_out_radius(self):
         return self.radius
