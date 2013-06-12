@@ -9,6 +9,7 @@ This is the documentation for the TARDIS package.
     introduction
     installation
     running
+    gui
     configuration
     atomic
     plasma
