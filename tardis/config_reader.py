@@ -585,7 +585,7 @@ class TardisConfiguration(object):
                 #config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
         else:
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
-            config_dict['convergence_type'] = 'specific'
+            config_dict['convergence_type'] = 'damped'
             for convergence_variable in convergence_variables:
                 convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
                 config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
