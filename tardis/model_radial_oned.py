@@ -119,6 +119,12 @@ class Radial1DModel(object):
 
         self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
 
+        self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
+
+        self.spec_flux_angstrom = np.ones_like(self.spec_angstrom)
+        self.spec_virtual_flux_angstrom = np.ones_like(self.spec_angstrom)
+
+        self.gui = None
         #reading the convergence criteria
         self.converged = False
         self.convergence_type = tardis_config.convergence_type
@@ -389,6 +395,10 @@ class Radial1DModel(object):
 
         self.iterations_executed += 1
         self.iterations_remaining -= 1
+
+        if self.gui is not None:
+            self.gui.update_data(self)
+            self.gui.show()
 
         if update_radiation_field:
             self.update_radiationfield()
