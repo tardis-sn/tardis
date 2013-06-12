@@ -41,13 +41,14 @@ where the evaluation comes from the mean value of
 
 .. math::
 
-    \bar{x} = \frac{ \int_0^{\infty} x^4 dx/ (\exp{x} - 1)}{\int_0^{\infty} x^3 dx/ (\exp{x} - 1)} = \frac{24 \zeta(5)}{\pi^4/15}
+    \bar{x} = \frac{ \int_0^{\infty} x^4 / (\exp{x} - 1)dx}{\int_0^{\infty} x^3 / (\exp{x} - 1)dx} =
+    24 \zeta(5) \frac{15}{\pi^4} = 3.8322\dots
 
 and so
 
 .. math::
 
-    T_{R} &= \frac{\pi^4}{15} \frac{1}{24 \zeta(5)} \frac{h}{k_{B}} \frac{\bar{\nu}_\textrm{estimator}}{J_\textrm{estimator}} \\
+    T_{R} &= \frac{1}{\bar{x}} \frac{h}{k_{B}} \frac{\bar{\nu}_\textrm{estimator}}{J_\textrm{estimator}} \\
     &= 0.260945 \frac{h}{k_{B}} \frac{\bar{\nu}_\textrm{estimator}}{J_\textrm{estimator}}.
 
 With the radiation temperature known, we can then obtain our estimate for for the dilution factor. Our radiation field model in the 
