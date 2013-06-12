@@ -20,21 +20,30 @@ class ModelViewer(QtGui.QWidget):
         except ImportError:
             app.exec_()
 
-        super(ModelViewer, self).__init__(self, parent)
-        self.setGeometry(100, 100, 965, 600)
-        self.setWindowTitle('Shell Viewer')
+        super(ModelViewer, self).__init__(parent)
+        self.setGeometry(20, 35, 1200, 500)
+        self.setWindowTitle('Shells Viewer')
         self.tablemodel = MyTableModel(["t_rad", "Ws"])
         self.tableview = QtGui.QTableView()
-        self.graph = MatplotlibWidget(self)
+        self.tableview.setMinimumWidth(200)
+        self.graph = MatplotlibWidget(self, 'model')
+        self.spectrum = MatplotlibWidget(self)
+        self.spectrum.ax.set_title('Spectrum')
+        self.spectrum.ax.set_xlabel('Wavelength (A)')
+        self.spectrum.ax.set_ylabel('Intensity')
         self.layout = QtGui.QHBoxLayout()
+        self.sublayout = QtGui.QVBoxLayout()
         self.model = None
 
     def show_model(self, model=None):
         if model:
             self.change_model(model)
         self.tableview.setModel(self.tablemodel)
-        self.layout.addWidget(self.graph)
         self.layout.addWidget(self.tableview)
+        self.layout.addWidget(self.graph)
+        self.sublayout.addWidget(self.spectrum)
+        self.sublayout.addWidget(self.spectrum.toolbar)
+        self.layout.addLayout(self.sublayout)
         self.setLayout(self.layout)
         self.plot()
         self.show()
@@ -59,7 +68,9 @@ class ModelViewer(QtGui.QWidget):
 
     def plot(self):
         self.graph.ax.clear()
-        # set title and axis labels
+        self.graph.ax.set_title('Model')
+        self.graph.ax.set_xlabel('Distance from Center (1e13 m)')
+        self.graph.ax.set_ylabel('Distance from Center (1e13 m)')
         self.shells = []
         t_rad_normalizer = colors.Normalize(vmin=self.model.t_rads.min(), vmax=self.model.t_rads.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
@@ -82,9 +93,23 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax.set_ylim(0, self.model.r_outer[-1] * 1e-15)
         self.graph.draw()
 
+class ShellInfo(QtGui.QDialog):
+
+    def __init__(self, index, parent=None):
+        super(ShellInfo, self).__init__(parent)
+        self.index = index
+        self.setGeometry(500, 150, 650, 650)
+        self.setWindowTitle('Shell %d Info' % (self.index + 1))
+        self.graph = MatplotlibWidget(self)
+        self.layout = QtGui.QVBoxLayout()
+        self.layout.addWidget(self.graph)
+        self.layout.addWidget(self.graph.toolbar)
+        self.setLayout(self.layout)
+        self.show()
+
 class MyTableModel(QtCore.QAbstractTableModel):
     def __init__(self, headerdata, parent=None, *args):
-        super(MyTableModel, self).__init__(self, parent, *args)
+        super(MyTableModel, self).__init__(parent, *args)
         self.arraydata = []
         self.headerdata = headerdata
 
@@ -122,24 +147,24 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
 class MatplotlibWidget(FigureCanvas):
 
-    def __init__(self, parent):
+    def __init__(self, parent, fig=None):
         self.parent = parent
         self.figure = Figure()
-        self.ax = self.figure.add_subplot(211)
+        self.ax = self.figure.add_subplot(111)
         self.cb = None
-        self.toolbar = NavigationToolbar(self, parent)
 
-        super(MatplotlibWidget, self).__init__(self, self.figure)
-        super(MatplotlibWidget, self).setSizePolicy(self, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        super(MatplotlibWidget, self).updateGeometry(self)
-
-        cid = self.figure.canvas.mpl_connect('pick_event', self.onpick)
+        super(MatplotlibWidget, self).__init__(self.figure)
+        super(MatplotlibWidget, self).setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
+        super(MatplotlibWidget, self).updateGeometry()
+        if fig != 'model':
+            self.toolbar = NavigationToolbar(self, parent)
+        else:
+            cid = self.figure.canvas.mpl_connect('pick_event', self.onpick)
 
     def onpick(self, event):
-        mouseevent = event.mouseevent
-        shell = event.artist
-        print 'Picked event:', event, mouseevent.xdata, mouseevent.ydata, shell.r_outer
-        self.parent.tableview.selectRow(shell.index)
+        print 'Picked event:', event, event.mouseevent.xdata, event.mouseevent.ydata, event.artist.r_outer
+        self.parent.tableview.selectRow(event.artist.index)
+        shell_info = ShellInfo(event.artist.index, self.parent)
 
     def shell_picker(self, shell, mouseevent):
         if mouseevent.xdata is None:
