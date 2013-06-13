@@ -1,3 +1,5 @@
+.. _atomic-data:
+
 Atomic Data
 ===========
 .. currentmodule:: tardis.atomic

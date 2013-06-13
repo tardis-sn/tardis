@@ -85,10 +85,10 @@ cdef class StorageModel:
     cdef float_type_t*v_inner
     cdef float_type_t time_explosion
     cdef float_type_t inverse_time_explosion
-    cdef np.ndarray electron_density_a
-    cdef float_type_t*electron_density
-    cdef np.ndarray inverse_electron_density_a
-    cdef float_type_t*inverse_electron_density
+    cdef np.ndarray electron_densities_a
+    cdef float_type_t*electron_densities
+    cdef np.ndarray inverse_electron_densities_a
+    cdef float_type_t*inverse_electron_densities
     cdef np.ndarray line_list_nu_a
     cdef float_type_t*line_list_nu
     cdef np.ndarray line_lists_tau_sobolevs_a
@@ -163,13 +163,13 @@ cdef class StorageModel:
         self.time_explosion = model.time_explosion
         self.inverse_time_explosion = 1 / model.time_explosion
         #electron density
-        cdef np.ndarray[float_type_t, ndim=1] electron_density = model.electron_density
-        self.electron_density_a = electron_density
-        self.electron_density = <float_type_t*> self.electron_density_a.data
+        cdef np.ndarray[float_type_t, ndim=1] electron_densities = model.electron_densities
+        self.electron_densities_a = electron_densities
+        self.electron_densities = <float_type_t*> self.electron_densities_a.data
         #
-        cdef np.ndarray[float_type_t, ndim=1] inverse_electron_density = 1 / electron_density
-        self.inverse_electron_density_a = inverse_electron_density
-        self.inverse_electron_density = <float_type_t*> self.inverse_electron_density_a.data
+        cdef np.ndarray[float_type_t, ndim=1] inverse_electron_densities = 1 / electron_densities
+        self.inverse_electron_densities_a = inverse_electron_densities
+        self.inverse_electron_densities = <float_type_t*> self.inverse_electron_densities_a.data
         #Line lists
         cdef np.ndarray[float_type_t, ndim=1] line_list_nu = model.line_list_nu.values
         self.line_list_nu_a = line_list_nu
@@ -806,7 +806,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                 d_electron = miss_distance
             else:
                 d_electron = compute_distance2electron(current_r[0], current_mu[0], tau_event,
-                                                       storage.inverse_electron_density[current_shell_id[0]] * \
+                                                       storage.inverse_electron_densities[current_shell_id[0]] * \
                                                        storage.inverse_sigma_thomson)
                 # ^^^^^^^^^^^^^^^^^^ ELECTRON DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
 
@@ -857,7 +857,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                         current_shell_id[0], virtual_packet)
             #for a virtual packet, add on the opacity contribution from the continuum
             if (virtual_packet > 0):
-                tau_event += (d_outer * storage.electron_density[current_shell_id[0]] * storage.sigma_thomson)
+                tau_event += (d_outer * storage.electron_densities[current_shell_id[0]] * storage.sigma_thomson)
             else:
                 tau_event = -log(rk_double(&mt_state))
 
@@ -892,7 +892,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
             #for a virtual packet, add on the opacity contribution from the continuum
             if (virtual_packet > 0):
-                tau_event += (d_inner * storage.electron_density[current_shell_id[0]] * storage.sigma_thomson)
+                tau_event += (d_inner * storage.electron_densities[current_shell_id[0]] * storage.sigma_thomson)
             else:
                 tau_event = -log(rk_double(&mt_state))
 
@@ -985,7 +985,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             tau_line = storage.line_lists_tau_sobolevs[
                 current_shell_id[0] * storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
 
-            tau_electron = storage.sigma_thomson * storage.electron_density[current_shell_id[0]] * d_line
+            tau_electron = storage.sigma_thomson * storage.electron_densities[current_shell_id[0]] * d_line
             tau_combined = tau_line + tau_electron
 
             # ------------------------------ LOGGING ----------------------

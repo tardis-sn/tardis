@@ -1,7 +1,9 @@
 import os
-from matplotlib import pyplot as plt
+
 from matplotlib import colors
 from tardis import atomic, plasma, util
+from matplotlib import pyplot as plt
+
 import numpy as np
 import pandas as pd
 
@@ -26,25 +28,25 @@ atom_data.prepare_atom_data([14], 'scatter')
 #Initializing the NebularPlasma class using the from_abundance class method.
 #This classmethod is normally only needed to test individual plasma classes
 #Usually the plasma class just gets the number densities from the model class
-lte_plasma = plasma.LTEPlasma.from_abundance(10000, {'Si': 1}, 1e-13, atom_data, 10.)
+nebular_plasma = plasma.NebularPlasma.from_abundance(10000, 0.5, {'Si': 1}, 1e-13, atom_data, 10.)
 
 
 #Initializing a dataframe to store the ion populations  and level populations for the different temperatures
-ion_number_densities = pd.DataFrame(index=lte_plasma.ion_populations.index)
-level_populations = pd.DataFrame(index=lte_plasma.level_populations.ix[14, 1].index)
+ion_number_densities = pd.DataFrame(index=nebular_plasma.ion_populations.index)
+level_populations = pd.DataFrame(index=nebular_plasma.level_populations.ix[14, 1].index)
 t_rads = np.linspace(2000, 20000, 100)
 
 #Calculating the different ion populations and level populuatios for the given temperatures
 for t_rad in t_rads:
-    lte_plasma.update_radiationfield(t_rad, w=1.0)
+    nebular_plasma.update_radiationfield(t_rad, w=1.0)
     #getting total si number density
-    si_number_density = lte_plasma.number_density.get_value(14)
+    si_number_density = nebular_plasma.number_density.get_value(14)
     #Normalizing the ion populations
-    ion_density = lte_plasma.ion_populations / si_number_density
+    ion_density = nebular_plasma.ion_populations / si_number_density
     ion_number_densities[t_rad] = ion_density
 
     #normalizing the level_populations for Si II
-    current_level_population = lte_plasma.level_populations.ix[14, 1] / lte_plasma.ion_populations.ix[14, 1]
+    current_level_population = nebular_plasma.level_populations.ix[14, 1] / nebular_plasma.ion_populations.ix[14, 1]
     #normalizing with statistical weight
     current_level_population /= atom_data.levels.ix[14, 1].g
 
@@ -64,6 +66,36 @@ t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
 
 for t_rad in t_rads[::5]:
     ax2.plot(level_populations[t_rad].index, level_populations[t_rad].values, color=t_rad_color_map.to_rgba(t_rad))
+    ax2.semilogy()
+
+#Calculating the different ion populations for the given temperatures with W=0.5
+ion_number_densities = pd.DataFrame(index=nebular_plasma.ion_populations.index)
+for t_rad in t_rads:
+    nebular_plasma.update_radiationfield(t_rad, w=0.5)
+    #getting total si number density
+    si_number_density = nebular_plasma.number_density.get_value(14)
+    #Normalizing the ion populations
+    ion_density = nebular_plasma.ion_populations / si_number_density
+    ion_number_densities[t_rad] = ion_density
+
+    #normalizing the level_populations for Si II
+    current_level_population = nebular_plasma.level_populations.ix[14, 1] / nebular_plasma.ion_populations.ix[14, 1]
+    #normalizing with statistical weight
+    current_level_population /= atom_data.levels.ix[14, 1].g
+
+    level_populations[t_rad] = current_level_population
+
+#Plotting the ion fractions
+
+for ion_number in [0, 1, 2, 3]:
+    print "w=0.5"
+    current_ion_density = ion_number_densities.ix[14, ion_number]
+    ax1.plot(current_ion_density.index, current_ion_density.values, '%s--' % ion_colors[ion_number],
+             label='Si %s W=0.5' % util.int_to_roman(ion_number + 1).upper())
+
+for t_rad in t_rads[::5]:
+    ax2.plot(level_populations[t_rad].index, level_populations[t_rad].values, color=t_rad_color_map.to_rgba(t_rad),
+             linestyle='--')
     ax2.semilogy()
 
 t_rad_color_map.set_array(t_rads)

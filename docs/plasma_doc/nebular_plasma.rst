@@ -61,10 +61,10 @@ dilution factor.
 Now we can calculate the ionization balance using equation 14 in :cite:`1993A&A...279..447M`:
 
 .. math::
-        \Phi_{i,j} &= \frac{N_{i, j+1} n_e}{N_{i, j}} \\
+    \Phi_{i,j} &= \frac{N_{i, j+1} n_e}{N_{i, j}} \\
 
-        \Phi_{i, j} &= W \times[\delta \zeta + W ( 1 - \zeta)] \left(\frac{T_\textrm{e}}{T_\textrm{R}}\right)^{1/2}
-        \Phi_{i, j}(\textrm{LTE}) \\
+    \Phi_{i, j} &= W \times[\delta \zeta + W ( 1 - \zeta)] \left(\frac{T_\textrm{e}}{T_\textrm{R}}\right)^{1/2}
+    \Phi_{i, j}(\textrm{LTE}) \\
 
 
 In the last step, we calculate the ion number densities according using the methods in :class:`LTEPlasma`
@@ -81,8 +81,9 @@ by using the calculated ion species number densities:
 This concludes the calculation of the nebular plasma. In the code, the next step is calculating the :math:`\tau_\textrm{Sobolev}` using
 the quantities calculated here.
 
+Example Calculations
+^^^^^^^^^^^^^^^^^^^^
 
-.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance_w.5.py
+.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance.py
     :include-source:
 
-.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance_w1.py
