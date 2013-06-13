@@ -1,5 +1,3 @@
-.. _nlte:
-
 NLTE treatment
 --------------
 
@@ -106,11 +104,8 @@ Now we go back and look at the rate coefficients used for a level population - a
 .. math::
 
     \frac{dn_2}{dt} &= n_1 r_{12} - n_2 (r_{21} + r_{23}) + n_3 r_{32}\\
-                &= n_1 B_{12} \bar{J}_{12} + n_1 C_{12} n_e - n_2 A_{21} - n_2 B_{21} \bar{J}_{21} - n_2 C_{21} n_e
-                        - n_2 B_{23} \bar{J}_{23} - n_2 C_{23} n_e + n_3 A_{32} + n_3 B_{32} \bar{J}_{32} + n_3 C_{32} n_e,
-
-
-&=
+                &= n_1 B_{12} \bar{J}_{12} + n_1 C_{12} n_e - n_2 A_{21} - n_2 B_{21} \bar{J}_{21} - n_2 C_{21} n_e\\
+                        - n_2 B_{23} \bar{J}_{23} - n_2 C_{23} n_e + n_3 A_{32} + n_3 B_{32} \bar{J}_{32} + n_3 C_{32} n_e,\\
                          + n_3 A_{32}  + n_3 C_{32} n_e,
 
 Next we will group the stimulated emission and stimulated absorption terms as we can assume :math:`\bar{J_{12}} = \bar{J_{21}}`:

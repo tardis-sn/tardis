@@ -3,7 +3,6 @@
 import numpy as np
 import plasma, packet_source
 import logging
-import pylab
 
 import pandas as pd
 from pandas.io.pytables import HDFStore
@@ -13,8 +12,6 @@ import os
 import yaml
 
 import itertools
-
-import pdb
 
 from .plasma import intensity_black_body
 
@@ -109,43 +106,36 @@ class Radial1DModel(object):
 
         self.no_of_packets = tardis_config.no_of_packets
         self.current_no_of_packets = tardis_config.no_of_packets
-        self.iterations = tardis_config.iterations
+
+        self.iterations_max_requested = tardis_config.iterations
+        self.iterations_remaining = self.iterations_max_requested - 1
+        self.iterations_executed = 0
 
         self.sigma_thomson = tardis_config.sigma_thomson
 
-        self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu, tardis_config.spectrum_end_nu,
+        self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu.value, tardis_config.spectrum_end_nu.value,
                                         tardis_config.spectrum_bins + 1)
         self.spec_nu = self.spec_nu_bins[:-1]
 
         self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
 
-        #setting up convergence criteria
-        if self.tardis_config.convergence_criteria == {}:
-            logger.warning('No convergence criteria selected - just damping by 0.5')
-            self.convergence_type = 'damped'
-            self.convergence_damping_constant = 0.5
-            self.convergence_status = None
+        self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
 
-        elif self.tardis_config.convergence_criteria['type'] == 'tighten':
-            self.convergence_type = 'tighten'
-            self.convergence_parameters = np.array(self.tardis_config.convergence_criteria['tighten_parameters'])
-            self.convergence_parameters_t_inner = np.array(self.tardis_config.convergence_criteria['tighten_t_inner'])
-            self.convergence_t_inner_index = 0
-            self.convergence_t_rad_index = np.zeros(self.no_of_shells, int)
-            self.convergence_w_index = np.zeros(self.no_of_shells, int)
+        self.spec_flux_angstrom = np.ones_like(self.spec_angstrom)
+        self.spec_virtual_flux_angstrom = np.ones_like(self.spec_angstrom)
 
-            self.convergence_t_rad_gradient = None
-            self.convergence_t_inner_gradient = None
-            self.convergence_w_gradient = None
+        self.gui = None
+        #reading the convergence criteria
+        self.converged = False
+        self.convergence_type = tardis_config.convergence_type
+        self.t_inner_convergence_parameters = tardis_config.t_inner_convergence_parameters
+        self.t_rad_convergence_parameters = tardis_config.t_rad_convergence_parameters
+        self.w_convergence_parameters = tardis_config.w_convergence_parameters
 
-            self.convergence_status = None
+        if self.convergence_type == 'specific':
+            self.global_convergence_parameters = tardis_config.global_convergence_parameters.copy()
 
-        elif self.tardis_config.convergence_criteria['type'] == 'undampened':
-            self.convergence_type = 'undampened'
-            self.convergence_criteria = self.tardis_config.convergence_criteria['t_inner_convergence']
 
-        else:
-            raise ValueError("convergence criteria unclear %s", self.tardis_config.convergence_criteria)
 
         #Selecting plasma class
         self.plasma_type = tardis_config.plasma_type
@@ -194,7 +184,7 @@ class Radial1DModel(object):
 
 
     @property
-    def electron_density(self):
+    def electron_densities(self):
         return np.array([plasma.electron_density for plasma in self.plasmas])
 
     @property
@@ -362,7 +352,7 @@ class Radial1DModel(object):
                                          weights=self.montecarlo_energies[self.montecarlo_energies > 0],
                                          bins=self.spec_nu_bins)[0]
 
-        flux_scale = self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) * (4 * np.pi * distance ** 2)
+        flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) * (4 * np.pi * distance ** 2))
 
         self.spec_flux_nu /= flux_scale
 
@@ -375,9 +365,9 @@ class Radial1DModel(object):
 
         self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
 
-        self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
-        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
-        self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs / 1e8)
+        self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
+        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
+        self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
 
 
     def simulate(self, update_radiation_field=True, enable_virtual=False):
@@ -403,6 +393,13 @@ class Radial1DModel(object):
         self.last_line_interaction_out_id = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
         self.last_line_interaction_out_id[last_line_interaction_out_id == -1] = -1
 
+        self.iterations_executed += 1
+        self.iterations_remaining -= 1
+
+        if self.gui is not None:
+            self.gui.update_data(self)
+            self.gui.show()
+
         if update_radiation_field:
             self.update_radiationfield()
             self.update_plasmas()
@@ -410,19 +407,13 @@ class Radial1DModel(object):
 
     def update_radiationfield(self, log_sampling=5):
         """
-        Updating radiatiantion field
-
-        Parameters
-        ----------
-
-        nubar_estimators : ~np.ndarray
-        j_estimators : ~np.ndarray
-
+        Updating radiation field
         """
 
         updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
+        old_t_inner = self.t_inner
 
         emitted_energy = self.emitted_inner_energy * \
                          np.sum(self.montecarlo_energies[self.montecarlo_energies >= 0]) / 1.
@@ -430,50 +421,41 @@ class Radial1DModel(object):
                           np.sum(self.montecarlo_energies[self.montecarlo_energies < 0]) / -1.
         updated_t_inner = self.t_inner * (emitted_energy / self.luminosity_outer) ** -.25
 
+        convergence_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
+        convergence_ws = abs(old_ws - updated_ws) / updated_ws
+        convergence_t_inner = abs(old_t_inner - updated_t_inner) / updated_t_inner
+
         if self.convergence_type == 'damped':
-            self.t_rads += self.convergence_damping_constant * (updated_t_rads - self.t_rads)
-            self.ws += self.convergence_damping_constant * (updated_ws - self.ws)
-            self.t_inner += self.convergence_damping_constant * (updated_t_inner - self.t_inner)
+            self.t_rads += self.t_rad_convergence_parameters['damping_constant'] * (updated_t_rads - self.t_rads)
+            self.ws += self.w_convergence_parameters['damping_constant'] * (updated_ws - self.ws)
+            self.t_inner += self.w_convergence_parameters['damping_constant'] * (updated_t_inner - self.t_inner)
 
+        elif self.convergence_type == 'specific':
+            self.t_rads += self.t_rad_convergence_parameters['damping_constant'] * (updated_t_rads - self.t_rads)
+            self.ws += self.w_convergence_parameters['damping_constant'] * (updated_ws - self.ws)
+            self.t_inner += self.t_inner_convergence_parameters['damping_constant'] * (updated_t_inner - self.t_inner)
 
-        elif self.convergence_type == 'tighten':
-            if self.convergence_t_rad_gradient is None:
-                logger.info('Initializing convergence gradients')
-                self.convergence_t_inner_gradient = np.copysign(1, updated_t_inner - self.t_inner).astype(int)
-                self.convergence_t_rad_gradient = np.copysign(1, updated_t_rads - self.t_rads).astype(int)
-                self.convergence_w_gradient = np.copysign(1, updated_ws - self.ws).astype(int)
+            t_rad_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
+                               / self.no_of_shells) > self.t_rad_convergence_parameters['fraction']
+
+            w_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
+                           / self.no_of_shells) > self.t_rad_convergence_parameters['fraction']
+
+            t_inner_converged = convergence_t_inner < self.t_rad_convergence_parameters['threshold']
+
+            if t_rad_converged and t_inner_converged and w_converged:
+                if not self.converged:
+                    self.converged = True
+                    self.iterations_remaining = self.global_convergence_parameters['hold']
+
             else:
-                new_convergence_t_inner_gradient = np.copysign(1, updated_t_inner - self.t_inner).astype(int)
-                new_convergence_t_rad_gradient = np.copysign(1, updated_t_rads - self.t_rads).astype(int)
-                new_convergence_w_gradient = np.copysign(1, updated_ws - self.ws).astype(int)
-                if self.convergence_t_inner_gradient != new_convergence_t_inner_gradient:
-                    self.convergence_t_inner_index += 1
-
-                self.convergence_t_rad_index[new_convergence_t_rad_gradient != self.convergence_t_rad_gradient] += 1
-                self.convergence_w_index[new_convergence_w_gradient != self.convergence_w_index] += 1
-
-            self.convergence_t_rad_index[self.convergence_t_rad_index > (len(self.convergence_parameters) - 1)] = \
-                len(self.convergence_parameters) - 1
-            self.convergence_w_index[self.convergence_w_index > (len(self.convergence_parameters) - 1)] = \
-                len(self.convergence_parameters) - 1
-
-            if self.convergence_t_inner_index > (len(self.convergence_parameters_t_inner) - 1):
-                self.convergence_t_inner_index = len(self.convergence_parameters_t_inner) - 1
-
-            current_t_inner_convergence_damping = self.convergence_parameters_t_inner[self.convergence_t_inner_index]
-            current_t_rad_convergence_damping = self.convergence_parameters[self.convergence_t_rad_index]
-            current_w_convergence_damping = self.convergence_parameters[self.convergence_t_rad_index]
-
-            self.t_rads += current_t_rad_convergence_damping * (updated_t_rads - self.t_rads)
-            self.ws += current_w_convergence_damping * (updated_ws - self.ws)
-            self.t_inner += current_t_inner_convergence_damping * (updated_t_inner - self.t_inner)
-
-        converged_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
-        converged_ws = abs(old_ws - updated_ws) / updated_ws
+                if self.converged:
+                    self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
+                    self.converged = False
 
         self.temperature_logging = pd.DataFrame(
-            {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'converged_t_rads': converged_t_rads,
-             'new_trads': self.t_rads, 'ws': old_ws, 'updated_ws': updated_ws, 'converged_ws': converged_ws,
+            {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'converged_t_rads': convergence_t_rads,
+             'new_trads': self.t_rads, 'ws': old_ws, 'updated_ws': updated_ws, 'converged_ws': convergence_ws,
              'new_ws': self.ws})
         self.temperature_logging.index.name = 'Shell'
 
@@ -539,10 +521,43 @@ class Radial1DModel(object):
 
         yaml.dump(yaml_reference, stream=file(fname, 'w'), explicit_start=True)
 
+    def to_hdf5(self, buffer_or_fname, path=''):
+        if isinstance(buffer_or_fname, basestring):
+            hdf_store = pd.HDFStore(buffer_or_fname)
+        elif isinstance(buffer_or_fname, pd.HDFStore):
+            hdf_store = buffer_or_fname
+        else:
+            raise IOError('Please specify either a filename or an HDFStore')
 
-    def plot_spectrum(self, ax=None, mode='wavelength', virtual=True):
-        if ax is None:
-            ax = pylab.gca()
+        for i, plasma in enumerate(self.plasmas):
+            plasma.to_hdf5(hdf_store, os.path.join(path, 'plasma%d' % i))
+
+        t_rads_path = os.path.join(path, 't_rads')
+        pd.Series(self.t_rads).to_hdf(hdf_store, t_rads_path)
+
+        ws_path = os.path.join(path, 'ws')
+        pd.Series(self.ws).to_hdf(hdf_store, ws_path)
+
+        electron_densities_path = os.path.join(path, 'electron_densities')
+        pd.Series(self.electron_densities).to_hdf(hdf_store, electron_densities_path)
+
+        last_line_interaction_in_id_path = os.path.join(path, 'last_line_interaction_in_id')
+        pd.Series(self.last_line_interaction_in_id).to_hdf(hdf_store, last_line_interaction_in_id_path)
+
+        last_line_interaction_out_id_path = os.path.join(path, 'last_line_interaction_out_id')
+        pd.Series(self.last_line_interaction_out_id).to_hdf(hdf_store, last_line_interaction_out_id_path)
+
+        spectrum = pd.DataFrame.from_dict(dict(wave=self.spec_angstrom, flux=self.spec_flux_angstrom))
+        spectrum.to_hdf(hdf_store, os.path.join(path, 'spectrum'))
+
+        spectrum_virtual = pd.DataFrame.from_dict(dict(wave=self.spec_angstrom, flux=self.spec_virtual_flux_angstrom))
+        spectrum_virtual.to_hdf(hdf_store, os.path.join(path, 'spectrum_virtual'))
+
+        hdf_store.flush()
+        return hdf_store
+
+
+    def plot_spectrum(self, ax, mode='wavelength', virtual=True):
         if mode == 'wavelength':
             x = self.spec_angstrom
             if virtual:
