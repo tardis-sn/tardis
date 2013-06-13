@@ -67,6 +67,8 @@ class ModelViewer(QtGui.QWidget):
         self.tablemodel.add_data(datain)
 
     def plot(self):
+
+        #drawing the model
         self.graph.ax.clear()
         self.graph.ax.set_title('Model')
         self.graph.ax.set_xlabel('Distance from Center (1e13 m)')
@@ -92,6 +94,15 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax.set_xlim(0, self.model.r_outer[-1] * 1e-15)
         self.graph.ax.set_ylim(0, self.model.r_outer[-1] * 1e-15)
         self.graph.draw()
+
+        #drawing the spectrum
+        self.spectrum.ax.clear()
+
+
+        self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom, label='b')
+        self.spectrum.draw()
+
+
 
 class ShellInfo(QtGui.QDialog):
 
