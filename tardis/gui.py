@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib
+#matplotlib.use('KtAgg')
 import matplotlib.pylab as plt
 from matplotlib import colors
 from matplotlib.patches import Circle, Wedge
