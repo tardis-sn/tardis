@@ -10,7 +10,7 @@ from PyQt4 import QtGui, QtCore
 
 class ModelViewer(QtGui.QWidget):
     def __init__(self, parent=None):
-        # assumes that qt has already been initialized in ipython with "%gui qt"
+        # assumes that qt has already been initialized by starting IPython with the flag "--pylab=qt"
         app = QtCore.QCoreApplication.instance()
         if app is None:
             app = QtGui.QApplication([])
@@ -28,6 +28,12 @@ class ModelViewer(QtGui.QWidget):
         self.tableview.setMinimumWidth(200)
         self.graph = MatplotlibWidget(self, 'model')
         self.spectrum = MatplotlibWidget(self)
+<<<<<<< HEAD
+=======
+        self.spectrum.ax.set_title('Spectrum')
+        self.spectrum.ax.set_xlabel('Wavelength (A)')
+        self.spectrum.ax.set_ylabel('Intensity')
+>>>>>>> 7d434b790386d60258c5921c9080ee347d3b3722
         self.layout = QtGui.QHBoxLayout()
         self.sublayout = QtGui.QVBoxLayout()
         self.model = None
@@ -72,7 +78,7 @@ class ModelViewer(QtGui.QWidget):
         self.spectrum.ax.set_title('Spectrum')
         self.spectrum.ax.set_xlabel('Wavelength (A)')
         self.spectrum.ax.set_ylabel('Intensity')
-        self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom)
+        self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom, label='b')
         self.spectrum.draw()
 
     def plot_model(self):
@@ -107,6 +113,8 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax.set_ylim(0, self.model.r_outer[-1] * 1e-15)
         self.graph.draw()
 
+<<<<<<< HEAD
+=======
         #drawing the spectrum
         self.spectrum.ax.clear()
 
@@ -116,6 +124,7 @@ class ModelViewer(QtGui.QWidget):
 
 
 
+>>>>>>> 7d434b790386d60258c5921c9080ee347d3b3722
 class ShellInfo(QtGui.QDialog):
 
     def __init__(self, index, parent=None):

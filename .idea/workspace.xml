@@ -39,28 +39,27 @@
       <file leaf-file-name="gui.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/tardis/gui.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="12" column="101" selection-start="547" selection-end="547" vertical-scroll-proportion="0.34710744">
+            <state line="18" column="37" selection-start="780" selection-end="780" vertical-scroll-proportion="0.11570248">
               <folding>
                 <element signature="e#0#18#0" expanded="true" />
-                <element signature="e#1377#1821#0" expanded="true" />
-                <element signature="e#1870#2257#0" expanded="true" />
-                <element signature="e#2302#2445#0" expanded="true" />
-                <element signature="e#2487#2519#0" expanded="true" />
-                <element signature="e#2558#2859#0" expanded="true" />
-                <element signature="e#2895#4378#0" expanded="true" />
-                <element signature="e#4465#4874#0" expanded="true" />
-                <element signature="e#4928#6367#0" expanded="false" />
-                <element signature="e#4988#5102#0" expanded="true" />
-                <element signature="e#5144#5173#0" expanded="true" />
-                <element signature="e#5236#5265#0" expanded="true" />
-                <element signature="e#5331#5357#0" expanded="true" />
-                <element signature="e#5443#5756#0" expanded="true" />
-                <element signature="e#5821#5997#0" expanded="true" />
-                <element signature="e#6069#6367#0" expanded="true" />
-                <element signature="e#6458#6981#0" expanded="true" />
-                <element signature="e#7020#7242#0" expanded="true" />
-                <element signature="e#7299#7549#0" expanded="true" />
-                <element signature="e#7666#7909#0" expanded="true" />
+                <element signature="e#1597#2041#0" expanded="true" />
+                <element signature="e#2090#2477#0" expanded="true" />
+                <element signature="e#2522#2665#0" expanded="true" />
+                <element signature="e#2707#2739#0" expanded="true" />
+                <element signature="e#2791#3092#0" expanded="true" />
+                <element signature="e#5068#5477#0" expanded="true" />
+                <element signature="e#5531#6970#0" expanded="false" />
+                <element signature="e#5591#5705#0" expanded="true" />
+                <element signature="e#5747#5776#0" expanded="true" />
+                <element signature="e#5839#5868#0" expanded="true" />
+                <element signature="e#5934#5960#0" expanded="true" />
+                <element signature="e#6046#6359#0" expanded="true" />
+                <element signature="e#6424#6600#0" expanded="true" />
+                <element signature="e#6672#6970#0" expanded="true" />
+                <element signature="e#7061#7584#0" expanded="true" />
+                <element signature="e#7623#7845#0" expanded="true" />
+                <element signature="e#7902#8152#0" expanded="true" />
+                <element signature="e#8269#8512#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -69,7 +68,7 @@
       <file leaf-file-name="gui.rst" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/docs/gui.rst">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="10" column="62" selection-start="532" selection-end="532" vertical-scroll-proportion="-8.4">
+            <state line="17" column="48" selection-start="812" selection-end="812" vertical-scroll-proportion="-8.4">
               <folding />
             </state>
           </provider>
@@ -95,8 +94,8 @@
       <list>
         <option value="$PROJECT_DIR$/setup.py" />
         <option value="$PROJECT_DIR$/docs/index.rst" />
-        <option value="$PROJECT_DIR$/tardis/gui.py" />
         <option value="$PROJECT_DIR$/docs/gui.rst" />
+        <option value="$PROJECT_DIR$/tardis/gui.py" />
       </list>
     </option>
   </component>
@@ -677,35 +676,34 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/docs/gui.rst">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="10" column="62" selection-start="532" selection-end="532" vertical-scroll-proportion="-8.4">
+        <state line="17" column="48" selection-start="812" selection-end="812" vertical-scroll-proportion="-8.4">
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/tardis/gui.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="12" column="101" selection-start="547" selection-end="547" vertical-scroll-proportion="0.34710744">
+        <state line="18" column="37" selection-start="780" selection-end="780" vertical-scroll-proportion="0.11570248">
           <folding>
             <element signature="e#0#18#0" expanded="true" />
-            <element signature="e#1377#1821#0" expanded="true" />
-            <element signature="e#1870#2257#0" expanded="true" />
-            <element signature="e#2302#2445#0" expanded="true" />
-            <element signature="e#2487#2519#0" expanded="true" />
-            <element signature="e#2558#2859#0" expanded="true" />
-            <element signature="e#2895#4378#0" expanded="true" />
-            <element signature="e#4465#4874#0" expanded="true" />
-            <element signature="e#4928#6367#0" expanded="false" />
-            <element signature="e#4988#5102#0" expanded="true" />
-            <element signature="e#5144#5173#0" expanded="true" />
-            <element signature="e#5236#5265#0" expanded="true" />
-            <element signature="e#5331#5357#0" expanded="true" />
-            <element signature="e#5443#5756#0" expanded="true" />
-            <element signature="e#5821#5997#0" expanded="true" />
-            <element signature="e#6069#6367#0" expanded="true" />
-            <element signature="e#6458#6981#0" expanded="true" />
-            <element signature="e#7020#7242#0" expanded="true" />
-            <element signature="e#7299#7549#0" expanded="true" />
-            <element signature="e#7666#7909#0" expanded="true" />
+            <element signature="e#1597#2041#0" expanded="true" />
+            <element signature="e#2090#2477#0" expanded="true" />
+            <element signature="e#2522#2665#0" expanded="true" />
+            <element signature="e#2707#2739#0" expanded="true" />
+            <element signature="e#2791#3092#0" expanded="true" />
+            <element signature="e#5068#5477#0" expanded="true" />
+            <element signature="e#5531#6970#0" expanded="false" />
+            <element signature="e#5591#5705#0" expanded="true" />
+            <element signature="e#5747#5776#0" expanded="true" />
+            <element signature="e#5839#5868#0" expanded="true" />
+            <element signature="e#5934#5960#0" expanded="true" />
+            <element signature="e#6046#6359#0" expanded="true" />
+            <element signature="e#6424#6600#0" expanded="true" />
+            <element signature="e#6672#6970#0" expanded="true" />
+            <element signature="e#7061#7584#0" expanded="true" />
+            <element signature="e#7623#7845#0" expanded="true" />
+            <element signature="e#7902#8152#0" expanded="true" />
+            <element signature="e#8269#8512#0" expanded="true" />
           </folding>
         </state>
       </provider>
