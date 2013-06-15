@@ -12,6 +12,7 @@ eggs
 fake-eggs
 parts
 dist
+.idea/workspace.xml
 .installed.cfg
 .mr.developer.cfg
 .hg
