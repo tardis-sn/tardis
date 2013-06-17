@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib
-#matplotlib.use('KtAgg')
 import matplotlib.pylab as plt
-import matplotlib.gridspec as gridspec
 from matplotlib import colors
 from matplotlib.patches import Circle, Wedge
 from matplotlib.figure import *
@@ -21,35 +19,31 @@ class ModelViewer(QtGui.QWidget):
             start_event_loop_qt4(app)
         except ImportError:
             app.exec_()
-            
+
         super(ModelViewer, self).__init__(parent)
-        self.model = None
         self.setGeometry(20, 35, 1200, 500)
         self.setWindowTitle('Shells Viewer')
         self.tablemodel = MyTableModel(["t_rad", "Ws"])
         self.tableview = QtGui.QTableView()
+        self.tableview.setMinimumWidth(200)
         self.graph = MatplotlibWidget(self, 'model')
         self.spectrum = MatplotlibWidget(self)
-        self.spectrum_button = QtGui.QToolButton(self)
+<<<<<<< HEAD
+=======
+        self.spectrum.ax.set_title('Spectrum')
+        self.spectrum.ax.set_xlabel('Wavelength (A)')
+        self.spectrum.ax.set_ylabel('Intensity')
+>>>>>>> 7d434b790386d60258c5921c9080ee347d3b3722
         self.layout = QtGui.QHBoxLayout()
         self.sublayout = QtGui.QVBoxLayout()
-        
+        self.model = None
+
     def show_model(self, model=None):
         if model:
             self.change_model(model)
         self.tableview.setModel(self.tablemodel)
-        self.tableview.setMinimumWidth(200)
-        self.tableview.connect(self.tableview.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
-                               self.on_header_double_clicked)
-        self.spectrum_button.setText('spec_flux_angstrom')
-        #self.spectrum_button.setGeometry(QtCore.Qt.AlignCenter)
-        self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
-        self.spectrum_button.menu().addAction('spec_flux_angstrom').triggered.connect(self.change_to_spec_flux_angstrom)
-        self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom').triggered.connect(self.change_to_spec_virtual_flux_angstrom)
         self.layout.addWidget(self.tableview)
         self.layout.addWidget(self.graph)
-        self.sublayout.addWidget(self.spectrum_button)
         self.sublayout.addWidget(self.spectrum)
         self.sublayout.addWidget(self.spectrum.toolbar)
         self.layout.addLayout(self.sublayout)
@@ -67,10 +61,8 @@ class ModelViewer(QtGui.QWidget):
                 self.tablemodel.setData(index, QtCore.QVariant(self.tablemodel.arraydata[c][r]))
         self.plot_model()
         self.plot_spectrum()
-        if self.spectrum_button.text == 'spec_virtual_flux_angstrom':
-            self.change_to_spec_virtual_flux_angstrom()
         self.show()
-        
+
     def change_model(self, model):
         self.model = model
         self.tablemodel.arraydata = []
@@ -80,35 +72,25 @@ class ModelViewer(QtGui.QWidget):
     def add_data(self, datain):
         self.tablemodel.add_data(datain)
 
-    def change_to_spec_virtual_flux_angstrom(self):
-        self.spectrum_button.setText('spect_virtual_flux_angstrom')
-        self.spectrum.disp[0].set_ydata(self.model.spec_virtual_flux_angstrom)
-        self.spectrum.draw()
-        
-    def change_to_spec_flux_angstrom(self):
-        self.spectrum_button.setText('spec_flux_angstrom')
-        self.spectrum.disp[0].set_ydata(self.model.spec_flux_angstrom)
-        self.spectrum.draw()
-        
+<<<<<<< HEAD
     def plot_spectrum(self):
         self.spectrum.ax.clear()
         self.spectrum.ax.set_title('Spectrum')
         self.spectrum.ax.set_xlabel('Wavelength (A)')
         self.spectrum.ax.set_ylabel('Intensity')
-        self.spectrum.disp = self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom, label='b')
+        self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom, label='b')
         self.spectrum.draw()
-        
+
     def plot_model(self):
-        self.graph.ax1.clear()
-        self.graph.ax1.set_title('t_rads vs Shell')
-        self.graph.ax1.set_xlabel('Shell Number')
-        self.graph.ax1.set_ylabel('t_rads (K)')
-        self.graph.ax1.yaxis.get_major_formatter().set_powerlimits((0, 1))
-        self.graph.ax1.plot(range(len(self.model.t_rads)), self.model.t_rads)
-        self.graph.ax2.clear()
-        self.graph.ax2.set_title('Shell View')
-        self.graph.ax2.set_xlabel('Distance from Center (cm)')
-        self.graph.ax2.set_ylabel('Distance from Center (cm)')
+=======
+    def plot(self):
+
+        #drawing the model
+>>>>>>> 7d434b790386d60258c5921c9080ee347d3b3722
+        self.graph.ax.clear()
+        self.graph.ax.set_title('Model')
+        self.graph.ax.set_xlabel('Distance from Center (1e13 m)')
+        self.graph.ax.set_ylabel('Distance from Center (1e13 m)')
         self.shells = []
         t_rad_normalizer = colors.Normalize(vmin=self.model.t_rads.min(), vmax=self.model.t_rads.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
@@ -119,22 +101,30 @@ class ModelViewer(QtGui.QWidget):
         else:
             self.graph.cb = self.graph.figure.colorbar(t_rad_color_map)
             self.graph.cb.set_label('T (K)')
-        normalizing_factor = 0.2 * (self.model.r_outer[-1] - self.model.r_inner[0]) / self.model.r_inner[0]
-        #normalizing_factor = 8e-16
+        #normalizing_factor = 0.2 * (self.model.r_outer[-1] - self.model.r_inner[0]) / self.model.r_inner[0]
+        normalizing_factor = 8e-16
         for i, t_rad in enumerate(self.model.t_rads):
             r_inner = self.model.r_inner[i] * normalizing_factor
             r_outer = self.model.r_outer[i] * normalizing_factor
             self.shells.append(Shell(i, (0,0), r_inner, r_outer, facecolor=t_rad_color_map.to_rgba(t_rad),
-                                     picker=self.graph.shell_picker))
-            self.graph.ax2.add_patch(self.shells[i])
-        self.graph.ax2.set_xlim(0, self.model.r_outer[-1] * normalizing_factor)
-        self.graph.ax2.set_ylim(0, self.model.r_outer[-1] * normalizing_factor)
-        #self.graph.gs.tight_layout(self.graph.figure)
+                                picker=self.graph.shell_picker))
+            self.graph.ax.add_patch(self.shells[i])
+        self.graph.ax.set_xlim(0, self.model.r_outer[-1] * 1e-15)
+        self.graph.ax.set_ylim(0, self.model.r_outer[-1] * 1e-15)
         self.graph.draw()
 
-    def on_header_double_clicked(self, index):
-        shell_info = ShellInfo(index, self)
+<<<<<<< HEAD
+=======
+        #drawing the spectrum
+        self.spectrum.ax.clear()
 
+
+        self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom, label='b')
+        self.spectrum.draw()
+
+
+
+>>>>>>> 7d434b790386d60258c5921c9080ee347d3b3722
 class ShellInfo(QtGui.QDialog):
 
     def __init__(self, index, parent=None):
@@ -192,12 +182,7 @@ class MatplotlibWidget(FigureCanvas):
     def __init__(self, parent, fig=None):
         self.parent = parent
         self.figure = Figure()
-        if fig != 'model':
-            self.ax = self.figure.add_subplot(111)
-        else:
-            self.gs = gridspec.GridSpec(2, 1, height_ratios=[1, 3])
-            self.ax1 = self.figure.add_subplot(self.gs[0])
-            self.ax2 = self.figure.add_subplot(self.gs[1])
+        self.ax = self.figure.add_subplot(111)
         self.cb = None
 
         super(MatplotlibWidget, self).__init__(self.figure)
@@ -209,13 +194,9 @@ class MatplotlibWidget(FigureCanvas):
             cid = self.figure.canvas.mpl_connect('pick_event', self.onpick)
 
     def onpick(self, event):
+        print 'Picked event:', event, event.mouseevent.xdata, event.mouseevent.ydata, event.artist.r_outer
         self.parent.tableview.selectRow(event.artist.index)
-        for i in range(len(self.parent.shells)):
-            if i != event.artist.index and i != event.artist.index + 1:
-                self.parent.shells[i].set_edgecolor('k')
-            else:
-                self.parent.shells[i].set_edgecolor('w')
-        self.draw()
+        shell_info = ShellInfo(event.artist.index, self.parent)
 
     def shell_picker(self, shell, mouseevent):
         if mouseevent.xdata is None:
