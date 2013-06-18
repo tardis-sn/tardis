@@ -16,8 +16,8 @@ There are two rates to consider from a given level.
             &= n_u \underbrace{(A_{ul} + B_{ul}\bar{J}_\nu + C_{ul} n_e)}_{r_{ul}} \\
 
     R_{\textrm{lower}\rightarrow\textrm{upper}} &= \underbrace{B_{lu} n_l \bar{J}_\nu}_\textrm{stimulated absorption} +
-                \underbrace{C_lu\,n_l\,n_e}_\textrm{collisional excitation}\\
-                &= n_l \underbrace{(B_{lu}\bar{J}_\nu + C_{ul}\ne)}_{r_{lu}},
+                \underbrace{C_{lu}\,n_l\,n_e}_\textrm{collisional excitation}\\
+                &= n_l \underbrace{(B_{lu}\bar{J}_\nu + C_{ul}\n_e)}_{r_{lu}},
 
 where :math:`\bar{J}_\nu` (in LTE this is :math:`B(\nu, T)`) denotes the mean intensity at the frequency of the line and
 :math:`n_e` the number density of electrons.
@@ -72,7 +72,7 @@ which can be written in matrix from:
     \end{matrix}
     \right)
 
-To solve for the level populations we need an additional constraint: :math:`n_1 + n_2 + n_3 = N`. By seting :math:`N = 1`:
+To solve for the level populations we need an additional constraint: :math:`n_1 + n_2 + n_3 = N`. By setting :math:`N = 1`:
 we can get the relative rates:
 
 .. math::
