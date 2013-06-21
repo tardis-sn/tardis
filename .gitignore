@@ -12,7 +12,7 @@ eggs
 fake-eggs
 parts
 dist
-.idea/workspace.xml
+.idea
 .installed.cfg
 .mr.developer.cfg
 .hg
@@ -22,7 +22,6 @@ dist
 *.pyo
 *.tmp*
 *.komodoproject
-
 #special to the tardis project
 tardis/data/w7*
 tardis/*.c
@@ -32,3 +31,4 @@ tardis/*.html
 # Sphinx
 _build
 _generated
+docs/gui.rst.*
