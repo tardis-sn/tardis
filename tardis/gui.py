@@ -188,7 +188,8 @@ class ShellInfo(QtGui.QDialog):
         self.index = index
         self.setGeometry(500, 150, 650, 650)
         self.setWindowTitle('Shell %d Info' % (self.index + 1))
-        self.graph = MatplotlibWidget(self)
+        #self.graph = MatplotlibWidget(self)
+        self.atoms = MyTableModel(['Atoms'])
         self.layout = QtGui.QVBoxLayout()
         self.layout.addWidget(self.graph)
         self.layout.addWidget(self.graph.toolbar)
