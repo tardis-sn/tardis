@@ -18,6 +18,7 @@ dist
 .hg
 .bzr
 .svn
+*.orig
 *.pyc
 *.pyo
 *.tmp*
