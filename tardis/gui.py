@@ -82,12 +82,12 @@ class ModelViewer(QtGui.QWidget):
 
     def change_to_spec_virtual_flux_angstrom(self):
         self.spectrum_button.setText('spect_virtual_flux_angstrom')
-        self.spectrum.disp[0].set_ydata(self.model.spec_virtual_flux_angstrom)
+        self.spectrum.data_plot[0].set_ydata(self.model.spec_virtual_flux_angstrom)
         self.spectrum.draw()
         
     def change_to_spec_flux_angstrom(self):
         self.spectrum_button.setText('spec_flux_angstrom')
-        self.spectrum.disp[0].set_ydata(self.model.spec_flux_angstrom)
+        self.spectrum.data_plot[0].set_ydata(self.model.spec_flux_angstrom)
         self.spectrum.draw()
         
     def plot_spectrum(self):
@@ -95,7 +95,7 @@ class ModelViewer(QtGui.QWidget):
         self.spectrum.ax.set_title('Spectrum')
         self.spectrum.ax.set_xlabel('Wavelength (A)')
         self.spectrum.ax.set_ylabel('Intensity')
-        self.spectrum.disp = self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom, label='b')
+        self.spectrum.data_plot = self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom, label='b')
         self.spectrum.draw()
         
     def plot_model(self):
