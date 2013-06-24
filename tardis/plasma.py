@@ -507,7 +507,7 @@ class BasePlasma(object):
         level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
 
         #only change between lte plasma and nebular
-        level_populations[~self.atom_data.levels['metastable']] *= np.min(self.w, 1.)
+        level_populations[~self.atom_data.levels['metastable']] *= np.min([self.w, 1.])
 
         if self.initialize:
             self.level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
