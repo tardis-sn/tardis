@@ -101,7 +101,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
             raise TardisConfigError(
                 'Error in ARTIS file %s - Number of shells not the same as dataset length' % density_file)
 
-        min_shell = 0
+        min_shell = 1
         max_shell = no_of_shells
 
         v_inner = velocities[:-1]
@@ -117,7 +117,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
             v_lowest = parse2quantity(density_file_dict['v_lowest']).to('cm/s').value
             min_shell = v_inner.value.searchsorted(v_lowest)
         else:
-            min_shell = 0
+            min_shell = 1
 
         if 'v_highest' in density_file_dict:
             v_highest = parse2quantity(density_file_dict['v_highest']).to('cm/s').value
@@ -352,10 +352,19 @@ class TardisConfiguration(object):
         """
         Reading in from a YAML file and commandline args. Preferring commandline args when given
 
-        :param cls:
-        :param fname:
-        :param args:
-        :return:
+        Parameters
+        ----------
+
+        fname : filename for the yaml file
+
+        args : namespace object
+            Not implemented Yet
+
+        Returns
+        -------
+
+        `tardis.config_reader.TardisConfiguration`
+
         """
         try:
             yaml_dict = yaml.load(file(fname))
@@ -383,7 +392,7 @@ class TardisConfiguration(object):
         #Next finding the time of explosion
 
         try:
-            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s')
+            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s').value
         except AttributeError as ae:
             logger.critical(str(ae))
             raise ae
@@ -442,7 +451,7 @@ class TardisConfiguration(object):
         if 'abundance_set' in abundances_dict.keys():
             abundance_set_dict = abundances_dict.pop('abundance_set')
             print "abundance set not implemented currently"
-        #            abundance_set = abundance_dict.pop('abundance_set', None)
+            #            abundance_set = abundance_dict.pop('abundance_set', None)
         #            if abundance_set == 'lucy99':
         #                abundances = read_lucy99_abundances()
         #            elif abundance_set is not None:
@@ -494,7 +503,15 @@ class TardisConfiguration(object):
             raise TardisConfigError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
         config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
-        config_dict.update(yaml_dict.pop('montecarlo', {}))
+        montecarlo_section = yaml_dict.pop('montecarlo')
+
+        if 'last_no_of_packets' not in montecarlo_section:
+            montecarlo_section['last_no_of_packets'] = None
+
+        if 'no_of_virtual_packets' not in montecarlo_section:
+            montecarlo_section['no_of_virtual_packets'] = 0
+
+        config_dict.update(montecarlo_section)
 
         disable_electron_scattering = plasma_section['disable_electron_scattering']
 
@@ -505,8 +522,82 @@ class TardisConfiguration(object):
             logger.warn('Disabling electron scattering - this is not physical')
             config_dict['sigma_thomson'] = 1e-200
 
+        if 'w_epsilon' in plasma_section:
+            config_dict['w_epsilon'] = plasma_section['w_epsilon']
+        else:
+            logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
+            config_dict['w_epsilon'] = 1e-10
 
-            ##### spectrum section ######
+        #PARSING convergence section
+        convergence_variables = ['t_inner', 't_rad', 'w']
+        if 'convergence_criteria' in montecarlo_section:
+
+
+            convergence_section = montecarlo_section['convergence_criteria']
+
+            if convergence_section['type'] == 'damped':
+                config_dict['convergence_type'] == 'damped'
+                global_damping_constant = convergence_section['damping_constant']
+
+                for convergence_variable in convergence_variables:
+                    convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
+                    current_convergence_parameters = {}
+                    config_dict[convergence_parameter_name] = current_convergence_parameters
+
+                    if convergence_variable in convergence_section:
+                        current_convergence_parameters['damping_constant'] \
+                            = convergence_section[convergence_variable]['damping_constant']
+                    else:
+                        current_convergence_parameters['damping_constant'] = global_damping_constant
+
+            elif convergence_section['type'] == 'specific':
+
+                config_dict['convergence_type'] = 'specific'
+
+                global_convergence_parameters = {}
+                global_convergence_parameters['damping_constant'] = convergence_section['damping_constant']
+                global_convergence_parameters['threshold'] = convergence_section['threshold']
+
+                global_convergence_parameters['fraction'] = convergence_section['fraction']
+
+                for convergence_variable in convergence_variables:
+                    convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
+                    current_convergence_parameters = {}
+
+                    config_dict[convergence_parameter_name] = current_convergence_parameters
+                    if convergence_variable in convergence_section:
+                        for param in global_convergence_parameters.keys():
+                            if param == 'fraction' and convergence_variable == 't_inner':
+                                continue
+                            if param in convergence_section[convergence_variable]:
+                                current_convergence_parameters[param] = convergence_section[convergence_variable][param]
+                            else:
+                                current_convergence_parameters[param] = global_convergence_parameters[param]
+                    else:
+                        config_dict[convergence_parameter_name] = global_convergence_parameters.copy()
+
+                global_convergence_parameters['hold'] = convergence_section['hold']
+                config_dict['global_convergence_parameters'] = global_convergence_parameters
+
+            else:
+                raise ValueError("convergence criteria unclear %s", convergence_section['type'])
+
+                #config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
+        else:
+            logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
+            config_dict['convergence_type'] = 'damped'
+            for convergence_variable in convergence_variables:
+                convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
+                config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
+
+
+        ##### NLTE Section #####
+
+        config_dict['nlte_options'] = yaml_dict.pop('nlte', {})
+
+
+
+        ##### spectrum section ######
         spectrum_section = yaml_dict.pop('spectrum')
         spectrum_start = parse2quantity(spectrum_section['start']).to('angstrom', units.spectral())
         spectrum_end = parse2quantity(spectrum_section['end']).to('angstrom', units.spectral())
