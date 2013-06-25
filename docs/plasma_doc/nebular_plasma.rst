@@ -74,8 +74,8 @@ by using the calculated ion species number densities:
 
 .. math::
 
-    N_{i, j, k}(\textrm{metastable}) &= W\frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k} \\
-    N_{i, j, k}(\textrm{not metastable}) &= \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k} \\
+    N_{i, j, k}(\textrm{not metastable}) &= W\frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k} \\
+    N_{i, j, k}(\textrm{metastable}) &= \frac{g_k}{Z_{i, j}}\times N_{i, j} \times e^{-\beta_\textrm{rad} E_k} \\
 
 
 This concludes the calculation of the nebular plasma. In the code, the next step is calculating the :math:`\tau_\textrm{Sobolev}` using
