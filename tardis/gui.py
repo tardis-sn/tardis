@@ -24,9 +24,10 @@ class ModelViewer(QtGui.QWidget):
 
         super(ModelViewer, self).__init__(parent)
         self.model = None
+        self.shell_info = {}
         self.setGeometry(20, 35, 1200, 500)
         self.setWindowTitle('Shells Viewer')
-        self.tablemodel = MyTableModel(["t_rad", "Ws"])
+        self.tablemodel = MyTableModel([['Shell: '], ["t_rad", "Ws"]], (True, False))
         self.tableview = QtGui.QTableView()
         self.graph = MatplotlibWidget(self, 'model')
         self.graph_label = QtGui.QLabel('Select Property to Plot:')
@@ -45,6 +46,7 @@ class ModelViewer(QtGui.QWidget):
             self.change_model(model)
         self.tableview.setModel(self.tablemodel)
         self.tableview.setMinimumWidth(200)
+        self.tableview.connect(self.tableview.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'), self.graph.highlight_shell)
         self.tableview.connect(self.tableview.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
                                self.on_header_double_clicked)
         self.graph_button.setText('t_rads')
@@ -179,28 +181,65 @@ class ModelViewer(QtGui.QWidget):
         self.graph.draw()
 
     def on_header_double_clicked(self, index):
-        shell_info = ShellInfo(index, self)
+        self.shell_info[index] = ShellInfo(index, self)
 
 class ShellInfo(QtGui.QDialog):
 
     def __init__(self, index, parent=None):
         super(ShellInfo, self).__init__(parent)
         self.index = index
-        self.setGeometry(500, 150, 650, 650)
+        self.setGeometry(400, 150, 200, 400)
         self.setWindowTitle('Shell %d Info' % (self.index + 1))
-        #self.graph = MatplotlibWidget(self)
-        self.atoms = MyTableModel(['Atoms'])
-        self.layout = QtGui.QVBoxLayout()
-        self.layout.addWidget(self.graph)
-        self.layout.addWidget(self.graph.toolbar)
+        self.atomsdata = MyTableModel([['Z = '], ['Data']], (True, False))
+        self.ionsdata = None
+        self.levelsdata = None
+        self.atomstable = QtGui.QTableView()
+        self.ionstable = QtGui.QTableView()
+        self.levelstable = QtGui.QTableView()
+        data = [index + 1, index + 1] * 10
+        self.atomsdata.arraydata.append(data)
+        self.atomstable.setModel(self.atomsdata)
+        self.atomstable.connect(self.atomstable.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
+                               self.on_atom_header_double_clicked)
+        self.layout = QtGui.QHBoxLayout()
+        self.layout.addWidget(self.atomstable)
+        self.layout.addWidget(self.ionstable)
+        self.layout.addWidget(self.levelstable)
         self.setLayout(self.layout)
+        self.ionstable.hide()
+        self.levelstable.hide()
+        self.show()
+
+    def on_atom_header_double_clicked(self, index):
+        self.ionsdata = MyTableModel([['Ion: '], ['Data']], (True, False))
+        data = [index + 1, index + 1] * 10
+        self.ionsdata.arraydata = []
+        self.ionsdata.arraydata.append(data)
+        self.ionstable.setModel(self.ionsdata)
+        self.ionstable.connect(self.ionstable.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
+                               self.on_ion_header_double_clicked)
+        self.levelstable.hide()
+        self.ionstable.show()
+        self.setGeometry(400, 150, 350, 400)
+        self.show()
+
+    def on_ion_header_double_clicked(self, index):
+        self.levelsdata = MyTableModel([['Level: '], ['Data']], (True, False))
+        data = [index + 1, index + 1] * 10
+        self.levelsdata.arraydata = []
+        self.levelsdata.arraydata.append(data)
+        self.levelstable.setModel(self.levelsdata)
+        self.levelstable.show()
+        self.setGeometry(400, 150, 500, 400)
         self.show()
 
 class MyTableModel(QtCore.QAbstractTableModel):
-    def __init__(self, headerdata, parent=None, *args):
+    def __init__(self, headerdata=None, iterate_header=(False, False), parent=None, *args):
         super(MyTableModel, self).__init__(parent, *args)
         self.arraydata = []
-        self.headerdata = headerdata
+        self.iterate_header = iterate_header
+        if headerdata:
+            self.headerdata = headerdata
 
     def add_data(self, datain):
         self.arraydata.append(datain)
@@ -213,9 +252,15 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
-            return QtCore.QVariant("Shell: %d" % (section + 1))
+            if self.iterate_header[0]:
+                return QtCore.QVariant(self.headerdata[0][0] + str(section + 1))
+            else:
+                return QtCore.QVariant(self.headerdata[0][section])
         elif orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-            return QtCore.QVariant(self.headerdata[section])
+            if self.iterate_header[1]:
+                return QtCore.QVariant(self.headerdata[1][0] + str(section + 1))
+            else:
+                return QtCore.QVariant(self.headerdata[1][section])
         return QtCore.QVariant()
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
@@ -256,9 +301,12 @@ class MatplotlibWidget(FigureCanvas):
             cid = self.figure.canvas.mpl_connect('pick_event', self.onpick)
 
     def onpick(self, event):
-        self.parent.tableview.selectRow(event.artist.index)
+        self.highlight_shell(event.artist.index)
+
+    def highlight_shell(self, index):
+        self.parent.tableview.selectRow(index)
         for i in range(len(self.parent.shells)):
-            if i != event.artist.index and i != event.artist.index + 1:
+            if i != index and i != index + 1:
                 self.parent.shells[i].set_edgecolor('k')
             else:
                 self.parent.shells[i].set_edgecolor('w')
