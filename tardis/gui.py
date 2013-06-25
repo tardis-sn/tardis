@@ -27,7 +27,7 @@ class ModelViewer(QtGui.QWidget):
         self.shell_info = {}
         self.setGeometry(20, 35, 1200, 500)
         self.setWindowTitle('Shells Viewer')
-        self.tablemodel = MyTableModel([['Shell: '], ["t_rad", "Ws"]], (True, False))
+        self.tablemodel = MyTableModel([['Shell: '], ["t_rad", "Ws"]], (1, 0))
         self.tableview = QtGui.QTableView()
         self.graph = MatplotlibWidget(self, 'model')
         self.graph_label = QtGui.QLabel('Select Property to Plot:')
@@ -79,10 +79,9 @@ class ModelViewer(QtGui.QWidget):
     def update_data(self, model=None):
         if model:
             self.change_model(model)
-        for r in range(self.tablemodel.rowCount()):
-            for c in range(self.tablemodel.columnCount()):
-                index = self.tablemodel.createIndex(r, c)
-                self.tablemodel.setData(index, QtCore.QVariant(self.tablemodel.arraydata[c][r]))
+        self.tablemodel.updateTable()
+        for index in self.shell_info.keys():
+            self.shell_info[index].update_tables()
         self.plot_model()
         if self.graph_button.text == 'Ws':
             self.change_graph_to_ws()
@@ -98,7 +97,7 @@ class ModelViewer(QtGui.QWidget):
         self.add_data(model.ws.tolist())
 
     def add_data(self, datain):
-        self.tablemodel.add_data(datain)
+        self.tablemodel.addData(datain)
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
         self.change_spectrum(self.model.spec_virtual_flux_angstrom, 'spec_virtual_flux_angstrom')
@@ -187,20 +186,24 @@ class ShellInfo(QtGui.QDialog):
 
     def __init__(self, index, parent=None):
         super(ShellInfo, self).__init__(parent)
-        self.index = index
+        self.parent = parent
+        self.shell_index = index
         self.setGeometry(400, 150, 200, 400)
-        self.setWindowTitle('Shell %d Info' % (self.index + 1))
-        self.atomsdata = MyTableModel([['Z = '], ['Data']], (True, False))
-        self.ionsdata = None
-        self.levelsdata = None
+        self.setWindowTitle('Shell %d Abundances' % (self.shell_index + 1))
         self.atomstable = QtGui.QTableView()
         self.ionstable = QtGui.QTableView()
         self.levelstable = QtGui.QTableView()
-        data = [index + 1, index + 1] * 10
-        self.atomsdata.arraydata.append(data)
-        self.atomstable.setModel(self.atomsdata)
         self.atomstable.connect(self.atomstable.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
                                self.on_atom_header_double_clicked)
+
+        self.plasma = self.parent.model.plasmas[self.shell_index]
+        self.table1_data = self.plasma.number_density
+        self.atomsdata = MyTableModel([['Z = '], ['Count (Shell %d)' % (self.shell_index + 1)]], iterate_header=(2, 0), index_info=self.table1_data.index.values.tolist())
+        self.ionsdata = None
+        self.levelsdata = None
+        self.atomsdata.arraydata.append(self.table1_data.values.tolist())
+        self.atomstable.setModel(self.atomsdata)
+
         self.layout = QtGui.QHBoxLayout()
         self.layout.addWidget(self.atomstable)
         self.layout.addWidget(self.ionstable)
@@ -211,37 +214,57 @@ class ShellInfo(QtGui.QDialog):
         self.show()
 
     def on_atom_header_double_clicked(self, index):
-        self.ionsdata = MyTableModel([['Ion: '], ['Data']], (True, False))
-        data = [index + 1, index + 1] * 10
-        self.ionsdata.arraydata = []
-        self.ionsdata.arraydata.append(data)
+        self.current_atom_index = self.table1_data.index.values.tolist()[index]
+        self.table2_data = self.plasma.ion_populations.ix[self.current_atom_index]
+        self.ionsdata = MyTableModel([['Ion: '], ['Count (Z = %d)' % self.current_atom_index]], iterate_header=(2, 0), index_info=self.table2_data.index.values.tolist())
+        normalized_data = []
+        for item in self.table2_data.values.tolist():
+            normalized_data.append(float(item / self.table1_data.ix[self.current_atom_index]))
+        self.ionsdata.arraydata.append(normalized_data)
         self.ionstable.setModel(self.ionsdata)
         self.ionstable.connect(self.ionstable.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
                                self.on_ion_header_double_clicked)
         self.levelstable.hide()
+        self.ionstable.setColumnWidth(0, 120)
         self.ionstable.show()
-        self.setGeometry(400, 150, 350, 400)
+        self.setGeometry(400, 150, 380, 400)
         self.show()
 
     def on_ion_header_double_clicked(self, index):
-        self.levelsdata = MyTableModel([['Level: '], ['Data']], (True, False))
-        data = [index + 1, index + 1] * 10
-        self.levelsdata.arraydata = []
-        self.levelsdata.arraydata.append(data)
+        self.current_ion_index = self.table2_data.index.values.tolist()[index]
+        self.table3_data = self.plasma.level_populations.ix[self.current_atom_index, self.current_ion_index]
+        self.levelsdata = MyTableModel([['Level: '], ['Count (Ion %d)' % self.current_ion_index]], iterate_header=(2, 0), index_info=self.table3_data.index.values.tolist())
+        normalized_data = []
+        for item in self.table3_data.values.tolist():
+            normalized_data.append(float(item / self.table2_data.ix[self.current_ion_index]))
+        self.levelsdata.arraydata.append(normalized_data)
         self.levelstable.setModel(self.levelsdata)
+        self.levelstable.setColumnWidth(0, 120)
         self.levelstable.show()
-        self.setGeometry(400, 150, 500, 400)
+        self.setGeometry(400, 150, 600, 400)
+        self.show()
+
+    def update_tables(self):
+        self.plasma = self.parent.model.plasmas[self.shell_index]
+        self.table1_data = self.plasma.number_density
+        self.atomsdata.index_info=self.table1_data.index.values.tolist()
+        self.atomsdata.arraydata = []
+        self.atomsdata.arraydata.append(self.table1_data.values.tolist())
+        self.atomsdata.updateTable()
+        self.ionstable.hide()
+        self.levelstable.hide()
+        self.setGeometry(400, 150, 200, 400)
         self.show()
 
 class MyTableModel(QtCore.QAbstractTableModel):
-    def __init__(self, headerdata=None, iterate_header=(False, False), parent=None, *args):
+    def __init__(self, headerdata=None, iterate_header=(0, 0), index_info=None, parent=None, *args):
         super(MyTableModel, self).__init__(parent, *args)
+        self.headerdata = headerdata
         self.arraydata = []
         self.iterate_header = iterate_header
-        if headerdata:
-            self.headerdata = headerdata
+        self.index_info = index_info
 
-    def add_data(self, datain):
+    def addData(self, datain):
         self.arraydata.append(datain)
 
     def rowCount(self, parent=QtCore.QModelIndex()):
@@ -252,13 +275,21 @@ class MyTableModel(QtCore.QAbstractTableModel):
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
-            if self.iterate_header[0]:
+            if self.iterate_header[0] == 1:
                 return QtCore.QVariant(self.headerdata[0][0] + str(section + 1))
+            elif self.iterate_header[0] == 2:
+                if self.index_info:
+                    return QtCore.QVariant(self.headerdata[0][0] + str(self.index_info[section]))
+                else:
+                    return QtCore.QVariant(self.headerdata[0][0] + str(section + 1))
             else:
                 return QtCore.QVariant(self.headerdata[0][section])
         elif orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
-            if self.iterate_header[1]:
+            if self.iterate_header[1] == 1:
                 return QtCore.QVariant(self.headerdata[1][0] + str(section + 1))
+            elif self.iterate_header[1] == 2:
+                if self.index_info:
+                    return QtCore.QVariant(self.headerdata[1][0] + str(self.index_info[section]))
             else:
                 return QtCore.QVariant(self.headerdata[1][section])
         return QtCore.QVariant()
@@ -278,6 +309,12 @@ class MyTableModel(QtCore.QAbstractTableModel):
         self.arraydata[index.column()][index.row()] = value
         self.emit(QtCore.SIGNAL('dataChanged(const QModelIndex &, const QModelIndex &)'), index, index)
         return True
+
+    def updateTable(self):
+        for r in range(self.rowCount()):
+            for c in range(self.columnCount()):
+                index = self.createIndex(r, c)
+                self.setData(index, QtCore.QVariant(self.arraydata[c][r]))
 
 class MatplotlibWidget(FigureCanvas):
 
@@ -299,6 +336,8 @@ class MatplotlibWidget(FigureCanvas):
             self.toolbar = NavigationToolbar(self, parent)
         else:
             cid = self.figure.canvas.mpl_connect('pick_event', self.onpick)
+
+    #def show_span(self):
 
     def onpick(self, event):
         self.highlight_shell(event.artist.index)
