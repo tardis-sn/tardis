@@ -19,11 +19,13 @@ dist
 .bzr
 .svn
 *.orig
+*.so
 *.pyc
 *.pyo
 *.tmp*
 *.komodoproject
 #special to the tardis project
+tardis/version.py
 tardis/data/w7*
 tardis/*.c
 tardis/*.html
