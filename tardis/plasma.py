@@ -386,6 +386,7 @@ class BasePlasma(object):
 
             zeta.ix[idx] = current_zeta
 
+
         phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) * \
                 (self.t_electron / self.t_rad) ** .5
 
@@ -505,9 +506,8 @@ class BasePlasma(object):
         levels_energy = self.atom_data.levels['energy'].values
         level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
 
-
         #only change between lte plasma and nebular
-        level_populations[~self.atom_data.levels['metastable']] *= self.w
+        level_populations[~self.atom_data.levels['metastable']] *= np.min([self.w, 1.])
 
         if self.initialize:
             self.level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
