@@ -33,8 +33,8 @@ class SimplePacketSource:
         wavelength_end : `float`
         upper wl"""
 
-        nu_start = units.Unit(wavelength_unit).to('Hz', wavelength_end, units.spectral())
-        nu_end = units.Unit(wavelength_unit).to('Hz', wavelength_start, units.spectral())
+        nu_start = wavelength_end.to('Hz', units.spectral()).value
+        nu_end = wavelength_start.to('Hz', units.spectral()).value
 
         return cls(nu_start, nu_end, seed=seed)
 
@@ -68,8 +68,6 @@ class SimplePacketSource:
         self.packet_energies = np.ones(number_of_packets) / number_of_packets
 
 
-
-
     def random_blackbody_nu(self, T, number_of_packets):
         """
         Creating the random nus for the energy packets
@@ -87,7 +85,7 @@ class SimplePacketSource:
         intensity = plasma.intensity_black_body(nu, T)
         cum_blackbody = np.cumsum(intensity)
         norm_cum_blackbody = cum_blackbody / cum_blackbody.max()
-        return nu[norm_cum_blackbody.searchsorted(np.random.random(number_of_packets))] +\
+        return nu[norm_cum_blackbody.searchsorted(np.random.random(number_of_packets))] + \
                np.random.random(size=number_of_packets) * (nu[1] - nu[0])
 
 

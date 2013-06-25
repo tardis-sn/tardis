@@ -1,5 +1,3 @@
-__author__ = 'wkerzend'
-
 import os
 import numpy as np
 from astropy import constants, table, units
@@ -7,6 +5,8 @@ from numpy import testing
 import pytest
 from tardis import plasma, atomic
 
+
+"""
 atom_model = atomic.AtomData.from_hdf5()
 
 
@@ -73,10 +73,10 @@ class TestLTEPlasmaCalculations:
     def test_lte_partition_functions(self, t_rad):
         #g = 2 * j + 1
         del self.nist_partitions[:]
-        self.beta_rad = 1 / (constants.cgs.k_B.value * t_rad)
+        self.beta_rad = 1 / (constants.k_B.cgs.value * t_rad)
         self.atom_model = atomic.AtomData.from_hdf5()
-        self.plasma_model = plasma.LTEPlasma({'Si': 1.}, 1e-8, self.atom_model)
-        self.plasma_model.update_radiationfield(t_rad)
+        number_densities = model_radial_oned.calculate_atom_number_denities(self.atom_model, {'Si':1}, 1e-8)
+        self.plasma_model = plasma.LTEPlasma(number_densities, self.atom_model, 10*24*3600)
         testing.assert_almost_equal(self.plasma_model.beta_rad, self.beta_rad)
         for i in range(len(self.plasma_model.partition_functions[0:3] - 1)):
             nist_level = nist_levels[i].__array__()
@@ -87,14 +87,16 @@ class TestLTEPlasmaCalculations:
 
     def test_lte_saha_calculation(self, t_rad):
 
-        self.beta_rad = 1 / (constants.cgs.k_B.value * t_rad)
         assert len(self.nist_partitions) == 3
+
+        #testing ge
         self.nist_ge = ((2 * np.pi * constants.cgs.m_e.value / self.beta_rad) / (constants.cgs.h.value ** 2)) ** 1.5
         testing.assert_almost_equal(self.nist_ge, self.plasma_model.ge)
-        i = 0
+
+        #testing phis
         self.nist_phis = []
-        phis = plasma.calculate_saha()
-        for i in phis[0:2]:
+        self.phis = self.plasma_model.calculate_saha()
+        for i in range(len(phis[0:3])):
             nist_phi_value = self.nist_ge * self.nist_partitions[i] / self.nist_partitions[i + 1]
             nist_phi_value *= np.exp(-self.beta_rad *\
                                      self.atom_model.get_ions(atomic_number)['ionization_energy'][:len(nist_phi_value)])
@@ -104,18 +106,27 @@ class TestLTEPlasmaCalculations:
 
     def test_ionization_balance(self, t_rad):
 
-        electron_density = 1e09
-        phis = plasma.calculate_saha()
-        Plasma.calculate_ionization_balance(phis, electron_density)
-        nist_phis_product = np.cumprod(self.nist_partitions / electron_density)
-        nist.neutral_atom_density = plasma.abundances.ix[atomic_number]['number_density'] / (1 + np.sum(nist_phis_product))
-        nist_ion_densities = [nist.neutral_atom_density] + list(nist.neutral_atom_density * nist_phis_product)
-        pass
+        electron_density = self.plasma_model.abundances['number_density'].sum()
+
+        #calculating nist ionization balance
+        nist_current_phis = self.nist_phis / electron_density
+        nist_phis_product = np.cumprod(nist_current_phis)
+        nist_neutral_atom_density = electron_density / (1 + np.sum(nist_phis_product))
+        nist_ion_densities = [nist_neutral_atom_density] + list(neutral_atom_density * phis_product)
+        self.nist_ion_number_density.ix[atomic_number] = ion_densities
+
+        #testing ionization balance
+        self.plasma_model.calculate_ionization_balance(self.phis, electron_density)
+        for i in range(len(self.plasma_model.ion_number_density[0:3])):
+            ion_number_density_delta = abs(self.nist_ion_number_density[i] - self.plasma_model.ion_number_density[i]))
+            ion_number_density_delta = ion_number_density_delta / self.nist_ion_number_density[i]
+            assert ion_number_density_delta <0.05
 
     def test_level_populations(self, t_rad ):
-        pass
 
 
 
 
 
+
+"""

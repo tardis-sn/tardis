@@ -1,5 +1,3 @@
-.. _nlte:
-
 NLTE treatment
 --------------
 
@@ -18,8 +16,8 @@ There are two rates to consider from a given level.
             &= n_u \underbrace{(A_{ul} + B_{ul}\bar{J}_\nu + C_{ul} n_e)}_{r_{ul}} \\
 
     R_{\textrm{lower}\rightarrow\textrm{upper}} &= \underbrace{B_{lu} n_l \bar{J}_\nu}_\textrm{stimulated absorption} +
-                \underbrace{C_lu\,n_l\,n_e}_\textrm{collisional excitation}\\
-                &= n_l \underbrace{(B_{lu}\bar{J}_\nu + C_{ul}\ne)}_{r_{lu}},
+                \underbrace{C_{lu}\,n_l\,n_e}_\textrm{collisional excitation}\\
+                &= n_l \underbrace{(B_{lu}\bar{J}_\nu + C_{ul}\n_e)}_{r_{lu}},
 
 where :math:`\bar{J}_\nu` (in LTE this is :math:`B(\nu, T)`) denotes the mean intensity at the frequency of the line and
 :math:`n_e` the number density of electrons.
@@ -74,7 +72,7 @@ which can be written in matrix from:
     \end{matrix}
     \right)
 
-To solve for the level populations we need an additional constraint: :math:`n_1 + n_2 + n_3 = N`. By seting :math:`N = 1`:
+To solve for the level populations we need an additional constraint: :math:`n_1 + n_2 + n_3 = N`. By setting :math:`N = 1`:
 we can get the relative rates:
 
 .. math::
@@ -106,11 +104,8 @@ Now we go back and look at the rate coefficients used for a level population - a
 .. math::
 
     \frac{dn_2}{dt} &= n_1 r_{12} - n_2 (r_{21} + r_{23}) + n_3 r_{32}\\
-                &= n_1 B_{12} \bar{J}_{12} + n_1 C_{12} n_e - n_2 A_{21} - n_2 B_{21} \bar{J}_{21} - n_2 C_{21} n_e
-                        - n_2 B_{23} \bar{J}_{23} - n_2 C_{23} n_e + n_3 A_{32} + n_3 B_{32} \bar{J}_{32} + n_3 C_{32} n_e,
-
-
-&=
+                &= n_1 B_{12} \bar{J}_{12} + n_1 C_{12} n_e - n_2 A_{21} - n_2 B_{21} \bar{J}_{21} - n_2 C_{21} n_e\\
+                        - n_2 B_{23} \bar{J}_{23} - n_2 C_{23} n_e + n_3 A_{32} + n_3 B_{32} \bar{J}_{32} + n_3 C_{32} n_e,\\
                          + n_3 A_{32}  + n_3 C_{32} n_e,
 
 Next we will group the stimulated emission and stimulated absorption terms as we can assume :math:`\bar{J_{12}} = \bar{J_{21}}`:

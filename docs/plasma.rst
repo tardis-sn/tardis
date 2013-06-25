@@ -1,3 +1,5 @@
+.. _plasmas:
+
 Plasma
 ======
 .. currentmodule:: tardis.plasma
@@ -8,10 +10,10 @@ Plasma
 
 This module calculates the ionization balance and level populations in the BasePlasma, give a abundance fraction, temperature
 and density. After calculating the state of the plasma, these classes are able to calculate :math:`\tau_\textrm{sobolev}`
-for the supernova radiative transfer. The simplest BasePlasma (`BasePlasma`) only calculates the atom number densities, but serves
+for the supernova radiative transfer. The simplest BasePlasma (:class:`BasePlasma`) only calculates the atom number densities, but serves
 as a base for all BasePlasma classes. The next more complex class is `LTEPlasma` which will calculate the aforementioned quantities in
-Local Thermal Equilibrium conditions (LTE). The `NebularPlasma`-class inherits from `LTEPlasma` and uses a more complex
-description of the BasePlasma (for details see `Nebular Plasma`_).
+Local Thermal Equilibrium conditions (LTE). The :class:`NebularPlasma`-class inherits from `LTEPlasma` and uses a more complex
+description of the BasePlasma (for details see :ref:`nebular_plasma`).
 
 .. note::
     In this documentation we use the indices :math:`i, j, k` to mean atomic number, ion number and level number respectively.
@@ -62,10 +64,10 @@ Here's an example how to instantiate a simple base plasma::
 Plasma Types
 ------------
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 0
 
-    lte_plasma.rst
-    nebular_plasma.rst
+    plasma_doc/lte_plasma.rst
+    plasma_doc/nebular_plasma.rst
 
 
 .. _tau_sobolev:
@@ -83,16 +85,14 @@ This function calculates the Sobolev optical depth :math:`\tau_\textrm{Sobolev}`
 
     \tau_\textrm{Sobolev} = C_\textrm{Sobolev}\,  \lambda\, f_{\textrm{lower}\rightarrow\textrm{upper}}\,
         t_\textrm{explosion}\, N_\textrm{lower}
+        (1 - \frac{g_\textrm{lower}}{g_\textrm{upper}}\frac{N_\textrm{upper}}{N_\textrm{lower}})
 
 
 
-.. note::
-    Currently we're ignoring the term for stimulated emission:
-        :math:`(1 - \frac{g_\textrm{lower}}{g_\textrm{upper}}\frac{N_\textrm{upper}}{N_\textrm{lower}})`
 
 
-.. include:: macroatom.rst
-.. include:: nlte.rst
+.. include:: plasma_doc/macroatom.rst
+.. include:: plasma_doc/nlte.rst
 
 
 .. automodapi:: tardis.plasma
