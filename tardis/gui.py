@@ -337,7 +337,8 @@ class MatplotlibWidget(FigureCanvas):
         else:
             cid = self.figure.canvas.mpl_connect('pick_event', self.onpick)
 
-    #def show_span(self):
+    def show_span(self, left, right):
+        self.span = self.ax.axvspan(left, right, color='r', alpha=0.3, picker=True)
 
     def onpick(self, event):
         self.highlight_shell(event.artist.index)
