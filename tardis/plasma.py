@@ -554,12 +554,9 @@ class BasePlasma(object):
         negative_stimulated_emission_mask = [self.stimulated_emission_factor[self.atom_data.nlte_data.nlte_lines_mask] < 0.]
 
         self.stimulated_emission_factor[negative_stimulated_emission_mask] = 0.0
-
-        #getting rid of 0 levels
         self.stimulated_emission_factor[np.isneginf(self.stimulated_emission_factor)] = 0.0
 
         if np.any(self.stimulated_emission_factor < 0.0):
-
             population_inversion = self.atom_data.lines[self.stimulated_emission_factor < 0.0][['atomic_number',
                                                                                                 'ion_number',
                                                                                                 'level_number_lower',
@@ -575,7 +572,17 @@ class BasePlasma(object):
                 level_upper = self.atom_data.levels.ix[atomic_number,
                                                         ion_number,
                                                         population_inversion_line['level_number_upper']]
-                logger.critical("Population inversion occuring with a non-metastable level, this is unphysical:"
+
+                if level_lower['metastable'] or level_upper['metastable']:
+                    logger.debug("Population inversion occuring with a metastable level: \n %s ",
+                                    population_inversion_line)
+                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
+
+                elif np.isneginf(self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i]):
+                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
+                    raise Exception()
+                else:
+                    logger.critical("Population inversion occuring with a non-metastable level, this is unphysical:"
                                     " \n %s \n ZoneID %s Stimulated Emission value %s",
                                     population_inversion_line, self.zone_id,
                                     self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i])
