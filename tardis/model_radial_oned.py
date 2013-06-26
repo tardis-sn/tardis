@@ -378,6 +378,8 @@ class Radial1DModel(object):
             no_of_virtual_packets = self.tardis_config.no_of_virtual_packets
         else:
             no_of_virtual_packets = 0
+        if np.any(np.isnan(self.tau_sobolevs)) or np.any(np.isinf(self.tau_sobolevs)) or np.any(np.isneginf(self.tau_sobolevs)):
+            raise ValueError('Some values are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
         self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
