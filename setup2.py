@@ -40,8 +40,8 @@ montecarlo_multizone = Extension('tardis.montecarlo_multizone',
 macro_atom = Extension('tardis.macro_atom',
     ['tardis/macro_atom.pyx'])
 
-test_cython = Extension('tardis.test_cython',
-    ['tardis/test_cython.pyx'])
+#test_cython = Extension('tardis.test_cython',
+#    ['tardis/test_cython.pyx'])
 
 # Define all packages  and modules
 packages = ['tardis', 'tardis.tests']
@@ -53,7 +53,7 @@ scripts = glob.glob(os.path.join('scripts', '*'))
 scripts.remove(os.path.join('scripts', 'README.rst'))
 
 #Define the extension modules
-extensions = [montecarlo_multizone, macro_atom, test_cython]
+extensions = [montecarlo_multizone, macro_atom]
 
 setup(name=PACKAGENAME,
     version=version,
