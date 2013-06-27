@@ -339,6 +339,7 @@ class MatplotlibWidget(FigureCanvas):
 
     def show_span(self, left, right):
         self.span = self.ax.axvspan(left, right, color='r', alpha=0.3, picker=True)
+        self.draw()
 
     def onpick(self, event):
         self.highlight_shell(event.artist.index)
