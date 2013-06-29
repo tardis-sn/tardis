@@ -577,7 +577,9 @@ class BasePlasma(object):
                     logger.debug("Population inversion occuring with a metastable level: \n %s ",
                                     population_inversion_line)
                     self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
-
+                elif (atomic_number, ion_number) in self.nlte_species:
+                    logger.debug("Popuation inversion occuring in an NLTE Species")
+                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
                 elif np.isneginf(self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i]):
                     self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
                     raise Exception()
