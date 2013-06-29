@@ -1,7 +1,3 @@
-__author__ = 'maryam'
-
-#this is the test environment for atomic
-
 from tardis import atomic
 from numpy import testing
 from astropy import units
