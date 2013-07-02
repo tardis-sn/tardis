@@ -1,7 +1,7 @@
 from tardis import plasma, atomic
 from astropy import constants
 import numpy as np
-import pandas as pd
+import pytest
 
 atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
 atom_data.prepare_atom_data(selected_atomic_numbers=[14])
@@ -56,5 +56,11 @@ class TestNormalLTEPlasma:
         #silicon line 14, 1 , wl = 6347.105178 level_lower = 7 level_upper = 12
         wavelength_id = 565376
         assert self.plasma.tau_sobolevs[self.plasma.atom_data.lines.index == wavelength_id][0] == 101.06456251838634
+
+
+    def test_population_inversion(self):
+        self.plasma.level_populations.ix[14, 1, 12] = 1.1 * self.plasma.level_populations.ix[14, 1, 7]
+        with pytest.raises(plasma.PopulationInversionException):
+            self.plasma.calculate_tau_sobolev()
 
 

@@ -22,6 +22,8 @@ sobolev_coefficient = ((np.pi * constants.e.gauss.value ** 2) / (constants.m_e.c
 class PlasmaException(Exception):
     pass
 
+class PopulationInversionException(PlasmaException):
+    pass
 
 def intensity_black_body(nu, T):
     """
@@ -580,14 +582,13 @@ class BasePlasma(object):
                 elif (atomic_number, ion_number) in self.nlte_species:
                     logger.debug("Popuation inversion occuring in an NLTE Species")
                     self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
-                elif np.isneginf(self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i]):
-                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
-                    raise Exception()
+
                 else:
-                    logger.critical("Population inversion occuring with a non-metastable level, this is unphysical:"
-                                    " \n %s \n ZoneID %s Stimulated Emission value %s",
-                                    population_inversion_line, self.zone_id,
-                                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i])
+                    raise PopulationInversionException("Population inversion occuring with a non-metastable level, this "
+                                                       "is unphysical:\n %s \n ZoneID %s Stimulated Emission value %s" %\
+                                                       (population_inversion_line, self.zone_id,
+                                                        self.stimulated_emission_factor[
+                                                            self.stimulated_emission_factor < 0.0][i]))
 
 
         self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
