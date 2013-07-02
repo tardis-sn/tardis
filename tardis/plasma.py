@@ -140,7 +140,7 @@ class BasePlasma(object):
 
     @classmethod
     def from_hdf5(cls, hdf5store):
-        pass
+        raise NotImplementedError()
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
