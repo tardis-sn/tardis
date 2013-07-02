@@ -6,7 +6,16 @@ config_type: simple1d
 
 #luminosity any astropy.unit convertible to erg/s
 #special unit log_lsun(log(luminosity) - log(L_sun)
+
 luminosity: 9.44 log_lsun
+
+#luminosity:
+#    type: spectrum
+#    file: myspectrum.dat
+#    wavelength_column: 0
+#    wavelength_unit: angstrom
+#    flux_column: 1
+#    flux_unit: erg / cm2 / s / angstrom
 
 #time since explosion
 time_explosion: 13 day

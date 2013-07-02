@@ -335,19 +335,6 @@ class TardisConfiguration(object):
     """
 
     @classmethod
-    def from_ini(cls, fname, args=None):
-        print "This function is being deprecated and replaced by from_yaml classmethod"
-        config_parse_object = ConfigParser()
-        config_parse_object.read(fname)
-        general_dict = dict(config_parse_object.items('general'))
-        abundance_dict = dict(config_parse_object.items('abundances'))
-
-        config_object = cls()
-        config_object.parse_general_section(general_dict)
-        config_object.parse_abundance_section(abundance_dict)
-        return config_object
-
-    @classmethod
     def from_yaml(cls, fname, args=None):
         """
         Reading in from a YAML file and commandline args. Preferring commandline args when given
@@ -399,11 +386,17 @@ class TardisConfiguration(object):
 
         config_dict['time_explosion'] = time_explosion
 
-        if 'log_lsun' in yaml_dict['luminosity']:
-            luminosity_value, luminosity_unit = yaml_dict['luminosity'].split()
-            config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value))
+        if 'luminosity' not in yaml_dict:
+            raise TardisConfigError("YAML file needs a luminosity entry")
         else:
-            config_dict['luminosity'] = parse2quantity(yaml_dict['luminosity'])
+            if isinstance(yaml_dict['luminosity'], basestring):
+                if 'log_lsun' in yaml_dict['luminosity']:
+                    luminosity_value, luminosity_unit = yaml_dict['luminosity'].split()
+                    config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value))
+                else:
+                    config_dict['luminosity'] = parse2quantity(yaml_dict['luminosity'])
+            else:
+                luminosity_section = config_dict['luminosity']
 
 
         #Trying to figure out the structure (number of shells)
