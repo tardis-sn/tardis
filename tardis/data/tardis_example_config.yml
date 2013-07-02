@@ -12,7 +12,7 @@ luminosity: 9.44 log_lsun
 time_explosion: 13 day
 
 
-atom_data: ../atom_data/kurucz_atom_chianti_many.h5
+atom_data: atom_data.h5
 
 plasma:
     initial_t_inner: 10000 K
