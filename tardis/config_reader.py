@@ -284,13 +284,13 @@ def parse_supernova_section(supernova_dict):
         config_dict['luminosity_nu_end'] = parse2quantity(supernova_dict['luminosity_wavelength_start']).\
             to('Hz', u.spectral())
     else:
-        config_dict['luminosity_nu_end'] = np.inf
+        config_dict['luminosity_nu_end'] = np.inf * u.Hz
 
     if 'luminosity_wavelength_end' in supernova_dict:
         config_dict['luminosity_nu_start'] = parse2quantity(supernova_dict['luminosity_wavelength_end']).\
             to('Hz', u.spectral())
     else:
-        config_dict['luminosity_nu_start'] = 0.0
+        config_dict['luminosity_nu_start'] = 0.0 * u.Hz
 
     return config_dict
 
