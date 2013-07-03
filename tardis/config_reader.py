@@ -2,8 +2,8 @@
 # Currently the configuration file is documented in
 # tardis/data/example_configuration.ini
 
-from astropy import constants, units
-from ConfigParser import ConfigParser
+from astropy import constants, units as u
+
 import logging
 import numpy as np
 import os
@@ -34,7 +34,7 @@ def parse2quantity(quantity_string):
     value_string, unit_string = quantity_string.split()
 
     value = float(value_string)
-    return units.Quantity(value, unit_string)
+    return u.Quantity(value, unit_string)
 
 
 def calculate_density_after_time(densities, time_0, time_explosion):
@@ -82,14 +82,14 @@ def parse_density_file_section(density_file_dict, time_explosion):
             if i == 0:
                 no_of_shells = int(line.strip())
             elif i == 1:
-                time_of_model = units.Quantity(float(line.strip()), 'day').to('s')
+                time_of_model = u.Quantity(float(line.strip()), 'day').to('s')
             elif i == 2:
                 break
 
         velocities, mean_densities_0 = np.recfromtxt(density_file, skip_header=2, usecols=(1, 2), unpack=True)
         #converting densities from log(g/cm^3) to g/cm^3 and stretching it to the current ti
-        velocities = units.Quantity(np.append([0], velocities), 'km/s').to('cm/s')
-        mean_densities_0 = units.Quantity(10 ** mean_densities_0, 'g/cm^3')
+        velocities = u.Quantity(np.append([0], velocities), 'km/s').to('cm/s')
+        mean_densities_0 = u.Quantity(10 ** mean_densities_0, 'g/cm^3')
 
         mean_densities = calculate_density_after_time(mean_densities_0, time_of_model.value, time_explosion)
 
@@ -247,6 +247,49 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
 
     return parser(abundance_file_dict, abundances, min_shell, max_shell)
 
+def parse_supernova_section(supernova_dict):
+    """
+    Parse the supernova section
+
+    Parameters
+    ----------
+
+    supernova_dict: dict
+        YAML parsed supernova dict
+
+    Returns
+    -------
+
+    config_dict: dict
+
+    """
+    config_dict = {}
+
+    #parse luminosity
+    luminosity_value, luminosity_unit = supernova_dict['luminosity'].strip().split()
+
+    if luminosity_unit == 'log_lsun':
+        config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value))
+    else:
+        config_dict['luminosity'] = (float(luminosity_value) * u.Unit(luminosity_unit)).cgs.value
+
+    config_dict['time_explosion'] = parse2quantity(supernova_dict['time_explosion']).to('s').value
+
+    if 'distance' in supernova_dict:
+        config_dict['sn_distance'] = parse2quantity(supernova_dict['distance'])
+    else:
+        config_dict['sn_distance'] = None
+
+    if 'luminosity_wavelength_start' in supernova_dict:
+        config_dict['luminosity_nu_end'] = parse2quantity(supernova_dict['luminosity_wavelength_start']).\
+            to('Hz', u.spectral())
+
+    if 'luminosity_wavelength_end' in supernova_dict:
+        config_dict['luminosity_nu_start'] = parse2quantity(supernova_dict['luminosity_wavelength_end']).\
+            to('Hz', u.spectral())
+
+
+    return config_dict
 
 def reformat_element_symbol(element_symbol):
     """
@@ -378,26 +421,7 @@ class TardisConfiguration(object):
         config_dict['atom_data'] = atom_data
         #Next finding the time of explosion
 
-        try:
-            time_explosion = parse2quantity(yaml_dict['time_explosion']).to('s').value
-        except AttributeError as ae:
-            logger.critical(str(ae))
-            raise ae
-
-        config_dict['time_explosion'] = time_explosion
-
-        if 'luminosity' not in yaml_dict:
-            raise TardisConfigError("YAML file needs a luminosity entry")
-        else:
-            if isinstance(yaml_dict['luminosity'], basestring):
-                if 'log_lsun' in yaml_dict['luminosity']:
-                    luminosity_value, luminosity_unit = yaml_dict['luminosity'].split()
-                    config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value))
-                else:
-                    config_dict['luminosity'] = parse2quantity(yaml_dict['luminosity'])
-            else:
-                luminosity_section = config_dict['luminosity']
-
+        config_dict.update(parse_supernova_section(yaml_dict['supernova']))
 
         #Trying to figure out the structure (number of shells)
         structure_dict = yaml_dict['model'].pop('structure')
@@ -406,7 +430,7 @@ class TardisConfiguration(object):
         if 'file' in structure_dict.keys():
             density_file_section = structure_dict.pop('file')
             v_inner, v_outer, mean_densities, min_shell, max_shell = parse_density_file_section(density_file_section,
-                                                                                                time_explosion)
+                                                                                                config_dict['time_explosion'])
 
             no_of_shells = len(v_inner)
             if structure_dict != {}:
@@ -423,7 +447,7 @@ class TardisConfiguration(object):
 
             v_inner, v_outer = parse_velocity_section(structure_dict['velocity'], no_of_shells)
             mean_densities = parse_density_section(structure_dict['density'], no_of_shells, v_inner, v_outer,
-                                                   time_explosion)
+                                                   config_dict['time_explosion'])
 
         config_dict['v_inner'] = v_inner
         config_dict['v_outer'] = v_outer
@@ -592,8 +616,8 @@ class TardisConfiguration(object):
 
         ##### spectrum section ######
         spectrum_section = yaml_dict.pop('spectrum')
-        spectrum_start = parse2quantity(spectrum_section['start']).to('angstrom', units.spectral())
-        spectrum_end = parse2quantity(spectrum_section['end']).to('angstrom', units.spectral())
+        spectrum_start = parse2quantity(spectrum_section['start']).to('angstrom', u.spectral())
+        spectrum_end = parse2quantity(spectrum_section['end']).to('angstrom', u.spectral())
         spectrum_bins = int(spectrum_section['bins'])
 
         if spectrum_end > spectrum_start:
@@ -612,21 +636,20 @@ class TardisConfiguration(object):
         config_dict['spectrum_end'] = spectrum_end
         config_dict['spectrum_bins'] = spectrum_bins
 
-        config_dict['spectrum_start_nu'] = spectrum_end.to('Hz', units.spectral())
-        config_dict['spectrum_end_nu'] = spectrum_start.to('Hz', units.spectral())
+        config_dict['spectrum_start_nu'] = spectrum_end.to('Hz', u.spectral())
+        config_dict['spectrum_end_nu'] = spectrum_start.to('Hz', u.spectral())
 
-        sn_distance = spectrum_section.pop('sn_distance', None)
+        if 'spectrum_type' in spectrum_section:
+            if spectrum_section['spectrum_type'] not in ['luminosity_density', 'flux']:
+                raise TardisConfigError('"spectrum_type" can either be "luminosity_density" or "flux" - %s given' %
+                                        spectrum_section['spectrum_type'])
 
-        if sn_distance is not None:
-            if sn_distance.strip().lower() == 'lum_density':
-                logger.info('Luminosity density requested  - setting distance to sqrt(1/(4*pi))')
-                config_dict['lum_density'] = True
-                config_dict['sn_distance'] = np.sqrt(1 / (4 * np.pi))
-            else:
-                config_dict['sn_distance'] = parse2quantity(sn_distance).to('cm').value
-                config_dict['lum_density'] = False
-        else:
-            config_dict['sn_distance'] = None
+            config_dict['spectrum_type'] = spectrum_section['spectrum_type']
+            if config_dict['sn_distance'] is None and config_dict['spectrum_type'] == 'flux':
+                logger.warn('Requested "spectrum_type" flux but no supernova distance is given - '
+                            'switching to "luminosity_distance"')
+                config_dict['spectrum_type'] == 'luminosity_distance'
+
 
         return cls(config_dict)
 
