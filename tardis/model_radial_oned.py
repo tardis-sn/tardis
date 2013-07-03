@@ -12,8 +12,8 @@ import os
 import yaml
 
 import itertools
-
-from .plasma import intensity_black_body
+from tardis import config_reader
+from tardis.plasma import intensity_black_body
 
 logger = logging.getLogger(__name__)
 
@@ -342,17 +342,21 @@ class Radial1DModel(object):
 
 
     def calculate_spectrum(self):
+        """
+        Calculate the spectrum from the received packetss
 
-        if self.tardis_config.sn_distance is None:
-            logger.info('Distance to supernova not selected assuming 10 pc for calculation of spectra')
-            distance = units.Quantity(10, 'pc').to('cm').value
-        else:
-            distance = self.tardis_config.sn_distance
+        """
+
         self.spec_flux_nu = np.histogram(self.montecarlo_nu[self.montecarlo_nu > 0],
                                          weights=self.montecarlo_energies[self.montecarlo_energies > 0],
                                          bins=self.spec_nu_bins)[0]
-
-        flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) * (4 * np.pi * distance ** 2))
+        if self.tardis_config.spectrum_type == 'luminosity_density':
+            flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) )
+        elif self.tardis_config.spectrum_type == 'flux':
+            flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) *
+                          (4 * np.pi * self.tardis_config.sn_distance.to('cm').value ** 2))
+        else:
+            raise config_reader.TardisConfigError('"spectrum_mode" is not "luminosity_density" or "flux" - but ')
 
         self.spec_flux_nu /= flux_scale
 
@@ -371,6 +375,10 @@ class Radial1DModel(object):
 
 
     def simulate(self, update_radiation_field=True, enable_virtual=False):
+        """
+        Run a simulation
+        """
+
         self.create_packets()
         self.spec_virtual_flux_nu[:] = 0.0
 
@@ -416,11 +424,12 @@ class Radial1DModel(object):
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
         old_t_inner = self.t_inner
-
+        luminosity_filter = (self.montecarlo_nu > self.tardis_config.luminosity_nu_start.value) & \
+                            (self.montecarlo_nu < self.tardis_config.luminosity_nu_end.value)
         emitted_energy = self.emitted_inner_energy * \
-                         np.sum(self.montecarlo_energies[self.montecarlo_energies >= 0]) / 1.
+                         np.sum(self.montecarlo_energies[(self.montecarlo_energies >= 0) & luminosity_filter]) / 1.
         absorbed_energy = self.emitted_inner_energy * \
-                          np.sum(self.montecarlo_energies[self.montecarlo_energies < 0]) / -1.
+                          np.sum(self.montecarlo_energies[(self.montecarlo_energies < 0) & luminosity_filter]) / -1.
         updated_t_inner = self.t_inner * (emitted_energy / self.luminosity_outer) ** -.25
 
         convergence_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
