@@ -23,8 +23,8 @@ def get_last_line_interaction(wavelength_start, wavelength_end, model):
         'wavelength'].count()
     line_out_table = line_out_table.astype(float) / line_out_table.sum()
 
-    print "Lines in:\n------\n %s" % line_in_table
-    print "Lines out:\n------\n %s" % line_out_table
+    # print "Lines in:\n------\n %s" % line_in_table
+    # print "Lines out:\n------\n %s" % line_out_table
 
     return last_line_in_ids, last_line_out_ids
 
