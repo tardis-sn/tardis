@@ -647,8 +647,11 @@ class TardisConfiguration(object):
             config_dict['spectrum_type'] = spectrum_section['spectrum_type']
             if config_dict['sn_distance'] is None and config_dict['spectrum_type'] == 'flux':
                 logger.warn('Requested "spectrum_type" flux but no supernova distance is given - '
-                            'switching to "luminosity_distance"')
-                config_dict['spectrum_type'] == 'luminosity_distance'
+                            'switching to "luminosity_density"')
+                config_dict['spectrum_type'] == 'luminosity_density'
+        else:
+            logger.warn('"spectrum_type" not specified in spectrum section - setting to "luminosity_density"')
+            config_dict['spectrum_type'] = 'luminosity_density'
 
 
         return cls(config_dict)
