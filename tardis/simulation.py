@@ -1,11 +1,12 @@
 import logging
-
+import time
 
 # Adding logging support
 logger = logging.getLogger(__name__)
 
 
 def run_radial1d(radial1d_model, save_history=None):
+    start_time = time.time()
     while radial1d_model.iterations_remaining > 0:
         logger.info('Remaining run %d', radial1d_model.iterations_remaining)
         radial1d_model.simulate()
@@ -24,7 +25,7 @@ def run_radial1d(radial1d_model, save_history=None):
         save_history.store(radial1d_model)
         save_history.finalize()
 
-    logger.info("Finished in %d iterations", radial1d_model.iterations_executed)
+    logger.info("Finished in %d iterations and took %.2f s", radial1d_model.iterations_executed, time.time()-start_time)
 
 
 
