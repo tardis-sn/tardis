@@ -424,8 +424,8 @@ class Radial1DModel(object):
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
         old_t_inner = self.t_inner
-        luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.luminosity_nu_start.value) & \
-                            (self.montecarlo_nu < self.tardis_config.luminosity_nu_end.value)
+        luminosity_wavelength_filter = (np.abs(self.montecarlo_nu) > self.tardis_config.luminosity_nu_start.value) & \
+                            (np.abs(self.montecarlo_nu) < self.tardis_config.luminosity_nu_end.value)
         emitted_energy = self.emitted_inner_energy * \
                          np.sum(self.montecarlo_energies[(self.montecarlo_energies >= 0) &
                                                          luminosity_wavelength_filter]) / 1.
