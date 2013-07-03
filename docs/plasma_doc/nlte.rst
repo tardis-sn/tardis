@@ -33,6 +33,71 @@ Next, we calculate the rate of change of a level by adding up all outgoing and a
 In a statistical equilibrium all incoming rates and outgoing rates add up to 0 (:math:`\frac{dn_j}{dt}=0`). We use this to
 calculate the level populations using the rate coefficients (:math:`r_ij, r_ji`).
 
+
+.. math::
+
+    \left(
+    \begin{matrix}
+    -(\calr_{12} + \dots + \calr_{1j}) & \dots & \calr_{j1}\\
+    \vdots & \ddots & \vdots \\
+    \calr_{1j} & \dots & - (\calr _{j1} + \dots + \calr _{j, j-1}) \\
+    \end{matrix}
+    \right)
+    %
+    \left(
+    \begin{matrix}
+    n_1\\
+    \vdots\\
+    n_j\\
+    \end{matrix}
+    \right)
+    %
+    =
+    %
+    \left(
+    \begin{matrix}
+    0\\
+    0\\
+    0\\
+    \end{matrix}
+    \right)
+
+
+with the additional constrained that all the level number populations need to add up to the current ion population $N$ we change this to
+
+.. math::
+
+    \left(
+    \begin{matrix}
+    1 & 1 & \dots \\
+    \vdots & \ddots & \vdots \\
+    \calr_{1j} & \dots & - (\calr _{j1} + \dots + \calr _{j, j-1}) \\
+    \end{matrix}
+    \right)
+    %
+    \left(
+    \begin{matrix}
+    n_1\\
+    \vdots\\
+    n_j\\
+    \end{matrix}
+    \right)
+    %
+    =
+    %
+    \left(
+    \begin{matrix}
+    N\\
+    0\\
+    0\\
+    \end{matrix}
+    \right)
+
+
+
+
+
+
 For a three level atom we have:
 
 .. math::
