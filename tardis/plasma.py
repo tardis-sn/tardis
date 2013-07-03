@@ -11,12 +11,14 @@ from .config_reader import reformat_element_symbol
 
 logger = logging.getLogger(__name__)
 
-
-
-
+k_B_cgs = constants.k_B.cgs.value
+c_cgs = constants.c.cgs.value
+h_cgs = constants.h.cgs.value
+m_e_cgs = constants.m_e.cgs.value
+e_charge_gauss = constants.e.gauss.value
 
 #Defining soboleve constant
-sobolev_coefficient = ((np.pi * constants.e.gauss.value ** 2) / (constants.m_e.cgs.value * constants.c.cgs.value))
+sobolev_coefficient = ((np.pi * e_charge_gauss ** 2) / ( m_e_cgs * c_cgs))
 
 
 class PlasmaException(Exception):
@@ -33,10 +35,10 @@ def intensity_black_body(nu, T):
             I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
     """
-    beta_rad = 1 / (constants.k_B.cgs.value * T)
+    beta_rad = 1 / (k_B_cgs * T)
 
-    return (2 * (constants.h.cgs.value * nu ** 3) / (constants.c.cgs.value ** 2)) / (
-        np.exp(constants.h.cgs.value * nu * beta_rad) - 1)
+    return (2 * (h_cgs * nu ** 3) / (c_cgs ** 2)) / (
+        np.exp(h_cgs * nu * beta_rad) - 1)
 
 
 class BasePlasma(object):
@@ -182,8 +184,8 @@ class BasePlasma(object):
     @t_rad.setter
     def t_rad(self, value):
         self._t_rad = value
-        self.beta_rad = 1 / (constants.k_B.cgs.value * self._t_rad)
-        self.ge = ((2 * np.pi * constants.m_e.cgs.value / self.beta_rad) / (constants.h.cgs.value ** 2)) ** 1.5
+        self.beta_rad = 1 / (k_B_cgs * self._t_rad)
+        self.ge = ((2 * np.pi * m_e_cgs / self.beta_rad) / (h_cgs ** 2)) ** 1.5
 
     @property
     def t_electron(self):
@@ -200,7 +202,7 @@ class BasePlasma(object):
         else:
             self._t_electron = value
 
-        self.beta_electron = 1 / (constants.k_B.cgs.value * self.t_electron)
+        self.beta_electron = 1 / (k_B_cgs * self.t_electron)
 
 
     #Functions
