@@ -1,5 +1,8 @@
 # Utilities for TARDIS
 
+from astropy import units as u
+import numpy as np
+
 def int_to_roman(input):
    """
    from http://code.activestate.com/recipes/81611-roman-numerals/
@@ -114,3 +117,17 @@ def roman_to_int(input):
       return sum
    else:
       raise ValueError, 'input is not a valid roman numeral: %s' % input
+
+
+def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_unit=u.angstrom, flux_column=1,
+                         flux_unit=u.Unit('erg / (Angstrom cm2 s)')):
+
+    #BAD STYLE change to parse quantity
+    distance = u.Unit(distance)
+
+    wavelength, flux = np.loadtxt(spec_fname, usecols=(wavelength_column, flux_column), unpack=True)
+
+    flux_density = np.trapz(flux, wavelength) * (flux_unit * wavelength_unit)
+    luminosity = (flux_density * 4 * np.pi * distance**2).to('erg/s')
+
+    return luminosity.value, wavelength.min(), wavelength.max()

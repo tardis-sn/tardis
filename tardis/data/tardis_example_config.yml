@@ -6,19 +6,13 @@ config_type: simple1d
 
 #luminosity any astropy.unit convertible to erg/s
 #special unit log_lsun(log(luminosity) - log(L_sun)
-
-luminosity: 9.44 log_lsun
-
-#luminosity:
-#    type: spectrum
-#    file: myspectrum.dat
-#    wavelength_column: 0
-#    wavelength_unit: angstrom
-#    flux_column: 1
-#    flux_unit: erg / cm2 / s / angstrom
+supernova:
+  luminosity: 9.44 log_lsun
+  time_explosion: 13 day
+  distance : 1 Mpc
 
 #time since explosion
-time_explosion: 13 day
+
 
 
 atom_data: atom_data.h5
@@ -126,4 +120,4 @@ spectrum:
     start : 500 angstrom
     end : 20000 angstrom
     bins : 1000
-    sn_distance : lum_density
+    spectrum_type: flux #flux or lum_density
