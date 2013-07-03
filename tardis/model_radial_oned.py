@@ -424,12 +424,14 @@ class Radial1DModel(object):
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
         old_t_inner = self.t_inner
-        luminosity_filter = (self.montecarlo_nu > self.tardis_config.luminosity_nu_start.value) & \
+        luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.luminosity_nu_start.value) & \
                             (self.montecarlo_nu < self.tardis_config.luminosity_nu_end.value)
         emitted_energy = self.emitted_inner_energy * \
-                         np.sum(self.montecarlo_energies[(self.montecarlo_energies >= 0) & luminosity_filter]) / 1.
+                         np.sum(self.montecarlo_energies[(self.montecarlo_energies >= 0) &
+                                                         luminosity_wavelength_filter]) / 1.
         absorbed_energy = self.emitted_inner_energy * \
-                          np.sum(self.montecarlo_energies[(self.montecarlo_energies < 0) & luminosity_filter]) / -1.
+                          np.sum(self.montecarlo_energies[(self.montecarlo_energies < 0) &
+                                                          luminosity_wavelength_filter]) / -1.
         updated_t_inner = self.t_inner * (emitted_energy / self.luminosity_outer) ** -.25
 
         convergence_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
