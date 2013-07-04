@@ -3,6 +3,8 @@
 # tardis/data/example_configuration.ini
 
 from astropy import constants, units as u
+from astropy import utils
+
 
 import logging
 import numpy as np
@@ -16,6 +18,7 @@ import yaml
 import pdb
 
 import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +130,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         velocities = u.Quantity(np.append([0], velocities), 'km/s').to('cm/s')
         mean_densities_0 = u.Quantity(10 ** mean_densities_0, 'g/cm^3')
 
-        mean_densities = calculate_density_after_time(mean_densities_0, time_of_model.value, time_explosion)
+        mean_densities = calculate_density_after_time(mean_densities_0, time_of_model, time_explosion)
 
 
         #Verifying information
@@ -165,7 +168,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         v_outer = v_outer[min_shell:max_shell]
         mean_densities = mean_densities[min_shell:max_shell]
 
-        return v_inner.value, v_outer.value, mean_densities.value, min_shell, max_shell
+        return v_inner, v_outer, mean_densities, min_shell, max_shell
 
     density_file_parser['artis'] = parse_artis_density
 
@@ -184,7 +187,7 @@ def parse_velocity_section(velocity_dict, no_of_shells):
     def parse_linear_velocity(velocity_dict, no_of_shells):
         v_inner = parse2quantity(velocity_dict['v_inner']).to('cm/s').value
         v_outer = parse2quantity(velocity_dict['v_outer']).to('cm/s').value
-        velocities = np.linspace(v_inner, v_outer, no_of_shells + 1)
+        velocities = np.linspace(v_inner, v_outer, no_of_shells + 1) * u.Unit('cm/s')
         return velocities[:-1], velocities[1:]
 
     velocity_parser['linear'] = parse_linear_velocity
@@ -203,7 +206,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
 
     #Parse density uniform
     def parse_uniform(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
-        return np.ones(no_of_shells) * parse2quantity(density_dict['value']).to('g cm^-3').value
+        return np.ones(no_of_shells) * parse2quantity(density_dict['value']).to('g cm^-3')
 
     density_parser['uniform'] = parse_uniform
 
@@ -212,18 +215,21 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
 
         time_0 = density_dict.pop('time_0', 19.9999584)
         if isinstance(time_0, basestring):
-            time_0 = parse2quantity(time_0).to('s').value
+            time_0 = parse2quantity(time_0).to('s')
         else:
+            time_0 *= u.s
             logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
 
         density_coefficient = density_dict.pop('density_coefficient', None)
         if density_coefficient is None:
-            density_coefficient = 3e29
+            density_coefficient = 3e29 * u.Unit('g/cm^3')
             logger.debug('density_coefficient not supplied for density type branch85 - using sensible default %g',
                          density_coefficient)
+        else:
+            density_coefficient = parse2quantity(density_coefficient)
 
         velocities = 0.5 * (v_inner + v_outer)
-        densities = density_coefficient * (velocities * 1e-5) ** -7
+        densities = density_coefficient * (velocities.value * 1e-5) ** -7
 
         densities = calculate_density_after_time(densities, time_0, time_explosion)
 
@@ -305,16 +311,16 @@ def parse_supernova_section(supernova_dict):
     luminosity_value, luminosity_unit = supernova_dict['luminosity'].strip().split()
 
     if luminosity_unit == 'log_lsun':
-        config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value))
+        config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value)).to('erg/s')
     else:
-        config_dict['luminosity'] = (float(luminosity_value) * u.Unit(luminosity_unit)).cgs.value
+        config_dict['luminosity'] = (float(luminosity_value) * u.Unit(luminosity_unit)).to('erg/s')
 
-    config_dict['time_explosion'] = parse2quantity(supernova_dict['time_explosion']).to('s').value
+    config_dict['time_explosion'] = parse2quantity(supernova_dict['time_explosion']).to('s')
 
     if 'distance' in supernova_dict:
-        config_dict['sn_distance'] = parse2quantity(supernova_dict['distance'])
+        config_dict['distance'] = parse2quantity(supernova_dict['distance'])
     else:
-        config_dict['sn_distance'] = None
+        config_dict['distance'] = None
 
     if 'luminosity_wavelength_start' in supernova_dict:
         config_dict['luminosity_nu_end'] = parse2quantity(supernova_dict['luminosity_wavelength_start']).\
@@ -410,8 +416,31 @@ def read_lucy99_abundances(fname=None):
 
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
+class TardisConfigurationNameSpace(object):
 
-class TardisConfiguration(object):
+    def __init__(self, config_dict):
+        self.config_dict = config_dict
+
+
+    def __getattr__(self, item):
+        if item in self.config_dict:
+            config_item = self.config_dict[item]
+            if isinstance(config_item, dict):
+                setattr(self, item, TardisConfigurationNameSpace(config_item))
+                return getattr(self, item)
+            else:
+                return self.config_dict[item]
+        else:
+            return super(TardisConfigurationNameSpace, self).__getattribute__(item)
+
+    def __getitem__(self, item):
+        return self.config_dict.__getitem__(item)
+
+    def __repr__(self):
+        return pp.pformat(self.config_dict)
+
+
+class TardisConfiguration(TardisConfigurationNameSpace):
     """
     Tardis configuration class
     """
@@ -458,54 +487,56 @@ class TardisConfiguration(object):
         logger.info('Reading Atomic Data from %s', atom_data_fname)
         atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
         config_dict['atom_data'] = atom_data
-        #Next finding the time of explosion
 
-        config_dict.update(parse_supernova_section(yaml_dict['supernova']))
+        #Parsing supernova dictionary
+        config_dict['supernova'] = parse_supernova_section(yaml_dict['supernova'])
 
         #Trying to figure out the structure (number of shells)
-        structure_dict = yaml_dict['model'].pop('structure')
-
+        structure_section = yaml_dict['model'].pop('structure')
+        structure_config_dict = {}
         #first let's try to see if there's a file keyword
-        if 'file' in structure_dict.keys():
-            density_file_section = structure_dict.pop('file')
+        if 'file' in structure_section:
+            density_file_section = structure_section.pop('file')
             v_inner, v_outer, mean_densities, min_shell, max_shell = parse_density_file_section(density_file_section,
                                                                                                 config_dict['time_explosion'])
 
             no_of_shells = len(v_inner)
-            if structure_dict != {}:
+            if structure_section != {}:
                 logger.warn(
                     'Accepted file for structure (density/velocity) structure ignoring all other arguments: \n%s\n',
-                    pprint.pformat(structure_dict, indent=4))
+                    pprint.pformat(structure_section, indent=4))
         else:
             #requiring all keys: no_of_shells, velocity, density
-            if not all([item in structure_dict.keys() for item in ('no_of_shells', 'velocity', 'density')]):
+            if not all([item in structure_section.keys() for item in ('no_of_shells', 'velocity', 'density')]):
                 raise TardisConfigError(
                     'If file-section is not given to structure-section, one needs to provide all: no_of_shells, velocity, density')
 
-            no_of_shells = structure_dict['no_of_shells']
+            no_of_shells = structure_section['no_of_shells']
 
-            v_inner, v_outer = parse_velocity_section(structure_dict['velocity'], no_of_shells)
-            mean_densities = parse_density_section(structure_dict['density'], no_of_shells, v_inner, v_outer,
-                                                   config_dict['time_explosion'])
+            v_inner, v_outer = parse_velocity_section(structure_section['velocity'], no_of_shells)
+            mean_densities = parse_density_section(structure_section['density'], no_of_shells, v_inner, v_outer,
+                                                   config_dict['supernova']['time_explosion'])
 
-        config_dict['v_inner'] = v_inner
-        config_dict['v_outer'] = v_outer
-        config_dict['mean_densities'] = mean_densities
-        config_dict['no_of_shells'] = no_of_shells
+        structure_config_dict['v_inner'] = v_inner
+        structure_config_dict['v_outer'] = v_outer
+        structure_config_dict['mean_densities'] = mean_densities
+        structure_config_dict['no_of_shells'] = no_of_shells
 
+        config_dict['structure'] = structure_config_dict
         #Now that the structure section is parsed we move on to the abundances
 
-        abundances_dict = yaml_dict['model']['abundances'].copy()
+        abundances_section = yaml_dict['model']['abundances'].copy()
+        abudances_config_dict = {}
         #TODO: columns are now until Z=120
         species_pattern = re.compile('\s*([a-zA-Z]*)(\d*)\s*')
         abundances = pd.DataFrame(columns=np.arange(1, 120), index=pd.Index(np.arange(no_of_shells), name='shells'))
 
-        if 'file' in abundances_dict.keys():
-            abundance_file_dict = abundances_dict.pop('file')
+        if 'file' in abundances_section.keys():
+            abundance_file_dict = abundances_section.pop('file')
             parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max_shell)
 
-        if 'abundance_set' in abundances_dict.keys():
-            abundance_set_dict = abundances_dict.pop('abundance_set')
+        if 'abundance_set' in abundances_section.keys():
+            abundance_set_dict = abundances_section.pop('abundance_set')
             print "abundance set not implemented currently"
             #            abundance_set = abundance_dict.pop('abundance_set', None)
         #            if abundance_set == 'lucy99':
@@ -514,8 +545,8 @@ class TardisConfiguration(object):
         #                raise ValueError("Currently only 'lucy99' abundance_set supported")
 
         nlte_species = []
-        if 'nlte_species' in abundances_dict.keys():
-            nlte_species_list = abundances_dict.pop('nlte_species')
+        if 'nlte_species' in abundances_section.keys():
+            nlte_species_list = abundances_section.pop('nlte_species')
             for species_symbol in nlte_species_list:
                 species_match = species_pattern.match(species_symbol)
                 if species_match is None:
@@ -527,14 +558,14 @@ class TardisConfiguration(object):
                     raise ValueError("Element provided in NLTE species %s unknown" % species_element)
                 nlte_species.append((atom_data.symbol2atomic_number[species_element], int(species_ion) - 1))
 
-        for element in abundances_dict:
+        for element in abundances_section:
             element_symbol = reformat_element_symbol(element)
             if element_symbol not in atom_data.symbol2atomic_number:
                 raise ValueError('Element %s provided in config unknown' % element_symbol)
 
             z = atom_data.symbol2atomic_number[element_symbol]
 
-            abundances[z] = float(abundances_dict[element])
+            abundances[z] = float(abundances_section[element])
 
         config_dict['abundances'] = abundances
         config_dict['nlte_species'] = nlte_species
@@ -543,62 +574,55 @@ class TardisConfiguration(object):
         ########### DOING PLASMA SECTION ###############
 
         plasma_section = yaml_dict.pop('plasma')
-
-        config_dict['initial_t_rad'] = parse2quantity(plasma_section['initial_t_rad']).to('K').value
-        config_dict['initial_t_inner'] = parse2quantity(plasma_section['initial_t_inner']).to('K').value
+        plasma_config_dict = {}
+        config_dict['initial_t_rad'] = parse2quantity(plasma_section['initial_t_rad']).to('K')
+        plasma_config_dict['initial_t_inner'] = parse2quantity(plasma_section['initial_t_inner']).to('K')
 
         if plasma_section['plasma_type'] not in ('nebular', 'lte'):
             raise TardisConfigError('plasma_type only allowed to be "nebular" or "lte"')
-        config_dict['plasma_type'] = plasma_section['plasma_type']
+        plasma_config_dict['plasma_type'] = plasma_section['plasma_type']
 
         if plasma_section['radiative_rates_type'] not in ('nebular', 'lte', 'detailed'):
             raise TardisConfigError('radiative_rates_types must be either "nebular", "lte", or "detailed"')
-        config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
+        plasma_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
 
         if plasma_section['line_interaction_type'] not in ('scatter', 'downbranch', 'macroatom'):
             raise TardisConfigError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
-        config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
-
-        montecarlo_section = yaml_dict.pop('montecarlo')
-
-        if 'last_no_of_packets' not in montecarlo_section:
-            montecarlo_section['last_no_of_packets'] = None
-
-        if 'no_of_virtual_packets' not in montecarlo_section:
-            montecarlo_section['no_of_virtual_packets'] = 0
-
-        config_dict.update(montecarlo_section)
-
-        disable_electron_scattering = plasma_section['disable_electron_scattering']
-
-        if disable_electron_scattering is False:
-            logger.info("Electron scattering switched on")
-            config_dict['sigma_thomson'] = None
-        else:
-            logger.warn('Disabling electron scattering - this is not physical')
-            config_dict['sigma_thomson'] = 1e-200
+        plasma_config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
         if 'w_epsilon' in plasma_section:
-            config_dict['w_epsilon'] = plasma_section['w_epsilon']
+            plasma_config_dict['w_epsilon'] = plasma_section['w_epsilon']
         else:
             logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
-            config_dict['w_epsilon'] = 1e-10
+            plasma_config_dict['w_epsilon'] = 1e-10
+
+
+
+        config_dict['plasma'] = plasma_config_dict
+
+
+        #### End of Plasma Section
+
+        ##### Monte Carlo Section
+
+        montecarlo_section = yaml_dict.pop('montecarlo')
+        montecarlo_config_dict = {}
 
         #PARSING convergence section
         convergence_variables = ['t_inner', 't_rad', 'w']
+        convergence_config_dict = {}
         if 'convergence_criteria' in montecarlo_section:
 
-
-            convergence_section = montecarlo_section['convergence_criteria']
+            convergence_section = montecarlo_section.pop('convergence_criteria')
 
             if convergence_section['type'] == 'damped':
-                config_dict['convergence_type'] == 'damped'
+                convergence_config_dict['convergence_type'] == 'damped'
                 global_damping_constant = convergence_section['damping_constant']
 
                 for convergence_variable in convergence_variables:
                     convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
                     current_convergence_parameters = {}
-                    config_dict[convergence_parameter_name] = current_convergence_parameters
+                    convergence_config_dict[convergence_parameter_name] = current_convergence_parameters
 
                     if convergence_variable in convergence_section:
                         current_convergence_parameters['damping_constant'] \
@@ -608,7 +632,7 @@ class TardisConfiguration(object):
 
             elif convergence_section['type'] == 'specific':
 
-                config_dict['convergence_type'] = 'specific'
+                convergence_config_dict['convergence_type'] = 'specific'
 
                 global_convergence_parameters = {}
                 global_convergence_parameters['damping_constant'] = convergence_section['damping_constant']
@@ -620,7 +644,7 @@ class TardisConfiguration(object):
                     convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
                     current_convergence_parameters = {}
 
-                    config_dict[convergence_parameter_name] = current_convergence_parameters
+                    convergence_config_dict[convergence_parameter_name] = current_convergence_parameters
                     if convergence_variable in convergence_section:
                         for param in global_convergence_parameters.keys():
                             if param == 'fraction' and convergence_variable == 't_inner':
@@ -630,22 +654,46 @@ class TardisConfiguration(object):
                             else:
                                 current_convergence_parameters[param] = global_convergence_parameters[param]
                     else:
-                        config_dict[convergence_parameter_name] = global_convergence_parameters.copy()
+                        convergence_config_dict[convergence_parameter_name] = global_convergence_parameters.copy()
 
                 global_convergence_parameters['hold'] = convergence_section['hold']
-                config_dict['global_convergence_parameters'] = global_convergence_parameters
+                convergence_config_dict['global_convergence_parameters'] = global_convergence_parameters
 
             else:
                 raise ValueError("convergence criteria unclear %s", convergence_section['type'])
 
-                #config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
+                #convergence_config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
         else:
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
-            config_dict['convergence_type'] = 'damped'
+            convergence_config_dict['convergence_type'] = 'damped'
             for convergence_variable in convergence_variables:
                 convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
                 config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
 
+
+
+        montecarlo_config_dict['convergence'] = convergence_config_dict
+        if 'last_no_of_packets' not in montecarlo_section:
+            montecarlo_section['last_no_of_packets'] = None
+
+        if 'no_of_virtual_packets' not in montecarlo_section:
+            montecarlo_section['no_of_virtual_packets'] = 0
+
+        montecarlo_config_dict.update(montecarlo_section)
+
+        disable_electron_scattering = plasma_section['disable_electron_scattering']
+
+        if disable_electron_scattering is False:
+            logger.info("Electron scattering switched on")
+            montecarlo_config_dict['sigma_thomson'] = None
+        else:
+            logger.warn('Disabling electron scattering - this is not physical')
+            montecarlo_config_dict['sigma_thomson'] = 1e-200
+
+
+
+
+        ##### End of MonteCarlo section
 
         ##### NLTE Section #####
 
@@ -655,53 +703,40 @@ class TardisConfiguration(object):
 
         ##### spectrum section ######
         spectrum_section = yaml_dict.pop('spectrum')
-        spectrum_start = parse2quantity(spectrum_section['start']).to('angstrom', u.spectral())
-        spectrum_end = parse2quantity(spectrum_section['end']).to('angstrom', u.spectral())
+        spectrum_config_dict = {}
+        spectrum_start, spectrum_end = parse_spectral_bin(spectrum_section['start'], spectrum_section['end'])
         spectrum_bins = int(spectrum_section['bins'])
+        spectrum_config_dict['start'] = spectrum_start
+        spectrum_config_dict['end'] = spectrum_end
+        spectrum_config_dict['bins'] = spectrum_bins
 
-        if spectrum_end > spectrum_start:
-            logger.debug('Converted spectrum start/end to angstrom %.4g %.4g', spectrum_start, spectrum_end)
-            spectrum_start = spectrum_start
-            spectrum_end = spectrum_end
-
-        else:
-            logger.warn('Spectrum Start > Spectrum End in wavelength space - flipped them')
-
-            logger.debug('Converted spectrum start/end to angstrom %.4g %.4g', spectrum_end, spectrum_start)
-            tmp = spectrum_start
-            spectrum_start = spectrum_end
-            spectrum_end = tmp
-        config_dict['spectrum_start'] = spectrum_start
-        config_dict['spectrum_end'] = spectrum_end
-        config_dict['spectrum_bins'] = spectrum_bins
-
-        config_dict['spectrum_start_nu'] = spectrum_end.to('Hz', u.spectral())
-        config_dict['spectrum_end_nu'] = spectrum_start.to('Hz', u.spectral())
 
         if 'spectrum_type' in spectrum_section:
             if spectrum_section['spectrum_type'] not in ['luminosity_density', 'flux']:
                 raise TardisConfigError('"spectrum_type" can either be "luminosity_density" or "flux" - %s given' %
                                         spectrum_section['spectrum_type'])
 
-            config_dict['spectrum_type'] = spectrum_section['spectrum_type']
-            if config_dict['sn_distance'] is None and config_dict['spectrum_type'] == 'flux':
+            spectrum_config_dict['spectrum_type'] = spectrum_section['spectrum_type']
+            if config_dict['supernova']['distance']is None and config_dict['spectrum_type'] == 'flux':
                 logger.warn('Requested "spectrum_type" flux but no supernova distance is given - '
                             'switching to "luminosity_density"')
-                config_dict['spectrum_type'] == 'luminosity_density'
+                spectrum_config_dict['spectrum_type'] == 'luminosity_density'
         else:
             logger.warn('"spectrum_type" not specified in spectrum section - setting to "luminosity_density"')
-            config_dict['spectrum_type'] = 'luminosity_density'
+            spectrum_config_dict['spectrum_type'] = 'luminosity_density'
+
+        config_dict['spectrum'] = spectrum_config_dict
 
 
         return cls(config_dict)
 
 
     def __init__(self, config_dict):
-
-        for key in config_dict:
-            setattr(self, key, config_dict[key])
+        super(TardisConfiguration, self).__init__(config_dict)
 
         self.number_densities = self.calculate_number_densities()
+
+
 
 
     def calculate_number_densities(self):
@@ -717,7 +752,7 @@ class TardisConfiguration(object):
         #normalizing
         abundances = abundances.divide(abundances.sum(axis=1), axis=0)
         atom_mass = self.atom_data.atom_data.ix[abundances.columns].mass
-        number_densities = (abundances.mul(self.mean_densities, axis=0)).divide(atom_mass)
+        number_densities = (abundances.mul(self.structure.mean_densities.to('g/cm^3').value, axis=0)).divide(atom_mass)
 
         return number_densities
 
