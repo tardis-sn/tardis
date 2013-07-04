@@ -460,7 +460,7 @@ class BasePlasma(object):
 
         return radiation_field_correction
 
-    def calculate_ion_populations(self, phis):
+    def calculate_ion_populations(self, phis, ion_zero_threshold=1e-20):
         """
         Calculate the ionization balance
 
@@ -487,6 +487,7 @@ class BasePlasma(object):
             ion_densities = [neutral_atom_density] + list(neutral_atom_density * phis_product)
 
             self.ion_populations.ix[atomic_number] = ion_densities
+            self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
 
     def calculate_level_populations(self):
         """
