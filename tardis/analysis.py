@@ -9,7 +9,7 @@ from matplotlib import path
 def get_last_line_interaction(wavelength_start, wavelength_end, model):
     nu_start = wavelength_end.to('Hz', u.spectral())
     nu_end = wavelength_start.to('Hz', u.spectral())
-    wavelength_filter = (model.montecarlo_nu > nu_start) & (model.montecarlo_nu < nu_end) & \
+    wavelength_filter = (model.montecarlo_nu > nu_start.value) & (model.montecarlo_nu < nu_end.value) & \
                         (model.last_line_interaction_in_id != -1)
 
     last_line_in_ids = model.last_line_interaction_in_id[wavelength_filter]
