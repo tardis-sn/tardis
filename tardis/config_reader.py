@@ -29,22 +29,38 @@ density_structure_fileparser = {}
 class TardisConfigError(ValueError):
     pass
 
+class TardisMalformedQuantityError(TardisConfigError):
+
+    def __init__(self, malformed_quantity_string):
+        self.malformed_quantity_string = malformed_quantity_string
+
+    def __str__(self):
+        return 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' % self.malformed_quantity_string
+
+
+
 
 def parse2quantity(quantity_string):
-    if not isinstance(quantity_string, basestring):
-        raise TardisConfigError('Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' %
-                                quantity_string)
 
-    value_string, unit_string = quantity_string.split()
+    if not isinstance(quantity_string, basestring):
+        raise TardisMalformedQuantityError(quantity_string)
+
+    try:
+        value_string, unit_string = quantity_string.split()
+    except ValueError:
+        raise TardisMalformedQuantityError(quantity_string)
+
     try:
         value = float(value_string)
     except ValueError:
-        raise TardisConfigError('Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' %
-                                quantity_string)
+        raise TardisMalformedQuantityError(quantity_string)
 
-    return u.Quantity(value, unit_string)
+    try:
+        q = u.Quantity(value, unit_string)
+    except ValueError:
+        raise TardisMalformedQuantityError(quantity_string)
 
-
+    return q
 
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     spectral_bin_boundary_1 = parse2quantity(spectral_bin_boundary_1).to('Hz', u.spectral())
