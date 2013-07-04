@@ -6,7 +6,7 @@ import logging
 
 import pandas as pd
 from pandas.io.pytables import HDFStore
-from astropy import constants, units
+from astropy import constants, units as u
 import montecarlo_multizone
 import os
 import yaml
@@ -77,70 +77,51 @@ class Radial1DModel(object):
     def __init__(self, tardis_config):
         #final preparation for configuration object
         self.tardis_config = tardis_config
+        self.gui = None
 
         self.atom_data = tardis_config.atom_data
 
-        self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.spectrum_start,
-                                                                           tardis_config.spectrum_end)
+        self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.spectrum.start,
+                                                                           tardis_config.spectrum.end)
 
-        self.no_of_shells = tardis_config.no_of_shells
+#        self.no_of_shells = tardis_config.no_of_shells
 
-        #setting time_explosion
-        self.time_explosion = tardis_config.time_explosion
+        #Fix!!!!
+        self.t_inner = 10000 * u.K
 
-        #initializing velocities and radii
-        self.v_inner = tardis_config.v_inner
-        self.v_outer = tardis_config.v_outer
 
-        self.r_inner = self.v_inner * self.time_explosion
-        self.r_outer = self.v_outer * self.time_explosion
-        self.r_middle = 0.5 * (self.r_inner + self.r_outer)
+        self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
 
-        self.volumes = (4. / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)
-
-        self.mean_densities = tardis_config.mean_densities
-
-        self.t_inner = tardis_config.initial_t_inner
-
-        self.luminosity_outer = tardis_config.luminosity
-
-        self.no_of_packets = tardis_config.no_of_packets
-        self.current_no_of_packets = tardis_config.no_of_packets
-
-        self.iterations_max_requested = tardis_config.iterations
+        self.iterations_max_requested = tardis_config.montecarlo.iterations
         self.iterations_remaining = self.iterations_max_requested - 1
         self.iterations_executed = 0
 
-        self.sigma_thomson = tardis_config.sigma_thomson
+        #self.sigma_thomson = tardis_config.sigma_thomson
 
-        self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu.value, tardis_config.spectrum_end_nu.value,
-                                        tardis_config.spectrum_bins + 1)
-        self.spec_nu = self.spec_nu_bins[:-1]
+#        self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu.value, tardis_config.spectrum_end_nu.value,
+#                                        tardis_config.spectrum_bins + 1)
+#        self.spec_nu = self.spec_nu_bins[:-1]
 
-        self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
+#        self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
 
-        self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
+#        self.spec_angstrom = u.Unit('Hz').to('angstrom', self.spec_nu, u.spectral())
 
-        self.spec_flux_angstrom = np.ones_like(self.spec_angstrom)
-        self.spec_virtual_flux_angstrom = np.ones_like(self.spec_angstrom)
+#        self.spec_flux_angstrom = np.ones_like(self.spec_angstrom)
+#        self.spec_virtual_flux_angstrom = np.ones_like(self.spec_angstrom)
 
-        self.gui = None
+
         #reading the convergence criteria
         self.converged = False
-        self.convergence_type = tardis_config.convergence_type
-        self.t_inner_convergence_parameters = tardis_config.t_inner_convergence_parameters
-        self.t_rad_convergence_parameters = tardis_config.t_rad_convergence_parameters
-        self.w_convergence_parameters = tardis_config.w_convergence_parameters
 
-        if self.convergence_type == 'specific':
+        if tardis_config.montecarlo.convergence.type == 'specific':
             self.global_convergence_parameters = tardis_config.global_convergence_parameters.copy()
 
 
 
         #Selecting plasma class
-        self.plasma_type = tardis_config.plasma_type
-        self.radiative_rates_type = tardis_config.radiative_rates_type
-        if self.plasma_type == 'lte':
+#        self.plasma_type = tardis_config.plasma_type
+#        self.radiative_rates_type = tardis_config.radiative_rates_type
+        if tardis_config.plasma.type == 'lte':
             plasma_class = plasma.LTEPlasma
             if hasattr(tardis_config, 'ws') and tardis_config.ws is not None:
                 raise ValueError(
@@ -216,7 +197,8 @@ class Radial1DModel(object):
     @t_inner.setter
     def t_inner(self, value):
         self._t_inner = value
-        self.luminosity_inner = 4 * np.pi * constants.sigma_sb.cgs.value * self.r_inner[0] ** 2 * self._t_inner ** 4
+        self.luminosity_inner = 4 * np.pi * constants.sigma_sb.cgs * self.tardis_config.structure.r_inner[0] ** 2 * \
+                                self._t_inner ** 4
         self.time_of_simulation = 1 / self.luminosity_inner
 
 
@@ -367,7 +349,7 @@ class Radial1DModel(object):
                          weights=self.montecarlo_energies[self.montecarlo_nu < 0], bins=self.spec_nu_bins)[0]
         self.spec_reabsorbed_nu /= flux_scale
 
-        self.spec_angstrom = units.Unit('Hz').to('angstrom', self.spec_nu, units.spectral())
+        self.spec_angstrom = u.Unit('Hz').to('angstrom', self.spec_nu, u.spectral())
 
         self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
         self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
@@ -438,15 +420,13 @@ class Radial1DModel(object):
         convergence_ws = abs(old_ws - updated_ws) / updated_ws
         convergence_t_inner = abs(old_t_inner - updated_t_inner) / updated_t_inner
 
-        if self.convergence_type == 'damped':
-            self.t_rads += self.t_rad_convergence_parameters['damping_constant'] * (updated_t_rads - self.t_rads)
-            self.ws += self.w_convergence_parameters['damping_constant'] * (updated_ws - self.ws)
-            self.t_inner += self.w_convergence_parameters['damping_constant'] * (updated_t_inner - self.t_inner)
+        convergence_section = self.tardis_config.montecarlo.convergence
+        if convergence_section.type == 'damped' or convergence_section.type == 'specific':
+            self.t_rads += convergence_section.t_rad.damping_constant * (updated_t_rads - self.t_rads)
+            self.ws += convergence_section.w.damping_constant * (updated_ws - self.ws)
+            self.t_inner += convergence_section.w.damping_constant * (updated_t_inner - self.t_inner)
 
-        elif self.convergence_type == 'specific':
-            self.t_rads += self.t_rad_convergence_parameters['damping_constant'] * (updated_t_rads - self.t_rads)
-            self.ws += self.w_convergence_parameters['damping_constant'] * (updated_ws - self.ws)
-            self.t_inner += self.t_inner_convergence_parameters['damping_constant'] * (updated_t_inner - self.t_inner)
+        if self.convergence_type == 'specific':
 
             t_rad_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
                                / self.no_of_shells) > self.t_rad_convergence_parameters['fraction']
@@ -470,6 +450,7 @@ class Radial1DModel(object):
             {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'converged_t_rads': convergence_t_rads,
              'new_trads': self.t_rads, 'ws': old_ws, 'updated_ws': updated_ws, 'converged_ws': convergence_ws,
              'new_ws': self.ws})
+
         self.temperature_logging.index.name = 'Shell'
 
         temperature_logging = str(self.temperature_logging[::log_sampling])
@@ -509,7 +490,7 @@ class Radial1DModel(object):
         yaml_reference['output']['min_wl'] = float(self.spec_angstrom.min())
         yaml_reference['output']['max_wl'] = float(self.spec_angstrom.max())
 
-        yaml_reference['opacity']['v_ref'] = float(self.v_inner[0] / 1e8)
+        yaml_reference['opacity']['v_ref'] = float(self.tardis_config.structure.v_inner.to('cm/s').value[0] / 1e8)
         yaml_reference['grid']['v_outer_max'] = float(self.v_outer[-1] / 1e8)
 
         #pdb.set_trace()

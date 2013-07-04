@@ -66,13 +66,13 @@ def parse2quantity(quantity_string):
     return q
 
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
-    spectral_bin_boundary_1 = parse2quantity(spectral_bin_boundary_1).to('Hz', u.spectral())
-    spectral_bin_boundary_2 = parse2quantity(spectral_bin_boundary_2).to('Hz', u.spectral())
+    spectral_bin_boundary_1 = parse2quantity(spectral_bin_boundary_1).to('Angstrom', u.spectral())
+    spectral_bin_boundary_2 = parse2quantity(spectral_bin_boundary_2).to('Angstrom', u.spectral())
 
-    spectrum_start_nu = min(spectral_bin_boundary_1, spectral_bin_boundary_2)
-    spectrum_end_nu = max(spectral_bin_boundary_1, spectral_bin_boundary_2)
+    spectrum_start_wavelength = min(spectral_bin_boundary_1, spectral_bin_boundary_2)
+    spectrum_end_wavelength = max(spectral_bin_boundary_1, spectral_bin_boundary_2)
 
-    return spectrum_start_nu, spectrum_end_nu
+    return spectrum_start_wavelength, spectrum_end_wavelength
 
 
 
@@ -517,10 +517,21 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             mean_densities = parse_density_section(structure_section['density'], no_of_shells, v_inner, v_outer,
                                                    config_dict['supernova']['time_explosion'])
 
+        r_inner = config_dict['supernova']['time_explosion'] * v_inner
+        r_outer = config_dict['supernova']['time_explosion'] * v_outer
+
+
         structure_config_dict['v_inner'] = v_inner
         structure_config_dict['v_outer'] = v_outer
         structure_config_dict['mean_densities'] = mean_densities
         structure_config_dict['no_of_shells'] = no_of_shells
+        structure_config_dict['r_inner'] = r_inner
+        structure_config_dict['r_outer'] = r_outer
+        structure_config_dict['r_middle'] = 0.5 * (r_inner - r_outer)
+        structure_config_dict['volumes'] = (4. / 3) * np.pi * (r_outer ** 3 - r_inner ** 3)
+
+
+
 
         config_dict['structure'] = structure_config_dict
         #Now that the structure section is parsed we move on to the abundances
@@ -578,9 +589,9 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         config_dict['initial_t_rad'] = parse2quantity(plasma_section['initial_t_rad']).to('K')
         plasma_config_dict['initial_t_inner'] = parse2quantity(plasma_section['initial_t_inner']).to('K')
 
-        if plasma_section['plasma_type'] not in ('nebular', 'lte'):
+        if plasma_section['type'] not in ('nebular', 'lte'):
             raise TardisConfigError('plasma_type only allowed to be "nebular" or "lte"')
-        plasma_config_dict['plasma_type'] = plasma_section['plasma_type']
+        plasma_config_dict['type'] = plasma_section['type']
 
         if plasma_section['radiative_rates_type'] not in ('nebular', 'lte', 'detailed'):
             raise TardisConfigError('radiative_rates_types must be either "nebular", "lte", or "detailed"')
@@ -616,11 +627,11 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             convergence_section = montecarlo_section.pop('convergence_criteria')
 
             if convergence_section['type'] == 'damped':
-                convergence_config_dict['convergence_type'] == 'damped'
+                convergence_config_dict['type'] == 'damped'
                 global_damping_constant = convergence_section['damping_constant']
 
                 for convergence_variable in convergence_variables:
-                    convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
+                    convergence_parameter_name = convergence_variable
                     current_convergence_parameters = {}
                     convergence_config_dict[convergence_parameter_name] = current_convergence_parameters
 
@@ -632,7 +643,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
             elif convergence_section['type'] == 'specific':
 
-                convergence_config_dict['convergence_type'] = 'specific'
+                convergence_config_dict['type'] = 'specific'
 
                 global_convergence_parameters = {}
                 global_convergence_parameters['damping_constant'] = convergence_section['damping_constant']
@@ -641,7 +652,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
                 global_convergence_parameters['fraction'] = convergence_section['fraction']
 
                 for convergence_variable in convergence_variables:
-                    convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
+                    convergence_parameter_name = convergence_variable
                     current_convergence_parameters = {}
 
                     convergence_config_dict[convergence_parameter_name] = current_convergence_parameters
@@ -665,10 +676,10 @@ class TardisConfiguration(TardisConfigurationNameSpace):
                 #convergence_config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
         else:
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
-            convergence_config_dict['convergence_type'] = 'damped'
+            convergence_config_dict['type'] = 'damped'
             for convergence_variable in convergence_variables:
-                convergence_parameter_name = '%s_convergence_parameters' % convergence_variable
-                config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
+                convergence_parameter_name = convergence_variable
+                convergence_config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
 
 
 
@@ -685,12 +696,12 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
         if disable_electron_scattering is False:
             logger.info("Electron scattering switched on")
-            montecarlo_config_dict['sigma_thomson'] = None
+            montecarlo_config_dict['sigma_thomson'] =6.652486e-25 / (u.cm**2)
         else:
             logger.warn('Disabling electron scattering - this is not physical')
-            montecarlo_config_dict['sigma_thomson'] = 1e-200
+            montecarlo_config_dict['sigma_thomson'] = 1e-200 / (u.cm**2)
 
-
+        config_dict['montecarlo'] = montecarlo_config_dict
 
 
         ##### End of MonteCarlo section
