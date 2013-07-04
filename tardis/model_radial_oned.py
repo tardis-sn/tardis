@@ -560,6 +560,9 @@ class Radial1DModel(object):
         last_line_interaction_out_id_path = os.path.join(path, 'last_line_interaction_out_id')
         pd.Series(self.last_line_interaction_out_id).to_hdf(hdf_store, last_line_interaction_out_id_path)
 
+        last_line_interaction_shell_id_path = os.path.join(path, 'last_line_interaction_shell_id')
+        pd.Series(self.last_line_interaction_shell_id).to_hdf(hdf_store, last_line_interaction_shell_id_path)
+
         spectrum = pd.DataFrame.from_dict(dict(wave=self.spec_angstrom, flux=self.spec_flux_angstrom))
         spectrum.to_hdf(hdf_store, os.path.join(path, 'spectrum'))
 
