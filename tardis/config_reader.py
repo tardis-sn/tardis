@@ -31,10 +31,30 @@ class TardisConfigError(ValueError):
 
 
 def parse2quantity(quantity_string):
-    value_string, unit_string = quantity_string.split()
+    if not isinstance(quantity_string, basestring):
+        raise TardisConfigError('Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' %
+                                quantity_string)
 
-    value = float(value_string)
+    value_string, unit_string = quantity_string.split()
+    try:
+        value = float(value_string)
+    except ValueError:
+        raise TardisConfigError('Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' %
+                                quantity_string)
+
     return u.Quantity(value, unit_string)
+
+
+
+def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
+    spectral_bin_boundary_1 = parse2quantity(spectral_bin_boundary_1).to('Hz', u.spectral())
+    spectral_bin_boundary_2 = parse2quantity(spectral_bin_boundary_2).to('Hz', u.spectral())
+
+    spectrum_start_nu = min(spectral_bin_boundary_1, spectral_bin_boundary_2)
+    spectrum_end_nu = max(spectral_bin_boundary_1, spectral_bin_boundary_2)
+
+    return spectrum_start_nu, spectrum_end_nu
+
 
 
 def calculate_density_after_time(densities, time_0, time_explosion):
