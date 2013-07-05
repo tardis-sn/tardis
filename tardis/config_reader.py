@@ -483,6 +483,9 @@ class TardisConfigurationNameSpace(object):
     def __getitem__(self, item):
         return self.config_dict.__getitem__(item)
 
+
+    def get(self, k, d=None):
+        return self.config_dict.get(k, d)
     def __repr__(self):
         return pp.pformat(self.config_dict)
 

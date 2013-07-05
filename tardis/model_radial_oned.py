@@ -146,7 +146,7 @@ class Radial1DModel(object):
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle[i] ** 2).to(1).value)))
                 current_plasma_class = plasma.NebularPlasma
 
-            self.plasmas.append(current_plasma_class(self.t_rads[i], self.number_densities.ix[i],
+            self.plasmas.append(current_plasma_class(self.t_rads[i], tardis_config.number_densities.ix[i],
                                                      self.atom_data,
                                                      tardis_config.supernova.time_explosion.to('s').value,
                                                      self.j_blues[i]))

@@ -148,7 +148,7 @@ class BasePlasma(object):
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+                 nlte_config=None, zone_id=None, saha_treatment='lte'):
         self.number_density = number_density
         self.electron_density = self.number_density.sum()
 
@@ -169,8 +169,7 @@ class BasePlasma(object):
 
         self.time_explosion = time_explosion
 
-        self.nlte_species = nlte_species
-        self.nlte_options = nlte_options
+        self.nlte_config = nlte_config
         self.zone_id = zone_id
 
         self.update_radiationfield(self.t_rad, self.w)
@@ -256,7 +255,7 @@ class BasePlasma(object):
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
-        if self.nlte_species != []:
+        if self.nlte_config is not None:
             self.calculate_nlte_level_populations()
 
         if self.initialize:
@@ -608,18 +607,18 @@ class BasePlasma(object):
 
         macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
 
-        if self.nlte_options.get('coronal_approximation', False):
+        if self.nlte_config.get('coronal_approximation', False):
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
             j_blues = np.zeros_like(self.j_blues)
         else:
             beta_sobolevs = self.beta_sobolevs
             j_blues = self.j_blues
 
-        if self.nlte_options.get('classical_nebular', False):
+        if self.nlte_config.get('classical_nebular', False):
             print "setting classical nebular = True"
             beta_sobolevs[:] = 1.0
 
-        for species in self.nlte_species:
+        for species in self.nlte_config.species:
             logger.info('Calculating rates for species %s', species)
             number_of_levels = self.level_populations.ix[species].size
 
