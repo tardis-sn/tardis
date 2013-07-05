@@ -610,7 +610,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                                            &recently_crossed_boundary, virtual_packet_flag, 0)
 
         if reabsorbed == 1: #reabsorbed
-            storage.output_nus[i] = -current_nu
+            storage.output_nus[i] = current_nu
             storage.output_energies[i] = -current_energy
 
         elif reabsorbed == 0: #emitted

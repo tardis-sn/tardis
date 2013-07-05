@@ -800,6 +800,8 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         spectrum_config_dict['bins'] = spectrum_bins
 
 
+        spectrum_config_dict['wavelength'] = np.linspace(spectrum_start.value, spectrum_end.value, num=spectrum_bins)
+
         if 'spectrum_type' in spectrum_section:
             if spectrum_section['spectrum_type'] not in ['luminosity_density', 'flux']:
                 raise TardisConfigurationError('"spectrum_type" can either be "luminosity_density" or "flux" - %s given' %
@@ -813,6 +815,8 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         else:
             logger.warn('"spectrum_type" not specified in spectrum section - setting to "luminosity_density"')
             spectrum_config_dict['spectrum_type'] = 'luminosity_density'
+
+
 
         config_dict['spectrum'] = spectrum_config_dict
 
