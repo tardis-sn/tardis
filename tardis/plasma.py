@@ -762,18 +762,17 @@ class LTEPlasma(BasePlasma):
 
     @classmethod
     def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_species=[], nlte_options={}, zone_id=None):
+                       nlte_config=None, zone_id=None):
         __doc__ = BasePlasma.from_abundance.__doc__
         return super(LTEPlasma, cls).from_abundance(t_rad, 1., abundance, density, atom_data, time_explosion,
-                                                    j_blues=j_blues, t_electron=t_electron,
-                                                    nlte_species=nlte_species,
-                                                    nlte_options=nlte_options, zone_id=zone_id)
+                                                    j_blues=j_blues, t_electron=t_electron, nlte_config=nlte_config,
+                                                    zone_id=zone_id)
 
     def __init__(self, t_rad, number_density, atom_data, time_explosion, w=1., j_blues=None, t_electron=None,
-                 nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='lte'):
+                 nlte_config=None, zone_id=None, saha_treatment='lte'):
         super(LTEPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                        t_electron=t_electron, nlte_species=nlte_species,
-                                        nlte_options=nlte_options, zone_id=zone_id, saha_treatment=saha_treatment)
+                                        t_electron=t_electron, nlte_config=nlte_config, zone_id=zone_id,
+                                        saha_treatment=saha_treatment)
 
 
 class NebularPlasma(BasePlasma):
@@ -781,19 +780,16 @@ class NebularPlasma(BasePlasma):
 
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_species=[], nlte_options={}, zone_id=None):
+                       nlte_config=None, zone_id=None):
         return super(NebularPlasma, cls).from_abundance(t_rad, w, abundance, density, atom_data, time_explosion,
-                                                        j_blues=j_blues, t_electron=t_electron,
-                                                        nlte_species=nlte_species,
-                                                        nlte_options=nlte_options, zone_id=zone_id,
-                                                        saha_treatment='nebular')
+                                                        j_blues=j_blues, t_electron=t_electron, nlte_config=nlte_config,
+                                                        zone_id=zone_id, saha_treatment='nebular')
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='nebular'):
+                 nlte_config=None, zone_id=None, saha_treatment='nebular'):
         super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                            t_electron=t_electron, nlte_species=nlte_species, nlte_options=nlte_options,
-                                            zone_id=zone_id,
+                                            t_electron=t_electron, nlte_config=nlte_config, zone_id=zone_id,
                                             saha_treatment=saha_treatment)
 
 
