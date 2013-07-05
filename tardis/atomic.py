@@ -526,8 +526,8 @@ class AtomData(object):
             elif line_interaction_type == 'downbranch':
                 self.macro_atom_data['destination_level_idx'] = (np.ones(len(self.macro_atom_data)) * -1).astype(
                     np.int64)
-        if self.nlte_species:
-            self.nlte_data = NLTEData(self, nlte_species)
+
+        self.nlte_data = NLTEData(self, nlte_species)
 
 
     def __repr__(self):
@@ -537,15 +537,19 @@ class AtomData(object):
 
 class NLTEData(object):
     def __init__(self, atom_data, nlte_species):
-        logger.info('Preparing the NLTE data')
         self.atom_data = atom_data
         self.lines = atom_data.lines.reset_index()
         self.nlte_species = nlte_species
-        self._init_indices()
-        self._create_nlte_mask()
-        if atom_data.has_collision_data:
-            self._create_collision_coefficient_matrix()
 
+        if nlte_species:
+            logger.info('Preparing the NLTE data')
+            self._init_indices()
+            self._create_nlte_mask()
+            if atom_data.has_collision_data:
+                self._create_collision_coefficient_matrix()
+        else:
+
+            self._create_nlte_mask()
 
     def _init_indices(self):
         self.lines_idx = {}
