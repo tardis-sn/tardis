@@ -28,9 +28,10 @@ plasma:
     line_interaction_type : macroatom
     w_epsilon : 1.0e-10
 
-nlte:
-    coronal_approximation: True
-    classical_nebular: False
+    nlte:
+#        nlte_species: [Si2]
+        coronal_approximation: True
+        classical_nebular: False
 
 model:
     structure:

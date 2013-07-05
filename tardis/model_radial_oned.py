@@ -11,6 +11,8 @@ import montecarlo_multizone
 import os
 import yaml
 
+import scipy.special
+
 import itertools
 from tardis import config_reader
 from tardis.plasma import intensity_black_body
@@ -22,6 +24,8 @@ h = constants.h.cgs.value
 kb = constants.k_B.cgs.value
 
 w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
+
+t_rad_estimator_constant = np.pi**4 / (15 * 24 * scipy.special.zeta(5, 1))
 
 synpp_default_yaml_fname = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
 
@@ -78,19 +82,19 @@ class Radial1DModel(object):
         #final preparation for configuration object
         self.tardis_config = tardis_config
         self.gui = None
+        self.converged = False
 
         self.atom_data = tardis_config.atom_data
+        if tardis_config.plasma.type == 'nebular':
+            if not self.atom_data.has_zeta_data:
+                raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma_type")
 
         self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.spectrum.start,
                                                                            tardis_config.spectrum.end)
-
-#        self.no_of_shells = tardis_config.no_of_shells
-
-        #Fix!!!!
-        self.t_inner = 10000 * u.K
-
-
         self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
+
+        self.t_inner = tardis_config.plasma.t_inner
+        self.t_rads = tardis_config.plasma.t_rads
 
         self.iterations_max_requested = tardis_config.montecarlo.iterations
         self.iterations_remaining = self.iterations_max_requested - 1
@@ -111,57 +115,44 @@ class Radial1DModel(object):
 
 
         #reading the convergence criteria
-        self.converged = False
+
 
         if tardis_config.montecarlo.convergence.type == 'specific':
             self.global_convergence_parameters = tardis_config.global_convergence_parameters.copy()
 
+        self.t_rads = tardis_config.plasma.t_rads
+        self.ws = np.zeros_like(tardis_config.structure.r_inner)
+        self.tau_sobolevs = np.zeros((tardis_config.structure.no_of_shells, len(self.atom_data.lines)))
+        self.j_blues = np.zeros_like(self.tau_sobolevs)
+        self.j_blues_norm_factor = (constants.c.cgs * self.time_explosion /
+                       (4 * np.pi * self.time_of_simulation * self.volumes)).reshape((self.volumes.shape[0], 1))
+
+        self.calculate_j_blues()
+        self.plasmas = []
 
 
-        #Selecting plasma class
-#        self.plasma_type = tardis_config.plasma_type
-#        self.radiative_rates_type = tardis_config.radiative_rates_type
-        if tardis_config.plasma.type == 'lte':
-            plasma_class = plasma.LTEPlasma
-            if hasattr(tardis_config, 'ws') and tardis_config.ws is not None:
-                raise ValueError(
-                    "the dilution factor W ('ws') can only be specified when selecting plasma_type='nebular'")
+        for i in xrange(len(tardis_config.r_inner)):
+            if tardis_config.plasma.type == 'lte':
+                self.ws[i] = 1.0
 
-        elif self.plasma_type == 'nebular':
-            plasma_class = plasma.NebularPlasma
-            if not self.atom_data.has_zeta_data:
-                raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma_type")
-        else:
-            raise ValueError("Currently this model only supports 'lte' or 'nebular'")
+                current_plasma_class = plasma.LTEPlasma
 
+            elif tardis_config.plasma_type == 'nebular':
+                self.ws[i] = (0.5 * (1 - np.sqrt(1 -
+                    (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle[i] ** 2).to(1).value)))
+                current_plasma_class = plasma.NebularPlasma
 
+            self.plasmas.append(current_plasma_class(self.t_rads[i], self.number_densities.ix[i], self.atom_data,
+                                                     tardis_config.supernova.time_explosion.to('s').value, self.j_blues[i]))
 
-
-        #initializing abundances
-        self.abundances = tardis_config.abundances
-
-        self.number_densities = tardis_config.number_densities
-
-        self.selected_atomic_numbers = self.number_densities.columns
-
-        self.line_interaction_type = tardis_config.line_interaction_type
+        current_plasma = plasma.LTEPlasma(self.t_rads[i], self.number_densities.ix[i], self.atom_data,
+                                                  tardis_config.supernova.time_explosion.value,
 
 
-        #setting dilution factors
-        if self.plasma_type == 'lte':
-            self.ws = np.ones_like(self.r_middle)
-        else:
-            self.ws = 0.5 * (1 - np.sqrt(1 - self.r_inner[0] ** 2 / self.r_middle ** 2))
+            logger.debug('Initialized Shell %d Plasma with T=%.3f W=%.4f' % (i, self.t_rads[i], self.ws[i]))
 
         #initializing temperatures
 
-        if np.isscalar(tardis_config.initial_t_rad):
-            self.t_rads = np.ones(self.no_of_shells) * tardis_config.initial_t_rad
-        else:
-            assert len(tardis_config.initial_t_rad) == self.no_of_shells
-            self.t_rads = np.array(tardis_config.initial_t_rad, dtype=np.float64)
-
-        self.initialize_plasmas(plasma_class)
 
 
     @property
@@ -174,20 +165,16 @@ class Radial1DModel(object):
 
     @line_interaction_type.setter
     def line_interaction_type(self, value):
-        if value == 'scatter':
-            self.line_interaction_id = 0
-        elif value == 'downbranch':
-            self.line_interaction_id = 1
-        elif value == 'macroatom':
-            self.line_interaction_id = 2
+        if value in ['scatter', 'downbranch', 'macroatom']:
+            self._line_interaction_type = value
+            self.tardis_config.plasma.line_interaction_type = value
+            #final preparation for atom_data object - currently building data
+            self.atom_data.prepare_atom_data(self.tardis_config.number_densities.columns,
+                                             line_interaction_type=self.line_interaction_type, max_ion_number=None,
+                                             nlte_species=self.tardis_config.nlte_species)
         else:
             raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
 
-        self._line_interaction_type = value
-        #final preparation for atom_data object - currently building data
-        self.atom_data.prepare_atom_data(self.selected_atomic_numbers,
-                                         line_interaction_type=self.line_interaction_type, max_ion_number=None,
-                                         nlte_species=self.tardis_config.nlte_species)
 
 
     @property
@@ -204,30 +191,20 @@ class Radial1DModel(object):
 
     def create_packets(self):
         #Energy emitted from the inner boundary
-        self.emitted_inner_energy = 4 * np.pi * constants.sigma_sb.cgs.value * self.r_inner[0] ** 2 * (
-            self.t_inner) ** 4
 
         no_of_packets = self.current_no_of_packets
         self.packet_src.create_packets(no_of_packets, self.t_inner)
 
     def initialize_plasmas(self, plasma_class):
         self.plasmas = []
-        self.tau_sobolevs = np.zeros((self.no_of_shells, len(self.atom_data.lines)))
-        self.line_list_nu = self.atom_data.lines['nu']
 
-        if self.line_interaction_id in (1, 2):
-            if self.line_interaction_id == 1:
-                logger.info('Downbranch selected - creating transition probabilities')
-            else:
-                logger.info('Macroatom selected - creating transition probabilties')
-            self.transition_probabilities = []
-        else:
-            logger.info('Scattering selected - no transition probabilities created')
+
+
 
         for i, ((tmp_index, number_density), current_t_rad, current_w) in \
             enumerate(zip(self.number_densities.iterrows(), self.t_rads, self.ws)):
 
-            logger.debug('Initializing Shell %d Plasma with T=%.3f W=%.4f' % (i, current_t_rad, current_w))
+
             if self.radiative_rates_type in ('lte',):
                 j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
             elif self.radiative_rates_type in ('nebular', 'detailed'):
@@ -236,17 +213,14 @@ class Radial1DModel(object):
                 raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
                                  ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
 
-            current_plasma = plasma_class(t_rad=current_t_rad, w=current_w, number_density=number_density,
-                                          atom_data=self.atom_data, time_explosion=self.time_explosion,
-                                          nlte_species=self.tardis_config.nlte_species,
-                                          nlte_options=self.tardis_config.nlte_options, zone_id=i, j_blues=j_blues)
+
 
             self.tau_sobolevs[i] = current_plasma.tau_sobolevs
 
             self.plasmas.append(current_plasma)
 
         self.tau_sobolevs = np.array(self.tau_sobolevs, dtype=float)
-        self.j_blues = np.zeros_like(self.tau_sobolevs)
+
 
         if self.line_interaction_id in (1, 2):
             self.calculate_transition_probabilities()
@@ -260,6 +234,18 @@ class Radial1DModel(object):
             self.transition_probabilities.append(current_plasma.calculate_transition_probabilities().values)
 
         self.transition_probabilities = np.array(self.transition_probabilities, dtype=np.float64)
+
+    def calculate_j_blues(self):
+        pass
+
+
+
+    def normalize_j_blues(self):
+        self.j_blues *= norm_factor
+        for i, current_j_blue in enumerate(self.j_blues):
+            nus = self.atom_data.lines.nu[current_j_blue == 0.0].values
+            self.j_blues[i][self.j_blues[i] == 0.0] = self.tardis_config.w_epsilon * intensity_black_body(nus,
+
 
     def calculate_updated_radiationfield(self, nubar_estimator, j_estimator):
         """
@@ -281,21 +267,14 @@ class Radial1DModel(object):
         updated_ws : ~np.ndarray (float)
 
         """
-        trad_estimator_constant = 0.260944706 * h / kb # (pi**4 / 15)/ (24*zeta(5))
 
-        updated_t_rads = trad_estimator_constant * nubar_estimator / j_estimator
+
+        updated_t_rads = t_rad_estimator_constant * nubar_estimator / j_estimator
         updated_ws = j_estimator / (
             4 * constants.sigma_sb.cgs.value * updated_t_rads ** 4 * self.time_of_simulation * self.volumes)
 
         return updated_t_rads, updated_ws
 
-    def normalize_j_blues(self):
-        norm_factor = (constants.c.cgs.value * self.time_explosion /
-                       (4 * np.pi * self.time_of_simulation * self.volumes)).reshape((self.volumes.shape[0], 1))
-        self.j_blues *= norm_factor
-        for i, current_j_blue in enumerate(self.j_blues):
-            nus = self.atom_data.lines.nu[current_j_blue == 0.0].values
-            self.j_blues[i][self.j_blues[i] == 0.0] = self.tardis_config.w_epsilon * intensity_black_body(nus,
                                                                                                           self.plasmas[
                                                                                                               i].t_rad)
 
@@ -429,10 +408,10 @@ class Radial1DModel(object):
         if self.convergence_type == 'specific':
 
             t_rad_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
-                               / self.no_of_shells) > self.t_rad_convergence_parameters['fraction']
+                               / self.no_of_shells) >= self.t_rad_convergence_parameters['fraction']
 
             w_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
-                           / self.no_of_shells) > self.t_rad_convergence_parameters['fraction']
+                           / self.no_of_shells) >= self.t_rad_convergence_parameters['fraction']
 
             t_inner_converged = convergence_t_inner < self.t_rad_convergence_parameters['threshold']
 
@@ -463,7 +442,6 @@ class Radial1DModel(object):
                     self.luminosity_outer)
         logger.info('Calculating new t_inner = %.3f', updated_t_inner)
 
-
     def create_synpp_yaml(self, fname, lines_db=None):
         logger.warning('Currently only works with Si and a special setup')
         if not self.atom_data.has_synpp_refs:
@@ -490,8 +468,10 @@ class Radial1DModel(object):
         yaml_reference['output']['min_wl'] = float(self.spec_angstrom.min())
         yaml_reference['output']['max_wl'] = float(self.spec_angstrom.max())
 
+
+        raise Exception("there's a problem here with units what units does synpp expect?")
         yaml_reference['opacity']['v_ref'] = float(self.tardis_config.structure.v_inner.to('cm/s').value[0] / 1e8)
-        yaml_reference['grid']['v_outer_max'] = float(self.v_outer[-1] / 1e8)
+        yaml_reference['grid']['v_outer_max'] = float(self.tardis_config.structure.v_outer[-1] / 1e8)
 
         #pdb.set_trace()
 

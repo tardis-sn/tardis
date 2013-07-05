@@ -3,7 +3,7 @@
 # tardis/data/example_configuration.ini
 
 from astropy import constants, units as u
-from astropy import utils
+import astropy.utils
 
 
 import logging
@@ -519,6 +519,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
         r_inner = config_dict['supernova']['time_explosion'] * v_inner
         r_outer = config_dict['supernova']['time_explosion'] * v_outer
+        r_middle = 0.5 * (r_inner + r_outer)
 
 
         structure_config_dict['v_inner'] = v_inner
@@ -527,7 +528,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         structure_config_dict['no_of_shells'] = no_of_shells
         structure_config_dict['r_inner'] = r_inner
         structure_config_dict['r_outer'] = r_outer
-        structure_config_dict['r_middle'] = 0.5 * (r_inner - r_outer)
+        structure_config_dict['r_middle'] = r_middle
         structure_config_dict['volumes'] = (4. / 3) * np.pi * (r_outer ** 3 - r_inner ** 3)
 
 
@@ -586,8 +587,6 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
         plasma_section = yaml_dict.pop('plasma')
         plasma_config_dict = {}
-        config_dict['initial_t_rad'] = parse2quantity(plasma_section['initial_t_rad']).to('K')
-        plasma_config_dict['initial_t_inner'] = parse2quantity(plasma_section['initial_t_inner']).to('K')
 
         if plasma_section['type'] not in ('nebular', 'lte'):
             raise TardisConfigError('plasma_type only allowed to be "nebular" or "lte"')
@@ -607,7 +606,26 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
             plasma_config_dict['w_epsilon'] = 1e-10
 
+        if 'initial_t_inner' in plasma_section:
+            plasma_config_dict['t_inner'] = parse2quantity(plasma_section['initial_t_inner'])
+        else:
+            logger.info('"initial_t_inner" is not specified in the plasma section - '
+                        'initializing to %s with given luminosity' )
+            plasma_config_dict['t_inner'] = (((config_dict['supernova']['luminosity'] / \
+                                            (4 * np.pi * r_inner[0]**2 * constants.sigma_sb))**.5)**.5).to('K')
 
+        if 'initial_t_rads' in plasma_section:
+            if isinstance('initial_t_rads', basestring):
+                    uniform_t_rads = parse2quantity(plasma_section['initial_t_rads'])
+                    plasma_config_dict['t_rads'] = u.Quantity(np.ones(no_of_shells) * uniform_t_rads.value, u.K)
+
+            elif astropy.utils.isiterable(plasma_section['initial_t_rads']):
+                assert len(plasma_section['initial_t_rads']) == no_of_shells
+                plasma_config_dict['t_rads'] = u.Quantity(plasma_section['initial_t_rads'], u.K)
+        else:
+            logger.info('No "initial_t_rads" specified - initializing with 10000 K')
+
+            plasma_config_dict['t_rads'] =  u.Quantity(np.ones(no_of_shells) * 10000., u.K)
 
         config_dict['plasma'] = plasma_config_dict
 
@@ -746,6 +764,10 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         super(TardisConfiguration, self).__init__(config_dict)
 
         self.number_densities = self.calculate_number_densities()
+        selected_atomic_numbers = self.number_densities.columns
+        self.atom_data.prepare_atom_data(selected_atomic_numbers,
+                                         line_interaction_type=self.plasma.line_interaction_type,
+                                         nlte_species=self.nlte_species)
 
 
 
@@ -761,7 +783,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
                 abundances[abundances[atomic_number].isnull()] == 0.0
 
         #normalizing
-        abundances = abundances.divide(abundances.sum(axis=1), axis=0)
+        self.abundances = abundances.div(abundances.sum(axis=1), axis=0)
         atom_mass = self.atom_data.atom_data.ix[abundances.columns].mass
         number_densities = (abundances.mul(self.structure.mean_densities.to('g/cm^3').value, axis=0)).divide(atom_mass)
 
