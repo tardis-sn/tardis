@@ -799,22 +799,11 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         spectrum_config_dict['end'] = spectrum_end
         spectrum_config_dict['bins'] = spectrum_bins
 
+        spectrum_frequency = np.linspace(spectrum_end.to('Hz', u.spectral()).value,
+                                                         spectrum_start.to('Hz', u.spectral()).value,
+                                                         num=spectrum_bins+1)
+        spectrum_config_dict['frequency'] = spectrum_frequency * u.Hz
 
-        spectrum_config_dict['wavelength'] = np.linspace(spectrum_start.value, spectrum_end.value, num=spectrum_bins)
-
-        if 'spectrum_type' in spectrum_section:
-            if spectrum_section['spectrum_type'] not in ['luminosity_density', 'flux']:
-                raise TardisConfigurationError('"spectrum_type" can either be "luminosity_density" or "flux" - %s given' %
-                                        spectrum_section['spectrum_type'])
-
-            spectrum_config_dict['spectrum_type'] = spectrum_section['spectrum_type']
-            if config_dict['supernova']['distance']is None and config_dict['spectrum_type'] == 'flux':
-                logger.warn('Requested "spectrum_type" flux but no supernova distance is given - '
-                            'switching to "luminosity_density"')
-                spectrum_config_dict['spectrum_type'] == 'luminosity_density'
-        else:
-            logger.warn('"spectrum_type" not specified in spectrum section - setting to "luminosity_density"')
-            spectrum_config_dict['spectrum_type'] = 'luminosity_density'
 
 
 
