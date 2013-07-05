@@ -93,6 +93,8 @@ class Radial1DModel(object):
                                                                            tardis_config.spectrum.end)
         self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
 
+        no_of_shells = tardis_config.structure.no_of_shells
+
         self.t_inner = tardis_config.plasma.t_inner
         self.t_rads = tardis_config.plasma.t_rads
 
@@ -122,22 +124,24 @@ class Radial1DModel(object):
 
         self.t_rads = tardis_config.plasma.t_rads
         self.ws = np.zeros_like(tardis_config.structure.r_inner)
-        self.tau_sobolevs = np.zeros((tardis_config.structure.no_of_shells, len(self.atom_data.lines)))
+        self.tau_sobolevs = np.zeros((no_of_shells, len(self.atom_data.lines)))
         self.j_blues = np.zeros_like(self.tau_sobolevs)
-        self.j_blues_norm_factor = (constants.c.cgs *  /
-                       (4 * np.pi * self.time_of_simulation * self.volumes)).reshape((self.volumes.shape[0], 1))
+        j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
+                       (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes.value)
+        self.j_blues_norm_factor = j_blues_norm_factor.value.reshape((no_of_shells, 1)) * j_blues_norm_factor.unit
+
 
         self.calculate_j_blues()
         self.plasmas = []
 
 
-        for i in xrange(len(tardis_config.r_inner)):
+        for i in xrange(no_of_shells):
             if tardis_config.plasma.type == 'lte':
                 self.ws[i] = 1.0
 
                 current_plasma_class = plasma.LTEPlasma
 
-            elif tardis_config.plasma_type == 'nebular':
+            elif tardis_config.plasma.type == 'nebular':
                 self.ws[i] = (0.5 * (1 - np.sqrt(1 -
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle[i] ** 2).to(1).value)))
                 current_plasma_class = plasma.NebularPlasma
@@ -188,7 +192,7 @@ class Radial1DModel(object):
         self._t_inner = value
         self.luminosity_inner = 4 * np.pi * constants.sigma_sb.cgs * self.tardis_config.structure.r_inner[0] ** 2 * \
                                 self._t_inner ** 4
-        self.time_of_simulation = 1 / self.luminosity_inner
+        self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
 
 
     def create_packets(self):
