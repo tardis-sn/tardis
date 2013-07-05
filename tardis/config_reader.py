@@ -597,7 +597,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
         for element_symbol_string in abundances_section:
 
-            z = element_symbol2atomic_number(element_symbol_string)
+            z = element_symbol2atomic_number(element_symbol_string, atom_data)
 
             abundances[z] = float(abundances_section[element_symbol_string])
 
@@ -654,14 +654,22 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         nlte_species = []
         if 'nlte' in plasma_section:
             nlte_section = plasma_section['nlte']
-            if 'nlte_species' in nlte_section:
-                nlte_species_list = abundances_section.pop('nlte_species')
+            if 'species' in nlte_section:
+                nlte_species_list = nlte_section.pop('species')
                 for species_string in nlte_species_list:
-                    nlte_species.append(parse_species_string(species_string))
+                    nlte_species.append(parse_species_string(species_string, atom_data))
+
+                nlte_config_dict['species'] = nlte_species
+                nlte_config_dict.update(nlte_section)
 
             elif nlte_section: #checks that the dictionary is not empty
-                logger.warn('No "nlte_species" given - ignoring other NLTE options given:\n%s',
+                logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
                             pp.pformat(nlte_section))
+
+        if not nlte_config_dict:
+            nlte_config_dict['species'] = []
+
+        plasma_config_dict['nlte'] = nlte_config_dict
 
 
 
@@ -807,7 +815,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         selected_atomic_numbers = self.number_densities.columns
         self.atom_data.prepare_atom_data(selected_atomic_numbers,
                                          line_interaction_type=self.plasma.line_interaction_type,
-                                         nlte_species=self.nlte_species)
+                                         nlte_species=self.plasma.nlte.species)
 
 
 
