@@ -376,7 +376,7 @@ def parse_supernova_section(supernova_dict):
     luminosity_value, luminosity_unit = supernova_dict['luminosity'].strip().split()
 
     if luminosity_unit == 'log_lsun':
-        config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value)).to('erg/s')
+        config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value)) * u.erg / u.s
     else:
         config_dict['luminosity'] = (float(luminosity_value) * u.Unit(luminosity_unit)).to('erg/s')
 
@@ -650,7 +650,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             plasma_config_dict['t_rads'] =  u.Quantity(np.ones(no_of_shells) * 10000., u.K)
 
         ##### NLTE subsection of Plasma start
-        nlte_config_dict = OrderedDict()
+        nlte_config_dict = {}
         nlte_species = []
         if 'nlte' in plasma_section:
             nlte_section = plasma_section['nlte']
@@ -661,6 +661,15 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
                 nlte_config_dict['species'] = nlte_species
                 nlte_config_dict.update(nlte_section)
+
+                if 'coronal_approximation' not in nlte_section:
+                    logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
+                    nlte_config_dict['coronal_approximation'] = False
+
+                if 'coronal_approximation' not in nlte_section:
+                    logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
+                    nlte_config_dict['classical_nebular'] = False
+
 
             elif nlte_section: #checks that the dictionary is not empty
                 logger.warn('No "species" given - ignoring other NLTE options given:\n%s',

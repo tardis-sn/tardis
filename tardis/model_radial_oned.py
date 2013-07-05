@@ -124,7 +124,7 @@ class Radial1DModel(object):
         self.ws = np.zeros_like(tardis_config.structure.r_inner)
         self.tau_sobolevs = np.zeros((tardis_config.structure.no_of_shells, len(self.atom_data.lines)))
         self.j_blues = np.zeros_like(self.tau_sobolevs)
-        self.j_blues_norm_factor = (constants.c.cgs * self.time_explosion /
+        self.j_blues_norm_factor = (constants.c.cgs *  /
                        (4 * np.pi * self.time_of_simulation * self.volumes)).reshape((self.volumes.shape[0], 1))
 
         self.calculate_j_blues()

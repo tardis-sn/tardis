@@ -21,7 +21,7 @@ plasma:
     initial_t_inner: 10000 K
     initial_t_rad: 10000 K
     disable_electron_scattering: no
-    plasma_type: nebular
+    type: nebular
     #radiative_rates_type - currently supported are lte, nebular and detailed
     radiative_rates_type: detailed
     #line interaction type - currently supported are scatter, downbranch and macroatom
@@ -30,8 +30,8 @@ plasma:
 
     nlte:
         species: [Si 2, ca iii]
-        coronal_approximation: True
-        classical_nebular: False
+#        coronal_approximation: False
+#        classical_nebular: False
 
 model:
     structure:
