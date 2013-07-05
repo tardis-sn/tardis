@@ -4,8 +4,8 @@
 
 from astropy import constants, units as u
 import astropy.utils
-
-
+import tardis.util
+from collections import OrderedDict
 import logging
 import numpy as np
 import os
@@ -29,10 +29,10 @@ data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 density_structure_fileparser = {}
 
 
-class TardisConfigError(ValueError):
+class TardisConfigurationError(ValueError):
     pass
 
-class TardisMalformedQuantityError(TardisConfigError):
+class TardisMalformedQuantityError(TardisConfigurationError):
 
     def __init__(self, malformed_quantity_string):
         self.malformed_quantity_string = malformed_quantity_string
@@ -41,9 +41,26 @@ class TardisMalformedQuantityError(TardisConfigError):
         return 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' % self.malformed_quantity_string
 
 
+class TardisMalformedElementSymbolError(TardisConfigurationError):
+
+    def __init__(self, malformed_element_symbol):
+        self.malformed_element_symbol = malformed_element_symbol
+
+    def __str__(self):
+        return 'Expecting an atomic symbol (e.g. Fe) - supplied %s' % self.malformed_element_symbol
 
 
-def parse2quantity(quantity_string):
+class TardisMalformedSpeciesError(TardisConfigurationError):
+
+    def __init__(self, malformed_element_symbol):
+        self.malformed_element_symbol = malformed_element_symbol
+
+    def __str__(self):
+        return 'Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") - supplied %s' % self.malformed_element_symbol
+
+
+
+def parse_quantity(quantity_string):
 
     if not isinstance(quantity_string, basestring):
         raise TardisMalformedQuantityError(quantity_string)
@@ -65,9 +82,57 @@ def parse2quantity(quantity_string):
 
     return q
 
+def element_symbol2atomic_number(element_string, atom_data):
+    reformatted_element_string = reformat_element_symbol(element_string)
+    if reformatted_element_string not in atom_data.symbol2atomic_number:
+        raise TardisMalformedElementSymbolError(element_string)
+    return atom_data.symbol2atomic_number[reformatted_element_string]
+
+def parse_species_string(species_string, atom_data):
+    try:
+        element_string, ion_number_string = species_string.split()
+    except ValueError:
+        raise TardisMalformedElementSymbolError(species_string)
+
+    atomic_number = element_symbol2atomic_number(element_string, atom_data)
+
+    try:
+        ion_number = tardis.util.roman_to_int(ion_number_string.strip())
+    except ValueError:
+        try:
+            ion_number = int(ion_number_string)
+        except ValueError:
+            raise TardisMalformedSpeciesError
+
+    return atomic_number, ion_number
+
+
+
+
+
+def reformat_element_symbol(element_string):
+    """
+    Reformat the string so the first letter is uppercase and all subsequent letters lowercase
+
+    Parameters
+    ----------
+        element_symbol: str
+
+    Returns
+    -------
+        reformated element symbol
+    """
+
+    return element_string[0].upper() + element_string[1:].lower()
+
+
+
+def parse_species_symbol(species_string):
+    pass
+
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
-    spectral_bin_boundary_1 = parse2quantity(spectral_bin_boundary_1).to('Angstrom', u.spectral())
-    spectral_bin_boundary_2 = parse2quantity(spectral_bin_boundary_2).to('Angstrom', u.spectral())
+    spectral_bin_boundary_1 = parse_quantity(spectral_bin_boundary_1).to('Angstrom', u.spectral())
+    spectral_bin_boundary_2 = parse_quantity(spectral_bin_boundary_2).to('Angstrom', u.spectral())
 
     spectrum_start_wavelength = min(spectral_bin_boundary_1, spectral_bin_boundary_2)
     spectrum_end_wavelength = max(spectral_bin_boundary_1, spectral_bin_boundary_2)
@@ -137,7 +202,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         if len(mean_densities) == no_of_shells:
             logger.debug('Verified ARTIS file %s (no_of_shells=length of dataset)', density_file)
         else:
-            raise TardisConfigError(
+            raise TardisConfigurationError(
                 'Error in ARTIS file %s - Number of shells not the same as dataset length' % density_file)
 
         min_shell = 1
@@ -153,13 +218,13 @@ def parse_density_file_section(density_file_dict, time_explosion):
                     no_of_shells, sum(masses.value))
 
         if 'v_lowest' in density_file_dict:
-            v_lowest = parse2quantity(density_file_dict['v_lowest']).to('cm/s').value
+            v_lowest = parse_quantity(density_file_dict['v_lowest']).to('cm/s').value
             min_shell = v_inner.value.searchsorted(v_lowest)
         else:
             min_shell = 1
 
         if 'v_highest' in density_file_dict:
-            v_highest = parse2quantity(density_file_dict['v_highest']).to('cm/s').value
+            v_highest = parse_quantity(density_file_dict['v_highest']).to('cm/s').value
             max_shell = v_outer.value.searchsorted(v_highest)
         else:
             max_shell = no_of_shells
@@ -175,7 +240,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
     try:
         parser = density_file_parser[density_file_dict['type']]
     except KeyError:
-        raise TardisConfigError('In abundance file section only types %s are allowed (supplied %s) ' %
+        raise TardisConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
                                 (density_file_parser.keys(), density_file_dict['type']))
 
     return parser(density_file_dict, time_explosion)
@@ -185,8 +250,8 @@ def parse_velocity_section(velocity_dict, no_of_shells):
     velocity_parser = {}
 
     def parse_linear_velocity(velocity_dict, no_of_shells):
-        v_inner = parse2quantity(velocity_dict['v_inner']).to('cm/s').value
-        v_outer = parse2quantity(velocity_dict['v_outer']).to('cm/s').value
+        v_inner = parse_quantity(velocity_dict['v_inner']).to('cm/s').value
+        v_outer = parse_quantity(velocity_dict['v_outer']).to('cm/s').value
         velocities = np.linspace(v_inner, v_outer, no_of_shells + 1) * u.Unit('cm/s')
         return velocities[:-1], velocities[1:]
 
@@ -195,7 +260,7 @@ def parse_velocity_section(velocity_dict, no_of_shells):
     try:
         parser = velocity_parser[velocity_dict['type']]
     except KeyError:
-        raise TardisConfigError('In velocity section only types %s are allowed (supplied %s) ' %
+        raise TardisConfigurationError('In velocity section only types %s are allowed (supplied %s) ' %
                                 (velocity_parser.keys(), velocity_dict['type']))
     return parser(velocity_dict, no_of_shells)
 
@@ -206,7 +271,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
 
     #Parse density uniform
     def parse_uniform(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
-        return np.ones(no_of_shells) * parse2quantity(density_dict['value']).to('g cm^-3')
+        return np.ones(no_of_shells) * parse_quantity(density_dict['value']).to('g cm^-3')
 
     density_parser['uniform'] = parse_uniform
 
@@ -215,7 +280,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
 
         time_0 = density_dict.pop('time_0', 19.9999584)
         if isinstance(time_0, basestring):
-            time_0 = parse2quantity(time_0).to('s')
+            time_0 = parse_quantity(time_0).to('s')
         else:
             time_0 *= u.s
             logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
@@ -226,7 +291,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
             logger.debug('density_coefficient not supplied for density type branch85 - using sensible default %g',
                          density_coefficient)
         else:
-            density_coefficient = parse2quantity(density_coefficient)
+            density_coefficient = parse_quantity(density_coefficient)
 
         velocities = 0.5 * (v_inner + v_outer)
         densities = density_coefficient * (velocities.value * 1e-5) ** -7
@@ -240,7 +305,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
     def parse_exponential(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
         time_0 = density_dict.pop('time_0', 19.9999584)
         if isinstance(time_0, basestring):
-            time_0 = parse2quantity(time_0).to('s').value
+            time_0 = parse_quantity(time_0).to('s').value
         else:
             logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
         try:
@@ -264,7 +329,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
     try:
         parser = density_parser[density_dict['type']]
     except KeyError:
-        raise TardisConfigError('In density section only types %s are allowed (supplied %s) ' %
+        raise TardisConfigurationError('In density section only types %s are allowed (supplied %s) ' %
                                 (density_parser.keys(), density_dict['type']))
     return parser(density_dict, no_of_shells, v_inner, v_outer, time_explosion)
 
@@ -284,7 +349,7 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
     try:
         parser = abundance_file_parser[abundance_file_dict['type']]
     except KeyError:
-        raise TardisConfigError('In abundance file section only types %s are allowed (supplied %s) ' %
+        raise TardisConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
                                 (abundance_file_parser.keys(), abundance_file_dict['type']))
 
     return parser(abundance_file_dict, abundances, min_shell, max_shell)
@@ -315,45 +380,27 @@ def parse_supernova_section(supernova_dict):
     else:
         config_dict['luminosity'] = (float(luminosity_value) * u.Unit(luminosity_unit)).to('erg/s')
 
-    config_dict['time_explosion'] = parse2quantity(supernova_dict['time_explosion']).to('s')
+    config_dict['time_explosion'] = parse_quantity(supernova_dict['time_explosion']).to('s')
 
     if 'distance' in supernova_dict:
-        config_dict['distance'] = parse2quantity(supernova_dict['distance'])
+        config_dict['distance'] = parse_quantity(supernova_dict['distance'])
     else:
         config_dict['distance'] = None
 
     if 'luminosity_wavelength_start' in supernova_dict:
-        config_dict['luminosity_nu_end'] = parse2quantity(supernova_dict['luminosity_wavelength_start']).\
+        config_dict['luminosity_nu_end'] = parse_quantity(supernova_dict['luminosity_wavelength_start']).\
             to('Hz', u.spectral())
     else:
         config_dict['luminosity_nu_end'] = np.inf * u.Hz
 
     if 'luminosity_wavelength_end' in supernova_dict:
-        config_dict['luminosity_nu_start'] = parse2quantity(supernova_dict['luminosity_wavelength_end']).\
+        config_dict['luminosity_nu_start'] = parse_quantity(supernova_dict['luminosity_wavelength_end']).\
             to('Hz', u.spectral())
     else:
         config_dict['luminosity_nu_start'] = 0.0 * u.Hz
 
     return config_dict
 
-def reformat_element_symbol(element_symbol):
-    """
-    Reformat the string so the first letter is uppercase and all subsequent letters lowercase
-
-    Parameters
-    ----------
-        element_symbol: str
-
-    Returns
-    -------
-        reformated element symbol
-    """
-
-    #Reformating element to appropriate list
-    element_str = list(element_symbol)
-    element_str[0] = element_str[0].upper()
-    element_str[1:] = [item.lower() for item in element_str[1:]]
-    return ''.join(element_str)
 
 
 def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.9999584, density_coefficient=3e29):
@@ -470,7 +517,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             logger.critical('No config file named: %s', fname)
             raise e
         if yaml_dict['config_type'] not in ['simple1d']:
-            raise TardisConfigError('Only config_type=simple1d allowed at the moment.')
+            raise TardisConfigurationError('Only config_type=simple1d allowed at the moment.')
 
         config_dict = {}
 
@@ -482,7 +529,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         elif 'atom_data' in yaml_dict.keys():
             atom_data_fname = yaml_dict['atom_data']
         else:
-            raise TardisConfigError('No atom_data key found in config or command line')
+            raise TardisConfigurationError('No atom_data key found in config or command line')
 
         logger.info('Reading Atomic Data from %s', atom_data_fname)
         atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
@@ -508,7 +555,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         else:
             #requiring all keys: no_of_shells, velocity, density
             if not all([item in structure_section.keys() for item in ('no_of_shells', 'velocity', 'density')]):
-                raise TardisConfigError(
+                raise TardisConfigurationError(
                     'If file-section is not given to structure-section, one needs to provide all: no_of_shells, velocity, density')
 
             no_of_shells = structure_section['no_of_shells']
@@ -540,47 +587,22 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         abundances_section = yaml_dict['model']['abundances'].copy()
         abudances_config_dict = {}
         #TODO: columns are now until Z=120
-        species_pattern = re.compile('\s*([a-zA-Z]*)(\d*)\s*')
+
         abundances = pd.DataFrame(columns=np.arange(1, 120), index=pd.Index(np.arange(no_of_shells), name='shells'))
 
         if 'file' in abundances_section.keys():
             abundance_file_dict = abundances_section.pop('file')
             parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max_shell)
 
-        if 'abundance_set' in abundances_section.keys():
-            abundance_set_dict = abundances_section.pop('abundance_set')
-            print "abundance set not implemented currently"
-            #            abundance_set = abundance_dict.pop('abundance_set', None)
-        #            if abundance_set == 'lucy99':
-        #                abundances = read_lucy99_abundances()
-        #            elif abundance_set is not None:
-        #                raise ValueError("Currently only 'lucy99' abundance_set supported")
 
-        nlte_species = []
-        if 'nlte_species' in abundances_section.keys():
-            nlte_species_list = abundances_section.pop('nlte_species')
-            for species_symbol in nlte_species_list:
-                species_match = species_pattern.match(species_symbol)
-                if species_match is None:
-                    raise ValueError(
-                        "'nlte_species' element %s could not be matched to a valid species notation (e.g. Ca2)")
-                species_element, species_ion = species_match.groups()
-                species_element = reformat_element_symbol(species_element)
-                if species_element not in atom_data.symbol2atomic_number:
-                    raise ValueError("Element provided in NLTE species %s unknown" % species_element)
-                nlte_species.append((atom_data.symbol2atomic_number[species_element], int(species_ion) - 1))
+        for element_symbol_string in abundances_section:
 
-        for element in abundances_section:
-            element_symbol = reformat_element_symbol(element)
-            if element_symbol not in atom_data.symbol2atomic_number:
-                raise ValueError('Element %s provided in config unknown' % element_symbol)
+            z = element_symbol2atomic_number(element_symbol_string)
 
-            z = atom_data.symbol2atomic_number[element_symbol]
-
-            abundances[z] = float(abundances_section[element])
+            abundances[z] = float(abundances_section[element_symbol_string])
 
         config_dict['abundances'] = abundances
-        config_dict['nlte_species'] = nlte_species
+
 
 
         ########### DOING PLASMA SECTION ###############
@@ -589,15 +611,15 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         plasma_config_dict = {}
 
         if plasma_section['type'] not in ('nebular', 'lte'):
-            raise TardisConfigError('plasma_type only allowed to be "nebular" or "lte"')
+            raise TardisConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
         plasma_config_dict['type'] = plasma_section['type']
 
         if plasma_section['radiative_rates_type'] not in ('nebular', 'lte', 'detailed'):
-            raise TardisConfigError('radiative_rates_types must be either "nebular", "lte", or "detailed"')
+            raise TardisConfigurationError('radiative_rates_types must be either "nebular", "lte", or "detailed"')
         plasma_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
 
         if plasma_section['line_interaction_type'] not in ('scatter', 'downbranch', 'macroatom'):
-            raise TardisConfigError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
+            raise TardisConfigurationError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
         plasma_config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
         if 'w_epsilon' in plasma_section:
@@ -607,7 +629,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             plasma_config_dict['w_epsilon'] = 1e-10
 
         if 'initial_t_inner' in plasma_section:
-            plasma_config_dict['t_inner'] = parse2quantity(plasma_section['initial_t_inner'])
+            plasma_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner'])
         else:
             logger.info('"initial_t_inner" is not specified in the plasma section - '
                         'initializing to %s with given luminosity' )
@@ -616,7 +638,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
         if 'initial_t_rads' in plasma_section:
             if isinstance('initial_t_rads', basestring):
-                    uniform_t_rads = parse2quantity(plasma_section['initial_t_rads'])
+                    uniform_t_rads = parse_quantity(plasma_section['initial_t_rads'])
                     plasma_config_dict['t_rads'] = u.Quantity(np.ones(no_of_shells) * uniform_t_rads.value, u.K)
 
             elif astropy.utils.isiterable(plasma_section['initial_t_rads']):
@@ -627,10 +649,36 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
             plasma_config_dict['t_rads'] =  u.Quantity(np.ones(no_of_shells) * 10000., u.K)
 
+        ##### NLTE subsection of Plasma start
+        nlte_config_dict = OrderedDict()
+        nlte_species = []
+        if 'nlte' in plasma_section:
+            nlte_section = plasma_section['nlte']
+            if 'nlte_species' in nlte_section:
+                nlte_species_list = abundances_section.pop('nlte_species')
+                for species_symbol in nlte_species_list:
+                    species_match = species_pattern.match(species_symbol)
+                    if species_match is None:
+                        raise ValueError(
+                            "'nlte_species' element %s could not be matched to a valid species notation (e.g. Ca2)")
+                    species_element, species_ion = species_match.groups()
+                    species_element = reformat_element_symbol(species_element)
+                    if species_element not in atom_data.symbol2atomic_number:
+                        raise ValueError("Element provided in NLTE species %s unknown" % species_element)
+                    nlte_species.append((atom_data.symbol2atomic_number[species_element], int(species_ion) - 1))
+
+            elif nlte_section: #checks that the dictionary is not empty
+                logger.warn('No "nlte_species" given - ignoring other NLTE options given:\n%s',
+                            pp.pformat(nlte_section))
+
+
+
+        #^^^^^^^ NLTE subsection of Plasma end
+
         config_dict['plasma'] = plasma_config_dict
 
 
-        #### End of Plasma Section
+        #^^^^^^^^^^^^^^ End of Plasma Section
 
         ##### Monte Carlo Section
 
@@ -742,7 +790,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
         if 'spectrum_type' in spectrum_section:
             if spectrum_section['spectrum_type'] not in ['luminosity_density', 'flux']:
-                raise TardisConfigError('"spectrum_type" can either be "luminosity_density" or "flux" - %s given' %
+                raise TardisConfigurationError('"spectrum_type" can either be "luminosity_density" or "flux" - %s given' %
                                         spectrum_section['spectrum_type'])
 
             spectrum_config_dict['spectrum_type'] = spectrum_section['spectrum_type']
