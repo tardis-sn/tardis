@@ -160,6 +160,10 @@ class Radial1DModel(object):
                                                      nlte_config=tardis_config.plasma.nlte, zone_id=i)
             self.plasmas.append(current_plasma)
 
+        self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+        self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+        self.spectrum_reabsorbed = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+
 
 
     @property
@@ -285,7 +289,11 @@ class Radial1DModel(object):
         """
 
         self.create_packets()
-        self.spec_virtual_flux_nu[:] = 0.0
+
+        if update_radiation_field:
+            self.update_radiationfield()
+            self.update_plasmas()
+
 
         if enable_virtual:
             no_of_virtual_packets = self.tardis_config.no_of_virtual_packets
@@ -299,6 +307,12 @@ class Radial1DModel(object):
         self.last_interaction_type, self.last_line_interaction_shell_id = \
             montecarlo_multizone.montecarlo_radial1d(self,
                                                      virtual_packet_flag=no_of_virtual_packets)
+
+
+        self.montecarlo_nu *= u.Hz
+        self.montecarlo_energies *= 1 * u.erg / self.time_of_simulation
+
+
 
         self.normalize_j_blues()
 
@@ -315,9 +329,6 @@ class Radial1DModel(object):
             self.gui.update_data(self)
             self.gui.show()
 
-        if update_radiation_field:
-            self.update_radiationfield()
-            self.update_plasmas()
 
 
     def update_radiationfield(self, log_sampling=5):
@@ -611,8 +622,44 @@ class TARDISSpectrum(object):
     TARDIS Spectrum object
     """
 
-    def __init__(self, nu, flux=None, distance=None):
-        pass
+    def __init__(self, frequency, distance=None):
+        self.frequency = frequency
+
+        self.distance = distance
+
+        self._flux_nu = np.zeros_like(frequency.value)
+        self._flux_lambda = np.zeros_like(frequency.value)
+
+
+        self.delta_frequency = frequency[1] - frequency[0]
+
+        self._flux_nu = None
+        self._flux_lambda = None
+
+        self.luminosity_density_nu = None
+        self.luminosity_density_lambda = None
+
+
+
+
+    @property
+    def flux_nu(self):
+        if self.distance is None:
+            raise AttributeError('supernova distance not supplied - flux calculation impossible')
+        else:
+            return self._flux_nu
+
+    @property
+    def flux_lambda(self):
+        if self.distance is None:
+            raise AttributeError('supernova distance not supplied - flux calculation impossible')
+        return self._flux_lambda
+
+    def update_energy(self, spectrum_power):
+        self.luminosity_density_nu = spectrum_power / self.delta_frequency
+        if self.distance is not None:
+            self.flux_nu = self.luminosity_density_nu / (4 * np.pi * self.distance.to('cm')**2)
+
 
     def calculate_spectrum(self):
         """
