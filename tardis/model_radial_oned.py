@@ -123,12 +123,18 @@ class Radial1DModel(object):
             self.global_convergence_parameters = tardis_config.global_convergence_parameters.copy()
 
         self.t_rads = tardis_config.plasma.t_rads
-        self.ws = np.zeros_like(tardis_config.structure.r_inner)
+        self.ws = np.zeros_like(tardis_config.structure.r_inner.value)
         self.tau_sobolevs = np.zeros((no_of_shells, len(self.atom_data.lines)))
-        self.j_blues = np.zeros_like(self.tau_sobolevs)
-        j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
-                       (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes.value)
-        self.j_blues_norm_factor = j_blues_norm_factor.value.reshape((no_of_shells, 1)) * j_blues_norm_factor.unit
+
+        if tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom') or\
+                tardis_config.plasma.nlte.species:
+            self.j_blues = np.zeros_like(self.tau_sobolevs)
+            j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
+                           (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes.value)
+            self.j_blues_norm_factor = j_blues_norm_factor.value.reshape((no_of_shells, 1)) * j_blues_norm_factor.unit
+
+            self.transition_probabilities = np.zeros((no_of_shells, len(self.atom_data.macro_atom_data.lines_idx)))
+
 
 
         self.calculate_j_blues()
@@ -146,18 +152,13 @@ class Radial1DModel(object):
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle[i] ** 2).to(1).value)))
                 current_plasma_class = plasma.NebularPlasma
 
-            self.plasmas.append(current_plasma_class(self.t_rads[i], tardis_config.number_densities.ix[i],
-                                                     self.atom_data,
-                                                     tardis_config.supernova.time_explosion.to('s').value,
-                                                     self.j_blues[i]))
-
-        current_plasma = plasma.LTEPlasma(self.t_rads[i], self.number_densities.ix[i], self.atom_data,
-                                                  tardis_config.supernova.time_explosion.value)
-
-
-
-
-        #initializing temperatures
+            current_plasma = current_plasma_class(t_rad=self.t_rads[i].value,
+                                                     number_density=tardis_config.number_densities.ix[i],
+                                                     atom_data=self.atom_data,
+                                                     time_explosion=tardis_config.supernova.time_explosion.to('s').value,
+                                                     w=self.ws[i], j_blues=self.j_blues[i],
+                                                     nlte_config=tardis_config.plasma.nlte, zone_id=i)
+            self.plasmas.append(current_plasma)
 
 
 
@@ -199,41 +200,7 @@ class Radial1DModel(object):
         #Energy emitted from the inner boundary
 
         no_of_packets = self.current_no_of_packets
-        self.packet_src.create_packets(no_of_packets, self.t_inner)
-
-    """
-        def initialize_plasmas(self, plasma_class):
-            self.plasmas = []
-
-
-
-
-            for i, ((tmp_index, number_density), current_t_rad, current_w) in \
-                enumerate(zip(self.number_densities.iterrows(), self.t_rads, self.ws)):
-
-
-                if self.radiative_rates_type in ('lte',):
-                    j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
-                elif self.radiative_rates_type in ('nebular', 'detailed'):
-                    j_blues = current_w * plasma.intensity_black_body(self.atom_data.lines.nu.values, current_t_rad)
-                else:
-                    raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
-                                     ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
-
-
-
-                self.tau_sobolevs[i] = current_plasma.tau_sobolevs
-
-                self.plasmas.append(current_plasma)
-
-            self.tau_sobolevs = np.array(self.tau_sobolevs, dtype=float)
-
-
-            if self.line_interaction_id in (1, 2):
-                self.calculate_transition_probabilities()
-
-                # update plasmas
-    """
+        self.packet_src.create_packets(no_of_packets, self.t_inner.value)
 
     def calculate_transition_probabilities(self):
         self.transition_probabilities = []
@@ -310,37 +277,6 @@ class Radial1DModel(object):
             self.calculate_transition_probabilities()
 
 
-    def calculate_spectrum(self):
-        """
-        Calculate the spectrum from the received packetss
-
-        """
-
-        self.spec_flux_nu = np.histogram(self.montecarlo_nu[self.montecarlo_nu > 0],
-                                         weights=self.montecarlo_energies[self.montecarlo_energies > 0],
-                                         bins=self.spec_nu_bins)[0]
-        if self.tardis_config.spectrum_type == 'luminosity_density':
-            flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) )
-        elif self.tardis_config.spectrum_type == 'flux':
-            flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) *
-                          (4 * np.pi * self.tardis_config.sn_distance.to('cm').value ** 2))
-        else:
-            raise config_reader.TardisConfigurationError('"spectrum_mode" is not "luminosity_density" or "flux" - but ')
-
-        self.spec_flux_nu /= flux_scale
-
-        self.spec_virtual_flux_nu /= flux_scale
-
-        self.spec_reabsorbed_nu = \
-            np.histogram(self.montecarlo_nu[self.montecarlo_nu < 0],
-                         weights=self.montecarlo_energies[self.montecarlo_nu < 0], bins=self.spec_nu_bins)[0]
-        self.spec_reabsorbed_nu /= flux_scale
-
-        self.spec_angstrom = u.Unit('Hz').to('angstrom', self.spec_nu, u.spectral())
-
-        self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
-        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
-        self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
 
 
     def simulate(self, update_radiation_field=True, enable_virtual=False):
@@ -670,3 +606,42 @@ class ModelHistory(object):
         history_store.close()
 
 
+class TARDISSpectrum(object):
+    """
+    TARDIS Spectrum object
+    """
+
+    def __init__(self, nu, flux=None, distance=None):
+        pass
+
+    def calculate_spectrum(self):
+        """
+        Calculate the spectrum from the received packetss
+
+        """
+
+        self.spec_flux_nu = np.histogram(self.montecarlo_nu[self.montecarlo_nu > 0],
+                                         weights=self.montecarlo_energies[self.montecarlo_energies > 0],
+                                         bins=self.spec_nu_bins)[0]
+        if self.tardis_config.spectrum_type == 'luminosity_density':
+            flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) )
+        elif self.tardis_config.spectrum_type == 'flux':
+            flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) *
+                          (4 * np.pi * self.tardis_config.sn_distance.to('cm').value ** 2))
+        else:
+            raise config_reader.TardisConfigurationError('"spectrum_mode" is not "luminosity_density" or "flux" - but ')
+
+        self.spec_flux_nu /= flux_scale
+
+        self.spec_virtual_flux_nu /= flux_scale
+
+        self.spec_reabsorbed_nu = \
+            np.histogram(self.montecarlo_nu[self.montecarlo_nu < 0],
+                         weights=self.montecarlo_energies[self.montecarlo_nu < 0], bins=self.spec_nu_bins)[0]
+        self.spec_reabsorbed_nu /= flux_scale
+
+        self.spec_angstrom = u.Unit('Hz').to('angstrom', self.spec_nu, u.spectral())
+
+        self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
+        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
+        self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)

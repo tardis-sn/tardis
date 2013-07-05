@@ -172,8 +172,6 @@ class BasePlasma(object):
         self.nlte_config = nlte_config
         self.zone_id = zone_id
 
-        self.update_radiationfield(self.t_rad, self.w)
-
     #Properties
 
     @property
@@ -671,7 +669,7 @@ class BasePlasma(object):
             Updating the Macro Atom computations
         """
 
-        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values.astype(int)]
+        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
 
 
         beta_sobolevs = np.zeros_like(macro_tau_sobolevs)

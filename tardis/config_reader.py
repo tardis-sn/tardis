@@ -632,12 +632,12 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             plasma_config_dict['w_epsilon'] = 1e-10
 
         if 'initial_t_inner' in plasma_section:
-            plasma_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner'])
+            plasma_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner']).to('K')
         else:
-            logger.info('"initial_t_inner" is not specified in the plasma section - '
-                        'initializing to %s with given luminosity' )
             plasma_config_dict['t_inner'] = (((config_dict['supernova']['luminosity'] / \
                                             (4 * np.pi * r_inner[0]**2 * constants.sigma_sb))**.5)**.5).to('K')
+            logger.info('"initial_t_inner" is not specified in the plasma section - '
+                        'initializing to %s with given luminosity', plasma_config_dict['t_inner'])
 
         if 'initial_t_rads' in plasma_section:
             if isinstance('initial_t_rads', basestring):
