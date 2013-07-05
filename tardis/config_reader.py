@@ -103,8 +103,10 @@ def parse_species_string(species_string, atom_data):
             ion_number = int(ion_number_string)
         except ValueError:
             raise TardisMalformedSpeciesError
+    if ion_number > atomic_number:
+        raise TardisConfigurationError('Species given does not exist: ion number > atomic number')
 
-    return atomic_number, ion_number
+    return atomic_number, ion_number-1
 
 
 
@@ -127,8 +129,6 @@ def reformat_element_symbol(element_string):
 
 
 
-def parse_species_symbol(species_string):
-    pass
 
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     spectral_bin_boundary_1 = parse_quantity(spectral_bin_boundary_1).to('Angstrom', u.spectral())
@@ -656,16 +656,8 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             nlte_section = plasma_section['nlte']
             if 'nlte_species' in nlte_section:
                 nlte_species_list = abundances_section.pop('nlte_species')
-                for species_symbol in nlte_species_list:
-                    species_match = species_pattern.match(species_symbol)
-                    if species_match is None:
-                        raise ValueError(
-                            "'nlte_species' element %s could not be matched to a valid species notation (e.g. Ca2)")
-                    species_element, species_ion = species_match.groups()
-                    species_element = reformat_element_symbol(species_element)
-                    if species_element not in atom_data.symbol2atomic_number:
-                        raise ValueError("Element provided in NLTE species %s unknown" % species_element)
-                    nlte_species.append((atom_data.symbol2atomic_number[species_element], int(species_ion) - 1))
+                for species_string in nlte_species_list:
+                    nlte_species.append(parse_species_string(species_string))
 
             elif nlte_section: #checks that the dictionary is not empty
                 logger.warn('No "nlte_species" given - ignoring other NLTE options given:\n%s',

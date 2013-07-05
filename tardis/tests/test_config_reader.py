@@ -48,7 +48,7 @@ def test_element_symbol_reformatter():
 def test_element_symbol2atomic_number():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_element_symbol2atomic_number(element_string, atomic_number):
-        assert config_reader.element_symbol2atomic_number(element_string) == atomic_number
+        assert config_reader.element_symbol2atomic_number(element_string, atom_data) == atomic_number
 
     data = [('sI', 14),
             ('ca', 20),
@@ -56,3 +56,18 @@ def test_element_symbol2atomic_number():
 
     for element_symbol, atomic_number in data:
         yield _test_element_symbol2atomic_number, element_symbol, atomic_number
+
+
+
+def test_species_string_to_species():
+    atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
+    def _test_species_string_to_species_tuple(species_string, species_tuple):
+        assert config_reader.parse_species_string(species_string, atom_data) == species_tuple
+
+    data = [('si ii', (14, 1) ),
+            ('si 2', (14, 1)),
+            ('si ix', (14, 8)),
+            ]
+
+    for species_string, species_tuple in data:
+        yield _test_species_string_to_species_tuple, species_string, species_tuple
