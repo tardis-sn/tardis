@@ -29,7 +29,7 @@ plasma:
     w_epsilon : 1.0e-10
 
     nlte:
-        nlte_species: [Si 2, ca iii]
+        species: [Si 2, ca iii]
         coronal_approximation: True
         classical_nebular: False
 

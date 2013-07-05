@@ -526,8 +526,8 @@ class AtomData(object):
             elif line_interaction_type == 'downbranch':
                 self.macro_atom_data['destination_level_idx'] = (np.ones(len(self.macro_atom_data)) * -1).astype(
                     np.int64)
-
-        self.nlte_data = NLTEData(self, nlte_species)
+        if self.nlte_species:
+            self.nlte_data = NLTEData(self, nlte_species)
 
 
     def __repr__(self):
