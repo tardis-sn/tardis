@@ -296,7 +296,7 @@ class Radial1DModel(object):
 
 
         if enable_virtual:
-            no_of_virtual_packets = self.tardis_config.no_of_virtual_packets
+            no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
         else:
             no_of_virtual_packets = 0
         if np.any(np.isnan(self.tau_sobolevs)) or np.any(np.isinf(self.tau_sobolevs)) or np.any(np.isneginf(self.tau_sobolevs)):

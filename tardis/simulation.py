@@ -7,9 +7,10 @@ logger = logging.getLogger(__name__)
 
 def run_radial1d(radial1d_model, save_history=None):
     start_time = time.time()
+    radial1d_model.simulate(update_radiation_field=False, enable_virtual=True)
     while radial1d_model.iterations_remaining > 0:
         logger.info('Remaining run %d', radial1d_model.iterations_remaining)
-        radial1d_model.simulate()
+
         if save_history is not None:
             save_history.store(radial1d_model)
 
