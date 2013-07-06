@@ -195,8 +195,8 @@ class Radial1DModel(object):
     @t_inner.setter
     def t_inner(self, value):
         self._t_inner = value
-        self.luminosity_inner = 4 * np.pi * constants.sigma_sb.cgs * self.tardis_config.structure.r_inner[0] ** 2 * \
-                                self._t_inner ** 4
+        self.luminosity_inner = (4 * np.pi * constants.sigma_sb.cgs * self.tardis_config.structure.r_inner[0] ** 2 * \
+                                self._t_inner ** 4).to('erg/s')
         self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
 
 
@@ -315,22 +315,22 @@ class Radial1DModel(object):
         self.normalize_j_blues()
 
         self.montecarlo_nu = montecarlo_nu * u.Hz
-        self.montecarlo_power = montecarlo_energies *  1 * u.erg / self.time_of_simulation
+        self.montecarlo_luminosity = montecarlo_energies *  1 * u.erg / self.time_of_simulation
 
-        montecarlo_reabsorbed_power = np.histogram(self.montecarlo_nu.value[self.montecarlo_power.value < 0],
-                                         weights=self.montecarlo_power.value[self.montecarlo_power.value < 0],
+        montecarlo_reabsorbed_luminosity = np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value < 0],
+                                         weights=self.montecarlo_luminosity.value[self.montecarlo_luminosity.value < 0],
                                          bins=self.tardis_config.spectrum.frequency.value)[0] \
-                                      * self.montecarlo_power.unit
+                                      * self.montecarlo_luminosity.unit
 
-        montecarlo_emitted_power = np.histogram(self.montecarlo_nu.value[self.montecarlo_power.value >= 0],
-                                         weights=self.montecarlo_power.value[self.montecarlo_power.value >= 0],
+        montecarlo_emitted_luminosity = np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value >= 0],
+                                         weights=self.montecarlo_luminosity.value[self.montecarlo_luminosity.value >= 0],
                                          bins=self.tardis_config.spectrum.frequency.value)[0] \
-                                   * self.montecarlo_power.unit
+                                   * self.montecarlo_luminosity.unit
 
 
 
-        self.spectrum.update_power(montecarlo_emitted_power)
-        self.spectrum_reabsorbed.update_power(montecarlo_reabsorbed_power)
+        self.spectrum.update_power(montecarlo_emitted_luminosity)
+        self.spectrum_reabsorbed.update_power(montecarlo_reabsorbed_luminosity)
 
 
         if no_of_virtual_packets > 0:
@@ -363,13 +363,12 @@ class Radial1DModel(object):
         old_t_inner = self.t_inner
         luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
                             (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
-        emitted_energy = self.emitted_inner_energy * \
-                         np.sum(self.montecarlo_energies[(self.montecarlo_energies >= 0) &
+        emitted_luminosity = np.sum(self.montecarlo_luminosity[(self.montecarlo_luminosity.value >= 0) &
                                                          luminosity_wavelength_filter]) / 1.
-        absorbed_energy = self.emitted_inner_energy * \
-                          np.sum(self.montecarlo_energies[(self.montecarlo_energies < 0) &
+        absorbed_luminosity = np.sum(self.montecarlo_luminosity[(self.montecarlo_luminosity.value < 0) &
                                                           luminosity_wavelength_filter]) / -1.
-        updated_t_inner = self.t_inner * (emitted_energy / self.luminosity_outer) ** -.25
+        updated_t_inner = self.t_inner \
+                          * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value ** -.25
 
         convergence_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
         convergence_ws = abs(old_ws - updated_ws) / updated_ws
