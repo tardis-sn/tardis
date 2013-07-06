@@ -220,11 +220,11 @@ class Radial1DModel(object):
 
 
     def normalize_j_blues(self):
-        self.j_blues *= self.j_blues_norm_factor
+        self.j_blues *= self.j_blues_norm_factor.value
         for i, current_j_blue in enumerate(self.j_blues):
             nus = self.atom_data.lines.nu[current_j_blue == 0.0].values
-            self.j_blues[i][self.j_blues[i] == 0.0] = self.tardis_config.w_epsilon * intensity_black_body(nus, self.plasmas[
-                                                                                                              i].t_rad)
+            self.j_blues[i][self.j_blues[i] == 0.0] = self.tardis_config.plasma.w_epsilon * \
+                                                      intensity_black_body(nus, self.plasmas[i].t_rad)
 
 
     def calculate_updated_radiationfield(self, nubar_estimator, j_estimator):
@@ -251,7 +251,8 @@ class Radial1DModel(object):
 
         updated_t_rads = t_rad_estimator_constant * nubar_estimator / j_estimator
         updated_ws = j_estimator / (
-            4 * constants.sigma_sb.cgs.value * updated_t_rads ** 4 * self.time_of_simulation * self.volumes)
+            4 * constants.sigma_sb.cgs.value * updated_t_rads ** 4 * self.time_of_simulation.value
+            * self.tardis_config.structure.volumes.value)
 
         return updated_t_rads, updated_ws
 
@@ -302,21 +303,41 @@ class Radial1DModel(object):
         if np.any(np.isnan(self.tau_sobolevs)) or np.any(np.isinf(self.tau_sobolevs)) or np.any(np.isneginf(self.tau_sobolevs)):
             raise ValueError('Some values are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
-        self.montecarlo_nu, self.montecarlo_energies, self.j_estimators, self.nubar_estimators, \
+
+        self.virtual_spectrum_power = np.zeros_like(self.spectrum.frequency.value)
+        montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
         self.last_interaction_type, self.last_line_interaction_shell_id = \
             montecarlo_multizone.montecarlo_radial1d(self,
                                                      virtual_packet_flag=no_of_virtual_packets)
 
 
-        self.montecarlo_nu *= u.Hz
-        self.montecarlo_energies *= 1 * u.erg / self.time_of_simulation
-
-
-
         self.normalize_j_blues()
 
-        self.calculate_spectrum()
+        self.montecarlo_nu = montecarlo_nu * u.Hz
+        self.montecarlo_power = montecarlo_energies *  1 * u.erg / self.time_of_simulation
+
+        montecarlo_reabsorbed_power = np.histogram(self.montecarlo_nu.value[self.montecarlo_power.value < 0],
+                                         weights=self.montecarlo_power.value[self.montecarlo_power.value < 0],
+                                         bins=self.tardis_config.spectrum.frequency.value)[0] \
+                                      * self.montecarlo_power.unit
+
+        montecarlo_emitted_power = np.histogram(self.montecarlo_nu.value[self.montecarlo_power.value >= 0],
+                                         weights=self.montecarlo_power.value[self.montecarlo_power.value >= 0],
+                                         bins=self.tardis_config.spectrum.frequency.value)[0] \
+                                   * self.montecarlo_power.unit
+
+
+
+        self.spectrum.update_power(montecarlo_emitted_power)
+        self.spectrum_reabsorbed.update_power(montecarlo_reabsorbed_power)
+
+
+        if no_of_virtual_packets > 0:
+            pass
+
+
+
         self.last_line_interaction_in_id = self.atom_data.lines_index.index.values[last_line_interaction_in_id]
         self.last_line_interaction_in_id[last_line_interaction_in_id == -1] = -1
         self.last_line_interaction_out_id = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
@@ -340,8 +361,8 @@ class Radial1DModel(object):
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
         old_t_inner = self.t_inner
-        luminosity_wavelength_filter = (np.abs(self.montecarlo_nu) > self.tardis_config.luminosity_nu_start.value) & \
-                            (np.abs(self.montecarlo_nu) < self.tardis_config.luminosity_nu_end.value)
+        luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
+                            (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
         emitted_energy = self.emitted_inner_energy * \
                          np.sum(self.montecarlo_energies[(self.montecarlo_energies >= 0) &
                                                          luminosity_wavelength_filter]) / 1.
@@ -655,10 +676,10 @@ class TARDISSpectrum(object):
             raise AttributeError('supernova distance not supplied - flux calculation impossible')
         return self._flux_lambda
 
-    def update_energy(self, spectrum_power):
-        self.luminosity_density_nu = spectrum_power / self.delta_frequency
+    def update_power(self, spectrum_power):
+        self.luminosity_density_nu = (spectrum_power / self.delta_frequency).to('erg / (s Hz)')
         if self.distance is not None:
-            self.flux_nu = self.luminosity_density_nu / (4 * np.pi * self.distance.to('cm')**2)
+            self._flux_nu = self.luminosity_density_nu / (4 * np.pi * self.distance.to('cm')**2)
 
 
     def calculate_spectrum(self):
