@@ -25,7 +25,7 @@ kb = constants.k_B.cgs.value
 
 w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
 
-t_rad_estimator_constant = np.pi**4 / (15 * 24 * scipy.special.zeta(5, 1))
+t_rad_estimator_constant = (np.pi**4 / (15 * 24 * scipy.special.zeta(5, 1))) * h / kb
 
 synpp_default_yaml_fname = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
 
@@ -254,31 +254,35 @@ class Radial1DModel(object):
             4 * constants.sigma_sb.cgs.value * updated_t_rads ** 4 * self.time_of_simulation.value
             * self.tardis_config.structure.volumes.value)
 
-        return updated_t_rads, updated_ws
+        return updated_t_rads * u.K, updated_ws
 
 
 
     def update_plasmas(self):
-        for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
-            logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, new_trad, new_ws))
-            if self.radiative_rates_type == 'lte':
-                j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
-            elif self.radiative_rates_type == 'nebular':
-                j_blues = new_ws * plasma.intensity_black_body(self.atom_data.lines.nu.values, new_trad)
-
-            elif self.radiative_rates_type == 'detailed':
+        for i in xrange(self.tardis_config.structure.no_of_shells):
+        #for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
+            logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, self.t_rads[i].value, self.ws[i]))
+            radiative_rates_type = self.tardis_config.plasma.radiative_rates_type
+            if radiative_rates_type == 'lte':
+                j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, self.t_rads[i].value)
+            elif radiative_rates_type == 'nebular':
+                j_blues = self.ws[i] * plasma.intensity_black_body(self.atom_data.lines.nu.values, self.t_rads[i].value)
+            elif radiative_rates_type == 'detailed':
                 j_blues = self.j_blues[i]
             else:
                 raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
                                  ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
 
-            current_plasma.set_j_blues(j_blues)
-            if self.plasma_type == 'lte':
-                new_ws = 1.0
-            current_plasma.update_radiationfield(new_trad, w=new_ws)
-            self.tau_sobolevs[i] = current_plasma.tau_sobolevs
+            self.plasmas[i].set_j_blues(j_blues)
+            if self.tardis_config.plasma.type == 'lte':
+                current_ws = 1.0
+            elif self.tardis_config.plasma.type == 'nebular':
+                current_ws = self.ws[i]
 
-        if self.line_interaction_id in (1, 2):
+            self.plasmas[i].update_radiationfield(self.t_rads[i].value, w=current_ws)
+            self.tau_sobolevs[i] = self.plasmas[i].tau_sobolevs
+
+        if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.calculate_transition_probabilities()
 
 
@@ -329,8 +333,8 @@ class Radial1DModel(object):
 
 
 
-        self.spectrum.update_power(montecarlo_emitted_luminosity)
-        self.spectrum_reabsorbed.update_power(montecarlo_reabsorbed_luminosity)
+        self.spectrum.update_luminosity(montecarlo_emitted_luminosity)
+        self.spectrum_reabsorbed.update_luminosity(montecarlo_reabsorbed_luminosity)
 
 
         if no_of_virtual_packets > 0:
@@ -363,10 +367,13 @@ class Radial1DModel(object):
         old_t_inner = self.t_inner
         luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
                             (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
-        emitted_luminosity = np.sum(self.montecarlo_luminosity[(self.montecarlo_luminosity.value >= 0) &
-                                                         luminosity_wavelength_filter]) / 1.
-        absorbed_luminosity = np.sum(self.montecarlo_luminosity[(self.montecarlo_luminosity.value < 0) &
-                                                          luminosity_wavelength_filter]) / -1.
+        emitted_luminosity = np.sum(self.montecarlo_luminosity.value[(self.montecarlo_luminosity.value >= 0) &
+                                                         luminosity_wavelength_filter]) \
+                             * self.montecarlo_luminosity.unit
+
+        absorbed_luminosity = -np.sum(self.montecarlo_luminosity.value[(self.montecarlo_luminosity.value < 0) &
+                                                          luminosity_wavelength_filter]) \
+                              * self.montecarlo_luminosity.unit
         updated_t_inner = self.t_inner \
                           * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value ** -.25
 
@@ -380,7 +387,7 @@ class Radial1DModel(object):
             self.ws += convergence_section.w.damping_constant * (updated_ws - self.ws)
             self.t_inner += convergence_section.w.damping_constant * (updated_t_inner - self.t_inner)
 
-        if self.convergence_type == 'specific':
+        if convergence_section.type == 'specific':
 
             t_rad_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
                                / self.no_of_shells) >= self.t_rad_convergence_parameters['fraction']
@@ -401,8 +408,9 @@ class Radial1DModel(object):
                     self.converged = False
 
         self.temperature_logging = pd.DataFrame(
-            {'t_rads': old_t_rads, 'updated_t_rads': updated_t_rads, 'converged_t_rads': convergence_t_rads,
-             'new_trads': self.t_rads, 'ws': old_ws, 'updated_ws': updated_ws, 'converged_ws': convergence_ws,
+            {'t_rads': old_t_rads.value, 'updated_t_rads': updated_t_rads.value,
+             'converged_t_rads': convergence_t_rads.value, 'new_trads': self.t_rads.value, 'ws': old_ws,
+             'updated_ws': updated_ws, 'converged_ws': convergence_ws,
              'new_ws': self.ws})
 
         self.temperature_logging.index.name = 'Shell'
@@ -412,63 +420,11 @@ class Radial1DModel(object):
         temperature_logging = ''.join(['\t%s\n' % item for item in temperature_logging.split('\n')])
 
         logger.info('Plasma stratification:\n%s\n', temperature_logging)
-        logger.info("Luminosity emitted = %.5e Luminosity absorbed = %.5e Luminosity requested = %.5e", emitted_energy,
-                    absorbed_energy,
-                    self.luminosity_outer)
-        logger.info('Calculating new t_inner = %.3f', updated_t_inner)
+        logger.info("Luminosity emitted = %.5e Luminosity absorbed = %.5e Luminosity requested = %.5e",
+                    emitted_luminosity.value, absorbed_luminosity.value,
+                    self.tardis_config.supernova.luminosity_requested.value)
+        logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
 
-    def create_synpp_yaml(self, fname, lines_db=None):
-        logger.warning('Currently only works with Si and a special setup')
-        if not self.atom_data.has_synpp_refs:
-            raise ValueError(
-                'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
-
-        self.atom_data.synpp_refs['ref_log_tau'] = -99.0
-        for key, value in self.atom_data.synpp_refs.iterrows():
-            try:
-                tau_sobolev_idx = self.atom_data.lines_index.ix[value['line_id']]
-            except KeyError:
-                continue
-
-            self.atom_data.synpp_refs['ref_log_tau'].ix[key] = np.log10(self.plasmas[0].tau_sobolevs[tau_sobolev_idx])
-
-        relevant_synpp_refs = self.atom_data.synpp_refs[self.atom_data.synpp_refs['ref_log_tau'] > -50]
-
-        yaml_reference = yaml.load(file(synpp_default_yaml_fname))
-
-        if lines_db is not None:
-            yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'lines')
-            yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'refs.dat')
-
-        yaml_reference['output']['min_wl'] = float(self.spec_angstrom.min())
-        yaml_reference['output']['max_wl'] = float(self.spec_angstrom.max())
-
-
-        raise Exception("there's a problem here with units what units does synpp expect?")
-        yaml_reference['opacity']['v_ref'] = float(self.tardis_config.structure.v_inner.to('cm/s').value[0] / 1e8)
-        yaml_reference['grid']['v_outer_max'] = float(self.tardis_config.structure.v_outer[-1] / 1e8)
-
-        #pdb.set_trace()
-
-        yaml_setup = yaml_reference['setups'][0]
-        yaml_setup['ions'] = []
-        yaml_setup['log_tau'] = []
-        yaml_setup['active'] = []
-        yaml_setup['temp'] = []
-        yaml_setup['v_min'] = []
-        yaml_setup['v_max'] = []
-        yaml_setup['aux'] = []
-
-        for species, synpp_ref in relevant_synpp_refs.iterrows():
-            yaml_setup['ions'].append(100 * species[0] + species[1])
-            yaml_setup['log_tau'].append(float(synpp_ref['ref_log_tau']))
-            yaml_setup['active'].append(True)
-            yaml_setup['temp'].append(yaml_setup['t_phot'])
-            yaml_setup['v_min'].append(yaml_reference['opacity']['v_ref'])
-            yaml_setup['v_max'].append(yaml_reference['grid']['v_outer_max'])
-            yaml_setup['aux'].append(1e200)
-
-        yaml.dump(yaml_reference, stream=file(fname, 'w'), explicit_start=True)
 
     def to_hdf5(self, buffer_or_fname, path=''):
         if isinstance(buffer_or_fname, basestring):
@@ -643,7 +599,8 @@ class TARDISSpectrum(object):
     """
 
     def __init__(self, frequency, distance=None):
-        self.frequency = frequency
+        self._frequency = frequency
+        self.wavelength = self.frequency.to('angstrom', u.spectral())
 
         self.distance = distance
 
@@ -659,7 +616,9 @@ class TARDISSpectrum(object):
         self.luminosity_density_nu = None
         self.luminosity_density_lambda = None
 
-
+    @property
+    def frequency(self):
+        return self._frequency[:-1]
 
 
     @property
@@ -675,40 +634,16 @@ class TARDISSpectrum(object):
             raise AttributeError('supernova distance not supplied - flux calculation impossible')
         return self._flux_lambda
 
-    def update_power(self, spectrum_power):
-        self.luminosity_density_nu = (spectrum_power / self.delta_frequency).to('erg / (s Hz)')
+    def update_luminosity(self, spectrum_luminosity):
+        self.luminosity_density_nu = (spectrum_luminosity / self.delta_frequency).to('erg / (s Hz)')
+        self.luminosity_density_lambda = self.f_nu_to_f_lambda(self.luminosity_density_nu.value) \
+                                         * u.Unit('erg / (s Angstrom)')
+
         if self.distance is not None:
-            self._flux_nu = self.luminosity_density_nu / (4 * np.pi * self.distance.to('cm')**2)
+            self._flux_nu = (self.luminosity_density_nu / (4 * np.pi * self.distance.to('cm')**2))
+
+            self._flux_lambda = self.f_nu_to_f_lambda(self.flux_nu.value) * u.Unit('erg / (s Angstrom cm^2)')
 
 
-    def calculate_spectrum(self):
-        """
-        Calculate the spectrum from the received packetss
-
-        """
-
-        self.spec_flux_nu = np.histogram(self.montecarlo_nu[self.montecarlo_nu > 0],
-                                         weights=self.montecarlo_energies[self.montecarlo_energies > 0],
-                                         bins=self.spec_nu_bins)[0]
-        if self.tardis_config.spectrum_type == 'luminosity_density':
-            flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) )
-        elif self.tardis_config.spectrum_type == 'flux':
-            flux_scale = (self.time_of_simulation * (self.spec_nu[1] - self.spec_nu[0]) *
-                          (4 * np.pi * self.tardis_config.sn_distance.to('cm').value ** 2))
-        else:
-            raise config_reader.TardisConfigurationError('"spectrum_mode" is not "luminosity_density" or "flux" - but ')
-
-        self.spec_flux_nu /= flux_scale
-
-        self.spec_virtual_flux_nu /= flux_scale
-
-        self.spec_reabsorbed_nu = \
-            np.histogram(self.montecarlo_nu[self.montecarlo_nu < 0],
-                         weights=self.montecarlo_energies[self.montecarlo_nu < 0], bins=self.spec_nu_bins)[0]
-        self.spec_reabsorbed_nu /= flux_scale
-
-        self.spec_angstrom = u.Unit('Hz').to('angstrom', self.spec_nu, u.spectral())
-
-        self.spec_flux_angstrom = (self.spec_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
-        self.spec_reabsorbed_angstrom = (self.spec_reabsorbed_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
-        self.spec_virtual_flux_angstrom = (self.spec_virtual_flux_nu * self.spec_nu ** 2 / constants.c.cgs.value / 1e8)
+    def f_nu_to_f_lambda(self, f_nu):
+        return f_nu * self.frequency.value**2 / constants.c.cgs.value / 1e8

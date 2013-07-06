@@ -253,7 +253,7 @@ class BasePlasma(object):
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
-        if self.nlte_config is not None:
+        if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
 
         if self.initialize:
@@ -309,7 +309,7 @@ class BasePlasma(object):
                 raise ValueError("Called calculate partition_functions without initializing at least once")
 
             for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
-                if species in self.nlte_species:
+                if species in self.nlte_config.species:
                     ground_level_population = self.level_populations[species][0]
                     self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] * \
                                                            np.sum(self.level_populations[
