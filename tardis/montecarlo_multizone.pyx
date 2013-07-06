@@ -286,7 +286,7 @@ cdef class StorageModel:
         self.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] \
                                  - model.tardis_config.spectrum.frequency.value[0]
 
-        cdef np.ndarray[float_type_t, ndim=1] spectrum_virt_nu = model.virtual_spectrum_power
+        cdef np.ndarray[float_type_t, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
         self.spectrum_virt_nu = <float_type_t*> spectrum_virt_nu.data
 
 

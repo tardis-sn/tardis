@@ -308,7 +308,7 @@ class Radial1DModel(object):
             raise ValueError('Some values are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
 
-        self.virtual_spectrum_power = np.zeros_like(self.spectrum.frequency.value)
+        self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)
         montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
         self.last_interaction_type, self.last_line_interaction_shell_id = \
@@ -321,7 +321,7 @@ class Radial1DModel(object):
         self.montecarlo_nu = montecarlo_nu * u.Hz
         self.montecarlo_luminosity = montecarlo_energies *  1 * u.erg / self.time_of_simulation
 
-        montecarlo_reabsorbed_luminosity = np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value < 0],
+        montecarlo_reabsorbed_luminosity = -np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value < 0],
                                          weights=self.montecarlo_luminosity.value[self.montecarlo_luminosity.value < 0],
                                          bins=self.tardis_config.spectrum.frequency.value)[0] \
                                       * self.montecarlo_luminosity.unit
@@ -338,7 +338,9 @@ class Radial1DModel(object):
 
 
         if no_of_virtual_packets > 0:
-            pass
+            self.montecarlo_virtual_luminosity = self.montecarlo_virtual_luminosity \
+                                                 * 1 * u.erg / self.time_of_simulation
+            self.spectrum_virtual.update_luminosity(self.montecarlo_virtual_luminosity)
 
 
 
@@ -465,26 +467,6 @@ class Radial1DModel(object):
         return hdf_store
 
 
-    def plot_spectrum(self, ax, mode='wavelength', virtual=True):
-        if mode == 'wavelength':
-            x = self.spec_angstrom
-            if virtual:
-                y = self.spec_virtual_flux_angstrom
-            else:
-                y = self.spec_flux_angstrom
-            xlabel = 'Wavelength [\AA]'
-            if self.tardis_config.lum_density:
-                ylabel = 'Flux [erg s^-1 cm^-2 \AA^-1]'
-            else:
-                ylabel = 'Flux [erg s^-1 \AA^-1]'
-
-        ax.plot(x, y)
-        ax.set_xlabel(xlabel)
-        ax.set_ylabel(ylabel)
-
-    def save_spectrum(self, prefix):
-        np.savetxt(prefix + '_virtual_spec.dat', zip(self.spec_angstrom, self.spec_virtual_flux_angstrom))
-        np.savetxt(prefix + '_spec.dat', zip(self.spec_angstrom, self.spec_flux_angstrom))
 
 
 class ModelHistory(object):
@@ -647,3 +629,16 @@ class TARDISSpectrum(object):
 
     def f_nu_to_f_lambda(self, f_nu):
         return f_nu * self.frequency.value**2 / constants.c.cgs.value / 1e8
+
+
+    def plot(self, ax, mode='wavelength'):
+        if mode == 'wavelength':
+            ax.plot(self.wavelength.value, self.flux_lambda.value)
+            ax.set_xlabel('Wavelength [%s]' % self.wavelength.unit._repr_latex_())
+            ax.set_ylabel('Flux [%s]' % self.flux_lambda.unit._repr_latex_())
+
+
+
+    def save_spectrum(self, prefix):
+        np.savetxt(prefix + '_virtual_spec.dat', zip(self.spec_angstrom, self.spec_virtual_flux_angstrom))
+        np.savetxt(prefix + '_spec.dat', zip(self.spec_angstrom, self.spec_flux_angstrom))
