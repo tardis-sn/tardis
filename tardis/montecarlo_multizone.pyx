@@ -190,7 +190,7 @@ cdef class StorageModel:
         self.line_lists_tau_sobolevs = <float_type_t*> self.line_lists_tau_sobolevs_a.data
         self.line_lists_tau_sobolevs_nd = self.line_lists_tau_sobolevs_a.shape[1]
 
-        cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blues
+        cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blue_estimators
         model.j_blues[:] = 0.0
         self.line_lists_j_blues_a = line_lists_j_blues
         self.line_lists_j_blues = <float_type_t*> self.line_lists_j_blues_a.data
