@@ -102,32 +102,17 @@ class Radial1DModel(object):
         self.iterations_remaining = self.iterations_max_requested - 1
         self.iterations_executed = 0
 
-        #self.sigma_thomson = tardis_config.sigma_thomson
-
-#        self.spec_nu_bins = np.linspace(tardis_config.spectrum_start_nu.value, tardis_config.spectrum_end_nu.value,
-#                                        tardis_config.spectrum_bins + 1)
-#        self.spec_nu = self.spec_nu_bins[:-1]
-
-#        self.spec_virtual_flux_nu = np.zeros_like(self.spec_nu)
-
-#        self.spec_angstrom = u.Unit('Hz').to('angstrom', self.spec_nu, u.spectral())
-
-#        self.spec_flux_angstrom = np.ones_like(self.spec_angstrom)
-#        self.spec_virtual_flux_angstrom = np.ones_like(self.spec_angstrom)
-
-
-        #reading the convergence criteria
-
 
         if tardis_config.montecarlo.convergence.type == 'specific':
             self.global_convergence_parameters = tardis_config.global_convergence_parameters.copy()
 
         self.t_rads = tardis_config.plasma.t_rads
-        self.ws = np.zeros_like(tardis_config.structure.r_inner.value)
+
         self.tau_sobolevs = np.zeros((no_of_shells, len(self.atom_data.lines)))
 
         if tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom') or\
                 tardis_config.plasma.nlte.species:
+            self.j_blue_estimators = np.zeros_like(self.tau_sobolevs)
             self.j_blues = np.zeros_like(self.tau_sobolevs)
             j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
                            (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes.value)
@@ -136,20 +121,17 @@ class Radial1DModel(object):
             self.transition_probabilities = np.zeros((no_of_shells, len(self.atom_data.macro_atom_data.lines_idx)))
 
 
-
-        self.calculate_j_blues()
         self.plasmas = []
 
-
+        self.ws = (0.5 * (1 - np.sqrt(1 -
+                    (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
         for i in xrange(no_of_shells):
             if tardis_config.plasma.type == 'lte':
-                self.ws[i] = 1.0
 
                 current_plasma_class = plasma.LTEPlasma
 
             elif tardis_config.plasma.type == 'nebular':
-                self.ws[i] = (0.5 * (1 - np.sqrt(1 -
-                    (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle[i] ** 2).to(1).value)))
+
                 current_plasma_class = plasma.NebularPlasma
 
             current_plasma = current_plasma_class(t_rad=self.t_rads[i].value,
@@ -200,31 +182,29 @@ class Radial1DModel(object):
         self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
 
 
-    def create_packets(self):
-        #Energy emitted from the inner boundary
+    def calculate_j_blues(self, init_detailed_j_blues=False):
+        nus = self.atom_data.lines.nu.values
+        t_rads = self.t_rads.value.reshape((self.tardis_config.structure.no_of_shells, 1))
+        ws = self.ws.reshape((self.tardis_config.structure.no_of_shells, 1))
+        radiative_rates_type = self.tardis_config.plasma.radiative_rates_type
+        w_epsilon = self.tardis_config.plasma.w_epsilon
 
-        no_of_packets = self.current_no_of_packets
-        self.packet_src.create_packets(no_of_packets, self.t_inner.value)
+        if radiative_rates_type == 'lte':
+            logger.info('Calculating J_blues for radiate_rates_type=lte')
+            self.j_blues = plasma.intensity_black_body(nus, t_rads)
+        elif radiative_rates_type == 'nebular' or init_detailed_j_blues:
+            logger.info('Calculating J_blues for radiate_rates_type=nebular')
+            self.j_blues = ws * plasma.intensity_black_body(nus, t_rads)
+        elif radiative_rates_type == 'detailed':
+            logger.info('Calculating J_blues for radiate_rates_type=nebular')
+            self.j_blues = self.j_blue_estimators * self.j_blues_norm_factor.value
+            for i in xrange(self.tardis_config.structure.no_of_shells):
+                zero_j_blues = self.j_blues[i] == 0.0
+                self.j_blues[i][zero_j_blues] = w_epsilon * plasma.intensity_black_body(
+                    self.atom_data.lines.nu.values[zero_j_blues], self.t_rads.value[i])
 
-    def calculate_transition_probabilities(self):
-        self.transition_probabilities = []
-
-        for current_plasma in self.plasmas:
-            self.transition_probabilities.append(current_plasma.calculate_transition_probabilities().values)
-
-        self.transition_probabilities = np.array(self.transition_probabilities, dtype=np.float64)
-
-    def calculate_j_blues(self):
-        pass
 
 
-
-    def normalize_j_blues(self):
-        self.j_blues *= self.j_blues_norm_factor.value
-        for i, current_j_blue in enumerate(self.j_blues):
-            nus = self.atom_data.lines.nu[current_j_blue == 0.0].values
-            self.j_blues[i][self.j_blues[i] == 0.0] = self.tardis_config.plasma.w_epsilon * \
-                                                      intensity_black_body(nus, self.plasmas[i].t_rad)
 
 
     def calculate_updated_radiationfield(self, nubar_estimator, j_estimator):
@@ -262,18 +242,7 @@ class Radial1DModel(object):
         for i in xrange(self.tardis_config.structure.no_of_shells):
         #for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
             logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, self.t_rads[i].value, self.ws[i]))
-            radiative_rates_type = self.tardis_config.plasma.radiative_rates_type
-            if radiative_rates_type == 'lte':
-                j_blues = plasma.intensity_black_body(self.atom_data.lines.nu.values, self.t_rads[i].value)
-            elif radiative_rates_type == 'nebular':
-                j_blues = self.ws[i] * plasma.intensity_black_body(self.atom_data.lines.nu.values, self.t_rads[i].value)
-            elif radiative_rates_type == 'detailed':
-                j_blues = self.j_blues[i]
-            else:
-                raise ValueError('For the current plasma_type (%s) the radiative_rates_type can only'
-                                 ' be "lte" or "detailed" or "nebular"' % (self.plasma_type))
-
-            self.plasmas[i].set_j_blues(j_blues)
+            self.plasmas[i].set_j_blues(self.j_blues[i])
             if self.tardis_config.plasma.type == 'lte':
                 current_ws = 1.0
             elif self.tardis_config.plasma.type == 'nebular':
@@ -282,22 +251,24 @@ class Radial1DModel(object):
             self.plasmas[i].update_radiationfield(self.t_rads[i].value, w=current_ws)
             self.tau_sobolevs[i] = self.plasmas[i].tau_sobolevs
 
-        if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
-            self.calculate_transition_probabilities()
+            if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
+                self.transition_probabilities[i] = self.plasmas[i].calculate_transition_probabilities()
 
 
 
 
-    def simulate(self, update_radiation_field=True, enable_virtual=False):
+    def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False):
         """
         Run a simulation
         """
 
-        self.create_packets()
+        self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
+        self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
+        self.update_plasmas()
+
 
         if update_radiation_field:
             self.update_radiationfield()
-            self.update_plasmas()
 
 
         if enable_virtual:
@@ -314,9 +285,6 @@ class Radial1DModel(object):
         self.last_interaction_type, self.last_line_interaction_shell_id = \
             montecarlo_multizone.montecarlo_radial1d(self,
                                                      virtual_packet_flag=no_of_virtual_packets)
-
-
-        self.normalize_j_blues()
 
         self.montecarlo_nu = montecarlo_nu * u.Hz
         self.montecarlo_luminosity = montecarlo_energies *  1 * u.erg / self.time_of_simulation
