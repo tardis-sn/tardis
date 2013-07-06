@@ -373,12 +373,12 @@ def parse_supernova_section(supernova_dict):
     config_dict = {}
 
     #parse luminosity
-    luminosity_value, luminosity_unit = supernova_dict['luminosity'].strip().split()
+    luminosity_value, luminosity_unit = supernova_dict['luminosity_requested'].strip().split()
 
     if luminosity_unit == 'log_lsun':
-        config_dict['luminosity'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value)) * u.erg / u.s
+        config_dict['luminosity_requested'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value)) * u.erg / u.s
     else:
-        config_dict['luminosity'] = (float(luminosity_value) * u.Unit(luminosity_unit)).to('erg/s')
+        config_dict['luminosity_requested'] = (float(luminosity_value) * u.Unit(luminosity_unit)).to('erg/s')
 
     config_dict['time_explosion'] = parse_quantity(supernova_dict['time_explosion']).to('s')
 
@@ -634,7 +634,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         if 'initial_t_inner' in plasma_section:
             plasma_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner']).to('K')
         else:
-            plasma_config_dict['t_inner'] = (((config_dict['supernova']['luminosity'] / \
+            plasma_config_dict['t_inner'] = (((config_dict['supernova']['luminosity_requested'] / \
                                             (4 * np.pi * r_inner[0]**2 * constants.sigma_sb))**.5)**.5).to('K')
             logger.info('"initial_t_inner" is not specified in the plasma section - '
                         'initializing to %s with given luminosity', plasma_config_dict['t_inner'])
