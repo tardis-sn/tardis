@@ -17,8 +17,8 @@ def run_radial1d(radial1d_model, save_history=None):
 
     #Finished second to last loop running one more time
     logger.info('Doing last run')
-    if radial1d_model.tardis_config.last_no_of_packets is not None:
-        radial1d_model.current_no_of_packets = radial1d_model.tardis_config.last_no_of_packets
+    if radial1d_model.tardis_config.montecarlo.last_no_of_packets is not None:
+        radial1d_model.current_no_of_packets = radial1d_model.tardis_config.montecarlo.last_no_of_packets
 
     radial1d_model.simulate(enable_virtual=True, update_radiation_field=False)
 
