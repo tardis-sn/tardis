@@ -724,35 +724,38 @@ class BasePlasma(object):
                 phi = phis.ix[atomic_number, ion_number]
 
 
-    def to_hdf5(self, hdf5_store, path):
+    def to_hdf5(self, hdf5_store, path, mode='full'):
         """
 
         param hdf5_store:
         :param path:
         :return:
         """
+        if mode == 'full':
+            partition_functions_path = os.path.join(path, 'partition_functions')
+            self.partition_functions.to_hdf(hdf5_store, partition_functions_path)
 
-        partition_functions_path = os.path.join(path, 'partition_functions')
-        self.partition_functions.to_hdf(hdf5_store, partition_functions_path)
+            ion_populations_path = os.path.join(path, 'ion_populations')
+            self.ion_populations.to_hdf(hdf5_store, ion_populations_path)
 
-        ion_populations_path = os.path.join(path, 'ion_populations')
-        self.ion_populations.to_hdf(hdf5_store, ion_populations_path)
+            level_populations_path = os.path.join(path, 'level_populations')
+            self.level_populations.to_hdf(hdf5_store, level_populations_path)
 
-        level_populations_path = os.path.join(path, 'level_populations')
-        self.level_populations.to_hdf(hdf5_store, level_populations_path)
+            j_blues_path = os.path.join(path, 'j_blues')
+            pd.Series(self.j_blues).to_hdf(hdf5_store, j_blues_path)
 
-        j_blues_path = os.path.join(path, 'j_blues')
-        pd.Series(self.j_blues).to_hdf(hdf5_store, j_blues_path)
+            number_density_path = os.path.join(path, 'number_density')
+            self.number_density.to_hdf(hdf5_store, number_density_path)
 
-        number_density_path = os.path.join(path, 'number_density')
-        self.number_density.to_hdf(hdf5_store, number_density_path)
+            tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
+            pd.Series(self.tau_sobolevs).to_hdf(hdf5_store, tau_sobolevs_path)
 
-        tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
-        pd.Series(self.tau_sobolevs).to_hdf(hdf5_store, tau_sobolevs_path)
+            transition_probabilities_path = os.path.join(path, 'transition_probabilities')
+            transition_probabilities = self.calculate_transition_probabilities()
+            pd.Series(transition_probabilities).to_hdf(hdf5_store, transition_probabilities_path)
 
-        transition_probabilities_path = os.path.join(path, 'transition_probabilities')
-        transition_probabilities = self.calculate_transition_probabilities()
-        pd.Series(transition_probabilities).to_hdf(hdf5_store, transition_probabilities_path)
+        else:
+            raise NotImplementedError('Currently only mode="full" is supported.')
 
 
 class LTEPlasma(BasePlasma):

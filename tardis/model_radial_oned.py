@@ -5,17 +5,14 @@ import plasma, packet_source
 import logging
 
 import pandas as pd
-from pandas.io.pytables import HDFStore
+from pandas import HDFStore
 from astropy import constants, units as u
 import montecarlo_multizone
 import os
-import yaml
 
 import scipy.special
 
 import itertools
-from tardis import config_reader
-from tardis.plasma import intensity_black_body
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +74,20 @@ class Radial1DModel(object):
 
     """
 
+    @classmethod
+    def from_h5(cls, buffer_or_fname):
+
+        if isinstance(buffer_or_fname, basestring):
+            hdf_store = pd.HDFStore(buffer_or_fname)
+        elif isinstance(buffer_or_fname, pd.HDFStore):
+            hdf_store = buffer_or_fname
+        else:
+            raise IOError('Please specify either a filename or an HDFStore')
+
+        hdf_store
+        config_reader
+
+        return cls()
 
     def __init__(self, tardis_config):
         #final preparation for configuration object
@@ -396,19 +407,19 @@ class Radial1DModel(object):
         logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
 
 
-    def to_hdf5(self, buffer_or_fname, path=''):
+    def to_hdf5(self, buffer_or_fname, path='', close_h5=True):
         if isinstance(buffer_or_fname, basestring):
             hdf_store = pd.HDFStore(buffer_or_fname)
         elif isinstance(buffer_or_fname, pd.HDFStore):
             hdf_store = buffer_or_fname
         else:
             raise IOError('Please specify either a filename or an HDFStore')
-
+        logger.info('Writing to path %s', path)
         for i, plasma in enumerate(self.plasmas):
             plasma.to_hdf5(hdf_store, os.path.join(path, 'plasma%d' % i))
 
         t_rads_path = os.path.join(path, 't_rads')
-        pd.Series(self.t_rads).to_hdf(hdf_store, t_rads_path)
+        pd.Series(self.t_rads.value).to_hdf(hdf_store, t_rads_path)
 
         ws_path = os.path.join(path, 'ws')
         pd.Series(self.ws).to_hdf(hdf_store, ws_path)
@@ -425,14 +436,20 @@ class Radial1DModel(object):
         last_line_interaction_shell_id_path = os.path.join(path, 'last_line_interaction_shell_id')
         pd.Series(self.last_line_interaction_shell_id).to_hdf(hdf_store, last_line_interaction_shell_id_path)
 
-        spectrum = pd.DataFrame.from_dict(dict(wave=self.spec_angstrom, flux=self.spec_flux_angstrom))
+        spectrum = pd.DataFrame.from_dict(dict(wave=self.spectrum.wavelength.value, flux=self.spectrum.flux_lambda.value))
         spectrum.to_hdf(hdf_store, os.path.join(path, 'spectrum'))
 
-        spectrum_virtual = pd.DataFrame.from_dict(dict(wave=self.spec_angstrom, flux=self.spec_virtual_flux_angstrom))
-        spectrum_virtual.to_hdf(hdf_store, os.path.join(path, 'spectrum_virtual'))
+        if self.spectrum_virtual.flux_lambda is not None:
+            spectrum_virtual = pd.DataFrame.from_dict(dict(wave=self.spectrum_virtual.wavelength.value,
+                                                           flux=self.spectrum_virtual.flux_lambda.value))
+
+            spectrum_virtual.to_hdf(hdf_store, os.path.join(path, 'spectrum_virtual'))
 
         hdf_store.flush()
-        return hdf_store
+        if close_h5:
+            hdf_store.close()
+        else:
+            return hdf_store
 
 
 
