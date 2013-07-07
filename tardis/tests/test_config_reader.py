@@ -62,7 +62,7 @@ def test_element_symbol2atomic_number():
 def test_species_string_to_species():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_species_string_to_species_tuple(species_string, species_tuple):
-        assert config_reader.parse_species_string(species_string, atom_data) == species_tuple
+        assert config_reader.species_string_to_tuple(species_string, atom_data) == species_tuple
 
     data = [('si ii', (14, 1) ),
             ('si 2', (14, 1)),

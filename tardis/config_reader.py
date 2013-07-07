@@ -10,7 +10,7 @@ import logging
 import numpy as np
 import os
 import h5py
-import re
+
 import pandas as pd
 from tardis import atomic
 import yaml
@@ -88,7 +88,17 @@ def element_symbol2atomic_number(element_string, atom_data):
         raise TardisMalformedElementSymbolError(element_string)
     return atom_data.symbol2atomic_number[reformatted_element_string]
 
-def parse_species_string(species_string, atom_data):
+
+def species_tuple_to_string(species_tuple, atom_data, roman_numerals=True):
+    atomic_number, ion_number = species_tuple
+    element_symbol = atom_data.atomic_number2symbol[atomic_number]
+    if roman_numerals:
+        roman_ion_number = tardis.util.int_to_roman(ion_number+1)
+        return '%s %s' % (element_symbol, roman_ion_number)
+    else:
+        return '%s %d' % (element_symbol, ion_number)
+
+def species_string_to_tuple(species_string, atom_data):
     try:
         element_string, ion_number_string = species_string.split()
     except ValueError:
@@ -548,7 +558,8 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         if 'file' in structure_section:
             density_file_section = structure_section.pop('file')
             v_inner, v_outer, mean_densities, min_shell, max_shell = parse_density_file_section(density_file_section,
-                                                                                                config_dict['time_explosion'])
+                                                                                                config_dict['supernova']
+                                                                                                ['time_explosion'])
 
             no_of_shells = len(v_inner)
             if structure_section != {}:
@@ -660,7 +671,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             if 'species' in nlte_section:
                 nlte_species_list = nlte_section.pop('species')
                 for species_string in nlte_species_list:
-                    nlte_species.append(parse_species_string(species_string, atom_data))
+                    nlte_species.append(species_string_to_tuple(species_string, atom_data))
 
                 nlte_config_dict['species'] = nlte_species
                 nlte_config_dict.update(nlte_section)

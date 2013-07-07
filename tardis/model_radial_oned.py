@@ -121,15 +121,13 @@ class Radial1DModel(object):
 
         self.tau_sobolevs = np.zeros((no_of_shells, len(self.atom_data.lines)))
 
-        if tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom') or\
-                tardis_config.plasma.nlte.species:
-            self.j_blue_estimators = np.zeros_like(self.tau_sobolevs)
-            self.j_blues = np.zeros_like(self.tau_sobolevs)
-            j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
-                           (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes.value)
-            self.j_blues_norm_factor = j_blues_norm_factor.value.reshape((no_of_shells, 1)) * j_blues_norm_factor.unit
+        self.j_blue_estimators = np.zeros_like(self.tau_sobolevs)
+        self.j_blues = np.zeros_like(self.tau_sobolevs)
+        j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
+                       (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes.value)
+        self.j_blues_norm_factor = j_blues_norm_factor.value.reshape((no_of_shells, 1)) * j_blues_norm_factor.unit
 
-            self.transition_probabilities = np.zeros((no_of_shells, len(self.atom_data.macro_atom_data.lines_idx)))
+        self.transition_probabilities = np.zeros((no_of_shells, len(self.atom_data.macro_atom_data.lines_idx)))
 
 
         self.plasmas = []
@@ -436,14 +434,15 @@ class Radial1DModel(object):
         last_line_interaction_shell_id_path = os.path.join(path, 'last_line_interaction_shell_id')
         pd.Series(self.last_line_interaction_shell_id).to_hdf(hdf_store, last_line_interaction_shell_id_path)
 
-        spectrum = pd.DataFrame.from_dict(dict(wave=self.spectrum.wavelength.value, flux=self.spectrum.flux_lambda.value))
-        spectrum.to_hdf(hdf_store, os.path.join(path, 'spectrum'))
+        luminosity_density = pd.DataFrame.from_dict(dict(wave=self.spectrum.wavelength.value,
+                                                         flux=self.spectrum.luminosity_density_lambda.value))
 
-        if self.spectrum_virtual.flux_lambda is not None:
-            spectrum_virtual = pd.DataFrame.from_dict(dict(wave=self.spectrum_virtual.wavelength.value,
-                                                           flux=self.spectrum_virtual.flux_lambda.value))
+        luminosity_density.to_hdf(hdf_store, os.path.join(path, 'luminosity_density'))
 
-            spectrum_virtual.to_hdf(hdf_store, os.path.join(path, 'spectrum_virtual'))
+        if self.spectrum_virtual.luminosity_density_lambda is not None:
+            luminosity_density_virtual = pd.DataFrame.from_dict(dict(wave=self.spectrum_virtual.wavelength.value,
+                                                           flux=self.spectrum_virtual.luminosity_density_lambda.value))
+            luminosity_density_virtual.to_hdf(hdf_store, os.path.join(path, 'luminosity_density_virtual'))
 
         hdf_store.flush()
         if close_h5:
