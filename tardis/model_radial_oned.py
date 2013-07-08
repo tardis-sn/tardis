@@ -78,15 +78,7 @@ class Radial1DModel(object):
     @classmethod
     def from_h5(cls, buffer_or_fname):
         raise NotImplementedError("This is currently not implemented")
-        if isinstance(buffer_or_fname, basestring):
-            hdf_store = pd.HDFStore(buffer_or_fname)
-        elif isinstance(buffer_or_fname, pd.HDFStore):
-            hdf_store = buffer_or_fname
-        else:
-            raise IOError('Please specify either a filename or an HDFStore')
 
-
-        return cls()
 
     def __init__(self, tardis_config):
         #final preparation for configuration object
