@@ -115,14 +115,14 @@ class ModelViewer(QtGui.QWidget):
     def change_model(self, model):
         self.model = model
         self.tablemodel.arraydata = []
-        self.tablemodel.addData(model.t_rads.tolist())
+        self.tablemodel.addData(model.t_rads.value.tolist())
         self.tablemodel.addData(model.ws.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
-        self.change_spectrum(self.model.spec_virtual_flux_angstrom, 'spec_virtual_flux_angstrom')
+        self.change_spectrum(self.model.spectrum.luminosity_density_lambda.value, 'spec_virtual_flux_angstrom')
 
     def change_spectrum_to_spec_flux_angstrom(self):
-        self.change_spectrum(self.model.spec_flux_angstrom, 'spec_flux_angstrom')
+        self.change_spectrum(self.model.spectrum.wavelength.value, 'spec_flux_angstrom')
 
     def change_spectrum(self, data, name):
         self.spectrum_button.setText(name)
@@ -136,14 +136,14 @@ class ModelViewer(QtGui.QWidget):
         self.spectrum.ax.set_title('Spectrum')
         self.spectrum.ax.set_xlabel('Wavelength (A)')
         self.spectrum.ax.set_ylabel('Intensity')
-        self.spectrum.dataplot = self.spectrum.ax.plot(self.model.spec_angstrom, self.model.spec_flux_angstrom, label='b')
+        self.spectrum.dataplot = self.spectrum.ax.plot(self.model.spectrum.wavelength.value, self.model.spectrum.luminosity_density_lambda.value, label='b')
         self.spectrum.draw()
 
     def change_graph_to_ws(self):
         self.change_graph(self.model.ws, 'Ws', '')
 
     def change_graph_to_t_rads(self):
-        self.change_graph(self.model.t_rads, 't_rads', '(K)')
+        self.change_graph(self.model.t_rads.value, 't_rads', '(K)')
 
     def change_graph(self, data, name, unit):
         self.graph_button.setText(name)
@@ -170,31 +170,31 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax1.set_xlabel('Shell Number')
         self.graph.ax1.set_ylabel('t_rads (K)')
         self.graph.ax1.yaxis.get_major_formatter().set_powerlimits((0, 1))
-        self.graph.dataplot = self.graph.ax1.plot(range(len(self.model.t_rads)), self.model.t_rads)
+        self.graph.dataplot = self.graph.ax1.plot(range(len(self.model.t_rads.value)), self.model.t_rads.value)
         self.graph.ax2.clear()
         self.graph.ax2.set_title('Shell View')
         self.graph.ax2.set_xlabel('Distance from Center (cm)')
         self.graph.ax2.set_ylabel('Distance from Center (cm)')
         self.shells = []
-        t_rad_normalizer = colors.Normalize(vmin=self.model.t_rads.min(), vmax=self.model.t_rads.max())
+        t_rad_normalizer = colors.Normalize(vmin=self.model.t_rads.value.min(), vmax=self.model.t_rads.value.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
-        t_rad_color_map.set_array(self.model.t_rads)
+        t_rad_color_map.set_array(self.model.t_rads.value)
         if self.graph.cb:
-            self.graph.cb.set_clim(vmin=self.model.t_rads.min(), vmax=self.model.t_rads.max())
+            self.graph.cb.set_clim(vmin=self.model.t_rads.value.min(), vmax=self.model.t_rads.value.max())
             self.graph.cb.update_normal(t_rad_color_map)
         else:
             self.graph.cb = self.graph.figure.colorbar(t_rad_color_map)
             self.graph.cb.set_label('T (K)')
-        self.graph.normalizing_factor = 0.2 * (self.model.r_outer[-1] - self.model.r_inner[0]) / self.model.r_inner[0]
+        self.graph.normalizing_factor = 0.2 * (self.model.tardis_config.structure.r_outer.value[-1] - self.model.tardis_config.structure.r_inner.value[0]) / self.model.tardis_config.structure.r_inner.value[0]
         #self.graph.normalizing_factor = 8e-16
-        for i, t_rad in enumerate(self.model.t_rads):
-            r_inner = self.model.r_inner[i] * self.graph.normalizing_factor
-            r_outer = self.model.r_outer[i] * self.graph.normalizing_factor
+        for i, t_rad in enumerate(self.model.t_rads.value):
+            r_inner = self.model.tardis_config.structure.r_inner.value[i] * self.graph.normalizing_factor
+            r_outer = self.model.tardis_config.structure.r_outer.value[i] * self.graph.normalizing_factor
             self.shells.append(Shell(i, (0,0), r_inner, r_outer, facecolor=t_rad_color_map.to_rgba(t_rad),
                                      picker=self.graph.shell_picker))
             self.graph.ax2.add_patch(self.shells[i])
-        self.graph.ax2.set_xlim(0, self.model.r_outer[-1] * self.graph.normalizing_factor)
-        self.graph.ax2.set_ylim(0, self.model.r_outer[-1] * self.graph.normalizing_factor)
+        self.graph.ax2.set_xlim(0, self.model.tardis_config.structure.r_outer.value[-1] * self.graph.normalizing_factor)
+        self.graph.ax2.set_ylim(0, self.model.tardis_config.structure.r_outer.value[-1] * self.graph.normalizing_factor)
         #self.graph.gs.tight_layout(self.graph.figure)
         self.graph.draw()
 
