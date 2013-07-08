@@ -1,12 +1,17 @@
 import logging
 import time
 from pandas import HDFStore
+import os
+
 # Adding logging support
 logger = logging.getLogger(__name__)
 
 
 def run_radial1d(radial1d_model, history_fname=None):
     if history_fname:
+        if os.path.exists(history_fname):
+            logger.warn('History file %s exists - it will be overwritten', history_fname)
+            os.system('rm %s' % history_fname)
         history_buffer = HDFStore(history_fname)
 
     start_time = time.time()
@@ -29,7 +34,7 @@ def run_radial1d(radial1d_model, history_fname=None):
     radial1d_model.simulate(enable_virtual=True, update_radiation_field=False)
 
     if history_fname:
-        radial1d_model.to_hdf5(history_fname, path='model%d' % radial1d_model.iterations_executed)
+        radial1d_model.to_hdf5(history_buffer, path='model%d' % radial1d_model.iterations_executed)
 
 
 
