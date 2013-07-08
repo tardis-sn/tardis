@@ -9,6 +9,7 @@ from pandas import HDFStore
 from astropy import constants, units as u
 import montecarlo_multizone
 import os
+import re
 
 import scipy.special
 
@@ -76,7 +77,7 @@ class Radial1DModel(object):
 
     @classmethod
     def from_h5(cls, buffer_or_fname):
-
+        raise NotImplementedError("This is currently not implemented")
         if isinstance(buffer_or_fname, basestring):
             hdf_store = pd.HDFStore(buffer_or_fname)
         elif isinstance(buffer_or_fname, pd.HDFStore):
@@ -84,8 +85,6 @@ class Radial1DModel(object):
         else:
             raise IOError('Please specify either a filename or an HDFStore')
 
-        hdf_store
-        config_reader
 
         return cls()
 
@@ -478,110 +477,58 @@ class Radial1DModel(object):
 
 
 
-class ModelHistory(object):
+class TARDISHistory(object):
     """
     Records the history of the model
     """
-    _store_attributes = ['t_rads', 'ws', 'electron_density', 'j_blues', 'tau_sobolevs']
+
 
     @classmethod
     def from_hdf5(cls, fname):
-        history_store = HDFStore(fname)
-        for attribute in cls._store_attributes:
-            setattr(cls, attribute, history_store[attribute])
-        history_store.close()
+        hdf_store = HDFStore(fname)
+        iterations = []
+        for key in hdf_store.keys():
+            iterations.append(int(re.match('model(\d+)', key.split('/')[1]).groups()[0]))
 
-    @classmethod
-    def from_tardis_config(cls, tardis_config, store_t_rads=False, store_ws=False, store_convergence=False,
-                           store_electron_density=False,
-                           store_level_populations=False, store_j_blues=False, store_tau_sobolevs=False,
-                           store_t_inner=False):
+        iterations = np.sort(np.unique(iterations))
+
         history = cls()
-        cls.store_t_rads = store_t_rads
-        cls.store_ws = store_ws
-        cls.store_electron_density = store_electron_density
-        cls.store_level_populations = store_level_populations
-        cls.store_j_blues = store_j_blues
-        cls.store_tau_sobolves = store_tau_sobolevs
-        cls.store_convergence = store_convergence
-        cls.store_t_inner = store_t_inner
+        no_of_shell = len(hdf_store['model1/t_rads'].index)
+        t_rads_dict = {}
+        ws_dict = {}
+        level_populations_dict = {}
+        ion_populations_dict = {}
 
-        if store_t_rads:
-            history.t_rads = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        if store_ws:
-            history.ws = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        if store_electron_density:
-            history.electron_density = pd.DataFrame(index=np.arange(tardis_config.no_of_shells))
-        if store_level_populations:
-            history.level_populations = {}
-        if store_j_blues:
-            history.j_blues = {}
-        if store_tau_sobolevs:
-            history.tau_sobolevs = {}
+        history.iterations = iterations
 
-        if store_convergence:
-            history.convergence_panel = {}
+        for iter in iterations:
+            current_iter = 'iter%d' % iter
+            t_rads_dict[current_iter] = hdf_store['model%d/t_rads' % iter]
+            ws_dict[current_iter] = hdf_store['model%d/ws' % iter]
+            level_populations_dict[current_iter] = hdf_store['model%d/level_populations' % iter]
+            ion_populations_dict[current_iter] = hdf_store['model%d/ion_populations' % iter]
 
-        if store_t_inner:
-            history.t_inner = []
+            for index in ion_populations_dict[current_iter].index:
+                level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
+                                                                      ion_populations_dict[current_iter].ix[index])
 
-        history.iteration_counter = itertools.count()
+
+
+
+
+        history.t_rads = pd.DataFrame(t_rads_dict)
+        history.ws = pd.DataFrame(ws_dict)
+        history.level_populations = pd.Panel(level_populations_dict)
+        history.ion_populations = pd.Panel(ion_populations_dict)
 
         return history
 
+    def plot_level_evolution(self, level_index, shell):
+        for iter in self.iterations:
+            pass
 
-    def store(self, radial1d_mdl):
-        iteration = self.iteration_counter.next()
-        if self.store_t_rads:
-            self.t_rads['iter%03d' % iteration] = radial1d_mdl.t_rads
-        if self.store_ws:
-            self.ws['iter%03d' % iteration] = radial1d_mdl.ws
 
-        if self.store_t_inner:
-            self.t_inner.append(radial1d_mdl.t_inner)
-        if self.store_electron_density:
-            self.electron_density['iter%03d' % iteration] = radial1d_mdl.electron_density
 
-        if self.store_level_populations:
-            current_level_populations = pd.DataFrame(index=radial1d_mdl.atom_data.levels.index)
-        if self.store_j_blues:
-            current_j_blues = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
-        if self.store_tau_sobolves:
-            current_tau_sobolevs = pd.DataFrame(index=radial1d_mdl.atom_data.lines.index)
-        for i, plasma in enumerate(radial1d_mdl.plasmas):
-            if self.store_level_populations:
-                current_level_populations[i] = plasma.level_populations
-            if self.store_j_blues:
-                current_j_blues[i] = plasma.j_blues
-            if self.store_tau_sobolves:
-                current_tau_sobolevs[i] = plasma.tau_sobolevs
-        if self.store_level_populations:
-            self.level_populations['iter%03d' % iteration] = current_level_populations.copy()
-        if self.store_j_blues:
-            self.j_blues['iter%03d' % iteration] = current_j_blues.copy()
-        if self.store_tau_sobolves:
-            self.tau_sobolevs['iter%03d' % iteration] = current_tau_sobolevs.copy()
-        if self.store_convergence:
-            self.convergence_panel['iter%03d' % iteration] = radial1d_mdl.temperature_logging.copy()
-
-    def finalize(self):
-        if self.store_level_populations:
-            self.level_populations = pd.Panel.from_dict(self.level_populations)
-        if self.store_j_blues:
-            self.j_blues = pd.Panel.from_dict(self.j_blues)
-        if self.store_tau_sobolves:
-            self.tau_sobolevs = pd.Panel.from_dict(self.tau_sobolevs)
-
-        if self.store_convergence:
-            self.convergence_panel = pd.Panel.from_dict(self.convergence_panel)
-
-    def to_hdf5(self, fname, complevel=9, complib='bzip2'):
-        if os.path.exists(fname):
-            logger.warning('Overwrite %s with current history', fname)
-        history_store = HDFStore(fname, mode='w', complevel=complevel, complib=complib)
-        for attribute in self._store_attributes:
-            history_store[attribute] = getattr(self, attribute)
-        history_store.close()
 
 
 class TARDISSpectrum(object):
