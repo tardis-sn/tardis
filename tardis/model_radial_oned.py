@@ -413,8 +413,33 @@ class Radial1DModel(object):
         else:
             raise IOError('Please specify either a filename or an HDFStore')
         logger.info('Writing to path %s', path)
-        for i, plasma in enumerate(self.plasmas):
-            plasma.to_hdf5(hdf_store, os.path.join(path, 'plasma%d' % i))
+
+
+        level_populations_path = os.path.join(path, 'level_populations')
+        level_populations = np.zeros((self.tardis_config.structure.no_of_shells,
+                                      len(self.plasmas[0].level_populations)))
+
+        ion_populations_path = os.path.join(path, 'ion_populations')
+        ion_populations = np.zeros((self.tardis_config.structure.no_of_shells,
+                                    len(self.plasmas[0].ion_populations)))
+
+        for i in xrange(self.tardis_config.structure.no_of_shells):
+            level_populations[i] = self.plasmas[i].level_populations.values
+            ion_populations[i] = self.plasmas[i].ion_populations.values
+
+
+
+        pd.DataFrame(level_populations.transpose(), index=self.atom_data.levels.index).to_hdf(hdf_store,
+                                                                                              level_populations_path)
+        pd.DataFrame(ion_populations.transpose(), index=self.plasmas[0].ion_populations.index).to_hdf(hdf_store,
+                                                                                                      ion_populations_path)
+
+        tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
+        pd.DataFrame(self.tau_sobolevs.transpose(), index=self.atom_data.lines.index).to_hdf(hdf_store,
+                                                                                             tau_sobolevs_path)
+
+        j_blues_path = os.path.join(path, 'j_blues')
+        pd.DataFrame(self.j_blues.transpose(), index=self.atom_data.lines.index).to_hdf(hdf_store, j_blues_path)
 
         t_rads_path = os.path.join(path, 't_rads')
         pd.Series(self.t_rads.value).to_hdf(hdf_store, t_rads_path)
