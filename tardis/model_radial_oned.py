@@ -173,7 +173,7 @@ class Radial1DModel(object):
             #final preparation for atom_data object - currently building data
             self.atom_data.prepare_atom_data(self.tardis_config.number_densities.columns,
                                              line_interaction_type=self.line_interaction_type, max_ion_number=None,
-                                             nlte_species=self.tardis_config.nlte_species)
+                                             nlte_species=self.tardis_config.plasma.nlte.species)
         else:
             raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
 
