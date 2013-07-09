@@ -17,7 +17,7 @@ h_cgs = constants.h.cgs.value
 m_e_cgs = constants.m_e.cgs.value
 e_charge_gauss = constants.e.gauss.value
 
-#Defining soboleve constant
+#Defining sobolev constant
 sobolev_coefficient = ((np.pi * e_charge_gauss ** 2) / ( m_e_cgs * c_cgs))
 
 
@@ -148,7 +148,7 @@ class BasePlasma(object):
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+                 nlte_config=None, zone_id=None, saha_treatment='lte'):
         self.number_density = number_density
         self.electron_density = self.number_density.sum()
 
@@ -169,11 +169,8 @@ class BasePlasma(object):
 
         self.time_explosion = time_explosion
 
-        self.nlte_species = nlte_species
-        self.nlte_options = nlte_options
+        self.nlte_config = nlte_config
         self.zone_id = zone_id
-
-        self.update_radiationfield(self.t_rad, self.w)
 
     #Properties
 
@@ -256,7 +253,7 @@ class BasePlasma(object):
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
-        if self.nlte_species != []:
+        if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
 
         if self.initialize:
@@ -312,7 +309,7 @@ class BasePlasma(object):
                 raise ValueError("Called calculate partition_functions without initializing at least once")
 
             for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
-                if species in self.nlte_species:
+                if species in self.nlte_config.species:
                     ground_level_population = self.level_populations[species][0]
                     self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] * \
                                                            np.sum(self.level_populations[
@@ -582,7 +579,7 @@ class BasePlasma(object):
                     logger.debug("Population inversion occuring with a metastable level: \n %s ",
                                     population_inversion_line)
                     self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
-                elif (atomic_number, ion_number) in self.nlte_species:
+                elif (atomic_number, ion_number) in self.nlte_config.species:
                     logger.debug("Popuation inversion occuring in an NLTE Species")
                     self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
 
@@ -608,18 +605,18 @@ class BasePlasma(object):
 
         macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
 
-        if self.nlte_options.get('coronal_approximation', False):
+        if self.nlte_config.get('coronal_approximation', False):
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
             j_blues = np.zeros_like(self.j_blues)
         else:
             beta_sobolevs = self.beta_sobolevs
             j_blues = self.j_blues
 
-        if self.nlte_options.get('classical_nebular', False):
+        if self.nlte_config.get('classical_nebular', False):
             print "setting classical nebular = True"
             beta_sobolevs[:] = 1.0
 
-        for species in self.nlte_species:
+        for species in self.nlte_config.species:
             logger.info('Calculating rates for species %s', species)
             number_of_levels = self.level_populations.ix[species].size
 
@@ -672,7 +669,7 @@ class BasePlasma(object):
             Updating the Macro Atom computations
         """
 
-        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data['lines_idx'].values.astype(int)]
+        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
 
 
         beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
@@ -727,35 +724,38 @@ class BasePlasma(object):
                 phi = phis.ix[atomic_number, ion_number]
 
 
-    def to_hdf5(self, hdf5_store, path):
+    def to_hdf5(self, hdf5_store, path, mode='full'):
         """
 
         param hdf5_store:
         :param path:
         :return:
         """
+        if mode == 'full':
+            partition_functions_path = os.path.join(path, 'partition_functions')
+            self.partition_functions.to_hdf(hdf5_store, partition_functions_path)
 
-        partition_functions_path = os.path.join(path, 'partition_functions')
-        self.partition_functions.to_hdf(hdf5_store, partition_functions_path)
+            ion_populations_path = os.path.join(path, 'ion_populations')
+            self.ion_populations.to_hdf(hdf5_store, ion_populations_path)
 
-        ion_populations_path = os.path.join(path, 'ion_populations')
-        self.ion_populations.to_hdf(hdf5_store, ion_populations_path)
+            level_populations_path = os.path.join(path, 'level_populations')
+            self.level_populations.to_hdf(hdf5_store, level_populations_path)
 
-        level_populations_path = os.path.join(path, 'level_populations')
-        self.level_populations.to_hdf(hdf5_store, level_populations_path)
+            j_blues_path = os.path.join(path, 'j_blues')
+            pd.Series(self.j_blues).to_hdf(hdf5_store, j_blues_path)
 
-        j_blues_path = os.path.join(path, 'j_blues')
-        pd.Series(self.j_blues).to_hdf(hdf5_store, j_blues_path)
+            number_density_path = os.path.join(path, 'number_density')
+            self.number_density.to_hdf(hdf5_store, number_density_path)
 
-        number_density_path = os.path.join(path, 'number_density')
-        self.number_density.to_hdf(hdf5_store, number_density_path)
+            tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
+            pd.Series(self.tau_sobolevs).to_hdf(hdf5_store, tau_sobolevs_path)
 
-        tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
-        pd.Series(self.tau_sobolevs).to_hdf(hdf5_store, tau_sobolevs_path)
+            transition_probabilities_path = os.path.join(path, 'transition_probabilities')
+            transition_probabilities = self.calculate_transition_probabilities()
+            pd.Series(transition_probabilities).to_hdf(hdf5_store, transition_probabilities_path)
 
-        transition_probabilities_path = os.path.join(path, 'transition_probabilities')
-        transition_probabilities = self.calculate_transition_probabilities()
-        pd.Series(transition_probabilities).to_hdf(hdf5_store, transition_probabilities_path)
+        else:
+            raise NotImplementedError('Currently only mode="full" is supported.')
 
 
 class LTEPlasma(BasePlasma):
@@ -763,18 +763,17 @@ class LTEPlasma(BasePlasma):
 
     @classmethod
     def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_species=[], nlte_options={}, zone_id=None):
+                       nlte_config=None, zone_id=None):
         __doc__ = BasePlasma.from_abundance.__doc__
         return super(LTEPlasma, cls).from_abundance(t_rad, 1., abundance, density, atom_data, time_explosion,
-                                                    j_blues=j_blues, t_electron=t_electron,
-                                                    nlte_species=nlte_species,
-                                                    nlte_options=nlte_options, zone_id=zone_id)
+                                                    j_blues=j_blues, t_electron=t_electron, nlte_config=nlte_config,
+                                                    zone_id=zone_id)
 
     def __init__(self, t_rad, number_density, atom_data, time_explosion, w=1., j_blues=None, t_electron=None,
-                 nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='lte'):
+                 nlte_config=None, zone_id=None, saha_treatment='lte'):
         super(LTEPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                        t_electron=t_electron, nlte_species=nlte_species,
-                                        nlte_options=nlte_options, zone_id=zone_id, saha_treatment=saha_treatment)
+                                        t_electron=t_electron, nlte_config=nlte_config, zone_id=zone_id,
+                                        saha_treatment=saha_treatment)
 
 
 class NebularPlasma(BasePlasma):
@@ -782,19 +781,16 @@ class NebularPlasma(BasePlasma):
 
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_species=[], nlte_options={}, zone_id=None):
+                       nlte_config=None, zone_id=None):
         return super(NebularPlasma, cls).from_abundance(t_rad, w, abundance, density, atom_data, time_explosion,
-                                                        j_blues=j_blues, t_electron=t_electron,
-                                                        nlte_species=nlte_species,
-                                                        nlte_options=nlte_options, zone_id=zone_id,
-                                                        saha_treatment='nebular')
+                                                        j_blues=j_blues, t_electron=t_electron, nlte_config=nlte_config,
+                                                        zone_id=zone_id, saha_treatment='nebular')
 
 
     def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 nlte_species=[], nlte_options=None, zone_id=None, saha_treatment='nebular'):
+                 nlte_config=None, zone_id=None, saha_treatment='nebular'):
         super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                            t_electron=t_electron, nlte_species=nlte_species, nlte_options=nlte_options,
-                                            zone_id=zone_id,
+                                            t_electron=t_electron, nlte_config=nlte_config, zone_id=zone_id,
                                             saha_treatment=saha_treatment)
 
 

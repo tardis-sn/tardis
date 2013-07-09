@@ -131,3 +131,56 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
     luminosity = (flux_density * 4 * np.pi * distance**2).to('erg/s')
 
     return luminosity.value, wavelength.min(), wavelength.max()
+
+    def create_synpp_yaml(self, fname, lines_db=None):
+        logger.warning('Currently only works with Si and a special setup')
+        if not self.atom_data.has_synpp_refs:
+            raise ValueError(
+                'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
+
+        self.atom_data.synpp_refs['ref_log_tau'] = -99.0
+        for key, value in self.atom_data.synpp_refs.iterrows():
+            try:
+                tau_sobolev_idx = self.atom_data.lines_index.ix[value['line_id']]
+            except KeyError:
+                continue
+
+            self.atom_data.synpp_refs['ref_log_tau'].ix[key] = np.log10(self.plasmas[0].tau_sobolevs[tau_sobolev_idx])
+
+        relevant_synpp_refs = self.atom_data.synpp_refs[self.atom_data.synpp_refs['ref_log_tau'] > -50]
+
+        yaml_reference = yaml.load(file(synpp_default_yaml_fname))
+
+        if lines_db is not None:
+            yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'lines')
+            yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'refs.dat')
+
+        yaml_reference['output']['min_wl'] = float(self.spec_angstrom.min())
+        yaml_reference['output']['max_wl'] = float(self.spec_angstrom.max())
+
+
+        raise Exception("there's a problem here with units what units does synpp expect?")
+        yaml_reference['opacity']['v_ref'] = float(self.tardis_config.structure.v_inner.to('cm/s').value[0] / 1e8)
+        yaml_reference['grid']['v_outer_max'] = float(self.tardis_config.structure.v_outer[-1] / 1e8)
+
+        #pdb.set_trace()
+
+        yaml_setup = yaml_reference['setups'][0]
+        yaml_setup['ions'] = []
+        yaml_setup['log_tau'] = []
+        yaml_setup['active'] = []
+        yaml_setup['temp'] = []
+        yaml_setup['v_min'] = []
+        yaml_setup['v_max'] = []
+        yaml_setup['aux'] = []
+
+        for species, synpp_ref in relevant_synpp_refs.iterrows():
+            yaml_setup['ions'].append(100 * species[0] + species[1])
+            yaml_setup['log_tau'].append(float(synpp_ref['ref_log_tau']))
+            yaml_setup['active'].append(True)
+            yaml_setup['temp'].append(yaml_setup['t_phot'])
+            yaml_setup['v_min'].append(yaml_reference['opacity']['v_ref'])
+            yaml_setup['v_max'].append(yaml_reference['grid']['v_outer_max'])
+            yaml_setup['aux'].append(1e200)
+
+        yaml.dump(yaml_reference, stream=file(fname, 'w'), explicit_start=True)
