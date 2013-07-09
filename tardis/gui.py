@@ -119,10 +119,20 @@ class ModelViewer(QtGui.QWidget):
         self.tablemodel.addData(model.ws.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
-        self.change_spectrum(self.model.spectrum.luminosity_density_lambda.value, 'spec_virtual_flux_angstrom')
+        if self.model.spectrum_virtual.luminosity_density_lambda is None:
+            luminosity_density_lambda = np.zeros_like(self.model.spectrum_virtual.wavelength)
+        else:
+            luminosity_density_lambda = self.model.spectrum_virtual.luminosity_density_lambda.value
+
+        self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
 
     def change_spectrum_to_spec_flux_angstrom(self):
-        self.change_spectrum(self.model.spectrum.wavelength.value, 'spec_flux_angstrom')
+        if self.model.spectrum.luminosity_density_lambda is None:
+            luminosity_density_lambda = np.zeros_like(self.model.spectrum.wavelength)
+        else:
+            luminosity_density_lambda = self.model.spectrum.luminosity_density_lambda.value
+
+        self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
 
     def change_spectrum(self, data, name):
         self.spectrum_button.setText(name)
@@ -136,7 +146,13 @@ class ModelViewer(QtGui.QWidget):
         self.spectrum.ax.set_title('Spectrum')
         self.spectrum.ax.set_xlabel('Wavelength (A)')
         self.spectrum.ax.set_ylabel('Intensity')
-        self.spectrum.dataplot = self.spectrum.ax.plot(self.model.spectrum.wavelength.value, self.model.spectrum.luminosity_density_lambda.value, label='b')
+        wavelength = self.model.spectrum.wavelength.value
+        if self.model.spectrum.luminosity_density_lambda is None:
+            luminosity_density_lambda = np.zeros_like(wavelength)
+        else:
+            luminosity_density_lambda = self.model.spectrum.luminosity_density_lambda.value
+
+        self.spectrum.dataplot = self.spectrum.ax.plot(wavelength, luminosity_density_lambda, label='b')
         self.spectrum.draw()
 
     def change_graph_to_ws(self):
@@ -216,7 +232,7 @@ class ShellInfo(QtGui.QDialog):
                                self.on_atom_header_double_clicked)
 
         self.plasma = self.parent.model.plasmas[self.shell_index]
-        self.table1_data = self.plasma.number_density
+        self.table1_data = self.parent.model.tardis_config.abundances.ix[self.shell_index]
         self.atomsdata = MyTableModel([['Z = '], ['Count (Shell %d)' % (self.shell_index + 1)]], iterate_header=(2, 0), index_info=self.table1_data.index.values.tolist())
         self.ionsdata = None
         self.levelsdata = None
@@ -238,7 +254,7 @@ class ShellInfo(QtGui.QDialog):
         self.ionsdata = MyTableModel([['Ion: '], ['Count (Z = %d)' % self.current_atom_index]], iterate_header=(2, 0), index_info=self.table2_data.index.values.tolist())
         normalized_data = []
         for item in self.table2_data.values.tolist():
-            normalized_data.append(float(item / self.table1_data.ix[self.current_atom_index]))
+            normalized_data.append(float(item / self.plasma.number_density.ix[self.current_atom_index]))
         self.ionsdata.addData(normalized_data)
         self.ionstable.setModel(self.ionsdata)
         self.ionstable.connect(self.ionstable.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),

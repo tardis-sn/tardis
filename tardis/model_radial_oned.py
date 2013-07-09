@@ -395,6 +395,10 @@ class Radial1DModel(object):
                     self.tardis_config.supernova.luminosity_requested.value)
         logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
 
+    def save_spectra(self, fname):
+        self.spectrum.to_ascii(fname)
+        self.spectrum_virtual.to_ascii('virtual_' + fname)
+
 
     def to_hdf5(self, buffer_or_fname, path='', close_h5=True):
         if isinstance(buffer_or_fname, basestring):
@@ -534,17 +538,15 @@ class TARDISSpectrum(object):
 
         self.distance = distance
 
-        self._flux_nu = np.zeros_like(frequency.value)
-        self._flux_lambda = np.zeros_like(frequency.value)
 
 
         self.delta_frequency = frequency[1] - frequency[0]
 
-        self._flux_nu = None
-        self._flux_lambda = None
+        self._flux_nu = np.zeros_like(frequency.value)
+        self._flux_lambda = np.zeros_like(frequency.value)
 
-        self.luminosity_density_nu = None
-        self.luminosity_density_lambda = None
+        self.luminosity_density_nu = np.zeros_like(self.frequency)
+        self.luminosity_density_lambda = np.zeros_like(self.frequency)
 
     @property
     def frequency(self):
@@ -587,6 +589,10 @@ class TARDISSpectrum(object):
 
 
 
-    def save_spectrum(self, prefix):
-        np.savetxt(prefix + '_virtual_spec.dat', zip(self.spec_angstrom, self.spec_virtual_flux_angstrom))
-        np.savetxt(prefix + '_spec.dat', zip(self.spec_angstrom, self.spec_flux_angstrom))
+    def to_ascii(self, fname, mode='luminosity_density'):
+        if mode == 'luminosity_density':
+            np.savetxt(fname, zip(self.wavelength.value, self.luminosity_density_lambda))
+        elif mode == 'flux':
+            np.savetxt(fname, zip(self.wavelength.value, self.flux_lambda.value))
+        else:
+            raise NotImplementedError('only mode "luminosity_density" and "flux" are implemented')
