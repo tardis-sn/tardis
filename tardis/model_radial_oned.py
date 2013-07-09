@@ -106,7 +106,7 @@ class Radial1DModel(object):
 
 
         if tardis_config.montecarlo.convergence.type == 'specific':
-            self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.copy()
+            self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.config_dict.copy()
 
         self.t_rads = tardis_config.plasma.t_rads
 
@@ -542,11 +542,11 @@ class TARDISSpectrum(object):
 
         self.delta_frequency = frequency[1] - frequency[0]
 
-        self._flux_nu = np.zeros_like(frequency.value)
-        self._flux_lambda = np.zeros_like(frequency.value)
+        self._flux_nu = np.zeros_like(frequency.value) * u.Unit('erg / (s Hz cm^2)')
+        self._flux_lambda = np.zeros_like(frequency.value) * u.Unit('erg / (s Angstrom cm^2)')
 
-        self.luminosity_density_nu = np.zeros_like(self.frequency)
-        self.luminosity_density_lambda = np.zeros_like(self.frequency)
+        self.luminosity_density_nu = np.zeros_like(self.frequency) * u.Unit('erg / (s Hz)')
+        self.luminosity_density_lambda = np.zeros_like(self.frequency) * u.Unit('erg / (s Angstrom)')
 
     @property
     def frequency(self):
