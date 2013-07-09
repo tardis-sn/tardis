@@ -106,7 +106,7 @@ class Radial1DModel(object):
 
 
         if tardis_config.montecarlo.convergence.type == 'specific':
-            self.global_convergence_parameters = tardis_config.global_convergence_parameters.copy()
+            self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.copy()
 
         self.t_rads = tardis_config.plasma.t_rads
 
