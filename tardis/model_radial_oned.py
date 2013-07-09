@@ -347,9 +347,9 @@ class Radial1DModel(object):
         updated_t_inner = self.t_inner \
                           * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value ** -.25
 
-        convergence_t_rads = abs(old_t_rads - updated_t_rads) / updated_t_rads
-        convergence_ws = abs(old_ws - updated_ws) / updated_ws
-        convergence_t_inner = abs(old_t_inner - updated_t_inner) / updated_t_inner
+        convergence_t_rads = (abs(old_t_rads - updated_t_rads) / updated_t_rads).value
+        convergence_ws = (abs(old_ws - updated_ws) / updated_ws)
+        convergence_t_inner = (abs(old_t_inner - updated_t_inner) / updated_t_inner).value
 
         convergence_section = self.tardis_config.montecarlo.convergence
         if convergence_section.type == 'damped' or convergence_section.type == 'specific':
@@ -359,13 +359,13 @@ class Radial1DModel(object):
 
         if convergence_section.type == 'specific':
 
-            t_rad_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
-                               / self.no_of_shells) >= self.t_rad_convergence_parameters['fraction']
+            t_rad_converged = (float(np.sum(convergence_t_rads < convergence_section.t_rad['threshold'])) \
+                               / self.tardis_config.structure.no_of_shells) >= convergence_section.t_rad['fraction']
 
-            w_converged = (float(np.sum(convergence_t_rads < self.t_rad_convergence_parameters['threshold'])) \
-                           / self.no_of_shells) >= self.t_rad_convergence_parameters['fraction']
+            w_converged = (float(np.sum(convergence_t_rads < convergence_section.w['threshold'])) \
+                           / self.tardis_config.structure.no_of_shells) >= convergence_section.w['fraction']
 
-            t_inner_converged = convergence_t_inner < self.t_rad_convergence_parameters['threshold']
+            t_inner_converged = convergence_t_inner < convergence_section.t_inner['threshold']
 
             if t_rad_converged and t_inner_converged and w_converged:
                 if not self.converged:
@@ -379,7 +379,7 @@ class Radial1DModel(object):
 
         self.temperature_logging = pd.DataFrame(
             {'t_rads': old_t_rads.value, 'updated_t_rads': updated_t_rads.value,
-             'converged_t_rads': convergence_t_rads.value, 'new_trads': self.t_rads.value, 'ws': old_ws,
+             'converged_t_rads': convergence_t_rads, 'new_trads': self.t_rads.value, 'ws': old_ws,
              'updated_ws': updated_ws, 'converged_ws': convergence_ws,
              'new_ws': self.ws})
 
