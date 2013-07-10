@@ -290,8 +290,10 @@ class BasePlasma(object):
 
 
         def group_calculate_partition_function(group):
-            return np.sum(group['g'] *
-                          np.exp(-group['energy'] * self.beta_rad))
+            metastable = group['metastable']
+            meta_z = np.sum(group['g'][metastable] * np.exp(-group['energy'][metastable] * self.beta_rad))
+            non_meta_z = np.sum(group['g'][~metastable] * np.exp(-group['energy'][~metastable] * self.beta_rad))
+            return meta_z + self.w * non_meta_z
 
 
         if self.initialize:
