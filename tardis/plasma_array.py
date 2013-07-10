@@ -156,7 +156,7 @@ class BasePlasmaArray(object):
 
 
 
-        self.electron_densities = self.number_densities.sum()
+        self.electron_densities = self.number_densities.sum(axis=1)
 
         """        if saha_treatment == 'lte':
                     self.calculate_saha = self.calculate_saha_lte
@@ -234,7 +234,6 @@ class BasePlasmaArray(object):
 
         #Calculate the Saha ionization balance fractions
         phis = self.calculate_saha_lte()
-        return
         #initialize electron density with the sum of number densities
         n_e_iterations = 0
 
@@ -252,6 +251,7 @@ class BasePlasmaArray(object):
             if abs(
                             new_electron_density - self.electron_density) / self.electron_density < n_e_convergence_threshold: break
             self.electron_density = 0.5 * (new_electron_density + self.electron_density)
+        return
         self.electron_density = new_electron_density
         logger.debug('Took %d iterations to converge on electron density' % n_e_iterations)
 
@@ -353,7 +353,7 @@ class BasePlasmaArray(object):
         phi_coefficient = self.g_electrons * np.exp(-self.beta_rads *
                                           self.atom_data.ionization_data.ionization_energy.ix[phis.index].values)
 
-        return phis * phi_coefficient
+        return phis * phi_coefficient.transpose()
 
     def calculate_saha_nebular(self):
         """
@@ -487,8 +487,8 @@ class BasePlasmaArray(object):
             self.ion_populations = pd.Series(index=self.partition_functions.index.copy())
 
         for atomic_number, groups in phis.groupby(level='atomic_number'):
-            current_phis = groups.values / self.electron_density
-            phis_product = np.cumproduct(current_phis)
+            current_phis = (groups / self.electron_densities).replace(np.nan, 0.0).values
+            phis_product = np.cumproduct(current_phis, axis=0)
 
             neutral_atom_density = self.number_density.ix[atomic_number] / (1 + np.sum(phis_product))
             ion_densities = [neutral_atom_density] + list(neutral_atom_density * phis_product)
