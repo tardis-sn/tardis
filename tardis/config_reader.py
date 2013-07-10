@@ -351,7 +351,7 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
         fname = abundance_file_dict['name']
         max_atom = 30
         logger.info("Parsing ARTIS Abundance section from shell %d to %d", min_shell, max_shell)
-        abundances.values[:, :max_atom] = np.loadtxt(fname)[min_shell:max_shell, 1:]
+        abundances.values[:max_atom, :] = np.loadtxt(fname)[min_shell:max_shell, 1:].transpose()
         return abundances
 
     abundance_file_parser['artis'] = parse_artis
@@ -602,7 +602,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         abudances_config_dict = {}
         #TODO: columns are now until Z=120
 
-        abundances = pd.DataFrame(columns=np.arange(1, 120), index=pd.Index(np.arange(no_of_shells), name='shells'))
+        abundances = pd.DataFrame(columns=np.arange(no_of_shells), index=pd.Index(np.arange(1, 120), name='atomic_number'))
 
         if 'file' in abundances_section.keys():
             abundance_file_dict = abundances_section.pop('file')
@@ -613,7 +613,17 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
             z = element_symbol2atomic_number(element_symbol_string, atom_data)
 
-            abundances[z] = float(abundances_section[element_symbol_string])
+            abundances.ix[z] = float(abundances_section[element_symbol_string])
+
+        abundances = abundances.replace(np.nan, 0.0)
+
+        abundances = abundances[abundances.sum(axis=1) > 0]
+
+        norm_factor = abundances.sum(axis=0)
+
+        if np.any(np.abs(norm_factor - 1) > 1e-12):
+            logger.warning("Abundances have not been normalized to 1. - normalizing")
+            abundances /= norm_factor
 
         config_dict['abundances'] = abundances
 
@@ -826,32 +836,16 @@ class TardisConfiguration(TardisConfigurationNameSpace):
 
     def __init__(self, config_dict):
         super(TardisConfiguration, self).__init__(config_dict)
+        selected_atomic_numbers = self.abundances.index
+        self.number_densities = (self.abundances * self.structure.mean_densities.to('g/cm^3').value)
+        self.number_densities = self.number_densities.div(self.atom_data.atom_data.mass.ix[selected_atomic_numbers],
+                                                          axis=0)
 
-        self.number_densities = self.calculate_number_densities()
-        selected_atomic_numbers = self.number_densities.columns
+
         self.atom_data.prepare_atom_data(selected_atomic_numbers,
                                          line_interaction_type=self.plasma.line_interaction_type,
                                          nlte_species=self.plasma.nlte.species)
 
-
-
-
-    def calculate_number_densities(self):
-        abundances = self.abundances
-        for atomic_number in abundances:
-
-            if all(abundances[atomic_number].isnull()):
-                del abundances[atomic_number]
-                continue
-            else:
-                abundances[abundances[atomic_number].isnull()] == 0.0
-
-        #normalizing
-        self.abundances = abundances.div(abundances.sum(axis=1), axis=0)
-        atom_mass = self.atom_data.atom_data.ix[abundances.columns].mass
-        number_densities = (abundances.mul(self.structure.mean_densities.to('g/cm^3').value, axis=0)).divide(atom_mass)
-
-        return number_densities
 
 
 
