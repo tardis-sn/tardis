@@ -153,32 +153,27 @@ class BasePlasmaArray(object):
         self.ws = ws
 
         self.atom_data = atom_data
-        self.level_population_proportionalities = pd.DataFrame(index=self.atom_data.levels.index,
-                                                             columns=np.arange(len(t_rads)))
 
-        level_population_proportional_array = atom_data.levels.g.values * np.exp(-self.beta_rad *
-                                                                                 atom_data.levels.energy.values)
 
-        self.level_population_proportionalities.values = level_population_proportional_array
 
         self.electron_densities = self.number_densities.sum()
 
-        if saha_treatment == 'lte':
-            self.calculate_saha = self.calculate_saha_lte
-        elif saha_treatment == 'nebular':
-            self.calculate_saha = self.calculate_saha_nebular
-        else:
-            raise ValueError('keyword "saha_treatment" can only be "lte" or "nebular" - %s chosen' % saha_treatment)
+        """        if saha_treatment == 'lte':
+                    self.calculate_saha = self.calculate_saha_lte
+                elif saha_treatment == 'nebular':
+                    self.calculate_saha = self.calculate_saha_nebular
+                else:
+                    raise ValueError('keyword "saha_treatment" can only be "lte" or "nebular" - %s chosen' % saha_treatment)
 
 
-        self.initialize = True
+                self.initialize = True
 
-        self.set_j_blues(j_blues)
+                self.set_j_blues(j_blues)
 
-        self.time_explosion = time_explosion
+                self.time_explosion = time_explosion
 
-        self.nlte_config = nlte_config
-        self.zone_id = zone_id
+                self.nlte_config = nlte_config
+                self.zone_id = zone_id"""
 
     #Properties
 
@@ -189,7 +184,7 @@ class BasePlasmaArray(object):
     @t_rads.setter
     def t_rads(self, value):
         self._t_rads = value
-        self.beta_rads = 1 / (k_B_cgs * self._t_rads)
+        self.beta_rads = (1 / (k_B_cgs * self._t_rads)).reshape((len(self._t_rads), 1))
         self.g_electrons = ((2 * np.pi * m_e_cgs / self.beta_rads) / (h_cgs ** 2)) ** 1.5
 
     @property
@@ -212,7 +207,7 @@ class BasePlasmaArray(object):
 
     #Functions
 
-    def update_radiationfield(self, t_rad, w, n_e_convergence_threshold=0.05):
+    def update_radiationfield(self, t_rads, ws, n_e_convergence_threshold=0.05):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -229,16 +224,17 @@ class BasePlasmaArray(object):
 
        """
 
-        self.t_rad = t_rad
-        self.w = w
+        self.t_rads = t_rads
+        self.ws = ws
 
-        self.calculate_partition_functions()
+        self.level_population_proportionalities, self.partition_functions = self.calculate_partition_functions()
+
 
 
 
         #Calculate the Saha ionization balance fractions
-        phis = self.calculate_saha()
-
+        phis = self.calculate_saha_lte()
+        return
         #initialize electron density with the sum of number densities
         n_e_iterations = 0
 
@@ -296,37 +292,40 @@ class BasePlasmaArray(object):
 
         """
 
+        level_population_proportional_array = self.atom_data.levels.g.values * np.exp(-self.beta_rads *
+                                                                                 self.atom_data.levels.energy.values)
+        level_population_proportionalities = pd.DataFrame(level_population_proportional_array.transpose(),
+                                                               index=self.atom_data.levels.index,
+                                                               columns=np.arange(len(self.t_rads)), dtype=np.float64)
 
-        def group_calculate_partition_function(group):
-            metastable = group['metastable']
-            meta_z = np.sum(group['g'][metastable] * np.exp(-group['energy'][metastable] * self.beta_rad))
-            non_meta_z = np.sum(group['g'][~metastable] * np.exp(-group['energy'][~metastable] * self.beta_rad))
-            return meta_z + self.w * non_meta_z
+        #level_props = self.level_population_proportionalities
+
+        partition_functions = level_population_proportionalities[self.atom_data.levels.metastable].groupby(
+            level=['atomic_number', 'ion_number']).sum()
+        partition_functions += self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
+            level=['atomic_number', 'ion_number']).sum()
+
+        return level_population_proportionalities, partition_functions
 
 
-        if self.initialize:
-            logger.debug('Initializing the partition functions and indices')
 
-            self.partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
-                group_calculate_partition_function)
-
-            self.atom_data.atom_ion_index = pd.Series(np.arange(len(self.partition_functions)),
-                                                      self.partition_functions.index)
-            self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
-                self.atom_data.levels.index.droplevel(2)].values
-        else:
-            if not hasattr(self, 'partition_functions'):
-                raise ValueError("Called calculate partition_functions without initializing at least once")
-
-            for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
-                if species in self.nlte_config.species:
-                    ground_level_population = self.level_populations[species][0]
-                    self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] * \
-                                                           np.sum(self.level_populations[
-                                                                      species].values / ground_level_population)
+        """            self.atom_data.atom_ion_index = pd.Series(np.arange(len(self.partition_functions)),
+                                                              self.partition_functions.index)
+                    self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
+                        self.atom_data.levels.index.droplevel(2)].values
                 else:
-                    self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
+                    if not hasattr(self, 'partition_functions'):
+                        raise ValueError("Called calculate partition_functions without initializing at least once")
 
+                    for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
+                        if species in self.nlte_config.species:
+                            ground_level_population = self.level_populations[species][0]
+                            self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] * \
+                                                                   np.sum(self.level_populations[
+                                                                              species].values / ground_level_population)
+                        else:
+                            self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
+        """
     def calculate_saha_lte(self):
         """
         Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
@@ -349,11 +348,12 @@ class BasePlasmaArray(object):
 
         phis = self.partition_functions.groupby(level='atomic_number').apply(calculate_phis)
 
-        phis = pd.Series(phis.values, phis.index.droplevel(0))
+        phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
 
-        phis *= self.ge * np.exp(-self.beta_rad * self.atom_data.ionization_data.ix[phis.index]['ionization_energy'])
+        phi_coefficient = self.g_electrons * np.exp(-self.beta_rads *
+                                          self.atom_data.ionization_data.ionization_energy.ix[phis.index].values)
 
-        return phis
+        return phis * phi_coefficient
 
     def calculate_saha_nebular(self):
         """
@@ -768,8 +768,8 @@ class BasePlasmaArray(object):
             raise NotImplementedError('Currently only mode="full" is supported.')
 
 
-class LTEPlasma(BasePlasma):
-    __doc__ = BasePlasma.__doc__
+class LTEPlasma(BasePlasmaArray):
+    __doc__ = BasePlasmaArray.__doc__
 
     @classmethod
     def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
@@ -786,8 +786,8 @@ class LTEPlasma(BasePlasma):
                                         saha_treatment=saha_treatment)
 
 
-class NebularPlasma(BasePlasma):
-    __doc__ = BasePlasma.__doc__
+class NebularPlasma(BasePlasmaArray):
+    __doc__ = BasePlasmaArray.__doc__
 
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
