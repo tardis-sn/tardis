@@ -154,9 +154,10 @@ class BasePlasmaArray(object):
 
         self.atom_data = atom_data
 
+        self.time_explosion = time_explosion
 
-
-        self.electron_densities = self.number_densities.sum(axis=1)
+        self.nlte_config = nlte_config
+        self.electron_densities = self.number_densities.sum(axis=0)
 
         """        if saha_treatment == 'lte':
                     self.calculate_saha = self.calculate_saha_lte
@@ -207,7 +208,7 @@ class BasePlasmaArray(object):
 
     #Functions
 
-    def update_radiationfield(self, t_rads, ws, n_e_convergence_threshold=0.05):
+    def update_radiationfield(self, t_rads, ws, n_e_convergence_threshold=0.05, initialize=False):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -223,7 +224,7 @@ class BasePlasmaArray(object):
                 ionization balance.
 
        """
-
+        self.initialize = initialize
         self.t_rads = t_rads
         self.ws = ws
 
@@ -239,24 +240,25 @@ class BasePlasmaArray(object):
 
         while True:
             self.calculate_ion_populations(phis)
-            ion_numbers = np.array([item[1] for item in self.ion_populations.index])
-            new_electron_density = np.sum(self.ion_populations.values * ion_numbers)
-            if np.isnan(new_electron_density):
+            ion_numbers = self.ion_populations.index.get_level_values(1).values
+            ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
+            new_electron_densities = (self.ion_populations.values * ion_numbers).sum(axis=0)
+
+            if np.any(np.isnan(new_electron_densities)):
                 raise PlasmaException('electron density just turned "nan" - aborting')
 
             n_e_iterations += 1
             if n_e_iterations > 100:
                 logger.warn('electron density iterations above 100 (%d) - something is probably wrong', n_e_iterations)
 
-            if abs(
-                            new_electron_density - self.electron_density) / self.electron_density < n_e_convergence_threshold: break
-            self.electron_density = 0.5 * (new_electron_density + self.electron_density)
-        return
-        self.electron_density = new_electron_density
-        logger.debug('Took %d iterations to converge on electron density' % n_e_iterations)
+            if np.all(np.abs(new_electron_densities - self.electron_densities) / self.electron_densities <
+                    n_e_convergence_threshold): break
+
+            self.electron_densities = 0.5 * (new_electron_densities + self.electron_densities)
 
         self.calculate_level_populations()
         self.calculate_tau_sobolev()
+        return
         if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
 
@@ -300,10 +302,12 @@ class BasePlasmaArray(object):
 
         #level_props = self.level_population_proportionalities
 
-        partition_functions = level_population_proportionalities[self.atom_data.levels.metastable].groupby(
+        partition_functions_meta = level_population_proportionalities[self.atom_data.levels.metastable].groupby(
             level=['atomic_number', 'ion_number']).sum()
-        partition_functions += self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
+        partition_functions_non_meta = self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
             level=['atomic_number', 'ion_number']).sum()
+
+        partition_functions = partition_functions_meta.add(partition_functions_non_meta, fill_value=0.0)
 
         return level_population_proportionalities, partition_functions
 
@@ -483,17 +487,20 @@ class BasePlasmaArray(object):
 
         """
         #TODO see if self.ion_populations is None is needed (first class should be enough)
-        if not hasattr(self, 'ion_populations') or self.ion_populations is None:
-            self.ion_populations = pd.Series(index=self.partition_functions.index.copy())
+        if not hasattr(self, 'ion_populations'):
+            self.ion_populations = pd.DataFrame(index=self.partition_functions.index.copy(),
+                                                columns=np.arange(len(self.t_rads)), dtype=np.float64)
 
         for atomic_number, groups in phis.groupby(level='atomic_number'):
             current_phis = (groups / self.electron_densities).replace(np.nan, 0.0).values
             phis_product = np.cumproduct(current_phis, axis=0)
 
-            neutral_atom_density = self.number_density.ix[atomic_number] / (1 + np.sum(phis_product))
-            ion_densities = [neutral_atom_density] + list(neutral_atom_density * phis_product)
+            neutral_atom_density = self.number_densities.ix[atomic_number] / (1 + np.sum(phis_product))
+            neutral_atom_density = neutral_atom_density.astype(np.float64).reshape((1, len(neutral_atom_density)))
 
-            self.ion_populations.ix[atomic_number] = ion_densities
+
+            self.ion_populations.ix[atomic_number].values[0] = neutral_atom_density
+            self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density * phis_product
             self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
 
     def calculate_level_populations(self):
@@ -510,23 +517,25 @@ class BasePlasmaArray(object):
 
         This function updates the 'number_density' column on the levels table (or adds it if non-existing)
         """
-        Z = self.partition_functions.values[self.atom_data.levels_index2atom_ion_index]
+        Z = self.partition_functions.ix[self.atom_data.levels.index.droplevel(2)].values
 
-        ion_number_density = self.ion_populations.values[self.atom_data.levels_index2atom_ion_index]
+        ion_number_density = self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values
 
-        levels_g = self.atom_data.levels['g'].values
-        levels_energy = self.atom_data.levels['energy'].values
-        level_populations = (levels_g / Z) * ion_number_density * np.exp(-self.beta_rad * levels_energy)
+
+        level_populations = (ion_number_density / Z) * self.level_population_proportionalities
 
         #only change between lte plasma and nebular
-        level_populations[~self.atom_data.levels['metastable']] *= np.min([self.w, 1.])
+        level_populations[~self.atom_data.levels['metastable']] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
 
         if self.initialize:
-            self.level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
+            self.level_populations = pd.DataFrame(level_populations, index=self.atom_data.levels.index,
+                                                  columns=np.arange(len(self.t_rads)))
 
         else:
             level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
             self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
+
+        #self.level_populations.values[np.isnan(self.level_populations.values)]
 
 
     def calculate_tau_sobolev(self):
@@ -551,58 +560,41 @@ class BasePlasmaArray(object):
         """
 
         f_lu = self.atom_data.lines['f_lu'].values
+        f_lu = f_lu.reshape((f_lu.shape[0], 1))
         wavelength = self.atom_data.lines['wavelength_cm'].values
+        wavelength = wavelength.reshape((wavelength.shape[0], 1))
+
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
         n_upper = self.level_populations.values[self.atom_data.lines_upper2level_idx]
 
-        g_lower = self.atom_data.levels.g.values[self.atom_data.lines_lower2level_idx]
-        g_upper = self.atom_data.levels.g.values[self.atom_data.lines_upper2level_idx]
 
+        g_lower = self.atom_data.levels.g.values[self.atom_data.lines_lower2level_idx]
+        g_lower = g_lower.reshape((g_lower.shape[0], 1))
+        g_upper = self.atom_data.levels.g.values[self.atom_data.lines_upper2level_idx]
+        g_upper = g_upper.reshape((g_upper.shape[0], 1))
+
+        metastable = self.atom_data.levels.metastable.values[self.atom_data.lines_upper2level_idx]
+        metastable = metastable.reshape((metastable.shape[0], 1))
 
         self.stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
 
-        self.stimulated_emission_factor[np.isnan(self.stimulated_emission_factor)] = 1.
-
-        negative_stimulated_emission_mask = [self.stimulated_emission_factor[self.atom_data.nlte_data.nlte_lines_mask] < 0.]
-
-        self.stimulated_emission_factor[negative_stimulated_emission_mask] = 0.0
+        # getting rid of the obvious culprits
+        self.stimulated_emission_factor[(n_lower == 0.0) & (n_upper == 0.0)] = 0.0
         self.stimulated_emission_factor[np.isneginf(self.stimulated_emission_factor)] = 0.0
 
-        if np.any(self.stimulated_emission_factor < 0.0):
-            population_inversion = self.atom_data.lines[self.stimulated_emission_factor < 0.0][['atomic_number',
-                                                                                                'ion_number',
-                                                                                                'level_number_lower',
-                                                                                                'level_number_upper']]
-
-            for i, (line_id, population_inversion_line) in enumerate(population_inversion.iterrows()):
-                atomic_number = population_inversion_line['atomic_number']
-                ion_number = population_inversion_line['ion_number']
-
-                level_lower = self.atom_data.levels.ix[atomic_number,
-                                                        ion_number,
-                                                        population_inversion_line['level_number_lower']]
-                level_upper = self.atom_data.levels.ix[atomic_number,
-                                                        ion_number,
-                                                        population_inversion_line['level_number_upper']]
-
-                if level_lower['metastable'] or level_upper['metastable']:
-                    logger.debug("Population inversion occuring with a metastable level: \n %s ",
-                                    population_inversion_line)
-                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
-                elif (atomic_number, ion_number) in self.nlte_config.species:
-                    logger.debug("Popuation inversion occuring in an NLTE Species")
-                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
-
-                else:
-                    raise PopulationInversionException("Population inversion occuring with a non-metastable level, this "
-                                                       "is unphysical:\n %s \n ZoneID %s Stimulated Emission value %s" %\
-                                                       (population_inversion_line, self.zone_id,
-                                                        self.stimulated_emission_factor[
-                                                            self.stimulated_emission_factor < 0.0][i]))
+        if self.nlte_config is not None:
+            nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
+            for nlte_species in self.nlte_config.nlte_species:
+                nlte_lines_mask |= (self.atom_data.lines_data.atomic_number == nlte_species[0]) & \
+                                   (self.atom_data.lines_data.ion_number == nlte_species[1])
 
 
         self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
-                            self.stimulated_emission_factor
+                    self.stimulated_emission_factor
+
+        return
+
+
 
     def calculate_nlte_level_populations(self):
         """
