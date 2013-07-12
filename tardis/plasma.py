@@ -90,7 +90,7 @@ class BasePlasma(object):
 
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+                       nlte_config=None, zone_id=None, saha_treatment='lte'):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -139,8 +139,8 @@ class BasePlasma(object):
         number_density /= atom_data.atom_data.mass[number_density.index]
 
         return cls(t_rad=t_rad, w=w, number_density=number_density, atom_data=atom_data, j_blues=j_blues,
-                   time_explosion=time_explosion, t_electron=t_electron, zone_id=zone_id,
-                   nlte_species=nlte_species, nlte_options=nlte_options, saha_treatment=saha_treatment)
+                   time_explosion=time_explosion, t_electron=t_electron, zone_id=zone_id, nlte_config=nlte_config,
+                   saha_treatment=saha_treatment)
 
     @classmethod
     def from_hdf5(cls, hdf5store):
@@ -389,7 +389,7 @@ class BasePlasma(object):
 
             zeta.ix[idx] = current_zeta
 
-
+        return zeta
         phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) * \
                 (self.t_electron / self.t_rad) ** .5
 
@@ -449,7 +449,7 @@ class BasePlasma(object):
         radiation_field_correction = (self.t_electron / (departure_coefficient * self.w * self.t_rad)) * \
                                      np.exp(self.beta_rad * chi_threshold - self.beta_electron *
                                             self.atom_data.ionization_data['ionization_energy'])
-
+        print radiation_field_correction.ix[14, 1]
         less_than_chi_threshold = self.atom_data.ionization_data['ionization_energy'] < chi_threshold
 
         radiation_field_correction[less_than_chi_threshold] += 1 - \
