@@ -192,12 +192,11 @@ def read_zeta_data(fname):
         raise ValueError('zeta_data not available in this HDF5-data file. It can not be used with NebularAtomData')
 
     zeta_data = h5_file['zeta_data']
-    zeta_interp = {}
-    t_rads = zeta_data.attrs['t_rad']
-    for line in zeta_data:
-        zeta_interp[tuple(map(int, line[:2]))] = interpolate.interp1d(t_rads, line[2:])
 
-    return zeta_interp
+    t_rads = zeta_data.attrs['t_rad']
+    return pd.DataFrame(zeta_data[:,2:], index=pd.MultiIndex.from_arrays(zeta_data[:,:2].transpose().astype(int)),
+                 columns=t_rads)
+
 
 
 def read_collision_data(fname):
