@@ -389,7 +389,6 @@ class BasePlasma(object):
 
             zeta.ix[idx] = current_zeta
 
-        return zeta
         phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) * \
                 (self.t_electron / self.t_rad) ** .5
 
