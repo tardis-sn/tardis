@@ -135,7 +135,7 @@ class Radial1DModel(object):
                 current_plasma_class = plasma.NebularPlasma
 
             current_plasma = current_plasma_class(t_rad=self.t_rads[i].value,
-                                                     number_density=tardis_config.number_densities.ix[i],
+                                                     number_density=tardis_config.number_densities[i],
                                                      atom_data=self.atom_data,
                                                      time_explosion=tardis_config.supernova.time_explosion.to('s').value,
                                                      w=self.ws[i], j_blues=self.j_blues[i],
