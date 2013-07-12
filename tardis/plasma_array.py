@@ -6,6 +6,7 @@ import pandas as pd
 import macro_atom
 import os
 from .config_reader import reformat_element_symbol
+from scipy import interpolate
 
 logger = logging.getLogger(__name__)
 
@@ -159,23 +160,23 @@ class BasePlasmaArray(object):
         self.nlte_config = nlte_config
         self.electron_densities = self.number_densities.sum(axis=0)
 
-        """        if saha_treatment == 'lte':
-                    self.calculate_saha = self.calculate_saha_lte
-                elif saha_treatment == 'nebular':
-                    self.calculate_saha = self.calculate_saha_nebular
-                else:
-                    raise ValueError('keyword "saha_treatment" can only be "lte" or "nebular" - %s chosen' % saha_treatment)
+        if saha_treatment == 'lte':
+            self.calculate_saha = self.calculate_saha_lte
+        elif saha_treatment == 'nebular':
+            self.calculate_saha = self.calculate_saha_nebular
+        else:
+            raise ValueError('keyword "saha_treatment" can only be "lte" or "nebular" - %s chosen' % saha_treatment)
 
+        """
+                        self.initialize = True
 
-                self.initialize = True
+                        self.set_j_blues(j_blues)
 
-                self.set_j_blues(j_blues)
+                        self.time_explosion = time_explosion
 
-                self.time_explosion = time_explosion
-
-                self.nlte_config = nlte_config
-                self.zone_id = zone_id"""
-
+                        self.nlte_config = nlte_config
+                        self.zone_id = zone_id
+        """
     #Properties
 
     @property
@@ -185,25 +186,25 @@ class BasePlasmaArray(object):
     @t_rads.setter
     def t_rads(self, value):
         self._t_rads = value
-        self.beta_rads = (1 / (k_B_cgs * self._t_rads)).reshape((len(self._t_rads), 1))
+        self.beta_rads = (1 / (k_B_cgs * self._t_rads))
         self.g_electrons = ((2 * np.pi * m_e_cgs / self.beta_rads) / (h_cgs ** 2)) ** 1.5
 
     @property
-    def t_electron(self):
-        if self._t_electron is None:
-            return self.t_rad * self.link_t_rad_electron
+    def t_electrons(self):
+        if self._t_electrons is None:
+            return self.t_rads * self.link_t_rad_to_t_electron
         else:
-            return self._t_electron
+            return self._t_electrons
 
-    @t_electron.setter
-    def t_electron(self, value):
+    @t_electrons.setter
+    def t_electrons(self, value):
         if value is None:
-            self.link_t_rad_electron = 0.9
-            self._t_electron = None
+            self.link_t_rad_to_t_electron = 0.9
+            self._t_electrons = None
         else:
-            self._t_electron = value
+            self._t_electrons = value
 
-        self.beta_electron = 1 / (k_B_cgs * self.t_electron)
+        self.beta_electrons = 1 / (k_B_cgs * self.t_electrons)
 
 
     #Functions
@@ -234,7 +235,7 @@ class BasePlasmaArray(object):
 
 
         #Calculate the Saha ionization balance fractions
-        phis = self.calculate_saha_lte()
+        phis = self.calculate_saha()
         #initialize electron density with the sum of number densities
         n_e_iterations = 0
 
@@ -293,21 +294,21 @@ class BasePlasmaArray(object):
             with fields atomic_number, ion_number, partition_function
 
         """
-
-        level_population_proportional_array = self.atom_data.levels.g.values * np.exp(-self.beta_rads *
-                                                                                 self.atom_data.levels.energy.values)
-        level_population_proportionalities = pd.DataFrame(level_population_proportional_array.transpose(),
+        levels = self.atom_data.levels
+        level_population_proportional_array = levels.g.values[np.newaxis].T *\
+                                              np.exp(np.outer(levels.energy.values, -self.beta_rads))
+        level_population_proportionalities = pd.DataFrame(level_population_proportional_array,
                                                                index=self.atom_data.levels.index,
                                                                columns=np.arange(len(self.t_rads)), dtype=np.float64)
 
         #level_props = self.level_population_proportionalities
 
-        partition_functions_meta = level_population_proportionalities[self.atom_data.levels.metastable].groupby(
+        partition_functions = level_population_proportionalities[self.atom_data.levels.metastable].groupby(
             level=['atomic_number', 'ion_number']).sum()
         partition_functions_non_meta = self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
             level=['atomic_number', 'ion_number']).sum()
 
-        partition_functions = partition_functions_meta.add(partition_functions_non_meta, fill_value=0.0)
+        partition_functions.ix[partition_functions_non_meta.index] += partition_functions_non_meta
 
         return level_population_proportionalities, partition_functions
 
@@ -354,10 +355,11 @@ class BasePlasmaArray(object):
 
         phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
 
-        phi_coefficient = self.g_electrons * np.exp(-self.beta_rads *
-                                          self.atom_data.ionization_data.ionization_energy.ix[phis.index].values)
+        phi_coefficient = self.g_electrons * \
+                          np.exp(np.outer(self.atom_data.ionization_data.ionization_energy.ix[phis.index].values,
+                                          -self.beta_rads))
 
-        return phis * phi_coefficient.transpose()
+        return phis * phi_coefficient
 
     def calculate_saha_nebular(self):
         """
@@ -389,26 +391,17 @@ class BasePlasmaArray(object):
         logger.debug('Calculating Saha using Nebular approximation')
         phis = self.calculate_saha_lte()
 
-        delta = self.calculate_radiation_field_correction()
+        delta = self.calculate_radfield_correction()
 
-        zeta = pd.Series(index=phis.index)
-
-        for idx in zeta.index:
-            try:
-                current_zeta = self.atom_data.zeta_data[idx](self.t_rad)
-            except KeyError:
-                current_zeta = 1.0
-
-            zeta.ix[idx] = current_zeta
-
-
-        phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) * \
-                (self.t_electron / self.t_rad) ** .5
+        zeta_data = self.atom_data.zeta_data
+        zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[phis.index].values)(self.t_rads)
+        return zeta
+        phis *= self.ws * (delta.ix[phis.index] * zeta + self.ws * (1 - zeta)) * \
+                (self.t_electrons / self.t_rads) ** .5
 
         return phis
 
-    def calculate_radiation_field_correction(self, departure_coefficient=None,
-                                             chi_threshold_species=(20, 1)):
+    def calculate_radfield_correction(self, departure_coefficient=None, chi_threshold_species=(20, 1)):
         """
         Calculating radiation field correction factors according to Mazzali & Lucy 1993 (:cite:`1993A&A...279..447M`; henceforth ML93)
 
@@ -454,22 +447,27 @@ class BasePlasmaArray(object):
         """
         #factor delta ML 1993
         if departure_coefficient is None:
-            departure_coefficient = 1 / float(self.w)
+            departure_coefficient = 1. / self.ws
 
-        chi_threshold = self.atom_data.ionization_data['ionization_energy'].ix[chi_threshold_species]
+        ionization_data = self.atom_data.ionization_data
 
-        radiation_field_correction = (self.t_electron / (departure_coefficient * self.w * self.t_rad)) * \
-                                     np.exp(self.beta_rad * chi_threshold - self.beta_electron *
-                                            self.atom_data.ionization_data['ionization_energy'])
+        chi_threshold = ionization_data.ionization_energy.ix[chi_threshold_species]
 
-        less_than_chi_threshold = self.atom_data.ionization_data['ionization_energy'] < chi_threshold
+        radiation_field_correction = (self.t_electrons / (departure_coefficient * self.ws * self.t_rads)) *\
+                                     np.exp(self.beta_rads * chi_threshold - np.outer(
+                                            ionization_data.ionization_energy.values, self.beta_electrons))
+
+
+        less_than_chi_threshold = (ionization_data.ionization_energy < chi_threshold).values
 
         radiation_field_correction[less_than_chi_threshold] += 1 - \
-                                                               np.exp(self.beta_rad * chi_threshold - self.beta_rad *
-                                                                      self.atom_data.ionization_data[
-                                                                          less_than_chi_threshold]['ionization_energy'])
+                                                               np.exp(self.beta_rads * chi_threshold - np.outer(
+                                                                      ionization_data.ionization_energy.values
+                                                                      [less_than_chi_threshold], self.beta_rads))
+        return pd.DataFrame(radiation_field_correction, columns=np.arange(len(self.t_rads)),
+                            index=ionization_data.index)
 
-        return radiation_field_correction
+
 
     def calculate_ion_populations(self, phis, ion_zero_threshold=1e-20):
         """
