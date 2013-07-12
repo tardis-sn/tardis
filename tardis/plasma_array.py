@@ -3,10 +3,11 @@ import numpy as np
 import logging
 from astropy import constants
 import pandas as pd
-import macro_atom
 import os
-from .config_reader import reformat_element_symbol
 from scipy import interpolate
+
+from tardis import macro_atom, config_reader
+
 
 logger = logging.getLogger(__name__)
 
@@ -88,8 +89,7 @@ class BasePlasmaArray(object):
     """
 
     @classmethod
-    def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+    def from_abundance(cls, abundances, density, atom_data, time_explosion, nlte_config=None, saha_treatment='lte'):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -101,8 +101,6 @@ class BasePlasmaArray(object):
         abundances : `~dict`
             A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
 
-        abundances : `~dict`
-        A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
 
 
         density : `~float`
@@ -115,7 +113,11 @@ class BasePlasmaArray(object):
         `Baseplasma` object
         """
 
-        number_density = pd.Series(index=np.arange(1, 120))
+        atomic_numbers = np.array([config_reader.element_symbol2atomic_number(symbol, atom_data)
+                                   for symbol in abundances])
+
+        number_density = pd.Series(index=atomic_numbers)
+
         for symbol in abundance:
             element_symbol = reformat_element_symbol(symbol)
             if element_symbol not in atom_data.symbol2atomic_number:
@@ -146,18 +148,12 @@ class BasePlasmaArray(object):
         raise NotImplementedError()
 
 
-    def __init__(self, t_rads, ws, number_densities, atom_data, time_explosion, j_blues=None, t_electrons=None,
-                 nlte_config=None, zone_id=None, saha_treatment='lte'):
+    def __init__(self, number_densities, atom_data, time_explosion, nlte_config=None, saha_treatment='lte'):
         self.number_densities = number_densities
-        self.t_rads = t_rads
-        self.t_electrons = t_electrons
-        self.ws = ws
-        self.j_blues = j_blues
         self.atom_data = atom_data
-
         self.time_explosion = time_explosion
-
         self.nlte_config = nlte_config
+
         self.electron_densities = self.number_densities.sum(axis=0)
 
         if saha_treatment == 'lte':
