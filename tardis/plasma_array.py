@@ -258,7 +258,7 @@ class BasePlasmaArray(object):
             self.electron_densities = 0.5 * (new_electron_densities + self.electron_densities)
 
         self.calculate_level_populations()
-        self.calculate_tau_sobolev()
+        self.tau_sobolevs = self.calculate_tau_sobolev()
         return
         if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
@@ -493,12 +493,12 @@ class BasePlasmaArray(object):
             current_phis = (groups / self.electron_densities).replace(np.nan, 0.0).values
             phis_product = np.cumproduct(current_phis, axis=0)
 
-            neutral_atom_density = self.number_densities.ix[atomic_number] / (1 + np.sum(phis_product))
-            neutral_atom_density = neutral_atom_density.astype(np.float64).reshape((1, len(neutral_atom_density)))
+            neutral_atom_density = self.number_densities.ix[atomic_number] / (1 + np.sum(phis_product, axis=0))
 
 
-            self.ion_populations.ix[atomic_number].values[0] = neutral_atom_density
-            self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density * phis_product
+
+            self.ion_populations.ix[atomic_number].values[0] = neutral_atom_density.values
+            self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
             self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
 
     def calculate_level_populations(self):
@@ -571,9 +571,6 @@ class BasePlasmaArray(object):
         g_upper = self.atom_data.levels.g.values[self.atom_data.lines_upper2level_idx]
         g_upper = g_upper.reshape((g_upper.shape[0], 1))
 
-        metastable = self.atom_data.levels.metastable.values[self.atom_data.lines_upper2level_idx]
-        metastable = metastable.reshape((metastable.shape[0], 1))
-
         self.stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
 
         # getting rid of the obvious culprits
@@ -585,12 +582,13 @@ class BasePlasmaArray(object):
             for nlte_species in self.nlte_config.nlte_species:
                 nlte_lines_mask |= (self.atom_data.lines_data.atomic_number == nlte_species[0]) & \
                                    (self.atom_data.lines_data.ion_number == nlte_species[1])
+            self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask] = 0.0
 
 
-        self.tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
+        tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
                     self.stimulated_emission_factor
 
-        return
+        return pd.DataFrame(tau_sobolevs, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
 
 
 
@@ -669,10 +667,20 @@ class BasePlasmaArray(object):
             Updating the Macro Atom computations
         """
 
-        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
+        macro_tau_sobolevs = self.tau_sobolevs.ix[self.atom_data.macro_atom_data.transition_line_id]
 
 
-        beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
+        beta_sobolevs = np.zeros_like(macro_tau_sobolevs.values)
+        big_tau_sobolevs_filter = macro_tau_sobolevs.values > 1e3
+        small_tau_sobolevs_filter = macro_tau_sobolevs.values < 1e-4
+        other_tau_sobolevs_filter = ~(big_tau_sobolevs_filter | small_tau_sobolevs_filter)
+
+        beta_sobolevs[big_tau_sobolevs_filter] = 1 / macro_tau_sobolevs.values[big_tau_sobolevs_filter]
+        beta_sobolevs[small_tau_sobolevs_filter] = 1 - 0.5*macro_tau_sobolevs.values[small_tau_sobolevs_filter]
+        other_tau_sobolevs = macro_tau_sobolevs.values[other_tau_sobolevs_filter]
+        beta_sobolevs[other_tau_sobolevs_filter] = (1 - np.exp(-other_tau_sobolevs)) / other_tau_sobolevs
+
+
 
         macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
 
