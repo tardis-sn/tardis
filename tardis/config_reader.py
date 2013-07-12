@@ -15,8 +15,6 @@ import pandas as pd
 from tardis import atomic
 import yaml
 
-import pdb
-
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
