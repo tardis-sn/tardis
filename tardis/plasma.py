@@ -8,6 +8,8 @@ import pandas as pd
 import macro_atom
 import os
 from .config_reader import reformat_element_symbol
+from scipy import interpolate
+
 
 logger = logging.getLogger(__name__)
 
@@ -379,16 +381,8 @@ class BasePlasma(object):
 
         delta = self.calculate_radiation_field_correction()
 
-        zeta = pd.Series(index=phis.index)
-
-        for idx in zeta.index:
-            try:
-                current_zeta = self.atom_data.zeta_data[idx](self.t_rad)
-            except KeyError:
-                current_zeta = 1.0
-
-            zeta.ix[idx] = current_zeta
-
+        zeta = interpolate.interp1d(self.atom_data.zeta_data.columns,
+                                    self.atom_data.zeta_data.ix[phis.index].values)(self.t_rad)
 
         phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) * \
                 (self.t_electron / self.t_rad) ** .5
