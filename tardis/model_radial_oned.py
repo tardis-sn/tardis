@@ -196,13 +196,14 @@ class Radial1DModel(object):
             logger.info('Calculating J_blues for radiate_rates_type=nebular')
             self.j_blues = ws * plasma.intensity_black_body(nus, t_rads)
         elif radiative_rates_type == 'detailed':
-            logger.info('Calculating J_blues for radiate_rates_type=nebular')
+            logger.info('Calculating J_blues for radiate_rates_type=detailed')
             self.j_blues = self.j_blue_estimators * self.j_blues_norm_factor.value
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = w_epsilon * plasma.intensity_black_body(
                     self.atom_data.lines.nu.values[zero_j_blues], self.t_rads.value[i])
-
+        else:
+            raise ValueError('radiation_ratest type unknown - %s', radiative_rates_type)
 
 
 
@@ -494,19 +495,22 @@ class TARDISHistory(object):
         ws_dict = {}
         level_populations_dict = {}
         ion_populations_dict = {}
+        j_blues_dict = {}
 
         history.iterations = iterations
 
         for iter in iterations:
             current_iter = 'iter%d' % iter
-            t_rads_dict[current_iter] = hdf_store['model%d/t_rads' % iter]
-            ws_dict[current_iter] = hdf_store['model%d/ws' % iter]
-            level_populations_dict[current_iter] = hdf_store['model%d/level_populations' % iter]
-            ion_populations_dict[current_iter] = hdf_store['model%d/ion_populations' % iter]
+            current_iter_new = 'iter%03d' % iter
+            t_rads_dict[current_iter_new] = hdf_store['model%d/t_rads' % iter]
+            ws_dict[current_iter_new] = hdf_store['model%d/ws' % iter]
+            level_populations_dict[current_iter_new] = hdf_store['model%d/level_populations' % iter]
+            ion_populations_dict[current_iter_new] = hdf_store['model%d/ion_populations' % iter]
+            j_blues_dict[current_iter_new] = hdf_store['model%d/j_blues' %iter]
 
-            for index in ion_populations_dict[current_iter].index:
-                level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
-                                                                      ion_populations_dict[current_iter].ix[index])
+            for index in ion_populations_dict[current_iter_new].index:
+                level_populations_dict[current_iter_new].ix[index].update(level_populations_dict[current_iter_new].ix[index] /
+                                                                      ion_populations_dict[current_iter_new].ix[index])
 
 
 
@@ -516,6 +520,7 @@ class TARDISHistory(object):
         history.ws = pd.DataFrame(ws_dict)
         history.level_populations = pd.Panel(level_populations_dict)
         history.ion_populations = pd.Panel(ion_populations_dict)
+        history.j_blues = pd.Panel(j_blues_dict)
 
         return history
 

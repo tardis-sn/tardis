@@ -152,7 +152,7 @@ class BasePlasmaArray(object):
         self.t_rads = t_rads
         self.t_electrons = t_electrons
         self.ws = ws
-
+        self.j_blues = j_blues
         self.atom_data = atom_data
 
         self.time_explosion = time_explosion
@@ -167,16 +167,7 @@ class BasePlasmaArray(object):
         else:
             raise ValueError('keyword "saha_treatment" can only be "lte" or "nebular" - %s chosen' % saha_treatment)
 
-        """
-                        self.initialize = True
 
-                        self.set_j_blues(j_blues)
-
-                        self.time_explosion = time_explosion
-
-                        self.nlte_config = nlte_config
-                        self.zone_id = zone_id
-        """
     #Properties
 
     @property
@@ -209,7 +200,7 @@ class BasePlasmaArray(object):
 
     #Functions
 
-    def update_radiationfield(self, t_rads, ws, n_e_convergence_threshold=0.05, initialize=False):
+    def update_radiationfield(self, t_rads, ws, j_blues=None, n_e_convergence_threshold=0.05, initialize=False):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -225,10 +216,11 @@ class BasePlasmaArray(object):
                 ionization balance.
 
        """
+
         self.initialize = initialize
         self.t_rads = t_rads
         self.ws = ws
-
+        self.j_blues=j_blues
         self.level_population_proportionalities, self.partition_functions = self.calculate_partition_functions()
 
 
@@ -267,13 +259,7 @@ class BasePlasmaArray(object):
             self.initialize = False
 
 
-    def validate_atom_data(self):
-        required_attributes = ['lines', 'levels']
-        for attribute in required_attributes:
-            if not hasattr(self.atom_data, attribute):
-                raise ValueError('AtomData incomplete missing')
-
-    def calculate_partition_functions(self):
+    def calculate_partition_functions(self, initialize_nlte=False):
         """
         Calculate partition functions for the ions using the following formula, where
         :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
@@ -310,27 +296,14 @@ class BasePlasmaArray(object):
 
         partition_functions.ix[partition_functions_non_meta.index] += partition_functions_non_meta
 
+        if self.nlte_config is not None and self.nlte_config.species != [] and not initialize_nlte:
+            for species in self.nlte_config.species:
+                self.partition_functions.ix[species] = self.atom_data.levels.g.ix[species].ix[0] * \
+                                                       (self.level_populations.ix[species] /
+                                                        self.level_populations.ix[species].ix[0]).sum()
+
         return level_population_proportionalities, partition_functions
 
-
-
-        """            self.atom_data.atom_ion_index = pd.Series(np.arange(len(self.partition_functions)),
-                                                              self.partition_functions.index)
-                    self.atom_data.levels_index2atom_ion_index = self.atom_data.atom_ion_index.ix[
-                        self.atom_data.levels.index.droplevel(2)].values
-                else:
-                    if not hasattr(self, 'partition_functions'):
-                        raise ValueError("Called calculate partition_functions without initializing at least once")
-
-                    for species, group in self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']):
-                        if species in self.nlte_config.species:
-                            ground_level_population = self.level_populations[species][0]
-                            self.partition_functions.ix[species] = self.atom_data.levels.ix[species]['g'][0] * \
-                                                                   np.sum(self.level_populations[
-                                                                              species].values / ground_level_population)
-                        else:
-                            self.partition_functions.ix[species] = np.sum(group['g'] * np.exp(-group['energy'] * self.beta_rad))
-        """
     def calculate_saha_lte(self):
         """
         Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
@@ -666,40 +639,29 @@ class BasePlasmaArray(object):
         """
             Updating the Macro Atom computations
         """
-
-        macro_tau_sobolevs = self.tau_sobolevs.ix[self.atom_data.macro_atom_data.transition_line_id]
+        macro_atom_data = self.atom_data.macro_atom_data
+        macro_tau_sobolevs = self.tau_sobolevs.ix[macro_atom_data.transition_line_id]
 
 
         beta_sobolevs = np.zeros_like(macro_tau_sobolevs.values)
-        big_tau_sobolevs_filter = macro_tau_sobolevs.values > 1e3
-        small_tau_sobolevs_filter = macro_tau_sobolevs.values < 1e-4
-        other_tau_sobolevs_filter = ~(big_tau_sobolevs_filter | small_tau_sobolevs_filter)
-
-        beta_sobolevs[big_tau_sobolevs_filter] = 1 / macro_tau_sobolevs.values[big_tau_sobolevs_filter]
-        beta_sobolevs[small_tau_sobolevs_filter] = 1 - 0.5*macro_tau_sobolevs.values[small_tau_sobolevs_filter]
-        other_tau_sobolevs = macro_tau_sobolevs.values[other_tau_sobolevs_filter]
-        beta_sobolevs[other_tau_sobolevs_filter] = (1 - np.exp(-other_tau_sobolevs)) / other_tau_sobolevs
 
 
+        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs.values.flatten(), beta_sobolevs.flatten())
 
-        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
+        transition_probabilities = macro_atom_data.transition_probability.values[np.newaxis].T * beta_sobolevs
 
-        transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * beta_sobolevs
+        transition_up_filter = (macro_atom_data.transition_type == 1).values
 
-        transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
+        j_blues = self.j_blues[macro_atom_data.lines_idx.values[transition_up_filter]]
+        macro_stimulated_emission = self.stimulated_emission_factor[macro_atom_data.lines_idx.values[transition_up_filter]]
 
-        j_blues = self.j_blues[self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
-        macro_stimulated_emission = self.stimulated_emission_factor[
-            self.atom_data.macro_atom_data['lines_idx'].values[transition_up_filter.__array__()]]
+        transition_probabilities[transition_up_filter] *= j_blues * macro_stimulated_emission
 
-        transition_probabilities[transition_up_filter.__array__()] *= j_blues * macro_stimulated_emission
-
-        #reference_levels = np.hstack((0, self.atom_data.macro_atom_references['count_total'].__array__().cumsum()))
 
         #Normalizing the probabilities
         #TODO speedup possibility save the new blockreferences with 0 and last block
         block_references = np.hstack((self.atom_data.macro_atom_references['block_references'],
-                                      len(self.atom_data.macro_atom_data)))
+                                      len(macro_atom_data)))
         macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
         return transition_probabilities
 
