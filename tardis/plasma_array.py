@@ -156,6 +156,9 @@ class BasePlasmaArray(object):
 
         self.electron_densities = self.number_densities.sum(axis=0)
 
+        self.level_populations = pd.DataFrame(index=self.atom_data.levels.index, columns=number_densities.columns,
+                                              dtype=np.float64)
+
         if saha_treatment == 'lte':
             self.calculate_saha = self.calculate_saha_lte
         elif saha_treatment == 'nebular':
@@ -196,7 +199,7 @@ class BasePlasmaArray(object):
 
     #Functions
 
-    def update_radiationfield(self, t_rads, ws, j_blues=None, n_e_convergence_threshold=0.05, initialize=False):
+    def update_radiationfield(self, t_rads, ws, j_blues=None, t_electrons=None, n_e_convergence_threshold=0.05):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -213,8 +216,9 @@ class BasePlasmaArray(object):
 
        """
 
-        self.initialize = initialize
         self.t_rads = t_rads
+        if t_electrons is None:
+            self.t_electrons = None
         self.ws = ws
         self.j_blues=j_blues
         self.level_population_proportionalities, self.partition_functions = self.calculate_partition_functions()
@@ -247,12 +251,11 @@ class BasePlasmaArray(object):
 
         self.calculate_level_populations()
         self.tau_sobolevs = self.calculate_tau_sobolev()
-        return
+
         if self.nlte_config is not None and self.nlte_config.species:
+            raise NotImplementedError()
             self.calculate_nlte_level_populations()
 
-        if self.initialize:
-            self.initialize = False
 
 
     def calculate_partition_functions(self, initialize_nlte=False):
@@ -470,7 +473,7 @@ class BasePlasmaArray(object):
             self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
             self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
 
-    def calculate_level_populations(self):
+    def calculate_level_populations(self, initialize_nlte=False):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
         :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
@@ -492,17 +495,15 @@ class BasePlasmaArray(object):
         level_populations = (ion_number_density / Z) * self.level_population_proportionalities
 
         #only change between lte plasma and nebular
-        level_populations[~self.atom_data.levels['metastable']] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
+        level_populations[~self.atom_data.levels.metastable] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
 
-        if self.initialize:
-            self.level_populations = pd.DataFrame(level_populations, index=self.atom_data.levels.index,
-                                                  columns=np.arange(len(self.t_rads)))
 
+        if initialize_nlte:
+            self.level_populations.update(level_populations)
         else:
-            level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
             self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
 
-        #self.level_populations.values[np.isnan(self.level_populations.values)]
+
 
 
     def calculate_tau_sobolev(self):
@@ -546,9 +547,9 @@ class BasePlasmaArray(object):
         self.stimulated_emission_factor[(n_lower == 0.0) & (n_upper == 0.0)] = 0.0
         self.stimulated_emission_factor[np.isneginf(self.stimulated_emission_factor)] = 0.0
 
-        if self.nlte_config is not None:
+        if self.nlte_config is not None and self.nlte_config.species != []:
             nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
-            for nlte_species in self.nlte_config.nlte_species:
+            for species in self.nlte_config.species:
                 nlte_lines_mask |= (self.atom_data.lines_data.atomic_number == nlte_species[0]) & \
                                    (self.atom_data.lines_data.ion_number == nlte_species[1])
             self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask] = 0.0
@@ -640,9 +641,10 @@ class BasePlasmaArray(object):
 
 
         beta_sobolevs = np.zeros_like(macro_tau_sobolevs.values)
+        beta_sobolevs_f = beta_sobolevs.ravel(order='F')
 
+        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs.values.flatten(), beta_sobolevs_f)
 
-        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs.values.flatten(), beta_sobolevs.flatten())
 
         transition_probabilities = macro_atom_data.transition_probability.values[np.newaxis].T * beta_sobolevs
 
@@ -655,8 +657,7 @@ class BasePlasmaArray(object):
 
 
         #Normalizing the probabilities
-        #TODO speedup possibility save the new blockreferences with 0 and last block
-        block_references = np.hstack((self.atom_data.macro_atom_references['block_references'],
+        block_references = np.hstack((self.atom_data.macro_atom_references.block_references,
                                       len(macro_atom_data)))
         macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
         return transition_probabilities
@@ -735,7 +736,7 @@ class LTEPlasma(BasePlasmaArray):
                                                     j_blues=j_blues, t_electron=t_electron, nlte_config=nlte_config,
                                                     zone_id=zone_id)
 
-    def __init__(self, t_rad, number_density, atom_data, time_explosion, w=1., j_blues=None, t_electron=None,
+    def __init__(self, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
                  nlte_config=None, zone_id=None, saha_treatment='lte'):
         super(LTEPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
                                         t_electron=t_electron, nlte_config=nlte_config, zone_id=zone_id,

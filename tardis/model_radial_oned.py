@@ -1,7 +1,7 @@
 # building of radial_oned_model
 
 import numpy as np
-import plasma, packet_source
+from tardis import plasma, packet_source, plasma_array
 import logging
 
 import pandas as pd
@@ -109,38 +109,20 @@ class Radial1DModel(object):
             self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.config_dict.copy()
 
         self.t_rads = tardis_config.plasma.t_rads
-
-        self.tau_sobolevs = np.zeros((no_of_shells, len(self.atom_data.lines)))
-
-        self.j_blue_estimators = np.zeros_like(self.tau_sobolevs)
-        self.j_blues = np.zeros_like(self.tau_sobolevs)
-        j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
-                       (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes.value)
-        self.j_blues_norm_factor = j_blues_norm_factor.value.reshape((no_of_shells, 1)) * j_blues_norm_factor.unit
-
-        self.transition_probabilities = np.zeros((no_of_shells, len(self.atom_data.macro_atom_data.lines_idx)))
-
-
-        self.plasmas = []
+        self.j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
+                       (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes)
 
         self.ws = (0.5 * (1 - np.sqrt(1 -
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
-        for i in xrange(no_of_shells):
-            if tardis_config.plasma.type == 'lte':
 
-                current_plasma_class = plasma.LTEPlasma
 
-            elif tardis_config.plasma.type == 'nebular':
+        self.plasma_array = plasma_array.BasePlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
+                                                         tardis_config.supernova.time_explosion.to('s').value,
+                                                         nlte_config=tardis_config.plasma.nlte,
+                                                         saha_treatment=tardis_config.plasma.type)
 
-                current_plasma_class = plasma.NebularPlasma
 
-            current_plasma = current_plasma_class(t_rad=self.t_rads[i].value,
-                                                     number_density=tardis_config.number_densities[i],
-                                                     atom_data=self.atom_data,
-                                                     time_explosion=tardis_config.supernova.time_explosion.to('s').value,
-                                                     w=self.ws[i], j_blues=self.j_blues[i],
-                                                     nlte_config=tardis_config.plasma.nlte, zone_id=i)
-            self.plasmas.append(current_plasma)
+
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
@@ -184,19 +166,19 @@ class Radial1DModel(object):
 
     def calculate_j_blues(self, init_detailed_j_blues=False):
         nus = self.atom_data.lines.nu.values
-        t_rads = self.t_rads.value.reshape((self.tardis_config.structure.no_of_shells, 1))
-        ws = self.ws.reshape((self.tardis_config.structure.no_of_shells, 1))
         radiative_rates_type = self.tardis_config.plasma.radiative_rates_type
         w_epsilon = self.tardis_config.plasma.w_epsilon
 
         if radiative_rates_type == 'lte':
             logger.info('Calculating J_blues for radiate_rates_type=lte')
-            self.j_blues = plasma.intensity_black_body(nus, t_rads)
+            self.j_blues = plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+
         elif radiative_rates_type == 'nebular' or init_detailed_j_blues:
             logger.info('Calculating J_blues for radiate_rates_type=nebular')
-            self.j_blues = ws * plasma.intensity_black_body(nus, t_rads)
+            self.j_blues = self.ws * plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
         elif radiative_rates_type == 'detailed':
             logger.info('Calculating J_blues for radiate_rates_type=detailed')
+            1/0
             self.j_blues = self.j_blue_estimators * self.j_blues_norm_factor.value
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
@@ -237,24 +219,16 @@ class Radial1DModel(object):
 
         return updated_t_rads * u.K, updated_ws
 
-
-
     def update_plasmas(self):
-        for i in xrange(self.tardis_config.structure.no_of_shells):
-        #for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
-            logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, self.t_rads[i].value, self.ws[i]))
-            self.plasmas[i].set_j_blues(self.j_blues[i])
-            if self.tardis_config.plasma.type == 'lte':
-                current_ws = 1.0
-            elif self.tardis_config.plasma.type == 'nebular':
-                current_ws = self.ws[i]
+        if self.tardis_config.plasma.type == 'lte':
+            self.plasma_array.update_radiationfield(self.t_rads.value, np.ones_like(self.t_rads), j_blues=self.j_blues)
+        elif self.tardis_config.plasma.type == 'nebular':
+            self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues)
+        else:
+            raise NotImplementedError('Plasma type "%s" - not implemented' % self.tardis_config.plasma.type)
 
-            self.plasmas[i].update_radiationfield(self.t_rads[i].value, w=current_ws)
-            self.tau_sobolevs[i] = self.plasmas[i].tau_sobolevs
-
-            if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
-                self.transition_probabilities[i] = self.plasmas[i].calculate_transition_probabilities()
-
+        if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
+            self.transition_probabilities = self.plasma_array.calculate_transition_probabilities()
 
 
 
