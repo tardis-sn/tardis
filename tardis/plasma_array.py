@@ -649,9 +649,9 @@ class BasePlasmaArray(object):
         transition_probabilities = macro_atom_data.transition_probability.values[np.newaxis].T * beta_sobolevs
 
         transition_up_filter = (macro_atom_data.transition_type == 1).values
-
-        j_blues = self.j_blues[macro_atom_data.lines_idx.values[transition_up_filter]]
-        macro_stimulated_emission = self.stimulated_emission_factor[macro_atom_data.lines_idx.values[transition_up_filter]]
+        macro_atom_transition_up_filter = macro_atom_data.lines_idx.values[transition_up_filter]
+        j_blues = self.j_blues[macro_atom_transition_up_filter]
+        macro_stimulated_emission = self.stimulated_emission_factor[macro_atom_transition_up_filter]
 
         transition_probabilities[transition_up_filter] *= j_blues * macro_stimulated_emission
 
@@ -660,7 +660,8 @@ class BasePlasmaArray(object):
         block_references = np.hstack((self.atom_data.macro_atom_references.block_references,
                                       len(macro_atom_data)))
         macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
-        return transition_probabilities
+        return pd.DataFrame(transition_probabilities, index=macro_atom_data.transition_line_id,
+                     columns=self.tau_sobolevs.columns)
 
     def set_j_blues(self, j_blues=None):
         if j_blues is None:

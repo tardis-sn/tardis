@@ -95,8 +95,6 @@ class Radial1DModel(object):
                                                                            tardis_config.spectrum.end)
         self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
 
-        no_of_shells = tardis_config.structure.no_of_shells
-
         self.t_inner = tardis_config.plasma.t_inner
         self.t_rads = tardis_config.plasma.t_rads
 
@@ -111,6 +109,8 @@ class Radial1DModel(object):
         self.t_rads = tardis_config.plasma.t_rads
         self.j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
                        (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes)
+
+        self.j_blue_estimators = pd.DataFrame(0.0, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
 
         self.ws = (0.5 * (1 - np.sqrt(1 -
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
@@ -130,9 +130,6 @@ class Radial1DModel(object):
 
 
 
-    @property
-    def electron_densities(self):
-        return np.array([plasma.electron_density for plasma in self.plasmas])
 
     @property
     def line_interaction_type(self):
@@ -250,7 +247,8 @@ class Radial1DModel(object):
             no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
         else:
             no_of_virtual_packets = 0
-        if np.any(np.isnan(self.tau_sobolevs)) or np.any(np.isinf(self.tau_sobolevs)) or np.any(np.isneginf(self.tau_sobolevs)):
+        if np.any(np.isnan(self.plasma_array.tau_sobolevs)) or np.any(np.isinf(self.plasma_array.tau_sobolevs)) \
+            or np.any(np.isneginf(self.plasma_array.tau_sobolevs)):
             raise ValueError('Some values are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
 
