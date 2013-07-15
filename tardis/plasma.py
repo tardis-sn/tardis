@@ -665,14 +665,15 @@ class BasePlasma(object):
             Updating the Macro Atom computations
         """
 
-        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
 
 
-        beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
+        if not hasattr(self, 'beta_sobolevs'):
+            self.beta_sobolevs = np.zeros_like(self.tau_sobolevs)
 
-        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
+        macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
 
-        transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * beta_sobolevs
+        transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * \
+                                   self.beta_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
 
         transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
 
