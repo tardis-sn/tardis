@@ -528,35 +528,32 @@ class BasePlasmaArray(object):
         """
 
         f_lu = self.atom_data.lines['f_lu'].values
-        f_lu = f_lu.reshape((f_lu.shape[0], 1))
         wavelength = self.atom_data.lines['wavelength_cm'].values
-        wavelength = wavelength.reshape((wavelength.shape[0], 1))
 
         n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
         n_upper = self.level_populations.values[self.atom_data.lines_upper2level_idx]
-
+        meta_stable_upper = self.atom_data.levels.metastable.values[self.atom_data.lines_upper2level_idx]
 
         g_lower = self.atom_data.levels.g.values[self.atom_data.lines_lower2level_idx]
-        g_lower = g_lower.reshape((g_lower.shape[0], 1))
         g_upper = self.atom_data.levels.g.values[self.atom_data.lines_upper2level_idx]
-        g_upper = g_upper.reshape((g_upper.shape[0], 1))
 
-        self.stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
 
+        self.stimulated_emission_factor = 1 - ((g_lower[np.newaxis].T * n_upper) / (g_upper[np.newaxis].T * n_lower))
         # getting rid of the obvious culprits
-        self.stimulated_emission_factor[(n_lower == 0.0) & (n_upper == 0.0)] = 0.0
+        self.stimulated_emission_factor[n_lower == 0.0] = 0.0
         self.stimulated_emission_factor[np.isneginf(self.stimulated_emission_factor)] = 0.0
+        self.stimulated_emission_factor[meta_stable_upper[np.newaxis].T & (self.stimulated_emission_factor < 0)] = 0.0
 
         if self.nlte_config is not None and self.nlte_config.species != []:
             nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
             for species in self.nlte_config.species:
-                nlte_lines_mask |= (self.atom_data.lines_data.atomic_number == nlte_species[0]) & \
-                                   (self.atom_data.lines_data.ion_number == nlte_species[1])
+                nlte_lines_mask |= (self.atom_data.lines_data.atomic_number == species[0]) & \
+                                   (self.atom_data.lines_data.ion_number == species[1])
             self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask] = 0.0
 
 
-        tau_sobolevs = sobolev_coefficient * f_lu * wavelength * self.time_explosion * n_lower * \
-                    self.stimulated_emission_factor
+        tau_sobolevs = sobolev_coefficient * f_lu[np.newaxis].T * wavelength[np.newaxis].T * self.time_explosion * \
+                       n_lower * self.stimulated_emission_factor
 
         return pd.DataFrame(tau_sobolevs, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
 
@@ -725,41 +722,6 @@ class BasePlasmaArray(object):
         else:
             raise NotImplementedError('Currently only mode="full" is supported.')
 
-
-class LTEPlasma(BasePlasmaArray):
-    __doc__ = BasePlasmaArray.__doc__
-
-    @classmethod
-    def from_abundance(cls, t_rad, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_config=None, zone_id=None):
-        __doc__ = BasePlasma.from_abundance.__doc__
-        return super(LTEPlasma, cls).from_abundance(t_rad, 1., abundance, density, atom_data, time_explosion,
-                                                    j_blues=j_blues, t_electron=t_electron, nlte_config=nlte_config,
-                                                    zone_id=zone_id)
-
-    def __init__(self, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 nlte_config=None, zone_id=None, saha_treatment='lte'):
-        super(LTEPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                        t_electron=t_electron, nlte_config=nlte_config, zone_id=zone_id,
-                                        saha_treatment=saha_treatment)
-
-
-class NebularPlasma(BasePlasmaArray):
-    __doc__ = BasePlasmaArray.__doc__
-
-    @classmethod
-    def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_config=None, zone_id=None):
-        return super(NebularPlasma, cls).from_abundance(t_rad, w, abundance, density, atom_data, time_explosion,
-                                                        j_blues=j_blues, t_electron=t_electron, nlte_config=nlte_config,
-                                                        zone_id=zone_id, saha_treatment='nebular')
-
-
-    def __init__(self, t_rad, w, number_density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                 nlte_config=None, zone_id=None, saha_treatment='nebular'):
-        super(NebularPlasma, self).__init__(t_rad, w, number_density, atom_data, time_explosion, j_blues=j_blues,
-                                            t_electron=t_electron, nlte_config=nlte_config, zone_id=zone_id,
-                                            saha_treatment=saha_treatment)
 
 
 
