@@ -299,11 +299,15 @@ class LineInfo(QtGui.QDialog):
         self.setGeometry(200 + len(self.parent.line_info) * 20, 150, 250, 400)
         #self.setWindowTitle('Last Line Interaction: %f - %f (A)' % (self.wavelength_start, self.wavelength_end))
         self.setWindowTitle('Line Interaction')
-        self.atomstable = QtGui.QTableView()
+        self.transitionstable = QtGui.QTableView()
         self.transitionsintable = QtGui.QTableView()
         self.transitionsouttable = QtGui.QTableView()
-        #self.atomstable.connect(self.atomstable.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'), self.on_atom_header_clicked)
-        self.atomstable.connect(self.atomstable, QtCore.SIGNAL("clicked(QModelIndex)"), self.on_atom_clicked)
+        self.transitionstable2 = QtGui.QTableView()
+        self.transitionsintable2 = QtGui.QTableView()
+        self.transitionsouttable2 = QtGui.QTableView()
+        #self.transitionstable.connect(self.transitionstable.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'), self.on_atom_header_clicked)
+        self.transitionstable.connect(self.transitionstable, QtCore.SIGNAL("clicked(QModelIndex)"), self.on_atom_clicked)
+        self.transitionstable2.connect(self.transitionstable2, QtCore.SIGNAL("clicked(QModelIndex)"), self.on_atom_clicked2)
         self.get_data(wavelength_start, wavelength_end)
         #self.last_line_out.groupby('atomic_number').wavelength.count().astype(float) / self.last_line_out.groupby('atomic_number').wavelength.count().sum()
         self.atomsdata = MyTableModel([self.header_list, ['Abundance']])
@@ -312,16 +316,26 @@ class LineInfo(QtGui.QDialog):
         #self.transitionsdata = MyTableModel([])
         #self.atomsdata.addData(self.level_transitions_in)
         #self.atomsdata.addData(self.last_line_out_atom_table.values.tolist())
-        self.atomstable.setModel(self.atomsdata)
+        self.transitionstable.setModel(self.atomsdata)
+        self.transitionstable2.setModel(self.atomsdata)
         # for ions in self.ions_index:
-        #     self.atomstable.hideRow(ions)
-        self.layout = QtGui.QHBoxLayout()
-        self.layout.addWidget(self.atomstable)
-        self.layout.addWidget(self.transitionsintable)
-        self.layout.addWidget(self.transitionsouttable)
+        #     self.transitionstable.hideRow(ions)
+        self.layout = QtGui.QVBoxLayout()
+        self.sublayout = QtGui.QHBoxLayout()
+        self.sublayout.addWidget(self.transitionstable)
+        self.sublayout.addWidget(self.transitionsintable)
+        self.sublayout.addWidget(self.transitionsouttable)
+        self.sublayout2 = QtGui.QHBoxLayout()
+        self.sublayout2.addWidget(self.transitionstable2)
+        self.sublayout2.addWidget(self.transitionsintable2)
+        self.sublayout2.addWidget(self.transitionsouttable2)
+        self.layout.addLayout(self.sublayout)
+        self.layout.addLayout(self.sublayout2)
         self.setLayout(self.layout)
         self.transitionsintable.hide()
         self.transitionsouttable.hide()
+        self.transitionsintable2.hide()
+        self.transitionsouttable2.hide()
         self.show()
 
     def get_data(self, wavelength_start, wavelength_end):
@@ -349,24 +363,24 @@ class LineInfo(QtGui.QDialog):
         #         self.header_list.append('Z = ' + str(current_atom_index) + ': Ion ' + str(i_index))
         #         #self.ions_index.append(len(self.full_table_data) - 1)
 
-    def update(self, wavelength_start, wavelength_end):
-        self.get_data(wavelength_start, wavelength_end)
-        #self.atomsdata.headerdata = [self.header_list, ['Percent']]
-        #self.emit(QtCore.SIGNAL("LayoutAboutToBeChanged()"))
-        self.atomsdata = MyTableModel([self.header_list, ['Percent']])
-        self.atomsdata.arraydata = []
-        self.atomsdata.addData(self.full_table_data)
-        self.atomsdata.updateTable()
-        #self.emit(QtCore.SIGNAL("LayoutChanged()"))
-        self.atomstable = QtGui.QTableView()
-        self.atomstable.connect(self.atomstable.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'), self.on_atom_header_clicked)
-        self.atomstable.setModel(self.atomsdata)
-        for row in range(self.atomsdata.rowCount()):
-            if not (row in self.ions_index):
-                self.atomstable.showRow(row)
-            else:
-                self.atomstable.hideRow(row)
-        self.show()
+    # def update(self, wavelength_start, wavelength_end):
+    #     self.get_data(wavelength_start, wavelength_end)
+    #     #self.atomsdata.headerdata = [self.header_list, ['Percent']]
+    #     #self.emit(QtCore.SIGNAL("LayoutAboutToBeChanged()"))
+    #     self.atomsdata = MyTableModel([self.header_list, ['Percent']])
+    #     self.atomsdata.arraydata = []
+    #     self.atomsdata.addData(self.full_table_data)
+    #     self.atomsdata.updateTable()
+    #     #self.emit(QtCore.SIGNAL("LayoutChanged()"))
+    #     self.transitionstable = QtGui.QTableView()
+    #     self.transitionstable.connect(self.transitionstable.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'), self.on_atom_header_clicked)
+    #     self.transitionstable.setModel(self.atomsdata)
+    #     for row in range(self.atomsdata.rowCount()):
+    #         if not (row in self.ions_index):
+    #             self.transitionstable.showRow(row)
+    #         else:
+    #             self.transitionstable.hideRow(row)
+    #     self.show()
 
     def get_transition_table(self, lines, atom, ion):
         grouped = lines.groupby(['atomic_number', 'ion_number'])
@@ -423,25 +437,59 @@ class LineInfo(QtGui.QDialog):
         self.setGeometry(400, 150, 750, 400)
         self.show()
 
-    def on_atom_header_clicked(self, index):
-        #self.current_atom_index = self.atom_values.index.values.tolist()[index]
-        #self.last_line_out[self.last_line_out.atomic_number == self.current_atom_index].groupby('ion_number').wavelength.count().astype(float) / self.last_line_out[self.last_line_out.atomic_number == self.current_atom_index].groupby('ion_number').wavelength.count().sum()
-        #self.ionsdata = MyTableModel([['Ion: '], ['Lines In']], iterate_header=(2, 0), index_info=self.last_line_in_ion_table.index.values.tolist())
-        #self.ionsdata.addData(self.last_line_in_ion_table.values.tolist())
-        #self.ionsdata.addData(self.last_line_out_ion_table.values.tolist())
-        #self.ionstable.setModel(self.ionsdata)
-        #self.ionstable.setColumnWidth(0, 120)
-        #self.ionstable.show()
-        #self.setGeometry(400, 150, 400, 400)
-        i_index = index + 1
-        if not index in self.ions_index:
-            while i_index in self.ions_index:
-                if self.atomstable.isRowHidden(i_index):
-                    self.atomstable.showRow(i_index)
-                else:
-                    self.atomstable.hideRow(i_index)
-                i_index += 1
+    def on_atom_clicked2(self, qindex):
+        index = qindex.row()
+        # gindex = index
+        # if gindex in self.ions_index:
+        #     hack = 1
+        # else:
+        #     hack = 0
+        # while not gindex in self.ions_index:
+        #     gindex += 1     # Last item in table is always an ion
+        #current_atom_index = self.atom_values.index.values.tolist()[index - self.ions_index.index(gindex) - hack]
+        # if not index in self.ions_index:
+        #     self.transitions_level_lower = self.last_line_in[(self.last_line_in.atomic_number == current_atom_index)].level_number_lower.values.tolist()
+        #     self.transitions_level_upper = self.last_line_in[(self.last_line_in.atomic_number == current_atom_index)].level_number_upper.values.tolist()
+        #     self.transitions_wavelength = self.last_line_in[(self.last_line_in.atomic_number == current_atom_index)].wavelength.values.tolist()
+        # else:
+        #i_index = current_ion_index(index, self.ions_index)
+        # current_atom_index = self.[index]
+        # i_index = current_ion_index(index, self.current_atom_index)
+        # self.transitions_level_lower = self.last_line_in[(self.last_line_in.atomic_number == current_atom_index) & (self.last_line_in.ion_number == i_index)].level_number_lower.values.tolist()
+        # self.transitions_level_upper = self.last_line_in[(self.last_line_in.atomic_number == current_atom_index) & (self.last_line_in.ion_number == i_index)].level_number_upper.values.tolist()
+        # self.transitions_wavelength = self.last_line_in[(self.last_line_in.atomic_number == current_atom_index) & (self.last_line_in.ion_number == i_index)].wavelength.values.tolist()
+        self.transitionsin_parsed, self.transitionsin_count = self.get_transition_table(self.last_line_in, self.ions_in[index][0], self.ions_in[index][1])
+        self.transitionsout_parsed, self.transitionsout_count = self.get_transition_table(self.last_line_out, self.ions_out[index][0], self.ions_out[index][1])
+        self.transitionsindata = MyTableModel([self.transitionsin_parsed, ['Lines In']])
+        self.transitionsoutdata = MyTableModel([self.transitionsout_parsed, ['Lines Out']])
+        self.transitionsindata.addData(self.transitionsin_count)
+        self.transitionsoutdata.addData(self.transitionsout_count)
+        self.transitionsintable2.setModel(self.transitionsindata)
+        self.transitionsouttable2.setModel(self.transitionsoutdata)
+        self.transitionsintable2.show()
+        self.transitionsouttable2.show()
+        self.setGeometry(400, 150, 750, 400)
         self.show()
+
+    # def on_atom_header_clicked(self, index):
+    #     #self.current_atom_index = self.atom_values.index.values.tolist()[index]
+    #     #self.last_line_out[self.last_line_out.atomic_number == self.current_atom_index].groupby('ion_number').wavelength.count().astype(float) / self.last_line_out[self.last_line_out.atomic_number == self.current_atom_index].groupby('ion_number').wavelength.count().sum()
+    #     #self.ionsdata = MyTableModel([['Ion: '], ['Lines In']], iterate_header=(2, 0), index_info=self.last_line_in_ion_table.index.values.tolist())
+    #     #self.ionsdata.addData(self.last_line_in_ion_table.values.tolist())
+    #     #self.ionsdata.addData(self.last_line_out_ion_table.values.tolist())
+    #     #self.ionstable.setModel(self.ionsdata)
+    #     #self.ionstable.setColumnWidth(0, 120)
+    #     #self.ionstable.show()
+    #     #self.setGeometry(400, 150, 400, 400)
+    #     i_index = index + 1
+    #     if not index in self.ions_index:
+    #         while i_index in self.ions_index:
+    #             if self.transitionstable.isRowHidden(i_index):
+    #                 self.transitionstable.showRow(i_index)
+    #             else:
+    #                 self.transitionstable.hideRow(i_index)
+    #             i_index += 1
+    #     self.show()
 
 class MyTableModel(QtCore.QAbstractTableModel):
     def __init__(self, headerdata=None, iterate_header=(0, 0), index_info=None, parent=None, *args):
