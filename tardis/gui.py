@@ -232,7 +232,7 @@ class ShellInfo(QtGui.QDialog):
                                self.on_atom_header_double_clicked)
 
         self.plasma = self.parent.model.plasmas[self.shell_index]
-        self.table1_data = self.parent.model.tardis_config.abundances.ix[self.shell_index]
+        self.table1_data = self.parent.model.tardis_config.abundances[self.shell_index]
         self.atomsdata = MyTableModel([['Z = '], ['Count (Shell %d)' % (self.shell_index + 1)]], iterate_header=(2, 0), index_info=self.table1_data.index.values.tolist())
         self.ionsdata = None
         self.levelsdata = None
