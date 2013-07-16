@@ -217,11 +217,13 @@ class Radial1DModel(object):
 
         return updated_t_rads * u.K, updated_ws
 
-    def update_plasmas(self):
+    def update_plasmas(self, initialize_nlte=False):
         if self.tardis_config.plasma.type == 'lte':
-            self.plasma_array.update_radiationfield(self.t_rads.value, np.ones_like(self.t_rads), j_blues=self.j_blues)
+            self.plasma_array.update_radiationfield(self.t_rads.value, np.ones_like(self.t_rads), j_blues=self.j_blues,
+                                                    initialize_nlte=initialize_nlte)
         elif self.tardis_config.plasma.type == 'nebular':
-            self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues)
+            self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
+                                                    initialize_nlte=initialize_nlte)
         else:
             raise NotImplementedError('Plasma type "%s" - not implemented' % self.tardis_config.plasma.type)
 
@@ -230,7 +232,8 @@ class Radial1DModel(object):
 
 
 
-    def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False):
+    def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False,
+                 initialize_nlte=False):
         """
         Run a simulation
         """
@@ -238,7 +241,7 @@ class Radial1DModel(object):
         self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
 
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
-        self.update_plasmas()
+        self.update_plasmas(initialize_nlte=initialize_nlte)
 
 
         if update_radiation_field:
