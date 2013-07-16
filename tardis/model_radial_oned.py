@@ -167,22 +167,23 @@ class Radial1DModel(object):
         w_epsilon = self.tardis_config.plasma.w_epsilon
 
         if radiative_rates_type == 'lte':
-            logger.info('Calculating J_blues for radiate_rates_type=lte')
+            logger.info('Calculating J_blues for radiative_rates_type=lte')
             self.j_blues = plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
 
         elif radiative_rates_type == 'nebular' or init_detailed_j_blues:
-            logger.info('Calculating J_blues for radiate_rates_type=nebular')
+            logger.info('Calculating J_blues for radiative_rates_type=nebular')
             self.j_blues = self.ws * plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+
         elif radiative_rates_type == 'detailed':
             logger.info('Calculating J_blues for radiate_rates_type=detailed')
-            1/0
+
             self.j_blues = self.j_blue_estimators * self.j_blues_norm_factor.value
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = w_epsilon * plasma.intensity_black_body(
                     self.atom_data.lines.nu.values[zero_j_blues], self.t_rads.value[i])
         else:
-            raise ValueError('radiation_ratest type unknown - %s', radiative_rates_type)
+            raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
 
 
@@ -235,6 +236,7 @@ class Radial1DModel(object):
         """
 
         self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
+
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
         self.update_plasmas()
 
