@@ -238,7 +238,7 @@ class Radial1DModel(object):
 
 
 
-    def update_plasmas(self):
+    def update_plasmas(self, initialize_nlte=False):
         for i in xrange(self.tardis_config.structure.no_of_shells):
         #for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
             logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, self.t_rads[i].value, self.ws[i]))
@@ -248,7 +248,7 @@ class Radial1DModel(object):
             elif self.tardis_config.plasma.type == 'nebular':
                 current_ws = self.ws[i]
 
-            self.plasmas[i].update_radiationfield(self.t_rads[i].value, w=current_ws)
+            self.plasmas[i].update_radiationfield(self.t_rads[i].value, w=current_ws, initialize_nlte=initialize_nlte)
             self.tau_sobolevs[i] = self.plasmas[i].tau_sobolevs
 
             if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
@@ -257,14 +257,15 @@ class Radial1DModel(object):
 
 
 
-    def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False):
+    def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False,
+                 initialize_nlte=False):
         """
         Run a simulation
         """
 
         self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
-        self.update_plasmas()
+        self.update_plasmas(initialize_nlte=initialize_nlte)
 
 
         if update_radiation_field:
