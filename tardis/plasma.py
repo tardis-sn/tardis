@@ -206,7 +206,7 @@ class BasePlasma(object):
 
     #Functions
 
-    def update_radiationfield(self, t_rad, w, n_e_convergence_threshold=0.05):
+    def update_radiationfield(self, t_rad, w, n_e_convergence_threshold=0.05, initialize_nlte=False):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -226,7 +226,7 @@ class BasePlasma(object):
         self.t_rad = t_rad
         self.w = w
 
-        self.calculate_partition_functions()
+        self.calculate_partition_functions(initialize_nlte=initialize_nlte)
 
 
 
@@ -253,7 +253,7 @@ class BasePlasma(object):
         self.electron_density = new_electron_density
         logger.debug('Took %d iterations to converge on electron density' % n_e_iterations)
 
-        self.calculate_level_populations()
+        self.calculate_level_populations(initialize_nlte=initialize_nlte)
         self.calculate_tau_sobolev()
         if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
@@ -268,7 +268,7 @@ class BasePlasma(object):
             if not hasattr(self.atom_data, attribute):
                 raise ValueError('AtomData incomplete missing')
 
-    def calculate_partition_functions(self):
+    def calculate_partition_functions(self, initialize_nlte=False):
         """
         Calculate partition functions for the ions using the following formula, where
         :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
@@ -298,7 +298,7 @@ class BasePlasma(object):
             return meta_z + self.w * non_meta_z
 
 
-        if self.initialize:
+        if initialize_nlte:
             logger.debug('Initializing the partition functions and indices')
 
             self.partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
@@ -482,7 +482,7 @@ class BasePlasma(object):
             self.ion_populations.ix[atomic_number] = ion_densities
             self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
 
-    def calculate_level_populations(self):
+    def calculate_level_populations(self, initialize_nlte=False):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
         :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
@@ -507,7 +507,7 @@ class BasePlasma(object):
         #only change between lte plasma and nebular
         level_populations[~self.atom_data.levels['metastable']] *= np.min([self.w, 1.])
 
-        if self.initialize:
+        if initialize_nlte:
             self.level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
 
         else:
