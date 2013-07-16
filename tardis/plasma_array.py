@@ -633,17 +633,22 @@ class BasePlasmaArray(object):
         """
             Updating the Macro Atom computations
         """
+
+        if not hasattr(self, 'beta_sobolevs'):
+            self.beta_sobolevs = np.zeros_like(self.tau_sobolevs.values)
+
         macro_atom_data = self.atom_data.macro_atom_data
-        macro_tau_sobolevs = self.tau_sobolevs.ix[macro_atom_data.transition_line_id]
 
 
-        beta_sobolevs = np.zeros_like(macro_tau_sobolevs.values)
-        beta_sobolevs_f = beta_sobolevs.ravel(order='F')
-
-        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs.values.flatten(), beta_sobolevs_f)
 
 
-        transition_probabilities = macro_atom_data.transition_probability.values[np.newaxis].T * beta_sobolevs
+        beta_sobolevs_f = self.beta_sobolevs.ravel(order='F')
+        tau_sobolevs_f = self.tau_sobolevs.values.ravel(order='F')
+
+        macro_atom.calculate_beta_sobolev(tau_sobolevs_f, beta_sobolevs_f)
+
+        transition_probabilities = macro_atom_data.transition_probability.values[np.newaxis].T * \
+                                   self.beta_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
 
         transition_up_filter = (macro_atom_data.transition_type == 1).values
         macro_atom_transition_up_filter = macro_atom_data.lines_idx.values[transition_up_filter]
@@ -660,11 +665,6 @@ class BasePlasmaArray(object):
         return pd.DataFrame(transition_probabilities, index=macro_atom_data.transition_line_id,
                      columns=self.tau_sobolevs.columns)
 
-    def set_j_blues(self, j_blues=None):
-        if j_blues is None:
-            self.j_blues = self.w * intensity_black_body(self.atom_data.lines['nu'].values, self.t_rad)
-        else:
-            self.j_blues = j_blues
 
     def calculate_bound_free(self):
         #TODO DOCUMENTATION missing!!!
