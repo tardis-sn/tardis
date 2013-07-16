@@ -159,6 +159,8 @@ class BasePlasmaArray(object):
         self.level_populations = pd.DataFrame(index=self.atom_data.levels.index, columns=number_densities.columns,
                                               dtype=np.float64)
 
+        self.beta_sobolevs_precalculated = False
+
         if saha_treatment == 'lte':
             self.calculate_saha = self.calculate_saha_lte
         elif saha_treatment == 'nebular':
@@ -199,7 +201,8 @@ class BasePlasmaArray(object):
 
     #Functions
 
-    def update_radiationfield(self, t_rads, ws, j_blues=None, t_electrons=None, n_e_convergence_threshold=0.05):
+    def update_radiationfield(self, t_rads, ws, j_blues=None, t_electrons=None, n_e_convergence_threshold=0.05,
+                              initialize_nlte=False):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -221,7 +224,9 @@ class BasePlasmaArray(object):
             self.t_electrons = None
         self.ws = ws
         self.j_blues=j_blues
-        self.level_population_proportionalities, self.partition_functions = self.calculate_partition_functions()
+        self.beta_sobolevs_precalculated = False
+        self.level_population_proportionalities, self.partition_functions = self.calculate_partition_functions(
+            initialize_nlte=initialize_nlte)
 
 
 
@@ -249,11 +254,10 @@ class BasePlasmaArray(object):
 
             self.electron_densities = 0.5 * (new_electron_densities + self.electron_densities)
 
-        self.calculate_level_populations()
+        self.calculate_level_populations(initialize_nlte=initialize_nlte)
         self.tau_sobolevs = self.calculate_tau_sobolev()
 
         if self.nlte_config is not None and self.nlte_config.species:
-            raise NotImplementedError()
             self.calculate_nlte_level_populations()
 
 
@@ -297,7 +301,7 @@ class BasePlasmaArray(object):
 
         if self.nlte_config is not None and self.nlte_config.species != [] and not initialize_nlte:
             for species in self.nlte_config.species:
-                self.partition_functions.ix[species] = self.atom_data.levels.g.ix[species].ix[0] * \
+                partition_functions.ix[species] = self.atom_data.levels.g.ix[species].ix[0] * \
                                                        (self.level_populations.ix[species] /
                                                         self.level_populations.ix[species].ix[0]).sum()
 
@@ -504,6 +508,78 @@ class BasePlasmaArray(object):
             self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
 
 
+    def calculate_nlte_level_populations(self):
+        """
+        Calculating the NLTE level populations for specific ions
+
+        """
+
+        if not hasattr(self, 'beta_sobolevs'):
+            self.beta_sobolevs = np.zeros_like(self.tau_sobolevs.values)
+
+        macro_atom.calculate_beta_sobolev(self.tau_sobolevs.values.ravel(order='F'),
+                                          self.beta_sobolevs.ravel(order='F'))
+        self.beta_sobolevs_precalculated = True
+
+        if self.nlte_config.get('coronal_approximation', False):
+            beta_sobolevs = np.ones_like(self.beta_sobolevs)
+            j_blues = np.zeros_like(self.j_blues)
+        else:
+            beta_sobolevs = self.beta_sobolevs
+            j_blues = self.j_blues
+
+        if self.nlte_config.get('classical_nebular', False):
+            print "setting classical nebular = True"
+            beta_sobolevs = np.ones_like(self.beta_sobolevs)
+
+        for species in self.nlte_config.species:
+            logger.info('Calculating rates for species %s', species)
+            number_of_levels = self.atom_data.levels.energy.ix[species].count()
+
+            level_populations = self.level_populations.ix[species].values
+            lnl = self.atom_data.nlte_data.lines_level_number_lower[species]
+            lnu = self.atom_data.nlte_data.lines_level_number_upper[species]
+
+            lines_index = self.atom_data.nlte_data.lines_idx[species]
+            A_uls = self.atom_data.nlte_data.A_uls[species]
+            B_uls = self.atom_data.nlte_data.B_uls[species]
+            B_lus = self.atom_data.nlte_data.B_lus[species]
+
+            r_lu_index = lnu * number_of_levels + lnl
+            r_ul_index = lnl * number_of_levels + lnu
+
+            r_ul_matrix = np.zeros((number_of_levels, number_of_levels, len(self.t_rads)), dtype=np.float64)
+            r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels**2, len(self.t_rads)))
+            r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T
+            r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
+
+            stimulated_emission_matrix = np.zeros_like(r_ul_matrix)
+            stimulated_emission_matrix.reshape((number_of_levels**2, len(self.t_rads)))[r_lu_index] = self.stimulated_emission_factor[lines_index]
+
+
+            r_lu_matrix = np.zeros_like(r_ul_matrix)
+            r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2, len(self.t_rads)))
+            r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * j_blues[lines_index] * beta_sobolevs[lines_index]
+            r_lu_matrix *= stimulated_emission_matrix
+
+            collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
+                               self.electron_densities.values
+
+
+            rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
+            1/0
+            for i in xrange(number_of_levels):
+                rates_matrix[i, i] = -np.sum(rates_matrix[:, i])
+
+            rates_matrix[0] = 1.0
+
+            x = np.zeros(rates_matrix.shape[0])
+            x[0] = 1.0
+            relative_level_populations = np.linalg.solve(rates_matrix, x)
+
+            self.level_populations.ix[species] = relative_level_populations * self.ion_populations.ix[species]
+
+            return
 
 
     def calculate_tau_sobolev(self):
@@ -547,9 +623,9 @@ class BasePlasmaArray(object):
         if self.nlte_config is not None and self.nlte_config.species != []:
             nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
             for species in self.nlte_config.species:
-                nlte_lines_mask |= (self.atom_data.lines_data.atomic_number == species[0]) & \
-                                   (self.atom_data.lines_data.ion_number == species[1])
-            self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask] = 0.0
+                nlte_lines_mask |= (self.atom_data.lines.atomic_number == species[0]) & \
+                                   (self.atom_data.lines.ion_number == species[1])
+            self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask[np.newaxis].T] = 0.0
 
 
         tau_sobolevs = sobolev_coefficient * f_lu[np.newaxis].T * wavelength[np.newaxis].T * self.time_explosion * \
@@ -559,75 +635,6 @@ class BasePlasmaArray(object):
 
 
 
-    def calculate_nlte_level_populations(self):
-        """
-        Calculating the NLTE level populations for specific ions
-
-        """
-
-        if not hasattr(self, 'beta_sobolevs'):
-            self.beta_sobolevs = np.zeros_like(self.atom_data.lines['nu'].values)
-
-        macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
-
-        if self.nlte_config.get('coronal_approximation', False):
-            beta_sobolevs = np.ones_like(self.beta_sobolevs)
-            j_blues = np.zeros_like(self.j_blues)
-        else:
-            beta_sobolevs = self.beta_sobolevs
-            j_blues = self.j_blues
-
-        if self.nlte_config.get('classical_nebular', False):
-            print "setting classical nebular = True"
-            beta_sobolevs[:] = 1.0
-
-        for species in self.nlte_config.species:
-            logger.info('Calculating rates for species %s', species)
-            number_of_levels = self.level_populations.ix[species].size
-
-            level_populations = self.level_populations.ix[species].values
-            lnl = self.atom_data.nlte_data.lines_level_number_lower[species]
-            lnu = self.atom_data.nlte_data.lines_level_number_upper[species]
-
-            lines_index = self.atom_data.nlte_data.lines_idx[species]
-            A_uls = self.atom_data.nlte_data.A_uls[species]
-            B_uls = self.atom_data.nlte_data.B_uls[species]
-            B_lus = self.atom_data.nlte_data.B_lus[species]
-
-            r_lu_index = lnu * number_of_levels + lnl
-            r_ul_index = lnl * number_of_levels + lnu
-
-            r_ul_matrix = np.zeros((number_of_levels, number_of_levels), dtype=np.float64)
-            r_ul_matrix.ravel()[r_ul_index] = A_uls
-            r_ul_matrix.ravel()[r_ul_index] *= beta_sobolevs[lines_index]
-
-            stimulated_emission_matrix = np.zeros_like(r_ul_matrix)
-            stimulated_emission_matrix.ravel()[r_lu_index] = 1 - ((level_populations[lnu] * B_uls) / (
-                level_populations[lnl] * B_lus))
-
-            stimulated_emission_matrix[stimulated_emission_matrix < 0.] = 0.0
-
-            r_lu_matrix = np.zeros_like(r_ul_matrix)
-            r_lu_matrix.ravel()[r_lu_index] = B_lus * j_blues[lines_index] * beta_sobolevs[lines_index]
-            r_lu_matrix *= stimulated_emission_matrix
-
-            collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species,
-                                                                             self.t_electron) * self.electron_density
-
-            rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
-
-            for i in xrange(number_of_levels):
-                rates_matrix[i, i] = -np.sum(rates_matrix[:, i])
-
-            rates_matrix[0] = 1.0
-
-            x = np.zeros(rates_matrix.shape[0])
-            x[0] = 1.0
-            relative_level_populations = np.linalg.solve(rates_matrix, x)
-
-            self.level_populations.ix[species] = relative_level_populations * self.ion_populations.ix[species]
-
-            return
 
     def calculate_transition_probabilities(self):
         """
@@ -636,16 +643,12 @@ class BasePlasmaArray(object):
 
         if not hasattr(self, 'beta_sobolevs'):
             self.beta_sobolevs = np.zeros_like(self.tau_sobolevs.values)
+            macro_atom.calculate_beta_sobolev(self.tau_sobolevs.ravel(), self.beta_sobolevs.ravel())
 
         macro_atom_data = self.atom_data.macro_atom_data
 
 
 
-
-        beta_sobolevs_f = self.beta_sobolevs.ravel(order='F')
-        tau_sobolevs_f = self.tau_sobolevs.values.ravel(order='F')
-
-        macro_atom.calculate_beta_sobolev(tau_sobolevs_f, beta_sobolevs_f)
 
         transition_probabilities = macro_atom_data.transition_probability.values[np.newaxis].T * \
                                    self.beta_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
