@@ -641,11 +641,15 @@ class BasePlasmaArray(object):
             Updating the Macro Atom computations
         """
 
+        macro_atom_data = self.atom_data.macro_atom_data
         if not hasattr(self, 'beta_sobolevs'):
             self.beta_sobolevs = np.zeros_like(self.tau_sobolevs.values)
-            macro_atom.calculate_beta_sobolev(self.tau_sobolevs.ravel(), self.beta_sobolevs.ravel())
 
-        macro_atom_data = self.atom_data.macro_atom_data
+        if not self.beta_sobolevs_precalculated:
+            macro_atom.calculate_beta_sobolev(self.tau_sobolevs.values.ravel(order='F'),
+                                          self.beta_sobolevs.ravel(order='F'))
+
+
 
 
 
