@@ -567,17 +567,17 @@ class BasePlasmaArray(object):
 
 
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
-            1/0
-            for i in xrange(number_of_levels):
-                rates_matrix[i, i] = -np.sum(rates_matrix[:, i])
 
-            rates_matrix[0] = 1.0
+            for i in xrange(number_of_levels):
+                rates_matrix[i, i] = -rates_matrix[:, i].sum(axis=0)
+
+            rates_matrix[0, :, :] = 1.0
 
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
-            relative_level_populations = np.linalg.solve(rates_matrix, x)
-
-            self.level_populations.ix[species] = relative_level_populations * self.ion_populations.ix[species]
+            for i in xrange(len(self.t_rads)):
+                relative_level_populations = np.linalg.solve(rates_matrix[:, :, i], x)
+                self.level_populations[i].ix[species] = relative_level_populations * self.ion_populations[i].ix[species]
 
             return
 
