@@ -547,7 +547,7 @@ class BasePlasma(object):
 
         self.stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
 
-        self.stimulated_emission_factor[np.isnan(self.stimulated_emission_factor)] = 1.
+        self.stimulated_emission_factor[n_lower == 0.0] = 0.0
 
         negative_stimulated_emission_mask = [self.stimulated_emission_factor[self.atom_data.nlte_data.nlte_lines_mask] < 0.]
 
