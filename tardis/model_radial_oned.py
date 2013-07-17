@@ -389,30 +389,16 @@ class Radial1DModel(object):
 
 
         level_populations_path = os.path.join(path, 'level_populations')
-        level_populations = np.zeros((self.tardis_config.structure.no_of_shells,
-                                      len(self.plasmas[0].level_populations)))
+        self.plasma_array.level_populations.to_hdf(hdf_store, level_populations_path)
 
         ion_populations_path = os.path.join(path, 'ion_populations')
-        ion_populations = np.zeros((self.tardis_config.structure.no_of_shells,
-                                    len(self.plasmas[0].ion_populations)))
-
-        for i in xrange(self.tardis_config.structure.no_of_shells):
-            level_populations[i] = self.plasmas[i].level_populations.values
-            ion_populations[i] = self.plasmas[i].ion_populations.values
-
-
-
-        pd.DataFrame(level_populations.transpose(), index=self.atom_data.levels.index).to_hdf(hdf_store,
-                                                                                              level_populations_path)
-        pd.DataFrame(ion_populations.transpose(), index=self.plasmas[0].ion_populations.index).to_hdf(hdf_store,
-                                                                                                      ion_populations_path)
+        self.plasma_array.ion_populations.to_hdf(hdf_store, ion_populations_path)
 
         tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
-        pd.DataFrame(self.tau_sobolevs.transpose(), index=self.atom_data.lines.index).to_hdf(hdf_store,
-                                                                                             tau_sobolevs_path)
+        self.plasma_array.tau_sobolevs.to_hdf(hdf_store, tau_sobolevs_path)
 
         j_blues_path = os.path.join(path, 'j_blues')
-        pd.DataFrame(self.j_blues.transpose(), index=self.atom_data.lines.index).to_hdf(hdf_store, j_blues_path)
+        pd.DataFrame(self.j_blues, index=self.atom_data.lines.index).to_hdf(hdf_store, j_blues_path)
 
         t_rads_path = os.path.join(path, 't_rads')
         pd.Series(self.t_rads.value).to_hdf(hdf_store, t_rads_path)
@@ -421,7 +407,7 @@ class Radial1DModel(object):
         pd.Series(self.ws).to_hdf(hdf_store, ws_path)
 
         electron_densities_path = os.path.join(path, 'electron_densities')
-        pd.Series(self.electron_densities).to_hdf(hdf_store, electron_densities_path)
+        pd.Series(self.plasma_array.electron_densities).to_hdf(hdf_store, electron_densities_path)
 
         last_line_interaction_in_id_path = os.path.join(path, 'last_line_interaction_in_id')
         pd.Series(self.last_line_interaction_in_id).to_hdf(hdf_store, last_line_interaction_in_id_path)
