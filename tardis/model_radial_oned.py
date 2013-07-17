@@ -453,7 +453,7 @@ class TARDISHistory(object):
         iterations = np.sort(np.unique(iterations))
 
         history = cls()
-        no_of_shell = len(hdf_store['model1/t_rads'].index)
+
         t_rads_dict = {}
         ws_dict = {}
         level_populations_dict = {}
