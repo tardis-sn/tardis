@@ -8,8 +8,6 @@ import pandas as pd
 import macro_atom
 import os
 from .config_reader import reformat_element_symbol
-from scipy import interpolate
-
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +90,7 @@ class BasePlasma(object):
 
     @classmethod
     def from_abundance(cls, t_rad, w, abundance, density, atom_data, time_explosion, j_blues=None, t_electron=None,
-                       nlte_species=[], nlte_options={}, zone_id=None, saha_treatment='lte'):
+                       nlte_config=None, zone_id=None, saha_treatment='lte'):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -141,8 +139,8 @@ class BasePlasma(object):
         number_density /= atom_data.atom_data.mass[number_density.index]
 
         return cls(t_rad=t_rad, w=w, number_density=number_density, atom_data=atom_data, j_blues=j_blues,
-                   time_explosion=time_explosion, t_electron=t_electron, zone_id=zone_id,
-                   nlte_species=nlte_species, nlte_options=nlte_options, saha_treatment=saha_treatment)
+                   time_explosion=time_explosion, t_electron=t_electron, zone_id=zone_id, nlte_config=nlte_config,
+                   saha_treatment=saha_treatment)
 
     @classmethod
     def from_hdf5(cls, hdf5store):
@@ -206,7 +204,7 @@ class BasePlasma(object):
 
     #Functions
 
-    def update_radiationfield(self, t_rad, w, n_e_convergence_threshold=0.05, initialize_nlte=False):
+    def update_radiationfield(self, t_rad, w, n_e_convergence_threshold=0.05):
         """
             This functions updates the radiation temperature `t_rad` and calculates the beta_rad
             Parameters. Then calculating :math:`g_e=\\left(\\frac{2 \\pi m_e k_\\textrm{B}T}{h^2}\\right)^{3/2}`.
@@ -226,7 +224,7 @@ class BasePlasma(object):
         self.t_rad = t_rad
         self.w = w
 
-        self.calculate_partition_functions(initialize_nlte=initialize_nlte)
+        self.calculate_partition_functions()
 
 
 
@@ -253,7 +251,7 @@ class BasePlasma(object):
         self.electron_density = new_electron_density
         logger.debug('Took %d iterations to converge on electron density' % n_e_iterations)
 
-        self.calculate_level_populations(initialize_nlte=initialize_nlte)
+        self.calculate_level_populations()
         self.calculate_tau_sobolev()
         if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
@@ -268,7 +266,7 @@ class BasePlasma(object):
             if not hasattr(self.atom_data, attribute):
                 raise ValueError('AtomData incomplete missing')
 
-    def calculate_partition_functions(self, initialize_nlte=False):
+    def calculate_partition_functions(self):
         """
         Calculate partition functions for the ions using the following formula, where
         :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
@@ -298,7 +296,7 @@ class BasePlasma(object):
             return meta_z + self.w * non_meta_z
 
 
-        if initialize_nlte:
+        if self.initialize:
             logger.debug('Initializing the partition functions and indices')
 
             self.partition_functions = self.atom_data.levels.groupby(level=['atomic_number', 'ion_number']).apply(
@@ -381,8 +379,15 @@ class BasePlasma(object):
 
         delta = self.calculate_radiation_field_correction()
 
-        zeta = interpolate.interp1d(self.atom_data.zeta_data.columns,
-                                    self.atom_data.zeta_data.ix[phis.index].values)(self.t_rad)
+        zeta = pd.Series(index=phis.index)
+
+        for idx in zeta.index:
+            try:
+                current_zeta = self.atom_data.zeta_data[idx](self.t_rad)
+            except KeyError:
+                current_zeta = 1.0
+
+            zeta.ix[idx] = current_zeta
 
         phis *= self.w * (delta.ix[phis.index] * zeta + self.w * (1 - zeta)) * \
                 (self.t_electron / self.t_rad) ** .5
@@ -443,7 +448,7 @@ class BasePlasma(object):
         radiation_field_correction = (self.t_electron / (departure_coefficient * self.w * self.t_rad)) * \
                                      np.exp(self.beta_rad * chi_threshold - self.beta_electron *
                                             self.atom_data.ionization_data['ionization_energy'])
-
+        print radiation_field_correction.ix[14, 1]
         less_than_chi_threshold = self.atom_data.ionization_data['ionization_energy'] < chi_threshold
 
         radiation_field_correction[less_than_chi_threshold] += 1 - \
@@ -482,7 +487,7 @@ class BasePlasma(object):
             self.ion_populations.ix[atomic_number] = ion_densities
             self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
 
-    def calculate_level_populations(self, initialize_nlte=False):
+    def calculate_level_populations(self):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
         :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
@@ -507,7 +512,7 @@ class BasePlasma(object):
         #only change between lte plasma and nebular
         level_populations[~self.atom_data.levels['metastable']] *= np.min([self.w, 1.])
 
-        if initialize_nlte:
+        if self.initialize:
             self.level_populations = pd.Series(level_populations, index=self.atom_data.levels.index)
 
         else:
@@ -547,7 +552,7 @@ class BasePlasma(object):
 
         self.stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
 
-        self.stimulated_emission_factor[n_lower == 0.0] = 0.0
+        self.stimulated_emission_factor[np.isnan(self.stimulated_emission_factor)] = 1.
 
         negative_stimulated_emission_mask = [self.stimulated_emission_factor[self.atom_data.nlte_data.nlte_lines_mask] < 0.]
 
@@ -574,10 +579,10 @@ class BasePlasma(object):
                 if level_lower['metastable'] or level_upper['metastable']:
                     logger.debug("Population inversion occuring with a metastable level: \n %s ",
                                     population_inversion_line)
-                    self.stimulated_emission_factor[self.atom_data.lines_index.ix[line_id]] = 0.0
+                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
                 elif (atomic_number, ion_number) in self.nlte_config.species:
                     logger.debug("Popuation inversion occuring in an NLTE Species")
-                    self.stimulated_emission_factor[self.atom_data.lines_index.ix[line_id]] = 0.0
+                    self.stimulated_emission_factor[self.stimulated_emission_factor < 0.0][i] = 0.0
 
                 else:
                     raise PopulationInversionException("Population inversion occuring with a non-metastable level, this "
@@ -665,15 +670,14 @@ class BasePlasma(object):
             Updating the Macro Atom computations
         """
 
+        macro_tau_sobolevs = self.tau_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
 
 
-        if not hasattr(self, 'beta_sobolevs'):
-            self.beta_sobolevs = np.zeros_like(self.tau_sobolevs)
+        beta_sobolevs = np.zeros_like(macro_tau_sobolevs)
 
-        macro_atom.calculate_beta_sobolev(self.tau_sobolevs, self.beta_sobolevs)
+        macro_atom.calculate_beta_sobolev(macro_tau_sobolevs, beta_sobolevs)
 
-        transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * \
-                                   self.beta_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
+        transition_probabilities = self.atom_data.macro_atom_data['transition_probability'] * beta_sobolevs
 
         transition_up_filter = self.atom_data.macro_atom_data['transition_type'] == 1
 
