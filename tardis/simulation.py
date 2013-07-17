@@ -15,7 +15,7 @@ def run_radial1d(radial1d_model, history_fname=None):
         history_buffer = HDFStore(history_fname)
 
     start_time = time.time()
-    radial1d_model.simulate(update_radiation_field=False, enable_virtual=True, initialize_j_blues=True)
+    radial1d_model.simulate(update_radiation_field=False, enable_virtual=True, initialize_j_blues=True, initialize_nlte=True)
     if history_fname:
         radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed, close_h5=False)
 
