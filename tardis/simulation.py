@@ -17,14 +17,14 @@ def run_radial1d(radial1d_model, history_fname=None):
     start_time = time.time()
     radial1d_model.simulate(update_radiation_field=False, enable_virtual=True, initialize_j_blues=True)
     if history_fname:
-        radial1d_model.to_hdf5(history_buffer, path='model%d' % radial1d_model.iterations_executed, close_h5=False)
+        radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed, close_h5=False)
 
     while radial1d_model.iterations_remaining > 0:
         logger.info('Remaining run %d', radial1d_model.iterations_remaining)
         radial1d_model.simulate(update_radiation_field=True, enable_virtual=False)
 
         if history_fname:
-            radial1d_model.to_hdf5(history_buffer, path='model%d' % radial1d_model.iterations_executed, close_h5=False)
+            radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed, close_h5=False)
 
     #Finished second to last loop running one more time
     logger.info('Doing last run')
@@ -34,7 +34,7 @@ def run_radial1d(radial1d_model, history_fname=None):
     radial1d_model.simulate(enable_virtual=True, update_radiation_field=False)
 
     if history_fname:
-        radial1d_model.to_hdf5(history_buffer, path='model%d' % radial1d_model.iterations_executed)
+        radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed)
 
 
 
