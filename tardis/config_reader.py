@@ -15,8 +15,6 @@ import pandas as pd
 from tardis import atomic
 import yaml
 
-import pdb
-
 import pprint
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -602,7 +600,8 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         abudances_config_dict = {}
         #TODO: columns are now until Z=120
 
-        abundances = pd.DataFrame(columns=np.arange(no_of_shells), index=pd.Index(np.arange(1, 120), name='atomic_number'))
+        abundances = pd.DataFrame(columns=np.arange(no_of_shells),
+                                  index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
 
         if 'file' in abundances_section.keys():
             abundance_file_dict = abundances_section.pop('file')

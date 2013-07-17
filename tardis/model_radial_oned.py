@@ -1,7 +1,7 @@
 # building of radial_oned_model
 
 import numpy as np
-import plasma, packet_source
+from tardis import plasma, packet_source, plasma_array
 import logging
 
 import pandas as pd
@@ -95,8 +95,6 @@ class Radial1DModel(object):
                                                                            tardis_config.spectrum.end)
         self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
 
-        no_of_shells = tardis_config.structure.no_of_shells
-
         self.t_inner = tardis_config.plasma.t_inner
         self.t_rads = tardis_config.plasma.t_rads
 
@@ -109,38 +107,22 @@ class Radial1DModel(object):
             self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.config_dict.copy()
 
         self.t_rads = tardis_config.plasma.t_rads
+        self.j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
+                       (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes)
 
-        self.tau_sobolevs = np.zeros((no_of_shells, len(self.atom_data.lines)))
-
-        self.j_blue_estimators = np.zeros_like(self.tau_sobolevs)
-        self.j_blues = np.zeros_like(self.tau_sobolevs)
-        j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
-                       (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes.value)
-        self.j_blues_norm_factor = j_blues_norm_factor.value.reshape((no_of_shells, 1)) * j_blues_norm_factor.unit
-
-        self.transition_probabilities = np.zeros((no_of_shells, len(self.atom_data.macro_atom_data.lines_idx)))
-
-
-        self.plasmas = []
+        self.j_blue_estimators = pd.DataFrame(0.0, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
 
         self.ws = (0.5 * (1 - np.sqrt(1 -
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
-        for i in xrange(no_of_shells):
-            if tardis_config.plasma.type == 'lte':
 
-                current_plasma_class = plasma.LTEPlasma
 
-            elif tardis_config.plasma.type == 'nebular':
+        self.plasma_array = plasma_array.BasePlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
+                                                         tardis_config.supernova.time_explosion.to('s').value,
+                                                         nlte_config=tardis_config.plasma.nlte,
+                                                         saha_treatment=tardis_config.plasma.type)
 
-                current_plasma_class = plasma.NebularPlasma
 
-            current_plasma = current_plasma_class(t_rad=self.t_rads[i].value,
-                                                     number_density=tardis_config.number_densities[i],
-                                                     atom_data=self.atom_data,
-                                                     time_explosion=tardis_config.supernova.time_explosion.to('s').value,
-                                                     w=self.ws[i], j_blues=self.j_blues[i],
-                                                     nlte_config=tardis_config.plasma.nlte, zone_id=i)
-            self.plasmas.append(current_plasma)
+
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
@@ -148,9 +130,6 @@ class Radial1DModel(object):
 
 
 
-    @property
-    def electron_densities(self):
-        return np.array([plasma.electron_density for plasma in self.plasmas])
 
     @property
     def line_interaction_type(self):
@@ -184,25 +163,27 @@ class Radial1DModel(object):
 
     def calculate_j_blues(self, init_detailed_j_blues=False):
         nus = self.atom_data.lines.nu.values
-        t_rads = self.t_rads.value.reshape((self.tardis_config.structure.no_of_shells, 1))
-        ws = self.ws.reshape((self.tardis_config.structure.no_of_shells, 1))
         radiative_rates_type = self.tardis_config.plasma.radiative_rates_type
         w_epsilon = self.tardis_config.plasma.w_epsilon
 
         if radiative_rates_type == 'lte':
-            logger.info('Calculating J_blues for radiate_rates_type=lte')
-            self.j_blues = plasma.intensity_black_body(nus, t_rads)
+            logger.info('Calculating J_blues for radiative_rates_type=lte')
+            self.j_blues = plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+
         elif radiative_rates_type == 'nebular' or init_detailed_j_blues:
-            logger.info('Calculating J_blues for radiate_rates_type=nebular')
-            self.j_blues = ws * plasma.intensity_black_body(nus, t_rads)
+            logger.info('Calculating J_blues for radiative_rates_type=nebular')
+            self.j_blues = self.ws * plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+
         elif radiative_rates_type == 'detailed':
-            logger.info('Calculating J_blues for radiate_rates_type=nebular')
+            logger.info('Calculating J_blues for radiate_rates_type=detailed')
+
             self.j_blues = self.j_blue_estimators * self.j_blues_norm_factor.value
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = w_epsilon * plasma.intensity_black_body(
                     self.atom_data.lines.nu.values[zero_j_blues], self.t_rads.value[i])
-
+        else:
+            raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
 
 
@@ -236,24 +217,18 @@ class Radial1DModel(object):
 
         return updated_t_rads * u.K, updated_ws
 
-
-
     def update_plasmas(self, initialize_nlte=False):
-        for i in xrange(self.tardis_config.structure.no_of_shells):
-        #for i, (current_plasma, new_trad, new_ws) in enumerate(zip(self.plasmas, self.t_rads, self.ws)):
-            logger.debug('Updating Shell %d Plasma with T=%.3f W=%.4f' % (i, self.t_rads[i].value, self.ws[i]))
-            self.plasmas[i].set_j_blues(self.j_blues[i])
-            if self.tardis_config.plasma.type == 'lte':
-                current_ws = 1.0
-            elif self.tardis_config.plasma.type == 'nebular':
-                current_ws = self.ws[i]
+        if self.tardis_config.plasma.type == 'lte':
+            self.plasma_array.update_radiationfield(self.t_rads.value, np.ones_like(self.t_rads), j_blues=self.j_blues,
+                                                    initialize_nlte=initialize_nlte)
+        elif self.tardis_config.plasma.type == 'nebular':
+            self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
+                                                    initialize_nlte=initialize_nlte)
+        else:
+            raise NotImplementedError('Plasma type "%s" - not implemented' % self.tardis_config.plasma.type)
 
-            self.plasmas[i].update_radiationfield(self.t_rads[i].value, w=current_ws, initialize_nlte=initialize_nlte)
-            self.tau_sobolevs[i] = self.plasmas[i].tau_sobolevs
-
-            if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
-                self.transition_probabilities[i] = self.plasmas[i].calculate_transition_probabilities()
-
+        if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
+            self.transition_probabilities = self.plasma_array.calculate_transition_probabilities()
 
 
 
@@ -264,6 +239,7 @@ class Radial1DModel(object):
         """
 
         self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
+
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
         self.update_plasmas(initialize_nlte=initialize_nlte)
 
@@ -276,7 +252,8 @@ class Radial1DModel(object):
             no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
         else:
             no_of_virtual_packets = 0
-        if np.any(np.isnan(self.tau_sobolevs)) or np.any(np.isinf(self.tau_sobolevs)) or np.any(np.isneginf(self.tau_sobolevs)):
+        if np.any(np.isnan(self.plasma_array.tau_sobolevs)) or np.any(np.isinf(self.plasma_array.tau_sobolevs)) \
+            or np.any(np.isneginf(self.plasma_array.tau_sobolevs)):
             raise ValueError('Some values are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
 
@@ -412,30 +389,16 @@ class Radial1DModel(object):
 
 
         level_populations_path = os.path.join(path, 'level_populations')
-        level_populations = np.zeros((self.tardis_config.structure.no_of_shells,
-                                      len(self.plasmas[0].level_populations)))
+        self.plasma_array.level_populations.to_hdf(hdf_store, level_populations_path)
 
         ion_populations_path = os.path.join(path, 'ion_populations')
-        ion_populations = np.zeros((self.tardis_config.structure.no_of_shells,
-                                    len(self.plasmas[0].ion_populations)))
-
-        for i in xrange(self.tardis_config.structure.no_of_shells):
-            level_populations[i] = self.plasmas[i].level_populations.values
-            ion_populations[i] = self.plasmas[i].ion_populations.values
-
-
-
-        pd.DataFrame(level_populations.transpose(), index=self.atom_data.levels.index).to_hdf(hdf_store,
-                                                                                              level_populations_path)
-        pd.DataFrame(ion_populations.transpose(), index=self.plasmas[0].ion_populations.index).to_hdf(hdf_store,
-                                                                                                      ion_populations_path)
+        self.plasma_array.ion_populations.to_hdf(hdf_store, ion_populations_path)
 
         tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
-        pd.DataFrame(self.tau_sobolevs.transpose(), index=self.atom_data.lines.index).to_hdf(hdf_store,
-                                                                                             tau_sobolevs_path)
+        self.plasma_array.tau_sobolevs.to_hdf(hdf_store, tau_sobolevs_path)
 
         j_blues_path = os.path.join(path, 'j_blues')
-        pd.DataFrame(self.j_blues.transpose(), index=self.atom_data.lines.index).to_hdf(hdf_store, j_blues_path)
+        pd.DataFrame(self.j_blues, index=self.atom_data.lines.index).to_hdf(hdf_store, j_blues_path)
 
         t_rads_path = os.path.join(path, 't_rads')
         pd.Series(self.t_rads.value).to_hdf(hdf_store, t_rads_path)
@@ -444,7 +407,7 @@ class Radial1DModel(object):
         pd.Series(self.ws).to_hdf(hdf_store, ws_path)
 
         electron_densities_path = os.path.join(path, 'electron_densities')
-        pd.Series(self.electron_densities).to_hdf(hdf_store, electron_densities_path)
+        pd.Series(self.plasma_array.electron_densities).to_hdf(hdf_store, electron_densities_path)
 
         last_line_interaction_in_id_path = os.path.join(path, 'last_line_interaction_in_id')
         pd.Series(self.last_line_interaction_in_id).to_hdf(hdf_store, last_line_interaction_in_id_path)
@@ -495,19 +458,22 @@ class TARDISHistory(object):
         ws_dict = {}
         level_populations_dict = {}
         ion_populations_dict = {}
+        j_blues_dict = {}
 
         history.iterations = iterations
 
         for iter in iterations:
             current_iter = 'iter%d' % iter
-            t_rads_dict[current_iter] = hdf_store['model%d/t_rads' % iter]
-            ws_dict[current_iter] = hdf_store['model%d/ws' % iter]
-            level_populations_dict[current_iter] = hdf_store['model%d/level_populations' % iter]
-            ion_populations_dict[current_iter] = hdf_store['model%d/ion_populations' % iter]
+            current_iter_new = 'iter%03d' % iter
+            t_rads_dict[current_iter_new] = hdf_store['model%d/t_rads' % iter]
+            ws_dict[current_iter_new] = hdf_store['model%d/ws' % iter]
+            level_populations_dict[current_iter_new] = hdf_store['model%d/level_populations' % iter]
+            ion_populations_dict[current_iter_new] = hdf_store['model%d/ion_populations' % iter]
+            j_blues_dict[current_iter_new] = hdf_store['model%d/j_blues' %iter]
 
-            for index in ion_populations_dict[current_iter].index:
-                level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
-                                                                      ion_populations_dict[current_iter].ix[index])
+            for index in ion_populations_dict[current_iter_new].index:
+                level_populations_dict[current_iter_new].ix[index].update(level_populations_dict[current_iter_new].ix[index] /
+                                                                      ion_populations_dict[current_iter_new].ix[index])
 
 
 
@@ -517,6 +483,7 @@ class TARDISHistory(object):
         history.ws = pd.DataFrame(ws_dict)
         history.level_populations = pd.Panel(level_populations_dict)
         history.ion_populations = pd.Panel(ion_populations_dict)
+        history.j_blues = pd.Panel(j_blues_dict)
 
         return history
 
