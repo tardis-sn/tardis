@@ -469,17 +469,16 @@ class TARDISHistory(object):
         history.iterations = iterations
 
         for iter in iterations:
-            current_iter = 'iter%d' % iter
-            current_iter_new = 'iter%03d' % iter
-            t_rads_dict[current_iter_new] = hdf_store['model%d/t_rads' % iter]
-            ws_dict[current_iter_new] = hdf_store['model%d/ws' % iter]
-            level_populations_dict[current_iter_new] = hdf_store['model%d/level_populations' % iter]
-            ion_populations_dict[current_iter_new] = hdf_store['model%d/ion_populations' % iter]
-            j_blues_dict[current_iter_new] = hdf_store['model%d/j_blues' %iter]
+            current_iter = 'iter%03d' % iter
+            t_rads_dict[current_iter] = hdf_store['model%d/t_rads' % iter]
+            ws_dict[current_iter] = hdf_store['model%d/ws' % iter]
+            level_populations_dict[current_iter] = hdf_store['model%d/level_populations' % iter]
+            ion_populations_dict[current_iter] = hdf_store['model%d/ion_populations' % iter]
+            j_blues_dict[current_iter] = hdf_store['model%d/j_blues' %iter]
 
-            for index in ion_populations_dict[current_iter_new].index:
-                level_populations_dict[current_iter_new].ix[index].update(level_populations_dict[current_iter_new].ix[index] /
-                                                                      ion_populations_dict[current_iter_new].ix[index])
+            for index in ion_populations_dict[current_iter].index:
+                level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
+                                                                      ion_populations_dict[current_iter].ix[index])
 
 
 
