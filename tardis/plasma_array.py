@@ -526,7 +526,7 @@ class BasePlasmaArray(object):
             j_blues = np.zeros_like(self.j_blues)
         else:
             beta_sobolevs = self.beta_sobolevs
-            j_blues = self.j_blues
+            j_blues = self.j_blues.values
 
         if self.nlte_config.get('classical_nebular', False):
             print "setting classical nebular = True"
@@ -659,7 +659,7 @@ class BasePlasmaArray(object):
 
         transition_up_filter = (macro_atom_data.transition_type == 1).values
         macro_atom_transition_up_filter = macro_atom_data.lines_idx.values[transition_up_filter]
-        j_blues = self.j_blues[macro_atom_transition_up_filter]
+        j_blues = self.j_blues.values[macro_atom_transition_up_filter]
         macro_stimulated_emission = self.stimulated_emission_factor[macro_atom_transition_up_filter]
 
         transition_probabilities[transition_up_filter] *= j_blues * macro_stimulated_emission

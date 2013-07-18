@@ -99,7 +99,7 @@ class Radial1DModel(object):
         self.t_rads = tardis_config.plasma.t_rads
 
         self.iterations_max_requested = tardis_config.montecarlo.iterations
-        self.iterations_remaining = self.iterations_max_requested - 1
+        self.iterations_remaining = self.iterations_max_requested
         self.iterations_executed = 0
 
 
@@ -168,11 +168,12 @@ class Radial1DModel(object):
 
         if radiative_rates_type == 'lte':
             logger.info('Calculating J_blues for radiative_rates_type=lte')
-            self.j_blues = plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
-
+            j_blues = plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+            self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
         elif radiative_rates_type == 'nebular' or init_detailed_j_blues:
             logger.info('Calculating J_blues for radiative_rates_type=nebular')
-            self.j_blues = self.ws * plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+            j_blues = self.ws * plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+            self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
 
         elif radiative_rates_type == 'detailed':
             logger.info('Calculating J_blues for radiate_rates_type=detailed')
@@ -182,6 +183,7 @@ class Radial1DModel(object):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = w_epsilon * plasma.intensity_black_body(
                     self.atom_data.lines.nu.values[zero_j_blues], self.t_rads.value[i])
+
         else:
             raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
@@ -291,9 +293,12 @@ class Radial1DModel(object):
 
 
         self.last_line_interaction_in_id = self.atom_data.lines_index.index.values[last_line_interaction_in_id]
-        self.last_line_interaction_in_id[last_line_interaction_in_id == -1] = -1
+        self.last_line_interaction_in_id = self.last_line_interaction_in_id[last_line_interaction_in_id != -1]
         self.last_line_interaction_out_id = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
-        self.last_line_interaction_out_id[last_line_interaction_out_id == -1] = -1
+        self.last_line_interaction_out_id = self.last_line_interaction_out_id[last_line_interaction_out_id != -1]
+        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
+                                                                                                       u.spectral())
+
 
         self.iterations_executed += 1
         self.iterations_remaining -= 1

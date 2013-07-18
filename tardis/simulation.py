@@ -15,13 +15,16 @@ def run_radial1d(radial1d_model, history_fname=None):
         history_buffer = HDFStore(history_fname)
 
     start_time = time.time()
-    radial1d_model.simulate(update_radiation_field=False, enable_virtual=True, initialize_j_blues=True, initialize_nlte=True)
-    if history_fname:
-        radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed, close_h5=False)
-
-    while radial1d_model.iterations_remaining > 0:
+    initialize_j_blues = True
+    initialize_nlte = True
+    update_radiation_field = False
+    while radial1d_model.iterations_remaining > 1:
         logger.info('Remaining run %d', radial1d_model.iterations_remaining)
-        radial1d_model.simulate(update_radiation_field=True, enable_virtual=False)
+        radial1d_model.simulate(update_radiation_field=update_radiation_field, enable_virtual=False, initialize_nlte=initialize_nlte,
+                                initialize_j_blues=initialize_j_blues)
+        initialize_j_blues=False
+        initialize_nlte=False
+        update_radiation_field = True
 
         if history_fname:
             radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed, close_h5=False)
@@ -31,7 +34,8 @@ def run_radial1d(radial1d_model, history_fname=None):
     if radial1d_model.tardis_config.montecarlo.last_no_of_packets is not None:
         radial1d_model.current_no_of_packets = radial1d_model.tardis_config.montecarlo.last_no_of_packets
 
-    radial1d_model.simulate(enable_virtual=True, update_radiation_field=False)
+    radial1d_model.simulate(enable_virtual=True, update_radiation_field=update_radiation_field, initialize_nlte=initialize_nlte,
+                            initialize_j_blues=initialize_j_blues)
 
     if history_fname:
         radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed)

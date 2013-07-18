@@ -48,6 +48,7 @@ def int_to_roman(input):
    >>> print int_to_roman(1999)
    MCMXCIX
    """
+   input = int(input)
    if type(input) != type(1):
       raise TypeError, "expected integer, got %s" % type(input)
    if not 0 < input < 4000:
