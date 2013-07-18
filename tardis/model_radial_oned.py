@@ -25,7 +25,7 @@ w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / 
 
 t_rad_estimator_constant = (np.pi**4 / (15 * 24 * scipy.special.zeta(5, 1))) * h / kb
 
-synpp_default_yaml_fname = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
+
 
 
 class Radial1DModel(object):
