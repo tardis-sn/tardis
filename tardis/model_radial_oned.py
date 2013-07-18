@@ -492,13 +492,6 @@ class TARDISHistory(object):
 
         return history
 
-    def plot_level_evolution(self, level_index, shell):
-        for iter in self.iterations:
-            pass
-
-
-
-
 
 class TARDISSpectrum(object):
     """

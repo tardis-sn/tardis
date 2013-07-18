@@ -58,6 +58,7 @@ cdef class StorageModel:
     cdef float_type_t*packet_mus
     cdef np.ndarray packet_energies_a
     cdef float_type_t*packet_energies
+
     ######## Setting up the output ########
     cdef np.ndarray output_nus_a
     cdef float_type_t*output_nus
