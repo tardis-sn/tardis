@@ -1,11 +1,19 @@
 # Utilities for TARDIS
 
-from astropy import units as u
+from astropy import units as u, constants
 import numpy as np
 import os
 import yaml
 
 import logging
+
+k_B_cgs = constants.k_B.cgs.value
+c_cgs = constants.c.cgs.value
+h_cgs = constants.h.cgs.value
+m_e_cgs = constants.m_e.cgs.value
+e_charge_gauss = constants.e.gauss.value
+
+
 logger = logging.getLogger(__name__)
 
 synpp_default_yaml_fname = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
@@ -192,3 +200,17 @@ def create_synpp_yaml(self, fname, lines_db=None):
         yaml_setup['aux'].append(1e200)
 
     yaml.dump(yaml_reference, stream=file(fname, 'w'), explicit_start=True)
+
+
+def intensity_black_body(nu, T):
+    """
+        Calculate the intensity of a black-body according to the following formula
+
+        .. math::
+            I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
+
+    """
+    beta_rad = 1 / (k_B_cgs * T)
+
+    return (2 * (h_cgs * nu ** 3) / (c_cgs ** 2)) / (
+        np.exp(h_cgs * nu * beta_rad) - 1)

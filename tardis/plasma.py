@@ -1,13 +1,17 @@
 #Calculations of the Plasma conditions
 
 
-import numpy as np
 import logging
+import os
+
+import numpy as np
 from astropy import constants
 import pandas as pd
+
 import macro_atom
-import os
 from .config_reader import reformat_element_symbol
+from util import intensity_black_body
+
 
 logger = logging.getLogger(__name__)
 
@@ -27,18 +31,7 @@ class PlasmaException(Exception):
 class PopulationInversionException(PlasmaException):
     pass
 
-def intensity_black_body(nu, T):
-    """
-        Calculate the intensity of a black-body according to the following formula
 
-        .. math::
-            I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
-
-    """
-    beta_rad = 1 / (k_B_cgs * T)
-
-    return (2 * (h_cgs * nu ** 3) / (c_cgs ** 2)) / (
-        np.exp(h_cgs * nu * beta_rad) - 1)
 
 
 class BasePlasma(object):
