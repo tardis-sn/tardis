@@ -1,7 +1,7 @@
 # building of radial_oned_model
 
 import numpy as np
-from tardis import plasma, packet_source, plasma_array
+from tardis import packet_source, plasma_array
 import logging
 
 import pandas as pd
@@ -13,7 +13,8 @@ import re
 
 import scipy.special
 
-import itertools
+
+from util import intensity_black_body
 
 logger = logging.getLogger(__name__)
 
@@ -168,11 +169,11 @@ class Radial1DModel(object):
 
         if radiative_rates_type == 'lte':
             logger.info('Calculating J_blues for radiative_rates_type=lte')
-            j_blues = plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+            j_blues = intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
             self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
         elif radiative_rates_type == 'nebular' or init_detailed_j_blues:
             logger.info('Calculating J_blues for radiative_rates_type=nebular')
-            j_blues = self.ws * plasma.intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
+            j_blues = self.ws * intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
             self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
 
         elif radiative_rates_type == 'detailed':
@@ -181,7 +182,7 @@ class Radial1DModel(object):
             self.j_blues = self.j_blue_estimators * self.j_blues_norm_factor.value
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
-                self.j_blues[i][zero_j_blues] = w_epsilon * plasma.intensity_black_body(
+                self.j_blues[i][zero_j_blues] = w_epsilon * intensity_black_body(
                     self.atom_data.lines.nu.values[zero_j_blues], self.t_rads.value[i])
 
         else:
