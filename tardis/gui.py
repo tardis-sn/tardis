@@ -307,8 +307,7 @@ class LineInteractionTables(QtGui.QWidget):
         super(LineInteractionTables, self).__init__()
 
         self.species_table = QtGui.QTableView()
-        self.lines_in_table = QtGui.QTableView()
-        self.lines_out_table = QtGui.QTableView()
+        self.transitions_table = QtGui.QTableView()
         self.layout = QtGui.QHBoxLayout()
         self.line_interaction_analysis = line_interaction_analysis
         self.atom_data = atom_data
@@ -324,8 +323,8 @@ class LineInteractionTables(QtGui.QWidget):
         self.layout.addWidget(self.species_table)
         self.species_table.connect(self.species_table.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'),
                                self.on_species_clicked)
-        self.layout.addWidget(self.lines_in_table)
-        self.layout.addWidget(self.lines_out_table)
+        self.layout.addWidget(self.transitions_table)
+
         self.setLayout(self.layout)
         self.show()
 
@@ -357,9 +356,10 @@ class LineInteractionTables(QtGui.QWidget):
             last_line_count.append(int(row))
 
 
-        last_line_in_model = SimpleTableModel([last_line_in_string, ['Last Line In']])
+        last_line_in_model = SimpleTableModel([last_line_in_string, ['Number of packets %d' %
+                                                                     current_last_line_in.wavelength.count()]])
         last_line_in_model.addData(last_line_count)
-        self.lines_in_table.setModel(last_line_in_model)
+        self.transitions_table.setModel(last_line_in_model)
 
 
 
