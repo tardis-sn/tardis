@@ -111,7 +111,7 @@ class Radial1DModel(object):
         self.j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
                        (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes)
 
-        self.j_blue_estimators = pd.DataFrame(0.0, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
+
 
         self.ws = (0.5 * (1 - np.sqrt(1 -
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
@@ -179,7 +179,8 @@ class Radial1DModel(object):
         elif radiative_rates_type == 'detailed':
             logger.info('Calculating J_blues for radiate_rates_type=detailed')
 
-            self.j_blues = self.j_blue_estimators * self.j_blues_norm_factor.value
+            self.j_blues = pd.DataFrame(self.j_blue_estimators.transpose() * self.j_blues_norm_factor.value,
+                                        index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = w_epsilon * intensity_black_body(
@@ -259,7 +260,7 @@ class Radial1DModel(object):
             or np.any(np.isneginf(self.plasma_array.tau_sobolevs)):
             raise ValueError('Some values are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
-
+        self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
         self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)
         montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
@@ -470,11 +471,11 @@ class TARDISHistory(object):
 
         for iter in iterations:
             current_iter = 'iter%03d' % iter
-            t_rads_dict[current_iter] = hdf_store['model%d/t_rads' % iter]
-            ws_dict[current_iter] = hdf_store['model%d/ws' % iter]
-            level_populations_dict[current_iter] = hdf_store['model%d/level_populations' % iter]
-            ion_populations_dict[current_iter] = hdf_store['model%d/ion_populations' % iter]
-            j_blues_dict[current_iter] = hdf_store['model%d/j_blues' %iter]
+            t_rads_dict[current_iter] = hdf_store['model%03d/t_rads' % iter]
+            ws_dict[current_iter] = hdf_store['model%03d/ws' % iter]
+            level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
+            ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
+            j_blues_dict[current_iter] = hdf_store['model%03d/j_blues' %iter]
 
             for index in ion_populations_dict[current_iter].index:
                 level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
@@ -489,7 +490,7 @@ class TARDISHistory(object):
         history.level_populations = pd.Panel(level_populations_dict)
         history.ion_populations = pd.Panel(ion_populations_dict)
         history.j_blues = pd.Panel(j_blues_dict)
-
+        hdf_store.close()
         return history
 
 
