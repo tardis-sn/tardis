@@ -12,7 +12,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
 from PyQt4 import QtGui, QtCore
 from astropy import units as u
-import analysis
+from tardis import analysis, config_reader
 
 # def current_ion_index(index, index_list):
 #     if not index in index_list:
@@ -46,7 +46,7 @@ class ModelViewer(QtGui.QWidget):
         self.line_info = []
         self.setGeometry(20, 35, 1250, 500)
         self.setWindowTitle('Shells Viewer')
-        self.tablemodel = MyTableModel([['Shell: '], ["t_rad", "Ws"]], (1, 0))
+        self.tablemodel = SimpleTableModel([['Shell: '], ["t_rad", "Ws"]], (1, 0))
         self.tableview = QtGui.QTableView()
         self.graph = MatplotlibWidget(self, 'model')
         self.graph_label = QtGui.QLabel('Select Property:')
@@ -233,12 +233,12 @@ class ShellInfo(QtGui.QDialog):
         self.atomstable = QtGui.QTableView()
         self.ionstable = QtGui.QTableView()
         self.levelstable = QtGui.QTableView()
-        self.atomstable.connect(self.atomstable.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
+        self.atomstable.connect(self.atomstable.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'),
                                self.on_atom_header_double_clicked)
 
-        self.plasma = self.parent.model.plasmas[self.shell_index]
+
         self.table1_data = self.parent.model.tardis_config.abundances[self.shell_index]
-        self.atomsdata = MyTableModel([['Z = '], ['Count (Shell %d)' % (self.shell_index + 1)]], iterate_header=(2, 0), index_info=self.table1_data.index.values.tolist())
+        self.atomsdata = SimpleTableModel([['Z = '], ['Count (Shell %d)' % (self.shell_index + 1)]], iterate_header=(2, 0), index_info=self.table1_data.index.values.tolist())
         self.ionsdata = None
         self.levelsdata = None
         self.atomsdata.addData(self.table1_data.values.tolist())
@@ -255,14 +255,18 @@ class ShellInfo(QtGui.QDialog):
 
     def on_atom_header_double_clicked(self, index):
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
-        self.table2_data = self.plasma.ion_populations.ix[self.current_atom_index]
-        self.ionsdata = MyTableModel([['Ion: '], ['Count (Z = %d)' % self.current_atom_index]], iterate_header=(2, 0), index_info=self.table2_data.index.values.tolist())
+        self.table2_data = self.parent.model.plasma_array.ion_populations[self.shell_index].ix[self.current_atom_index]
+        self.ionsdata = SimpleTableModel([['Ion: '], ['Count (Z = %d)' % self.current_atom_index]], iterate_header=(2, 0), index_info=self.table2_data.index.values.tolist())
         normalized_data = []
-        for item in self.table2_data.values.tolist():
-            normalized_data.append(float(item / self.plasma.number_density.ix[self.current_atom_index]))
+        for item in self.table2_data.values:
+            normalized_data.append(float(item /
+                                   self.parent.model.tardis_config.number_densities[self.shell_index]
+                                   .ix[self.current_atom_index]))
+
+
         self.ionsdata.addData(normalized_data)
         self.ionstable.setModel(self.ionsdata)
-        self.ionstable.connect(self.ionstable.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
+        self.ionstable.connect(self.ionstable.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'),
                                self.on_ion_header_double_clicked)
         self.levelstable.hide()
         self.ionstable.setColumnWidth(0, 120)
@@ -272,8 +276,9 @@ class ShellInfo(QtGui.QDialog):
 
     def on_ion_header_double_clicked(self, index):
         self.current_ion_index = self.table2_data.index.values.tolist()[index]
-        self.table3_data = self.plasma.level_populations.ix[self.current_atom_index, self.current_ion_index]
-        self.levelsdata = MyTableModel([['Level: '], ['Count (Ion %d)' % self.current_ion_index]], iterate_header=(2, 0), index_info=self.table3_data.index.values.tolist())
+        self.table3_data = self.parent.model.plasma_array.level_populations[self.shell_index].ix[self.current_atom_index,
+                                                                                                 self.current_ion_index]
+        self.levelsdata = SimpleTableModel([['Level: '], ['Count (Ion %d)' % self.current_ion_index]], iterate_header=(2, 0), index_info=self.table3_data.index.values.tolist())
         normalized_data = []
         for item in self.table3_data.values.tolist():
             normalized_data.append(float(item / self.table2_data.ix[self.current_ion_index]))
@@ -285,8 +290,7 @@ class ShellInfo(QtGui.QDialog):
         self.show()
 
     def update_tables(self):
-        self.plasma = self.parent.model.plasmas[self.shell_index]
-        self.table1_data = self.plasma.number_density
+        self.table1_data = self.parent.model.plasma_array[self.shell_index].number_densities
         self.atomsdata.index_info=self.table1_data.index.values.tolist()
         self.atomsdata.arraydata = []
         self.atomsdata.addData(self.table1_data.values.tolist())
@@ -296,42 +300,94 @@ class ShellInfo(QtGui.QDialog):
         self.setGeometry(400, 150, 200, 400)
         self.show()
 
+
+class LineInteractionTables(QtGui.QWidget):
+
+    def __init__(self, line_interaction_analysis, atom_data):
+        super(LineInteractionTables, self).__init__()
+
+        self.species_table = QtGui.QTableView()
+        self.lines_in_table = QtGui.QTableView()
+        self.lines_out_table = QtGui.QTableView()
+        self.layout = QtGui.QHBoxLayout()
+        self.line_interaction_analysis = line_interaction_analysis
+        self.atom_data = atom_data
+        line_interaction_species_group = line_interaction_analysis.last_line_in.groupby(['atomic_number', 'ion_number'])
+        self.species_selected = sorted(line_interaction_species_group.groups.keys())
+        species_symbols = [config_reader.species_tuple_to_string(item, atom_data) for item in self.species_selected]
+        species_table_model = SimpleTableModel([species_symbols, ['Species']])
+        species_table_model.addData((line_interaction_species_group.wavelength.count().astype(float) /
+                                    line_interaction_analysis.last_line_in.wavelength.count()).tolist())
+        self.species_table.setModel(species_table_model)
+
+        line_interaction_species_group.wavelength.count()
+        self.layout.addWidget(self.species_table)
+        self.species_table.connect(self.species_table.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'),
+                               self.on_species_clicked)
+        self.layout.addWidget(self.lines_in_table)
+        self.layout.addWidget(self.lines_out_table)
+        self.setLayout(self.layout)
+        self.show()
+
+    def on_species_clicked(self, index):
+        current_species = self.species_selected[index]
+        last_line_in = self.line_interaction_analysis.last_line_in
+        last_line_out = self.line_interaction_analysis.last_line_out
+
+        last_line_in_filter = (last_line_in.atomic_number == current_species[0]).values & \
+                              (last_line_in.ion_number == current_species[1]).values
+
+        current_last_line_in = last_line_in[last_line_in_filter].reset_index()
+        current_last_line_out = last_line_out[last_line_in_filter].reset_index()
+        current_last_line_in['last_line_id_out'] = current_last_line_out['index']
+        last_line_in_string = []
+        last_line_count = []
+        grouped_line_interactions = current_last_line_in.groupby(['index', 'last_line_id_out'])
+        exc_deexc_string = 'exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)'
+
+        for line_id, row in grouped_line_interactions.wavelength.count().iteritems():
+            current_line_in = self.atom_data.lines.ix[line_id[0]]
+            current_line_out = self.atom_data.lines.ix[line_id[1]]
+            last_line_in_string.append(exc_deexc_string % (current_line_in['level_number_lower'],
+                                                           current_line_in['level_number_upper'],
+                                                           current_line_in['wavelength'],
+                                                           current_line_out['level_number_upper'],
+                                                           current_line_out['level_number_lower'],
+                                                           current_line_out['wavelength']))
+            last_line_count.append(int(row))
+
+
+        last_line_in_model = SimpleTableModel([last_line_in_string, ['Last Line In']])
+        last_line_in_model.addData(last_line_count)
+        self.lines_in_table.setModel(last_line_in_model)
+
+
+
+
 class LineInfo(QtGui.QDialog):
 
     def __init__(self, parent, wavelength_start, wavelength_end):
         super(LineInfo, self).__init__(parent)
         self.parent = parent
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
-        self.setWindowTitle('Line Interaction: %.2e - %.2e (A)' % (wavelength_start, wavelength_end))
-        self.transitionstable = QtGui.QTableView()
-        self.transitionsintable = QtGui.QTableView()
-        self.transitionsouttable = QtGui.QTableView()
-        self.transitionstable2 = QtGui.QTableView()
-        self.transitionsintable2 = QtGui.QTableView()
-        self.transitionsouttable2 = QtGui.QTableView()
-        self.transitionstable.connect(self.transitionstable.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'), self.on_atom_clicked)
-        self.transitionstable2.connect(self.transitionstable2.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'), self.on_atom_clicked2)
-        self.get_data(wavelength_start, wavelength_end)
-        self.transitionsdata = MyTableModel([self.header_list, ['Abundance']])
-        self.transitionsdata.addData(self.ion_table)
-        self.transitionstable.setModel(self.transitionsdata)
-        self.transitionstable2.setModel(self.transitionsdata)
+        self.setWindowTitle('Line Interaction: %.2f - %.2f (A) ' % (wavelength_start, wavelength_end,
+        ))
         self.layout = QtGui.QVBoxLayout()
-        self.sublayout = QtGui.QHBoxLayout()
-        self.sublayout.addWidget(self.transitionstable)
-        self.sublayout.addWidget(self.transitionsintable)
-        self.sublayout.addWidget(self.transitionsouttable)
-        self.sublayout2 = QtGui.QHBoxLayout()
-        self.sublayout2.addWidget(self.transitionstable2)
-        self.sublayout2.addWidget(self.transitionsintable2)
-        self.sublayout2.addWidget(self.transitionsouttable2)
-        self.layout.addLayout(self.sublayout)
-        self.layout.addLayout(self.sublayout2)
+        packet_nu_line_interaction = analysis.LastLineInteraction(self.parent.model, packet_filter_mode="packet_nu")
+        packet_nu_line_interaction.wavelength_start = wavelength_start * u.angstrom
+        packet_nu_line_interaction.wavelength_end = wavelength_end * u.angstrom
+
+        line_in_nu_line_interaction = analysis.LastLineInteraction(self.parent.model, packet_filter_mode="line_in_nu")
+        line_in_nu_line_interaction.wavelength_start = wavelength_start * u.angstrom
+        line_in_nu_line_interaction.wavelength_end = wavelength_end * u.angstrom
+
+
+
+        self.layout.addWidget(LineInteractionTables(packet_nu_line_interaction, self.parent.model.atom_data))
+        self.layout.addWidget(LineInteractionTables(line_in_nu_line_interaction, self.parent.model.atom_data))
+
+
         self.setLayout(self.layout)
-        self.transitionsintable.hide()
-        self.transitionsouttable.hide()
-        self.transitionsintable2.hide()
-        self.transitionsouttable2.hide()
         self.show()
 
     def get_data(self, wavelength_start, wavelength_end):
@@ -371,8 +427,8 @@ class LineInfo(QtGui.QDialog):
     def on_atom_clicked(self, index):
         self.transitionsin_parsed, self.transitionsin_count = self.get_transition_table(self.last_line_in, self.ions_in[index][0], self.ions_in[index][1])
         self.transitionsout_parsed, self.transitionsout_count = self.get_transition_table(self.last_line_out, self.ions_out[index][0], self.ions_out[index][1])
-        self.transitionsindata = MyTableModel([self.transitionsin_parsed, ['Lines In']])
-        self.transitionsoutdata = MyTableModel([self.transitionsout_parsed, ['Lines Out']])
+        self.transitionsindata = SimpleTableModel([self.transitionsin_parsed, ['Lines In']])
+        self.transitionsoutdata = SimpleTableModel([self.transitionsout_parsed, ['Lines Out']])
         self.transitionsindata.addData(self.transitionsin_count)
         self.transitionsoutdata.addData(self.transitionsout_count)
         self.transitionsintable.setModel(self.transitionsindata)
@@ -385,8 +441,8 @@ class LineInfo(QtGui.QDialog):
     def on_atom_clicked2(self, index):
         self.transitionsin_parsed, self.transitionsin_count = self.get_transition_table(self.last_line_in, self.ions_in[index][0], self.ions_in[index][1])
         self.transitionsout_parsed, self.transitionsout_count = self.get_transition_table(self.last_line_out, self.ions_out[index][0], self.ions_out[index][1])
-        self.transitionsindata = MyTableModel([self.transitionsin_parsed, ['Lines In']])
-        self.transitionsoutdata = MyTableModel([self.transitionsout_parsed, ['Lines Out']])
+        self.transitionsindata = SimpleTableModel([self.transitionsin_parsed, ['Lines In']])
+        self.transitionsoutdata = SimpleTableModel([self.transitionsout_parsed, ['Lines Out']])
         self.transitionsindata.addData(self.transitionsin_count)
         self.transitionsoutdata.addData(self.transitionsout_count)
         self.transitionsintable2.setModel(self.transitionsindata)
@@ -396,9 +452,9 @@ class LineInfo(QtGui.QDialog):
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 750, 400)
         self.show()
 
-class MyTableModel(QtCore.QAbstractTableModel):
+class SimpleTableModel(QtCore.QAbstractTableModel):
     def __init__(self, headerdata=None, iterate_header=(0, 0), index_info=None, parent=None, *args):
-        super(MyTableModel, self).__init__(parent, *args)
+        super(SimpleTableModel, self).__init__(parent, *args)
         self.headerdata = headerdata
         self.arraydata = []
         self.iterate_header = iterate_header

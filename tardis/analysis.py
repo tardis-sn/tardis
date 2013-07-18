@@ -30,14 +30,15 @@ def get_last_line_interaction(wavelength_start, wavelength_end, model):
 
 
 class LastLineInteraction(object):
-    def __init__(self, model):
+
+    def __init__(self, model, packet_filter_mode='packet_nu'):
         self.model = model
-        self._wavelength_start = 0 * u.m
-        self._wavelength_end = 1 * u.m
+        self._wavelength_start = 0 * u.angstrom
+        self._wavelength_end = np.inf * u.angstrom
         self._atomic_number = None
         self._ion_number = None
-        self.packets_angstrom = u.Quantity(self.model.montecarlo_nu, 'Hz').to('angstrom', u.spectral()).value
-        self.update_last_interaction()
+        self.packet_filter_mode = packet_filter_mode
+        self.update_last_interaction_filter()
 
 
     @property
@@ -49,7 +50,7 @@ class LastLineInteraction(object):
         if not isinstance(value, u.Quantity):
             raise ValueError('needs to be a Quantity')
         self._wavelength_start = value
-        self.update_last_interaction()
+        self.update_last_interaction_filter()
 
     @property
     def wavelength_end(self):
@@ -60,7 +61,7 @@ class LastLineInteraction(object):
         if not isinstance(value, u.Quantity):
             raise ValueError('needs to be a Quantity')
         self._wavelength_end = value
-        self.update_last_interaction()
+        self.update_last_interaction_filter()
 
     @property
     def atomic_number(self):
@@ -69,7 +70,7 @@ class LastLineInteraction(object):
     @atomic_number.setter
     def atomic_number(self, value):
         self._atomic_number = value
-        self.update_last_interaction()
+        self.update_last_interaction_filter()
 
     @property
     def ion_number(self):
@@ -78,38 +79,24 @@ class LastLineInteraction(object):
     @ion_number.setter
     def ion_number(self, value):
         self._ion_number = value
-        self.update_last_interaction()
+        self.update_last_interaction_filter()
 
-    def update_last_interaction(self):
-        mask_in = (self.packets_angstrom > self.wavelength_start.to(u.angstrom).value) & \
-                  (self.packets_angstrom < self.wavelength_end.to(u.angstrom).value)
-        mask_out = mask_in.copy()
+    def update_last_interaction_filter(self):
+        if self.packet_filter_mode == 'packet_nu':
+            packet_filter = (self.model.last_line_interaction_angstrom > self.wavelength_start) & \
+                      (self.model.last_line_interaction_angstrom < self.wavelength_end)
+        elif self.packet_filter_mode == 'line_in_nu':
+            line_in_nu = self.model.atom_data.lines.wavelength.ix[self.model.last_line_interaction_in_id].values
+            packet_filter = (line_in_nu > self.wavelength_start.to(u.angstrom).value) & \
+                (line_in_nu < self.wavelength_end.to(u.angstrom).value)
 
-        mask_in = mask_in[self.model.last_line_interaction_in_id != -1]
-        mask_out = mask_out[self.model.last_line_interaction_in_id != -1]
-        last_line_interaction_in_id = self.model.last_line_interaction_in_id[
-            self.model.last_line_interaction_in_id != -1]
-        last_line_interaction_out_id = self.model.last_line_interaction_out_id[
-            self.model.last_line_interaction_out_id != -1]
+        self.last_line_in = self.model.atom_data.lines.ix[self.model.last_line_interaction_in_id[packet_filter]]
+        self.last_line_out = self.model.atom_data.lines.ix[self.model.last_line_interaction_out_id[packet_filter]]
 
-        line_list_in = self.model.atom_data.lines.ix[last_line_interaction_in_id]
-        line_list_out = self.model.atom_data.lines.ix[last_line_interaction_out_id]
 
-        if self.atomic_number is not None:
-            mask_in &= line_list_in.atomic_number == self.atomic_number
-            mask_out &= line_list_out.atomic_number == self.atomic_number
 
-        if self.ion_number is not None:
-            mask_in &= line_list_in.ion_number == self.ion_number
-            mask_out &= line_list_out.ion_number == self.ion_number
-
-        self.last_line_list_in = line_list_in[mask_in].reset_index()
-        self.last_line_list_out = line_list_out[mask_out].reset_index()
-
-        self.contributing_last = self.last_line_list_in.groupby(['atomic_number', 'ion_number'])['wavelength'].count()
-        self.contributing_last = self.contributing_last.astype(float) / self.contributing_last.sum()
-        self.current_no_packets = len(self.last_line_list_in)
-
+    def update_last_interaction_line_in_nu_filter(self):
+        pass
 
     def plot_wave_in_out(self, fig, do_clf=True, plot_resonance=True):
         if do_clf:

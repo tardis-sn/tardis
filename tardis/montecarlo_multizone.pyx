@@ -1072,14 +1072,15 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                     #print "last_line %g" % (last_line[0])
 
 
-
+                    storage.last_line_interaction_in_id[storage.current_packet_id] = current_line_id[0] - 1
+                    storage.last_line_interaction_shell_id[storage.current_packet_id] = current_shell_id[0]
+                    storage.last_interaction_type[storage.current_packet_id] = 2
 
                     if storage.line_interaction_id == 0: #scatter
                         emission_line_id = current_line_id[0] - 1
                     elif storage.line_interaction_id >= 1:# downbranch & macro
-                        storage.last_line_interaction_in_id[storage.current_packet_id] = current_line_id[0] - 1
-                        storage.last_line_interaction_shell_id[storage.current_packet_id] = current_shell_id[0]
-                        storage.last_interaction_type[storage.current_packet_id] = 2
+
+
                         activate_level_id = storage.line2macro_level_upper[current_line_id[0] - 1]
                         #print "HERE %g %g" %(current_line_id[0], activate_level_id)
                         #print "DEST " , (storage.destination_level_id[0], storage.destination_level_id[5], storage.destination_level_id[10])
