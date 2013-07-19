@@ -7,7 +7,7 @@ import os
 
 default_config = os.path.join(os.path.dirname(config_reader.__file__), 'data', 'tardis_example_config.yml')
 
-tardis_config = config_reader.TardisConfiguration.from_yaml(default_config)
+tardis_config = config_reader.TARDISConfiguration.from_yaml(default_config)
 
 
 def test_time_explosion():
