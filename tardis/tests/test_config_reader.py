@@ -12,20 +12,20 @@ def test_quantity_parser_normal():
     assert q1.unit == u.Unit('km/s')
 
 def test_quantity_parser_malformed_quantity1():
-    with pytest.raises(config_reader.TardisConfigurationError):
+    with pytest.raises(config_reader.TARDISConfigurationError):
         q1 = config_reader.parse_quantity('abcd')
 
 def test_quantity_parser_malformed_quantity2():
-    with pytest.raises(config_reader.TardisMalformedQuantityError):
+    with pytest.raises(config_reader.TARDISMalformedQuantityError):
         q1 = config_reader.parse_quantity('5 abcd')
 
 
 def test_config_namespace_attribute_test():
-    namespace = config_reader.TardisConfigurationNameSpace({'param1':1})
+    namespace = config_reader.TARDISConfigurationNameSpace({'param1':1})
     assert namespace.param1 == 1
 
 def test_config_namespace_attribute_test():
-    namespace = config_reader.TardisConfigurationNameSpace({'param1':1})
+    namespace = config_reader.TARDISConfigurationNameSpace({'param1':1})
     with pytest.raises(AttributeError):
         assert namespace.param2 == 1
 
