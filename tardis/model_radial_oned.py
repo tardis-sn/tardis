@@ -38,7 +38,7 @@ class Radial1DModel(object):
         Parameters
         ----------
 
-        tardis_configuration : `tardis.config_reader.TardisConfiguration`
+        tardis_configuration : `tardis.config_reader.TARDISConfiguration`
 
         velocities : `np.ndarray`
             an array with n+1 (for n shells) velocities (in cm/s) for each of the boundaries (velocities[0] describing
