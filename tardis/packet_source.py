@@ -4,7 +4,8 @@ import numpy as np
 
 from astropy import units
 
-import plasma
+
+from util import intensity_black_body
 
 
 class SimplePacketSource:
@@ -82,7 +83,7 @@ class SimplePacketSource:
             the number of packets
         """
         nu = np.linspace(self.nu_start, self.nu_end, num=self.blackbody_sampling)
-        intensity = plasma.intensity_black_body(nu, T)
+        intensity = intensity_black_body(nu, T)
         cum_blackbody = np.cumsum(intensity)
         norm_cum_blackbody = cum_blackbody / cum_blackbody.max()
         return nu[norm_cum_blackbody.searchsorted(np.random.random(number_of_packets))] + \
