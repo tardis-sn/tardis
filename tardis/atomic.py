@@ -192,12 +192,9 @@ def read_zeta_data(fname):
         raise ValueError('zeta_data not available in this HDF5-data file. It can not be used with NebularAtomData')
 
     zeta_data = h5_file['zeta_data']
-    zeta_interp = {}
     t_rads = zeta_data.attrs['t_rad']
-    for line in zeta_data:
-        zeta_interp[tuple(map(int, line[:2]))] = interpolate.interp1d(t_rads, line[2:])
-
-    return zeta_interp
+    return pd.DataFrame(zeta_data[:,2:], index=pd.MultiIndex.from_arrays(zeta_data[:,:2].transpose().astype(int)),
+                 columns=t_rads)
 
 
 def read_collision_data(fname):
@@ -607,12 +604,15 @@ class NLTEData(object):
             self.g_ratio_matrices[species] = g_ratio_matrix
 
 
-    def get_collision_matrix(self, species, t_electron):
-        c_ul_matrix = self.C_ul_interpolator[species](t_electron)
-
+    def get_collision_matrix(self, species, t_electrons):
+        c_ul_matrix = self.C_ul_interpolator[species](t_electrons)
+        no_of_levels = c_ul_matrix.shape[0]
         c_ul_matrix[np.isnan(c_ul_matrix)] = 0.0
+
         #TODO in tardisatomic the g_ratio is the other way round - here I'll flip it in prepare_collision matrix
-        c_lu_matrix = c_ul_matrix * np.exp(-self.delta_E_matrices[species] / t_electron) * self.g_ratio_matrices[
-            species]
-        return c_ul_matrix + c_lu_matrix.transpose()
+
+        c_lu_matrix = c_ul_matrix * np.exp(-self.delta_E_matrices[species].reshape((no_of_levels, no_of_levels, 1)) /
+                                           t_electrons.reshape((1, 1, t_electrons.shape[0]))) * \
+                      self.g_ratio_matrices[species].reshape((no_of_levels, no_of_levels, 1))
+        return c_ul_matrix + c_lu_matrix.transpose(1, 0, 2)
 

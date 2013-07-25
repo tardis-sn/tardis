@@ -58,6 +58,7 @@ cdef class StorageModel:
     cdef float_type_t*packet_mus
     cdef np.ndarray packet_energies_a
     cdef float_type_t*packet_energies
+
     ######## Setting up the output ########
     cdef np.ndarray output_nus_a
     cdef float_type_t*output_nus
@@ -170,7 +171,7 @@ cdef class StorageModel:
         self.inverse_time_explosion = 1 / self.time_explosion
 
         #electron density
-        cdef np.ndarray[float_type_t, ndim=1] electron_densities = model.electron_densities
+        cdef np.ndarray[float_type_t, ndim=1] electron_densities = model.plasma_array.electron_densities.values
         self.electron_densities_a = electron_densities
         self.electron_densities = <float_type_t*> self.electron_densities_a.data
 
@@ -185,13 +186,13 @@ cdef class StorageModel:
         #
         self.no_of_lines = line_list_nu.size
 
-        cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.tau_sobolevs
+        cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.plasma_array.tau_sobolevs.values.transpose()
         self.line_lists_tau_sobolevs_a = line_lists_tau_sobolevs
         self.line_lists_tau_sobolevs = <float_type_t*> self.line_lists_tau_sobolevs_a.data
         self.line_lists_tau_sobolevs_nd = self.line_lists_tau_sobolevs_a.shape[1]
 
-        cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blue_estimators
-        model.j_blues[:] = 0.0
+        cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blue_estimators.values.transpose()
+        model.j_blue_estimators.values[:] = 0.0
         self.line_lists_j_blues_a = line_lists_j_blues
         self.line_lists_j_blues = <float_type_t*> self.line_lists_j_blues_a.data
         self.line_lists_j_blues_nd = self.line_lists_j_blues_a.shape[1]
@@ -215,7 +216,7 @@ cdef class StorageModel:
         cdef np.ndarray[int_type_t, ndim=1] destination_level_id
         cdef np.ndarray[int_type_t, ndim=1] transition_line_id
         if self.line_interaction_id >= 1:
-            transition_probabilities = model.transition_probabilities
+            transition_probabilities = model.transition_probabilities.values.transpose()
             self.transition_probabilities_a = transition_probabilities
             self.transition_probabilities = <float_type_t*> self.transition_probabilities_a.data
             self.transition_probabilities_nd = self.transition_probabilities_a.shape[1]
@@ -1072,14 +1073,15 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                     #print "last_line %g" % (last_line[0])
 
 
-
+                    storage.last_line_interaction_in_id[storage.current_packet_id] = current_line_id[0] - 1
+                    storage.last_line_interaction_shell_id[storage.current_packet_id] = current_shell_id[0]
+                    storage.last_interaction_type[storage.current_packet_id] = 2
 
                     if storage.line_interaction_id == 0: #scatter
                         emission_line_id = current_line_id[0] - 1
                     elif storage.line_interaction_id >= 1:# downbranch & macro
-                        storage.last_line_interaction_in_id[storage.current_packet_id] = current_line_id[0] - 1
-                        storage.last_line_interaction_shell_id[storage.current_packet_id] = current_shell_id[0]
-                        storage.last_interaction_type[storage.current_packet_id] = 2
+
+
                         activate_level_id = storage.line2macro_level_upper[current_line_id[0] - 1]
                         #print "HERE %g %g" %(current_line_id[0], activate_level_id)
                         #print "DEST " , (storage.destination_level_id[0], storage.destination_level_id[5], storage.destination_level_id[10])
