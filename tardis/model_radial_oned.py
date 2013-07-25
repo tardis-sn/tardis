@@ -326,7 +326,7 @@ class Radial1DModel(object):
                                                          luminosity_wavelength_filter]) \
                              * self.montecarlo_luminosity.unit
 
-        absorbed_luminosity = -np.sum(self.montecarlo_luminosity.value[(self.montecarlo_luminosity.value < 0) &
+        absorbed_luminosity = np.sum(self.montecarlo_luminosity.value[(self.montecarlo_nu.value < 0) &
                                                           luminosity_wavelength_filter]) \
                               * self.montecarlo_luminosity.unit
         updated_t_inner = self.t_inner \
@@ -455,6 +455,8 @@ class TARDISHistory(object):
         hdf_store = HDFStore(fname)
         iterations = []
         for key in hdf_store.keys():
+            if key.split('/')[1] == 'atom_data':
+                continue
             iterations.append(int(re.match('model(\d+)', key.split('/')[1]).groups()[0]))
 
         iterations = np.sort(np.unique(iterations))
@@ -467,6 +469,8 @@ class TARDISHistory(object):
         ion_populations_dict = {}
         j_blues_dict = {}
 
+        history.levels = hdf_store['atom_data/levels']
+        history.lines = hdf_store['atom_data/lines']
         history.iterations = iterations
 
         for iter in iterations:

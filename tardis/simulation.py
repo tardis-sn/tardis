@@ -13,6 +13,9 @@ def run_radial1d(radial1d_model, history_fname=None):
             logger.warn('History file %s exists - it will be overwritten', history_fname)
             os.system('rm %s' % history_fname)
         history_buffer = HDFStore(history_fname)
+        radial1d_model.atom_data.lines.to_hdf(history_buffer, 'atom_data/lines')
+        radial1d_model.atom_data.levels.to_hdf(history_buffer, 'atom_data/levels')
+
 
     start_time = time.time()
     initialize_j_blues = True

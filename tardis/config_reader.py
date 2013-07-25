@@ -545,7 +545,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         logger.info('Reading Atomic Data from %s', atom_data_fname)
         atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
-        config_dict['atom_data'] = atom_data
+
 
         #Parsing supernova dictionary
         config_dict['supernova'] = parse_supernova_section(yaml_dict['supernova'])
@@ -684,6 +684,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                     nlte_species.append(species_string_to_tuple(species_string, atom_data))
 
                 nlte_config_dict['species'] = nlte_species
+                nlte_config_dict['species_string'] = nlte_species_list
                 nlte_config_dict.update(nlte_section)
 
                 if 'coronal_approximation' not in nlte_section:
@@ -831,11 +832,12 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         config_dict['spectrum'] = spectrum_config_dict
 
 
-        return cls(config_dict)
+        return cls(config_dict, atom_data)
 
 
-    def __init__(self, config_dict):
+    def __init__(self, config_dict, atom_data):
         super(TARDISConfiguration, self).__init__(config_dict)
+        self.atom_data = atom_data
         selected_atomic_numbers = self.abundances.index
         self.number_densities = (self.abundances * self.structure.mean_densities.to('g/cm^3').value)
         self.number_densities = self.number_densities.div(self.atom_data.atom_data.mass.ix[selected_atomic_numbers],
