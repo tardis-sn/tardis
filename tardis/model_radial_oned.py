@@ -242,15 +242,14 @@ class Radial1DModel(object):
         Run a simulation
         """
 
-        self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
+        if update_radiation_field:
+            self.update_radiationfield()
 
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
         self.update_plasmas(initialize_nlte=initialize_nlte)
 
-
-        if update_radiation_field:
-            self.update_radiationfield()
-
+        logger.info('Calculating %d packets for t_inner=%.2f', self.current_no_of_packets, self.t_inner.value)
+        self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
 
         if enable_virtual:
             no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
