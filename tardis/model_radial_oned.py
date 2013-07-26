@@ -92,8 +92,9 @@ class Radial1DModel(object):
             if not self.atom_data.has_zeta_data:
                 raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma_type")
 
-        self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.spectrum.start,
-                                                                           tardis_config.spectrum.end)
+        self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.montecarlo.black_body_sampling.start,
+                                                                           tardis_config.montecarlo.black_body_sampling.end,
+                                                                           blackbody_sampling=tardis_config.montecarlo.black_body_sampling.samples)
         self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
 
         self.t_inner = tardis_config.plasma.t_inner
@@ -108,8 +109,7 @@ class Radial1DModel(object):
             self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.config_dict.copy()
 
         self.t_rads = tardis_config.plasma.t_rads
-        self.j_blues_norm_factor = constants.c.cgs *  tardis_config.supernova.time_explosion / \
-                       (4 * np.pi * self.time_of_simulation * tardis_config.structure.volumes)
+
 
 
 
@@ -160,6 +160,8 @@ class Radial1DModel(object):
         self.luminosity_inner = (4 * np.pi * constants.sigma_sb.cgs * self.tardis_config.structure.r_inner[0] ** 2 * \
                                 self._t_inner ** 4).to('erg/s')
         self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
+        self.j_blues_norm_factor = constants.c.cgs *  self.tardis_config.supernova.time_explosion / \
+                       (4 * np.pi * self.time_of_simulation * self.tardis_config.structure.volumes)
 
 
     def calculate_j_blues(self, init_detailed_j_blues=False):

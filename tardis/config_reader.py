@@ -492,7 +492,8 @@ class TARDISConfigurationNameSpace(object):
     def __getitem__(self, item):
         return self.config_dict.__getitem__(item)
 
-
+    def __dir__(self):
+        return self.config_dict.keys()
     def get(self, k, d=None):
         return self.config_dict.get(k, d)
     def __repr__(self):
@@ -801,10 +802,22 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             logger.warn('Disabling electron scattering - this is not physical')
             montecarlo_config_dict['sigma_thomson'] = 1e-200 / (u.cm**2)
 
+
+
+
+        if 'black_body_sampling' in montecarlo_section:
+            black_body_sampling_section = montecarlo_section.pop('black_body_sampling')
+            sampling_start, sampling_end = parse_spectral_bin(black_body_sampling_section['start'],
+                                                                                black_body_sampling_section['end'])
+            montecarlo_config_dict['black_body_sampling']['start'] = sampling_start
+            montecarlo_config_dict['black_body_sampling']['end'] = sampling_end
+            montecarlo_config_dict['black_body_sampling']['samples'] = int(black_body_sampling_section['samples'])
+        else:
+            montecarlo_config_dict['black_body_sampling']['start'] = 50 * u.angstrom
+            montecarlo_config_dict['black_body_sampling']['end'] = 200000 * u.angstrom
+            montecarlo_config_dict['black_body_sampling']['samples'] = int(1e6)
+
         config_dict['montecarlo'] = montecarlo_config_dict
-
-
-        #if 'black_bod'
         ##### End of MonteCarlo section
 
 
