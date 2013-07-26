@@ -804,11 +804,11 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         config_dict['montecarlo'] = montecarlo_config_dict
 
 
+        #if 'black_bod'
         ##### End of MonteCarlo section
 
-        ##### NLTE Section #####
 
-        config_dict['nlte_options'] = yaml_dict.pop('nlte', {})
+
 
 
 
