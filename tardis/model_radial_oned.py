@@ -258,7 +258,7 @@ class Radial1DModel(object):
             no_of_virtual_packets = 0
         if np.any(np.isnan(self.plasma_array.tau_sobolevs)) or np.any(np.isinf(self.plasma_array.tau_sobolevs)) \
             or np.any(np.isneginf(self.plasma_array.tau_sobolevs)):
-            raise ValueError('Some values are nan, inf, -inf in tau_sobolevs. Something went wrong!')
+            raise ValueError('Some tau_sobolevs are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
         self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
         self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)
@@ -340,7 +340,7 @@ class Radial1DModel(object):
         if convergence_section.type == 'damped' or convergence_section.type == 'specific':
             self.t_rads += convergence_section.t_rad.damping_constant * (updated_t_rads - self.t_rads)
             self.ws += convergence_section.w.damping_constant * (updated_ws - self.ws)
-            self.t_inner += convergence_section.w.damping_constant * (updated_t_inner - self.t_inner)
+            self.t_inner += convergence_section.t_inner.damping_constant * (updated_t_inner - self.t_inner)
 
         if convergence_section.type == 'specific':
 
@@ -413,6 +413,9 @@ class Radial1DModel(object):
         ws_path = os.path.join(path, 'ws')
         pd.Series(self.ws).to_hdf(hdf_store, ws_path)
 
+        t_inner_path = os.path.join(path, 't_inner')
+        pd.Series([self.t_inner.value]).to_hdf(hdf_store, t_inner_path)
+
         electron_densities_path = os.path.join(path, 'electron_densities')
         pd.Series(self.plasma_array.electron_densities).to_hdf(hdf_store, electron_densities_path)
 
@@ -472,7 +475,7 @@ class TARDISHistory(object):
         history.levels = hdf_store['atom_data/levels']
         history.lines = hdf_store['atom_data/lines']
         history.iterations = iterations
-
+        history.t_inner = []
         for iter in iterations:
             current_iter = 'iter%03d' % iter
             t_rads_dict[current_iter] = hdf_store['model%03d/t_rads' % iter]
@@ -480,6 +483,7 @@ class TARDISHistory(object):
             level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
             ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
             j_blues_dict[current_iter] = hdf_store['model%03d/j_blues' %iter]
+            history.t_inner.append(hdf_store['model%03d/t_inner' %iter][0])
 
             for index in ion_populations_dict[current_iter].index:
                 level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
