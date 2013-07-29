@@ -27,10 +27,10 @@ data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 density_structure_fileparser = {}
 
 
-class TardisConfigurationError(ValueError):
+class TARDISConfigurationError(ValueError):
     pass
 
-class TardisMalformedQuantityError(TardisConfigurationError):
+class TARDISMalformedQuantityError(TARDISConfigurationError):
 
     def __init__(self, malformed_quantity_string):
         self.malformed_quantity_string = malformed_quantity_string
@@ -39,7 +39,7 @@ class TardisMalformedQuantityError(TardisConfigurationError):
         return 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' % self.malformed_quantity_string
 
 
-class TardisMalformedElementSymbolError(TardisConfigurationError):
+class TARDISMalformedElementSymbolError(TARDISConfigurationError):
 
     def __init__(self, malformed_element_symbol):
         self.malformed_element_symbol = malformed_element_symbol
@@ -48,7 +48,7 @@ class TardisMalformedElementSymbolError(TardisConfigurationError):
         return 'Expecting an atomic symbol (e.g. Fe) - supplied %s' % self.malformed_element_symbol
 
 
-class TardisMalformedSpeciesError(TardisConfigurationError):
+class TARDISMalformedSpeciesError(TARDISConfigurationError):
 
     def __init__(self, malformed_element_symbol):
         self.malformed_element_symbol = malformed_element_symbol
@@ -61,29 +61,29 @@ class TardisMalformedSpeciesError(TardisConfigurationError):
 def parse_quantity(quantity_string):
 
     if not isinstance(quantity_string, basestring):
-        raise TardisMalformedQuantityError(quantity_string)
+        raise TARDISMalformedQuantityError(quantity_string)
 
     try:
         value_string, unit_string = quantity_string.split()
     except ValueError:
-        raise TardisMalformedQuantityError(quantity_string)
+        raise TARDISMalformedQuantityError(quantity_string)
 
     try:
         value = float(value_string)
     except ValueError:
-        raise TardisMalformedQuantityError(quantity_string)
+        raise TARDISMalformedQuantityError(quantity_string)
 
     try:
         q = u.Quantity(value, unit_string)
     except ValueError:
-        raise TardisMalformedQuantityError(quantity_string)
+        raise TARDISMalformedQuantityError(quantity_string)
 
     return q
 
 def element_symbol2atomic_number(element_string, atom_data):
     reformatted_element_string = reformat_element_symbol(element_string)
     if reformatted_element_string not in atom_data.symbol2atomic_number:
-        raise TardisMalformedElementSymbolError(element_string)
+        raise TARDISMalformedElementSymbolError(element_string)
     return atom_data.symbol2atomic_number[reformatted_element_string]
 
 
@@ -100,7 +100,7 @@ def species_string_to_tuple(species_string, atom_data):
     try:
         element_string, ion_number_string = species_string.split()
     except ValueError:
-        raise TardisMalformedElementSymbolError(species_string)
+        raise TARDISMalformedElementSymbolError(species_string)
 
     atomic_number = element_symbol2atomic_number(element_string, atom_data)
 
@@ -110,9 +110,9 @@ def species_string_to_tuple(species_string, atom_data):
         try:
             ion_number = int(ion_number_string)
         except ValueError:
-            raise TardisMalformedSpeciesError
+            raise TARDISMalformedSpeciesError
     if ion_number > atomic_number:
-        raise TardisConfigurationError('Species given does not exist: ion number > atomic number')
+        raise TARDISConfigurationError('Species given does not exist: ion number > atomic number')
 
     return atomic_number, ion_number-1
 
@@ -210,7 +210,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         if len(mean_densities) == no_of_shells:
             logger.debug('Verified ARTIS file %s (no_of_shells=length of dataset)', density_file)
         else:
-            raise TardisConfigurationError(
+            raise TARDISConfigurationError(
                 'Error in ARTIS file %s - Number of shells not the same as dataset length' % density_file)
 
         min_shell = 1
@@ -248,7 +248,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
     try:
         parser = density_file_parser[density_file_dict['type']]
     except KeyError:
-        raise TardisConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
+        raise TARDISConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
                                 (density_file_parser.keys(), density_file_dict['type']))
 
     return parser(density_file_dict, time_explosion)
@@ -268,7 +268,7 @@ def parse_velocity_section(velocity_dict, no_of_shells):
     try:
         parser = velocity_parser[velocity_dict['type']]
     except KeyError:
-        raise TardisConfigurationError('In velocity section only types %s are allowed (supplied %s) ' %
+        raise TARDISConfigurationError('In velocity section only types %s are allowed (supplied %s) ' %
                                 (velocity_parser.keys(), velocity_dict['type']))
     return parser(velocity_dict, no_of_shells)
 
@@ -279,7 +279,8 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
 
     #Parse density uniform
     def parse_uniform(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
-        return np.ones(no_of_shells) * parse_quantity(density_dict['value']).to('g cm^-3')
+
+        return parse_quantity(density_dict['value']).to('g cm^-3') * np.ones(no_of_shells)
 
     density_parser['uniform'] = parse_uniform
 
@@ -337,7 +338,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
     try:
         parser = density_parser[density_dict['type']]
     except KeyError:
-        raise TardisConfigurationError('In density section only types %s are allowed (supplied %s) ' %
+        raise TARDISConfigurationError('In density section only types %s are allowed (supplied %s) ' %
                                 (density_parser.keys(), density_dict['type']))
     return parser(density_dict, no_of_shells, v_inner, v_outer, time_explosion)
 
@@ -357,7 +358,7 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
     try:
         parser = abundance_file_parser[abundance_file_dict['type']]
     except KeyError:
-        raise TardisConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
+        raise TARDISConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
                                 (abundance_file_parser.keys(), abundance_file_dict['type']))
 
     return parser(abundance_file_dict, abundances, min_shell, max_shell)
@@ -471,7 +472,7 @@ def read_lucy99_abundances(fname=None):
 
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
-class TardisConfigurationNameSpace(object):
+class TARDISConfigurationNameSpace(object):
 
     def __init__(self, config_dict):
         self.config_dict = config_dict
@@ -481,12 +482,12 @@ class TardisConfigurationNameSpace(object):
         if item in self.config_dict:
             config_item = self.config_dict[item]
             if isinstance(config_item, dict):
-                setattr(self, item, TardisConfigurationNameSpace(config_item))
+                setattr(self, item, TARDISConfigurationNameSpace(config_item))
                 return getattr(self, item)
             else:
                 return self.config_dict[item]
         else:
-            return super(TardisConfigurationNameSpace, self).__getattribute__(item)
+            return super(TARDISConfigurationNameSpace, self).__getattribute__(item)
 
     def __getitem__(self, item):
         return self.config_dict.__getitem__(item)
@@ -498,7 +499,7 @@ class TardisConfigurationNameSpace(object):
         return pp.pformat(self.config_dict)
 
 
-class TardisConfiguration(TardisConfigurationNameSpace):
+class TARDISConfiguration(TARDISConfigurationNameSpace):
     """
     Tardis configuration class
     """
@@ -519,7 +520,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         Returns
         -------
 
-        `tardis.config_reader.TardisConfiguration`
+        `tardis.config_reader.TARDISConfiguration`
 
         """
         try:
@@ -528,7 +529,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
             logger.critical('No config file named: %s', fname)
             raise e
         if yaml_dict['config_type'] not in ['simple1d']:
-            raise TardisConfigurationError('Only config_type=simple1d allowed at the moment.')
+            raise TARDISConfigurationError('Only config_type=simple1d allowed at the moment.')
 
         config_dict = {}
 
@@ -540,11 +541,11 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         elif 'atom_data' in yaml_dict.keys():
             atom_data_fname = yaml_dict['atom_data']
         else:
-            raise TardisConfigurationError('No atom_data key found in config or command line')
+            raise TARDISConfigurationError('No atom_data key found in config or command line')
 
         logger.info('Reading Atomic Data from %s', atom_data_fname)
         atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
-        config_dict['atom_data'] = atom_data
+
 
         #Parsing supernova dictionary
         config_dict['supernova'] = parse_supernova_section(yaml_dict['supernova'])
@@ -567,7 +568,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         else:
             #requiring all keys: no_of_shells, velocity, density
             if not all([item in structure_section.keys() for item in ('no_of_shells', 'velocity', 'density')]):
-                raise TardisConfigurationError(
+                raise TARDISConfigurationError(
                     'If file-section is not given to structure-section, one needs to provide all: no_of_shells, velocity, density')
 
             no_of_shells = structure_section['no_of_shells']
@@ -634,15 +635,15 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         plasma_config_dict = {}
 
         if plasma_section['type'] not in ('nebular', 'lte'):
-            raise TardisConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
+            raise TARDISConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
         plasma_config_dict['type'] = plasma_section['type']
 
         if plasma_section['radiative_rates_type'] not in ('nebular', 'lte', 'detailed'):
-            raise TardisConfigurationError('radiative_rates_types must be either "nebular", "lte", or "detailed"')
+            raise TARDISConfigurationError('radiative_rates_types must be either "nebular", "lte", or "detailed"')
         plasma_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
 
         if plasma_section['line_interaction_type'] not in ('scatter', 'downbranch', 'macroatom'):
-            raise TardisConfigurationError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
+            raise TARDISConfigurationError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
         plasma_config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
         if 'w_epsilon' in plasma_section:
@@ -683,6 +684,7 @@ class TardisConfiguration(TardisConfigurationNameSpace):
                     nlte_species.append(species_string_to_tuple(species_string, atom_data))
 
                 nlte_config_dict['species'] = nlte_species
+                nlte_config_dict['species_string'] = nlte_species_list
                 nlte_config_dict.update(nlte_section)
 
                 if 'coronal_approximation' not in nlte_section:
@@ -830,11 +832,12 @@ class TardisConfiguration(TardisConfigurationNameSpace):
         config_dict['spectrum'] = spectrum_config_dict
 
 
-        return cls(config_dict)
+        return cls(config_dict, atom_data)
 
 
-    def __init__(self, config_dict):
-        super(TardisConfiguration, self).__init__(config_dict)
+    def __init__(self, config_dict, atom_data):
+        super(TARDISConfiguration, self).__init__(config_dict)
+        self.atom_data = atom_data
         selected_atomic_numbers = self.abundances.index
         self.number_densities = (self.abundances * self.structure.mean_densities.to('g/cm^3').value)
         self.number_densities = self.number_densities.div(self.atom_data.atom_data.mass.ix[selected_atomic_numbers],
