@@ -323,12 +323,11 @@ class Radial1DModel(object):
         old_t_inner = self.t_inner
         luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
                             (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
-        emitted_luminosity = np.sum(self.montecarlo_luminosity.value[(self.montecarlo_luminosity.value >= 0) &
-                                                         luminosity_wavelength_filter]) \
+        emitted_filter = self.montecarlo_luminosity.value >= 0
+        emitted_luminosity = np.sum(self.montecarlo_luminosity.value[emitted_filter & luminosity_wavelength_filter]) \
                              * self.montecarlo_luminosity.unit
 
-        absorbed_luminosity = np.sum(self.montecarlo_luminosity.value[(self.montecarlo_nu.value < 0) &
-                                                          luminosity_wavelength_filter]) \
+        absorbed_luminosity = -np.sum(self.montecarlo_luminosity.value[~emitted_filter & luminosity_wavelength_filter]) \
                               * self.montecarlo_luminosity.unit
         updated_t_inner = self.t_inner \
                           * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value ** -.25
