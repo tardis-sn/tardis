@@ -813,6 +813,9 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             montecarlo_config_dict['black_body_sampling']['end'] = sampling_end
             montecarlo_config_dict['black_body_sampling']['samples'] = int(black_body_sampling_section['samples'])
         else:
+            logger.warn('No "black_body_sampling" section in config file - using defaults of '
+                        '50 - 200000 Angstrom (1e6 samples)')
+            montecarlo_config_dict['black_body_sampling'] = {}
             montecarlo_config_dict['black_body_sampling']['start'] = 50 * u.angstrom
             montecarlo_config_dict['black_body_sampling']['end'] = 200000 * u.angstrom
             montecarlo_config_dict['black_body_sampling']['samples'] = int(1e6)
