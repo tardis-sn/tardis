@@ -331,7 +331,7 @@ class BasePlasmaArray(object):
 
         phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
 
-        phi_coefficient = self.g_electrons * \
+        phi_coefficient = 2 * self.g_electrons * \
                           np.exp(np.outer(self.atom_data.ionization_data.ionization_energy.ix[phis.index].values,
                                           -self.beta_rads))
 
