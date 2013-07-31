@@ -499,6 +499,9 @@ class TARDISConfigurationNameSpace(object):
     def __repr__(self):
         return pp.pformat(self.config_dict)
 
+    def __dir__(self):
+        return self.__dict__.keys() + self.config_dict.keys()
+
 
 class TARDISConfiguration(TARDISConfigurationNameSpace):
     """
