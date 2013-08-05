@@ -65,7 +65,9 @@ class SimplePacketSource:
 
         number_of_packets = int(number_of_packets)
         print "calculating for t_rad = %.2f" % t_rad
+
         self.packet_nus = self.random_blackbody_nu(t_rad, number_of_packets)
+
         self.packet_mus = np.sqrt(np.random.random(size=number_of_packets))
         self.packet_energies = np.ones(number_of_packets) / number_of_packets
 
