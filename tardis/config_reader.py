@@ -135,6 +135,20 @@ def reformat_element_symbol(element_string):
 
     return element_string[0].upper() + element_string[1:].lower()
 
+def parse_abundance_dict_to_dataframe(abundance_dict, atom_data):
+    atomic_number_dict = dict([(element_symbol2atomic_number(symbol, atom_data), abundance_dict[symbol])
+                                   for symbol in abundance_dict])
+    atomic_numbers = sorted(atomic_number_dict.keys())
+
+    abundances = pd.Series([atomic_number_dict[z] for z in atomic_numbers], index=atomic_numbers)
+
+    abundance_norm = abundances.sum()
+    if abs(abundance_norm - 1) > 1e-12:
+        logger.warn('Given abundances don\'t add up to 1 (value = %g) - normalizing', abundance_norm)
+        abundances /= abundance_norm
+
+    return abundances
+
 
 
 
@@ -499,6 +513,9 @@ class TARDISConfigurationNameSpace(object):
     def __repr__(self):
         return pp.pformat(self.config_dict)
 
+    def __dir__(self):
+        return self.__dict__.keys() + self.config_dict.keys()
+
 
 class TARDISConfiguration(TARDISConfigurationNameSpace):
     """
@@ -723,10 +740,20 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         #PARSING convergence section
         convergence_variables = ['t_inner', 't_rad', 'w']
         convergence_config_dict = {}
-        if 'convergence_criteria' in montecarlo_section:
+        if 'convergence_strategy' in montecarlo_section:
 
-            convergence_section = montecarlo_section.pop('convergence_criteria')
+            convergence_section = montecarlo_section.pop('convergence_strategy')
+            if 'lock_t_inner_cycles' in convergence_section:
+                lock_t_inner_cycles = convergence_section['lock_t_inner_cycles']
+                logger.info('lock_t_inner_cycles set to %d cycles', lock_t_inner_cycles)
+            else:
+                lock_t_inner_cycles = None
 
+            if 't_inner_update_exponent' in convergence_section:
+                t_inner_update_exponent = convergence_section['t_inner_update_exponent']
+                logger.info('t_inner update exponent set to %g', t_inner_update_exponent)
+            else:
+                t_inner_update_exponent = None
             if convergence_section['type'] == 'damped':
                 convergence_config_dict['type'] == 'damped'
                 global_damping_constant = convergence_section['damping_constant']
@@ -774,14 +801,24 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             else:
                 raise ValueError("convergence criteria unclear %s", convergence_section['type'])
 
-                #convergence_config_dict['convergence_criteria'] = montecarlo_section['convergence_criteria']
+
+
         else:
+            lock_t_inner_cycles = None
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
             convergence_config_dict['type'] = 'damped'
             for convergence_variable in convergence_variables:
                 convergence_parameter_name = convergence_variable
                 convergence_config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
+        if lock_t_inner_cycles is None:
+            logger.warning('t_inner update lock cycles not set - defaulting to 1')
+            lock_t_inner_cycles = 1
+        if t_inner_update_exponent is None:
+            logger.warning('t_inner update exponent not set - defaulting to -0.5')
+            t_inner_update_exponent = -0.5
 
+        convergence_config_dict['lock_t_inner_cycles'] = lock_t_inner_cycles
+        convergence_config_dict['t_inner_update_exponent'] = t_inner_update_exponent
 
 
         montecarlo_config_dict['convergence'] = convergence_config_dict
@@ -860,9 +897,6 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                                                           axis=0)
 
 
-        self.atom_data.prepare_atom_data(selected_atomic_numbers,
-                                         line_interaction_type=self.plasma.line_interaction_type,
-                                         nlte_species=self.plasma.nlte.species)
 
 
 

@@ -89,7 +89,7 @@ class BasePlasmaArray(object):
     """
 
     @classmethod
-    def from_abundance(cls, abundances, density, atom_data, time_explosion, nlte_config=None, saha_treatment='lte'):
+    def from_abundance(cls, abundance_dict, density, atom_data, time_explosion, nlte_config=None, saha_treatment='lte'):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -98,7 +98,7 @@ class BasePlasmaArray(object):
         Parameters
         ----------
 
-        abundances : `~dict`
+        abundance_dict : `~dict`
             A dictionary with the abundances for each element, e.g. {'Fe':0.5, 'Ni':0.5}
 
 
@@ -113,35 +113,17 @@ class BasePlasmaArray(object):
         `Baseplasma` object
         """
 
-        atomic_numbers = np.array([config_reader.element_symbol2atomic_number(symbol, atom_data)
-                                   for symbol in abundances])
+        abundance_series = config_reader.parse_abundance_dict_to_dataframe(abundance_dict, atom_data)
 
-        number_density = pd.Series(index=atomic_numbers)
+        abundances = pd.DataFrame({0:abundance_series})
 
-        for symbol in abundance:
-            element_symbol = reformat_element_symbol(symbol)
-            if element_symbol not in atom_data.symbol2atomic_number:
-                raise ValueError('Element %s provided in config unknown' % element_symbol)
+        number_densities = abundances * density.to('g/cm^3').value
 
-            z = atom_data.symbol2atomic_number[element_symbol]
+        number_densities = number_densities.div(atom_data.atom_data.mass.ix[number_densities.index], axis=0)
+        atom_data.prepare_atom_data(number_densities.index.values)
 
-            number_density.ix[z] = abundance[symbol]
 
-        number_density = number_density[~number_density.isnull()]
-
-        abundance_sum = number_density.sum()
-
-        if abs(abundance_sum - 1.) > 0.02:
-            logger.warning('Abundances do not sum up to 1 (%g)- normalizing', abundance_sum)
-
-        number_density /= abundance_sum
-
-        number_density *= density
-        number_density /= atom_data.atom_data.mass[number_density.index]
-
-        return cls(t_rad=t_rad, w=w, number_density=number_density, atom_data=atom_data, j_blues=j_blues,
-                   time_explosion=time_explosion, t_electron=t_electron, zone_id=zone_id,
-                   nlte_species=nlte_species, nlte_options=nlte_options, saha_treatment=saha_treatment)
+        return cls(number_densities, atom_data, time_explosion.to('s').value, nlte_config=nlte_config, saha_treatment=saha_treatment)
 
     @classmethod
     def from_hdf5(cls, hdf5store):
@@ -219,11 +201,11 @@ class BasePlasmaArray(object):
 
        """
 
-        self.t_rads = t_rads
+        self.t_rads = np.array(t_rads)
         if t_electrons is None:
             self.t_electrons = None
-        self.ws = ws
-        self.j_blues=j_blues
+        self.ws = np.array(ws)
+        self.j_blues = j_blues
         self.beta_sobolevs_precalculated = False
         self.level_population_proportionalities, self.partition_functions = self.calculate_partition_functions(
             initialize_nlte=initialize_nlte)
@@ -331,7 +313,7 @@ class BasePlasmaArray(object):
 
         phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
 
-        phi_coefficient = self.g_electrons * \
+        phi_coefficient = 2 * self.g_electrons * \
                           np.exp(np.outer(self.atom_data.ionization_data.ionization_energy.ix[phis.index].values,
                                           -self.beta_rads))
 
@@ -370,7 +352,10 @@ class BasePlasmaArray(object):
         delta = self.calculate_radfield_correction()
 
         zeta_data = self.atom_data.zeta_data
-        zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[phis.index].values)(self.t_rads)
+        try:
+            zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[phis.index].values)(self.t_rads)
+        except ValueError:
+            raise ValueError('Outside of interpolation area %s' % self.t_rads)
 
         phis *= self.ws * (delta.ix[phis.index] * zeta + self.ws * (1 - zeta)) * \
                 (self.t_electrons / self.t_rads) ** .5
