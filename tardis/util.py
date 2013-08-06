@@ -148,22 +148,22 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
 
     return luminosity.value, wavelength.min(), wavelength.max()
 
-def create_synpp_yaml(self, fname, lines_db=None):
+def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     logger.warning('Currently only works with Si and a special setup')
-    if not self.atom_data.has_synpp_refs:
+    if not radial1d_mdl.atom_data.has_synpp_refs:
         raise ValueError(
             'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
 
-    self.atom_data.synpp_refs['ref_log_tau'] = -99.0
-    for key, value in self.atom_data.synpp_refs.iterrows():
+    radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] = -99.0
+    for key, value in radial1d_mdl.atom_data.synpp_refs.iterrows():
         try:
-            tau_sobolev_idx = self.atom_data.lines_index.ix[value['line_id']]
+            radial1d_mdl.atom_data.synpp_refs['ref_log_tau'].ix[key] = np.log10(
+                radial1d_mdl.plasma_array.tau_sobolevs[0].ix[value['line_id']])
         except KeyError:
-            continue
+            pass
 
-        self.atom_data.synpp_refs['ref_log_tau'].ix[key] = np.log10(self.plasmas[0].tau_sobolevs[tau_sobolev_idx])
 
-    relevant_synpp_refs = self.atom_data.synpp_refs[self.atom_data.synpp_refs['ref_log_tau'] > -50]
+    relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] > -50]
 
     yaml_reference = yaml.load(file(synpp_default_yaml_fname))
 
@@ -171,13 +171,15 @@ def create_synpp_yaml(self, fname, lines_db=None):
         yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'lines')
         yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'refs.dat')
 
-    yaml_reference['output']['min_wl'] = float(self.spec_angstrom.min())
-    yaml_reference['output']['max_wl'] = float(self.spec_angstrom.max())
+    yaml_reference['output']['min_wl'] = float(radial1d_mdl.spectrum.wavelength.to('angstrom').value.min())
+    yaml_reference['output']['max_wl'] = float(radial1d_mdl.spectrum.wavelength.to('angstrom').value.max())
 
 
     #raise Exception("there's a problem here with units what units does synpp expect?")
-    yaml_reference['opacity']['v_ref'] = float(self.tardis_config.structure.v_inner.to('cm/s').value[0] / 1e8)
-    yaml_reference['grid']['v_outer_max'] = float(self.tardis_config.structure.v_outer[-1] / 1e8)
+    yaml_reference['opacity']['v_ref'] = float((radial1d_mdl.tardis_config.structure.v_inner[0].to('km/s') /
+                                               (1000. * u.km / u.s)).value)
+    yaml_reference['grid']['v_outer_max'] = float((radial1d_mdl.tardis_config.structure.v_outer[-1].to('km/s') /
+                                                  (1000. * u.km / u.s)).value)
 
     #pdb.set_trace()
 
