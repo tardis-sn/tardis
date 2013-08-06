@@ -303,9 +303,9 @@ class ShellInfo(QtGui.QDialog):
 
 class LineInteractionTables(QtGui.QWidget):
 
-    def __init__(self, line_interaction_analysis, atom_data):
+    def __init__(self, line_interaction_analysis, atom_data, description):
         super(LineInteractionTables, self).__init__()
-
+        self.text_description = QtGui.QLabel(str(description))
         self.species_table = QtGui.QTableView()
         self.transitions_table = QtGui.QTableView()
         self.layout = QtGui.QHBoxLayout()
@@ -320,6 +320,7 @@ class LineInteractionTables(QtGui.QWidget):
         self.species_table.setModel(species_table_model)
 
         line_interaction_species_group.wavelength.count()
+        self.layout.addWidget(self.text_description)
         self.layout.addWidget(self.species_table)
         self.species_table.connect(self.species_table.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'),
                                self.on_species_clicked)
@@ -338,7 +339,7 @@ class LineInteractionTables(QtGui.QWidget):
 
         current_last_line_in = last_line_in[last_line_in_filter].reset_index()
         current_last_line_out = last_line_out[last_line_in_filter].reset_index()
-        current_last_line_in['last_line_id_out'] = current_last_line_out['index']
+        current_last_line_in['last_line_id_out'] = current_last_line_out[index]
         last_line_in_string = []
         last_line_count = []
         grouped_line_interactions = current_last_line_in.groupby(['index', 'last_line_id_out'])
@@ -383,8 +384,8 @@ class LineInfo(QtGui.QDialog):
 
 
 
-        self.layout.addWidget(LineInteractionTables(packet_nu_line_interaction, self.parent.model.atom_data))
-        self.layout.addWidget(LineInteractionTables(line_in_nu_line_interaction, self.parent.model.atom_data))
+        self.layout.addWidget(LineInteractionTables(packet_nu_line_interaction, self.parent.model.atom_data, 'filtered by frequency of packet'))
+        self.layout.addWidget(LineInteractionTables(line_in_nu_line_interaction, self.parent.model.atom_data, 'filtered by frequency of line interaction'))
 
 
         self.setLayout(self.layout)
