@@ -670,6 +670,12 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
             plasma_config_dict['w_epsilon'] = 1e-10
 
+        if 'delta_treatment' in plasma_section:
+            plasma_config_dict['delta_treatment'] = plasma_section['delta_treatment']
+        else:
+            logger.warn('"delta_treatment" not specified in plasma section - defaulting to None')
+            plasma_config_dict['delta_treatment'] = None
+
         if 'initial_t_inner' in plasma_section:
             plasma_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner']).to('K')
         else:
