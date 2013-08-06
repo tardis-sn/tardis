@@ -352,7 +352,10 @@ class BasePlasmaArray(object):
         delta = self.calculate_radfield_correction()
 
         zeta_data = self.atom_data.zeta_data
-        zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[phis.index].values)(self.t_rads)
+        try:
+            zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[phis.index].values)(self.t_rads)
+        except ValueError:
+            raise ValueError('Outside of interpolation area %s' % self.t_rads)
 
         phis *= self.ws * (delta.ix[phis.index] * zeta + self.ws * (1 - zeta)) * \
                 (self.t_electrons / self.t_rads) ** .5

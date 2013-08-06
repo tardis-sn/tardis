@@ -4,9 +4,10 @@ import numpy as np
 
 from astropy import units
 
-
+import logging
 from util import intensity_black_body
 
+logger = logging.getLogger(__name__)
 
 class SimplePacketSource:
     """Initializing photon source
@@ -64,7 +65,7 @@ class SimplePacketSource:
             np.random.seed(seed)
 
         number_of_packets = int(number_of_packets)
-        print "calculating for t_rad = %.2f" % t_rad
+
 
         self.packet_nus = self.random_blackbody_nu(t_rad, number_of_packets)
 
@@ -85,6 +86,7 @@ class SimplePacketSource:
         number_of_packets : `int`
             the number of packets
         """
+        logger.info('Calculating %d packets for t_inner=%.2f', number_of_packets, T)
         nu = np.linspace(self.nu_start, self.nu_end, num=self.blackbody_sampling)
         intensity = intensity_black_body(nu, T)
         cum_blackbody = np.cumsum(intensity)

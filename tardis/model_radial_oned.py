@@ -10,7 +10,7 @@ from astropy import constants, units as u
 import montecarlo_multizone
 import os
 import re
-
+import itertools
 import scipy.special
 
 
@@ -88,6 +88,11 @@ class Radial1DModel(object):
         self.converged = False
 
         self.atom_data = tardis_config.atom_data
+        selected_atomic_numbers = self.tardis_config.abundances.index
+        self.atom_data.prepare_atom_data(selected_atomic_numbers,
+                                         line_interaction_type=tardis_config.plasma.line_interaction_type,
+                                         nlte_species=tardis_config.plasma.nlte.species)
+
         if tardis_config.plasma.type == 'nebular':
             if not self.atom_data.has_zeta_data:
                 raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma_type")
@@ -109,7 +114,9 @@ class Radial1DModel(object):
             self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.config_dict.copy()
 
         self.t_rads = tardis_config.plasma.t_rads
-
+        t_inner_lock_cycle = [False] * tardis_config.montecarlo.convergence.lock_t_inner_cycles
+        t_inner_lock_cycle[0] = True
+        self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
 
 
 
@@ -158,7 +165,7 @@ class Radial1DModel(object):
     def t_inner(self, value):
         self._t_inner = value
         self.luminosity_inner = (4 * np.pi * constants.sigma_sb.cgs * self.tardis_config.structure.r_inner[0] ** 2 * \
-                                self._t_inner ** 4).to('erg/s')
+                                self.t_inner ** 4).to('erg/s')
         self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
         self.j_blues_norm_factor = constants.c.cgs *  self.tardis_config.supernova.time_explosion / \
                        (4 * np.pi * self.time_of_simulation * self.tardis_config.structure.volumes)
@@ -237,6 +244,84 @@ class Radial1DModel(object):
             self.transition_probabilities = self.plasma_array.calculate_transition_probabilities()
 
 
+    def update_radiationfield(self, log_sampling=5):
+        """
+        Updating radiation field
+        """
+        convergence_section = self.tardis_config.montecarlo.convergence
+        updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
+        old_t_rads = self.t_rads.copy()
+        old_ws = self.ws.copy()
+        old_t_inner = self.t_inner
+        luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
+                            (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
+        emitted_filter = self.montecarlo_luminosity.value >= 0
+        emitted_luminosity = np.sum(self.montecarlo_luminosity.value[emitted_filter & luminosity_wavelength_filter]) \
+                             * self.montecarlo_luminosity.unit
+
+        absorbed_luminosity = -np.sum(self.montecarlo_luminosity.value[~emitted_filter & luminosity_wavelength_filter]) \
+                              * self.montecarlo_luminosity.unit
+        updated_t_inner = self.t_inner \
+                          * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value \
+                            ** convergence_section.t_inner_update_exponent
+
+        #updated_t_inner = np.max([np.min([updated_t_inner, 30000]), 3000])
+
+        convergence_t_rads = (abs(old_t_rads - updated_t_rads) / updated_t_rads).value
+        convergence_ws = (abs(old_ws - updated_ws) / updated_ws)
+        convergence_t_inner = (abs(old_t_inner - updated_t_inner) / updated_t_inner).value
+
+
+        if convergence_section.type == 'damped' or convergence_section.type == 'specific':
+            self.t_rads += convergence_section.t_rad.damping_constant * (updated_t_rads - self.t_rads)
+            self.ws += convergence_section.w.damping_constant * (updated_ws - self.ws)
+            if self.t_inner_update.next():
+                t_inner_new = self.t_inner + convergence_section.t_inner.damping_constant * (updated_t_inner - self.t_inner)
+            else:
+                t_inner_new = self.t_inner
+
+
+        if convergence_section.type == 'specific':
+
+            t_rad_converged = (float(np.sum(convergence_t_rads < convergence_section.t_rad['threshold'])) \
+                               / self.tardis_config.structure.no_of_shells) >= convergence_section.t_rad['fraction']
+
+            w_converged = (float(np.sum(convergence_t_rads < convergence_section.w['threshold'])) \
+                           / self.tardis_config.structure.no_of_shells) >= convergence_section.w['fraction']
+
+            t_inner_converged = convergence_t_inner < convergence_section.t_inner['threshold']
+
+            if t_rad_converged and t_inner_converged and w_converged:
+                if not self.converged:
+                    self.converged = True
+                    self.iterations_remaining = self.global_convergence_parameters['hold']
+
+            else:
+                if self.converged:
+                    self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
+                    self.converged = False
+
+        self.temperature_logging = pd.DataFrame(
+            {'t_rads': old_t_rads.value, 'updated_t_rads': updated_t_rads.value,
+             'converged_t_rads': convergence_t_rads, 'new_trads': self.t_rads.value, 'ws': old_ws,
+             'updated_ws': updated_ws, 'converged_ws': convergence_ws,
+             'new_ws': self.ws})
+
+        self.temperature_logging.index.name = 'Shell'
+
+        temperature_logging = str(self.temperature_logging[::log_sampling])
+
+        temperature_logging = ''.join(['\t%s\n' % item for item in temperature_logging.split('\n')])
+
+        logger.info('Plasma stratification:\n%s\n', temperature_logging)
+        logger.info("Luminosity emitted = %.5e Luminosity absorbed = %.5e Luminosity requested = %.5e",
+                    emitted_luminosity.value, absorbed_luminosity.value,
+                    self.tardis_config.supernova.luminosity_requested.value)
+        logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
+
+
+        return t_inner_new
+
 
     def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False,
                  initialize_nlte=False):
@@ -245,12 +330,16 @@ class Radial1DModel(object):
         """
 
         if update_radiation_field:
-            self.update_radiationfield()
+            t_inner_new = self.update_radiationfield()
+        else:
+            t_inner_new = self.t_inner
 
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
         self.update_plasmas(initialize_nlte=initialize_nlte)
 
-        logger.info('Calculating %d packets for t_inner=%.2f', self.current_no_of_packets, self.t_inner.value)
+
+        self.t_inner = t_inner_new
+
         self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
 
         if enable_virtual:
@@ -271,6 +360,7 @@ class Radial1DModel(object):
 
         self.montecarlo_nu = montecarlo_nu * u.Hz
         self.montecarlo_luminosity = montecarlo_energies *  1 * u.erg / self.time_of_simulation
+
 
         montecarlo_reabsorbed_luminosity = -np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value < 0],
                                          weights=self.montecarlo_luminosity.value[self.montecarlo_luminosity.value < 0],
@@ -311,74 +401,6 @@ class Radial1DModel(object):
             self.gui.show()
 
 
-
-    def update_radiationfield(self, log_sampling=5):
-        """
-        Updating radiation field
-        """
-
-        updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
-        old_t_rads = self.t_rads.copy()
-        old_ws = self.ws.copy()
-        old_t_inner = self.t_inner
-        luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
-                            (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
-        emitted_filter = self.montecarlo_luminosity.value >= 0
-        emitted_luminosity = np.sum(self.montecarlo_luminosity.value[emitted_filter & luminosity_wavelength_filter]) \
-                             * self.montecarlo_luminosity.unit
-
-        absorbed_luminosity = -np.sum(self.montecarlo_luminosity.value[~emitted_filter & luminosity_wavelength_filter]) \
-                              * self.montecarlo_luminosity.unit
-        updated_t_inner = self.t_inner \
-                          * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value ** -.25
-
-        convergence_t_rads = (abs(old_t_rads - updated_t_rads) / updated_t_rads).value
-        convergence_ws = (abs(old_ws - updated_ws) / updated_ws)
-        convergence_t_inner = (abs(old_t_inner - updated_t_inner) / updated_t_inner).value
-
-        convergence_section = self.tardis_config.montecarlo.convergence
-        if convergence_section.type == 'damped' or convergence_section.type == 'specific':
-            self.t_rads += convergence_section.t_rad.damping_constant * (updated_t_rads - self.t_rads)
-            self.ws += convergence_section.w.damping_constant * (updated_ws - self.ws)
-            self.t_inner += convergence_section.t_inner.damping_constant * (updated_t_inner - self.t_inner)
-
-        if convergence_section.type == 'specific':
-
-            t_rad_converged = (float(np.sum(convergence_t_rads < convergence_section.t_rad['threshold'])) \
-                               / self.tardis_config.structure.no_of_shells) >= convergence_section.t_rad['fraction']
-
-            w_converged = (float(np.sum(convergence_t_rads < convergence_section.w['threshold'])) \
-                           / self.tardis_config.structure.no_of_shells) >= convergence_section.w['fraction']
-
-            t_inner_converged = convergence_t_inner < convergence_section.t_inner['threshold']
-
-            if t_rad_converged and t_inner_converged and w_converged:
-                if not self.converged:
-                    self.converged = True
-                    self.iterations_remaining = self.global_convergence_parameters['hold']
-
-            else:
-                if self.converged:
-                    self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
-                    self.converged = False
-
-        self.temperature_logging = pd.DataFrame(
-            {'t_rads': old_t_rads.value, 'updated_t_rads': updated_t_rads.value,
-             'converged_t_rads': convergence_t_rads, 'new_trads': self.t_rads.value, 'ws': old_ws,
-             'updated_ws': updated_ws, 'converged_ws': convergence_ws,
-             'new_ws': self.ws})
-
-        self.temperature_logging.index.name = 'Shell'
-
-        temperature_logging = str(self.temperature_logging[::log_sampling])
-
-        temperature_logging = ''.join(['\t%s\n' % item for item in temperature_logging.split('\n')])
-
-        logger.info('Plasma stratification:\n%s\n', temperature_logging)
-        logger.info("Luminosity emitted = %.5e Luminosity absorbed = %.5e Luminosity requested = %.5e",
-                    emitted_luminosity.value, absorbed_luminosity.value,
-                    self.tardis_config.supernova.luminosity_requested.value)
-        logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
 
     def save_spectra(self, fname):
         self.spectrum.to_ascii(fname)
