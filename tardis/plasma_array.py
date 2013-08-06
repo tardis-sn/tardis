@@ -130,12 +130,12 @@ class BasePlasmaArray(object):
         raise NotImplementedError()
 
 
-    def __init__(self, number_densities, atom_data, time_explosion, nlte_config=None, saha_treatment='lte'):
+    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None, saha_treatment='lte'):
         self.number_densities = number_densities
         self.atom_data = atom_data
         self.time_explosion = time_explosion
         self.nlte_config = nlte_config
-
+        self.delta_treatment = delta_treatment
         self.electron_densities = self.number_densities.sum(axis=0)
 
         self.level_populations = pd.DataFrame(index=self.atom_data.levels.index, columns=number_densities.columns,
@@ -319,7 +319,7 @@ class BasePlasmaArray(object):
 
         return phis * phi_coefficient
 
-    def calculate_saha_nebular(self):
+    def calculate_saha_nebular(self, delta=None):
         """
         Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
         j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
@@ -348,8 +348,10 @@ class BasePlasmaArray(object):
 
         logger.debug('Calculating Saha using Nebular approximation')
         phis = self.calculate_saha_lte()
-
-        delta = self.calculate_radfield_correction()
+        if self.delta_treatment is None:
+            delta = self.calculate_radfield_correction().ix[phis.index]
+        else:
+            delta = self.delta_treatment
 
         zeta_data = self.atom_data.zeta_data
         try:
@@ -357,7 +359,7 @@ class BasePlasmaArray(object):
         except ValueError:
             raise ValueError('Outside of interpolation area %s' % self.t_rads)
 
-        phis *= self.ws * (delta.ix[phis.index] * zeta + self.ws * (1 - zeta)) * \
+        phis *= self.ws * (delta * zeta + self.ws * (1 - zeta)) * \
                 (self.t_electrons / self.t_rads) ** .5
 
         return phis
