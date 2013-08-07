@@ -3,7 +3,7 @@ import numpy as np
 import logging
 from astropy import constants
 import pandas as pd
-import os
+import os, time
 from scipy import interpolate
 
 from tardis import macro_atom, config_reader
@@ -265,12 +265,15 @@ class BasePlasmaArray(object):
             with fields atomic_number, ion_number, partition_function
 
         """
+
         levels = self.atom_data.levels
+
         level_population_proportional_array = levels.g.values[np.newaxis].T *\
                                               np.exp(np.outer(levels.energy.values, -self.beta_rads))
         level_population_proportionalities = pd.DataFrame(level_population_proportional_array,
                                                                index=self.atom_data.levels.index,
                                                                columns=np.arange(len(self.t_rads)), dtype=np.float64)
+
 
         #level_props = self.level_population_proportionalities
 
@@ -278,9 +281,7 @@ class BasePlasmaArray(object):
             level=['atomic_number', 'ion_number']).sum()
         partition_functions_non_meta = self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
             level=['atomic_number', 'ion_number']).sum()
-
         partition_functions.ix[partition_functions_non_meta.index] += partition_functions_non_meta
-
         if self.nlte_config is not None and self.nlte_config.species != [] and not initialize_nlte:
             for species in self.nlte_config.species:
                 partition_functions.ix[species] = self.atom_data.levels.g.ix[species].ix[0] * \
@@ -589,16 +590,14 @@ class BasePlasmaArray(object):
 
 
         """
-
         f_lu = self.atom_data.lines['f_lu'].values
         wavelength = self.atom_data.lines['wavelength_cm'].values
 
-        n_lower = self.level_populations.values[self.atom_data.lines_lower2level_idx]
-        n_upper = self.level_populations.values[self.atom_data.lines_upper2level_idx]
-        meta_stable_upper = self.atom_data.levels.metastable.values[self.atom_data.lines_upper2level_idx]
-
-        g_lower = self.atom_data.levels.g.values[self.atom_data.lines_lower2level_idx]
-        g_upper = self.atom_data.levels.g.values[self.atom_data.lines_upper2level_idx]
+        n_lower = self.level_populations.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='raise').copy('F')
+        n_upper = self.level_populations.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise').copy('F')
+        meta_stable_upper = self.atom_data.levels.metastable.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise')
+        g_lower = self.atom_data.levels.g.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='raise')
+        g_upper = self.atom_data.levels.g.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise')
 
 
         self.stimulated_emission_factor = 1 - ((g_lower[np.newaxis].T * n_upper) / (g_upper[np.newaxis].T * n_lower))
@@ -617,7 +616,6 @@ class BasePlasmaArray(object):
 
         tau_sobolevs = sobolev_coefficient * f_lu[np.newaxis].T * wavelength[np.newaxis].T * self.time_explosion * \
                        n_lower * self.stimulated_emission_factor
-
         return pd.DataFrame(tau_sobolevs, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
 
 
@@ -636,22 +634,14 @@ class BasePlasmaArray(object):
             macro_atom.calculate_beta_sobolev(self.tau_sobolevs.values.ravel(order='F'),
                                           self.beta_sobolevs.ravel(order='F'))
 
-
-
-
-
-
-        transition_probabilities = macro_atom_data.transition_probability.values[np.newaxis].T * \
-                                   self.beta_sobolevs[self.atom_data.macro_atom_data.lines_idx.values.astype(int)]
-
+        transition_probabilities = (macro_atom_data.transition_probability.values[np.newaxis].T *
+                                    self.beta_sobolevs.take(self.atom_data.macro_atom_data.lines_idx.values.astype(int),
+                                                            axis=0, mode='raise')).copy('F')
         transition_up_filter = (macro_atom_data.transition_type == 1).values
         macro_atom_transition_up_filter = macro_atom_data.lines_idx.values[transition_up_filter]
-        j_blues = self.j_blues.values[macro_atom_transition_up_filter]
-        macro_stimulated_emission = self.stimulated_emission_factor[macro_atom_transition_up_filter]
-
+        j_blues = self.j_blues.values.take(macro_atom_transition_up_filter, axis=0, mode='raise')
+        macro_stimulated_emission = self.stimulated_emission_factor.take(macro_atom_transition_up_filter, axis=0, mode='raise')
         transition_probabilities[transition_up_filter] *= j_blues * macro_stimulated_emission
-
-
         #Normalizing the probabilities
         block_references = np.hstack((self.atom_data.macro_atom_references.block_references,
                                       len(macro_atom_data)))
