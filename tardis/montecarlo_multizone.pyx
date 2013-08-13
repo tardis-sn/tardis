@@ -321,11 +321,14 @@ cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
 
 
-
-
 cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_t imin,
                               int_type_t imax):
     #continually narrow search until just one element remains
+    if nu_insert > nu[imin]:
+        return imin
+    elif nu_insert < nu[imax]:
+        return imax
+
     cdef int_type_t imid
     while imax - imin > 2:
         imid = (imin + imax) / 2
