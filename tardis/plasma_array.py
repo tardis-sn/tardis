@@ -366,7 +366,7 @@ class BasePlasmaArray(object):
 
         return phis
 
-    def calculate_radfield_correction(self, departure_coefficient=None, chi_0_species=(20, 1)):
+    def calculate_radfield_correction(self, departure_coefficient=None, chi_0_species=(20, 2)):
         """
         Calculating radiation field correction factors according to Mazzali & Lucy 1993 (:cite:`1993A&A...279..447M`; henceforth ML93)
 
@@ -384,7 +384,7 @@ class BasePlasmaArray(object):
 
         For :math:`\\chi_\\textrm{T} < \\chi_0`
 
-        .. math::
+        .. math::self.beta_rads * chi_0
             \\delta = 1 - \\exp(\\frac{\\chi_\\textrm{T}}{k T_\\textrm{R}} - \\frac{\\chi_0}{k T_\\textrm{R}}) + \\frac{T_\\textrm{e}}{b_1 W T_\\textrm{R}} \\exp(\\frac{\\chi_\\textrm{T}}{k T_\\textrm{R}} -
             \\frac{\\chi_0}{k T_\\textrm{e}}),
 
