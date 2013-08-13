@@ -523,7 +523,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
     """
 
     @classmethod
-    def from_yaml(cls, fname, args=None):
+    def from_yaml(cls, fname, load_atom_data=True, args=None):
         """
         Reading in from a YAML file and commandline args. Preferring commandline args when given
 
@@ -561,8 +561,12 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         else:
             raise TARDISConfigurationError('No atom_data key found in config or command line')
 
-        logger.info('Reading Atomic Data from %s', atom_data_fname)
-        atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
+        config_dict['atom_data_fname'] = atom_data_fname
+        if load_atom_data:
+            logger.info('Reading Atomic Data from %s', atom_data_fname)
+            atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
+        else:
+            logger.warn('Not loading atom data - this is untypical usage')
 
 
         #Parsing supernova dictionary
@@ -760,6 +764,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                 logger.info('t_inner update exponent set to %g', t_inner_update_exponent)
             else:
                 t_inner_update_exponent = None
+
             if convergence_section['type'] == 'damped':
                 convergence_config_dict['type'] == 'damped'
                 global_damping_constant = convergence_section['damping_constant']
@@ -811,6 +816,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         else:
             lock_t_inner_cycles = None
+            t_inner_update_exponent = None
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
             convergence_config_dict['type'] = 'damped'
             for convergence_variable in convergence_variables:

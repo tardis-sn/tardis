@@ -339,7 +339,7 @@ class LineInteractionTables(QtGui.QWidget):
 
         current_last_line_in = last_line_in[last_line_in_filter].reset_index()
         current_last_line_out = last_line_out[last_line_in_filter].reset_index()
-        current_last_line_in['last_line_id_out'] = current_last_line_out[index]
+        current_last_line_in['last_line_id_out'] = current_last_line_out['index']
         last_line_in_string = []
         last_line_count = []
         grouped_line_interactions = current_last_line_in.groupby(['index', 'last_line_id_out'])
