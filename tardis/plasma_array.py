@@ -1,9 +1,10 @@
 #Calculations of the Plasma conditions
-import numpy as np
 import logging
+import os
+
+import numpy as np
 from astropy import constants
 import pandas as pd
-import os, time
 from scipy import interpolate
 
 from tardis import macro_atom, config_reader
@@ -365,7 +366,7 @@ class BasePlasmaArray(object):
 
         return phis
 
-    def calculate_radfield_correction(self, departure_coefficient=None, chi_threshold_species=(20, 1)):
+    def calculate_radfield_correction(self, departure_coefficient=None, chi_0_species=(20, 1)):
         """
         Calculating radiation field correction factors according to Mazzali & Lucy 1993 (:cite:`1993A&A...279..447M`; henceforth ML93)
 
@@ -398,7 +399,7 @@ class BasePlasmaArray(object):
         departure_coefficient : `~float` or `~None`, optional
             departure coefficient (:math:`b_1` in ML93) For the default (`None`) it is set to 1/W.
 
-        chi_threshold_species : `~tuple`, optional
+        chi_0_species : `~tuple`, optional
             This describes which ionization energy to use for the threshold. Default is Calcium II
             (1044 Angstrom; useful for Type Ia)
             For Type II supernovae use Lyman break (912 Angstrom) or (1,1) as the tuple
@@ -415,19 +416,26 @@ class BasePlasmaArray(object):
 
         ionization_data = self.atom_data.ionization_data
 
-        chi_threshold = ionization_data.ionization_energy.ix[chi_threshold_species]
+        chi_0 = ionization_data.ionization_energy.ix[chi_0_species]
+        radiation_field_correction = -np.ones((len(ionization_data), len(self.beta_rads)))
+        less_than_chi_0 = (ionization_data.ionization_energy < chi_0).values
 
-        radiation_field_correction = (self.t_electrons / (departure_coefficient * self.ws * self.t_rads)) *\
-                                     np.exp(self.beta_rads * chi_threshold - np.outer(
-                                            ionization_data.ionization_energy.values, self.beta_electrons))
+        factor_a =  (self.t_electrons / (departure_coefficient * self.ws * self.t_rads))
+
+        radiation_field_correction[~less_than_chi_0] = factor_a * \
+                                     np.exp(np.outer(ionization_data.ionization_energy.values[~less_than_chi_0],
+                                                     self.beta_rads - self.beta_electrons))
 
 
-        less_than_chi_threshold = (ionization_data.ionization_energy < chi_threshold).values
 
-        radiation_field_correction[less_than_chi_threshold] += 1 - \
-                                                               np.exp(self.beta_rads * chi_threshold - np.outer(
+
+        radiation_field_correction[less_than_chi_0] = 1 - np.exp(self.beta_rads * chi_0 - np.outer(
                                                                       ionization_data.ionization_energy.values
-                                                                      [less_than_chi_threshold], self.beta_rads))
+                                                                      [less_than_chi_0], self.beta_rads))
+        radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
+            np.outer(ionization_data.ionization_energy.values[less_than_chi_0], self.beta_rads) -
+             chi_0*self.beta_electrons)
+
         return pd.DataFrame(radiation_field_correction, columns=np.arange(len(self.t_rads)),
                             index=ionization_data.index)
 
