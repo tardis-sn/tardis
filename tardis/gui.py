@@ -1,12 +1,10 @@
 import numpy as np
-import pdb
 import matplotlib
 #matplotlib.use('KtAgg')
 import matplotlib.pylab as plt
-import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 from matplotlib import colors
-from matplotlib.patches import Circle, Wedge
+from matplotlib.patches import Circle
 from matplotlib.figure import *
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
@@ -339,10 +337,13 @@ class LineInteractionTables(QtGui.QWidget):
 
         current_last_line_in = last_line_in[last_line_in_filter].reset_index()
         current_last_line_out = last_line_out[last_line_in_filter].reset_index()
-        current_last_line_in['last_line_id_out'] = current_last_line_out['index']
+
+        current_last_line_in['line_id_out'] = current_last_line_out['line_id']
+
+
         last_line_in_string = []
         last_line_count = []
-        grouped_line_interactions = current_last_line_in.groupby(['index', 'last_line_id_out'])
+        grouped_line_interactions = current_last_line_in.groupby(['line_id', 'line_id_out'])
         exc_deexc_string = 'exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)'
 
         for line_id, row in grouped_line_interactions.wavelength.count().iteritems():
