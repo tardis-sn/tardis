@@ -2,20 +2,20 @@
 # Currently the configuration file is documented in
 # tardis/data/example_configuration.ini
 
+import logging
+import os
+import pprint
+
 from astropy import constants, units as u
 import astropy.utils
-import tardis.util
-from collections import OrderedDict
-import logging
 import numpy as np
-import os
 import h5py
-
 import pandas as pd
-from tardis import atomic
 import yaml
 
-import pprint
+import tardis.util
+from tardis import atomic
+
 pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
@@ -523,7 +523,19 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
     """
 
     @classmethod
-    def from_yaml(cls, fname, load_atom_data=True, args=None):
+    def from_yaml(cls, fname):
+        try:
+            yaml_dict = yaml.load(file(fname))
+        except IOError as e:
+            logger.critical('No config file named: %s', fname)
+            raise e
+        if yaml_dict['config_type'] not in ['simple1d']:
+            raise TARDISConfigurationError('Only config_type=simple1d allowed at the moment.')
+
+        return cls.from_config_dict(yaml_dict)
+
+    @classmethod
+    def from_config_dict(cls, raw_dict, load_atom_data=True, args=None):
         """
         Reading in from a YAML file and commandline args. Preferring commandline args when given
 
@@ -541,23 +553,16 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         `tardis.config_reader.TARDISConfiguration`
 
         """
-        try:
-            yaml_dict = yaml.load(file(fname))
-        except IOError as e:
-            logger.critical('No config file named: %s', fname)
-            raise e
-        if yaml_dict['config_type'] not in ['simple1d']:
-            raise TARDISConfigurationError('Only config_type=simple1d allowed at the moment.')
 
         config_dict = {}
 
         #First let's see if we can find an atom_db anywhere:
         if args is not None and args.atom_data is not None:
             atom_data_fname = args.atom_data
-            if 'atom_data' in yaml_dict.keys():
-                logger.warn('Ignoring atom_data given in config file (%s)', yaml_dict['atom_data'])
-        elif 'atom_data' in yaml_dict.keys():
-            atom_data_fname = yaml_dict['atom_data']
+            if 'atom_data' in raw_dict.keys():
+                logger.warn('Ignoring atom_data given in config file (%s)', raw_dict['atom_data'])
+        elif 'atom_data' in raw_dict.keys():
+            atom_data_fname = raw_dict['atom_data']
         else:
             raise TARDISConfigurationError('No atom_data key found in config or command line')
 
@@ -570,10 +575,10 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         #Parsing supernova dictionary
-        config_dict['supernova'] = parse_supernova_section(yaml_dict['supernova'])
+        config_dict['supernova'] = parse_supernova_section(raw_dict['supernova'])
 
         #Trying to figure out the structure (number of shells)
-        structure_section = yaml_dict['model'].pop('structure')
+        structure_section = raw_dict['model'].pop('structure')
         structure_config_dict = {}
         #first let's try to see if there's a file keyword
         if 'file' in structure_section:
@@ -619,7 +624,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         config_dict['structure'] = structure_config_dict
         #Now that the structure section is parsed we move on to the abundances
 
-        abundances_section = yaml_dict['model']['abundances'].copy()
+        abundances_section = raw_dict['model']['abundances'].copy()
         abudances_config_dict = {}
         #TODO: columns are now until Z=120
 
@@ -653,7 +658,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         ########### DOING PLASMA SECTION ###############
 
-        plasma_section = yaml_dict.pop('plasma')
+        plasma_section = raw_dict.pop('plasma')
         plasma_config_dict = {}
 
         if plasma_section['type'] not in ('nebular', 'lte'):
@@ -744,7 +749,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         ##### Monte Carlo Section
 
-        montecarlo_section = yaml_dict.pop('montecarlo')
+        montecarlo_section = raw_dict.pop('montecarlo')
         montecarlo_config_dict = {}
 
         #PARSING convergence section
@@ -878,7 +883,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         ##### spectrum section ######
-        spectrum_section = yaml_dict.pop('spectrum')
+        spectrum_section = raw_dict.pop('spectrum')
         spectrum_config_dict = {}
         spectrum_start, spectrum_end = parse_spectral_bin(spectrum_section['start'], spectrum_section['end'])
         spectrum_bins = int(spectrum_section['bins'])
