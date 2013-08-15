@@ -535,7 +535,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         return cls.from_config_dict(yaml_dict)
 
     @classmethod
-    def from_config_dict(cls, raw_dict, load_atom_data=True, args=None):
+    def from_config_dict(cls, raw_dict, atom_data=None):
         """
         Reading in from a YAML file and commandline args. Preferring commandline args when given
 
@@ -557,21 +557,20 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         config_dict = {}
 
         #First let's see if we can find an atom_db anywhere:
-        if args is not None and args.atom_data is not None:
-            atom_data_fname = args.atom_data
-            if 'atom_data' in raw_dict.keys():
-                logger.warn('Ignoring atom_data given in config file (%s)', raw_dict['atom_data'])
-        elif 'atom_data' in raw_dict.keys():
+
+        if 'atom_data' in raw_dict.keys():
             atom_data_fname = raw_dict['atom_data']
         else:
             raise TARDISConfigurationError('No atom_data key found in config or command line')
 
         config_dict['atom_data_fname'] = atom_data_fname
-        if load_atom_data:
+
+        if atom_data is None:
             logger.info('Reading Atomic Data from %s', atom_data_fname)
             atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
         else:
-            logger.warn('Not loading atom data - this is untypical usage')
+            atom_data = atom_data
+
 
 
         #Parsing supernova dictionary
