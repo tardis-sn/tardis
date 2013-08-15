@@ -1,20 +1,20 @@
 # building of radial_oned_model
 
-import numpy as np
-from tardis import packet_source, plasma_array
 import logging
-
-import pandas as pd
-from pandas import HDFStore
-from astropy import constants, units as u
-import montecarlo_multizone
 import os
 import re
 import itertools
+
+import numpy as np
+import pandas as pd
+from pandas import HDFStore
+from astropy import constants, units as u
 import scipy.special
 
-
+from tardis import packet_source, plasma_array
+import montecarlo_multizone
 from util import intensity_black_body
+
 
 logger = logging.getLogger(__name__)
 
@@ -518,7 +518,7 @@ class TARDISHistory(object):
             level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
             ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
             j_blues_dict[current_iter] = hdf_store['model%03d/j_blues' %iter]
-            history.t_inner.append(hdf_store['model%03d/t_inner' %iter][0])
+            history.t_inner.append(hdf_store['model%03d/configuration' %iter].ix['t_inner'])
 
             for index in ion_populations_dict[current_iter].index:
                 level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
