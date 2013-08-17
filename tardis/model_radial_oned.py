@@ -2,12 +2,10 @@
 
 import logging
 import os
-import re
 import itertools
 
 import numpy as np
 import pandas as pd
-from pandas import HDFStore
 from astropy import constants, units as u
 import scipy.special
 
@@ -478,64 +476,6 @@ class Radial1DModel(object):
             hdf_store.close()
         else:
             return hdf_store
-
-
-
-
-class TARDISHistory(object):
-    """
-    Records the history of the model
-    """
-
-
-    @classmethod
-    def from_hdf5(cls, fname):
-        hdf_store = HDFStore(fname)
-        iterations = []
-        for key in hdf_store.keys():
-            if key.split('/')[1] == 'atom_data':
-                continue
-            iterations.append(int(re.match('model(\d+)', key.split('/')[1]).groups()[0]))
-
-        iterations = np.sort(np.unique(iterations))
-
-        history = cls()
-
-        t_rads_dict = {}
-        ws_dict = {}
-        level_populations_dict = {}
-        ion_populations_dict = {}
-        j_blues_dict = {}
-
-        history.levels = hdf_store['atom_data/levels']
-        history.lines = hdf_store['atom_data/lines']
-        history.iterations = iterations
-        history.t_inner = []
-        for iter in iterations:
-            current_iter = 'iter%03d' % iter
-            t_rads_dict[current_iter] = hdf_store['model%03d/t_rads' % iter]
-            ws_dict[current_iter] = hdf_store['model%03d/ws' % iter]
-            level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
-            ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
-            j_blues_dict[current_iter] = hdf_store['model%03d/j_blues' %iter]
-            history.t_inner.append(hdf_store['model%03d/configuration' %iter].ix['t_inner'])
-
-            for index in ion_populations_dict[current_iter].index:
-                level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
-                                                                      ion_populations_dict[current_iter].ix[index])
-
-
-
-
-
-        history.t_rads = pd.DataFrame(t_rads_dict)
-        history.ws = pd.DataFrame(ws_dict)
-        history.level_populations = pd.Panel(level_populations_dict)
-        history.ion_populations = pd.Panel(ion_populations_dict)
-        history.j_blues = pd.Panel(j_blues_dict)
-        hdf_store.close()
-        return history
-
 
 class TARDISSpectrum(object):
     """
