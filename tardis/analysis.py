@@ -1,9 +1,11 @@
 #codes to for analyse the model.
 
+import re
+import os
+
 from astropy import units as u
 import numpy as np
-from matplotlib.widgets import Lasso
-from matplotlib import path
+import pandas as pd
 
 
 def get_last_line_interaction(wavelength_start, wavelength_end, model):
@@ -129,8 +131,77 @@ class LastLineInteraction(object):
         fig.canvas.mpl_connect('pick_event', onpick)
         fig.canvas.mpl_connect('on_press', onpress)
 
+class TARDISHistory(object):
+    """
+    Records the history of the model
+    """
+
+
+    def __init__(self, hdf5_fname, history_dir='.'):
+        self.hdf5_fname = os.path.join(history_dir, hdf5_fname)
+        iterations = []
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+        for key in hdf_store.keys():
+            hdf_store = pd.HDFStore(hdf5_fname, 'r')
+            if key.split('/')[1] == 'atom_data':
+                continue
+            iterations.append(int(re.match('model(\d+)', key.split('/')[1]).groups()[0]))
+
+        self.iterations = np.sort(np.unique(iterations))
+        self.levels = hdf_store['atom_data/levels']
+        self.lines = hdf_store['atom_data/lines']
+        hdf_store.close()
 
 
 
+
+
+    @classmethod
+    def from_hdf5(cls, fname):
+
+
+        history = cls()
+
+        t_rads_dict = {}
+        ws_dict = {}
+        level_populations_dict = {}
+        ion_populations_dict = {}
+        j_blues_dict = {}
+
+
+        history.iterations = iterations
+        history.t_inner = []
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            t_rads_dict[current_iter] = hdf_store['model%03d/t_rads' % iter]
+            ws_dict[current_iter] = hdf_store['model%03d/ws' % iter]
+            level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
+            ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
+            j_blues_dict[current_iter] = hdf_store['model%03d/j_blues' %iter]
+            history.t_inner.append(hdf_store['model%03d/configuration' %iter].ix['t_inner'])
+
+            for index in ion_populations_dict[current_iter].index:
+                level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
+                                                                      ion_populations_dict[current_iter].ix[index])
+
+
+
+
+
+        history.t_rads = pd.DataFrame(t_rads_dict)
+        history.ws = pd.DataFrame(ws_dict)
+        history.level_populations = pd.Panel(level_populations_dict)
+        history.ion_populations = pd.Panel(ion_populations_dict)
+        history.j_blues = pd.Panel(j_blues_dict)
+        hdf_store.close()
+        return history
+
+    def plot_convergence(self, fig):
+
+        ax = fig.add_subplot(111)
+
+        ax.plot(self.t_inner)
+        ax.set_xlabel('iterations')
+        ax.set_ylabel('t_inner [K]')
 
 
