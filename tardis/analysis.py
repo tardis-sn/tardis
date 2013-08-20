@@ -148,53 +148,53 @@ class TARDISHistory(object):
             iterations.append(int(re.match('model(\d+)', key.split('/')[1]).groups()[0]))
 
         self.iterations = np.sort(np.unique(iterations))
+        hdf_store.close()
+
+
+    def load_atom_data(self):
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
         self.levels = hdf_store['atom_data/levels']
         self.lines = hdf_store['atom_data/lines']
         hdf_store.close()
 
 
+    def load_t_inner(self):
+        self.t_inner = []
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
 
+        for iter in self.iterations:
+            self.t_inner.append(hdf_store['model%03d/configuration' %iter].ix['t_inner'])
+        hdf_store.close()
 
+        self.t_inner = np.array(self.t_inner)
 
-    @classmethod
-    def from_hdf5(cls, fname):
-
-
-        history = cls()
-
+    def load_t_rads(self):
         t_rads_dict = {}
-        ws_dict = {}
-        level_populations_dict = {}
-        ion_populations_dict = {}
-        j_blues_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
 
-
-        history.iterations = iterations
-        history.t_inner = []
-        for iter in iterations:
+        for iter in self.iterations:
             current_iter = 'iter%03d' % iter
             t_rads_dict[current_iter] = hdf_store['model%03d/t_rads' % iter]
-            ws_dict[current_iter] = hdf_store['model%03d/ws' % iter]
-            level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
-            ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
-            j_blues_dict[current_iter] = hdf_store['model%03d/j_blues' %iter]
-            history.t_inner.append(hdf_store['model%03d/configuration' %iter].ix['t_inner'])
 
-            for index in ion_populations_dict[current_iter].index:
-                level_populations_dict[current_iter].ix[index].update(level_populations_dict[current_iter].ix[index] /
-                                                                      ion_populations_dict[current_iter].ix[index])
-
-
-
-
-
-        history.t_rads = pd.DataFrame(t_rads_dict)
-        history.ws = pd.DataFrame(ws_dict)
-        history.level_populations = pd.Panel(level_populations_dict)
-        history.ion_populations = pd.Panel(ion_populations_dict)
-        history.j_blues = pd.Panel(j_blues_dict)
+        self.t_rads = pd.DataFrame(t_rads_dict)
         hdf_store.close()
-        return history
+
+
+    def load_ws(self):
+        ws_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        for iter in self.iterations:
+            current_iter = 'iter%03d' % iter
+            ws_dict[current_iter] = hdf_store['model%03d/ws' % iter]
+
+        self.ws = pd.DataFrame(ws_dict)
+        hdf_store.close()
+
+    def get_spectrum(self, iteration, spectrum_keyword='luminosity_density'):
+        with pd.HDFStore(self.hdf5_fname, 'r') as  hdf_store:
+            return hdf_store['model%03d/%s' % (self.iterations[iteration], spectrum_keyword)]
+
 
     def plot_convergence(self, fig):
 
