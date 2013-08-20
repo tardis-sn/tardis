@@ -26,6 +26,12 @@ data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
 
 density_structure_fileparser = {}
 
+inv_ni56_efolding_time = 1 / (8.8 * u.day)
+inv_co56_efolding_time = 1 / (113.7 * u.day)
+inv_cr48_efolding_time = 1 / (1.29602 * u.day)
+inv_v48_efolding_time = 1 / (23.0442 * u.day)
+inv_fe52_efolding_time = 1 / (0.497429 * u.day)
+inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
 
 class TARDISConfigurationError(ValueError):
     pass
@@ -199,6 +205,141 @@ def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
     return densities
 
 
+def parse_model_file_section(model_setup_file_dict, time_explosion):
+
+
+    def parse_artis_model_setup_files(model_file_section_dict, time_explosion):
+
+        ###### Reading the structure part of the ARTIS file pair
+        structure_fname = model_file_section_dict['structure_fname']
+
+        for i, line in enumerate(file(structure_fname)):
+            if i == 0:
+                no_of_shells = int(line.strip())
+            elif i == 1:
+                time_of_model = u.Quantity(float(line.strip()), 'day').to('s')
+            elif i == 2:
+                break
+
+        artis_model_columns = ['velocities', 'mean_densities_0', 'ni56_fraction', 'co56_fraction', 'fe52_fraction',
+                               'cr48_fraction']
+        artis_model = np.recfromtxt(structure_fname, skip_header=2, usecols=(1, 2, 4, 5, 6, 7), unpack=True,
+                                    dtype=[(item, np.float64) for item in artis_model_columns])
+        #converting densities from log(g/cm^3) to g/cm^3 and stretching it to the current ti
+        velocities = u.Quantity(np.append([0], artis_model['velocities']), 'km/s').to('cm/s')
+        mean_densities_0 = u.Quantity(10 ** artis_model['mean_densities_0'], 'g/cm^3')
+
+        mean_densities = calculate_density_after_time(mean_densities_0, time_of_model, time_explosion)
+
+
+        #Verifying information
+        if len(mean_densities) == no_of_shells:
+            logger.debug('Verified ARTIS model structure file %s (no_of_shells=length of dataset)', structure_fname)
+        else:
+            raise TARDISConfigurationError(
+                'Error in ARTIS file %s - Number of shells not the same as dataset length' % structure_fname)
+
+        v_inner = velocities[:-1]
+        v_outer = velocities[1:]
+
+        volumes = (4 * np.pi / 3) * (time_of_model ** 3) * ( v_outer ** 3 - v_inner ** 3)
+        masses = (volumes * mean_densities_0 / constants.M_sun).to(1)
+
+        logger.info('Read ARTIS configuration file %s - found %d zones with total mass %g Msun', structure_fname,
+                    no_of_shells, sum(masses.value))
+
+        if 'v_lowest' in model_file_section_dict:
+            v_lowest = parse_quantity(model_file_section_dict['v_lowest']).to('cm/s').value
+            min_shell = v_inner.value.searchsorted(v_lowest)
+        else:
+            min_shell = 1
+
+        if 'v_highest' in model_file_section_dict:
+            v_highest = parse_quantity(model_file_section_dict['v_highest']).to('cm/s').value
+            max_shell = v_outer.value.searchsorted(v_highest)
+        else:
+            max_shell = no_of_shells
+        artis_model = artis_model[min_shell:max_shell]
+        v_inner = v_inner[min_shell:max_shell]
+        v_outer = v_outer[min_shell:max_shell]
+        mean_densities = mean_densities[min_shell:max_shell]
+
+        ###### Reading the abundance part of the ARTIS file pair
+        abundances_fname = model_file_section_dict['abundances_fname']
+        abundances = pd.DataFrame(np.loadtxt(abundances_fname)[min_shell:max_shell, 1:].transpose(), index=np.arange(1, 31))
+
+        ni_stable = abundances.ix[28] - artis_model['ni56_fraction']
+        co_stable = abundances.ix[27] - artis_model['co56_fraction']
+        fe_stable = abundances.ix[26] - artis_model['fe52_fraction']
+        mn_stable = abundances.ix[25] - 0.0
+        cr_stable = abundances.ix[24] - artis_model['cr48_fraction']
+        v_stable = abundances.ix[23] - 0.0
+        ti_stable = abundances.ix[22] - 0.0
+
+
+        abundances.ix[28] = ni_stable
+        abundances.ix[28] += artis_model['ni56_fraction'] * np.exp(-(time_explosion* inv_ni56_efolding_time).to(1).value)
+
+        abundances.ix[27] = co_stable
+        abundances.ix[27] += artis_model['co56_fraction'] * np.exp(-(time_explosion* inv_co56_efolding_time).to(1).value)
+        abundances.ix[27] += (inv_ni56_efolding_time * artis_model['ni56_fraction'] /
+                              (inv_ni56_efolding_time - inv_co56_efolding_time)) * \
+                             (np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value) - np.exp(-(inv_ni56_efolding_time * time_explosion).to(1).value))
+
+        abundances.ix[26] = fe_stable
+        abundances.ix[26] += artis_model['fe52_fraction'] * np.exp(-(time_explosion * inv_fe52_efolding_time).to(1).value)
+        abundances.ix[26] += ((artis_model['co56_fraction'] * inv_ni56_efolding_time
+                               - artis_model['co56_fraction'] * inv_co56_efolding_time
+                               + artis_model['ni56_fraction'] * inv_ni56_efolding_time
+                               - artis_model['ni56_fraction'] * inv_co56_efolding_time
+                               - artis_model['co56_fraction'] * inv_ni56_efolding_time * np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value)
+                               + artis_model['co56_fraction'] * inv_co56_efolding_time * np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value)
+                               - artis_model['ni56_fraction'] * inv_ni56_efolding_time * np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value)
+                               + artis_model['ni56_fraction'] * inv_co56_efolding_time * np.exp(-(inv_ni56_efolding_time * time_explosion).to(1).value))
+        / (inv_ni56_efolding_time - inv_co56_efolding_time))
+
+
+        abundances.ix[25] = mn_stable
+        abundances.ix[25] += (inv_fe52_efolding_time * artis_model['fe52_fraction'] /
+                              (inv_fe52_efolding_time - inv_mn52_efolding_time)) * \
+                             (np.exp(-(inv_mn52_efolding_time * time_explosion).to(1).value) - np.exp(-(inv_fe52_efolding_time * time_explosion).to(1).value))
+
+        abundances.ix[24] = cr_stable
+        abundances.ix[24] += artis_model['cr48_fraction'] * np.exp(-(time_explosion* inv_cr48_efolding_time).to(1).value)
+        abundances.ix[24] += ((artis_model['fe52_fraction'] * inv_fe52_efolding_time
+                               - artis_model['fe52_fraction'] * inv_mn52_efolding_time
+                               - artis_model['fe52_fraction'] * inv_fe52_efolding_time * np.exp(-(inv_mn52_efolding_time * time_explosion).to(1).value)
+                               + artis_model['fe52_fraction'] * inv_mn52_efolding_time * np.exp(-(inv_fe52_efolding_time * time_explosion).to(1).value))
+        / (inv_fe52_efolding_time - inv_mn52_efolding_time))
+
+        abundances.ix[23] = v_stable
+        abundances.ix[23] += (inv_cr48_efolding_time * artis_model['cr48_fraction'] /
+                              (inv_cr48_efolding_time - inv_v48_efolding_time)) * \
+                             (np.exp(-(inv_v48_efolding_time * time_explosion).to(1).value) - np.exp(-(inv_cr48_efolding_time * time_explosion).to(1).value))
+
+        abundances.ix[22] = ti_stable
+        abundances.ix[22] += ((artis_model['cr48_fraction'] * inv_cr48_efolding_time
+                               - artis_model['cr48_fraction'] * inv_v48_efolding_time
+                               - artis_model['cr48_fraction'] * inv_cr48_efolding_time * np.exp(-(inv_v48_efolding_time * time_explosion).to(1).value)
+                               + artis_model['cr48_fraction'] * inv_v48_efolding_time * np.exp(-(inv_cr48_efolding_time * time_explosion).to(1).value))
+        / (inv_cr48_efolding_time - inv_v48_efolding_time))
+
+        return v_inner, v_outer, mean_densities, abundances
+
+    model_file_section_parser = {}
+    model_file_section_parser['artis'] = parse_artis_model_setup_files
+
+    try:
+        parser = model_file_section_parser[model_setup_file_dict['type']]
+    except KeyError:
+        raise TARDISConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
+                                (model_file_section_parser.keys(), model_file_section_parser['type']))
+
+
+
+    return parser(model_setup_file_dict, time_explosion)
+
+
 def parse_density_file_section(density_file_dict, time_explosion):
     density_file_parser = {}
 
@@ -285,6 +426,7 @@ def parse_velocity_section(velocity_dict, no_of_shells):
         raise TARDISConfigurationError('In velocity section only types %s are allowed (supplied %s) ' %
                                 (velocity_parser.keys(), velocity_dict['type']))
     return parser(velocity_dict, no_of_shells)
+
 
 
 def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
@@ -614,7 +756,6 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         r_inner = config_dict['supernova']['time_explosion'] * v_inner
         r_outer = config_dict['supernova']['time_explosion'] * v_outer
         r_middle = 0.5 * (r_inner + r_outer)
-
 
         structure_config_dict['v_inner'] = v_inner
         structure_config_dict['v_outer'] = v_outer
