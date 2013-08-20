@@ -692,8 +692,8 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
             mu_bin = (1 - mu_min) / virtual_packet_flag
             current_mu_virt = mu_min + ((i + rk_double(&mt_state)) * mu_bin)
 
-	    if (virtual_mode == -2):
-	        #this is a virtual packet calculation based on a reflected packet. Currently assume isotopic reflection.
+	    if (virtual_mode == -2)
+                #this is a virtual packet calculation based on a reflected packet. Currently assume isotopic reflection.
                 weight = 1.0 / virtual_packet_flag
             elif (virtual_mode == -1):
                 #this is a virtual packet calculation based on a newly born packet - so the weights are more subtle than for a isotropic emission process
@@ -930,27 +930,27 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             else:
                 # ------------------------------ LOGGING ---------------------- (with precompiler IF)
 		if ((reflecting_boundary == FALSE) or (rk_double(&mt_state) > boundary_albedo)):
-		    IF packet_logging == True:
+                    IF packet_logging == True:
                         packet_logger.debug(
                         'Packet has left the simulation through the inner boundary nu=%s mu=%s energy=%s',
                         current_nu[0], current_mu[0], current_energy[0])
-                    reabsorbed = 1
-                    break
-                else
-                    #packet is going to survive interaction with boundary - turn it round
-                    doppler_factor= 1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c)
-		    comov_nu = current_nu[0] * doppler_factor
-                    comov_energy = current_energy[0] * doppler_factor
-                    #new mu chosen - for now assume isotropic in positive
-                    current_mu[0] = rk_double(&mt_state)
-                    inverse_doppler_factor = 1 / (1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
-                
-                    current_nu[0] = comov_nu * inverse_doppler_factor
-                    current_energy[0] = comov_energy * inverse_doppler_factor
-                    recently_crossed_boundary[0] = 1
-		    if (virtual_packet_flag > 0):
-                    #print "A REFLECTION HAPPENED: CALLING VIRTUAL PARTICLES!!!!!!"
-                    montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r,
+                        reabsorbed = 1
+                        break
+                    else
+                        #packet is going to survive interaction with boundary - turn it round
+                        doppler_factor= 1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c)
+                        comov_nu = current_nu[0] * doppler_factor
+                        comov_energy = current_energy[0] * doppler_factor
+                        #new mu chosen - for now assume isotropic in positive
+                        current_mu[0] = rk_double(&mt_state)
+                        inverse_doppler_factor = 1 / (1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c)
+
+                        current_nu[0] = comov_nu * inverse_doppler_factor
+                        current_energy[0] = comov_energy * inverse_doppler_factor
+                        recently_crossed_boundary[0] = 1
+                        if (virtual_packet_flag > 0):
+                        #print "A REFLECTION HAPPENED: CALLING VIRTUAL PARTICLES!!!!!!"
+                            montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r,
                                           current_line_id, last_line, close_line, recently_crossed_boundary,
                                           virtual_packet_flag, -2)
 
