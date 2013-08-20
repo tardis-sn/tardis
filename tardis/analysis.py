@@ -1,9 +1,11 @@
 #codes to for analyse the model.
 
-from astropy import units as u
+import re
+import os
+
+from astropy import units as u, constants
 import numpy as np
-from matplotlib.widgets import Lasso
-from matplotlib import path
+import pandas as pd
 
 
 def get_last_line_interaction(wavelength_start, wavelength_end, model):
@@ -129,8 +131,147 @@ class LastLineInteraction(object):
         fig.canvas.mpl_connect('pick_event', onpick)
         fig.canvas.mpl_connect('on_press', onpress)
 
+class TARDISHistory(object):
+    """
+    Records the history of the model
+    """
+
+
+    def __init__(self, hdf5_fname, history_dir='.', iterations=None):
+        self.hdf5_fname = os.path.join(history_dir, hdf5_fname)
+        if iterations is None:
+            iterations = []
+            hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+            for key in hdf_store.keys():
+                if key.split('/')[1] == 'atom_data':
+                    continue
+                iterations.append(int(re.match('model(\d+)', key.split('/')[1]).groups()[0]))
+
+            self.iterations = np.sort(np.unique(iterations))
+            hdf_store.close()
+        else:
+            self.iterations=iterations
+
+        self.levels = None
+        self.lines = None
 
 
 
+    def load_atom_data(self):
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+        self.levels = hdf_store['atom_data/levels']
+        self.lines = hdf_store['atom_data/lines']
+        hdf_store.close()
 
 
+    def load_t_inner(self, iterations=None):
+        t_inners = []
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+        for iter in iterations:
+            t_inners.append(hdf_store['model%03d/configuration' %iter].ix['t_inner'])
+        hdf_store.close()
+
+        t_inners = np.array(t_inners)
+        return t_inners
+
+    def load_t_rads(self, iterations=None):
+        t_rads_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            t_rads_dict[current_iter] = hdf_store['model%03d/t_rads' % iter]
+
+        t_rads = pd.DataFrame(t_rads_dict)
+        hdf_store.close()
+        return t_rads
+
+    def load_ws(self, iterations=None):
+        ws_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            ws_dict[current_iter] = hdf_store['model%03d/ws' % iter]
+
+        hdf_store.close()
+
+        return pd.DataFrame(ws_dict)
+
+    def load_level_populations(self, iterations=None):
+        level_populations_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
+
+        hdf_store.close()
+
+        return pd.Panel(level_populations_dict)
+
+    def calculate_departure_coefficients(self, iteration=-1):
+        iteration = self.iterations[iteration]
+
+        t_rads = self.load_t_rads(iteration)
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values)
+
+
+    def get_spectrum(self, iteration, spectrum_keyword='luminosity_density'):
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        spectrum = hdf_store['model%03d/%s' % (self.iterations[iteration], spectrum_keyword)]
+        hdf_store.close()
+        return spectrum
+
+    def plot_convergence(self, fig):
+
+        ax = fig.add_subplot(111)
+
+        ax.plot(self.t_inner)
+        ax.set_xlabel('iterations')
+        ax.set_ylabel('t_inner [K]')
+
+
+def get_departure_coefficient(fname, iteration, species, model_dir='.'):
+    fname = os.path.join(model_dir, fname)
+    level_populations = pd.HDFStore(fname,'r')['model%03d/level_populations' % iteration].ix[species]
+    beta_rad = 1/(constants.k_B.cgs.value * pd.HDFStore(fname, 'r')['model%03d/t_rads' % iteration].values)
+    levels = pd.HDFStore(fname, 'r')['atom_data/levels'].ix[species]
+
+    departure_coefficient = ((level_populations.values * levels.g.ix[0]) / (level_populations.ix[0].values * levels.g.values[np.newaxis].T)) * np.exp(beta_rad * levels.energy.values[np.newaxis].T)
+    t_rad = pd.HDFStore(fname, 'r')['model%03d/t_rads' % iteration].values
+    w = pd.HDFStore(fname, 'r')['model%03d/ws' % iteration].values
+    return t_rad, w, levels, departure_coefficient
