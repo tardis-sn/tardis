@@ -299,18 +299,32 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
         / (inv_ni56_efolding_time - inv_co56_efolding_time))
 
 
+        abundances.ix[25] = mn_stable
+        abundances.ix[25] += (inv_fe52_efolding_time * artis_model['fe52_fraction'] /
+                              (inv_fe52_efolding_time - inv_mn52_efolding_time)) * \
+                             (np.exp(-(inv_mn52_efolding_time * time_explosion).to(1).value) - np.exp(-(inv_fe52_efolding_time * time_explosion).to(1).value))
 
+        abundances.ix[24] = cr_stable
+        abundances.ix[24] += artis_model['cr48_fraction'] * np.exp(-(time_explosion* inv_cr48_efolding_time).to(1).value)
+        abundances.ix[24] += ((artis_model['fe52_fraction'] * inv_fe52_efolding_time
+                               - artis_model['fe52_fraction'] * inv_mn52_efolding_time
+                               - artis_model['fe52_fraction'] * inv_fe52_efolding_time * np.exp(-(inv_mn52_efolding_time * time_explosion).to(1).value)
+                               + artis_model['fe52_fraction'] * inv_mn52_efolding_time * np.exp(-(inv_fe52_efolding_time * time_explosion).to(1).value))
+        / (inv_fe52_efolding_time - inv_mn52_efolding_time))
 
+        abundances.ix[23] = v_stable
+        abundances.ix[23] += (inv_cr48_efolding_time * artis_model['cr48_fraction'] /
+                              (inv_cr48_efolding_time - inv_v48_efolding_time)) * \
+                             (np.exp(-(inv_v48_efolding_time * time_explosion).to(1).value) - np.exp(-(inv_cr48_efolding_time * time_explosion).to(1).value))
 
+        abundances.ix[22] = ti_stable
+        abundances.ix[22] += ((artis_model['cr48_fraction'] * inv_cr48_efolding_time
+                               - artis_model['cr48_fraction'] * inv_v48_efolding_time
+                               - artis_model['cr48_fraction'] * inv_cr48_efolding_time * np.exp(-(inv_v48_efolding_time * time_explosion).to(1).value)
+                               + artis_model['cr48_fraction'] * inv_v48_efolding_time * np.exp(-(inv_cr48_efolding_time * time_explosion).to(1).value))
+        / (inv_cr48_efolding_time - inv_v48_efolding_time))
 
-
-
-
-
-
-
-        1/0
-        v_inner, v_outer, mean_densities, min_shell, max_shell
+        return v_inner, v_outer, mean_densities, abundances
 
     model_file_section_parser = {}
     model_file_section_parser['artis'] = parse_artis_model_setup_files
@@ -742,7 +756,6 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         r_inner = config_dict['supernova']['time_explosion'] * v_inner
         r_outer = config_dict['supernova']['time_explosion'] * v_outer
         r_middle = 0.5 * (r_inner + r_outer)
-
 
         structure_config_dict['v_inner'] = v_inner
         structure_config_dict['v_outer'] = v_outer
