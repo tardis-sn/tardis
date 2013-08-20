@@ -142,7 +142,6 @@ class TARDISHistory(object):
         iterations = []
         hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
         for key in hdf_store.keys():
-            hdf_store = pd.HDFStore(hdf5_fname, 'r')
             if key.split('/')[1] == 'atom_data':
                 continue
             iterations.append(int(re.match('model(\d+)', key.split('/')[1]).groups()[0]))
