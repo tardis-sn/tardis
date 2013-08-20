@@ -692,7 +692,7 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
             mu_bin = (1 - mu_min) / virtual_packet_flag
             current_mu_virt = mu_min + ((i + rk_double(&mt_state)) * mu_bin)
 
-	    if (virtual_mode == -2)
+            if (virtual_mode == -2)
                 #this is a virtual packet calculation based on a reflected packet. Currently assume isotopic reflection.
                 weight = 1.0 / virtual_packet_flag
             elif (virtual_mode == -1):
