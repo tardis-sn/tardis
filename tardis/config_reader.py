@@ -361,10 +361,16 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
     abundance_file_parser = {}
 
     def parse_artis(abundance_file_dict, abundances, min_shell, max_shell):
+        #### ---- debug ----
+        time_of_model = 0.0
+
+        ####
         fname = abundance_file_dict['name']
         max_atom = 30
         logger.info("Parsing ARTIS Abundance section from shell %d to %d", min_shell, max_shell)
+
         abundances.values[:max_atom, :] = np.loadtxt(fname)[min_shell:max_shell, 1:].transpose()
+
         return abundances
 
     abundance_file_parser['artis'] = parse_artis
@@ -376,6 +382,8 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
                                 (abundance_file_parser.keys(), abundance_file_dict['type']))
 
     return parser(abundance_file_dict, abundances, min_shell, max_shell)
+
+
 
 def parse_supernova_section(supernova_dict):
     """
