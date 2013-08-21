@@ -4,17 +4,14 @@
 # cython: cdivision=True
 
 
-import numpy as np
 import logging
 import time
 
+import numpy as np
 from astropy import constants
 
-cimport numpy as np
+
 np.import_array()
-
-from cython.parallel import *
-
 
 ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
@@ -121,6 +118,7 @@ cdef class StorageModel:
     cdef float_type_t*js
     cdef np.ndarray nubars_a
     cdef float_type_t*nubars
+
     cdef float_type_t spectrum_start_nu
     cdef float_type_t spectrum_delta_nu
     cdef float_type_t spectrum_end_nu
@@ -128,6 +126,8 @@ cdef class StorageModel:
 
     cdef float_type_t sigma_thomson
     cdef float_type_t inverse_sigma_thomson
+    cdef float_type_t inner_boundary_albedo
+    cdef int_type_t reflective_inner_boundary
     cdef int_type_t current_packet_id
 
     def __init__(self, model):
@@ -292,6 +292,8 @@ cdef class StorageModel:
 
         self.sigma_thomson = model.tardis_config.montecarlo.sigma_thomson.to('1/cm^2').value
         self.inverse_sigma_thomson = 1 / self.sigma_thomson
+        self.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
+        self.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
 
         self.current_packet_id = -1
         #
@@ -692,13 +694,13 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
             mu_bin = (1 - mu_min) / virtual_packet_flag
             current_mu_virt = mu_min + ((i + rk_double(&mt_state)) * mu_bin)
 
-            if (virtual_mode == -2)
+            if (virtual_mode == -2):
                 #this is a virtual packet calculation based on a reflected packet. Currently assume isotopic reflection.
                 weight = 1.0 / virtual_packet_flag
             elif (virtual_mode == -1):
                 #this is a virtual packet calculation based on a newly born packet - so the weights are more subtle than for a isotropic emission process
                 weight = 2. * current_mu_virt / virtual_packet_flag
-            elif (virtual_model == 1):
+            elif (virtual_mode == 1):
                 #isotropic emission case ("normal case") for a source in the ejecta
                 weight = (1 - mu_min) / 2. / virtual_packet_flag
             else:
@@ -929,7 +931,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
             else:
                 # ------------------------------ LOGGING ---------------------- (with precompiler IF)
-                if ((reflecting_boundary == FALSE) or (rk_double(&mt_state) > boundary_albedo)):
+                if ((storage.reflective_inner_boundary == 0) or (rk_double(&mt_state) > storage.inner_boundary_albedo)):
                     IF packet_logging == True:
                         packet_logger.debug(
                         'Packet has left the simulation through the inner boundary nu=%s mu=%s energy=%s',
@@ -943,7 +945,8 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                     comov_energy = current_energy[0] * doppler_factor
                     #new mu chosen - for now assume isotropic in positive
                     current_mu[0] = rk_double(&mt_state)
-                    inverse_doppler_factor = 1 / (1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c)
+                    inverse_doppler_factor = 1 / (1 - (current_mu[0] * current_r[0] *
+                                                       storage.inverse_time_explosion * inverse_c))
 
                     current_nu[0] = comov_nu * inverse_doppler_factor
                     current_energy[0] = comov_energy * inverse_doppler_factor
