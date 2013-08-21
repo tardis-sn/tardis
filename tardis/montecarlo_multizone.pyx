@@ -691,9 +691,16 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
             current_shell_id_virt = current_shell_id[0]
 
             #choose a direction for the extract packet. We don't want any directions that will hit the inner boundary. So this sets a minimum value for the packet mu
-            mu_min = -1. * sqrt(1.0 - ( storage.r_inner[0] / current_r_virt) ** 2)
+            if (current_r_virt > storage.r_inner[0]): 
+                mu_min = -1. * sqrt(1.0 - ( storage.r_inner[0] / current_r_virt) ** 2)
+            else:
+                #this is a catch case for packets that are right on the boundary (or even, due to rounding errors, technically below it).
+                mu_min = 0.0
             mu_bin = (1 - mu_min) / virtual_packet_flag
             current_mu_virt = mu_min + ((i + rk_double(&mt_state)) * mu_bin)
+
+            #print "i %g mu_min %g mu_virt %g" % (i, mu_min, current_mu_virt)
+            #print "r_inner[0] %g current_r_virt %g" % (storage.r_inner[0], current_r_virt)
 
             if (virtual_mode == -2):
                 #this is a virtual packet calculation based on a reflected packet. Currently assume isotopic reflection.
