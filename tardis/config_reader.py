@@ -1019,8 +1019,8 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                             '- defaulting to reflective inner boundary')
                 montecarlo_config_dict['enable_reflective_inner_boundary'] = True
 
-            if 'reflective_inner_boundary' in montecarlo_section:
-                montecarlo_config_dict['enable_reflective_inner_boundary'] = montecarlo_section['reflective_inner_boundary']
+            if 'enable_reflective_inner_boundary' in montecarlo_section:
+                montecarlo_config_dict['enable_reflective_inner_boundary'] = montecarlo_section['enable_reflective_inner_boundary']
                 if montecarlo_section['enable_reflective_inner_boundary'] == True and 'inner_boundary_albedo' not in montecarlo_section:
                     logger.warn('enabled reflective inner boundary, but "inner_boundary_albedo" not set - defaulting to 0.5')
                     montecarlo_config_dict['inner_boundary_albedo'] = 0.5
