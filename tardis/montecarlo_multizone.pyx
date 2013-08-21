@@ -8,6 +8,7 @@ import logging
 import time
 
 import numpy as np
+cimport numpy as np
 from astropy import constants
 
 
