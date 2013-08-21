@@ -990,6 +990,8 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         montecarlo_config_dict['convergence'] = convergence_config_dict
+        ###### END of convergence section readin
+
         if 'last_no_of_packets' not in montecarlo_section:
             montecarlo_section['last_no_of_packets'] = None
 
@@ -1006,6 +1008,22 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         else:
             logger.warn('Disabling electron scattering - this is not physical')
             montecarlo_config_dict['sigma_thomson'] = 1e-200 / (u.cm**2)
+
+        montecarlo_config_dict['enable_reflective_inner_boundary'] = False
+        montecarlo_config_dict['inner_boundary_albedo'] = 0.0
+
+        if 'inner_boundary_albedo' in montecarlo_section:
+            montecarlo_config_dict['inner_boundary_albedo'] = montecarlo_section['inner_boundary_albedo']
+            if 'enable_reflective_inner_boundary' not in montecarlo_section:
+                logger.warn('inner_boundary_albedo set, however enable_reflective_inner_boundary option not specified '
+                            '- defaulting to reflective inner boundary')
+                montecarlo_config_dict['enable_reflective_inner_boundary'] = True
+
+            if 'reflective_inner_boundary' in montecarlo_section:
+                montecarlo_config_dict['enable_reflective_inner_boundary'] = montecarlo_section['reflective_inner_boundary']
+                if montecarlo_section['enable_reflective_inner_boundary'] == True and 'inner_boundary_albedo' not in montecarlo_section:
+                    logger.warn('enabled reflective inner boundary, but "inner_boundary_albedo" not set - defaulting to 0.5')
+                    montecarlo_config_dict['inner_boundary_albedo'] = 0.5
 
 
 
