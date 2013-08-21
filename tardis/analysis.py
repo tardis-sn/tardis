@@ -242,6 +242,27 @@ class TARDISHistory(object):
 
         return pd.Panel(level_populations_dict)
 
+    def load_ion_populations(self, iterations=None):
+        ion_populations_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
+
+        hdf_store.close()
+
+        return pd.Panel(ion_populations_dict)
+
+
     def calculate_departure_coefficients(self, iteration=-1):
         iteration = self.iterations[iteration]
 
