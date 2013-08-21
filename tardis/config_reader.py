@@ -726,32 +726,34 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         #Parsing supernova dictionary
         config_dict['supernova'] = parse_supernova_section(raw_dict['supernova'])
 
-        #Trying to figure out the structure (number of shells)
-        structure_section = raw_dict['model'].pop('structure')
-        structure_config_dict = {}
-        #first let's try to see if there's a file keyword
-        if 'file' in structure_section:
-            density_file_section = structure_section.pop('file')
-            v_inner, v_outer, mean_densities, min_shell, max_shell = parse_density_file_section(density_file_section,
-                                                                                                config_dict['supernova']
-                                                                                                ['time_explosion'])
+        #Parsing the model section
+        model_section = raw_dict.pop('model')
+        v_inner = None
+        v_outer = None
+        mean_densities = None
+        abundances = None
 
+
+        if 'file' in model_section:
+            v_inner, v_outer, mean_densities, abundances = parse_model_file_section(model_section.pop('file'),
+                                                                                    config_dict['supernova']['time_explosion'])
             no_of_shells = len(v_inner)
-            if structure_section != {}:
-                logger.warn(
-                    'Accepted file for structure (density/velocity) structure ignoring all other arguments: \n%s\n',
-                    pprint.pformat(structure_section, indent=4))
-        else:
-            #requiring all keys: no_of_shells, velocity, density
-            if not all([item in structure_section.keys() for item in ('no_of_shells', 'velocity', 'density')]):
-                raise TARDISConfigurationError(
-                    'If file-section is not given to structure-section, one needs to provide all: no_of_shells, velocity, density')
+
+        structure_config_dict = {}
+
+        if 'structure' in model_section:
+        #Trying to figure out the structure (number of shells)
+            structure_section = model_section.pop('structure')
 
             no_of_shells = structure_section['no_of_shells']
-
+            if v_inner is not None and v_outer is not None or mean_densities is not None:
+                logger.warn('Overwriting the v_inner, v_outer, mean_densities with values given in the structure section - ignoring previous file inputs')
             v_inner, v_outer = parse_velocity_section(structure_section['velocity'], no_of_shells)
             mean_densities = parse_density_section(structure_section['density'], no_of_shells, v_inner, v_outer,
                                                    config_dict['supernova']['time_explosion'])
+
+        if v_inner is None or v_outer is None or mean_densities is None:
+            raise TARDISConfigurationError('No density profile or structure specified in the config file.')
 
         r_inner = config_dict['supernova']['time_explosion'] * v_inner
         r_outer = config_dict['supernova']['time_explosion'] * v_outer
@@ -772,23 +774,24 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         config_dict['structure'] = structure_config_dict
         #Now that the structure section is parsed we move on to the abundances
 
-        abundances_section = raw_dict['model']['abundances'].copy()
-        abudances_config_dict = {}
+
         #TODO: columns are now until Z=120
+        if abundances is None:
+            abundances = pd.DataFrame(columns=np.arange(no_of_shells),
+                                      index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
+        elif 'abundances' in model_section:
+            logger.warn('Overwriting the abundances with values given in the structure section - ignoring previous file inputs')
+        else:
+            pass
 
-        abundances = pd.DataFrame(columns=np.arange(no_of_shells),
-                                  index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
+        if 'abundances' in model_section:
+            abundances_section = model_section.pop('abundances')
 
-        if 'file' in abundances_section.keys():
-            abundance_file_dict = abundances_section.pop('file')
-            parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max_shell)
+            for element_symbol_string in abundances_section:
 
+                z = element_symbol2atomic_number(element_symbol_string, atom_data)
 
-        for element_symbol_string in abundances_section:
-
-            z = element_symbol2atomic_number(element_symbol_string, atom_data)
-
-            abundances.ix[z] = float(abundances_section[element_symbol_string])
+                abundances.ix[z] = float(abundances_section[element_symbol_string])
 
         abundances = abundances.replace(np.nan, 0.0)
 
