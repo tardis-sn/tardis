@@ -8,39 +8,30 @@ import numpy as np
 import pandas as pd
 
 
-def get_last_line_interaction(wavelength_start, wavelength_end, model):
-    nu_start = wavelength_end.to('Hz', u.spectral())
-    nu_end = wavelength_start.to('Hz', u.spectral())
-    wavelength_filter = (model.montecarlo_nu > nu_start) & (model.montecarlo_nu < nu_end) & \
-                        (model.last_line_interaction_in_id != -1)
-
-    last_line_in_ids = model.last_line_interaction_in_id[wavelength_filter]
-    last_line_out_ids = model.last_line_interaction_out_id[wavelength_filter]
-
-    line_in_table = model.atom_data.lines.ix[last_line_in_ids].groupby(['atomic_number', 'ion_number'])[
-        'wavelength'].count()
-    line_in_table = line_in_table.astype(float) / line_in_table.sum()
-
-    line_out_table = model.atom_data.lines.ix[last_line_out_ids].groupby(['atomic_number', 'ion_number'])[
-        'wavelength'].count()
-    line_out_table = line_out_table.astype(float) / line_out_table.sum()
-
-    # print "Lines in:\n------\n %s" % line_in_table
-    # print "Lines out:\n------\n %s" % line_out_table
-
-    return last_line_in_ids, last_line_out_ids
-
-
 class LastLineInteraction(object):
 
-    def __init__(self, model, packet_filter_mode='packet_nu'):
-        self.model = model
+    @classmethod
+    def from_model(cls, model):
+        return cls(model.last_line_interaction_in_id, model.last_line_interaction_out_id,
+                   model.last_line_interaction_shell_id, model.montecarlo_nu.value, model.atom_data.lines)
+
+    def __init__(self, last_line_interaction_in_id, last_line_interaction_out_id, last_line_interaction_shell_id,
+                 montecarlo_nu, lines, packet_filter_mode='packet_nu'):
+        self.last_line_interaction_in_id = last_line_interaction_in_id
+        self.last_line_interaction_out_id = last_line_interaction_out_id
+        self.last_line_interaction_shell_id = last_line_interaction_shell_id
+        self.montecarlo_nu = montecarlo_nu * u.Hz
+        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
+                                                                                                       u.spectral())
+        self.lines = lines
+
         self._wavelength_start = 0 * u.angstrom
         self._wavelength_end = np.inf * u.angstrom
         self._atomic_number = None
         self._ion_number = None
         self.packet_filter_mode = packet_filter_mode
         self.update_last_interaction_filter()
+
 
 
     @property
@@ -85,16 +76,36 @@ class LastLineInteraction(object):
 
     def update_last_interaction_filter(self):
         if self.packet_filter_mode == 'packet_nu':
-            packet_filter = (self.model.last_line_interaction_angstrom > self.wavelength_start) & \
-                      (self.model.last_line_interaction_angstrom < self.wavelength_end)
+            packet_filter = (self.last_line_interaction_angstrom > self.wavelength_start) & \
+                      (self.last_line_interaction_angstrom < self.wavelength_end)
         elif self.packet_filter_mode == 'line_in_nu':
-            line_in_nu = self.model.atom_data.lines.wavelength.ix[self.model.last_line_interaction_in_id].values
+            line_in_nu = self.lines.wavelength.ix[self.last_line_interaction_in_id].values
             packet_filter = (line_in_nu > self.wavelength_start.to(u.angstrom).value) & \
                 (line_in_nu < self.wavelength_end.to(u.angstrom).value)
 
-        self.last_line_in = self.model.atom_data.lines.ix[self.model.last_line_interaction_in_id[packet_filter]]
-        self.last_line_out = self.model.atom_data.lines.ix[self.model.last_line_interaction_out_id[packet_filter]]
+        self.last_line_in = self.lines.ix[self.last_line_interaction_in_id[packet_filter]]
+        self.last_line_out = self.lines.ix[self.last_line_interaction_out_id[packet_filter]]
 
+        if self.atomic_number is not None:
+            self.last_line_in = self.last_line_in[self.last_line_in.atomic_number == self.atomic_number]
+            self.last_line_out = self.last_line_out[self.last_line_out.atomic_number == self.atomic_number]
+
+        if self.ion_number is not None:
+            self.last_line_in = self.last_line_in[self.last_line_in.ion_number == self.ion_number]
+            self.last_line_out = self.last_line_out[self.last_line_out.ion_number == self.ion_number]
+
+
+        last_line_in_count = self.last_line_in.wavelength.groupby(level=0).count()
+        last_line_out_count = self.last_line_out.wavelength.groupby(level=0).count()
+
+        self.last_line_in_table = self.lines[['wavelength', 'atomic_number', 'ion_number', 'level_number_lower',
+                                              'level_number_upper']].ix[last_line_in_count.index]
+        self.last_line_in_table['count'] = last_line_in_count
+        self.last_line_in_table.sort('count', ascending=False, inplace=True)
+        self.last_line_out_table = self.lines[['wavelength', 'atomic_number', 'ion_number', 'level_number_lower',
+                                              'level_number_upper']].ix[last_line_out_count.index]
+        self.last_line_out_table['count'] = last_line_out_count
+        self.last_line_out_table.sort('count', ascending=False, inplace=True)
 
 
     def update_last_interaction_line_in_nu_filter(self):
@@ -137,8 +148,8 @@ class TARDISHistory(object):
     """
 
 
-    def __init__(self, hdf5_fname, history_dir='.', iterations=None):
-        self.hdf5_fname = os.path.join(history_dir, hdf5_fname)
+    def __init__(self, hdf5_fname, iterations=None):
+        self.hdf5_fname = hdf5_fname
         if iterations is None:
             iterations = []
             hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
@@ -158,10 +169,11 @@ class TARDISHistory(object):
 
 
     def load_atom_data(self):
-        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
-        self.levels = hdf_store['atom_data/levels']
-        self.lines = hdf_store['atom_data/lines']
-        hdf_store.close()
+        if self.levels is None or self.lines is None:
+            hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+            self.levels = hdf_store['atom_data/levels']
+            self.lines = hdf_store['atom_data/lines']
+            hdf_store.close()
 
 
     def load_t_inner(self, iterations=None):
@@ -225,10 +237,11 @@ class TARDISHistory(object):
     def load_level_populations(self, iterations=None):
         level_populations_dict = {}
         hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
-
+        is_scalar = False
         if iterations is None:
             iterations = self.iterations
         elif np.isscalar(iterations):
+            is_scalar = True
             iterations = [self.iterations[iterations]]
         else:
             iterations = self.iterations[iterations]
@@ -239,16 +252,44 @@ class TARDISHistory(object):
             level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
 
         hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(level_populations_dict.values()[0])
+        else:
+            return pd.Panel(level_populations_dict)
 
-        return pd.Panel(level_populations_dict)
+    def load_jblues(self, iterations=None):
+        jblues_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+        is_scalar = False
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            is_scalar = True
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            jblues_dict[current_iter] = hdf_store['model%03d/j_blues' % iter]
+
+        hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(jblues_dict.values()[0])
+        else:
+            return pd.Panel(jblues_dict)
+
 
     def load_ion_populations(self, iterations=None):
         ion_populations_dict = {}
         hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
 
+        is_scalar = False
         if iterations is None:
             iterations = self.iterations
         elif np.isscalar(iterations):
+            is_scalar = True
             iterations = [self.iterations[iterations]]
         else:
             iterations = self.iterations[iterations]
@@ -259,40 +300,56 @@ class TARDISHistory(object):
             ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
 
         hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(ion_populations_dict.values()[0])
+        else:
+            return pd.Panel(ion_populations_dict)
 
-        return pd.Panel(ion_populations_dict)
-
-
-    def calculate_departure_coefficients(self, iteration=-1):
-        iteration = self.iterations[iteration]
-
-        t_rads = self.load_t_rads(iteration)
-        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values)
-
-
-    def get_spectrum(self, iteration, spectrum_keyword='luminosity_density'):
+    def load_spectrum(self, iteration, spectrum_keyword='luminosity_density'):
         hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
 
         spectrum = hdf_store['model%03d/%s' % (self.iterations[iteration], spectrum_keyword)]
         hdf_store.close()
         return spectrum
 
-    def plot_convergence(self, fig):
+    def calculate_relative_lte_level_populations(self, species, iteration=-1):
+        self.load_atom_data()
+        t_rads = self.load_t_rads(iteration)
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:,0])
 
-        ax = fig.add_subplot(111)
+        species_levels = self.levels.ix[species]
 
-        ax.plot(self.t_inner)
-        ax.set_xlabel('iterations')
-        ax.set_ylabel('t_inner [K]')
+        relative_lte_level_populations = (species_levels.g.values[np.newaxis].T / float(species_levels.g.ix[0])) * \
+                                         np.exp(-beta_rads * species_levels.energy.values[np.newaxis].T)
 
+        return pd.DataFrame(relative_lte_level_populations, index=species_levels.index)
 
-def get_departure_coefficient(fname, iteration, species, model_dir='.'):
-    fname = os.path.join(model_dir, fname)
-    level_populations = pd.HDFStore(fname,'r')['model%03d/level_populations' % iteration].ix[species]
-    beta_rad = 1/(constants.k_B.cgs.value * pd.HDFStore(fname, 'r')['model%03d/t_rads' % iteration].values)
-    levels = pd.HDFStore(fname, 'r')['atom_data/levels'].ix[species]
+    def calculate_departure_coefficients(self, species, iteration=-1):
+        self.load_atom_data()
+        t_rads = self.load_t_rads(iteration)
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:,0])
 
-    departure_coefficient = ((level_populations.values * levels.g.ix[0]) / (level_populations.ix[0].values * levels.g.values[np.newaxis].T)) * np.exp(beta_rad * levels.energy.values[np.newaxis].T)
-    t_rad = pd.HDFStore(fname, 'r')['model%03d/t_rads' % iteration].values
-    w = pd.HDFStore(fname, 'r')['model%03d/ws' % iteration].values
-    return t_rad, w, levels, departure_coefficient
+        species_levels = self.levels.ix[species]
+        species_level_populations = self.load_level_populations(iteration).ix[species]
+        departure_coefficient = ((species_level_populations.values * species_levels.g.ix[0]) /
+                                 (species_level_populations.ix[0].values * species_levels.g.values[np.newaxis].T)) \
+                                * np.exp(beta_rads * species_levels.energy.values[np.newaxis].T)
+
+        return pd.DataFrame(departure_coefficient, index=species_levels.index)
+
+    def get_last_line_interaction(self, iteration=-1):
+        iteration = self.iterations[iteration]
+        self.load_atom_data()
+
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+        model_string = 'model'+('%03d' % iteration) +  '/%s'
+        last_line_interaction_in_id = hdf_store[model_string % 'last_line_interaction_in_id'].values
+        last_line_interaction_out_id = hdf_store[model_string % 'last_line_interaction_out_id'].values
+        last_line_interaction_shell_id = hdf_store[model_string % 'last_line_interaction_shell_id'].values
+        try:
+            montecarlo_nu = hdf_store[model_string % 'montecarlo_nus_path'].values
+        except KeyError:
+            montecarlo_nu = hdf_store[model_string % 'montecarlo_nus'].values
+        hdf_store.close()
+        return LastLineInteraction(last_line_interaction_in_id, last_line_interaction_out_id, last_line_interaction_shell_id,
+                            montecarlo_nu, self.lines)

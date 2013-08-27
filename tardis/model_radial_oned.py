@@ -454,10 +454,10 @@ class Radial1DModel(object):
         last_line_interaction_shell_id_path = os.path.join(path, 'last_line_interaction_shell_id')
         pd.Series(self.last_line_interaction_shell_id).to_hdf(hdf_store, last_line_interaction_shell_id_path)
 
-        montecarlo_nus_path = os.path.join(path, 'montecarlo_nus_path')
+        montecarlo_nus_path = os.path.join(path, 'montecarlo_nus')
         pd.Series(self.montecarlo_nu.value).to_hdf(hdf_store, montecarlo_nus_path)
 
-        montecarlo_luminosity_path = os.path.join(path, 'montecarlo_energies_path')
+        montecarlo_luminosity_path = os.path.join(path, 'montecarlo_energies')
         pd.Series(self.montecarlo_luminosity).to_hdf(hdf_store, montecarlo_luminosity_path)
 
 

@@ -324,6 +324,33 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
                                + artis_model['cr48_fraction'] * inv_v48_efolding_time * np.exp(-(inv_cr48_efolding_time * time_explosion).to(1).value))
         / (inv_cr48_efolding_time - inv_v48_efolding_time))
 
+        if 'split_shells' in model_file_section_dict:
+            split_shells = int(model_file_section_dict['split_shells'])
+        else:
+            split_shells = 1
+
+        if split_shells > 1:
+            logger.info('Increasing the number of shells by a factor of %s' % split_shells)
+            no_of_shells = len(v_inner)
+            velocities = np.linspace(v_inner[0], v_outer[-1], no_of_shells * split_shells + 1)
+            v_inner = velocities[:-1]
+            v_outer = velocities[1:]
+            old_mean_densities = mean_densities
+            mean_densities = np.empty(no_of_shells*split_shells) * old_mean_densities.unit
+            new_abundance_data = np.empty((abundances.values.shape[0], no_of_shells * split_shells))
+            for i in xrange(split_shells):
+                mean_densities[i::split_shells] = old_mean_densities
+                new_abundance_data[:,i::split_shells] = abundances.values
+
+            abundances = pd.DataFrame(new_abundance_data, index=abundances.index)
+
+
+
+
+
+
+
+
         return v_inner, v_outer, mean_densities, abundances
 
     model_file_section_parser = {}
