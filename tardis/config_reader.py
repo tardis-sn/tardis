@@ -5,6 +5,7 @@
 import logging
 import os
 import pprint
+import copy
 
 from astropy import constants, units as u
 import astropy.utils
@@ -732,6 +733,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         """
 
         config_dict = {}
+        raw_dict = copy.deepcopy(raw_dict)
 
         #First let's see if we can find an atom_db anywhere:
 
