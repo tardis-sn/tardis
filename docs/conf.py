@@ -49,13 +49,13 @@ extensions = [
     #    'sphinx.ext.pngmath',
     'sphinx.ext.mathjax',
 #    'sphinx.ext.viewcode',
-    'sphinx.ext.inheritance_diagram',
+#    'sphinx.ext.inheritance_diagram',
     'numpydoc',
     #    'astropy.sphinx.ext.numpydoc',
     #    'astropy.sphinx.ext.astropyautosummary',
     #    'astropy.sphinx.ext.automodsumm',
-    'astropy.sphinx.ext.automodapi',
-    'sphinxcontrib.blockdiag'
+#    'astropy.sphinx.ext.automodapi',
+    #'sphinxcontrib.blockdiag'
 ]
 ## get's rid of many toctree contains errors: see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
 numpydoc_show_class_members = False
@@ -82,7 +82,7 @@ rst_epilog = """
 
 # This does not *have* to match the package name, but typically does
 project = u'TARDIS'
-author = u'Stuart Sim & Wolfgang Kerzendorf'
+author = u'Stuart Sim and Wolfgang Kerzendorf'
 copyright = u'2013, ' + author
 
 master_doc = 'index'
