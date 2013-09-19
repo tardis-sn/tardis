@@ -1,4 +1,8 @@
 numpy
+numpydoc
+matplotlib
+pybtex
 Cython
 -e git+http://github.com/astropy/astropy.git#egg=astropy
 sphinx_bootstrap_theme
+sphinxcontrib-bibtex
