@@ -22,8 +22,7 @@ class SimplePacketSource:
     """
 
     @classmethod
-    def from_wavelength(cls, wavelength_start, wavelength_end, wavelength_unit='angstrom', seed=250819801106,
-                        blackbody_sampling=int(1e6)):
+    def from_wavelength(cls, wavelength_start, wavelength_end,  seed=250819801106):
         """Initializing from wavelength
 
         Parameters
