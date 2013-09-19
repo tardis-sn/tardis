@@ -97,7 +97,8 @@ class Radial1DModel(object):
 
         self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.montecarlo.black_body_sampling.start,
                                                                            tardis_config.montecarlo.black_body_sampling.end,
-                                                                           blackbody_sampling=tardis_config.montecarlo.black_body_sampling.samples)
+                                                                           blackbody_sampling=tardis_config.montecarlo.black_body_sampling.samples,
+                                                                           seed=self.tardis_config.montecarlo.seed)
         self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
 
         self.t_inner = tardis_config.plasma.t_inner
