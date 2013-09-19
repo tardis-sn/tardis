@@ -1,43 +1,37 @@
 #codes to for analyse the model.
 
-from astropy import units as u
+import re
+import os
+
+from astropy import units as u, constants
 import numpy as np
-from matplotlib.widgets import Lasso
-from matplotlib import path
-
-
-def get_last_line_interaction(wavelength_start, wavelength_end, model):
-    nu_start = wavelength_end.to('Hz', u.spectral())
-    nu_end = wavelength_start.to('Hz', u.spectral())
-    wavelength_filter = (model.montecarlo_nu > nu_start) & (model.montecarlo_nu < nu_end) & \
-                        (model.last_line_interaction_in_id != -1)
-
-    last_line_in_ids = model.last_line_interaction_in_id[wavelength_filter]
-    last_line_out_ids = model.last_line_interaction_out_id[wavelength_filter]
-
-    line_in_table = model.atom_data.lines.ix[last_line_in_ids].groupby(['atomic_number', 'ion_number'])[
-        'wavelength'].count()
-    line_in_table = line_in_table.astype(float) / line_in_table.sum()
-
-    line_out_table = model.atom_data.lines.ix[last_line_out_ids].groupby(['atomic_number', 'ion_number'])[
-        'wavelength'].count()
-    line_out_table = line_out_table.astype(float) / line_out_table.sum()
-
-    # print "Lines in:\n------\n %s" % line_in_table
-    # print "Lines out:\n------\n %s" % line_out_table
-
-    return last_line_in_ids, last_line_out_ids
+import pandas as pd
 
 
 class LastLineInteraction(object):
-    def __init__(self, model):
-        self.model = model
-        self._wavelength_start = 0 * u.m
-        self._wavelength_end = 1 * u.m
+
+    @classmethod
+    def from_model(cls, model):
+        return cls(model.last_line_interaction_in_id, model.last_line_interaction_out_id,
+                   model.last_line_interaction_shell_id, model.montecarlo_nu.value, model.atom_data.lines)
+
+    def __init__(self, last_line_interaction_in_id, last_line_interaction_out_id, last_line_interaction_shell_id,
+                 montecarlo_nu, lines, packet_filter_mode='packet_nu'):
+        self.last_line_interaction_in_id = last_line_interaction_in_id
+        self.last_line_interaction_out_id = last_line_interaction_out_id
+        self.last_line_interaction_shell_id = last_line_interaction_shell_id
+        self.montecarlo_nu = montecarlo_nu * u.Hz
+        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
+                                                                                                       u.spectral())
+        self.lines = lines
+
+        self._wavelength_start = 0 * u.angstrom
+        self._wavelength_end = np.inf * u.angstrom
         self._atomic_number = None
         self._ion_number = None
-        self.packets_angstrom = u.Quantity(self.model.montecarlo_nu, 'Hz').to('angstrom', u.spectral()).value
-        self.update_last_interaction()
+        self.packet_filter_mode = packet_filter_mode
+        self.update_last_interaction_filter()
+
 
 
     @property
@@ -49,7 +43,7 @@ class LastLineInteraction(object):
         if not isinstance(value, u.Quantity):
             raise ValueError('needs to be a Quantity')
         self._wavelength_start = value
-        self.update_last_interaction()
+        self.update_last_interaction_filter()
 
     @property
     def wavelength_end(self):
@@ -60,7 +54,7 @@ class LastLineInteraction(object):
         if not isinstance(value, u.Quantity):
             raise ValueError('needs to be a Quantity')
         self._wavelength_end = value
-        self.update_last_interaction()
+        self.update_last_interaction_filter()
 
     @property
     def atomic_number(self):
@@ -69,7 +63,7 @@ class LastLineInteraction(object):
     @atomic_number.setter
     def atomic_number(self, value):
         self._atomic_number = value
-        self.update_last_interaction()
+        self.update_last_interaction_filter()
 
     @property
     def ion_number(self):
@@ -78,38 +72,44 @@ class LastLineInteraction(object):
     @ion_number.setter
     def ion_number(self, value):
         self._ion_number = value
-        self.update_last_interaction()
+        self.update_last_interaction_filter()
 
-    def update_last_interaction(self):
-        mask_in = (self.packets_angstrom > self.wavelength_start.to(u.angstrom).value) & \
-                  (self.packets_angstrom < self.wavelength_end.to(u.angstrom).value)
-        mask_out = mask_in.copy()
+    def update_last_interaction_filter(self):
+        if self.packet_filter_mode == 'packet_nu':
+            packet_filter = (self.last_line_interaction_angstrom > self.wavelength_start) & \
+                      (self.last_line_interaction_angstrom < self.wavelength_end)
+        elif self.packet_filter_mode == 'line_in_nu':
+            line_in_nu = self.lines.wavelength.ix[self.last_line_interaction_in_id].values
+            packet_filter = (line_in_nu > self.wavelength_start.to(u.angstrom).value) & \
+                (line_in_nu < self.wavelength_end.to(u.angstrom).value)
 
-        mask_in = mask_in[self.model.last_line_interaction_in_id != -1]
-        mask_out = mask_out[self.model.last_line_interaction_in_id != -1]
-        last_line_interaction_in_id = self.model.last_line_interaction_in_id[
-            self.model.last_line_interaction_in_id != -1]
-        last_line_interaction_out_id = self.model.last_line_interaction_out_id[
-            self.model.last_line_interaction_out_id != -1]
-
-        line_list_in = self.model.atom_data.lines.ix[last_line_interaction_in_id]
-        line_list_out = self.model.atom_data.lines.ix[last_line_interaction_out_id]
+        self.last_line_in = self.lines.ix[self.last_line_interaction_in_id[packet_filter]]
+        self.last_line_out = self.lines.ix[self.last_line_interaction_out_id[packet_filter]]
 
         if self.atomic_number is not None:
-            mask_in &= line_list_in.atomic_number == self.atomic_number
-            mask_out &= line_list_out.atomic_number == self.atomic_number
+            self.last_line_in = self.last_line_in[self.last_line_in.atomic_number == self.atomic_number]
+            self.last_line_out = self.last_line_out[self.last_line_out.atomic_number == self.atomic_number]
 
         if self.ion_number is not None:
-            mask_in &= line_list_in.ion_number == self.ion_number
-            mask_out &= line_list_out.ion_number == self.ion_number
+            self.last_line_in = self.last_line_in[self.last_line_in.ion_number == self.ion_number]
+            self.last_line_out = self.last_line_out[self.last_line_out.ion_number == self.ion_number]
 
-        self.last_line_list_in = line_list_in[mask_in].reset_index()
-        self.last_line_list_out = line_list_out[mask_out].reset_index()
 
-        self.contributing_last = self.last_line_list_in.groupby(['atomic_number', 'ion_number'])['wavelength'].count()
-        self.contributing_last = self.contributing_last.astype(float) / self.contributing_last.sum()
-        self.current_no_packets = len(self.last_line_list_in)
+        last_line_in_count = self.last_line_in.wavelength.groupby(level=0).count()
+        last_line_out_count = self.last_line_out.wavelength.groupby(level=0).count()
 
+        self.last_line_in_table = self.lines[['wavelength', 'atomic_number', 'ion_number', 'level_number_lower',
+                                              'level_number_upper']].ix[last_line_in_count.index]
+        self.last_line_in_table['count'] = last_line_in_count
+        self.last_line_in_table.sort('count', ascending=False, inplace=True)
+        self.last_line_out_table = self.lines[['wavelength', 'atomic_number', 'ion_number', 'level_number_lower',
+                                              'level_number_upper']].ix[last_line_out_count.index]
+        self.last_line_out_table['count'] = last_line_out_count
+        self.last_line_out_table.sort('count', ascending=False, inplace=True)
+
+
+    def update_last_interaction_line_in_nu_filter(self):
+        pass
 
     def plot_wave_in_out(self, fig, do_clf=True, plot_resonance=True):
         if do_clf:
@@ -142,8 +142,214 @@ class LastLineInteraction(object):
         fig.canvas.mpl_connect('pick_event', onpick)
         fig.canvas.mpl_connect('on_press', onpress)
 
+class TARDISHistory(object):
+    """
+    Records the history of the model
+    """
+
+
+    def __init__(self, hdf5_fname, iterations=None):
+        self.hdf5_fname = hdf5_fname
+        if iterations is None:
+            iterations = []
+            hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+            for key in hdf_store.keys():
+                if key.split('/')[1] == 'atom_data':
+                    continue
+                iterations.append(int(re.match('model(\d+)', key.split('/')[1]).groups()[0]))
+
+            self.iterations = np.sort(np.unique(iterations))
+            hdf_store.close()
+        else:
+            self.iterations=iterations
+
+        self.levels = None
+        self.lines = None
 
 
 
+    def load_atom_data(self):
+        if self.levels is None or self.lines is None:
+            hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+            self.levels = hdf_store['atom_data/levels']
+            self.lines = hdf_store['atom_data/lines']
+            hdf_store.close()
 
 
+    def load_t_inner(self, iterations=None):
+        t_inners = []
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+        for iter in iterations:
+            t_inners.append(hdf_store['model%03d/configuration' %iter].ix['t_inner'])
+        hdf_store.close()
+
+        t_inners = np.array(t_inners)
+        return t_inners
+
+    def load_t_rads(self, iterations=None):
+        t_rads_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            t_rads_dict[current_iter] = hdf_store['model%03d/t_rads' % iter]
+
+        t_rads = pd.DataFrame(t_rads_dict)
+        hdf_store.close()
+        return t_rads
+
+    def load_ws(self, iterations=None):
+        ws_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            ws_dict[current_iter] = hdf_store['model%03d/ws' % iter]
+
+        hdf_store.close()
+
+        return pd.DataFrame(ws_dict)
+
+    def load_level_populations(self, iterations=None):
+        level_populations_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+        is_scalar = False
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            is_scalar = True
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            level_populations_dict[current_iter] = hdf_store['model%03d/level_populations' % iter]
+
+        hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(level_populations_dict.values()[0])
+        else:
+            return pd.Panel(level_populations_dict)
+
+    def load_jblues(self, iterations=None):
+        jblues_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+        is_scalar = False
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            is_scalar = True
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            jblues_dict[current_iter] = hdf_store['model%03d/j_blues' % iter]
+
+        hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(jblues_dict.values()[0])
+        else:
+            return pd.Panel(jblues_dict)
+
+
+    def load_ion_populations(self, iterations=None):
+        ion_populations_dict = {}
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        is_scalar = False
+        if iterations is None:
+            iterations = self.iterations
+        elif np.isscalar(iterations):
+            is_scalar = True
+            iterations = [self.iterations[iterations]]
+        else:
+            iterations = self.iterations[iterations]
+
+
+        for iter in iterations:
+            current_iter = 'iter%03d' % iter
+            ion_populations_dict[current_iter] = hdf_store['model%03d/ion_populations' % iter]
+
+        hdf_store.close()
+        if is_scalar:
+            return pd.DataFrame(ion_populations_dict.values()[0])
+        else:
+            return pd.Panel(ion_populations_dict)
+
+    def load_spectrum(self, iteration, spectrum_keyword='luminosity_density'):
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+
+        spectrum = hdf_store['model%03d/%s' % (self.iterations[iteration], spectrum_keyword)]
+        hdf_store.close()
+        return spectrum
+
+    def calculate_relative_lte_level_populations(self, species, iteration=-1):
+        self.load_atom_data()
+        t_rads = self.load_t_rads(iteration)
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:,0])
+
+        species_levels = self.levels.ix[species]
+
+        relative_lte_level_populations = (species_levels.g.values[np.newaxis].T / float(species_levels.g.ix[0])) * \
+                                         np.exp(-beta_rads * species_levels.energy.values[np.newaxis].T)
+
+        return pd.DataFrame(relative_lte_level_populations, index=species_levels.index)
+
+    def calculate_departure_coefficients(self, species, iteration=-1):
+        self.load_atom_data()
+        t_rads = self.load_t_rads(iteration)
+        beta_rads = 1 / (constants.k_B.cgs.value * t_rads.values[:,0])
+
+        species_levels = self.levels.ix[species]
+        species_level_populations = self.load_level_populations(iteration).ix[species]
+        departure_coefficient = ((species_level_populations.values * species_levels.g.ix[0]) /
+                                 (species_level_populations.ix[0].values * species_levels.g.values[np.newaxis].T)) \
+                                * np.exp(beta_rads * species_levels.energy.values[np.newaxis].T)
+
+        return pd.DataFrame(departure_coefficient, index=species_levels.index)
+
+    def get_last_line_interaction(self, iteration=-1):
+        iteration = self.iterations[iteration]
+        self.load_atom_data()
+
+        hdf_store = pd.HDFStore(self.hdf5_fname, 'r')
+        model_string = 'model'+('%03d' % iteration) +  '/%s'
+        last_line_interaction_in_id = hdf_store[model_string % 'last_line_interaction_in_id'].values
+        last_line_interaction_out_id = hdf_store[model_string % 'last_line_interaction_out_id'].values
+        last_line_interaction_shell_id = hdf_store[model_string % 'last_line_interaction_shell_id'].values
+        try:
+            montecarlo_nu = hdf_store[model_string % 'montecarlo_nus_path'].values
+        except KeyError:
+            montecarlo_nu = hdf_store[model_string % 'montecarlo_nus'].values
+        hdf_store.close()
+        return LastLineInteraction(last_line_interaction_in_id, last_line_interaction_out_id, last_line_interaction_shell_id,
+                            montecarlo_nu, self.lines)
