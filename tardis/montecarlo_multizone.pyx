@@ -4,17 +4,15 @@
 # cython: cdivision=True
 
 
-import numpy as np
 import logging
 import time
 
+import numpy as np
+cimport numpy as np
 from astropy import constants
 
-cimport numpy as np
+
 np.import_array()
-
-from cython.parallel import *
-
 
 ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
@@ -51,12 +49,14 @@ cdef class StorageModel:
     Class for storing the arrays in a cythonized way (as pointers). This ensures fast access during the calculations.
     """
 
+    cdef float_type_t [:] packet_nus_view
     cdef np.ndarray packet_nus_a
     cdef float_type_t*packet_nus
     cdef np.ndarray packet_mus_a
     cdef float_type_t*packet_mus
     cdef np.ndarray packet_energies_a
     cdef float_type_t*packet_energies
+
     ######## Setting up the output ########
     cdef np.ndarray output_nus_a
     cdef float_type_t*output_nus
@@ -119,6 +119,7 @@ cdef class StorageModel:
     cdef float_type_t*js
     cdef np.ndarray nubars_a
     cdef float_type_t*nubars
+
     cdef float_type_t spectrum_start_nu
     cdef float_type_t spectrum_delta_nu
     cdef float_type_t spectrum_end_nu
@@ -126,15 +127,18 @@ cdef class StorageModel:
 
     cdef float_type_t sigma_thomson
     cdef float_type_t inverse_sigma_thomson
+    cdef float_type_t inner_boundary_albedo
+    cdef int_type_t reflective_inner_boundary
     cdef int_type_t current_packet_id
 
     def __init__(self, model):
 
-        rk_seed(250819801106, &mt_state)
+        rk_seed(model.tardis_config.montecarlo.seed, &mt_state)
 
         cdef np.ndarray[float_type_t, ndim=1] packet_nus = model.packet_src.packet_nus
         self.packet_nus_a = packet_nus
         self.packet_nus = <float_type_t*> self.packet_nus_a.data
+        self.packet_nus_view = model.packet_src.packet_nus
         #
         cdef np.ndarray[float_type_t, ndim=1] packet_mus = model.packet_src.packet_mus
         self.packet_mus_a = packet_mus
@@ -145,51 +149,65 @@ cdef class StorageModel:
         self.packet_energies = <float_type_t*> self.packet_energies_a.data
         #
         self.no_of_packets = packet_nus.size
-        #@@@ Setup of Geometry @@@
-        self.no_of_shells = model.no_of_shells
-        cdef np.ndarray[float_type_t, ndim=1] r_inner = model.r_inner
+
+        #@@@ Setup of structure @@@
+        structure = model.tardis_config.structure
+        self.no_of_shells = structure.no_of_shells
+        cdef np.ndarray[float_type_t, ndim=1] r_inner = structure.r_inner.to('cm').value
         self.r_inner_a = r_inner
         self.r_inner = <float_type_t*> self.r_inner_a.data
         #
-        cdef np.ndarray[float_type_t, ndim=1] r_outer = model.r_outer
+        cdef np.ndarray[float_type_t, ndim=1] r_outer = structure.r_outer.to('cm').value
         self.r_outer_a = r_outer
         self.r_outer = <float_type_t*> self.r_outer_a.data
         #
-        cdef np.ndarray[float_type_t, ndim=1] v_inner = model.v_inner
+        cdef np.ndarray[float_type_t, ndim=1] v_inner = structure.v_inner.to('cm/s').value
         self.v_inner_a = v_inner
         self.v_inner = <float_type_t*> self.v_inner_a.data
+
+
         #@@@ Setup the rest @@@
-        #times
-        self.time_explosion = model.time_explosion
-        self.inverse_time_explosion = 1 / model.time_explosion
+        # times
+        self.time_explosion = model.tardis_config.supernova.time_explosion.to('s').value
+        self.inverse_time_explosion = 1 / self.time_explosion
+
         #electron density
-        cdef np.ndarray[float_type_t, ndim=1] electron_densities = model.electron_densities
+        cdef np.ndarray[float_type_t, ndim=1] electron_densities = model.plasma_array.electron_densities.values
         self.electron_densities_a = electron_densities
         self.electron_densities = <float_type_t*> self.electron_densities_a.data
-        #
+
         cdef np.ndarray[float_type_t, ndim=1] inverse_electron_densities = 1 / electron_densities
         self.inverse_electron_densities_a = inverse_electron_densities
         self.inverse_electron_densities = <float_type_t*> self.inverse_electron_densities_a.data
+
         #Line lists
-        cdef np.ndarray[float_type_t, ndim=1] line_list_nu = model.line_list_nu.values
+        cdef np.ndarray[float_type_t, ndim=1] line_list_nu = model.atom_data.lines.nu.values
         self.line_list_nu_a = line_list_nu
         self.line_list_nu = <float_type_t*> self.line_list_nu_a.data
         #
         self.no_of_lines = line_list_nu.size
 
-        cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.tau_sobolevs
+        cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.plasma_array.tau_sobolevs.values.transpose()
         self.line_lists_tau_sobolevs_a = line_lists_tau_sobolevs
         self.line_lists_tau_sobolevs = <float_type_t*> self.line_lists_tau_sobolevs_a.data
         self.line_lists_tau_sobolevs_nd = self.line_lists_tau_sobolevs_a.shape[1]
 
-        cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blues
-        model.j_blues[:] = 0.0
+        cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blue_estimators
         self.line_lists_j_blues_a = line_lists_j_blues
         self.line_lists_j_blues = <float_type_t*> self.line_lists_j_blues_a.data
         self.line_lists_j_blues_nd = self.line_lists_j_blues_a.shape[1]
 
         #
-        self.line_interaction_id = model.line_interaction_id
+        line_interaction_type = model.tardis_config.plasma.line_interaction_type
+        if line_interaction_type == 'scatter':
+            self.line_interaction_id = 0
+        elif line_interaction_type == 'downbranch':
+            self.line_interaction_id = 1
+        elif line_interaction_type == 'macroatom':
+            self.line_interaction_id = 2
+        else:
+            self.line_interaction_id = -99
+
         #macro atom & downbranch
         cdef np.ndarray[float_type_t, ndim=2] transition_probabilities
         cdef np.ndarray[int_type_t, ndim=1] line2macro_level_upper
@@ -197,8 +215,8 @@ cdef class StorageModel:
         cdef np.ndarray[int_type_t, ndim=1] transition_type
         cdef np.ndarray[int_type_t, ndim=1] destination_level_id
         cdef np.ndarray[int_type_t, ndim=1] transition_line_id
-        if model.line_interaction_id >= 1:
-            transition_probabilities = model.transition_probabilities
+        if self.line_interaction_id >= 1:
+            transition_probabilities = model.transition_probabilities.values.transpose()
             self.transition_probabilities_a = transition_probabilities
             self.transition_probabilities = <float_type_t*> self.transition_probabilities_a.data
             self.transition_probabilities_nd = self.transition_probabilities_a.shape[1]
@@ -257,26 +275,26 @@ cdef class StorageModel:
         self.last_interaction_type_a = last_interaction_type
         self.last_interaction_type = <int_type_t*> last_interaction_type.data
 
-        cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(model.no_of_shells, dtype=np.float64)
-        cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(model.no_of_shells, dtype=np.float64)
+        cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(self.no_of_shells, dtype=np.float64)
+        cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(self.no_of_shells, dtype=np.float64)
 
         self.js_a = js
         self.js = <float_type_t*> self.js_a.data
         self.nubars_a = nubars
         self.nubars = <float_type_t*> self.nubars_a.data
-        self.spectrum_start_nu = model.spec_nu_bins.min()
-        self.spectrum_end_nu = model.spec_nu_bins.max()
-        self.spectrum_delta_nu = model.spec_nu_bins[1] - model.spec_nu_bins[0]
+        self.spectrum_start_nu = model.tardis_config.spectrum.frequency.value.min()
+        self.spectrum_end_nu = model.tardis_config.spectrum.frequency.value.max()
+        self.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] \
+                                 - model.tardis_config.spectrum.frequency.value[0]
 
-        cdef np.ndarray[float_type_t, ndim=1] spectrum_virt_nu = model.spec_virtual_flux_nu
+        cdef np.ndarray[float_type_t, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
         self.spectrum_virt_nu = <float_type_t*> spectrum_virt_nu.data
 
-        if model.sigma_thomson is None:
-            self.sigma_thomson = 6.652486e-25 #cm^(-2)
-        else:
-            self.sigma_thomson = model.sigma_thomson
 
+        self.sigma_thomson = model.tardis_config.montecarlo.sigma_thomson.to('1/cm^2').value
         self.inverse_sigma_thomson = 1 / self.sigma_thomson
+        self.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
+        self.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
 
         self.current_packet_id = -1
         #
@@ -306,11 +324,14 @@ cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
 
 
-
-
 cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_t imin,
                               int_type_t imax):
     #continually narrow search until just one element remains
+    if nu_insert > nu[imin]:
+        return imin
+    elif nu_insert < nu[imax]:
+        return imax
+
     cdef int_type_t imid
     while imax - imin > 2:
         imid = (imin + imax) / 2
@@ -610,7 +631,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                                            &recently_crossed_boundary, virtual_packet_flag, 0)
 
         if reabsorbed == 1: #reabsorbed
-            storage.output_nus[i] = -current_nu
+            storage.output_nus[i] = current_nu
             storage.output_energies[i] = -current_energy
 
         elif reabsorbed == 0: #emitted
@@ -670,16 +691,30 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
             current_shell_id_virt = current_shell_id[0]
 
             #choose a direction for the extract packet. We don't want any directions that will hit the inner boundary. So this sets a minimum value for the packet mu
-            mu_min = -1. * sqrt(1.0 - ( storage.r_inner[0] / current_r_virt) ** 2)
+            if (current_r_virt > storage.r_inner[0]): 
+                mu_min = -1. * sqrt(1.0 - ( storage.r_inner[0] / current_r_virt) ** 2)
+            else:
+                #this is a catch case for packets that are right on the boundary (or even, due to rounding errors, technically below it).
+                mu_min = 0.0
             mu_bin = (1 - mu_min) / virtual_packet_flag
             current_mu_virt = mu_min + ((i + rk_double(&mt_state)) * mu_bin)
 
-            if (virtual_mode < 0):
+            #print "i %g mu_min %g mu_virt %g" % (i, mu_min, current_mu_virt)
+            #print "r_inner[0] %g current_r_virt %g" % (storage.r_inner[0], current_r_virt)
+
+            if (virtual_mode == -2):
+                #this is a virtual packet calculation based on a reflected packet. Currently assume isotopic reflection.
+                weight = 1.0 / virtual_packet_flag
+            elif (virtual_mode == -1):
                 #this is a virtual packet calculation based on a newly born packet - so the weights are more subtle than for a isotropic emission process
                 weight = 2. * current_mu_virt / virtual_packet_flag
-            else:
+            elif (virtual_mode == 1):
                 #isotropic emission case ("normal case") for a source in the ejecta
                 weight = (1 - mu_min) / 2. / virtual_packet_flag
+            else:
+                #somethning has gone horribly wrong!
+                print "ARRRGGHGGHGHGHGHG"
+
 
             #the virtual packets are spawned with known comoving frame energy and frequency
 
@@ -904,12 +939,34 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
             else:
                 # ------------------------------ LOGGING ---------------------- (with precompiler IF)
-                IF packet_logging == True:
-                    packet_logger.debug(
+                if ((storage.reflective_inner_boundary == 0) or (rk_double(&mt_state) > storage.inner_boundary_albedo)):
+                    IF packet_logging == True:
+                        packet_logger.debug(
                         'Packet has left the simulation through the inner boundary nu=%s mu=%s energy=%s',
                         current_nu[0], current_mu[0], current_energy[0])
-                reabsorbed = 1
-                break
+                    reabsorbed = 1
+                    break
+                else:
+                    #packet is going to survive interaction with boundary - turn it round
+                    doppler_factor= 1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c)
+                    comov_nu = current_nu[0] * doppler_factor
+                    comov_energy = current_energy[0] * doppler_factor
+                    #new mu chosen - for now assume isotropic in positive
+                    current_mu[0] = rk_double(&mt_state)
+                    inverse_doppler_factor = 1 / (1 - (current_mu[0] * current_r[0] *
+                                                       storage.inverse_time_explosion * inverse_c))
+
+                    current_nu[0] = comov_nu * inverse_doppler_factor
+                    current_energy[0] = comov_energy * inverse_doppler_factor
+                    recently_crossed_boundary[0] = 1
+                    if (virtual_packet_flag > 0):
+                        #print "A REFLECTION HAPPENED: CALLING VIRTUAL PARTICLES!!!!!!"
+                        montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r,
+                                      current_line_id, last_line, close_line, recently_crossed_boundary,
+                                      virtual_packet_flag, -2)
+
+		    
+                
                 # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         # ^^^^^^^^^^^^^^^^^^^^^^^^^^ PROPAGATING INWARDS ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1057,14 +1114,15 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                     #print "last_line %g" % (last_line[0])
 
 
-
+                    storage.last_line_interaction_in_id[storage.current_packet_id] = current_line_id[0] - 1
+                    storage.last_line_interaction_shell_id[storage.current_packet_id] = current_shell_id[0]
+                    storage.last_interaction_type[storage.current_packet_id] = 2
 
                     if storage.line_interaction_id == 0: #scatter
                         emission_line_id = current_line_id[0] - 1
                     elif storage.line_interaction_id >= 1:# downbranch & macro
-                        storage.last_line_interaction_in_id[storage.current_packet_id] = current_line_id[0] - 1
-                        storage.last_line_interaction_shell_id[storage.current_packet_id] = current_shell_id[0]
-                        storage.last_interaction_type[storage.current_packet_id] = 2
+
+
                         activate_level_id = storage.line2macro_level_upper[current_line_id[0] - 1]
                         #print "HERE %g %g" %(current_line_id[0], activate_level_id)
                         #print "DEST " , (storage.destination_level_id[0], storage.destination_level_id[5], storage.destination_level_id[10])
