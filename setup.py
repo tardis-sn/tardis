@@ -42,12 +42,12 @@ from astropy.version_helpers import get_git_devstr, generate_version_py
 # Set affiliated package-specific settings
 # Set affiliated package-specific settings
 PACKAGENAME = 'tardis'
-DESCRIPTION = 'TARDIS'
+DESCRIPTION = 'TARDIS - Temperature And Radiative Diffusion In Supernovae'
 LONG_DESCRIPTION = ''
-AUTHOR = ''
-AUTHOR_EMAIL = ''
-LICENSE = 'BSD'
-URL = 'http://moria.astro.utoronto.ca/~wkerzend/tardis'
+AUTHOR = 'TARDIS Team'
+AUTHOR_EMAIL = 'wkerzendorf@gmail.com'
+LICENSE = 'BSD (3 clause)'
+URL = 'http://tardis.readthedocs.org/'
 # VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
 VERSION = '0.9.dev'
 
@@ -98,7 +98,7 @@ package_dirs = {}
 update_package_files(PACKAGENAME, extensions, package_data, packagenames,
                      package_dirs)
 
-setup(name=PACKAGENAME,
+setup(name=PACKAGENAME+'-sn',
       version=VERSION,
       description=DESCRIPTION,
       packages=packagenames,
@@ -107,8 +107,8 @@ setup(name=PACKAGENAME,
       ext_modules=extensions,
       scripts=scripts,
       include_dirs=[np.get_include()],
-      requires=['astropy', 'numpy', 'scipy', 'h5py', 'pandas'],
-      install_requires=['astropy'],
+      install_requires=['astropy>=0.2.4', 'numpy', 'scipy', 'h5py', 'pandas>=0.12'],
+      setup_requires=['astropy>=0.2.4'],
       provides=[PACKAGENAME],
       author=AUTHOR,
       author_email=AUTHOR_EMAIL,
@@ -116,6 +116,19 @@ setup(name=PACKAGENAME,
       url=URL,
       long_description=LONG_DESCRIPTION,
       cmdclass=cmdclassd,
+      classifiers=[
+          'Intended Audience :: Science/Research',
+          'License :: OSI Approved :: BSD License',
+          'Operating System :: OS Independent',
+          'Programming Language :: C',
+          'Programming Language :: Cython',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: Implementation :: CPython',
+          'Topic :: Scientific/Engineering :: Astronomy',
+          'Topic :: Scientific/Engineering :: Physics'
+      ],
       zip_safe=False,
       use_2to3=True
 )
