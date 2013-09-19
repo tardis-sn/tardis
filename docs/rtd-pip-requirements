@@ -1,4 +1,5 @@
 numpy
+numpydoc
 matplotlib
 pybtex
 Cython
