@@ -461,14 +461,14 @@ class AtomData(object):
         self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
 
         tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_lower']])
+                                                               self.lines['level_number_lower']]).astype('')
 
-        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values
+        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values.astype(np.int64)
 
         tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
                                                                self.lines['level_number_upper']])
 
-        self.lines_upper2level_idx = self.levels_index.ix[tmp_lines_upper2level_idx].values
+        self.lines_upper2level_idx = self.levels_index.ix[tmp_lines_upper2level_idx].values.astype(np.int64)
 
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
@@ -510,7 +510,7 @@ class AtomData(object):
                  self.lines['level_number_upper']])
 
             self.lines_upper2macro_reference_idx = self.macro_atom_references['references_idx'].ix[
-                tmp_lines_upper2level_idx].values
+                tmp_lines_upper2level_idx].values.astype(np.int64)
 
             tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([self.macro_atom_data['atomic_number'],
                                                                          self.macro_atom_data['ion_number'],
@@ -519,7 +519,7 @@ class AtomData(object):
 
             if line_interaction_type == 'macroatom':
                 self.macro_atom_data['destination_level_idx'] = self.macro_atom_references['references_idx'].ix[
-                    tmp_macro_destination_level_idx].values
+                    tmp_macro_destination_level_idx].values.astype(np.int64)
             elif line_interaction_type == 'downbranch':
                 self.macro_atom_data['destination_level_idx'] = (np.ones(len(self.macro_atom_data)) * -1).astype(
                     np.int64)
