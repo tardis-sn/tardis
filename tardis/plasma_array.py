@@ -602,12 +602,12 @@ class BasePlasmaArray(object):
         wavelength = self.atom_data.lines['wavelength_cm'].values
 
 
-        #todo fix this is a concern the mode='safe'
-        n_lower = self.level_populations.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='safe').copy('F')
-        n_upper = self.level_populations.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='safe').copy('F')
+        #todo fix this is a concern the mode='safe' 
+        n_lower = self.level_populations.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='raise').copy('F')
+        n_upper = self.level_populations.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise').copy('F')
         meta_stable_upper = self.atom_data.levels.metastable.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise')
-        g_lower = self.atom_data.levels.g.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='safe')
-        g_upper = self.atom_data.levels.g.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='safe')
+        g_lower = self.atom_data.levels.g.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='raise')
+        g_upper = self.atom_data.levels.g.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise')
 
 
         self.stimulated_emission_factor = 1 - ((g_lower[np.newaxis].T * n_upper) / (g_upper[np.newaxis].T * n_lower))
@@ -646,11 +646,11 @@ class BasePlasmaArray(object):
 
         transition_probabilities = (macro_atom_data.transition_probability.values[np.newaxis].T *
                                     self.beta_sobolevs.take(self.atom_data.macro_atom_data.lines_idx.values.astype(int),
-                                                            axis=0, mode='safe')).copy('F')
+                                                            axis=0, mode='raise')).copy('F')
         transition_up_filter = (macro_atom_data.transition_type == 1).values
         macro_atom_transition_up_filter = macro_atom_data.lines_idx.values[transition_up_filter]
-        j_blues = self.j_blues.values.take(macro_atom_transition_up_filter, axis=0, mode='safe')
-        macro_stimulated_emission = self.stimulated_emission_factor.take(macro_atom_transition_up_filter, axis=0, mode='safe')
+        j_blues = self.j_blues.values.take(macro_atom_transition_up_filter, axis=0, mode='raise')
+        macro_stimulated_emission = self.stimulated_emission_factor.take(macro_atom_transition_up_filter, axis=0, mode='raise')
         transition_probabilities[transition_up_filter] *= j_blues * macro_stimulated_emission
         #Normalizing the probabilities
         block_references = np.hstack((self.atom_data.macro_atom_references.block_references,
