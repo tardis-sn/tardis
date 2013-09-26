@@ -115,7 +115,7 @@ def species_string_to_tuple(species_string, atom_data):
         ion_number = tardis.util.roman_to_int(ion_number_string.strip())
     except ValueError:
         try:
-            ion_number = int(ion_number_string)
+            ion_number = np.int64(ion_number_string)
         except ValueError:
             raise TARDISMalformedSpeciesError
     if ion_number > atomic_number:
@@ -216,7 +216,7 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
 
         for i, line in enumerate(file(structure_fname)):
             if i == 0:
-                no_of_shells = int(line.strip())
+                no_of_shells = np.int64(line.strip())
             elif i == 1:
                 time_of_model = u.Quantity(float(line.strip()), 'day').to('s')
             elif i == 2:
@@ -375,7 +375,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         density_file = density_file_dict['name']
         for i, line in enumerate(file(density_file)):
             if i == 0:
-                no_of_shells = int(line.strip())
+                no_of_shells = np.int64(line.strip())
             elif i == 1:
                 time_of_model = u.Quantity(float(line.strip()), 'day').to('s')
             elif i == 2:
@@ -1063,14 +1063,14 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                                                                                 black_body_sampling_section['end'])
             montecarlo_config_dict['black_body_sampling']['start'] = sampling_start
             montecarlo_config_dict['black_body_sampling']['end'] = sampling_end
-            montecarlo_config_dict['black_body_sampling']['samples'] = int(black_body_sampling_section['samples'])
+            montecarlo_config_dict['black_body_sampling']['samples'] = np.int64(black_body_sampling_section['samples'])
         else:
             logger.warn('No "black_body_sampling" section in config file - using defaults of '
                         '50 - 200000 Angstrom (1e6 samples)')
             montecarlo_config_dict['black_body_sampling'] = {}
             montecarlo_config_dict['black_body_sampling']['start'] = 50 * u.angstrom
             montecarlo_config_dict['black_body_sampling']['end'] = 200000 * u.angstrom
-            montecarlo_config_dict['black_body_sampling']['samples'] = int(1e6)
+            montecarlo_config_dict['black_body_sampling']['samples'] = np.int64(1e6)
 
         config_dict['montecarlo'] = montecarlo_config_dict
         ##### End of MonteCarlo section
@@ -1084,7 +1084,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         spectrum_section = raw_dict.pop('spectrum')
         spectrum_config_dict = {}
         spectrum_start, spectrum_end = parse_spectral_bin(spectrum_section['start'], spectrum_section['end'])
-        spectrum_bins = int(spectrum_section['bins'])
+        spectrum_bins = np.int64(spectrum_section['bins'])
         spectrum_config_dict['start'] = spectrum_start
         spectrum_config_dict['end'] = spectrum_end
         spectrum_config_dict['bins'] = spectrum_bins

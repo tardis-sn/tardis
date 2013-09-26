@@ -4,7 +4,7 @@ python:
     - 2.7
     - 3.3
 
-#env:
+env:
     # try all python versions with the latest stable numpy and astropy
     - NUMPY_VERSION=1.7.1 SETUP_CMD='build'
 
@@ -17,7 +17,7 @@ before_install:
 
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
-   - pip -q install --upgrade "numpy==1.7.1" --use-mirrors
+   - pip -q install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
    - pip -q install --upgrade Cython --use-mirrors
    - pip -q install --upgrade pandas --use-mirrors
    - pip -q install --upgrade scipy --use-mirrors
