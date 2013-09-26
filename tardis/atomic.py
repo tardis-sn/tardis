@@ -461,7 +461,7 @@ class AtomData(object):
         self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
 
         tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_lower']]).astype('')
+                                                               self.lines['level_number_lower']])
 
         self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values.astype(np.int64)
 
