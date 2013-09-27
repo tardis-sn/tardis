@@ -82,7 +82,7 @@ rst_epilog = """
 
 # This does not *have* to match the package name, but typically does
 project = u'TARDIS'
-author = u'Stuart Sim and Wolfgang Kerzendorf'
+author = u'TARDIS team'
 copyright = u'2013, ' + author
 
 master_doc = 'index'
