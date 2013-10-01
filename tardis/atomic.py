@@ -7,9 +7,7 @@ import logging
 import os
 import h5py
 
-import pdb
-
-from astropy import table, units, constants
+from astropy import table, units
 
 from collections import OrderedDict
 

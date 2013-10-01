@@ -684,10 +684,10 @@ class TARDISConfigurationNameSpace(object):
     def __getitem__(self, item):
         return self.config_dict.__getitem__(item)
 
-    def __dir__(self):
-        return self.config_dict.keys()
     def get(self, k, d=None):
         return self.config_dict.get(k, d)
+
+
     def __repr__(self):
         return pp.pformat(self.config_dict)
 
@@ -1019,7 +1019,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         montecarlo_config_dict['convergence'] = convergence_config_dict
-        ###### END of convergence section readin
+        ###### END of convergence section reading
 
         if 'last_no_of_packets' not in montecarlo_section:
             montecarlo_section['last_no_of_packets'] = None

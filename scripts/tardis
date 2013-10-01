@@ -1,76 +1,54 @@
 #!/usr/bin/env python
 
-from tardis import simulation, atomic, config
+from tardis import simulation, config_reader, model
 
-import sqlite3
 import logging
 import argparse
-import os
-import pickle
 
 
 tardis_description =\
-"""TARDIS Supernova Montecarlo Radiative transfer code
+"""
+TARDIS Supernova Montecarlo Radiative transfer code
 
 """
 
 parser = argparse.ArgumentParser(description=tardis_description)
 argparse.ArgumentParser()
 parser.add_argument('config_file')
-parser.add_argument('result_file')
 
-atomic_db_help = "Location of Atomic Database SQLITE file"
-parser.add_argument('--atomic_db', default=os.path.expanduser('~/.tardis/atomic_db.db3'), help=atomic_db_help)
 log_file_help = "Name of the log file (not implemented yet)"
 parser.add_argument('--log_file', default=None, help=log_file_help)
+
 log_file_help = "Name of the packet log file. Packet logging needs to be switched on before compiling."
 parser.add_argument('--packet_log_file', default=None, help=log_file_help)
-config_type_help = "Type of config file supplied. Currently uniform_w7 and shell are accepted"
-parser.add_argument('--config_type', default='uniform_w7', choices=('uniform_w7', 'shell'), help=config_type_help)
+
 line_interaction_type_help = "Line interaction can be scatter and macro (for Macro atom). Will implement downbranching"
-parser.add_argument('--line_interaction_type', default=None, choices=('macro', 'scatter'),
-    help=line_interaction_type_help)
-parser.add_argument('--pdf', default=None)
 
 args = parser.parse_args()
 
 packet_logging_fname = 'tardis_packets.log'
 
-logger = logging.getLogger('tardis')
-logger.setLevel(logging.DEBUG)
-console_handler = logging.StreamHandler()
-console_handler.setLevel(logging.DEBUG)
-console_formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-console_handler.setFormatter(console_formatter)
-logger.addHandler(console_handler)
+if args.log_file:
+    logger = logging.getLogger('tardis')
+    logger.setLevel(logging.DEBUG)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
 
-logger = logging.getLogger('tardis_packet_logger')
-logger.setLevel(logging.DEBUG)
-packet_logging_handler = logging.FileHandler(packet_logging_fname, mode='w')
-packet_logging_handler.setLevel(logging.DEBUG)
-packet_logging_formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
-console_handler.setFormatter(packet_logging_formatter)
-logger.addHandler(packet_logging_handler)
+if args.packet_log_file:
+    logger = logging.getLogger('tardis_packet_logger')
+    logger.setLevel(logging.DEBUG)
+    packet_logging_handler = logging.FileHandler(packet_logging_fname, mode='w')
+    packet_logging_handler.setLevel(logging.DEBUG)
+    packet_logging_formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(packet_logging_formatter)
+    logger.addHandler(packet_logging_handler)
 
-conn = sqlite3.connect(os.path.expanduser(args.atomic_db), detect_types=sqlite3.PARSE_DECLTYPES)
+tardis_config = config_reader.TARDISConfiguration.from_yaml(args.config_file)
 
-atomic_model = atomic.CombinedAtomicModel.from_db(conn)
-if args.config_type == 'uniform_w7':
-    config_dict = config.read_uniform_w7_config(args.config_file)
-elif args.config_type == 'shell':
-    config_dict = config.read_shell_config(args.config_file)
+radial1d_mdl = model.Radial1DModel(tardis_config)
 
-if args.line_interaction_type is not None:
-    config_dict['line_interaction_type'] = args.line_interaction_type
+simulation.run_radial1d(radial1d_mdl)
 
-result = simulation.run_multizone(config_dict, atomic_model)
-
-pickle.dump(result, file(args.result_file, 'w'))
-
-if args.pdf is not None:
-    import matplotlib, pylab
-
-    matplotlib.use('agg')
-    fig = pylab.figure(1)
-    ax = fig.add_subplot(111)
-    ax.plot(result.output_spec.wave, result.output_spec.flux)

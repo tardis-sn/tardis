@@ -82,8 +82,8 @@ scripts = [fname for fname in glob.glob(os.path.join('scripts', '*'))
 randomkit_files = ['tardis/randomkit/rk_isaac.c', 'tardis/randomkit/rk_mt.c', 'tardis/randomkit/rk_primitive.c',
                    'tardis/randomkit/rk_sobol.c']
 
-extensions = [Extension('tardis.montecarlo_multizone',
-                        ['tardis/montecarlo_multizone.pyx'] + randomkit_files)]
+extensions = [Extension('tardis.montecarlo',
+                        ['tardis/montecarlo.pyx'] + randomkit_files)]
 
 # A dictionary to keep track of all package data to install
 package_data = {PACKAGENAME: ['data/*']}
