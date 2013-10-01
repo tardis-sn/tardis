@@ -12,14 +12,14 @@ import matplotlib.pyplot as plt
 
 from astropy import units
 
-from tardis import atomic, model_radial_oned, montecarlo_multizone, synspec, config_reader
+from tardis import atomic, model, montecarlo_multizone, synspec, config_reader
 import numpy as np
 
 
 
 
 def plot_tardis():
-    radial1d_mdl = model_radial_oned.Radial1DModel(config_object, atom_data)
+    radial1d_mdl = model.Radial1DModel(config_object, atom_data)
     radial1d_mdl.create_packets()
     out_nu, out_energy, jsestimator, nubarestimator, line_id_in, line_id_out = montecarlo_multizone.montecarlo_radial1d(radial1d_mdl)
     spectrum = synspec.get_lambda_spec(out_nu, out_energy, 500*1e-8, 20000*1e-8, samples=1000)

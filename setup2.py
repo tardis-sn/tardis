@@ -35,7 +35,7 @@ randmomkit = Extension('randomkit',
     extra_compile_args=cflags)
 
 montecarlo_multizone = Extension('tardis.montecarlo_multizone',
-    ['tardis/montecarlo_multizone.pyx'] + cfiles)
+    ['tardis/montecarlo.pyx'] + cfiles)
 
 macro_atom = Extension('tardis.macro_atom',
     ['tardis/macro_atom.pyx'])

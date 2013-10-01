@@ -1,4 +1,4 @@
-# building of radial_oned_model
+# This module contains the model class
 
 import logging
 import os
@@ -10,7 +10,7 @@ from astropy import constants, units as u
 import scipy.special
 
 from tardis import packet_source, plasma_array
-import montecarlo_multizone
+import montecarlo
 from util import intensity_black_body
 
 
@@ -355,7 +355,7 @@ class Radial1DModel(object):
         montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
         self.last_interaction_type, self.last_line_interaction_shell_id = \
-            montecarlo_multizone.montecarlo_radial1d(self,
+            montecarlo.montecarlo_radial1d(self,
                                                      virtual_packet_flag=no_of_virtual_packets)
 
         self.montecarlo_nu = montecarlo_nu * u.Hz
