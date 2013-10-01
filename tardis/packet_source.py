@@ -22,7 +22,7 @@ class SimplePacketSource:
     """
 
     @classmethod
-    def from_wavelength(cls, wavelength_start, wavelength_end,  seed=250819801106):
+    def from_wavelength(cls, wavelength_start, wavelength_end,  seed=250819801106, blackbody_sampling=int(1e6)):
         """Initializing from wavelength
 
         Parameters
@@ -37,7 +37,7 @@ class SimplePacketSource:
         nu_start = wavelength_end.to('Hz', units.spectral()).value
         nu_end = wavelength_start.to('Hz', units.spectral()).value
 
-        return cls(nu_start, nu_end, seed=seed)
+        return cls(nu_start, nu_end, seed=seed, blackbody_sampling=blackbody_sampling)
 
     def __init__(self, nu_start, nu_end, seed=250819801106, blackbody_sampling=int(1e6)):
         self.nu_start = nu_start

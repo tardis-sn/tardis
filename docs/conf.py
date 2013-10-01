@@ -67,7 +67,7 @@ extensions.append('sphinxcontrib.bibtex')
 
 # If your documentation needs a minimal Sphinx version, state it here.
 #needs_sphinx = '1.1'
-
+templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 exclude_patterns = ['_build', '_templates']
@@ -82,7 +82,7 @@ rst_epilog = """
 
 # This does not *have* to match the package name, but typically does
 project = u'TARDIS'
-author = u'Stuart Sim and Wolfgang Kerzendorf'
+author = u'TARDIS team'
 copyright = u'2013, ' + author
 
 master_doc = 'index'
