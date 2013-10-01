@@ -1,9 +1,10 @@
 import os
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from tardis import atomic, plasma, util
+from tardis import atomic, plasma_array, util
 import numpy as np
 import pandas as pd
+from astropy import units as u
 
 #Making 2 Figures for ionization balance and level populations
 
@@ -14,7 +15,7 @@ plt.figure(2).clf()
 ax2 = plt.figure(2).add_subplot(111)
 
 # expanding the tilde to the users directory
-atom_fname = os.path.expanduser('~/.tardis/si_kurucz.h5')
+atom_fname = os.path.join(os.path.dirname(atomic.__file__), 'data', 'atom_data.h5')
 
 # reading in the HDF5 File
 atom_data = atomic.AtomData.from_hdf5(atom_fname)
@@ -26,8 +27,8 @@ atom_data.prepare_atom_data([14], 'scatter')
 #Initializing the NebularPlasma class using the from_abundance class method.
 #This classmethod is normally only needed to test individual plasma classes
 #Usually the plasma class just gets the number densities from the model class
-lte_plasma = plasma.LTEPlasma.from_abundance(10000, {'Si': 1}, 1e-13, atom_data, 10.)
-
+lte_plasma = plasma_array.BasePlasmaArray.from_abundance({'Si':1.0}, 1e-14*u.g/u.cm**3, atom_data, 10*u.day)
+lte_plasma.update_radiationfield([10000], [1.0])
 
 #Initializing a dataframe to store the ion populations  and level populations for the different temperatures
 ion_number_densities = pd.DataFrame(index=lte_plasma.ion_populations.index)
@@ -36,15 +37,16 @@ t_rads = np.linspace(2000, 20000, 100)
 
 #Calculating the different ion populations and level populuatios for the given temperatures
 for t_rad in t_rads:
-    lte_plasma.update_radiationfield(t_rad, w=1.0)
+    lte_plasma.update_radiationfield([t_rad], ws=[1.0])
     #getting total si number density
-    si_number_density = lte_plasma.number_density.get_value(14)
+    si_number_density = lte_plasma.number_densities.get_value(14, 0)
     #Normalizing the ion populations
     ion_density = lte_plasma.ion_populations / si_number_density
     ion_number_densities[t_rad] = ion_density
 
     #normalizing the level_populations for Si II
-    current_level_population = lte_plasma.level_populations.ix[14, 1] / lte_plasma.ion_populations.ix[14, 1]
+    current_level_population = lte_plasma.level_populations[0].ix[14, 1] / lte_plasma.ion_populations.get_value((14, 1), 0)
+
     #normalizing with statistical weight
     current_level_population /= atom_data.levels.ix[14, 1].g
 
