@@ -1,5 +1,5 @@
 include README.rst
-
+include pip-requirements
 include distribute_setup.py
 recursive-include *.pyx *.c
 
