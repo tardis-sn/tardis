@@ -1,7 +1,7 @@
 include README.rst
 include pip-requirements
 include distribute_setup.py
-recursive-include *.pyx *.c
+recursive-include *.pyx *.c *.h
 
 recursive-include docs *
 recursive-include licenses *
