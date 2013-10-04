@@ -1,5 +1,6 @@
+**************
 Running TARDIS
-==============
+**************
 
 To run TARDIS requires two files. The atomic database (for more info refer to :ref:`atomic-data`) and a
 configuration file (more info at :ref:`config-file`).

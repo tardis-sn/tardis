@@ -1,7 +1,8 @@
 .. _config-file:
 
+******************
 Configuration File
-==================
+******************
 
 .. :currentmodule:: tardis.config_reader
 

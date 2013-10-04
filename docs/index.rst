@@ -20,6 +20,7 @@ This is the documentation for the TARDIS package.
     montecarlo
     glossary
     zreferences
+    credits
 
 
 
