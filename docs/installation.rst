@@ -5,13 +5,31 @@ Installation
 Requirements
 ============
 
+TARDIS has the following strict requirements:
+
+- `Python <http://www.python.org/>`_ 2.6, 2.7, 3.1 or 3.2
+
+- `Numpy <http://www.numpy.org/>`_ 1.4 or later
+
+- `Astropy <http://www.astropy.org/>`_ 0.2.4 or later
+
+
+
 Installing TARDIS
 =================
 
 Using pip
 ---------
 
+To install TARDIS with `pip`, first install astropy::
 
+    pip install astropy
+
+Once astropy is installed, install TARDIS::
+
+    pip install tardis-sn
+
+Add a `--pre` to install the latest development version.
 
 
 Building from source
@@ -21,7 +39,7 @@ Prerequisites
 -------------
 
 You will need a compiler suite and the development headers for Python and
-Numpy in order to build Astropy. On Linux, using the package manager for your
+Numpy in order to build TARDIS. On Linux, using the package manager for your
 distribution will usually be the easiest route, while on MacOS X you will
 need the XCode command line tools.
 
@@ -45,3 +63,4 @@ require Cython.)
           XCode, you can download just the command line tools from
           https://developer.apple.com/downloads/index.action (requires an Apple
           developer account).
+

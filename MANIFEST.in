@@ -2,6 +2,7 @@ include README.rst
 include pip-requirements
 include distribute_setup.py
 recursive-include tardis *.pyx *.c *.h
+recursive-include tardis/randomkit *.c *.h
 
 recursive-include docs *
 recursive-include licenses *
