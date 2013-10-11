@@ -3,7 +3,7 @@
 
 import sys
 import imp
-import numpy as np
+
 
 try:
     # This incantation forces distribute to be used (over setuptools) if it is
@@ -22,8 +22,12 @@ except:  # There are several types of exceptions that can occur here
 
 import glob
 import os
-from setuptools import setup, find_packages
+
+from setuptools import setup, find_packages, Distribution
 from distutils.core import Extension
+Distribution({'setup_requires': ['numpy>=1.4', 'astropy>=0.2.4']})
+
+import numpy as np
 
 #A dirty hack to get around some early import/configurations ambiguities
 if sys.version_info[0] >= 3:

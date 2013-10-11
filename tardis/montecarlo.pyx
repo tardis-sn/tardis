@@ -1042,7 +1042,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             tau_line = storage.line_lists_tau_sobolevs[
                 current_shell_id[0] * storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
 
-            tau_electron = storage.sigma_thomson * storage.electron_densities[current_shell_id[0]] * d_line
+            tau_electron = storage.sigma_thomson * storage.electron_densities[current_shell_id[0]] * d_line #* (1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
             tau_combined = tau_line + tau_electron
 
             # ------------------------------ LOGGING ----------------------
