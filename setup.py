@@ -25,8 +25,7 @@ import os
 
 from setuptools import setup, find_packages, Distribution
 from distutils.core import Extension
-Distribution({'setup_requires': ['numpy>=1.4']})
-Distribution({'setup_requires': ['astropy>=0.2.4']})
+Distribution({'setup_requires': ['numpy>=1.4', 'astropy>=0.2.4']})
 
 import numpy as np
 
