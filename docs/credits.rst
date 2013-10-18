@@ -15,4 +15,5 @@ Contributers
 
  * Maryam Patel (documentation, test environment)
  * Adam Suban-Loewen (GUI, profiling and parallelization)
-
+ * Chris Sasaki and Mike Reid (Logo)
+ * Knox Long (recombination coefficient)
