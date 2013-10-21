@@ -17,3 +17,4 @@ Contributers
  * Adam Suban-Loewen (GUI, profiling and parallelization)
  * Chris Sasaki and Mike Reid (Logo)
  * Knox Long (recombination coefficient)
+ * Erik Bray (help with incorporating Astropy's setuphelpers)
