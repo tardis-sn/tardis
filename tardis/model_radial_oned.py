@@ -89,7 +89,7 @@ class Radial1DModel(object):
         selected_atomic_numbers = self.tardis_config.abundances.index
         self.atom_data.prepare_atom_data(selected_atomic_numbers,
                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
-                                         nlte_species=tardis_config.plasma.nlte.species)
+                                         ƒ_species=tardis_config.plasma.nlte.species)
 
         if tardis_config.plasma.type == 'nebular':
             if not self.atom_data.has_zeta_data:
