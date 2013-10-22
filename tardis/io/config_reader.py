@@ -880,7 +880,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         #^^^^^^^ NLTE subsection of Plasma end
-
+        
         config_dict['plasma'] = plasma_config_dict
 
 
