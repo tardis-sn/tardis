@@ -32,6 +32,14 @@ Most of these requirements are easy to install using package managers like OS X'
 Installing TARDIS
 =================
 
+On Ubuntu (13.10)
+-----------------
+
+We use a clean install of Ubuntu 13.10 as one of our testing grounds. Here's how we get TARDIS to run
+
+
+    sudo apt-get install python-dev python-pip python-numpy
+
 Using pip
 ---------
 
