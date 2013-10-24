@@ -5,7 +5,26 @@ Running TARDIS
 To run TARDIS requires two files. The atomic database (for more info refer to :ref:`atomic-data`) and a
 configuration file (more info at :ref:`config-file`).
 
-Currently there is no script that can run TARDIS. However it is very easy to set one up:
+Simple Example
+==============
+
+After installing TARDIS just download the example directory `<https://www.dropbox.com/s/svvyr5i7m8ouzdt/tardis_example.tar.gz>`_
+and run TARDIS with:
+
+.. code-block:: none
+
+    tar zxvf tardis_example.tar.gz
+    cd tardis_example
+    tardis tardis_example.yml output_spectrum.dat
+
+
+
+Then plot the output_spectrum.dat with your favourite plotting program.
+
+
+
+Scripting TARDIS
+================
 
 .. code-block:: python
 
