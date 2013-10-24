@@ -5,14 +5,28 @@ Installation
 Requirements
 ============
 
-TARDIS has the following strict requirements:
+.. warning::
+    Currently TARDIS only works on 64-bit python installations. We're working on making it work on 32-bit python
+    distributions.
+
+
+TARDIS has the following requirements:
 
 - `Python <http://www.python.org/>`_ 2.6, 2.7, 3.1 or 3.2
 
-- `Numpy <http://www.numpy.org/>`_ 1.4 or later
+- `Numpy <http://www.numpy.org/>`_ 1.5 or later
+
+- `Scipy <http://www.scipy.org/>`_ 0.10 or later
 
 - `Astropy <http://www.astropy.org/>`_ 0.2.4 or later
 
+- `h5py <http://www.h5py.org/>`_ 2.0.0 or later
+
+- `pandas <http://pandas.pydata.org/>`_ 0.12.0 or later
+
+- `pyyaml <http://pyyaml.org/>`_ 3.0 or later
+
+Most of these requirements are easy to install using package managers like OS X's macports or normal linux package managers
 
 
 Installing TARDIS
@@ -25,11 +39,20 @@ To install TARDIS with `pip`, first install astropy::
 
     pip install astropy
 
+It is also strongly encouraged to get an `h5py` version to work as it requires external libraries and is sometimes
+tricky to install
+
 Once astropy is installed, install TARDIS::
 
     pip install tardis-sn
 
 Add a `--pre` to install the latest development version.
+
+
+.. note::
+    `pip` often tries to take care of many of the dependencies, this might be annoying as they already exist.
+     Adding `--no-deps` will help with this problem.
+
 
 
 Building from source
