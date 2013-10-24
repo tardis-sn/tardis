@@ -37,8 +37,9 @@ On Ubuntu (13.10)
 
 We use a clean install of Ubuntu 13.10 as one of our testing grounds. Here's how we get TARDIS to run
 
+    sudo apt-get install python-dev python-pip python-numpy python-scipy python-h5py python-pandas python-yaml
 
-    sudo apt-get install python-dev python-pip python-numpy
+We now need to install the newest astropy that
 
 Using pip
 ---------
