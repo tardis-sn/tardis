@@ -19,8 +19,13 @@ and run TARDIS with:
 
 
 
-Then plot the output_spectrum.dat with your favourite plotting program.
+Then plot the output_spectrum.dat with your favourite plotting program. Here's an example how to do this with python.
+(The only thing you need to install is ipython and matplotlib - in addition to TARDIS's requirements)
 
+.. code-block:: python
+    ipython --pylab
+    tardis_spec = loadtxt('output_spectrum.dat')
+    plot(tardis_spec[:,0], tardis_spec[:,1])
 
 
 Scripting TARDIS
