@@ -43,9 +43,6 @@ We now need to install the newest astropy and we will install everything into ou
 
     pip install astropy --user
     
-Finally we will use 
-
-
 Once astropy is installed, install TARDIS::
 
     pip install tardis-sn --user --pre
