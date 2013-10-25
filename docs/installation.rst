@@ -39,7 +39,9 @@ We use a clean install of Ubuntu 13.10 as one of our testing grounds. Here's how
 
     sudo apt-get install python-dev python-pip python-numpy python-scipy python-h5py python-pandas python-yaml
 
-We now need to install the newest astropy that
+We now need to install the newest astropy and we will install everything into
+
+    pip install astropy
 
 Using pip
 ---------
