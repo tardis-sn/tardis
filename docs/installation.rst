@@ -35,29 +35,22 @@ Installing TARDIS
 On Ubuntu (13.10)
 -----------------
 
-We use a clean install of Ubuntu 13.10 as one of our testing grounds. Here's how we get TARDIS to run
+We use a clean install of Ubuntu 13.10 as one of our testing grounds. Here's how we get TARDIS to run::
 
     sudo apt-get install python-dev python-pip python-numpy python-scipy python-h5py python-pandas python-yaml
 
-We now need to install the newest astropy and we will install everything into
+We now need to install the newest astropy and we will install everything into our users directory::
 
-    pip install astropy
+    pip install astropy --user
+    
+Finally we will use 
 
-Using pip
----------
-
-To install TARDIS with `pip`, first install astropy::
-
-    pip install astropy
-
-It is also strongly encouraged to get an `h5py` version to work as it requires external libraries and is sometimes
-tricky to install
 
 Once astropy is installed, install TARDIS::
 
-    pip install tardis-sn
+    pip install tardis-sn --user --pre
 
-Add a `--pre` to install the latest development version.
+Add a `--pre` to install the latest development version (currently no stable version is available).
 
 
 .. note::
