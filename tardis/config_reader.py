@@ -707,8 +707,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e
-        if yaml_dict['config_type'] not in ['simple1d']:
-            raise TARDISConfigurationError('Only config_type=simple1d allowed at the moment.')
+
 
         return cls.from_config_dict(yaml_dict)
 
