@@ -13,16 +13,14 @@ class LastLineInteraction(object):
     @classmethod
     def from_model(cls, model):
         return cls(model.last_line_interaction_in_id, model.last_line_interaction_out_id,
-                   model.last_line_interaction_shell_id, model.montecarlo_nu.value, model.atom_data.lines)
+                   model.last_line_interaction_shell_id, model.last_line_interaction_angstrom, model.atom_data.lines)
 
     def __init__(self, last_line_interaction_in_id, last_line_interaction_out_id, last_line_interaction_shell_id,
-                 montecarlo_nu, lines, packet_filter_mode='packet_nu'):
+                 last_line_interaction_angstrom, lines, packet_filter_mode='packet_nu'):
         self.last_line_interaction_in_id = last_line_interaction_in_id
         self.last_line_interaction_out_id = last_line_interaction_out_id
         self.last_line_interaction_shell_id = last_line_interaction_shell_id
-        self.montecarlo_nu = montecarlo_nu * u.Hz
-        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
-                                                                                                       u.spectral())
+        self.last_line_interaction_angstrom = last_line_interaction_angstrom
         self.lines = lines
 
         self._wavelength_start = 0 * u.angstrom
@@ -83,6 +81,7 @@ class LastLineInteraction(object):
             packet_filter = (line_in_nu > self.wavelength_start.to(u.angstrom).value) & \
                 (line_in_nu < self.wavelength_end.to(u.angstrom).value)
 
+                
         self.last_line_in = self.lines.ix[self.last_line_interaction_in_id[packet_filter]]
         self.last_line_out = self.lines.ix[self.last_line_interaction_out_id[packet_filter]]
 

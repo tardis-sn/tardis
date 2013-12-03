@@ -365,7 +365,6 @@ class LineInteractionTables(QtGui.QWidget):
 
 
 
-
 class LineInfo(QtGui.QDialog):
 
     def __init__(self, parent, wavelength_start, wavelength_end):
@@ -375,14 +374,15 @@ class LineInfo(QtGui.QDialog):
         self.setWindowTitle('Line Interaction: %.2f - %.2f (A) ' % (wavelength_start, wavelength_end,
         ))
         self.layout = QtGui.QVBoxLayout()
-        packet_nu_line_interaction = analysis.LastLineInteraction(self.parent.model, packet_filter_mode="packet_nu")
+        packet_nu_line_interaction = analysis.LastLineInteraction.from_model(self.parent.model)
+        packet_nu_line_interaction.packet_filter_mode = 'packet_nu'
         packet_nu_line_interaction.wavelength_start = wavelength_start * u.angstrom
         packet_nu_line_interaction.wavelength_end = wavelength_end * u.angstrom
-
-        line_in_nu_line_interaction = analysis.LastLineInteraction(self.parent.model, packet_filter_mode="line_in_nu")
+        
+        line_in_nu_line_interaction = analysis.LastLineInteraction.from_model(self.parent.model)
+        line_in_nu_line_interaction.packet_filter_mode = 'line_in_nu'
         line_in_nu_line_interaction.wavelength_start = wavelength_start * u.angstrom
         line_in_nu_line_interaction.wavelength_end = wavelength_end * u.angstrom
-
 
 
         self.layout.addWidget(LineInteractionTables(packet_nu_line_interaction, self.parent.model.atom_data, 'filtered by frequency of packet'))
