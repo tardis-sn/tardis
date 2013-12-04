@@ -664,6 +664,7 @@ def read_lucy99_abundances(fname=None):
 
     return dict(zip(lucy99.dtype.names, lucy99[0]))
 
+
 class TARDISConfigurationNameSpace(object):
 
     def __init__(self, config_dict):
@@ -708,6 +709,10 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             logger.critical('No config file named: %s', fname)
             raise e
 
+
+        tardis_config_version = yaml_dict.get('tardis_config_version', None)
+        if tardis_config_version != 'v1.0':
+            raise TARDISConfigurationError('Currently only tardis_config_version v1.0 supported')
 
         return cls.from_config_dict(yaml_dict)
 
@@ -840,12 +845,17 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         plasma_section = raw_dict.pop('plasma')
         plasma_config_dict = {}
 
-        if plasma_section['type'] not in ('nebular', 'lte'):
+        if plasma_section['ionization'] not in ('nebular', 'lte'):
             raise TARDISConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
-        plasma_config_dict['type'] = plasma_section['type']
+        plasma_config_dict['ionization'] = plasma_section['ionization']
 
-        if plasma_section['radiative_rates_type'] not in ('nebular', 'lte', 'detailed'):
-            raise TARDISConfigurationError('radiative_rates_types must be either "nebular", "lte", or "detailed"')
+
+        if plasma_section['excitation'] not in ('dilute-lte', 'lte'):
+            raise TARDISConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
+        plasma_config_dict['excitation'] = plasma_section['excitation']
+
+        if plasma_section['radiative_rates_type'] not in ('dilute-blackbody', 'detailed'):
+            raise TARDISConfigurationError('radiative_rates_types must be either "dilute-blackbody" or "detailed"')
         plasma_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
 
         if plasma_section['line_interaction_type'] not in ('scatter', 'downbranch', 'macroatom'):

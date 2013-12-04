@@ -91,9 +91,9 @@ class Radial1DModel(object):
                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
                                          nlte_species=tardis_config.plasma.nlte.species)
 
-        if tardis_config.plasma.type == 'nebular':
+        if tardis_config.plasma.ionization == 'nebular':
             if not self.atom_data.has_zeta_data:
-                raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma_type")
+                raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma ionization")
 
         self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.montecarlo.black_body_sampling.start,
                                                                            tardis_config.montecarlo.black_body_sampling.end,
@@ -127,7 +127,8 @@ class Radial1DModel(object):
                                                          tardis_config.supernova.time_explosion.to('s').value,
                                                          nlte_config=tardis_config.plasma.nlte,
                                                          delta_treatment=tardis_config.plasma.delta_treatment,
-                                                         saha_treatment=tardis_config.plasma.type)
+                                                         ionization_mode=tardis_config.plasma.ionization,
+                                                         excitation_mode=tardis_config.plasma.excitation)
 
 
 
@@ -231,14 +232,10 @@ class Radial1DModel(object):
         return updated_t_rads * u.K, updated_ws
 
     def update_plasmas(self, initialize_nlte=False):
-        if self.tardis_config.plasma.type == 'lte':
-            self.plasma_array.update_radiationfield(self.t_rads.value, np.ones_like(self.t_rads), j_blues=self.j_blues,
-                                                    initialize_nlte=initialize_nlte)
-        elif self.tardis_config.plasma.type == 'nebular':
-            self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
-                                                    initialize_nlte=initialize_nlte)
-        else:
-            raise NotImplementedError('Plasma type "%s" - not implemented' % self.tardis_config.plasma.type)
+
+        self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
+                                        initialize_nlte=initialize_nlte)
+
 
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.calculate_transition_probabilities()
