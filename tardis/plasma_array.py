@@ -132,7 +132,8 @@ class BasePlasmaArray(object):
         raise NotImplementedError()
 
 
-    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None, saha_treatment='lte'):
+    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None,
+                 ionization_mode='lte', excitation_mode='lte'):
         self.number_densities = number_densities
         self.atom_data = atom_data
         self.time_explosion = time_explosion
@@ -145,12 +146,14 @@ class BasePlasmaArray(object):
 
         self.beta_sobolevs_precalculated = False
 
-        if saha_treatment == 'lte':
+        self.excitation_mode = excitation_mode
+
+        if ionization_mode == 'lte':
             self.calculate_saha = self.calculate_saha_lte
-        elif saha_treatment == 'nebular':
+        elif ionization_mode == 'nebular':
             self.calculate_saha = self.calculate_saha_nebular
         else:
-            raise ValueError('keyword "saha_treatment" can only be "lte" or "nebular" - %s chosen' % saha_treatment)
+            raise ValueError('keyword "ionization_mode" can only be "lte" or "nebular" - %s chosen' % ionization_mode)
 
 
     #Properties
@@ -238,7 +241,7 @@ class BasePlasmaArray(object):
 
             self.electron_densities = 0.5 * (new_electron_densities + self.electron_densities)
 
-        self.calculate_level_populations(initialize_nlte=initialize_nlte)
+        self.calculate_level_populations(initialize_nlte=initialize_nlte, excitation_mode=self.excitation_mode)
         self.tau_sobolevs = self.calculate_tau_sobolev()
 
         if self.nlte_config is not None and self.nlte_config.species:
@@ -478,7 +481,7 @@ class BasePlasmaArray(object):
             self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
             self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
 
-    def calculate_level_populations(self, initialize_nlte=False):
+    def calculate_level_populations(self, initialize_nlte=False, excitation_mode='lte'):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
         :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
@@ -499,9 +502,10 @@ class BasePlasmaArray(object):
 
         level_populations = (ion_number_density / Z) * self.level_population_proportionalities
 
-        #only change between lte plasma and nebular
-        level_populations[~self.atom_data.levels.metastable] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
-
+        if excitation_mode == 'lte':
+            pass
+        elif excitation_mode == 'dilute-lte':
+            level_populations[~self.atom_data.levels.metastable] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
 
         if initialize_nlte:
             self.level_populations.update(level_populations)
