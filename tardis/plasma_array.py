@@ -361,6 +361,10 @@ class BasePlasmaArray(object):
             zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[phis.index].values)(self.t_rads)
         except ValueError:
             raise ValueError('Outside of interpolation area %s' % self.t_rads)
+        finally:
+            # fixing missing nan data
+            # issue created - fix with warning some other day
+            zeta[np.isnan(zeta)] = 1.0
 
         phis *= self.ws * (delta * zeta + self.ws * (1 - zeta)) * \
                 (self.t_electrons / self.t_rads) ** .5
