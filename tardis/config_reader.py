@@ -1038,7 +1038,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         montecarlo_config_dict.update(montecarlo_section)
 
-        disable_electron_scattering = plasma_section['disable_electron_scattering']
+        disable_electron_scattering = plasma_section.get('disable_electron_scattering', False)
 
         if disable_electron_scattering is False:
             logger.info("Electron scattering switched on")
