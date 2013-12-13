@@ -181,8 +181,8 @@ class Radial1DModel(object):
             logger.info('Calculating J_blues for radiative_rates_type=lte')
             j_blues = intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
             self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
-        elif radiative_rates_type == 'nebular' or init_detailed_j_blues:
-            logger.info('Calculating J_blues for radiative_rates_type=nebular')
+        elif radiative_rates_type == 'dilute-blackbody' or init_detailed_j_blues:
+            logger.info('Calculating J_blues for radiative_rates_type=dilute-blackbody')
             j_blues = self.ws * intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
             self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
 
