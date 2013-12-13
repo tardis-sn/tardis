@@ -913,7 +913,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                     logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
                     nlte_config_dict['coronal_approximation'] = False
 
-                if 'coronal_approximation' not in nlte_section:
+                if 'classical_nebular' not in nlte_section:
                     logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
                     nlte_config_dict['classical_nebular'] = False
 
