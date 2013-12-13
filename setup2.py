@@ -34,7 +34,7 @@ randmomkit = Extension('randomkit',
     cfiles,
     extra_compile_args=cflags)
 
-montecarlo_multizone = Extension('tardis.montecarlo_multizone',
+montecarlo = Extension('tardis.montecarlo',
     ['tardis/montecarlo.pyx'] + cfiles)
 
 macro_atom = Extension('tardis.macro_atom',
@@ -53,7 +53,7 @@ scripts = glob.glob(os.path.join('scripts', '*'))
 scripts.remove(os.path.join('scripts', 'README.rst'))
 
 #Define the extension modules
-extensions = [montecarlo_multizone, macro_atom]
+extensions = [montecarlo, macro_atom]
 
 setup(name=PACKAGENAME,
     version=version,
