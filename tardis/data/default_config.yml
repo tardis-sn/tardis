@@ -6,7 +6,7 @@
 tardis_config_version:
   property_type: string
   default: None
-  allowed_type: ['v1.0']
+  allowed_values: ['v1.0']
   mandatory: True
   help: TARDIS configuration version
 
