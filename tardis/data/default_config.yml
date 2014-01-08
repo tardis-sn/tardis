@@ -1,0 +1,194 @@
+#New configuration for TARDIS based on YAML
+#IMPORTANT any pure floats need to have a +/- after the e e.g. 2e+5
+#Hopefully pyyaml will fix this soon.
+---
+#Currently only simple1d is allowed
+tardis_config_version:
+  property_type: string
+  default: None
+  allowed_type: ['v1.0']
+  mandatory: True
+  help: TARDIS configuration version
+
+supernova:
+    luminosity_requested:
+        property_type: quantity ### log_lbol to be discussed
+        default: None
+        mandatory: True
+        help: requested luminosity for simulation
+    time_explosion:
+        property_type: quantity
+        default: None
+        mandatory: True
+        help: time since explosion
+    distance:
+      property_type: quantity
+      default: None
+      mandatory: False
+      help: distance to supernova
+
+
+atom_data:
+    property_type: string
+    default: None
+    mandatory: True
+    help: file name (with path) to atomic data HDF5 file
+
+
+model:
+    structure:
+        no_of_shells : 20
+
+
+        velocity:
+            type : linear
+            v_inner : 1.1e4 km/s
+            v_outer : 20000 km/s
+
+
+        density:
+            #showing different configuration options separated by comments
+            #simple uniform:
+            #---------------
+            #type : uniform
+            #value : 1e-40 g/cm^3
+            #---------------
+
+            #branch85_w7 - fit of seven order polynomial to W7 (like Branch 85):
+            #---------------
+            type : branch85_w7
+
+            # default, no need to change!
+            #time_0 : 19.9999584 s
+            # default, no need to change!
+            #density_coefficient : 3e29
+            #---------------
+
+
+    abundances:
+
+        O: 0.19
+        Mg: 0.03
+        Si: 0.52
+        S: 0.19
+        Ar: 0.04
+        Ca: 0.03
+        Cu: 0.1
+        Zn: 0.1
+
+plasma:
+    initial_t_inner:
+        property_type: quantity
+        default: None
+        mandatory: False
+        help: initial temperature of the black body at the inner boundary
+
+    initial_t_rads:
+        property_type: quantity
+        default: 10000 K
+        mandatory: False
+        help: initial temperature for all cells
+
+
+    disable_electron_scattering:
+        property_type: bool
+        default: False
+        mandatory: False
+        help: option to disable electron scattering (unphysical)
+
+    ionization:
+        property_type: string
+        default: None # is this true?? default lte???
+        allowed_values: ['lte', 'nebular']
+        mandatory: True
+        help: ionization treatment
+
+
+    excitation:
+        property_type: string
+        default: None # is this true?? default lte???
+        allowed_values: ['lte', 'dilute-lte']
+        mandatory: True
+        help: excitation treatment
+
+    radiative_rates_type:
+        property_type: string
+        default: None # is this true?? default lte???
+        allowed_values: ['dilute-blackbody', 'detailed']
+        mandatory: True
+        help: treatment of radiative rates
+
+
+    line_interaction_type:
+        property_type: string
+        default: None # is this true?? default lte???
+        allowed_values: ['scatter', 'downbranch']
+        mandatory: True
+        help: line interaction treatments treatment
+
+
+montecarlo:
+    seed:
+        property_type: int
+        default: 23111963 # is this true?? default lte???
+        allowed_values: >0
+        mandatory: False
+        help: random number generator seed
+
+
+    no_of_packets:
+        property_type: float_int
+        allowed_values: >0
+        mandatory: True
+        help: number of montecarlo packets for each run of simulation
+
+    iterations:
+        property_type: float_int
+        allowed_values: >0
+        mandatory: True
+        help: maximum number of iterations
+
+
+    black_body_sampling:
+        range:
+          property_type: quantity_range
+          #TBD
+        #da waere ein range keyword ganz gut
+
+
+        #currently it's like this
+        start: 1 angstrom
+        end: 1000000 angstrom
+        samples: 1.e+6
+
+        #maybe it should work like this:
+        black_body_sampling: 1-1000000 angstrom, 1.e+6
+
+    last_no_of_packets:
+        property_type: float_int
+        allowed_values: >0
+        mandatory: True
+        help: number of montecarlo packets for each run of simulation
+
+    no_of_virtual_packets:
+        property_type: float_int
+        default: None
+        allowed_values: >0
+        mandatory: True
+        help: number of virtual packets spawned at each montecarlo packet interaction
+
+  #discuss sections like this
+    convergence_criteria:
+        type: specific
+        damping_constant: 1.0
+        threshold: 0.05
+        fraction: 0.8
+        hold: 3
+        t_inner:
+            damping_constant: 1.0
+
+
+spectrum: # again quantity range? 500-20000 angstrom, 10000
+    start : 500 angstrom
+    end : 20000 angstrom
+    bins : 10000
