@@ -121,7 +121,7 @@ plasma:
 
     line_interaction_type:
         property_type: string
-        default: None # is this true?? default lte???
+        default: None # is this true?? default scatter???
         allowed_values: ['scatter', 'downbranch']
         mandatory: True
         help: line interaction treatments treatment
@@ -130,7 +130,7 @@ plasma:
 montecarlo:
     seed:
         property_type: int
-        default: 23111963 # is this true?? default lte???
+        default: 23111963
         allowed_values: >0
         mandatory: False
         help: random number generator seed
@@ -153,7 +153,7 @@ montecarlo:
         range:
           property_type: quantity_range
           #TBD
-        #da waere ein range keyword ganz gut
+
 
 
         #currently it's like this
