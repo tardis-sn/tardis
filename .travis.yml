@@ -28,4 +28,4 @@ install:
 
 
 script:
-   - python setup.py $SETUP_CMD
+   - python setup.py test --skip-docs
