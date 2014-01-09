@@ -126,6 +126,13 @@ plasma:
         mandatory: True
         help: line interaction treatments treatment
 
+    w_epsilon:
+        property_type: float
+        default: 1e-10
+        allowed_values: >= 0
+        mandatory: False
+        help: small default value for W (add more info)
+
 
 montecarlo:
     seed:
@@ -155,7 +162,6 @@ montecarlo:
           #TBD
 
 
-
         #currently it's like this
         start: 1 angstrom
         end: 1000000 angstrom
@@ -177,6 +183,8 @@ montecarlo:
         mandatory: True
         help: number of virtual packets spawned at each montecarlo packet interaction
 
+    inner_boundary_albedo:
+      property_type: string
   #discuss sections like this
     convergence_criteria:
         type: specific
@@ -186,6 +194,8 @@ montecarlo:
         hold: 3
         t_inner:
             damping_constant: 1.0
+
+
 
 
 spectrum: # again quantity range? 500-20000 angstrom, 10000
