@@ -6,7 +6,7 @@ python:
 
 env:
     # try all python versions with the latest stable numpy and astropy
-    - NUMPY_VERSION=1.7.1 SETUP_CMD='build'
+    - NUMPY_VERSION=1.7.1 SETUP_CMD='test'
 
 
 before_install:
