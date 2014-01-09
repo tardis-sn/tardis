@@ -3,7 +3,7 @@ import numpy as np
 from astropy import constants, table, units
 from numpy import testing
 import pytest
-from tardis import plasma, atomic
+from tardis import plasma_array, atomic
 
 """
 atom_model = atomic.AtomData.from_hdf5()
