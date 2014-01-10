@@ -1,8 +1,14 @@
 # tests for the config reader module
 
-from tardis import config_reader, atomic
+from tardis import atomic
+from tardis.io import config_reader
 from astropy import units as u
+import os
 import pytest
+
+def data_path(filename):
+    data_dir = os.path.dirname(__file__)
+    return os.path.join(data_dir, filename)
 
 
 
@@ -71,3 +77,9 @@ def test_species_string_to_species():
 
     for species_string, species_tuple in data:
         yield _test_species_string_to_species_tuple, species_string, species_tuple
+
+class TestParsePaper1Config:
+
+    def test_general_parse(self):
+        #general parsing of the paper config
+        self.config = config_reader.TARDISConfiguration.from_yaml(data_path('paper1_tardis_configv1.yml'))

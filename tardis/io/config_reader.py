@@ -15,7 +15,7 @@ import pandas as pd
 import yaml
 
 import tardis.util
-from tardis import atomic, io
+from tardis import atomic
 
 
 
