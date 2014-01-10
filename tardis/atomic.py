@@ -26,6 +26,16 @@ logger = logging.getLogger(__name__)
 
 default_atom_h5_path = os.path.join(os.path.dirname(__file__), 'data', 'atom_data.h5')
 
+def data_path(fname):
+    data_dir = os.path.join(os.path.dirname(__file__), 'data')
+    return os.path.join(data_dir, fname)
+
+atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
+                                    names=['atomic_number', 'symbol'])
+
+symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'], atomic_symbols_data['atomic_number']))
+atomic_number2symbol = OrderedDict(atomic_symbols_data)
+
 
 @PendingDeprecationWarning
 def read_atomic_data(fname=None):

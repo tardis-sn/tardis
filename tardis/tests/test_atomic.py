@@ -20,3 +20,9 @@ def test_atom_levels():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     with pytest.raises(Exception):
         raise Exception('test the atom_data thoroughly')
+
+def test_atomic_symbol():
+    assert atomic.atomic_number2symbol[14] == 'Si'
+
+def test_atomic_symbol_reverse():
+    assert atomic.symbol2atomic_number['Si'] == 14
