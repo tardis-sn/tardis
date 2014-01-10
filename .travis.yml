@@ -2,7 +2,9 @@ language: python
 
 python:
     - 2.7
-    - 3.3
+
+virtualenv:
+  system_site_packages: true
 
 env:
     # try all python versions with the latest stable numpy and astropy
@@ -17,10 +19,10 @@ before_install:
 
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
-   - pip install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
-   - pip install --upgrade Cython --use-mirrors
-   - pip install --upgrade pandas --use-mirrors
-   - pip install --upgrade scipy --use-mirrors
+   #- pip install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
+   #- pip install --upgrade Cython --use-mirrors
+   #- pip install --upgrade pandas --use-mirrors
+   #- pip install --upgrade scipy --use-mirrors
    - pip install astropy --use-mirrors
    #- pip -q install --upgrade h5py --use-mirrors
    - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
