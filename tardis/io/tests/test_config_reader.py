@@ -5,6 +5,7 @@ from tardis.io import config_reader
 from astropy import units as u
 import os
 import pytest
+import yaml
 
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
@@ -84,4 +85,11 @@ class TestParsePaper1Config:
         #general parsing of the paper config
         self.config = config_reader.TARDISConfiguration.from_yaml(data_path('paper1_tardis_configv1.yml'),
                                                                   test_parser=True)
+        self.yaml_data = yaml.parse(data_path('paper1_tardis_configv1.yml'))
 
+        1/0
+
+    def test_abundances(self):
+        oxygen_abundance = self.yaml_data['model']['abundance']['O']
+
+        assert True
