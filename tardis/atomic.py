@@ -33,6 +33,7 @@ def data_path(fname):
 atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
                                     names=['atomic_number', 'symbol'],
                                     dtype=[int, str])
+
 #symbol2atomic_number = OrderedDict()
 #atomic_number2symbol
 
