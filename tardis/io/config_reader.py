@@ -92,29 +92,30 @@ def parse_quantity(quantity_string):
 
     return q
 
-def element_symbol2atomic_number(element_string, atom_data):
+
+def element_symbol2atomic_number(element_string):
     reformatted_element_string = reformat_element_symbol(element_string)
-    if reformatted_element_string not in atom_data.symbol2atomic_number:
+    if reformatted_element_string not in atomic.symbol2atomic_number:
         raise TARDISMalformedElementSymbolError(element_string)
-    return atom_data.symbol2atomic_number[reformatted_element_string]
+    return atomic.symbol2atomic_number[reformatted_element_string]
 
 
-def species_tuple_to_string(species_tuple, atom_data, roman_numerals=True):
+def species_tuple_to_string(species_tuple, roman_numerals=True):
     atomic_number, ion_number = species_tuple
-    element_symbol = atom_data.atomic_number2symbol[atomic_number]
+    element_symbol = atomic.atomic_number2symbol[atomic_number]
     if roman_numerals:
         roman_ion_number = tardis.util.int_to_roman(ion_number+1)
         return '%s %s' % (element_symbol, roman_ion_number)
     else:
         return '%s %d' % (element_symbol, ion_number)
 
-def species_string_to_tuple(species_string, atom_data):
+def species_string_to_tuple(species_string):
     try:
         element_string, ion_number_string = species_string.split()
     except ValueError:
         raise TARDISMalformedElementSymbolError(species_string)
 
-    atomic_number = element_symbol2atomic_number(element_string, atom_data)
+    atomic_number = element_symbol2atomic_number(element_string)
 
     try:
         ion_number = tardis.util.roman_to_int(ion_number_string.strip())
@@ -148,7 +149,7 @@ def reformat_element_symbol(element_string):
     return element_string[0].upper() + element_string[1:].lower()
 
 def parse_abundance_dict_to_dataframe(abundance_dict, atom_data):
-    atomic_number_dict = dict([(element_symbol2atomic_number(symbol, atom_data), abundance_dict[symbol])
+    atomic_number_dict = dict([(element_symbol2atomic_number(symbol), abundance_dict[symbol])
                                    for symbol in abundance_dict])
     atomic_numbers = sorted(atomic_number_dict.keys())
 
@@ -837,7 +838,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
             for element_symbol_string in abundances_section:
 
-                z = element_symbol2atomic_number(element_symbol_string, atom_data)
+                z = element_symbol2atomic_number(element_symbol_string)
 
                 abundances.ix[z] = float(abundances_section[element_symbol_string])
 
@@ -918,7 +919,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             if 'species' in nlte_section:
                 nlte_species_list = nlte_section.pop('species')
                 for species_string in nlte_species_list:
-                    nlte_species.append(species_string_to_tuple(species_string, atom_data))
+                    nlte_species.append(species_string_to_tuple(species_string))
 
                 nlte_config_dict['species'] = nlte_species
                 nlte_config_dict['species_string'] = nlte_species_list
