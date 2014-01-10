@@ -8,7 +8,7 @@ from astropy import constants
 import pandas as pd
 from scipy import interpolate
 
-from tardis import macro_atom, config_reader
+from tardis import macro_atom, io
 
 
 logger = logging.getLogger(__name__)
@@ -115,7 +115,7 @@ class BasePlasmaArray(object):
         `Baseplasma` object
         """
 
-        abundance_series = config_reader.parse_abundance_dict_to_dataframe(abundance_dict, atom_data)
+        abundance_series = io.parse_abundance_dict_to_dataframe(abundance_dict, atom_data)
 
         abundances = pd.DataFrame({0:abundance_series})
 

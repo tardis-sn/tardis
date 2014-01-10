@@ -15,13 +15,15 @@ import pandas as pd
 import yaml
 
 import tardis.util
-from tardis import atomic
+from tardis import atomic, io
+
+
 
 pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
 
-data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), 'data'))
+data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
 
 #File parsers for different file formats:
 
@@ -33,6 +35,9 @@ inv_cr48_efolding_time = 1 / (1.29602 * u.day)
 inv_v48_efolding_time = 1 / (23.0442 * u.day)
 inv_fe52_efolding_time = 1 / (0.497429 * u.day)
 inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
+
+
+
 
 class TARDISConfigurationError(ValueError):
     pass
@@ -348,7 +353,7 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
 
 
 
-
+    #def parser_simple_ascii_model
 
 
 
@@ -776,17 +781,25 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         if 'structure' in model_section:
         #Trying to figure out the structure (number of shells)
+
             structure_section = model_section.pop('structure')
 
-            no_of_shells = structure_section['no_of_shells']
-            if v_inner is not None and v_outer is not None or mean_densities is not None:
-                logger.warn('Overwriting the v_inner, v_outer, mean_densities with values given in the structure section - ignoring previous file inputs')
-            v_inner, v_outer = parse_velocity_section(structure_section['velocity'], no_of_shells)
-            mean_densities = parse_density_section(structure_section['density'], no_of_shells, v_inner, v_outer,
-                                                   config_dict['supernova']['time_explosion'])
+            try:
+                structure_section_type = structure_section['type']
+            except KeyError:
+                raise TARDISConfigurationError('Structure section requires "type" keyword')
 
-        if v_inner is None or v_outer is None or mean_densities is None:
-            raise TARDISConfigurationError('No density profile or structure specified in the config file.')
+
+            if structure_section_type == 'specific':
+                no_of_shells = structure_section['no_of_shells']
+                if v_inner is not None and v_outer is not None or mean_densities is not None:
+                    logger.warn('Overwriting the v_inner, v_outer, mean_densities with values given in the structure section - ignoring previous file inputs')
+                v_inner, v_outer = parse_velocity_section(structure_section['velocity'], no_of_shells)
+                mean_densities = parse_density_section(structure_section['density'], no_of_shells, v_inner, v_outer,
+                                                       config_dict['supernova']['time_explosion'])
+
+            if v_inner is None or v_outer is None or mean_densities is None:
+                raise TARDISConfigurationError('No density profile or structure specified in the config file.')
 
         r_inner = config_dict['supernova']['time_explosion'] * v_inner
         r_outer = config_dict['supernova']['time_explosion'] * v_outer
