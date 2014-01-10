@@ -749,10 +749,11 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
           atom_data = None
         elif 'atom_data' in raw_dict.keys():
             atom_data_fname = raw_dict['atom_data']
+            config_dict['atom_data_fname'] = atom_data_fname
         else:
             raise TARDISConfigurationError('No atom_data key found in config or command line')
 
-        config_dict['atom_data_fname'] = atom_data_fname
+
 
         if atom_data is None and not test_parser:
             logger.info('Reading Atomic Data from %s', atom_data_fname)

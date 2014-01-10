@@ -9,6 +9,7 @@ atom_data: kurucz_atom_pure_simple.h5
 model:
 
     structure:
+        type: specific
         no_of_shells : 20
 
         velocity:
