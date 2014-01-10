@@ -707,7 +707,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
     """
 
     @classmethod
-    def from_yaml(cls, fname):
+    def from_yaml(cls, fname, test_parser=False):
         try:
             yaml_dict = yaml.load(file(fname))
         except IOError as e:
@@ -719,10 +719,10 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         if tardis_config_version != 'v1.0':
             raise TARDISConfigurationError('Currently only tardis_config_version v1.0 supported')
 
-        return cls.from_config_dict(yaml_dict)
+        return cls.from_config_dict(yaml_dict, test_parser=test_parser)
 
     @classmethod
-    def from_config_dict(cls, raw_dict, atom_data=None):
+    def from_config_dict(cls, raw_dict, atom_data=None, test_parser=False):
         """
         Reading in from a YAML file and commandline args. Preferring commandline args when given
 
@@ -745,15 +745,16 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         raw_dict = copy.deepcopy(raw_dict)
 
         #First let's see if we can find an atom_db anywhere:
-
-        if 'atom_data' in raw_dict.keys():
+        if test_parser:
+          atom_data = None
+        elif 'atom_data' in raw_dict.keys():
             atom_data_fname = raw_dict['atom_data']
         else:
             raise TARDISConfigurationError('No atom_data key found in config or command line')
 
         config_dict['atom_data_fname'] = atom_data_fname
 
-        if atom_data is None:
+        if atom_data is None and not test_parser:
             logger.info('Reading Atomic Data from %s', atom_data_fname)
             atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
         else:
@@ -1129,10 +1130,12 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         super(TARDISConfiguration, self).__init__(config_dict)
         self.atom_data = atom_data
         selected_atomic_numbers = self.abundances.index
-        self.number_densities = (self.abundances * self.structure.mean_densities.to('g/cm^3').value)
-        self.number_densities = self.number_densities.div(self.atom_data.atom_data.mass.ix[selected_atomic_numbers],
-                                                          axis=0)
-
+        if atom_data is not None:
+            self.number_densities = (self.abundances * self.structure.mean_densities.to('g/cm^3').value)
+            self.number_densities = self.number_densities.div(self.atom_data.atom_data.mass.ix[selected_atomic_numbers],
+                                                              axis=0)
+        else:
+            logger.critical('atom_data is None, only sensible for testing the parser')
 
 
 

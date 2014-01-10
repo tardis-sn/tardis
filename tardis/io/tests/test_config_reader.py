@@ -82,4 +82,5 @@ class TestParsePaper1Config:
 
     def test_general_parse(self):
         #general parsing of the paper config
-        self.config = config_reader.TARDISConfiguration.from_yaml(data_path('paper1_tardis_configv1.yml'))
+        self.config = config_reader.TARDISConfiguration.from_yaml(data_path('paper1_tardis_configv1.yml'),
+                                                                  test_parser=True)
