@@ -21,7 +21,7 @@ install:
    - export PYTHONIOENCODING=UTF8 # just in case
    #- pip install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
    - pip install -q --upgrade Cython --use-mirrors
-   #- pip install --upgrade pandas --use-mirrors
+   - pip install --upgrade pandas --use-mirrors
    #- pip install --upgrade scipy --use-mirrors
    - pip install -q astropy --use-mirrors
    #- pip -q install --upgrade h5py --use-mirrors
