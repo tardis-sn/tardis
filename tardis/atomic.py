@@ -31,11 +31,10 @@ def data_path(fname):
     return os.path.join(data_dir, fname)
 
 atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
-                                    names=['atomic_number', 'symbol'],
-                                    dtype=[int, str])
+                                    names=['atomic_number', 'symbol'])
 
-#symbol2atomic_number = OrderedDict()
-#atomic_number2symbol
+symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'], atomic_symbols_data['atomic_number']))
+atomic_number2symbol = OrderedDict(atomic_symbols_data)
 
 
 @PendingDeprecationWarning
