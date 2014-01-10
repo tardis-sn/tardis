@@ -19,10 +19,6 @@ model:
         density:
             type : branch85_w7
 
-
-
-
-
     abundances:
         O: 0.19
         Mg: 0.03

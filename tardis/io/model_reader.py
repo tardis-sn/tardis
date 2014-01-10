@@ -2,7 +2,7 @@
 from numpy import recfromtxt, genfromtxt
 import pandas as pd
 
-from tardis import config_reader
+from tardis.io import config_reader
 
 def read_simple_ascii_density(fname):
     """
