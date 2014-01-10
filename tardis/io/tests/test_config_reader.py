@@ -8,7 +8,7 @@ import pytest
 
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
-    return os.path.join(data_dir, filename)
+    return os.path.join(data_dir, 'data', filename)
 
 
 
@@ -54,7 +54,7 @@ def test_element_symbol_reformatter():
 def test_element_symbol2atomic_number():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_element_symbol2atomic_number(element_string, atomic_number):
-        assert config_reader.element_symbol2atomic_number(element_string, atom_data) == atomic_number
+        assert config_reader.element_symbol2atomic_number(element_string) == atomic_number
 
     data = [('sI', 14),
             ('ca', 20),
@@ -68,7 +68,7 @@ def test_element_symbol2atomic_number():
 def test_species_string_to_species():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_species_string_to_species_tuple(species_string, species_tuple):
-        assert config_reader.species_string_to_tuple(species_string, atom_data) == species_tuple
+        assert config_reader.species_string_to_tuple(species_string) == species_tuple
 
     data = [('si ii', (14, 1) ),
             ('si 2', (14, 1)),
@@ -84,3 +84,4 @@ class TestParsePaper1Config:
         #general parsing of the paper config
         self.config = config_reader.TARDISConfiguration.from_yaml(data_path('paper1_tardis_configv1.yml'),
                                                                   test_parser=True)
+
