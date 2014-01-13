@@ -34,35 +34,91 @@ atom_data:
     mandatory: True
     help: file name (with path) to atomic data HDF5 file
 
+model:
+  structure:
+    type: file
+#    filename: ksdhfkj
+#    filetype: ksdhfkjhsd
+
+    type: specific
+
+    velocity:
+      inner; blah
+      outer blah
+      bins blah
+
+    density:
+      type: uniform
+      value: 9340293840
 
 model:
     structure:
-        no_of_shells : 20
+        property_type : container-property
+        type:
+          containers: ['file', 'specific']
+
+        file_property:
+          filename:
+            property_type: string
+            default: None
+            mandatory: True
+            help: file name (with path) to atomic data HDF5 file
+
+          filetype:
+            property_type: string
+            allowed_values: ['artis', 'tardis_ascii']
+            default: None
+            mandatory: True
+            help: file type
+
+          v_inner:
+            property_type: quantity
+            default: None
+            mandatory: True
+
+          v_outer:
+            property_type: quantity
+            default: None
+            mandatory: True
 
 
-        velocity:
-            type : linear
-            v_inner : 1.1e4 km/s
-            v_outer : 20000 km/s
+        specific_property:
+
+          velocity:
+              v_inner : 1.1e4 km/s
+              v_outer : 20000 km/s
+              bins: 20
 
 
-        density:
-            #showing different configuration options separated by comments
-            #simple uniform:
-            #---------------
-            #type : uniform
-            #value : 1e-40 g/cm^3
-            #---------------
+          density:
+              property_type: container-property
+              type:
+                containers: ['branch85_w7', 'uniform']
 
-            #branch85_w7 - fit of seven order polynomial to W7 (like Branch 85):
-            #---------------
-            type : branch85_w7
+              branch85_w7_property:
+                #hmm schwierig
 
-            # default, no need to change!
-            #time_0 : 19.9999584 s
-            # default, no need to change!
-            #density_coefficient : 3e29
-            #---------------
+              uniform_property:
+                value:
+                  property_type: quantity
+
+
+              #showing different configuration options separated by comments
+              #simple uniform:
+              #---------------
+              #type : uniform
+              #value : 1e-40 g/cm^3
+              #---------------
+
+              #branch85_w7 - fit of seven order polynomial to W7 (like Branch 85):
+              #---------------
+              type : branch85_w7
+
+              # default, no need to change!
+              #time_0 : 19.9999584 s
+              # default, no need to change!
+              #density_coefficient : 3e29
+              #---------------
 
 
     abundances:
