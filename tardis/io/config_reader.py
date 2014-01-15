@@ -41,6 +41,36 @@ inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
 class ConfigurationError(ValueError):
     pass
 
+def parse_quantity_linspace(quantity_linspace_dictionary):
+    """
+    parse a dictionary of the following kind
+    {'start': 5000 km/s,
+     'stop': 10000 km/s,
+     'num': 1000}
+
+    Parameters:
+    -----------
+
+    quantity_linspace_dictionary: ~dict
+
+    Returns:
+    --------
+
+    ~np.array
+
+    """
+
+    start = parse_quantity(quantity_linspace_dictionary['start'])
+    stop = parse_quantity(quantity_linspace_dictionary['stop'])
+
+    try:
+        stop = stop.to(start.unit)
+    except u.UnitsError:
+        raise ConfigurationError('"start" and "stop" keyword must be compatible quantities')
+
+    num = quantity_linspace_dictionary['num']
+
+    return np.linspace(start.value, stop.value, num=num) * start.unit
 
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     spectral_bin_boundary_1 = parse_quantity(spectral_bin_boundary_1).to('Angstrom', u.spectral())
