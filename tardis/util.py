@@ -6,6 +6,8 @@ import os
 import yaml
 
 import logging
+import atomic
+from config_reader import MalformedElementSymbolError, element_symbol2atomic_number, MalformedSpeciesError, ConfigurationError
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -288,3 +290,34 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     lastvals = y[-1] + np.abs(y[-half_window-1:-1][::-1] - y[-1])
     y = np.concatenate((firstvals, y, lastvals))
     return np.convolve( m[::-1], y, mode='valid')
+
+
+def species_tuple_to_string(species_tuple, roman_numerals=True):
+    atomic_number, ion_number = species_tuple
+    element_symbol = atomic.atomic_number2symbol[atomic_number]
+    if roman_numerals:
+        roman_ion_number = int_to_roman(ion_number+1)
+        return '%s %s' % (element_symbol, roman_ion_number)
+    else:
+        return '%s %d' % (element_symbol, ion_number)
+
+
+def species_string_to_tuple(species_string):
+    try:
+        element_string, ion_number_string = species_string.split()
+    except ValueError:
+        raise MalformedElementSymbolError(species_string)
+
+    atomic_number = element_symbol2atomic_number(element_string)
+
+    try:
+        ion_number = roman_to_int(ion_number_string.strip())
+    except ValueError:
+        try:
+            ion_number = np.int64(ion_number_string)
+        except ValueError:
+            raise MalformedSpeciesError
+    if ion_number > atomic_number:
+        raise ConfigurationError('Species given does not exist: ion number > atomic number')
+
+    return atomic_number, ion_number-1
