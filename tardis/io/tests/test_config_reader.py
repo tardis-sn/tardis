@@ -21,11 +21,11 @@ def test_quantity_parser_normal():
     assert q1.unit == u.Unit('km/s')
 
 def test_quantity_parser_malformed_quantity1():
-    with pytest.raises(config_reader.TARDISConfigurationError):
+    with pytest.raises(config_reader.ConfigurationError):
         q1 = config_reader.parse_quantity('abcd')
 
 def test_quantity_parser_malformed_quantity2():
-    with pytest.raises(config_reader.TARDISMalformedQuantityError):
+    with pytest.raises(config_reader.MalformedQuantityError):
         q1 = config_reader.parse_quantity('5 abcd')
 
 

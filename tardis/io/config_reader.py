@@ -39,10 +39,10 @@ inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
 
 
 
-class TARDISConfigurationError(ValueError):
+class ConfigurationError(ValueError):
     pass
 
-class TARDISMalformedQuantityError(TARDISConfigurationError):
+class MalformedQuantityError(ConfigurationError):
 
     def __init__(self, malformed_quantity_string):
         self.malformed_quantity_string = malformed_quantity_string
@@ -51,7 +51,7 @@ class TARDISMalformedQuantityError(TARDISConfigurationError):
         return 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' % self.malformed_quantity_string
 
 
-class TARDISMalformedElementSymbolError(TARDISConfigurationError):
+class MalformedElementSymbolError(ConfigurationError):
 
     def __init__(self, malformed_element_symbol):
         self.malformed_element_symbol = malformed_element_symbol
@@ -60,7 +60,7 @@ class TARDISMalformedElementSymbolError(TARDISConfigurationError):
         return 'Expecting an atomic symbol (e.g. Fe) - supplied %s' % self.malformed_element_symbol
 
 
-class TARDISMalformedSpeciesError(TARDISConfigurationError):
+class MalformedSpeciesError(ConfigurationError):
 
     def __init__(self, malformed_element_symbol):
         self.malformed_element_symbol = malformed_element_symbol
@@ -69,26 +69,25 @@ class TARDISMalformedSpeciesError(TARDISConfigurationError):
         return 'Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") - supplied %s' % self.malformed_element_symbol
 
 
-
 def parse_quantity(quantity_string):
 
     if not isinstance(quantity_string, basestring):
-        raise TARDISMalformedQuantityError(quantity_string)
+        raise MalformedQuantityError(quantity_string)
 
     try:
         value_string, unit_string = quantity_string.split()
     except ValueError:
-        raise TARDISMalformedQuantityError(quantity_string)
+        raise MalformedQuantityError(quantity_string)
 
     try:
         value = float(value_string)
     except ValueError:
-        raise TARDISMalformedQuantityError(quantity_string)
+        raise MalformedQuantityError(quantity_string)
 
     try:
         q = u.Quantity(value, unit_string)
     except ValueError:
-        raise TARDISMalformedQuantityError(quantity_string)
+        raise MalformedQuantityError(quantity_string)
 
     return q
 
@@ -96,7 +95,7 @@ def parse_quantity(quantity_string):
 def element_symbol2atomic_number(element_string):
     reformatted_element_string = reformat_element_symbol(element_string)
     if reformatted_element_string not in atomic.symbol2atomic_number:
-        raise TARDISMalformedElementSymbolError(element_string)
+        raise MalformedElementSymbolError(element_string)
     return atomic.symbol2atomic_number[reformatted_element_string]
 
 
@@ -113,7 +112,7 @@ def species_string_to_tuple(species_string):
     try:
         element_string, ion_number_string = species_string.split()
     except ValueError:
-        raise TARDISMalformedElementSymbolError(species_string)
+        raise MalformedElementSymbolError(species_string)
 
     atomic_number = element_symbol2atomic_number(element_string)
 
@@ -123,9 +122,9 @@ def species_string_to_tuple(species_string):
         try:
             ion_number = np.int64(ion_number_string)
         except ValueError:
-            raise TARDISMalformedSpeciesError
+            raise MalformedSpeciesError
     if ion_number > atomic_number:
-        raise TARDISConfigurationError('Species given does not exist: ion number > atomic number')
+        raise ConfigurationError('Species given does not exist: ion number > atomic number')
 
     return atomic_number, ion_number-1
 
@@ -243,7 +242,7 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
         if len(mean_densities) == no_of_shells:
             logger.debug('Verified ARTIS model structure file %s (no_of_shells=length of dataset)', structure_fname)
         else:
-            raise TARDISConfigurationError(
+            raise ConfigurationError(
                 'Error in ARTIS file %s - Number of shells not the same as dataset length' % structure_fname)
 
         v_inner = velocities[:-1]
@@ -366,7 +365,7 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
     try:
         parser = model_file_section_parser[model_setup_file_dict['type']]
     except KeyError:
-        raise TARDISConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
+        raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
                                 (model_file_section_parser.keys(), model_file_section_parser['type']))
 
 
@@ -399,7 +398,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         if len(mean_densities) == no_of_shells:
             logger.debug('Verified ARTIS file %s (no_of_shells=length of dataset)', density_file)
         else:
-            raise TARDISConfigurationError(
+            raise ConfigurationError(
                 'Error in ARTIS file %s - Number of shells not the same as dataset length' % density_file)
 
         min_shell = 1
@@ -437,7 +436,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
     try:
         parser = density_file_parser[density_file_dict['type']]
     except KeyError:
-        raise TARDISConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
+        raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
                                 (density_file_parser.keys(), density_file_dict['type']))
 
     return parser(density_file_dict, time_explosion)
@@ -457,7 +456,7 @@ def parse_velocity_section(velocity_dict, no_of_shells):
     try:
         parser = velocity_parser[velocity_dict['type']]
     except KeyError:
-        raise TARDISConfigurationError('In velocity section only types %s are allowed (supplied %s) ' %
+        raise ConfigurationError('In velocity section only types %s are allowed (supplied %s) ' %
                                 (velocity_parser.keys(), velocity_dict['type']))
     return parser(velocity_dict, no_of_shells)
 
@@ -528,7 +527,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
     try:
         parser = density_parser[density_dict['type']]
     except KeyError:
-        raise TARDISConfigurationError('In density section only types %s are allowed (supplied %s) ' %
+        raise ConfigurationError('In density section only types %s are allowed (supplied %s) ' %
                                 (density_parser.keys(), density_dict['type']))
     return parser(density_dict, no_of_shells, v_inner, v_outer, time_explosion)
 
@@ -554,7 +553,7 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
     try:
         parser = abundance_file_parser[abundance_file_dict['type']]
     except KeyError:
-        raise TARDISConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
+        raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
                                 (abundance_file_parser.keys(), abundance_file_dict['type']))
 
     return parser(abundance_file_dict, abundances, min_shell, max_shell)
@@ -718,7 +717,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         tardis_config_version = yaml_dict.get('tardis_config_version', None)
         if tardis_config_version != 'v1.0':
-            raise TARDISConfigurationError('Currently only tardis_config_version v1.0 supported')
+            raise ConfigurationError('Currently only tardis_config_version v1.0 supported')
 
         return cls.from_config_dict(yaml_dict, test_parser=test_parser)
 
@@ -752,7 +751,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             atom_data_fname = raw_dict['atom_data']
             config_dict['atom_data_fname'] = atom_data_fname
         else:
-            raise TARDISConfigurationError('No atom_data key found in config or command line')
+            raise ConfigurationError('No atom_data key found in config or command line')
 
 
 
@@ -790,7 +789,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             try:
                 structure_section_type = structure_section['type']
             except KeyError:
-                raise TARDISConfigurationError('Structure section requires "type" keyword')
+                raise ConfigurationError('Structure section requires "type" keyword')
 
 
             if structure_section_type == 'specific':
@@ -802,7 +801,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                                                        config_dict['supernova']['time_explosion'])
 
             if v_inner is None or v_outer is None or mean_densities is None:
-                raise TARDISConfigurationError('No density profile or structure specified in the config file.')
+                raise ConfigurationError('No density profile or structure specified in the config file.')
 
         r_inner = config_dict['supernova']['time_explosion'] * v_inner
         r_outer = config_dict['supernova']['time_explosion'] * v_outer
@@ -862,20 +861,20 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         plasma_config_dict = {}
 
         if plasma_section['ionization'] not in ('nebular', 'lte'):
-            raise TARDISConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
+            raise ConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
         plasma_config_dict['ionization'] = plasma_section['ionization']
 
 
         if plasma_section['excitation'] not in ('dilute-lte', 'lte'):
-            raise TARDISConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
+            raise ConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
         plasma_config_dict['excitation'] = plasma_section['excitation']
 
         if plasma_section['radiative_rates_type'] not in ('dilute-blackbody', 'detailed'):
-            raise TARDISConfigurationError('radiative_rates_types must be either "dilute-blackbody" or "detailed"')
+            raise ConfigurationError('radiative_rates_types must be either "dilute-blackbody" or "detailed"')
         plasma_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
 
         if plasma_section['line_interaction_type'] not in ('scatter', 'downbranch', 'macroatom'):
-            raise TARDISConfigurationError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
+            raise ConfigurationError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
         plasma_config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
         if 'w_epsilon' in plasma_section:
