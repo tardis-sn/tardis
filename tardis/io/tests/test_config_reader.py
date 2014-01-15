@@ -8,6 +8,8 @@ import pytest
 import yaml
 
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
+from util import species_string_to_tuple
+
 
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
@@ -71,7 +73,7 @@ def test_element_symbol2atomic_number():
 def test_species_string_to_species():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_species_string_to_species_tuple(species_string, species_tuple):
-        assert config_reader.species_string_to_tuple(species_string) == species_tuple
+        assert species_string_to_tuple(species_string) == species_tuple
 
     data = [('si ii', (14, 1) ),
             ('si 2', (14, 1)),

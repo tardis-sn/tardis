@@ -14,9 +14,8 @@ import h5py
 import pandas as pd
 import yaml
 
-import tardis.util
 from tardis import atomic
-
+from util import species_string_to_tuple
 
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -99,34 +98,9 @@ def element_symbol2atomic_number(element_string):
     return atomic.symbol2atomic_number[reformatted_element_string]
 
 
-def species_tuple_to_string(species_tuple, roman_numerals=True):
-    atomic_number, ion_number = species_tuple
-    element_symbol = atomic.atomic_number2symbol[atomic_number]
-    if roman_numerals:
-        roman_ion_number = tardis.util.int_to_roman(ion_number+1)
-        return '%s %s' % (element_symbol, roman_ion_number)
-    else:
-        return '%s %d' % (element_symbol, ion_number)
 
-def species_string_to_tuple(species_string):
-    try:
-        element_string, ion_number_string = species_string.split()
-    except ValueError:
-        raise MalformedElementSymbolError(species_string)
 
-    atomic_number = element_symbol2atomic_number(element_string)
 
-    try:
-        ion_number = tardis.util.roman_to_int(ion_number_string.strip())
-    except ValueError:
-        try:
-            ion_number = np.int64(ion_number_string)
-        except ValueError:
-            raise MalformedSpeciesError
-    if ion_number > atomic_number:
-        raise ConfigurationError('Species given does not exist: ion number > atomic number')
-
-    return atomic_number, ion_number-1
 
 
 
@@ -146,22 +120,6 @@ def reformat_element_symbol(element_string):
     """
 
     return element_string[0].upper() + element_string[1:].lower()
-
-def parse_abundance_dict_to_dataframe(abundance_dict, atom_data):
-    atomic_number_dict = dict([(element_symbol2atomic_number(symbol), abundance_dict[symbol])
-                                   for symbol in abundance_dict])
-    atomic_numbers = sorted(atomic_number_dict.keys())
-
-    abundances = pd.Series([atomic_number_dict[z] for z in atomic_numbers], index=atomic_numbers)
-
-    abundance_norm = abundances.sum()
-    if abs(abundance_norm - 1) > 1e-12:
-        logger.warn('Given abundances don\'t add up to 1 (value = %g) - normalizing', abundance_norm)
-        abundances /= abundance_norm
-
-    return abundances
-
-
 
 
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
