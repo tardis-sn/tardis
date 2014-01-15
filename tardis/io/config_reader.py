@@ -41,7 +41,7 @@ inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
 class ConfigurationError(ValueError):
     pass
 
-def parse_quantity_linspace(quantity_linspace_dictionary):
+def parse_quantity_linspace(quantity_linspace_dictionary, add_one=True):
     """
     parse a dictionary of the following kind
     {'start': 5000 km/s,
@@ -52,6 +52,8 @@ def parse_quantity_linspace(quantity_linspace_dictionary):
     -----------
 
     quantity_linspace_dictionary: ~dict
+
+    add_one: boolean, default: True
 
     Returns:
     --------
@@ -69,6 +71,8 @@ def parse_quantity_linspace(quantity_linspace_dictionary):
         raise ConfigurationError('"start" and "stop" keyword must be compatible quantities')
 
     num = quantity_linspace_dictionary['num']
+    if add_one:
+        num += 1
 
     return np.linspace(start.value, stop.value, num=num) * start.unit
 
@@ -84,6 +88,27 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
 
 
 def calculate_density_after_time(densities, time_0, time_explosion):
+    """
+    scale the density from an initial time of the model to the time of the explosion by ^-3
+
+    Parameters:
+    -----------
+
+    densities: ~astropy.units.Quantity
+        densities
+
+    time_0: ~astropy.units.Quantity
+        time of the model
+
+    time_explosion: ~astropy.units.Quantity
+        time to be scaled to
+
+    Returns:
+    --------
+
+    scaled_density
+    """
+
     return densities * (time_explosion / time_0) ** -3
 
 
@@ -350,39 +375,20 @@ def parse_density_file_section(density_file_dict, time_explosion):
     return parser(density_file_dict, time_explosion)
 
 
-def parse_velocity_section(velocity_dict, no_of_shells):
-    velocity_parser = {}
 
-    def parse_linear_velocity(velocity_dict, no_of_shells):
-        v_inner = parse_quantity(velocity_dict['v_inner']).to('cm/s').value
-        v_outer = parse_quantity(velocity_dict['v_outer']).to('cm/s').value
-        velocities = np.linspace(v_inner, v_outer, no_of_shells + 1) * u.Unit('cm/s')
-        return velocities[:-1], velocities[1:]
-
-    velocity_parser['linear'] = parse_linear_velocity
-
-    try:
-        parser = velocity_parser[velocity_dict['type']]
-    except KeyError:
-        raise ConfigurationError('In velocity section only types %s are allowed (supplied %s) ' %
-                                (velocity_parser.keys(), velocity_dict['type']))
-    return parser(velocity_dict, no_of_shells)
-
-
-
-def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
+def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
     density_parser = {}
 
 
     #Parse density uniform
-    def parse_uniform(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
-
+    def parse_uniform(density_dict, v_inner, v_outer, time_explosion):
+        no_of_shells = len(v_inner)
         return parse_quantity(density_dict['value']).to('g cm^-3') * np.ones(no_of_shells)
 
     density_parser['uniform'] = parse_uniform
 
     #Parse density branch85 w7
-    def parse_branch85(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
+    def parse_branch85(density_dict, v_inner, v_outer, time_explosion):
 
         time_0 = density_dict.pop('time_0', 19.9999584)
         if isinstance(time_0, basestring):
@@ -408,7 +414,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
 
     density_parser['branch85_w7'] = parse_branch85
 
-    def parse_exponential(density_dict, no_of_shells, v_inner, v_outer, time_explosion):
+    def parse_exponential(density_dict, v_inner, v_outer, time_explosion):
         time_0 = density_dict.pop('time_0', 19.9999584)
         if isinstance(time_0, basestring):
             time_0 = parse_quantity(time_0).to('s').value
@@ -437,7 +443,7 @@ def parse_density_section(density_dict, no_of_shells, v_inner, v_outer, time_exp
     except KeyError:
         raise ConfigurationError('In density section only types %s are allowed (supplied %s) ' %
                                 (density_parser.keys(), density_dict['type']))
-    return parser(density_dict, no_of_shells, v_inner, v_outer, time_explosion)
+    return parser(density_dict, v_inner, v_outer, time_explosion)
 
 
 def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max_shell):
@@ -701,11 +707,10 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
             if structure_section_type == 'specific':
-                no_of_shells = structure_section['no_of_shells']
-                if v_inner is not None and v_outer is not None or mean_densities is not None:
-                    logger.warn('Overwriting the v_inner, v_outer, mean_densities with values given in the structure section - ignoring previous file inputs')
-                v_inner, v_outer = parse_velocity_section(structure_section['velocity'], no_of_shells)
-                mean_densities = parse_density_section(structure_section['density'], no_of_shells, v_inner, v_outer,
+                velocities = parse_quantity_linspace(structure_section['velocity']).to('cm/s')
+                v_inner, v_outer = velocities[:-1], velocities[1:]
+
+                mean_densities = parse_density_section(structure_section['density'], v_inner, v_outer,
                                                        config_dict['supernova']['time_explosion'])
 
             if v_inner is None or v_outer is None or mean_densities is None:
@@ -718,6 +723,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         structure_config_dict['v_inner'] = v_inner
         structure_config_dict['v_outer'] = v_outer
         structure_config_dict['mean_densities'] = mean_densities
+        no_of_shells = len(v_inner)
         structure_config_dict['no_of_shells'] = no_of_shells
         structure_config_dict['r_inner'] = r_inner
         structure_config_dict['r_outer'] = r_outer
@@ -744,6 +750,8 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             abundances_section = model_section.pop('abundances')
 
             for element_symbol_string in abundances_section:
+                if element_symbol_string == 'type':
+                    continue
 
                 z = element_symbol2atomic_number(element_symbol_string)
 
@@ -1015,15 +1023,15 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         ##### spectrum section ######
         spectrum_section = raw_dict.pop('spectrum')
         spectrum_config_dict = {}
-        spectrum_start, spectrum_end = parse_spectral_bin(spectrum_section['start'], spectrum_section['end'])
-        spectrum_bins = np.int64(spectrum_section['bins'])
-        spectrum_config_dict['start'] = spectrum_start
-        spectrum_config_dict['end'] = spectrum_end
-        spectrum_config_dict['bins'] = spectrum_bins
+        spectrum_frequency = parse_quantity_linspace(spectrum_section).to('Hz', u.spectral())
 
-        spectrum_frequency = np.linspace(spectrum_end.to('Hz', u.spectral()).value,
-                                                         spectrum_start.to('Hz', u.spectral()).value,
-                                                         num=spectrum_bins+1)
+        if spectrum_frequency[0] > spectrum_frequency[1]:
+            spectrum_frequency = spectrum_frequency[::-1]
+
+        spectrum_config_dict['start'] = spectrum_section['start']
+        spectrum_config_dict['end'] = spectrum_section['stop']
+        spectrum_config_dict['bins'] = spectrum_section['num']
+
         spectrum_config_dict['frequency'] = spectrum_frequency * u.Hz
 
 
