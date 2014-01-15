@@ -7,6 +7,8 @@ import os
 import pytest
 import yaml
 
+from numpy.testing import assert_almost_equal, assert_array_almost_equal
+
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
     return os.path.join(data_dir, 'data', filename)
@@ -81,15 +83,16 @@ def test_species_string_to_species():
 
 class TestParsePaper1Config:
 
-    def test_general_parse(self):
+    def setup(self):
         #general parsing of the paper config
         self.config = config_reader.TARDISConfiguration.from_yaml(data_path('paper1_tardis_configv1.yml'),
                                                                   test_parser=True)
-        self.yaml_data = yaml.parse(data_path('paper1_tardis_configv1.yml'))
+        self.yaml_data = yaml.load(open(data_path('paper1_tardis_configv1.yml')))
 
-        1/0
+
 
     def test_abundances(self):
-        oxygen_abundance = self.yaml_data['model']['abundance']['O']
+        oxygen_abundance = self.yaml_data['model']['abundances']['O']
+        assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
 
         assert True
