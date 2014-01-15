@@ -10,17 +10,17 @@ model:
 
     structure:
         type: specific
-        no_of_shells : 20
 
         velocity:
-            type : linear
-            v_inner : 1.1e4 km/s
-            v_outer : 2.0e4 km/s
+            start: 1.1e4 km/s
+            stop: 2.0e4 km/s
+            num: 20
 
         density:
-            type : branch85_w7
+            type: branch85_w7
 
     abundances:
+        type: uniform
         O: 0.19
         Mg: 0.03
         Si: 0.52
@@ -42,6 +42,6 @@ montecarlo:
     no_of_virtual_packets: 5
 
 spectrum:
-    start : 500 angstrom
-    end : 20000 angstrom
-    bins : 10000
+    start: 500 angstrom
+    stop: 20000 angstrom
+    num: 10000
