@@ -1,19 +1,49 @@
 # Utilities for TARDIS
 
-from astropy import units as u, constants
+from astropy import units as u, constants, units
 import numpy as np
 import os
 import yaml
 
 import logging
 import atomic
-from config_reader import MalformedElementSymbolError, element_symbol2atomic_number, MalformedSpeciesError, ConfigurationError
+
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
 h_cgs = constants.h.cgs.value
 m_e_cgs = constants.m_e.cgs.value
 e_charge_gauss = constants.e.gauss.value
+
+class MalformedError(Exception):
+    pass
+
+class MalformedSpeciesError(MalformedError):
+
+    def __init__(self, malformed_element_symbol):
+        self.malformed_element_symbol = malformed_element_symbol
+
+    def __str__(self):
+        return 'Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") - supplied %s' % self.malformed_element_symbol
+
+
+class MalformedElementSymbolError(MalformedError):
+
+    def __init__(self, malformed_element_symbol):
+        self.malformed_element_symbol = malformed_element_symbol
+
+    def __str__(self):
+        return 'Expecting an atomic symbol (e.g. Fe) - supplied %s' % self.malformed_element_symbol
+
+
+class MalformedQuantityError(MalformedError):
+
+    def __init__(self, malformed_quantity_string):
+        self.malformed_quantity_string = malformed_quantity_string
+
+    def __str__(self):
+        return 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' % self.malformed_quantity_string
+
 
 
 logger = logging.getLogger(__name__)
@@ -318,6 +348,54 @@ def species_string_to_tuple(species_string):
         except ValueError:
             raise MalformedSpeciesError
     if ion_number > atomic_number:
-        raise ConfigurationError('Species given does not exist: ion number > atomic number')
+        raise ValueError('Species given does not exist: ion number > atomic number')
 
     return atomic_number, ion_number-1
+
+
+def parse_quantity(quantity_string):
+
+    if not isinstance(quantity_string, basestring):
+        raise MalformedQuantityError(quantity_string)
+
+    try:
+        value_string, unit_string = quantity_string.split()
+    except ValueError:
+        raise MalformedQuantityError(quantity_string)
+
+    try:
+        value = float(value_string)
+    except ValueError:
+        raise MalformedQuantityError(quantity_string)
+
+    try:
+        q = u.Quantity(value, unit_string)
+    except ValueError:
+        raise MalformedQuantityError(quantity_string)
+
+    return q
+
+
+def element_symbol2atomic_number(element_string):
+    reformatted_element_string = reformat_element_symbol(element_string)
+    if reformatted_element_string not in atomic.symbol2atomic_number:
+        raise MalformedElementSymbolError(element_string)
+    return atomic.symbol2atomic_number[reformatted_element_string]
+
+
+def reformat_element_symbol(element_string):
+    """
+    Reformat the string so the first letter is uppercase and all subsequent letters lowercase
+
+    Parameters
+    ----------
+        element_symbol: str
+
+    Returns
+    -------
+        reformated element symbol
+    """
+
+    return element_string[0].upper() + element_string[1:].lower()
+
+

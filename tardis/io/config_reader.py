@@ -15,7 +15,7 @@ import pandas as pd
 import yaml
 
 from tardis import atomic
-from util import species_string_to_tuple
+from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number
 
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -40,86 +40,6 @@ inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
 
 class ConfigurationError(ValueError):
     pass
-
-class MalformedQuantityError(ConfigurationError):
-
-    def __init__(self, malformed_quantity_string):
-        self.malformed_quantity_string = malformed_quantity_string
-
-    def __str__(self):
-        return 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' % self.malformed_quantity_string
-
-
-class MalformedElementSymbolError(ConfigurationError):
-
-    def __init__(self, malformed_element_symbol):
-        self.malformed_element_symbol = malformed_element_symbol
-
-    def __str__(self):
-        return 'Expecting an atomic symbol (e.g. Fe) - supplied %s' % self.malformed_element_symbol
-
-
-class MalformedSpeciesError(ConfigurationError):
-
-    def __init__(self, malformed_element_symbol):
-        self.malformed_element_symbol = malformed_element_symbol
-
-    def __str__(self):
-        return 'Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") - supplied %s' % self.malformed_element_symbol
-
-
-def parse_quantity(quantity_string):
-
-    if not isinstance(quantity_string, basestring):
-        raise MalformedQuantityError(quantity_string)
-
-    try:
-        value_string, unit_string = quantity_string.split()
-    except ValueError:
-        raise MalformedQuantityError(quantity_string)
-
-    try:
-        value = float(value_string)
-    except ValueError:
-        raise MalformedQuantityError(quantity_string)
-
-    try:
-        q = u.Quantity(value, unit_string)
-    except ValueError:
-        raise MalformedQuantityError(quantity_string)
-
-    return q
-
-
-def element_symbol2atomic_number(element_string):
-    reformatted_element_string = reformat_element_symbol(element_string)
-    if reformatted_element_string not in atomic.symbol2atomic_number:
-        raise MalformedElementSymbolError(element_string)
-    return atomic.symbol2atomic_number[reformatted_element_string]
-
-
-
-
-
-
-
-
-
-
-def reformat_element_symbol(element_string):
-    """
-    Reformat the string so the first letter is uppercase and all subsequent letters lowercase
-
-    Parameters
-    ----------
-        element_symbol: str
-
-    Returns
-    -------
-        reformated element symbol
-    """
-
-    return element_string[0].upper() + element_string[1:].lower()
 
 
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):

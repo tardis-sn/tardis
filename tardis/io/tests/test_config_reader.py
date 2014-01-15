@@ -8,7 +8,7 @@ import pytest
 import yaml
 
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
-from util import species_string_to_tuple
+from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, reformat_element_symbol, MalformedQuantityError
 
 
 def data_path(filename):
@@ -18,17 +18,17 @@ def data_path(filename):
 
 
 def test_quantity_parser_normal():
-    q1 = config_reader.parse_quantity('5 km/s')
+    q1 = parse_quantity('5 km/s')
     assert q1.value == 5.
     assert q1.unit == u.Unit('km/s')
 
 def test_quantity_parser_malformed_quantity1():
-    with pytest.raises(config_reader.ConfigurationError):
-        q1 = config_reader.parse_quantity('abcd')
+    with pytest.raises(MalformedQuantityError):
+        q1 = parse_quantity('abcd')
 
 def test_quantity_parser_malformed_quantity2():
-    with pytest.raises(config_reader.MalformedQuantityError):
-        q1 = config_reader.parse_quantity('5 abcd')
+    with pytest.raises(MalformedQuantityError):
+        q1 = parse_quantity('5 abcd')
 
 
 def test_config_namespace_attribute_test():
@@ -43,7 +43,7 @@ def test_config_namespace_attribute_test():
 
 def test_element_symbol_reformatter():
     def _test_element_symbol_reformatter(unformatted_element_string, formatted_element_string):
-        assert config_reader.reformat_element_symbol(unformatted_element_string) == formatted_element_string
+        assert reformat_element_symbol(unformatted_element_string) == formatted_element_string
 
     data = [('si', 'Si'),
             ('sI', 'Si'),
@@ -59,7 +59,7 @@ def test_element_symbol_reformatter():
 def test_element_symbol2atomic_number():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_element_symbol2atomic_number(element_string, atomic_number):
-        assert config_reader.element_symbol2atomic_number(element_string) == atomic_number
+        assert element_symbol2atomic_number(element_string) == atomic_number
 
     data = [('sI', 14),
             ('ca', 20),
