@@ -3,6 +3,8 @@ from numpy import recfromtxt, genfromtxt
 import pandas as pd
 
 from tardis.io import config_reader
+from tardis.util import parse_quantity
+
 
 def read_simple_ascii_density(fname):
     """
@@ -30,7 +32,7 @@ def read_simple_ascii_density(fname):
 
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
-        time_of_model = config_reader.parse_quantity(time_of_model_string)
+        time_of_model = parse_quantity(time_of_model_string)
 
     data = recfromtxt(fname, skip_header=1, names=('index', 'velocity', 'density'), dtype=(int, float, float))
     data = pd.DataFrame(data)
