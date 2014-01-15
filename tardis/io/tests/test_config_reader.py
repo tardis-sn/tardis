@@ -104,3 +104,15 @@ class TestParsePaper1Config:
         assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
 
         assert True
+
+    def test_velocities(self):
+        assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['start']),
+                            self.config.structure.v_inner[0])
+        assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['stop']),
+                    self.config.structure.v_outer[-1])
+        assert len(self.config.structure.v_outer) == self.yaml_data['model']['structure']['velocity']['num']
+
+    def test_densities(self):
+        pass
+
+

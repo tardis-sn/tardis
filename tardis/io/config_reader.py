@@ -375,6 +375,17 @@ def parse_density_file_section(density_file_dict, time_explosion):
     return parser(density_file_dict, time_explosion)
 
 
+def read_density_file(density_filename, density_filetype, time_explosion):
+    file_parsers = {'tardis_simple_ascii': None,
+                    'artis': None}
+
+    time_of_model, index, v_inner, v_outer, unscaled_mean_densities = file_parsers[density_filetype](filename)
+    mean_densities = calculate_density_after_time(unscaled_mean_densities, time_of_model, time_explosion)
+
+
+    return v_inner, v_outer, mean_densities
+
+
 
 def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
     density_parser = {}
@@ -713,8 +724,11 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                 mean_densities = parse_density_section(structure_section['density'], v_inner, v_outer,
                                                        config_dict['supernova']['time_explosion'])
 
-            if v_inner is None or v_outer is None or mean_densities is None:
-                raise ConfigurationError('No density profile or structure specified in the config file.')
+            elif structure_section_type == 'file':
+                v_inner, v_outer, mean_densities = read_density_file(structure_section['filename'],
+                                                                     structure_section['filetype'],
+                                                                     time_explosion)
+
 
         r_inner = config_dict['supernova']['time_explosion'] * v_inner
         r_outer = config_dict['supernova']['time_explosion'] * v_outer
@@ -1028,14 +1042,9 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         if spectrum_frequency[0] > spectrum_frequency[1]:
             spectrum_frequency = spectrum_frequency[::-1]
 
-        spectrum_config_dict['start'] = spectrum_section['start']
-        spectrum_config_dict['end'] = spectrum_section['stop']
+        spectrum_config_dict['start'] = parse_quantity(spectrum_section['start'])
+        spectrum_config_dict['end'] = parse_quantity(spectrum_section['stop'])
         spectrum_config_dict['bins'] = spectrum_section['num']
-
-        spectrum_config_dict['frequency'] = spectrum_frequency * u.Hz
-
-
-
 
         config_dict['spectrum'] = spectrum_config_dict
 
