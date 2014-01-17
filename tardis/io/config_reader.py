@@ -17,6 +17,7 @@ import yaml
 from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number
 
+from tardis.io import model_reader
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -376,15 +377,21 @@ def parse_density_file_section(density_file_dict, time_explosion):
 
 
 def read_density_file(density_filename, density_filetype, time_explosion):
-    file_parsers = {'tardis_simple_ascii': None,
-                    'artis': None}
+    file_parsers = {'artis': model_reader.read_artis_density,
+                    'simple_ascii': model_reader.read_simple_ascii_density}
 
-    time_of_model, index, v_inner, v_outer, unscaled_mean_densities = file_parsers[density_filetype](filename)
+    time_of_model, index, v_inner, v_outer, unscaled_mean_densities = file_parsers[density_filetype](density_filename)
     mean_densities = calculate_density_after_time(unscaled_mean_densities, time_of_model, time_explosion)
 
 
     return v_inner, v_outer, mean_densities
 
+def read_abundances_file(abundance_filename, abundance_filetype):
+    file_parsers = {'simple_ascii': model_reader.read_artis_density}
+
+    index, abundances = file_parsers[abundance_filetype]
+
+    return index, abundances
 
 
 def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
@@ -727,7 +734,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             elif structure_section_type == 'file':
                 v_inner, v_outer, mean_densities = read_density_file(structure_section['filename'],
                                                                      structure_section['filetype'],
-                                                                     time_explosion)
+                                                                     config_dict['supernova']['time_explosion'])
 
 
         r_inner = config_dict['supernova']['time_explosion'] * v_inner
@@ -751,25 +758,24 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         #Now that the structure section is parsed we move on to the abundances
 
 
-        #TODO: columns are now until Z=120
-        if abundances is None:
-            abundances = pd.DataFrame(columns=np.arange(no_of_shells),
-                                      index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
-        elif 'abundances' in model_section:
-            logger.warn('Overwriting the abundances with values given in the structure section - ignoring previous file inputs')
-        else:
-            pass
 
-        if 'abundances' in model_section:
-            abundances_section = model_section.pop('abundances')
+        abundances_section  = model_section.pop('abundances')
+        abundances_type = abundances_section.pop('type')
+
+        if abundances_type == 'uniform':
+            abundances = pd.DataFrame(columns=np.arange(no_of_shells),
+                  index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
 
             for element_symbol_string in abundances_section:
-                if element_symbol_string == 'type':
-                    continue
 
                 z = element_symbol2atomic_number(element_symbol_string)
-
                 abundances.ix[z] = float(abundances_section[element_symbol_string])
+
+        elif abundances_type == 'file':
+            index, abundances = read_abundances_file(abundances_section['filename'], abundances_section['filetype'])
+            if len(index) != no_of_shells:
+                raise ConfigurationError('The abundance file specified has not the same number of cells'
+                'as the specified density profile')
 
         abundances = abundances.replace(np.nan, 0.0)
 
