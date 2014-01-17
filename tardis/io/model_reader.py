@@ -97,7 +97,7 @@ def read_artis_density(fname):
 def read_simple_ascii_abundances(fname):
     """
     Reading an abundance file of the following structure (example; lines starting with hash will be ignored):
-
+    The first line of abundances describe the abundances in the center of the model and are not used.
     #index element1, element2, ..., element30
     0 0.4 0.3, .. 0.2
 
@@ -110,9 +110,15 @@ def read_simple_ascii_abundances(fname):
     Returns
     -------
 
-    data: ~pandas.DataFrame
-        data frame containing index, element1 - element30
-    """
-    data = pd.DataFrame(recfromtxt(fname))
+    index: ~np.ndarray
+        containing the indices
 
-    return data
+    abundances: ~pandas.DataFrame
+        data frame containing index, element1 - element30 and columns according to the shells
+    """
+    data = np.loadtxt(fname)
+
+    index = data[1:,0].astype(int)
+    abundances = pd.DataFrame(data[1:,1:].transpose(), index=np.arange(1, data.shape[1]))
+
+    return index, abundances
