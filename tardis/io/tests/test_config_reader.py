@@ -125,12 +125,33 @@ class TestParseConfigV1ASCIIDensity:
         self.yaml_data = yaml.load(open(data_path(filename)))
 
 
+    def test_velocities(self):
+        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.structure.v_inner[0].value, 1e4 * 1e5)
 
     def test_abundances(self):
         oxygen_abundance = self.yaml_data['model']['abundances']['O']
         assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
 
-        assert True
+
+class TestParseConfigV1ArtisDensity:
+
+    def setup(self):
+        #general parsing of the paper config
+        filename = 'tardis_configv1_artis_density.yml'
+        self.config = config_reader.TARDISConfiguration.from_yaml(data_path(filename),
+                                                                  test_parser=True)
+        self.yaml_data = yaml.load(open(data_path(filename)))
+
+
+    def test_velocities(self):
+        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.structure.v_inner[0].value, 1.259375e+03 * 1e5)
+
+    def test_abundances(self):
+        oxygen_abundance = self.yaml_data['model']['abundances']['O']
+        assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
+
 
 
 
