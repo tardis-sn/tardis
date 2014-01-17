@@ -26,5 +26,9 @@ def test_simple_ascii_density_reader_data():
     assert_almost_equal(v_inner[3].value, 1.3e4*1e5)
 
 
+def test_simple_ascii_abundance_reader():
+    index, abundances = io.read_simple_ascii_abundances(data_path('artis_abundances.dat'))
+    assert_almost_equal(abundances.ix[1, 0], 1.542953e-08)
+    assert_almost_equal(abundances.ix[14, 54], 0.21864420000000001)
 
 
