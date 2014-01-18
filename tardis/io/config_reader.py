@@ -10,9 +10,9 @@ import copy
 from astropy import constants, units as u
 import astropy.utils
 import numpy as np
-import h5py
 import pandas as pd
 import yaml
+from model_reader import read_density_file, calculate_density_after_time
 
 from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number
@@ -86,31 +86,6 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
 
     return spectrum_start_wavelength, spectrum_end_wavelength
 
-
-
-def calculate_density_after_time(densities, time_0, time_explosion):
-    """
-    scale the density from an initial time of the model to the time of the explosion by ^-3
-
-    Parameters:
-    -----------
-
-    densities: ~astropy.units.Quantity
-        densities
-
-    time_0: ~astropy.units.Quantity
-        time of the model
-
-    time_explosion: ~astropy.units.Quantity
-        time to be scaled to
-
-    Returns:
-    --------
-
-    scaled_density
-    """
-
-    return densities * (time_explosion / time_0) ** -3
 
 
 def calculate_exponential_densities(velocities, velocity_0, rho_0, exponent):
@@ -376,33 +351,30 @@ def parse_density_file_section(density_file_dict, time_explosion):
     return parser(density_file_dict, time_explosion)
 
 
-def read_density_file(density_filename, density_filetype, time_explosion):
+
+
+def read_abundances_file(abundance_filename, abundance_filetype, inner_shell=None, outer_shell=None):
     """
     read different density file formats
 
     Parameters
     ----------
 
-    density_filename: ~str
+    abundance_filename: ~str
         filename or path of the density file
 
-    density_filetype: ~str
+    abundance_filetype: ~str
         type of the density file
 
-    time_explosion: ~astropy.units.Quantity
-        time since explosion used to scale the density
+    inner_shell: int
+        index of the inner shell, default None
+
+    outer_shell: int
+        index of the outer shell, default None
+
 
     """
-    file_parsers = {'artis': model_reader.read_artis_density,
-                    'simple_ascii': model_reader.read_simple_ascii_density}
 
-    time_of_model, index, v_inner, v_outer, unscaled_mean_densities = file_parsers[density_filetype](density_filename)
-    mean_densities = calculate_density_after_time(unscaled_mean_densities, time_of_model, time_explosion)
-
-
-    return v_inner, v_outer, mean_densities
-
-def read_abundances_file(abundance_filename, abundance_filetype, inner_shell=None, outer_shell=None):
     file_parsers = {'simple_ascii': model_reader.read_simple_ascii_abundances,
                     'artis':model_reader.read_simple_ascii_abundances}
 
@@ -584,39 +556,7 @@ def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.999958
     return densities[1:]
 
 
-def read_w7_densities(fname=None):
-    """
-        Reading the density set for W7 in the density set h5 file
 
-        Parameters
-        ----------
-
-        fname : `str`
-            default None - defaults to tardis/data/density_sets.h5
-
-    """
-    pass
-
-
-def read_lucy99_abundances(fname=None):
-    """
-    Reading the density set for W7 in the density set h5 file
-
-    Parameters
-    ----------
-
-    fname : `str`
-        default None - defaults to tardis/data/abundance_sets.h5
-"""
-    if fname is None:
-        fname = os.path.join(data_dir, 'abundance_sets.h5')
-
-    lucy99 = h5py.File(fname)['lucy99']
-
-    logger.info("Choosing uniform abundance set 'lucy99':\n %s",
-                pd.DataFrame(lucy99.__array__()))
-
-    return dict(zip(lucy99.dtype.names, lucy99[0]))
 
 
 class TARDISConfigurationNameSpace(object):
@@ -750,7 +690,8 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                                                        config_dict['supernova']['time_explosion'])
 
             elif structure_section_type == 'file':
-                v_inner, v_outer, mean_densities = read_density_file(structure_section['filename'],
+                v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index =\
+                    read_density_file(structure_section['filename'],
                                                                      structure_section['filetype'],
                                                                      config_dict['supernova']['time_explosion'])
         else:
