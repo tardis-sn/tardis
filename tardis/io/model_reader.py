@@ -5,8 +5,66 @@ from numpy import recfromtxt, genfromtxt
 import pandas as pd
 from astropy import units as u
 
+
 from tardis.util import parse_quantity
 
+class ConfigurationError(Exception):
+    pass
+
+
+def read_density_file(density_filename, density_filetype, time_explosion, v_inner_boundary=0.0, v_outer_boundary=np.inf):
+    """
+    read different density file formats
+
+    Parameters
+    ----------
+
+    density_filename: ~str
+        filename or path of the density file
+
+    density_filetype: ~str
+        type of the density file
+
+    time_explosion: ~astropy.units.Quantity
+        time since explosion used to scale the density
+
+    """
+    file_parsers = {'artis': read_artis_density,
+                    'simple_ascii': read_simple_ascii_density}
+
+    time_of_model, index, v_inner, v_outer, unscaled_mean_densities = file_parsers[density_filetype](density_filename)
+    mean_densities = calculate_density_after_time(unscaled_mean_densities, time_of_model, time_explosion)
+
+    if v_inner_boundary > v_outer_boundary:
+        raise ConfigurationError('v_inner_boundary > v_outer_boundary. unphysical!')
+
+    if not np.isclose(v_inner_boundary, 0.0) and v_inner_boundary > v_inner[0]:
+
+        if v_inner_boundary > v_outer[-1]:
+            raise ConfigurationError('Inner boundary selected outside of model')
+
+        inner_boundary_index = v_inner.searchsorted(v_inner_boundary) - 1
+
+    else:
+        inner_boundary_index = None
+        v_inner_boundary = v_inner[0]
+
+    if not np.isinf(v_outer_boundary) and v_outer_boundary < v_outer[-1]:
+        outer_boundary_index = v_outer.searchsorted(v_outer_boundary) + 1
+    else:
+        outer_boundary_index = None
+        v_outer_boundary = v_outer[-1]
+
+    v_inner = v_inner[inner_boundary_index:outer_boundary_index]
+    v_inner[0] = v_inner_boundary
+
+    v_outer = v_outer[inner_boundary_index:outer_boundary_index]
+    v_outer[-1] = v_outer_boundary
+
+    mean_densities = mean_densities[inner_boundary_index:outer_boundary_index]
+
+
+    return v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index
 
 def read_simple_ascii_density(fname):
     """
@@ -122,3 +180,31 @@ def read_simple_ascii_abundances(fname):
     abundances = pd.DataFrame(data[1:,1:].transpose(), index=np.arange(1, data.shape[1]))
 
     return index, abundances
+
+
+
+
+
+def calculate_density_after_time(densities, time_0, time_explosion):
+    """
+    scale the density from an initial time of the model to the time of the explosion by ^-3
+
+    Parameters:
+    -----------
+
+    densities: ~astropy.units.Quantity
+        densities
+
+    time_0: ~astropy.units.Quantity
+        time of the model
+
+    time_explosion: ~astropy.units.Quantity
+        time to be scaled to
+
+    Returns:
+    --------
+
+    scaled_density
+    """
+
+    return densities * (time_explosion / time_0) ** -3

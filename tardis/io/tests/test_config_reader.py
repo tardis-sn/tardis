@@ -155,7 +155,7 @@ class TestParseConfigV1ArtisDensity:
 
 
 
-class TestParseConfigV1ArtisAbundances:
+class TestParseConfigV1ArtisDensityAbundances:
 
     def setup(self):
         #general parsing of the paper config
@@ -170,10 +170,14 @@ class TestParseConfigV1ArtisAbundances:
                                                                   test_parser=True)
 
 
-
     def test_velocities(self):
         assert self.config.structure.v_inner.unit == u.Unit('cm/s')
         assert_almost_equal(self.config.structure.v_inner[0].value, 1.259375e+03 * 1e5)
 
     def test_abundances(self):
         assert_almost_equal(self.config.abundances.ix[14, 54], 0.21864420000000001)
+
+
+
+
+#write tests for inner and outer boundary indices
