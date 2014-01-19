@@ -9,7 +9,7 @@ import pandas as pd
 from scipy import interpolate
 
 from tardis import macro_atom, io
-from util import parse_abundance_dict_to_dataframe
+from tardis.io.util import parse_abundance_dict_to_dataframe
 
 
 logger = logging.getLogger(__name__)
