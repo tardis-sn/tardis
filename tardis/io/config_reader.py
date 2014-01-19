@@ -955,10 +955,10 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         if 'black_body_sampling' in montecarlo_section:
             black_body_sampling_section = montecarlo_section.pop('black_body_sampling')
             sampling_start, sampling_end = parse_spectral_bin(black_body_sampling_section['start'],
-                                                                                black_body_sampling_section['end'])
+                                                                                black_body_sampling_section['stop'])
             montecarlo_config_dict['black_body_sampling']['start'] = sampling_start
             montecarlo_config_dict['black_body_sampling']['end'] = sampling_end
-            montecarlo_config_dict['black_body_sampling']['samples'] = np.int64(black_body_sampling_section['samples'])
+            montecarlo_config_dict['black_body_sampling']['samples'] = np.int64(black_body_sampling_section['num'])
         else:
             logger.warn('No "black_body_sampling" section in config file - using defaults of '
                         '50 - 200000 Angstrom (1e6 samples)')
@@ -987,7 +987,15 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         spectrum_config_dict['end'] = parse_quantity(spectrum_section['stop'])
         spectrum_config_dict['bins'] = spectrum_section['num']
 
+
+        spectrum_frequency = np.linspace(spectrum_config_dict['end'].to('Hz', u.spectral()).value,
+                                                         spectrum_config_dict['start'].to('Hz', u.spectral()).value,
+                                                         num=spectrum_config_dict['bins']) * u.Hz
+
+        spectrum_config_dict['frequency'] = spectrum_frequency.to('Hz')
         config_dict['spectrum'] = spectrum_config_dict
+
+
 
 
         return cls(config_dict, atom_data)
