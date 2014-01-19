@@ -990,7 +990,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         spectrum_frequency = np.linspace(spectrum_config_dict['end'].to('Hz', u.spectral()).value,
                                                          spectrum_config_dict['start'].to('Hz', u.spectral()).value,
-                                                         num=spectrum_config_dict['bins']) * u.Hz
+                                                         num=spectrum_config_dict['bins'] + 1) * u.Hz
 
         spectrum_config_dict['frequency'] = spectrum_frequency.to('Hz')
         config_dict['spectrum'] = spectrum_config_dict
