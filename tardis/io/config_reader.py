@@ -12,12 +12,10 @@ import astropy.utils
 import numpy as np
 import pandas as pd
 import yaml
-from model_reader import read_density_file, calculate_density_after_time
+from model_reader import read_density_file, calculate_density_after_time, read_abundances_file
 
 from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number
-
-from tardis.io import model_reader
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -351,38 +349,6 @@ def parse_density_file_section(density_file_dict, time_explosion):
     return parser(density_file_dict, time_explosion)
 
 
-
-
-def read_abundances_file(abundance_filename, abundance_filetype, inner_shell=None, outer_shell=None):
-    """
-    read different density file formats
-
-    Parameters
-    ----------
-
-    abundance_filename: ~str
-        filename or path of the density file
-
-    abundance_filetype: ~str
-        type of the density file
-
-    inner_shell: int
-        index of the inner shell, default None
-
-    outer_shell: int
-        index of the outer shell, default None
-
-
-    """
-
-    file_parsers = {'simple_ascii': model_reader.read_simple_ascii_abundances,
-                    'artis':model_reader.read_simple_ascii_abundances}
-
-    index, abundances = file_parsers[abundance_filetype](abundance_filename)
-
-    return index, abundances.ix[:, slice(inner_shell, outer_shell)]
-
-
 def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
     density_parser = {}
 
@@ -674,8 +640,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         #Trying to figure out the structure (number of shells)
 
             structure_section = model_section.pop('structure')
-            inner_shell = None
-            outer_shell = None
+            inner_boundary_index, outer_boundary_index = None, None
             try:
                 structure_section_type = structure_section['type']
             except KeyError:
@@ -690,10 +655,18 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                                                        config_dict['supernova']['time_explosion'])
 
             elif structure_section_type == 'file':
+                v_inner_boundary, v_outer_boundary = structure_section.get('v_inner_boundary', 0 * u.km/u.s), \
+                                                     structure_section.get('v_outer_boundary', np.inf * u.km/u.s)
+
+                if not hasattr(v_inner_boundary, 'unit'):
+                    v_inner_boundary = parse_quantity(v_inner_boundary)
+
+                if not hasattr(v_outer_boundary, 'unit'):
+                    v_outer_boundary = parse_quantity(v_outer_boundary)
+
                 v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index =\
-                    read_density_file(structure_section['filename'],
-                                                                     structure_section['filetype'],
-                                                                     config_dict['supernova']['time_explosion'])
+                    read_density_file(structure_section['filename'], structure_section['filetype'],
+                                      config_dict['supernova']['time_explosion'], v_inner_boundary, v_outer_boundary)
         else:
             raise ConfigurationError('structure section required in configuration file')
 
@@ -734,7 +707,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         elif abundances_type == 'file':
             index, abundances = read_abundances_file(abundances_section['filename'], abundances_section['filetype'],
-                                                     inner_shell, outer_shell)
+                                                     inner_boundary_index, outer_boundary_index)
             if len(index) != no_of_shells:
                 raise ConfigurationError('The abundance file specified has not the same number of cells'
                 'as the specified density profile')

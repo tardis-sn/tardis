@@ -36,7 +36,7 @@ def read_density_file(density_filename, density_filetype, time_explosion, v_inne
     mean_densities = calculate_density_after_time(unscaled_mean_densities, time_of_model, time_explosion)
 
     if v_inner_boundary > v_outer_boundary:
-        raise ConfigurationError('v_inner_boundary > v_outer_boundary. unphysical!')
+        raise ConfigurationError('v_inner_boundary > v_outer_boundary ({0:s} > {1:s}). unphysical!'.format(v_inner_boundary, v_outer_boundary))
 
     if not np.isclose(v_inner_boundary, 0.0) and v_inner_boundary > v_inner[0]:
 
@@ -65,6 +65,37 @@ def read_density_file(density_filename, density_filetype, time_explosion, v_inne
 
 
     return v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index
+
+def read_abundances_file(abundance_filename, abundance_filetype, inner_boundary_index=None, outer_boundary_index=None):
+    """
+    read different density file formats
+
+    Parameters
+    ----------
+
+    abundance_filename: ~str
+        filename or path of the density file
+
+    abundance_filetype: ~str
+        type of the density file
+
+    inner_boundary_index: int
+        index of the inner shell, default None
+
+    outer_boundary_index: int
+        index of the outer shell, default None
+
+
+    """
+
+    file_parsers = {'simple_ascii': read_simple_ascii_abundances,
+                    'artis': read_simple_ascii_abundances}
+
+    index, abundances = file_parsers[abundance_filetype](abundance_filename)
+
+    return index[inner_boundary_index:outer_boundary_index], \
+           abundances.ix[:, slice(inner_boundary_index, outer_boundary_index)]
+
 
 def read_simple_ascii_density(fname):
     """
@@ -208,3 +239,5 @@ def calculate_density_after_time(densities, time_0, time_explosion):
     """
 
     return densities * (time_explosion / time_0) ** -3
+
+
