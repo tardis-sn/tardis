@@ -178,6 +178,28 @@ class TestParseConfigV1ArtisDensityAbundances:
         assert_almost_equal(self.config.abundances.ix[14, 54], 0.21864420000000001)
 
 
+class TestParseConfigV1ArtisDensityAbundancesVSlice:
+
+    def setup(self):
+        #general parsing of the paper config
+        filename = 'tardis_configv1_artis_density_v_slice.yml'
+
+        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data['model']['abundances'] = {'type': 'file',
+                                                 'filename': 'tardis/io/tests/data/artis_abundances.dat',
+                                                 'filetype': 'artis'}
+
+        self.config = config_reader.TARDISConfiguration.from_config_dict(self.yaml_data,
+                                                                  test_parser=True)
+
+
+    def test_velocities(self):
+        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.structure.v_inner[0], 9000 * u.km/u.s)
+
+    def test_abundances(self):
+        assert_almost_equal(self.config.abundances.ix[14, 54], 0.21864420000000001)
+
 
 
 #write tests for inner and outer boundary indices
