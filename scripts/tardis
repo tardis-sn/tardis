@@ -1,6 +1,7 @@
 #!/usr/bin/env python
+from tardis.io import config_reader
 
-from tardis import simulation, config_reader, model
+from tardis import simulation, model
 import numpy as np
 
 import logging

@@ -35,6 +35,11 @@ plasma:
 
 model:
     structure:
+        type: file
+        filetype
+        filename
+        lowest_shell
+        highest_shell
         no_of_shells : 20
 #        file:
 #            type : artis
@@ -69,6 +74,7 @@ model:
 
 
     abundances:
+      type: uniform | file
         #file:
         #    type : artis
         #    name : artis_abundances.dat
