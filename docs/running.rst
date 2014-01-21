@@ -41,3 +41,9 @@ Scripting TARDIS
     radial1d_mdl = model.Radial1DModel(tardis_config)
     simulation.run_radial1d(radial1d_mdl)
 
+Graphical User Interface
+========================
+
+A graphical user interface is being developed for this code using QT. We envision to have this available in the next few minor releases.
+
+
