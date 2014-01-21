@@ -10,7 +10,7 @@ Plasma
 
 
 
-This module calculates the ionization balance and level populations in the BasePlasma, give a abundance fraction, temperature
+This module calculates the ionization balance and level populations in BasePlasma, give a abundance fraction, temperature
 and density. After calculating the state of the plasma, these classes are able to calculate :math:`\tau_\textrm{sobolev}`
 for the supernova radiative transfer. The simplest BasePlasma (:class:`BasePlasma`) only calculates the atom number densities, but serves
 as a base for all BasePlasma classes. The next more complex class is `LTEPlasma` which will calculate the aforementioned quantities in
