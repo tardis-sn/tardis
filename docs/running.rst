@@ -1,3 +1,5 @@
+.. _running:
+
 **************
 Running TARDIS
 **************
@@ -33,9 +35,15 @@ Scripting TARDIS
 
 .. code-block:: python
 
-    from tardis import config_reader, model_radial_oned, simulation
+    from tardis import config_reader, model, simulation
 
     tardis_config = config_reader.TARDISConfiguration.from_yaml('myconfig.yml')
-    radial1d_mdl = model_radial_oned.Radial1DModel(tardis_config)
+    radial1d_mdl = model.Radial1DModel(tardis_config)
     simulation.run_radial1d(radial1d_mdl)
+
+Graphical User Interface
+========================
+
+A graphical user interface is being developed for this code using QT. We envision to have this available in the next few minor releases.
+
 
