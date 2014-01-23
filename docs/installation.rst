@@ -1,6 +1,9 @@
+.. _installation:
+
 ************
 Installation
 ************
+
 
 Requirements
 ============
@@ -26,7 +29,9 @@ TARDIS has the following requirements:
 
 - `pyyaml <http://pyyaml.org/>`_ 3.0 or later
 
-Most of these requirements are easy to install using package managers like OS X's macports or normal linux package managers
+Most of these requirements are easy to install using package managers like OS X's macports or normal linux package managers.
+
+TARDIS is using astropy's excellent installation helpers and thus uses similar instructions to astropy.
 
 
 Installing TARDIS
@@ -72,9 +77,7 @@ The `instructions for building Numpy from source
 resource for setting up your environment to build Python packages.
 
 You will also need `Cython <http://cython.org/>`_ installed to build
-from source, unless you are installing a numbered release. (The releases
-packages have the necessary C files packaged with them, and hence do not
-require Cython.)
+from source.
 
 .. note:: If you are using MacOS X, you will need to the XCode command line
           tools.  One way to get them is to install `XCode
