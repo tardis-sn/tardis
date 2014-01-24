@@ -35,7 +35,8 @@ Scripting TARDIS
 
 .. code-block:: python
 
-    from tardis import config_reader, model, simulation
+    from tardis import model, simulation
+    from tardis.io import config_reader
 
     tardis_config = config_reader.TARDISConfiguration.from_yaml('myconfig.yml')
     radial1d_mdl = model.Radial1DModel(tardis_config)
