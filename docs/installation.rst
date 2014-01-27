@@ -77,6 +77,9 @@ Then install TARDIS::
 
 Before running, ensure that the directory ~/Library/Python/2.7/bin is in the appropriate path.
 
+.. note::
+    This has also been successfully tested on a clean MAC OS 10.9.1 (Mavericks) install.
+
 
 Building from source
 ====================
