@@ -18,3 +18,4 @@ Contributers
  * Chris Sasaki and Mike Reid (Logo)
  * Knox Long & Christian Knigge (comparisons with "Python" and ionization data)
  * Erik Bray (help with incorporating Astropy's setuphelpers)
+ * Robert Ryans (testing installation process)
