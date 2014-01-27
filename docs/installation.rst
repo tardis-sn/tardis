@@ -60,6 +60,23 @@ Add a `--pre` to install the latest development version (currently no stable ver
      Adding `--no-deps` will help with this problem.
 
 
+On MAC OS X (10.8.5)
+--------------------
+
+On a clean install of Mountain Lion, here's how we get TARDIS running::
+
+First install `macports <http://www.macports.org/install.php>`
+
+Use macports to install::
+
+    sudo port install python27 py27-astropy py27-h5py py27-yaml py27-pandas py27-pip
+
+Then install TARDIS::
+
+    pip-2.7 install tardis-sn --user --pre
+
+Before running, ensure that the directory ~/Library/Python/2.7/bin is in the appropriate path.
+
 
 Building from source
 ====================
