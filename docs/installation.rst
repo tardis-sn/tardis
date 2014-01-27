@@ -15,7 +15,7 @@ Requirements
 
 TARDIS has the following requirements:
 
-- `Python <http://www.python.org/>`_ 2.6, 2.7, 3.1 or 3.2
+- `Python <http://www.python.org/>`_ 2.7
 
 - `Numpy <http://www.numpy.org/>`_ 1.5 or later
 
@@ -65,7 +65,7 @@ On MAC OS X (10.8.5)
 
 On a clean install of Mountain Lion, here's how we get TARDIS running::
 
-First install `macports <http://www.macports.org/install.php>`
+First install `macports <http://www.macports.org/install.php>`_
 
 Use macports to install::
 
