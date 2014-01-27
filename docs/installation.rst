@@ -56,7 +56,7 @@ Add a `--pre` to install the latest development version (currently no stable ver
 
 
 .. note::
-    `pip` often tries to take care of many of the dependencies, this might be annoying as they already exist.
+    pip often tries to take care of many of the dependencies, this might be annoying as they already exist.
      Adding `--no-deps` will help with this problem.
 
 
