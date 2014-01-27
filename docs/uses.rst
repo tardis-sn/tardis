@@ -12,7 +12,7 @@ These inputs are specified via the input file (yaml file). As a starting point, 
 Change the abundances
 ===============
 
-In the example file you can alter the elemental abundances (mass fractions; specified in the "abundances" section). Use this to explore the sensitivity of features to composition.
+In the example file, you can alter the elemental abundances (mass fractions; specified in the "abundances" section). Use this to explore the sensitivity of features to composition.
 
 Change the luminosity
 ==============
