@@ -7,7 +7,7 @@ TARDIS is designed to carry out calculations of synthetic supernova spectra (see
 1) a model for the supernova ejecta (density and composition distribution);
 2) that parameters determining the physical and numerical properties of the code are given.
 
-These inputs are specified via the input file (yaml file). As a starting point, examine the input file in the example download (above). The example file sets up a very simple model in which the density distribution is based on the well-known W7 model (Nomoto et al. 1984; fit following Branch et al. 1985) and in which uniform abundances are specified. To get you started, here is a short list of example settings that can be experimented with to get a feel for using TARDIS. Please contact us if you have questions or would like information on more advanced possibilities!
+These inputs are specified via the input file (yaml file). As a starting point, examine the input file in the example download (above). The example file sets up a very simple model in which the density distribution is based on the well-known W7 model (Nomoto et al. 1984; fit following Branch et al. 1985) and in which uniform abundances are specified. To get you started, here is a short list of some settings in that example that can be experimented with to get a feel for using TARDIS. Please contact us if you have questions or would like information on more advanced possibilities!
 
 Change the abundances
 ===============
