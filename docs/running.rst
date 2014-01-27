@@ -25,6 +25,7 @@ Then plot the output_spectrum.dat with your favourite plotting program. Here's a
 (The only thing you need to install is ipython and matplotlib - in addition to TARDIS's requirements)
 
 .. code-block:: python
+
     ipython --pylab
     tardis_spec = loadtxt('output_spectrum.dat')
     plot(tardis_spec[:,0], tardis_spec[:,1])
