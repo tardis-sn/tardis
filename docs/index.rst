@@ -44,6 +44,7 @@ We are using Astropy's excellent workflow - more details can be found at `<http:
     installation
     running
     gui
+    uses
     atomic
     plasma
     montecarlo
