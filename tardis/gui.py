@@ -10,7 +10,7 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
 from PyQt4 import QtGui, QtCore
 from astropy import units as u
-from tardis import analysis, config_reader
+from tardis import analysis, util
 
 # def current_ion_index(index, index_list):
 #     if not index in index_list:
@@ -311,10 +311,12 @@ class LineInteractionTables(QtGui.QWidget):
         self.atom_data = atom_data
         line_interaction_species_group = line_interaction_analysis.last_line_in.groupby(['atomic_number', 'ion_number'])
         self.species_selected = sorted(line_interaction_species_group.groups.keys())
-        species_symbols = [config_reader.species_tuple_to_string(item, atom_data) for item in self.species_selected]
+        species_symbols = [util.species_tuple_to_string(item, atom_data) for item in self.species_selected]
         species_table_model = SimpleTableModel([species_symbols, ['Species']])
-        species_table_model.addData((line_interaction_species_group.wavelength.count().astype(float) /
-                                    line_interaction_analysis.last_line_in.wavelength.count()).tolist())
+        species_abundances = (line_interaction_species_group.wavelength.count().astype(float) /
+                                    line_interaction_analysis.last_line_in.wavelength.count()).astype(float).tolist()
+        species_abundances = map(float, species_abundances)
+        species_table_model.addData(species_abundances)
         self.species_table.setModel(species_table_model)
 
         line_interaction_species_group.wavelength.count()
