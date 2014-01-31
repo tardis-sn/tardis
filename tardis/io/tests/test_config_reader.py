@@ -198,8 +198,50 @@ class TestParseConfigV1ArtisDensityAbundancesVSlice:
         assert_almost_equal(self.config.structure.v_inner[0], 9000 * u.km/u.s)
 
     def test_abundances(self):
-        assert_almost_equal(self.config.abundances.ix[14, 54], 0.21864420000000001)
+        assert_almost_equal(self.config.abundances.ix[14, 31], 2.156751e-01)
+
+        
+class TestParseConfigV1ArtisDensityAbundancesAllAscii:
+
+    def setup(self):
+        #general parsing of the paper config
+        filename = 'tardis_configv1_ascii_density_abund.yml'
+
+        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data['model']['structure']['filename'] = 'tardis/io/tests/data/density.dat'
+        self.yaml_data['model']['abundances']['filename'] = 'tardis/io/tests/data/abund.dat'
+    
+        self.config = config_reader.TARDISConfiguration.from_config_dict(self.yaml_data,
+                                                                  test_parser=True)
 
 
+    def test_velocities(self):
+        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.structure.v_inner[0], 11000 * u.km/u.s)
+
+    def test_abundances(self):
+        assert_almost_equal(self.config.abundances.ix[14, 0], 0.1)
+        assert_almost_equal(self.config.abundances.ix[14, 1], 0.2)
+        assert_almost_equal(self.config.abundances.ix[14, 2], 0.2)
+        assert_almost_equal(self.config.abundances.ix[14, 3], 0.2)
+        assert_almost_equal(self.config.abundances.ix[14, 4], 0.2)
+        assert_almost_equal(self.config.abundances.ix[14, 5], 0.2)
+        assert_almost_equal(self.config.abundances.ix[14, 6], 0.0)
+        assert_almost_equal(self.config.abundances.ix[6, 0], 0.0)
+        assert_almost_equal(self.config.abundances.ix[6, 1], 0.0)
+        assert_almost_equal(self.config.abundances.ix[6, 2], 0.0)
+        assert_almost_equal(self.config.abundances.ix[6, 3], 0.0)
+        assert_almost_equal(self.config.abundances.ix[6, 4], 0.0)
+        assert_almost_equal(self.config.abundances.ix[6, 5], 0.0)
+        assert_almost_equal(self.config.abundances.ix[6, 6], 0.5)
+
+    def test_densities(self):
+        assert_almost_equal(self.config.structure.mean_densities[0], 9.7656229e-11 * u.Unit('g/cm3') / 13.0**3 )
+        assert_almost_equal(self.config.structure.mean_densities[1], 4.8170911e-11 * u.Unit('g/cm3') / 13.0**3 )
+        assert_almost_equal(self.config.structure.mean_densities[2], 2.5600000e-11 * u.Unit('g/cm3') / 13.0**3 )
+        assert_almost_equal(self.config.structure.mean_densities[3], 1.4450533e-11 * u.Unit('g/cm3') / 13.0**3 )
+        assert_almost_equal(self.config.structure.mean_densities[4], 8.5733893e-11 * u.Unit('g/cm3') / 13.0**3 )
+        assert_almost_equal(self.config.structure.mean_densities[5], 5.3037103e-11 * u.Unit('g/cm3') / 13.0**3 )
+        assert_almost_equal(self.config.structure.mean_densities[6], 3.3999447e-11 * u.Unit('g/cm3') / 13.0**3 )
 
 #write tests for inner and outer boundary indices
