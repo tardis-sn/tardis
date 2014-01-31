@@ -92,9 +92,14 @@ def read_abundances_file(abundance_filename, abundance_filetype, inner_boundary_
                     'artis': read_simple_ascii_abundances}
 
     index, abundances = file_parsers[abundance_filetype](abundance_filename)
-
-    return index[inner_boundary_index:outer_boundary_index], \
-           abundances.ix[:, slice(inner_boundary_index, outer_boundary_index)]
+    if outer_boundary_index is not None:
+        outer_boundary_index_m1 = outer_boundary_index - 1 
+    else:
+        outer_boundary_index_m1 = None
+    index = index[inner_boundary_index:outer_boundary_index]
+    abundances = abundances.ix[:, slice(inner_boundary_index, outer_boundary_index_m1)]
+    abundances.columns = np.arange(len(abundances.columns))
+    return index, abundances
 
 
 def read_simple_ascii_density(fname):
