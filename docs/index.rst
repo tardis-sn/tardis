@@ -45,6 +45,7 @@ We are using Astropy's excellent workflow - more details can be found at `<http:
     running
     gui
     uses
+    profilemodel
     atomic
     plasma
     montecarlo
