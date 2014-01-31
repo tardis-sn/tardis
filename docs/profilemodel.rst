@@ -46,7 +46,12 @@ The values in the example here define a density profile that is dropping off wit
 
     \rho \propto v^{-5}
 
+.. note::
 
+    The grid of points specified in the input fule is interpretted by
+    TARDIS as defining a grid in which the tabulated velocities are
+    taken as the outer boundaries of grid cells and the density is
+    assumed to be uniform with each cell.
 
 
 Stratified abundance profile
@@ -90,26 +95,19 @@ TARDIS input file
 
 If you create a correctly formatted density profile file (called "density.txt") and abundance profile file (called "abund.txt"), you can use them in TARDIS by putting the following lines in the model section of the yaml file (and remove all other lines from these sections):
 
+.. code-block:: none
+
     model:                
-    
         structure:
-    
             type: file
-    
             filename: density.txt
-    
             filetype: simple_ascii
-    
             v_inner_boundary: 9000 km/s
-    
             v_outer_boundary: 22500 km/s
     
         abundances:
-    
             type: file
-    
             filename: abund.txt
-    
             filetype: simple_ascii
     
 
