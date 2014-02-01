@@ -1,0 +1,115 @@
+**************************
+Setting up a model with density and abundance profile
+**************************
+
+TARDIS can be used to compute a synthetic spectrum for a model with user-specified density and abundance profiles - this makes it possible to experiment with 1D profiles based on explosion models or with any empirical description of a model with stratified abundances or density.
+
+
+Arbitrary density profile
+===============
+
+The density profile is supplied in the form of a simple ascii file that should look something like this:
+
+
+.. code-block:: none
+
+    1 day
+    # index velocity (km/s) density (g/cm^3)
+    0       9000.0000   5.4869692e-10
+    1       10500.000   2.1759646e-10
+    2       12000.000   9.7656229e-11
+    3       13500.000   4.8170911e-11
+    4       15000.000   2.5600000e-11
+    5       16500.000   1.4450533e-11
+    6       18000.000   8.5733893e-12
+    7       19500.000   5.3037103e-12
+    8       21000.000   3.3999447e-12
+    9       22500.000   2.2474623e-12
+
+In this file:
+
+- the first line gives the reference time (see below)
+
+- (the second line in our example is a comment)
+
+- the remaining lines (ten in our example) give an indexed table of points that specify mass density (g / cm^3) as a function of velocity (km /s). 
+
+TARDIS will use this table of density versus velocity to specify the density distribution in the ejecta. For the calculation, TARDIS will use the reference time given in the file to scale the mass densities to whatever epoch is requested by assuming homologous expansion:
+
+.. math::
+
+     \rho (t_{exp}) = \rho (t_{ref}) (t_{ref} / t_{exp})^{3}
+
+The values in the example here define a density profile that is dropping off with
+
+.. math::
+
+    \rho \propto v^{-5}
+
+.. note::
+
+    The grid of points specified in the input fule is interpretted by
+    TARDIS as defining a grid in which the tabulated velocities are
+    taken as the outer boundaries of grid cells and the density is
+    assumed to be uniform with each cell.
+
+
+Stratified abundance profile
+===============
+
+For a model with density profile supplied via a file (see above), uniform abundances can be supplied as normal. Alternatively, a set of stratified elemental abundances can also be supplied. As with the density, the abundances are specified via an ascii file. An ascii file that could work with the example density file given above should be formatted like this:
+
+.. code-block:: none
+
+    # index ;  Z=1 - Z=30
+    0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0 0.1 0 0.2 0 0.2 0 0 0 0 0 0.2 0.1 0.1 0 0
+    1 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0 0.1 0 0.2 0 0.2 0 0 0 0 0 0.2 0.1 0.1 0 0
+    2 0 0 0 0 0 0 0 0 0 0 0 0 0 0.1 0 0.1 0 0.2 0 0.2 0 0 0 0 0 0.2 0.1 0.1 0 0
+    3 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+    4 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+    5 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+    6 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+    7 0 0 0 0 0 0 0 0.2 0 0 0 0.1 0 0.2 0 0.2 0 0.2 0 0.1 0 0 0 0 0 0 0 0 0 0
+    8 0 0 0 0 0 0.5 0 0.5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+    9 0 0 0 0 0 0.5 0 0.5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+
+In this file:
+
+- there should be the same number of rows as there were indexed points in the density profile file
+- each row contains 31 numbers, the first of which is the index (i.e. matching the zone to the density profile file)
+- the remaining 30 entries in each row give the set of elemental abundances for atomic number Z=1 to Z=30 (in order)
+
+The abundances are specified as mass fractions (i.e. the sum of columns 1 to 30 in each row should be 1.0). TARDIS does not currently include any elements heavier that Z=30. The mass fractions specified will be adopted directly in the TARDIS calculations - so if your model is e.g. based on an explosion simulation you may need to calculate the state of any radioactive decay chains at the correct epoch.
+
+The example file shown here has three simple layers: 
+
+- an innermost region (indices 0 to 2) that is composed of Si (Z=14), S (Z=16), Ar (Z=18), Ca (Z=20), Fe (Z=26), Co (Z=27) and Ni (Z=28)
+
+- a middle region (indices 3 to 7) that is composed of O (Z=8), Mg (Z=12), Si, S, Ar and Ca
+
+- an outer region (indices 8 and 9) that is composed of C (Z=6) and O.
+
+
+TARDIS input file
+==========
+
+If you create a correctly formatted density profile file (called "density.txt") and abundance profile file (called "abund.txt"), you can use them in TARDIS by putting the following lines in the model section of the yaml file (and remove all other lines from these sections):
+
+.. code-block:: none
+
+    model:                
+        structure:
+            type: file
+            filename: density.txt
+            filetype: simple_ascii
+            v_inner_boundary: 9000 km/s
+            v_outer_boundary: 22500 km/s
+    
+        abundances:
+            type: file
+            filename: abund.txt
+            filetype: simple_ascii
+    
+
+The specifications for the velocities of the inner and outer boundary values can be neglected (in which case TARDIS will default to using the full velocity range specified in the density.txt file). Values for the boundary velocities that lie outside the range covered by density.txt will not be accepted.
+
