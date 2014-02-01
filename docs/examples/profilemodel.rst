@@ -1,8 +1,10 @@
-**************************
-Setting up a model with density and abundance profile
-**************************
+***********************************************
+Model with custom density and abundance profile
+***********************************************
 
-TARDIS can be used to compute a synthetic spectrum for a model with user-specified density and abundance profiles - this makes it possible to experiment with 1D profiles based on explosion models or with any empirical description of a model with stratified abundances or density.
+TARDIS can be used to compute a synthetic spectrum for a model with user-specified density and abundance profiles -
+this makes it possible to experiment with 1D profiles based on explosion models or with any empirical description of a
+ model with stratified abundances or density.
 
 
 Arbitrary density profile
@@ -36,7 +38,7 @@ The values in the example here define a density profile that is dropping off wit
 
 .. note::
 
-    The grid of points specified in the input fule is interpretted by
+    The grid of points specified in the input file is interpreted by
     TARDIS as defining a grid in which the tabulated velocities are
     taken as the outer boundaries of grid cells and the density is
     assumed to be uniform with each cell.
@@ -60,7 +62,10 @@ In this file:
 - each row contains 31 numbers, the first of which is the index (i.e. matching the zone to the density profile file)
 - the remaining 30 entries in each row give the set of elemental abundances for atomic number Z=1 to Z=30 (in order)
 
-The abundances are specified as mass fractions (i.e. the sum of columns 1 to 30 in each row should be 1.0). TARDIS does not currently include any elements heavier that Z=30. The mass fractions specified will be adopted directly in the TARDIS calculations - so if your model is e.g. based on an explosion simulation you may need to calculate the state of any radioactive decay chains at the correct epoch.
+The abundances are specified as mass fractions (i.e. the sum of columns 1 to 30 in each row should be 1.0).
+TARDIS does not currently include any elements heavier that Z=30.
+The mass fractions specified will be adopted directly in the TARDIS calculations - so if your model is
+e.g. based on an explosion simulation you may need to calculate the state of any radioactive decay chains at the correct epoch.
 
 The example file shown here has three simple layers: 
 
@@ -79,6 +84,7 @@ you can use them in TARDIS by putting the following lines in the model section o
 
 .. literalinclude:: tardis_configv1_ascii_density_abund.yml
     :language: yaml
+
 The specifications for the velocities of the inner and outer boundary values can be neglected
 (in which case TARDIS will default to using the full velocity range specified in the density.txt file).
 Values for the boundary velocities that lie outside the range covered by density.txt will not be accepted.
