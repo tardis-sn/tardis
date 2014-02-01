@@ -78,7 +78,7 @@ If you create a correctly formatted density profile file (called "density.dat") 
 you can use them in TARDIS by putting the following lines in the model section of the yaml file (and remove all other lines from these sections):
 
 .. literalinclude:: tardis_configv1_ascii_density_abund.yml
-
+    :language: yaml
 The specifications for the velocities of the inner and outer boundary values can be neglected
 (in which case TARDIS will default to using the full velocity range specified in the density.txt file).
 Values for the boundary velocities that lie outside the range covered by density.txt will not be accepted.
