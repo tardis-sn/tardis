@@ -15,7 +15,7 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     running
     gui
     uses
-    profilemodel
+    examples/examples
     atomic
     plasma
     montecarlo
