@@ -4,7 +4,7 @@ Model with custom density and abundance profile
 
 TARDIS can be used to compute a synthetic spectrum for a model with user-specified density and abundance profiles -
 this makes it possible to experiment with 1D profiles based on explosion models or with any empirical description of a
- model with stratified abundances or density.
+model with stratified abundances or density.
 
 
 Arbitrary density profile
@@ -24,7 +24,7 @@ In this file:
 
 TARDIS will use this table of density versus velocity to specify the density distribution in the ejecta.
 For the calculation, TARDIS will use the reference time given in the file to scale the mass densities to whatever
- epoch is requested by assuming homologous expansion:
+epoch is requested by assuming homologous expansion:
 
 .. math::
 
@@ -50,7 +50,7 @@ Stratified abundance profile
 For a model with density profile supplied via a file (see above), uniform abundances can be supplied as normal.
 Alternatively, a set of stratified elemental abundances can also be supplied. As with the density,
 the abundances are specified via an ascii file. An ascii file that could work with the example density file given
- above should be formatted like this:
+above should be formatted like this:
 
 .. literalinclude:: abund.dat
 
