@@ -44,7 +44,7 @@ class ModelViewer(QtGui.QWidget):
         self.line_info = []
         self.setGeometry(20, 35, 1250, 500)
         self.setWindowTitle('Shells Viewer')
-        self.tablemodel = SimpleTableModel([['Shell: '], ["t_rad", "Ws"]], (1, 0))
+        self.tablemodel = SimpleTableModel([['Shell: '], ["Rad. temp", "Ws"]], (1, 0))
         self.tableview = QtGui.QTableView()
         self.graph = MatplotlibWidget(self, 'model')
         self.graph_label = QtGui.QLabel('Select Property:')
@@ -64,13 +64,13 @@ class ModelViewer(QtGui.QWidget):
         self.tableview.connect(self.tableview.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'), self.graph.highlight_shell)
         self.tableview.connect(self.tableview.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
                                self.on_header_double_clicked)
-        self.graph_button.setText('t_rads')
+        self.graph_button.setText('Rad. temp')
         self.spectrum_button.setText('spec_flux_angstrom')
         self.graph_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
         self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
         self.graph_button.setMenu(QtGui.QMenu(self.graph_button))
         self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
-        self.graph_button.menu().addAction('t_rads').triggered.connect(self.change_graph_to_t_rads)
+        self.graph_button.menu().addAction('Rad. temp').triggered.connect(self.change_graph_to_t_rads)
         self.graph_button.menu().addAction('Ws').triggered.connect(self.change_graph_to_ws)
         self.spectrum_button.menu().addAction('spec_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
         self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
@@ -185,15 +185,15 @@ class ModelViewer(QtGui.QWidget):
 
     def plot_model(self):
         self.graph.ax1.clear()
-        self.graph.ax1.set_title('t_rads vs Shell')
+        self.graph.ax1.set_title('Rad. Temp vs Shell')
         self.graph.ax1.set_xlabel('Shell Number')
-        self.graph.ax1.set_ylabel('t_rads (K)')
+        self.graph.ax1.set_ylabel('Rad. Temp (K)')
         self.graph.ax1.yaxis.get_major_formatter().set_powerlimits((0, 1))
         self.graph.dataplot = self.graph.ax1.plot(range(len(self.model.t_rads.value)), self.model.t_rads.value)
         self.graph.ax2.clear()
         self.graph.ax2.set_title('Shell View')
-        self.graph.ax2.set_xlabel('Distance from Center (cm)')
-        self.graph.ax2.set_ylabel('Distance from Center (cm)')
+        self.graph.ax2.set_xlabel('Arbitrary')
+        self.graph.ax2.set_ylabel('Arbitrary')
         self.shells = []
         t_rad_normalizer = colors.Normalize(vmin=self.model.t_rads.value.min(), vmax=self.model.t_rads.value.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
@@ -360,7 +360,7 @@ class LineInteractionTables(QtGui.QWidget):
             last_line_count.append(int(row))
 
 
-        last_line_in_model = SimpleTableModel([last_line_in_string, ['Number of packets %d' %
+        last_line_in_model = SimpleTableModel([last_line_in_string, ['Num. pkts %d' %
                                                                      current_last_line_in.wavelength.count()]])
         last_line_in_model.addData(last_line_count)
         self.transitions_table.setModel(last_line_in_model)
