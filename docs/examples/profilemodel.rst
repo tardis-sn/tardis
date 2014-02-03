@@ -43,6 +43,11 @@ The values in the example here define a density profile that is dropping off wit
     taken as the outer boundaries of grid cells and the density is
     assumed to be uniform with each cell.
 
+.. warning::
+
+   The example given here is to show the format only. It is not a
+   realistic model. In any real calculation better resolution
+   (i.e. more grid points) should be used.
 
 Stratified abundance profile
 ============================
@@ -75,6 +80,18 @@ The example file shown here has three simple layers:
 
 - an outer region (indices 8 and 9) that is composed of C (Z=6) and O.
 
+.. warning::
+
+   The example given here is to show the format only. It is not a
+   realistic model. In any real calculation better resolution
+   (i.e. more grid points) should be used.
+
+.. warning::
+
+   The calculation can be no better / more complete than the atomic
+   data set. For further information on the atomic database -
+   including details of how to develop your own dataset to suit your
+   needs, please contact us.
 
 TARDIS input file
 =================
@@ -85,7 +102,8 @@ you can use them in TARDIS by putting the following lines in the model section o
 .. literalinclude:: tardis_configv1_ascii_density_abund.yml
     :language: yaml
 
-The specifications for the velocities of the inner and outer boundary values can be neglected
-(in which case TARDIS will default to using the full velocity range specified in the density.txt file).
-Values for the boundary velocities that lie outside the range covered by density.txt will not be accepted.
+.. note::
+    The specifications for the velocities of the inner and outer boundary values can be neglected
+    (in which case TARDIS will default to using the full velocity range specified in the density.txt file).
+    Values for the boundary velocities that lie outside the range covered by density.txt will not be accepted.
 
