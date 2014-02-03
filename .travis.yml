@@ -26,15 +26,15 @@ install:
 
    #- pip install --upgrade scipy --use-mirrors
    - pip install -q astropy --use-mirrors
-   - pip install -q coveralls
-   - pip install -q --upgrade pytest-cov --use-mirrors
+   - pip install -q coveralls --use-mirrors
+   - pip install -q pytest --use-mirrors
    #- pip -q install --upgrade h5py --use-mirrors
    - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
    - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
 
 
 script:
-   coverage run --source=tardis setup.py test --coverage
+   coverage run --source=tardis -m py.test
 
 after_success:
   coveralls
