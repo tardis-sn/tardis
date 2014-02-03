@@ -20,9 +20,13 @@ model:
         v_outer_boundary: 20000 km/s
 
     abundances:
-        type: file
-        filename: abund.dat
-        filetype: simple_ascii
+        type: uniform
+        O: 0.19
+        Mg: 0.03
+        Si: 0.52
+        S: 0.19
+        Ar: 0.04
+        Ca: 0.03
 
 plasma:
     disable_electron_scattering: no
