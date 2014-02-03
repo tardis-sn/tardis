@@ -14,14 +14,14 @@ model:
             
     structure:
         type: file
-        filename: density.txt
+        filename: density.dat
         filetype: simple_ascii
         v_inner_boundary: 11000 km/s
         v_outer_boundary: 20000 km/s
 
     abundances:
         type: file
-        filename: abund.txt
+        filename: abund.dat
         filetype: simple_ascii
 
 plasma:
