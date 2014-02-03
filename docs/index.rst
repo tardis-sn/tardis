@@ -7,6 +7,22 @@ rapid spectral modelling of supernovae. The code is described in this documentat
 .. note::
     This documentation is currently under construction and does not describe all of the modes of operations available for TARDIS.
 
+
+.. toctree::
+    :maxdepth: 1
+
+    installation
+    running
+    gui
+    uses
+    examples/examples
+    atomic
+    plasma
+    montecarlo
+    glossary
+    zreferences
+    credits
+
 The code is built on a few principles:
 
  * **open** - the code is fully open source and we invite usage and contributions from the community
@@ -38,19 +54,7 @@ We are using Astropy's excellent workflow - more details can be found at `<http:
     Currently TARDIS only works on 64-bit python installations. We're working on making it work on 32-bit python
     distributions.
 
-.. toctree::
-    :maxdepth: 1
 
-    installation
-    running
-    gui
-    uses
-    atomic
-    plasma
-    montecarlo
-    glossary
-    zreferences
-    credits
 
 ..    configuration
 ..    gui
