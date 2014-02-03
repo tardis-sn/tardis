@@ -1,5 +1,7 @@
+======
 TARDIS
 ======
+
 .. image:: https://pypip.in/v/tardis-sn/badge.png
   :target: https://pypi.python.org/pypi/tardis-sn
   
@@ -13,8 +15,8 @@ Documentation at http://tardis.readthedocs.org
 
 
 Travis Build Status
-
 -------------------
+
 .. image:: https://travis-ci.org/tardis-sn/tardis.png?branch=master
   :target: https://travis-ci.org/tardis-sn/tardis
 
