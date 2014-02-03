@@ -31,7 +31,7 @@ install:
 
 
 script:
-   coverage run --source=tardis setup.py test
+   coverage run --source=tardis setup.py test --coverage
 
 after_success:
   coveralls
