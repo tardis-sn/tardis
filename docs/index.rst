@@ -19,6 +19,7 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     atomic
     plasma
     montecarlo
+    changelog
     glossary
     zreferences
     credits
