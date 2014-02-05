@@ -7,6 +7,46 @@ from astropy import units
 import yaml
 
 
+class Error(Exception):
+    """Base class for exceptions in the config parser."""
+    pass
+
+
+class ConfigTypeError(Error):
+    """
+    Exception raised if the type of the configured value mismatches the type specified in the default configuration.
+    """
+
+    def __init__(self, value, expected_type, help):
+        self.value = value
+        self.expected_type = expected_type
+        self.help = help
+
+    def __str__(self):
+        return "Expected type %s but found %s.\nHelp:%s " % (repr(expected_type), repr(type(self.value)), help)
+
+
+class ConfigError(Error):
+    """
+    Exception raised if something is wrong in the default configuration.
+    """
+
+    def __init__(self, path):
+        self.path = path
+
+    def __str__(self):
+        return "Error in the configuration at %s " % ("->".join(self.path))
+
+
+class DefaultConfigError(ConfigError):
+    """
+    Exception raised if something is wrong in the default configuration.
+    """
+
+    def __str__(self):
+        return "Error in the default configuration at %s " % ("->".join(self.path))
+
+
 class DefaultParser:
     """Not invented here syndrome"""
 
@@ -26,6 +66,8 @@ class DefaultParser:
         self.__register_leaf('quantity')
         self.__register_leaf('string')
         self.__register_leaf('container-declaration')
+        self.__register_leaf('range')
+        self.__register_leaf('range_sampled')
         self.__mandatory = False
 
         self.__allowed_value = None
@@ -255,6 +297,47 @@ class DefaultParser:
 
     __check['string'] = __is_type_string
 
+
+    def __is_type_range(self, value):
+        print('----')
+        print(value)
+        if isinstance(value, dict):
+            if reduce((lambda a, b: a in value), [True, 'start', 'end']):
+                if abs(value['start'] - value['end']) > 0:
+                    return True
+        elif isinstance(value, list):
+            if len(value) == 2:
+                if abs(value[0] - value[1]) > 0:
+                    return True
+        return False
+
+    __check['range'] = __is_type_range
+
+
+    def __is_type_range_sampled(self, value):
+        print('----')
+        print(value)
+        if isinstance(value, dict):
+            if reduce((lambda a, b: a in value), [True, 'start', 'end', 'sample']):
+                if abs(value['start'] - value['end']) > 0:
+                    return True
+        elif isinstance(value, list):
+            if len(value) == 3:
+                if abs(value[0] - value[1]) > 0:
+                    return True
+        return False
+
+    __check['range_sampled'] = __is_type_range_sampled
+
+    def __to_range(self, value):
+        return [value['start'], value['end']]
+
+    __convert['range'] = __to_range
+
+    def __to_range_sampled(self, value):
+        return [alue['start'], value['end'], value['sample']]
+
+
     def __to_quantity(self, value):
         quantity_value, quantity_unit = value.strip().split()
         float(quantity_value)
@@ -483,13 +566,13 @@ class Config:
         :param default_configuration: Default configuration dictionary
         :param input_configuration: Configuration dictionary
         """
-
+        self.__conf_o = None
+        self.__conf_v = None
         self.mandatories = {}
         self.fulfilled = {}
         self.__create_default_conf(default_configuration)
         self.__parse_config(default_configuration, input_configuration)
-        self.__conf_o = None
-        self.__conf_v = None
+
 
     def __mandatory_key(self, path):
         """Return the key string for dictionary of mandatory entries
@@ -540,13 +623,6 @@ class Config:
                     if item is not None:
                         return item
 
-        def is_path_valid(conf_dict, path):
-            try:
-                for key in path:
-                    conf_dict = conf_dict[key]
-                return True
-            except KeyError:
-                return False
 
         def get_property_by_path(dict, path):
             """ Returns the value for a specific path(chain of keys) in a nested dictionary
@@ -582,12 +658,19 @@ class Config:
                     return ccontainer.get_container_ob(), ccontainer.get_container_conf()
                 elif not default_property.is_leaf:
                     for k, v in top_default.items():
-                        tmp_conf_ob[k], tmp_conf_val[k] = recursive_parser(v, configuration, k, path + [k])
+                        tmp_conf_ob[k], tmp_conf_val[k] = recursive_parser(v, configuration, path + [k])
+                        print('>---<')
+                        print(k)
+                        print(tmp_conf_val[k])
                     return tmp_conf_ob, tmp_conf_val
                 else:
                     default_property.set_path_in_dic(path)
                     try:
+                        print('get_property_by_path')
+                        print(path)
                         conf_value = get_property_by_path(configuration, path)
+                        print(conf_value)
+                        print('End:get_property_by_path')
                     except:
                         conf_value = None
 
@@ -596,7 +679,9 @@ class Config:
                     return default_property, default_property.get_value()
 
 
-        self.__conf_o, self.__conf_v = recursive_parser(default_configuration, configuration, 'main', [])
+        self.__conf_o, self.__conf_v = recursive_parser(default_configuration, configuration, [])
+        print('|\|\|\|')
+        print(self.__conf_v)
 
     def __create_default_conf(self, default_conf):
         """Returns the default configuration values as dictionary.
@@ -618,7 +703,7 @@ class Config:
                 if not default_property.is_container():
                     if not default_property.is_leaf:
                         for k, v in top_default.items():
-                            tmp_default[k] = recursive_default_parser(v, k, path + [k])
+                            tmp_default[k] = recursive_default_parser(v, path + [k])
                         return tmp_default
                     else:
                         default_property.set_path_in_dic(path)
@@ -627,12 +712,13 @@ class Config:
                         else:
                             return None
 
-        self.__default_config = recursive_default_parser(default_conf, 'main', [])
+        self.__default_config = recursive_default_parser(default_conf, [])
 
     def get_config(self):
         """Returns the parsed configuration as dictionary.
         :return: configuration values as dictionary
         """
+        print(self.__conf_v)
         return self.__conf_v
 
     def get_default_config(self):
