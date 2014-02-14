@@ -1,0 +1,21 @@
+value_test:
+    integer: 10
+    float: 10.5
+    string: bla bla
+    quantity: 10 cm
+    list: ['bla','blub']
+
+supernova:
+    luminosity_requested: 1 cm
+    time_explosion: 12 d
+test:
+    structure:
+        type: file
+        file_property: 
+            filename: bla
+            file_container:
+                type: bla
+                subset:
+                    subvalue: TEST
+
+
