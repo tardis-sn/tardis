@@ -85,7 +85,21 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     return spectrum_start_wavelength, spectrum_end_wavelength
 
 
+<<<<<<< HEAD
 def calc_exponential_density(velocities, v_0, rho0):
+=======
+def calc_exponential_density(velocities, rho0, velocity_0):
+    """
+    This function computes the exponential density profile.
+    :param velocities: Array like velocity profile.
+    :param rho0: rho at v0
+    :param velocity_0: the velocity at the inner shell
+    :return: Array like density profile
+    """
+
+
+def calc_power_law_density(velocities, velocity_0, rho_0, exponent):
+>>>>>>> 36a72d1... exponential density profile fixed
     """
     This function computes the exponential density profile.
     :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`
@@ -414,11 +428,15 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         else:
             logger.debug('time_0 not supplied for density powerlaw - using sensible default %g', time_0)
         try:
+<<<<<<< HEAD
             rho_0 = density_dict.pop('rho_0')
             if isinstance(rho_0, basestring):
                 rho_0 = parse_quantity(rho_0)
             else:
                 raise KeyError
+=======
+            rho_0 = float(parse_quantity(density_dict.pop('rho_0').to('g/cm^3').value))
+>>>>>>> 36a72d1... exponential density profile fixed
         except KeyError:
             rho_0 = parse_quantity('1e-2 g/cm^3')
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
@@ -438,9 +456,13 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
 
             
         velocities = 0.5 * (v_inner + v_outer)
+<<<<<<< HEAD
         densities = calc_power_law_density(velocities, v_0, rho_0, exponent)
         densities = calculate_density_after_time(densities, time_0, time_explosion)
         return densities
+=======
+        densities = calc_power_law_density(velocities, v_inner[0], rho_0, exponent)
+>>>>>>> 36a72d1... exponential density profile fixed
 
     density_parser['power_law'] = parse_power_law
 
@@ -473,7 +495,8 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         densities = calculate_density_after_time(densities, time_0, time_explosion)
         return densities
 
-    density_parser['exponential'] = parse_exponential
+    density_parser['exponential'] = parse_power_law # legacy support
+    density_parser['power_law'] = parse_power_law
 
     try:
         parser = density_parser[density_dict['type']]
