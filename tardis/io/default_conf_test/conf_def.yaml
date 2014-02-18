@@ -1,0 +1,74 @@
+value_test:
+    integer:
+        property_type: int
+        default: 99.1
+        mandatory: True
+        help:  integer value for testing
+    float:
+        property_type: float
+        default: 99.99
+        mandatory: True
+        help:  float value for testing
+    string:
+        property_type: string
+        default: DEFAULT
+        mandatory: True
+        help:  string for testing
+    quantity:
+        property_type: quantity
+        default: 99.99 cm
+        mandatory: True
+        help: quantity for testing
+    range:
+        property_type: range
+        default: [0,10] #[Start,End]
+        mandatory: False
+        help: range for testing
+    range_sampled:
+        property_type: range_sampled
+        default: [0,10,1] #[Start,End,Nsample]
+        mandatory: False
+        help: range for testing
+
+
+
+
+
+supernova:
+    luminosity_requested:
+        property_type: quantity ### log_lbol to be discussed
+        default: 2 m
+        mandatory: True
+        help: requested luminosity for simulation
+    time_explosion:
+        property_type: quantity
+        default: 10 cm
+        mandatory: False
+        help: time since explosion
+test:
+    structure:
+         property_type : container-property
+         type:
+             property_type: container-declaration
+             containers: ['file', 'specific']
+             _file: ['file_property']
+         file_property:
+               filename:
+                   property_type: string
+                   default: None
+                   mandatory: True
+                   help: file name (with path) to atomic data HDF5 file
+               file_container:
+                   property_type : container-property
+                   type:
+                       property_type: container-declaration
+                       containers: ['bla','blub']
+                       _bla: ['subset']
+                   subset:
+                       subvalue:
+                           property_type: string
+                           default: blabla
+                           mandatory: False
+                           help: very helpful 
+
+
