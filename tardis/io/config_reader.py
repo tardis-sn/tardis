@@ -453,6 +453,7 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         velocities = 0.5 * (v_inner + v_outer)
         densities = calc_exponential_density(velocities, v_inner[0], rho_0, a)
         densities = u.Quantity(densities, 'g/cm^3')
+        return densities
 
     density_parser['exponential'] = parse_exponential
 
