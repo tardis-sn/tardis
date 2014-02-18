@@ -85,14 +85,18 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     return spectrum_start_wavelength, spectrum_end_wavelength
 
 
-def calc_exponential_density(velocities, rho0, velocity_0):
+def calc_exponential_density(velocities, velocity_0, rho0, a):
     """
     This function computes the exponential density profile.
+
     :param velocities: Array like velocity profile.
     :param rho0: rho at v0
     :param velocity_0: the velocity at the inner shell
+    :param a: proportionality constant
     :return: Array like density profile
     """
+    densities = a * rho0 * np.exp(-(velocities / velocity_0))
+    return densities
 
 
 def calc_power_law_density(velocities, velocity_0, rho_0, exponent):
@@ -403,7 +407,11 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         else:
             logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
         try:
-            rho_0 = float(parse_quantity(density_dict.pop('rho_0').to('g/cm^3').value))
+            rho_0 = density_dict.pop('rho_0')
+            if isinstance(rho_0, basestring):
+                rho_0 = parse_quantity(rho_0).to('g/cm^3').value
+            else:
+                raise KeyError
         except KeyError:
             rho_0 = 1e-2
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
@@ -415,11 +423,38 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
 
         velocities = 0.5 * (v_inner + v_outer)
         densities = calc_power_law_density(velocities, v_inner[0], rho_0, exponent)
+        densities = u.Quantity(densities, 'g/cm^3')
 
         return densities
 
-    density_parser['exponential'] = parse_power_law # legacy support
     density_parser['power_law'] = parse_power_law
+
+    def parse_exponential(density_dict, v_inner, v_outer, time_explosion):
+        time_0 = density_dict.pop('time_0', 19.9999584)
+        if isinstance(time_0, basestring):
+            time_0 = parse_quantity(time_0).to('s').value
+        else:
+            logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
+        try:
+            rho_0 = density_dict.pop('rho_0')
+            if isinstance(rho_0, basestring):
+                rho_0 = parse_quantity(rho_0).to('g/cm^3').value
+            else:
+                raise KeyError
+        except KeyError:
+            rho_0 = 1e-2
+            logger.warning('rho_o was not given in the config! Using %g', rho_0)
+        try:
+            a = density_dict.pop('proportionality_constant')
+        except KeyError:
+            a = 2
+            logger.warning('The proportionality constant was not given in the config file! Using %f', a)
+
+        velocities = 0.5 * (v_inner + v_outer)
+        densities = calc_exponential_density(velocities, v_inner[0], rho_0, a)
+        densities = u.Quantity(densities, 'g/cm^3')
+
+    density_parser['exponential'] = parse_exponential
 
     try:
         parser = density_parser[density_dict['type']]
