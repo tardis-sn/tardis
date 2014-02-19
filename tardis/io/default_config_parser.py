@@ -1,10 +1,8 @@
 # coding=utf-8
 
 import re
-
 from astropy import units
 
-import yaml
 
 
 class Error(Exception):
@@ -14,7 +12,8 @@ class Error(Exception):
 
 class ConfigTypeError(Error):
     """
-    Exception raised if the type of the configured value mismatches the type specified in the default configuration.
+    Exception raised if the type of the configured value mismatches the type
+    specified in the default configuration.
     """
 
     def __init__(self, value, expected_type, help):
@@ -23,7 +22,8 @@ class ConfigTypeError(Error):
         self.help = help
 
     def __str__(self):
-        return "Expected type %s but found %s.\nHelp:%s " % (repr(expected_type), repr(type(self.value)), help)
+        return "Expected type %s but found %s.\nHelp:%s " % \
+        (repr(self.expected_type), repr(type(self.value)), help)
 
 
 class ConfigError(Error):
@@ -44,10 +44,11 @@ class DefaultConfigError(ConfigError):
     """
 
     def __str__(self):
-        return "Error in the default configuration at %s " % ("->".join(self.path))
+        return "Error in the default configuration at %s " % \
+        ("->".join(self.path))
 
 
-class DefaultParser:
+class DefaultParser(object):
     """Not invented here syndrome"""
 
     __check = {}
@@ -59,7 +60,6 @@ class DefaultParser:
         :param default_dict: default configuration
         :return:
         """
-
         self.__register_leaf('list')
         self.__register_leaf('int')
         self.__register_leaf('float')
@@ -69,6 +69,7 @@ class DefaultParser:
         self.__register_leaf('range')
         self.__register_leaf('range_sampled')
         self.__mandatory = False
+        self.__default_value = None
 
         self.__allowed_value = None
         self.__allowed_type = None
@@ -85,11 +86,13 @@ class DefaultParser:
                 raise ValueError
 
         if 'allowed_value' in default_dict:
-            self.__allowed_value = self.__convert_av_in_pt(default_dict['allowed_value'], self.__property_type)
+            self.__allowed_value = self.__convert_av_in_pt(
+                default_dict['allowed_value'], self.__property_type)
 
         if 'allowed_type' in default_dict:
             self.__allowed_type = default_dict['allowed_type']
-            self.__lower, self.__upper = self.__parse_allowed_type(self.__allowed_type)
+            self.__lower, self.__upper = self.__parse_allowed_type(
+                self.__allowed_type)
 
         if 'default' in default_dict:
             self.set_default(default_dict['default'])
@@ -163,12 +166,14 @@ class DefaultParser:
 
     def get_value(self):
         """
-        Returns the configuration value from the configuration. If the value specified in the configuration is invalid
+        Returns the configuration value from the configuration.
+        If the value specified in the configuration is invalid
         the default value is returned
         :return: value
         """
 
-        if self.__config_value is not None and self.is_valid(self.__config_value):
+        if (self.__config_value is not None and
+            self.is_valid(self.__config_value)):
             return self.__config_value
         else:
             if self.has_default():
@@ -181,18 +186,21 @@ class DefaultParser:
         Returns True if this property is of type container.
         :return:
         """
-        return self.__is_container(None)
+        return self.__is_container()
 
     def get_container_dic(self):
         """
-        If this property is a container it returns the corresponding container dictionary
+        If this property is a container it returns the corresponding
+        container dictionary
         :return: container dictionary
         """
-        if self.__is_container(None):
+        if self.__is_container():
             return self.__container_dic
 
-    def update_container_dic(self, container_dic, current_entry_name):
-        if reduce(lambda a, b: a or b, [container_dic.has_key(i) for i in ['and', 'or']], True):
+    @classmethod
+    def update_container_dic(cls, container_dic, current_entry_name):
+        if reduce(lambda a, b: a or b,\
+                  [container_dic.has_key(i) for i in ['and', 'or']], True):
             if 'or' in container_dic:
                 if current_entry_name in container_dic['or']:
                     container_dic['or'] = []
@@ -206,10 +214,10 @@ class DefaultParser:
         if not self.__check[self.__property_type](self, value):
             return False
         if self.__allowed_value:
-            if not self.__is_allowed_value(self, value, self.__allowed_value):
+            if not self.__is_allowed_value(value, self.__allowed_value):
                 return False
         if self.__allowed_type:
-            if not self.__check_value(self, value, self.__lower, self.__upper):
+            if not self.__check_value(value, self.__lower, self.__upper):
                 return False
         return True
 
@@ -221,7 +229,7 @@ class DefaultParser:
     def __is_leaf(self, type_name):
         return type_name in self.__list_of_leaf_types
 
-    def __is_container(self, value):
+    def __is_container(self):
         if self.__property_type == 'container-property':
             try:
                 self.__container_dic = self.__default_dict['type']['containers']
@@ -318,7 +326,8 @@ class DefaultParser:
         print('----')
         print(value)
         if isinstance(value, dict):
-            if reduce((lambda a, b: a in value), [True, 'start', 'end', 'sample']):
+            if reduce((lambda a, b: a in value),\
+                [True, 'start', 'end', 'sample']):
                 if abs(value['start'] - value['end']) > 0:
                     return True
         elif isinstance(value, list):
@@ -335,7 +344,7 @@ class DefaultParser:
     __convert['range'] = __to_range
 
     def __to_range_sampled(self, value):
-        return [alue['start'], value['end'], value['sample']]
+        return [value['start'], value['end'], value['sample']]
 
 
     def __to_quantity(self, value):
@@ -355,7 +364,7 @@ class DefaultParser:
         return float(value)
 
     __convert['float'] = __to_float
-
+    
     def __to_string(self, value):
         return str(value)
 
@@ -376,12 +385,12 @@ class DefaultParser:
         Converts the allowed values to the property type.
         """
         if not len([]) == 0:
-            return [self.__convert[property_type](a) for a in property_value]
+            return [self.__convert[property_type](a) for a in allowed_value]
         else:
             return []
 
     def __is_allowed_value(self, value, allowed_value):
-        if value in _allowed_value:
+        if value in allowed_value:
             return True
         else:
             return False
@@ -450,7 +459,7 @@ class Container(DefaultParser):
 
         #check if it is a valid default container
         if not 'type' in container_default_dict:
-            raise ValueError('The given default contaienr is no valid')
+            raise ValueError('The given default container is no valid')
 
         #set allowed containers
         try:
@@ -475,7 +484,7 @@ class Container(DefaultParser):
             self.__selected_container = None
             raise ValueError('No container type specified in config')
 
-        #look for necessary items 
+        #look for necessary items
         entry_name = '_' + self.__selected_container
         try:
             necessary_items = container_default_dict['type'][entry_name]
@@ -589,7 +598,7 @@ class Config:
         self.mandatories[self.__mandatory_key(path)] = name
 
     def deregister_mandatory(self, name, path):
-        """Register a dergistered mandatory entry
+        """Register a deregistered mandatory entry
         :param name: name of the mandatory entry to be deregistered
         :param path: path (composed of keys) in the dictionary
         """
@@ -597,7 +606,7 @@ class Config:
 
     def is_mandatory_fulfilled(self):
         """
-        Check if all mandatory entries are dergistered.
+        Check if all mandatory entries are deregistered.
         """
         if len(set(self.mandatories.keys()) - set(self.fulfilled.keys())) <= 0:
             return True
