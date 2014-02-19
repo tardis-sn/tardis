@@ -85,7 +85,7 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     return spectrum_start_wavelength, spectrum_end_wavelength
 
 
-def calc_exponential_density(velocities, velocity_0, rho0, a):
+def calc_exponential_density(velocities, v_0, rho0):
     """
     This function computes the exponential density profile.
 
@@ -95,7 +95,7 @@ def calc_exponential_density(velocities, velocity_0, rho0, a):
     :param a: proportionality constant
     :return: Array like density profile
     """
-    densities = a * rho0 * np.exp(-(velocities / velocity_0))
+    densities =  rho0 * np.exp(-(velocities / v_0))
     return densities
 
 
@@ -445,13 +445,16 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
             rho_0 = 1e-2
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
         try:
-            a = density_dict.pop('proportionality_constant')
+            v_0 = density_dict.pop('v_0')
+            if isinstance(v_0, basestring):
+                v_0 = parse_quantity(v_0).to('km/s').value
+            
         except KeyError:
-            a = 2
-            logger.warning('The proportionality constant was not given in the config file! Using %f', a)
+            v_0 = 1
+            logger.warning('v_0 was not given in the config file! Using %f km/s', v_0)
 
         velocities = 0.5 * (v_inner + v_outer)
-        densities = calc_exponential_density(velocities, v_inner[0], rho_0, a)
+        densities = calc_exponential_density(velocities, v_0, rho_0)
         densities = u.Quantity(densities, 'g/cm^3')
         return densities
 
