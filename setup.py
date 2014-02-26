@@ -25,7 +25,7 @@ from astropy.version_helpers import get_git_devstr, generate_version_py
 
 PACKAGENAME = 'tardis'
 DESCRIPTION = 'TARDIS - Temperature And Radiative Diffusion In Supernovae'
-LONG_DESCRIPTION = ''
+LONG_DESCRIPTION = 'TARDIS - Temperature And Radiative Diffusion In Supernovae'
 AUTHOR = 'TARDIS Team'
 AUTHOR_EMAIL = 'wkerzendorf@gmail.com'
 LICENSE = 'BSD (3 clause)'
