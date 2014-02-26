@@ -4,7 +4,7 @@ import tardis
 from tardis.io.default_config_parser import DefaultParser
 import os
 import yaml
-default_config_fname = os.path.join(tardis.__path__[0], 'data', 'tardis_default_config.yml')
+default_config_fname = os.path.join(tardis.__path__[0], 'data', 'tardis_default_config_definition.yml')
 
 
 def test_read():

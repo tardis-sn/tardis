@@ -166,7 +166,7 @@ montecarlo:
 
     black_body_sampling:
         property_type: quantity_sampled_old
-        default: [1, 1e6, 1e6] angstrom
+        default: "[1, 1e6, 1e6] angstrom"
         mandatory: False
         help: >
             Sampling of the black-body for energy packet creation
