@@ -45,6 +45,7 @@ supernova:
         default: 10 cm
         mandatory: False
         help: time since explosion
+
 test:
     structure:
          property_type : container-property
