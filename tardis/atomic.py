@@ -227,9 +227,9 @@ def read_collision_data(fname):
 
 def read_ion_cx_data(fname):
     try:
-        h5_file = h5py.File(fname, 'r')
-        ion_cx_th_data = h5_file['ionization_cx_threshold']
-        ion_cx_sp_data = h5_file['ionization_cx_support']
+        h5_file = h5py.File(fname)
+        ion_cx_th_data = h5_file['ion_cx_data']
+        ion_cx_sp_data = h5_file['ion_cx_sp_data']
         return ion_cx_th_data, ion_cx_sp_data
     except IOError, err:
         print(err.errno)
@@ -349,14 +349,9 @@ class AtomData(object):
                         collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs,
                         ion_cx_data=ion_cx_data)
 
-        with h5py.File(fname, 'r') as h5_file:
+        with h5py.File(fname) as h5_file:
             atom_data.uuid1 = h5_file.attrs['uuid1']
             atom_data.md5 = h5_file.attrs['md5']
-            atom_data.version = h5_file.attrs.get('database_version', None)
-
-            if atom_data.version is not None:
-                atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
-
             logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
 
         return atom_data
@@ -377,10 +372,11 @@ class AtomData(object):
             self.has_ion_cx_data = True
             #TODO:Farm a panda here
             self.ion_cx_th_data = DataFrame(np.array(ion_cx_data[0]))
-            self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_id'], inplace=True)
+            self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_number'], inplace=True)
 
             self.ion_cx_sp_data = DataFrame(np.array(ion_cx_data[1]))
-            self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_id'])
+            self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_number'])
+            self.ion_cx_sp_data['nu'] = units.Unit('angstrom').to('Hz', self.ion_cx_sp_data['wavelength'], units.spectral())
         else:
             self.has_ion_cx_data = False
 
