@@ -382,6 +382,11 @@ def element_symbol2atomic_number(element_string):
         raise MalformedElementSymbolError(element_string)
     return atomic.symbol2atomic_number[reformatted_element_string]
 
+def atomic_number2element_symbol(atomic_number):
+    """
+    Convert atomic number to string symbol
+    """
+    return atomic.atomic_number2symbol[atomic_number]
 
 def reformat_element_symbol(element_string):
     """
