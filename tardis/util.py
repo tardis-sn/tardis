@@ -4,6 +4,7 @@ from astropy import units as u, constants, units
 import numpy as np
 import os
 import yaml
+import re
 
 import logging
 import atomic
@@ -333,24 +334,30 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
 
 
 def species_string_to_tuple(species_string):
-    try:
-        element_string, ion_number_string = species_string.split()
-    except ValueError:
-        raise MalformedElementSymbolError(species_string)
-
-    atomic_number = element_symbol2atomic_number(element_string)
 
     try:
-        ion_number = roman_to_int(ion_number_string.strip())
+        element_symbol, ion_number_string = re.match('^(\w+)\s*(\d+)', species_string).groups()
+    except AttributeError:
+        try:
+            element_symbol, ion_number_string = species_string.split()
+        except ValueError:
+            raise MalformedSpeciesError('Species string "{0}" is not of format <element_symbol><number> '
+                                        '(e.g. Fe 2, Fe2, ..)'.format(species_string))
+
+    atomic_number = element_symbol2atomic_number(element_symbol)
+
+    try:
+        ion_number = roman_to_int(ion_number_string)
     except ValueError:
         try:
-            ion_number = np.int64(ion_number_string)
+            ion_number = int(ion_number_string)
         except ValueError:
-            raise MalformedSpeciesError
+            raise MalformedSpeciesError("Given ion number ('{}') could not be parsed ".format(ion_number_string))
+
     if ion_number > atomic_number:
         raise ValueError('Species given does not exist: ion number > atomic number')
 
-    return atomic_number, ion_number-1
+    return atomic_number, ion_number - 1
 
 
 def parse_quantity(quantity_string):
