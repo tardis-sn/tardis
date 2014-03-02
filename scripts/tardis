@@ -26,6 +26,8 @@ parser.add_argument('--log_file', default=None, help=log_file_help)
 
 log_file_help = "Name of the packet log file. Packet logging needs to be switched on before compiling."
 parser.add_argument('--packet_log_file', default=None, help=log_file_help)
+parser.add_argument('--profile', action='store_true', help='run tardis in profiling mode and output results to a specified log file')
+parser.add_argument('--profiler_log_file', default='profiler.log', help='name of the profiler output file')
 
 line_interaction_type_help = "Line interaction can be scatter and macro (for Macro atom). Will implement downbranching"
 
@@ -55,7 +57,11 @@ tardis_config = config_reader.TARDISConfiguration.from_yaml(args.config_fname)
 
 radial1d_mdl = model.Radial1DModel(tardis_config)
 
-simulation.run_radial1d(radial1d_mdl)
+if args.profile:
+    import cProfile
+    cProfile.runctx('simulation.run_radial1d(radial1d_mdl)', locals(), globals(), filename=args.profiler_log_file)
+else:
+    simulation.run_radial1d(radial1d_mdl)
 
 
 if not np.all(radial1d_mdl.spectrum_virtual.luminosity_density_lambda.value == 0.0):
