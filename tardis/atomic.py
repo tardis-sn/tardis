@@ -61,7 +61,7 @@ def read_hdf5_data(fname, dset_name):
         returns the respective
     """
 
-    h5_file = h5py.File(fname)
+    h5_file = h5py.File(fname, 'r')
     dataset = h5_file[dset_name]
     data = np.asarray(dataset)
     #    data_units = dataset.attrs['units']
@@ -153,7 +153,7 @@ def read_levels_data(fname=None):
 
 
 def read_synpp_refs(fname):
-    data_table = h5py.File(fname)['synpp_refs']
+    data_table = h5py.File(fname, 'r')['synpp_refs']
 
     return data_table.__array__()
 
@@ -196,7 +196,7 @@ def read_zeta_data(fname):
     if not os.path.exists(fname):
         raise IOError('HDF5 File doesn\'t exist')
 
-    h5_file = h5py.File(fname)
+    h5_file = h5py.File(fname, 'r')
 
     if 'zeta_data' not in h5_file.keys():
         raise ValueError('zeta_data not available in this HDF5-data file. It can not be used with NebularAtomData')
@@ -214,7 +214,7 @@ def read_collision_data(fname):
     if not os.path.exists(fname):
         raise IOError('HDF5 File doesn\'t exist')
 
-    h5_file = h5py.File(fname)
+    h5_file = h5py.File(fname, 'r')
 
     if 'collision_data' not in h5_file.keys():
         raise ValueError('collision_data not available in this HDF5-data file. It can not be used with NLTE')
@@ -227,7 +227,7 @@ def read_collision_data(fname):
 
 def read_ion_cx_data(fname):
     try:
-        h5_file = h5py.File(fname)
+        h5_file = h5py.File(fname, 'r')
         ion_cx_th_data = h5_file['ionization_cx_threshold']
         ion_cx_sp_data = h5_file['ionization_cx_support']
         return ion_cx_th_data, ion_cx_sp_data
@@ -244,7 +244,7 @@ def read_macro_atom_data(fname):
     if not os.path.exists(fname):
         raise IOError('HDF5 File doesn\'t exist')
 
-    h5_file = h5py.File(fname)
+    h5_file = h5py.File(fname, 'r')
 
     if 'macro_atom_data' not in h5_file.keys():
         raise ValueError('Macro Atom Data (macro_atom_data) is not in this HDF5-data file. '
@@ -316,7 +316,7 @@ class AtomData(object):
         levels_data = read_levels_data(fname)
         lines_data = read_lines_data(fname)
 
-        with h5py.File(fname) as h5_file:
+        with h5py.File(fname, 'r') as h5_file:
             h5_datasets = h5_file.keys()
 
         if 'macro_atom_data' in h5_datasets:
@@ -349,7 +349,7 @@ class AtomData(object):
                         collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs,
                         ion_cx_data=ion_cx_data)
 
-        with h5py.File(fname) as h5_file:
+        with h5py.File(fname, 'r') as h5_file:
             atom_data.uuid1 = h5_file.attrs['uuid1']
             atom_data.md5 = h5_file.attrs['md5']
             atom_data.version = h5_file.attrs.get('database_version', None)
