@@ -46,6 +46,223 @@ class DefaultConfigError(ConfigError):
     def __str__(self):
         return "Error in the default configuration at %s " % \
         ("->".join(self.path))
+    
+    
+class PropertyType(object):
+    def __init__(self):
+        self.__default = None
+        self.__allowed_value = None
+        self.__help = None
+        self.__mandatory = False
+        self.__lower = None
+        self.__upper =None
+        pass
+    
+    @property
+    def default(self):
+        return self.__default
+    
+    @default.setter
+    def default(self, value):
+        self.__default = value
+        
+    @property
+    def allowed_value(self):
+        return self.__allowed_value
+    
+    @allowed_value.setter
+    def allowed_value(self, value):
+        self.__allowed_value = value
+        if '__parse_allowed_type' in dir(self) and value != None:
+            self.__lower, self.__upper = self.__parse_allowed_type(value)
+        
+    @property
+    def help(self):
+        return self.__help
+    
+    @help.setter
+    def help(self, value):
+        self.__help = value
+        
+    @property
+    def mandatory(self):
+        return self.__mandatory
+    
+    @mandatory.setter
+    def mandatory(self, value):
+        self.__mandatory = value
+    
+    def check_type(self, value):
+        return True
+        
+    def to_type(self, value):
+        return value
+ 
+class PropertyTypeContainer(PropertyType):
+    
+    def check_type(self):
+        
+        pass
+    
+   
+class PropertyTypeInt(PropertyType):
+    
+    def check_type(self, value):
+        try:
+            int(value)
+            if float.is_integer(float(value)):
+                return True
+            else:
+                return False
+        except ValueError:
+            return False
+    
+    def to_type(self, value):
+        return int(value)
+    
+    def __parse_allowed_type(self, allowed_type):
+        string = allowed_type.strip()
+        upper = None
+        lower = None
+        if string.find("<") or string.find(">"):
+            #like x < a
+            match = re.compile('[<][\s]*[0-9.+^*eE]*$').findall(string)
+            if match:
+                value = re.compile('[0-9.+^*eE]+').findall(string)[0]
+                upper = float(value)
+                #like a > x"
+            match = re.compile('^[\s0-9.+^*eE]*[\s]*[<]$').findall(string)
+            if match:
+                value = re.compile('[0-9.+^*eE]+').findall(string)[0]
+                upper = float(value)
+                #like x > a
+            match = re.compile('[>][\s]*[0-9.+^*eE]*$').findall(string)
+            if match:
+                value = re.compile('[0-9.+^*eE]+').findall(string)[0]
+                lower = float(value)
+                #like a < x
+            match = re.compile('^[\s0-9.+^*eE]*[\s]*[<]$').findall(string)
+            if match:
+                value = re.compile('[0-9.+^*eE]+').findall(string)[0]
+                lower = float(value)
+
+        return lower, upper
+    
+    def __check_value(self, value, lower_lim, upper_lim):
+        upper, lower = True, True
+        if upper_lim != None:
+            upper = value < upper_lim
+        if lower_lim != None:
+            lower = value > lower_lim
+        return upper and lower
+    
+    
+    def __is_valid(self, value):
+        if not self.check_type(value):
+            return False
+        if self.allowed_value != None:
+            return False
+        if not self.__check_value(value, self.__lower, self.__upper):
+            return  False
+        return True
+            
+            
+        
+    
+class PropertyTypeFloat(PropertyTypeInt):
+    
+    def check_type(self, value):
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+        
+    def to_type(self, value):
+        return float(value)
+    
+    
+class PropertyTypeQuantity(PropertyType):
+    
+    def check_type(self, value):
+        try:
+            quantity_value, quantity_unit = value.strip().split()
+            float(quantity_value)
+            units.Unit(quantity_unit)
+            return True
+        except ValueError:
+            return False
+    
+    def to_type(self, value):
+        quantity_value, quantity_unit = value.strip().split()
+        float(quantity_value)
+        units.Unit(quantity_unit)
+        return (quantity_value, quantity_unit)
+    
+    
+class PropertyTypeString(PropertyType):
+    
+    def check_type(self, value):
+        try:
+            str(value)
+            return True
+        except ValueError:
+            return False
+    
+    def to_type(self, value):
+        return str(value)
+    
+class PropertyTypeList(PropertyType):
+    
+    def check_type(self, value):
+        try:
+            return isinstance(value, list)
+        except ValueError:
+            return False
+    
+    def to_type(self, value):
+        if isinstance(value, list):
+            return value
+        elif isinstance(value, basestring):
+            return value.split()
+        else:
+            return []
+    
+    
+class PropertyTypeRange(PropertyType):
+    
+    def check_type(self, value):
+        if isinstance(value, dict):
+            if reduce((lambda a, b: a in value), [True, 'start', 'end']):
+                if abs(value['start'] - value['end']) > 0:
+                    return True
+        elif isinstance(value, list):
+            if len(value) == 2:
+                if abs(value[0] - value[1]) > 0:
+                    return True
+        return False
+    
+    def to_type(self, value):
+        return [value['start'], value['end']]
+    
+class PropertyTypeRangeSampled(PropertyTypeRange):
+    
+    def check_type(self, value):
+        if isinstance(value, dict):
+            if reduce((lambda a, b: a in value),\
+                [True, 'start', 'end', 'sample']):
+                if abs(value['start'] - value['end']) > 0:
+                    return True
+        elif isinstance(value, list):
+            if len(value) == 3:
+                if abs(value[0] - value[1]) > 0:
+                    return True
+        return False
+        
+    def to_type(self, value):
+        return [value['start'], value['end'], value['sample']]
+    
+    
 
 
 class DefaultParser(object):
@@ -54,20 +271,43 @@ class DefaultParser(object):
     __check = {}
     __convert = {}
     __list_of_leaf_types = []
+    __types = {}
 
     def __init__(self, default_dict):
         """Creates a new property object for the given config level
         :param default_dict: default configuration
         :return:
         """
-        self.__register_leaf('list')
+        #create property type dict
+        self.__types['arbitrary'] = PropertyType
+        
+        self.__types['int'] = PropertyTypeInt
         self.__register_leaf('int')
+        
+        self.__types['float'] = PropertyTypeFloat
         self.__register_leaf('float')
+        
+        self.__types['quantity'] = PropertyTypeQuantity
         self.__register_leaf('quantity')
+        
+        self.__types['string'] = PropertyTypeString
         self.__register_leaf('string')
-        self.__register_leaf('container-declaration')
+        
+        self.__types['range'] = PropertyTypeRange
         self.__register_leaf('range')
+        
+        self.__types['range_sampled'] = PropertyTypeRangeSampled
         self.__register_leaf('range_sampled')
+        
+        self.__types['list'] = PropertyTypeList
+        self.__register_leaf('list')
+        
+        self.__types['container-declaration'] = PropertyTypeContainer
+        self.__register_leaf('container-declaration')
+        
+        self.__types['container-property'] = PropertyTypeContainer
+        self.__register_leaf('container-property')
+        
         self.__mandatory = False
         self.__default_value = None
 
@@ -82,23 +322,23 @@ class DefaultParser(object):
             self.__property_type = 'arbitrary'
         else:
             self.__property_type = default_dict['property_type']
-            if not self.__property_type in self.__check:
+            print(self.__property_type)
+            print(self.__types.keys())
+            if not self.__property_type in self.__types.keys():
                 raise ValueError
+        self.__type = self.__types[self.__property_type]()            
 
         if 'allowed_value' in default_dict:
-            self.__allowed_value = self.__convert_av_in_pt(
-                default_dict['allowed_value'], self.__property_type)
+            self.__type.allowed_value = default_dict['allowed_value']
 
         if 'allowed_type' in default_dict:
             self.__allowed_type = default_dict['allowed_type']
-            self.__lower, self.__upper = self.__parse_allowed_type(
-                self.__allowed_type)
-
+#ToDo: move all to classes
         if 'default' in default_dict:
-            self.set_default(default_dict['default'])
+            self.__type.default = default_dict['default']
 
         if 'mandatory' in default_dict:
-            self.__mandatory = default_dict['mandatory']
+            self.__type.mandatory = default_dict['mandatory']
 
         self.is_leaf = self.__is_leaf(self.__property_type)
 
@@ -106,7 +346,7 @@ class DefaultParser(object):
         """Returns the default value of this property, if specified.
         :return: default value
         """
-        return self.__default_value
+        return self.__type.default
 
     def set_default(self, value):
         """
@@ -114,19 +354,19 @@ class DefaultParser(object):
         :param value: new default value
         """
         if value != None:
-            if self.is_valid(value):
-                self.__default_value = value
+            if self.__type.check_type(value):
+                self.__type.default = value
             else:
-                raise ValueError('Default value violates property constraint.')
+                raise ValueError('Default value violates property constraint. Check %s : %s' %(self.get_path_in_dict(), self.__property_type))
         else:
-            self.__default_value = None
+            self.__type.default = None
 
     def is_mandatory(self):
         """
         Returns True if this property is a mandatory.
         :return: mandatory
         """
-        return self.__mandatory
+        return self.__type.mandatory
 
     def has_default(self):
         """
@@ -134,7 +374,7 @@ class DefaultParser(object):
         :return: has a default value
         """
         try:
-            if self.__default_value:
+            if self.__type.default != None:
                 return True
             else:
                 return False
@@ -173,11 +413,11 @@ class DefaultParser(object):
         """
 
         if (self.__config_value is not None and
-            self.is_valid(self.__config_value)):
+            self.__type.check_type(self.__config_value)):
             return self.__config_value
         else:
             if self.has_default():
-                return self.__default_value
+                return self.__type.default
             else:
                 raise ValueError('No default value given.')
 
@@ -210,6 +450,7 @@ class DefaultParser(object):
                     current_entry_name['and'].remove(current_entry_name)
                     return container_dic
 
+
     def is_valid(self, value):
         if not self.__check[self.__property_type](self, value):
             return False
@@ -234,17 +475,17 @@ class DefaultParser(object):
             try:
                 self.__container_dic = self.__default_dict['type']['containers']
                 return True
-            except:
+            except KeyError:
                 return False
         else:
             return False
 
-    __check['container-property'] = __is_container
+#    __check['container-property'] = __is_container
 
     def __is_container_declaration(self, value):
         pass
 
-
+"""
     def __is_type_arbitrary(self, value):
         self.is_leaf = False
         return True
@@ -379,16 +620,16 @@ class DefaultParser(object):
             return []
 
     __convert['list'] = __to_list
-
-    def __convert_av_in_pt(self, allowed_value, property_type):
-        """
+"""
+    #def __convert_av_in_pt(self, allowed_value, property_type):
+"""
         Converts the allowed values to the property type.
-        """
-        if not len([]) == 0:
-            return [self.__convert[property_type](a) for a in allowed_value]
-        else:
-            return []
-
+"""
+     #   if not len([]) == 0:
+      #      return [self.__convert[property_type](a) for a in allowed_value]
+       # else:
+        #    return []
+"""
     def __is_allowed_value(self, value, allowed_value):
         if value in allowed_value:
             return True
@@ -431,7 +672,7 @@ class DefaultParser(object):
         if lower_lim != None:
             lower = value > lower_lim
         return upper and lower
-
+"""
 
 
 class Container(DefaultParser):
@@ -464,7 +705,7 @@ class Container(DefaultParser):
         #set allowed containers
         try:
             self.__allowed_container = container_default_dict['type']['containers']
-        except:
+        except KeyError:
             raise ValueError('No container names specified')
 
         #check if the specified container in the config is allowed

@@ -1,7 +1,7 @@
 value_test:
     integer:
         property_type: int
-        default: 99.1
+        default: 99
         mandatory: True
         help:  integer value for testing
     float:

@@ -3,7 +3,7 @@ import tardis
 from tardis.io.default_config_parser import *
 import os
 import yaml
-
+import pytest
 
 
 
@@ -31,57 +31,32 @@ def default_parser_helper(test_dic, default, wdefault, value, wvalue, container,
     else:
         dhelper = False
         
-    if not test_ob.has_default() == dhelper:
-        return 1
-    print(test_ob.get_default())
-    print(default)
-    if not test_ob.get_default() == default:
-        return 2
-    if not test_ob.is_leaf:
-        return 3
-    if not test_ob.is_container() == container:
-        return 4
-    if not test_ob.is_mandatory() == mandatory:
-        return 5
+    assert test_ob.has_default() == dhelper
+    assert test_ob.get_default() == default
+    assert test_ob.is_leaf
+    assert test_ob.is_container() == container
+    assert test_ob.is_mandatory() == mandatory
     
     #set good default
-    try:
-        test_ob.set_default(default)
-    except:
-        return 6
+    test_ob.set_default(default)
     
-    if not test_ob.get_default() == default:
-        return 7
+    assert test_ob.get_default() == default
     #set bad default
     if not wdefault == None:
-        try:
+        with pytest.raises(ValueError):
             test_ob.set_default(wdefault)
-            return 8
-        except ValueError:
-            pass
     
-    if not test_ob.get_value() == default:
-        return 9
+    assert test_ob.get_value() == default
     
     #set good value
-    try:
-        test_ob.set_config_value(value)
-    except:
-        return 10
+    test_ob.set_config_value(value)
     
-    if not test_ob.get_value() == value:
-        return 11
+    assert test_ob.get_value() == value
     
     #set bad value
     if not wvalue == None:
-        try:
-            test_ob.set_config_value(wvalue)
-            if test_ob.get_value() == wvalue:
-                return 12
-            elif test_ob.get_value() == value:
-                return 12
-        except:
-            pass
+        test_ob.set_config_value(wvalue)
+        assert test_ob.get_value() == default
     
     return 0
         
@@ -99,9 +74,6 @@ def test_default_parser_float():
     container = False
     mandatory = True
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
-    if not  ex == 0:
-        print ex
-        raise AssertionError
     
     
 def test_default_parser_integer():
@@ -118,9 +90,6 @@ def test_default_parser_integer():
     mandatory = True
     
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
-    if not  ex == 0:
-        print ex
-        raise AssertionError
     
 def test_default_parser_quantity():
     example_dic = {'default': '99.99 cm',
@@ -136,9 +105,6 @@ def test_default_parser_quantity():
     mandatory = True
     
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
-    if not  ex == 0:
-        print ex
-        raise AssertionError
     
     
 def test_default_parser_range():
@@ -155,9 +121,6 @@ def test_default_parser_range():
     mandatory = False
     
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
-    if not  ex == 0:
-        print ex
-        raise AssertionError
 
 def test_default_parser_range_sampled():
     example_dic = {'default': [0, 10, 1],
@@ -173,9 +136,6 @@ def test_default_parser_range_sampled():
     mandatory = False
     
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
-    if not  ex == 0:
-        print ex
-        raise AssertionError
     
 def test_default_parser_string():
     example_dic = {'default': 'DEFAULT',
@@ -191,7 +151,4 @@ def test_default_parser_string():
     mandatory = True
     
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
-    if not  ex == 0:
-        print ex
-        raise AssertionError
  
