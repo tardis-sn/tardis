@@ -6,6 +6,7 @@ import numpy as np
 import logging
 import os
 import h5py
+import cPickle as pickle
 
 from astropy import table, units
 
@@ -14,6 +15,7 @@ from collections import OrderedDict
 from pandas import DataFrame
 
 import pandas as pd
+from distutils.version import LooseVersion
 
 try:
     import sqlparse
@@ -350,6 +352,11 @@ class AtomData(object):
         with h5py.File(fname) as h5_file:
             atom_data.uuid1 = h5_file.attrs['uuid1']
             atom_data.md5 = h5_file.attrs['md5']
+            atom_data.version = h5_file.attrs.get('database_version', None)
+
+            if LooseVersion(atom_data.version) >= LooseVersion('v0.9'):
+                atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
+
             logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
 
         return atom_data
@@ -426,6 +433,12 @@ class AtomData(object):
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
+
+
+
+
+
+
 
 
     def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
