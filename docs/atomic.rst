@@ -1,7 +1,7 @@
-.. _atomic-data:
-
-Atomic Data
-===========
+.. _atomic-data_descritpion:
+******************************
+Atomic Data Format Description
+******************************
 .. currentmodule:: tardis.atomic
 
 

@@ -9,6 +9,12 @@ Bugfixes
 - warning added to documentation since plasma is out of date (temp
   solution only) #108
 
+New Features
+^^^^^^^^^^^^
+- added data_sources and version to `AtomData` set
+- added atomic database table with downloads to documentation
+- added more conversion routines for Species strings (e.g. Si IX) to util
+
 
 0.9.1 (2014-02-03)
 ------------------
