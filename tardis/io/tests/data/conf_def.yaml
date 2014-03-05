@@ -19,6 +19,22 @@ value_test:
         default: 99.99 cm
         mandatory: True
         help: quantity for testing
+    quantity_range:
+        property_type: quantity_range
+        default: [1 m,10 cm] #[Start,End]
+        mandatory: False
+        help: range for testing
+    quantity_range_old:
+        property_type: quantity_range
+        default: [1 m,10 cm] #[Start,End]
+        mandatory: False
+        help: range for testing
+    quantity_range_sampled:
+        property_type: quantity_range_sampled
+        default: [1 m,10 cm, 0.1 cm] #[Start,End, sample]
+        mandatory: False
+        help: range for testing
+        
     range:
         property_type: range
         default: [0,10] #[Start,End]
@@ -29,6 +45,7 @@ value_test:
         default: [0,10,1] #[Start,End,Nsample]
         mandatory: False
         help: range for testing
+    
 
 
 

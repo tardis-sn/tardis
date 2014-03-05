@@ -5,6 +5,10 @@ import os
 import yaml
 import pytest
 
+f = open('data/conf_tes.yaml')
+co = yaml.safe_load(f)
+f = open('data/conf_def.yaml')
+de = yaml.safe_load(f)
 
 
 

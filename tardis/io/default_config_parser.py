@@ -2,6 +2,8 @@
 
 import re
 from astropy import units
+from tardis.util import parse_quantity
+from astropy.units.core import UnitsException
 
 
 
@@ -64,7 +66,7 @@ class PropertyType(object):
     
     @default.setter
     def default(self, value):
-        self.__default = value
+        self.__default = self.to_type(value)
         
     @property
     def allowed_value(self):
@@ -199,6 +201,62 @@ class PropertyTypeQuantity(PropertyType):
         units.Unit(quantity_unit)
         return (quantity_value, quantity_unit)
     
+class PropertyTypeQuantityRange(PropertyTypeQuantity):
+    
+    def _to_units(self, los):
+        loq = [(lambda x: (units.Quantity(float(x[0]),x[1])))(x.split()) for x in los]
+        try:
+            _ = reduce((lambda a, b:  a.to(b.unit)), loq)
+            loq = [a.to(loq[0].unit) for a in loq]
+            return loq
+        except UnitsException as e:
+            msg = "Incompatible units in %s"%str(los) + str(e)
+            raise ValueError(msg)
+    
+    def check_type(self, value):
+        if isinstance(value, dict):
+            if reduce((lambda a, b: a in value), [True, 'start', 'end']):
+                los = [value['start'], value['end']]
+                loq = self._to_units(los)
+                if abs(loq[0].value - loq[1].value) > 0:
+                    return True
+        elif isinstance(value, list):
+            if len(value) == 2:
+                loq = self._to_units(value)
+                if abs(loq[0].value - loq[1].value) > 0:
+                    return True
+        return False
+    
+    def to_type(self, value):
+        if isinstance(value, list):
+            return self._to_units(value)
+        elif isinstance(value, dict):
+            los = [value['start'], value['end']]
+            return self._to_units(los)
+    
+    
+class PropertyTypeQuantityRangeSampled(PropertyTypeQuantityRange):
+    
+    def check_type(self, value):
+        if isinstance(value, dict):
+            if reduce((lambda a, b: a in value), [True, 'start', 'end', 'sample']):
+                los = [value['start'], value['end'], value['sample']]
+                loq = self._to_units(los)
+                if abs(loq[0].value - loq[1].value) > 0:
+                    return True
+        elif isinstance(value, list):
+            if len(value) == 3:
+                loq = self._to_units(value)
+                if abs(loq[0].value - loq[1].value) > 0:
+                    return True
+        return False
+    
+    def to_type(self, value):
+        if isinstance(value, list):
+            return self._to_units(value)
+        elif isinstance(value, dict):
+            los = [value['start'], value['end']]
+            return self._to_units(los)
     
 class PropertyTypeString(PropertyType):
     
@@ -243,7 +301,10 @@ class PropertyTypeRange(PropertyType):
         return False
     
     def to_type(self, value):
-        return [value['start'], value['end']]
+        if isinstance(value, list):
+            return value
+        elif isinstance(value, dict):
+            return [value['start'], value['end']]
     
 class PropertyTypeRangeSampled(PropertyTypeRange):
     
@@ -260,7 +321,11 @@ class PropertyTypeRangeSampled(PropertyTypeRange):
         return False
         
     def to_type(self, value):
-        return [value['start'], value['end'], value['sample']]
+        if isinstance(value, list):
+            return value
+        elif isinstance(value, dict):
+            return [value['start'], value['end'], value['sample']]
+    
     
     
 
@@ -289,6 +354,12 @@ class DefaultParser(object):
         
         self.__types['quantity'] = PropertyTypeQuantity
         self.__register_leaf('quantity')
+        
+        self.__types['quantity_range'] = PropertyTypeQuantityRange
+        self.__register_leaf('quantity_range')
+        
+        self.__types['quantity_range_sampled'] = PropertyTypeQuantityRangeSampled
+        self.__register_leaf('quantity_range_sampled')
         
         self.__types['string'] = PropertyTypeString
         self.__register_leaf('string')
@@ -322,8 +393,8 @@ class DefaultParser(object):
             self.__property_type = 'arbitrary'
         else:
             self.__property_type = default_dict['property_type']
-            print(self.__property_type)
-            print(self.__types.keys())
+            #print(self.__property_type)
+            #print(self.__types.keys())
             if not self.__property_type in self.__types.keys():
                 raise ValueError
         self.__type = self.__types[self.__property_type]()            
@@ -414,7 +485,7 @@ class DefaultParser(object):
 
         if (self.__config_value is not None and
             self.__type.check_type(self.__config_value)):
-            return self.__config_value
+            return self.__type.to_type(self.__config_value)
         else:
             if self.has_default():
                 return self.__type.default
@@ -463,7 +534,7 @@ class DefaultParser(object):
         return True
 
     def __register_leaf(self, type_name):
-        print(type_name)
+        #print(type_name)
         if not type_name in self.__list_of_leaf_types:
             self.__list_of_leaf_types.append(type_name)
 
@@ -760,7 +831,7 @@ class Container(DefaultParser):
                     default_property.set_path_in_dic(path)
                     try:
                         conf_value = get_value_by_path(top_config, path)
-                    except:
+                    except KeyError:
                         conf_value = None
 
                     if conf_value is not None:
@@ -805,7 +876,7 @@ class Container(DefaultParser):
         return self.__conf
 
 
-class Config:
+class Config(object):
     """
     An configuration object represents the parsed configuration.
     """
@@ -907,21 +978,24 @@ class Config:
                     ccontainer = Container(top_default, container_conf)
                     return ccontainer.get_container_ob(), ccontainer.get_container_conf()
                 elif not default_property.is_leaf:
+                    no_default = self.__check_items_in_conf(get_property_by_path(configuration, path), top_default)
+                    if len(no_default) > 0:
+                        print('The items %s from the configuration are not specified in the default configuration'%str(no_default))
                     for k, v in top_default.items():
                         tmp_conf_ob[k], tmp_conf_val[k] = recursive_parser(v, configuration, path + [k])
-                        print('>---<')
-                        print(k)
-                        print(tmp_conf_val[k])
+#                        print('>---<')
+#                        print(k)
+#                        print(tmp_conf_val[k])
                     return tmp_conf_ob, tmp_conf_val
                 else:
                     default_property.set_path_in_dic(path)
                     try:
-                        print('get_property_by_path')
-                        print(path)
+#                        print('get_property_by_path')
+#                        print(path)
                         conf_value = get_property_by_path(configuration, path)
-                        print(conf_value)
-                        print('End:get_property_by_path')
-                    except:
+#                        print(conf_value)
+#                        print('End:get_property_by_path')
+                    except KeyError:
                         conf_value = None
 
                     if conf_value is not None:
@@ -930,8 +1004,12 @@ class Config:
 
 
         self.__conf_o, self.__conf_v = recursive_parser(default_configuration, configuration, [])
-        print('|\|\|\|')
-        print(self.__conf_v)
+ #       print('|\|\|\|')
+ #       print(self.__conf_v)
+        
+    def __check_items_in_conf(self, config_dict, default_dict):
+        return list(set(config_dict.keys()) - set(default_dict.keys()))
+        
 
     def __create_default_conf(self, default_conf):
         """Returns the default configuration values as dictionary.
