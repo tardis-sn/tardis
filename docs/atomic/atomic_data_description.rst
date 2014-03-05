@@ -1,4 +1,5 @@
-.. _atomic-data_descritpion:
+.. _atomic-data-descritpion:
+
 ******************************
 Atomic Data Format Description
 ******************************
