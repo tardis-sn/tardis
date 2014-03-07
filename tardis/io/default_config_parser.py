@@ -1,9 +1,12 @@
 # coding=utf-8
 
 import re
+import logging
 from astropy import units
 from tardis.util import parse_quantity
 from astropy.units.core import UnitsException
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -52,58 +55,103 @@ class DefaultConfigError(ConfigError):
     
 class PropertyType(object):
     def __init__(self):
-        self.__default = None
-        self.__allowed_value = None
-        self.__help = None
-        self.__mandatory = False
-        self.__lower = None
-        self.__upper =None
+        self._default = None
+        self._allowed_value = None
+        self._allowed_type = None
+        self._help = None
+        self._mandatory = False
+        self._lower = None
+        self._upper =None
         pass
     
     @property
     def default(self):
-        return self.__default
+        return self._default
     
     @default.setter
     def default(self, value):
-        self.__default = self.to_type(value)
+        self._default = self.to_type(value)
         
     @property
     def allowed_value(self):
-        return self.__allowed_value
+        return self._allowed_value
     
     @allowed_value.setter
     def allowed_value(self, value):
-        self.__allowed_value = value
-        if '__parse_allowed_type' in dir(self) and value != None:
-            self.__lower, self.__upper = self.__parse_allowed_type(value)
+        if isinstance(value, basestring):
+            self._allowed_value = set(self.__list_dtype(value.split()))
+        elif isinstance(value, list) or isinstance(value, set):
+            self._allowed_value = set(self.__list_dtype(value))
+        elif isinstance(value, float) or isinstance(value, int):
+            self._allowed_type = set([value])
+        else:
+            raise ValueError("Can not set allowed value.")
+            
+            
+    @property
+    def allowed_type(self):
+        return self._allowed_value
+    
+    @allowed_type.setter
+    def allowed_type(self, value):
+        self._allowed_type = value
+        if '_parse_allowed_type' in (set(dir(self.__class__)) - set(dir(PropertyType))) and value != None:
+            self._lower, self._upper = self._parse_allowed_type(value)
         
     @property
     def help(self):
-        return self.__help
+        return self._help
     
     @help.setter
     def help(self, value):
-        self.__help = value
+        self._help = value
         
     @property
     def mandatory(self):
-        return self.__mandatory
+        return self._mandatory
     
     @mandatory.setter
     def mandatory(self, value):
-        self.__mandatory = value
+        self._mandatory = value
     
     def check_type(self, value):
         return True
         
     def to_type(self, value):
         return value
+    
+    def __list_dtype(self, mixed_list):
+        try:
+            tmp = [str(a) for a in mixed_list]
+        except ValueError:
+            try:
+                tmp = [float(a) for a in mixed_list]
+            except ValueError:
+                try:
+                    tmp = [int(a) for a in mixed_list]
+                except:
+                    raise ValueError("Forbidden type in allowed_type")
+        return tmp
+        
+    
+    def _check_allowed_value(self, _value):
+        """
+        Returns True if the value is allowed or no allowed value is given.
+        """
+        if self._allowed_value != None:
+            atype = type(iter(self.allowed_value).next())
+            value = atype(_value)
+            if value in self.allowed_value:
+                return True
+            else:
+                return False
+        else:
+            return True
+        
  
 class PropertyTypeContainer(PropertyType):
     
     def check_type(self):
-        
         pass
     
    
@@ -113,7 +161,8 @@ class PropertyTypeInt(PropertyType):
         try:
             int(value)
             if float.is_integer(float(value)):
-                return True
+                if self._check_allowed_value(value) and self._check_allowed_type(value):
+                    return True
             else:
                 return False
         except ValueError:
@@ -121,8 +170,8 @@ class PropertyTypeInt(PropertyType):
     
     def to_type(self, value):
         return int(value)
-    
-    def __parse_allowed_type(self, allowed_type):
+ #ToDo: use this if allowed type is specified    
+    def _parse_allowed_type(self, allowed_type):
         string = allowed_type.strip()
         upper = None
         lower = None
@@ -147,10 +196,9 @@ class PropertyTypeInt(PropertyType):
             if match:
                 value = re.compile('[0-9.+^*eE]+').findall(string)[0]
                 lower = float(value)
-
         return lower, upper
     
-    def __check_value(self, value, lower_lim, upper_lim):
+    def __check_type(self, value, lower_lim, upper_lim):
         upper, lower = True, True
         if upper_lim != None:
             upper = value < upper_lim
@@ -159,12 +207,21 @@ class PropertyTypeInt(PropertyType):
         return upper and lower
     
     
-    def __is_valid(self, value):
+    def _check_allowed_type(self, value):
+        if self._allowed_type != None:
+            if  self.__check_type(value, self._lower, self._upper):
+                return True
+            else:
+                return False
+        else:
+            return True
+    
+    def _is_valid(self, value):
         if not self.check_type(value):
             return False
         if self.allowed_value != None:
             return False
-        if not self.__check_value(value, self.__lower, self.__upper):
+        if not self.__check_type(value, self._lower, self._upper):
             return  False
         return True
             
@@ -176,7 +233,8 @@ class PropertyTypeFloat(PropertyTypeInt):
     def check_type(self, value):
         try:
             float(value)
-            return True
+            if self._check_allowed_value(value) and self._check_allowed_type(value):
+               return True
         except ValueError:
             return False
         
@@ -263,12 +321,31 @@ class PropertyTypeString(PropertyType):
     def check_type(self, value):
         try:
             str(value)
-            return True
+            if self._check_allowed_value(value):
+                return True
         except ValueError:
             return False
     
     def to_type(self, value):
         return str(value)
+    
+class PropertyTypeStringList(PropertyTypeString):
+    
+    def check_type(self, value):
+        try:
+            str(value)
+        except ValueError:
+            return False
+        if value in self.allowed_value:
+            return True
+        else:
+            return False
+    
+    def to_type(self, value):
+        return str(value)
+        
+        pass
+    
     
 class PropertyTypeList(PropertyType):
     
@@ -364,6 +441,7 @@ class DefaultParser(object):
         self.__types['string'] = PropertyTypeString
         self.__register_leaf('string')
         
+        
         self.__types['range'] = PropertyTypeRange
         self.__register_leaf('range')
         
@@ -403,7 +481,8 @@ class DefaultParser(object):
             self.__type.allowed_value = default_dict['allowed_value']
 
         if 'allowed_type' in default_dict:
-            self.__allowed_type = default_dict['allowed_type']
+            self.__type.allowed_type = default_dict['allowed_type']
+            
 #ToDo: move all to classes
         if 'default' in default_dict:
             self.__type.default = default_dict['default']
@@ -488,6 +567,8 @@ class DefaultParser(object):
             return self.__type.to_type(self.__config_value)
         else:
             if self.has_default():
+                logger.warning("Value <%s> specified in the configuration violates a constraint\
+                      given in the default configuration. Expected type: %s. Using the default value."%(str(self.__config_value),str(self.__property_type)))
                 return self.__type.default
             else:
                 raise ValueError('No default value given.')
@@ -823,7 +904,7 @@ class Container(DefaultParser):
                     ccontainer = Container(top_default, container_conf)
                     return ccontainer.get_container_ob(), ccontainer.get_container_conf()
                 elif not default_property.is_leaf:
-                    print(top_default.items())
+ #                   print(top_default.items())
                     for k, v in top_default.items():
                         tmp_conf_ob[k], tmp_conf_val[k] = parse_container_items(v, top_config, k, path + [k])
                     return tmp_conf_ob, tmp_conf_val
@@ -980,7 +1061,7 @@ class Config(object):
                 elif not default_property.is_leaf:
                     no_default = self.__check_items_in_conf(get_property_by_path(configuration, path), top_default)
                     if len(no_default) > 0:
-                        print('The items %s from the configuration are not specified in the default configuration'%str(no_default))
+                        logger.warning('The items %s from the configuration are not specified in the default configuration'%str(no_default))
                     for k, v in top_default.items():
                         tmp_conf_ob[k], tmp_conf_val[k] = recursive_parser(v, configuration, path + [k])
 #                        print('>---<')
