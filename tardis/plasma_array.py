@@ -186,6 +186,18 @@ class BasePlasmaArray(object):
 
         self.beta_electrons = 1 / (k_B_cgs * self.t_electrons)
 
+    @property
+    def ws(self):
+      if self._ws > 1:
+        logger.warn("Dilution factor greater than 1")
+      return self._ws
+
+    @ws.setter
+    def ws(self, value):
+      if value > 1:
+        logger.warn("Dilution factor is now becoming greater than 1")
+      self._ws = value
+
 
     #Functions
 
