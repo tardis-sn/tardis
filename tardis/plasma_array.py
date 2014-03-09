@@ -188,14 +188,21 @@ class BasePlasmaArray(object):
 
     @property
     def ws(self):
-      if self._ws > 1:
-        logger.warn("Dilution factor greater than 1")
+      for i in np.ndenumerate(_ws):
+        if i[1] > 1:
+          logger.warn("Dilution factor greater than 1")
       return self._ws
 
     @ws.setter
     def ws(self, value):
-      if value > 1:
-        logger.warn("Dilution factor is now becoming greater than 1")
+      if type(value) == int:
+        if value > 1:
+          logger.warn("Dilution factor is now becoming greater than 1")
+      else:
+        for i in np.ndenumerate(_ws):
+          if i[1] > 1:
+            logger.warn("Dilution factor is now becoming greater than 1")
+      
       self._ws = value
 
 
