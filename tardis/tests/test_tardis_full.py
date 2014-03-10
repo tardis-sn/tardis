@@ -4,8 +4,9 @@ import yaml
 from tardis import io, model, simulation
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
-@pytest.mark.pure_kurucz
-class TestSimpleRun1():
+@pytest.mark.skipif(not pytest.config.getvalue("atomic_database"),
+                    reason='--atomic_database was not specified')
+class TestSimpleRun():
     """
     Very simple run with excitation and ionization set to
     """
