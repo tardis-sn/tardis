@@ -37,7 +37,7 @@ plasma:
 montecarlo:
     seed: 23111963
     no_of_packets : 2.0e+5
-    iterations: 30
+    iterations: 5
     last_no_of_packets: 5.0e+5
     no_of_virtual_packets: 5
 
