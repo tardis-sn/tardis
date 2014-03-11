@@ -29,10 +29,9 @@ install:
    - pip install -q pytest --use-mirrors
    - pip install -q pytest-cov --use-mirrors
    #- pip -q install --upgrade h5py --use-mirrors
-   - python setup.py build_ext --inplace
 
 script:
-   python setup.py test --coverage
+   python setup.py test --coverage --skip-docs
 
 after_success:
   coveralls
