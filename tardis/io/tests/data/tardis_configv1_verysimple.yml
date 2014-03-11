@@ -32,7 +32,7 @@ plasma:
     ionization: lte
     excitation: lte
     radiative_rates_type: dilute-blackbody
-    line_interaction_type: scatter
+    line_interaction_type: macroatom
 
 montecarlo:
     seed: 23111963
