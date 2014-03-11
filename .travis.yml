@@ -20,7 +20,7 @@ install:
    - export PYTHONIOENCODING=UTF8 # just in case
    #- pip install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
    - pip install -q --upgrade Cython --use-mirrors
-   - pip install -q --upgrade pandas --use-mirrors
+   - pip install -q --upgrade "pandas==0.12" --use-mirrors
 
 
    #- pip install --upgrade scipy --use-mirrors
@@ -31,7 +31,7 @@ install:
    - python setup.py build_ext --inplace
 
 script:
-   coverage run --source=tardis -m py.test
+   python setup.py test --coverage
 
 after_success:
   coveralls
