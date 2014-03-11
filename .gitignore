@@ -35,3 +35,7 @@ tardis/*.html
 _build
 _generated
 docs/gui.rst.*
+
+#coveralls related ignores
+htmlcov
+.coverage
