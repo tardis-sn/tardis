@@ -24,11 +24,10 @@ install:
    - pip install -q --upgrade "Cython==$CYTHON_VERSION"
    - if [[ $PANDAS_VERSION == 'latest' ]]; then pip install -q --upgrade pandas; else pip --upgrade "pandas==$PANDAS_VERSION"; fi
    - if [[ $ASTROPY_VERSION == 'development']]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else pip --upgrade "astropy==$ASTROPY_VERSION"; fi
-   - pip install -q "astropy==$ASTROPY_VERSION"
    - pip install -q pytest
 
-   -  if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
-   -  if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
+   - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
+   - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
 
 script:
     - python setup.py $SETUP_CMD
