@@ -9,3 +9,7 @@ def get_extensions():
     return [Extension('tardis.montecarlo',
                         ['tardis/montecarlo.pyx'] + randomkit_files)]
     #return {'tardis.montecarlo_multizone':['randomkit/*.c']}
+
+def get_package_data():
+    return {
+        'tardis.tests': ['coveragerc']}
