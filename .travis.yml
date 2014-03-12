@@ -8,7 +8,9 @@ virtualenv:
 
 env:
     # try all python versions with the latest stable numpy and astropy
-    - NUMPY_VERSION=1.7.1 SETUP_CMD='test'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=0.3 SETUP_CMD='test'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3 SETUP_CMD='test'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=development SETUP_CMD='test --coverage --skip-docs'
 
 
 before_install:
@@ -19,19 +21,16 @@ before_install:
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
    #- pip install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
-   - pip install -q --upgrade Cython --use-mirrors
-   - pip install -q --upgrade pandas --use-mirrors
+   - pip install -q --upgrade "Cython==$CYTHON_VERSION"
+   - if [[ $PANDAS_VERSION == 'latest' ]]; then pip install -q --upgrade pandas; else pip install -q --upgrade "pandas==$PANDAS_VERSION"; fi
+   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else pip install -q --upgrade "astropy==$ASTROPY_VERSION"; fi
+   - pip install -q pytest
 
-
-   #- pip install --upgrade scipy --use-mirrors
-   - pip install -q astropy --use-mirrors
-   - pip install -q coveralls --use-mirrors
-   - pip install -q pytest --use-mirrors
-   #- pip -q install --upgrade h5py --use-mirrors
-   - python setup.py build_ext --inplace
+   - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then pip install -q coveralls; fi
+   - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then pip install -q pytest-cov; fi
 
 script:
-   coverage run --source=tardis -m py.test
+    - python setup.py $SETUP_CMD
 
 after_success:
-  coveralls
+    - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then coveralls; fi
