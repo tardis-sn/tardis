@@ -19,16 +19,7 @@ def test_quantity_parser_malformed_quantity2():
         q1 = parse_quantity('5 abcd')
 
 def test_atomic_number2element_symbol():
-    atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
-    def _test_atomic_number2element_symbol(atomic_number,element_string):
-        assert atomic_number2element_symbol(atomic_number) == element_string
-
-    data = [(14,'sI'),
-            (20,'ca'),
-            (26,'Fe')]
-
-    for atomic_number,element_symbol in data:
-        yield _test_atomic_number2element_symbol, atomic_number,element_symbol
+    assert atomic_number2element_symbol(14) == 'Si'
 
 def test_element_symbol2atomic_number():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
