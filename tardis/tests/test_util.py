@@ -3,7 +3,7 @@
 import pytest
 from astropy import units as u
 from tardis import atomic
-from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element, reformat_element_symbol, MalformedQuantityError
+from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
 
 def test_quantity_parser_normal():
     q1 = parse_quantity('5 km/s')
@@ -21,14 +21,14 @@ def test_quantity_parser_malformed_quantity2():
 def test_atomic_number2element_symbol():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_atomic_number2element_symbol(atomic_number,element_string):
-        assert atomic_number2element(atomic_number) == element_string
+        assert atomic_number2element_symbol(atomic_number) == element_string
 
     data = [(14,'sI'),
             (20,'ca'),
             (26,'Fe')]
 
     for atomic_number,element_symbol in data:
-        yield _test_element_symbol2atomic_number, atomic_number,element_symbol
+        yield _test_atomic_number2element_symbol, atomic_number,element_symbol
 
 def test_element_symbol2atomic_number():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
