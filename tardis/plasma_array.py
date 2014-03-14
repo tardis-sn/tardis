@@ -212,7 +212,7 @@ class BasePlasmaArray(object):
             self.t_electrons = None
         self.ws = np.array(ws)
         #warn if dilution factor is greater than 1
-        if True in (self.ws > 1):
+        if np.any(self.ws > 1):
             logger.warn('Dilution factor greater than 1.')
         self.j_blues = j_blues
         self.beta_sobolevs_precalculated = False
