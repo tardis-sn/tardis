@@ -213,7 +213,7 @@ class BasePlasmaArray(object):
         #warn if dilution factor is greater than one
         for w in ws:
             if w > 1:
-                logger.warn("Dilution Factor is greater than 1!",w)
+                logger.warn("Dilution Factor is greater than 1 (%f)",w)
 
         self.ws = np.array(ws)
         self.j_blues = j_blues
