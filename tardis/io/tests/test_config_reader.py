@@ -24,33 +24,6 @@ def test_config_namespace_attribute_test():
     with pytest.raises(AttributeError):
         assert namespace.param2 == 1
 
-"""
-class TestParsePaper1Config:
-
-    def setup(self):
-        #general parsing of the paper config
-        self.config = config_reader.TARDISConfiguration.from_yaml(data_path('paper1_tardis_configv1.yml'),
-                                                                  test_parser=True)
-        self.yaml_data = yaml.load(open(data_path('paper1_tardis_configv1.yml')))
-
-
-
-    def test_abundances(self):
-        oxygen_abundance = self.yaml_data['model']['abundances']['O']
-        assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
-
-        assert True
-
-    def test_velocities(self):
-        assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['start']),
-                            self.config.structure.v_inner[0])
-        assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['stop']),
-                    self.config.structure.v_outer[-1])
-        assert len(self.config.structure.v_outer) == self.yaml_data['model']['structure']['velocity']['num']
-
-    def test_densities(self):
-        pass
-"""
 
 class TestParseConfigV1ASCIIDensity:
 

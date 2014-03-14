@@ -44,14 +44,7 @@ def test_element_symbol_reformatter():
     for unformatted_element_string, formatted_element_string in data:
         yield _test_element_symbol_reformatter, unformatted_element_string, formatted_element_string
 
-"""
-replaced with test found in test_config_reader
-NOTED FROM "Srinath R" posting on issue in github
 
-
-def test_element_symbol2atomic_number():
-    assert util.element_symbol2atomic_number('Si') == 14
-"""
 def test_element_symbol2atomic_number():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_element_symbol2atomic_number(element_string, atomic_number):
