@@ -8,8 +8,6 @@ import pytest
 import yaml
 
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
-#from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, reformat_element_symbol, MalformedQuantityError
-
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
     return os.path.join(data_dir, 'data', filename)
