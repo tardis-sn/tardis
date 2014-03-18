@@ -4,7 +4,7 @@ supernova:
     luminosity_requested: 9.44 log_lsun
     time_explosion: 13 day
 
-atom_data: run/kurucz_atom_pure_simple.h5
+atom_data: kurucz_atom_pure_simple.h5
 
 model:
     structure:
