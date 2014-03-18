@@ -5,6 +5,7 @@ import logging
 from astropy import units
 from tardis.util import parse_quantity
 from astropy.units.core import UnitsException
+import yaml
 
 logger = logging.getLogger(__name__)
 
@@ -637,195 +638,6 @@ class DefaultParser(object):
     def __is_container_declaration(self, value):
         pass
 
-"""
-    def __is_type_arbitrary(self, value):
-        self.is_leaf = False
-        return True
-
-    __check['arbitrary'] = __is_type_arbitrary
-
-    def __is_type_list(self, value):
-        self.__register_leaf('list')
-        try:
-            return isinstance(value, list)
-        except ValueError:
-            return False
-
-    __check['list'] = __is_type_list
-
-    def __is_type_int(self, value):
-        self.__register_leaf('int')
-        try:
-            int(value)
-            if float.is_integer(float(value)):
-                return True
-            else:
-                return False
-        except ValueError:
-            return False
-
-    __check['int'] = __is_type_int
-
-    def __is_type_float(self, value):
-        self.__register_leaf('float')
-        try:
-            float(value)
-            return True
-        except ValueError:
-            return False
-
-    __check['float'] = __is_type_float
-
-    def __is_type_quantity(self, value):
-        self.__register_leaf('quantity')
-        try:
-            quantity_value, quantity_unit = value.strip().split()
-            float(quantity_value)
-            units.Unit(quantity_unit)
-            return True
-        except ValueError:
-            return False
-
-    __check['quantity'] = __is_type_quantity
-
-    def __is_type_string(self, value):
-        self.__register_leaf('string')
-        try:
-            str(value)
-            return True
-        except ValueError:
-            return False
-
-    __check['string'] = __is_type_string
-
-
-    def __is_type_range(self, value):
-        print('----')
-        print(value)
-        if isinstance(value, dict):
-            if reduce((lambda a, b: a in value), [True, 'start', 'end']):
-                if abs(value['start'] - value['end']) > 0:
-                    return True
-        elif isinstance(value, list):
-            if len(value) == 2:
-                if abs(value[0] - value[1]) > 0:
-                    return True
-        return False
-
-    __check['range'] = __is_type_range
-
-
-    def __is_type_range_sampled(self, value):
-        print('----')
-        print(value)
-        if isinstance(value, dict):
-            if reduce((lambda a, b: a in value),\
-                [True, 'start', 'end', 'sample']):
-                if abs(value['start'] - value['end']) > 0:
-                    return True
-        elif isinstance(value, list):
-            if len(value) == 3:
-                if abs(value[0] - value[1]) > 0:
-                    return True
-        return False
-
-    __check['range_sampled'] = __is_type_range_sampled
-
-    def __to_range(self, value):
-        return [value['start'], value['end']]
-
-    __convert['range'] = __to_range
-
-    def __to_range_sampled(self, value):
-        return [value['start'], value['end'], value['sample']]
-
-
-    def __to_quantity(self, value):
-        quantity_value, quantity_unit = value.strip().split()
-        float(quantity_value)
-        units.Unit(quantity_unit)
-        return (quantity_value, quantity_unit)
-
-    __convert['quantity'] = __to_quantity
-
-    def __to_int(self, value):
-        return int(value)
-
-    __convert['int'] = __to_int
-
-    def __to_float(self, value):
-        return float(value)
-
-    __convert['float'] = __to_float
-    
-    def __to_string(self, value):
-        return str(value)
-
-    __convert['string'] = __to_string
-
-    def __to_list(self, value):
-        if isinstance(value, list):
-            return value
-        elif isinstance(value, basestring):
-            return value.split()
-        else:
-            return []
-
-    __convert['list'] = __to_list
-"""
-    #def __convert_av_in_pt(self, allowed_value, property_type):
-"""
-        Converts the allowed values to the property type.
-"""
-     #   if not len([]) == 0:
-      #      return [self.__convert[property_type](a) for a in allowed_value]
-       # else:
-        #    return []
-"""
-    def __is_allowed_value(self, value, allowed_value):
-        if value in allowed_value:
-            return True
-        else:
-            return False
-
-    def __parse_allowed_type(self, allowed_type):
-        string = allowed_type.strip()
-        upper = None
-        lower = None
-        if string.find("<") or string.find(">"):
-            #like x < a
-            match = re.compile('[<][\s]*[0-9.+^*eE]*$').findall(string)
-            if match:
-                value = re.compile('[0-9.+^*eE]+').findall(string)[0]
-                upper = float(value)
-                #like a > x"
-            match = re.compile('^[\s0-9.+^*eE]*[\s]*[<]$').findall(string)
-            if match:
-                value = re.compile('[0-9.+^*eE]+').findall(string)[0]
-                upper = float(value)
-                #like x > a
-            match = re.compile('[>][\s]*[0-9.+^*eE]*$').findall(string)
-            if match:
-                value = re.compile('[0-9.+^*eE]+').findall(string)[0]
-                lower = float(value)
-                #like a < x
-            match = re.compile('^[\s0-9.+^*eE]*[\s]*[<]$').findall(string)
-            if match:
-                value = re.compile('[0-9.+^*eE]+').findall(string)[0]
-                lower = float(value)
-
-        return lower, upper
-
-    def __check_value(self, value, lower_lim, upper_lim):
-
-        upper, lower = True, True
-        if upper_lim != None:
-            upper = value < upper_lim
-        if lower_lim != None:
-            lower = value > lower_lim
-        return upper and lower
-"""
-
 
 class Container(DefaultParser):
     def __init__(self, container_default_dict, container_dict):
@@ -975,6 +787,16 @@ class Config(object):
         self.__create_default_conf(default_configuration)
         self.__parse_config(default_configuration, input_configuration)
 
+    @classmethod
+    def from_yaml(cls, fname_config, fname_default):
+        with open(fname_config) as f:
+            conff = f.read()
+            conf = yaml.safe_load(conff)
+        with open(fname_default) as f:
+            defaf = f.read()
+            defa = yaml.safe_load(defaf)
+        return cls(defa, conf)
+    
 
     def __mandatory_key(self, path):
         """Return the key string for dictionary of mandatory entries
@@ -982,6 +804,8 @@ class Config(object):
         :return: corresponding key
         """
         return ':'.join(path)
+    
+    
 
     def register_mandatory(self, name, path):
         """Register a mandatory entry
@@ -1142,77 +966,3 @@ class Config(object):
         """
         return self.__conf_o
 
-
-"""
-class PropertyBase:
-    children = {}
-
-    def __init__(self, default_dic, config_dic, default_section, is_bottom_of_config_dict=False):
-        print("")
-        print("")
-        self.__default_property = DefaultParser(default_dic)
-        if self.__default_property.is_leaf:
-            pass
-            #Check conf or get help,default
-        else:
-            tmp = {}
-            for child in default_dic.keys():
-                print('----')
-                try:
-                    print(self.__default_property.is_leaf)
-                    print(child)
-                    print(default_dic[child])
-                    print(config_dic[child])
-                except:
-                    pass
-
-                if config_dic != None:
-                    print('!-!-!')
-                    print(config_dic)
-                    print('####')
-                    pass
-
-                    try:
-                        config_dic[child]
-                        #self.children[child] = PropertyBase(default_dic[child], config_dic[child], child)
-                        tmp[child] = PropertyBase(default_dic[child], config_dic[child], child)
-                    except (AttributeError, TypeError, KeyError):
-                        #self.children[child] = PropertyBase(default_dic[child], config_dic, child)
-                        tmp[child] = PropertyBase(default_dic[child], config_dic, child)
-
-            self.children[default_section] = tmp
-"""
-
-"""
-        def PF(top_v):
-            tmp = {}
-            default_property = DefaultParser(top_v)
-            print(top_v)
-            if not default_property.is_leaf:
-                tmp['branch_properties'] = default_property
-                print(top_v)
-                for k, v in top_v.items():
-                    print("key is %s" % str(k))
-                    tmp[k] = PF(v)
-                return tmp
-            else:
-                return default_property
-"""
-
-"""
-    def get_config(self):
-        return self.conf_v
-
-    def get_default(self):
-
-
-
-
-    def __finditem(self, obj, key):
-        if key in obj: return obj[key]
-        for k, v in obj.items():
-            if isinstance(v,dict):
-                item = _finditem(v, key)
-                if item is not None:
-                    return item
-"""
