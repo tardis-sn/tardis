@@ -372,7 +372,7 @@ class AtomData(object):
             self.has_ion_cx_data = True
             #TODO:Farm a panda here
             self.ion_cx_th_data = DataFrame(np.array(ion_cx_data[0]))
-            self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_number'], inplace=True)
+            #self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_number'], inplace=True)
 
             self.ion_cx_sp_data = DataFrame(np.array(ion_cx_data[1]))
             self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_number'])
@@ -545,6 +545,14 @@ class AtomData(object):
                     np.int64)
 
         self.nlte_data = NLTEData(self, nlte_species)
+        
+        if self.has_ion_cx_data:
+            self.ion_cx_th = self.ion_cx_th_data[self.levels_data['atomic_number'].isin(self.selected_atomic_numbers).values]
+            if max_ion_number is not None:
+                self.ion_cx_th = self.ion_cx_th[(self.levels['ion_number'] <= max_ion_number).values]
+            self.ion_cx_th = self.ion_cx_th.set_index(['atomic_number', 'ion_number', 'level_number'])
+
+        #self.ion_cx_th_index = pd.Series(np.arange(len(self.ion_cx_th), dtype=int), index=self.ion_cx_the.index)
 
 
     def __repr__(self):
