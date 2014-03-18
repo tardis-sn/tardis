@@ -4,7 +4,7 @@ supernova:
     luminosity_requested: 9.44 log_lsun
     time_explosion: 13 day
 
-atom_data: ../../../run/kurucz_atom_pure_simple.h5
+atom_data: run/kurucz_atom_pure_simple.h5
 
 model:
     structure:
@@ -18,21 +18,10 @@ model:
             
             
         density:
-            #showing different configuration options separated by comments
-            #simple uniform:
-            #---------------
             type : power_law
             time_0: 10 s
             rho_0: 1e-20 g/cm^3
             exponent: -2
-            #---------------
-
-            #branch85_w7 - fit of seven order polynomial to W7 (like Branch 85):
-            #---------------
-            #type : branch85_w7
-                
-            # default, no need to change!
-            #time_0 : 19.9999584 s
 
 
     abundances:
