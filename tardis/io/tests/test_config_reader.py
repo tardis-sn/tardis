@@ -243,5 +243,54 @@ class TestParseConfigV1ArtisDensityAbundancesAllAscii:
         assert_almost_equal(self.config.structure.mean_densities[4], 8.5733893e-11 * u.Unit('g/cm3') / 13.0**3 )
         assert_almost_equal(self.config.structure.mean_densities[5], 5.3037103e-11 * u.Unit('g/cm3') / 13.0**3 )
         assert_almost_equal(self.config.structure.mean_densities[6], 3.3999447e-11 * u.Unit('g/cm3') / 13.0**3 )
-
+        
+        
+def test_ascii_reader_power_law():
+    with open(data_path('tardis_configv1_density_power_law_test.yml')) as f:
+        yaml_data = yaml.load(f)
+    #for later use
+    density_data = yaml_data['model']['structure']['density']
+    t_explosion = density_data['time_0']
+    rho_0 = density_data['rho_0']
+    exponent = density_data['exponent']
+    
+    v_inner =  yaml_data['model']['structure']['velocity']['start']
+    v_outer =  yaml_data['model']['structure']['velocity']['stop']
+    my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'))
+    structure = my_conf.config_dict['structure']
+    
+    expected_densites = [1.17033058e-20, 1.55115702e-20, 1.98553719e-20, 2.47347107e-20,  3.01495868e-20]
+    expected_unit = 'g / (cm3)'
+    
+    assert structure['no_of_shells'] == 5
+    for i, mdens in enumerate(expected_densites):
+        assert_almost_equal(structure['mean_densities'][i].value,mdens)
+        assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
+        
+       
+    
+def test_ascii_reader_exponential_law():
+    with open(data_path('tardis_configv1_density_exponential_test.yml')) as f:
+        yaml_data = yaml.load(f)
+    #for later use
+    density_data = yaml_data['model']['structure']['density']
+    t_explosion = density_data['time_0']
+    rho_0 = density_data['rho_0']
+    v0 = density_data['v_0']
+    
+    v_inner =  yaml_data['model']['structure']['velocity']['start']
+    v_outer =  yaml_data['model']['structure']['velocity']['stop']
+    my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_exponential_test.yml'))
+    structure = my_conf.config_dict['structure']
+    
+    expected_densites = [3.04221264e-21, 2.54106960e-21, 2.12247974e-21, 1.77284410e-21, 1.48080387e-21]
+    expected_unit = 'g / (cm3)'
+    
+    assert structure['no_of_shells'] == 5
+    for i, mdens in enumerate(expected_densites):
+        assert_almost_equal(structure['mean_densities'][i].value,mdens)
+        assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
+    
+    
+    
 #write tests for inner and outer boundary indices
