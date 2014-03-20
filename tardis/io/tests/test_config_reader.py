@@ -260,12 +260,12 @@ def test_ascii_reader_power_law():
     structure = my_conf.config_dict['structure']
     
     expected_densites = [1.17033058e-20, 1.55115702e-20, 1.98553719e-20, 2.47347107e-20,  3.01495868e-20]
-    excepted_unit = 'g / (cm3)'
+    expected_unit = 'g / (cm3)'
     
     assert structure['no_of_shells'] == 5
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(structure['mean_densities'][i].value,mdens)
-        assert structure['mean_densities'][i].unit ==  u.Unit(excepted_unit)
+        assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
         
        
     
@@ -284,12 +284,12 @@ def test_ascii_reader_exponential_law():
     structure = my_conf.config_dict['structure']
     
     expected_densites = [3.04221264e-21, 2.54106960e-21, 2.12247974e-21, 1.77284410e-21, 1.48080387e-21]
-    excepted_unit = 'g / (cm3)'
+    expected_unit = 'g / (cm3)'
     
     assert structure['no_of_shells'] == 5
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(structure['mean_densities'][i].value,mdens)
-        assert structure['mean_densities'][i].unit ==  u.Unit(excepted_unit)
+        assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
     
     
     
