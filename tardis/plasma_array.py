@@ -689,30 +689,35 @@ class BasePlasmaArray(object):
         
          #the g values
         levels = self.atom_data.levels
+        nu_bins = np.linspace(2.9979246e+14, 5.9979246e+15, 10)
 
         level_g_ratio = self.atom_data.levels.g.values[np.newaxis].T * np.exp(np.outer(levels.energy.values, -self.beta_rads))
         level_population_proportionalities = pd.DataFrame(level_g_ratio, index=self.atom_data.levels.index, columns=np.arange(len(self.t_rads)), dtype=np.float64) #\frac{g_{upper}}{g_lower}
         
-        level_population_ratio = self.level_populations
-        level_population_ratio = self.level_populations.groupby(level=['atomic_number','ion_number']).apply(lambda g: g.iloc[0]/g.iloc[:]) #\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
-        level_population_ratio_lte = ( self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values / self.partition_functions.ix[self.atom_data.levels.index.droplevel(2)].values) * level_population_proportionalities# \frac{ion_number_density_{i,j,k}}{partition_functions_{i,j,k}} *\frac{g_{upper}}{g_lower}
+        level_populations = self.level_populations.__array__()
+        level_population_ratio = self.level_populations.groupby(level=['atomic_number','ion_number']).apply(lambda g: pd.DataFrame(g.__array__()[0,:]/g.__array__()[:,:]))#\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
+        level_populations_lte = ( self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values / self.partition_functions.ix[self.atom_data.levels.index.droplevel(2)].values) * level_population_proportionalities# \frac{ion_number_density_{i,j,k}}{partition_functions_{i,j,k}} *\frac{g_{upper}}{g_lower}
+        level_population_ratio_lte = level_populations_lte.groupby(level=['atomic_number','ion_number']).apply(lambda g: pd.DataFrame(g.__array__()[0,:]/g.__array__()[:,:]))#\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
+
         
-        bound_free_cross_section_at_threshold = self.atom_data.ion_cx_th_data
-        bound_free_cross_section_at_supporter = self.atom_data.ion_cx_sp_data
+        bound_free_cross_section_at_threshold = self.atom_data.ion_cx_th
+        bound_free_cross_section_at_supporter = self.atom_data.ion_cx_sp
         
         
         bound_free_th_frequency = self.atom_data.levels['energy'].__array__() /h_cgs
         
-        bound_free_cross_section_at_threshold.__array__()
-        helper =  (level_population_ratio['ratio_to_0_level'].__array__()**-1 * level_population_ratio['ratio_to_0_level_lte'].__array__())
-        exponential_factor = np.exp(- h_cgs * nu_bins / k_B_cgs / self.t_electrons)
-        helper[:,None] * exponential_factor[None,:]
+        #bound_free_cross_section_at_threshold.__array__()
+        helper =  (level_population_ratio.__array__()**-1 * level_population_ratio_lte.__array__())
+        exponential_factor = np.exp(- h_cgs * nu_bins[:,None] / k_B_cgs / self.t_electrons[None,:])
+        #helper[:,None] * exponential_factor[None,:]
         
-        right_term = 1 - helper[:,None] * exponential_factor[None,:]
-        nu_gr_th_fq = bound_free_th_frequency[:,None] < nu_bins[None,:]
-        cross_sections[:,:] = bound_free_cross_section_at_threshold['cross_section'].__array__()[:,None]
+        right_term = 1 - helper[None,:,:] * exponential_factor[:,None,:]
+        nu_gr_th_fq = bound_free_th_frequency[None,:] < nu_bins[:,None]
+        cross_sections = np.zeros_like(nu_gr_th_fq, dtype=np.float)
+        cross_sections[:,:] = bound_free_cross_section_at_threshold['cross_section'].__array__()[None,:]
         cross_sections[~nu_gr_th_fq] =0
-        
+        chi_bf = level_populations[None,:,:]  * cross_sections[:,:,None] * right_term
+        chi_bf_sum = np.sum(chi_bf,axis=1) #sum in color bins over all levels
         
         
         def get_bound_free_cross_section(nu):
