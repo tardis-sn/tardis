@@ -686,6 +686,50 @@ class BasePlasmaArray(object):
         None
 
         """
+        
+         #the g values
+        levels = self.atom_data.levels
+
+        level_g_ratio = self.atom_data.levels.g.values[np.newaxis].T * np.exp(np.outer(levels.energy.values, -self.beta_rads))
+        level_population_proportionalities = pd.DataFrame(level_g_ratio, index=self.atom_data.levels.index, columns=np.arange(len(self.t_rads)), dtype=np.float64) #\frac{g_{upper}}{g_lower}
+        
+        level_population_ratio = self.level_populations
+        level_population_ratio = self.level_populations.groupby(level=['atomic_number','ion_number']).apply(lambda g: g.iloc[0]/g.iloc[:]) #\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
+        level_population_ratio_lte = ( self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values / self.partition_functions.ix[self.atom_data.levels.index.droplevel(2)].values) * level_population_proportionalities# \frac{ion_number_density_{i,j,k}}{partition_functions_{i,j,k}} *\frac{g_{upper}}{g_lower}
+        
+        bound_free_cross_section_at_threshold = self.atom_data.ion_cx_th_data
+        bound_free_cross_section_at_supporter = self.atom_data.ion_cx_sp_data
+        
+        
+        bound_free_th_frequency = self.atom_data.levels['energy'].__array__() /h_cgs
+        
+        bound_free_cross_section_at_threshold.__array__()
+        helper =  (level_population_ratio['ratio_to_0_level'].__array__()**-1 * level_population_ratio['ratio_to_0_level_lte'].__array__())
+        exponential_factor = np.exp(- h_cgs * nu_bins / k_B_cgs / self.t_electrons)
+        helper[:,None] * exponential_factor[None,:]
+        
+        right_term = 1 - helper[:,None] * exponential_factor[None,:]
+        nu_gr_th_fq = bound_free_th_frequency[:,None] < nu_bins[None,:]
+        cross_sections[:,:] = bound_free_cross_section_at_threshold['cross_section'].__array__()[:,None]
+        cross_sections[~nu_gr_th_fq] =0
+        
+        
+        
+        def get_bound_free_cross_section(nu):
+            """ Computes the bound free cross section for a given n.
+                At the moment only a hydrogenic approximation \frac{nu_{i,j,k}}{nu}}^3 is used
+
+            """
+            return ((bound_free_threshold_frequency[bound_free_threshold_frequenc < nu ])/nu)**3 * bound_free_cross_section_at_threshol[bound_free_threshold_frequenc < nu]
+        
+        #ToDo: -compute the exp factor; combine all the stuff; test; include supporters; compute taus for a nu grid; pass taus to mc; pass lpr and lprl to mc
+        
+        
+        
+        
+        
+        
+        
         nu_bins = range(1000, 10000, 1000) #TODO: get the binning from the input file.
         try:
             bf = np.zeros(len(self.atom_data.levels), len(self.atom_data.selected_atomic_numbers), len(nu_bins))
