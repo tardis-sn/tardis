@@ -686,6 +686,10 @@ class BasePlasmaArray(object):
         None
 
         """
+        def sorting(a1, a2):
+        # l1 and l2 has to be numpy arrays. a1 is the master array
+        idx = np.argsort(a1)
+        return a1[idx], a2[idx]
         
          #the g values
         levels = self.atom_data.levels
@@ -718,6 +722,8 @@ class BasePlasmaArray(object):
         cross_sections[~nu_gr_th_fq] =0
         chi_bf = level_populations[None,:,:]  * cross_sections[:,:,None] * right_term
         chi_bf_sum = np.sum(chi_bf,axis=1) #sum in color bins over all levels
+        
+        chi_bf_index_to_level = levels.reset_index()[['atomic_number','ion_number', 'level_number']].__array__()
         
         
         def get_bound_free_cross_section(nu):
