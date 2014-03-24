@@ -477,6 +477,7 @@ class AtomData(object):
         if max_ion_number is not None:
             self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
 
+        self.lines.is_copy = False
         self.lines.sort('wavelength', inplace=True)
 
         self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
