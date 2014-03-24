@@ -16,6 +16,7 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     gui
     uses
     examples/examples
+    testing
     atomic
     plasma
     montecarlo
