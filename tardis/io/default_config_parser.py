@@ -263,7 +263,10 @@ class PropertyTypeQuantity(PropertyType):
 class PropertyTypeQuantityRange(PropertyTypeQuantity):
     
     def _to_units(self, los):
-        loq = [(lambda x: (units.Quantity(float(x[0]),x[1])))(x.split()) for x in los]
+        if len(los) > 2:
+            loq = [(lambda x: (units.Quantity(float(x[0]),x[1])))(x.split()) for x in los[:-1]]
+        else:
+            loq = [(lambda x: (units.Quantity(float(x[0]),x[1])))(x.split()) for x in los]
         try:
             _ = reduce((lambda a, b:  a.to(b.unit)), loq)
             loq = [a.to(loq[0].unit) for a in loq]
@@ -274,7 +277,7 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
     
     def check_type(self, value):
         if isinstance(value, dict):
-            if reduce((lambda a, b: a in value), [True, 'start', 'end']):
+            if reduce((lambda a, b: a and b in value), [True, 'start', 'end']):
                 los = [value['start'], value['end']]
                 loq = self._to_units(los)
                 if abs(loq[0].value - loq[1].value) > 0:
@@ -298,7 +301,7 @@ class PropertyTypeQuantityRangeSampled(PropertyTypeQuantityRange):
     
     def check_type(self, value):
         if isinstance(value, dict):
-            if reduce((lambda a, b: a in value), [True, 'start', 'end', 'sample']):
+            if reduce((lambda a, b: a and b in value), [True, 'start', 'end', 'sample']):
                 los = [value['start'], value['end'], value['sample']]
                 loq = self._to_units(los)
                 if abs(loq[0].value - loq[1].value) > 0:
@@ -486,7 +489,8 @@ class DefaultParser(object):
             
 #ToDo: move all to classes
         if 'default' in default_dict:
-            self.__type.default = default_dict['default']
+            if default_dict['default'] != None and not default_dict['default'] in ['None','']:
+                self.__type.default = default_dict['default']
 
         if 'mandatory' in default_dict:
             self.__type.mandatory = default_dict['mandatory']
@@ -674,6 +678,7 @@ class Container(DefaultParser):
 
         #check if the specified container in the config is allowed
         try:
+            #print(container_dict)
             if not container_dict['type'] in self.__allowed_container:
 
                 raise ValueError('Wrong container type')
@@ -887,16 +892,16 @@ class Config(object):
                     if len(no_default) > 0:
                         logger.warning('The items %s from the configuration are not specified in the default configuration'%str(no_default))
                     for k, v in top_default.items():
+                        #print('>---<')
+                        #print(k)
                         tmp_conf_ob[k], tmp_conf_val[k] = recursive_parser(v, configuration, path + [k])
-#                        print('>---<')
-#                        print(k)
-#                        print(tmp_conf_val[k])
+                        #print(tmp_conf_val[k])
                     return tmp_conf_ob, tmp_conf_val
                 else:
                     default_property.set_path_in_dic(path)
                     try:
 #                        print('get_property_by_path')
-#                        print(path)
+                        #print(path)
                         conf_value = get_property_by_path(configuration, path)
 #                        print(conf_value)
 #                        print('End:get_property_by_path')

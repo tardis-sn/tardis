@@ -1,6 +1,7 @@
 
 tardis_config_version:
   property_type: string
+  default: "1.1"
   help: Version of the configuration file
 
 
@@ -8,141 +9,164 @@ supernova:
     luminosity_requested:
         property_type: quantity
         mandatory: True
-        default: None
+        default: 1 solLum
         help: requested output luminosity for simulation
 
     time_explosion:
         property_type: quantity
         mandatory: True
         default: None
-        help: time since explosion
+        help: 
+        
+    distance:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help:
+      
+    
+
 
 
 atom_data:
-  property_type: string
-  mandatory: True
-  help: path or filename to the Atomic Data HDF5 file
+    property_type: string
+    mandatory: True
+    help: path or filename to the Atomic Data HDF5 file
+  
+plasma:
+    initial_t_inner:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help:
+        
+    initial_t_rad:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help:
+        
+    disable_electron_scattering:
+        property_type: string
+        mandatory: True
+        default: None
+        help:
+        
+    type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: nebular lte detailed
+        help:
+        
+    radiative_rates_type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: nebular lte detailed
+        help: 
+        
+    line_interaction_type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: scatter downbranch macroatom 
+        help:
+        
+    w_epsilon:
+        property_type: float
+        mandatory: True
+        default: None
+        help: time since explosion
+        
+
+    nlte:
+        species:
+            property_type: list
+            mandatory: True
+            default: None
+            help:
+        
+    
+    
 
 
 model:
     structure:
-    property_type : container-property
+      property_type : container-property
+      type:
+          property_type: container-declaration
+          containers: ['file', 'specific']
+          _file: ['file_property'] # why list
+          _specific: ['specific-property']
+  
+      file_property:
+          filename:
+             property_type: string
+             default: None
+             mandatory: True
+             help: file name (with path) to structure model
+  
+          filetype:
+             property_type: string
+             default: None
+             mandatory: True
+             help: file type
+              #### there are only a handful of types available how do we validate that ####
+  
+          lowest_shell:
+              property_type: int
+              default: None
+              mandatory: False
+              help: location of the inner boundary chosen from the model
+              
+          highest_shell:
+              property_type: int
+              default: None
+              mandatory: False
+              help: location of the inner boundary chosen from the model
+            
+  
+          v_inner_boundary:
+              property_type: quantity
+              default: 0 km/s
+              mandatory: False
+              help: location of the inner boundary chosen from the model
+  
+          v_outer_boundary:
+              property_type: quantity
+              default: inf km/s
+              mandatory: False
+              help: location of the inner boundary chosen from the model
 
-    type:
-        property_type: container-declaration
-        containers: ['file', 'specific']
-        _file: ['file_property'] # why list
-
-        _specific: ['specific-property']
-
-    file_property:
-        filename:
-           property_type: string
-           default: None
-           mandatory: True
-           help: file name (with path) to structure model
-
-        filetype:
-           property_type: string
-           default: None
-           mandatory: True
-           help: file type
-            #### there are only a handful of types available how do we validate that ####
-
-        v_inner_boundary:
-            property_type: quantity
-            default: 0 km/s
-            mandatory: False
-            help: location of the inner boundary chosen from the model
-
-        v_outer_boundary:
-            property_type: quantity
-            default: inf km/s
-            mandatory: False
-            help: location of the inner boundary chosen from the model
-
-    specific_property:
-        velocity:
-            property_type: quantity_sampled_old
-            default: None
-            mandatory: True
-            help: >
-                location of boundaries in the velocity field.
-                There will be n-1 cells as this specifis both the inner and outer velocity components
-
-
-        density:
-            property_type: container-property
-            type:
-                property_type: container-declaration
-                containers: ['branch85_w7']
-
-                _branch85_w7: ['branch85_w7-property'] # list
-
-            branch85_w7-property:
-                time_0:
-                    property_type: quantity
-                    default: 19.9999584 s
-                    mandatory: False
-                    help: This needs no change - DO NOT TOUCH
-
-                density_coefficient:
-                    property_type: float
-                    default: 3e29
-                    mandatory: False
-                    help: This needs no change - DO NOT TOUCH
-
-
-    abundances:
-        #what do we do about that?
-
-
-
-plasma:
-    initial_t_inner:
-        property_type: quantity
-        default: None
-        mandatory: False
-        help: >
-            Initial temperature of the black-body at the inner boundary.
-            If set to `None` will set the temperature to match the output temperature
-
-    initial_t_rads:
-        property_type: quantity
-        default: 10000 K
-        mandatory: False
-        help: initialize the radiation temperature in each cell
-
-    disable_electron_scattering:
-        property_type: bool
-        default: False
-        mandatory: False
-        help: Disables electron scattering. WARNING!! use only for testing - non-physical
-
-    ionization:
-        property_type: string
-        default: None
-        mandatory: True
-        help: Treatment of ionization
-        #what about different options for validations
-
-    excitation:
-        property_type: string
-        default: None
-        mandatory: True
-        help: Treatment of excitation
-
-    radiative_rates_type:
-        property_type: string
-        default: None
-        mandatory: True
-        help: Treatment the radiative rates
-
-    line_interaction_type:
-        property_type: string
-        default: None
-        mandatory: True
-        help: Treatment the line interaction
+      specific_property:
+          velocity:
+              property_type: quantity_range
+              default: None
+              mandatory: True
+              help: location of boundaries in the velocity field. There will be n-1 cells as this specifis both the inner and outer velocity components
+  
+  
+          density:
+              property_type: container-property
+              type:
+                  property_type: container-declaration
+                  containers: ['branch85_w7']
+  
+                  _branch85_w7: ['branch85_w7-property'] # list
+  
+              branch85_w7-property:
+                  time_0:
+                      property_type: quantity
+                      default: 19.9999584 s
+                      mandatory: False
+                      help: This needs no change - DO NOT TOUCH
+  
+                  density_coefficient:
+                      property_type: float
+                      default: 3e29
+                      mandatory: False
+                      help: This needs no change - DO NOT TOUCH
 
 
 montecarlo:
@@ -165,66 +189,65 @@ montecarlo:
         help: Number of maximum iterations
 
     black_body_sampling:
-        property_type: quantity_sampled_old
-        default: "[1, 1e6, 1e6] angstrom"
+        property_type: quantity_range
+        default: [1 angstrom, 1e6 angstrom, 1e6 angstrom]
         mandatory: False
-        help: >
-            Sampling of the black-body for energy packet creation
-            (giving maximum and minimum packet frequency)
+        help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)
 
     last_no_of_packets:
         property_type: int
-        default: None
+        default: 100
         mandatory: False
-        help: >
-            This can set the number of packets for the last run.
-            If set to None it will remain the same as all other runs.
+        help: This can set the number of packets for the last run. If set to None it will remain the same as all other runs.
 
     no_of_virtual_packets:
         property_type: int
         default: 0
         mandatory: False
-        help: >
-            Setting the number of virtual packets for the last iteration.
+        help: Setting the number of virtual packets for the last iteration.
 
 
-    converge_criteria:
-    property_type : container-property
-    type:
-        property_type: container-declaration
-        containers: ['specific']
-        _specific: ['specific-property']
+    #converge_criteria:
+    #property_type : container-property
+    #type:
+    #    property_type: container-declaration
+    #    containers: ['specific']
+    #    _specific: ['specific-property']
 
-    specific-property:
-        damping_constant:
-            property_type: float
-            default: None
-            mandatory: True
-            help: Damping constant for convergence behaviour
+    #specific-property:
+    #    damping_constant:
+    #        property_type: float
+    #        default: None
+    #        mandatory: True
+    #        help: Damping constant for convergence behaviour
+    #
+    #    threshold:
+    #        property_type: float
+    #        default: None
+    #        mandatory: True
+    #        help: threshold for convergence
+    #
+    #    fraction:
+    #        property_type: float
+    #        default: None
+    #        mandatory: True
+    #        help: fraction of shells that need to have converged to the necessary threshold
+    #
+    #    hold:
+    #        property_type: float
+    #        default: None
+    #        mandatory: True
+    #        help: >
+    #            Number of iterations that the simulation needs to run abiding by the convergence criteria
+    #            before it is considered converged
 
-        threshold:
-            property_type: float
-            default: None
-            mandatory: True
-            help: threshold for convergence
 
-        fraction:
-            property_type: float
-            default: None
-            mandatory: True
-            help: fraction of shells that need to have converged to the necessary threshold
 
-        hold:
-            property_type: float
-            default: None
-            mandatory: True
-            help: >
-                Number of iterations that the simulation needs to run abiding by the convergence criteria
-                before it is considered converged
+
 
 
 spectrum:
-    property_type: quantity_sampled_old
+    property_type: quantity_range_sampled
     default: None
     mandatory: True
     help: Final spectrum sampling
