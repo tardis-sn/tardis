@@ -274,10 +274,10 @@ class AtomData(object):
         ::important to note here is that ion describes the final ion state
             e.g. H I - H II is described with ion=2
 
-    levels_data : ~astropy.table.Table
+    levels : ~astropy.table.Table
         containing the levels data: z, ion, level_number, energy, g
 
-    lines_data : ~astropy.table.Table
+    lines : ~astropy.table.Table
         containing the lines data: wavelength, z, ion, levels_number_lower,
         levels_number_upper, f_lu, f_ul
 
@@ -313,8 +313,8 @@ class AtomData(object):
 
         atom_data = read_basic_atom_data(fname)
         ionization_data = read_ionization_data(fname)
-        levels_data = read_levels_data(fname)
-        lines_data = read_lines_data(fname)
+        levels = read_levels_data(fname)
+        lines = read_lines_data(fname)
 
         with h5py.File(fname, 'r') as h5_file:
             h5_datasets = h5_file.keys()
@@ -344,8 +344,8 @@ class AtomData(object):
         else:
             ion_cx_data = None
 
-        atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-                        lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
+        atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels=levels,
+                        lines=lines, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
                         collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs,
                         ion_cx_data=ion_cx_data)
 
@@ -361,7 +361,7 @@ class AtomData(object):
 
         return atom_data
 
-    def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
+    def __init__(self, atom_data, ionization_data, levels, lines, macro_atom_data=None, zeta_data=None,
                  collision_data=None, synpp_refs=None, ion_cx_data=None):
 
 
@@ -417,18 +417,18 @@ class AtomData(object):
         self.ionization_data.ionization_energy = units.Unit('eV').to('erg',
                                                                      self.ionization_data.ionization_energy.values)
 
-        self.levels_data = DataFrame(levels_data.__array__())
-        self.levels_data.energy = units.Unit('eV').to('erg', self.levels_data.energy.values)
+        self.levels = DataFrame(levels.__array__())
+        self.levels.energy = units.Unit('eV').to('erg', self.levels.energy.values)
 
-        self.lines_data = DataFrame(lines_data.__array__())
-        self.lines_data.set_index('line_id', inplace=True)
-        self.lines_data['nu'] = units.Unit('angstrom').to('Hz', self.lines_data['wavelength'], units.spectral())
-        self.lines_data['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines_data['wavelength'])
-
-
+        self.lines = DataFrame(lines.__array__())
+        self.lines.set_index('line_id', inplace=True)
+        self.lines['nu'] = units.Unit('angstrom').to('Hz', self.lines['wavelength'], units.spectral())
+        self.lines['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines['wavelength'])
 
 
-        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines_data)
+
+
+        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines)
         #self.lines_inde
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
@@ -445,7 +445,7 @@ class AtomData(object):
                           nlte_species=[]):
         """
         Prepares the atom data to set the lines, levels and if requested macro atom data.
-        This function mainly cuts the `levels_data` and `lines_data` by discarding any data that is not needed (any data
+        This function mainly cuts the `levels` and `lines` by discarding any data that is not needed (any data
         for atoms that are not needed
 
         Parameters
@@ -466,14 +466,14 @@ class AtomData(object):
 
         self.nlte_species = nlte_species
 
-        self.levels = self.levels_data[self.levels_data['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.levels = self.levels[self.levels['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
             self.levels = self.levels[self.levels['ion_number'] <= max_ion_number]
         self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
         self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
         #cutting levels_lines
-        self.lines = self.lines_data[self.lines_data['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.lines = self.lines[self.lines['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
             self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
 
@@ -550,7 +550,7 @@ class AtomData(object):
 
     def __repr__(self):
         return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
-               (self.uuid1, self.md5, self.lines_data.atomic_number.count(), self.levels_data.energy.count())
+               (self.uuid1, self.md5, self.lines.atomic_number.count(), self.levels.energy.count())
 
 
 class NLTEData(object):
