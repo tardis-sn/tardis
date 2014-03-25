@@ -167,6 +167,30 @@ model:
                       default: 3e29
                       mandatory: False
                       help: This needs no change - DO NOT TOUCH
+                      
+    abundances:
+        property_type: container-property
+        type:
+            property_type: container-declaration
+            containers: ['file','uniform']
+            _uniform: ['abundance_set']
+            _file: ['ftype']
+            
+        ftype:
+            property_type: string
+            default: 'abundances.txt'
+            mandatory: False
+            help: This needs no change - DO NOT TOUCH
+            
+        abundance_set:
+          property_type: abundance_set
+          default: None
+          mandatory: False
+          help: 
+                
+                
+  
+            
 
 
 montecarlo:

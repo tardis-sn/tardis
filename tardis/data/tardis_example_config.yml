@@ -76,6 +76,33 @@ model:
           # default, no need to change!
           #density_coefficient : 3e29
           #---------------
+          
+          
+
+
+    abundances:
+      type: uniform
+    #file:
+    #    type : artis
+    #    name : artis_abundances.dat
+
+#        abundance_set:
+#            type: uniform
+#            name: lucy99
+#        nlte_species : [Si2]
+      abundance_set:
+#        C: 0.01
+#        O: 0.01
+#        Ne: 0.01
+#        Mg: 0.01
+#        Si: 0.45
+#        S: 0.35
+#        Ar: 0.04
+#        Ca: 0.03
+#        Fe: 0.07
+#        Co: 0.01
+#        Ni: 0.01
+        Si: 1.00
 
 
 
@@ -90,6 +117,9 @@ montecarlo:
     #      threshold: 0.05
     #      fraction: 0.8
     #      hold: 3
+
+
+
 
 
 
