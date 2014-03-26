@@ -95,9 +95,6 @@ def calc_exponential_density(velocities, v_0, rho0):
     :param a: proportionality constant
     :return: Array like density profile
     """
-    print (rho0)
-    print(v_0)
-    print(velocities)
     densities =  rho0 * np.exp(-(velocities / v_0))
     return densities
 
@@ -412,11 +409,11 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         try:
             rho_0 = density_dict.pop('rho_0')
             if isinstance(rho_0, basestring):
-                rho_0 = parse_quantity(rho_0).to('g/cm^3').value
+                rho_0 = parse_quantity(rho_0)
             else:
                 raise KeyError
         except KeyError:
-            rho_0 = 1e-2
+            rho_0 = parse_quantity('1e-2 g/cm^3')
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
         try:
             exponent = density_dict.pop('exponent')
@@ -441,19 +438,19 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         try:
             rho_0 = density_dict.pop('rho_0')
             if isinstance(rho_0, basestring):
-                rho_0 = parse_quantity(rho_0).to('g/cm^3').value
+                rho_0 = parse_quantity(rho_0)
             else:
                 raise KeyError
         except KeyError:
-            rho_0 = 1e-2
+            rho_0 = parse_quantity('1e-2 g/cm^3')
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
         try:
             v_0 = density_dict.pop('v_0')
             if isinstance(v_0, basestring):
-                v_0 = parse_quantity(v_0).to('km/s').value
+                v_0 = parse_quantity(v_0)
             
         except KeyError:
-            v_0 = 1
+            v_0 = parse_quantity('1 cm/s')
             logger.warning('v_0 was not given in the config file! Using %f km/s', v_0)
 
         velocities = 0.5 * (v_inner + v_outer)
