@@ -472,7 +472,7 @@ class AtomData(object):
         if max_ion_number is not None:
             self._levels = self._levels[self._levels['ion_number'] <= max_ion_number]
         self._levels = self._levels.set_index(['atomic_number', 'ion_number', 'level_number'])
-        self.levels = self.lines.copy()
+        self.levels = self._levels.copy()
 
         self.levels_index = pd.Series(np.arange(len(self._levels), dtype=int), index=self._levels.index)
         #cutting levels_lines
