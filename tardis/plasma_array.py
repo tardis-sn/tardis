@@ -560,17 +560,12 @@ class BasePlasmaArray(object):
 
             r_ul_matrix = np.zeros((number_of_levels, number_of_levels, len(self.t_rads)), dtype=np.float64)
             r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels**2, len(self.t_rads)))
-            r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T
+            r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
             r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
-
-            stimulated_emission_matrix = np.zeros_like(r_ul_matrix)
-            stimulated_emission_matrix.reshape((number_of_levels**2, len(self.t_rads)))[r_lu_index] = self.stimulated_emission_factor[lines_index]
-
 
             r_lu_matrix = np.zeros_like(r_ul_matrix)
             r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2, len(self.t_rads)))
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * j_blues[lines_index] * beta_sobolevs[lines_index]
-            r_lu_matrix *= stimulated_emission_matrix
 
             collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
                                self.electron_densities.values
@@ -589,7 +584,7 @@ class BasePlasmaArray(object):
                 relative_level_populations = np.linalg.solve(rates_matrix[:, :, i], x)
                 self.level_populations[i].ix[species] = relative_level_populations * self.ion_populations[i].ix[species]
 
-            return
+        return
 
 
     def calculate_tau_sobolev(self):
