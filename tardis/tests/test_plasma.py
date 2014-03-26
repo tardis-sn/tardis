@@ -4,6 +4,22 @@ from astropy import constants, table, units
 from numpy import testing
 import pytest
 from tardis import plasma_array, atomic
+import os
+import tardis
+
+data_path = os.path.join(tardis.__path__, 'data')
+helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
+
+class TestNLTE(object):
+
+    def setup(self):
+        self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
+
+    def test_x(self):
+        1/0
+
+
+
 
 """
 atom_model = atomic.AtomData.from_hdf5()
