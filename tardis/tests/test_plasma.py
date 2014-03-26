@@ -7,7 +7,7 @@ from tardis import plasma_array, atomic
 import os
 import tardis
 
-data_path = os.path.join(tardis.__path__, 'data')
+data_path = os.path.join(tardis.__path__[0], 'data')
 helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
 
 class TestNLTE(object):
