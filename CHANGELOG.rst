@@ -1,7 +1,13 @@
 0.9.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+Bugfixes
+^^^^^^^^
+
+- "print" replaced with logger for classical nebular
+- logger statement added for coronal approximation
+- warning added to documentation since plasma is out of date (temp
+  solution only) #108
 
 
 0.9.1 (2014-02-03)

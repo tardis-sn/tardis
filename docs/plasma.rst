@@ -7,7 +7,8 @@ Plasma
 .. currentmodule:: tardis.plasma_array
 
 
-
+.. warning::
+    This information (particularly code examples) is not up-to-date.
 
 
 This module calculates the ionization balance and level populations in BasePlasma, give a abundance fraction, temperature
