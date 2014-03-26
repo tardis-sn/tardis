@@ -228,8 +228,10 @@ def read_collision_data(fname):
 def read_ion_cx_data(fname):
     try:
         h5_file = h5py.File(fname, 'r')
-        ion_cx_th_data = h5_file['ionization_cx_threshold']
-        ion_cx_sp_data = h5_file['ionization_cx_support']
+        ion_cx_th_data = None
+        ion_cx_sp_data = None
+        #ion_cx_th_data = h5_file['ion_cx_data']
+        #ion_cx_sp_data = h5_file['ion_cx_sp_data']
         return ion_cx_th_data, ion_cx_sp_data
     except IOError, err:
         print(err.errno)
@@ -313,8 +315,8 @@ class AtomData(object):
 
         atom_data = read_basic_atom_data(fname)
         ionization_data = read_ionization_data(fname)
-        levels = read_levels_data(fname)
-        lines = read_lines_data(fname)
+        levels_data = read_levels_data(fname)
+        lines_data = read_lines_data(fname)
 
         with h5py.File(fname, 'r') as h5_file:
             h5_datasets = h5_file.keys()
@@ -340,28 +342,28 @@ class AtomData(object):
             synpp_refs = None
 
         if 'ion_cx_data' in h5_datasets and 'ion_cx_data' in h5_datasets:
-            ion_cx_data = read_ion_cx_data(fname)
+            ion_cx_data = None
         else:
             ion_cx_data = None
 
-        atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels=levels,
-                        lines=lines, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
+        atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
+                        lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
                         collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs,
                         ion_cx_data=ion_cx_data)
 
-        with h5py.File(fname, 'r') as h5_file:
-            atom_data.uuid1 = h5_file.attrs['uuid1']
-            atom_data.md5 = h5_file.attrs['md5']
-            atom_data.version = h5_file.attrs.get('database_version', None)
+        #with h5py.File(fname, 'r') as h5_file:
+        #    atom_data.uuid1 = h5_file.attrs['uuid1']
+        #    atom_data.md5 = h5_file.attrs['md5']
+        #    atom_data.version = h5_file.attrs.get('database_version', None)
 
-            if atom_data.version is not None:
-                atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
+        #    if atom_data.version is not None:
+        #        atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
 
-            logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
+        #   logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
 
         return atom_data
 
-    def __init__(self, atom_data, ionization_data, levels, lines, macro_atom_data=None, zeta_data=None,
+    def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
                  collision_data=None, synpp_refs=None, ion_cx_data=None):
 
 
@@ -417,13 +419,13 @@ class AtomData(object):
         self.ionization_data.ionization_energy = units.Unit('eV').to('erg',
                                                                      self.ionization_data.ionization_energy.values)
 
-        self.levels = DataFrame(levels.__array__())
-        self.levels.energy = units.Unit('eV').to('erg', self.levels.energy.values)
+        self._levels = DataFrame(levels_data.__array__())
+        self._levels.energy = units.Unit('eV').to('erg', self._levels.energy.values)
 
-        self.lines = DataFrame(lines.__array__())
-        self.lines.set_index('line_id', inplace=True)
-        self.lines['nu'] = units.Unit('angstrom').to('Hz', self.lines['wavelength'], units.spectral())
-        self.lines['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines['wavelength'])
+        self._lines = DataFrame(lines_data.__array__())
+        self._lines.set_index('line_id', inplace=True)
+        self._lines['nu'] = units.Unit('angstrom').to('Hz', self._lines['wavelength'], units.spectral())
+        self._lines['wavelength_cm'] = units.Unit('angstrom').to('cm', self._lines['wavelength'])
 
 
 
@@ -466,23 +468,26 @@ class AtomData(object):
 
         self.nlte_species = nlte_species
 
-        self.levels = self.levels[self.levels['atomic_number'].isin(self.selected_atomic_numbers)]
+        self._levels = self._levels[self._levels['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
-            self.levels = self.levels[self.levels['ion_number'] <= max_ion_number]
-        self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
+            self._levels = self._levels[self._levels['ion_number'] <= max_ion_number]
+        self._levels = self._levels.set_index(['atomic_number', 'ion_number', 'level_number'])
+        self.levels = self.lines.copy()
 
-        self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
+        self.levels_index = pd.Series(np.arange(len(self._levels), dtype=int), index=self._levels.index)
         #cutting levels_lines
-        self.lines = self.lines[self.lines['atomic_number'].isin(self.selected_atomic_numbers)]
+        self._lines = self._lines[self._lines['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
-            self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
+            self._lines = self._lines[self._lines['ion_number'] <= max_ion_number]
 
-        self.lines.sort('wavelength', inplace=True)
+        self._lines.sort('wavelength', inplace=True)
 
-        self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
+        self.lines = self._lines.copy()
+    
+        self.lines_index = pd.Series(np.arange(len(self._lines), dtype=int), index=self._lines.index)
 
-        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_lower']])
+        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self._lines['atomic_number'], self._lines['ion_number'],
+                                                               self._lines['level_number_lower']])
 
         self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values.astype(np.int64)
 
