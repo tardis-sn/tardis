@@ -533,12 +533,13 @@ class BasePlasmaArray(object):
         if self.nlte_config.get('coronal_approximation', False):
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
             j_blues = np.zeros_like(self.j_blues)
+            logger.info('using coronal approximation = setting beta_sobolevs to 1 AND j_blues to 0')
         else:
             beta_sobolevs = self.beta_sobolevs
             j_blues = self.j_blues.values
 
         if self.nlte_config.get('classical_nebular', False):
-            print "setting classical nebular = True"
+            logger.info('using Classical Nebular = setting beta_sobolevs to 1')
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
 
         for species in self.nlte_config.species:
