@@ -228,8 +228,8 @@ def read_collision_data(fname):
 def read_ion_cx_data(fname):
     try:
         h5_file = h5py.File(fname, 'r')
-        ion_cx_th_data = h5_file['ion_cx_data']
-        ion_cx_sp_data = h5_file['ion_cx_sp_data']
+        ion_cx_th_data = h5_file['ionization_cx_threshold']
+        ion_cx_sp_data = h5_file['ionization_cx_support']
         return ion_cx_th_data, ion_cx_sp_data
     except IOError, err:
         print(err.errno)
@@ -340,7 +340,7 @@ class AtomData(object):
             synpp_refs = None
 
         if 'ion_cx_data' in h5_datasets and 'ion_cx_data' in h5_datasets:
-            ion_cx_data = None
+            ion_cx_data = read_ion_cx_data(fname)
         else:
             ion_cx_data = None
 
