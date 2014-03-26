@@ -1,13 +1,11 @@
-import os
-import numpy as np
-from astropy import constants, table, units
 from numpy import testing
 import pytest
 from tardis import plasma_array, atomic
 import os
 import tardis
 
-data_path = os.path.join(tardis.__path__[0], 'data')
+
+data_path = os.path.join(tardis.__path__[0], 'tests', 'data')
 helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
 
 class TestNLTE(object):
@@ -17,6 +15,9 @@ class TestNLTE(object):
 
     def test_x(self):
         1/0
+
+
+
 
 
 
