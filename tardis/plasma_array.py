@@ -92,7 +92,9 @@ class BasePlasmaArray(object):
     """
 
     @classmethod
-    def from_abundance(cls, abundance_dict, density, atom_data, time_explosion, nlte_config=None, saha_treatment='lte'):
+    def from_abundance(cls, abundance_dict, density, atom_data, time_explosion,
+                       nlte_config=None, ionization_mode='lte',
+                       excitation_mode='lte'):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -116,7 +118,7 @@ class BasePlasmaArray(object):
         `Baseplasma` object
         """
 
-        abundance_series = parse_abundance_dict_to_dataframe(abundance_dict, atom_data)
+        abundance_series = parse_abundance_dict_to_dataframe(abundance_dict)
 
         abundances = pd.DataFrame({0:abundance_series})
 
@@ -126,7 +128,9 @@ class BasePlasmaArray(object):
         atom_data.prepare_atom_data(number_densities.index.values)
 
 
-        return cls(number_densities, atom_data, time_explosion.to('s').value, nlte_config=nlte_config, saha_treatment=saha_treatment)
+        return cls(number_densities, atom_data, time_explosion.to('s').value,
+                   nlte_config=nlte_config, ionization_mode=ionization_mode,
+                   excitation_mode=excitation_mode)
 
     @classmethod
     def from_hdf5(cls, hdf5store):
