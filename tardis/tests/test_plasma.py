@@ -1,6 +1,10 @@
 from numpy import testing
+import numpy as np
+import pandas as pd
 import pytest
 from tardis import plasma_array, atomic
+from tardis.util import intensity_black_body
+from tardis.io.config_reader import TARDISConfigurationNameSpace
 import os
 import tardis
 from astropy import units as u, constants as const
@@ -11,10 +15,19 @@ helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
 class TestNLTE(object):
 
     def setup(self):
+        self.nlte_species=[(2,0),(2,1)]
         self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
+        self.atom_data.prepare_atom_data([2],nlte_species=self.nlte_species)
         self.plasma = plasma_array.BasePlasmaArray.from_abundance(
             {'He':1.0}, 1e-15*u.Unit('g/cm3'), self.atom_data, 10 * u.day)
-
+        self.plasma.j_blues = pd.DataFrame(intensity_black_body(self.atom_data.lines.nu.values[np.newaxis].T, np.array([10000.])))
+        self.plasma.tau_sobolevs = pd.DataFrame(np.zeros_like(self.plasma.j_blues))
+        self.plasma.t_rads=np.array([10000.])
+        self.plasma.t_electrons=np.array([10000.])
+        self.plasma.ws=np.array([1.0])
+        self.plasma.electron_densities=np.array([1.e9])
+        self.plasma.nlte_config = TARDISConfigurationNameSpace({'species':self.nlte_species})
+        self.plasma.calculate_nlte_level_populations()
 
     def test_x(self):
         1/0
