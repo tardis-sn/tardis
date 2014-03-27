@@ -274,10 +274,10 @@ class AtomData(object):
         ::important to note here is that ion describes the final ion state
             e.g. H I - H II is described with ion=2
 
-    levels_data : ~astropy.table.Table
+    levels : ~astropy.table.Table
         containing the levels data: z, ion, level_number, energy, g
 
-    lines_data : ~astropy.table.Table
+    lines : ~astropy.table.Table
         containing the lines data: wavelength, z, ion, levels_number_lower,
         levels_number_upper, f_lu, f_ul
 
@@ -417,18 +417,18 @@ class AtomData(object):
         self.ionization_data.ionization_energy = units.Unit('eV').to('erg',
                                                                      self.ionization_data.ionization_energy.values)
 
-        self.levels_data = DataFrame(levels_data.__array__())
-        self.levels_data.energy = units.Unit('eV').to('erg', self.levels_data.energy.values)
+        self._levels = DataFrame(levels_data.__array__())
+        self._levels.energy = units.Unit('eV').to('erg', self._levels.energy.values)
 
-        self.lines_data = DataFrame(lines_data.__array__())
-        self.lines_data.set_index('line_id', inplace=True)
-        self.lines_data['nu'] = units.Unit('angstrom').to('Hz', self.lines_data['wavelength'], units.spectral())
-        self.lines_data['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines_data['wavelength'])
-
-
+        self._lines = DataFrame(lines_data.__array__())
+        self._lines.set_index('line_id', inplace=True)
+        self._lines['nu'] = units.Unit('angstrom').to('Hz', self._lines['wavelength'], units.spectral())
+        self._lines['wavelength_cm'] = units.Unit('angstrom').to('cm', self._lines['wavelength'])
 
 
-        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines_data)
+
+
+        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines)
         #self.lines_inde
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
@@ -445,7 +445,7 @@ class AtomData(object):
                           nlte_species=[]):
         """
         Prepares the atom data to set the lines, levels and if requested macro atom data.
-        This function mainly cuts the `levels_data` and `lines_data` by discarding any data that is not needed (any data
+        This function mainly cuts the `levels` and `lines` by discarding any data that is not needed (any data
         for atoms that are not needed
 
         Parameters
@@ -466,23 +466,26 @@ class AtomData(object):
 
         self.nlte_species = nlte_species
 
-        self.levels = self.levels_data[self.levels_data['atomic_number'].isin(self.selected_atomic_numbers)]
+        self._levels = self._levels[self._levels['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
-            self.levels = self.levels[self.levels['ion_number'] <= max_ion_number]
-        self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
+            self._levels = self._levels[self._levels['ion_number'] <= max_ion_number]
+        self._levels = self._levels.set_index(['atomic_number', 'ion_number', 'level_number'])
+        self.levels = self._levels.copy()
 
-        self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
+        self.levels_index = pd.Series(np.arange(len(self._levels), dtype=int), index=self._levels.index)
         #cutting levels_lines
-        self.lines = self.lines_data[self.lines_data['atomic_number'].isin(self.selected_atomic_numbers)]
+        self._lines = self._lines[self._lines['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
-            self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
+            self._lines = self._lines[self._lines['ion_number'] <= max_ion_number]
 
-        self.lines.sort('wavelength', inplace=True)
+        self._lines.sort('wavelength', inplace=True)
 
-        self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
+        self.lines = self._lines.copy()
+    
+        self.lines_index = pd.Series(np.arange(len(self._lines), dtype=int), index=self._lines.index)
 
-        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_lower']])
+        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self._lines['atomic_number'], self._lines['ion_number'],
+                                                               self._lines['level_number_lower']])
 
         self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values.astype(np.int64)
 
@@ -550,7 +553,7 @@ class AtomData(object):
 
     def __repr__(self):
         return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
-               (self.uuid1, self.md5, self.lines_data.atomic_number.count(), self.levels_data.energy.count())
+               (self.uuid1, self.md5, self.lines.atomic_number.count(), self.levels.energy.count())
 
 
 class NLTEData(object):
