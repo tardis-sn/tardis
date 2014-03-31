@@ -1,0 +1,6 @@
+numpy>=1.4.0
+scipy>=0.10
+pandas>=0.12
+h5py>=2.0
+matplotlib>=1.1
+astropy>=0.2.4

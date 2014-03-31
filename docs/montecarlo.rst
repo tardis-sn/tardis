@@ -1,7 +1,8 @@
 .. _montecarlo:
 
+*********************
 Radiative Monte Carlo
-=====================
+*********************
 
 .. :currentmodule:: tardis.montecarlo_multizone
 

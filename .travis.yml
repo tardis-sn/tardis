@@ -2,30 +2,35 @@ language: python
 
 python:
     - 2.7
-    - 3.3
+
+virtualenv:
+  system_site_packages: true
 
 env:
     # try all python versions with the latest stable numpy and astropy
-    - NUMPY_VERSION=1.7.1 SETUP_CMD='build'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=0.3 SETUP_CMD='test'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3 SETUP_CMD='test'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=development SETUP_CMD='test --coverage --skip-docs'
 
 
 before_install:
    # We do this to make sure we get the dependencies so pip works below
    - sudo apt-get update -qq
-   - sudo apt-get install -qq python-numpy python-pandas python-scipy python-h5py python-sphinx cython libatlas-dev liblapack-dev gfortran
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then sudo apt-get install -qq python-sphinx graphviz texlive-latex-extra dvipng python-matplotlib; fi
+   - sudo apt-get install -qq python-numpy python-pandas python-scipy python-h5py python-sphinx python-yaml cython libatlas-dev liblapack-dev gfortran
 
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
-   - pip -q install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
-   - pip -q install --upgrade Cython --use-mirrors
-   - pip -q install --upgrade pandas --use-mirrors
-   - pip -q install --upgrade scipy --use-mirrors
-   - pip -q install astropy --use-mirrors
-   #- pip -q install --upgrade h5py --use-mirrors
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install sphinx==1.1.3 --use-mirrors; fi
-   - if [[ $SETUP_CMD == build_sphinx* ]]; then pip -q install matplotlib --use-mirrors; fi
+   #- pip install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
+   - pip install -q --upgrade "Cython==$CYTHON_VERSION"
+   - if [[ $PANDAS_VERSION == 'latest' ]]; then pip install -q --upgrade pandas; else pip install -q --upgrade "pandas==$PANDAS_VERSION"; fi
+   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else pip install -q --upgrade "astropy==$ASTROPY_VERSION"; fi
+   - pip install -q pytest
 
+   - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then pip install -q coveralls; fi
+   - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then pip install -q pytest-cov; fi
 
 script:
-   - python setup.py $SETUP_CMD
+    - python setup.py $SETUP_CMD
+
+after_success:
+    - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then coveralls; fi

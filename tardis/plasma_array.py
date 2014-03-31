@@ -1,4 +1,5 @@
 #Calculations of the Plasma conditions
+
 import logging
 import os
 
@@ -7,7 +8,8 @@ from astropy import constants
 import pandas as pd
 from scipy import interpolate
 
-from tardis import macro_atom, config_reader
+from tardis import macro_atom, io
+from tardis.io.util import parse_abundance_dict_to_dataframe
 
 
 logger = logging.getLogger(__name__)
@@ -114,7 +116,7 @@ class BasePlasmaArray(object):
         `Baseplasma` object
         """
 
-        abundance_series = config_reader.parse_abundance_dict_to_dataframe(abundance_dict, atom_data)
+        abundance_series = parse_abundance_dict_to_dataframe(abundance_dict, atom_data)
 
         abundances = pd.DataFrame({0:abundance_series})
 
@@ -131,7 +133,8 @@ class BasePlasmaArray(object):
         raise NotImplementedError()
 
 
-    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None, saha_treatment='lte'):
+    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None,
+                 ionization_mode='lte', excitation_mode='lte'):
         self.number_densities = number_densities
         self.atom_data = atom_data
         self.time_explosion = time_explosion
@@ -144,12 +147,14 @@ class BasePlasmaArray(object):
 
         self.beta_sobolevs_precalculated = False
 
-        if saha_treatment == 'lte':
+        self.excitation_mode = excitation_mode
+
+        if ionization_mode == 'lte':
             self.calculate_saha = self.calculate_saha_lte
-        elif saha_treatment == 'nebular':
+        elif ionization_mode == 'nebular':
             self.calculate_saha = self.calculate_saha_nebular
         else:
-            raise ValueError('keyword "saha_treatment" can only be "lte" or "nebular" - %s chosen' % saha_treatment)
+            raise ValueError('keyword "ionization_mode" can only be "lte" or "nebular" - %s chosen' % ionization_mode)
 
 
     #Properties
@@ -206,6 +211,9 @@ class BasePlasmaArray(object):
         if t_electrons is None:
             self.t_electrons = None
         self.ws = np.array(ws)
+        #warn if dilution factor is greater than 1
+        if np.any(self.ws > 1):
+            logger.warn('Dilution factor greater than 1.')
         self.j_blues = j_blues
         self.beta_sobolevs_precalculated = False
         self.level_population_proportionalities, self.partition_functions = self.calculate_partition_functions(
@@ -237,7 +245,7 @@ class BasePlasmaArray(object):
 
             self.electron_densities = 0.5 * (new_electron_densities + self.electron_densities)
 
-        self.calculate_level_populations(initialize_nlte=initialize_nlte)
+        self.calculate_level_populations(initialize_nlte=initialize_nlte, excitation_mode=self.excitation_mode)
         self.tau_sobolevs = self.calculate_tau_sobolev()
 
         if self.nlte_config is not None and self.nlte_config.species:
@@ -360,6 +368,10 @@ class BasePlasmaArray(object):
             zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[phis.index].values)(self.t_rads)
         except ValueError:
             raise ValueError('Outside of interpolation area %s' % self.t_rads)
+        finally:
+            # fixing missing nan data
+            # issue created - fix with warning some other day
+            zeta[np.isnan(zeta)] = 1.0
 
         phis *= self.ws * (delta * zeta + self.ws * (1 - zeta)) * \
                 (self.t_electrons / self.t_rads) ** .5
@@ -473,7 +485,7 @@ class BasePlasmaArray(object):
             self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
             self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
 
-    def calculate_level_populations(self, initialize_nlte=False):
+    def calculate_level_populations(self, initialize_nlte=False, excitation_mode='lte'):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
         :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
@@ -494,9 +506,10 @@ class BasePlasmaArray(object):
 
         level_populations = (ion_number_density / Z) * self.level_population_proportionalities
 
-        #only change between lte plasma and nebular
-        level_populations[~self.atom_data.levels.metastable] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
-
+        if excitation_mode == 'lte':
+            pass
+        elif excitation_mode == 'dilute-lte':
+            level_populations[~self.atom_data.levels.metastable] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
 
         if initialize_nlte:
             self.level_populations.update(level_populations)
@@ -520,12 +533,13 @@ class BasePlasmaArray(object):
         if self.nlte_config.get('coronal_approximation', False):
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
             j_blues = np.zeros_like(self.j_blues)
+            logger.info('using coronal approximation = setting beta_sobolevs to 1 AND j_blues to 0')
         else:
             beta_sobolevs = self.beta_sobolevs
             j_blues = self.j_blues.values
 
         if self.nlte_config.get('classical_nebular', False):
-            print "setting classical nebular = True"
+            logger.info('using Classical Nebular = setting beta_sobolevs to 1')
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
 
         for species in self.nlte_config.species:
