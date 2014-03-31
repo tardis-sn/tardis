@@ -1,0 +1,118 @@
+tardis_config_version:
+    property_type: "string"
+    default: None
+    mandatory: true
+    help: The version of the configuration file
+
+supernova:
+    luminosity_requested:
+        property_type: string
+        default: None
+        mandatory: true
+        help: The requested luminosity
+            
+    time_explosion:
+        property_type: quantity
+        default: None
+        mandatory: true
+        help: The time since explosion
+
+atom_data:
+    property_type: string
+    default: kurucz_atom_pure_simple.h5
+    mandatory: true
+    help: The atomic data file
+    
+model:
+    structure:
+        property_type: container-property
+        type:
+            property_type: container-declaration
+            containers: ['specific']
+            _specific: ['velocity','density']
+            
+        velocity:
+            property_type: quantity_range_sampled
+            default: None
+            mandatory: true
+            help: The velocities of the model
+        
+        density:
+            type:
+                property_type: string
+                default: None
+                mandatory: true
+                help: The density type of the model
+                
+    abundances:
+        property_type: legacy-abundances
+        default: None
+        mandatory: true
+        help: The abundances for the model
+        
+plasma:
+    ionization:
+        property_type: string
+        default: lte
+        allowed_value: lte nebular nlte
+        mandatory: true
+        
+    excitation:
+        property_type: string
+        default: lte
+        allowed_value: lte dilute-lte
+        mandatory: true
+        help: ka
+        
+    radiative_rates_type:
+        property_type: string
+        default: lte
+        allowed_value: lte nebular detailed
+        mandatory: true
+        help: ka
+        
+    line_interaction_type:
+        property_type: string
+        default: lte
+        mandatory: false
+        allowed_value: scatter downbranch macroatom
+        
+montecarlo:
+    seed:
+        property_type: int
+        default: None
+        allowed_type: ">0"
+        mandatory: true
+        
+    no_of_packets:
+        property_type: float
+        default: 2.0e+5
+        mandatory: true
+        help: Number of packets
+         
+    iterations:
+        property_type: int
+        default: 30
+        mandatory: true
+        help: Number of iterations
+        
+    last_no_of_packets:
+        property_type: float
+        default: 5.0e+5
+        mandatory: true
+        help: Number of in the final run packets
+        
+spectrum:
+    property_type: quantity_range_sampled
+    default:  [500 angstrom, 20000 angstrom, 10000]
+    mandatory: true
+    help: ka
+            
+             
+            
+
+             
+
+            
+
+                

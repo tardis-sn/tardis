@@ -11,7 +11,7 @@ value_test:
     quantity_range: [2 cm, 10 km]
     quantity_range_old:
         start: 5 m
-        end: 30 km
+        stop: 30 km
     quantity_range_sampled: [2 cm, 10 km, 1 m]
     list: ['bla','blub']
     

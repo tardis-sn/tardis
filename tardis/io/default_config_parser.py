@@ -291,7 +291,7 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
     
     def to_type(self, value):
         if isinstance(value, list):
-            return self._to_units(value)
+            return self._to_units(value[:2])
         elif isinstance(value, dict):
             los = [value['start'], value['end']]
             return self._to_units(los)
@@ -301,8 +301,8 @@ class PropertyTypeQuantityRangeSampled(PropertyTypeQuantityRange):
     
     def check_type(self, value):
         if isinstance(value, dict):
-            if reduce((lambda a, b: a and b in value), [True, 'start', 'end', 'sample']):
-                los = [value['start'], value['end'], value['sample']]
+            if reduce((lambda a, b: a and b in value), [True, 'start', 'stop', 'num']):
+                los = [value['start'], value['stop']]
                 loq = self._to_units(los)
                 if abs(loq[0].value - loq[1].value) > 0:
                     return True
@@ -315,10 +315,15 @@ class PropertyTypeQuantityRangeSampled(PropertyTypeQuantityRange):
     
     def to_type(self, value):
         if isinstance(value, list):
-            return self._to_units(value)
+            _tmp = self._to_units(value[:2])
+            _tmp.append(value[2])
+            return _tmp
         elif isinstance(value, dict):
-            los = [value['start'], value['end']]
-            return self._to_units(los)
+            los = [value['start'], value['stop']]
+            _tmp = self._to_units(los)
+            _tmp.append(value['num'])
+            return _tmp
+        
     
 class PropertyTypeString(PropertyType):
     
@@ -372,8 +377,8 @@ class PropertyTypeRange(PropertyType):
     
     def check_type(self, value):
         if isinstance(value, dict):
-            if reduce((lambda a, b: a in value), [True, 'start', 'end']):
-                if abs(value['start'] - value['end']) > 0:
+            if reduce((lambda a, b: a in value), [True, 'start', 'stop']):
+                if abs(value['start'] - value['stop']) > 0:
                     return True
         elif isinstance(value, list):
             if len(value) == 2:
@@ -385,15 +390,15 @@ class PropertyTypeRange(PropertyType):
         if isinstance(value, list):
             return value
         elif isinstance(value, dict):
-            return [value['start'], value['end']]
+            return [value['start'], value['stop']]
     
 class PropertyTypeRangeSampled(PropertyTypeRange):
     
     def check_type(self, value):
         if isinstance(value, dict):
             if reduce((lambda a, b: a in value),\
-                [True, 'start', 'end', 'sample']):
-                if abs(value['start'] - value['end']) > 0:
+                [True, 'start', 'stop', 'num']):
+                if abs(value['start'] - value['stop']) > 0:
                     return True
         elif isinstance(value, list):
             if len(value) == 3:
@@ -405,7 +410,7 @@ class PropertyTypeRangeSampled(PropertyTypeRange):
         if isinstance(value, list):
             return value
         elif isinstance(value, dict):
-            return [value['start'], value['end'], value['sample']]
+            return [value['start'], value['stop'], value['num']]
     
 class PropertyTypeAbundances(PropertyType):
     
@@ -424,6 +429,36 @@ class PropertyTypeAbundances(PropertyType):
             abundances = dict.fromkeys(self.elements.copy(), 0.0)
             for k in value:
                 abundances[k] = value[k]
+            return abundances
+        else:
+            raise ConfigError
+        
+class PropertyTypeLegacyAbundances(PropertyType):
+    
+    elements = { 'neut': 0, 'h': 1, 'he': 2, 'li': 3, 'be': 4, 'b': 5, 'c': 6, 'n': 7, 'o': 8, 'f': 9, 'ne': 10, 'na': 11, 'mg': 12, 'al': 13, 'si': 14, 'p': 15, 's': 16, 'cl': 17, 'ar': 18, 'k': 19,    'ca': 20, 'sc': 21, 'ti': 22, 'v': 23, 'cr': 24, 'mn': 25, 'fe': 26, 'co': 27, 'ni': 28, 'cu': 29, 'zn': 30, 'ga': 31, 'ge': 32, 'as': 33, 'se': 34, 'br': 35, 'kr': 36, 'rb': 37, 'sr': 38, 'y': 39,  'zr': 40, 'nb': 41, 'mo': 42, 'tc': 43, 'ru': 44, 'rh': 45, 'pd': 46, 'ag': 47, 'cd': 48, 'in': 49, 'sn': 50, 'sb': 51, 'te': 52, 'i': 53, 'xe': 54, 'cs': 55, 'ba': 56, 'la': 57, 'ce': 58, 'pr': 59, 'nd': 60, 'pm': 61, 'sm': 62, 'eu': 63, 'gd': 64, 'tb': 65, 'dy': 66, 'ho': 67, 'er': 68, 'tm': 69, 'yb': 70, 'lu': 71, 'hf': 72, 'ta': 73, 'w': 74, 're': 75, 'os': 76, 'ir': 77, 'pt': 78, 'au': 79, 'hg': 80, 'tl': 81, 'pb': 82, 'bi': 83, 'po': 84, 'at': 85, 'rn': 86, 'fr': 87, 'ra': 88, 'ac': 89, 'th': 90, 'pa': 91, 'u': 92, 'np': 93, 'pu': 94, 'am': 95, 'cm': 96, 'bk': 97, 'cf': 98, 'es': 99, 'fm': 100, 'md': 101, 'no': 102, 'lr': 103, 'rf': 104, 'db': 105, 'sg': 106, 'bh': 107, 'hs': 108, 'mt': 109, 'ds':110, 'rg':111, 'cn':112 }
+    types = ['uniform']
+
+    def check_type(self, _value):
+        value = dict((k.lower(), v) for k,v in _value.items())
+        print(value)
+        if 'type' in value:
+            if value['type'] in self.types:
+                print('type is ok')
+                tmp = value.copy()
+                tmp.pop('type', None)
+                if set(tmp).issubset(set(self.elements)):
+                    return True
+                else:
+                    return False
+        return False
+        
+    def to_type(self, _value):
+        if isinstance(_value, dict):
+            value = dict((k.lower(), v) for k,v in _value.items())
+            abundances = dict.fromkeys(self.elements.copy(), 0.0)
+            for k in value:
+                abundances[k] = value[k]
+            abundances['type'] = value['type']
             return abundances
         else:
             raise ConfigError
@@ -484,6 +519,9 @@ class DefaultParser(object):
         
         self.__types['abundance_set'] = PropertyTypeAbundances
         self.__register_leaf('abundance_set')
+        
+        self.__types['legacy-abundances'] =PropertyTypeLegacyAbundances
+        self.__register_leaf('legacy-abundances')
         
         self.__mandatory = False
         self.__default_value = None
@@ -590,7 +628,6 @@ class DefaultParser(object):
         the default value is returned
         :return: value
         """
-
         if (self.__config_value is not None and
             self.__type.check_type(self.__config_value)):
             return self.__type.to_type(self.__config_value)
