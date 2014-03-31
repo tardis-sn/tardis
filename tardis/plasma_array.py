@@ -686,10 +686,14 @@ class BasePlasmaArray(object):
         None
 
         """
-        def sorting(a1, a2):
+        def sorting(data_a, index_a):
         # l1 and l2 has to be numpy arrays. a1 is the master array
-        idx = np.argsort(a1)
-        return a1[idx], a2[idx]
+            for shell_id in range(len(index_a[0,0,:])):
+                for nu_id in range(len(index_a[:,0,0])):
+                    idx = np.argsort(data_a[nu_id,:,shell_id])
+                    data_a[nu_id,:,shell_id] = data_a[nu_id,idx,shell_id]
+                    index_a[nu_id, :, shell_id,:] = index_a[nu_id, idx, shell_id,:]
+            return data_a, index_a
         
          #the g values
         levels = self.atom_data.levels
@@ -723,8 +727,17 @@ class BasePlasmaArray(object):
         chi_bf = level_populations[None,:,:]  * cross_sections[:,:,None] * right_term
         chi_bf_sum = np.sum(chi_bf,axis=1) #sum in color bins over all levels
         
-        chi_bf_index_to_level = levels.reset_index()[['atomic_number','ion_number', 'level_number']].__array__()
+        chi_bf_index_to_level = levels.reset_index()[['atomic_number','ion_number', 'level_number']].__array__()[None ,: ,None , :].repeat(chi_bf.shape[0], axis=0).repeat(chi_bf.shape[2],axis=2) #index [nu_bin, level_id, shell_id, [atomic, ion, level]]
         
+        chi_bf_sorted, chi_bf_index_to_level_sorted = sorting(chi_bf, chi_bf_index_to_level)
+        
+        self.chi_bound_free_sorted = chi_bf_sorted
+        self.chi_bf_index_to_level_sorted = chi_bf_index_to_level_sorted
+        self.chi_bound_free_nu_bins = chi_bf_sum
+        
+        self.chi_bf_index_to_level = chi_bf_index_to_level[0,:,0,:]
+        self.bf_cross_sections_x_lpopulation = level_populations * cross_sections[0][:,None]
+        self.bf_lpopulation_ratio_nlte_lte = helper
         
         def get_bound_free_cross_section(nu):
             """ Computes the bound free cross section for a given n.

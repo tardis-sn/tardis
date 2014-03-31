@@ -10,6 +10,7 @@ import time
 import numpy as np
 cimport numpy as np
 from astropy import constants
+from cython.view cimport array as cvarray
 
 np.import_array()
 
@@ -96,6 +97,15 @@ cdef class StorageModel:
     cdef np.ndarray line_lists_tau_sobolevs_a
     cdef float_type_t*line_lists_tau_sobolevs
     cdef int_type_t line_lists_tau_sobolevs_nd
+    
+    #Bound Free initialize
+    cdef float_type_t [:,:,:] chi_bound_free_sorted
+    cdef int_type_t [:,:,:,:,:]  chi_bf_index_to_level_sorted
+    cdef float_type_t [:,:] chi_bound_free_nu_bins
+    
+    cdef int_type_t [:,:] bound_free_index_to_level
+    cdef float_type_t [:,:] bf_cross_sections_x_lpopulation
+    cdef float_type_t [:,:] bf_lpopulation_ratio_nlte_lte
 
     #J_BLUES initialize
     cdef np.ndarray line_lists_j_blues_a
@@ -198,6 +208,10 @@ cdef class StorageModel:
         self.line_lists_j_blues_a = line_lists_j_blues
         self.line_lists_j_blues = <float_type_t*> self.line_lists_j_blues_a.data
         self.line_lists_j_blues_nd = self.line_lists_j_blues_a.shape[1]
+
+        #bound-free
+        #ToDO: Add the BF data to the storage model
+        
 
         #
         line_interaction_type = model.tardis_config.plasma.line_interaction_type
