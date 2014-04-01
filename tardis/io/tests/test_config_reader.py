@@ -196,13 +196,13 @@ def test_ascii_reader_power_law():
     
     v_inner =  yaml_data['model']['structure']['velocity']['start']
     v_outer =  yaml_data['model']['structure']['velocity']['stop']
-    my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'))
+    my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'),test_parser=True)
     structure = my_conf.config_dict['structure']
     
-    expected_densites = [1.17033058e-20, 1.55115702e-20, 1.98553719e-20, 2.47347107e-20,  3.01495868e-20]
+    expected_densites = [3.29072513e-14,  2.70357804e-14,  2.23776573e-14,  1.86501954e-14,  1.56435277e-14,  1.32001689e-14, 1.12007560e-14,  9.55397475e-15,  8.18935779e-15, 7.05208050e-15,  6.09916083e-15,  5.29665772e-15, 4.61758699e-15,  4.04035750e-15,  3.54758837e-15, 3.12520752e-15,  2.76175961e-15,  2.44787115e-15, 2.17583442e-15,  1.93928168e-15]
     expected_unit = 'g / (cm3)'
     
-    assert structure['no_of_shells'] == 5
+    assert structure['no_of_shells'] == 20
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(structure['mean_densities'][i].value,mdens)
         assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
@@ -220,13 +220,13 @@ def test_ascii_reader_exponential_law():
     
     v_inner =  yaml_data['model']['structure']['velocity']['start']
     v_outer =  yaml_data['model']['structure']['velocity']['stop']
-    my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_exponential_test.yml'))
+    my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_exponential_test.yml'),test_parser=True)
     structure = my_conf.config_dict['structure']
     
-    expected_densites = [3.04221264e-21, 2.54106960e-21, 2.12247974e-21, 1.77284410e-21, 1.48080387e-21]
+    expected_densites = [5.18114795e-14,  4.45945537e-14,  3.83828881e-14, 3.30364579e-14,  2.84347428e-14,  2.44740100e-14, 2.10649756e-14,  1.81307925e-14,  1.56053177e-14, 1.34316215e-14,  1.15607037e-14,  9.95038990e-15, 8.56437996e-15,  7.37143014e-15,  6.34464872e-15, 5.46088976e-15,  4.70023138e-15,  4.04552664e-15, 3.48201705e-15,  2.99699985e-15]
     expected_unit = 'g / (cm3)'
     
-    assert structure['no_of_shells'] == 5
+    assert structure['no_of_shells'] == 20
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(structure['mean_densities'][i].value,mdens)
         assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
