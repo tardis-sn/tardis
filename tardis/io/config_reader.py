@@ -47,15 +47,15 @@ def parse_quantity_linspace(quantity_linspace_dictionary, add_one=True):
      'stop': 10000 km/s,
      'num': 1000}
 
-    Parameters:
-    -----------
+    Parameters
+    ----------
 
     quantity_linspace_dictionary: ~dict
 
     add_one: boolean, default: True
 
-    Returns:
-    --------
+    Returns
+    -------
 
     ~np.array
 
@@ -88,12 +88,23 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
 def calc_exponential_density(velocities, v_0, rho0):
     """
     This function computes the exponential density profile.
+    :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`
 
-    :param velocities: Array like velocity profile.
-    :param rho0: rho at v0
-    :param velocity_0: the velocity at the inner shell
-    :param a: proportionality constant
-    :return: Array like density profile
+    Parameters
+    ----------
+
+    velocities : ~astropy.Quantity
+        Array like velocity profile
+    velocity_0 : ~astropy.Quantity
+        reference velocity
+    rho0 : ~astropy.Quantity
+        reference density
+
+    Returns
+    -------
+
+    densities : ~astropy.Quantity
+
     """
     densities =  rho0 * np.exp(-(velocities / v_0))
     return densities
@@ -108,23 +119,19 @@ def calc_power_law_density(velocities, velocity_0, rho_0, exponent):
     Parameters
     ----------
 
-    velocities : Array like list
-                velocities in km/s
-
-    velocity_0 : ~float
-        Velocity at the inner boundary
-
-
-    rho_0 : ~float
-        density at velocity_0
-
+    velocities : ~astropy.Quantity
+        Array like velocity profile
+    velocity_0 : ~astropy.Quantity
+        reference velocity
+    rho0 : ~astropy.Quantity
+        reference density
     exponent : ~float
         exponent used in the powerlaw
 
     Returns
     -------
 
-    Array like density structure
+    densities : ~astropy.Quantity
 
     """
     densities = rho_0 * np.power((velocities / velocity_0), exponent)
