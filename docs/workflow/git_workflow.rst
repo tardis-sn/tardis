@@ -38,7 +38,7 @@ the same applies to other packages:
 
 #. Click on the *fork* button:
 
-   .. image:: forking_button.png
+   .. image:: images/Bootcamp-Fork.png
 
    After a short pause and an animation of Octocat scanning a book on a flatbed
    scanner, you should find yourself at the home page for your own forked copy
@@ -136,7 +136,8 @@ given in the following sections.
 * Don't use your ``master`` branch for anything.  Consider deleting it.
 
 * When you are starting a new set of changes, fetch any changes from the
-  trunk, then start a new *feature branch* from that.
+  trunk, then start a **new** *feature branch* from that (do not base your
+  branch on your changes).
 
 * Make a new branch for each separable set of changes |emdash| "one task, one
   branch" (`ipython git workflow`_).
@@ -214,7 +215,7 @@ or ``buxfix-for-issue-42``.
     git fetch upstream
 
     # Make new feature branch starting at current trunk
-    git checkout upstream/master # checking out the newest
+    git checkout upstream/master # checking out the newest master versio
     git checkout -b my-new-feature
 
 Generally, you will want to keep your feature branches on your public GitHub_
@@ -303,3 +304,210 @@ In more detail
 
 #. Push the changes up to your forked repo on GitHub with ``git push`` (see
    `git push`_).
+
+Asking for your changes to be reviewed and/or merged
+====================================================
+
+When you are ready to ask for someone to review your code and consider a merge:
+
+#. Go to the URL of your forked repo, e.g.,
+   ``http://github.com/your-user-name/astropy``.
+
+#. Use the 'Switch Branches' dropdown menu near the top left of the page to
+   select the branch with your changes:
+
+   .. image:: branch_dropdown.png
+
+#. Click on the 'Pull request' button:
+
+   .. image:: pull_button.png
+
+   Enter a title for the set of changes, and some explanation of what you've
+   done. If there is anything you'd like particular attention for, like a
+   complicated change or some code you are not happy with, add the details
+   here.
+
+   If you don't think your request is ready to be merged, just say so in your
+   pull request message.  This is still a good way to start a preliminary
+   code review.
+
+.. _using-virtualenv:
+
+Making sure your Pull request stays up-to-date
+==============================================
+
+More often then not it will take a few days until a Pull Request is
+merged as the community gives feedback and/or you add new fixes. During this
+time often other pull requests are merged and the master branch evolves further.
+To make sure that your changes are still working on the new master you want to
+*rebase* your branch ontop of the evolved master
+
+
+Rebasing on trunk
+-----------------
+
+Let's say you thought of some work you'd like to do. You
+:ref:`update-mirror-trunk` and :ref:`make-feature-branch` called
+``cool-feature``. At this stage trunk is at some commit, let's call it E. Now
+you make some new commits on your ``cool-feature`` branch, let's call them A,
+B, C. Maybe your changes take a while, or you come back to them after a while.
+In the meantime, trunk has progressed from commit E to commit (say) G::
+
+          A---B---C cool-feature
+         /
+    D---E---F---G trunk
+
+At this stage you consider merging trunk into your feature branch, and you
+remember that this here page sternly advises you not to do that, because the
+history will get messy. Most of the time you can just ask for a review, and
+not worry that trunk has got a little ahead. But sometimes, the changes in
+trunk might affect your changes, and you need to harmonize them. In this
+situation you may prefer to do a rebase.
+
+Rebase takes your changes (A, B, C) and replays them as if they had been made
+to the current state of ``trunk``. In other words, in this case, it takes the
+changes represented by A, B, C and replays them on top of G. After the rebase,
+your history will look like this::
+
+                  A'--B'--C' cool-feature
+                 /
+    D---E---F---G trunk
+
+See `rebase without tears`_ for more detail.
+
+To do a rebase on trunk::
+
+    # Update the mirror of trunk
+    git fetch upstream
+
+    # Go to the feature branch
+    git checkout cool-feature
+
+    # Make a backup in case you mess up
+    git branch tmp cool-feature
+
+    # Rebase cool-feature onto trunk
+    git rebase --onto upstream/master upstream/master cool-feature
+
+In this situation, where you are already on branch ``cool-feature``, the last
+command can be written more succinctly as::
+
+    git rebase upstream/master
+
+When all looks good you can delete your backup branch::
+
+   git branch -D tmp
+
+If it doesn't look good you may need to have a look at
+:ref:`recovering-from-mess-up`.
+
+If you have made changes to files that have also changed in trunk, this may
+generate merge conflicts that you need to resolve - see the `git rebase`_ man
+page for some instructions at the end of the "Description" section. There is
+some related help on merging in the git user manual - see `resolving a
+merge`_.
+
+If your feature branch is already on GitHub and you rebase, you will have to
+force push the branch; a normal push would give an error. If the branch you
+rebased is called ``cool-feature`` and your GitHub fork is available as the
+remote called ``origin``, you use this command to force-push::
+
+   git push -f origin cool-feature
+
+Note that this will overwrite the branch on GitHub, i.e. this is one of the few
+ways you can actually lose commits with git. Also note that it is never allowed
+to force push to the main astropy repo (typically called ``upstream``), because
+this would re-write commit history and thus cause problems for all others.
+
+.. _recovering-from-mess-up:
+
+Recovering from mess-ups
+------------------------
+
+Sometimes, you mess up merges or rebases. Luckily, in git it is relatively
+straightforward to recover from such mistakes.
+
+If you mess up during a rebase::
+
+   git rebase --abort
+
+If you notice you messed up after the rebase::
+
+   # Reset branch back to the saved point
+   git reset --hard tmp
+
+If you forgot to make a backup branch::
+
+   # Look at the reflog of the branch
+   git reflog show cool-feature
+
+   8630830 cool-feature@{0}: commit: BUG: io: close file handles immediately
+   278dd2a cool-feature@{1}: rebase finished: refs/heads/my-feature-branch onto 11ee694744f2552d
+   26aa21a cool-feature@{2}: commit: BUG: lib: make seek_gzip_factory not leak gzip obj
+   ...
+
+   # Reset the branch to where it was before the botched rebase
+   git reset --hard cool-feature@{2}
+
+
+Reviewing and helping others with Pull Requests
+===============================================
+
+Github offers an extensive array of tools to comment on Pull Requests (line
+based, normal forum-like discussion, etc.). This system is described here in
+detail `<http://help.github.com/articles/using-pull-requests>`_.
+
+However sometimes, it is easier to just add a few changes yourself to quickly
+show what you would suggest to be changed. So it is possible to make a
+Pull Request on a Pull Request.
+
+There are several ways to do this, but the easiest is to first make sure
+that your local git-repository understands the concept of pull-requests.
+So just add in your <my-project>/.git/config the following line to your remote
+upstream::
+
+    [remote "upstream"]
+        url = git@github.com:tardis-sn/tardis.git
+        fetch = +refs/heads/*:refs/remotes/upstream/*
+        fetch = +refs/pull/*/head:refs/remotes/upstream/pr/*
+
+
+Then fetch from `upstream` again::
+
+    git fetch upstream
+    remote: Counting objects: 77, done.
+    remote: Compressing objects: 100% (72/72), done.
+    remote: Total 77 (delta 44), reused 9 (delta 5)
+    Unpacking objects: 100% (77/77), done.
+    From github.com:tardis-sn/tardis
+       b8306de..2f47ee5  master     -> upstream/master
+     * [new ref]         refs/pull/116/head -> upstream/pr/116
+     * [new ref]         refs/pull/117/head -> upstream/pr/117
+     * [new ref]         refs/pull/118/head -> upstream/pr/118
+
+and now it is possible to *check out* a the pull request branch, in this case PR
+116::
+
+    git checkout upstream/pr/116
+    git checkout upstream/pr/116
+    Note: checking out 'upstream/pr/116'.
+
+    You are in 'detached HEAD' state. You can look around, make experimental
+    changes and commit them, and you can discard any commits you make in this
+    state without impacting any branches by performing another checkout.
+
+    If you want to create a new branch to retain commits you create, you may
+    do so (now or later) by using -b with the checkout command again. Example:
+
+      git checkout -b new_branch_name
+
+    HEAD is now at b1f32ba... added the git workflow still WIP
+
+Finally, you can make a new branch `git checkout -b helping-with-PR116` and work
+implement your work.
+
+After committing your changes you push your change to your repository
+`git push origin helping-with-PR116`.
+
+ 
+
