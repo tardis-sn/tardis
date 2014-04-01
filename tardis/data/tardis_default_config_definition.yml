@@ -1,0 +1,279 @@
+
+tardis_config_version:
+  property_type: string
+  default: "1.1"
+  help: Version of the configuration file
+
+
+supernova:
+    luminosity_requested:
+        property_type: quantity
+        mandatory: True
+        default: 1 solLum
+        help: requested output luminosity for simulation
+
+    time_explosion:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help: 
+        
+    distance:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help:
+      
+    
+
+
+
+atom_data:
+    property_type: string
+    mandatory: True
+    help: path or filename to the Atomic Data HDF5 file
+  
+plasma:
+    initial_t_inner:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help:
+        
+    initial_t_rad:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help:
+        
+    disable_electron_scattering:
+        property_type: string
+        mandatory: True
+        default: None
+        help:
+        
+    type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: nebular lte detailed
+        help:
+        
+    radiative_rates_type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: nebular lte detailed
+        help: 
+        
+    line_interaction_type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: scatter downbranch macroatom 
+        help:
+        
+    w_epsilon:
+        property_type: float
+        mandatory: True
+        default: None
+        help: time since explosion
+        
+
+    nlte:
+        species:
+            property_type: list
+            mandatory: True
+            default: None
+            help:
+        
+    
+    
+
+
+model:
+    structure:
+      property_type : container-property
+      type:
+          property_type: container-declaration
+          containers: ['file', 'specific']
+          _file: ['file_property'] # why list
+          _specific: ['specific-property']
+  
+      file_property:
+          filename:
+             property_type: string
+             default: None
+             mandatory: True
+             help: file name (with path) to structure model
+  
+          filetype:
+             property_type: string
+             default: None
+             mandatory: True
+             help: file type
+              #### there are only a handful of types available how do we validate that ####
+  
+          lowest_shell:
+              property_type: int
+              default: None
+              mandatory: False
+              help: location of the inner boundary chosen from the model
+              
+          highest_shell:
+              property_type: int
+              default: None
+              mandatory: False
+              help: location of the inner boundary chosen from the model
+            
+  
+          v_inner_boundary:
+              property_type: quantity
+              default: 0 km/s
+              mandatory: False
+              help: location of the inner boundary chosen from the model
+  
+          v_outer_boundary:
+              property_type: quantity
+              default: inf km/s
+              mandatory: False
+              help: location of the inner boundary chosen from the model
+
+      specific_property:
+          velocity:
+              property_type: quantity_range
+              default: None
+              mandatory: True
+              help: location of boundaries in the velocity field. There will be n-1 cells as this specifis both the inner and outer velocity components
+  
+  
+          density:
+              property_type: container-property
+              type:
+                  property_type: container-declaration
+                  containers: ['branch85_w7']
+  
+                  _branch85_w7: ['branch85_w7-property'] # list
+  
+              branch85_w7-property:
+                  time_0:
+                      property_type: quantity
+                      default: 19.9999584 s
+                      mandatory: False
+                      help: This needs no change - DO NOT TOUCH
+  
+                  density_coefficient:
+                      property_type: float
+                      default: 3e29
+                      mandatory: False
+                      help: This needs no change - DO NOT TOUCH
+                      
+    abundances:
+        property_type: container-property
+        type:
+            property_type: container-declaration
+            containers: ['file','uniform']
+            _uniform: ['abundance_set']
+            _file: ['ftype']
+            
+        ftype:
+            property_type: string
+            default: 'abundances.txt'
+            mandatory: False
+            help: This needs no change - DO NOT TOUCH
+            
+        abundance_set:
+          property_type: abundance_set
+          default: None
+          mandatory: False
+          help: 
+                
+                
+  
+            
+
+
+montecarlo:
+    seed:
+        property_type: int
+        default: 23111963
+        mandatory: False
+        help: Seed for the random number generator
+
+    no_of_packets:
+        property_type: int
+        default: None
+        mandatory: True
+        help: Seed for the random number generator
+
+    iterations:
+        property_type: int
+        default: None
+        mandatory: True
+        help: Number of maximum iterations
+
+    black_body_sampling:
+        property_type: quantity_range
+        default: [1 angstrom, 1e6 angstrom, 1e6 angstrom]
+        mandatory: False
+        help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)
+
+    last_no_of_packets:
+        property_type: int
+        default: 100
+        mandatory: False
+        help: This can set the number of packets for the last run. If set to None it will remain the same as all other runs.
+
+    no_of_virtual_packets:
+        property_type: int
+        default: 0
+        mandatory: False
+        help: Setting the number of virtual packets for the last iteration.
+
+
+    #converge_criteria:
+    #property_type : container-property
+    #type:
+    #    property_type: container-declaration
+    #    containers: ['specific']
+    #    _specific: ['specific-property']
+
+    #specific-property:
+    #    damping_constant:
+    #        property_type: float
+    #        default: None
+    #        mandatory: True
+    #        help: Damping constant for convergence behaviour
+    #
+    #    threshold:
+    #        property_type: float
+    #        default: None
+    #        mandatory: True
+    #        help: threshold for convergence
+    #
+    #    fraction:
+    #        property_type: float
+    #        default: None
+    #        mandatory: True
+    #        help: fraction of shells that need to have converged to the necessary threshold
+    #
+    #    hold:
+    #        property_type: float
+    #        default: None
+    #        mandatory: True
+    #        help: >
+    #            Number of iterations that the simulation needs to run abiding by the convergence criteria
+    #            before it is considered converged
+
+
+
+
+
+
+spectrum:
+    property_type: quantity_range_sampled
+    default: None
+    mandatory: True
+    help: Final spectrum sampling
+
+

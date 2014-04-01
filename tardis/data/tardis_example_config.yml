@@ -7,7 +7,7 @@ config_type: simple1d
 #luminosity any astropy.unit convertible to erg/s
 #special unit log_lsun(log(luminosity) - log(L_sun)
 supernova:
-  luminosity: 9.44 log_lsun
+  luminosity: 9.44 solLum
   time_explosion: 13 day
   distance : 1 Mpc
 
@@ -35,11 +35,12 @@ plasma:
 
 model:
     structure:
-        type: file
-        filetype
-        filename
-        lowest_shell
-        highest_shell
+      type: file
+      file_property:
+        filetype: bla
+        filename: blub
+        lowest_shell: 1
+        highest_shell: 10
         no_of_shells : 20
 #        file:
 #            type : artis
@@ -48,41 +49,48 @@ model:
 #            v_highest: 20000.0 km/s
 
 
-        velocity:
-            type : linear
-            v_inner : 1.1e4 km/s
-            v_outer : 2e4 km/s
+      velocity:
+          type : linear
+          v_inner : 1.1e4 km/s
+          v_outer : 2e4 km/s
 
 
-        density:
-            #showing different configuration options separated by comments
-            #simple uniform:
-            #---------------
+      density:
+          #showing different configuration options separated by comments
+          #simple uniform:
+          #---------------
 #            type : uniform
 #            value : 1e-12 g/cm^3
-            #---------------
+          #---------------
 
-            #branch85_w7 - fit of seven order polynomial to W7 (like Branch 85):
-            #---------------
-            type : branch85_w7
-            #value : 1e-12
-            # default, no need to change!
-            #time_0 : 19.9999584 s
-            # default, no need to change!
-            #density_coefficient : 3e29
-            #---------------
+          #branch85_w7 - fit of seven order polynomial to W7 (like Branch 85):
+          #---------------
+          type : branch85_w7
+          
+          branch85_w7-property:
+            time_0: 1 s
+            density_coefficient: 10
+          #value : 1e-12
+          # default, no need to change!
+          #time_0 : 19.9999584 s
+          # default, no need to change!
+          #density_coefficient : 3e29
+          #---------------
+          
+          
 
 
     abundances:
-      type: uniform | file
-        #file:
-        #    type : artis
-        #    name : artis_abundances.dat
+      type: uniform
+    #file:
+    #    type : artis
+    #    name : artis_abundances.dat
 
 #        abundance_set:
 #            type: uniform
 #            name: lucy99
 #        nlte_species : [Si2]
+      abundance_set:
 #        C: 0.01
 #        O: 0.01
 #        Ne: 0.01
@@ -94,19 +102,24 @@ model:
 #        Fe: 0.07
 #        Co: 0.01
 #        Ni: 0.01
-         Si: 1.00
+        Si: 1.00
+
 
 
 montecarlo:
     seed: 23111963171620
     no_of_packets : 2.e+4
     iterations: 100
-    convergence_criteria:
-        type: specific
-        damping_constant: 0.5
-        threshold: 0.05
-        fraction: 0.8
-        hold: 3
+    #convergence_criteria:
+    #    type: specific
+    #    specific-property:
+    #      damping_constant: 0.5
+    #      threshold: 0.05
+    #      fraction: 0.8
+    #      hold: 3
+
+
+
 
 
 
@@ -124,7 +137,6 @@ montecarlo:
 
 
 spectrum:
-    start : 500 angstrom
-    end : 20000 angstrom
-    bins : 1000
-    spectrum_type: flux #flux or lum_density
+    start: 500 angstrom
+    end: 20000 angstrom
+    sample: 1000
