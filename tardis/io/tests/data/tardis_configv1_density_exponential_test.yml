@@ -4,7 +4,7 @@ supernova:
     luminosity_requested: 9.44 log_lsun
     time_explosion: 13 day
 
-atom_data: kurucz_atom_pure_simple.h5
+atom_data: kurucz_atom_pure.h5
 
 model:
     structure:
@@ -14,14 +14,14 @@ model:
         velocity:
             start : 1.1e4 km/s
             stop : 20000 km/s
-            num: 5
+            num: 20
             
             
         density:
             type : exponential
-            time_0: 10 s
-            rho_0: 1e-20 g/cm^3
-            v_0: 1.0e+09  km/s
+            time_0: 2. day
+            rho_0: 6.e-10 g/cm^3
+            v_0: 3000.  km/s
             
 
     abundances:
