@@ -77,3 +77,7 @@ default Python version:
    system site-packages. To develop it is a useful idea to install TARDIS using
    `python setup.py develop` - which will allow you to develop and immediately
    test it out.
+
+   To install all the recommended packages::
+
+        (tardis) $ pip install -r https://raw.githubusercontent.com/tardis-sn/tardis/master/docs/workflow/pip-requirements
