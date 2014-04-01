@@ -254,6 +254,7 @@ class BasePlasmaArray(object):
 
         self.calculate_level_populations(initialize_nlte=initialize_nlte, excitation_mode=self.excitation_mode)
         self.tau_sobolevs = self.calculate_tau_sobolev()
+        self.calculate_bound_free()
 
         if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
@@ -709,7 +710,7 @@ class BasePlasmaArray(object):
 
         
         bound_free_cross_section_at_threshold = self.atom_data.ion_cx_th
-        bound_free_cross_section_at_supporter = self.atom_data.ion_cx_sp
+        #bound_free_cross_section_at_supporter = self.atom_data.ion_cx_sp
         
         
         bound_free_th_frequency = self.atom_data.levels['energy'].__array__() /h_cgs
@@ -735,7 +736,7 @@ class BasePlasmaArray(object):
         self.chi_bf_index_to_level_sorted = chi_bf_index_to_level_sorted
         self.chi_bound_free_nu_bins = chi_bf_sum
         
-        self.chi_bf_index_to_level = chi_bf_index_to_level[0,:,0,:]
+        self.bf_index_to_level = chi_bf_index_to_level[0,:,0,:]
         self.bf_cross_sections_x_lpopulation = level_populations * cross_sections[0][:,None]
         self.bf_lpopulation_ratio_nlte_lte = helper
         
@@ -748,28 +749,6 @@ class BasePlasmaArray(object):
         
         #ToDo: -compute the exp factor; combine all the stuff; test; include supporters; compute taus for a nu grid; pass taus to mc; pass lpr and lprl to mc
         
-        
-        
-        
-        
-        
-        
-        nu_bins = range(1000, 10000, 1000) #TODO: get the binning from the input file.
-        try:
-            bf = np.zeros(len(self.atom_data.levels), len(self.atom_data.selected_atomic_numbers), len(nu_bins))
-        except AttributeError:
-            logger.critical("Err creating the bf array.")
-
-        phis = self.calculate_saha()
-        nnlevel = self.level_populations
-        for nu in nu_bins:
-            for i, (level_id, level) in enumerate(self.atom_data.levels.iterrows()):
-                atomic_number = level.name[0]
-                ion_number = level.name[1]
-                level_number = level.name[2]
-                sigma_bf_th = self.atom_data.ion_cx_th.ix[atomic_number, ion_number, level_number]
-                phi = phis.ix[atomic_number, ion_number]
-
 
     def to_hdf5(self, hdf5_store, path, mode='full'):
         """

@@ -99,13 +99,20 @@ cdef class StorageModel:
     cdef int_type_t line_lists_tau_sobolevs_nd
     
     #Bound Free initialize
-    cdef float_type_t [:,:,:] chi_bound_free_sorted
-    cdef int_type_t [:,:,:,:,:]  chi_bf_index_to_level_sorted
-    cdef float_type_t [:,:] chi_bound_free_nu_bins
+    cdef np.ndarray chi_bound_free_sorted_a
+    cdef float_type_t [:,:,:] chi_bound_free_sorted_view
+    cdef np.ndarray chi_bf_index_to_level_sorted_a
+    cdef int_type_t [:,:,:,:]  chi_bf_index_to_level_sorted_view
     
-    cdef int_type_t [:,:] bound_free_index_to_level
-    cdef float_type_t [:,:] bf_cross_sections_x_lpopulation
-    cdef float_type_t [:,:] bf_lpopulation_ratio_nlte_lte
+    cdef np.ndarray chi_bound_free_nu_bins_a
+    cdef float_type_t [:,:] chi_bound_free_nu_bins_view
+    
+    cdef np.ndarray bf_index_to_level_a
+    cdef int_type_t [:,:] bf_index_to_level_view
+    cdef np.ndarray bf_cross_sections_x_lpopulation_a
+    cdef float_type_t [:,:] bf_cross_sections_x_lpopulation_view
+    cdef np.ndarray bf_lpopulation_ratio_nlte_lte_a
+    cdef float_type_t [:,:] bf_lpopulation_ratio_nlte_lte_view
 
     #J_BLUES initialize
     cdef np.ndarray line_lists_j_blues_a
@@ -210,6 +217,30 @@ cdef class StorageModel:
         self.line_lists_j_blues_nd = self.line_lists_j_blues_a.shape[1]
 
         #bound-free
+        cdef np.ndarray[float_type_t, ndim=3] chi_bound_free_sorted = model.plasma_array.chi_bound_free_sorted
+        self.chi_bound_free_sorted_a = chi_bound_free_sorted
+        self.chi_bound_free_sorted_view = self.chi_bound_free_sorted_a
+        
+        cdef np.ndarray[int_type_t, ndim=4] chi_bf_index_to_level_sorted = model.plasma_array.chi_bf_index_to_level_sorted
+        self.chi_bf_index_to_level_sorted_a = chi_bf_index_to_level_sorted
+        self.chi_bf_index_to_level_sorted_view = self.chi_bf_index_to_level_sorted_a
+        
+        cdef np.ndarray[float_type_t, ndim=2] chi_bound_free_nu_bins = model.plasma_array.chi_bound_free_nu_bins
+        self.chi_bound_free_nu_bins_a = chi_bound_free_nu_bins
+        self.chi_bound_free_nu_bins_view = self.chi_bound_free_nu_bins_a
+        
+        cdef np.ndarray[int_type_t, ndim=2] bf_index_to_level = model.plasma_array.bf_index_to_level
+        self.bf_index_to_level_a = bf_index_to_level
+        self.bf_index_to_level_view = self.bf_index_to_level_a
+        
+        cdef np.ndarray[float_type_t, ndim=2] bf_cross_sections_x_lpopulation = model.plasma_array.bf_cross_sections_x_lpopulation
+        self.bf_cross_sections_x_lpopulation_a = bf_cross_sections_x_lpopulation
+        self.bf_cross_sections_x_lpopulation_view = self.bf_cross_sections_x_lpopulation_a
+        
+        cdef np.ndarray[float_type_t, ndim=2] bf_lpopulation_ratio_nlte_lte = model.plasma_array.bf_lpopulation_ratio_nlte_lte
+        self.bf_lpopulation_ratio_nlte_lte_a = bf_lpopulation_ratio_nlte_lte
+        self.bf_lpopulation_ratio_nlte_lte_view = self.bf_lpopulation_ratio_nlte_lte_a
+        
         #ToDO: Add the BF data to the storage model
         
 
@@ -604,7 +635,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     cdef int_type_t reabsorbed = 0
     cdef int_type_t recently_crossed_boundary = 0
     cdef int i = 0
-
+    logger.info(">>>>>>>%d",storage.chi_bound_free_sorted_view[0,0,0])
     for i in range(storage.no_of_packets):
         if i % (storage.no_of_packets / 5) == 0:
             logger.info("At packet %d of %d", i, storage.no_of_packets)
