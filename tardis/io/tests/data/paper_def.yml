@@ -28,8 +28,34 @@ model:
         property_type: container-property
         type:
             property_type: container-declaration
-            containers: ['specific']
+            containers: ['specific','file']
             _specific: ['velocity','density']
+            _file: ['filename', 'filetype', 'v_inner_boundary', 'v_outer_boundary']
+        
+        filename:
+            property_type: string
+            default: None
+            mandatory: true
+            help: The density type of the model
+            
+        filetype:
+            property_type: string
+            default: None
+            mandatory: true
+            help: The filetype of the input file
+            
+        v_inner_boundary:
+            property_type: quantity
+            default: None
+            mandatory: true
+            help: The velocity at the inner boundary
+            
+        v_outer_boundary
+            property_type: quantity
+            default: None
+            mandatory: true
+            help: The velocity at the outer boundary
+            
             
         velocity:
             property_type: quantity_range_sampled
@@ -44,6 +70,7 @@ model:
                 mandatory: true
                 help: The density type of the model
                 
+        
     abundances:
         property_type: legacy-abundances
         default: None
@@ -51,17 +78,23 @@ model:
         help: The abundances for the model
         
 plasma:
+    disable_electron_scattering:
+        property_type: string
+        default: no
+        allowed_value: lte nebular nlte
+        mandatory: false
+    
     ionization:
         property_type: string
         default: lte
         allowed_value: lte nebular nlte
-        mandatory: true
+        mandatory: false
         
     excitation:
         property_type: string
         default: lte
         allowed_value: lte dilute-lte
-        mandatory: true
+        mandatory: false
         help: ka
         
     radiative_rates_type:
@@ -101,6 +134,27 @@ montecarlo:
         default: 5.0e+5
         mandatory: true
         help: Number of in the final run packets
+        
+    black_body_sampling:
+        property_type: quantity_range_sampled
+        default:  [500 angstrom, 20000 angstrom, 10000]
+        mandatory: false
+        help: ka
+        
+    no_of_virtual_packets:
+        property_type: int
+        defautl: 5
+        mandatory: false
+        help: ka
+        
+    convergence_criteria:
+        property_type: container-property
+        type:
+            property_type: container-declaration
+            containers: ['specific']
+            _specific: ['damping_constant', 'threshold', 'fraction', 'hold', 't_inner']
+        
+        
         
 spectrum:
     property_type: quantity_range_sampled
