@@ -330,7 +330,7 @@ cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_
     if nu_insert > nu[imin]:
         return imin
     elif nu_insert < nu[imax]:
-        return imax
+        return imax+1
 
     cdef int_type_t imid
     while imax - imin > 2:
@@ -599,7 +599,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         current_energy = current_energy / (1 - (current_mu * current_r * storage.inverse_time_explosion * inverse_c))
 
         #linelists
-        current_line_id = binary_search(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines)
+        current_line_id = binary_search(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines-1)
 
         if current_line_id == storage.no_of_lines:
             #setting flag that the packet is off the red end of the line list
@@ -1066,8 +1066,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             current_line_id[0] += 1
 
             #check for last line
-            if current_line_id[0] >= storage.no_of_lines:
-                current_line_id[0] = storage.no_of_lines
+            if current_line_id[0] == storage.no_of_lines:
                 last_line[0] = 1
 
             if (virtual_packet > 0):
