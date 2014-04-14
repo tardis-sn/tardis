@@ -405,6 +405,9 @@ cdef int_type_t line_search(float_type_t*nu, float_type_t nu_insert, int_type_t 
     else:
         return ( binary_search(nu, nu_insert, imin, imax) + 1)
 
+
+
+
 #variables are restframe if not specified by prefix comov_
 cdef inline int_type_t macro_atom(int_type_t activate_level,
                                   float_type_t*p_transition,
@@ -457,6 +460,11 @@ cdef inline int_type_t macro_atom(int_type_t activate_level,
                 packet_logger.debug('Emitting in level %d', activate_level + 1)
 
             return target_line_id[i]
+        
+cdef flot_type_t calculate_kappa_bf(float_type_t 
+    
+):
+    TODO: Add kappa_bf here
 
 cdef float_type_t move_packet(float_type_t*r,
                               float_type_t*mu,
