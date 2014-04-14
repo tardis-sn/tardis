@@ -9,6 +9,8 @@ Bugfixes
 - warning added to documentation since plasma is out of date (temp
   solution only) #108
 - fix to binary search to deal with packets at end of line list
+- warning added for density file readin outside tabulated range
+
 
 New Features
 ^^^^^^^^^^^^
