@@ -327,16 +327,20 @@ cdef float_type_t inverse_c = 1 / c
 cdef int_type_t line_search(float_type_t*nu, float_type_t nu_insert, int_type_t number_of_lines):
     """
     Parameters
-    ---------
+    ----------
 
-    array of line frequencies (called nu)
-    value of nu key (called nu_insert)
-    number of lines in the line list (number_of_lines)
+    nu: np.array
+        array of line frequencies
+    nu_insert: float64
+        value of nu key
+    number_of_lines: int
+        number of lines in the line list
 
     Returns
     -------
 
-    index of the next line to the red. If the key value is redder than the reddest line returns "number_of_lines"
+        index: int
+            index of the next line to the red. If the key value is redder than the reddest line returns "number_of_lines"
 
     """
     #search to find the next line to the red (i.e. closest line in frequency space with smaller frequency than where we are)
@@ -362,15 +366,21 @@ cdef int_type_t binary_search(float_type_t*x, float_type_t x_insert, int_type_t 
     Parameters
     ---------
 
-    array of boundarys (called x)
-    value of x key (called x_insert)
-    maximum and minimum indices (imin and imax)
+    x: *array
+        array of boundarys (called x)
+    x_insert: float
+        value of x key (called x_insert)
+    imin: int
+        minimum index
+    imax: int
+        maximum index
 
     Returns
     -------
 
-    index of the next boundary to the left
-    (i.e. it will return a value between imin and imax-1
+    index: int
+        index of the next boundary to the left
+        (i.e. it will return a value between imin and imax-1)
 
     """
 
