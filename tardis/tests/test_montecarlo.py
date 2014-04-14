@@ -26,7 +26,6 @@ def test_binary_search(insert_value, expected_insert_position):
 @pytest.mark.parametrize(("insert_value"), [
     (10.5),
     (0.5)])
-
 def test_binary_search_out_of_bounds(insert_value, capsys):
     insert_position = montecarlo.binary_search_wrapper(test_line_list,
                             insert_value, 0, len(test_line_list)-1)
@@ -38,8 +37,15 @@ def test_binary_search_out_of_bounds(insert_value, capsys):
 
     assert stderr == expected_exception
 
+@pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
+    (10.5, 0),
+    (0.5, len(test_line_list))])
+def test_line_search_out_of_bounds(insert_value, expected_insert_position):
+    insert_position = montecarlo.line_search_wrapper(test_line_list,
+                            insert_value, len(test_line_list))
+
+    assert insert_position == expected_insert_position
 
 
 
-    
     
