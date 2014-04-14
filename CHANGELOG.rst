@@ -8,6 +8,7 @@ Bugfixes
 - logger statement added for coronal approximation
 - warning added to documentation since plasma is out of date (temp
   solution only) #108
+- fix to binary search to deal with packets at end of line list
 
 New Features
 ^^^^^^^^^^^^
