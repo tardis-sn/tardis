@@ -14,10 +14,10 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     installation
     running
     uses
-    workflow/development_workflow
     examples/examples
     testing
     atomic/atomic_data
+    workflow/development_workflow
     plasma
     montecarlo
     changelog

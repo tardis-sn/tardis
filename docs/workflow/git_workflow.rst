@@ -165,7 +165,7 @@ given in the following sections.
 * Once your code is ready to be accepted, please add an entry to the changelog
   (see :ref:`changelog-format`).  If you're sure where to put this, please at
   least suggest a brief (one or two sentence) description of your change so
-  that another Astropy developer can add it to the changelog.
+  that another developer can add it to the changelog.
 
 This way of working helps to keep work well organized, with readable history.
 This in turn makes it easier for project maintainers (that might be you) to
