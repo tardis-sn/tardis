@@ -1,7 +1,6 @@
-PyYAML
-astropy
-h5py
-ipython
-numpy
-pandas
-scipy
+PyYAML>=3.0
+astropy>=0.3.1
+h5py>=2.2
+numpy>=1.8
+pandas>=0.12
+scipy>=0.13
