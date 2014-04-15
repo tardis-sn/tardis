@@ -31,9 +31,11 @@ def test_binary_search_out_of_bounds(insert_value, capsys):
     insert_position = montecarlo.binary_search_wrapper(test_line_list,
                             insert_value, 0, len(test_line_list)-1)
 
-    expected_exception = ("Exception ValueError: ValueError('Binary Search "
-                          "called but not inside domain. Abort!',) in "
-                          "'tardis.montecarlo.binary_search' ignored\n")
+    expected_exception = ("Exception ValueError: ValueError('Binary Search cal"
+                          "led but not inside domain. Abort!',) in 'tardis.tes"
+                          "ts.montecarlo_test_wrappers.binary_search' igno"
+                          "red\n")
+    
     stdout, stderr = capsys.readouterr()
 
     assert stderr == expected_exception
