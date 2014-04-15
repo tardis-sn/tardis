@@ -27,7 +27,7 @@ cdef extern from "math.h":
 
 
 
-cdef extern from "randomkit/randomkit.h":
+cdef extern from "randomkit.h":
     ctypedef struct rk_state:
         unsigned long key[624]
         int pos
@@ -42,6 +42,8 @@ cdef extern from "randomkit/randomkit.h":
     void rk_seed(unsigned long seed, rk_state *state)
     float_type_t rk_double(rk_state *state)
 cdef rk_state mt_state
+
+
 
 cdef np.ndarray x
 cdef class StorageModel:
@@ -324,13 +326,70 @@ cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
 
 
-cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_t imin,
-                              int_type_t imax):
-    #continually narrow search until just one element remains
+cdef int_type_t line_search(float_type_t*nu, float_type_t nu_insert, int_type_t number_of_lines):
+    """
+    Parameters
+    ----------
+
+    nu: np.array
+        array of line frequencies
+    nu_insert: float64
+        value of nu key
+    number_of_lines: int
+        number of lines in the line list
+
+    Returns
+    -------
+
+        index: int
+            index of the next line to the red. If the key value is redder than the reddest line returns "number_of_lines"
+
+    """
+    #search to find the next line to the red (i.e. closest line in frequency space with smaller frequency than where we are)
+    cdef int_type_t imin, imax
+
+    imin = 0
+    imax = number_of_lines - 1
+
     if nu_insert > nu[imin]:
+        #this is the case where the insert nu is bluer than the bluest line. So we return the index at the bluest end of the list
         return imin
     elif nu_insert < nu[imax]:
+        #this is when the insert nu is redder than the reddest line. Such a photon packet will never Doppler shift into resonance with one of our lines. We flag this by returning an index beyond the list
         return imax+1
+    else:
+        return ( binary_search(nu, nu_insert, imin, imax) + 1)
+
+
+cdef int_type_t binary_search(float_type_t*x, float_type_t x_insert, int_type_t imin,
+                              int_type_t imax):
+
+    """
+    Parameters
+    ---------
+
+    x: *array
+        array of boundarys (called x)
+    x_insert: float
+        value of x key (called x_insert)
+    imin: int
+        minimum index
+    imax: int
+        maximum index
+
+    Returns
+    -------
+
+    index: int
+        index of the next boundary to the left
+        (i.e. it will return a value between imin and imax-1)
+
+    """
+
+    #note: this is for inversely ordered arrays!
+    #check that we are in range and return if not
+    if (x_insert > x[imin]) or (x_insert < x[imax]):
+        raise ValueError("Binary Search called but not inside domain. Abort!")
 
     cdef int_type_t imid
     while imax - imin > 2:
@@ -341,12 +400,19 @@ cdef int_type_t binary_search(float_type_t*nu, float_type_t nu_insert, int_type_
         # note: 0 <= imin < imax implies imid will always be less than imax
 
         # reduce the search
-        if (nu[imid] < nu_insert):
+        if (x[imid] < x_insert):
             imax = imid + 1
         else:
             imin = imid
             #print imin, imax, imid, imax - imin
-    return imin + 1
+
+    if imax - imin == 2:
+        if x_insert < x[imin + 1]:
+            return imin + 1
+
+    return imin
+
+
 
 #variables are restframe if not specified by prefix comov_
 cdef inline int_type_t macro_atom(int_type_t activate_level,
@@ -599,7 +665,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         current_energy = current_energy / (1 - (current_mu * current_r * storage.inverse_time_explosion * inverse_c))
 
         #linelists
-        current_line_id = binary_search(storage.line_list_nu, comov_current_nu, 0, storage.no_of_lines-1)
+        current_line_id = line_search(storage.line_list_nu, comov_current_nu, storage.no_of_lines)
 
         if current_line_id == storage.no_of_lines:
             #setting flag that the packet is off the red end of the line list
