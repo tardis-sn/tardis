@@ -125,8 +125,11 @@ class BasePlasmaArray(object):
         number_densities = abundances * density.to('g/cm^3').value
 
         number_densities = number_densities.div(atom_data.atom_data.mass.ix[number_densities.index], axis=0)
-        atom_data.prepare_atom_data(number_densities.index.values)
-
+        if nlte_config is not None:
+            nlte_species = nlte_config.species
+        else:
+            nlte_species = []
+        atom_data.prepare_atom_data(number_densities.index.values, nlte_species=nlte_species)
 
         return cls(number_densities, atom_data, time_explosion.to('s').value,
                    nlte_config=nlte_config, ionization_mode=ionization_mode,

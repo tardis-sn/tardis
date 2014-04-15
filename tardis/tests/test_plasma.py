@@ -12,33 +12,59 @@ from astropy import units as u, constants as const
 data_path = os.path.join(tardis.__path__[0], 'tests', 'data')
 helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
 
-class TestNLTE(object):
+ion_populations=pd.DataFrame([[2,0,1.0],[2,1,1.0],[2,2,1.0]], columns=['atomic_number', 'ion_number', 0])
+ion_populations = ion_populations.set_index(['atomic_number', 'ion_number'])
+from astropy import constants as const, units as u
+from numpy.testing import assert_array_almost_equal
+
+ref_pops = pd.read_hdf(os.path.join(data_path, 'He_nlte_pops.h5'), 'He_level_pops')
+
+class TestNLTE_LTEapprox(object):
 
     def setup(self):
         self.nlte_species=[(2,0),(2,1)]
+        self.nlte_config = TARDISConfigurationNameSpace({'species':self.nlte_species})
         self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
-        self.atom_data.prepare_atom_data([2],nlte_species=self.nlte_species)
+        #        self.atom_data.prepare_atom_data([2],nlte_species=self.nlte_species)
         self.plasma = plasma_array.BasePlasmaArray.from_abundance(
-            {'He':1.0}, 1e-15*u.Unit('g/cm3'), self.atom_data, 10 * u.day)
+            {'He':1.0}, 1e-15*u.Unit('g/cm3'), self.atom_data, 10 * u.day, nlte_config=self.nlte_config)
         self.plasma.j_blues = pd.DataFrame(intensity_black_body(self.atom_data.lines.nu.values[np.newaxis].T, np.array([10000.])))
         self.plasma.tau_sobolevs = pd.DataFrame(np.zeros_like(self.plasma.j_blues))
         self.plasma.t_rads=np.array([10000.])
         self.plasma.t_electrons=np.array([10000.])
         self.plasma.ws=np.array([1.0])
-        self.plasma.electron_densities=np.array([1.e9])
-        self.plasma.nlte_config = TARDISConfigurationNameSpace({'species':self.nlte_species})
+        self.plasma.electron_densities=pd.Series([1.e9])
+        self.plasma.ion_populations = ion_populations
         self.plasma.calculate_nlte_level_populations()
 
-    def test_x(self):
-        1/0
+    def test_He1_ltelevelpops(self):
+        np.testing.assert_array_almost_equal(self.atom_data.levels["g"].ix[(2,0)].values * np.exp(- self.atom_data.levels["energy"].ix[(2,0)].values * u.erg / const.k_B / self.plasma.t_rads / u.K).value, self.plasma.level_populations[0].ix[(2,0)].values)
 
+    def test_He2_ltelevelpops(self):
+        np.testing.assert_array_almost_equal(self.atom_data.levels["g"].ix[(2,1)].values * np.exp(- self.atom_data.levels["energy"].ix[(2,1)].values * u.erg / const.k_B / self.plasma.t_rads / u.K).value, self.atom_data.levels["g"].ix[(2,1)][0]*self.plasma.level_populations[0].ix[(2,1)].values)
 
+        
+class TestNLTE(object):
 
+    def setup(self):
+        self.nlte_species=[(2,0),(2,1)]
+        self.nlte_config = TARDISConfigurationNameSpace({'species':self.nlte_species})
+        self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
+        #        self.atom_data.prepare_atom_data([2],nlte_species=self.nlte_species)
+        self.plasma = plasma_array.BasePlasmaArray.from_abundance(
+            {'He':1.0}, 1e-15*u.Unit('g/cm3'), self.atom_data, 10 * u.day, nlte_config=self.nlte_config)
+        self.plasma.j_blues = 0.5 * pd.DataFrame(intensity_black_body(self.atom_data.lines.nu.values[np.newaxis].T, np.array([10000.])))
+        self.plasma.tau_sobolevs = pd.DataFrame(np.zeros_like(self.plasma.j_blues))
+        self.plasma.t_rads=np.array([10000.])
+        self.plasma.t_electrons=np.array([9000.])
+        self.plasma.ws=np.array([0.5])
+        self.plasma.electron_densities=pd.Series([1.e9])
+        self.plasma.ion_populations = ion_populations
+        self.plasma.calculate_nlte_level_populations()
 
+    def test_He_dilutelevelpops(self):
 
-
-
-
+        np.testing.assert_array_almost_equal(self.plasma.level_populations.values, ref_pops.values)
 
 """
 atom_model = atomic.AtomData.from_hdf5()
