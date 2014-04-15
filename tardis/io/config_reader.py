@@ -881,9 +881,36 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         #^^^^^^^ NLTE subsection of Plasma end
         
+		# HACHINGER SECTION **************************************************************
+        
+        hachinger_config_dict={}
+        hachinger_species = []
+        if 'hachinger'in plasma_section:
+            hachinger_section = plasma_section['hachinger']
+            if 'species' in hachinger_section:
+                hachinger_species_list = hachinger_section.pop('species')
+                for species_string in hachinger_species_list:
+                    hachinger_species.append(species_string_to_tuple(species_string))
+                    
+                hachinger_config_dict['species'] = hachinger_species
+                hachinger_config_dict['species_string'] = hachinger_species_list
+                hachinger_config_dict.update(hachinger_section)
+        
+        if not hachinger_config_dict:
+            hachinger_config_dict['species'] = []
+                
+        plasma_config_dict['hachinger'] = hachinger_config_dict
+        
+        # HE IONISATION FORCING **********************************************************
+        
+        helium_forcing = plasma_section.get('helium_forcing')
+        
+        helium_forcing_config_dict = {}
+    	helium_forcing_config_dict = helium_forcing       
+        plasma_config_dict['helium_forcing'] = helium_forcing_config_dict
+        
         config_dict['plasma'] = plasma_config_dict
-
-
+				
         #^^^^^^^^^^^^^^ End of Plasma Section
 
         ##### Monte Carlo Section

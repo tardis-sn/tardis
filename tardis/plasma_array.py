@@ -11,6 +11,7 @@ from scipy import interpolate
 from tardis import macro_atom, io
 from tardis.io.util import parse_abundance_dict_to_dataframe
 
+from copy import deepcopy
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +95,8 @@ class BasePlasmaArray(object):
     @classmethod
     def from_abundance(cls, abundance_dict, density, atom_data, time_explosion,
                        nlte_config=None, ionization_mode='lte',
-                       excitation_mode='lte'):
+                       excitation_mode='lte', hachinger_config=None,
+                       helium_forcing_config=None):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -133,19 +135,21 @@ class BasePlasmaArray(object):
 
         return cls(number_densities, atom_data, time_explosion.to('s').value,
                    nlte_config=nlte_config, ionization_mode=ionization_mode,
-                   excitation_mode=excitation_mode)
-
+                   excitation_mode=excitation_mode, hachinger_config=hachinger_config,
+                   helium_forcing_config=helium_forcing_config)
     @classmethod
     def from_hdf5(cls, hdf5store):
         raise NotImplementedError()
 
 
-    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None,
-                 ionization_mode='lte', excitation_mode='lte'):
+    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None, hachinger_config=None,
+                 helium_forcing_config=None, ionization_mode='lte', excitation_mode='lte'):
         self.number_densities = number_densities
         self.atom_data = atom_data
         self.time_explosion = time_explosion
         self.nlte_config = nlte_config
+        self.hachinger_config = hachinger_config
+        self.helium_forcing_config = helium_forcing_config
         self.delta_treatment = delta_treatment
         self.electron_densities = self.number_densities.sum(axis=0)
 
@@ -236,6 +240,9 @@ class BasePlasmaArray(object):
 
         while True:
             self.calculate_ion_populations(phis)
+            if self.hachinger_config is not None and self.hachinger_config.species:
+            	stored = {}
+            	self.hachinger_approximation(self.atom_data, stored)
             ion_numbers = self.ion_populations.index.get_level_values(1).values
             ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
             new_electron_densities = (self.ion_populations.values * ion_numbers).sum(axis=0)
@@ -253,6 +260,12 @@ class BasePlasmaArray(object):
             self.electron_densities = 0.5 * (new_electron_densities + self.electron_densities)
 
         self.calculate_level_populations(initialize_nlte=initialize_nlte, excitation_mode=self.excitation_mode)
+        
+        if self.hachinger_config is not None and self.hachinger_config.species:
+        	for value in range (0, len(self.hachinger_config.species)):
+        		hachinger_element = self.hachinger_config.species[value][0]
+        		self.level_populations.ix[hachinger_element].update(stored[str(hachinger_element)])
+        
         self.tau_sobolevs = self.calculate_tau_sobolev()
 
         if self.nlte_config is not None and self.nlte_config.species:
@@ -506,6 +519,7 @@ class BasePlasmaArray(object):
 
         This function updates the 'number_density' column on the levels table (or adds it if non-existing)
         """
+        
         Z = self.partition_functions.ix[self.atom_data.levels.index.droplevel(2)].values
 
         ion_number_density = self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values
@@ -522,7 +536,6 @@ class BasePlasmaArray(object):
             self.level_populations.update(level_populations)
         else:
             self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
-
 
     def calculate_nlte_level_populations(self):
         """
@@ -732,15 +745,75 @@ class BasePlasmaArray(object):
         else:
             raise NotImplementedError('Currently only mode="full" is supported.')
 
-
-
-
-
-
-
-
-
-
-
-
-
+    def hachinger_approximation(self, atom_data, stored):
+        for species in self.hachinger_config.species:
+            ion_species = (species[0], species[1]+1) # The singly ionised species
+            total = self.ion_populations.ix[species[0]].sum() # Stores total number of atoms for normalisation
+            
+            # Sets the singly ionised ground state population to 1
+            self.level_populations.ix[ion_species].ix[0][np.isnan(self.level_populations.ix[ion_species].ix[0])] = 1.0
+            
+            # Neutral Populations (New Way):
+            
+            neutral = self.level_population_proportionalities.ix[species] * \
+            self.electron_densities * np.exp(self.atom_data.ionization_data.ionization_energy.ix[ion_species[0]].ix[ion_species[1]] * \
+            self.beta_rads) * (1 / (2 * atom_data.levels.g.ix[ion_species].ix[0] * self.g_electrons * self.ws))
+			
+            self.level_populations.ix[species].update(neutral) # This line raising warning.
+            
+            if self.helium_forcing_config==True:
+            	factor = pd.Series(index = self.electron_densities.index)
+            
+            	for number in factor.index:
+            		corrected_number = ((number+1)*(38/len(self.electron_densities.index)))
+            		factor[number] = ((0.00003*((corrected_number)^(3))) - (0.0009*((corrected_number)^(2))) + (0.0106*corrected_number) + 0.0551)
+            		if ((self.level_populations.ix[ion_species].ix[0][number]*factor[number])<(self.level_populations.ix[species].ix[0][number])):
+            			self.level_populations.ix[species].ix[0][number] = (self.level_populations.ix[ion_species].ix[0][number]*factor[number])
+            
+            # Further Ionised Populations (Old Way):
+			
+            for value in range(1, species[0]): #Loop through all higher ions
+            
+            	# Excited populations
+            	excited = self.level_population_proportionalities.ix[species[0],value].mul(self.ws * \
+            	self.level_populations.ix[species[0],value].ix[0] * \
+            	(self.atom_data.levels.g.ix[species[0],value].ix[0]**(-1)))
+            	
+                self.level_populations.ix[species[0], value].update(excited)
+                
+                # Sets the singly ionised ground state population back to 1
+                if value==1:
+                	reset = self.level_populations.ix[ion_species].ix[0].mul(1 / self.ws)
+                	self.level_populations.ix[ion_species].ix[0].update(reset)
+                
+                # Ionised ground state population
+            
+                delta = self.delta_treatment
+                zeta_data = self.atom_data.zeta_data
+        	
+                zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[species[0], value+1].values)(self.t_rads)
+                
+                ground = 2 * ((self.electron_densities)**(-1)) * self.g_electrons * (self.t_electrons / self.t_rads)**0.5 * \
+                np.exp(-1 * self.atom_data.ionization_data.ionization_energy.ix[species[0], value+1] * self.beta_rads) * \
+                self.ws * (zeta + self.ws * (1 - zeta))
+            
+                statistical_weights = ground.mul(self.atom_data.levels.g.ix[species[0], 
+                value+1].ix[0] * ((self.atom_data.levels.g.ix[species[0], value].ix[0])**(-1)))
+                
+                self.level_populations.ix[species[0], value+1].ix[0].update(statistical_weights)
+                           		
+            # Normalisation:
+            
+            test_total = self.level_populations.ix[species[0]].sum()
+            normalisation = self.level_populations.ix[species[0]] * (total / test_total)
+            self.level_populations.ix[species[0]].update(normalisation)
+            
+            # Update ion populations:
+            
+            for x in self.ion_populations.ix[species[0]].index:
+            	self.ion_populations.ix[species[0], x] = self.level_populations.ix[species[0], x].sum()
+            	
+        	element = '%s' %(species[0])
+        	stored[element] = deepcopy(self.level_populations.ix[species[0]])
+        	
+        return atom_data, stored
