@@ -25,6 +25,7 @@ install:
    - if [[ $PANDAS_VERSION == 'latest' ]]; then pip install -q --upgrade pandas; else pip install -q --upgrade "pandas==$PANDAS_VERSION"; fi
    - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else pip install -q --upgrade "astropy==$ASTROPY_VERSION"; fi
    - pip install -q --upgrade pytest==2.5.1
+   - pip install -q --upgrade pytest-cov
 
    - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then pip install -q coveralls; fi
    - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then pip install -q pytest-cov; fi
