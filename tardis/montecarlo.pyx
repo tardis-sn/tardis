@@ -43,6 +43,25 @@ cdef extern from "randomkit/randomkit.h":
     float_type_t rk_double(rk_state *state)
 cdef rk_state mt_state
 
+########### Test wrapper section #################
+# This should be moved to an external file
+def binary_search_wrapper(np.ndarray x, float_type_t x_insert, int_type_t imin, int_type_t imax):
+    cdef float_type_t* x_pointer
+    x_pointer = <float_type_t*> x.data
+    return binary_search(x_pointer, x_insert, imin, imax)
+
+def line_search_wrapper(np.ndarray nu, float_type_t nu_insert,
+                        int_type_t number_of_lines):
+    cdef float_type_t* nu_pointer
+    nu_pointer = <float_type_t*> nu.data
+    return line_search(nu_pointer, nu_insert, number_of_lines)
+
+
+##################################################
+
+
+
+
 cdef np.ndarray x
 cdef class StorageModel:
     """
@@ -403,6 +422,11 @@ cdef int_type_t binary_search(float_type_t*x, float_type_t x_insert, int_type_t 
         else:
             imin = imid
             #print imin, imax, imid, imax - imin
+
+    if imax - imin == 2:
+        if x_insert < x[imin + 1]:
+            return imin + 1
+
     return imin
 
 
