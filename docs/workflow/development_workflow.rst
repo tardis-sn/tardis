@@ -25,15 +25,14 @@ In most cases we try to break down big features into small, quantifiable goals
 which are then acted upon.
 
 
- * Document feature to be added in an issue and maybe ask the mailing list if this
-feature exists
-
+ * Document feature to be added in an issue and maybe ask the mailing
+   list if this feature exists
  * Write a test that demonstrates what feature will be added.
  * Run the test to verify that it fails in the way you think it should.
- * If it fails in an unexpected way, your test may be wrong. This is a great time
- to ask the group for guidance
- * If it passes, you are done! You just added test coverage to an already
- existing feature, and that is great! (unlikely)
+ * If it fails in an unexpected way, your test may be wrong. This is a
+   great time to ask the group for guidance
+ * If it passes, you are done! You just added test coverage to an
+   already existing feature, and that is great! (unlikely)
  * Add the feature (also known as "a simple matter of programming").
  * Run the test to verify that it passes.
  * Write documentation about your feature.
