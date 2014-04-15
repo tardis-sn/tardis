@@ -15,12 +15,21 @@ helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
 ion_populations=pd.DataFrame([[2,0,1.0],[2,1,1.0],[2,2,1.0]], columns=['atomic_number', 'ion_number', 0])
 ion_populations = ion_populations.set_index(['atomic_number', 'ion_number'])
 from astropy import constants as const, units as u
-from numpy.testing import assert_array_almost_equal
+from numpy.testing import assert_allclose
 
 ref_pops = pd.read_hdf(os.path.join(data_path, 'He_nlte_pops.h5'), 'He_level_pops')
 
+def pytest_generate_tests(metafunc):
+    # called once per each test function
+    funcarglist = metafunc.cls.params[metafunc.function.__name__]
+    argnames = list(funcarglist[0])
+    metafunc.parametrize(argnames, [[funcargs[name] for name in argnames]
+            for funcargs in funcarglist])
+
 class TestNLTE_LTEapprox(object):
 
+    params = {"test_He_ltelevelpops" : [dict(ion_number = 0), dict(ion_number = 1)]}
+    
     def setup(self):
         self.nlte_species=[(2,0),(2,1)]
         self.nlte_config = TARDISConfigurationNameSpace({'species':self.nlte_species})
@@ -37,20 +46,20 @@ class TestNLTE_LTEapprox(object):
         self.plasma.ion_populations = ion_populations
         self.plasma.calculate_nlte_level_populations()
 
-    def test_He1_ltelevelpops(self):
-        np.testing.assert_array_almost_equal(self.atom_data.levels["g"].ix[(2,0)].values * np.exp(- self.atom_data.levels["energy"].ix[(2,0)].values * u.erg / const.k_B / self.plasma.t_rads / u.K).value, self.plasma.level_populations[0].ix[(2,0)].values)
+    def test_He_ltelevelpops(self, ion_number):
+        ion_number = ion_number[0]
+        lte_pops = self.atom_data.levels["g"].ix[(2,ion_number)].values * np.exp(- self.atom_data.levels["energy"].ix[(2,ion_number)].values * u.erg / const.k_B / self.plasma.t_rads / u.K).value
+        np.testing.assert_allclose(lte_pops, self.atom_data.levels["g"].ix[(2,ion_number)][0]*self.plasma.level_populations[0].ix[(2,ion_number)].values)
 
-    def test_He2_ltelevelpops(self):
-        np.testing.assert_array_almost_equal(self.atom_data.levels["g"].ix[(2,1)].values * np.exp(- self.atom_data.levels["energy"].ix[(2,1)].values * u.erg / const.k_B / self.plasma.t_rads / u.K).value, self.atom_data.levels["g"].ix[(2,1)][0]*self.plasma.level_populations[0].ix[(2,1)].values)
-
-        
 class TestNLTE(object):
+
+    params = {"test_He_dilutelevelpops" : [dict(dummy = 0) ],
+        "test_He_dilutelevelpops_isnotLTE" : [dict(ion_number = 0), dict(ion_number = 1)]}
 
     def setup(self):
         self.nlte_species=[(2,0),(2,1)]
         self.nlte_config = TARDISConfigurationNameSpace({'species':self.nlte_species})
         self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
-        #        self.atom_data.prepare_atom_data([2],nlte_species=self.nlte_species)
         self.plasma = plasma_array.BasePlasmaArray.from_abundance(
             {'He':1.0}, 1e-15*u.Unit('g/cm3'), self.atom_data, 10 * u.day, nlte_config=self.nlte_config)
         self.plasma.j_blues = 0.5 * pd.DataFrame(intensity_black_body(self.atom_data.lines.nu.values[np.newaxis].T, np.array([10000.])))
@@ -62,9 +71,13 @@ class TestNLTE(object):
         self.plasma.ion_populations = ion_populations
         self.plasma.calculate_nlte_level_populations()
 
-    def test_He_dilutelevelpops(self):
+    def test_He_dilutelevelpops(self, dummy):
+        np.testing.assert_allclose(self.plasma.level_populations.values, ref_pops.values)
 
-        np.testing.assert_array_almost_equal(self.plasma.level_populations.values, ref_pops.values)
+    def test_He_dilutelevelpops_isnotLTE(self, ion_number):
+        ion_number = ion_number[0]
+        lte_pops = self.atom_data.levels["g"].ix[(2,ion_number)].values * np.exp(- self.atom_data.levels["energy"].ix[(2,ion_number)].values * u.erg / const.k_B / self.plasma.t_rads / u.K).value
+        assert not np.allclose(lte_pops, self.atom_data.levels["g"].ix[(2,ion_number)][0]*self.plasma.level_populations[0].ix[(2,ion_number)].values, atol=0)
 
 """
 atom_model = atomic.AtomData.from_hdf5()
