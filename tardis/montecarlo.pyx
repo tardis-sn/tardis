@@ -27,7 +27,7 @@ cdef extern from "math.h":
 
 
 
-cdef extern from "randomkit/randomkit.h":
+cdef extern from "randomkit.h":
     ctypedef struct rk_state:
         unsigned long key[624]
         int pos
