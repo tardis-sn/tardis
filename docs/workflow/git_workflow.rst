@@ -254,7 +254,7 @@ In more detail
 #. Make some changes
 
 #. Once you are a bit further along, test your changes do not lead to
-   regressions, and add new tests (see :ref:`testing-guidelines`).::
+   regressions, and add new tests (see the Astropy :ref:`testing-guidelines` we follow).::
 
      python setup.py test
 
@@ -264,7 +264,8 @@ In more detail
      python setup.py build_sphinx
 
    The last line should just state ``build succeeded``, and should not mention
-   any warnings.  (For more details, see :ref:`documentation-guidelines`.)
+   any warnings.  (For more details, see the Astropy
+   :ref:`documentation-guidelines` we follow.)
 
 #. See which files have changed with ``git status`` (see `git status`_).
    You'll see a listing like this one::
@@ -311,7 +312,7 @@ Asking for your changes to be reviewed and/or merged
 When you are ready to ask for someone to review your code and consider a merge:
 
 #. Go to the URL of your forked repo, e.g.,
-   ``http://github.com/your-user-name/astropy``.
+   ``http://github.com/your-user-name/tardis``.
 
 #. Use the 'Switch Branches' dropdown menu near the top left of the page to
    select the branch with your changes:
@@ -511,3 +512,5 @@ After committing your changes you push your change to your repository
 
  
 
+.. include:: git_links.inc
+.. include:: this_project.inc
