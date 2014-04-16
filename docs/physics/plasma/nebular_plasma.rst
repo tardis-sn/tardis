@@ -84,6 +84,6 @@ the quantities calculated here.
 Example Calculations
 ^^^^^^^^^^^^^^^^^^^^
 
-.. plot:: plasma_doc/plasma_plots/nebular_ionization_balance.py
+.. plot:: physics/plasma/plasma_plots/nebular_ionization_balance.py
     :include-source:
 

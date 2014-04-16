@@ -1,0 +1,10 @@
+numpy==1.8
+scipy==0.13
+pandas==0.12
+astropy==0.3.1
+h5py==2.2
+PyYAML==3.0
+
+
+
+
