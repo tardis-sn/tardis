@@ -1,5 +1,8 @@
+******
 TARDIS
 ******
+
+.. _tardis:
 
 TARDIS is a Monte Carlo radiative-transfer spectral synthesis code for 1D models of supernova ejecta. It is designed for
 rapid spectral modelling of supernovae. The code is described in this documentation and Kerzendorf & Sim 2014.
@@ -17,6 +20,8 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     examples/examples
     testing
     atomic/atomic_data
+    workflow/development_workflow
+    physics/index
     plasma
     montecarlo
     changelog
