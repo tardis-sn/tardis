@@ -8,5 +8,6 @@ gradually expanded
 .. toctree::
     :maxdepth: 1
 
+    physical_quantities
     montecarlo
     plasma
