@@ -317,11 +317,11 @@ When you are ready to ask for someone to review your code and consider a merge:
 #. Use the 'Switch Branches' dropdown menu near the top left of the page to
    select the branch with your changes:
 
-   .. image:: branch_dropdown.png
+   .. image:: images/branch_dropdown.png
 
 #. Click on the 'Pull request' button:
 
-   .. image:: pull_button.png
+   .. image:: images/pull_button.png
 
    Enter a title for the set of changes, and some explanation of what you've
    done. If there is anything you'd like particular attention for, like a
