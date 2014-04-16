@@ -12,4 +12,4 @@ def get_extensions():
 
 def get_package_data():
     return {
-        'tardis.tests': ['coveragerc']}
+        'tardis.tests': ['coveragerc', 'data/*.h5']}
