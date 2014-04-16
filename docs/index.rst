@@ -18,6 +18,7 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     testing
     atomic/atomic_data
     workflow/development_workflow
+    physics/index
     plasma
     montecarlo
     changelog
