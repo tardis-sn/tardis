@@ -22,7 +22,6 @@ def test_atomic_number2element_symbol():
     assert atomic_number2element_symbol(14) == 'Si'
 
 def test_element_symbol2atomic_number():
-    atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_element_symbol2atomic_number(element_string, atomic_number):
         assert element_symbol2atomic_number(element_string) == atomic_number
 
