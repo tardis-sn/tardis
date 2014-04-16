@@ -45,18 +45,11 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.todo',
-#    'sphinx.ext.coverage',
-    #    'sphinx.ext.pngmath',
     'sphinx.ext.mathjax',
-#    'sphinx.ext.viewcode',
-#    'sphinx.ext.inheritance_diagram',
     'numpydoc',
-    #    'astropy.sphinx.ext.numpydoc',
-    #    'astropy.sphinx.ext.astropyautosummary',
-    #    'astropy.sphinx.ext.automodsumm',
-#    'astropy.sphinx.ext.automodapi',
-    #'sphinxcontrib.blockdiag'
 ]
+
+source_suffix = '.rst'
 ## get's rid of many toctree contains errors: see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
 numpydoc_show_class_members = False
 extensions += ['matplotlib.sphinxext.plot_directive']
