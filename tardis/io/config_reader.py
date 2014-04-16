@@ -819,23 +819,23 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         
 		# HACHINGER SECTION **************************************************************
         
-        hachinger_config_dict={}
-        hachinger_species = []
-        if 'hachinger'in plasma_section:
-            hachinger_section = plasma_section['hachinger']
-            if 'species' in hachinger_section:
-                hachinger_species_list = hachinger_section.pop('species')
-                for species_string in hachinger_species_list:
-                    hachinger_species.append(species_string_to_tuple(species_string))
+        equilibrium_with_continuum_config_dict={}
+        equilibrium_with_continuum_species = []
+        if 'equilibrium_with_continuum'in plasma_section:
+            equilibrium_with_continuum_section = plasma_section['equilibrium_with_continuum']
+            if 'species' in equilibrium_with_continuum_section:
+                equilibrium_with_continuum_species_list = equilibrium_with_continuum_section.pop('species')
+                for species_string in equilibrium_with_continuum_species_list:
+                    equilibrium_with_continuum_species.append(species_string_to_tuple(species_string))
                     
-                hachinger_config_dict['species'] = hachinger_species
-                hachinger_config_dict['species_string'] = hachinger_species_list
-                hachinger_config_dict.update(hachinger_section)
+                equilibrium_with_continuum_config_dict['species'] = equilibrium_with_continuum_species
+                equilibrium_with_continuum_config_dict['species_string'] = equilibrium_with_continuum_species_list
+                equilibrium_with_continuum_config_dict.update(equilibrium_with_continuum_section)
         
-        if not hachinger_config_dict:
-            hachinger_config_dict['species'] = []
+        if not equilibrium_with_continuum_config_dict:
+            equilibrium_with_continuum_config_dict['species'] = []
                 
-        plasma_config_dict['hachinger'] = hachinger_config_dict
+        plasma_config_dict['equilibrium_with_continuum'] = equilibrium_with_continuum_config_dict
         
         # HE IONISATION FORCING **********************************************************
         

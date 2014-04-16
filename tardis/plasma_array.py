@@ -93,7 +93,7 @@ class BasePlasmaArray(object):
     """
 
     @classmethod
-    def from_abundance(cls, abundance_dict, density, atom_data, time_explosion, nlte_config=None, hachinger_config=None, saha_treatment='lte', helium_forcing_config=None):
+    def from_abundance(cls, abundance_dict, density, atom_data, time_explosion, nlte_config=None, equilibrium_with_continuum_config=None, saha_treatment='lte', helium_forcing_config=None):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -127,20 +127,20 @@ class BasePlasmaArray(object):
         atom_data.prepare_atom_data(number_densities.index.values)
 
 
-        return cls(number_densities, atom_data, time_explosion.to('s').value, nlte_config=nlte_config, hachinger_config=hachinger_config, helium_forcing_config=helium_forcing_config, saha_treatment=saha_treatment)
+        return cls(number_densities, atom_data, time_explosion.to('s').value, nlte_config=nlte_config, equilibrium_with_continuum_config=equilibrium_with_continuum_config, helium_forcing_config=helium_forcing_config, saha_treatment=saha_treatment)
 
     @classmethod
     def from_hdf5(cls, hdf5store):
         raise NotImplementedError()
 
 
-    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None, hachinger_config=None,
+    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None, equilibrium_with_continuum_config=None,
                  helium_forcing_config=None, ionization_mode='lte', excitation_mode='lte'):
         self.number_densities = number_densities
         self.atom_data = atom_data
         self.time_explosion = time_explosion
         self.nlte_config = nlte_config
-        self.hachinger_config = hachinger_config
+        self.equilibrium_with_continuum_config = equilibrium_with_continuum_config
         self.helium_forcing_config = helium_forcing_config
         self.delta_treatment = delta_treatment
         self.electron_densities = self.number_densities.sum(axis=0)
@@ -232,9 +232,9 @@ class BasePlasmaArray(object):
 
         while True:
             self.calculate_ion_populations(phis)
-            if self.hachinger_config is not None and self.hachinger_config.species:
+            if self.equilibrium_with_continuum_config is not None and self.equilibrium_with_continuum_config.species:
             	stored = {}
-            	self.hachinger_approximation(self.atom_data, stored)
+            	self.equilibrium_with_continuum_approximation(self.atom_data, stored)
             ion_numbers = self.ion_populations.index.get_level_values(1).values
             ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
             new_electron_densities = (self.ion_populations.values * ion_numbers).sum(axis=0)
@@ -253,10 +253,11 @@ class BasePlasmaArray(object):
 
         self.calculate_level_populations(initialize_nlte=initialize_nlte, excitation_mode=self.excitation_mode)
         
-        if self.hachinger_config is not None and self.hachinger_config.species:
-        	for value in range (0, len(self.hachinger_config.species)):
-        		hachinger_element = self.hachinger_config.species[value][0]
-        		self.level_populations.ix[hachinger_element].update(stored[str(hachinger_element)])
+        # This sets the level populations of the relevant elements back to what was determined by the equilibrium_with_continuum_approximation function.
+        if self.equilibrium_with_continuum_config is not None and self.equilibrium_with_continuum_config.species:
+        	for value in range (0, len(self.equilibrium_with_continuum_config.species)):
+        		equilibrium_with_continuum_element = self.equilibrium_with_continuum_config.species[value][0]
+        		self.level_populations.ix[equilibrium_with_continuum_element].update(stored[str(equilibrium_with_continuum_element)])
         
         self.tau_sobolevs = self.calculate_tau_sobolev()
 
@@ -742,10 +743,10 @@ class BasePlasmaArray(object):
         else:
             raise NotImplementedError('Currently only mode="full" is supported.')
 
-    def hachinger_approximation(self, atom_data, stored):
-        for species in self.hachinger_config.species:
+    def equilibrium_with_continuum_approximation(self, atom_data, stored):
+        for species in self.equilibrium_with_continuum_config.species:
             ion_species = (species[0], species[1]+1) # The singly ionised species
-            total = self.ion_populations.ix[species[0]].sum() # Stores total number of atoms for normalisation
+            total = self.ion_populations.ix[species[0]].sum() # Stores total number of atoms for later normalisation
             
             # Sets the singly ionised ground state population to 1
             self.level_populations.ix[ion_species].ix[0][np.isnan(self.level_populations.ix[ion_species].ix[0])] = 1.0
@@ -756,19 +757,22 @@ class BasePlasmaArray(object):
             self.electron_densities * np.exp(self.atom_data.ionization_data.ionization_energy.ix[ion_species[0]].ix[ion_species[1]] * \
             self.beta_rads) * (1 / (2 * atom_data.levels.g.ix[ion_species].ix[0] * self.g_electrons * self.ws))
 			
-            self.level_populations.ix[species].update(neutral) # This line raising warning.
+            self.level_populations.ix[species].update(neutral) # This line raising warning, but it still works.
             
-            if self.helium_forcing_config==True:
+            # Forces helium ionised population upwards if selected            
+            if species==(2,0) and self.helium_forcing_config==True:
             	factor = pd.Series(index = self.electron_densities.index)
             
             	for number in factor.index:
+            		# Adjusts fit for number of shells
             		corrected_number = ((number+1)*(38/len(self.electron_densities.index)))
+            		# Function fitted from SH's results
             		factor[number] = ((0.00003*((corrected_number)^(3))) - (0.0009*((corrected_number)^(2))) + (0.0106*corrected_number) + 0.0551)
+            		# Forcing only applied if it increases ionised population (to prevent decreasing it at early times)
             		if ((self.level_populations.ix[ion_species].ix[0][number]*factor[number])<(self.level_populations.ix[species].ix[0][number])):
             			self.level_populations.ix[species].ix[0][number] = (self.level_populations.ix[ion_species].ix[0][number]*factor[number])
             
             # Further Ionised Populations (Old Way):
-			
             for value in range(1, species[0]): #Loop through all higher ions
             
             	# Excited populations
@@ -811,6 +815,7 @@ class BasePlasmaArray(object):
             	self.ion_populations.ix[species[0], x] = self.level_populations.ix[species[0], x].sum()
             	
         	element = '%s' %(species[0])
+        	# Stores the level populations so that they can be applied again after level populations calculated in main code
         	stored[element] = deepcopy(self.level_populations.ix[species[0]])
         	
         return atom_data, stored

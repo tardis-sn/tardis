@@ -129,7 +129,7 @@ class Radial1DModel(object):
                                                          delta_treatment=tardis_config.plasma.delta_treatment,
                                                          ionization_mode=tardis_config.plasma.ionization,
                                                          excitation_mode=tardis_config.plasma.excitation,
-                                                         hachinger_config=tardis_config.plasma.hachinger,
+                                                         equilibrium_with_continuum_config=tardis_config.plasma.equilibrium_with_continuum,
                                                          helium_forcing_config=tardis_config.plasma.helium_forcing)
 
 
@@ -323,7 +323,7 @@ class Radial1DModel(object):
 
 
     def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False,
-                 initialize_nlte=False, initialize_hachinger=False, initialize_helium_forcing=False):
+                 initialize_nlte=False, initialize_equilibrium_with_continuum=False, initialize_helium_forcing=False):
         """
         Run a simulation
         """
