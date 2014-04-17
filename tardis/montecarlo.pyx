@@ -16,7 +16,7 @@ np.import_array()
 ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
 
-cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax)
+cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax) except -1
 
 cdef extern from "math.h":
     float_type_t log(float_type_t)
