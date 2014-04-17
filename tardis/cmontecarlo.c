@@ -4,6 +4,7 @@ npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, np
 {
   if (x_insert > x[imin] || x_insert < x[imax])
     {
+      PyErr_SetString(PyExc_ValueError, "Binary Search called but not inside domain. Abort!");
       // Not possible to raise an exception, I think.
       return -1;
     }
