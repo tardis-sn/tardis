@@ -880,10 +880,37 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         #^^^^^^^ NLTE subsection of Plasma end
-
+        
+		# HACHINGER SECTION **************************************************************
+        
+        equilibrium_with_continuum_config_dict={}
+        equilibrium_with_continuum_species = []
+        if 'equilibrium_with_continuum'in plasma_section:
+            equilibrium_with_continuum_section = plasma_section['equilibrium_with_continuum']
+            if 'species' in equilibrium_with_continuum_section:
+                equilibrium_with_continuum_species_list = equilibrium_with_continuum_section.pop('species')
+                for species_string in equilibrium_with_continuum_species_list:
+                    equilibrium_with_continuum_species.append(species_string_to_tuple(species_string))
+                    
+                equilibrium_with_continuum_config_dict['species'] = equilibrium_with_continuum_species
+                equilibrium_with_continuum_config_dict['species_string'] = equilibrium_with_continuum_species_list
+                equilibrium_with_continuum_config_dict.update(equilibrium_with_continuum_section)
+        
+        if not equilibrium_with_continuum_config_dict:
+            equilibrium_with_continuum_config_dict['species'] = []
+                
+        plasma_config_dict['equilibrium_with_continuum'] = equilibrium_with_continuum_config_dict
+        
+        # HE IONISATION FORCING **********************************************************
+        
+        helium_forcing = plasma_section.get('helium_forcing')
+        
+        helium_forcing_config_dict = {}
+    	helium_forcing_config_dict = helium_forcing       
+        plasma_config_dict['helium_forcing'] = helium_forcing_config_dict
+        
         config_dict['plasma'] = plasma_config_dict
-
-
+				
         #^^^^^^^^^^^^^^ End of Plasma Section
 
         ##### Monte Carlo Section
