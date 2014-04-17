@@ -11,12 +11,12 @@ import numpy as np
 cimport numpy as np
 from astropy import constants
 
-
 np.import_array()
 
 ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
 
+cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax)
 
 cdef extern from "math.h":
     float_type_t log(float_type_t)
@@ -359,60 +359,6 @@ cdef int_type_t line_search(float_type_t*nu, float_type_t nu_insert, int_type_t 
         return imax+1
     else:
         return ( binary_search(nu, nu_insert, imin, imax) + 1)
-
-
-cdef int_type_t binary_search(float_type_t*x, float_type_t x_insert, int_type_t imin,
-                              int_type_t imax):
-
-    """
-    Parameters
-    ---------
-
-    x: *array
-        array of boundarys (called x)
-    x_insert: float
-        value of x key (called x_insert)
-    imin: int
-        minimum index
-    imax: int
-        maximum index
-
-    Returns
-    -------
-
-    index: int
-        index of the next boundary to the left
-        (i.e. it will return a value between imin and imax-1)
-
-    """
-
-    #note: this is for inversely ordered arrays!
-    #check that we are in range and return if not
-    if (x_insert > x[imin]) or (x_insert < x[imax]):
-        raise ValueError("Binary Search called but not inside domain. Abort!")
-
-    cdef int_type_t imid
-    while imax - imin > 2:
-        imid = (imin + imax) / 2
-
-        #code must guarantee the interval is reduced at each iteration
-        #assert(imid < imax);
-        # note: 0 <= imin < imax implies imid will always be less than imax
-
-        # reduce the search
-        if (x[imid] < x_insert):
-            imax = imid + 1
-        else:
-            imin = imid
-            #print imin, imax, imid, imax - imin
-
-    if imax - imin == 2:
-        if x_insert < x[imin + 1]:
-            return imin + 1
-
-    return imin
-
-
 
 #variables are restframe if not specified by prefix comov_
 cdef inline int_type_t macro_atom(int_type_t activate_level,
