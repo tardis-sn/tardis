@@ -13,6 +13,7 @@ Simple Example
 After installing TARDIS just download the example directory `<https://www.dropbox.com/s/svvyr5i7m8ouzdt/tardis_example.tar.gz>`_
 and run TARDIS with:
 
+
 .. code-block:: none
 
     tar zxvf tardis_example.tar.gz
@@ -29,6 +30,9 @@ Then plot the output_spectrum.dat with your favourite plotting program. Here's a
     ipython --pylab
     tardis_spec = loadtxt('output_spectrum.dat')
     plot(tardis_spec[:,0], tardis_spec[:,1])
+
+
+More atomic datasets can be downloaded from :ref:`atomic-data-download`.
 
 
 Scripting TARDIS

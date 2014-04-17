@@ -93,7 +93,11 @@ class BasePlasmaArray(object):
     """
 
     @classmethod
-    def from_abundance(cls, abundance_dict, density, atom_data, time_explosion, nlte_config=None, equilibrium_with_continuum_config=None, saha_treatment='lte', helium_forcing_config=None):
+    def from_abundance(cls, abundance_dict, density, atom_data, time_explosion,
+                       nlte_config=None, ionization_mode='lte',
+                       excitation_mode='lte', 
+                       equilibrium_with_continuum_config = None, 
+                       helium_forcing_config=None):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
         All other parameters are the same as the normal initializer
@@ -117,17 +121,24 @@ class BasePlasmaArray(object):
         `Baseplasma` object
         """
 
-        abundance_series = parse_abundance_dict_to_dataframe(abundance_dict, atom_data)
+        abundance_series = parse_abundance_dict_to_dataframe(abundance_dict)
 
         abundances = pd.DataFrame({0:abundance_series})
 
         number_densities = abundances * density.to('g/cm^3').value
 
         number_densities = number_densities.div(atom_data.atom_data.mass.ix[number_densities.index], axis=0)
-        atom_data.prepare_atom_data(number_densities.index.values)
+        if nlte_config is not None:
+            nlte_species = nlte_config.species
+        else:
+            nlte_species = []
+        atom_data.prepare_atom_data(number_densities.index.values, nlte_species=nlte_species)
 
-
-        return cls(number_densities, atom_data, time_explosion.to('s').value, nlte_config=nlte_config, equilibrium_with_continuum_config=equilibrium_with_continuum_config, helium_forcing_config=helium_forcing_config, saha_treatment=saha_treatment)
+        return cls(number_densities, atom_data, time_explosion.to('s').value,
+                   nlte_config=nlte_config, ionization_mode=ionization_mode,
+                   excitation_mode=excitation_mode, 
+                   equilibrium_with_continuum_config = equilibrium_with_continuum_config,
+                   helium_forcing_config = helium_forcing_config)
 
     @classmethod
     def from_hdf5(cls, hdf5store):
@@ -573,17 +584,12 @@ class BasePlasmaArray(object):
 
             r_ul_matrix = np.zeros((number_of_levels, number_of_levels, len(self.t_rads)), dtype=np.float64)
             r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels**2, len(self.t_rads)))
-            r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T
+            r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
             r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
-
-            stimulated_emission_matrix = np.zeros_like(r_ul_matrix)
-            stimulated_emission_matrix.reshape((number_of_levels**2, len(self.t_rads)))[r_lu_index] = self.stimulated_emission_factor[lines_index]
-
 
             r_lu_matrix = np.zeros_like(r_ul_matrix)
             r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2, len(self.t_rads)))
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * j_blues[lines_index] * beta_sobolevs[lines_index]
-            r_lu_matrix *= stimulated_emission_matrix
 
             collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
                                self.electron_densities.values
@@ -602,7 +608,7 @@ class BasePlasmaArray(object):
                 relative_level_populations = np.linalg.solve(rates_matrix[:, :, i], x)
                 self.level_populations[i].ix[species] = relative_level_populations * self.ion_populations[i].ix[species]
 
-            return
+        return
 
 
     def calculate_tau_sobolev(self):

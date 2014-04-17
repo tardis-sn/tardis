@@ -8,6 +8,10 @@ Here's an overview of some of the different modes of operation and models for TA
 .. toctree::
     :maxdepth: 1
 
+    profileexp
+
+    profilepl
+
     profileuniform
 
     profilemodel

@@ -5,6 +5,9 @@ from numpy import recfromtxt, genfromtxt
 import pandas as pd
 from astropy import units as u
 
+import logging
+# Adding logging support
+logger = logging.getLogger(__name__)
 
 from tardis.util import parse_quantity
 
@@ -37,7 +40,7 @@ def read_density_file(density_filename, density_filetype, time_explosion, v_inne
 
     if v_inner_boundary > v_outer_boundary:
         raise ConfigurationError('v_inner_boundary > v_outer_boundary ({0:s} > {1:s}). unphysical!'.format(v_inner_boundary, v_outer_boundary))
-
+    
     if not np.isclose(v_inner_boundary, 0.0) and v_inner_boundary > v_inner[0]:
 
         if v_inner_boundary > v_outer[-1]:
@@ -48,13 +51,16 @@ def read_density_file(density_filename, density_filetype, time_explosion, v_inne
     else:
         inner_boundary_index = None
         v_inner_boundary = v_inner[0]
+        logger.warning("v_inner_boundary requested too small for readin file. Boundary shifted to match file.")
 
     if not np.isinf(v_outer_boundary) and v_outer_boundary < v_outer[-1]:
         outer_boundary_index = v_outer.searchsorted(v_outer_boundary) + 1
     else:
         outer_boundary_index = None
         v_outer_boundary = v_outer[-1]
+        logger.warning("v_outer_boundary requested too large for readin file. Boundary shifted to match file.")
 
+        
     v_inner = v_inner[inner_boundary_index:outer_boundary_index]
     v_inner[0] = v_inner_boundary
 
