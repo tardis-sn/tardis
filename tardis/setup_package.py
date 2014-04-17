@@ -7,7 +7,7 @@ randomkit_files = ['tardis/randomkit/rk_isaac.c', 'tardis/randomkit/rk_mt.c', 't
 
 def get_extensions():
     return [Extension('tardis.montecarlo',
-                        ['tardis/montecarlo.pyx', 'tardis/cmontecarlo.c'] + randomkit_files, include_dirs=['tardis/randomkit']), Extension('tardis.tests.montecarlo_test_wrappers', ['tardis/tests/montecarlo_test_wrappers.pyx'] + randomkit_files, include_dirs=['tardis/randomkit']), Extension('tardis.cmontecarlo', ['tardis/cmontecarlo.c'])]
+                        ['tardis/montecarlo.pyx', 'tardis/cmontecarlo.c'] + randomkit_files, include_dirs=['tardis/randomkit']), Extension('tardis.tests.montecarlo_test_wrappers', ['tardis/tests/montecarlo_test_wrappers.pyx', 'tardis/cmontecarlo.c'] + randomkit_files, include_dirs=['tardis/randomkit'])]
     #return {'tardis.montecarlo_multizone':['randomkit/*.c']}
 
 def get_package_data():

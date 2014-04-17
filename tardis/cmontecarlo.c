@@ -1,5 +1,4 @@
-#include <Python.h>
-#include <numpy/arrayobject.h>
+#include "cmontecarlo.h"
 
 npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax)
 {
