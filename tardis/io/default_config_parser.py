@@ -6,6 +6,8 @@ from astropy import units
 from tardis.util import parse_quantity
 from astropy.units.core import UnitsException
 import yaml
+import pprint
+import ipdb as pdb
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +18,7 @@ class Error(Exception):
     pass
 
 
-class ConfigTypeError(Error):
+class ConfigTypeError(Error, ValueError):
     """
     Exception raised if the type of the configured value mismatches the type
     specified in the default configuration.
@@ -34,7 +36,7 @@ class ConfigTypeError(Error):
 
 class ConfigError(Error):
     """
-    Exception raised if something is wrong in the default configuration.
+    Exception raised if something is wrong in the configuration.
     """
 
     def __init__(self, path):
@@ -42,6 +44,30 @@ class ConfigError(Error):
 
     def __str__(self):
         return "Error in the configuration at %s " % ("->".join(self.path))
+    
+class ConfigValueError(ConfigError, ValueError):
+    """
+    Exception raised if the given value does not match the allowed constraints.
+    """
+    
+    default_msg = "Given value (%s) not allowed in constraint (%s). [%s]"
+    def __init__(self, config_value, allowed_constraint, path, msg=None):
+        self.config_value = config_value
+        self.allowed_constraint = allowed_constraint
+        self.path = path
+        if msg is None:
+            self.msg = self.default_msg
+        else:
+            self.msg = msg
+        
+    def __str__(self):
+        return self.msg % (str(self.config_value), str(self.allowed_constraint), self.path)
+        
+    
+        
+    
+    
+
 
 
 class DefaultConfigError(ConfigError):
@@ -88,6 +114,7 @@ class PropertyType(object):
         else:
             raise ValueError("Can not set allowed value.")
             
+    
             
     @property
     def allowed_type(self):
@@ -148,6 +175,12 @@ class PropertyType(object):
                 return False
         else:
             return True
+        
+    def __repr__(self):
+        if hasattr(self, "_allowed_type"):
+            return "Type %s; Allowed type: %s" %(self.__class__.__name__, self._allowed_type)
+        else:
+            return "Type %s; " %(self.__class__.__name__) 
         
  
 class PropertyTypeContainer(PropertyType):
@@ -225,6 +258,8 @@ class PropertyTypeInt(PropertyType):
         if not self.__check_type(value, self._lower, self._upper):
             return  False
         return True
+    
+    
             
             
         
@@ -247,6 +282,7 @@ class PropertyTypeQuantity(PropertyType):
     
     def check_type(self, value):
         try:
+            
             quantity_value, quantity_unit = value.strip().split()
             float(quantity_value)
             units.Unit(quantity_unit)
@@ -255,10 +291,10 @@ class PropertyTypeQuantity(PropertyType):
             return False
     
     def to_type(self, value):
-        quantity_value, quantity_unit = value.strip().split()
-        float(quantity_value)
-        units.Unit(quantity_unit)
-        return (quantity_value, quantity_unit)
+        quantity_split = value.strip().split()
+        quantity_value = quantity_split[0]
+        quantity_unit = ' '.join(quantity_split[1:])
+        return float(quantity_value) * units.Unit(quantity_unit)
     
 class PropertyTypeQuantityRange(PropertyTypeQuantity):
     
@@ -429,6 +465,7 @@ class PropertyTypeAbundances(PropertyType):
             abundances = dict.fromkeys(self.elements.copy(), 0.0)
             for k in value:
                 abundances[k] = value[k]
+                abundances = {k: v for k, v in abundances.items() if not (v == 0.)}
             return abundances
         else:
             raise ConfigError
@@ -440,7 +477,6 @@ class PropertyTypeLegacyAbundances(PropertyType):
 
     def check_type(self, _value):
         value = dict((k.lower(), v) for k,v in _value.items())
-        print(value)
         if 'type' in value:
             if value['type'] in self.types:
                 print('type is ok')
@@ -475,11 +511,13 @@ class DefaultParser(object):
     __list_of_leaf_types = []
     __types = {}
 
-    def __init__(self, default_dict):
+    def __init__(self, default_dict, item_path=None):
         """Creates a new property object for the given config level
         :param default_dict: default configuration
         :return:
         """
+        
+        self.__item_path = item_path
         #create property type dict
         self.__types['arbitrary'] = PropertyType
         
@@ -570,11 +608,11 @@ class DefaultParser(object):
         Set a new default value.
         :param value: new default value
         """
-        if value != None:
+        if value is not None:
             if self.__type.check_type(value):
                 self.__type.default = value
             else:
-                raise ValueError('Default value violates property constraint. Check %s : %s' %(self.get_path_in_dict(), self.__property_type))
+                raise ConfigValueError(value, self.__type.allowed_value, self.get_path_in_dict(), msg='Default value (%s) violates property constraint (%s). [%s]')
         else:
             self.__type.default = None
 
@@ -628,16 +666,23 @@ class DefaultParser(object):
         the default value is returned
         :return: value
         """
-        if (self.__config_value is not None and
-            self.__type.check_type(self.__config_value)):
-            return self.__type.to_type(self.__config_value)
+        if (self.__config_value is not None):
+            if self.__type.check_type(self.__config_value):
+                return self.__type.to_type(self.__config_value)
+            else:
+                raise  ConfigValueError(self.__config_value, self.__type.allowed_value, self.get_path_in_dict())
         else:
             if self.has_default():
-                logger.warning("Value <%s> specified in the configuration violates a constraint\
-                      given in the default configuration. Expected type: %s. Using the default value."%(str(self.__config_value),str(self.__property_type)))
+                logger.info("Value <%s> specified in the configuration violates a constraint\
+                               given in the default configuration. Expected type: %s. Using the default value."%(str(self.__config_value),str(self.__property_type)))
                 return self.__type.default
             else:
-                raise ValueError('No default value given.')
+                if self.is_mandatory():
+                    raise ValueError('Value is mandatory, but no value was given in default configuration. [%s]' %str(self.get_path_in_dict()))
+                else:
+                    logger.info("Value is not mandatory and is not specified in the configuration. [%s]" %(str(self.get_path_in_dict())))
+                    return None
+                
 
     def is_container(self):
         """
@@ -705,7 +750,7 @@ class DefaultParser(object):
 
 
 class Container(DefaultParser):
-    def __init__(self, container_default_dict, container_dict):
+    def __init__(self, container_default_dict, container_dict, container_path=None):
         """Creates a new container object.
         :param container_default_dict: Dictionary containing the default properties of the container.
         :param container_dict: Dictionary containing the configuration of the container.
@@ -716,12 +761,14 @@ class Container(DefaultParser):
         #self.__register_leaf('float')
         #self.__register_leaf('quantity')
         #self.__register_leaf('string')
-
+        
+        self.__container_path = container_path
         self.__type = None
         self.__allowed_value = None
         self.__allowed_type = None
         self.__config_value = None
         self.__path = None
+        self.__paper_abundances = False
 
         self.__property_type = 'container-property'
 
@@ -757,14 +804,25 @@ class Container(DefaultParser):
             self.__selected_container = None
             raise ValueError('No container type specified in config')
 
+        ####This is for the uniform abundances section in the paper.
+        if self.__type == 'uniform' and self.__container_path[-1] == 'abundances':
+            self.__paper_abundances = True
+            cabundances_section = PropertyTypeAbundances()
+            tmp_container_dict = dict(container_dict)
+            tmp_container_dict.pop('type', None)
+            cabundances_section.check_type(tmp_container_dict)
+            tmp = cabundances_section.to_type(tmp_container_dict)
+            self.__default_container, self.__config_container = tmp, tmp
+        ####
+        else:
         #look for necessary items
-        entry_name = '_' + self.__selected_container
-        try:
-            necessary_items = container_default_dict['type'][entry_name]
-        except KeyError:
-            raise ValueError('Container insufficient specified')
+            entry_name = '_' + self.__selected_container
+            try:
+                necessary_items = container_default_dict['type'][entry_name]
+            except KeyError:
+                raise ValueError('Container insufficient specified')
 
-        def parse_container_items(top_default, top_config, level_name, path):
+        def parse_container_items(top_default, top_config, level_name, full_path):
             """Recursive parser for the container default dictionary and the container configuration dictionary.
 
             :param top_default: container default dictionary of the upper recursion level
@@ -775,8 +833,13 @@ class Container(DefaultParser):
             each branch. If the  current recursion level is a leaf the configured value and a configuration object is
             returned
             """
+            path = reduce_list(list(full_path), self.__container_path + [item])
+            print('--C')
+            print(path)
+            print('--')
             tmp_conf_ob = {}
             tmp_conf_val = {}
+            #pdb.set_trace()
             if isinstance(top_default, dict):
                 default_property = DefaultParser(top_default)
                 if default_property.is_container():
@@ -786,6 +849,8 @@ class Container(DefaultParser):
                 elif not default_property.is_leaf:
  #                   print(top_default.items())
                     for k, v in top_default.items():
+                        print('>>><<<')
+                        print(k)
                         tmp_conf_ob[k], tmp_conf_val[k] = parse_container_items(v, top_config, k, path + [k])
                     return tmp_conf_ob, tmp_conf_val
                 else:
@@ -799,6 +864,15 @@ class Container(DefaultParser):
                         default_property.set_config_value(conf_value)
 
                     return default_property, default_property.get_value()
+                
+        def reduce_list(a,b):
+            """
+            removes items from list a which are in b
+            """
+            for k in b:
+                a.remove(k)
+            return a           
+        
 
         def get_value_by_path(dict, path):
             """
@@ -811,16 +885,20 @@ class Container(DefaultParser):
                 dict = dict[key]
             return dict
 
-        for item in necessary_items:
-            if not item in container_dict.keys():
-                raise ValueError('Entry %s is missing in container' % str(item))
-            self.__default_container, self.__config_container = parse_container_items(container_default_dict[item],
-                                                                                      container_dict[item], item, [])
-            pass
+        if not self.__paper_abundances:
+            for item in necessary_items:
+                if not item in container_dict.keys():
+                    raise ValueError('Entry %s is missing in container [%s]' % (str(item), self.__container_path))
+                self.__default_container[item], self.__config_container[item] = parse_container_items(container_default_dict[item],
+                                                                                          container_dict[item], item, self.__container_path + [item])
             #go through  all items and create an conf object thereby check the conf
-
         self.__container_ob = self.__default_container
-        self.__conf = self.__config_container
+        if isinstance(self.__config_container, dict):
+            self.__conf = self.__config_container
+        else:
+            pdb.set_trace()
+            self.__conf = {"No Name":self.__config_container}
+            
 
     def get_container_ob(self):
         """
@@ -855,6 +933,7 @@ class Config(object):
         self.fulfilled = {}
         self.__create_default_conf(default_configuration)
         self.__parse_config(default_configuration, input_configuration)
+        self.__help_string = ''
 
     @classmethod
     def from_yaml(cls, fname_config, fname_default):
@@ -919,15 +998,21 @@ class Config(object):
                         return item
 
 
-        def get_property_by_path(dict, path):
+        def get_property_by_path(d, path):
             """ Returns the value for a specific path(chain of keys) in a nested dictionary
             :param dict: nested dictionary
             :param path: chain of keys as list
             """
-
-            for key in path:
-                dict = dict[key]
-            return dict
+            if len(path)<=0:
+                return d
+            else:
+                try:
+                    v = d
+                    for k in path:
+                        v = v[k]
+                    return v
+                except KeyError:
+                    return None
 
         def recursive_parser(top_default, configuration, path):
             """
@@ -942,14 +1027,14 @@ class Config(object):
             tmp_conf_ob = {}
             tmp_conf_val = {}
             if isinstance(top_default, dict):
-                default_property = DefaultParser(top_default)
+                default_property = DefaultParser(top_default, item_path=path)
                 if default_property.is_mandatory():
                     self.register_mandatory(self, path)
                 self.deregister_mandatory(self, path)
 
                 if default_property.is_container():
                     container_conf = get_property_by_path(configuration, path)
-                    ccontainer = Container(top_default, container_conf)
+                    ccontainer = Container(top_default, container_conf, container_path=path)
                     return ccontainer.get_container_ob(), ccontainer.get_container_conf()
                 elif not default_property.is_leaf:
                     no_default = self.__check_items_in_conf(get_property_by_path(configuration, path), top_default)
@@ -982,7 +1067,11 @@ class Config(object):
  #       print(self.__conf_v)
         
     def __check_items_in_conf(self, config_dict, default_dict):
-        return list(set(config_dict.keys()) - set(default_dict.keys()))
+        if isinstance(config_dict, dict) and len(config_dict) > 0:
+            return list(set(config_dict.keys()) - set(default_dict.keys()))
+        else:
+            return  list(default_dict.keys())
+        
         
 
     def __create_default_conf(self, default_conf):
@@ -1016,6 +1105,8 @@ class Config(object):
 
         self.__default_config = recursive_default_parser(default_conf, [])
 
+    
+
     def get_config(self):
         """Returns the parsed configuration as dictionary.
         :return: configuration values as dictionary
@@ -1034,4 +1125,12 @@ class Config(object):
         :return: default configuration objects as dictionary
         """
         return self.__conf_o
+    
+    def get_help(self):
+        return(pprint.pformat(self.get_default_config()))
+        
+    
+    def __repr__(self):
+        return(str(pprint.pformat(self.get_config())))
+        
 
