@@ -20,7 +20,7 @@ supernova:
         
     distance:
         property_type: quantity
-        mandatory: True
+        mandatory: False
         default: None
         help:
       
@@ -36,14 +36,14 @@ atom_data:
 plasma:
     initial_t_inner:
         property_type: quantity
-        mandatory: True
-        default: None
+        mandatory: False
+        default: -1 K
         help:
         
     initial_t_rad:
         property_type: quantity
-        mandatory: True
-        default: None
+        mandatory: False
+        default: -1 K
         help:
         
     disable_electron_scattering:
@@ -52,18 +52,26 @@ plasma:
         default: None
         help:
         
-    type:
+    ionization:
         property_type: string
         mandatory: True
         default: None
-        allowed_value: nebular lte detailed
+        allowed_value: nebular lte
+        help:
+          
+      
+    excitation:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: lte dilute-lte
         help:
         
     radiative_rates_type:
         property_type: string
         mandatory: True
         default: None
-        allowed_value: nebular lte detailed
+        allowed_value: dilute-blackbody detailed
         help: 
         
     line_interaction_type:
@@ -75,7 +83,7 @@ plasma:
         
     w_epsilon:
         property_type: float
-        mandatory: True
+        mandatory: False
         default: None
         help: time since explosion
         
@@ -83,7 +91,7 @@ plasma:
     nlte:
         species:
             property_type: list
-            mandatory: True
+            mandatory: False
             default: None
             help:
         
@@ -97,47 +105,35 @@ model:
       type:
           property_type: container-declaration
           containers: ['file', 'specific']
-          _file: ['file_property'] # why list
+          _file: ['filename','filetype','v_inner_boundary','v_outer_boundary'] # why list
           _specific: ['specific-property']
   
-      file_property:
-          filename:
-             property_type: string
-             default: None
-             mandatory: True
-             help: file name (with path) to structure model
-  
-          filetype:
-             property_type: string
-             default: None
-             mandatory: True
-             help: file type
-              #### there are only a handful of types available how do we validate that ####
-  
-          lowest_shell:
-              property_type: int
-              default: None
-              mandatory: False
-              help: location of the inner boundary chosen from the model
-              
-          highest_shell:
-              property_type: int
-              default: None
-              mandatory: False
-              help: location of the inner boundary chosen from the model
-            
-  
-          v_inner_boundary:
-              property_type: quantity
-              default: 0 km/s
-              mandatory: False
-              help: location of the inner boundary chosen from the model
-  
-          v_outer_boundary:
-              property_type: quantity
-              default: inf km/s
-              mandatory: False
-              help: location of the inner boundary chosen from the model
+      filename:
+        property_type: string
+        default: None
+        mandatory: True
+        help: file name (with path) to structure model
+
+      filetype:
+        property_type: string
+        default: None
+        mandatory: True
+        help: file type
+        #### there are only a handful of types available how do we validate that ####
+
+          
+
+      v_inner_boundary:
+        property_type: quantity
+        default: 0 km/s
+        mandatory: False
+        help: location of the inner boundary chosen from the model
+
+      v_outer_boundary:
+          property_type: quantity
+          default: inf km/s
+          mandatory: False
+          help: location of the inner boundary chosen from the model
 
       specific_property:
           velocity:
@@ -173,20 +169,21 @@ model:
         type:
             property_type: container-declaration
             containers: ['file','uniform']
-            _uniform: ['abundance_set']
-            _file: ['ftype']
+            _uniform: []
+            _file: ['filetype','filename']
             
-        ftype:
+        filename:
             property_type: string
-            default: 'abundances.txt'
+            default: None
+            mandatory: True
+            help: '--'
+            
+        filetype:
+            property_type: string
+            default: None
             mandatory: False
             help: This needs no change - DO NOT TOUCH
             
-        abundance_set:
-          property_type: abundance_set
-          default: None
-          mandatory: False
-          help: 
                 
                 
   
@@ -213,7 +210,7 @@ montecarlo:
         help: Number of maximum iterations
 
     black_body_sampling:
-        property_type: quantity_range
+        property_type: quantity_range_sampled
         default: [1 angstrom, 1e6 angstrom, 1e6 angstrom]
         mandatory: False
         help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)

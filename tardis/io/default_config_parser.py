@@ -5,6 +5,7 @@ import logging
 from astropy import units
 from tardis.util import parse_quantity
 from astropy.units.core import UnitsException
+from tardis.atomic import symbol2atomic_number
 import yaml
 import pprint
 import ipdb as pdb
