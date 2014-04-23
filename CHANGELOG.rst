@@ -19,6 +19,7 @@ New Features
 - added atomic database table with downloads to documentation
 - added more conversion routines for Species strings (e.g. Si IX) to util
 - added new density models (power law and exponential) [mklauser]
+- reimplementation of binary-search in C (towards faster/profileable code) [V. Jancauskas]
 
 
 0.9.1 (2014-02-03)
