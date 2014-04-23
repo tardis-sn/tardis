@@ -19,8 +19,7 @@ test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
     (2.5, 8),
     (1.5, 9)])
 def test_binary_search(insert_value, expected_insert_position):
-    insert_position = montecarlo.binary_search_wrapper(test_line_list, 
-                            insert_value, 0, len(test_line_list)-1)
+    insert_position = montecarlo.binary_search_wrapper(test_line_list, insert_value, 0, len(test_line_list)-1)
     assert insert_position == expected_insert_position
 
 
@@ -28,17 +27,8 @@ def test_binary_search(insert_value, expected_insert_position):
     (10.5),
     (0.5)])
 def test_binary_search_out_of_bounds(insert_value, capsys):
-    insert_position = montecarlo.binary_search_wrapper(test_line_list,
-                            insert_value, 0, len(test_line_list)-1)
-
-    expected_exception = ("Exception ValueError: ValueError('Binary Search cal"
-                          "led but not inside domain. Abort!',) in 'tardis.tes"
-                          "ts.montecarlo_test_wrappers.binary_search' igno"
-                          "red\n")
-    
-    stdout, stderr = capsys.readouterr()
-
-    assert stderr == expected_exception
+    with pytest.raises(ValueError):
+        insert_position = montecarlo.binary_search_wrapper(test_line_list, insert_value, 0, len(test_line_list)-1)
 
 @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
     (10.5, 0),
