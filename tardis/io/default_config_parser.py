@@ -8,6 +8,7 @@ from astropy.units.core import UnitsException
 from tardis.atomic import symbol2atomic_number
 import yaml
 import pprint
+import ast
 
 logger = logging.getLogger(__name__)
 
@@ -298,6 +299,11 @@ class PropertyTypeQuantity(PropertyType):
             quantity_split = value.strip().split()
             quantity_value = quantity_split[0]
             quantity_unit = ' '.join(quantity_split[1:])
+            try:
+                float(quantity_value)
+                units.Unit(quantity_unit)
+            except ValueError:
+                return False
             
             print('--->>-')
             print(self._default)
@@ -310,7 +316,7 @@ class PropertyTypeQuantity(PropertyType):
             float(quantity_value)
             units.Unit(quantity_unit)
             return True
-        except ValueError:
+        except (ValueError,AttributeError):
             return False
     
     def to_type(self, value):
@@ -418,16 +424,29 @@ class PropertyTypeStringList(PropertyTypeString):
 class PropertyTypeList(PropertyType):
     
     def check_type(self, value):
-        try:
-            return isinstance(value, list)
-        except ValueError:
-            return False
+        if isinstance(value, list):
+            return True
+        elif isinstance(value, basestring):
+            try:
+                ast.literal_eval(value)
+                return True
+            except SyntaxError:
+                try:
+                    value.split()
+                    return True
+                except:
+                    return False
+        return False
+            
     
     def to_type(self, value):
         if isinstance(value, list):
             return value
         elif isinstance(value, basestring):
-            return value.split()
+            try:
+                return ast.literal_eval(value)
+            except SyntaxError:   
+                return value.split()
         else:
             return []
     
@@ -443,6 +462,15 @@ class PropertyTypeRange(PropertyType):
             if len(value) == 2:
                 if abs(value[0] - value[1]) > 0:
                     return True
+        elif isinstance(value, basestring):
+            try:
+                clist = ast.literal_eval(value)
+                if abs(clist[0] - clist[1]) > 0:
+                    return True
+            except SyntaxError:
+                clist = value.split()
+                if abs(clist[0] - clist[1]) > 0:
+                    return True
         return False
     
     def to_type(self, value):
@@ -450,6 +478,12 @@ class PropertyTypeRange(PropertyType):
             return value
         elif isinstance(value, dict):
             return [value['start'], value['stop']]
+        elif isinstance(value, basestring):
+            try:
+                return ast.literal_eval(value)
+            except SyntaxError:
+                return value.split()
+
     
 class PropertyTypeRangeSampled(PropertyTypeRange):
     
@@ -463,6 +497,15 @@ class PropertyTypeRangeSampled(PropertyTypeRange):
             if len(value) == 3:
                 if abs(value[0] - value[1]) > 0:
                     return True
+        elif isinstance(value, basestring):
+            try:
+                clist = ast.literal_eval(value)
+                if abs(clist[0] - clist[1]) > 0:
+                    return True
+            except SyntaxError:
+                clist = value.split()
+                if abs(clist[0] - clist[1]) > 0:
+                    return True
         return False
         
     def to_type(self, value):
@@ -470,6 +513,11 @@ class PropertyTypeRangeSampled(PropertyTypeRange):
             return value
         elif isinstance(value, dict):
             return [value['start'], value['stop'], value['num']]
+        elif isinstance(value, basestring):
+            try:
+                return ast.literal_eval(value)
+            except SyntaxError:
+                return value.split()
     
 class PropertyTypeAbundances(PropertyType):
     
