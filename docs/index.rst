@@ -26,6 +26,7 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     glossary
     zreferences
     credits
+    license
 
 The code is built on a few principles:
 

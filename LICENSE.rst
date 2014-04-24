@@ -1,4 +1,4 @@
-Copyright (c) 2013, Wolfgang Kerzendorf
+Copyright (c) 2014, TARDIS-SN Developers
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
