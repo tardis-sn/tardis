@@ -1,6 +1,7 @@
 import tardis
-from tardis.io.default_config_parser import DefaultParser, Config
+from tardis.io.default_config_parser import DefaultParser, Config, ConfigValueError
 
+from astropy import units as u
 import os
 import yaml
 import pytest
@@ -14,20 +15,6 @@ def test_configread(config_filename):
     config = Config.from_yaml(config_filename, config_definition)
     
 
-#test the whole thing
-def test_default_config_parser():
-    test_config_fname = os.path.join(tardis.__path__[0], 'data', 'conf_tes.yml')
-    test_default_fname = os.path.join(tardis.__path__[0], 'data', 'conf_def.yml')
-
-    with open(test_config_fname) as f:
-        test_config = yaml.SafeLoader(f)
-
-    with open(test_default_fname) as f:
-        test_default = yaml.SafeLoader(f)
-    
-
-    test_conf_ob = Config(test_default, test_config)
-
 
 def default_parser_helper(test_dic, default, wdefault, value, wvalue, container, mandatory):
     test_ob = DefaultParser(test_dic)
@@ -37,6 +24,7 @@ def default_parser_helper(test_dic, default, wdefault, value, wvalue, container,
     else:
         dhelper = False
         
+
     assert test_ob.has_default() == dhelper
     assert test_ob.get_default() == default
     assert test_ob.is_leaf
@@ -44,25 +32,26 @@ def default_parser_helper(test_dic, default, wdefault, value, wvalue, container,
     assert test_ob.is_mandatory() == mandatory
     
     #set good default
-    test_ob.set_default(default)
+    test_ob.set_default(str(default))
     
     assert test_ob.get_default() == default
     #set bad default
-    if not wdefault == None:
+    if wdefault is not None:
         with pytest.raises(ValueError):
             test_ob.set_default(wdefault)
     
     assert test_ob.get_value() == default
     
     #set good value
-    test_ob.set_config_value(value)
+    test_ob.set_config_value(str(value))
     
     assert test_ob.get_value() == value
     
     #set bad value
-    if not wvalue == None:
-        test_ob.set_config_value(wvalue)
-        assert test_ob.get_value() == default
+    if wvalue is not None:
+        with pytest.raises(ConfigValueError):
+            test_ob.set_config_value(wvalue)
+            test_ob.get_value()
     
     return 0
         
@@ -103,9 +92,9 @@ def test_default_parser_quantity():
     'mandatory': True,
     'property_type': 'quantity'}
     
-    default = "99.99 cm"
+    default = 99.99 * u.cm
     wdefault = "kl"
-    value = "11.12 m"
+    value = 11.12 * u. m
     wvalue = "yy"
     container = False
     mandatory = True
