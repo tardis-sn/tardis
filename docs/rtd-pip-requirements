@@ -6,3 +6,4 @@ Cython
 astropy
 sphinx_bootstrap_theme
 sphinxcontrib-bibtex
+sphinxcontrib-tikz
