@@ -5,6 +5,7 @@ import logging
 import pprint
 import ast
 
+from tardis.atomic import atomic_symbols_data
 from astropy import units
 from astropy.units.core import UnitsException
 import yaml
@@ -291,10 +292,6 @@ class PropertyTypeQuantity(PropertyType):
             except ValueError:
                 return False
 
-            print('--->>-')
-            print(self._default)
-            print(value)
-            print('----')
             if self._default is not None:
                 #d_quantity_split = self._default.strip().split()
                 self._default.to(quantity_unit)
@@ -337,6 +334,29 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
                 loq = self._to_units(value)
                 if abs(loq[0].value - loq[1].value) > 0:
                     return True
+                else:
+                    return False
+        elif isinstance(value, basestring):
+            try:
+                clist = ast.literal_eval(value)
+                if len(clist) == 2:
+                    loq = self._to_units(value)
+                    if abs(loq[0].value - loq[1].value) > 0:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
+            except SyntaxError:
+                clist = value.split()
+                if len(clist) == 2:
+                    loq = self._to_units(value)
+                    if abs(loq[0].value - loq[1].value) > 0:
+                        return True
+                    else:
+                        return False
+                else:
+                    return False
         return False
 
     def to_type(self, value):
@@ -501,18 +521,7 @@ class PropertyTypeRangeSampled(PropertyTypeRange):
 
 
 class PropertyTypeAbundances(PropertyType):
-    elements = {'neut': 0, 'h': 1, 'he': 2, 'li': 3, 'be': 4, 'b': 5, 'c': 6, 'n': 7, 'o': 8, 'f': 9, 'ne': 10,
-                'na': 11, 'mg': 12, 'al': 13, 'si': 14, 'p': 15, 's': 16, 'cl': 17, 'ar': 18, 'k': 19, 'ca': 20,
-                'sc': 21, 'ti': 22, 'v': 23, 'cr': 24, 'mn': 25, 'fe': 26, 'co': 27, 'ni': 28, 'cu': 29, 'zn': 30,
-                'ga': 31, 'ge': 32, 'as': 33, 'se': 34, 'br': 35, 'kr': 36, 'rb': 37, 'sr': 38, 'y': 39, 'zr': 40,
-                'nb': 41, 'mo': 42, 'tc': 43, 'ru': 44, 'rh': 45, 'pd': 46, 'ag': 47, 'cd': 48, 'in': 49, 'sn': 50,
-                'sb': 51, 'te': 52, 'i': 53, 'xe': 54, 'cs': 55, 'ba': 56, 'la': 57, 'ce': 58, 'pr': 59, 'nd': 60,
-                'pm': 61, 'sm': 62, 'eu': 63, 'gd': 64, 'tb': 65, 'dy': 66, 'ho': 67, 'er': 68, 'tm': 69, 'yb': 70,
-                'lu': 71, 'hf': 72, 'ta': 73, 'w': 74, 're': 75, 'os': 76, 'ir': 77, 'pt': 78, 'au': 79, 'hg': 80,
-                'tl': 81, 'pb': 82, 'bi': 83, 'po': 84, 'at': 85, 'rn': 86, 'fr': 87, 'ra': 88, 'ac': 89, 'th': 90,
-                'pa': 91, 'u': 92, 'np': 93, 'pu': 94, 'am': 95, 'cm': 96, 'bk': 97, 'cf': 98, 'es': 99, 'fm': 100,
-                'md': 101, 'no': 102, 'lr': 103, 'rf': 104, 'db': 105, 'sg': 106, 'bh': 107, 'hs': 108, 'mt': 109,
-                'ds': 110, 'rg': 111, 'cn': 112}
+    elements = dict([(x,y.lower()) for (x,y) in  atomic_symbols_data])
 
     def check_type(self, _value):
         value = dict((k.lower(), v) for k, v in _value.items())
@@ -532,27 +541,14 @@ class PropertyTypeAbundances(PropertyType):
         else:
             raise ConfigError
 
-
 class PropertyTypeLegacyAbundances(PropertyType):
-    elements = {'neut': 0, 'h': 1, 'he': 2, 'li': 3, 'be': 4, 'b': 5, 'c': 6, 'n': 7, 'o': 8, 'f': 9, 'ne': 10,
-                'na': 11, 'mg': 12, 'al': 13, 'si': 14, 'p': 15, 's': 16, 'cl': 17, 'ar': 18, 'k': 19, 'ca': 20,
-                'sc': 21, 'ti': 22, 'v': 23, 'cr': 24, 'mn': 25, 'fe': 26, 'co': 27, 'ni': 28, 'cu': 29, 'zn': 30,
-                'ga': 31, 'ge': 32, 'as': 33, 'se': 34, 'br': 35, 'kr': 36, 'rb': 37, 'sr': 38, 'y': 39, 'zr': 40,
-                'nb': 41, 'mo': 42, 'tc': 43, 'ru': 44, 'rh': 45, 'pd': 46, 'ag': 47, 'cd': 48, 'in': 49, 'sn': 50,
-                'sb': 51, 'te': 52, 'i': 53, 'xe': 54, 'cs': 55, 'ba': 56, 'la': 57, 'ce': 58, 'pr': 59, 'nd': 60,
-                'pm': 61, 'sm': 62, 'eu': 63, 'gd': 64, 'tb': 65, 'dy': 66, 'ho': 67, 'er': 68, 'tm': 69, 'yb': 70,
-                'lu': 71, 'hf': 72, 'ta': 73, 'w': 74, 're': 75, 'os': 76, 'ir': 77, 'pt': 78, 'au': 79, 'hg': 80,
-                'tl': 81, 'pb': 82, 'bi': 83, 'po': 84, 'at': 85, 'rn': 86, 'fr': 87, 'ra': 88, 'ac': 89, 'th': 90,
-                'pa': 91, 'u': 92, 'np': 93, 'pu': 94, 'am': 95, 'cm': 96, 'bk': 97, 'cf': 98, 'es': 99, 'fm': 100,
-                'md': 101, 'no': 102, 'lr': 103, 'rf': 104, 'db': 105, 'sg': 106, 'bh': 107, 'hs': 108, 'mt': 109,
-                'ds': 110, 'rg': 111, 'cn': 112}
+    elements = dict([(x,y.lower()) for (x,y) in  atomic_symbols_data])
     types = ['uniform']
 
     def check_type(self, _value):
         value = dict((k.lower(), v) for k, v in _value.items())
         if 'type' in value:
             if value['type'] in self.types:
-                print('type is ok')
                 tmp = value.copy()
                 tmp.pop('type', None)
                 if set(tmp).issubset(set(self.elements)):
@@ -648,8 +644,6 @@ class DefaultParser(object):
             self.__property_type = 'arbitrary'
         else:
             self.__property_type = default_dict['property_type']
-            #print(self.__property_type)
-            #print(self.__types.keys())
             if not self.__property_type in self.__types.keys():
                 raise ValueError
         self.__type = self.__types[self.__property_type]()
@@ -792,19 +786,18 @@ class DefaultParser(object):
                     return container_dic
 
 
-    def is_valid(self, value):
-        if not self.__check[self.__property_type](self, value):
-            return False
-        if self.__allowed_value:
-            if not self.__is_allowed_value(value, self.__allowed_value):
-                return False
-        if self.__allowed_type:
-            if not self.__check_value(value, self.__lower, self.__upper):
-                return False
-        return True
+    # def is_valid(self, value):
+    #     if not self.__check[self.__property_type](self, value):
+    #         return False
+    #     if self.__allowed_value:
+    #         if not self.__is_allowed_value(value, self.__allowed_value):
+    #             return False
+    #     if self.__allowed_type:
+    #         if not self.__check_value(value, self.__lower, self.__upper):
+    #             return False
+    #     return True
 
     def __register_leaf(self, type_name):
-        #print(type_name)
         if not type_name in self.__list_of_leaf_types:
             self.__list_of_leaf_types.append(type_name)
 
@@ -834,11 +827,6 @@ class Container(DefaultParser):
         :param container_dict: Dictionary containing the configuration of the container.
         """
 
-        #self.__register_leaf('list')
-        #self.__register_leaf('int')
-        #self.__register_leaf('float')
-        #self.__register_leaf('quantity')
-        #self.__register_leaf('string')
 
         self.__container_path = container_path
         self.__type = None
@@ -866,7 +854,6 @@ class Container(DefaultParser):
 
         #check if the specified container in the config is allowed
         try:
-            #print(container_dict)
             if not container_dict['type'] in self.__allowed_container:
 
                 raise ValueError('Wrong container type')
@@ -910,6 +897,31 @@ class Container(DefaultParser):
                 self.__has_additional_items = False
                 pass
 
+        if not self.__paper_abundances:
+            for item in necessary_items:
+                if not item in container_dict.keys():
+                    raise ValueError('Entry %s is missing in container [%s]' % (str(item), self.__container_path))
+                else:
+                    self.__default_container[item], self.__config_container[item] = parse_container_items(
+                        container_default_dict[item],
+                        container_dict[item], item, self.__container_path + [item])
+                if self.__has_additional_items:
+                    for item in additional_items:
+                        try:
+                            self.__default_container[item], self.__config_container[item] = parse_container_items(
+                                container_default_dict[item],
+                                container_dict[item], item, self.__container_path + [item])
+                        except KeyError:
+                            pass
+
+                            #go through  all items and create an conf object thereby check the conf
+        self.__container_ob = self.__default_container
+        if isinstance(self.__config_container, dict):
+            self.__conf = self.__config_container
+        else:
+            pdb.set_trace()
+            self.__conf = {"No Name": self.__config_container}
+
 
         def parse_container_items(top_default, top_config, level_name, full_path):
             """Recursive parser for the container default dictionary and the container configuration dictionary.
@@ -923,11 +935,6 @@ class Container(DefaultParser):
             returned
             """
             path = reduce_list(list(full_path), self.__container_path + [item])
-            print('--C')
-            print(item)
-            print(full_path)
-            print(path)
-            print('--')
             tmp_conf_ob = {}
             tmp_conf_val = {}
             #pdb.set_trace()
@@ -938,10 +945,7 @@ class Container(DefaultParser):
                     ccontainer = Container(top_default, container_conf)
                     return ccontainer.get_container_ob(), ccontainer.get_container_conf()
                 elif not default_property.is_leaf:
-                    #                   print(top_default.items())
                     for k, v in top_default.items():
-                        print('>>><<<')
-                        print(k)
                         tmp_conf_ob[k], tmp_conf_val[k] = parse_container_items(v, top_config, k, full_path + [k])
                     return tmp_conf_ob, tmp_conf_val
                 else:
@@ -976,30 +980,6 @@ class Container(DefaultParser):
                 dict = dict[key]
             return dict
 
-        if not self.__paper_abundances:
-            for item in necessary_items:
-                if not item in container_dict.keys():
-                    raise ValueError('Entry %s is missing in container [%s]' % (str(item), self.__container_path))
-                else:
-                    self.__default_container[item], self.__config_container[item] = parse_container_items(
-                        container_default_dict[item],
-                        container_dict[item], item, self.__container_path + [item])
-                if self.__has_additional_items:
-                    for item in additional_items:
-                        try:
-                            self.__default_container[item], self.__config_container[item] = parse_container_items(
-                                container_default_dict[item],
-                                container_dict[item], item, self.__container_path + [item])
-                        except KeyError:
-                            pass
-
-                            #go through  all items and create an conf object thereby check the conf
-        self.__container_ob = self.__default_container
-        if isinstance(self.__config_container, dict):
-            self.__conf = self.__config_container
-        else:
-            pdb.set_trace()
-            self.__conf = {"No Name": self.__config_container}
 
 
     def get_container_ob(self):
@@ -1210,7 +1190,6 @@ class Config(object):
         """Returns the parsed configuration as dictionary.
         :return: configuration values as dictionary
         """
-        print(self.__conf_v)
         return self.__conf_v
 
     def get_default_config(self):

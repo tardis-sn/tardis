@@ -99,6 +99,20 @@ def test_default_parser_quantity():
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
 
+# def test_default_parser_quantity_range():
+#     example_dic = {'default': ['1 cm', '5 cm'],
+#                    'help': 'quantity for testing',
+#                    'mandatory': True,
+#                    'property_type': 'quantity_range'}
+#
+#     default = [1.0 * u.cm, 5 * u.cm]
+#     wdefault = "kl"
+#     value = [10 * u.m, 50 * u.cm]
+#     wvalue = "yy"
+#     container = False
+#     mandatory = True
+#
+#     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
 
 def test_default_parser_range():
     example_dic = {'default': [0, 10],
