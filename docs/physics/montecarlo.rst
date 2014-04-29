@@ -11,12 +11,20 @@ Montecarlo Geometry
 ^^^^^^^^^^^^^^^^^^^
 
 Before any packet action is performed we calculate four different distances
- ( :math:`d_\textrm{inner}, d_\textrm{outer}, d_\textrm{line}, d_\textrm{e^{-}}` )
+ ( :math:`d_\textrm{inner}, d_\textrm{outer}, d_\textrm{line}, d_{\textrm{e}^{-}}` )
 
- The calculations for the distance to the outer boundary are shown here
+The calculations for the distance to the outer boundary:
 
- .. tikz::
- 
+.. image:: ../graphics/d_outer.png
+    :width: 400
+
+The calculations for the distance to the inner boundary:
+
+.. image:: ../graphics/d_inner.png
+    :width: 400
+
+
+
 
 Radiationfield estimators
 ^^^^^^^^^^^^^^^^^^^^^^^^^
