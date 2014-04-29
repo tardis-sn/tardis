@@ -347,7 +347,7 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
                         return False
                 else:
                     return False
-            except SyntaxError:
+            except (SyntaxError):
                 clist = value.split()
                 if len(clist) == 2:
                     loq = self._to_units(value)
@@ -357,6 +357,8 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
                         return False
                 else:
                     return False
+            except ValueError:
+                return False
         return False
 
     def to_type(self, value):
@@ -524,9 +526,12 @@ class PropertyTypeAbundances(PropertyType):
     elements = dict([(x,y.lower()) for (x,y) in  atomic_symbols_data])
 
     def check_type(self, _value):
-        value = dict((k.lower(), v) for k, v in _value.items())
-        if set(value).issubset(set(self.elements)):
-            return True
+        if isinstance(_value,dict):
+            value = dict((k.lower(), v) for k, v in _value.items())
+            if set(value).issubset(set(self.elements.values())):
+                return True
+            else:
+                return False
         else:
             return False
 
@@ -551,7 +556,7 @@ class PropertyTypeLegacyAbundances(PropertyType):
             if value['type'] in self.types:
                 tmp = value.copy()
                 tmp.pop('type', None)
-                if set(tmp).issubset(set(self.elements)):
+                if set(tmp).issubset(set(self.elements.values())):
                     return True
                 else:
                     return False
