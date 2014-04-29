@@ -11,6 +11,7 @@ Bugfixes
 - fix to binary search to deal with packets at end of line list
 - warning added for density file readin outside tabulated range
 - fix to NLTE solver (treats stimulated emission directly); tests included
+- fix for zeta factor outside of temperature + test included [#134, wkerzendorf]
 
 
 New Features
