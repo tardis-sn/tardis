@@ -6,17 +6,20 @@ Radiative Monte Carlo
 
 .. :currentmodule:: tardis.montecarlo_multizone
 
-The radiative monte carlo is initiated once the model is constructed.
 
-Different line interactions
+Montecarlo Geometry
+^^^^^^^^^^^^^^^^^^^
 
+Before any packet action is performed we calculate four different distances
+ ( :math:`d_\textrm{inner}, d_\textrm{outer}, d_\textrm{line}, d_\textrm{e^{-}}` )
 
-line_interaction_id == 0: scatter
-line_interaction_id == 1: downbranch
-line_interaction_id == 2: macro
+ The calculations for the distance to the outer boundary are shown here
+
+ .. tikz::
+ 
 
 Radiationfield estimators
--------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 During the monte-carlo run we collect two estimators for the radiation field:
 
