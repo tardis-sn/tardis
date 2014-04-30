@@ -78,7 +78,12 @@ class DefaultConfigError(ConfigError):
 
 
 class PropertyType(object):
-    def __init__(self):
+    """
+    Base class for all property types containing all the basic methods.
+    """
+
+
+def __init__(self):
         self._default = None
         self._allowed_value = None
         self._allowed_type = None
@@ -90,7 +95,10 @@ class PropertyType(object):
 
     @property
     def default(self):
-        return self._default
+    """
+
+    """
+    return self._default
 
     @default.setter
     def default(self, value):
@@ -699,7 +707,7 @@ class DefaultParser(object):
         """Returns True if this property is a mandatory.
         Returns
         -------
-        bool:
+        bool
                 True if this property is a mandatory.
         """
         return self.__type.mandatory
@@ -709,7 +717,7 @@ class DefaultParser(object):
         """Returns True if this property has a default value
         Returns
         -------
-        bool:
+        bool
                 True if a default value was given.
         """
         try:
@@ -731,8 +739,8 @@ class DefaultParser(object):
 
     def get_path_in_dict(self):
         """Returns the path of this property in the config
-        Return
-        ------
+        Returns
+        -------
         path:   list of str
                 Path in config dictionary.
         """
@@ -742,7 +750,7 @@ class DefaultParser(object):
         """Set a new config value.
         Parameters
         ----------
-        value:
+        value
                 New config value.
         """
         self.__config_value = value
@@ -752,9 +760,9 @@ class DefaultParser(object):
         Returns the configuration value from the configuration.
         If the value specified in the configuration is invalid
         the default value is returned
-        Return
-        ------
-        value:
+        Returns
+        -------
+        value
                 Config value.
         """
         if (self.__config_value is not None):
@@ -788,8 +796,8 @@ class DefaultParser(object):
         """
         If this property is a container it returns the corresponding
         container dictionary
-        Return
-        ------
+        Returns
+        -------
         container dictionary:   dict
                                 Container dictionary
         """
@@ -952,8 +960,8 @@ class Container(DefaultParser):
                             name(key) of the of the upper recursion level
             path:           list of str
                             path in the nested container dictionary from the main level to the current level
-            Return
-            ------
+            Returns
+            -------
                             If the current recursion level is not a leaf, the function returns a dictionary with itself for
             each branch. If the  current recursion level is a leaf the configured value and a configuration object is
             returned
@@ -993,8 +1001,8 @@ class Container(DefaultParser):
                 minuend
             b:  list
                 subtrahend
-            Return
-            ------
+            Returns
+            -------
             a:  list
                 difference
             """
@@ -1012,8 +1020,8 @@ class Container(DefaultParser):
                     nested source dictionary
             path:   list of str
                     path (composed of keys) in the dictionary
-            Return
-            ------
+            Returns
+            -------
             dict:   str
                     value corresponding to the given path
             """
@@ -1026,8 +1034,8 @@ class Container(DefaultParser):
     def get_container_ob(self):
         """
         Return the container configuration object
-        Return
-        ------
+        Returns
+        -------
         self.__container_ob:    DefaultParser
                                 container configuration object
         """
@@ -1036,8 +1044,8 @@ class Container(DefaultParser):
     def get_container_conf(self):
         """
         Return the configuration
-        Return
-        ------
+        Returns
+        -------
         self.__container_ob:    dict
                                 container configuration
         """
@@ -1085,8 +1093,8 @@ class Config(object):
         ----------
         path:           list of str
                         path (composed of keys) in the dictionary
-        Return
-        ------
+        Returns
+        -------
         mandatory_key:  str
                         corresponding key
         """
@@ -1118,8 +1126,8 @@ class Config(object):
     def is_mandatory_fulfilled(self):
         """
         Check if all mandatory entries are deregistered.
-        Return
-        ------
+        Returns
+        -------
         mandatory:  bool
                     True if all mandatory entries are deregistered, otherwise False
         """
@@ -1148,8 +1156,8 @@ class Config(object):
                     nested dictionary
             key:    str
                     key in the nested dictionary
-            Return
-            ------
+            Returns
+            -------
             item:   object
                     value corresponding to the specific key.
             """
@@ -1169,8 +1177,8 @@ class Config(object):
                     nested dictionary
             path:   list of str
                     chain of keys as list
-            Return
-            ------
+            Returns
+            -------
             item:   object
                     value in the nested dictionary at the specific path.
             """
@@ -1196,8 +1204,8 @@ class Config(object):
                             configuration dictionary
             path:           list of str
                             path in the nested container dictionary from the main level to the current level
-            Return
-            ------
+            Returns
+            -------
             If the current recursion level is not a leaf, the function returns a dictionary with itself for
             each branch. If the  current recursion level is a leaf, the configuration value and object are
             returned
@@ -1257,8 +1265,8 @@ class Config(object):
         ----------
         default_conf:   dict
                         default configuration dictionary
-        Return
-        ------
+        Returns
+        -------
         default configuration values
         """
 
@@ -1270,8 +1278,8 @@ class Config(object):
                             container default dictionary of the upper recursion level
             path:           list of str
                             path in the nested container dictionary from the main level to the current level
-            Return
-            ------
+            Returns
+            -------
             If the current recursion level is not a leaf, the function returns a dictionary with itself for
             each branch. If the  current recursion level is a leaf, the default configuration value is
             returned
@@ -1296,8 +1304,8 @@ class Config(object):
 
     def get_config(self):
         """Returns the parsed configuration as dictionary.
-        Return
-        ------
+        Returns
+        -------
         configuration:  dict
                         configuration values as dictionary
         """
@@ -1305,8 +1313,8 @@ class Config(object):
 
     def get_default_config(self):
         """Returns the default configuration values as dictionary
-        Return
-        ------
+        Returns
+        -------
         default_configuration:  dict
                                 default configuration values as dictionary
         """
@@ -1314,8 +1322,8 @@ class Config(object):
 
     def get_config_object(self):
         """Returns the default configuration objects as dictionary
-        Return
-        ------
+        Returns
+        -------
         default_configuration:  objects
                                 default configuration objects as dictionary
         """
