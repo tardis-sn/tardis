@@ -15,7 +15,6 @@ test_config_definition = os.path.join('tardis', 'io', 'tests', 'data', 'conf_def
 test_config = os.path.join('tardis', 'io', 'tests', 'data', 'conf_tes.yml')
 existing_configs.remove(test_config_definition)
 existing_configs.remove(test_config)
-print(existing_configs)
 
 
 @pytest.mark.parametrize("config_filename", existing_configs)
@@ -119,28 +118,11 @@ def test_default_parser_quantity():
     mandatory = True
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
-                               return_default=return_default,return_value=return_value )
+                               return_default=return_default, return_value=return_value)
+
 
 def test_default_parser_quantity_range():
     example_dic = {'default': ['1 cm', '5 cm'],
-                    'help': 'quantity for testing',
-                    'mandatory': True,
-                    'property_type': 'quantity_range'}
-
-    default = ['1.0 cm', '5 cm']
-    return_default = [1.0 * u.cm, 5 * u.cm]
-    wdefault = "kl"
-    value = ['10 m', '50 cm']
-    return_value = [10 * u.m, 50 * u.cm]
-    wvalue = "yy"
-    container = False
-    mandatory = True
-
-    ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
-                               return_default=return_default, return_value=return_value)
-
-def test_default_parser_quantity_range_old():
-    example_dic = {'default':{'start':'1 cm', 'end':'5 cm'},
                    'help': 'quantity for testing',
                    'mandatory': True,
                    'property_type': 'quantity_range'}
@@ -157,13 +139,33 @@ def test_default_parser_quantity_range_old():
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
                                return_default=return_default, return_value=return_value)
 
+
+def test_default_parser_quantity_range_old():
+    example_dic = {'default': {'start': '1 cm', 'end': '5 cm'},
+                   'help': 'quantity for testing',
+                   'mandatory': True,
+                   'property_type': 'quantity_range'}
+
+    default = ['1.0 cm', '5 cm']
+    return_default = [1.0 * u.cm, 5 * u.cm]
+    wdefault = "kl"
+    value = ['10 m', '50 cm']
+    return_value = [10 * u.m, 50 * u.cm]
+    wvalue = "yy"
+    container = False
+    mandatory = True
+
+    ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
+                               return_default=return_default, return_value=return_value)
+
+
 def test_default_parser_quantity_range_sampeled():
     example_dic = {'default': ['1 cm', '5 cm', 10],
                    'help': 'quantity for testing',
                    'mandatory': True,
                    'property_type': 'quantity_range_sampled'}
 
-    default = ['1.0 cm', '5 cm',10]
+    default = ['1.0 cm', '5 cm', 10]
     return_default = [1.0 * u.cm, 5 * u.cm, 10]
     wdefault = "kl"
     value = ['10 m', '50 cm', 10]
@@ -175,13 +177,14 @@ def test_default_parser_quantity_range_sampeled():
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
                                return_default=return_default, return_value=return_value)
 
+
 def test_default_parser_quantity_range_sampeled_old():
-    example_dic = {'default': {'start':'1 cm', 'stop':'5 cm', 'num':10},
+    example_dic = {'default': {'start': '1 cm', 'stop': '5 cm', 'num': 10},
                    'help': 'quantity for testing',
                    'mandatory': True,
                    'property_type': 'quantity_range_sampled'}
 
-    default = ['1.0 cm', '5 cm',10]
+    default = ['1.0 cm', '5 cm', 10]
     return_default = [1.0 * u.cm, 5 * u.cm, 10]
     wdefault = "kl"
     value = ['10 m', '50 cm', 10]
@@ -192,6 +195,7 @@ def test_default_parser_quantity_range_sampeled_old():
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
                                return_default=return_default, return_value=return_value)
+
 
 def test_default_parser_range():
     example_dic = {'default': [0, 10],
@@ -208,8 +212,9 @@ def test_default_parser_range():
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
 
+
 def test_default_parser_range_old():
-    example_dic = {'default': {'start':0,'stop':10},
+    example_dic = {'default': {'start': 0, 'stop': 10},
                    'help': 'range for testing',
                    'mandatory': False,
                    'property_type': 'range'}
@@ -222,6 +227,7 @@ def test_default_parser_range_old():
     mandatory = False
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
+
 
 def test_default_parser_range_sampled():
     example_dic = {'default': [0, 10, 1],
@@ -238,8 +244,9 @@ def test_default_parser_range_sampled():
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
 
+
 def test_default_parser_range_sampled():
-    example_dic = {'default': {'start':0,'stop':10,'num':1},
+    example_dic = {'default': {'start': 0, 'stop': 10, 'num': 1},
                    'help': 'range for testing',
                    'mandatory': False,
                    'property_type': 'range_sampled'}
@@ -252,6 +259,7 @@ def test_default_parser_range_sampled():
     mandatory = False
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
+
 
 def test_default_parser_string():
     example_dic = {'default': 'DEFAULT',
@@ -268,17 +276,18 @@ def test_default_parser_string():
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
 
+
 def test_property_type_bundances():
-    example_dic = {'default': {'He':0.4,'Mg':0.1,'Pb':0.5},
+    example_dic = {'default': {'He': 0.4, 'Mg': 0.1, 'Pb': 0.5},
                    'help': 'quantity for testing',
                    'mandatory': True,
                    'property_type': 'abundance_set'}
 
-    default = {'He':0.4,'Mg':0.1,'Pb':0.5}
-    return_default = {'he':0.4,'mg':0.1,'pb':0.5}
+    default = {'He': 0.4, 'Mg': 0.1, 'Pb': 0.5}
+    return_default = {'he': 0.4, 'mg': 0.1, 'pb': 0.5}
     wdefault = "kl"
-    value = {'He':0.4,'Mg':0.6}
-    return_value = {'he':0.4,'mg':0.6}
+    value = {'He': 0.4, 'Mg': 0.6}
+    return_value = {'he': 0.4, 'mg': 0.6}
     wvalue = "yy"
     container = False
     mandatory = True
