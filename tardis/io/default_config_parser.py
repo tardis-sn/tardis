@@ -26,10 +26,10 @@ class ConfigTypeError(Error, ValueError):
     specified in the default configuration.
     """
 
-    def __init__(self, value, expected_type, help):
+    def __init__(self, value, expected_type, _help):
         self.value = value
         self.expected_type = expected_type
-        self.help = help
+        self.help = _help
 
     def __str__(self):
         return "Expected type %s but found %s.\nHelp:%s " % \
@@ -83,8 +83,7 @@ class PropertyType(object):
     Base class for all property types containing all the basic methods.
     """
 
-
-def __init__(self):
+    def __init__(self):
         self._default = None
         self._allowed_value = None
         self._allowed_type = None
@@ -94,49 +93,73 @@ def __init__(self):
         self._upper = None
         pass
 
-
-@property
-def default(self):
-
-
-    """
-    Geter for the default config value.
-    Returns
-    -------
-    default
+    @property
+    def default(self):
+        """
+        Geter for the default config value.
+        Returns
+        -------
+        default
                 default config value.
-    """
-return self._default
+        """
+        return self._default
 
-
-@default.setter
+    @default.setter
     def default(self, value):
+        """
+        Sets the default value if the type is ok.
+        Parameters
+        ----------
+        value
+                default value
+        """
         self._default = self.to_type(value)
 
     @property
     def allowed_value(self):
+        """
+        Returns the allowed value
+        Returns
+        -------
+        allowed_value
+                        allowed value
+        """
         return self._allowed_value
 
     @allowed_value.setter
     def allowed_value(self, value):
+        """
+        Sets the allowed values
+        Parameters
+        ----------
+        value
+                allowed values
+        """
         if isinstance(value, basestring):
             self._allowed_value = set(self.__list_dtype(value.split()))
         elif isinstance(value, list) or isinstance(value, set):
             self._allowed_value = set(self.__list_dtype(value))
         elif isinstance(value, float) or isinstance(value, int):
-            self._allowed_type = set([value])
+            self._allowed_type = {value}
         else:
             raise ValueError("Can not set allowed value.")
 
-
     @property
     def allowed_type(self):
+        """
+        Returns the allowed type
+        Returns
+        -------
+        allowed_type
+                        allowed type
+
+        """
         return self._allowed_value
 
     @allowed_type.setter
     def allowed_type(self, value):
         self._allowed_type = value
-        if '_parse_allowed_type' in (set(dir(self.__class__)) - set(dir(PropertyType))) and value != None:
+        if '_parse_allowed_type' in (set(dir(self.__class__)) - set(dir(PropertyType))) and value is not None:
             self._lower, self._upper = self._parse_allowed_type(value)
 
     @property
@@ -161,7 +184,8 @@ return self._default
     def to_type(self, value):
         return value
 
-    def __list_dtype(self, mixed_list):
+    @staticmethod
+    def __list_dtype(mixed_list):
         try:
             tmp = [str(a) for a in mixed_list]
         except ValueError:
@@ -174,12 +198,11 @@ return self._default
                     raise ValueError("Forbidden type in allowed_type")
         return tmp
 
-
     def _check_allowed_value(self, _value):
         """
         Returns True if the value is allowed or no allowed value is given.
         """
-        if self._allowed_value != None:
+        if self._allowed_value is not None:
             atype = type(iter(self.allowed_value).next())
             value = atype(_value)
             if value in self.allowed_value:
@@ -191,9 +214,9 @@ return self._default
 
     def __repr__(self):
         if hasattr(self, "_allowed_type"):
-            return "Type %s; Allowed type: %s" % (self.__class__.__name__, self._allowed_type)
+            return str("Type %s; Allowed type: %s" % (self.__class__.__name__, self._allowed_type))
         else:
-            return "Type %s; " % (self.__class__.__name__)
+            return str("Type %s; " % self.__class__.__name__)
 
 
 class PropertyTypeContainer(PropertyType):
@@ -206,7 +229,7 @@ class PropertyTypeBool(PropertyType):
         try:
             foo = bool(value)
             return True
-        except:
+        except ValueError:
             return False
 
     def to_type(self, value):
@@ -229,7 +252,8 @@ class PropertyTypeInt(PropertyType):
         return int(value)
         #ToDo: use this if allowed type is specified
 
-    def _parse_allowed_type(self, allowed_type):
+    @staticmethod
+    def _parse_allowed_type(allowed_type):
         string = allowed_type.strip()
         upper = None
         lower = None
@@ -256,17 +280,17 @@ class PropertyTypeInt(PropertyType):
                 lower = float(value)
         return lower, upper
 
-    def __check_type(self, value, lower_lim, upper_lim):
+    @staticmethod
+    def __check_type(value, lower_lim, upper_lim):
         upper, lower = True, True
-        if upper_lim != None:
+        if upper_lim is not None:
             upper = value < upper_lim
-        if lower_lim != None:
+        if lower_lim is not None:
             lower = value > lower_lim
         return upper and lower
 
-
     def _check_allowed_type(self, value):
-        if self._allowed_type != None:
+        if self._allowed_type is not None:
             if self.__check_type(value, self._lower, self._upper):
                 return True
             else:
@@ -277,7 +301,7 @@ class PropertyTypeInt(PropertyType):
     def _is_valid(self, value):
         if not self.check_type(value):
             return False
-        if self.allowed_value != None:
+        if self.allowed_value is not None:
             return False
         if not self.__check_type(value, self._lower, self._upper):
             return False
@@ -326,7 +350,8 @@ class PropertyTypeQuantity(PropertyType):
 
 
 class PropertyTypeQuantityRange(PropertyTypeQuantity):
-    def _to_units(self, los):
+    @staticmethod
+    def _to_units(los):
         if len(los) > 2:
             loq = [(lambda x: (units.Quantity(float(x[0]), x[1])))(x.split()) for x in los[:-1]]
         else:
@@ -342,7 +367,7 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
     def check_type(self, value):
         if isinstance(value, dict):
             if (reduce((lambda a, b: a and b in value.keys()), [True, 'start', 'end'])) \
-                    or (reduce((lambda a, b: a and b in value.keys()), [True, 'start', 'stop'])):  #for legacy support
+                    or (reduce((lambda a, b: a and b in value.keys()), [True, 'start', 'stop'])):  # for legacy support
                 los = [value['start'], value['end']]
                 loq = self._to_units(los)
                 if abs(loq[0].value - loq[1].value) > 0:
@@ -365,7 +390,7 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
                         return False
                 else:
                     return False
-            except (SyntaxError):
+            except SyntaxError:
                 clist = value.split()
                 if len(clist) == 2:
                     loq = self._to_units(value)
@@ -456,10 +481,9 @@ class PropertyTypeList(PropertyType):
                 try:
                     value.split()
                     return True
-                except:
+                except AttributeError:
                     return False
         return False
-
 
     def to_type(self, value):
         if isinstance(value, list):
@@ -509,7 +533,7 @@ class PropertyTypeRange(PropertyType):
 class PropertyTypeRangeSampled(PropertyTypeRange):
     def check_type(self, value):
         if isinstance(value, dict):
-            if reduce((lambda a, b: a in value), \
+            if reduce((lambda a, b: a in value),
                       [True, 'start', 'stop', 'num']):
                 if abs(value['start'] - value['stop']) > 0:
                     return True
@@ -541,10 +565,10 @@ class PropertyTypeRangeSampled(PropertyTypeRange):
 
 
 class PropertyTypeAbundances(PropertyType):
-    elements = dict([(x,y.lower()) for (x,y) in  atomic_symbols_data])
+    elements = dict([(x, y.lower()) for (x, y) in atomic_symbols_data])
 
     def check_type(self, _value):
-        if isinstance(_value,dict):
+        if isinstance(_value, dict):
             value = dict((k.lower(), v) for k, v in _value.items())
             if set(value).issubset(set(self.elements.values())):
                 return True
@@ -564,8 +588,9 @@ class PropertyTypeAbundances(PropertyType):
         else:
             raise ConfigError
 
+
 class PropertyTypeLegacyAbundances(PropertyType):
-    elements = dict([(x,y.lower()) for (x,y) in  atomic_symbols_data])
+    elements = dict([(x, y.lower()) for (x, y) in atomic_symbols_data])
     types = ['uniform']
 
     def check_type(self, _value):
@@ -661,6 +686,8 @@ class DefaultParser(object):
         self.__config_value = None
         self.__path = None
 
+        self.__container_dic = None
+
         self.__default_dict = default_dict
 
         if not 'property_type' in default_dict:
@@ -678,7 +705,7 @@ class DefaultParser(object):
             self.__type.allowed_type = default_dict['allowed_type']
 
         if 'default' in default_dict:
-            if default_dict['default'] != None and not default_dict['default'] in ['None', '']:
+            if default_dict['default'] is not None and not default_dict['default'] in ['None', '']:
                 self.__type.default = default_dict['default']
 
         if 'mandatory' in default_dict:
@@ -730,7 +757,7 @@ class DefaultParser(object):
                 True if a default value was given.
         """
         try:
-            if self.__type.default != None:
+            if self.__type.default is not None:
                 return True
             else:
                 return False
@@ -774,7 +801,7 @@ class DefaultParser(object):
         value
                 Config value.
         """
-        if (self.__config_value is not None):
+        if self.__config_value is not None:
             if self.__type.check_type(self.__config_value):
                 return self.__type.to_type(self.__config_value)
             else:
@@ -793,7 +820,6 @@ class DefaultParser(object):
                     logger.info("Value is not mandatory and is not specified in the configuration. [%s]" % (
                         str(self.get_path_in_dict())))
                     return None
-
 
     def is_container(self):
         """
@@ -815,8 +841,8 @@ class DefaultParser(object):
 
     @classmethod
     def update_container_dic(cls, container_dic, current_entry_name):
-        if reduce(lambda a, b: a or b, \
-                  [container_dic.has_key(i) for i in ['and', 'or']], True):
+        if reduce(lambda a, b: a or b,
+                  [(i in container_dic) for i in ['and', 'or']], True):
             if 'or' in container_dic:
                 if current_entry_name in container_dic['or']:
                     container_dic['or'] = []
@@ -825,7 +851,6 @@ class DefaultParser(object):
                 if current_entry_name in container_dic['and']:
                     current_entry_name['and'].remove(current_entry_name)
                     return container_dic
-
 
     def __register_leaf(self, type_name):
         if not type_name in self.__list_of_leaf_types:
@@ -860,7 +885,6 @@ class Container(DefaultParser):
         container_dict:         dict
                                 Dictionary containing the configuration of the container.
         """
-
 
         self.__container_path = container_path
         self.__type = None
@@ -924,6 +948,7 @@ class Container(DefaultParser):
 
                 #look for additional items
             entry_name = '+' + self.__selected_container
+            self.__has_additional_items = False
             try:
                 additional_items = container_default_dict['type'][entry_name]
                 self.__has_additional_items = True
@@ -936,15 +961,16 @@ class Container(DefaultParser):
                 if not item in container_dict.keys():
                     raise ValueError('Entry %s is missing in container [%s]' % (str(item), self.__container_path))
                 else:
-                    self.__default_container[item], self.__config_container[item] = parse_container_items(
+                    self.__default_container[item], self.__config_container[item] = self.parse_container_items(
                         container_default_dict[item],
                         container_dict[item], item, self.__container_path + [item])
                 if self.__has_additional_items:
-                    for item in additional_items:
+                    for aitem in additional_items:
                         try:
-                            self.__default_container[item], self.__config_container[item] = parse_container_items(
-                                container_default_dict[item],
-                                container_dict[item], item, self.__container_path + [item])
+                            self.__default_container[aitem], self.__config_container[aitem] = \
+                                self.parse_container_items(container_default_dict[aitem],
+                                                           container_dict[aitem], aitem,
+                                                           self.__container_path + [aitem])
                         except KeyError:
                             pass
 
@@ -955,9 +981,10 @@ class Container(DefaultParser):
         else:
             self.__conf = {"No Name": self.__config_container}
 
-
         def parse_container_items(top_default, top_config, level_name, full_path):
-            """Recursive parser for the container default dictionary and the container configuration dictionary.
+            """Recursive parser for the container default dictionary and the container configuration
+            dictionary.
+
             Parameters
             ----------
             top_default:    dict
@@ -1017,8 +1044,7 @@ class Container(DefaultParser):
                 a.remove(k)
             return a
 
-
-        def get_value_by_path(dict, path):
+        def get_value_by_path(_dict, path):
             """
             Value from a nested dictionary specified by its path.
             Parameters
@@ -1033,10 +1059,8 @@ class Container(DefaultParser):
                     value corresponding to the given path
             """
             for key in path:
-                dict = dict[key]
-            return dict
-
-
+                dict = _dict[key]
+            return _dict
 
     def get_container_ob(self):
         """
@@ -1065,7 +1089,6 @@ class Config(object):
     An configuration object represents the parsed configuration.
     """
 
-
     def __init__(self, default_configuration, input_configuration):
         """Creates the configuration object.
         Parameters
@@ -1082,6 +1105,7 @@ class Config(object):
         self.__create_default_conf(default_configuration)
         self.__parse_config(default_configuration, input_configuration)
         self.__help_string = ''
+        self.__default_config = None
 
     @classmethod
     def from_yaml(cls, fname_config, fname_default):
@@ -1093,8 +1117,8 @@ class Config(object):
             defa = yaml.safe_load(defaf)
         return cls(defa, conf)
 
-
-    def __mandatory_key(self, path):
+    @staticmethod
+    def __mandatory_key(path):
         """Return the key string for dictionary of mandatory entries
         Parameters
         ----------
@@ -1106,7 +1130,6 @@ class Config(object):
                         corresponding key
         """
         return ':'.join(path)
-
 
     def register_mandatory(self, name, path):
         """Register a mandatory entry
@@ -1153,13 +1176,13 @@ class Config(object):
                                 Configuration dictionary
         """
 
-        def find_item(dict, key):
+        def find_item(_dict, key):
             """
             Returns the value for a specific key in a nested dictionary
             note:: Deprecated, use get_property_by_path()
             Parameters
             ----------
-            dict:   dict
+            _dict:   dict
                     nested dictionary
             key:    str
                     key in the nested dictionary
@@ -1168,13 +1191,13 @@ class Config(object):
             item:   object
                     value corresponding to the specific key.
             """
-            if key in dict: return dict[key]
-            for k, v in dict.items():
-                if isinstance(v, dict):
+            if key in _dict:
+                return _dict[key]
+            for k, v in _dict.items():
+                if isinstance(v, _dict):
                     item = find_item(v, key)
                     if item is not None:
                         return item
-
 
         def get_property_by_path(d, path):
             """ Returns the value for a specific path(chain of keys) in a nested dictionary
@@ -1255,16 +1278,14 @@ class Config(object):
                     if conf_value is not None:
                         default_property.set_config_value(conf_value)
                     return default_property, default_property.get_value()
-
-
         self.__conf_o, self.__conf_v = recursive_parser(default_configuration, configuration, [])
 
-    def __check_items_in_conf(self, config_dict, default_dict):
+    @staticmethod
+    def __check_items_in_conf(config_dict, default_dict):
         if isinstance(config_dict, dict) and len(config_dict) > 0:
             return list(set(config_dict.keys()) - set(default_dict.keys()))
         else:
             return list(default_dict.keys())
-
 
     def __create_default_conf(self, default_conf):
         """Returns the default configuration values as dictionary.
@@ -1308,7 +1329,6 @@ class Config(object):
 
         self.__default_config = recursive_default_parser(default_conf, [])
 
-
     def get_config(self):
         """Returns the parsed configuration as dictionary.
         Returns
@@ -1337,10 +1357,9 @@ class Config(object):
         return self.__conf_o
 
     def get_help(self):
-        return (pprint.pformat(self.get_default_config()))
-
+        return pprint.pformat(self.get_default_config())
 
     def __repr__(self):
-        return (str(pprint.pformat(self.get_config())))
+        return str(pprint.pformat(self.get_config()))
         
 
