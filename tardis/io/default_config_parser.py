@@ -5,10 +5,11 @@ import logging
 import pprint
 import ast
 
-from tardis.atomic import atomic_symbols_data
 from astropy import units
 from astropy.units.core import UnitsException
 import yaml
+
+from tardis.atomic import atomic_symbols_data
 
 
 logger = logging.getLogger(__name__)
@@ -96,11 +97,16 @@ def __init__(self):
     @property
     def default(self):
     """
-
+    Geter for the default config value.
+    Returns
+    -------
+    default
+                default config value.
     """
-    return self._default
+return self._default
 
-    @default.setter
+
+@default.setter
     def default(self, value):
         self._default = self.to_type(value)
 
@@ -944,7 +950,6 @@ class Container(DefaultParser):
         if isinstance(self.__config_container, dict):
             self.__conf = self.__config_container
         else:
-            pdb.set_trace()
             self.__conf = {"No Name": self.__config_container}
 
 
@@ -969,7 +974,6 @@ class Container(DefaultParser):
             path = reduce_list(list(full_path), self.__container_path + [item])
             tmp_conf_ob = {}
             tmp_conf_val = {}
-            #pdb.set_trace()
             if isinstance(top_default, dict):
                 default_property = DefaultParser(top_default)
                 if default_property.is_container():
@@ -1259,7 +1263,7 @@ class Config(object):
             return list(default_dict.keys())
 
 
-    def __create_default_conf(self, default_coobjectsnf):
+    def __create_default_conf(self, default_conf):
         """Returns the default configuration values as dictionary.
         Parameters
         ----------
