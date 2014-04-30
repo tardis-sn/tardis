@@ -324,7 +324,8 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
 
     def check_type(self, value):
         if isinstance(value, dict):
-            if reduce((lambda a, b: a and b in value), [True, 'start', 'end']):
+            if (reduce((lambda a, b: a and b in value.keys()), [True, 'start', 'end'])) \
+                    or (reduce((lambda a, b: a and b in value.keys()), [True, 'start', 'stop'])):  #for legacy support
                 los = [value['start'], value['end']]
                 loq = self._to_units(los)
                 if abs(loq[0].value - loq[1].value) > 0:
@@ -670,14 +671,19 @@ class DefaultParser(object):
 
     def get_default(self):
         """Returns the default value of this property, if specified.
-        :return: default value
+
+        Returns
+        -------
+        default value
         """
         return self.__type.default
 
     def set_default(self, value):
-        """
-        Set a new default value.
-        :param value: new default value
+        """Set a new default value.
+        Parameters
+        ----------
+        value:
+                new default value
         """
         if value is not None:
             if self.__type.check_type(value):
@@ -690,17 +696,21 @@ class DefaultParser(object):
 
     @property
     def is_mandatory(self):
-        """
-        Returns True if this property is a mandatory.
-        :return: mandatory
+        """Returns True if this property is a mandatory.
+        Returns
+        -------
+        bool:
+                True if this property is a mandatory.
         """
         return self.__type.mandatory
 
     @property
     def has_default(self):
-        """
-        Returns True if this property has a default value
-        :return: has a default value
+        """Returns True if this property has a default value
+        Returns
+        -------
+        bool:
+                True if a default value was given.
         """
         try:
             if self.__type.default != None:
@@ -711,25 +721,29 @@ class DefaultParser(object):
             pass
 
     def set_path_in_dic(self, path):
-        """
-        Set the path to this property in the config
-        :param path: path(chain of keys)
-        :return:
+        """Set the path to this property in the config
+        Parameters
+        ----------
+        path:   list  of str
+                Path in config dictionary.
         """
         self.__path = path
 
     def get_path_in_dict(self):
-        """
-        Returns the path of this property in the config
-        :return: path
+        """Returns the path of this property in the config
+        Return
+        ------
+        path:   list of str
+                Path in config dictionary.
         """
         return self.__path
 
     def set_config_value(self, value):
-        """
-        Set a new value
-        :param value:
-        :return:
+        """Set a new config value.
+        Parameters
+        ----------
+        value:
+                New config value.
         """
         self.__config_value = value
 
@@ -738,7 +752,10 @@ class DefaultParser(object):
         Returns the configuration value from the configuration.
         If the value specified in the configuration is invalid
         the default value is returned
-        :return: value
+        Return
+        ------
+        value:
+                Config value.
         """
         if (self.__config_value is not None):
             if self.__type.check_type(self.__config_value):
@@ -764,7 +781,6 @@ class DefaultParser(object):
     def is_container(self):
         """
         Returns True if this property is of type container.
-        :return:
         """
         return self.__is_container()
 
@@ -772,7 +788,10 @@ class DefaultParser(object):
         """
         If this property is a container it returns the corresponding
         container dictionary
-        :return: container dictionary
+        Return
+        ------
+        container dictionary:   dict
+                                Container dictionary
         """
         if self.__is_container():
             return self.__container_dic
@@ -790,17 +809,6 @@ class DefaultParser(object):
                     current_entry_name['and'].remove(current_entry_name)
                     return container_dic
 
-
-    # def is_valid(self, value):
-    #     if not self.__check[self.__property_type](self, value):
-    #         return False
-    #     if self.__allowed_value:
-    #         if not self.__is_allowed_value(value, self.__allowed_value):
-    #             return False
-    #     if self.__allowed_type:
-    #         if not self.__check_value(value, self.__lower, self.__upper):
-    #             return False
-    #     return True
 
     def __register_leaf(self, type_name):
         if not type_name in self.__list_of_leaf_types:
@@ -828,8 +836,12 @@ class DefaultParser(object):
 class Container(DefaultParser):
     def __init__(self, container_default_dict, container_dict, container_path=None):
         """Creates a new container object.
-        :param container_default_dict: Dictionary containing the default properties of the container.
-        :param container_dict: Dictionary containing the configuration of the container.
+        Parameters
+        ----------
+        container_default_dict: dict
+                                Dictionary containing the default properties of the container.
+        container_dict:         dict
+                                Dictionary containing the configuration of the container.
         """
 
 
@@ -930,12 +942,19 @@ class Container(DefaultParser):
 
         def parse_container_items(top_default, top_config, level_name, full_path):
             """Recursive parser for the container default dictionary and the container configuration dictionary.
-
-            :param top_default: container default dictionary of the upper recursion level
-            :param top_config: container configuration dictionary of the upper recursion level
-            :param level_name: name(key) of the of the upper recursion level
-            :param path: path in the nested container dictionary from the main level to the current level
-            :return: If the current recursion level is not a leaf, the function returns a dictionary with itself for
+            Parameters
+            ----------
+            top_default:    dict
+                            container default dictionary of the upper recursion level
+            top_config:     dict
+                            container configuration dictionary of the upper recursion level
+            level_name:     str
+                            name(key) of the of the upper recursion level
+            path:           list of str
+                            path in the nested container dictionary from the main level to the current level
+            Return
+            ------
+                            If the current recursion level is not a leaf, the function returns a dictionary with itself for
             each branch. If the  current recursion level is a leaf the configured value and a configuration object is
             returned
             """
@@ -967,7 +986,17 @@ class Container(DefaultParser):
 
         def reduce_list(a, b):
             """
-            removes items from list a which are in b
+            removes items from list a which are in b. (o.B.d.A trivial)
+            Parameters
+            ----------
+            a:  list
+                minuend
+            b:  list
+                subtrahend
+            Return
+            ------
+            a:  list
+                difference
             """
             for k in b:
                 a.remove(k)
@@ -977,9 +1006,16 @@ class Container(DefaultParser):
         def get_value_by_path(dict, path):
             """
             Value from a nested dictionary specified by its path.
-            :param dict: nested source dictionary
-            :param path: path (composed of keys) in the dictionary
-            :return:
+            Parameters
+            ----------
+            dict:   dict
+                    nested source dictionary
+            path:   list of str
+                    path (composed of keys) in the dictionary
+            Return
+            ------
+            dict:   str
+                    value corresponding to the given path
             """
             for key in path:
                 dict = dict[key]
@@ -990,14 +1026,20 @@ class Container(DefaultParser):
     def get_container_ob(self):
         """
         Return the container configuration object
-        :return:
+        Return
+        ------
+        self.__container_ob:    DefaultParser
+                                container configuration object
         """
         return self.__container_ob
 
     def get_container_conf(self):
         """
         Return the configuration
-        :return:
+        Return
+        ------
+        self.__container_ob:    dict
+                                container configuration
         """
         self.__conf['type'] = self.__type
         return self.__conf
@@ -1011,8 +1053,12 @@ class Config(object):
 
     def __init__(self, default_configuration, input_configuration):
         """Creates the configuration object.
-        :param default_configuration: Default configuration dictionary
-        :param input_configuration: Configuration dictionary
+        Parameters
+        ----------
+        default_configuration:  dict
+                                Default configuration dictionary
+        input_configuration:    dict
+                                Configuration dictionary
         """
         self.__conf_o = None
         self.__conf_v = None
@@ -1035,29 +1081,47 @@ class Config(object):
 
     def __mandatory_key(self, path):
         """Return the key string for dictionary of mandatory entries
-        :param path: path (composed of keys) in the dictionary
-        :return: corresponding key
+        Parameters
+        ----------
+        path:           list of str
+                        path (composed of keys) in the dictionary
+        Return
+        ------
+        mandatory_key:  str
+                        corresponding key
         """
         return ':'.join(path)
 
 
     def register_mandatory(self, name, path):
         """Register a mandatory entry
-        :param name: name of the mandatory entry to be registered
-        :param path: path (composed of keys) in the dictionary
+        Parameters
+        ----------
+        name:   str
+                name of the mandatory entry to be registered
+        path:   list of str
+                path (composed of keys) in the dictionary
         """
         self.mandatories[self.__mandatory_key(path)] = name
 
     def deregister_mandatory(self, name, path):
         """Register a deregistered mandatory entry
-        :param name: name of the mandatory entry to be deregistered
-        :param path: path (composed of keys) in the dictionary
+        Parameters
+        ----------
+        name:   str
+                name of the mandatory entry to be deregistered
+        path:   list of str
+                path (composed of keys) in the dictionary
         """
         self.fulfilled[self.__mandatory_key(path)] = name
 
     def is_mandatory_fulfilled(self):
         """
         Check if all mandatory entries are deregistered.
+        Return
+        ------
+        mandatory:  bool
+                    True if all mandatory entries are deregistered, otherwise False
         """
         if len(set(self.mandatories.keys()) - set(self.fulfilled.keys())) <= 0:
             return True
@@ -1066,15 +1130,28 @@ class Config(object):
 
     def __parse_config(self, default_configuration, configuration):
         """Parser for the default dictionary and the configuration dictionary.
-        :param default_configuration: Default configuration dictionary
-        :param configuration:  Configuration dictionary
+        Parameters
+        ------
+        default_configuration:  dict
+                                Default configuration dictionary
+        configuration:          dict
+                                Configuration dictionary
         """
 
         def find_item(dict, key):
             """
             Returns the value for a specific key in a nested dictionary
-            :param dict: nested dictionary
-            :param key:
+            note:: Deprecated, use get_property_by_path()
+            Parameters
+            ----------
+            dict:   dict
+                    nested dictionary
+            key:    str
+                    key in the nested dictionary
+            Return
+            ------
+            item:   object
+                    value corresponding to the specific key.
             """
             if key in dict: return dict[key]
             for k, v in dict.items():
@@ -1086,8 +1163,16 @@ class Config(object):
 
         def get_property_by_path(d, path):
             """ Returns the value for a specific path(chain of keys) in a nested dictionary
-            :param dict: nested dictionary
-            :param path: chain of keys as list
+            Parameters
+            ----------
+            dict:   dict
+                    nested dictionary
+            path:   list of str
+                    chain of keys as list
+            Return
+            ------
+            item:   object
+                    value in the nested dictionary at the specific path.
             """
             if len(path) <= 0:
                 return d
@@ -1103,10 +1188,17 @@ class Config(object):
         def recursive_parser(top_default, configuration, path):
             """
             Recursive parser for the default dictionary.
-            :param top_default: container default dictionary of the upper recursion level
-            :param configuration:  configuration dictionary
-            :param path: path in the nested container dictionary from the main level to the current level
-            :return: If the current recursion level is not a leaf, the function returns a dictionary with itself for
+            Parameters
+            ----------
+            top_default:    dict
+                            container default dictionary of the upper recursion level
+            configuration:  dict
+                            configuration dictionary
+            path:           list of str
+                            path in the nested container dictionary from the main level to the current level
+            Return
+            ------
+            If the current recursion level is not a leaf, the function returns a dictionary with itself for
             each branch. If the  current recursion level is a leaf, the configuration value and object are
             returned
             """
@@ -1159,17 +1251,28 @@ class Config(object):
             return list(default_dict.keys())
 
 
-    def __create_default_conf(self, default_conf):
+    def __create_default_conf(self, default_coobjectsnf):
         """Returns the default configuration values as dictionary.
-        :param default_conf: default configuration dictionary
-        :return: default configuration values
+        Parameters
+        ----------
+        default_conf:   dict
+                        default configuration dictionary
+        Return
+        ------
+        default configuration values
         """
 
         def recursive_default_parser(top_default, path):
             """Recursive parser for the default dictionary.
-            :param top_default: container default dictionary of the upper recursion level
-            :param path: path in the nested container dictionary from the main level to the current level
-            :return: If the current recursion level is not a leaf, the function returns a dictionary with itself for
+            Parameters
+            ----------
+            top_default:    dict
+                            container default dictionary of the upper recursion level
+            path:           list of str
+                            path in the nested container dictionary from the main level to the current level
+            Return
+            ------
+            If the current recursion level is not a leaf, the function returns a dictionary with itself for
             each branch. If the  current recursion level is a leaf, the default configuration value is
             returned
             """
@@ -1193,19 +1296,28 @@ class Config(object):
 
     def get_config(self):
         """Returns the parsed configuration as dictionary.
-        :return: configuration values as dictionary
+        Return
+        ------
+        configuration:  dict
+                        configuration values as dictionary
         """
         return self.__conf_v
 
     def get_default_config(self):
         """Returns the default configuration values as dictionary
-        :return: default configuration values as dictionary
+        Return
+        ------
+        default_configuration:  dict
+                                default configuration values as dictionary
         """
         return self.__default_config
 
     def get_config_object(self):
         """Returns the default configuration objects as dictionary
-        :return: default configuration objects as dictionary
+        Return
+        ------
+        default_configuration:  objects
+                                default configuration objects as dictionary
         """
         return self.__conf_o
 
