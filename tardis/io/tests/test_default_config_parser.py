@@ -7,13 +7,24 @@ import ast
 
 from tardis.io.default_config_parser import DefaultParser, Config, ConfigValueError
 
-existing_configs = glob(os.path.join('tardis', 'docs', 'examples', '*.yml'))
+existing_configs = glob(os.path.join('docs', 'examples', '*.yml'))
+existing_configs += glob(os.path.join('tardis', 'io', 'tests', 'data', '*.yml'))
 config_definition = os.path.join('tardis', 'data', 'tardis_default_config_definition.yml')
 
+test_config_definition = os.path.join('tardis', 'io', 'tests', 'data', 'conf_def.yml')
+test_config = os.path.join('tardis', 'io', 'tests', 'data', 'conf_tes.yml')
+existing_configs.remove(test_config_definition)
+existing_configs.remove(test_config)
+print(existing_configs)
 
-@pytest.mark.parametrize(("config_filename",), existing_configs)
+
+@pytest.mark.parametrize("config_filename", existing_configs)
 def test_configread(config_filename):
     config = Config.from_yaml(config_filename, config_definition)
+
+
+def test_configread_test_config():
+    config = Config.from_yaml(test_config, test_config_definition)
 
 
 def default_parser_helper(test_dic, default, wdefault, value, wvalue, container, mandatory, return_default=None,
@@ -275,4 +286,7 @@ def test_property_type_bundances():
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
                                return_default=return_default, return_value=return_value)
 
- 
+
+
+
+
