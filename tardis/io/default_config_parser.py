@@ -94,8 +94,11 @@ def __init__(self):
         self._upper = None
         pass
 
-    @property
-    def default(self):
+
+@property
+def default(self):
+
+
     """
     Geter for the default config value.
     Returns
