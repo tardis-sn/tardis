@@ -52,9 +52,11 @@ extensions = [
 source_suffix = '.rst'
 ## get's rid of many toctree contains errors: see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
 numpydoc_show_class_members = False
-extensions += ['matplotlib.sphinxext.plot_directive']
+extensions += ['matplotlib.sphinxext.plot_directive',
+               'sphinxcontrib.bibtex',
+               'sphinxcontrib.tikz']
 
-extensions.append('sphinxcontrib.bibtex')
+
 
 # -- General configuration ----------------------------------------------------
 
