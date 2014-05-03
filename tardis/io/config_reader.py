@@ -1,6 +1,4 @@
 # Module to read the rather complex config data
-# Currently the configuration file is documented in
-# tardis/data/example_configuration.ini
 
 import logging
 import os
@@ -12,17 +10,27 @@ import astropy.utils
 import numpy as np
 import pandas as pd
 import yaml
-from model_reader import read_density_file, calculate_density_after_time, read_abundances_file
 
+import tardis
+from tardis.io.model_reader import read_density_file, \
+    calculate_density_after_time, read_abundances_file
+
+from tardis.io.config_validator import Config
 from tardis import atomic
-from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number
+from tardis.util import species_string_to_tuple, parse_quantity, \
+    element_symbol2atomic_number
+
+
 
 pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
 
-data_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '../data'))
 
+data_dir = os.path.join(tardis.__path__[0], 'data')
+
+default_config_definition_file = os.path.join(data_dir,
+                                              'tardis_config_definition')
 #File parsers for different file formats:
 
 density_structure_fileparser = {}
@@ -641,7 +649,8 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         return cls.from_config_dict(yaml_dict, test_parser=test_parser)
 
     @classmethod
-    def from_config_dict(cls, raw_dict, atom_data=None, test_parser=False):
+    def from_config_dict(cls, raw_dict, atom_data=None, test_parser=False,
+                         config_definition_file=None):
         """
         Reading in from a YAML file and commandline args. Preferring commandline args when given
 
@@ -662,6 +671,15 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         config_dict = {}
         raw_dict = copy.deepcopy(raw_dict)
+
+
+
+
+
+        if config_definition_file is None:
+            config_definition_file = default_config_definition_file
+
+        validated_config = Config.from_yaml(config_filename, config_definition)
 
         #First let's see if we can find an atom_db anywhere:
         if test_parser:

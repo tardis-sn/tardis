@@ -618,7 +618,16 @@ class PropertyTypeLegacyAbundances(PropertyType):
 
 
 class DefaultParser(object):
-    """Not invented here syndrome"""
+    """
+    Creates a new property object for the given config level
+
+    Parameters
+    ----------
+    default_dict: dict
+        default configuration
+
+
+    """
 
     __check = {}
     __convert = {}
@@ -626,10 +635,6 @@ class DefaultParser(object):
     __types = {}
 
     def __init__(self, default_dict, item_path=None):
-        """Creates a new property object for the given config level
-        :param default_dict: default configuration
-        :return:
-        """
 
         self.__item_path = item_path
         #create property type dict
@@ -1087,23 +1092,23 @@ class Container(DefaultParser):
 class Config(object):
     """
     An configuration object represents the parsed configuration.
+
+    Creates the configuration object.
+    Parameters
+    ----------
+    configuration_definition:  dict
+                            Default configuration dictionary
+    input_configuration:    dict
+                            Configuration dictionary
     """
 
-    def __init__(self, default_configuration, input_configuration):
-        """Creates the configuration object.
-        Parameters
-        ----------
-        default_configuration:  dict
-                                Default configuration dictionary
-        input_configuration:    dict
-                                Configuration dictionary
-        """
+    def __init__(self, configuration_definition, input_configuration):
         self.__conf_o = None
         self.__conf_v = None
         self.mandatories = {}
         self.fulfilled = {}
-        self.__create_default_conf(default_configuration)
-        self.__parse_config(default_configuration, input_configuration)
+        self.__create_default_conf(configuration_definition)
+        self.__parse_config(configuration_definition, input_configuration)
         self.__help_string = ''
         self.__default_config = None
 
