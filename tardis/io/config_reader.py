@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 data_dir = os.path.join(tardis.__path__[0], 'data')
 
 default_config_definition_file = os.path.join(data_dir,
-                                              'tardis_config_definition')
+                                              'tardis_config_definition.yml')
 #File parsers for different file formats:
 
 density_structure_fileparser = {}
@@ -649,18 +649,30 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         return cls.from_config_dict(yaml_dict, test_parser=test_parser)
 
     @classmethod
-    def from_config_dict(cls, raw_dict, atom_data=None, test_parser=False,
+    def from_config_dict(cls, config_dict, atom_data=None, test_parser=False,
                          config_definition_file=None):
         """
-        Reading in from a YAML file and commandline args. Preferring commandline args when given
+        Validating and subsequently parsing a config file.
+
 
         Parameters
         ----------
 
-        fname : filename for the yaml file
+        config_dict : ~dict
+            dictionary of a raw unvalidated config file
 
-        args : namespace object
-            Not implemented Yet
+        atom_data: ~tardis.atomic.AtomData
+            atom data object. if `None` will be tried to be read from
+            atom data file path in the config_dict [default=None]
+
+        test_parser: ~bool
+            switch on to ignore a working atom_data, mainly useful for
+            testing this reader
+
+        config_definition_file: ~str
+            path to config definition file, if `None` will be set to the default
+            in the `data` directory that ships with TARDIS
+
 
         Returns
         -------
@@ -669,24 +681,20 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         """
 
-        config_dict = {}
-        raw_dict = copy.deepcopy(raw_dict)
-
-
-
-
-
         if config_definition_file is None:
             config_definition_file = default_config_definition_file
 
-        validated_config = Config.from_yaml(config_filename, config_definition)
+        config_definition = yaml.load(open(config_definition_file))
+
+        validated_config_dict = Config(config_definition,
+                                       config_dict).get_config()
 
         #First let's see if we can find an atom_db anywhere:
         if test_parser:
           atom_data = None
-        elif 'atom_data' in raw_dict.keys():
-            atom_data_fname = raw_dict['atom_data']
-            config_dict['atom_data_fname'] = atom_data_fname
+        elif 'atom_data' in validated_config_dict.keys():
+            atom_data_fname = validated_config_dict['atom_data']
+            validated_config_dict['atom_data_fname'] = atom_data_fname
         else:
             raise ConfigurationError('No atom_data key found in config or command line')
 
@@ -701,10 +709,10 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         #Parsing supernova dictionary
-        config_dict['supernova'] = parse_supernova_section(raw_dict['supernova'])
+        validated_config_dict['supernova'] = parse_supernova_section(validated_config_dict['supernova'])
 
         #Parsing the model section
-        model_section = raw_dict.pop('model')
+        model_section = validated_config_dict.pop('model')
         v_inner = None
         v_outer = None
         mean_densities = None
@@ -713,10 +721,11 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         if 'file' in model_section:
             v_inner, v_outer, mean_densities, abundances = parse_model_file_section(model_section.pop('file'),
-                                                                                    config_dict['supernova']['time_explosion'])
-            no_of_shells = len(v_inner)
+                                                                                    validated_config_dict['supernova']['time_explosion'])
 
-        structure_config_dict = {}
+
+
+        structure_validated_config_dict = {}
 
         if 'structure' in model_section:
         #Trying to figure out the structure (number of shells)
@@ -734,7 +743,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                 v_inner, v_outer = velocities[:-1], velocities[1:]
 
                 mean_densities = parse_density_section(structure_section['density'], v_inner, v_outer,
-                                                       config_dict['supernova']['time_explosion'])
+                                                       validated_config_dict['supernova']['time_explosion'])
 
             elif structure_section_type == 'file':
                 v_inner_boundary, v_outer_boundary = structure_section.get('v_inner_boundary', 0 * u.km/u.s), \
@@ -748,29 +757,29 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
                 v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index =\
                     read_density_file(structure_section['filename'], structure_section['filetype'],
-                                      config_dict['supernova']['time_explosion'], v_inner_boundary, v_outer_boundary)
+                                      validated_config_dict['supernova']['time_explosion'], v_inner_boundary, v_outer_boundary)
         else:
             raise ConfigurationError('structure section required in configuration file')
 
 
-        r_inner = config_dict['supernova']['time_explosion'] * v_inner
-        r_outer = config_dict['supernova']['time_explosion'] * v_outer
+        r_inner = validated_config_dict['supernova']['time_explosion'] * v_inner
+        r_outer = validated_config_dict['supernova']['time_explosion'] * v_outer
         r_middle = 0.5 * (r_inner + r_outer)
 
-        structure_config_dict['v_inner'] = v_inner
-        structure_config_dict['v_outer'] = v_outer
-        structure_config_dict['mean_densities'] = mean_densities
+        structure_validated_config_dict['v_inner'] = v_inner
+        structure_validated_config_dict['v_outer'] = v_outer
+        structure_validated_config_dict['mean_densities'] = mean_densities
         no_of_shells = len(v_inner)
-        structure_config_dict['no_of_shells'] = no_of_shells
-        structure_config_dict['r_inner'] = r_inner
-        structure_config_dict['r_outer'] = r_outer
-        structure_config_dict['r_middle'] = r_middle
-        structure_config_dict['volumes'] = (4. / 3) * np.pi * (r_outer ** 3 - r_inner ** 3)
+        structure_validated_config_dict['no_of_shells'] = no_of_shells
+        structure_validated_config_dict['r_inner'] = r_inner
+        structure_validated_config_dict['r_outer'] = r_outer
+        structure_validated_config_dict['r_middle'] = r_middle
+        structure_validated_config_dict['volumes'] = (4. / 3) * np.pi * (r_outer ** 3 - r_inner ** 3)
 
 
 
 
-        config_dict['structure'] = structure_config_dict
+        validated_config_dict['structure'] = structure_validated_config_dict
         #Now that the structure section is parsed we move on to the abundances
 
 
@@ -804,67 +813,67 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             logger.warning("Abundances have not been normalized to 1. - normalizing")
             abundances /= norm_factor
 
-        config_dict['abundances'] = abundances
+        validated_config_dict['abundances'] = abundances
 
 
 
         ########### DOING PLASMA SECTION ###############
 
-        plasma_section = raw_dict.pop('plasma')
-        plasma_config_dict = {}
+        plasma_section = validated_config_dict.pop('plasma')
+        plasma_validated_config_dict = {}
 
         if plasma_section['ionization'] not in ('nebular', 'lte'):
             raise ConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
-        plasma_config_dict['ionization'] = plasma_section['ionization']
+        plasma_validated_config_dict['ionization'] = plasma_section['ionization']
 
 
         if plasma_section['excitation'] not in ('dilute-lte', 'lte'):
             raise ConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
-        plasma_config_dict['excitation'] = plasma_section['excitation']
+        plasma_validated_config_dict['excitation'] = plasma_section['excitation']
 
         if plasma_section['radiative_rates_type'] not in ('dilute-blackbody', 'detailed'):
             raise ConfigurationError('radiative_rates_types must be either "dilute-blackbody" or "detailed"')
-        plasma_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
+        plasma_validated_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
 
         if plasma_section['line_interaction_type'] not in ('scatter', 'downbranch', 'macroatom'):
             raise ConfigurationError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
-        plasma_config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
+        plasma_validated_config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
 
         if 'w_epsilon' in plasma_section:
-            plasma_config_dict['w_epsilon'] = plasma_section['w_epsilon']
+            plasma_validated_config_dict['w_epsilon'] = plasma_section['w_epsilon']
         else:
             logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
-            plasma_config_dict['w_epsilon'] = 1e-10
+            plasma_validated_config_dict['w_epsilon'] = 1e-10
 
         if 'delta_treatment' in plasma_section:
-            plasma_config_dict['delta_treatment'] = plasma_section['delta_treatment']
+            plasma_validated_config_dict['delta_treatment'] = plasma_section['delta_treatment']
         else:
             logger.warn('"delta_treatment" not specified in plasma section - defaulting to None')
-            plasma_config_dict['delta_treatment'] = None
+            plasma_validated_config_dict['delta_treatment'] = None
 
         if 'initial_t_inner' in plasma_section:
-            plasma_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner']).to('K')
+            plasma_validated_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner']).to('K')
         else:
-            plasma_config_dict['t_inner'] = (((config_dict['supernova']['luminosity_requested'] / \
+            plasma_validated_config_dict['t_inner'] = (((validated_config_dict['supernova']['luminosity_requested'] / \
                                             (4 * np.pi * r_inner[0]**2 * constants.sigma_sb))**.5)**.5).to('K')
             logger.info('"initial_t_inner" is not specified in the plasma section - '
-                        'initializing to %s with given luminosity', plasma_config_dict['t_inner'])
+                        'initializing to %s with given luminosity', plasma_validated_config_dict['t_inner'])
 
         if 'initial_t_rads' in plasma_section:
             if isinstance('initial_t_rads', basestring):
                     uniform_t_rads = parse_quantity(plasma_section['initial_t_rads'])
-                    plasma_config_dict['t_rads'] = u.Quantity(np.ones(no_of_shells) * uniform_t_rads.value, u.K)
+                    plasma_validated_config_dict['t_rads'] = u.Quantity(np.ones(no_of_shells) * uniform_t_rads.value, u.K)
 
             elif astropy.utils.isiterable(plasma_section['initial_t_rads']):
                 assert len(plasma_section['initial_t_rads']) == no_of_shells
-                plasma_config_dict['t_rads'] = u.Quantity(plasma_section['initial_t_rads'], u.K)
+                plasma_validated_config_dict['t_rads'] = u.Quantity(plasma_section['initial_t_rads'], u.K)
         else:
             logger.info('No "initial_t_rads" specified - initializing with 10000 K')
 
-            plasma_config_dict['t_rads'] =  u.Quantity(np.ones(no_of_shells) * 10000., u.K)
+            plasma_validated_config_dict['t_rads'] =  u.Quantity(np.ones(no_of_shells) * 10000., u.K)
 
         ##### NLTE subsection of Plasma start
-        nlte_config_dict = {}
+        nlte_validated_config_dict = {}
         nlte_species = []
         if 'nlte' in plasma_section:
             nlte_section = plasma_section['nlte']
@@ -873,45 +882,45 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                 for species_string in nlte_species_list:
                     nlte_species.append(species_string_to_tuple(species_string))
 
-                nlte_config_dict['species'] = nlte_species
-                nlte_config_dict['species_string'] = nlte_species_list
-                nlte_config_dict.update(nlte_section)
+                nlte_validated_config_dict['species'] = nlte_species
+                nlte_validated_config_dict['species_string'] = nlte_species_list
+                nlte_validated_config_dict.update(nlte_section)
 
                 if 'coronal_approximation' not in nlte_section:
                     logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
-                    nlte_config_dict['coronal_approximation'] = False
+                    nlte_validated_config_dict['coronal_approximation'] = False
 
                 if 'classical_nebular' not in nlte_section:
                     logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
-                    nlte_config_dict['classical_nebular'] = False
+                    nlte_validated_config_dict['classical_nebular'] = False
 
 
             elif nlte_section: #checks that the dictionary is not empty
                 logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
                             pp.pformat(nlte_section))
 
-        if not nlte_config_dict:
-            nlte_config_dict['species'] = []
+        if not nlte_validated_config_dict:
+            nlte_validated_config_dict['species'] = []
 
-        plasma_config_dict['nlte'] = nlte_config_dict
+        plasma_validated_config_dict['nlte'] = nlte_validated_config_dict
 
 
 
         #^^^^^^^ NLTE subsection of Plasma end
 
-        config_dict['plasma'] = plasma_config_dict
+        validated_config_dict['plasma'] = plasma_validated_config_dict
 
 
         #^^^^^^^^^^^^^^ End of Plasma Section
 
         ##### Monte Carlo Section
 
-        montecarlo_section = raw_dict.pop('montecarlo')
-        montecarlo_config_dict = {}
+        montecarlo_section = validated_config_dict.pop('montecarlo')
+        montecarlo_validated_config_dict = {}
 
         #PARSING convergence section
         convergence_variables = ['t_inner', 't_rad', 'w']
-        convergence_config_dict = {}
+        convergence_validated_config_dict = {}
         if 'convergence_strategy' in montecarlo_section:
 
             convergence_section = montecarlo_section.pop('convergence_strategy')
@@ -928,13 +937,13 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                 t_inner_update_exponent = None
 
             if convergence_section['type'] == 'damped':
-                convergence_config_dict['type'] == 'damped'
+                convergence_validated_config_dict['type'] == 'damped'
                 global_damping_constant = convergence_section['damping_constant']
 
                 for convergence_variable in convergence_variables:
                     convergence_parameter_name = convergence_variable
                     current_convergence_parameters = {}
-                    convergence_config_dict[convergence_parameter_name] = current_convergence_parameters
+                    convergence_validated_config_dict[convergence_parameter_name] = current_convergence_parameters
 
                     if convergence_variable in convergence_section:
                         current_convergence_parameters['damping_constant'] \
@@ -944,7 +953,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
             elif convergence_section['type'] == 'specific':
 
-                convergence_config_dict['type'] = 'specific'
+                convergence_validated_config_dict['type'] = 'specific'
 
                 global_convergence_parameters = {}
                 global_convergence_parameters['damping_constant'] = convergence_section['damping_constant']
@@ -956,7 +965,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                     convergence_parameter_name = convergence_variable
                     current_convergence_parameters = {}
 
-                    convergence_config_dict[convergence_parameter_name] = current_convergence_parameters
+                    convergence_validated_config_dict[convergence_parameter_name] = current_convergence_parameters
                     if convergence_variable in convergence_section:
                         for param in global_convergence_parameters.keys():
                             if param == 'fraction' and convergence_variable == 't_inner':
@@ -966,10 +975,10 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                             else:
                                 current_convergence_parameters[param] = global_convergence_parameters[param]
                     else:
-                        convergence_config_dict[convergence_parameter_name] = global_convergence_parameters.copy()
+                        convergence_validated_config_dict[convergence_parameter_name] = global_convergence_parameters.copy()
 
                 global_convergence_parameters['hold'] = convergence_section['hold']
-                convergence_config_dict['global_convergence_parameters'] = global_convergence_parameters
+                convergence_validated_config_dict['global_convergence_parameters'] = global_convergence_parameters
 
             else:
                 raise ValueError("convergence criteria unclear %s", convergence_section['type'])
@@ -980,10 +989,10 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             lock_t_inner_cycles = None
             t_inner_update_exponent = None
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
-            convergence_config_dict['type'] = 'damped'
+            convergence_validated_config_dict['type'] = 'damped'
             for convergence_variable in convergence_variables:
                 convergence_parameter_name = convergence_variable
-                convergence_config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
+                convergence_validated_config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
         if lock_t_inner_cycles is None:
             logger.warning('t_inner update lock cycles not set - defaulting to 1')
             lock_t_inner_cycles = 1
@@ -991,11 +1000,11 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             logger.warning('t_inner update exponent not set - defaulting to -0.5')
             t_inner_update_exponent = -0.5
 
-        convergence_config_dict['lock_t_inner_cycles'] = lock_t_inner_cycles
-        convergence_config_dict['t_inner_update_exponent'] = t_inner_update_exponent
+        convergence_validated_config_dict['lock_t_inner_cycles'] = lock_t_inner_cycles
+        convergence_validated_config_dict['t_inner_update_exponent'] = t_inner_update_exponent
 
 
-        montecarlo_config_dict['convergence'] = convergence_config_dict
+        montecarlo_validated_config_dict['convergence'] = convergence_validated_config_dict
         ###### END of convergence section reading
 
         if 'last_no_of_packets' not in montecarlo_section:
@@ -1004,32 +1013,32 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         if 'no_of_virtual_packets' not in montecarlo_section:
             montecarlo_section['no_of_virtual_packets'] = 0
 
-        montecarlo_config_dict.update(montecarlo_section)
+        montecarlo_validated_config_dict.update(montecarlo_section)
 
         disable_electron_scattering = plasma_section.get('disable_electron_scattering', False)
 
         if disable_electron_scattering is False:
             logger.info("Electron scattering switched on")
-            montecarlo_config_dict['sigma_thomson'] =6.652486e-25 / (u.cm**2)
+            montecarlo_validated_config_dict['sigma_thomson'] =6.652486e-25 / (u.cm**2)
         else:
             logger.warn('Disabling electron scattering - this is not physical')
-            montecarlo_config_dict['sigma_thomson'] = 1e-200 / (u.cm**2)
+            montecarlo_validated_config_dict['sigma_thomson'] = 1e-200 / (u.cm**2)
 
-        montecarlo_config_dict['enable_reflective_inner_boundary'] = False
-        montecarlo_config_dict['inner_boundary_albedo'] = 0.0
+        montecarlo_validated_config_dict['enable_reflective_inner_boundary'] = False
+        montecarlo_validated_config_dict['inner_boundary_albedo'] = 0.0
 
         if 'inner_boundary_albedo' in montecarlo_section:
-            montecarlo_config_dict['inner_boundary_albedo'] = montecarlo_section['inner_boundary_albedo']
+            montecarlo_validated_config_dict['inner_boundary_albedo'] = montecarlo_section['inner_boundary_albedo']
             if 'enable_reflective_inner_boundary' not in montecarlo_section:
                 logger.warn('inner_boundary_albedo set, however enable_reflective_inner_boundary option not specified '
                             '- defaulting to reflective inner boundary')
-                montecarlo_config_dict['enable_reflective_inner_boundary'] = True
+                montecarlo_validated_config_dict['enable_reflective_inner_boundary'] = True
 
             if 'enable_reflective_inner_boundary' in montecarlo_section:
-                montecarlo_config_dict['enable_reflective_inner_boundary'] = montecarlo_section['enable_reflective_inner_boundary']
+                montecarlo_validated_config_dict['enable_reflective_inner_boundary'] = montecarlo_section['enable_reflective_inner_boundary']
                 if montecarlo_section['enable_reflective_inner_boundary'] == True and 'inner_boundary_albedo' not in montecarlo_section:
                     logger.warn('enabled reflective inner boundary, but "inner_boundary_albedo" not set - defaulting to 0.5')
-                    montecarlo_config_dict['inner_boundary_albedo'] = 0.5
+                    montecarlo_validated_config_dict['inner_boundary_albedo'] = 0.5
 
 
 
@@ -1038,18 +1047,18 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             black_body_sampling_section = montecarlo_section.pop('black_body_sampling')
             sampling_start, sampling_end = parse_spectral_bin(black_body_sampling_section['start'],
                                                                                 black_body_sampling_section['stop'])
-            montecarlo_config_dict['black_body_sampling']['start'] = sampling_start
-            montecarlo_config_dict['black_body_sampling']['end'] = sampling_end
-            montecarlo_config_dict['black_body_sampling']['samples'] = np.int64(black_body_sampling_section['num'])
+            montecarlo_validated_config_dict['black_body_sampling']['start'] = sampling_start
+            montecarlo_validated_config_dict['black_body_sampling']['end'] = sampling_end
+            montecarlo_validated_config_dict['black_body_sampling']['samples'] = np.int64(black_body_sampling_section['num'])
         else:
             logger.warn('No "black_body_sampling" section in config file - using defaults of '
                         '50 - 200000 Angstrom (1e6 samples)')
-            montecarlo_config_dict['black_body_sampling'] = {}
-            montecarlo_config_dict['black_body_sampling']['start'] = 50 * u.angstrom
-            montecarlo_config_dict['black_body_sampling']['end'] = 200000 * u.angstrom
-            montecarlo_config_dict['black_body_sampling']['samples'] = np.int64(1e6)
+            montecarlo_validated_config_dict['black_body_sampling'] = {}
+            montecarlo_validated_config_dict['black_body_sampling']['start'] = 50 * u.angstrom
+            montecarlo_validated_config_dict['black_body_sampling']['end'] = 200000 * u.angstrom
+            montecarlo_validated_config_dict['black_body_sampling']['samples'] = np.int64(1e6)
 
-        config_dict['montecarlo'] = montecarlo_config_dict
+        validated_config_dict['montecarlo'] = montecarlo_validated_config_dict
         ##### End of MonteCarlo section
 
 
@@ -1058,24 +1067,24 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         ##### spectrum section ######
-        spectrum_section = raw_dict.pop('spectrum')
-        spectrum_config_dict = {}
+        spectrum_section = validated_config_dict.pop('spectrum')
+        spectrum_validated_config_dict = {}
         spectrum_frequency = parse_quantity_linspace(spectrum_section).to('Hz', u.spectral())
 
         if spectrum_frequency[0] > spectrum_frequency[1]:
             spectrum_frequency = spectrum_frequency[::-1]
 
-        spectrum_config_dict['start'] = parse_quantity(spectrum_section['start'])
-        spectrum_config_dict['end'] = parse_quantity(spectrum_section['stop'])
-        spectrum_config_dict['bins'] = spectrum_section['num']
+        spectrum_validated_config_dict['start'] = parse_quantity(spectrum_section['start'])
+        spectrum_validated_config_dict['end'] = parse_quantity(spectrum_section['stop'])
+        spectrum_validated_config_dict['bins'] = spectrum_section['num']
 
 
-        spectrum_frequency = np.linspace(spectrum_config_dict['end'].to('Hz', u.spectral()).value,
-                                                         spectrum_config_dict['start'].to('Hz', u.spectral()).value,
-                                                         num=spectrum_config_dict['bins'] + 1) * u.Hz
+        spectrum_frequency = np.linspace(spectrum_validated_config_dict['end'].to('Hz', u.spectral()).value,
+                                                         spectrum_validated_config_dict['start'].to('Hz', u.spectral()).value,
+                                                         num=spectrum_validated_config_dict['bins'] + 1) * u.Hz
 
-        spectrum_config_dict['frequency'] = spectrum_frequency.to('Hz')
-        config_dict['spectrum'] = spectrum_config_dict
+        spectrum_validated_config_dict['frequency'] = spectrum_frequency.to('Hz')
+        validated_config_dict['spectrum'] = spectrum_validated_config_dict
 
 
 
