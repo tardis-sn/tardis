@@ -709,7 +709,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         #Parsing supernova dictionary
-        validated_config_dict['supernova'] = parse_supernova_section(validated_config_dict['supernova'])
+        #validated_config_dict['supernova'] = parse_supernova_section(validated_config_dict['supernova'])
 
         #Parsing the model section
         model_section = validated_config_dict.pop('model')
@@ -718,7 +718,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         mean_densities = None
         abundances = None
 
-
+        1/0
         if 'file' in model_section:
             v_inner, v_outer, mean_densities, abundances = parse_model_file_section(model_section.pop('file'),
                                                                                     validated_config_dict['supernova']['time_explosion'])
