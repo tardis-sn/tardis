@@ -126,16 +126,16 @@ model:
 
 
         filename:
-        property_type: string
-        default: None
-        mandatory: True
-        help: file name (with path) to structure model
+            property_type: string
+            default: None
+            mandatory: True
+            help: file name (with path) to structure model
 
         filetype:
-        property_type: string
-        default: None
-        mandatory: True
-        help: file type
+            property_type: string
+            default: None
+            mandatory: True
+            help: file type
 
         #### there are only a handful of types available how do we validate that ####
 
@@ -172,6 +172,7 @@ model:
                 property_type: container-declaration
                 containers: ['branch85_w7']
                 +branch85_w7: ['time_0', 'density_coefficient']
+                _branch85_w7: []
 
 
             time_0:
