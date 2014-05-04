@@ -122,7 +122,7 @@ model:
             containers: ['file', 'specific']
             _file: ['filename','filetype']
             +file: ['v_inner_boundary','v_outer_boundary']
-            _specific: ['density', 'velocity']
+            _specific: ['velocity']
 
 
         filename:
@@ -183,7 +183,7 @@ model:
 
             density_coefficient:
                 property_type: float
-                default: 3e29`
+                default: 3e29
                 mandatory: False
                 help: This needs no change - DO NOT TOUCH
 
