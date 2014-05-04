@@ -712,60 +712,38 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         #validated_config_dict['supernova'] = parse_supernova_section(validated_config_dict['supernova'])
 
         #Parsing the model section
-        model_section = validated_config_dict.pop('model')
+
+        model_section = validated_config_dict['model']
         v_inner = None
         v_outer = None
         mean_densities = None
         abundances = None
 
-        1/0
-        if 'file' in model_section:
-            v_inner, v_outer, mean_densities, abundances = parse_model_file_section(model_section.pop('file'),
-                                                                                    validated_config_dict['supernova']['time_explosion'])
+        structure_section = model_section['structure']
 
+        if structure_section['type'] == 'specific':
+            velocities = model_section['structure']['velocity']
+            v_inner, v_outer = velocities[:-1], velocities[1:]
 
+            mean_densities = parse_density_section(
+                model_section['structure']['density'], v_inner, v_outer,
+                validated_config_dict['supernova']['time_explosion'])
 
-        structure_validated_config_dict = {}
-
-        if 'structure' in model_section:
-        #Trying to figure out the structure (number of shells)
-
-            structure_section = model_section.pop('structure')
-            inner_boundary_index, outer_boundary_index = None, None
-            try:
-                structure_section_type = structure_section['type']
-            except KeyError:
-                raise ConfigurationError('Structure section requires "type" keyword')
-
-
-            if structure_section_type == 'specific':
-                velocities = parse_quantity_linspace(structure_section['velocity']).to('cm/s')
-                v_inner, v_outer = velocities[:-1], velocities[1:]
-
-                mean_densities = parse_density_section(structure_section['density'], v_inner, v_outer,
-                                                       validated_config_dict['supernova']['time_explosion'])
-
-            elif structure_section_type == 'file':
-                v_inner_boundary, v_outer_boundary = structure_section.get('v_inner_boundary', 0 * u.km/u.s), \
-                                                     structure_section.get('v_outer_boundary', np.inf * u.km/u.s)
-
-                if not hasattr(v_inner_boundary, 'unit'):
-                    v_inner_boundary = parse_quantity(v_inner_boundary)
-
-                if not hasattr(v_outer_boundary, 'unit'):
-                    v_outer_boundary = parse_quantity(v_outer_boundary)
-
-                v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index =\
-                    read_density_file(structure_section['filename'], structure_section['filetype'],
-                                      validated_config_dict['supernova']['time_explosion'], v_inner_boundary, v_outer_boundary)
-        else:
-            raise ConfigurationError('structure section required in configuration file')
+        elif structure_section == 'file':
+            1/0
+            v_inner, v_outer, mean_densities, inner_boundary_index, \
+            outer_boundary_index = read_density_file(
+                structure_section['filename'], structure_section['filetype'],
+                validated_config_dict['supernova']['time_explosion'],
+                structure_section['v_inner_boundary'],
+                structure_section['v_outer_boundary'])
 
 
         r_inner = validated_config_dict['supernova']['time_explosion'] * v_inner
         r_outer = validated_config_dict['supernova']['time_explosion'] * v_outer
         r_middle = 0.5 * (r_inner + r_outer)
 
+        structure_validated_config_dict = {}
         structure_validated_config_dict['v_inner'] = v_inner
         structure_validated_config_dict['v_outer'] = v_outer
         structure_validated_config_dict['mean_densities'] = mean_densities
@@ -774,29 +752,31 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         structure_validated_config_dict['r_inner'] = r_inner
         structure_validated_config_dict['r_outer'] = r_outer
         structure_validated_config_dict['r_middle'] = r_middle
-        structure_validated_config_dict['volumes'] = (4. / 3) * np.pi * (r_outer ** 3 - r_inner ** 3)
+        structure_validated_config_dict['volumes'] = (4. / 3) * np.pi * \
+                                                     (r_outer ** 3 -
+                                                      r_inner ** 3)
 
 
 
 
-        validated_config_dict['structure'] = structure_validated_config_dict
+        validated_config_dict['model']['structure'].update(structure_validated_config_dict)
         #Now that the structure section is parsed we move on to the abundances
 
 
 
-        abundances_section  = model_section.pop('abundances')
-        abundances_type = abundances_section.pop('type')
+        abundances_section  = model_section['abundances']
 
-        if abundances_type == 'uniform':
+
+        if abundances_section['type'] == 'uniform':
             abundances = pd.DataFrame(columns=np.arange(no_of_shells),
                   index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
 
             for element_symbol_string in abundances_section:
-
+                if element_symbol_string == 'type': continue
                 z = element_symbol2atomic_number(element_symbol_string)
                 abundances.ix[z] = float(abundances_section[element_symbol_string])
 
-        elif abundances_type == 'file':
+        elif abundances_section['type'] == 'file':
             index, abundances = read_abundances_file(abundances_section['filename'], abundances_section['filetype'],
                                                      inner_boundary_index, outer_boundary_index)
             if len(index) != no_of_shells:
@@ -818,86 +798,48 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         ########### DOING PLASMA SECTION ###############
+        plasma_section = validated_config_dict['plasma']
 
-        plasma_section = validated_config_dict.pop('plasma')
-        plasma_validated_config_dict = {}
+        if plasma_section['initial_t_inner'] < 0.0 * u.K:
+            luminosity_requested = validated_config_dict['supernova']['luminosity_requested']
+            plasma_section['t_inner'] = ((luminosity_requested /
+                                           (4 * np.pi * r_inner[0]**2 *
+                                            constants.sigma_sb))**.25).to('K')
+            logger.info('"initial_t_inner" is not specified in the plasma '
+                        'section - initializing to %s with given luminosity',
+                        plasma_section['t_inner'])
 
-        if plasma_section['ionization'] not in ('nebular', 'lte'):
-            raise ConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
-        plasma_validated_config_dict['ionization'] = plasma_section['ionization']
 
 
-        if plasma_section['excitation'] not in ('dilute-lte', 'lte'):
-            raise ConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
-        plasma_validated_config_dict['excitation'] = plasma_section['excitation']
+        plasma_section['t_rads'] =  np.ones(no_of_shells) * \
+                                    plasma_section['initial_t_rads']
 
-        if plasma_section['radiative_rates_type'] not in ('dilute-blackbody', 'detailed'):
-            raise ConfigurationError('radiative_rates_types must be either "dilute-blackbody" or "detailed"')
-        plasma_validated_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
-
-        if plasma_section['line_interaction_type'] not in ('scatter', 'downbranch', 'macroatom'):
-            raise ConfigurationError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
-        plasma_validated_config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
-
-        if 'w_epsilon' in plasma_section:
-            plasma_validated_config_dict['w_epsilon'] = plasma_section['w_epsilon']
-        else:
-            logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
-            plasma_validated_config_dict['w_epsilon'] = 1e-10
-
-        if 'delta_treatment' in plasma_section:
-            plasma_validated_config_dict['delta_treatment'] = plasma_section['delta_treatment']
-        else:
-            logger.warn('"delta_treatment" not specified in plasma section - defaulting to None')
-            plasma_validated_config_dict['delta_treatment'] = None
-
-        if 'initial_t_inner' in plasma_section:
-            plasma_validated_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner']).to('K')
-        else:
-            plasma_validated_config_dict['t_inner'] = (((validated_config_dict['supernova']['luminosity_requested'] / \
-                                            (4 * np.pi * r_inner[0]**2 * constants.sigma_sb))**.5)**.5).to('K')
-            logger.info('"initial_t_inner" is not specified in the plasma section - '
-                        'initializing to %s with given luminosity', plasma_validated_config_dict['t_inner'])
-
-        if 'initial_t_rads' in plasma_section:
-            if isinstance('initial_t_rads', basestring):
-                    uniform_t_rads = parse_quantity(plasma_section['initial_t_rads'])
-                    plasma_validated_config_dict['t_rads'] = u.Quantity(np.ones(no_of_shells) * uniform_t_rads.value, u.K)
-
-            elif astropy.utils.isiterable(plasma_section['initial_t_rads']):
-                assert len(plasma_section['initial_t_rads']) == no_of_shells
-                plasma_validated_config_dict['t_rads'] = u.Quantity(plasma_section['initial_t_rads'], u.K)
-        else:
-            logger.info('No "initial_t_rads" specified - initializing with 10000 K')
-
-            plasma_validated_config_dict['t_rads'] =  u.Quantity(np.ones(no_of_shells) * 10000., u.K)
 
         ##### NLTE subsection of Plasma start
         nlte_validated_config_dict = {}
         nlte_species = []
-        if 'nlte' in plasma_section:
-            nlte_section = plasma_section['nlte']
-            if 'species' in nlte_section:
-                nlte_species_list = nlte_section.pop('species')
-                for species_string in nlte_species_list:
-                    nlte_species.append(species_string_to_tuple(species_string))
+        nlte_section = plasma_section['nlte']
 
-                nlte_validated_config_dict['species'] = nlte_species
-                nlte_validated_config_dict['species_string'] = nlte_species_list
-                nlte_validated_config_dict.update(nlte_section)
+        nlte_species_list = nlte_section.pop('species')
+        for species_string in nlte_species_list:
+            nlte_species.append(species_string_to_tuple(species_string))
 
-                if 'coronal_approximation' not in nlte_section:
-                    logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
-                    nlte_validated_config_dict['coronal_approximation'] = False
+        nlte_validated_config_dict['species'] = nlte_species
+        nlte_validated_config_dict['species_string'] = nlte_species_list
+        nlte_validated_config_dict.update(nlte_section)
 
-                if 'classical_nebular' not in nlte_section:
-                    logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
-                    nlte_validated_config_dict['classical_nebular'] = False
+        if 'coronal_approximation' not in nlte_section:
+            logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
+            nlte_validated_config_dict['coronal_approximation'] = False
+
+        if 'classical_nebular' not in nlte_section:
+            logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
+            nlte_validated_config_dict['classical_nebular'] = False
 
 
-            elif nlte_section: #checks that the dictionary is not empty
-                logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
-                            pp.pformat(nlte_section))
+        elif nlte_section: #checks that the dictionary is not empty
+            logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
+                        pp.pformat(nlte_section))
 
         if not nlte_validated_config_dict:
             nlte_validated_config_dict['species'] = []

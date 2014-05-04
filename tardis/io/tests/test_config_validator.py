@@ -4,6 +4,7 @@ from glob import glob
 from astropy import units as u
 import pytest
 import ast
+import numpy as np
 
 from tardis.io.config_validator import DefaultParser, Config, ConfigValueError
 
@@ -166,7 +167,7 @@ def test_default_parser_quantity_range_sampeled():
                    'property_type': 'quantity_range_sampled'}
 
     default = ['1.0 cm', '5 cm', 10]
-    return_default = [1.0 * u.cm, 5 * u.cm, 10]
+    return_default = np.linspace(*[1.0 * u.cm, 5 * u.cm, 10])
     wdefault = "kl"
     value = ['10 m', '50 cm', 10]
     return_value = [10 * u.m, 50 * u.cm, 10]

@@ -4,6 +4,7 @@ import re
 import logging
 import pprint
 import ast
+import numpy as np
 
 from astropy import units
 from astropy.units.core import UnitsException
@@ -436,14 +437,14 @@ class PropertyTypeQuantityRangeSampled(PropertyTypeQuantityRange):
 
     def to_type(self, value):
         if isinstance(value, list):
-            _tmp = self._to_units(value[:2])
-            _tmp.append(value[2])
-            return _tmp
+            result = self._to_units(value[:2])
+            result.append(float(value[2]))
         elif isinstance(value, dict):
             los = [value['start'], value['stop']]
-            _tmp = self._to_units(los)
-            _tmp.append(value['num'])
-            return _tmp
+            result = self._to_units(los)
+            result.append(float(value['num']))
+
+        return np.linspace(*result)
 
 
 class PropertyTypeString(PropertyType):

@@ -122,7 +122,7 @@ model:
             containers: ['file', 'specific']
             _file: ['filename','filetype']
             +file: ['v_inner_boundary','v_outer_boundary']
-            _specific: ['velocity']
+            _specific: ['velocity', 'density']
 
 
         filename:
@@ -234,7 +234,7 @@ montecarlo:
 
     black_body_sampling:
         property_type: quantity_range_sampled
-        default: [1 angstrom, 1e6 angstrom, 1e6 angstrom]
+        default: [1 angstrom, 1e6 angstrom, 1e6]
         mandatory: False
         help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)
 
