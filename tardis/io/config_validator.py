@@ -956,7 +956,7 @@ class Container(DefaultParser):
             try:
                 necessary_items = container_default_dict['type'][entry_name]
             except KeyError:
-                raise ValueError('Container insufficient specified')
+                raise ValueError('Container insufficient specified. %s is missing.'%entry_name)
 
                 #look for additional items
             entry_name = '+' + self.__selected_container
@@ -970,7 +970,7 @@ class Container(DefaultParser):
 
         if not self.__paper_abundances:
             for item in necessary_items:
-                if not item in container_dict.keys():
+                if not item in container_dict:
                     raise ValueError('Entry %s is missing in container [%s]' % (str(item), self.__container_path))
                 else:
                     self.__default_container[item], self.__config_container[item] = self.parse_container_items(
@@ -993,51 +993,26 @@ class Container(DefaultParser):
         else:
             self.__conf = {"No Name": self.__config_container}
 
-        def parse_container_items(top_default, top_config, level_name, full_path):
-            """Recursive parser for the container default dictionary and the container configuration
-            dictionary.
+    def parse_container_items(self, top_default, top_config, item, full_path):
+        """Recursive parser for the container default dictionary and the container configuration
+        dictionary.
 
-            Parameters
-            ----------
-            top_default:    dict
-                            container default dictionary of the upper recursion level
-            top_config:     dict
-                            container configuration dictionary of the upper recursion level
-            level_name:     str
-                            name(key) of the of the upper recursion level
-            path:           list of str
-                            path in the nested container dictionary from the main level to the current level
-            Returns
-            -------
-                            If the current recursion level is not a leaf, the function returns a dictionary with itself for
-            each branch. If the  current recursion level is a leaf the configured value and a configuration object is
-            returned
-            """
-            path = reduce_list(list(full_path), self.__container_path + [item])
-            tmp_conf_ob = {}
-            tmp_conf_val = {}
-            if isinstance(top_default, dict):
-                default_property = DefaultParser(top_default)
-                if default_property.is_container():
-                    container_conf = get_value_by_path(top_config, path)
-                    ccontainer = Container(top_default, container_conf)
-                    return ccontainer.get_container_ob(), ccontainer.get_container_conf()
-                elif not default_property.is_leaf:
-                    for k, v in top_default.items():
-                        tmp_conf_ob[k], tmp_conf_val[k] = parse_container_items(v, top_config, k, full_path + [k])
-                    return tmp_conf_ob, tmp_conf_val
-                else:
-                    default_property.set_path_in_dic(path)
-                    try:
-                        conf_value = get_value_by_path(top_config, path)
-                    except KeyError:
-                        conf_value = None
-
-                    if conf_value is not None:
-                        default_property.set_config_value(conf_value)
-
-                    return default_property, default_property.get_value()
-
+        Parameters
+        ----------
+        top_default:    dict
+                        container default dictionary of the upper recursion level
+        top_config:     dict
+                        container configuration dictionary of the upper recursion level
+        level_name:     str
+                        name(key) of the of the upper recursion level
+        path:           list of str
+                        path in the nested container dictionary from the main level to the current level
+        Returns
+        -------
+                        If the current recursion level is not a leaf, the function returns a dictionary with itself for
+        each branch. If the  current recursion level is a leaf the configured value and a configuration object is
+        returned
+        """
         def reduce_list(a, b):
             """
             removes items from list a which are in b. (o.B.d.A trivial)
@@ -1073,6 +1048,33 @@ class Container(DefaultParser):
             for key in path:
                 dict = _dict[key]
             return _dict
+
+
+        path = reduce_list(list(full_path), self.__container_path + [item])
+        tmp_conf_ob = {}
+        tmp_conf_val = {}
+        if isinstance(top_default, dict):
+            default_property = DefaultParser(top_default)
+            if default_property.is_container():
+                container_conf = get_value_by_path(top_config, path)
+                ccontainer = Container(top_default, container_conf)
+                return ccontainer.get_container_ob(), ccontainer.get_container_conf()
+            elif not default_property.is_leaf:
+                for k, v in top_default.items():
+                    tmp_conf_ob[k], tmp_conf_val[k] = parse_container_items(v, top_config, k, full_path + [k])
+                return tmp_conf_ob, tmp_conf_val
+            else:
+                default_property.set_path_in_dic(path)
+                try:
+                    conf_value = get_value_by_path(top_config, path)
+                except KeyError:
+                    conf_value = None
+
+                if conf_value is not None:
+                    default_property.set_config_value(conf_value)
+
+                return default_property, default_property.get_value()
+
 
     def get_container_ob(self):
         """
@@ -1265,7 +1267,7 @@ class Config(object):
                     try:
                         ccontainer = Container(top_default, container_conf, container_path=path)
                         return ccontainer.get_container_ob(), ccontainer.get_container_conf()
-
+#ToDo: remove general except!!!
                     except:
                         logger.warning('Container specified in default_configuration, but not used in the current\
                          configuration file. [%s]' % str(path))
