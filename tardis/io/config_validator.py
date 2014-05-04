@@ -346,6 +346,11 @@ class PropertyTypeQuantity(PropertyType):
         quantity_split = value.strip().split()
         quantity_value = quantity_split[0]
         quantity_unit = ' '.join(quantity_split[1:])
+        if quantity_unit.strip() == 'log_lsun':
+            quantity_value = 10 ** (float(quantity_value) +
+                                    np.log10(constants.L_sun.cgs.value))
+            quantity_unit = 'erg/s'
+
         return float(quantity_value) * units.Unit(quantity_unit)
 
 
@@ -353,9 +358,11 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
     @staticmethod
     def _to_units(los):
         if len(los) > 2:
-            loq = [(lambda x: (units.Quantity(float(x[0]), x[1])))(x.split()) for x in los[:-1]]
+            loq = [(lambda x: (units.Quantity(float(x[0]), x[1])))(x.split())
+                   for x in los[:-1]]
         else:
-            loq = [(lambda x: (units.Quantity(float(x[0]), x[1])))(x.split()) for x in los]
+            loq = [(lambda x: (units.Quantity(float(x[0]), x[1])))(x.split())
+                   for x in los]
         try:
             _ = reduce((lambda a, b: a.to(b.unit)), loq)
             loq = [a.to(loq[0].unit) for a in loq]

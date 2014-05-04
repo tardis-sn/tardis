@@ -116,71 +116,76 @@ plasma:
 
 model:
     structure:
-      property_type : container-property
-      type:
-          property_type: container-declaration
-          containers: ['file', 'specific']
-          _file: ['filename','filetype']
-          +file: ['v_inner_boundary','v_outer_boundary']
-          _specific: ['specific-property']
-          
-  
-      filename:
+        property_type : container-property
+        type:
+            property_type: container-declaration
+            containers: ['file', 'specific']
+            _file: ['filename','filetype']
+            +file: ['v_inner_boundary','v_outer_boundary']
+            _specific: ['density', 'velocity']
+
+
+        filename:
         property_type: string
         default: None
         mandatory: True
         help: file name (with path) to structure model
 
-      filetype:
+        filetype:
         property_type: string
         default: None
         mandatory: True
         help: file type
+
         #### there are only a handful of types available how do we validate that ####
 
-          
 
-      v_inner_boundary:
-        property_type: quantity
-        default: 0 km/s
-        mandatory: False
-        help: location of the inner boundary chosen from the model
 
-      v_outer_boundary:
-          property_type: quantity
-          default: inf km/s
-          mandatory: False
-          help: location of the inner boundary chosen from the model
+        v_inner_boundary:
+            property_type: quantity
+            default: 0 km/s
+            mandatory: False
+            help: location of the inner boundary chosen from the model
 
-      specific_property:
-          velocity:
-              property_type: quantity_range
-              default: None
-              mandatory: True
-              help: location of boundaries in the velocity field. There will be n-1 cells as this specifis both the inner and outer velocity components
-  
-  
-          density:
-              property_type: container-property
-              type:
-                  property_type: container-declaration
-                  containers: ['branch85_w7']
-  
-                  _branch85_w7: ['branch85_w7-property'] # list
-  
-              branch85_w7-property:
-                  time_0:
-                      property_type: quantity
-                      default: 19.9999584 s
-                      mandatory: False
-                      help: This needs no change - DO NOT TOUCH
-  
-                  density_coefficient:
-                      property_type: float
-                      default: 3e29
-                      mandatory: False
-                      help: This needs no change - DO NOT TOUCH
-                      
+        v_outer_boundary:
+            property_type: quantity
+            default: inf km/s
+            mandatory: False
+            help: location of the inner boundary chosen from the model
+
+#        specific_property:
+#          velocity:
+#              property_type: quantity_range
+#              default: None
+#              mandatory: True
+#              help: location of boundaries in the velocity field. There will be n-1 cells as this specifis both the inner and outer velocity components
+
+        velocity:
+            property_type: quantity_range_sampled
+            default: None
+            mandatory: True
+            help: description of the boundaries of the shells
+
+        density:
+            property_type: container-property
+            type:
+                property_type: container-declaration
+                containers: ['branch85_w7']
+                +branch85_w7: ['time_0', 'density_coefficient']
+
+
+            time_0:
+                property_type: quantity
+                default: 19.9999584 s
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            density_coefficient:
+                property_type: float
+                default: 3e29`
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
     abundances:
         property_type: container-property
         type:
