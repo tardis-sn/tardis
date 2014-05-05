@@ -712,91 +712,69 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         #validated_config_dict['supernova'] = parse_supernova_section(validated_config_dict['supernova'])
 
         #Parsing the model section
-        model_section = validated_config_dict.pop('model')
+
+        model_section = validated_config_dict['model']
         v_inner = None
         v_outer = None
         mean_densities = None
         abundances = None
 
-        1/0
-        if 'file' in model_section:
-            v_inner, v_outer, mean_densities, abundances = parse_model_file_section(model_section.pop('file'),
-                                                                                    validated_config_dict['supernova']['time_explosion'])
+        structure_section = model_section['structure']
 
+        if structure_section['type'] == 'specific':
+            velocities = model_section['structure']['velocity']
+            v_inner, v_outer = velocities[:-1], velocities[1:]
 
+            mean_densities = parse_density_section(
+                model_section['structure']['density'], v_inner, v_outer,
+                validated_config_dict['supernova']['time_explosion'])
 
-        structure_validated_config_dict = {}
-
-        if 'structure' in model_section:
-        #Trying to figure out the structure (number of shells)
-
-            structure_section = model_section.pop('structure')
-            inner_boundary_index, outer_boundary_index = None, None
-            try:
-                structure_section_type = structure_section['type']
-            except KeyError:
-                raise ConfigurationError('Structure section requires "type" keyword')
-
-
-            if structure_section_type == 'specific':
-                velocities = parse_quantity_linspace(structure_section['velocity']).to('cm/s')
-                v_inner, v_outer = velocities[:-1], velocities[1:]
-
-                mean_densities = parse_density_section(structure_section['density'], v_inner, v_outer,
-                                                       validated_config_dict['supernova']['time_explosion'])
-
-            elif structure_section_type == 'file':
-                v_inner_boundary, v_outer_boundary = structure_section.get('v_inner_boundary', 0 * u.km/u.s), \
-                                                     structure_section.get('v_outer_boundary', np.inf * u.km/u.s)
-
-                if not hasattr(v_inner_boundary, 'unit'):
-                    v_inner_boundary = parse_quantity(v_inner_boundary)
-
-                if not hasattr(v_outer_boundary, 'unit'):
-                    v_outer_boundary = parse_quantity(v_outer_boundary)
-
-                v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index =\
-                    read_density_file(structure_section['filename'], structure_section['filetype'],
-                                      validated_config_dict['supernova']['time_explosion'], v_inner_boundary, v_outer_boundary)
-        else:
-            raise ConfigurationError('structure section required in configuration file')
+        elif structure_section['type'] == 'file':
+            v_inner, v_outer, mean_densities, inner_boundary_index, \
+            outer_boundary_index = read_density_file(
+                structure_section['filename'], structure_section['filetype'],
+                validated_config_dict['supernova']['time_explosion'],
+                structure_section['v_inner_boundary'],
+                structure_section['v_outer_boundary'])
 
 
         r_inner = validated_config_dict['supernova']['time_explosion'] * v_inner
         r_outer = validated_config_dict['supernova']['time_explosion'] * v_outer
         r_middle = 0.5 * (r_inner + r_outer)
 
-        structure_validated_config_dict['v_inner'] = v_inner
-        structure_validated_config_dict['v_outer'] = v_outer
-        structure_validated_config_dict['mean_densities'] = mean_densities
+        structure_validated_config_dict = {}
+        structure_section['v_inner'] = v_inner
+        structure_section['v_outer'] = v_outer
+        structure_section['mean_densities'] = mean_densities
         no_of_shells = len(v_inner)
-        structure_validated_config_dict['no_of_shells'] = no_of_shells
-        structure_validated_config_dict['r_inner'] = r_inner
-        structure_validated_config_dict['r_outer'] = r_outer
-        structure_validated_config_dict['r_middle'] = r_middle
-        structure_validated_config_dict['volumes'] = (4. / 3) * np.pi * (r_outer ** 3 - r_inner ** 3)
+        structure_section['no_of_shells'] = no_of_shells
+        structure_section['r_inner'] = r_inner
+        structure_section['r_outer'] = r_outer
+        structure_section['r_middle'] = r_middle
+        structure_section['volumes'] = (4. / 3) * np.pi * \
+                                                     (r_outer ** 3 -
+                                                      r_inner ** 3)
 
 
+        #### TODO the following is legacy code and should be removed
+        validated_config_dict['structure'] = \
+            validated_config_dict['model']['structure']
+        # ^^^^^^^^^^^^^^^^
 
 
-        validated_config_dict['structure'] = structure_validated_config_dict
-        #Now that the structure section is parsed we move on to the abundances
+        abundances_section  = model_section['abundances']
 
 
-
-        abundances_section  = model_section.pop('abundances')
-        abundances_type = abundances_section.pop('type')
-
-        if abundances_type == 'uniform':
+        if abundances_section['type'] == 'uniform':
             abundances = pd.DataFrame(columns=np.arange(no_of_shells),
                   index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
 
             for element_symbol_string in abundances_section:
-
+                if element_symbol_string == 'type': continue
                 z = element_symbol2atomic_number(element_symbol_string)
                 abundances.ix[z] = float(abundances_section[element_symbol_string])
 
-        elif abundances_type == 'file':
+        elif abundances_section['type'] == 'file':
             index, abundances = read_abundances_file(abundances_section['filename'], abundances_section['filetype'],
                                                      inner_boundary_index, outer_boundary_index)
             if len(index) != no_of_shells:
@@ -818,278 +796,79 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         ########### DOING PLASMA SECTION ###############
+        plasma_section = validated_config_dict['plasma']
 
-        plasma_section = validated_config_dict.pop('plasma')
-        plasma_validated_config_dict = {}
+        if plasma_section['initial_t_inner'] < 0.0 * u.K:
+            luminosity_requested = validated_config_dict['supernova']['luminosity_requested']
+            plasma_section['t_inner'] = ((luminosity_requested /
+                                           (4 * np.pi * r_inner[0]**2 *
+                                            constants.sigma_sb))**.25).to('K')
+            logger.info('"initial_t_inner" is not specified in the plasma '
+                        'section - initializing to %s with given luminosity',
+                        plasma_section['t_inner'])
 
-        if plasma_section['ionization'] not in ('nebular', 'lte'):
-            raise ConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
-        plasma_validated_config_dict['ionization'] = plasma_section['ionization']
 
 
-        if plasma_section['excitation'] not in ('dilute-lte', 'lte'):
-            raise ConfigurationError('plasma_type only allowed to be "nebular" or "lte"')
-        plasma_validated_config_dict['excitation'] = plasma_section['excitation']
-
-        if plasma_section['radiative_rates_type'] not in ('dilute-blackbody', 'detailed'):
-            raise ConfigurationError('radiative_rates_types must be either "dilute-blackbody" or "detailed"')
-        plasma_validated_config_dict['radiative_rates_type'] = plasma_section['radiative_rates_type']
-
-        if plasma_section['line_interaction_type'] not in ('scatter', 'downbranch', 'macroatom'):
-            raise ConfigurationError('radiative_rates_types must be either "scatter", "downbranch", or "macroatom"')
-        plasma_validated_config_dict['line_interaction_type'] = plasma_section['line_interaction_type']
-
-        if 'w_epsilon' in plasma_section:
-            plasma_validated_config_dict['w_epsilon'] = plasma_section['w_epsilon']
+        plasma_section['t_rads'] =  np.ones(no_of_shells) * \
+                                    plasma_section['initial_t_rad']
+        if plasma_section['disable_electron_scattering'] is False:
+            logger.debug("Electron scattering switched on")
+            config_dict['montecarlo']['sigma_thomson'] =6.652486e-25 / (u.cm**2)
         else:
-            logger.warn('"w_epsilon" not specified in plasma section - setting it to 1e-10')
-            plasma_validated_config_dict['w_epsilon'] = 1e-10
+            logger.warn('Disabling electron scattering - this is not physical')
+            config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm**2)
 
-        if 'delta_treatment' in plasma_section:
-            plasma_validated_config_dict['delta_treatment'] = plasma_section['delta_treatment']
-        else:
-            logger.warn('"delta_treatment" not specified in plasma section - defaulting to None')
-            plasma_validated_config_dict['delta_treatment'] = None
-
-        if 'initial_t_inner' in plasma_section:
-            plasma_validated_config_dict['t_inner'] = parse_quantity(plasma_section['initial_t_inner']).to('K')
-        else:
-            plasma_validated_config_dict['t_inner'] = (((validated_config_dict['supernova']['luminosity_requested'] / \
-                                            (4 * np.pi * r_inner[0]**2 * constants.sigma_sb))**.5)**.5).to('K')
-            logger.info('"initial_t_inner" is not specified in the plasma section - '
-                        'initializing to %s with given luminosity', plasma_validated_config_dict['t_inner'])
-
-        if 'initial_t_rads' in plasma_section:
-            if isinstance('initial_t_rads', basestring):
-                    uniform_t_rads = parse_quantity(plasma_section['initial_t_rads'])
-                    plasma_validated_config_dict['t_rads'] = u.Quantity(np.ones(no_of_shells) * uniform_t_rads.value, u.K)
-
-            elif astropy.utils.isiterable(plasma_section['initial_t_rads']):
-                assert len(plasma_section['initial_t_rads']) == no_of_shells
-                plasma_validated_config_dict['t_rads'] = u.Quantity(plasma_section['initial_t_rads'], u.K)
-        else:
-            logger.info('No "initial_t_rads" specified - initializing with 10000 K')
-
-            plasma_validated_config_dict['t_rads'] =  u.Quantity(np.ones(no_of_shells) * 10000., u.K)
 
         ##### NLTE subsection of Plasma start
         nlte_validated_config_dict = {}
         nlte_species = []
-        if 'nlte' in plasma_section:
-            nlte_section = plasma_section['nlte']
-            if 'species' in nlte_section:
-                nlte_species_list = nlte_section.pop('species')
-                for species_string in nlte_species_list:
-                    nlte_species.append(species_string_to_tuple(species_string))
+        nlte_section = plasma_section['nlte']
 
-                nlte_validated_config_dict['species'] = nlte_species
-                nlte_validated_config_dict['species_string'] = nlte_species_list
-                nlte_validated_config_dict.update(nlte_section)
+        nlte_species_list = nlte_section.pop('species')
+        for species_string in nlte_species_list:
+            nlte_species.append(species_string_to_tuple(species_string))
 
-                if 'coronal_approximation' not in nlte_section:
-                    logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
-                    nlte_validated_config_dict['coronal_approximation'] = False
+        nlte_validated_config_dict['species'] = nlte_species
+        nlte_validated_config_dict['species_string'] = nlte_species_list
+        nlte_validated_config_dict.update(nlte_section)
 
-                if 'classical_nebular' not in nlte_section:
-                    logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
-                    nlte_validated_config_dict['classical_nebular'] = False
+        if 'coronal_approximation' not in nlte_section:
+            logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
+            nlte_validated_config_dict['coronal_approximation'] = False
+
+        if 'classical_nebular' not in nlte_section:
+            logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
+            nlte_validated_config_dict['classical_nebular'] = False
 
 
-            elif nlte_section: #checks that the dictionary is not empty
-                logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
-                            pp.pformat(nlte_section))
+        elif nlte_section: #checks that the dictionary is not empty
+            logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
+                        pp.pformat(nlte_section))
 
         if not nlte_validated_config_dict:
             nlte_validated_config_dict['species'] = []
 
-        plasma_validated_config_dict['nlte'] = nlte_validated_config_dict
-
-
-
-        #^^^^^^^ NLTE subsection of Plasma end
-
-        validated_config_dict['plasma'] = plasma_validated_config_dict
-
+        plasma_section['nlte'] = nlte_validated_config_dict
 
         #^^^^^^^^^^^^^^ End of Plasma Section
 
         ##### Monte Carlo Section
 
-        montecarlo_section = validated_config_dict.pop('montecarlo')
-        montecarlo_validated_config_dict = {}
+        montecarlo_section = validated_config_dict['montecarlo']
 
         #PARSING convergence section
         convergence_variables = ['t_inner', 't_rad', 'w']
-        convergence_validated_config_dict = {}
-        if 'convergence_strategy' in montecarlo_section:
 
-            convergence_section = montecarlo_section.pop('convergence_strategy')
-            if 'lock_t_inner_cycles' in convergence_section:
-                lock_t_inner_cycles = convergence_section['lock_t_inner_cycles']
-                logger.info('lock_t_inner_cycles set to %d cycles', lock_t_inner_cycles)
-            else:
-                lock_t_inner_cycles = None
-
-            if 't_inner_update_exponent' in convergence_section:
-                t_inner_update_exponent = convergence_section['t_inner_update_exponent']
-                logger.info('t_inner update exponent set to %g', t_inner_update_exponent)
-            else:
-                t_inner_update_exponent = None
-
-            if convergence_section['type'] == 'damped':
-                convergence_validated_config_dict['type'] == 'damped'
-                global_damping_constant = convergence_section['damping_constant']
-
-                for convergence_variable in convergence_variables:
-                    convergence_parameter_name = convergence_variable
-                    current_convergence_parameters = {}
-                    convergence_validated_config_dict[convergence_parameter_name] = current_convergence_parameters
-
-                    if convergence_variable in convergence_section:
-                        current_convergence_parameters['damping_constant'] \
-                            = convergence_section[convergence_variable]['damping_constant']
-                    else:
-                        current_convergence_parameters['damping_constant'] = global_damping_constant
-
-            elif convergence_section['type'] == 'specific':
-
-                convergence_validated_config_dict['type'] = 'specific'
-
-                global_convergence_parameters = {}
-                global_convergence_parameters['damping_constant'] = convergence_section['damping_constant']
-                global_convergence_parameters['threshold'] = convergence_section['threshold']
-
-                global_convergence_parameters['fraction'] = convergence_section['fraction']
-
-                for convergence_variable in convergence_variables:
-                    convergence_parameter_name = convergence_variable
-                    current_convergence_parameters = {}
-
-                    convergence_validated_config_dict[convergence_parameter_name] = current_convergence_parameters
-                    if convergence_variable in convergence_section:
-                        for param in global_convergence_parameters.keys():
-                            if param == 'fraction' and convergence_variable == 't_inner':
-                                continue
-                            if param in convergence_section[convergence_variable]:
-                                current_convergence_parameters[param] = convergence_section[convergence_variable][param]
-                            else:
-                                current_convergence_parameters[param] = global_convergence_parameters[param]
-                    else:
-                        convergence_validated_config_dict[convergence_parameter_name] = global_convergence_parameters.copy()
-
-                global_convergence_parameters['hold'] = convergence_section['hold']
-                convergence_validated_config_dict['global_convergence_parameters'] = global_convergence_parameters
-
-            else:
-                raise ValueError("convergence criteria unclear %s", convergence_section['type'])
-
-
-
-        else:
-            lock_t_inner_cycles = None
-            t_inner_update_exponent = None
+        if montecarlo_section['convergence_strategy'] is None:
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
-            convergence_validated_config_dict['type'] = 'damped'
-            for convergence_variable in convergence_variables:
-                convergence_parameter_name = convergence_variable
-                convergence_validated_config_dict[convergence_parameter_name] = dict(damping_constant=0.5)
-        if lock_t_inner_cycles is None:
-            logger.warning('t_inner update lock cycles not set - defaulting to 1')
-            lock_t_inner_cycles = 1
-        if t_inner_update_exponent is None:
-            logger.warning('t_inner update exponent not set - defaulting to -0.5')
-            t_inner_update_exponent = -0.5
-
-        convergence_validated_config_dict['lock_t_inner_cycles'] = lock_t_inner_cycles
-        convergence_validated_config_dict['t_inner_update_exponent'] = t_inner_update_exponent
-
-
-        montecarlo_validated_config_dict['convergence'] = convergence_validated_config_dict
+            montecarlo_section['convergence_strategy'] = {
+                'lock_t_inner_ctyles':1,
+                'damping_constant':0.5,
+                't_inner_update_exponent':-0.5}
         ###### END of convergence section reading
 
-        if 'last_no_of_packets' not in montecarlo_section:
-            montecarlo_section['last_no_of_packets'] = None
 
-        if 'no_of_virtual_packets' not in montecarlo_section:
-            montecarlo_section['no_of_virtual_packets'] = 0
-
-        montecarlo_validated_config_dict.update(montecarlo_section)
-
-        disable_electron_scattering = plasma_section.get('disable_electron_scattering', False)
-
-        if disable_electron_scattering is False:
-            logger.info("Electron scattering switched on")
-            montecarlo_validated_config_dict['sigma_thomson'] =6.652486e-25 / (u.cm**2)
-        else:
-            logger.warn('Disabling electron scattering - this is not physical')
-            montecarlo_validated_config_dict['sigma_thomson'] = 1e-200 / (u.cm**2)
-
-        montecarlo_validated_config_dict['enable_reflective_inner_boundary'] = False
-        montecarlo_validated_config_dict['inner_boundary_albedo'] = 0.0
-
-        if 'inner_boundary_albedo' in montecarlo_section:
-            montecarlo_validated_config_dict['inner_boundary_albedo'] = montecarlo_section['inner_boundary_albedo']
-            if 'enable_reflective_inner_boundary' not in montecarlo_section:
-                logger.warn('inner_boundary_albedo set, however enable_reflective_inner_boundary option not specified '
-                            '- defaulting to reflective inner boundary')
-                montecarlo_validated_config_dict['enable_reflective_inner_boundary'] = True
-
-            if 'enable_reflective_inner_boundary' in montecarlo_section:
-                montecarlo_validated_config_dict['enable_reflective_inner_boundary'] = montecarlo_section['enable_reflective_inner_boundary']
-                if montecarlo_section['enable_reflective_inner_boundary'] == True and 'inner_boundary_albedo' not in montecarlo_section:
-                    logger.warn('enabled reflective inner boundary, but "inner_boundary_albedo" not set - defaulting to 0.5')
-                    montecarlo_validated_config_dict['inner_boundary_albedo'] = 0.5
-
-
-
-
-        if 'black_body_sampling' in montecarlo_section:
-            black_body_sampling_section = montecarlo_section.pop('black_body_sampling')
-            sampling_start, sampling_end = parse_spectral_bin(black_body_sampling_section['start'],
-                                                                                black_body_sampling_section['stop'])
-            montecarlo_validated_config_dict['black_body_sampling']['start'] = sampling_start
-            montecarlo_validated_config_dict['black_body_sampling']['end'] = sampling_end
-            montecarlo_validated_config_dict['black_body_sampling']['samples'] = np.int64(black_body_sampling_section['num'])
-        else:
-            logger.warn('No "black_body_sampling" section in config file - using defaults of '
-                        '50 - 200000 Angstrom (1e6 samples)')
-            montecarlo_validated_config_dict['black_body_sampling'] = {}
-            montecarlo_validated_config_dict['black_body_sampling']['start'] = 50 * u.angstrom
-            montecarlo_validated_config_dict['black_body_sampling']['end'] = 200000 * u.angstrom
-            montecarlo_validated_config_dict['black_body_sampling']['samples'] = np.int64(1e6)
-
-        validated_config_dict['montecarlo'] = montecarlo_validated_config_dict
-        ##### End of MonteCarlo section
-
-
-
-
-
-
-        ##### spectrum section ######
-        spectrum_section = validated_config_dict.pop('spectrum')
-        spectrum_validated_config_dict = {}
-        spectrum_frequency = parse_quantity_linspace(spectrum_section).to('Hz', u.spectral())
-
-        if spectrum_frequency[0] > spectrum_frequency[1]:
-            spectrum_frequency = spectrum_frequency[::-1]
-
-        spectrum_validated_config_dict['start'] = parse_quantity(spectrum_section['start'])
-        spectrum_validated_config_dict['end'] = parse_quantity(spectrum_section['stop'])
-        spectrum_validated_config_dict['bins'] = spectrum_section['num']
-
-
-        spectrum_frequency = np.linspace(spectrum_validated_config_dict['end'].to('Hz', u.spectral()).value,
-                                                         spectrum_validated_config_dict['start'].to('Hz', u.spectral()).value,
-                                                         num=spectrum_validated_config_dict['bins'] + 1) * u.Hz
-
-        spectrum_validated_config_dict['frequency'] = spectrum_frequency.to('Hz')
-        validated_config_dict['spectrum'] = spectrum_validated_config_dict
-
-
-
-
-        return cls(config_dict, atom_data)
+        return cls(validated_config_dict, atom_data)
 
 
     def __init__(self, config_dict, atom_data):
