@@ -7,6 +7,9 @@ import ast
 
 from tardis.io.config_validator import DefaultParser, Config, ConfigValueError
 
+from tardis.io import config_validator as default_config_parser
+myconf = default_config_parser.Config.from_yaml('tardis/io/tests/data/paper1_tardis_configv1.yml','tardis/data/tardis_config_definition.yml')
+
 existing_configs = glob(os.path.join('docs', 'examples', '*.yml'))
 existing_configs += glob(os.path.join('tardis', 'io', 'tests', 'data', '*.yml'))
 config_definition = os.path.join('tardis', 'data', 'tardis_default_config_definition.yml')
