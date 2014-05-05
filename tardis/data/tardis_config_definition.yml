@@ -135,7 +135,6 @@ model:
             property_type: string
             default: None
             mandatory: True
-            allowed_value: ascii artis
             help: file type
 
         v_inner_boundary:
