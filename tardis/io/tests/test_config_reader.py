@@ -50,7 +50,7 @@ class TestParsePaper1Config:
                             self.config.structure.v_inner[0])
         assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['stop']),
                     self.config.structure.v_outer[-1])
-        assert len(self.config.structure.v_outer) == self.yaml_data['model']['structure']['velocity']['num']
+        assert len(self.config.structure.v_outer) == (self.yaml_data['model']['structure']['velocity']['num'] - 1)
 
     def test_densities(self):
         pass
