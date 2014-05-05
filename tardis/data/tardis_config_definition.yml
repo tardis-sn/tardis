@@ -122,7 +122,7 @@ model:
             containers: ['file', 'specific']
             _file: ['filename','filetype']
             +file: ['v_inner_boundary','v_outer_boundary']
-            _specific: ['density', 'velocity']
+            _specific: ['velocity', 'density']
 
 
         filename:
@@ -135,11 +135,8 @@ model:
             property_type: string
             default: None
             mandatory: True
+            allowed_value: ascii artis
             help: file type
-
-        #### there are only a handful of types available how do we validate that ####
-
-
 
         v_inner_boundary:
             property_type: quantity
@@ -153,12 +150,6 @@ model:
             mandatory: False
             help: location of the inner boundary chosen from the model
 
-#        specific_property:
-#          velocity:
-#              property_type: quantity_range
-#              default: None
-#              mandatory: True
-#              help: location of boundaries in the velocity field. There will be n-1 cells as this specifis both the inner and outer velocity components
 
         velocity:
             property_type: quantity_range_sampled
@@ -183,7 +174,7 @@ model:
 
             density_coefficient:
                 property_type: float
-                default: 3e29`
+                default: 3e29
                 mandatory: False
                 help: This needs no change - DO NOT TOUCH
 
@@ -234,7 +225,7 @@ montecarlo:
 
     black_body_sampling:
         property_type: quantity_range_sampled
-        default: [1 angstrom, 1e6 angstrom, 1e6 angstrom]
+        default: [1 angstrom, 1e6 angstrom, 1e6]
         mandatory: False
         help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)
 
@@ -268,8 +259,8 @@ montecarlo:
         type:
             property_type: container-declaration
             containers: ['damped', 'specific']
-            _damped: ['damping_constant']
-            +damped: ['t_inner', 't_rad', 'w']
+            _damped: []
+            +damped: ['damping_constant', 't_inner', 't_rad', 'w']
             _specific: ['damping_constant', 'threshold', 'fraction', 'hold-iterations']
             +specific: ['t_inner', 't_rad', 'w']
         
