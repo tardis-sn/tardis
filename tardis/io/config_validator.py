@@ -4,8 +4,8 @@ import re
 import logging
 import pprint
 import ast
-import numpy as np
 
+import numpy as np
 from astropy import units
 from astropy.units.core import UnitsException
 import yaml
@@ -437,14 +437,14 @@ class PropertyTypeQuantityRangeSampled(PropertyTypeQuantityRange):
 
     def to_type(self, value):
         if isinstance(value, list):
-            result = self._to_units(value[:2])
-            result.append(float(value[2]))
+            _tmp = self._to_units(value[:2])
+            _tmp.append(value[2])
+            return _tmp
         elif isinstance(value, dict):
             los = [value['start'], value['stop']]
-            result = self._to_units(los)
-            result.append(float(value['num']))
-
-        return np.linspace(*result)
+            _tmp = self._to_units(los)
+            _tmp.append(value['num'])
+            return _tmp
 
 
 class PropertyTypeString(PropertyType):
@@ -821,7 +821,7 @@ class DefaultParser(object):
                 raise ConfigValueError(self.__config_value, self.__type.allowed_value, self.get_path_in_dict())
         else:
             if self.has_default:
-                logger.info("Value <%s> specified in the configuration violates a constraint\
+                logger.debug("Value <%s> specified in the configuration violates a constraint\
                                given in the default configuration. Expected type: %s. Using the default value." % (
                     str(self.__config_value), str(self.__property_type)))
                 return self.__type.default
@@ -830,7 +830,7 @@ class DefaultParser(object):
                     raise ValueError('Value is mandatory, but no value was given in default configuration. [%s]' % str(
                         self.get_path_in_dict()))
                 else:
-                    logger.info("Value is not mandatory and is not specified in the configuration. [%s]" % (
+                    logger.debug("Value is not mandatory and is not specified in the configuration. [%s]" % (
                         str(self.get_path_in_dict())))
                     return None
 
@@ -915,24 +915,34 @@ class Container(DefaultParser):
 
         #check if it is a valid default container
         if not 'type' in container_default_dict:
-            raise ValueError('The given default container is no valid')
+            raise ValueError('No type specified in the default configuration. [%s]' % (self.__container_path))
 
         #set allowed containers
         try:
             self.__allowed_container = container_default_dict['type']['containers']
         except KeyError:
-            raise ValueError('No container names specified')
+            raise ValueError('No container names specified in the default configuration. [%s]' % self.__container_path)
 
+
+        #check if the specified container is given in the config
+        if container_dict is None:
+            logger.debug('%s specified in the default configuration but not present in the configuration. [%s]' \
+                         % (container_path[-1], container_path))
+            self.__container_ob = None
+            self.__conf = None
+            return
         #check if the specified container in the config is allowed
         try:
             if not container_dict['type'] in self.__allowed_container:
 
-                raise ValueError('Wrong container type')
+                raise ValueError(
+                    'Wrong container type in the configuration! The container is %s but only %s are allowed containers. [%s]' \
+                    % (container_dict['type'], self.__allowed_container, self.__container_path))
             else:
                 type_dict = container_dict['type']
                 self.__type = container_dict['type']
         except KeyError:
-            raise ValueError('No container type specified')
+            raise ValueError('No type specified in the configuration. [%s]' % (self.__container_path))
 
         #get selected container from conf
         try:
@@ -943,6 +953,7 @@ class Container(DefaultParser):
 
         ####This is for the uniform abundances section in the paper.
         if self.__type == 'uniform' and self.__container_path[-1] == 'abundances':
+            logger.debug('Using the legacy support for the uniform abundances section in the paper.')
             self.__paper_abundances = True
             cabundances_section = PropertyTypeAbundances()
             tmp_container_dict = dict(container_dict)
@@ -957,7 +968,9 @@ class Container(DefaultParser):
             try:
                 necessary_items = container_default_dict['type'][entry_name]
             except KeyError:
-                raise ValueError('Container insufficient specified. %s is missing.'%entry_name)
+                raise ValueError('Container insufficient specified in the default configuration. The declaration of'
+                                 ' necessary items is missing. Add %s: ["your items"] to %s' % (
+                                 necessary_items, self.__container_path))
 
                 #look for additional items
             entry_name = '+' + self.__selected_container
@@ -972,7 +985,7 @@ class Container(DefaultParser):
         if not self.__paper_abundances:
             for item in necessary_items:
                 if not item in container_dict:
-                    raise ValueError('Entry %s is missing in container [%s]' % (str(item), self.__container_path))
+                    raise ValueError('Entry %s is missing in configuration. [%s]' % (str(item), self.__container_path))
                 else:
                     self.__default_container[item], self.__config_container[item] = self.parse_container_items(
                         container_default_dict[item],
@@ -1095,8 +1108,11 @@ class Container(DefaultParser):
         self.__container_ob:    dict
                                 container configuration
         """
-        self.__conf['type'] = self.__type
-        return self.__conf
+        if self.__conf is not None:
+            self.__conf['type'] = self.__type
+            return self.__conf
+        else:
+            return self.__conf
 
 
 class Config(object):
@@ -1265,19 +1281,19 @@ class Config(object):
 
                 if default_property.is_container():
                     container_conf = get_property_by_path(configuration, path)
-                    try:
-                        ccontainer = Container(top_default, container_conf, container_path=path)
-                        return ccontainer.get_container_ob(), ccontainer.get_container_conf()
-#ToDo: remove general except!!!
-                    except:
-                        logger.warning('Container specified in default_configuration, but not used in the current\
-                         configuration file. [%s]' % str(path))
-                        return None, None
+                    #try:
+                    ccontainer = Container(top_default, container_conf, container_path=path)
+                    return ccontainer.get_container_ob(), ccontainer.get_container_conf()
+                #ToDo: remove general except!!!
+                #except:
+                #    logger.warning('Container specified in default_configuration, but not used in the current\
+                #configuration file. [%s]' % str(path))
+                #    return None, None
 
                 elif not default_property.is_leaf:
                     no_default = self.__check_items_in_conf(get_property_by_path(configuration, path), top_default)
                     if len(no_default) > 0:
-                        logger.warning('The items %s from the configuration are not specified in the default\
+                        logger.debug('The items %s from the configuration are not specified in the default\
                          configuration' % str(no_default))
                     for k, v in top_default.items():
                         tmp_conf_ob[k], tmp_conf_val[k] = recursive_parser(v, configuration, path + [k])

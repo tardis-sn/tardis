@@ -134,8 +134,8 @@ model:
         filetype:
             property_type: string
             default: None
+            allowed_value: ['simple_ascii', 'bla']
             mandatory: True
-            allowed_value: ascii artis
             help: file type
 
         v_inner_boundary:
