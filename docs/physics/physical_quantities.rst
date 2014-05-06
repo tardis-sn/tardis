@@ -1,8 +1,8 @@
 .. _physical_quantities:
 
-*********************
+*****************************
 Accessing Physical Quantities
-*********************
+*****************************
 
 In order to compute the synthetic spectrum, Tardis must either be told
 or must calculate many physical properties of the model. To understand and
@@ -24,15 +24,12 @@ and then run your calculation, which is based on your "my_config.yml" file
 
 .. code-block:: python
 
-    from tardis.io import config_reader
-    from tardis import model, simulation
-    import numpy as np
-    import logging
-    import warnings
+    from tardis import run_tardis
+    import yaml
 
-    tardis_config = config_reader.Configuration.from_yaml("my_config.yml")
-    radial1d = model.Radial1DModel(tardis_config)
-    simulation.run_radial1d(radial1d)
+    configuration_dict = yaml.load(open('myconfig.yml')
+    model = run_tardis(configuration_dict)
+
 
 If all goes well, the simulation should run as usual. Afterwards, the
 information from the simulation will all exist in "radial1d" and
@@ -42,7 +39,7 @@ given below (but much more information is available: contact us via
 further help).
 
 Examples of finding physical quantities
--------------------------------
+---------------------------------------
 
 For example, two of our important quantities are the parameters of the
 radiation field model, :math:`T_{\rm rad}` and :math:`W`. These exist
@@ -50,20 +47,20 @@ as Astropy `Quantities <http://astropy.readthedocs.org/en/v0.2.1/_generated/astr
 
 .. code-block:: python
 
-    radial1d.t_rads.cgs
+    model.t_rads.cgs
 
 will give you a list of the :math:`T_{\rm rad}`-values for the model zones
 in cgs units. To obtain an array of the values (without units) use
 
 .. code-block:: python
 
-    radial1d.t_rads.cgs.value
+    model.t_rads.cgs.value
 
 Similarly, the :math:`W`-values can be accessed using
 
 .. code-block:: python
 
-    radial1d.ws.cgs
+    model.ws.cgs
 
 
 Several important quantities that were setup when the model was defined
@@ -73,14 +70,14 @@ zones in the model
 
 .. code-block:: python
 
-    radial1d.tardis_config.structure.v_inner.cgs
-    radial1d.tardis_config.structure.v_outer.cgs
+    model.tardis_config.structure.v_inner.cgs
+    model.tardis_config.structure.v_outer.cgs
 
 and the average density in the zones
 
 .. code-block:: python
 
-    radial1d.tardis_config.structure.mean_densities.cgs
+    model.tardis_config.structure.mean_densities.cgs
 
 Many other interesting quantities are stored in the
 "plasma_array". For example the calculated ion populations or level
@@ -88,8 +85,8 @@ populations:
 
 .. code-block:: python
 
-    radial1d.plasma_array.ion_populations
-    radial1d.plasma_array.level_populations   
+    model.plasma_array.ion_populations
+    model.plasma_array.level_populations
 
 These are stored as Pandas `DataFrames
 <http://pandas.pydata.org/pandas-docs/version/0.13.1/generated/pandas.DataFrame.html>`_.
@@ -98,7 +95,7 @@ zone. E.g., for the ion populations of the innermost zone (index = 0)
 
 .. code-block:: python
 
-    radial1d.plasma_array.ion_populations[0]
+    model.plasma_array.ion_populations[0]
 
 Ion populations for a particular ionization stage of a particular
 element can be accessed by specifying an appropriate tuple :math:`(Z,C)`, which
@@ -107,7 +104,7 @@ identifies the element (via atomic number :math:`Z` ) and the charge
 
 .. code-block:: python
 
-    radial1d.plasma_array.ion_populations.ix[(14,1)]
+    model.plasma_array.ion_populations.ix[(14,1)]
 
 will identify the ion popuations for  Si II (:math:`Z=14, C=1`) in all
 the zones. The above examples can be combined to obtain e.g. the Si II
@@ -115,7 +112,7 @@ population in the innermost zone
 
 .. code-block:: python
 
-    radial1d.plasma_array.ion_populations[0].ix[(14,1)]
+    model.plasma_array.ion_populations[0].ix[(14,1)]
 
 The level populations are stored (and can be accessed) in a similar
 way - a third label can be used to pick out a particular atomic
@@ -124,7 +121,7 @@ of Si II
 
 .. code-block:: python
 
-    radial1d.plasma_array.level_populations.ix[(14,1,0)]
+    model.plasma_array.level_populations.ix[(14,1,0)]
 
 .. note::
 
