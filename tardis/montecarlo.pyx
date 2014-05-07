@@ -7,10 +7,8 @@
 import logging
 import time
 
-import numpy as np
 cimport numpy as np
 from astropy import constants
-from cython.view cimport array as cvarray
 
 np.import_array()
 
@@ -464,7 +462,7 @@ cdef inline int_type_t macro_atom(int_type_t activate_level,
 cdef flot_type_t calculate_kappa_bf(float_type_t 
     
 ):
-    TODO: Add kappa_bf here
+#TODO: Add kappa_bf here
 
 cdef float_type_t move_packet(float_type_t*r,
                               float_type_t*mu,
