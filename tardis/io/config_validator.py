@@ -4,8 +4,8 @@ import re
 import logging
 import pprint
 import ast
-import numpy as np
 
+import numpy as np
 from astropy import units
 from astropy.units.core import UnitsException
 import yaml
@@ -821,9 +821,9 @@ class DefaultParser(object):
                 raise ConfigValueError(self.__config_value, self.__type.allowed_value, self.get_path_in_dict())
         else:
             if self.has_default:
-                logger.debug("Value <%s> specified in the configuration violates a constraint\
-                               given in the default configuration. Expected type: %s. Using the default value." % (
-                    str(self.__config_value), str(self.__property_type)))
+                logger.debug("Value <%s> specified in the configuration violates a constraint "
+                             "given in the default configuration. Expected type: %s. Using the default value." % (
+                                 str(self.__config_value), str(self.__property_type)))
                 return self.__type.default
             else:
                 if self.is_mandatory:
@@ -915,7 +915,7 @@ class Container(DefaultParser):
 
         #check if it is a valid default container
         if not 'type' in container_default_dict:
-            raise ValueError('No type specified in the default configuration. [%s]' % (self.__container_path))
+            raise ValueError('No type specified in the default configuration. [%s]' % self.__container_path)
 
         #set allowed containers
         try:
@@ -923,10 +923,9 @@ class Container(DefaultParser):
         except KeyError:
             raise ValueError('No container names specified in the default configuration. [%s]' % self.__container_path)
 
-
         #check if the specified container is given in the config
         if container_dict is None:
-            logger.debug('%s specified in the default configuration but not present in the configuration. [%s]' \
+            logger.debug('%s specified in the default configuration but not present in the configuration. [%s]'
                          % (container_path[-1], container_path))
             self.__container_ob = None
             self.__conf = None
@@ -936,13 +935,14 @@ class Container(DefaultParser):
             if not container_dict['type'] in self.__allowed_container:
 
                 raise ValueError(
-                    'Wrong container type in the configuration! The container is %s but only %s are allowed containers. [%s]' \
-                    % (container_dict['type'], self.__allowed_container, self.__container_path))
+                    'Wrong container type in the configuration! The container is %s but only %s'
+                    ' are allowed containers. [%s]' % (container_dict['type'], self.__allowed_container,
+                                                       self.__container_path))
             else:
                 type_dict = container_dict['type']
                 self.__type = container_dict['type']
         except KeyError:
-            raise ValueError('No type specified in the configuration. [%s]' % (self.__container_path))
+            raise ValueError('No type specified in the configuration. [%s]' % self.__container_path)
 
         #get selected container from conf
         try:
@@ -970,7 +970,7 @@ class Container(DefaultParser):
             except KeyError:
                 raise ValueError('Container insufficient specified in the default configuration. The declaration of'
                                  ' necessary items is missing. Add %s: ["your items"] to %s' % (
-                                 necessary_items, self.__container_path))
+                    necessary_items, self.__container_path))
 
                 #look for additional items
             entry_name = '+' + self.__selected_container
@@ -1027,6 +1027,7 @@ class Container(DefaultParser):
         each branch. If the  current recursion level is a leaf the configured value and a configuration object is
         returned
         """
+
         def reduce_list(a, b):
             """
             removes items from list a which are in b. (o.B.d.A trivial)
@@ -1060,9 +1061,8 @@ class Container(DefaultParser):
                     value corresponding to the given path
             """
             for key in path:
-                dict = _dict[key]
+                _dict = _dict[key]
             return _dict
-
 
         path = reduce_list(list(full_path), self.__container_path + [item])
         tmp_conf_ob = {}
@@ -1088,7 +1088,6 @@ class Container(DefaultParser):
                     default_property.set_config_value(conf_value)
 
                 return default_property, default_property.get_value()
-
 
     def get_container_ob(self):
         """
@@ -1293,8 +1292,8 @@ class Config(object):
                 elif not default_property.is_leaf:
                     no_default = self.__check_items_in_conf(get_property_by_path(configuration, path), top_default)
                     if len(no_default) > 0:
-                        logger.debug('The items %s from the configuration are not specified in the default\
-                         configuration' % str(no_default))
+                        logger.debug('The items %s from the configuration are not specified in the default '
+                                     'configuration' % str(no_default))
                     for k, v in top_default.items():
                         tmp_conf_ob[k], tmp_conf_val[k] = recursive_parser(v, configuration, path + [k])
                     return tmp_conf_ob, tmp_conf_val
@@ -1309,6 +1308,7 @@ class Config(object):
                     if conf_value is not None:
                         default_property.set_config_value(conf_value)
                     return default_property, default_property.get_value()
+
         self.__conf_o, self.__conf_v = recursive_parser(default_configuration, configuration, [])
 
     @staticmethod
