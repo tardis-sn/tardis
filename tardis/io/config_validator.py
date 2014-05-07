@@ -4,8 +4,8 @@ import re
 import logging
 import pprint
 import ast
-
 import numpy as np
+
 from astropy import units
 from astropy.units.core import UnitsException
 import yaml
