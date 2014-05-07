@@ -134,6 +134,7 @@ model:
         filetype:
             property_type: string
             default: None
+            allowed_value: ['simple_ascii', 'bla']
             mandatory: True
             help: file type
 
