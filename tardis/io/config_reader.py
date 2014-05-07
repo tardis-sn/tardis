@@ -722,7 +722,8 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         structure_section = model_section['structure']
 
         if structure_section['type'] == 'specific':
-            velocities = model_section['structure']['velocity']
+            velocities = np.linspace(*model_section['structure']['velocity'])
+
             v_inner, v_outer = velocities[:-1], velocities[1:]
 
             mean_densities = parse_density_section(
