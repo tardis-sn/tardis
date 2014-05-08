@@ -3,10 +3,8 @@
 import logging
 import os
 import pprint
-import copy
 
 from astropy import constants, units as u
-import astropy.utils
 import numpy as np
 import pandas as pd
 import yaml
@@ -14,18 +12,15 @@ import yaml
 import tardis
 from tardis.io.model_reader import read_density_file, \
     calculate_density_after_time, read_abundances_file
-
 from tardis.io.config_validator import Config
 from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, \
     element_symbol2atomic_number
 
 
-
 pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
-
 
 data_dir = os.path.join(tardis.__path__[0], 'data')
 
@@ -43,10 +38,9 @@ inv_fe52_efolding_time = 1 / (0.497429 * u.day)
 inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
 
 
-
-
 class ConfigurationError(ValueError):
     pass
+
 
 def parse_quantity_linspace(quantity_linspace_dictionary, add_one=True):
     """
@@ -83,6 +77,7 @@ def parse_quantity_linspace(quantity_linspace_dictionary, add_one=True):
 
     return np.linspace(start.value, stop.value, num=num) * start.unit
 
+
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     spectral_bin_boundary_1 = parse_quantity(spectral_bin_boundary_1).to('Angstrom', u.spectral())
     spectral_bin_boundary_2 = parse_quantity(spectral_bin_boundary_2).to('Angstrom', u.spectral())
@@ -114,7 +109,7 @@ def calc_exponential_density(velocities, v_0, rho0):
     densities : ~astropy.Quantity
 
     """
-    densities =  rho0 * np.exp(-(velocities / v_0))
+    densities = rho0 * np.exp(-(velocities / v_0))
     return densities
 
 
@@ -147,8 +142,6 @@ def calc_power_law_density(velocities, velocity_0, rho_0, exponent):
 
 
 def parse_model_file_section(model_setup_file_dict, time_explosion):
-
-
     def parse_artis_model_setup_files(model_file_section_dict, time_explosion):
 
         ###### Reading the structure part of the ARTIS file pair
@@ -207,7 +200,8 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
 
         ###### Reading the abundance part of the ARTIS file pair
         abundances_fname = model_file_section_dict['abundances_fname']
-        abundances = pd.DataFrame(np.loadtxt(abundances_fname)[min_shell:max_shell, 1:].transpose(), index=np.arange(1, 31))
+        abundances = pd.DataFrame(np.loadtxt(abundances_fname)[min_shell:max_shell, 1:].transpose(),
+                                  index=np.arange(1, 31))
 
         ni_stable = abundances.ix[28] - artis_model['ni56_fraction']
         co_stable = abundances.ix[27] - artis_model['co56_fraction']
@@ -217,53 +211,66 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
         v_stable = abundances.ix[23] - 0.0
         ti_stable = abundances.ix[22] - 0.0
 
-
         abundances.ix[28] = ni_stable
-        abundances.ix[28] += artis_model['ni56_fraction'] * np.exp(-(time_explosion* inv_ni56_efolding_time).to(1).value)
+        abundances.ix[28] += artis_model['ni56_fraction'] * np.exp(
+            -(time_explosion * inv_ni56_efolding_time).to(1).value)
 
         abundances.ix[27] = co_stable
-        abundances.ix[27] += artis_model['co56_fraction'] * np.exp(-(time_explosion* inv_co56_efolding_time).to(1).value)
+        abundances.ix[27] += artis_model['co56_fraction'] * np.exp(
+            -(time_explosion * inv_co56_efolding_time).to(1).value)
         abundances.ix[27] += (inv_ni56_efolding_time * artis_model['ni56_fraction'] /
                               (inv_ni56_efolding_time - inv_co56_efolding_time)) * \
-                             (np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value) - np.exp(-(inv_ni56_efolding_time * time_explosion).to(1).value))
+                             (np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value) - np.exp(
+                                 -(inv_ni56_efolding_time * time_explosion).to(1).value))
 
         abundances.ix[26] = fe_stable
-        abundances.ix[26] += artis_model['fe52_fraction'] * np.exp(-(time_explosion * inv_fe52_efolding_time).to(1).value)
+        abundances.ix[26] += artis_model['fe52_fraction'] * np.exp(
+            -(time_explosion * inv_fe52_efolding_time).to(1).value)
         abundances.ix[26] += ((artis_model['co56_fraction'] * inv_ni56_efolding_time
                                - artis_model['co56_fraction'] * inv_co56_efolding_time
                                + artis_model['ni56_fraction'] * inv_ni56_efolding_time
                                - artis_model['ni56_fraction'] * inv_co56_efolding_time
-                               - artis_model['co56_fraction'] * inv_ni56_efolding_time * np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value)
-                               + artis_model['co56_fraction'] * inv_co56_efolding_time * np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value)
-                               - artis_model['ni56_fraction'] * inv_ni56_efolding_time * np.exp(-(inv_co56_efolding_time * time_explosion).to(1).value)
-                               + artis_model['ni56_fraction'] * inv_co56_efolding_time * np.exp(-(inv_ni56_efolding_time * time_explosion).to(1).value))
-        / (inv_ni56_efolding_time - inv_co56_efolding_time))
-
+                               - artis_model['co56_fraction'] * inv_ni56_efolding_time * np.exp(
+            -(inv_co56_efolding_time * time_explosion).to(1).value)
+                               + artis_model['co56_fraction'] * inv_co56_efolding_time * np.exp(
+            -(inv_co56_efolding_time * time_explosion).to(1).value)
+                               - artis_model['ni56_fraction'] * inv_ni56_efolding_time * np.exp(
+            -(inv_co56_efolding_time * time_explosion).to(1).value)
+                               + artis_model['ni56_fraction'] * inv_co56_efolding_time * np.exp(
+            -(inv_ni56_efolding_time * time_explosion).to(1).value))
+                              / (inv_ni56_efolding_time - inv_co56_efolding_time))
 
         abundances.ix[25] = mn_stable
         abundances.ix[25] += (inv_fe52_efolding_time * artis_model['fe52_fraction'] /
                               (inv_fe52_efolding_time - inv_mn52_efolding_time)) * \
-                             (np.exp(-(inv_mn52_efolding_time * time_explosion).to(1).value) - np.exp(-(inv_fe52_efolding_time * time_explosion).to(1).value))
+                             (np.exp(-(inv_mn52_efolding_time * time_explosion).to(1).value) - np.exp(
+                                 -(inv_fe52_efolding_time * time_explosion).to(1).value))
 
         abundances.ix[24] = cr_stable
-        abundances.ix[24] += artis_model['cr48_fraction'] * np.exp(-(time_explosion* inv_cr48_efolding_time).to(1).value)
+        abundances.ix[24] += artis_model['cr48_fraction'] * np.exp(
+            -(time_explosion * inv_cr48_efolding_time).to(1).value)
         abundances.ix[24] += ((artis_model['fe52_fraction'] * inv_fe52_efolding_time
                                - artis_model['fe52_fraction'] * inv_mn52_efolding_time
-                               - artis_model['fe52_fraction'] * inv_fe52_efolding_time * np.exp(-(inv_mn52_efolding_time * time_explosion).to(1).value)
-                               + artis_model['fe52_fraction'] * inv_mn52_efolding_time * np.exp(-(inv_fe52_efolding_time * time_explosion).to(1).value))
-        / (inv_fe52_efolding_time - inv_mn52_efolding_time))
+                               - artis_model['fe52_fraction'] * inv_fe52_efolding_time * np.exp(
+            -(inv_mn52_efolding_time * time_explosion).to(1).value)
+                               + artis_model['fe52_fraction'] * inv_mn52_efolding_time * np.exp(
+            -(inv_fe52_efolding_time * time_explosion).to(1).value))
+                              / (inv_fe52_efolding_time - inv_mn52_efolding_time))
 
         abundances.ix[23] = v_stable
         abundances.ix[23] += (inv_cr48_efolding_time * artis_model['cr48_fraction'] /
                               (inv_cr48_efolding_time - inv_v48_efolding_time)) * \
-                             (np.exp(-(inv_v48_efolding_time * time_explosion).to(1).value) - np.exp(-(inv_cr48_efolding_time * time_explosion).to(1).value))
+                             (np.exp(-(inv_v48_efolding_time * time_explosion).to(1).value) - np.exp(
+                                 -(inv_cr48_efolding_time * time_explosion).to(1).value))
 
         abundances.ix[22] = ti_stable
         abundances.ix[22] += ((artis_model['cr48_fraction'] * inv_cr48_efolding_time
                                - artis_model['cr48_fraction'] * inv_v48_efolding_time
-                               - artis_model['cr48_fraction'] * inv_cr48_efolding_time * np.exp(-(inv_v48_efolding_time * time_explosion).to(1).value)
-                               + artis_model['cr48_fraction'] * inv_v48_efolding_time * np.exp(-(inv_cr48_efolding_time * time_explosion).to(1).value))
-        / (inv_cr48_efolding_time - inv_v48_efolding_time))
+                               - artis_model['cr48_fraction'] * inv_cr48_efolding_time * np.exp(
+            -(inv_v48_efolding_time * time_explosion).to(1).value)
+                               + artis_model['cr48_fraction'] * inv_v48_efolding_time * np.exp(
+            -(inv_cr48_efolding_time * time_explosion).to(1).value))
+                              / (inv_cr48_efolding_time - inv_v48_efolding_time))
 
         if 'split_shells' in model_file_section_dict:
             split_shells = int(model_file_section_dict['split_shells'])
@@ -277,20 +284,18 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
             v_inner = velocities[:-1]
             v_outer = velocities[1:]
             old_mean_densities = mean_densities
-            mean_densities = np.empty(no_of_shells*split_shells) * old_mean_densities.unit
+            mean_densities = np.empty(no_of_shells * split_shells) * old_mean_densities.unit
             new_abundance_data = np.empty((abundances.values.shape[0], no_of_shells * split_shells))
             for i in xrange(split_shells):
                 mean_densities[i::split_shells] = old_mean_densities
-                new_abundance_data[:,i::split_shells] = abundances.values
+                new_abundance_data[:, i::split_shells] = abundances.values
 
             abundances = pd.DataFrame(new_abundance_data, index=abundances.index)
 
 
 
 
-    #def parser_simple_ascii_model
-
-
+            #def parser_simple_ascii_model
 
         return v_inner, v_outer, mean_densities, abundances
 
@@ -301,9 +306,7 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
         parser = model_file_section_parser[model_setup_file_dict['type']]
     except KeyError:
         raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
-                                (model_file_section_parser.keys(), model_file_section_parser['type']))
-
-
+                                 (model_file_section_parser.keys(), model_file_section_parser['type']))
 
     return parser(model_setup_file_dict, time_explosion)
 
@@ -372,7 +375,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         parser = density_file_parser[density_file_dict['type']]
     except KeyError:
         raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
-                                (density_file_parser.keys(), density_file_dict['type']))
+                                 (density_file_parser.keys(), density_file_dict['type']))
 
     return parser(density_file_dict, time_explosion)
 
@@ -439,12 +442,11 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
             v_0 = density_dict.pop('v_0')
             if isinstance(v_0, basestring):
                 v_0 = parse_quantity(v_0).to('cm/s')
-            
+
         except KeyError:
             v_0 = parse_quantity('1 cm/s')
             logger.warning('v_0 was not given in the config file! Using %f km/s', v_0)
 
-            
         velocities = 0.5 * (v_inner + v_outer)
         densities = calc_power_law_density(velocities, v_0, rho_0, exponent)
         densities = calculate_density_after_time(densities, time_0, time_explosion)
@@ -471,7 +473,7 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
             v_0 = density_dict.pop('v_0')
             if isinstance(v_0, basestring):
                 v_0 = parse_quantity(v_0).to('cm/s')
-            
+
         except KeyError:
             v_0 = parse_quantity('1 cm/s')
             logger.warning('v_0 was not given in the config file! Using %f km/s', v_0)
@@ -487,7 +489,7 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         parser = density_parser[density_dict['type']]
     except KeyError:
         raise ConfigurationError('In density section only types %s are allowed (supplied %s) ' %
-                                (density_parser.keys(), density_dict['type']))
+                                 (density_parser.keys(), density_dict['type']))
     return parser(density_dict, v_inner, v_outer, time_explosion)
 
 
@@ -513,10 +515,9 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
         parser = abundance_file_parser[abundance_file_dict['type']]
     except KeyError:
         raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
-                                (abundance_file_parser.keys(), abundance_file_dict['type']))
+                                 (abundance_file_parser.keys(), abundance_file_dict['type']))
 
     return parser(abundance_file_dict, abundances, min_shell, max_shell)
-
 
 
 def parse_supernova_section(supernova_dict):
@@ -541,7 +542,8 @@ def parse_supernova_section(supernova_dict):
     luminosity_value, luminosity_unit = supernova_dict['luminosity_requested'].strip().split()
 
     if luminosity_unit == 'log_lsun':
-        config_dict['luminosity_requested'] = 10 ** (float(luminosity_value) + np.log10(constants.L_sun.cgs.value)) * u.erg / u.s
+        config_dict['luminosity_requested'] = 10 ** (
+        float(luminosity_value) + np.log10(constants.L_sun.cgs.value)) * u.erg / u.s
     else:
         config_dict['luminosity_requested'] = (float(luminosity_value) * u.Unit(luminosity_unit)).to('erg/s')
 
@@ -553,19 +555,18 @@ def parse_supernova_section(supernova_dict):
         config_dict['distance'] = None
 
     if 'luminosity_wavelength_start' in supernova_dict:
-        config_dict['luminosity_nu_end'] = parse_quantity(supernova_dict['luminosity_wavelength_start']).\
+        config_dict['luminosity_nu_end'] = parse_quantity(supernova_dict['luminosity_wavelength_start']). \
             to('Hz', u.spectral())
     else:
         config_dict['luminosity_nu_end'] = np.inf * u.Hz
 
     if 'luminosity_wavelength_end' in supernova_dict:
-        config_dict['luminosity_nu_start'] = parse_quantity(supernova_dict['luminosity_wavelength_end']).\
+        config_dict['luminosity_nu_start'] = parse_quantity(supernova_dict['luminosity_wavelength_end']). \
             to('Hz', u.spectral())
     else:
         config_dict['luminosity_nu_start'] = 0.0 * u.Hz
 
     return config_dict
-
 
 
 def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.9999584, density_coefficient=3e29):
@@ -594,11 +595,7 @@ def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.999958
     return densities[1:]
 
 
-
-
-
 class TARDISConfigurationNameSpace(object):
-
     def __init__(self, config_dict):
         self.config_dict = config_dict
 
@@ -640,7 +637,6 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e
-
 
         tardis_config_version = yaml_dict.get('tardis_config_version', None)
         if tardis_config_version != 'v1.0':
@@ -691,14 +687,12 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         #First let's see if we can find an atom_db anywhere:
         if test_parser:
-          atom_data = None
+            atom_data = None
         elif 'atom_data' in validated_config_dict.keys():
             atom_data_fname = validated_config_dict['atom_data']
             validated_config_dict['atom_data_fname'] = atom_data_fname
         else:
             raise ConfigurationError('No atom_data key found in config or command line')
-
-
 
         if atom_data is None and not test_parser:
             logger.info('Reading Atomic Data from %s', atom_data_fname)
@@ -738,7 +732,6 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                 structure_section['v_inner_boundary'],
                 structure_section['v_outer_boundary'])
 
-
         r_inner = validated_config_dict['supernova']['time_explosion'] * v_inner
         r_outer = validated_config_dict['supernova']['time_explosion'] * v_outer
         r_middle = 0.5 * (r_inner + r_outer)
@@ -753,8 +746,8 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         structure_section['r_outer'] = r_outer
         structure_section['r_middle'] = r_middle
         structure_section['volumes'] = (4. / 3) * np.pi * \
-                                                     (r_outer ** 3 -
-                                                      r_inner ** 3)
+                                       (r_outer ** 3 -
+                                        r_inner ** 3)
 
 
         #### TODO the following is legacy code and should be removed
@@ -763,12 +756,11 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         # ^^^^^^^^^^^^^^^^
 
 
-        abundances_section  = model_section['abundances']
-
+        abundances_section = model_section['abundances']
 
         if abundances_section['type'] == 'uniform':
             abundances = pd.DataFrame(columns=np.arange(no_of_shells),
-                  index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
+                                      index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
 
             for element_symbol_string in abundances_section:
                 if element_symbol_string == 'type': continue
@@ -780,7 +772,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                                                      inner_boundary_index, outer_boundary_index)
             if len(index) != no_of_shells:
                 raise ConfigurationError('The abundance file specified has not the same number of cells'
-                'as the specified density profile')
+                                         'as the specified density profile')
 
         abundances = abundances.replace(np.nan, 0.0)
 
@@ -802,22 +794,20 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         if plasma_section['initial_t_inner'] < 0.0 * u.K:
             luminosity_requested = validated_config_dict['supernova']['luminosity_requested']
             plasma_section['t_inner'] = ((luminosity_requested /
-                                           (4 * np.pi * r_inner[0]**2 *
-                                            constants.sigma_sb))**.25).to('K')
+                                          (4 * np.pi * r_inner[0] ** 2 *
+                                           constants.sigma_sb)) ** .25).to('K')
             logger.info('"initial_t_inner" is not specified in the plasma '
                         'section - initializing to %s with given luminosity',
                         plasma_section['t_inner'])
 
-
-
-        plasma_section['t_rads'] =  np.ones(no_of_shells) * \
-                                    plasma_section['initial_t_rad']
+        plasma_section['t_rads'] = np.ones(no_of_shells) * \
+                                   plasma_section['initial_t_rad']
         if plasma_section['disable_electron_scattering'] is False:
             logger.debug("Electron scattering switched on")
-            config_dict['montecarlo']['sigma_thomson'] =6.652486e-25 / (u.cm**2)
+            config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
         else:
             logger.warn('Disabling electron scattering - this is not physical')
-            config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm**2)
+            config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm ** 2)
 
 
         ##### NLTE subsection of Plasma start
@@ -842,7 +832,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             nlte_validated_config_dict['classical_nebular'] = False
 
 
-        elif nlte_section: #checks that the dictionary is not empty
+        elif nlte_section:  #checks that the dictionary is not empty
             logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
                         pp.pformat(nlte_section))
 
@@ -863,9 +853,9 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         if montecarlo_section['convergence_strategy'] is None:
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
             montecarlo_section['convergence_strategy'] = {
-                'lock_t_inner_ctyles':1,
-                'damping_constant':0.5,
-                't_inner_update_exponent':-0.5}
+                'lock_t_inner_ctyles': 1,
+                'damping_constant': 0.5,
+                't_inner_update_exponent': -0.5}
         ###### END of convergence section reading
 
 

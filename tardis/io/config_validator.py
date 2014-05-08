@@ -983,13 +983,13 @@ class Container(DefaultParser):
                 pass
 
         if not self.__paper_abundances:
-            for item in necessary_items:
-                if not item in container_dict:
-                    raise ValueError('Entry %s is missing in configuration. [%s]' % (str(item), self.__container_path))
+            for nitem in necessary_items:
+                if not nitem in container_dict:
+                    raise ValueError('Entry %s is missing in configuration. [%s]' % (str(nitem), self.__container_path))
                 else:
-                    self.__default_container[item], self.__config_container[item] = self.parse_container_items(
-                        container_default_dict[item],
-                        container_dict[item], item, self.__container_path + [item])
+                    self.__default_container[nitem], self.__config_container[nitem] = self.parse_container_items(
+                        container_default_dict[nitem],
+                        container_dict[nitem], nitem, self.__container_path + [nitem])
                 if self.__has_additional_items:
                     for aitem in additional_items:
                         try:
@@ -1067,9 +1067,12 @@ class Container(DefaultParser):
             dict:   str
                     value corresponding to the given path
             """
-            for key in path:
-                _dict = _dict[key]
-            return _dict
+            if _dict is None:
+                return None
+            else:
+                for key in path:
+                    _dict = _dict[key]
+                return _dict
 
         path = reduce_list(list(full_path), self.__container_path + [item])
         tmp_conf_ob = {}
@@ -1078,11 +1081,17 @@ class Container(DefaultParser):
             default_property = DefaultParser(top_default)
             if default_property.is_container():
                 container_conf = get_value_by_path(top_config, path)
-                ccontainer = Container(top_default, container_conf)
+                ccontainer = Container(top_default, container_conf, container_path=full_path)
                 return ccontainer.get_container_ob(), ccontainer.get_container_conf()
             elif not default_property.is_leaf:
                 for k, v in top_default.items():
-                    tmp_conf_ob[k], tmp_conf_val[k] = parse_container_items(v, top_config, k, full_path + [k])
+                    if top_config is None:
+                        tmp_conf_ob[k], tmp_conf_val[k] = None, None
+                    else:
+                        self.__container_path = list(full_path)
+                        tmp_conf_ob[k], tmp_conf_val[k] = self.parse_container_items(v, top_config[k], k,
+                                                                                     full_path + [k])
+
                 return tmp_conf_ob, tmp_conf_val
             else:
                 default_property.set_path_in_dic(path)
