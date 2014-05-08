@@ -20,8 +20,8 @@ container_example:
     type: one
     one_one: 'Test'
     one_two:
-        sub_one_one: 'More test'
-        sub_one_two: '<uch more test'
+        sub_one_two_one: 'More test'
+        sub_one_two_two: '<uch more test'
 
 supernova:
     luminosity_requested: 1 cm

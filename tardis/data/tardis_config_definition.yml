@@ -161,14 +161,21 @@ model:
             property_type: container-property
             type:
                 property_type: container-declaration
-                containers: ['branch85_w7']
+                containers: ['branch85_w7','exponential','power_law']
                 +branch85_w7: ['time_0', 'density_coefficient']
                 _branch85_w7: []
-
+                _exponential: ['time_0','rho_0']
+                _power_law: []
 
             time_0:
                 property_type: quantity
                 default: 19.9999584 s
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            rho_0:
+                property_type: quantity
+                default: 6.e-10 g/cm^3
                 mandatory: False
                 help: This needs no change - DO NOT TOUCH
 
