@@ -1,10 +1,10 @@
 # tests for the config reader module
-
 from tardis.io import config_reader
 from astropy import units as u
 import os
 import pytest
 import yaml
+import numpy as np
 
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from tardis.util import parse_quantity
@@ -29,6 +29,18 @@ def test_quantity_linspace():
     assert_almost_equal(quantity_linspace[-1].to('cm/h').value, 2e4)
     assert len(quantity_linspace) == 1001
 
+def test_parse_density_section():
+    density_dict = {'type': 'branch85_w7'}
+    velocities = np.arange(10000, 20000, 1000) * u.Unit('km/s')
+    v_inner, v_outer = velocities[:-1], velocities[1:]
+    mean_densities = config_reader.parse_density_section(density_dict,
+                                                         v_inner, v_outer,
+                                                         10 * u.day)
+
+    desired_mean_densities_0 = 2.644491715248624e+22 * u.Unit('g/cm^3')
+
+    assert_almost_equal(mean_densities[0].cgs, desired_mean_densities_0)
+
 class TestParsePaper1Config:
 
     def setup(self):
@@ -42,8 +54,6 @@ class TestParsePaper1Config:
     def test_abundances(self):
         oxygen_abundance = self.yaml_data['model']['abundances']['O']
         assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
-
-        assert True
 
     def test_velocities(self):
         assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['start']),
@@ -78,6 +88,10 @@ class TestParsePaper1Config:
     def test_number_of_packets(self):
         assert_almost_equal(self.config['montecarlo']['no_of_packets'], 200000)
 
+
+    def test_time_explosion(self):
+        assert_almost_equal(self.config['supernova']['time_explosion'],
+                            13.0 * u.day)
 class TestParseConfigV1ASCIIDensity:
 
     def setup(self):
