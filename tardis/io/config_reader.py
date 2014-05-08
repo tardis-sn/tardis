@@ -716,7 +716,9 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         structure_section = model_section['structure']
 
         if structure_section['type'] == 'specific':
-            velocities = np.linspace(*model_section['structure']['velocity'])
+            start, stop, num = model_section['structure']['velocity']
+            num += 1
+            velocities = np.linspace(start, stop, num)
 
             v_inner, v_outer = velocities[:-1], velocities[1:]
 
