@@ -24,7 +24,18 @@ supernova:
         default: None
         help: distance to supernova
       
-    
+    luminosity_wavelength_start:
+        property_type: quantity
+        mandatory: False
+        default: 0 angstrom
+        help: start of the integral needed for getting the luminosity right
+
+
+    luminosity_wavelength_end:
+        property_type: quantity
+        mandatory: False
+        default: inf angstrom
+        help: start of the integral needed for getting the luminosity right
 
 atom_data:
     property_type: string

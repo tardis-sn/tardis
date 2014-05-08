@@ -569,6 +569,32 @@ def parse_supernova_section(supernova_dict):
     return config_dict
 
 
+def parse_spectrum_list2dict(spectrum_list):
+    """
+    Parse the spectrum list [start, stop, num] to a list
+    """
+
+    if spectrum_list[0].unit.physical_type != 'length' and \
+                    spectrum_list[1].unit.physical_type != 'length':
+        raise ValueError('start and end of spectrum need to be a length')
+
+
+    spectrum_config_dict = {}
+    spectrum_config_dict['start'] = spectrum_list[0]
+    spectrum_config_dict['end'] = spectrum_list[1]
+    spectrum_config_dict['bins'] = spectrum_list[2]
+
+    spectrum_frequency = np.linspace(
+        spectrum_config_dict['end'].to('Hz', u.spectral()),
+        spectrum_config_dict['start'].to('Hz', u.spectral()),
+        num=spectrum_config_dict['bins'] + 1)
+
+    spectrum_config_dict['frequency'] = spectrum_frequency
+
+    return spectrum_config_dict
+
+
+
 def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.9999584, density_coefficient=3e29):
     """
         Generated densities from the fit to W7 in Branch 85 page 620 (citation missing)
@@ -860,6 +886,9 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                 't_inner_update_exponent': -0.5}
         ###### END of convergence section reading
 
+
+        validated_config_dict['spectrum'] = parse_spectrum_list2dict(
+            validated_config_dict['spectrum'])
 
         return cls(validated_config_dict, atom_data)
 
