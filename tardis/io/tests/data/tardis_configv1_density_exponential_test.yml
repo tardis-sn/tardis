@@ -22,6 +22,7 @@ model:
             time_0: 2. day
             rho_0: 6.e-10 g/cm^3
             v_0: 3000.  km/s
+            exponent: 1.0
             
 
     abundances:
