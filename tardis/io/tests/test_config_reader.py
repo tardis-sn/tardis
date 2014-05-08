@@ -61,7 +61,30 @@ class TestParsePaper1Config:
         assert len(self.config.structure.v_outer) == (self.yaml_data['model']['structure']['velocity']['num'])
 
     def test_densities(self):
-        pass
+        desired_densities = [  7.54280360e-14,  5.72847501e-14,  4.39607422e-14,
+             3.40628743e-14,  2.66313464e-14,  2.09959645e-14,
+             1.66828721e-14,  1.33531053e-14,  1.07615377e-14,
+             8.72908485e-15,  7.12365156e-15,  5.84692095e-15,
+             4.82509279e-15,  4.00232416e-15,  3.33603855e-15,
+             2.79354038e-15,  2.34955043e-15,  1.98439683e-15,
+             1.68267689e-15,  1.43225980e-15] * u.Unit('g/cm^3')
+
+        assert_array_almost_equal(self.config['structure']['mean_densities'],
+                                  desired_densities)
+
+    def test_t_inner(self):
+        assert_almost_equal(self.config['plasma']['t_inner'],
+                            9974.969233778693 * u.K)
+
+    def test_montecarlo_black_body_sampling(self):
+        black_body_sampling = self.config['montecarlo']['black_body_sampling']
+
+        assert_almost_equal(black_body_sampling['start'], 50 * u.angstrom)
+        assert_almost_equal(black_body_sampling['end'], 200000 * u.angstrom)
+        assert_almost_equal(black_body_sampling['samples'], 1000000)
+
+    def test_number_of_packets(self):
+        assert_almost_equal(self.config['montecarlo']['no_of_packets'], 200000)
 
     def test_spectrum_section(self):
         assert_almost_equal(self.config['spectrum']['start'],
