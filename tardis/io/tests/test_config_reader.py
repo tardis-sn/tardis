@@ -50,7 +50,7 @@ class TestParsePaper1Config:
                             self.config.structure.v_inner[0])
         assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['stop']),
                     self.config.structure.v_outer[-1])
-        assert len(self.config.structure.v_outer) == (self.yaml_data['model']['structure']['velocity']['num'] - 1)
+        assert len(self.config.structure.v_outer) == (self.yaml_data['model']['structure']['velocity']['num'])
 
     def test_densities(self):
         pass
@@ -199,13 +199,17 @@ def test_ascii_reader_power_law():
     my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'),test_parser=True)
     structure = my_conf.config_dict['structure']
     
-    expected_densites = [3.29072513e-14,  2.70357804e-14,  2.23776573e-14,  1.86501954e-14,  1.56435277e-14,  1.32001689e-14, 1.12007560e-14,  9.55397475e-15,  8.18935779e-15, 7.05208050e-15,  6.09916083e-15,  5.29665772e-15, 4.61758699e-15,  4.04035750e-15,  3.54758837e-15, 3.12520752e-15,  2.76175961e-15,  2.44787115e-15, 2.17583442e-15,  1.93928168e-15]
-    expected_unit = 'g / (cm3)'
+    expected_densites = [3.29072513e-14,  2.70357804e-14,  2.23776573e-14,
+                         1.86501954e-14,  1.56435277e-14,  1.32001689e-14, 1.12007560e-14,
+                         9.55397475e-15,  8.18935779e-15, 7.05208050e-15,  6.09916083e-15,
+                         5.29665772e-15, 4.61758699e-15,  4.04035750e-15,  3.54758837e-15,
+                         3.12520752e-15,  2.76175961e-15,  2.44787115e-15, 2.17583442e-15,
+                         1.93928168e-15] * u.Unit('g / (cm3)')
     
     assert structure['no_of_shells'] == 20
     for i, mdens in enumerate(expected_densites):
-        assert_almost_equal(structure['mean_densities'][i].value,mdens)
-        assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
+        assert_almost_equal(structure['mean_densities'][i],mdens)
+        #assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
         
        
     
