@@ -112,6 +112,12 @@ cdef class StorageModel:
     cdef np.ndarray bf_lpopulation_ratio_nlte_lte_a
     cdef float_type_t [:,:] bf_lpopulation_ratio_nlte_lte_view
 
+
+    cdef np.ndarray chi_bf_index_to_level_a
+    cdef float_type_t [:,:] chi_bf_index_to_level_view
+    cdef np.ndarray bf_cross_sections_a
+    cdef float_type_t [:] bf_cross_sections_view
+
     #J_BLUES initialize
     cdef np.ndarray line_lists_j_blues_a
     cdef float_type_t*line_lists_j_blues
@@ -238,7 +244,16 @@ cdef class StorageModel:
         cdef np.ndarray[float_type_t, ndim=2] bf_lpopulation_ratio_nlte_lte = model.plasma_array.bf_lpopulation_ratio_nlte_lte
         self.bf_lpopulation_ratio_nlte_lte_a = bf_lpopulation_ratio_nlte_lte
         self.bf_lpopulation_ratio_nlte_lte_view = self.bf_lpopulation_ratio_nlte_lte_a
-        
+
+        cdef np.ndarray[float_type_t, ndim=2] chi_bf_index_to_level = model.plasma_array.chi_bf_index_to_level
+        self.chi_bf_index_to_level_a = chi_bf_index_to_level
+        self.chi_bf_index_to_level_view = self.bf_index_to_level_a
+
+        cdef np.ndarray[float_type_t, ndim=1] bf_cross_sections = model.plasma_array.bf_cross_sections
+        self.bf_cross_sections_a = bf_cross_sections
+        self.bf_cross_sections_view =self.bf_cross_sections_a
+
+
         #ToDO: Add the BF data to the storage model
         
 
@@ -459,9 +474,8 @@ cdef inline int_type_t macro_atom(int_type_t activate_level,
 
             return target_line_id[i]
         
-cdef flot_type_t calculate_kappa_bf(float_type_t 
-    
-):
+cdef float_type_t calculate_kappa_bf(float_type_t ):
+    pass
 #TODO: Add kappa_bf here
 
 cdef float_type_t move_packet(float_type_t*r,
