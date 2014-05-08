@@ -29,6 +29,14 @@ def test_quantity_linspace():
     assert_almost_equal(quantity_linspace[-1].to('cm/h').value, 2e4)
     assert len(quantity_linspace) == 1001
 
+
+def test_spectrum_list2_dict():
+    spectrum_dict = config_reader.parse_spectrum_list2dict(
+        [200*u.angstrom, 10000 * u.angstrom, 100])
+    assert_almost_equal(spectrum_dict['start'], 200*u.angstrom)
+    assert_almost_equal(spectrum_dict['end'], 10000*u.angstrom)
+    assert_almost_equal(spectrum_dict['bins'], 100)
+
 class TestParsePaper1Config:
 
     def setup(self):
@@ -54,6 +62,14 @@ class TestParsePaper1Config:
 
     def test_densities(self):
         pass
+
+    def test_spectrum_section(self):
+        assert_almost_equal(self.config['spectrum']['start'],
+                            parse_quantity(self.yaml_data['spectrum']['start']))
+        assert_almost_equal(self.config['spectrum']['end'],
+                            parse_quantity(self.yaml_data['spectrum']['stop']))
+
+        assert self.config['spectrum']['bins'] == self.yaml_data['spectrum']['num']
 
 class TestParseConfigV1ASCIIDensity:
 
