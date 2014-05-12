@@ -410,7 +410,8 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
             density_coefficient = parse_quantity(density_coefficient)
 
         velocities = 0.5 * (v_inner + v_outer)
-        densities = density_coefficient * (velocities.value * 1e-5) ** -7
+        1/0
+        densities = density_coefficient * (velocities.cgs.value) ** -7
 
         densities = calculate_density_after_time(densities, time_0, time_explosion)
 
@@ -747,7 +748,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             velocities = np.linspace(start, stop, num)
 
             v_inner, v_outer = velocities[:-1], velocities[1:]
-
+            1/0
             mean_densities = parse_density_section(
                 model_section['structure']['density'], v_inner, v_outer,
                 validated_config_dict['supernova']['time_explosion'])
