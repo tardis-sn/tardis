@@ -173,22 +173,26 @@ model:
             type:
                 property_type: container-declaration
                 containers: ['branch85_w7','exponential','power_law']
-                +branch85_w7: ['time_0', 'density_coefficient']
-                containers: ['branch85_w7', 'power_law', 'exponential']
-                +branch85_w7: ['w7_time_0', 'w7_density_coefficient']
                 _branch85_w7: []
+                +branch85_w7: ['w7_time_0', 'w7_rho_0', 'w7_v_0']
                 _power_law: ['time_0', 'rho_0', 'v_0']
                 _exponential: ['time_0', 'rho_0', 'v_0', 'exponent']
 
             w7_time_0:
                 property_type: quantity
-                default: 19.9999584 s
+                default: 0.000231481 day
                 mandatory: False
                 help: This needs no change - DO NOT TOUCH
 
-            w7_density_coefficient:
+            w7_rho_0:
+                property_type: quantity
+                default: 29.37505157 g/cm^3
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            w7_v_0:
                 property_type: float
-                default: 3e29
+                default: 1e4 km/s
                 mandatory: False
                 help: This needs no change - DO NOT TOUCH
 
@@ -196,7 +200,7 @@ model:
                 property_type: quantity
                 default: None
                 mandatory: True
-                help: XXXX Michael XXXX
+                help: Time at which the pure model densities are right
 
             rho_0:
                 property_type: quantity

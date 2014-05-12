@@ -88,7 +88,7 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     return spectrum_start_wavelength, spectrum_end_wavelength
 
 
-def calc_exponential_density(velocities, v_0, rho0):
+def calculate_exponential_density(velocities, v_0, rho0):
     """
     This function computes the exponential density profile.
     :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`
@@ -113,7 +113,7 @@ def calc_exponential_density(velocities, v_0, rho0):
     return densities
 
 
-def calc_power_law_density(velocities, velocity_0, rho_0, exponent):
+def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
     """
 
     This function computes a descret exponential density profile.
@@ -393,27 +393,15 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
 
     #Parse density branch85 w7
     def parse_branch85(density_dict, v_inner, v_outer, time_explosion):
-
-        time_0 = density_dict.pop('time_0', 19.9999584)
-        if isinstance(time_0, basestring):
-            time_0 = parse_quantity(time_0).to('s')
-        else:
-            time_0 *= u.s
-            logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
-
-        density_coefficient = density_dict.pop('density_coefficient', None)
-        if density_coefficient is None:
-            density_coefficient = 3e29 * u.Unit('g/cm^3')
-            logger.debug('density_coefficient not supplied for density type branch85 - using sensible default %g',
-                         density_coefficient)
-        else:
-            density_coefficient = parse_quantity(density_coefficient)
-
         velocities = 0.5 * (v_inner + v_outer)
-        1/0
-        densities = density_coefficient * (velocities.cgs.value) ** -7
 
-        densities = calculate_density_after_time(densities, time_0, time_explosion)
+        densities = calculate_power_law_density(velocities,
+                                                density_dict['w7_v_0'],
+                                                density_dict['w7_rho_0'], -7)
+
+        densities = calculate_density_after_time(densities,
+                                                 density_dict['w7_time_0'],
+                                                 time_explosion)
 
         return densities
 
@@ -449,7 +437,7 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
             logger.warning('v_0 was not given in the config file! Using %f km/s', v_0)
 
         velocities = 0.5 * (v_inner + v_outer)
-        densities = calc_power_law_density(velocities, v_0, rho_0, exponent)
+        densities = calculate_power_law_density(velocities, v_0, rho_0, exponent)
         densities = calculate_density_after_time(densities, time_0, time_explosion)
         return densities
 
@@ -480,7 +468,7 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
             logger.warning('v_0 was not given in the config file! Using %f km/s', v_0)
 
         velocities = 0.5 * (v_inner + v_outer)
-        densities = calc_exponential_density(velocities, v_0, rho_0)
+        densities = calculate_exponential_density(velocities, v_0, rho_0)
         densities = calculate_density_after_time(densities, time_0, time_explosion)
         return densities
 
@@ -748,7 +736,6 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             velocities = np.linspace(start, stop, num)
 
             v_inner, v_outer = velocities[:-1], velocities[1:]
-            1/0
             mean_densities = parse_density_section(
                 model_section['structure']['density'], v_inner, v_outer,
                 validated_config_dict['supernova']['time_explosion'])

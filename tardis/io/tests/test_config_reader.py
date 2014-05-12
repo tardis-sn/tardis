@@ -38,14 +38,17 @@ def test_spectrum_list2_dict():
     assert_almost_equal(spectrum_dict['bins'], 100)
 
 def test_parse_density_section():
-    density_dict = {'type': 'branch85_w7'}
+    density_dict = {'type': 'branch85_w7', 'w7_time_0': 0.000231481 * u.day,
+                    'w7_rho_0': 29.37505157 * u.Unit('g/cm^3'),
+                    'w7_v_0': 1e4 * u.Unit('km/s')}
+
     velocities = np.arange(10000, 20000, 1000) * u.Unit('km/s')
     v_inner, v_outer = velocities[:-1], velocities[1:]
     mean_densities = config_reader.parse_density_section(density_dict,
                                                          v_inner, v_outer,
                                                          10 * u.day)
 
-    desired_mean_densities_0 = 2.644491715248624e+22 * u.Unit('g/cm^3')
+    desired_mean_densities_0 = 2.58940268372887e-13 * u.Unit('g/cm^3')
 
     assert_almost_equal(mean_densities[0].cgs, desired_mean_densities_0)
 
