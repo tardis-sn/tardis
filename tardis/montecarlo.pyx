@@ -7,6 +7,12 @@
 import logging
 import time
 
+from cython.view cimport memoryview
+from cython.view cimport array as cvarray
+from cython cimport view
+cimport cython
+
+import numpy as np
 cimport numpy as np
 from astropy import constants
 
@@ -43,6 +49,18 @@ cdef extern from "randomkit.h":
 cdef rk_state mt_state
 
 
+cdef float_type_t KBT = 1.3806488e-16 #erg / K
+cdef float_type_t H = 6.62606957e-27 #erg s
+
+cdef struct rpkt_cont_type:
+    float_type_t d_cont
+    float_type_t d_bf
+    float_type_t d_ff
+    float_type_t d_th
+    float_type_t chi_cont
+    float_type_t chi_bf
+    float_type_t chi_ff
+    float_type_t chi_th
 
 cdef np.ndarray x
 cdef class StorageModel:
@@ -97,6 +115,9 @@ cdef class StorageModel:
     cdef int_type_t line_lists_tau_sobolevs_nd
     
     #Bound Free initialize
+    cdef np.ndarray t_electrons_a
+    cdef float_type_t [:] t_electrons_view
+
     cdef np.ndarray chi_bound_free_sorted_a
     cdef float_type_t [:,:,:] chi_bound_free_sorted_view
     cdef np.ndarray chi_bf_index_to_level_sorted_a
@@ -114,9 +135,13 @@ cdef class StorageModel:
 
 
     cdef np.ndarray chi_bf_index_to_level_a
-    cdef float_type_t [:,:] chi_bf_index_to_level_view
+    cdef int_type_t [:,:] chi_bf_index_to_level_view
     cdef np.ndarray bf_cross_sections_a
     cdef float_type_t [:] bf_cross_sections_view
+    cdef np.ndarray bound_free_th_frequency_a
+    cdef float_type_t [:] bound_free_th_frequency_view
+    cdef np.ndarray bf_level_populations_a
+    cdef float_type_t [:,:] bf_level_populations_view
 
     #J_BLUES initialize
     cdef np.ndarray line_lists_j_blues_a
@@ -221,37 +246,49 @@ cdef class StorageModel:
         self.line_lists_j_blues_nd = self.line_lists_j_blues_a.shape[1]
 
         #bound-free
+        cdef np.ndarray[float_type_t, ndim=1] t_electrons = model.plasma_array.t_electrons
+        self.t_electrons_a = t_electrons
+        self.t_electrons_view = self.t_electrons_a
+
         cdef np.ndarray[float_type_t, ndim=3] chi_bound_free_sorted = model.plasma_array.chi_bound_free_sorted
         self.chi_bound_free_sorted_a = chi_bound_free_sorted
         self.chi_bound_free_sorted_view = self.chi_bound_free_sorted_a
-        
+
         cdef np.ndarray[int_type_t, ndim=4] chi_bf_index_to_level_sorted = model.plasma_array.chi_bf_index_to_level_sorted
         self.chi_bf_index_to_level_sorted_a = chi_bf_index_to_level_sorted
         self.chi_bf_index_to_level_sorted_view = self.chi_bf_index_to_level_sorted_a
-        
+
         cdef np.ndarray[float_type_t, ndim=2] chi_bound_free_nu_bins = model.plasma_array.chi_bound_free_nu_bins
         self.chi_bound_free_nu_bins_a = chi_bound_free_nu_bins
         self.chi_bound_free_nu_bins_view = self.chi_bound_free_nu_bins_a
-        
+
         cdef np.ndarray[int_type_t, ndim=2] bf_index_to_level = model.plasma_array.bf_index_to_level
         self.bf_index_to_level_a = bf_index_to_level
         self.bf_index_to_level_view = self.bf_index_to_level_a
-        
+
         cdef np.ndarray[float_type_t, ndim=2] bf_cross_sections_x_lpopulation = model.plasma_array.bf_cross_sections_x_lpopulation
         self.bf_cross_sections_x_lpopulation_a = bf_cross_sections_x_lpopulation
         self.bf_cross_sections_x_lpopulation_view = self.bf_cross_sections_x_lpopulation_a
-        
+
         cdef np.ndarray[float_type_t, ndim=2] bf_lpopulation_ratio_nlte_lte = model.plasma_array.bf_lpopulation_ratio_nlte_lte
         self.bf_lpopulation_ratio_nlte_lte_a = bf_lpopulation_ratio_nlte_lte
         self.bf_lpopulation_ratio_nlte_lte_view = self.bf_lpopulation_ratio_nlte_lte_a
 
-        cdef np.ndarray[float_type_t, ndim=2] chi_bf_index_to_level = model.plasma_array.chi_bf_index_to_level
+        cdef np.ndarray[int_type_t, ndim=2] chi_bf_index_to_level = model.plasma_array.chi_bf_index_to_level
         self.chi_bf_index_to_level_a = chi_bf_index_to_level
-        self.chi_bf_index_to_level_view = self.bf_index_to_level_a
+        self.chi_bf_index_to_level_view = self.chi_bf_index_to_level_a
 
         cdef np.ndarray[float_type_t, ndim=1] bf_cross_sections = model.plasma_array.bf_cross_sections
         self.bf_cross_sections_a = bf_cross_sections
         self.bf_cross_sections_view =self.bf_cross_sections_a
+
+        cdef np.ndarray[float_type_t, ndim=1] bound_free_th_frequency = model.plasma_array.bound_free_th_frequency
+        self.bound_free_th_frequency_a = bound_free_th_frequency
+        self.bound_free_th_frequency_view = self.bound_free_th_frequency_a
+
+        cdef np.ndarray[float_type_t, ndim=2] bf_level_populations = model.plasma_array.bf_level_populations
+        self.bf_level_populations_a = bf_level_populations
+        self.bf_level_populations_view = self.bf_level_populations_a
 
 
         #ToDO: Add the BF data to the storage model
@@ -473,9 +510,106 @@ cdef inline int_type_t macro_atom(int_type_t activate_level,
                 packet_logger.debug('Emitting in level %d', activate_level + 1)
 
             return target_line_id[i]
-        
-cdef float_type_t calculate_kappa_bf(float_type_t ):
-    pass
+
+@cython.boundscheck(False)
+cdef float_type_t calculate_chi_bf(float_type_t*r,
+                              float_type_t*mu,
+                              float_type_t nu,
+                              float_type_t inverse_t_exp,
+                              int_type_t cur_zone_id,
+                              float_type_t T,
+                              int_type_t [:,:] chi_bf_index_to_level,
+                              float_type_t [:,:] bf_lpopulation_ratio_nlte_lte,
+                              float_type_t [:] bf_cross_sections,
+                              float_type_t [:] bound_free_th_frequency,
+                              float_type_t [:,:] bf_level_populations
+):
+    cdef float_type_t chi_bf
+    cdef float_type_t bf_helper = 0
+    cdef float_type_t nu_th
+    cdef float_type_t l_pop_r
+    cdef float_type_t l_pop
+    cdef int_type_t I, atom, ion, level
+
+
+    I = chi_bf_index_to_level.shape[0]
+    for i in range(I):
+        nu_th = bound_free_th_frequency[i]
+        if nu_th < nu:
+            atom = chi_bf_index_to_level[i,0]
+            ion =  chi_bf_index_to_level[i,1]
+            level = chi_bf_index_to_level[i,2]
+            l_pop = bf_level_populations[i,cur_zone_id]
+            l_pop_r = bf_lpopulation_ratio_nlte_lte[i,cur_zone_id]
+            bf_helper += bf_cross_sections[i]* l_pop * (nu_th/nu)**3 * (1-l_pop_r * exp((H * nu)/KBT /T))
+
+    return bf_helper
+
+
+cdef rpkt_cont_type* compute_distance2continuum(float_type_t tau_event,
+                                      float_type_t*r,
+                                      float_type_t*mu,
+                                      float_type_t nu,
+                                      float_type_t t_exp,
+                                      int_type_t cur_zone_id,
+                                      int_type_t virtual_packet,
+                                      float_type_t[:] T_view,
+                                      int_type_t[:,:] chi_bf_index_to_level,
+                                      float_type_t[:,:] bf_lpopulation_ratio_nlte_lte,
+                                      float_type_t[:] bf_cross_sections,
+                                      float_type_t[:] bound_free_th_frequency,
+                                      float_type_t[:,:] bf_level_populations,
+                                      float_type_t electron_densities,
+                                      float_type_t sigma_thomson,
+                                      rpkt_cont_type* rpkt_cont_p
+
+):
+    cdef float_type_t chi_bf, chi_th, chi_cont, chi_ff
+    cdef float_type_t T
+
+    T = T_view[cur_zone_id]
+    rpkt_cont_p[0].chi_bf =  calculate_chi_bf(r, mu, nu, t_exp, cur_zone_id, T,
+                             chi_bf_index_to_level, bf_lpopulation_ratio_nlte_lte,
+                             bf_cross_sections, bound_free_th_frequency, bf_level_populations)
+    chi_ff = 0
+    rpkt_cont_p[0].d_bf = tau_event / rpkt_cont_p[0].chi_bf
+    rpkt_cont_p[0].chi_th = electron_densities * sigma_thomson
+    rpkt_cont_p[0].d_th = tau_event / rpkt_cont_p[0].chi_th
+    rpkt_cont_p[0].d_ff = 0
+    rpkt_cont_p[0].chi_ff = chi_ff
+    rpkt_cont_p[0].chi_cont = chi_bf + chi_th + chi_ff
+    rpkt_cont_p[0].d_cont = tau_event / rpkt_cont_p[0].chi_cont
+
+#    return rpkt_cont
+
+
+
+
+
+cdef float_type_t compute_distance2bf(float_type_t tau_event,
+                                      float_type_t*r,
+                                      float_type_t*mu,
+                                      float_type_t nu,
+                                      float_type_t t_exp,
+                                      int_type_t cur_zone_id,
+                                      int_type_t virtual_packet,
+                                      float_type_t[:] T_view,
+                                      int_type_t[:,:] chi_bf_index_to_level,
+                                      float_type_t[:,:] bf_lpopulation_ratio_nlte_lte,
+                                      float_type_t[:] bf_cross_sections,
+                                      float_type_t[:] bound_free_th_frequency,
+                                      float_type_t[:,:] bf_level_populations,
+                                      float_type_t inverse_ne
+):
+    cdef float_type_t chi_bf, chi_th
+    cdef float_type_t T
+    T = T_view[cur_zone_id]
+
+    chi_bf = calculate_chi_bf(r, mu, nu, t_exp, cur_zone_id, T,
+                             chi_bf_index_to_level, bf_lpopulation_ratio_nlte_lte,
+                             bf_cross_sections, bound_free_th_frequency, bf_level_populations)
+    return tau_event / chi_bf
+
 #TODO: Add kappa_bf here
 
 cdef float_type_t move_packet(float_type_t*r,
@@ -852,6 +986,13 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
     cdef float_type_t d_outer = 0.0
     cdef float_type_t d_line = 0.0
     cdef float_type_t d_electron = 0.0
+    cdef float_type_t d_bound_free = 0.0
+    cdef float_type_t rpkt_cont_d_cont = 0.0
+
+    cdef float_type_t zrand
+    cdef float_type_t normaliz_cont_th
+    cdef float_type_t normaliz_cont_bf
+    cdef rpkt_cont_type rpkt_cont
 
     cdef int_type_t reabsorbed = 0
     cdef float_type_t nu_line = 0.0
@@ -914,13 +1055,54 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
             # ------------------ ELECTRON DISTANCE CALCULATION ---------------------
             # a virtual packet should never be stopped by continuum processes
+            #if (virtual_packet > 0):
+            #    d_electron = miss_distance
+            #else:
+            #    d_electron = compute_distance2electron(current_r[0], current_mu[0], tau_event,
+            #                                           storage.inverse_electron_densities[current_shell_id[0]] * \
+            #                                           storage.inverse_sigma_thomson)
+
+                # ^^^^^^^^^^^^^^^^^^ ELECTRON DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
+
+            # ------------------ Continuum DISTANCE CALCULATION ---------------------
             if (virtual_packet > 0):
-                d_electron = miss_distance
+                rpkt_cont.d_cont = miss_distance
             else:
                 d_electron = compute_distance2electron(current_r[0], current_mu[0], tau_event,
                                                        storage.inverse_electron_densities[current_shell_id[0]] * \
                                                        storage.inverse_sigma_thomson)
-                # ^^^^^^^^^^^^^^^^^^ ELECTRON DISTANCE CALCULATION ^^^^^^^^^^^^^^^^^^^^^
+                compute_distance2continuum(tau_event,
+                                                  current_r,
+                                                  current_mu,
+                                                  current_nu[0],
+                                                  storage.time_explosion,
+                                                  current_shell_id[0],
+                                                  virtual_packet,
+                                                  storage.t_electrons_view,
+                                                  storage.chi_bf_index_to_level_view,
+                                                  storage.bf_lpopulation_ratio_nlte_lte_view,
+                                                  storage.bf_cross_sections_view,
+                                                  storage.bound_free_th_frequency_view,
+                                                  storage.bf_level_populations_view,
+                                                  storage.electron_densities[current_shell_id[0]],
+                                                  storage.sigma_thomson,
+                                                  &rpkt_cont
+                )
+
+                #print('-----')
+                #print(d_electron)
+                #print(rpkt_cont.d_th)
+                #print('>>><<<')
+
+
+                #d_bound_free = dummy(storage.t_electrons_view,
+                #                     storage.chi_bf_index_to_level_view,
+                #                     storage.bf_lpopulation_ratio_nlte_lte_view,
+                #                     storage.bf_cross_sections_view,
+                #                     storage.bound_free_th_frequency_view)
+
+
+
 
 
         # ------------------------------ LOGGING ---------------------- (with precompiler IF)
@@ -931,7 +1113,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                 'current_energy=%s\n'
                                 'd_inner=%s\n'
                                 'd_outer=%s\n'
-                                'd_electron=%s\n'
+                                'rpkt_cont.d_cont=%s\n'
                                 'd_line=%s\n%s',
                                 '-' * 80,
                                 current_mu[0],
@@ -939,7 +1121,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                 current_energy[0],
                                 d_inner,
                                 d_outer,
-                                d_electron,
+                                rpkt_cont.d_cont,
                                 d_line,
                                 '-' * 80)
 
@@ -947,8 +1129,8 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                 packet_logger.warning('d_inner is nan or less than 0')
             if isnan(d_outer) or d_outer < 0:
                 packet_logger.warning('d_outer is nan or less than 0')
-            if isnan(d_electron) or d_electron < 0:
-                packet_logger.warning('d_electron is nan or less than 0')
+            if isnan(rpkt_cont.d_cont) or rpkt_cont.d_cont < 0:
+                packet_logger.warning('rpkt_cont.d_cont is nan or less than 0')
             if isnan(d_line) or d_line < 0:
                 packet_logger.warning('d_line is nan or less than 0')
 
@@ -956,12 +1138,12 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
 
                 #if ((abs(storage.r_inner[current_shell_id[0]] - current_r[0]) < 10.0) and (current_mu[0] < 0.0)):
-                #print "d_outer %g, d_inner %g, d_line %g, d_electron %g" % (d_outer, d_inner, d_line, d_electron)
+                #print "d_outer %g, d_inner %g, d_line %g, rpkt_cont.d_cont %g" % (d_outer, d_inner, d_line, rpkt_cont.d_cont)
                 #print "nu_line %g current_nu[0] %g current_line_id[0] %g" % (nu_line, current_nu[0], current_line_id[0])
                 #print "%g " % current_shell_id[0]
 
         # ------------------------ PROPAGATING OUTWARDS ---------------------------
-        if (d_outer <= d_inner) and (d_outer <= d_electron) and (d_outer < d_line):
+        if (d_outer <= d_inner) and (d_outer <= rpkt_cont.d_cont) and (d_outer < d_line):
             #moving one zone outwards. If it's already in the outermost one this is escaped. Otherwise just move, change the zone index
             #and flag as an outwards propagating packet
             move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_outer, storage.js, storage.nubars,
@@ -996,7 +1178,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
 
 
         # ------------------------ PROPAGATING inwards ---------------------------
-        elif (d_inner <= d_outer) and (d_inner <= d_electron) and (d_inner < d_line):
+        elif (d_inner <= d_outer) and (d_inner <= rpkt_cont.d_cont) and (d_inner < d_line):
             #moving one zone inwards. If it's already in the innermost zone this is a reabsorption
             move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_inner, storage.js, storage.nubars,
                         storage.inverse_time_explosion,
@@ -1049,12 +1231,12 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
         # ^^^^^^^^^^^^^^^^^^^^^^^^^^ PROPAGATING INWARDS ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-        # ------------------------ ELECTRON SCATTER EVENT ELECTRON ---------------------------
-        elif (d_electron <= d_outer) and (d_electron <= d_inner) and (d_electron < d_line):
+        # ------------------------ Continuum  EVENT ELECTRON ---------------------------
+        elif (rpkt_cont.d_cont <= d_outer) and (rpkt_cont.d_cont <= d_inner) and (rpkt_cont.d_cont < d_line):
             # we should never enter this branch for a virtual packet
             # ------------------------------ LOGGING ----------------------
             IF packet_logging == True:
-                packet_logger.debug('%s\nElectron scattering occuring\n'
+                packet_logger.debug('%s\nContinuum event occuring\n'
                                     'current_nu=%s\n'
                                     'current_mu=%s\n'
                                     'current_energy=%s\n',
@@ -1064,51 +1246,75 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                     current_energy[0])
 
             # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            #Compute normalized opacity and a new random number
+            zrand = rk_double(&mt_state)
+            normaliz_cont_th = rpkt_cont.chi_th / rpkt_cont.chi_cont
+            normaliz_cont_bf = rpkt_cont.chi_bf / rpkt_cont.chi_cont
+            print('-------')
+            print(normaliz_cont_th)
+            print(normaliz_cont_bf)
+            print('>>>>>>>')
 
-            doppler_factor = move_packet(current_r, current_mu, current_nu[0], current_energy[0], d_electron,
-                                         storage.js, storage.nubars
-                , storage.inverse_time_explosion, current_shell_id[0], virtual_packet)
+            if zrand < normaliz_cont_th:
+            #Electron scatter event
+                doppler_factor = move_packet(current_r, current_mu, current_nu[0], current_energy[0], rpkt_cont.d_cont,
+                                             storage.js, storage.nubars
+                                             , storage.inverse_time_explosion, current_shell_id[0], virtual_packet)
 
-            comov_nu = current_nu[0] * doppler_factor
-            comov_energy = current_energy[0] * doppler_factor
+                comov_nu = current_nu[0] * doppler_factor
+                comov_energy = current_energy[0] * doppler_factor
 
 
-            #new mu chosen
-            current_mu[0] = 2 * rk_double(&mt_state) - 1
-            inverse_doppler_factor = 1 / (
-                1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
-            current_nu[0] = comov_nu * inverse_doppler_factor
-            current_energy[0] = comov_energy * inverse_doppler_factor
-            # ------------------------------ LOGGING ----------------------
-            IF packet_logging == True:
-                packet_logger.debug('Electron scattering occured\n'
-                                    'current_nu=%s\n'
-                                    'current_mu=%s\n'
-                                    'current_energy=%s\n%s',
-                                    current_nu[0],
-                                    current_mu[0],
-                                    current_energy[0],
-                                    '-' * 80)
-                # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                #new mu chosen
+                current_mu[0] = 2 * rk_double(&mt_state) - 1
+                inverse_doppler_factor = 1 / (
+                    1 - (current_mu[0] * current_r[0] * storage.inverse_time_explosion * inverse_c))
+                current_nu[0] = comov_nu * inverse_doppler_factor
+                current_energy[0] = comov_energy * inverse_doppler_factor
+                # ------------------------------ LOGGING ----------------------
+                IF packet_logging == True:
+                    packet_logger.debug('Electron scattering occured\n'
+                                        'current_nu=%s\n'
+                                        'current_mu=%s\n'
+                                        'current_energy=%s\n%s',
+                                        current_nu[0],
+                                        current_mu[0],
+                                        current_energy[0],
+                                        '-' * 80)
+                    # ^^^^^^^^^^^^^^^^^^^^^^^^^^^ LOGGING # ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-            tau_event = -log(rk_double(&mt_state))
+                tau_event = -log(rk_double(&mt_state))
 
-            #scattered so can re-cross a boundary now
-            recently_crossed_boundary[0] = 0
-            #We've had an electron scattering event in the SN. This corresponds to a source term - we need to spawn virtual packets now
+                #scattered so can re-cross a boundary now
+                recently_crossed_boundary[0] = 0
+                #We've had an electron scattering event in the SN. This corresponds to a source term - we need to spawn virtual packets now
 
-            storage.last_interaction_type[storage.current_packet_id] = 1
+                storage.last_interaction_type[storage.current_packet_id] = 1
 
-            if (virtual_packet_flag > 0):
-                #print "AN ELECTRON SCATTERING HAPPENED: CALLING VIRTUAL PARTICLES!!!!!!"
-                montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r,
-                                      current_line_id, last_line, close_line, recently_crossed_boundary,
-                                      virtual_packet_flag, 1)
+                if (virtual_packet_flag > 0):
+                    #print "AN ELECTRON SCATTERING HAPPENED: CALLING VIRTUAL PARTICLES!!!!!!"
+                    montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r,
+                                          current_line_id, last_line, close_line, recently_crossed_boundary,
+                                          virtual_packet_flag, 1)
+
+
+            elif  zrand < normaliz_cont_th + normaliz_cont_bf:
+            #Bound-Free event
+            #Disable pkt
+                print('Bound-Free')
+                reabsorbed = 1
+                break
+
+            else:
+                print "WARNING Free-Free event occured, but Free-Free  is not implemented yet!!"
+
+            #Free-Free
+
 
         # ^^^^^^^^^^^^^^^^^^^^^^^^^ SCATTER EVENT LINE ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
         # ------------------------ LINE SCATTER EVENT  ---------------------------
-        elif (d_line <= d_outer) and (d_line <= d_inner) and (d_line <= d_electron):
+        elif (d_line <= d_outer) and (d_line <= d_inner) and (d_line <= rpkt_cont.d_cont):
         #Line scattering
             #It has a chance to hit the line
             if virtual_packet == 0:
@@ -1184,7 +1390,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                     #here comes the macro atom
 
                     #print "A LINE EVENT HAPPENED AT R = %g in shell %g which has range %g to %g" % (current_r[0], current_shell_id[0], storage.r_inner[current_shell_id[0]], storage.r_outer[current_shell_id[0]])
-                    #print "d_outer %g, d_inner %g, d_line %g, d_electron %g" % (d_outer, d_inner, d_line, d_electron)
+                    #print "d_outer %g, d_inner %g, d_line %g, rpkt_cont.d_cont %g" % (d_outer, d_inner, d_line, rpkt_cont.d_cont)
                     #print "nu_line_1 %g nu_line_2 %g" % (storage.line_list_nu[current_line_id[0]-1], storage.line_list_nu[current_line_id[0]])
                     #print "nu_line_1 %g nu_line_2 %g" % (current_line_id[0]-1, current_line_id[0])
                     #print "last_line %g" % (last_line[0])

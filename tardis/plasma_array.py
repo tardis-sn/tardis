@@ -717,6 +717,11 @@ class BasePlasmaArray(object):
         
         #bound_free_cross_section_at_threshold.__array__()
         helper =  (level_population_ratio.__array__()**-1 * level_population_ratio_lte.__array__())
+        helper[np.isnan(helper)] = 0
+        helper[helper < 0] = 0
+        #set the helper to 1 for <0 and NaN
+
+
         exponential_factor = np.exp(- h_cgs * nu_bins[:,None] / k_B_cgs / self.t_electrons[None,:])
         #helper[:,None] * exponential_factor[None,:]
         
@@ -732,16 +737,23 @@ class BasePlasmaArray(object):
         
         chi_bf_sorted, chi_bf_index_to_level_sorted = sorting(chi_bf, chi_bf_index_to_level)
 
-        self.chi_bf_index_to_level = chi_bf_index_to_level
-        self.bf_cross_sections = bound_free_th_frequency.__array__()
-        self.bf_lpopulation_ratio_nlte_lte = helper  #[level,shell]
 
-        self.chi_bound_free_sorted = chi_bf_sorted
-        self.chi_bf_index_to_level_sorted = chi_bf_index_to_level_sorted
-        self.chi_bound_free_nu_bins = chi_bf_sum
+        self.chi_bound_free_sorted = np.array(chi_bf_sorted, dtype=np.float64)
+        self.chi_bf_index_to_level_sorted = np.array(chi_bf_index_to_level_sorted, dtype=np.int64)
+        self.chi_bound_free_nu_bins = np.array(chi_bf_sum, dtype=np.float64)
         
-        self.bf_index_to_level = chi_bf_index_to_level[0,:,0,:]
-        self.bf_cross_sections_x_lpopulation = level_populations * cross_sections[0][:,None]
+        self.bf_index_to_level = np.array(chi_bf_index_to_level[0,:,0,:], dtype=np.int64)
+        self.bf_cross_sections_x_lpopulation = np.array(level_populations * cross_sections[0][:,None], dtype=np.float64)
+
+        #for computing chi in the mc part
+        filter_mask = bound_free_cross_section_at_threshold.__array__()[:,0] > 1e-35
+
+        self.bf_level_populations = np.array(self.level_populations.__array__()[filter_mask,:])
+        self.chi_bf_index_to_level = np.array(chi_bf_index_to_level[0,filter_mask,0,:], dtype=np.int64)  #[nu_bins,level,shell,(atom,ion,level)] reduced to [level,(atom,ion,level)]
+        self.bf_cross_sections = np.array(bound_free_cross_section_at_threshold.__array__()[filter_mask,0] ,dtype=np.float64)
+        self.bf_lpopulation_ratio_nlte_lte = np.array(helper[filter_mask,:], dtype=np.float64)  #[level,shell]
+        self.bound_free_th_frequency = np.array(bound_free_th_frequency[filter_mask], dtype=np.float64) #[levels]
+
 
         def get_bound_free_cross_section(nu):
             """ Computes the bound free cross section for a given n.
