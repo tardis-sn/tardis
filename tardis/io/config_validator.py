@@ -990,22 +990,22 @@ class Container(DefaultParser):
                     self.__default_container[nitem], self.__config_container[nitem] = self.parse_container_items(
                         container_default_dict[nitem],
                         container_dict[nitem], nitem, self.__container_path + [nitem])
-                if self.__has_additional_items:
-                    for aitem in additional_items:
-                        try:
-                            if aitem in container_dict:
-                                self.__default_container[aitem], self.__config_container[aitem] = \
-                                    self.parse_container_items(container_default_dict[aitem],
-                                                               container_dict[aitem], aitem,
+            if self.__has_additional_items:
+                for aitem in additional_items:
+                    try:
+                        if aitem in container_dict:
+                            self.__default_container[aitem], self.__config_container[aitem] = \
+                                self.parse_container_items(container_default_dict[aitem],
+                                                           container_dict[aitem], aitem,
+                                                       self.__container_path + [aitem])
+                        else:
+                            self.__default_container[aitem], self.__config_container[aitem] = \
+                                self.parse_container_items(container_default_dict[aitem],
+                                                           None, aitem,
                                                            self.__container_path + [aitem])
-                            else:
-                                self.__default_container[aitem], self.__config_container[aitem] = \
-                                    self.parse_container_items(container_default_dict[aitem],
-                                                               None, aitem,
-                                                               self.__container_path + [aitem])
 
-                        except KeyError:
-                            pass
+                    except KeyError:
+                        pass
 
                             #go through  all items and create an conf object thereby check the conf
         self.__container_ob = self.__default_container
