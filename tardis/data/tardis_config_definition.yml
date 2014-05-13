@@ -191,7 +191,7 @@ model:
                 help: This needs no change - DO NOT TOUCH
 
             w7_v_0:
-                property_type: float
+                property_type: quantity
                 default: 1e4 km/s
                 mandatory: False
                 help: This needs no change - DO NOT TOUCH
