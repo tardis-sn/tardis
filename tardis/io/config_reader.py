@@ -820,10 +820,12 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                                    plasma_section['initial_t_rad']
         if plasma_section['disable_electron_scattering'] is False:
             logger.debug("Electron scattering switched on")
-            config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
+            validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
         else:
             logger.warn('Disabling electron scattering - this is not physical')
-            config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm ** 2)
+            validated_config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm ** 2)
+
+
 
 
         ##### NLTE subsection of Plasma start
@@ -872,6 +874,14 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
                 'lock_t_inner_ctyles': 1,
                 'damping_constant': 0.5,
                 't_inner_update_exponent': -0.5}
+        black_body_section = montecarlo_section.pop('black_body_sampling')
+        montecarlo_section['black_body_sampling'] = {}
+        montecarlo_section['black_body_sampling']['start'] = \
+            black_body_section[0]
+        montecarlo_section['black_body_sampling']['end'] = \
+            black_body_section[1]
+        montecarlo_section['black_body_sampling']['samples'] = \
+            black_body_section[2]
         ###### END of convergence section reading
 
 
