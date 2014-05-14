@@ -267,7 +267,7 @@ montecarlo:
 
     black_body_sampling:
         property_type: quantity_range_sampled
-        default: [1 angstrom, 1e6 angstrom, 1e6]
+        default: [1 angstrom, 1e6 angstrom, 1000000]
         mandatory: False
         help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)
 

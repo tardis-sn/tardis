@@ -87,9 +87,9 @@ class TestParsePaper1Config:
     def test_montecarlo_black_body_sampling(self):
         black_body_sampling = self.config['montecarlo']['black_body_sampling']
 
-        assert_almost_equal(black_body_sampling['start'], 50 * u.angstrom)
-        assert_almost_equal(black_body_sampling['end'], 200000 * u.angstrom)
-        assert_almost_equal(black_body_sampling['samples'], 1000000)
+        assert_almost_equal(black_body_sampling['start'], 1 * u.angstrom)
+        assert_almost_equal(black_body_sampling['end'], 1e6 * u.angstrom)
+        assert_almost_equal(black_body_sampling['samples'], int(1e6))
 
     def test_number_of_packets(self):
         assert_almost_equal(self.config['montecarlo']['no_of_packets'], 200000)
