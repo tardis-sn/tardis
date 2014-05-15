@@ -175,8 +175,8 @@ model:
                 containers: ['branch85_w7','exponential','power_law']
                 _branch85_w7: []
                 +branch85_w7: ['w7_time_0', 'w7_rho_0', 'w7_v_0']
-                _power_law: ['time_0', 'rho_0', 'v_0']
-                _exponential: ['time_0', 'rho_0', 'v_0', 'exponent']
+                _power_law: ['time_0', 'rho_0', 'v_0', 'exponent']
+                _exponential: ['time_0', 'rho_0', 'v_0']
 
             w7_time_0:
                 property_type: quantity
