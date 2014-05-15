@@ -424,7 +424,6 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         time_0 = density_dict.pop('time_0')
         rho_0 = density_dict.pop('rho_0')
         v_0 = density_dict.pop('v_0')
-        exponent = density_dict.pop('exponent')
 
         velocities = 0.5 * (v_inner + v_outer)
         densities = calculate_exponential_density(velocities, v_0, rho_0)
