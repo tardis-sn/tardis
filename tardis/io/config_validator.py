@@ -7,7 +7,14 @@ import ast
 
 import numpy as np
 from astropy import units
-from astropy.units.core import UnitsException
+
+try:
+    from astropy.units.core import UnitsException
+except ImportError:
+    from astropy.units.core import UnitsError as UnitsException
+
+from astropy import constants
+
 import yaml
 
 from tardis.atomic import atomic_symbols_data
