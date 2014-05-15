@@ -541,7 +541,16 @@ cdef float_type_t calculate_chi_bf(float_type_t*r,
             level = chi_bf_index_to_level[i,2]
             l_pop = bf_level_populations[i,cur_zone_id]
             l_pop_r = bf_lpopulation_ratio_nlte_lte[i,cur_zone_id]
-            bf_helper += bf_cross_sections[i]* l_pop * (nu_th/nu)**3 * (1-l_pop_r * exp((H * nu)/KBT /T))
+            bf_helper += bf_cross_sections[i]* l_pop * (nu_th/nu)**3 * (1-l_pop_r * exp(-(H * nu)/KBT /T))
+            #print('------>->')
+            #print(bf_cross_sections[i])
+            #print(l_pop)
+            #print((nu_th/nu)**3 )
+            #print(nu_th)
+            #print(l_pop_r)
+            #print(exp((H * nu)/KBT /T))
+            #print('------>->')
+
 
     return bf_helper
 
@@ -568,17 +577,27 @@ cdef rpkt_cont_type* compute_distance2continuum(float_type_t tau_event,
     cdef float_type_t T
 
     T = T_view[cur_zone_id]
-    rpkt_cont_p[0].chi_bf =  calculate_chi_bf(r, mu, nu, t_exp, cur_zone_id, T,
+    rpkt_cont_p.chi_bf =  calculate_chi_bf(r, mu, nu, t_exp, cur_zone_id, T,
                              chi_bf_index_to_level, bf_lpopulation_ratio_nlte_lte,
                              bf_cross_sections, bound_free_th_frequency, bf_level_populations)
     chi_ff = 0
-    rpkt_cont_p[0].d_bf = tau_event / rpkt_cont_p[0].chi_bf
-    rpkt_cont_p[0].chi_th = electron_densities * sigma_thomson
-    rpkt_cont_p[0].d_th = tau_event / rpkt_cont_p[0].chi_th
-    rpkt_cont_p[0].d_ff = 0
-    rpkt_cont_p[0].chi_ff = chi_ff
-    rpkt_cont_p[0].chi_cont = chi_bf + chi_th + chi_ff
-    rpkt_cont_p[0].d_cont = tau_event / rpkt_cont_p[0].chi_cont
+    rpkt_cont_p.d_bf = tau_event / rpkt_cont_p[0].chi_bf
+    rpkt_cont_p.chi_th = electron_densities * sigma_thomson
+    rpkt_cont_p.d_th = tau_event / rpkt_cont_p[0].chi_th
+    rpkt_cont_p.d_ff = 0
+    rpkt_cont_p.chi_ff = chi_ff
+    rpkt_cont_p.chi_cont =rpkt_cont_p.chi_th + rpkt_cont_p.chi_ff + rpkt_cont_p.chi_bf
+    # print('=====>')
+    # print(electron_densities)
+    # print(sigma_thomson)
+    # print(electron_densities * sigma_thomson)
+    # print('=')
+    # print(rpkt_cont_p.chi_bf)
+    # print(rpkt_cont_p.chi_th)
+    # print(rpkt_cont_p.chi_ff)
+    # print(rpkt_cont_p.chi_cont)
+    # print('<=====')
+    rpkt_cont_p.d_cont = tau_event / rpkt_cont_p.chi_cont
 
 #    return rpkt_cont
 
@@ -1089,10 +1108,11 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
                                                   &rpkt_cont
                 )
 
-                #print('-----')
-                #print(d_electron)
-                #print(rpkt_cont.d_th)
-                #print('>>><<<')
+                # print('-----')
+                # print(d_electron)
+                # print(rpkt_cont.d_th)
+                # print(rpkt_cont.d_cont)
+                # print('>>><<<')
 
 
                 #d_bound_free = dummy(storage.t_electrons_view,
@@ -1250,10 +1270,10 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             zrand = rk_double(&mt_state)
             normaliz_cont_th = rpkt_cont.chi_th / rpkt_cont.chi_cont
             normaliz_cont_bf = rpkt_cont.chi_bf / rpkt_cont.chi_cont
-            print('-------')
-            print(normaliz_cont_th)
-            print(normaliz_cont_bf)
-            print('>>>>>>>')
+            # print('-------')
+            # print(normaliz_cont_th)
+            # print(normaliz_cont_bf)
+            # print('>>>>>>>')
 
             if zrand < normaliz_cont_th:
             #Electron scatter event
@@ -1301,7 +1321,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             elif  zrand < normaliz_cont_th + normaliz_cont_bf:
             #Bound-Free event
             #Disable pkt
-                print('Bound-Free')
+                #print('Bound-Free')
                 reabsorbed = 1
                 break
 

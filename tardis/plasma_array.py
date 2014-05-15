@@ -27,8 +27,10 @@ sobolev_coefficient = ((np.pi * e_charge_gauss ** 2) / ( m_e_cgs * c_cgs))
 class PlasmaException(Exception):
     pass
 
+
 class PopulationInversionException(PlasmaException):
     pass
+
 
 def intensity_black_body(nu, T):
     """
@@ -120,7 +122,7 @@ class BasePlasmaArray(object):
 
         abundance_series = parse_abundance_dict_to_dataframe(abundance_dict)
 
-        abundances = pd.DataFrame({0:abundance_series})
+        abundances = pd.DataFrame({0: abundance_series})
 
         number_densities = abundances * density.to('g/cm^3').value
 
@@ -260,7 +262,6 @@ class BasePlasmaArray(object):
             self.calculate_nlte_level_populations()
 
 
-
     def calculate_partition_functions(self, initialize_nlte=False):
         """
         Calculate partition functions for the ions using the following formula, where
@@ -285,25 +286,26 @@ class BasePlasmaArray(object):
 
         levels = self.atom_data.levels
 
-        level_population_proportional_array = levels.g.values[np.newaxis].T *\
+        level_population_proportional_array = levels.g.values[np.newaxis].T * \
                                               np.exp(np.outer(levels.energy.values, -self.beta_rads))
         level_population_proportionalities = pd.DataFrame(level_population_proportional_array,
-                                                               index=self.atom_data.levels.index,
-                                                               columns=np.arange(len(self.t_rads)), dtype=np.float64)
+                                                          index=self.atom_data.levels.index,
+                                                          columns=np.arange(len(self.t_rads)), dtype=np.float64)
 
 
         #level_props = self.level_population_proportionalities
 
         partition_functions = level_population_proportionalities[self.atom_data.levels.metastable].groupby(
             level=['atomic_number', 'ion_number']).sum()
-        partition_functions_non_meta = self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
+        partition_functions_non_meta = self.ws * level_population_proportionalities[
+            ~self.atom_data.levels.metastable].groupby(
             level=['atomic_number', 'ion_number']).sum()
         partition_functions.ix[partition_functions_non_meta.index] += partition_functions_non_meta
         if self.nlte_config is not None and self.nlte_config.species != [] and not initialize_nlte:
             for species in self.nlte_config.species:
                 partition_functions.ix[species] = self.atom_data.levels.g.ix[species].ix[0] * \
-                                                       (self.level_populations.ix[species] /
-                                                        self.level_populations.ix[species].ix[0]).sum()
+                                                  (self.level_populations.ix[species] /
+                                                   self.level_populations.ix[species].ix[0]).sum()
 
         return level_population_proportionalities, partition_functions
 
@@ -444,25 +446,22 @@ class BasePlasmaArray(object):
         radiation_field_correction = -np.ones((len(ionization_data), len(self.beta_rads)))
         less_than_chi_0 = (ionization_data.ionization_energy < chi_0).values
 
-        factor_a =  (self.t_electrons / (departure_coefficient * self.ws * self.t_rads))
+        factor_a = (self.t_electrons / (departure_coefficient * self.ws * self.t_rads))
 
         radiation_field_correction[~less_than_chi_0] = factor_a * \
-                                     np.exp(np.outer(ionization_data.ionization_energy.values[~less_than_chi_0],
-                                                     self.beta_rads - self.beta_electrons))
-
-
-
+                                                       np.exp(np.outer(
+                                                           ionization_data.ionization_energy.values[~less_than_chi_0],
+                                                           self.beta_rads - self.beta_electrons))
 
         radiation_field_correction[less_than_chi_0] = 1 - np.exp(np.outer(ionization_data.ionization_energy.values
-                                                                      [less_than_chi_0], self.beta_rads)
+                                                                          [less_than_chi_0], self.beta_rads)
                                                                  - self.beta_rads * chi_0)
         radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
             np.outer(ionization_data.ionization_energy.values[less_than_chi_0], self.beta_rads) -
-             chi_0*self.beta_electrons)
+            chi_0 * self.beta_electrons)
 
         return pd.DataFrame(radiation_field_correction, columns=np.arange(len(self.t_rads)),
                             index=ionization_data.index)
-
 
 
     def calculate_ion_populations(self, phis, ion_zero_threshold=1e-20):
@@ -491,8 +490,6 @@ class BasePlasmaArray(object):
 
             neutral_atom_density = self.number_densities.ix[atomic_number] / (1 + np.sum(phis_product, axis=0))
 
-
-
             self.ion_populations.ix[atomic_number].values[0] = neutral_atom_density.values
             self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
             self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
@@ -515,13 +512,12 @@ class BasePlasmaArray(object):
 
         ion_number_density = self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values
 
-
         level_populations = (ion_number_density / Z) * self.level_population_proportionalities
 
         if excitation_mode == 'lte':
             pass
         elif excitation_mode == 'dilute-lte':
-            level_populations[~self.atom_data.levels.metastable] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
+            level_populations[~self.atom_data.levels.metastable] *= np.min([self.ws, np.ones_like(self.ws)], axis=0)
 
         if initialize_nlte:
             self.level_populations.update(level_populations)
@@ -571,17 +567,16 @@ class BasePlasmaArray(object):
             r_ul_index = lnl * number_of_levels + lnu
 
             r_ul_matrix = np.zeros((number_of_levels, number_of_levels, len(self.t_rads)), dtype=np.float64)
-            r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels**2, len(self.t_rads)))
+            r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels ** 2, len(self.t_rads)))
             r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
             r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
 
             r_lu_matrix = np.zeros_like(r_ul_matrix)
-            r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2, len(self.t_rads)))
+            r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels ** 2, len(self.t_rads)))
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * j_blues[lines_index] * beta_sobolevs[lines_index]
 
             collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
                                self.electron_densities.values
-
 
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
 
@@ -624,12 +619,14 @@ class BasePlasmaArray(object):
 
 
         #todo fix this is a concern the mode='safe' 
-        n_lower = self.level_populations.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='raise').copy('F')
-        n_upper = self.level_populations.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise').copy('F')
-        meta_stable_upper = self.atom_data.levels.metastable.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise')
+        n_lower = self.level_populations.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='raise').copy(
+            'F')
+        n_upper = self.level_populations.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise').copy(
+            'F')
+        meta_stable_upper = self.atom_data.levels.metastable.values.take(self.atom_data.lines_upper2level_idx, axis=0,
+                                                                         mode='raise')
         g_lower = self.atom_data.levels.g.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='raise')
         g_upper = self.atom_data.levels.g.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise')
-
 
         self.stimulated_emission_factor = 1 - ((g_lower[np.newaxis].T * n_upper) / (g_upper[np.newaxis].T * n_lower))
         # getting rid of the obvious culprits
@@ -644,12 +641,9 @@ class BasePlasmaArray(object):
                                    (self.atom_data.lines.ion_number == species[1])
             self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask[np.newaxis].T] = 0.0
 
-
         tau_sobolevs = sobolev_coefficient * f_lu[np.newaxis].T * wavelength[np.newaxis].T * self.time_explosion * \
                        n_lower * self.stimulated_emission_factor
         return pd.DataFrame(tau_sobolevs, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
-
-
 
 
     def calculate_transition_probabilities(self):
@@ -663,7 +657,7 @@ class BasePlasmaArray(object):
 
         if not self.beta_sobolevs_precalculated:
             macro_atom.calculate_beta_sobolev(self.tau_sobolevs.values.ravel(order='F'),
-                                          self.beta_sobolevs.ravel(order='F'))
+                                              self.beta_sobolevs.ravel(order='F'))
 
         transition_probabilities = (macro_atom_data.transition_probability.values[np.newaxis].T *
                                     self.beta_sobolevs.take(self.atom_data.macro_atom_data.lines_idx.values.astype(int),
@@ -671,14 +665,15 @@ class BasePlasmaArray(object):
         transition_up_filter = (macro_atom_data.transition_type == 1).values
         macro_atom_transition_up_filter = macro_atom_data.lines_idx.values[transition_up_filter]
         j_blues = self.j_blues.values.take(macro_atom_transition_up_filter, axis=0, mode='raise')
-        macro_stimulated_emission = self.stimulated_emission_factor.take(macro_atom_transition_up_filter, axis=0, mode='raise')
+        macro_stimulated_emission = self.stimulated_emission_factor.take(macro_atom_transition_up_filter, axis=0,
+                                                                         mode='raise')
         transition_probabilities[transition_up_filter] *= j_blues * macro_stimulated_emission
         #Normalizing the probabilities
         block_references = np.hstack((self.atom_data.macro_atom_references.block_references,
                                       len(macro_atom_data)))
         macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
         return pd.DataFrame(transition_probabilities, index=macro_atom_data.transition_line_id,
-                     columns=self.tau_sobolevs.columns)
+                            columns=self.tau_sobolevs.columns)
 
 
     def calculate_bound_free(self):
@@ -687,72 +682,93 @@ class BasePlasmaArray(object):
         None
 
         """
+
         def sorting(data_a, index_a):
-        # l1 and l2 has to be numpy arrays. a1 is the master array
-            for shell_id in range(len(index_a[0,0,:])):
-                for nu_id in range(len(index_a[:,0,0])):
-                    idx = np.argsort(data_a[nu_id,:,shell_id])
-                    data_a[nu_id,:,shell_id] = data_a[nu_id,idx,shell_id]
-                    index_a[nu_id, :, shell_id,:] = index_a[nu_id, idx, shell_id,:]
+            # l1 and l2 has to be numpy arrays. a1 is the master array
+            for shell_id in range(len(index_a[0, 0, :])):
+                for nu_id in range(len(index_a[:, 0, 0])):
+                    idx = np.argsort(data_a[nu_id, :, shell_id])
+                    data_a[nu_id, :, shell_id] = data_a[nu_id, idx, shell_id]
+                    index_a[nu_id, :, shell_id, :] = index_a[nu_id, idx, shell_id, :]
             return data_a, index_a
-        
-         #the g values
+
+            #the g values
+
         levels = self.atom_data.levels
         nu_bins = np.linspace(2.9979246e+14, 5.9979246e+15, 10)
 
-        level_g_ratio = self.atom_data.levels.g.values[np.newaxis].T * np.exp(np.outer(levels.energy.values, -self.beta_rads))
-        level_population_proportionalities = pd.DataFrame(level_g_ratio, index=self.atom_data.levels.index, columns=np.arange(len(self.t_rads)), dtype=np.float64) #\frac{g_{upper}}{g_lower}
-        
-        level_populations = self.level_populations.__array__()
-        level_population_ratio = self.level_populations.groupby(level=['atomic_number','ion_number']).apply(lambda g: pd.DataFrame(g.__array__()[0,:]/g.__array__()[:,:]))#\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
-        level_populations_lte = ( self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values / self.partition_functions.ix[self.atom_data.levels.index.droplevel(2)].values) * level_population_proportionalities# \frac{ion_number_density_{i,j,k}}{partition_functions_{i,j,k}} *\frac{g_{upper}}{g_lower}
-        level_population_ratio_lte = level_populations_lte.groupby(level=['atomic_number','ion_number']).apply(lambda g: pd.DataFrame(g.__array__()[0,:]/g.__array__()[:,:]))#\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
+        level_g_ratio = self.atom_data.levels.g.values[np.newaxis].T * np.exp(
+            np.outer(levels.energy.values, -self.beta_rads))
+        level_population_proportionalities = pd.DataFrame(level_g_ratio, index=self.atom_data.levels.index,
+                                                          columns=np.arange(len(self.t_rads)),
+                                                          dtype=np.float64)  #\frac{g_{upper}}{g_lower}
 
-        
+        level_populations = self.level_populations.__array__()
+        level_population_ratio = self.level_populations.groupby(level=['atomic_number', 'ion_number']).apply(
+            lambda g: pd.DataFrame(
+                g.__array__()[0, :] / g.__array__()[:, :]))  #\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
+        level_populations_lte = (self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values /
+                                 self.partition_functions.ix[self.atom_data.levels.index.droplevel(
+                                     2)].values) * level_population_proportionalities  # \frac{ion_number_density_{i,j,k}}{partition_functions_{i,j,k}} *\frac{g_{upper}}{g_lower}
+        level_population_ratio_lte = level_populations_lte.groupby(level=['atomic_number', 'ion_number']).apply(
+            lambda g: pd.DataFrame(
+                g.__array__()[0, :] / g.__array__()[:, :]))  #\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
+
         bound_free_cross_section_at_threshold = self.atom_data.ion_cx_th
         #bound_free_cross_section_at_supporter = self.atom_data.ion_cx_sp
-        
-        
-        bound_free_th_frequency = self.atom_data.levels['energy'].__array__() /h_cgs
-        
+
+
+        ionization_energy2lower = pd.DataFrame(self.atom_data.ionization_data_reduced).reset_index()
+        ionization_energy2lower['ion_number'] = ionization_energy2lower['ion_number'] - 1
+        ionization_energy2lower.set_index(['atomic_number', 'ion_number'], inplace=True)
+        photoionization_energy = ionization_energy2lower['ionization_energy'] - self.atom_data.levels[
+            'energy'].reset_index(level=2, drop=True)
+
+        bound_free_th_frequency = photoionization_energy.fillna(1e99).__array__() / h_cgs
+
         #bound_free_cross_section_at_threshold.__array__()
-        helper =  (level_population_ratio.__array__()**-1 * level_population_ratio_lte.__array__())
+        helper = (level_population_ratio.__array__() ** -1 * level_population_ratio_lte.__array__())
         helper[np.isnan(helper)] = 0
         helper[helper < 0] = 0
         #set the helper to 1 for <0 and NaN
 
 
-        exponential_factor = np.exp(- h_cgs * nu_bins[:,None] / k_B_cgs / self.t_electrons[None,:])
+        exponential_factor = np.exp(- h_cgs * nu_bins[:, None] / k_B_cgs / self.t_electrons[None, :])
         #helper[:,None] * exponential_factor[None,:]
-        
-        right_term = 1 - helper[None,:,:] * exponential_factor[:,None,:]
-        nu_gr_th_fq = bound_free_th_frequency[None,:] < nu_bins[:,None]
-        cross_sections = np.zeros_like(nu_gr_th_fq, dtype=np.float)
-        cross_sections[:,:] = bound_free_cross_section_at_threshold['cross_section'].__array__()[None,:]
-        cross_sections[~nu_gr_th_fq] =0
-        chi_bf = level_populations[None,:,:]  * cross_sections[:,:,None] * right_term
-        chi_bf_sum = np.sum(chi_bf,axis=1) #sum in color bins over all levels
-        
-        chi_bf_index_to_level = levels.reset_index()[['atomic_number','ion_number', 'level_number']].__array__()[None ,: ,None , :].repeat(chi_bf.shape[0], axis=0).repeat(chi_bf.shape[2],axis=2) #index [nu_bin, level_id, shell_id, [atomic, ion, level]]
-        
-        chi_bf_sorted, chi_bf_index_to_level_sorted = sorting(chi_bf, chi_bf_index_to_level)
 
+        right_term = 1 - helper[None, :, :] * exponential_factor[:, None, :]
+        nu_gr_th_fq = bound_free_th_frequency[None, :] < nu_bins[:, None]
+        cross_sections = np.zeros_like(nu_gr_th_fq, dtype=np.float)
+        cross_sections[:, :] = bound_free_cross_section_at_threshold['cross_section'].__array__()[None, :]
+        cross_sections[~nu_gr_th_fq] = 0
+        chi_bf = level_populations[None, :, :] * cross_sections[:, :, None] * right_term
+        chi_bf_sum = np.sum(chi_bf, axis=1)  #sum in color bins over all levels
+
+        chi_bf_index_to_level = levels.reset_index()[['atomic_number', 'ion_number',
+                                                      'level_number']].__array__()[None,:, None,:].repeat(chi_bf.shape[0], axis=0).repeat(chi_bf.shape[2],
+                                                                axis=2)  #index [nu_bin, level_id, shell_id, [atomic, ion, level]]
+
+        chi_bf_sorted, chi_bf_index_to_level_sorted = sorting(chi_bf, chi_bf_index_to_level)
 
         self.chi_bound_free_sorted = np.array(chi_bf_sorted, dtype=np.float64)
         self.chi_bf_index_to_level_sorted = np.array(chi_bf_index_to_level_sorted, dtype=np.int64)
         self.chi_bound_free_nu_bins = np.array(chi_bf_sum, dtype=np.float64)
-        
-        self.bf_index_to_level = np.array(chi_bf_index_to_level[0,:,0,:], dtype=np.int64)
-        self.bf_cross_sections_x_lpopulation = np.array(level_populations * cross_sections[0][:,None], dtype=np.float64)
+
+        self.bf_index_to_level = np.array(chi_bf_index_to_level[0, :, 0, :], dtype=np.int64)
+        self.bf_cross_sections_x_lpopulation = np.array(level_populations * cross_sections[0][:, None],
+                                                        dtype=np.float64)
 
         #for computing chi in the mc part
-        filter_mask = bound_free_cross_section_at_threshold.__array__()[:,0] > 1e-35
+        filter_mask = bound_free_cross_section_at_threshold.__array__()[:, 0] > 1e-35
 
-        self.bf_level_populations = np.array(self.level_populations.__array__()[filter_mask,:])
-        self.chi_bf_index_to_level = np.array(chi_bf_index_to_level[0,filter_mask,0,:], dtype=np.int64)  #[nu_bins,level,shell,(atom,ion,level)] reduced to [level,(atom,ion,level)]
-        self.bf_cross_sections = np.array(bound_free_cross_section_at_threshold.__array__()[filter_mask,0] ,dtype=np.float64)
-        self.bf_lpopulation_ratio_nlte_lte = np.array(helper[filter_mask,:], dtype=np.float64)  #[level,shell]
-        self.bound_free_th_frequency = np.array(bound_free_th_frequency[filter_mask], dtype=np.float64) #[levels]
+        self.bf_level_populations = np.array(self.level_populations.__array__()[filter_mask, :])
+        self.chi_bf_index_to_level = np.array(chi_bf_index_to_level[0, filter_mask, 0, :], dtype=np.int64)  #[nu_bins,
+        # level,shell,(atom,ion,level)] reduced to [level,(atom,ion,level)]
+
+        self.bf_cross_sections = np.array(bound_free_cross_section_at_threshold.__array__()[filter_mask, 0]
+                                          , dtype=np.float64)
+        self.bf_lpopulation_ratio_nlte_lte = np.array(helper[filter_mask, :], dtype=np.float64)  #[level,shell]
+        self.bound_free_th_frequency = np.array(bound_free_th_frequency[filter_mask], dtype=np.float64)  #[levels]
 
 
         def get_bound_free_cross_section(nu):
@@ -760,10 +776,11 @@ class BasePlasmaArray(object):
                 At the moment only a hydrogenic approximation \frac{nu_{i,j,k}}{nu}}^3 is used
 
             """
-            return ((bound_free_threshold_frequency[bound_free_threshold_frequenc < nu ])/nu)**3 * bound_free_cross_section_at_threshol[bound_free_threshold_frequenc < nu]
-        
-        #ToDo: -compute the exp factor; combine all the stuff; test; include supporters; compute taus for a nu grid; pass taus to mc; pass lpr and lprl to mc
-        
+            return ((bound_free_threshold_frequency[bound_free_threshold_frequenc < nu]) / nu) ** 3 * \
+                   bound_free_cross_section_at_threshol[bound_free_threshold_frequenc < nu]
+
+            #ToDo: -compute the exp factor; combine all the stuff; test; include supporters; compute taus for a nu grid; pass taus to mc; pass lpr and lprl to mc
+
 
     def to_hdf5(self, hdf5_store, path, mode='full'):
         """

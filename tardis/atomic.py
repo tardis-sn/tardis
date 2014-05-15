@@ -198,7 +198,7 @@ def read_zeta_data(fname):
         raise ValueError('zeta_data not available in this HDF5-data file. It can not be used with NebularAtomData')
 
     zeta_data = h5_file['zeta_data']
-    t_rads = zeta_data.attrs['t_rad']
+    t_rads = None# zeta_data.attrs['t_rad']
     return pd.DataFrame(zeta_data[:,2:], index=pd.MultiIndex.from_arrays(zeta_data[:,:2].transpose().astype(int)),
                  columns=t_rads)
 
@@ -409,6 +409,8 @@ class AtomData(object):
         self.ionization_data.ionization_energy = units.Unit('eV').to('erg',
                                                                      self.ionization_data.ionization_energy.values)
 
+
+
         self._levels = DataFrame(levels_data.__array__())
         self._levels.energy = units.Unit('eV').to('erg', self._levels.energy.values)
 
@@ -471,6 +473,12 @@ class AtomData(object):
         self._lines = self._lines[self._lines['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
             self._lines = self._lines[self._lines['ion_number'] <= max_ion_number]
+
+
+        #cut self.ionization_data
+        self.ionization_data_reduced = self.ionization_data[self.ionization_data.index.get_level_values('atomic_number').isin(self.selected_atomic_numbers)]
+        if max_ion_number is not None:
+            self.ionization_data_reduced = self.ionization_data_reduced[self.ionization_data.index.get_level_values('ion_number') <= max_ion_number +1 ]
 
         self._lines.sort('wavelength', inplace=True)
 
