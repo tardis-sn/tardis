@@ -10,3 +10,10 @@ def line_search_wrapper(np.ndarray nu, float_type_t nu_insert,
     cdef float_type_t* nu_pointer
     nu_pointer = <float_type_t*> nu.data
     return line_search(nu_pointer, nu_insert, number_of_lines)
+
+def compute_distance2outer_wrapper(float_type_t r, float_type_t mu, float_type_t r_outer):
+    return compute_distance2outer(r, mu, r_outer)
+
+def compute_distance2inner_wrapper(float_type_t r, float_type_t mu, float_type_t r_inner):
+    return compute_distance2inner(r, mu, r_inner)
+
