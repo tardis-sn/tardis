@@ -39,6 +39,12 @@ def test_line_search_out_of_bounds(insert_value, expected_insert_position):
 
     assert insert_position == expected_insert_position
 
+def test_compute_distance2outer():
+    assert montecarlo.compute_distance2outer_wrapper(0.0, 0.5, 1.0) == 1.0
+    assert montecarlo.compute_distance2outer_wrapper(1.0, 0.5, 1.0) == 0.0
+    assert montecarlo.compute_distance2outer_wrapper(0.3, 1.0, 1.0) == 0.7
+    assert montecarlo.compute_distance2outer_wrapper(0.3, -1.0, 1.0) == 1.3
+    assert montecarlo.compute_distance2outer_wrapper(0.5, 0.0, 1.0) == np.sqrt(0.75)
 
-
-    
+def test_compute_distance2inner():
+    pass
