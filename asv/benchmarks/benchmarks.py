@@ -17,3 +17,17 @@ class TimeSuite:
     def time_binarysearch(self):
         for _ in range(LINE_SIZE):
             montecarlo.binary_search_wrapper(self.line, np.random.random() * LINE_SIZE, 0, LINE_SIZE - 1)
+
+    def time_compute_distance2outer(self):
+        for _ in range(1000000):
+            montecarlo.compute_distance2outer_wrapper(0.0, 0.5, 1.0)
+            montecarlo.compute_distance2outer_wrapper(1.0, 0.5, 1.0)
+            montecarlo.compute_distance2outer_wrapper(0.3, 1.0, 1.0)
+            montecarlo.compute_distance2outer_wrapper(0.3, -1.0, 1.0)
+            montecarlo.compute_distance2outer_wrapper(0.5, 0.0, 1.0)
+    
+    def time_compute_distance2inner(self):
+        for _ in range(1000000):
+            montecarlo.compute_distance2inner_wrapper(1.5, -1.0, 1.0)
+            montecarlo.compute_distance2inner_wrapper(0.0, 0.0, 0.0)
+            montecarlo.compute_distance2inner_wrapper(1.2, -0.7, 1.0)
