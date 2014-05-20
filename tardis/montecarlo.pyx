@@ -17,6 +17,8 @@ ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
 
 cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax) except -1
+cdef extern float_type_t compute_distance2outer(float_type_t r, float_type_t mu, float_type_t r_outer)
+cdef extern float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_type_t r_inner)
 
 cdef extern from "math.h":
     float_type_t log(float_type_t)
@@ -476,24 +478,6 @@ cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*cu
     storage.line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
     #print "incrementing j_blues = %g" % storage.line_lists_j_blues[j_blue_idx]
 
-cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float_type_t r_outer):
-    cdef float_type_t d_outer
-    d_outer = sqrt(r_outer ** 2 + ((mu ** 2 - 1.) * r ** 2)) - (r * mu)
-    return d_outer
-
-cdef float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_type_t r_inner):
-    #compute distance to the inner layer
-    #check if intersection is possible?
-    cdef float_type_t check, d_inner
-    check = r_inner ** 2 + (r ** 2 * (mu ** 2 - 1.))
-    if check < 0:
-        return miss_distance
-    else:
-        if mu < 0:
-            d_inner = -r * mu - sqrt(check)
-            return d_inner
-        else:
-            return miss_distance
 
 cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
                                         float_type_t nu, float_type_t nu_line,
