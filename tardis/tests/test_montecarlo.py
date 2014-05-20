@@ -1,6 +1,6 @@
 import numpy as np
 #from tardis import montecarlo
-from tardis.tests import montecarlo_test_wrappers as  montecarlo
+from tardis.tests import montecarlo_test_wrappers as montecarlo
 import pytest
 
 
@@ -47,4 +47,6 @@ def test_compute_distance2outer():
     assert montecarlo.compute_distance2outer_wrapper(0.5, 0.0, 1.0) == np.sqrt(0.75)
 
 def test_compute_distance2inner():
-    pass
+    assert montecarlo.compute_distance2inner_wrapper(1.5, -1.0, 1.0) == 0.5
+    assert montecarlo.compute_distance2inner_wrapper(0.0, 0.0, 0.0) == montecarlo.get_miss_distance()
+    assert montecarlo.compute_distance2inner_wrapper(1.2, -0.7, 1.0) == 0.3246360509309949
