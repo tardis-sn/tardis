@@ -597,6 +597,11 @@ def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.999958
 
 
 class TARDISConfigurationNameSpace(object):
+    """
+    The configuration name space class allows to wrap a dictionary and adds
+    utility functions for easy access. Accesses like a.b.c are then possible
+    """
+
     def __init__(self, config_dict):
         self.config_dict = config_dict
 
