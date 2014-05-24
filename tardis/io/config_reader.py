@@ -696,8 +696,15 @@ class ConfigurationNameSpace(dict):
             self[config_item_path[0]] = value
         elif len(config_item_path) == 2 and \
                 config_item_path[1].startswith('item'):
-            self[config_item_path[0]][
-                int(config_item_path[1].replace('item', ''))] = value
+            current_value = self[config_item_path[0]][
+                int(config_item_path[1].replace('item', ''))]
+            if hasattr(current_value, 'unit'):
+                self[config_item_path[0]][
+                    int(config_item_path[1].replace('item', ''))] =\
+                    u.Quantity(value, current_value.unit)
+            else:
+                self[config_item_path[0]][
+                    int(config_item_path[1].replace('item', ''))] = value
 
         else:
             self[config_item_path[0]].set_config_item(

@@ -68,11 +68,11 @@ def test_set_with_config_item_string_item_access():
 
 def test_set_with_config_item_string_item_access_quantity():
     config_ns = ConfigurationNameSpace(simple_config_dict)
-    config_ns.set_config_item('a.b.param2.item2', 7 * u.km)
+    config_ns.set_config_item('a.b.param2.item2', 7 )
 
-    item = config_ns.get_config_item('a.b.param2.item0')
-    1/0
-    assert_almost_equal(item ,2*u.km)
+    item = config_ns.get_config_item('a.b.param2.item2')
+
+    assert_almost_equal(item ,7*u.km)
 
 
 
