@@ -3,7 +3,7 @@ import numpy as np
 import yaml
 import tardis
 from tardis import io, model, simulation
-from tardis.io.config_reader import TARDISConfiguration
+from tardis.io.config_reader import Configuration
 from numpy.testing import assert_array_almost_equal
 from astropy import units as u
 import os
@@ -31,7 +31,7 @@ class TestSimpleRun():
         self.config_yaml = yaml.load(open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
         self.config_yaml['atom_data'] = self.atom_data_filename
 
-        self.config = TARDISConfiguration.from_config_dict(self.config_yaml)
+        self.config = Configuration.from_config_dict(self.config_yaml)
         self.model = model.Radial1DModel(self.config)
         simulation.run_radial1d(self.model)
 

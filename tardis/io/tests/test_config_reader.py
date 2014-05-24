@@ -14,11 +14,11 @@ def data_path(filename):
     return os.path.join(data_dir, 'data', filename)
 
 def test_config_namespace_attribute_test():
-    namespace = config_reader.TARDISConfigurationNameSpace({'param1':1})
+    namespace = config_reader.ConfigurationNameSpace({'param1':1})
     assert namespace.param1 == 1
 
 def test_config_namespace_attribute_test():
-    namespace = config_reader.TARDISConfigurationNameSpace({'param1':1})
+    namespace = config_reader.ConfigurationNameSpace({'param1':1})
     with pytest.raises(AttributeError):
         assert namespace.param2 == 1
 
@@ -74,7 +74,7 @@ class TestParsePaper1Config:
 
     def setup(self):
         #general parsing of the paper config
-        self.config = config_reader.TARDISConfiguration.from_yaml(data_path('paper1_tardis_configv1.yml'),
+        self.config = config_reader.Configuration.from_yaml(data_path('paper1_tardis_configv1.yml'),
                                                                   test_parser=True)
         self.yaml_data = yaml.load(open(data_path('paper1_tardis_configv1.yml')))
 
@@ -130,7 +130,7 @@ class TestParseConfigV1ASCIIDensity:
     def setup(self):
         #general parsing of the paper config
         filename = 'tardis_configv1_ascii_density.yml'
-        self.config = config_reader.TARDISConfiguration.from_yaml(data_path(filename),
+        self.config = config_reader.Configuration.from_yaml(data_path(filename),
                                                                   test_parser=True)
         self.yaml_data = yaml.load(open(data_path(filename)))
 
@@ -149,7 +149,7 @@ class TestParseConfigV1ArtisDensity:
     def setup(self):
         #general parsing of the paper config
         filename = 'tardis_configv1_artis_density.yml'
-        self.config = config_reader.TARDISConfiguration.from_yaml(data_path(filename),
+        self.config = config_reader.Configuration.from_yaml(data_path(filename),
                                                                   test_parser=True)
         self.yaml_data = yaml.load(open(data_path(filename)))
 
@@ -176,7 +176,7 @@ class TestParseConfigV1ArtisDensityAbundances:
                                                  'filename': 'tardis/io/tests/data/artis_abundances.dat',
                                                  'filetype': 'artis'}
 
-        self.config = config_reader.TARDISConfiguration.from_config_dict(self.yaml_data,
+        self.config = config_reader.Configuration.from_config_dict(self.yaml_data,
                                                                   test_parser=True)
 
 
@@ -199,7 +199,7 @@ class TestParseConfigV1ArtisDensityAbundancesVSlice:
                                                  'filename': 'tardis/io/tests/data/artis_abundances.dat',
                                                  'filetype': 'artis'}
 
-        self.config = config_reader.TARDISConfiguration.from_config_dict(self.yaml_data,
+        self.config = config_reader.Configuration.from_config_dict(self.yaml_data,
                                                                   test_parser=True)
 
 
@@ -221,7 +221,7 @@ class TestParseConfigV1ArtisDensityAbundancesAllAscii:
         self.yaml_data['model']['structure']['filename'] = 'tardis/io/tests/data/density.dat'
         self.yaml_data['model']['abundances']['filename'] = 'tardis/io/tests/data/abund.dat'
     
-        self.config = config_reader.TARDISConfiguration.from_config_dict(self.yaml_data,
+        self.config = config_reader.Configuration.from_config_dict(self.yaml_data,
                                                                   test_parser=True)
 
 
@@ -266,7 +266,7 @@ def test_ascii_reader_power_law():
     
     v_inner =  yaml_data['model']['structure']['velocity']['start']
     v_outer =  yaml_data['model']['structure']['velocity']['stop']
-    my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'),test_parser=True)
+    my_conf = config_reader.Configuration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'),test_parser=True)
     structure = my_conf.config_dict['structure']
     
     expected_densites = [3.29072513e-14,  2.70357804e-14,  2.23776573e-14,
@@ -294,7 +294,7 @@ def test_ascii_reader_exponential_law():
     
     v_inner =  yaml_data['model']['structure']['velocity']['start']
     v_outer =  yaml_data['model']['structure']['velocity']['stop']
-    my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_exponential_test.yml'),test_parser=True)
+    my_conf = config_reader.Configuration.from_yaml(data_path('tardis_configv1_density_exponential_test.yml'),test_parser=True)
     structure = my_conf.config_dict['structure']
     
     expected_densites = [5.18114795e-14,  4.45945537e-14,  3.83828881e-14, 3.30364579e-14,  2.84347428e-14,  2.44740100e-14, 2.10649756e-14,  1.81307925e-14,  1.56053177e-14, 1.34316215e-14,  1.15607037e-14,  9.95038990e-15, 8.56437996e-15,  7.37143014e-15,  6.34464872e-15, 5.46088976e-15,  4.70023138e-15,  4.04552664e-15, 3.48201705e-15,  2.99699985e-15]

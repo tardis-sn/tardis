@@ -121,6 +121,8 @@ def test_default_parser_quantity():
                                return_default=return_default, return_value=return_value)
 
 
+
+
 def test_default_parser_quantity_range():
     example_dic = {'default': ['1 cm', '5 cm'],
                    'help': 'quantity for testing',
@@ -277,7 +279,7 @@ def test_default_parser_string():
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
 
 
-def test_property_type_bundances():
+def test_property_type_abundances():
     example_dic = {'default': {'He': 0.4, 'Mg': 0.1, 'Pb': 0.5},
                    'help': 'quantity for testing',
                    'mandatory': True,
@@ -296,10 +298,7 @@ def test_property_type_bundances():
                                return_default=return_default, return_value=return_value)
 
 
-#For Debug
-#from tardis.io import config_validator as default_config_parser
-#myconf = default_config_parser.Config.from_yaml('tardis/io/tests/data/tardis_configv1_density_exponential_test.yml','tardis/data/tardis_config_definition.yml')
-#myconf = default_config_parser.Config.from_yaml('tardis/io/tests/data/conf_tes.yml','tardis/io/tests/data/conf_def.yml')
+
 
 
 
