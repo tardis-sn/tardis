@@ -267,7 +267,7 @@ def test_ascii_reader_power_law():
     v_inner =  yaml_data['model']['structure']['velocity']['start']
     v_outer =  yaml_data['model']['structure']['velocity']['stop']
     my_conf = config_reader.Configuration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'),test_parser=True)
-    structure = my_conf.config_dict['structure']
+    structure = my_conf['structure']
     
     expected_densites = [3.29072513e-14,  2.70357804e-14,  2.23776573e-14,
                          1.86501954e-14,  1.56435277e-14,  1.32001689e-14, 1.12007560e-14,
@@ -295,7 +295,7 @@ def test_ascii_reader_exponential_law():
     v_inner =  yaml_data['model']['structure']['velocity']['start']
     v_outer =  yaml_data['model']['structure']['velocity']['stop']
     my_conf = config_reader.Configuration.from_yaml(data_path('tardis_configv1_density_exponential_test.yml'),test_parser=True)
-    structure = my_conf.config_dict['structure']
+    structure = my_conf['structure']
     
     expected_densites = [5.18114795e-14,  4.45945537e-14,  3.83828881e-14, 3.30364579e-14,  2.84347428e-14,  2.44740100e-14, 2.10649756e-14,  1.81307925e-14,  1.56053177e-14, 1.34316215e-14,  1.15607037e-14,  9.95038990e-15, 8.56437996e-15,  7.37143014e-15,  6.34464872e-15, 5.46088976e-15,  4.70023138e-15,  4.04552664e-15, 3.48201705e-15,  2.99699985e-15]
     expected_unit = 'g / (cm3)'
