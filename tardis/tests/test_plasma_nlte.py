@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 from tardis import plasma_array, atomic
 from tardis.util import intensity_black_body
-from tardis.io.config_reader import TARDISConfigurationNameSpace
+from tardis.io.config_reader import ConfigurationNameSpace
 import os
 import tardis
 from astropy import units as u, constants as const
@@ -41,7 +41,7 @@ class TestNLTELTEApproximation(object):
 
     def setup(self):
         self.nlte_species=[(2,0),(2,1)]
-        self.nlte_config = TARDISConfigurationNameSpace({'species':
+        self.nlte_config = ConfigurationNameSpace({'species':
                                                              self.nlte_species})
         self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
 
@@ -78,7 +78,7 @@ class TestNLTE(object):
 
     def setup(self):
         self.nlte_species=[(2,0),(2,1)]
-        self.nlte_config = TARDISConfigurationNameSpace({'species':self.nlte_species})
+        self.nlte_config = ConfigurationNameSpace({'species':self.nlte_species})
         self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
         self.plasma = plasma_array.BasePlasmaArray.from_abundance(
             {'He':1.0}, 1e-15*u.Unit('g/cm3'), self.atom_data, 10 * u.day,
