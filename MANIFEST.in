@@ -1,6 +1,6 @@
 include README.rst
 include pip-requirements
-include distribute_setup.py
+
 include ez_setup.py
 include setuptools_bootstrap.py
 recursive-include tardis *.pyx *.c *.h
@@ -10,3 +10,8 @@ recursive-include docs *
 recursive-include licenses *
 recursive-include cextern *
 recursive-include scripts *
+
+exclude *.pyc *.o
+prune docs/_build
+prune build
+
