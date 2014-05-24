@@ -108,10 +108,8 @@ class Radial1DModel(object):
         self.iterations_executed = 0
 
 
-        if tardis_config.montecarlo.convergence_strategy.type == 'specific':
-            self.global_convergence_parameters = tardis_config.montecarlo.\
-                convergence_strategy.global_convergence_parameters.\
-                config_dict.copy()
+        if tardis_config.montecarlo.convergence.type == 'specific':
+            self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.deepcopy()
 
         self.t_rads = tardis_config.plasma.t_rads
         t_inner_lock_cycle = [False] * (tardis_config.montecarlo.
