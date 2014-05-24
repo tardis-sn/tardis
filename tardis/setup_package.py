@@ -16,7 +16,3 @@ def get_extensions():
                        'tardis/cmontecarlo.c'] + randomkit_files,
                       include_dirs=['tardis/randomkit', np.get_include()])]
 
-
-def get_package_data():
-    return {
-        'tardis.tests': ['coveragerc', 'data/*.h5']}
