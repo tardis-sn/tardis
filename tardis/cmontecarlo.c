@@ -1,6 +1,6 @@
 #include "cmontecarlo.h"
 
-npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax)
+inline npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax)
 {
   if (x_insert > x[imin] || x_insert < x[imax])
     {
@@ -31,12 +31,12 @@ npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, np
   return imin;
 }
 
-npy_float64 compute_distance2outer(npy_float64 r, npy_float64 mu, npy_float64 r_outer)
+inline npy_float64 compute_distance2outer(npy_float64 r, npy_float64 mu, npy_float64 r_outer)
 {
   return sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
 }
 
-npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_float64 r_inner)
+inline npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_float64 r_inner)
 {
   npy_float64 check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
   if (check < 0.0) 
