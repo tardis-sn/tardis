@@ -22,7 +22,8 @@ class TestSimpleRun():
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(self):
-        self.atom_data_filename = pytest.config.getvalue('atomic-dataset')
+        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
+            pytest.config.getvalue('atomic-dataset')))
         assert os.path.exists(self.atom_data_filename)
         self.config_yaml = yaml.load(open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
         self.config_yaml['atom_data'] = self.atom_data_filename
