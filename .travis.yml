@@ -18,7 +18,7 @@ before_install:
    - sudo apt-get install -qq python-numpy python-pandas python-scipy python-h5py python-sphinx python-yaml cython libatlas-dev liblapack-dev gfortran
    - if [[ $TEST_MODE == 'spectrum' ]]; then wget http://moria.astro.utoronto.ca/\~wkerzend/tardis_atomic_databases/kurucz_cd23_chianti_H_He.zip; fi
    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
-   - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.zip $HOME/; fi
+   - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
 
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
