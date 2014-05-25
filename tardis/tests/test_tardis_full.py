@@ -1,9 +1,16 @@
 import pytest
-import os
+import numpy as np
 import yaml
+import tardis
 from tardis import io, model, simulation
 from tardis.io.config_reader import TARDISConfiguration
 from numpy.testing import assert_array_almost_equal
+from astropy import units as u
+import os
+
+
+def data_path(fname):
+    return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
 
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
@@ -25,5 +32,11 @@ class TestSimpleRun():
         simulation.run_radial1d(self.model)
 
 
-    def test_structure(self):
-        pass
+    def test_spectrum(self):
+        wavelength, luminosity_density = \
+            np.loadtxt(data_path('simple_test_spectrum.dat'), unpack=True)
+
+        luminosity_density = luminosity_density * u.Unit('erg / (Angstrom s)')
+
+        assert_array_almost_equal(self.model.spectrum.luminosity_density_lambda,
+                                  luminosity_density)

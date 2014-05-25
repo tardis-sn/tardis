@@ -25,4 +25,5 @@ def pytest_addoption(parser):
     parser.addini("doctest_rst",
                   "Run the doctests in the rst documentation",
                   default=False)
+
     parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None, help="filename for atomic dataset")
