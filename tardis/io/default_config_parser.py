@@ -6,7 +6,7 @@ import pprint
 import ast
 
 from astropy import units
-from astropy.units.core import UnitsException
+from astropy.units import UnitsException
 import yaml
 
 from tardis.atomic import atomic_symbols_data
