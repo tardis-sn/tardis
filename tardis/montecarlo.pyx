@@ -16,6 +16,7 @@ np.import_array()
 ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
 
+cdef extern int_type_t line_search(float_type_t *nu, float_type_t nu_insert, int_type_t number_of_lines) except -1
 cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax) except -1
 cdef extern float_type_t compute_distance2outer(float_type_t r, float_type_t mu, float_type_t r_outer)
 cdef extern float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_type_t r_inner)
@@ -314,53 +315,11 @@ logger = logging.getLogger(__name__)
 #Log Level
 #cdef int_type_t loglevel = logging.DEBUG
 
-
-
-
-
-
-
-
 #constants
 cdef float_type_t miss_distance = 1e99
 cdef float_type_t c = constants.c.cgs.value # cm/s
 cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
-
-
-cdef int_type_t line_search(float_type_t*nu, float_type_t nu_insert, int_type_t number_of_lines):
-    """
-    Parameters
-    ----------
-
-    nu: np.array
-        array of line frequencies
-    nu_insert: float64
-        value of nu key
-    number_of_lines: int
-        number of lines in the line list
-
-    Returns
-    -------
-
-        index: int
-            index of the next line to the red. If the key value is redder than the reddest line returns "number_of_lines"
-
-    """
-    #search to find the next line to the red (i.e. closest line in frequency space with smaller frequency than where we are)
-    cdef int_type_t imin, imax
-
-    imin = 0
-    imax = number_of_lines - 1
-
-    if nu_insert > nu[imin]:
-        #this is the case where the insert nu is bluer than the bluest line. So we return the index at the bluest end of the list
-        return imin
-    elif nu_insert < nu[imax]:
-        #this is when the insert nu is redder than the reddest line. Such a photon packet will never Doppler shift into resonance with one of our lines. We flag this by returning an index beyond the list
-        return imax+1
-    else:
-        return ( binary_search(nu, nu_insert, imin, imax) + 1)
 
 #variables are restframe if not specified by prefix comov_
 cdef inline int_type_t macro_atom(int_type_t activate_level,
