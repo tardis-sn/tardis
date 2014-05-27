@@ -77,11 +77,19 @@ npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_o
 
 /** Calculate the distance to the outer boundary.
  *
+ * @param r distance from the center to the packet
+ * @param mu cosine of the angle the packet is moving at
+ * @param r_outer distance from the center to the outer boundary
+ *
  * @return distance to the outer boundary
  */
 inline npy_float64 compute_distance2outer(npy_float64 r, npy_float64 mu, npy_float64 r_outer);
 
 /** Calculate the distance to the inner boundary.
+ *
+ * @param r distance from the center to the packet
+ * @param mu cosine of the angle the packet is moving at
+ * @param r_inner distance from the center to the inner boundary
  *
  * @return distance to the inner boundary
  */
