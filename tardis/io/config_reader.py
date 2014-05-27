@@ -47,15 +47,15 @@ def parse_quantity_linspace(quantity_linspace_dictionary, add_one=True):
      'stop': 10000 km/s,
      'num': 1000}
 
-    Parameters
-    ----------
+    Parameters:
+    -----------
 
     quantity_linspace_dictionary: ~dict
 
     add_one: boolean, default: True
 
-    Returns
-    -------
+    Returns:
+    --------
 
     ~np.array
 
@@ -88,23 +88,12 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
 def calc_exponential_density(velocities, v_0, rho0):
     """
     This function computes the exponential density profile.
-    :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`
 
-    Parameters
-    ----------
-
-    velocities : ~astropy.Quantity
-        Array like velocity profile
-    velocity_0 : ~astropy.Quantity
-        reference velocity
-    rho0 : ~astropy.Quantity
-        reference density
-
-    Returns
-    -------
-
-    densities : ~astropy.Quantity
-
+    :param velocities: Array like velocity profile.
+    :param rho0: rho at v0
+    :param velocity_0: the velocity at the inner shell
+    :param a: proportionality constant
+    :return: Array like density profile
     """
     densities =  rho0 * np.exp(-(velocities / v_0))
     return densities
@@ -114,27 +103,31 @@ def calc_power_law_density(velocities, velocity_0, rho_0, exponent):
     """
 
     This function computes a descret exponential density profile.
-    :math:`\\rho = \\rho_0 \\times \\left( \\frac{v}{v_0} \\right)^n`
+    :math:`\\rho = \\rho_0 \\times \\left( \\frac{v_0}{v} \\right)^n`
 
     Parameters
     ----------
 
-    velocities : ~astropy.Quantity
-        Array like velocity profile
-    velocity_0 : ~astropy.Quantity
-        reference velocity
-    rho0 : ~astropy.Quantity
-        reference density
+    velocities : Array like list
+                velocities in km/s
+
+    velocity_0 : ~float
+        Velocity at the inner boundary
+
+
+    rho_0 : ~float
+        density at velocity_0
+
     exponent : ~float
         exponent used in the powerlaw
 
     Returns
     -------
 
-    densities : ~astropy.Quantity
+    Array like density structure
 
     """
-    densities = rho_0 * np.power((velocities / velocity_0), exponent)
+    densities = rho_0 * np.power((velocity_0 / velocities), exponent)
     return densities
 
 
@@ -410,36 +403,28 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
     def parse_power_law(density_dict, v_inner, v_outer, time_explosion):
         time_0 = density_dict.pop('time_0', 19.9999584)
         if isinstance(time_0, basestring):
-            time_0 = parse_quantity(time_0).to('s')
+            time_0 = parse_quantity(time_0).to('s').value
         else:
-            logger.debug('time_0 not supplied for density powerlaw - using sensible default %g', time_0)
+            logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
         try:
             rho_0 = density_dict.pop('rho_0')
             if isinstance(rho_0, basestring):
-                rho_0 = parse_quantity(rho_0)
+                rho_0 = parse_quantity(rho_0).to('g/cm^3').value
             else:
                 raise KeyError
         except KeyError:
-            rho_0 = parse_quantity('1e-2 g/cm^3')
+            rho_0 = 1e-2
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
         try:
             exponent = density_dict.pop('exponent')
         except KeyError:
             exponent = 2
             logger.warning('exponent was not given in the config file! Using %f', exponent)
-        try:
-            v_0 = density_dict.pop('v_0')
-            if isinstance(v_0, basestring):
-                v_0 = parse_quantity(v_0).to('cm/s')
-            
-        except KeyError:
-            v_0 = parse_quantity('1 cm/s')
-            logger.warning('v_0 was not given in the config file! Using %f km/s', v_0)
 
-            
         velocities = 0.5 * (v_inner + v_outer)
-        densities = calc_power_law_density(velocities, v_0, rho_0, exponent)
-        densities = calculate_density_after_time(densities, time_0, time_explosion)
+        densities = calc_power_law_density(velocities, v_inner[0], rho_0, exponent)
+        densities = u.Quantity(densities, 'g/cm^3')
+
         return densities
 
     density_parser['power_law'] = parse_power_law
@@ -447,30 +432,30 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
     def parse_exponential(density_dict, v_inner, v_outer, time_explosion):
         time_0 = density_dict.pop('time_0', 19.9999584)
         if isinstance(time_0, basestring):
-            time_0 = parse_quantity(time_0).to('s')
+            time_0 = parse_quantity(time_0).to('s').value
         else:
-            logger.debug('time_0 not supplied for density exponential - using sensible default %g', time_0)
+            logger.debug('time_0 not supplied for density branch85 - using sensible default %g', time_0)
         try:
             rho_0 = density_dict.pop('rho_0')
             if isinstance(rho_0, basestring):
-                rho_0 = parse_quantity(rho_0)
+                rho_0 = parse_quantity(rho_0).to('g/cm^3').value
             else:
                 raise KeyError
         except KeyError:
-            rho_0 = parse_quantity('1e-2 g/cm^3')
+            rho_0 = 1e-2
             logger.warning('rho_o was not given in the config! Using %g', rho_0)
         try:
             v_0 = density_dict.pop('v_0')
             if isinstance(v_0, basestring):
-                v_0 = parse_quantity(v_0).to('cm/s')
+                v_0 = parse_quantity(v_0).to('km/s').value
             
         except KeyError:
-            v_0 = parse_quantity('1 cm/s')
+            v_0 = 1
             logger.warning('v_0 was not given in the config file! Using %f km/s', v_0)
 
         velocities = 0.5 * (v_inner + v_outer)
         densities = calc_exponential_density(velocities, v_0, rho_0)
-        densities = calculate_density_after_time(densities, time_0, time_explosion)
+        densities = u.Quantity(densities, 'g/cm^3')
         return densities
 
     density_parser['exponential'] = parse_exponential
