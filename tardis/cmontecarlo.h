@@ -63,7 +63,7 @@ typedef struct StorageModel
  *
  * @return index of the next boundary to the left
  */
-inline npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax);
+npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax);
 
 /** Insert a value in to an array of line frequencies
  *
@@ -73,7 +73,7 @@ inline npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 i
  *
  * @return index of the next line ot the red. If the key value is redder than the reddest line returns number_of_lines.
  */
-inline npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_of_lines);
+npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_of_lines);
 
 /** Calculate the distance to the outer boundary.
  *

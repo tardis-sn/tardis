@@ -1,6 +1,6 @@
 #include "cmontecarlo.h"
 
-inline npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_of_lines)
+npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_of_lines)
 {
   npy_int64 imin, imax;
   imin = 0;
@@ -19,7 +19,7 @@ inline npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 n
     }
 }
 
-inline npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax)
+npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax)
 {
   if (x_insert > x[imin] || x_insert < x[imax])
     {
