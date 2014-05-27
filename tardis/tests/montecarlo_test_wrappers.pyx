@@ -20,3 +20,5 @@ def compute_distance2outer_wrapper(float_type_t r, float_type_t mu, float_type_t
 def compute_distance2inner_wrapper(float_type_t r, float_type_t mu, float_type_t r_inner):
     return compute_distance2inner(r, mu, r_inner)
 
+def compute_distance2line_wrapper(float_type_t r, float_type_t mu, float_type_t nu, float_type_t nu_line, float_type_t t_exp, float_type_t inverse_t_exp, float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id):
+    return compute_distance2line(r, mu, nu, nu_line, t_exp, inverse_t_exp, last_line, next_line, cur_zone_id)
