@@ -21,6 +21,7 @@ New Features
 - added more conversion routines for Species strings (e.g. Si IX) to util
 - added new density models (power law and exponential) [mklauser]
 - reimplementation of binary-search in C (towards faster/profileable code) [V. Jancauskas]
+- added new astropy setup using astropy-helpers (thanks to @embray and @astrofrog for debugging help) [wkerzendorf #144]
 
 
 0.9.1 (2014-02-03)
