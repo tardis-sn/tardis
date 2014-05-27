@@ -1,41 +1,41 @@
-.DS_Store
-*.mo
-*.egg-info
-*.egg
-*.EGG
-*.EGG-INFO
-bin
-build
-develop-eggs
-downloads
-eggs
-fake-eggs
-parts
-dist
-.idea
-.installed.cfg
-.mr.developer.cfg
-.hg
-.bzr
-.svn
-*.orig
+# Compiled files
+*.py[co]
+*.a
+*.o
 *.so
-*.pyc
-*.pyo
-*.tmp*
-*.komodoproject
-#special to the tardis project
-tardis/version.py
-tardis/data/w7*
-tardis/*.c
-tardis/*.html
+__pycache__
 
-#special for TARDIS docs
-# Sphinx
-_build
-_generated
-docs/gui.rst.*
+# Ignore .c files by default to avoid including generated code. If you want to
+# add a non-generated .c extension, use `git add -f filename.c`.
+*.c
 
-#coveralls related ignores
+# Other generated files
+*/version.py
+*/cython_version.py
 htmlcov
 .coverage
+
+# Sphinx
+_build
+
+# Packages/installer info
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+distribute-*.tar.gz
+
+
+# Other
+.*.swp
+*~
+
+# Mac OSX
+.DS_Store

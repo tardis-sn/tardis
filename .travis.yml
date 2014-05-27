@@ -8,9 +8,9 @@ virtualenv:
 
 env:
     # try all python versions with the latest stable numpy and astropy
-    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=0.3 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test'
-    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test'
-    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=development ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test --coverage --skip-docs'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test'
+#    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=development ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test --coverage'
 
 
 before_install:
@@ -20,18 +20,17 @@ before_install:
 
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
-   #- pip install --upgrade "numpy==$NUMPY_VERSION" --use-mirrors
    - pip install -q --upgrade "Cython==$CYTHON_VERSION"
    - if [[ $PANDAS_VERSION == 'latest' ]]; then pip install -q --upgrade pandas; else pip install -q --upgrade "pandas==$PANDAS_VERSION"; fi
    - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else pip install -q --upgrade "astropy==$ASTROPY_VERSION"; fi
    - pip install -q --upgrade pytest==2.5.1
    - pip install -q --upgrade pytest-cov
 
-   - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then pip install -q coveralls; fi
-   - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then pip install -q pytest-cov; fi
+   - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
+   - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
 
 script:
     - python setup.py $SETUP_CMD
 
 after_success:
-    - if [[ $SETUP_CMD == 'test --coverage --skip-docs' ]]; then coveralls; fi
+    - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls; fi
