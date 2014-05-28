@@ -22,7 +22,9 @@ New Features
 - added new density models (power law and exponential) [mklauser]
 - reimplementation of binary-search in C (towards faster/profileable code) [V. Jancauskas]
 - added new astropy setup using astropy-helpers (thanks to @embray and @astrofrog for debugging help) [wkerzendorf #144]
-
+- added a test that runs the full calculation and compares the spectrum output [wkerzendorf #144]
+- added the new documentation validator [mklauser & wkerzendorf #134, #136]
+- added a new configuration object for TARDIS [wkerzendorf #143]
 
 0.9.1 (2014-02-03)
 ------------------
