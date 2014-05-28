@@ -1,13 +1,13 @@
+***********************
+Configuration Validator
+***********************
 
-Default Configuration Parser
-============================
-
-The default config parser takes a user configuration and a default configuration and creates a consistent and valid configuration for tardis based on the constraints given in the default configuration.  Both input data are normally given as a yaml dictionary with a consistent hierarchical structure i.e. for every item in the user configuration there has to be a declaration in the default configuration  at the same hierarchical level. This declaration can be either an unspecific empty level declaration like:
+The default config validator takes a user configuration and a default configuration and creates a consistent and valid configuration for tardis based on the constraints given in the default configuration.  Both input data are normally given as a yaml dictionary with a consistent hierarchical structure i.e. for every item in the user configuration there has to be a declaration in the default configuration  at the same hierarchical level. This declaration can be either an unspecific empty level declaration like:
 - Main_level:
 	- Second_level:
 		- Third_level:
 			…
-Or a declaration of  a configuration item like:
+or a declaration of  a configuration item like:
 - item:
         - property_type: int
         - default: 1
@@ -24,10 +24,12 @@ Quantity_range: Like property type range but with quantities as start and stop. 
 Additionally to the four standard keywords the types integer, float, and quantity can have the keywords allowed_value and allowed_type. allowed_value specifies the allowed values in a list, whereas allowed_type specifies a range of allowed values like “x>10”.
 
 Container
----------
+^^^^^^^^^
 
 For more complex configurations with dependencies, you can use the containers which allow branching in the configuration. A container is declared in the default configuration file by setting the  property_type to container property and specifying the properties of the container with keyword type. The property_type of this section is container-declaration which allows you to specify the possible container items with the keyword container. For every specified container item, the code expects the declaration of all sub items. The keywords for this are “_“ + “name of the container item”.
 If the type declaration for this container is finished you can specify all container items like normal items. Here is an example for a container configuration with two branches
+
+..source: yaml
 - container_example:
         - property_type: container-property
         - type:
@@ -62,10 +64,12 @@ If the type declaration for this container is finished you can specify all conta
                 - help:  Like property type range but with quantities as start and stop. The consistency of the units is checked.
 
 How to use
-----------
+^^^^^^^^^^
                 
-To use the default parser create a new config object form the class Config by either from a dictionaries or from yaml files. 
-- My_config = Config(default configuration dictionary, user configuration dictionary)
+To use the default parser create a new config object form the class Config by either from a dictionaries or from yaml files::
+
+    My_config = Config(default configuration dictionary, user configuration dictionary)
+
 or
 - My_config = Config.from_yaml(default configuration file, user configuration file)
 To access the configuration for tardis use the method get_config 
