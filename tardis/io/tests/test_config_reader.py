@@ -37,10 +37,28 @@ def test_spectrum_list2_dict():
     assert_almost_equal(spectrum_dict['end'], 10000*u.angstrom)
     assert_almost_equal(spectrum_dict['bins'], 100)
 
+
+def test_convergence_section_parser():
+    test_convergence_section = {'type': 'damped',
+                                'lock_t_inner_cyles': 1,
+                                't_inner_update_exponent': -0.5,
+                                'global_convergence_parameters' : {
+                                    'damping_constant': 0.5},
+                                't_rad': {'damping_constant':1.0}}
+
+    parsed_convergence_section = config_reader.parse_convergence_section(
+        test_convergence_section)
+
+    assert_almost_equal(parsed_convergence_section['t_rad']['damping_constant'],
+                        1.0)
+
+    assert_almost_equal(parsed_convergence_section['w']['damping_constant'],
+                        0.5)
+
 def test_parse_density_section():
     density_dict = {'type': 'branch85_w7', 'w7_time_0': 0.000231481 * u.day,
-                    'w7_rho_0': 29.37505157 * u.Unit('g/cm^3'),
-                    'w7_v_0': 1e4 * u.Unit('km/s')}
+                    'w7_rho_0': 3e29 * u.Unit('g/cm^3'),
+                    'w7_v_0': 1 * u.Unit('km/s')}
 
     velocities = np.arange(10000, 20000, 1000) * u.Unit('km/s')
     v_inner, v_outer = velocities[:-1], velocities[1:]
@@ -87,8 +105,8 @@ class TestParsePaper1Config:
     def test_montecarlo_black_body_sampling(self):
         black_body_sampling = self.config['montecarlo']['black_body_sampling']
 
-        assert_almost_equal(black_body_sampling['start'], 1 * u.angstrom)
-        assert_almost_equal(black_body_sampling['end'], 1e6 * u.angstrom)
+        assert_almost_equal(black_body_sampling['start'], 50 * u.angstrom)
+        assert_almost_equal(black_body_sampling['end'], 200000 * u.angstrom)
         assert_almost_equal(black_body_sampling['samples'], int(1e6))
 
     def test_number_of_packets(self):

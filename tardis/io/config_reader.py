@@ -404,6 +404,7 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
                                                  density_dict['w7_time_0'],
                                                  time_explosion)
 
+
         return densities
 
     density_parser['branch85_w7'] = parse_branch85
@@ -542,6 +543,33 @@ def parse_spectrum_list2dict(spectrum_list):
 
 
 
+def parse_convergence_section(convergence_section_dict):
+    """
+    Parse the convergence section dictionary
+
+    Parameters
+    ----------
+
+    convergence_section_dict: ~dict
+        dictionary
+    """
+
+
+
+    for convergence_variable in ['t_inner', 't_rad', 'w']:
+        if convergence_variable not in convergence_section_dict:
+            convergence_section_dict[convergence_variable] = {}
+
+        updated_convergence_dict = convergence_section_dict[
+            'global_convergence_parameters'].copy()
+        updated_convergence_dict.update(
+            convergence_section_dict[convergence_variable])
+
+        convergence_section_dict[convergence_variable] = \
+            updated_convergence_dict
+
+    return convergence_section_dict
+
 def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.9999584, density_coefficient=3e29):
     """
         Generated densities from the fit to W7 in Branch 85 page 620 (citation missing)
@@ -676,7 +704,22 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
         #Parsing supernova dictionary
-        #validated_config_dict['supernova'] = parse_supernova_section(validated_config_dict['supernova'])
+        validated_config_dict['supernova']['luminosity_nu_start'] = \
+            validated_config_dict['supernova']['luminosity_wavelength_end'].to(
+                u.Hz, u.spectral())
+        try:
+            validated_config_dict['supernova']['luminosity_nu_end'] = \
+                (validated_config_dict['supernova']
+                 ['luminosity_wavelength_start'].to(u.Hz, u.spectral()))
+        except ZeroDivisionError:
+            validated_config_dict['supernova']['luminosity_nu_end'] = (
+                np.inf * u.Hz)
+
+        validated_config_dict['supernova']['time_explosion'] = (
+            validated_config_dict['supernova']['time_explosion'].cgs)
+
+        validated_config_dict['supernova']['luminosity_requested'] = (
+            validated_config_dict['supernova']['luminosity_requested'].cgs)
 
         #Parsing the model section
 
@@ -685,6 +728,8 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         v_outer = None
         mean_densities = None
         abundances = None
+
+
 
         structure_section = model_section['structure']
 
@@ -696,7 +741,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
             v_inner, v_outer = velocities[:-1], velocities[1:]
             mean_densities = parse_density_section(
                 model_section['structure']['density'], v_inner, v_outer,
-                validated_config_dict['supernova']['time_explosion'])
+                validated_config_dict['supernova']['time_explosion']).cgs
 
         elif structure_section['type'] == 'file':
             v_inner, v_outer, mean_densities, inner_boundary_index, \
@@ -711,17 +756,17 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         r_middle = 0.5 * (r_inner + r_outer)
 
         structure_validated_config_dict = {}
-        structure_section['v_inner'] = v_inner
-        structure_section['v_outer'] = v_outer
-        structure_section['mean_densities'] = mean_densities
+        structure_section['v_inner'] = v_inner.cgs
+        structure_section['v_outer'] = v_outer.cgs
+        structure_section['mean_densities'] = mean_densities.cgs
         no_of_shells = len(v_inner)
         structure_section['no_of_shells'] = no_of_shells
-        structure_section['r_inner'] = r_inner
-        structure_section['r_outer'] = r_outer
-        structure_section['r_middle'] = r_middle
-        structure_section['volumes'] = (4. / 3) * np.pi * \
+        structure_section['r_inner'] = r_inner.cgs
+        structure_section['r_outer'] = r_outer.cgs
+        structure_section['r_middle'] = r_middle.cgs
+        structure_section['volumes'] = ((4. / 3) * np.pi * \
                                        (r_outer ** 3 -
-                                        r_inner ** 3)
+                                        r_inner ** 3)).cgs
 
 
         #### TODO the following is legacy code and should be removed
@@ -823,16 +868,24 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
         montecarlo_section = validated_config_dict['montecarlo']
 
-        #PARSING convergence section
-        convergence_variables = ['t_inner', 't_rad', 'w']
+        default_convergence_section = {'type': 'damped',
+                                      'lock_t_inner_cyles': 1,
+                                      't_inner_update_exponent': -0.5,
+                                      'global_convergence_parameters' : {
+                                          'damping_constant': 0.5}}
+
+
 
         if montecarlo_section['convergence_strategy'] is None:
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
-            montecarlo_section['convergence_strategy'] = {
-                'lock_t_inner_ctyles': 1,
-                'damping_constant': 0.5,
-                't_inner_update_exponent': -0.5}
-        black_body_section = montecarlo_section.pop('black_body_sampling')
+            montecarlo_section['convergence_strategy'] = default_convergence_section
+        else:
+            1/0
+
+        montecarlo_section['convergence_strategy'] = parse_convergence_section(
+            montecarlo_section['convergence_strategy'])
+
+        black_body_section = montecarlo_section['black_body_sampling']
         montecarlo_section['black_body_sampling'] = {}
         montecarlo_section['black_body_sampling']['start'] = \
             black_body_section[0]
