@@ -121,6 +121,7 @@ class TestParsePaper1Config:
         assert self.config['spectrum']['bins'] == self.yaml_data['spectrum']['num']
 
 
+
     def test_time_explosion(self):
         assert_almost_equal(self.config['supernova']['time_explosion'],
                             13.0 * u.day)

@@ -108,8 +108,11 @@ class Radial1DModel(object):
         self.iterations_executed = 0
 
 
-        if tardis_config.montecarlo.convergence.type == 'specific':
-            self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.deepcopy()
+        if tardis_config.montecarlo.convergence_strategy.type == 'specific':
+            self.global_convergence_parameters = (tardis_config.montecarlo.
+                                                  convergence_strategy.
+                                                  global_convergence_parameters.
+                                                  deepcopy())
 
         self.t_rads = tardis_config.plasma.t_rads
         t_inner_lock_cycle = [False] * (tardis_config.montecarlo.
@@ -349,8 +352,7 @@ class Radial1DModel(object):
 
         self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
         self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)
-        #if self.iterations_executed == 2:
-        #    1/0
+
         montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
         self.last_interaction_type, self.last_line_interaction_shell_id = \
