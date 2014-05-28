@@ -100,7 +100,15 @@ plasma:
         mandatory: False
         default:  1e-10
         help: w to use when j_blues get numerically 0. - avoids numerical complications
-        
+
+    delta_treatment:
+        property_type: float
+        mandatory: False
+        default: None
+        help: >
+            In the saha calculation set delta equals to the number given in
+            this configuration item. if set to None (default), normal delta
+            treatment (as described in Mazzali & Lucy 1993) will be applied
 
     nlte:
         species:
@@ -186,13 +194,13 @@ model:
 
             w7_rho_0:
                 property_type: quantity
-                default: 29.37505157 g/cm^3
+                default: 3e29 g/cm^3
                 mandatory: False
                 help: This needs no change - DO NOT TOUCH
 
             w7_v_0:
                 property_type: quantity
-                default: 1e4 km/s
+                default: 1 km/s
                 mandatory: False
                 help: This needs no change - DO NOT TOUCH
 
@@ -267,7 +275,7 @@ montecarlo:
 
     black_body_sampling:
         property_type: quantity_range_sampled
-        default: [1 angstrom, 1e6 angstrom, 1000000]
+        default: [50 angstrom, 200000 angstrom, 1000000]
         mandatory: False
         help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)
 
