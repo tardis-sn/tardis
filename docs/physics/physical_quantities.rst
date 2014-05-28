@@ -30,7 +30,7 @@ and then run your calculation, which is based on your "my_config.yml" file
     import logging
     import warnings
 
-    tardis_config = config_reader.TARDISConfiguration.from_yaml("my_config.yml")
+    tardis_config = config_reader.Configuration.from_yaml("my_config.yml")
     radial1d = model.Radial1DModel(tardis_config)
     simulation.run_radial1d(radial1d)
 

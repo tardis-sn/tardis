@@ -43,7 +43,7 @@ Scripting TARDIS
     from tardis import model, simulation
     from tardis.io import config_reader
 
-    tardis_config = config_reader.TARDISConfiguration.from_yaml('myconfig.yml')
+    tardis_config = config_reader.Configuration.from_yaml('myconfig.yml')
     radial1d_mdl = model.Radial1DModel(tardis_config)
     simulation.run_radial1d(radial1d_mdl)
 
