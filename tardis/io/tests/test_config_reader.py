@@ -1,10 +1,10 @@
 # tests for the config reader module
-
 from tardis.io import config_reader
 from astropy import units as u
 import os
 import pytest
 import yaml
+import numpy as np
 
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from tardis.util import parse_quantity
@@ -29,6 +29,47 @@ def test_quantity_linspace():
     assert_almost_equal(quantity_linspace[-1].to('cm/h').value, 2e4)
     assert len(quantity_linspace) == 1001
 
+
+def test_spectrum_list2_dict():
+    spectrum_dict = config_reader.parse_spectrum_list2dict(
+        [200*u.angstrom, 10000 * u.angstrom, 100])
+    assert_almost_equal(spectrum_dict['start'], 200*u.angstrom)
+    assert_almost_equal(spectrum_dict['end'], 10000*u.angstrom)
+    assert_almost_equal(spectrum_dict['bins'], 100)
+
+
+def test_convergence_section_parser():
+    test_convergence_section = {'type': 'damped',
+                                'lock_t_inner_cyles': 1,
+                                't_inner_update_exponent': -0.5,
+                                'global_convergence_parameters' : {
+                                    'damping_constant': 0.5},
+                                't_rad': {'damping_constant':1.0}}
+
+    parsed_convergence_section = config_reader.parse_convergence_section(
+        test_convergence_section)
+
+    assert_almost_equal(parsed_convergence_section['t_rad']['damping_constant'],
+                        1.0)
+
+    assert_almost_equal(parsed_convergence_section['w']['damping_constant'],
+                        0.5)
+
+def test_parse_density_section():
+    density_dict = {'type': 'branch85_w7', 'w7_time_0': 0.000231481 * u.day,
+                    'w7_rho_0': 3e29 * u.Unit('g/cm^3'),
+                    'w7_v_0': 1 * u.Unit('km/s')}
+
+    velocities = np.arange(10000, 20000, 1000) * u.Unit('km/s')
+    v_inner, v_outer = velocities[:-1], velocities[1:]
+    mean_densities = config_reader.parse_density_section(density_dict,
+                                                         v_inner, v_outer,
+                                                         10 * u.day)
+
+    desired_mean_densities_0 = 2.58940268372887e-13 * u.Unit('g/cm^3')
+
+    assert_almost_equal(mean_densities[0].cgs, desired_mean_densities_0)
+
 class TestParsePaper1Config:
 
     def setup(self):
@@ -43,17 +84,46 @@ class TestParsePaper1Config:
         oxygen_abundance = self.yaml_data['model']['abundances']['O']
         assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
 
-        assert True
-
     def test_velocities(self):
         assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['start']),
                             self.config.structure.v_inner[0])
         assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['stop']),
                     self.config.structure.v_outer[-1])
-        assert len(self.config.structure.v_outer) == self.yaml_data['model']['structure']['velocity']['num']
+        assert len(self.config.structure.v_outer) == (self.yaml_data['model']['structure']['velocity']['num'])
 
     def test_densities(self):
-        pass
+        assert_almost_equal(self.config['structure']['mean_densities'][0],
+                                  7.542803599143591e-14 * u.Unit('g/cm^3'))
+        assert_almost_equal(self.config['structure']['mean_densities'][-1],
+                          1.432259798833509e-15 * u.Unit('g/cm^3'))
+
+
+    def test_t_inner(self):
+        assert_almost_equal(self.config['plasma']['t_inner'],
+                            9974.969233778693 * u.K)
+
+    def test_montecarlo_black_body_sampling(self):
+        black_body_sampling = self.config['montecarlo']['black_body_sampling']
+
+        assert_almost_equal(black_body_sampling['start'], 50 * u.angstrom)
+        assert_almost_equal(black_body_sampling['end'], 200000 * u.angstrom)
+        assert_almost_equal(black_body_sampling['samples'], int(1e6))
+
+    def test_number_of_packets(self):
+        assert_almost_equal(self.config['montecarlo']['no_of_packets'], 200000)
+
+    def test_spectrum_section(self):
+        assert_almost_equal(self.config['spectrum']['start'],
+                            parse_quantity(self.yaml_data['spectrum']['start']))
+        assert_almost_equal(self.config['spectrum']['end'],
+                            parse_quantity(self.yaml_data['spectrum']['stop']))
+
+        assert self.config['spectrum']['bins'] == self.yaml_data['spectrum']['num']
+
+
+    def test_time_explosion(self):
+        assert_almost_equal(self.config['supernova']['time_explosion'],
+                            13.0 * u.day)
 
 class TestParseConfigV1ASCIIDensity:
 
@@ -199,13 +269,17 @@ def test_ascii_reader_power_law():
     my_conf = config_reader.TARDISConfiguration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'),test_parser=True)
     structure = my_conf.config_dict['structure']
     
-    expected_densites = [3.29072513e-14,  2.70357804e-14,  2.23776573e-14,  1.86501954e-14,  1.56435277e-14,  1.32001689e-14, 1.12007560e-14,  9.55397475e-15,  8.18935779e-15, 7.05208050e-15,  6.09916083e-15,  5.29665772e-15, 4.61758699e-15,  4.04035750e-15,  3.54758837e-15, 3.12520752e-15,  2.76175961e-15,  2.44787115e-15, 2.17583442e-15,  1.93928168e-15]
-    expected_unit = 'g / (cm3)'
+    expected_densites = [3.29072513e-14,  2.70357804e-14,  2.23776573e-14,
+                         1.86501954e-14,  1.56435277e-14,  1.32001689e-14, 1.12007560e-14,
+                         9.55397475e-15,  8.18935779e-15, 7.05208050e-15,  6.09916083e-15,
+                         5.29665772e-15, 4.61758699e-15,  4.04035750e-15,  3.54758837e-15,
+                         3.12520752e-15,  2.76175961e-15,  2.44787115e-15, 2.17583442e-15,
+                         1.93928168e-15] * u.Unit('g / (cm3)')
     
     assert structure['no_of_shells'] == 20
     for i, mdens in enumerate(expected_densites):
-        assert_almost_equal(structure['mean_densities'][i].value,mdens)
-        assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
+        assert_almost_equal(structure['mean_densities'][i],mdens)
+        #assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
         
        
     

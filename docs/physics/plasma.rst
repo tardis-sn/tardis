@@ -24,11 +24,7 @@ description of the BasePlasma (for details see :ref:`nebular_plasma`).
 All plasma calculations follow the same basic procedure in calculating the plasma state.
 This is always accomplished with the function ``update_radiationfield``. This block diagram shows the basic procedure
 
-.. blockdiag::
 
-    blockdiag update_radfield{
-      calculate_partition_functions -> "calculate ge" -> calculate_saha -> "iterate over calculate_ionization_balance" -> calculate_level_populations;
-    }
 
 Base Plasma
 -----------
