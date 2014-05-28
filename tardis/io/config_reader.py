@@ -17,6 +17,7 @@ from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, \
     element_symbol2atomic_number
 
+import copy
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -27,6 +28,7 @@ data_dir = os.path.join(tardis.__path__[0], 'data')
 default_config_definition_file = os.path.join(data_dir,
                                               'tardis_config_definition.yml')
 #File parsers for different file formats:
+
 
 density_structure_fileparser = {}
 
@@ -596,37 +598,125 @@ def calculate_w7_branch85_densities(velocities, time_explosion, time_0=19.999958
     return densities[1:]
 
 
-class TARDISConfigurationNameSpace(object):
-    def __init__(self, config_dict):
-        self.config_dict = config_dict
+class ConfigurationNameSpace(dict):
+    """
+    The configuration name space class allows to wrap a dictionary and adds
+    utility functions for easy access. Accesses like a.b.c are then possible
 
+    Code from http://goo.gl/KIaq8I
+
+    Parameters
+    ----------
+
+    config_dict: ~dict
+        configuration dictionary
+
+    Returns
+    -------
+
+    config_ns: ConfigurationNameSpace
+    """
+
+    marker = object()
+    def __init__(self, value=None):
+        if value is None:
+            pass
+        elif isinstance(value, dict):
+            for key in value:
+                self.__setitem__(key, value[key])
+        else:
+            raise TypeError, 'expected dict'
+
+    def __setitem__(self, key, value):
+        if isinstance(value, dict) and not isinstance(value,
+                                                      ConfigurationNameSpace):
+            value = ConfigurationNameSpace(value)
+
+        if key in self and hasattr(self[key], 'unit'):
+            value = u.Quantity(value, self[key].unit)
+
+        dict.__setitem__(self, key, value)
+
+    def __getitem__(self, key):
+        return super(ConfigurationNameSpace, self).__getitem__(key)
 
     def __getattr__(self, item):
-        if item in self.config_dict:
-            config_item = self.config_dict[item]
-            if isinstance(config_item, dict):
-                setattr(self, item, TARDISConfigurationNameSpace(config_item))
-                return getattr(self, item)
-            else:
-                return self.config_dict[item]
+        if item in self:
+            return self[item]
         else:
-            return super(TARDISConfigurationNameSpace, self).__getattribute__(item)
+            super(ConfigurationNameSpace, self).__getattribute__(item)
 
-    def __getitem__(self, item):
-        return self.config_dict.__getitem__(item)
-
-    def get(self, k, d=None):
-        return self.config_dict.get(k, d)
-
-
-    def __repr__(self):
-        return pp.pformat(self.config_dict)
+    __setattr__ = __setitem__
 
     def __dir__(self):
-        return self.__dict__.keys() + self.config_dict.keys()
+        self.keys()
+
+    def get_config_item(self, config_item_string):
+        """
+        Get configuration items using a string of type 'a.b.param'
+
+        Parameters
+        ----------
+
+        config_item_string: ~str
+            string of shape 'section1.sectionb.param1'
+        """
+        config_item_path = config_item_string.split('.')
+
+        if len(config_item_path) == 1:
+            config_item = config_item_path[0]
+
+            if config_item.startswith('item'):
+                return self[config_item_path[0]]
+            else:
+                return self[config_item]
+        elif len(config_item_path) == 2 and\
+                config_item_path[1].startswith('item'):
+            return self[config_item_path[0]][
+                int(config_item_path[1].replace('item', ''))]
+
+        else:
+            return self[config_item_path[0]].get_config_item(
+                '.'.join(config_item_path[1:]))
+
+    def set_config_item(self, config_item_string, value):
+        """
+        set configuration items using a string of type 'a.b.param'
+
+        Parameters
+        ----------
+
+        config_item_string: ~str
+            string of shape 'section1.sectionb.param1'
+
+        value:
+            value to set the parameter with it
+        """
+
+        config_item_path = config_item_string.split('.')
+        if len(config_item_path) == 1:
+            self[config_item_path[0]] = value
+        elif len(config_item_path) == 2 and \
+                config_item_path[1].startswith('item'):
+            current_value = self[config_item_path[0]][
+                int(config_item_path[1].replace('item', ''))]
+            if hasattr(current_value, 'unit'):
+                self[config_item_path[0]][
+                    int(config_item_path[1].replace('item', ''))] =\
+                    u.Quantity(value, current_value.unit)
+            else:
+                self[config_item_path[0]][
+                    int(config_item_path[1].replace('item', ''))] = value
+
+        else:
+            self[config_item_path[0]].set_config_item(
+                '.'.join(config_item_path[1:]), value)
+
+    def deepcopy(self):
+        return ConfigurationNameSpace(copy.deepcopy(dict(self)))
 
 
-class TARDISConfiguration(TARDISConfigurationNameSpace):
+class Configuration(ConfigurationNameSpace):
     """
     Tardis configuration class
     """
@@ -674,7 +764,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
         Returns
         -------
 
-        `tardis.config_reader.TARDISConfiguration`
+        `tardis.config_reader.Configuration`
 
         """
 
@@ -903,7 +993,7 @@ class TARDISConfiguration(TARDISConfigurationNameSpace):
 
 
     def __init__(self, config_dict, atom_data):
-        super(TARDISConfiguration, self).__init__(config_dict)
+        super(Configuration, self).__init__(config_dict)
         self.atom_data = atom_data
         selected_atomic_numbers = self.abundances.index
         if atom_data is not None:

@@ -53,7 +53,7 @@ if args.packet_log_file:
     console_handler.setFormatter(packet_logging_formatter)
     logger.addHandler(packet_logging_handler)
 
-tardis_config = config_reader.TARDISConfiguration.from_yaml(args.config_fname)
+tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
 
 radial1d_mdl = model.Radial1DModel(tardis_config)
 
