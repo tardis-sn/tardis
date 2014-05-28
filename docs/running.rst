@@ -39,13 +39,11 @@ Scripting TARDIS
 ================
 
 .. code-block:: python
+    from tardis import run_tardis
+    import yaml
 
-    from tardis import model, simulation
-    from tardis.io import config_reader
-
-    tardis_config = config_reader.Configuration.from_yaml('myconfig.yml')
-    radial1d_mdl = model.Radial1DModel(tardis_config)
-    simulation.run_radial1d(radial1d_mdl)
+    configuration_dict = yaml.load(open('myconfig.yml')
+    model = run_tardis(configuration_dict)
 
 Graphical User Interface
 ========================
