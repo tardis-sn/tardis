@@ -7,6 +7,7 @@ import logging
 from ._astropy_init import *
 # ----------------------------------------------------------------------------
 
+
 logger = logging.getLogger('tardis')
 logger.setLevel(logging.INFO)
 console_handler = logging.StreamHandler()
