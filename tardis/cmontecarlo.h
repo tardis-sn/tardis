@@ -97,6 +97,19 @@ inline npy_float64 compute_distance2outer(npy_float64 r, npy_float64 mu, npy_flo
  */
 inline npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_float64 r_inner);
 
+/** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
+ *
+ * @param r distance from the center to the packet
+ * @param mu angle at which the packet is moving
+ * @param nu frequency of the packet
+ * @param nu_line frequency of the next line the packet will encounter
+ * @param t_exp time since the explosion
+ * @param last_line 
+ * @param next_line
+ * @param cur_zone_id id of the current shell
+ *
+ * @return distance to the next spectral line
+ */
 inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu, npy_float64 nu_line, npy_float64 t_exp, npy_float64 inverse_t_exp, npy_float64 last_line, npy_float64 next_line, npy_int64 cur_zone_id);
 
 inline npy_float64 compute_distance2electron(npy_float64 r, npy_float64 mu, npy_float64 tau_event, npy_float64 inverse_ne);
