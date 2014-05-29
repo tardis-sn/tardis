@@ -22,7 +22,7 @@ def run_tardis(configuration_dict, atom_data=None):
         [default=None]
     """
 
-    tardis_config = config_reader.TARDISConfiguration.from_config_dict(
+    tardis_config = config_reader.Configuration.from_config_dict(
         configuration_dict, atom_data=atom_data)
     radial1d_mdl = model.Radial1DModel(tardis_config)
 
