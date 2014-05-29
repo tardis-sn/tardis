@@ -6,6 +6,8 @@
 #include <numpy/arrayobject.h>
 
 #define MISS_DISTANCE 1e99
+#define C 29979245800.0
+#define INVERSE_C 3.33564095198152e-11
 
 typedef struct StorageModel
 {
@@ -94,5 +96,7 @@ inline npy_float64 compute_distance2outer(npy_float64 r, npy_float64 mu, npy_flo
  * @return distance to the inner boundary
  */
 inline npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_float64 r_inner);
+
+inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu, npy_float64 nu_line, npy_float64 t_exp, npy_float64 inverse_t_exp, npy_float64 last_line, npy_float64 next_line, npy_int64 cur_zone_id);
 
 #endif // TARDIS_CMONTECARLO_H

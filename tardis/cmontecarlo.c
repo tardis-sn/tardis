@@ -66,3 +66,26 @@ inline npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_flo
       return mu < 0.0 ? -r * mu - sqrt(check) : MISS_DISTANCE;
     }
 }
+
+inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu, npy_float64 nu_line, npy_float64 t_exp, npy_float64 inverse_t_exp, npy_float64 last_line, npy_float64 next_line, npy_int64 cur_zone_id)
+{
+  npy_float64 comov_nu, doppler_factor;
+  doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
+  comov_nu = nu * doppler_factor;
+  if (comov_nu < nu_line)
+    {
+      PyErr_SetString(PyExc_ValueError, "Comoving nu less than nu_line!");
+      fprintf(stderr, "comov_nu = %f\n", comov_nu);
+      fprintf(stderr, "nu_line = %f\n", nu_line);
+      fprintf(stderr, "(comov_nu - nu_line) / nu_line = %f\n", (comov_nu - nu_line) / nu_line);
+      fprintf(stderr, "last_line = %f\n", last_line);
+      fprintf(stderr, "next_line = %f\n", next_line);
+      fprintf(stderr, "r = %f\n", r);
+      fprintf(stderr, "mu = %f\n", mu);
+      fprintf(stderr, "nu = %f\n", nu);
+      fprintf(stderr, "doppler_factor = %f\n", doppler_factor);
+      fprintf(stderr, "cur_zone_id = %d\n", cur_zone_id);
+      return -1;
+    }
+  return ((comov_nu - nu_line) / nu) * C * t_exp;
+}
