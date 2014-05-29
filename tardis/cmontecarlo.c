@@ -74,7 +74,7 @@ inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_floa
   comov_nu = nu * doppler_factor;
   if (comov_nu < nu_line)
     {
-      PyErr_SetString(PyExc_ValueError, "Comoving nu less than nu_line!");
+      fprintf(stderr, "ERROR: Comoving nu less than nu_line!\n");
       fprintf(stderr, "comov_nu = %f\n", comov_nu);
       fprintf(stderr, "nu_line = %f\n", nu_line);
       fprintf(stderr, "(comov_nu - nu_line) / nu_line = %f\n", (comov_nu - nu_line) / nu_line);
@@ -85,7 +85,7 @@ inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_floa
       fprintf(stderr, "nu = %f\n", nu);
       fprintf(stderr, "doppler_factor = %f\n", doppler_factor);
       fprintf(stderr, "cur_zone_id = %d\n", cur_zone_id);
-      return -1;
+      exit(-1);
     }
   return ((comov_nu - nu_line) / nu) * C * t_exp;
 }
