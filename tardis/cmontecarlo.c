@@ -89,3 +89,8 @@ inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_floa
     }
   return ((comov_nu - nu_line) / nu) * C * t_exp;
 }
+
+inline npy_float64 compute_distance2electron(npy_float64 r, npy_float64 mu, npy_float64 tau_event, npy_float64 inverse_ne)
+{
+  return tau_event * inverse_ne;
+}
