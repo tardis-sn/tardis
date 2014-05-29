@@ -99,4 +99,6 @@ inline npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_flo
 
 inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu, npy_float64 nu_line, npy_float64 t_exp, npy_float64 inverse_t_exp, npy_float64 last_line, npy_float64 next_line, npy_int64 cur_zone_id);
 
+inline npy_float64 compute_distance2electron(npy_float64 r, npy_float64 mu, npy_float64 tau_event, npy_float64 inverse_ne);
+
 #endif // TARDIS_CMONTECARLO_H
