@@ -20,6 +20,8 @@ cdef extern int_type_t line_search(float_type_t *nu, float_type_t nu_insert, int
 cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax) except -1
 cdef extern float_type_t compute_distance2outer(float_type_t r, float_type_t mu, float_type_t r_outer)
 cdef extern float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_type_t r_inner)
+cdef extern float_type_t compute_distance2line(float_type_t r, float_type_t mu, float_type_t nu, float_type_t nu_line, float_type_t t_exp, float_type_t inverse_t_exp, float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id)
+cdef extern float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event, float_type_t inverse_ne)
 
 cdef extern from "math.h":
     float_type_t log(float_type_t)
@@ -437,39 +439,6 @@ cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*cu
     storage.line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
     #print "incrementing j_blues = %g" % storage.line_lists_j_blues[j_blue_idx]
 
-
-cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
-                                        float_type_t nu, float_type_t nu_line,
-                                        float_type_t t_exp, float_type_t inverse_t_exp,
-                                        float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id):
-    #computing distance to line
-    cdef float_type_t comov_nu, doppler_factor
-    doppler_factor = (1. - (mu * r * inverse_t_exp * inverse_c))
-    comov_nu = nu * doppler_factor
-
-    if comov_nu < nu_line:
-        #TODO raise exception
-        print "WARNING comoving nu less than nu_line shouldn't happen:"
-        print "comov_nu = ", comov_nu
-        print "nu_line", nu_line
-        print "(comov_nu - nu_line) nu_lines", (comov_nu - nu_line) / nu_line
-        print "last_line", last_line
-        print "next_line", next_line
-        print "r", r
-        print "mu", mu
-        print "nu", nu
-        print "doppler_factor", doppler_factor
-        print "cur_zone_id", cur_zone_id
-        #raise Exception('wrong')
-
-    return ((comov_nu - nu_line) / nu) * c * t_exp
-
-cdef float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event,
-                                            float_type_t inverse_ne):
-    return tau_event * inverse_ne # * inverse_sigma_thomson folded into inverse_ne
-
-cdef inline float_type_t get_r_sobolev(float_type_t r, float_type_t mu, float_type_t d_line):
-    return sqrt(r ** 2 + d_line ** 2 + 2 * r * d_line * mu)
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     """
