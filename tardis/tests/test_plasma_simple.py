@@ -20,5 +20,5 @@ class TestNebularPlasma(object):
         with pytest.raises(ValueError) as excinfo:
             self.plasma.update_radiationfield([100000.], [1.])
 
-        assert excinfo.value.message.startswith('t_rads outside of zeta '
+        assert str(excinfo.value).startswith('t_rads outside of zeta '
                                                 'factor interpolation')

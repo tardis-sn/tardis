@@ -24,7 +24,18 @@ supernova:
         default: None
         help: distance to supernova
       
-    
+    luminosity_wavelength_start:
+        property_type: quantity
+        mandatory: False
+        default: 0 angstrom
+        help: start of the integral needed for getting the luminosity right
+
+
+    luminosity_wavelength_end:
+        property_type: quantity
+        mandatory: False
+        default: inf angstrom
+        help: start of the integral needed for getting the luminosity right
 
 atom_data:
     property_type: string
@@ -89,7 +100,15 @@ plasma:
         mandatory: False
         default:  1e-10
         help: w to use when j_blues get numerically 0. - avoids numerical complications
-        
+
+    delta_treatment:
+        property_type: float
+        mandatory: False
+        default: None
+        help: >
+            In the saha calculation set delta equals to the number given in
+            this configuration item. if set to None (default), normal delta
+            treatment (as described in Mazzali & Lucy 1993) will be applied
 
     nlte:
         species:
@@ -116,71 +135,99 @@ plasma:
 
 model:
     structure:
-      property_type : container-property
-      type:
-          property_type: container-declaration
-          containers: ['file', 'specific']
-          _file: ['filename','filetype']
-          +file: ['v_inner_boundary','v_outer_boundary']
-          _specific: ['specific-property']
-          
-  
-      filename:
-        property_type: string
-        default: None
-        mandatory: True
-        help: file name (with path) to structure model
+        property_type : container-property
+        type:
+            property_type: container-declaration
+            containers: ['file', 'specific']
+            _file: ['filename','filetype']
+            +file: ['v_inner_boundary','v_outer_boundary']
+            _specific: ['velocity', 'density']
 
-      filetype:
-        property_type: string
-        default: None
-        mandatory: True
-        help: file type
-        #### there are only a handful of types available how do we validate that ####
 
-          
+        filename:
+            property_type: string
+            default: None
+            mandatory: True
+            help: file name (with path) to structure model
 
-      v_inner_boundary:
-        property_type: quantity
-        default: 0 km/s
-        mandatory: False
-        help: location of the inner boundary chosen from the model
+        filetype:
+            property_type: string
+            default: None
+            allowed_value: ['simple_ascii', 'artis']
+            mandatory: True
+            help: file type
 
-      v_outer_boundary:
-          property_type: quantity
-          default: inf km/s
-          mandatory: False
-          help: location of the inner boundary chosen from the model
+        v_inner_boundary:
+            property_type: quantity
+            default: 0 km/s
+            mandatory: False
+            help: location of the inner boundary chosen from the model
 
-      specific_property:
-          velocity:
-              property_type: quantity_range
-              default: None
-              mandatory: True
-              help: location of boundaries in the velocity field. There will be n-1 cells as this specifis both the inner and outer velocity components
-  
-  
-          density:
-              property_type: container-property
-              type:
-                  property_type: container-declaration
-                  containers: ['branch85_w7']
-  
-                  _branch85_w7: ['branch85_w7-property'] # list
-  
-              branch85_w7-property:
-                  time_0:
-                      property_type: quantity
-                      default: 19.9999584 s
-                      mandatory: False
-                      help: This needs no change - DO NOT TOUCH
-  
-                  density_coefficient:
-                      property_type: float
-                      default: 3e29
-                      mandatory: False
-                      help: This needs no change - DO NOT TOUCH
-                      
+        v_outer_boundary:
+            property_type: quantity
+            default: inf km/s
+            mandatory: False
+            help: location of the inner boundary chosen from the model
+
+
+        velocity:
+            property_type: quantity_range_sampled
+            default: None
+            mandatory: True
+            help: description of the boundaries of the shells
+
+        density:
+            property_type: container-property
+            type:
+                property_type: container-declaration
+                containers: ['branch85_w7','exponential','power_law']
+                _branch85_w7: []
+                +branch85_w7: ['w7_time_0', 'w7_rho_0', 'w7_v_0']
+                _power_law: ['time_0', 'rho_0', 'v_0', 'exponent']
+                _exponential: ['time_0', 'rho_0', 'v_0']
+
+            w7_time_0:
+                property_type: quantity
+                default: 0.000231481 day
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            w7_rho_0:
+                property_type: quantity
+                default: 3e29 g/cm^3
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            w7_v_0:
+                property_type: quantity
+                default: 1 km/s
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            time_0:
+                property_type: quantity
+                default: None
+                mandatory: True
+                help: Time at which the pure model densities are right
+
+            rho_0:
+                property_type: quantity
+                default: None
+                mandatory: True
+                help: density at time_0
+
+            v_0:
+                property_type: quantity
+                default: None
+                mandatory: True
+                help: at what velocity the density rho_0 applies
+
+            exponent:
+                property_type: float
+                default: None
+                mandatory: True
+                help: exponent for exponential density profile
+
     abundances:
         property_type: container-property
         type:
@@ -228,7 +275,7 @@ montecarlo:
 
     black_body_sampling:
         property_type: quantity_range_sampled
-        default: [1 angstrom, 1e6 angstrom, 1e6 angstrom]
+        default: [50 angstrom, 200000 angstrom, 1000000]
         mandatory: False
         help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)
 
@@ -262,8 +309,8 @@ montecarlo:
         type:
             property_type: container-declaration
             containers: ['damped', 'specific']
-            _damped: ['damping_constant']
-            +damped: ['t_inner', 't_rad', 'w']
+            _damped: []
+            +damped: ['damping_constant', 't_inner', 't_rad', 'w']
             _specific: ['damping_constant', 'threshold', 'fraction', 'hold-iterations']
             +specific: ['t_inner', 't_rad', 'w']
         

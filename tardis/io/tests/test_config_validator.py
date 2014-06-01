@@ -3,13 +3,13 @@ from glob import glob
 
 from astropy import units as u
 import pytest
-import ast
 
-from tardis.io.default_config_parser import DefaultParser, Config, ConfigValueError
+from tardis.io.config_validator import DefaultParser, Config, ConfigValueError
+
 
 existing_configs = glob(os.path.join('docs', 'examples', '*.yml'))
 existing_configs += glob(os.path.join('tardis', 'io', 'tests', 'data', '*.yml'))
-config_definition = os.path.join('tardis', 'data', 'tardis_default_config_definition.yml')
+config_definition = os.path.join('tardis', 'data', 'tardis_config_definition.yml')
 
 test_config_definition = os.path.join('tardis', 'io', 'tests', 'data', 'conf_def.yml')
 test_config = os.path.join('tardis', 'io', 'tests', 'data', 'conf_tes.yml')
@@ -119,6 +119,8 @@ def test_default_parser_quantity():
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
                                return_default=return_default, return_value=return_value)
+
+
 
 
 def test_default_parser_quantity_range():
@@ -277,7 +279,7 @@ def test_default_parser_string():
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
 
 
-def test_property_type_bundances():
+def test_property_type_abundances():
     example_dic = {'default': {'He': 0.4, 'Mg': 0.1, 'Pb': 0.5},
                    'help': 'quantity for testing',
                    'mandatory': True,
@@ -294,6 +296,7 @@ def test_property_type_bundances():
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
                                return_default=return_default, return_value=return_value)
+
 
 
 
