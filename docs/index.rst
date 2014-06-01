@@ -17,6 +17,7 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     installation
     running
     uses
+    configuration/index
     examples/examples
     testing
     atomic/atomic_data

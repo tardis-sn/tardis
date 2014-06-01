@@ -36,7 +36,7 @@ class Radial1DModel(object):
         Parameters
         ----------
 
-        tardis_configuration : `tardis.config_reader.TARDISConfiguration`
+        tardis_configuration : `tardis.config_reader.Configuration`
 
         velocities : `np.ndarray`
             an array with n+1 (for n shells) velocities (in cm/s) for each of the boundaries (velocities[0] describing
@@ -84,7 +84,6 @@ class Radial1DModel(object):
         self.tardis_config = tardis_config
         self.gui = None
         self.converged = False
-
         self.atom_data = tardis_config.atom_data
         selected_atomic_numbers = self.tardis_config.abundances.index
         self.atom_data.prepare_atom_data(selected_atomic_numbers,
@@ -109,11 +108,15 @@ class Radial1DModel(object):
         self.iterations_executed = 0
 
 
-        if tardis_config.montecarlo.convergence.type == 'specific':
-            self.global_convergence_parameters = tardis_config.montecarlo.convergence.global_convergence_parameters.config_dict.copy()
+        if tardis_config.montecarlo.convergence_strategy.type == 'specific':
+            self.global_convergence_parameters = (tardis_config.montecarlo.
+                                                  convergence_strategy.
+                                                  global_convergence_parameters.
+                                                  deepcopy())
 
         self.t_rads = tardis_config.plasma.t_rads
-        t_inner_lock_cycle = [False] * tardis_config.montecarlo.convergence.lock_t_inner_cycles
+        t_inner_lock_cycle = [False] * (tardis_config.montecarlo.
+                                        convergence_strategy.lock_t_inner_cyles)
         t_inner_lock_cycle[0] = True
         self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
 
@@ -245,7 +248,7 @@ class Radial1DModel(object):
         """
         Updating radiation field
         """
-        convergence_section = self.tardis_config.montecarlo.convergence
+        convergence_section = self.tardis_config.montecarlo.convergence_strategy
         updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
@@ -349,6 +352,7 @@ class Radial1DModel(object):
 
         self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
         self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)
+
         montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
         self.last_interaction_type, self.last_line_interaction_shell_id = \
