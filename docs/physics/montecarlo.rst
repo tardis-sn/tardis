@@ -78,3 +78,28 @@ dilution factor
     W = \frac{\pi J}{\sigma_{SB} T_{R}^4} = \frac{1}{4\sigma_{SB} T_{R}^4\, \Delta t\, V} J_\textrm{estimator}.
 
 There endeth the lesson.
+
+Algorithm Flowchart
+^^^^^^^^^^^^^^^^^^^
+
+.. graphviz::
+
+  digraph g{
+    a -> b -> c
+    c -> d [label="d_inner or \nd_outer"]
+    c -> e [label="d_line"]
+    d -> f [label="yes"]
+    d -> g [label="no"]
+    g -> a
+    e -> a [label="no"]
+    e -> h [label="yes"]
+    h -> a
+    a [label="We have a packet.",shape=box,fillcolor="white",style="filled,rounded"];
+    b [label="Calculate\nd_line, d_electron,\nd_inner and d_outer.",shape=box,fillcolor="white",style="filled,rounded"];
+    c [label="Which distance\nis smallest?", shape="diamond", fillcolor="white", style="filled"]
+    d [label="Are we leaving\nsimulation area?", shape="diamond", fillcolor="white", style="filled"]
+    e [label="Does the\npacket interact?", shape="diamond", fillcolor="white", style="filled"]
+    f [label="Packet is re-absorbed\nor emitted.\nThis ends the loop.", shape="box", fillcolor="white", style="filled,rounded"]
+    g [label="Update line\nprobabilities.", shape="box", fillcolor="white", style="filled,rounded"]
+    h [label="New random direction,\nupdated energy,\nmoving packet to current position,\nupdating event random number.", shape="box", fillcolor="white", style="filled,rounded"]
+  }
