@@ -85,7 +85,8 @@ inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_floa
       fprintf(stderr, "nu = %f\n", nu);
       fprintf(stderr, "doppler_factor = %f\n", doppler_factor);
       fprintf(stderr, "cur_zone_id = %d\n", cur_zone_id);
-      exit(-1);
+      PyErr_SetString(PyExc_RuntimeError, "comov_nu less than nu_line");
+      return 0;
     }
   return ((comov_nu - nu_line) / nu) * C * t_exp;
 }

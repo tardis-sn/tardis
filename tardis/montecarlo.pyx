@@ -20,7 +20,7 @@ cdef extern int_type_t line_search(float_type_t *nu, float_type_t nu_insert, int
 cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax) except -1
 cdef extern float_type_t compute_distance2outer(float_type_t r, float_type_t mu, float_type_t r_outer)
 cdef extern float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_type_t r_inner)
-cdef extern float_type_t compute_distance2line(float_type_t r, float_type_t mu, float_type_t nu, float_type_t nu_line, float_type_t t_exp, float_type_t inverse_t_exp, float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id)
+cdef extern float_type_t compute_distance2line(float_type_t r, float_type_t mu, float_type_t nu, float_type_t nu_line, float_type_t t_exp, float_type_t inverse_t_exp, float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id) except? 0
 cdef extern float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event, float_type_t inverse_ne)
 
 cdef extern from "math.h":
