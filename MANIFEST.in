@@ -2,7 +2,9 @@ include README.rst
 include pip-requirements
 
 include ez_setup.py
-include setuptools_bootstrap.py
+include ah_bootstrap.py
+include setup.cfg
+
 recursive-include tardis *.pyx *.c *.h
 recursive-include tardis/randomkit *.c *.h
 recursive-include tardis/tardis.cfg
