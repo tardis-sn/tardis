@@ -16,7 +16,12 @@ np.import_array()
 ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
 
+cdef extern int_type_t line_search(float_type_t *nu, float_type_t nu_insert, int_type_t number_of_lines) except -1
 cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax) except -1
+cdef extern float_type_t compute_distance2outer(float_type_t r, float_type_t mu, float_type_t r_outer)
+cdef extern float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_type_t r_inner)
+cdef extern float_type_t compute_distance2line(float_type_t r, float_type_t mu, float_type_t nu, float_type_t nu_line, float_type_t t_exp, float_type_t inverse_t_exp, float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id) except? 0
+cdef extern float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event, float_type_t inverse_ne)
 
 cdef extern from "math.h":
     float_type_t log(float_type_t)
@@ -312,53 +317,11 @@ logger = logging.getLogger(__name__)
 #Log Level
 #cdef int_type_t loglevel = logging.DEBUG
 
-
-
-
-
-
-
-
 #constants
 cdef float_type_t miss_distance = 1e99
 cdef float_type_t c = constants.c.cgs.value # cm/s
 cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
-
-
-cdef int_type_t line_search(float_type_t*nu, float_type_t nu_insert, int_type_t number_of_lines):
-    """
-    Parameters
-    ----------
-
-    nu: np.array
-        array of line frequencies
-    nu_insert: float64
-        value of nu key
-    number_of_lines: int
-        number of lines in the line list
-
-    Returns
-    -------
-
-        index: int
-            index of the next line to the red. If the key value is redder than the reddest line returns "number_of_lines"
-
-    """
-    #search to find the next line to the red (i.e. closest line in frequency space with smaller frequency than where we are)
-    cdef int_type_t imin, imax
-
-    imin = 0
-    imax = number_of_lines - 1
-
-    if nu_insert > nu[imin]:
-        #this is the case where the insert nu is bluer than the bluest line. So we return the index at the bluest end of the list
-        return imin
-    elif nu_insert < nu[imax]:
-        #this is when the insert nu is redder than the reddest line. Such a photon packet will never Doppler shift into resonance with one of our lines. We flag this by returning an index beyond the list
-        return imax+1
-    else:
-        return ( binary_search(nu, nu_insert, imin, imax) + 1)
 
 #variables are restframe if not specified by prefix comov_
 cdef inline int_type_t macro_atom(int_type_t activate_level,
@@ -476,57 +439,6 @@ cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*cu
     storage.line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
     #print "incrementing j_blues = %g" % storage.line_lists_j_blues[j_blue_idx]
 
-cdef float_type_t compute_distance2outer(float_type_t r, float_type_t  mu, float_type_t r_outer):
-    cdef float_type_t d_outer
-    d_outer = sqrt(r_outer ** 2 + ((mu ** 2 - 1.) * r ** 2)) - (r * mu)
-    return d_outer
-
-cdef float_type_t compute_distance2inner(float_type_t r, float_type_t mu, float_type_t r_inner):
-    #compute distance to the inner layer
-    #check if intersection is possible?
-    cdef float_type_t check, d_inner
-    check = r_inner ** 2 + (r ** 2 * (mu ** 2 - 1.))
-    if check < 0:
-        return miss_distance
-    else:
-        if mu < 0:
-            d_inner = -r * mu - sqrt(check)
-            return d_inner
-        else:
-            return miss_distance
-
-cdef float_type_t compute_distance2line(float_type_t r, float_type_t mu,
-                                        float_type_t nu, float_type_t nu_line,
-                                        float_type_t t_exp, float_type_t inverse_t_exp,
-                                        float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id):
-    #computing distance to line
-    cdef float_type_t comov_nu, doppler_factor
-    doppler_factor = (1. - (mu * r * inverse_t_exp * inverse_c))
-    comov_nu = nu * doppler_factor
-
-    if comov_nu < nu_line:
-        #TODO raise exception
-        print "WARNING comoving nu less than nu_line shouldn't happen:"
-        print "comov_nu = ", comov_nu
-        print "nu_line", nu_line
-        print "(comov_nu - nu_line) nu_lines", (comov_nu - nu_line) / nu_line
-        print "last_line", last_line
-        print "next_line", next_line
-        print "r", r
-        print "mu", mu
-        print "nu", nu
-        print "doppler_factor", doppler_factor
-        print "cur_zone_id", cur_zone_id
-        #raise Exception('wrong')
-
-    return ((comov_nu - nu_line) / nu) * c * t_exp
-
-cdef float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event,
-                                            float_type_t inverse_ne):
-    return tau_event * inverse_ne # * inverse_sigma_thomson folded into inverse_ne
-
-cdef inline float_type_t get_r_sobolev(float_type_t r, float_type_t mu, float_type_t d_line):
-    return sqrt(r ** 2 + d_line ** 2 + 2 * r * d_line * mu)
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     """
