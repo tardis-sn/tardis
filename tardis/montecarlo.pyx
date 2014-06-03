@@ -23,6 +23,7 @@ cdef extern float_type_t compute_distance2inner(float_type_t r, float_type_t mu,
 cdef extern float_type_t compute_distance2line(float_type_t r, float_type_t mu, float_type_t nu, float_type_t nu_line, float_type_t t_exp, float_type_t inverse_t_exp, float_type_t last_line, float_type_t next_line, int_type_t cur_zone_id) except? 0
 cdef extern float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event, float_type_t inverse_ne)
 cdef extern int_type_t macro_atom(int_type_t activate_level, float_type_t *p_transition, int_type_t p_transition_nd, int_type_t *type_transition, int_type_t *target_level_id, int_type_t *target_line_id, int_type_t *unroll_reference, int_type_t cur_zone_id)
+cdef extern float_type_t move_packet(float_type_t *r, float_type_t *mu, float_type_t nu, float_type_t energy, float_type_t distance, float_type_t *js, float_type_t *nubars, float_type_t inverse_t_exp, int_type_t cur_zone_id, int_type_t virtual_packet)
 
 cdef extern from "math.h":
     float_type_t log(float_type_t)
@@ -325,31 +326,6 @@ cdef float_type_t c = constants.c.cgs.value # cm/s
 cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
 
-cdef float_type_t move_packet(float_type_t*r,
-                              float_type_t*mu,
-                              float_type_t nu,
-                              float_type_t energy,
-                              float_type_t distance,
-                              float_type_t*js,
-                              float_type_t*nubars,
-                              float_type_t inverse_t_exp,
-                              int_type_t cur_zone_id,
-                              int_type_t virtual_packet):
-    cdef float_type_t new_r, doppler_factor, comov_energy, comov_nu
-    doppler_factor = (1 - (mu[0] * r[0] * inverse_t_exp * inverse_c))
-    if distance <= 0:
-        return doppler_factor
-    new_r = sqrt(r[0] ** 2 + distance ** 2 + 2 * r[0] * distance * mu[0])
-    mu[0] = (mu[0] * r[0] + distance) / new_r
-    r[0] = new_r
-    if (virtual_packet > 0):
-        return doppler_factor
-    comov_energy = energy * doppler_factor
-    comov_nu = nu * doppler_factor
-    js[cur_zone_id] += comov_energy * distance
-    nubars[cur_zone_id] += comov_energy * distance * comov_nu
-    return doppler_factor
-
 cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*current_nu, float_type_t*current_energy,
                                      float_type_t*mu, float_type_t*r, float_type_t d_line, int_type_t j_blue_idx,
                                      StorageModel storage):
@@ -489,7 +465,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
         elif reabsorbed == 0: #emitted
             storage.output_nus[i] = current_nu
-            storage.output_energies[i] = current_energy
+            storage.output_energies[i] = current_energy # 2 * current_energy to fail
 
             #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
 
