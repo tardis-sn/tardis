@@ -24,6 +24,7 @@ cdef extern float_type_t compute_distance2line(float_type_t r, float_type_t mu, 
 cdef extern float_type_t compute_distance2electron(float_type_t r, float_type_t mu, float_type_t tau_event, float_type_t inverse_ne)
 cdef extern int_type_t macro_atom(int_type_t activate_level, float_type_t *p_transition, int_type_t p_transition_nd, int_type_t *type_transition, int_type_t *target_level_id, int_type_t *target_line_id, int_type_t *unroll_reference, int_type_t cur_zone_id)
 cdef extern float_type_t move_packet(float_type_t *r, float_type_t *mu, float_type_t nu, float_type_t energy, float_type_t distance, float_type_t *js, float_type_t *nubars, float_type_t inverse_t_exp, int_type_t cur_zone_id, int_type_t virtual_packet)
+cdef extern void increment_j_blue_estimator(int_type_t *current_line_id, float_type_t *current_nu, float_type_t *current_energy, float_type_t *mu, float_type_t *r, float_type_t d_line, int_type_t j_blue_idx, float_type_t inverse_time_explosion, float_type_t *line_lists_j_blues)
 
 cdef extern from "math.h":
     float_type_t log(float_type_t)
@@ -321,22 +322,6 @@ cdef float_type_t miss_distance = 1e99
 cdef float_type_t c = constants.c.cgs.value # cm/s
 cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
-
-cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*current_nu, float_type_t*current_energy, float_type_t*mu, float_type_t*r, float_type_t d_line, int_type_t j_blue_idx, float_type_t inverse_time_explosion, float_type_t *line_lists_j_blues):
-    cdef float_type_t comov_energy, comov_nu, r_interaction, mu_interaction, distance, doppler_factor
-
-    distance = d_line
-
-    r_interaction = sqrt(r[0] ** 2 + distance ** 2 + 2 * r[0] * distance * mu[0])
-    mu_interaction = (mu[0] * r[0] + distance) / r_interaction
-
-    doppler_factor = (1 - (mu_interaction * r_interaction * inverse_time_explosion * inverse_c))
-
-    comov_energy = current_energy[0] * doppler_factor
-    comov_nu = current_nu[0] * doppler_factor
-
-    line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
-
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     """
