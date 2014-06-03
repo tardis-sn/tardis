@@ -102,6 +102,26 @@ def test_default_parser_integer():
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory)
 
 
+def test_default_parser_quantity_log_lsun():
+    example_dic = {'default': '10 solLum',
+                   'help': 'quantity for testing',
+                   'mandatory': True,
+                   'property_type': 'quantity'}
+
+    default = "10 erg/s"
+    return_default = 10 * u.erg / u.s
+    wdefault = "kl"
+    value = "9 log_lsun"
+    return_value = 3.8459999999999732e+42 * u.erg / u.s
+    wvalue = "yy"
+    container = False
+    mandatory = True
+
+    ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
+                               return_default=return_default, return_value=return_value)
+
+
+
 def test_default_parser_quantity():
     example_dic = {'default': '99.99 cm',
                    'help': 'quantity for testing',
@@ -119,8 +139,6 @@ def test_default_parser_quantity():
 
     ex = default_parser_helper(example_dic, default, wdefault, value, wvalue, container, mandatory,
                                return_default=return_default, return_value=return_value)
-
-
 
 
 def test_default_parser_quantity_range():
