@@ -5,6 +5,8 @@ include ez_setup.py
 include ah_bootstrap.py
 include setup.cfg
 
+recursive-include astropy-helpers
+
 recursive-include tardis *.pyx *.c *.h
 recursive-include tardis/randomkit *.c *.h
 recursive-include tardis/tardis.cfg
