@@ -95,3 +95,30 @@ inline npy_float64 compute_distance2electron(npy_float64 r, npy_float64 mu, npy_
 {
   return tau_event * inverse_ne;
 }
+
+inline npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition, npy_int64 p_transition_nd, npy_int64 *type_transition, npy_int64 *target_level_id, npy_int64 *target_line_id, npy_int64 *unroll_reference, npy_int64 cur_zone_id)
+{
+  npy_int64 emit, i = 0;
+  npy_float64 p, event_random = 0.0;
+  while (1)
+    {
+      event_random = rk_double(&mt_state);
+      i = unroll_reference[activate_level];
+      p = 0.0;
+      while (1)
+	{
+	  p = p + p_transition[cur_zone_id * p_transition_nd + i];
+	  if (p > event_random)
+	    {
+	      emit = type_transition[i];
+	      activate_level = target_level_id[i];
+	      break;
+	    }
+	  i += 1;
+	}
+      if (emit == -1)
+	{
+	  return target_line_id[i];
+	}
+    }
+}

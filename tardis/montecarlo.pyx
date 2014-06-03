@@ -46,7 +46,8 @@ cdef extern from "randomkit.h":
 
     void rk_seed(unsigned long seed, rk_state *state)
     float_type_t rk_double(rk_state *state)
-cdef rk_state mt_state
+
+cdef extern rk_state mt_state
 
 
 
@@ -334,46 +335,18 @@ cdef inline int_type_t macro_atom(int_type_t activate_level,
                                   int_type_t cur_zone_id):
     cdef int_type_t emit, i = 0
     cdef float_type_t p, event_random = 0.0
-    #print "Activating Level %d" % activate_level
     while True:
         event_random = rk_double(&mt_state)
-        #activate_level = 7
         i = unroll_reference[activate_level]
-        #i_end = unroll_reference[activate_level + 1]
-        #print "checking tprops %.5g" % (p_transition[cur_zone_id * p_transition_nd +i: cur_zone_id * p_transition_nd +i_end)
-        #        print "jumping to block_references %d" % i
         p = 0.0
-        #cur_zone_id=10
-
-        #print "bunch of numbers %g %g %g %g %g %g %g %g %g" % ( p_transition[i], p_transition[i+1], p_transition[i+2], p_transition[i+3], p_transition[i+4], p_transition[i+5], p_transition[i+6], p_transition[i+7], p_transition[i+8])
-        #print "new bunch of numbers %g %g %g %g %g %g %g %g %g" % ( p_transition[cur_zone_id * p_transition_nd + i], p_transition[cur_zone_id * p_transition_nd + i+1], p_transition[cur_zone_id * p_transition_nd + i+2], p_transition[cur_zone_id * p_transition_nd + i+3], p_transition[cur_zone_id * p_transition_nd + i+4], p_transition[cur_zone_id * p_transition_nd + i+5], p_transition[cur_zone_id * p_transition_nd + i+6], p_transition[cur_zone_id * p_transition_nd + i+7], p_transition[cur_zone_id * p_transition_nd + i+8])
-        #print "p_transition_nd %g" % p_transition_nd
-
-
         while True:
             p = p + p_transition[cur_zone_id * p_transition_nd + i]
-            #print " p %g %g %g" % (p, cur_zone_id, i)
             if p > event_random:
                 emit = type_transition[i]
-                #                print "assuming transition_id %d" % emit
                 activate_level = target_level_id[i]
-                #print "reActivating Level %g %g" % (activate_level, i)
                 break
             i += 1
-            if i == unroll_reference[activate_level + 1]:
-                logger.warn("overrolling!")
-                logger.warn(
-                    "activate level %g unroll_reference[activate_level] %g unroll_reference[activate_level+1] %g i=%g event_random=%g current_p=%g" % (
-                        activate_level, unroll_reference[activate_level], unroll_reference[activate_level + 1], i,
-                        event_random,
-                        p))
-                time.sleep(10000000)
-
-                #print "I just broke " , emit
         if emit == -1:
-            IF packet_logging == True:
-                packet_logger.debug('Emitting in level %d', activate_level + 1)
-
             return target_line_id[i]
 
 cdef float_type_t move_packet(float_type_t*r,
