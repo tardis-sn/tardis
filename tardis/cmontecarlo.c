@@ -151,7 +151,7 @@ inline void increment_j_blue_estimator(npy_int64 *current_line_id, npy_float64 *
   distance = d_line;
   r_interaction = sqrt(r[0] * r[0] + distance * distance + 2 * r[0] * distance * mu[0]);
   mu_interaction = (mu[0] * r[0] + distance) / r_interaction;
-  doppler_factor 1.0 - mu_interaction * r_interaction * inverse_time_explosion * INVERSE_C;
+  doppler_factor = 1.0 - mu_interaction * r_interaction * inverse_time_explosion * INVERSE_C;
   comov_energy = current_energy[0] * doppler_factor;
   comov_nu = current_nu[0] * doppler_factor;
   line_lists_j_blues[j_blue_idx] += comov_energy / current_nu[0];
