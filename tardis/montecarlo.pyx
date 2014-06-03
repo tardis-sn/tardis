@@ -32,8 +32,6 @@ cdef extern from "math.h":
     int_type_t floor(float_type_t)
     bint isnan(double x)
 
-
-
 cdef extern from "randomkit.h":
     ctypedef struct rk_state:
         unsigned long key[624]
@@ -50,8 +48,6 @@ cdef extern from "randomkit.h":
     float_type_t rk_double(rk_state *state)
 
 cdef extern rk_state mt_state
-
-
 
 cdef np.ndarray x
 cdef class StorageModel:
@@ -326,9 +322,7 @@ cdef float_type_t c = constants.c.cgs.value # cm/s
 cdef float_type_t inverse_c = 1 / c
 #DEBUG STATEMENT TAKE OUT
 
-cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*current_nu, float_type_t*current_energy,
-                                     float_type_t*mu, float_type_t*r, float_type_t d_line, int_type_t j_blue_idx,
-                                     StorageModel storage):
+cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*current_nu, float_type_t*current_energy, float_type_t*mu, float_type_t*r, float_type_t d_line, int_type_t j_blue_idx, float_type_t inverse_time_explosion, float_type_t *line_lists_j_blues):
     cdef float_type_t comov_energy, comov_nu, r_interaction, mu_interaction, distance, doppler_factor
 
     distance = d_line
@@ -336,13 +330,12 @@ cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*cu
     r_interaction = sqrt(r[0] ** 2 + distance ** 2 + 2 * r[0] * distance * mu[0])
     mu_interaction = (mu[0] * r[0] + distance) / r_interaction
 
-    doppler_factor = (1 - (mu_interaction * r_interaction * storage.inverse_time_explosion * inverse_c))
+    doppler_factor = (1 - (mu_interaction * r_interaction * inverse_time_explosion * inverse_c))
 
     comov_energy = current_energy[0] * doppler_factor
     comov_nu = current_nu[0] * doppler_factor
 
-    storage.line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
-    #print "incrementing j_blues = %g" % storage.line_lists_j_blues[j_blue_idx]
+    line_lists_j_blues[j_blue_idx] += (comov_energy / current_nu[0])
 
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
@@ -866,7 +859,7 @@ cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*cu
             if virtual_packet == 0:
                 j_blue_idx = current_shell_id[0] * storage.line_lists_j_blues_nd + current_line_id[0]
                 increment_j_blue_estimator(current_line_id, current_nu, current_energy, current_mu, current_r, d_line,
-                                           j_blue_idx, storage)
+                                           j_blue_idx, storage.inverse_time_explosion, storage.line_lists_j_blues)
 
             tau_line = storage.line_lists_tau_sobolevs[
                 current_shell_id[0] * storage.line_lists_tau_sobolevs_nd + current_line_id[0]]
