@@ -122,3 +122,25 @@ inline npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition,
 	}
     }
 }
+
+inline npy_float64 move_packet(npy_float64 *r, npy_float64 *mu, npy_float64 nu, npy_float64 energy, npy_float64 distance, npy_float64 *js, npy_float64 *nubars, npy_float64 inverse_t_exp, npy_int64 cur_zone_id, npy_int64 virtual_packet)
+{
+  npy_float64 new_r, doppler_factor, comov_energy, comov_nu;
+  doppler_factor = 1.0 - mu[0] * r[0] * inverse_t_exp * INVERSE_C;
+  if (distance <= 0.0)
+    {
+      return doppler_factor;
+    }
+  new_r = sqrt(r[0] * r[0] + distance * distance + 2.0 * r[0] * distance * mu[0]);
+  mu[0] = (mu[0] * r[0] + distance) / new_r;
+  r[0] = new_r;
+  if (virtual_packet > 0)
+    {
+      return doppler_factor;
+    }
+  comov_energy = energy * doppler_factor;
+  comov_nu = nu * doppler_factor;
+  js[cur_zone_id] += comov_energy * distance;
+  nubars[cur_zone_id] += comov_energy * distance * comov_nu;
+  return doppler_factor;
+}
