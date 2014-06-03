@@ -337,37 +337,17 @@ cdef float_type_t move_packet(float_type_t*r,
                               int_type_t virtual_packet):
     cdef float_type_t new_r, doppler_factor, comov_energy, comov_nu
     doppler_factor = (1 - (mu[0] * r[0] * inverse_t_exp * inverse_c))
-    IF packet_logging == True:
-        if distance < 0:
-            packet_logger.warn('Distance in move packets less than 0.')
-
     if distance <= 0:
         return doppler_factor
-
     new_r = sqrt(r[0] ** 2 + distance ** 2 + 2 * r[0] * distance * mu[0])
     mu[0] = (mu[0] * r[0] + distance) / new_r
-
-    if mu[0] == 0.0:
-        print "-------- move packet: mu turned 0.0"
-        print distance, new_r, r[0], new_r, cur_zone_id
-        print distance / new_r
-        #print "move packet after mu", mu[0]
     r[0] = new_r
-
     if (virtual_packet > 0):
         return doppler_factor
-
     comov_energy = energy * doppler_factor
     comov_nu = nu * doppler_factor
     js[cur_zone_id] += comov_energy * distance
-
     nubars[cur_zone_id] += comov_energy * distance * comov_nu
-
-    #print "move packet before mu", mu[0], distance, new_r, r[0]
-    #    if distance/new_r > 1e-6:
-    #        mu[0] = (distance**2 + new_r**2 - r[0]**2) / (2*distance*new_r)
-    #if ((((mu[0] * r[0] + distance) / new_r) < 0.0) and (mu[0] > 0.0)):
-
     return doppler_factor
 
 cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*current_nu, float_type_t*current_energy,
