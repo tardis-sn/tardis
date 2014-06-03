@@ -1,7 +1,7 @@
 tardis_config_version: v1.0
 
 supernova:
-    luminosity_requested: 9.44 solLum
+    luminosity_requested: 9.44 log_lsun
     time_explosion: 13 day
 
 atom_data: kurucz_atom_pure_simple.h5
