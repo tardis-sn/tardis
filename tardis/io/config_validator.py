@@ -335,6 +335,8 @@ class PropertyTypeQuantity(PropertyType):
             quantity_split = value.strip().split()
             quantity_value = quantity_split[0]
             quantity_unit = ' '.join(quantity_split[1:])
+            if quantity_unit.strip() == 'log_lsun':
+                quantity_unit = 'erg/s'
             try:
                 float(quantity_value)
                 units.Unit(quantity_unit)
