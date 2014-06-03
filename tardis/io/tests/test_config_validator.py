@@ -103,7 +103,7 @@ def test_default_parser_integer():
 
 
 def test_default_parser_quantity_log_lsun():
-    example_dic = {'default': '10 solLum',
+    example_dic = {'default': '10 erg/s',
                    'help': 'quantity for testing',
                    'mandatory': True,
                    'property_type': 'quantity'}
