@@ -16,6 +16,53 @@ np.import_array()
 ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
 
+cdef extern from "cmontecarlo.h":
+    ctypedef struct storage_model_t:
+        float_type_t *packet_nus
+        float_type_t *packet_mus
+        float_type_t *packet_energies
+        float_type_t *output_nus
+        float_type_t *output_energies
+        int_type_t *last_line_interaction_in_id
+        int_type_t *last_line_interaction_out_id
+        int_type_t *last_line_interaction_shell_id
+        int_type_t *last_interaction_type
+        int_type_t no_of_packets
+        int_type_t no_of_shells
+        float_type_t *r_inner
+        float_type_t *r_outer
+        float_type_t *v_inner
+        float_type_t time_explosion
+        float_type_t inverse_time_explosion
+        float_type_t *electron_densities
+        float_type_t *inverse_electron_densities
+        float_type_t *line_list_nu
+        float_type_t *line_lists_tau_sobolevs
+        int_type_t line_lists_tau_sobolevs_nd
+        float_type_t *line_lists_j_blues
+        int_type_t line_lists_j_blues_nd
+        int_type_t no_of_lines
+        int_type_t line_interaction_id
+        float_type_t *transition_probabilities
+        int_type_t transition_probabilities_nd
+        int_type_t *line2macro_level_upper
+        int_type_t *macro_block_references
+        int_type_t *transition_type
+        int_type_t *destination_level_id
+        int_type_t *transition_line_id
+        float_type_t *js
+        float_type_t *nubars
+        float_type_t spectrum_start_nu
+        float_type_t spectrum_delta_nu
+        float_type_t spectrum_end_nu
+        float_type_t *spectrum_virt_nu
+        float_type_t sigma_thomson
+        float_type_t inverse_sigma_thomson
+        float_type_t inner_boundary_albedo
+        int_type_t reflective_inner_boundary
+        int_type_t current_packet_id
+
+
 cdef extern int_type_t line_search(float_type_t *nu, float_type_t nu_insert, int_type_t number_of_lines) except -1
 cdef extern int_type_t binary_search(float_type_t *x, float_type_t x_insert, int_type_t imin, int_type_t imax) except -1
 cdef extern float_type_t compute_distance2outer(float_type_t r, float_type_t mu, float_type_t r_outer)
@@ -49,208 +96,6 @@ cdef extern from "randomkit.h":
     float_type_t rk_double(rk_state *state)
 
 cdef extern rk_state mt_state
-
-cdef np.ndarray x
-cdef class StorageModel:
-    """
-    Class for storing the arrays in a cythonized way (as pointers). This ensures fast access during the calculations.
-    """
-    cdef float_type_t [:] packet_nus_view
-    cdef np.ndarray packet_nus_a
-    cdef float_type_t*packet_nus
-    cdef np.ndarray packet_mus_a
-    cdef float_type_t*packet_mus
-    cdef np.ndarray packet_energies_a
-    cdef float_type_t*packet_energies
-    ######## Setting up the output ########
-    cdef np.ndarray output_nus_a
-    cdef float_type_t*output_nus
-    cdef np.ndarray output_energies_a
-    cdef float_type_t*output_energies
-    cdef np.ndarray last_line_interaction_in_id_a
-    cdef int_type_t*last_line_interaction_in_id
-    cdef np.ndarray last_line_interaction_out_id_a
-    cdef int_type_t*last_line_interaction_out_id
-    cdef np.ndarray last_line_interaction_shell_id_a
-    cdef int_type_t*last_line_interaction_shell_id
-    cdef np.ndarray last_interaction_type_a
-    cdef int_type_t*last_interaction_type
-    cdef int_type_t no_of_packets
-    cdef int_type_t no_of_shells
-    cdef np.ndarray r_inner_a
-    cdef float_type_t*r_inner
-    cdef np.ndarray r_outer_a
-    cdef float_type_t*r_outer
-    cdef np.ndarray v_inner_a
-    cdef float_type_t*v_inner
-    cdef float_type_t time_explosion
-    cdef float_type_t inverse_time_explosion
-    cdef np.ndarray electron_densities_a
-    cdef float_type_t*electron_densities
-    cdef np.ndarray inverse_electron_densities_a
-    cdef float_type_t*inverse_electron_densities
-    cdef np.ndarray line_list_nu_a
-    cdef float_type_t*line_list_nu
-    cdef np.ndarray line_lists_tau_sobolevs_a
-    cdef float_type_t*line_lists_tau_sobolevs
-    cdef int_type_t line_lists_tau_sobolevs_nd
-    #J_BLUES initialize
-    cdef np.ndarray line_lists_j_blues_a
-    cdef float_type_t*line_lists_j_blues
-    cdef int_type_t line_lists_j_blues_nd
-    cdef int_type_t no_of_lines
-    cdef int_type_t line_interaction_id
-    cdef np.ndarray transition_probabilities_a
-    cdef float_type_t*transition_probabilities
-    cdef int_type_t transition_probabilities_nd
-    cdef np.ndarray line2macro_level_upper_a
-    cdef int_type_t*line2macro_level_upper
-    cdef np.ndarray macro_block_references_a
-    cdef int_type_t*macro_block_references
-    cdef np.ndarray transition_type_a
-    cdef int_type_t*transition_type
-    cdef np.ndarray destination_level_id_a
-    cdef int_type_t*destination_level_id
-    cdef np.ndarray transition_line_id_a
-    cdef int_type_t*transition_line_id
-    cdef np.ndarray js_a
-    cdef float_type_t*js
-    cdef np.ndarray nubars_a
-    cdef float_type_t*nubars
-    cdef float_type_t spectrum_start_nu
-    cdef float_type_t spectrum_delta_nu
-    cdef float_type_t spectrum_end_nu
-    cdef float_type_t*spectrum_virt_nu
-    cdef float_type_t sigma_thomson
-    cdef float_type_t inverse_sigma_thomson
-    cdef float_type_t inner_boundary_albedo
-    cdef int_type_t reflective_inner_boundary
-    cdef int_type_t current_packet_id
-    def __init__(self, model):
-        rk_seed(model.tardis_config.montecarlo.seed, &mt_state)
-        cdef np.ndarray[float_type_t, ndim=1] packet_nus = model.packet_src.packet_nus
-        self.packet_nus_a = packet_nus
-        self.packet_nus = <float_type_t*> self.packet_nus_a.data
-        self.packet_nus_view = model.packet_src.packet_nus
-        cdef np.ndarray[float_type_t, ndim=1] packet_mus = model.packet_src.packet_mus
-        self.packet_mus_a = packet_mus
-        self.packet_mus = <float_type_t*> self.packet_mus_a.data
-        cdef np.ndarray[float_type_t, ndim=1] packet_energies = model.packet_src.packet_energies
-        self.packet_energies_a = packet_energies
-        self.packet_energies = <float_type_t*> self.packet_energies_a.data
-        self.no_of_packets = packet_nus.size
-        #@@@ Setup of structure @@@
-        structure = model.tardis_config.structure
-        self.no_of_shells = structure.no_of_shells
-        cdef np.ndarray[float_type_t, ndim=1] r_inner = structure.r_inner.to('cm').value
-        self.r_inner_a = r_inner
-        self.r_inner = <float_type_t*> self.r_inner_a.data
-        cdef np.ndarray[float_type_t, ndim=1] r_outer = structure.r_outer.to('cm').value
-        self.r_outer_a = r_outer
-        self.r_outer = <float_type_t*> self.r_outer_a.data
-        cdef np.ndarray[float_type_t, ndim=1] v_inner = structure.v_inner.to('cm/s').value
-        self.v_inner_a = v_inner
-        self.v_inner = <float_type_t*> self.v_inner_a.data
-        #@@@ Setup the rest @@@
-        # times
-        self.time_explosion = model.tardis_config.supernova.time_explosion.to('s').value
-        self.inverse_time_explosion = 1 / self.time_explosion
-        #electron density
-        cdef np.ndarray[float_type_t, ndim=1] electron_densities = model.plasma_array.electron_densities.values
-        self.electron_densities_a = electron_densities
-        self.electron_densities = <float_type_t*> self.electron_densities_a.data
-        cdef np.ndarray[float_type_t, ndim=1] inverse_electron_densities = 1 / electron_densities
-        self.inverse_electron_densities_a = inverse_electron_densities
-        self.inverse_electron_densities = <float_type_t*> self.inverse_electron_densities_a.data
-        #Line lists
-        cdef np.ndarray[float_type_t, ndim=1] line_list_nu = model.atom_data.lines.nu.values
-        self.line_list_nu_a = line_list_nu
-        self.line_list_nu = <float_type_t*> self.line_list_nu_a.data
-        self.no_of_lines = line_list_nu.size
-        cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.plasma_array.tau_sobolevs.values.transpose()
-        self.line_lists_tau_sobolevs_a = line_lists_tau_sobolevs
-        self.line_lists_tau_sobolevs = <float_type_t*> self.line_lists_tau_sobolevs_a.data
-        self.line_lists_tau_sobolevs_nd = self.line_lists_tau_sobolevs_a.shape[1]
-        cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blue_estimators
-        self.line_lists_j_blues_a = line_lists_j_blues
-        self.line_lists_j_blues = <float_type_t*> self.line_lists_j_blues_a.data
-        self.line_lists_j_blues_nd = self.line_lists_j_blues_a.shape[1]
-        line_interaction_type = model.tardis_config.plasma.line_interaction_type
-        if line_interaction_type == 'scatter':
-            self.line_interaction_id = 0
-        elif line_interaction_type == 'downbranch':
-            self.line_interaction_id = 1
-        elif line_interaction_type == 'macroatom':
-            self.line_interaction_id = 2
-        else:
-            self.line_interaction_id = -99
-        #macro atom & downbranch
-        cdef np.ndarray[float_type_t, ndim=2] transition_probabilities
-        cdef np.ndarray[int_type_t, ndim=1] line2macro_level_upper
-        cdef np.ndarray[int_type_t, ndim=1] macro_block_references
-        cdef np.ndarray[int_type_t, ndim=1] transition_type
-        cdef np.ndarray[int_type_t, ndim=1] destination_level_id
-        cdef np.ndarray[int_type_t, ndim=1] transition_line_id
-        if self.line_interaction_id >= 1:
-            transition_probabilities = model.transition_probabilities.values.transpose()
-            self.transition_probabilities_a = transition_probabilities
-            self.transition_probabilities = <float_type_t*> self.transition_probabilities_a.data
-            self.transition_probabilities_nd = self.transition_probabilities_a.shape[1]
-            line2macro_level_upper = model.atom_data.lines_upper2macro_reference_idx
-            self.line2macro_level_upper_a = line2macro_level_upper
-            self.line2macro_level_upper = <int_type_t*> self.line2macro_level_upper_a.data
-            macro_block_references = model.atom_data.macro_atom_references['block_references'].values
-            self.macro_block_references_a = macro_block_references
-            self.macro_block_references = <int_type_t*> self.macro_block_references_a.data
-            transition_type = model.atom_data.macro_atom_data['transition_type'].values
-            self.transition_type_a = transition_type
-            self.transition_type = <int_type_t*> self.transition_type_a.data
-            #Destination level is not needed and/or generated for downbranch
-            destination_level_id = model.atom_data.macro_atom_data['destination_level_idx'].values
-            self.destination_level_id_a = destination_level_id
-            self.destination_level_id = <int_type_t*> self.destination_level_id_a.data
-            transition_line_id = model.atom_data.macro_atom_data['lines_idx'].values
-            self.transition_line_id_a = transition_line_id
-            self.transition_line_id = <int_type_t*> self.transition_line_id_a.data
-        cdef np.ndarray[float_type_t, ndim=1] output_nus = np.zeros(self.no_of_packets, dtype=np.float64)
-        cdef np.ndarray[float_type_t, ndim=1] output_energies = np.zeros(self.no_of_packets, dtype=np.float64)
-        self.output_nus_a = output_nus
-        self.output_nus = <float_type_t*> self.output_nus_a.data
-        self.output_energies_a = output_energies
-        self.output_energies = <float_type_t*> self.output_energies_a.data
-        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_in_id = -1 * np.ones(self.no_of_packets,
-                                                                                       dtype=np.int64)
-        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(self.no_of_packets,
-                                                                                        dtype=np.int64)
-        cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_shell_id = -1 * np.ones(self.no_of_packets,
-                                                                                          dtype=np.int64)
-        cdef np.ndarray[int_type_t, ndim=1] last_interaction_type = -1 * np.ones(self.no_of_packets,
-                                                                                 dtype=np.int64)
-        self.last_line_interaction_in_id_a = last_line_interaction_in_id
-        self.last_line_interaction_in_id = <int_type_t*> self.last_line_interaction_in_id_a.data
-        self.last_line_interaction_out_id_a = last_line_interaction_out_id
-        self.last_line_interaction_out_id = <int_type_t*> self.last_line_interaction_out_id_a.data
-        self.last_line_interaction_shell_id_a = last_line_interaction_shell_id
-        self.last_line_interaction_shell_id = <int_type_t*> last_line_interaction_shell_id.data
-        self.last_interaction_type_a = last_interaction_type
-        self.last_interaction_type = <int_type_t*> last_interaction_type.data
-        cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(self.no_of_shells, dtype=np.float64)
-        cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(self.no_of_shells, dtype=np.float64)
-        self.js_a = js
-        self.js = <float_type_t*> self.js_a.data
-        self.nubars_a = nubars
-        self.nubars = <float_type_t*> self.nubars_a.data
-        self.spectrum_start_nu = model.tardis_config.spectrum.frequency.value.min()
-        self.spectrum_end_nu = model.tardis_config.spectrum.frequency.value.max()
-        self.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] \
-                                 - model.tardis_config.spectrum.frequency.value[0]
-        cdef np.ndarray[float_type_t, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
-        self.spectrum_virt_nu = <float_type_t*> spectrum_virt_nu.data
-        self.sigma_thomson = model.tardis_config.montecarlo.sigma_thomson.to('1/cm^2').value
-        self.inverse_sigma_thomson = 1 / self.sigma_thomson
-        self.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
-        self.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
-        self.current_packet_id = -1
 
 #constants
 cdef float_type_t miss_distance = 1e99
@@ -286,10 +131,103 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                     int_type_t log_packets,
                     int_type_t do_scatter
     """
-    storage = StorageModel(model)
-    ######## Setting up the output ########
+    cdef storage_model_t storage
+    rk_seed(model.tardis_config.montecarlo.seed, &mt_state)
+    cdef np.ndarray[float_type_t, ndim=1] packet_nus = model.packet_src.packet_nus
+    storage.packet_nus = <float_type_t*> packet_nus.data
+    cdef np.ndarray[float_type_t, ndim=1] packet_mus = model.packet_src.packet_mus
+    storage.packet_mus = <float_type_t*> packet_mus.data
+    cdef np.ndarray[float_type_t, ndim=1] packet_energies = model.packet_src.packet_energies
+    storage.packet_energies = <float_type_t*> packet_energies.data
+    storage.no_of_packets = packet_nus.size
+    # Setup of structure
+    structure = model.tardis_config.structure
+    storage.no_of_shells = structure.no_of_shells
+    cdef np.ndarray[float_type_t, ndim=1] r_inner = structure.r_inner.to('cm').value
+    storage.r_inner = <float_type_t*> r_inner.data
+    cdef np.ndarray[float_type_t, ndim=1] r_outer = structure.r_outer.to('cm').value
+    storage.r_outer = <float_type_t*> r_outer.data
+    cdef np.ndarray[float_type_t, ndim=1] v_inner = structure.v_inner.to('cm/s').value
+    storage.v_inner = <float_type_t*> v_inner.data
+    # Setup the rest
+    # times
+    storage.time_explosion = model.tardis_config.supernova.time_explosion.to('s').value
+    storage.inverse_time_explosion = 1.0 / storage.time_explosion
+    #electron density
+    cdef np.ndarray[float_type_t, ndim=1] electron_densities = model.plasma_array.electron_densities.values
+    storage.electron_densities = <float_type_t*> electron_densities.data
+    cdef np.ndarray[float_type_t, ndim=1] inverse_electron_densities = 1.0 / electron_densities
+    storage.inverse_electron_densities = <float_type_t*> inverse_electron_densities.data
+    # Line lists
+    cdef np.ndarray[float_type_t, ndim=1] line_list_nu = model.atom_data.lines.nu.values
+    storage.line_list_nu = <float_type_t*> line_list_nu.data
+    storage.no_of_lines = line_list_nu.size
+    cdef np.ndarray[float_type_t, ndim=2] line_lists_tau_sobolevs = model.plasma_array.tau_sobolevs.values.transpose()
+    storage.line_lists_tau_sobolevs = <float_type_t*> line_lists_tau_sobolevs.data
+    storage.line_lists_tau_sobolevs_nd = line_lists_tau_sobolevs.shape[1]
+    cdef np.ndarray[float_type_t, ndim=2] line_lists_j_blues = model.j_blue_estimators
+    storage.line_lists_j_blues = <float_type_t*> line_lists_j_blues.data
+    storage.line_lists_j_blues_nd = line_lists_j_blues.shape[1]
+    line_interaction_type = model.tardis_config.plasma.line_interaction_type
+    if line_interaction_type == 'scatter':
+        storage.line_interaction_id = 0
+    elif line_interaction_type == 'downbranch':
+        storage.line_interaction_id = 1
+    elif line_interaction_type == 'macroatom':
+        storage.line_interaction_id = 2
+    else:
+        storage.line_interaction_id = -99
+    # macro atom & downbranch
+    cdef np.ndarray[float_type_t, ndim=2] transition_probabilities
+    cdef np.ndarray[int_type_t, ndim=1] line2macro_level_upper
+    cdef np.ndarray[int_type_t, ndim=1] macro_block_references
+    cdef np.ndarray[int_type_t, ndim=1] transition_type
+    cdef np.ndarray[int_type_t, ndim=1] destination_level_id
+    cdef np.ndarray[int_type_t, ndim=1] transition_line_id
+    if storage.line_interaction_id >= 1:
+        transition_probabilities = model.transition_probabilities.values.transpose()
+        storage.transition_probabilities = <float_type_t*> transition_probabilities.data
+        storage.transition_probabilities_nd = transition_probabilities.shape[1]
+        line2macro_level_upper = model.atom_data.lines_upper2macro_reference_idx
+        storage.line2macro_level_upper = <int_type_t*> line2macro_level_upper.data
+        macro_block_references = model.atom_data.macro_atom_references['block_references'].values
+        storage.macro_block_references = <int_type_t*> macro_block_references.data
+        transition_type = model.atom_data.macro_atom_data['transition_type'].values
+        storage.transition_type = <int_type_t*> transition_type.data
+        # Destination level is not needed and/or generated for downbranch
+        destination_level_id = model.atom_data.macro_atom_data['destination_level_idx'].values
+        storage.destination_level_id = <int_type_t*> destination_level_id.data
+        transition_line_id = model.atom_data.macro_atom_data['lines_idx'].values
+        storage.transition_line_id = <int_type_t*> transition_line_id.data
     cdef np.ndarray[float_type_t, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     cdef np.ndarray[float_type_t, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
+    storage.output_nus = <float_type_t*> output_nus.data
+    storage.output_energies = <float_type_t*> output_energies.data
+    cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_in_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_shell_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=1] last_interaction_type = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
+    storage.last_line_interaction_in_id = <int_type_t*> last_line_interaction_in_id.data
+    storage.last_line_interaction_out_id = <int_type_t*> last_line_interaction_out_id.data
+    storage.last_line_interaction_shell_id = <int_type_t*> last_line_interaction_shell_id.data
+    storage.last_interaction_type = <int_type_t*> last_interaction_type.data
+    cdef np.ndarray[float_type_t, ndim=1] js = np.zeros(storage.no_of_shells, dtype=np.float64)
+    cdef np.ndarray[float_type_t, ndim=1] nubars = np.zeros(storage.no_of_shells, dtype=np.float64)
+    storage.js = <float_type_t*> js.data
+    storage.nubars = <float_type_t*> nubars.data
+    storage.spectrum_start_nu = model.tardis_config.spectrum.frequency.value.min()
+    storage.spectrum_end_nu = model.tardis_config.spectrum.frequency.value.max()
+    storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - model.tardis_config.spectrum.frequency.value[0]
+    cdef np.ndarray[float_type_t, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
+    storage.spectrum_virt_nu = <float_type_t*> spectrum_virt_nu.data
+    storage.sigma_thomson = model.tardis_config.montecarlo.sigma_thomson.to('1/cm^2').value
+    storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
+    storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
+    storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
+    storage.current_packet_id = -1
+    ######## Setting up the output ########
+    #cdef np.ndarray[float_type_t, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
+    #cdef np.ndarray[float_type_t, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     ######## Setting up the running variable ########
     cdef float_type_t nu_line = 0.0
     cdef float_type_t current_r = 0.0
@@ -346,9 +284,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
             storage.output_nus[i] = current_nu
             storage.output_energies[i] = current_energy # 2 * current_energy to fail
             #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
-    return storage.output_nus_a, storage.output_energies_a, storage.js_a, storage.nubars_a, \
-           storage.last_line_interaction_in_id_a, storage.last_line_interaction_out_id_a, storage.last_interaction_type_a, \
-           storage.last_line_interaction_shell_id_a
+    return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
 
 #Virtual_mode controls whether the packet being propagated is a real packet or a virtual one, to be used to construct a synthetic spectrum. Setting
@@ -356,7 +292,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 #
 #When this routine is called, it is always sent properties of a REAL packet. The issue is whether we are extracting that packet or really propagating it.
 
-cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current_nu, float_type_t*current_energy,
+cdef int_type_t montecarlo_one_packet(storage_model_t storage, float_type_t*current_nu, float_type_t*current_energy,
                                       float_type_t*current_mu, int_type_t*current_shell_id, float_type_t*current_r,
                                       int_type_t*current_line_id, int_type_t*last_line, int_type_t*close_line,
                                       int_type_t*recently_crossed_boundary, int_type_t virtual_packet_flag,
@@ -424,7 +360,7 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
     return reabsorbed
 
 
-cdef int_type_t montecarlo_one_packet_loop(StorageModel storage, float_type_t*current_nu, float_type_t*current_energy,
+cdef int_type_t montecarlo_one_packet_loop(storage_model_t storage, float_type_t*current_nu, float_type_t*current_energy,
                                            float_type_t*current_mu, int_type_t*current_shell_id, float_type_t*current_r,
                                            int_type_t*current_line_id, int_type_t*last_line, int_type_t*close_line,
                                            int_type_t*recently_crossed_boundary, int_type_t virtual_packet_flag,
