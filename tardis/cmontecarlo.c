@@ -156,3 +156,41 @@ inline void increment_j_blue_estimator(npy_int64 *current_line_id, npy_float64 *
   comov_nu = current_nu[0] * doppler_factor;
   line_lists_j_blues[j_blue_idx] += comov_energy / current_nu[0];
 }
+
+void init_storage_model(storage_model_t *storage, 
+			npy_float64 *packet_nus,
+			npy_float64 *packet_mus,
+			npy_float64 *packet_energies,
+			npy_float64 *r_inner,
+			npy_float64 *line_list_nu,
+			npy_float64 *output_nus,
+			npy_float64 *output_energies,
+			npy_float64 time_explosion,
+			npy_float64 spectrum_start_nu,
+			npy_float64 spectrum_end_nu,
+			npy_float64 spectrum_delta_nu,
+			npy_float64 *spectrum_virt_nu,
+			npy_float64 sigma_thomson,
+			npy_float64 *electron_densities,
+			npy_float64 *inverse_electron_densities,
+			npy_int64 no_of_lines,
+			npy_int64 no_of_packets)
+{
+  storage->packet_nus = packet_nus;
+  storage->packet_mus = packet_mus;
+  storage->packet_energies = packet_energies;
+  storage->r_inner = r_inner;
+  storage->output_nus = output_nus;
+  storage->output_energies = output_energies;
+  storage->time_explosion = time_explosion;
+  storage->inverse_time_explosion = 1.0 / time_explosion;
+  storage->spectrum_start_nu = spectrum_start_nu;
+  storage->spectrum_end_nu = spectrum_end_nu;
+  storage->spectrum_delta_nu = spectrum_delta_nu;
+  storage->spectrum_virt_nu = spectrum_virt_nu;
+  storage->sigma_thomson = sigma_thomson;
+  storage->inverse_sigma_thomson = 1.0 / sigma_thomson;
+  storage->no_of_lines = no_of_lines;
+  storage->no_of_packets = no_of_packets;
+  storage->current_packet_id = -1;
+}
