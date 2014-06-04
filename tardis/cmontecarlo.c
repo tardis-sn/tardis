@@ -173,6 +173,8 @@ void init_storage_model(storage_model_t *storage,
 			npy_float64 sigma_thomson,
 			npy_float64 *electron_densities,
 			npy_float64 *inverse_electron_densities,
+			npy_float64 *js,
+			npy_float64 *nubars,
 			npy_int64 no_of_lines,
 			npy_int64 no_of_packets)
 {
@@ -190,6 +192,10 @@ void init_storage_model(storage_model_t *storage,
   storage->spectrum_virt_nu = spectrum_virt_nu;
   storage->sigma_thomson = sigma_thomson;
   storage->inverse_sigma_thomson = 1.0 / sigma_thomson;
+  storage->electron_densities = electron_densities;
+  storage->inverse_electron_densities = inverse_electron_densities;
+  storage->js = js;
+  storage->nubars = nubars;
   storage->no_of_lines = no_of_lines;
   storage->no_of_packets = no_of_packets;
   storage->current_packet_id = -1;
