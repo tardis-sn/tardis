@@ -54,7 +54,6 @@ if args.packet_log_file:
     logger.addHandler(packet_logging_handler)
 
 tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
-
 radial1d_mdl = model.Radial1DModel(tardis_config)
 
 if args.profile:
