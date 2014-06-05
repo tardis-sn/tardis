@@ -649,7 +649,7 @@ class ConfigurationNameSpace(dict):
     __setattr__ = __setitem__
 
     def __dir__(self):
-        self.keys()
+        return self.keys()
 
     def get_config_item(self, config_item_string):
         """
