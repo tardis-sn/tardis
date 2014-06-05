@@ -8,6 +8,8 @@ include setup.cfg
 recursive-include astropy_helpers *
 exclude astropy_helpers/.git
 exclude astropy_helpers/.gitignore
+exclude tardis/_compiler.c
+
 
 recursive-include tardis *.pyx *.c *.h
 recursive-include tardis/randomkit *.c *.h
