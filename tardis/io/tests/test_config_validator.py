@@ -4,7 +4,7 @@ from glob import glob
 from astropy import units as u
 import pytest
 
-from tardis.io.config_validator import DefaultParser, Config, ConfigValueError
+from tardis.io.config_validator import DefaultParser, ConfigurationValidator, ConfigValueError
 
 
 existing_configs = glob(os.path.join('docs', 'examples', '*.yml'))
@@ -19,11 +19,11 @@ existing_configs.remove(test_config)
 
 @pytest.mark.parametrize("config_filename", existing_configs)
 def test_configread(config_filename):
-    config = Config.from_yaml(config_filename, config_definition)
+    config = ConfigurationValidator.from_yaml(config_filename, config_definition)
 
 
 def test_configread_test_config():
-    config = Config.from_yaml(test_config, test_config_definition)
+    config = ConfigurationValidator.from_yaml(test_config, test_config_definition)
 
 
 def default_parser_helper(test_dic, default, wdefault, value, wvalue, container, mandatory, return_default=None,

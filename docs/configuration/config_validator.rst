@@ -66,11 +66,11 @@ If the type declaration for this container is finished you can specify all conta
 How to use
 ^^^^^^^^^^
                 
-To use the default parser create a new config object form the class Config by either from a dictionaries or from yaml files::
+To use the default parser create a new config object form the class ConfigurationValidator by either from a dictionaries or from yaml files::
 
-    My_config = Config(default configuration dictionary, user configuration dictionary)
+    My_config = ConfigurationValidator(default configuration dictionary, user configuration dictionary)
 
 or
-- My_config = Config.from_yaml(default configuration file, user configuration file)
+- My_config = ConfigurationValidator.from_yaml(default configuration file, user configuration file)
 To access the configuration for tardis use the method get_config 
 

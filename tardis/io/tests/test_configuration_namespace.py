@@ -1,5 +1,5 @@
 from tardis.io.config_reader import ConfigurationNameSpace
-from tardis.io.config_validator import Config
+from tardis.io.config_validator import ConfigurationValidator
 
 from astropy import units as u
 import os
