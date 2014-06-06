@@ -821,7 +821,7 @@ class DefaultParser(object):
         Returns
         -------
         value
-                Config value.
+                ConfigurationValidator value.
         """
         if self.__config_value is not None:
             if self.__type.check_type(self.__config_value):
@@ -1139,9 +1139,9 @@ class Container(DefaultParser):
             return self.__conf
 
 
-class Config(object):
+class ConfigurationValidator(object):
     """
-    An configuration object represents the parsed configuration.
+    An configuration validator parses an input dictionary with a default schema.
 
     Creates the configuration object.
     Parameters

@@ -12,7 +12,7 @@ import yaml
 import tardis
 from tardis.io.model_reader import read_density_file, \
     calculate_density_after_time, read_abundances_file
-from tardis.io.config_validator import Config
+from tardis.io.config_validator import ConfigurationValidator
 from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, \
     element_symbol2atomic_number
@@ -773,7 +773,7 @@ class Configuration(ConfigurationNameSpace):
 
         config_definition = yaml.load(open(config_definition_file))
 
-        validated_config_dict = Config(config_definition,
+        validated_config_dict = ConfigurationValidator(config_definition,
                                        config_dict).get_config()
 
         #First let's see if we can find an atom_db anywhere:
