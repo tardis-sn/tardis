@@ -426,7 +426,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 	    }
 	}
       // Line scatter event.
-      else if ((d_electron <= d_outer) && (d_line <= d_inner) && (d_line <= d_electron))
+      else if ((d_line <= d_outer) && (d_line <= d_inner) && (d_line <= d_electron))
 	{
 	  if (virtual_packet == 0)
 	    {
