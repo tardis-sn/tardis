@@ -368,7 +368,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 	    }
 	}
       // Propagating inwards.
-      else if ((d_inner <= d_outer) && (d_inner <= d_electron) && (d_inner < d_line))
+      else if ((d_inner <= d_electron) && (d_inner < d_line))
 	{
 	  move_packet(current_r, current_mu, *current_nu, *current_energy, d_inner, storage->js, storage->nubars, storage->inverse_time_explosion, *current_shell_id, virtual_packet);
 	  if (virtual_packet > 0)
@@ -408,7 +408,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 		}
 	    }
 	}
-      else if ((d_electron <= d_outer) && (d_electron <= d_inner) && (d_electron < d_line))
+      else if (d_electron < d_line)
 	{
 	  doppler_factor = move_packet(current_r, current_mu, *current_nu, *current_energy, d_electron, storage->js, storage->nubars, storage->inverse_time_explosion, *current_shell_id, virtual_packet);
 	  comov_nu = *current_nu * doppler_factor;
@@ -426,7 +426,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 	    }
 	}
       // Line scatter event.
-      else if ((d_line <= d_outer) && (d_line <= d_inner) && (d_line <= d_electron))
+      else
 	{
 	  if (virtual_packet == 0)
 	    {
