@@ -126,14 +126,14 @@ inline npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition,
 inline npy_float64 move_packet(npy_float64 *r, npy_float64 *mu, npy_float64 nu, npy_float64 energy, npy_float64 distance, npy_float64 *js, npy_float64 *nubars, npy_float64 inverse_t_exp, npy_int64 cur_zone_id, npy_int64 virtual_packet)
 {
   npy_float64 new_r, doppler_factor, comov_energy, comov_nu;
-  doppler_factor = 1.0 - mu[0] * r[0] * inverse_t_exp * INVERSE_C;
+  doppler_factor = 1.0 - *mu * (*r) * inverse_t_exp * INVERSE_C;
   if (distance <= 0.0)
     {
       return doppler_factor;
     }
-  new_r = sqrt(r[0] * r[0] + distance * distance + 2.0 * r[0] * distance * mu[0]);
-  mu[0] = (mu[0] * r[0] + distance) / new_r;
-  r[0] = new_r;
+  new_r = sqrt((*r) * (*r) + distance * distance + 2.0 * (*r) * distance * (*mu));
+  *mu = (*mu * (*r) + distance) / new_r;
+  *r = new_r;
   if (virtual_packet > 0)
     {
       return doppler_factor;
@@ -149,12 +149,12 @@ inline void increment_j_blue_estimator(npy_int64 *current_line_id, npy_float64 *
 {
   npy_float64 comov_energy, comov_nu, r_interaction, mu_interaction, distance, doppler_factor;
   distance = d_line;
-  r_interaction = sqrt(r[0] * r[0] + distance * distance + 2 * r[0] * distance * mu[0]);
-  mu_interaction = (mu[0] * r[0] + distance) / r_interaction;
+  r_interaction = sqrt((*r) * (*r) + distance * distance + 2 * (*r) * distance * (*mu));
+  mu_interaction = (*mu * (*r) + distance) / r_interaction;
   doppler_factor = 1.0 - mu_interaction * r_interaction * inverse_time_explosion * INVERSE_C;
-  comov_energy = current_energy[0] * doppler_factor;
-  comov_nu = current_nu[0] * doppler_factor;
-  line_lists_j_blues[j_blue_idx] += comov_energy / current_nu[0];
+  comov_energy = *current_energy * doppler_factor;
+  comov_nu = *current_nu * doppler_factor;
+  line_lists_j_blues[j_blue_idx] += comov_energy / *current_nu;
 }
 
 void init_storage_model(storage_model_t *storage, 
