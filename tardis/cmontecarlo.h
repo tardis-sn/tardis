@@ -24,12 +24,12 @@ typedef enum
  */
 typedef struct RPacket
 {
-  double nu; /**< Frequency of the packet in Hz. */
-  double mu; /**< Cosine of the angle of the packet. */
-  double energy; /**< Energy of the packet in erg. */
-  double r; /**< Distance from center in cm. */
-  int current_shell_id; /**< ID of the current shell. */
-  int next_line_id; /**< The index of the next line that the packet will encounter. */
+  npy_float64 nu; /**< Frequency of the packet in Hz. */
+  npy_float64 mu; /**< Cosine of the angle of the packet. */
+  npy_float64 energy; /**< Energy of the packet in erg. */
+  npy_float64 r; /**< Distance from center in cm. */
+  npy_int64 current_shell_id; /**< ID of the current shell. */
+  npy_int64 next_line_id; /**< The index of the next line that the packet will encounter. */
   /**
    * @brief The packet has a nu red-ward of the last line.
    * It will not encounter any lines anymore.
@@ -176,5 +176,7 @@ inline void increment_j_blue_estimator(npy_int64 *current_line_id, npy_float64 *
 npy_int64 montecarlo_one_packet(storage_model_t *storage, npy_float64 *current_nu, npy_float64 *current_energy, npy_float64 *current_mu, npy_int64 *current_shell_id, npy_float64 *current_r, npy_int64 *current_line_id, npy_int64 *last_line, npy_int64 *close_line, npy_int64 *recently_crossed_boundary, npy_int64 virtual_packet_flag, npy_int64 virtual_mode);
 
 npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *current_nu, npy_float64 *current_energy, npy_float64 *current_mu, npy_int64 *current_shell_id, npy_float64 *current_r, npy_int64 *current_line_id, npy_int64 *last_line, npy_int64 *close_line, npy_int64 *recently_crossed_boundary, npy_int64 virtual_packet_flag, npy_int64 virtual_packet);
+
+void rpacket_init(rpacket_t *packet, storage_model_t *storage, npy_float64 nu, npy_float64 mu, npy_float64 energy, npy_float64 r, bool virtual_packet);
 
 #endif // TARDIS_CMONTECARLO_H

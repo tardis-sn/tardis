@@ -516,3 +516,17 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
     }
   return reabsorbed;
 }
+
+void rpacket_init(rpacket_t *packet, storage_model_t *storage, npy_float64 nu, npy_float64 mu, npy_float64 energy, npy_float64 r, bool virtual_packet)
+{
+  packet->nu = nu;
+  packet->mu = mu;
+  packet->energy = energy;
+  packet->r = r;
+  packet->current_shell_id = 0;
+  packet->recently_crossed_boundary = true;
+  packet->next_line_id = line_search(storage->line_list_nu, packet->nu, storage->no_of_lines);
+  packet->last_line = (packet->next_line_id == storage->no_of_lines) ? true : false;
+  packet->close_line = false;
+  packet->virtual_packet_flag = virtual_packet;
+}
