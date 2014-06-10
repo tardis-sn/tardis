@@ -2,6 +2,7 @@
 #ifndef TARDIS_CMONTECARLO_H
 #define TARDIS_CMONTECARLO_H
 
+#include <stdbool.h>
 #include <Python.h>
 #include <numpy/arrayobject.h>
 #include "randomkit.h"
@@ -11,6 +12,47 @@
 #define INVERSE_C 3.33564095198152e-11
 
 rk_state mt_state;
+
+typedef enum
+  {
+    TARDIS_ERROR_OK,
+    TARDIS_ERROR_BOUNDS_ERROR
+  } TARDIS_ERROR;
+
+/**
+ * @brief A photon packet.
+ */
+typedef struct RPacket
+{
+  double nu; /**< Frequency of the packet in Hz. */
+  double mu; /**< Cosine of the angle of the packet. */
+  double energy; /**< Energy of the packet in erg. */
+  double r; /**< Distance from center in cm. */
+  int current_shell_id; /**< ID of the current shell. */
+  int next_line_id; /**< The index of the next line that the packet will encounter. */
+  /**
+   * @brief The packet has a nu red-ward of the last line.
+   * It will not encounter any lines anymore.
+   */
+  bool last_line; 
+  /** 
+   * @brief The packet just encountered a line that is very close to the next line.
+   * The next iteration will automatically make an interaction with the next line 
+   * (avoiding numerical problems).
+   */
+  bool close_line;
+  /** 
+   * @brief The packet has recently crossed the boundary and is now sitting on the boundary. 
+   * To avoid numerical errors, make sure that d_inner is not calculated.
+   */
+  bool recently_crossed_boundary;
+  /**
+   * @brief packet is a virtual packet and will ignore any d_line or d_electron checks.
+   * It now whenever a d_line is calculated only adds the tau_line to an 
+   * internal float.
+   */
+  bool virtual_packet_flag;
+} rpacket_t;
 
 typedef struct StorageModel
 {
