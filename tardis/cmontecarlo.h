@@ -177,6 +177,17 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, npy_float64 *current_n
 
 npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *current_nu, npy_float64 *current_energy, npy_float64 *current_mu, npy_int64 *current_shell_id, npy_float64 *current_r, npy_int64 *current_line_id, npy_int64 *last_line, npy_int64 *close_line, npy_int64 *recently_crossed_boundary, npy_int64 virtual_packet_flag, npy_int64 virtual_packet);
 
+/**
+ * @brief Initialize RPacket data structure.
+ *
+ * @param packet a pointer to the packet structure
+ * @param storage a pointer to the corresponding storage model
+ * @param nu frequency of the packet in Hz
+ * @param mu cosine of the angle the packet is moving at
+ * @param energy energy of the packet in erg
+ * @param r distance to the packet from the center in cm
+ * @param virtual_packet is the packet virtual
+ */
 void rpacket_init(rpacket_t *packet, storage_model_t *storage, npy_float64 nu, npy_float64 mu, npy_float64 energy, npy_float64 r, bool virtual_packet);
 
 #endif // TARDIS_CMONTECARLO_H
