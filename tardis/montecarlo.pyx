@@ -16,6 +16,18 @@ np.import_array()
 ctypedef np.float64_t float_type_t
 ctypedef np.int64_t int_type_t
 
+ctypedef struct rpacket_t:
+    float_type_t nu
+    float_type_t mu
+    float_type_t energy
+    float_type_t r
+    int_type_t current_shell_id
+    int_type_t next_line_id
+    int_type_t last_line
+    int_type_t close_line
+    int_type_t recently_crossed_boundary
+    int_type_t virtual_packet_flag
+
 ctypedef struct storage_model_t:
     float_type_t *packet_nus
     float_type_t *packet_mus
@@ -73,6 +85,7 @@ cdef extern float_type_t move_packet(float_type_t *r, float_type_t *mu, float_ty
 cdef extern void increment_j_blue_estimator(int_type_t *current_line_id, float_type_t *current_nu, float_type_t *current_energy, float_type_t *mu, float_type_t *r, float_type_t d_line, int_type_t j_blue_idx, float_type_t inverse_time_explosion, float_type_t *line_lists_j_blues)
 cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, float_type_t *current_nu, float_type_t *current_energy, float_type_t *current_mu, int_type_t *current_shell_id, float_type_t *current_r, int_type_t *current_line_id, int_type_t *last_line, int_type_t *close_line, int_type_t *recently_crossed_boundary, int_type_t virtual_packet_flag, int_type_t virtual_mode)
 cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, float_type_t *current_nu, float_type_t *current_energy, float_type_t *current_mu, int_type_t *current_shell_id, float_type_t *current_r, int_type_t *current_line_id, int_type_t *last_line, int_type_t *close_line, int_type_t *recently_crossed_boundary, int_type_t virtual_packet_flag, int_type_t virtual_mode)
+cdef extern void rpacket_init(rpacket_t *packet, storage_model_t *storage, float_type_t nu, float_type_t mu, float_type_t energy, int_type_t virtual_packet)
 
 cdef extern from "math.h":
     float_type_t log(float_type_t)
@@ -133,6 +146,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                     int_type_t do_scatter
     """
     cdef storage_model_t storage
+    cdef rpacket_t packet
     rk_seed(model.tardis_config.montecarlo.seed, &mt_state)
     cdef np.ndarray[float_type_t, ndim=1] packet_nus = model.packet_src.packet_nus
     storage.packet_nus = <float_type_t*> packet_nus.data
@@ -268,6 +282,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         #### FLAGS ####
         #Packet recently crossed the inner boundary
         recently_crossed_boundary = 1
+        rpacket_init(&packet, &storage, current_nu, current_mu, current_energy, virtual_packet_flag)
         if (virtual_packet_flag > 0):
             #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
             reabsorbed = montecarlo_one_packet(&storage, &current_nu, &current_energy, &current_mu, &current_shell_id,
