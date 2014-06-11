@@ -281,12 +281,21 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         #### FLAGS ####
         #Packet recently crossed the inner boundary
         recently_crossed_boundary = 1
-        rpacket_init(&packet, &storage, current_nu, current_mu, current_energy, virtual_packet_flag)
+        packet.nu = current_nu
+        packet.mu = current_mu
+        packet.energy = current_energy
+        packet.r = current_r
+        packet.current_shell_id = current_shell_id
+        packet.next_line_id = current_line_id
+        packet.last_line = last_line
+        packet.close_line = close_line
+        packet.recently_crossed_boundary = recently_crossed_boundary
+        packet.virtual_packet_flag = virtual_packet_flag
         if (virtual_packet_flag > 0):
             #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
             reabsorbed = montecarlo_one_packet(&storage, &packet, -1)
         #Now can do the propagation of the real packet
         reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
-        storage.output_nus[i] = current_nu
-        storage.output_energies[i] = -current_energy if reabsorbed == 1 else current_energy
+        storage.output_nus[i] = packet.nu
+        storage.output_energies[i] = -packet.energy if reabsorbed == 1 else packet.energy
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id

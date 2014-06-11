@@ -85,8 +85,7 @@ inline npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_floa
       fprintf(stderr, "nu = %f\n", nu);
       fprintf(stderr, "doppler_factor = %f\n", doppler_factor);
       fprintf(stderr, "cur_zone_id = %d\n", cur_zone_id);
-      PyErr_SetString(PyExc_RuntimeError, "comov_nu less than nu_line");
-      return 0;
+      exit(1);
     }
   return ((comov_nu - nu_line) / nu) * C * t_exp;
 }
@@ -244,7 +243,8 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy
 	    }
 	  else
 	    {
-	      // Something has gone horribly wrong!
+	      fprintf(stderr, "Something has gone horribly wrong!\n");
+	      exit(1);
 	    }
 	  doppler_factor_ratio = (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C) / (1.0 - virt_packet.mu * virt_packet.r * storage->inverse_time_explosion * INVERSE_C);
 	  virt_packet.energy = packet->energy * doppler_factor_ratio;
