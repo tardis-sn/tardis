@@ -201,78 +201,66 @@ void init_storage_model(storage_model_t *storage,
   storage->current_packet_id = -1;
 }
 
-npy_int64 montecarlo_one_packet(storage_model_t *storage, npy_float64 *current_nu, npy_float64 *current_energy, npy_float64 *current_mu, npy_int64 *current_shell_id, npy_float64 *current_r, npy_int64 *current_line_id, npy_int64 *last_line, npy_int64 *close_line, npy_int64 *recently_crossed_boundary, npy_int64 virtual_packet_flag, npy_int64 virtual_mode)
+npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_mode)
 {
   npy_int64 i;
-  npy_float64 current_nu_virt;
-  npy_float64 current_energy_virt;
-  npy_float64 current_mu_virt;
-  npy_int64 current_shell_id_virt;
-  npy_float64 current_r_virt;
-  npy_int64 current_line_id_virt;
-  npy_int64 last_line_virt;
-  npy_int64 close_line_virt;
-  npy_int64 recently_crossed_boundary_virt;
+  rpacket_t virt_packet;
   npy_float64 mu_bin;
   npy_float64 mu_min;
   npy_float64 doppler_factor_ratio;
-  npy_float64 weight;
+  npy_float64 weight; 
   npy_int64 reabsorbed;
   npy_int64 virt_id_nu;
   if (virtual_mode == 0)
     {
-      reabsorbed = montecarlo_one_packet_loop(storage, current_nu, current_energy, current_mu, current_shell_id, current_r, current_line_id, last_line, close_line, recently_crossed_boundary, virtual_packet_flag, 0);
+      reabsorbed = montecarlo_one_packet_loop(storage, packet, 0);
     }
   else
     {
-      for (i = 0; i < virtual_packet_flag; i++)
+      for (i = 0; i < packet->virtual_packet_flag; i++)
 	{
-	  recently_crossed_boundary_virt = *recently_crossed_boundary;
-	  close_line_virt = *close_line;
-	  last_line_virt = *last_line;
-	  current_line_id_virt = *current_line_id;
-	  current_r_virt = *current_r;
-	  current_shell_id_virt = *current_shell_id;
-	  if (current_r_virt > storage->r_inner[0])
+	  memcpy((void *)&virt_packet, (void *)packet, sizeof(rpacket_t));
+	  if (virt_packet.r > storage->r_inner[0])
 	    {
-	      mu_min = -1.0 * sqrt(1.0 - (storage->r_inner[0] / current_r_virt) * (storage->r_inner[0] / current_r_virt));
+	      mu_min = -1.0 * sqrt(1.0 - (storage->r_inner[0] / virt_packet.r) * (storage->r_inner[0] / virt_packet.r));
 	    }
 	  else
 	    {
 	      mu_min = 0.0;
 	    }
-	  mu_bin = (1.0 - mu_min) / virtual_packet_flag;
-	  current_mu_virt = mu_min + (i + rk_double(&mt_state)) * mu_bin;
+	  mu_bin = (1.0 - mu_min) / packet->virtual_packet_flag;
+	  virt_packet.mu = mu_min + (i + rk_double(&mt_state)) * mu_bin;
 	  if (virtual_mode == -2)
 	    {
-	      weight = 1.0 / virtual_packet_flag;
+	      weight = 1.0 / packet->virtual_packet_flag;
 	    }
 	  else if (virtual_mode == -1)
 	    {
-	      weight = 2.0 * current_mu_virt / virtual_packet_flag;
+	      weight = 2.0 * virt_packet.mu / packet->virtual_packet_flag;
 	    }
 	  else if (virtual_mode == 1)
 	    {
-	      weight = (1.0 - mu_min) / 2.0 / virtual_packet_flag;
+	      weight = (1.0 - mu_min) / 2.0 / packet->virtual_packet_flag;
 	    }
 	  else
 	    {
 	      // Something has gone horribly wrong!
 	    }
-	  doppler_factor_ratio = (1.0 - *current_mu * (*current_r) * storage->inverse_time_explosion * INVERSE_C) / (1.0 - current_mu_virt * current_r_virt * storage->inverse_time_explosion * INVERSE_C);
-	  current_energy_virt = *current_energy * doppler_factor_ratio;
-	  current_nu_virt = *current_nu * doppler_factor_ratio;
-	  reabsorbed = montecarlo_one_packet_loop(storage, &current_nu_virt, &current_energy_virt, &current_mu_virt, &current_shell_id_virt, &current_r_virt, &current_line_id_virt, &last_line_virt, &close_line_virt, &recently_crossed_boundary_virt, virtual_packet_flag, 1);
-	  if ((current_nu_virt < storage->spectrum_end_nu) && (current_nu_virt > storage->spectrum_start_nu))
+	  doppler_factor_ratio = (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C) / (1.0 - virt_packet.mu * virt_packet.r * storage->inverse_time_explosion * INVERSE_C);
+	  virt_packet.energy = packet->energy * doppler_factor_ratio;
+	  virt_packet.nu = packet->nu * doppler_factor_ratio;
+	  reabsorbed = montecarlo_one_packet_loop(storage, &virt_packet, 1);
+	  if ((virt_packet.nu < storage->spectrum_end_nu) && 
+	      (virt_packet.nu > storage->spectrum_start_nu))
 	    {
-	      virt_id_nu = floor((current_nu_virt - storage->spectrum_start_nu) / storage->spectrum_delta_nu);
-	      storage->spectrum_virt_nu[virt_id_nu] += current_energy_virt * weight;
+	      virt_id_nu = floor((virt_packet.nu - storage->spectrum_start_nu) / storage->spectrum_delta_nu);
+	      storage->spectrum_virt_nu[virt_id_nu] += virt_packet.energy * weight;
 	    }
 	}
     }
 }
 
-npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *current_nu, npy_float64 *current_energy, npy_float64 *current_mu, npy_int64 *current_shell_id, npy_float64 *current_r, npy_int64 *current_line_id, npy_int64 *last_line, npy_int64 *close_line, npy_int64 *recently_crossed_boundary, npy_int64 virtual_packet_flag, npy_int64 virtual_packet)
+npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_packet)
 {
   npy_float64 nu_electron = 0.0;
   npy_float64 comov_nu = 0.0;
@@ -304,36 +292,36 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
   while (1)
     {
       // Check if we are at the end of line list.
-      if (*last_line == 0)
+      if (packet->last_line == 0)
 	{
-	  nu_line = storage->line_list_nu[*current_line_id];
+	  nu_line = storage->line_list_nu[packet->next_line_id];
 	}
       // Check if the last line was the same nu as the current line.
-      if (*close_line == 1)
+      if (packet->close_line == 1)
 	{
 	  // If so set the distance to the line to 0.0
 	  d_line = 0.0;
 	  // Reset close_line.
-	  *close_line = 0;
+	  packet->close_line = 0;
 	}
       else
 	{
-	  if (*recently_crossed_boundary == 1)
+	  if (packet->recently_crossed_boundary == 1)
 	    {
 	      d_inner = MISS_DISTANCE;
 	    }
 	  else
 	    {
-	      d_inner = compute_distance2inner(*current_r, *current_mu, storage->r_inner[*current_shell_id]);
+	      d_inner = compute_distance2inner(packet->r, packet->mu, storage->r_inner[packet->current_shell_id]);
 	    }
-	  d_outer = compute_distance2outer(*current_r, *current_mu, storage->r_outer[*current_shell_id]);
-	  if (*last_line == 1)
+	  d_outer = compute_distance2outer(packet->r, packet->mu, storage->r_outer[packet->current_shell_id]);
+	  if (packet->last_line == 1)
 	    {
 	      d_line = MISS_DISTANCE;
 	    }
 	  else
 	    {
-	      d_line = compute_distance2line(*current_r, *current_mu, *current_nu, nu_line, storage->time_explosion, storage->inverse_time_explosion, storage->line_list_nu[*current_line_id - 1], storage->line_list_nu[*current_line_id + 1], *current_shell_id);
+	      d_line = compute_distance2line(packet->r, packet->mu, packet->nu, nu_line, storage->time_explosion, storage->inverse_time_explosion, storage->line_list_nu[packet->next_line_id - 1], storage->line_list_nu[packet->next_line_id + 1], packet->current_shell_id);
 	    }
 	  if (virtual_packet > 0)
 	    {
@@ -341,25 +329,25 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 	    }
 	  else
 	    {
-	      d_electron = compute_distance2electron(*current_r, *current_mu, tau_event, storage->inverse_electron_densities[*current_shell_id] * storage->inverse_sigma_thomson);
+	      d_electron = compute_distance2electron(packet->r, packet->mu, tau_event, storage->inverse_electron_densities[packet->current_shell_id] * storage->inverse_sigma_thomson);
 	    }
 	}
       // Propagating outwards.
       if ((d_outer <= d_inner) && (d_outer <= d_electron) && (d_outer < d_line))
 	{
-	  move_packet(current_r, current_mu, *current_nu, *current_energy, d_outer, storage->js, storage->nubars, storage->inverse_time_explosion, *current_shell_id, virtual_packet);
+	  move_packet(&(packet->r), &(packet->mu), packet->nu, packet->energy, d_outer, storage->js, storage->nubars, storage->inverse_time_explosion, packet->current_shell_id, virtual_packet);
 	  if (virtual_packet > 0)
 	    {
-	      tau_event += d_outer * storage->electron_densities[*current_shell_id] * storage->sigma_thomson;
+	      tau_event += d_outer * storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
 	    }
 	  else
 	    {
 	      tau_event = -log(rk_double(&mt_state));
 	    }
-	  if (*current_shell_id < storage->no_of_shells - 1)
+	  if (packet->current_shell_id < storage->no_of_shells - 1)
 	    {
-	      *current_shell_id += 1;
-	      *recently_crossed_boundary = 1;
+	      packet->current_shell_id += 1;
+	      packet->recently_crossed_boundary = 1;
 	    }
 	  else
 	    {
@@ -370,19 +358,19 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
       // Propagating inwards.
       else if ((d_inner <= d_electron) && (d_inner < d_line))
 	{
-	  move_packet(current_r, current_mu, *current_nu, *current_energy, d_inner, storage->js, storage->nubars, storage->inverse_time_explosion, *current_shell_id, virtual_packet);
+	  move_packet(&(packet->r), &(packet->mu), packet->nu, packet->energy, d_inner, storage->js, storage->nubars, storage->inverse_time_explosion, packet->current_shell_id, virtual_packet);
 	  if (virtual_packet > 0)
 	    {
-	      tau_event += d_inner * storage->electron_densities[*current_shell_id] * storage->sigma_thomson;
+	      tau_event += d_inner * storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
 	    }
 	  else
 	    {
 	      tau_event = -log(rk_double(&mt_state));
 	    }
-	  if (*current_shell_id > 0)
+	  if (packet->current_shell_id > 0)
 	    {
-	      *current_shell_id -= 1;
-	      *recently_crossed_boundary = -1;
+	      packet->current_shell_id -= 1;
+	      packet->recently_crossed_boundary = -1;
 	    }
 	  else
 	    {
@@ -393,36 +381,36 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 		}
 	      else
 		{
-		  doppler_factor = 1.0 - *current_mu * (*current_r) * storage->inverse_time_explosion * INVERSE_C;
-		  comov_nu = *current_nu * doppler_factor;
-		  comov_energy = *current_energy * doppler_factor;
-		  *current_mu = rk_double(&mt_state);
-		  inverse_doppler_factor = 1.0 / (1.0 - *current_mu * (*current_r) * storage->inverse_time_explosion * INVERSE_C);
-		  *current_nu = comov_nu * inverse_doppler_factor;
-		  *current_energy = comov_energy * inverse_doppler_factor;
-		  *recently_crossed_boundary = 1;
-		  if (virtual_packet_flag > 0)
+		  doppler_factor = 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
+		  comov_nu = packet->nu * doppler_factor;
+		  comov_energy = packet->energy * doppler_factor;
+		  packet->mu = rk_double(&mt_state);
+		  inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+		  packet->nu = comov_nu * inverse_doppler_factor;
+		  packet->energy = comov_energy * inverse_doppler_factor;
+		  packet->recently_crossed_boundary = 1;
+		  if (packet->virtual_packet_flag > 0)
 		    {
-		      montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r, current_line_id, last_line, close_line, recently_crossed_boundary, virtual_packet_flag, -2);
+		      montecarlo_one_packet(storage, packet, -2);
 		    }
 		}
 	    }
 	}
       else if (d_electron < d_line)
 	{
-	  doppler_factor = move_packet(current_r, current_mu, *current_nu, *current_energy, d_electron, storage->js, storage->nubars, storage->inverse_time_explosion, *current_shell_id, virtual_packet);
-	  comov_nu = *current_nu * doppler_factor;
-	  comov_energy = *current_energy * doppler_factor;
-	  *current_mu = 2.0 * rk_double(&mt_state) - 1.0;
-	  inverse_doppler_factor = 1 / (1.0 - *current_mu * (*current_r) * storage->inverse_time_explosion * INVERSE_C);
-	  *current_nu = comov_nu * inverse_doppler_factor;
-	  *current_energy = comov_energy * inverse_doppler_factor;
+	  doppler_factor = move_packet(&(packet->r), &(packet->mu), packet->nu, packet->energy, d_electron, storage->js, storage->nubars, storage->inverse_time_explosion, packet->current_shell_id, virtual_packet);
+	  comov_nu = packet->nu * doppler_factor;
+	  comov_energy = packet->energy * doppler_factor;
+	  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
+	  inverse_doppler_factor = 1 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+	  packet->nu = comov_nu * inverse_doppler_factor;
+	  packet->energy = comov_energy * inverse_doppler_factor;
 	  tau_event = -log(rk_double(&mt_state));
-	  *recently_crossed_boundary = 0;
+	  packet->recently_crossed_boundary = 0;
 	  storage->last_interaction_type[storage->current_packet_id] = 1;
-	  if (virtual_packet_flag > 0)
+	  if (packet->virtual_packet_flag > 0)
 	    {
-	      montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r, current_line_id, last_line, close_line, recently_crossed_boundary, virtual_packet_flag, 1);
+	      montecarlo_one_packet(storage, packet, 1);
 	    }
 	}
       // Line scatter event.
@@ -430,16 +418,16 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 	{
 	  if (virtual_packet == 0)
 	    {
-	      j_blue_idx = *current_shell_id * storage->line_lists_j_blues_nd + *current_line_id;
-	      increment_j_blue_estimator(current_line_id, current_nu, current_energy, current_mu, current_r, d_line, j_blue_idx, storage->inverse_time_explosion, storage->line_lists_j_blues);
+	      j_blue_idx = packet->current_shell_id * storage->line_lists_j_blues_nd + packet->next_line_id;
+	      increment_j_blue_estimator(&(packet->next_line_id), &(packet->nu), &(packet->energy), &(packet->mu), &(packet->r), d_line, j_blue_idx, storage->inverse_time_explosion, storage->line_lists_j_blues);
 	    }
-	  tau_line = storage->line_lists_tau_sobolevs[*current_shell_id * storage->line_lists_tau_sobolevs_nd + *current_line_id];
-	  tau_electron = storage->sigma_thomson * storage->electron_densities[*current_shell_id] * d_line;
+	  tau_line = storage->line_lists_tau_sobolevs[packet->current_shell_id * storage->line_lists_tau_sobolevs_nd + packet->next_line_id];
+	  tau_electron = storage->sigma_thomson * storage->electron_densities[packet->current_shell_id] * d_line;
 	  tau_combined = tau_line + tau_electron;
-	  *current_line_id += 1;
-	  if (*current_line_id == storage->no_of_lines)
+	  packet->next_line_id += 1;
+	  if (packet->next_line_id == storage->no_of_lines)
 	    {
-	      *last_line = 1;
+	      packet->last_line = 1;
 	    }
 	  if (virtual_packet > 0)
 	    {
@@ -449,41 +437,45 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 	    {
 	      if (tau_event < tau_combined)
 		{
-		  old_doppler_factor = move_packet(current_r, current_mu, *current_nu, *current_energy, d_line, storage->js, storage->nubars, storage->inverse_time_explosion, *current_shell_id, virtual_packet);
-		  *current_mu = 2.0 * rk_double(&mt_state) - 1.0;
-		  inverse_doppler_factor = 1.0 / (1.0 - *current_mu * (*current_r) * storage->inverse_time_explosion * INVERSE_C);
-		  comov_nu = *current_nu * old_doppler_factor;
-		  comov_energy = *current_energy * old_doppler_factor;
-		  *current_energy = comov_energy * inverse_doppler_factor;
-		  storage->last_line_interaction_in_id[storage->current_packet_id] = *current_line_id - 1;
-		  storage->last_line_interaction_shell_id[storage->current_packet_id] = *current_shell_id;
+		  old_doppler_factor = move_packet(&(packet->r), &(packet->mu), packet->nu, packet->energy, d_line, storage->js, storage->nubars, storage->inverse_time_explosion, packet->current_shell_id, virtual_packet);
+		  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
+		  inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+		  comov_nu = packet->nu * old_doppler_factor;
+		  comov_energy = packet->energy * old_doppler_factor;
+		  packet->energy = comov_energy * inverse_doppler_factor;
+		  storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
+		  storage->last_line_interaction_shell_id[storage->current_packet_id] = packet->current_shell_id;
 		  storage->last_interaction_type[storage->current_packet_id] = 2;
 		  if (storage->line_interaction_id == 0)
 		    {
-		      emission_line_id = *current_line_id - 1;
+		      emission_line_id = packet->next_line_id - 1;
 		    }
 		  else if (storage->line_interaction_id >= 1)
 		    {
-		      activate_level_id = storage->line2macro_level_upper[*current_line_id - 1];
-		      emission_line_id = macro_atom(activate_level_id, storage->transition_probabilities, storage->transition_probabilities_nd, storage->transition_type, storage->destination_level_id, storage->transition_line_id, storage->macro_block_references, *current_shell_id);
+		      activate_level_id = storage->line2macro_level_upper[packet->next_line_id - 1];
+		      emission_line_id = macro_atom(activate_level_id, storage->transition_probabilities, storage->transition_probabilities_nd, storage->transition_type, storage->destination_level_id, storage->transition_line_id, storage->macro_block_references, packet->current_shell_id);
 		    }
 		  storage->last_line_interaction_out_id[storage->current_packet_id] = emission_line_id;
-		  *current_nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;
+		  packet->nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;
 		  nu_line = storage->line_list_nu[emission_line_id];
-		  *current_line_id = emission_line_id + 1;
+		  packet->next_line_id = emission_line_id + 1;
 		  tau_event = -log(rk_double(&mt_state));
-		  *recently_crossed_boundary = 0;
-		  if (virtual_packet_flag > 0)
+		  packet->recently_crossed_boundary = 0;
+		  if (packet->virtual_packet_flag > 0)
 		    {
 		      virtual_close_line = 0;
-		      if (*last_line == 0)
+		      if (packet->last_line == 0)
 			{
-			  if (fabs(storage->line_list_nu[*current_line_id] - nu_line) / nu_line < 1e-7)
+			  if (fabs(storage->line_list_nu[packet->next_line_id] - nu_line) / nu_line < 1e-7)
 			    {
 			      virtual_close_line = 1;
 			    }
 			}
-		      montecarlo_one_packet(storage, current_nu, current_energy, current_mu, current_shell_id, current_r, current_line_id, last_line, &virtual_close_line, recently_crossed_boundary, virtual_packet_flag, 1);
+		      // QUESTIONABLE!!!
+		      int old_close_line = packet->close_line;
+		      packet->close_line = virtual_close_line;
+		      montecarlo_one_packet(storage, packet, 1);
+		      packet->close_line = old_close_line;
 		      virtual_close_line = 0;
 		    }
 		}
@@ -492,11 +484,11 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
 		  tau_event -= tau_line;
 		}
 	    }
-	  if (*last_line == 0)
+	  if (packet->last_line == 0)
 	    {
-	      if (fabs(storage->line_list_nu[*current_line_id] - nu_line) / nu_line < 1e-7)
+	      if (fabs(storage->line_list_nu[packet->next_line_id] - nu_line) / nu_line < 1e-7)
 		{
-		  *close_line = 1;
+		  packet->close_line = 1;
 		}
 	    }
 	}
@@ -512,7 +504,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
     } 
   if (virtual_packet > 0)
     {
-      *current_energy = *current_energy * exp(-1.0 * tau_event);
+      packet->energy = packet->energy * exp(-1.0 * tau_event);
     }
   return reabsorbed;
 }
