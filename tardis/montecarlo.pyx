@@ -275,19 +275,9 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                                                &recently_crossed_boundary, virtual_packet_flag,
                                                -1)
         #Now can do the propagation of the real packet
-        #rpacket_t my_packet;
-        #rpacket_init(&my_packet, current_nu, curren);
-        ## in the init
-        #r = r_inner[0]
-        #shell_id = 0
         reabsorbed = montecarlo_one_packet(&storage, &current_nu, &current_energy, &current_mu, &current_shell_id,
                                            &current_r, &current_line_id, &last_line, &close_line,
                                            &recently_crossed_boundary, virtual_packet_flag, 0)
-        if reabsorbed == 1: #reabsorbed
-            storage.output_nus[i] = current_nu
-            storage.output_energies[i] = -current_energy
-        elif reabsorbed == 0: #emitted
-            storage.output_nus[i] = current_nu
-            storage.output_energies[i] = current_energy # 2 * current_energy to fail
-            #^^^^^^^^^^^^^^^^^^^^^^^^ RESTART MAINLOOP ^^^^^^^^^^^^^^^^^^^^^^^^^
+        storage.output_nus[i] = current_nu
+        storage.output_energies[i] = -current_energy if reabsorbed == 1 else current_energy
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
