@@ -34,24 +34,24 @@ typedef struct RPacket
    * @brief The packet has a nu red-ward of the last line.
    * It will not encounter any lines anymore.
    */
-  bool last_line; 
+  npy_int64 last_line; 
   /** 
    * @brief The packet just encountered a line that is very close to the next line.
    * The next iteration will automatically make an interaction with the next line 
    * (avoiding numerical problems).
    */
-  bool close_line;
+  npy_int64 close_line;
   /** 
    * @brief The packet has recently crossed the boundary and is now sitting on the boundary. 
    * To avoid numerical errors, make sure that d_inner is not calculated.
    */
-  bool recently_crossed_boundary;
+  npy_int64 recently_crossed_boundary;
   /**
    * @brief packet is a virtual packet and will ignore any d_line or d_electron checks.
    * It now whenever a d_line is calculated only adds the tau_line to an 
    * internal float.
    */
-  bool virtual_packet_flag;
+  npy_int64 virtual_packet_flag;
 } rpacket_t;
 
 typedef struct StorageModel
@@ -188,6 +188,6 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, npy_float64 *curr
  * @param r distance to the packet from the center in cm
  * @param virtual_packet is the packet virtual
  */
-void rpacket_init(rpacket_t *packet, storage_model_t *storage, npy_float64 nu, npy_float64 mu, npy_float64 energy, npy_float64 r, bool virtual_packet);
+void rpacket_init(rpacket_t *packet, storage_model_t *storage, npy_float64 nu, npy_float64 mu, npy_float64 energy, npy_int64 virtual_packet);
 
 #endif // TARDIS_CMONTECARLO_H
