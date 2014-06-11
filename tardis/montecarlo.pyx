@@ -83,8 +83,7 @@ cdef extern float_type_t compute_distance2electron(float_type_t r, float_type_t 
 cdef extern int_type_t macro_atom(int_type_t activate_level, float_type_t *p_transition, int_type_t p_transition_nd, int_type_t *type_transition, int_type_t *target_level_id, int_type_t *target_line_id, int_type_t *unroll_reference, int_type_t cur_zone_id)
 cdef extern float_type_t move_packet(float_type_t *r, float_type_t *mu, float_type_t nu, float_type_t energy, float_type_t distance, float_type_t *js, float_type_t *nubars, float_type_t inverse_t_exp, int_type_t cur_zone_id, int_type_t virtual_packet)
 cdef extern void increment_j_blue_estimator(int_type_t *current_line_id, float_type_t *current_nu, float_type_t *current_energy, float_type_t *mu, float_type_t *r, float_type_t d_line, int_type_t j_blue_idx, float_type_t inverse_time_explosion, float_type_t *line_lists_j_blues)
-cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, float_type_t *current_nu, float_type_t *current_energy, float_type_t *current_mu, int_type_t *current_shell_id, float_type_t *current_r, int_type_t *current_line_id, int_type_t *last_line, int_type_t *close_line, int_type_t *recently_crossed_boundary, int_type_t virtual_packet_flag, int_type_t virtual_mode)
-cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, float_type_t *current_nu, float_type_t *current_energy, float_type_t *current_mu, int_type_t *current_shell_id, float_type_t *current_r, int_type_t *current_line_id, int_type_t *last_line, int_type_t *close_line, int_type_t *recently_crossed_boundary, int_type_t virtual_packet_flag, int_type_t virtual_mode)
+cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
 cdef extern void rpacket_init(rpacket_t *packet, storage_model_t *storage, float_type_t nu, float_type_t mu, float_type_t energy, int_type_t virtual_packet)
 
 cdef extern from "math.h":
@@ -285,14 +284,9 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         rpacket_init(&packet, &storage, current_nu, current_mu, current_energy, virtual_packet_flag)
         if (virtual_packet_flag > 0):
             #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
-            reabsorbed = montecarlo_one_packet(&storage, &current_nu, &current_energy, &current_mu, &current_shell_id,
-                                               &current_r, &current_line_id, &last_line, &close_line,
-                                               &recently_crossed_boundary, virtual_packet_flag,
-                                               -1)
+            reabsorbed = montecarlo_one_packet(&storage, &packet, -1)
         #Now can do the propagation of the real packet
-        reabsorbed = montecarlo_one_packet(&storage, &current_nu, &current_energy, &current_mu, &current_shell_id,
-                                           &current_r, &current_line_id, &last_line, &close_line,
-                                           &recently_crossed_boundary, virtual_packet_flag, 0)
+        reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
         storage.output_nus[i] = current_nu
         storage.output_energies[i] = -current_energy if reabsorbed == 1 else current_energy
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
