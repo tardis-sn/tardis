@@ -553,14 +553,11 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
 	{
 	  break;
 	}
-      if (virtual_packet > 0)
+      if (virtual_packet > 0 && tau_event > 10.0)
 	{
-	  if (tau_event > 10.0)
-	    {
-	      tau_event = 100.0;
-	      reabsorbed = 0;
-	      break;
-	    }
+	  tau_event = 100.0;
+	  reabsorbed = 0;
+	  break;
 	}
     } 
   if (virtual_packet > 0)
