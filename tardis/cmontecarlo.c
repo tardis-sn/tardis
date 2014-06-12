@@ -478,6 +478,50 @@ montecarlo_event_handler_t get_event_handler(npy_float64 d_inner, npy_float64 d_
     }  
 }
 
+void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
+				  npy_float64 *d_inner, npy_float64 *d_outer,
+				  npy_float64 *d_electron, npy_float64 *d_line,
+				  npy_float64 tau_event, npy_float64 nu_line,
+				  npy_int64 virtual_packet)
+{
+  // Check if the last line was the same nu as the current line.
+  if (packet->close_line == 1)
+    {
+      // If so set the distance to the line to 0.0
+      *d_line = 0.0;
+      // Reset close_line.
+      packet->close_line = 0;
+    }
+  else
+    {
+      if (packet->recently_crossed_boundary == 1)
+	{
+	  *d_inner = MISS_DISTANCE;
+	}
+      else
+	{
+	  *d_inner = compute_distance2inner(packet->r, packet->mu, storage->r_inner[packet->current_shell_id]);
+	}
+      *d_outer = compute_distance2outer(packet->r, packet->mu, storage->r_outer[packet->current_shell_id]);
+      if (packet->last_line == 1)
+	{
+	  *d_line = MISS_DISTANCE;
+	}
+      else
+	{
+	  *d_line = compute_distance2line(packet->r, packet->mu, packet->nu, nu_line, storage->time_explosion, storage->inverse_time_explosion, storage->line_list_nu[packet->next_line_id - 1], storage->line_list_nu[packet->next_line_id + 1], packet->current_shell_id);
+	}
+      if (virtual_packet > 0)
+	{
+	  *d_electron = MISS_DISTANCE;
+	}
+      else
+	{
+	  *d_electron = compute_distance2electron(packet->r, packet->mu, tau_event, storage->inverse_electron_densities[packet->current_shell_id] * storage->inverse_sigma_thomson);
+	}
+    }
+}
+
 npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_packet)
 {
   npy_float64 tau_event = 0.0;
@@ -500,42 +544,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
 	{
 	  nu_line = storage->line_list_nu[packet->next_line_id];
 	}
-      // Check if the last line was the same nu as the current line.
-      if (packet->close_line == 1)
-	{
-	  // If so set the distance to the line to 0.0
-	  d_line = 0.0;
-	  // Reset close_line.
-	  packet->close_line = 0;
-	}
-      else
-	{
-	  if (packet->recently_crossed_boundary == 1)
-	    {
-	      d_inner = MISS_DISTANCE;
-	    }
-	  else
-	    {
-	      d_inner = compute_distance2inner(packet->r, packet->mu, storage->r_inner[packet->current_shell_id]);
-	    }
-	  d_outer = compute_distance2outer(packet->r, packet->mu, storage->r_outer[packet->current_shell_id]);
-	  if (packet->last_line == 1)
-	    {
-	      d_line = MISS_DISTANCE;
-	    }
-	  else
-	    {
-	      d_line = compute_distance2line(packet->r, packet->mu, packet->nu, nu_line, storage->time_explosion, storage->inverse_time_explosion, storage->line_list_nu[packet->next_line_id - 1], storage->line_list_nu[packet->next_line_id + 1], packet->current_shell_id);
-	    }
-	  if (virtual_packet > 0)
-	    {
-	      d_electron = MISS_DISTANCE;
-	    }
-	  else
-	    {
-	      d_electron = compute_distance2electron(packet->r, packet->mu, tau_event, storage->inverse_electron_densities[packet->current_shell_id] * storage->inverse_sigma_thomson);
-	    }
-	}
+      montecarlo_compute_distances(packet, storage, &d_inner, &d_outer, &d_electron, &d_line, tau_event, nu_line, virtual_packet);
       montecarlo_event_handler_t event_handler;
       npy_float64 distance;
       event_handler = get_event_handler(d_inner, d_outer, d_electron, d_line, &distance);
