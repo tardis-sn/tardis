@@ -359,6 +359,101 @@ npy_int64 montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage
   return 0;
 }
 
+npy_int64 montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
+				  npy_float64 distance, npy_float64 *tau_event,
+				  npy_int64 *reabsorbed, npy_float64 *nu_line,
+				  npy_int64 virtual_packet)
+{
+  npy_float64 comov_nu = 0.0;
+  npy_float64 comov_energy = 0.0;
+  npy_int64 emission_line_id = 0;
+  npy_int64 activate_level_id = 0;
+  npy_float64 old_doppler_factor = 0.0;
+  npy_float64 inverse_doppler_factor = 0.0;
+  npy_float64 tau_line = 0.0;
+  npy_float64 tau_electron = 0.0;
+  npy_float64 tau_combined = 0.0;
+  npy_int64 virtual_close_line = 0;
+  npy_int64 j_blue_idx = -1;
+  if (virtual_packet == 0)
+    {
+      j_blue_idx = packet->current_shell_id * storage->line_lists_j_blues_nd + packet->next_line_id;
+      increment_j_blue_estimator(packet, storage, distance, j_blue_idx);
+    }
+  tau_line = storage->line_lists_tau_sobolevs[packet->current_shell_id * storage->line_lists_tau_sobolevs_nd + packet->next_line_id];
+  tau_electron = storage->sigma_thomson * storage->electron_densities[packet->current_shell_id] * distance;
+  tau_combined = tau_line + tau_electron;
+  packet->next_line_id += 1;
+  if (packet->next_line_id == storage->no_of_lines)
+    {
+      packet->last_line = 1;
+    }
+  if (virtual_packet > 0)
+    {
+      *tau_event += tau_line;
+    }
+  else
+    {
+      if (*tau_event < tau_combined)
+	{
+	  old_doppler_factor = move_packet(packet, storage, distance, virtual_packet);
+	  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
+	  inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+	  comov_nu = packet->nu * old_doppler_factor;
+	  comov_energy = packet->energy * old_doppler_factor;
+	  packet->energy = comov_energy * inverse_doppler_factor;
+	  storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
+	  storage->last_line_interaction_shell_id[storage->current_packet_id] = packet->current_shell_id;
+	  storage->last_interaction_type[storage->current_packet_id] = 2;
+	  if (storage->line_interaction_id == 0)
+	    {
+	      emission_line_id = packet->next_line_id - 1;
+	    }
+	  else if (storage->line_interaction_id >= 1)
+	    {
+	      activate_level_id = storage->line2macro_level_upper[packet->next_line_id - 1];
+	      emission_line_id = macro_atom(activate_level_id, storage->transition_probabilities, storage->transition_probabilities_nd, storage->transition_type, storage->destination_level_id, storage->transition_line_id, storage->macro_block_references, packet->current_shell_id);
+	    }
+	  storage->last_line_interaction_out_id[storage->current_packet_id] = emission_line_id;
+	  packet->nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;
+	  *nu_line = storage->line_list_nu[emission_line_id];
+	  packet->next_line_id = emission_line_id + 1;
+	  *tau_event = -log(rk_double(&mt_state));
+	  packet->recently_crossed_boundary = 0;
+	  if (packet->virtual_packet_flag > 0)
+	    {
+	      virtual_close_line = 0;
+	      if (packet->last_line == 0)
+		{
+		  if (fabs(storage->line_list_nu[packet->next_line_id] - *nu_line) / *nu_line < 1e-7)
+		    {
+		      virtual_close_line = 1;
+		    }
+		}
+	      // QUESTIONABLE!!!
+	      int old_close_line = packet->close_line;
+	      packet->close_line = virtual_close_line;
+	      montecarlo_one_packet(storage, packet, 1);
+	      packet->close_line = old_close_line;
+	      virtual_close_line = 0;
+	    }
+	}
+      else 
+	{
+	  *tau_event -= tau_line;
+	}
+    }
+  if (packet->last_line == 0)
+    {
+      if (fabs(storage->line_list_nu[packet->next_line_id] - *nu_line) / *nu_line < 1e-7)
+	{
+	  packet->close_line = 1;
+	}
+    }
+  return 0;
+}
+
+
 npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_packet)
 {
   npy_float64 nu_electron = 0.0;
@@ -461,80 +556,10 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
       // Line scatter event.
       else
 	{
-	  if (virtual_packet == 0)
+	  if (montecarlo_line_scatter(packet, storage, d_line, &tau_event, 
+				      &reabsorbed, &nu_line, virtual_packet))
 	    {
-	      j_blue_idx = packet->current_shell_id * storage->line_lists_j_blues_nd + packet->next_line_id;
-	      increment_j_blue_estimator(packet, storage, d_line, j_blue_idx);
-	    }
-	  tau_line = storage->line_lists_tau_sobolevs[packet->current_shell_id * storage->line_lists_tau_sobolevs_nd + packet->next_line_id];
-	  tau_electron = storage->sigma_thomson * storage->electron_densities[packet->current_shell_id] * d_line;
-	  tau_combined = tau_line + tau_electron;
-	  packet->next_line_id += 1;
-	  if (packet->next_line_id == storage->no_of_lines)
-	    {
-	      packet->last_line = 1;
-	    }
-	  if (virtual_packet > 0)
-	    {
-	      tau_event += tau_line;
-	    }
-	  else
-	    {
-	      if (tau_event < tau_combined)
-		{
-		  old_doppler_factor = move_packet(packet, storage, d_line, virtual_packet);
-		  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
-		  inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
-		  comov_nu = packet->nu * old_doppler_factor;
-		  comov_energy = packet->energy * old_doppler_factor;
-		  packet->energy = comov_energy * inverse_doppler_factor;
-		  storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
-		  storage->last_line_interaction_shell_id[storage->current_packet_id] = packet->current_shell_id;
-		  storage->last_interaction_type[storage->current_packet_id] = 2;
-		  if (storage->line_interaction_id == 0)
-		    {
-		      emission_line_id = packet->next_line_id - 1;
-		    }
-		  else if (storage->line_interaction_id >= 1)
-		    {
-		      activate_level_id = storage->line2macro_level_upper[packet->next_line_id - 1];
-		      emission_line_id = macro_atom(activate_level_id, storage->transition_probabilities, storage->transition_probabilities_nd, storage->transition_type, storage->destination_level_id, storage->transition_line_id, storage->macro_block_references, packet->current_shell_id);
-		    }
-		  storage->last_line_interaction_out_id[storage->current_packet_id] = emission_line_id;
-		  packet->nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;
-		  nu_line = storage->line_list_nu[emission_line_id];
-		  packet->next_line_id = emission_line_id + 1;
-		  tau_event = -log(rk_double(&mt_state));
-		  packet->recently_crossed_boundary = 0;
-		  if (packet->virtual_packet_flag > 0)
-		    {
-		      virtual_close_line = 0;
-		      if (packet->last_line == 0)
-			{
-			  if (fabs(storage->line_list_nu[packet->next_line_id] - nu_line) / nu_line < 1e-7)
-			    {
-			      virtual_close_line = 1;
-			    }
-			}
-		      // QUESTIONABLE!!!
-		      int old_close_line = packet->close_line;
-		      packet->close_line = virtual_close_line;
-		      montecarlo_one_packet(storage, packet, 1);
-		      packet->close_line = old_close_line;
-		      virtual_close_line = 0;
-		    }
-		}
-	      else 
-		{
-		  tau_event -= tau_line;
-		}
-	    }
-	  if (packet->last_line == 0)
-	    {
-	      if (fabs(storage->line_list_nu[packet->next_line_id] - nu_line) / nu_line < 1e-7)
-		{
-		  packet->close_line = 1;
-		}
+	      break;
 	    }
 	}
       if (virtual_packet > 0)
