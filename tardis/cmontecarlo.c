@@ -392,62 +392,56 @@ npy_int64 montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
     {
       *tau_event += tau_line;
     }
-  else
+  else if (*tau_event < tau_combined)
     {
-      if (*tau_event < tau_combined)
+      old_doppler_factor = move_packet(packet, storage, distance, virtual_packet);
+      packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
+      inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+      comov_energy = packet->energy * old_doppler_factor;
+      packet->energy = comov_energy * inverse_doppler_factor;
+      storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
+      storage->last_line_interaction_shell_id[storage->current_packet_id] = packet->current_shell_id;
+      storage->last_interaction_type[storage->current_packet_id] = 2;
+      if (storage->line_interaction_id == 0)
 	{
-	  old_doppler_factor = move_packet(packet, storage, distance, virtual_packet);
-	  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
-	  inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
-	  comov_energy = packet->energy * old_doppler_factor;
-	  packet->energy = comov_energy * inverse_doppler_factor;
-	  storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
-	  storage->last_line_interaction_shell_id[storage->current_packet_id] = packet->current_shell_id;
-	  storage->last_interaction_type[storage->current_packet_id] = 2;
-	  if (storage->line_interaction_id == 0)
-	    {
-	      emission_line_id = packet->next_line_id - 1;
-	    }
-	  else if (storage->line_interaction_id >= 1)
-	    {
-	      activate_level_id = storage->line2macro_level_upper[packet->next_line_id - 1];
-	      emission_line_id = macro_atom(activate_level_id, storage->transition_probabilities, storage->transition_probabilities_nd, storage->transition_type, storage->destination_level_id, storage->transition_line_id, storage->macro_block_references, packet->current_shell_id);
-	    }
-	  storage->last_line_interaction_out_id[storage->current_packet_id] = emission_line_id;
-	  packet->nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;
-	  *nu_line = storage->line_list_nu[emission_line_id];
-	  packet->next_line_id = emission_line_id + 1;
-	  *tau_event = -log(rk_double(&mt_state));
-	  packet->recently_crossed_boundary = 0;
-	  if (packet->virtual_packet_flag > 0)
-	    {
-	      virtual_close_line = 0;
-	      if (packet->last_line == 0)
-		{
-		  if (fabs(storage->line_list_nu[packet->next_line_id] - *nu_line) / *nu_line < 1e-7)
-		    {
-		      virtual_close_line = 1;
-		    }
-		}
-	      // QUESTIONABLE!!!
-	      int old_close_line = packet->close_line;
-	      packet->close_line = virtual_close_line;
-	      montecarlo_one_packet(storage, packet, 1);
-	      packet->close_line = old_close_line;
-	      virtual_close_line = 0;
-	    }
+	  emission_line_id = packet->next_line_id - 1;
 	}
-      else 
+      else if (storage->line_interaction_id >= 1)
 	{
-	  *tau_event -= tau_line;
+	  activate_level_id = storage->line2macro_level_upper[packet->next_line_id - 1];
+	  emission_line_id = macro_atom(activate_level_id, storage->transition_probabilities, storage->transition_probabilities_nd, storage->transition_type, storage->destination_level_id, storage->transition_line_id, storage->macro_block_references, packet->current_shell_id);
+	}
+      storage->last_line_interaction_out_id[storage->current_packet_id] = emission_line_id;
+      packet->nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;
+      *nu_line = storage->line_list_nu[emission_line_id];
+      packet->next_line_id = emission_line_id + 1;
+      *tau_event = -log(rk_double(&mt_state));
+      packet->recently_crossed_boundary = 0;
+      if (packet->virtual_packet_flag > 0)
+	{
+	  virtual_close_line = 0;
+	  if (packet->last_line == 0 &&
+	      fabs(storage->line_list_nu[packet->next_line_id] - *nu_line) / 
+	      *nu_line < 1e-7)
+	    {
+	      virtual_close_line = 1;
+	    }
+	  // QUESTIONABLE!!!
+	  int old_close_line = packet->close_line;
+	  packet->close_line = virtual_close_line;
+	  montecarlo_one_packet(storage, packet, 1);
+	  packet->close_line = old_close_line;
+	  virtual_close_line = 0;
 	}
     }
-  if (packet->last_line == 0)
+  else 
     {
-      if (fabs(storage->line_list_nu[packet->next_line_id] - *nu_line) / *nu_line < 1e-7)
-	{
-	  packet->close_line = 1;
-	}
+      *tau_event -= tau_line;
+    }
+  if (packet->last_line == 0 &&
+      fabs(storage->line_list_nu[packet->next_line_id] - *nu_line) / *nu_line < 1e-7)
+    {
+      packet->close_line = 1;
     }
   return 0;
 }
