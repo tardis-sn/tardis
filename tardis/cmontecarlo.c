@@ -149,14 +149,13 @@ npy_float64 move_packet(rpacket_t *packet, storage_model_t *storage,
 void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage,
 				       npy_float64 d_line, npy_int64 j_blue_idx)
 {
-  npy_float64 comov_energy, comov_nu, r_interaction, mu_interaction, doppler_factor;
+  npy_float64 comov_energy, r_interaction, mu_interaction, doppler_factor;
   r_interaction = sqrt(packet->r * packet->r + d_line * d_line + 
 		       2.0 * packet->r * d_line * packet->mu);
   mu_interaction = (packet->mu * packet->r + d_line) / r_interaction;
   doppler_factor = 1.0 - mu_interaction * r_interaction * 
     storage->inverse_time_explosion * INVERSE_C;
   comov_energy = packet->energy * doppler_factor;
-  comov_nu = packet->nu * doppler_factor;
   storage->line_lists_j_blues[j_blue_idx] += comov_energy / packet->nu;
 }
 
@@ -212,11 +211,10 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy
   npy_float64 mu_min;
   npy_float64 doppler_factor_ratio;
   npy_float64 weight; 
-  npy_int64 reabsorbed;
   npy_int64 virt_id_nu;
   if (virtual_mode == 0)
     {
-      reabsorbed = montecarlo_one_packet_loop(storage, packet, 0);
+      montecarlo_one_packet_loop(storage, packet, 0);
     }
   else
     {
@@ -251,7 +249,7 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy
 	  doppler_factor_ratio = (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C) / (1.0 - virt_packet.mu * virt_packet.r * storage->inverse_time_explosion * INVERSE_C);
 	  virt_packet.energy = packet->energy * doppler_factor_ratio;
 	  virt_packet.nu = packet->nu * doppler_factor_ratio;
-	  reabsorbed = montecarlo_one_packet_loop(storage, &virt_packet, 1);
+	  montecarlo_one_packet_loop(storage, &virt_packet, 1);
 	  if ((virt_packet.nu < storage->spectrum_end_nu) && 
 	      (virt_packet.nu > storage->spectrum_start_nu))
 	    {
@@ -364,7 +362,6 @@ npy_int64 montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
 				  npy_int64 *reabsorbed, npy_float64 *nu_line,
 				  npy_int64 virtual_packet)
 {
-  npy_float64 comov_nu = 0.0;
   npy_float64 comov_energy = 0.0;
   npy_int64 emission_line_id = 0;
   npy_int64 activate_level_id = 0;
@@ -399,7 +396,6 @@ npy_int64 montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
 	  old_doppler_factor = move_packet(packet, storage, distance, virtual_packet);
 	  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
 	  inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
-	  comov_nu = packet->nu * old_doppler_factor;
 	  comov_energy = packet->energy * old_doppler_factor;
 	  packet->energy = comov_energy * inverse_doppler_factor;
 	  storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
@@ -453,21 +449,8 @@ npy_int64 montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
   return 0;
 }
 
-
 npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_packet)
 {
-  npy_float64 nu_electron = 0.0;
-  npy_float64 comov_nu = 0.0;
-  npy_float64 comov_energy = 0.0;
-  npy_float64 energy_electron = 0.0;
-  npy_int64 emission_line_id = 0;
-  npy_int64 activate_level_id = 0;
-  npy_float64 doppler_factor = 0.0;
-  npy_float64 old_doppler_factor = 0.0;
-  npy_float64 inverse_doppler_factor = 0.0;
-  npy_float64 tau_line = 0.0;
-  npy_float64 tau_electron = 0.0;
-  npy_float64 tau_combined = 0.0;
   npy_float64 tau_event = 0.0;
   npy_float64 d_inner = 0.0;
   npy_float64 d_outer = 0.0;
@@ -475,8 +458,6 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
   npy_float64 d_electron = 0.0;
   npy_int64 reabsorbed = 0;
   npy_float64 nu_line = 0.0;
-  npy_int64 virtual_close_line = 0;
-  npy_int64 j_blue_idx = -1;
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
