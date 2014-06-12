@@ -233,22 +233,20 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy
 	    }
 	  mu_bin = (1.0 - mu_min) / packet->virtual_packet_flag;
 	  virt_packet.mu = mu_min + (i + rk_double(&mt_state)) * mu_bin;
-	  if (virtual_mode == -2)
+	  switch(virtual_mode)
 	    {
+	    case -2:
 	      weight = 1.0 / packet->virtual_packet_flag;
-	    }
-	  else if (virtual_mode == -1)
-	    {
+	      break;
+	    case -1:
 	      weight = 2.0 * virt_packet.mu / packet->virtual_packet_flag;
-	    }
-	  else if (virtual_mode == 1)
-	    {
+	      break;
+	    case 1:
 	      weight = (1.0 - mu_min) / 2.0 / packet->virtual_packet_flag;
-	    }
-	  else
-	    {
+	      break;
+	    default:
 	      fprintf(stderr, "Something has gone horribly wrong!\n");
-	      exit(1);
+	      exit(1);	      
 	    }
 	  doppler_factor_ratio = (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C) / (1.0 - virt_packet.mu * virt_packet.r * storage->inverse_time_explosion * INVERSE_C);
 	  virt_packet.energy = packet->energy * doppler_factor_ratio;
@@ -257,7 +255,8 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy
 	  if ((virt_packet.nu < storage->spectrum_end_nu) && 
 	      (virt_packet.nu > storage->spectrum_start_nu))
 	    {
-	      virt_id_nu = floor((virt_packet.nu - storage->spectrum_start_nu) / storage->spectrum_delta_nu);
+	      virt_id_nu = floor((virt_packet.nu - storage->spectrum_start_nu) / 
+				 storage->spectrum_delta_nu);
 	      storage->spectrum_virt_nu[virt_id_nu] += virt_packet.energy * weight;
 	    }
 	}
