@@ -146,16 +146,18 @@ npy_float64 move_packet(rpacket_t *packet, storage_model_t *storage,
   return doppler_factor;
 }
 
-inline void increment_j_blue_estimator(npy_int64 *current_line_id, npy_float64 *current_nu, npy_float64 *current_energy, npy_float64 *mu, npy_float64 *r, npy_float64 d_line, npy_int64 j_blue_idx, npy_float64 inverse_time_explosion, npy_float64 *line_lists_j_blues)
+inline void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage,
+				       npy_float64 d_line, npy_int64 j_blue_idx)
 {
-  npy_float64 comov_energy, comov_nu, r_interaction, mu_interaction, distance, doppler_factor;
-  distance = d_line;
-  r_interaction = sqrt((*r) * (*r) + distance * distance + 2 * (*r) * distance * (*mu));
-  mu_interaction = (*mu * (*r) + distance) / r_interaction;
-  doppler_factor = 1.0 - mu_interaction * r_interaction * inverse_time_explosion * INVERSE_C;
-  comov_energy = *current_energy * doppler_factor;
-  comov_nu = *current_nu * doppler_factor;
-  line_lists_j_blues[j_blue_idx] += comov_energy / *current_nu;
+  npy_float64 comov_energy, comov_nu, r_interaction, mu_interaction, doppler_factor;
+  r_interaction = sqrt(packet->r * packet->r + d_line * d_line + 
+		       2.0 * packet->r * d_line * packet->mu);
+  mu_interaction = (packet->mu * packet->r + d_line) / r_interaction;
+  doppler_factor = 1.0 - mu_interaction * r_interaction * 
+    storage->inverse_time_explosion * INVERSE_C;
+  comov_energy = packet->energy * doppler_factor;
+  comov_nu = packet->nu * doppler_factor;
+  storage->line_lists_j_blues[j_blue_idx] += comov_energy / packet->nu;
 }
 
 void init_storage_model(storage_model_t *storage, 
@@ -421,7 +423,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
 	  if (virtual_packet == 0)
 	    {
 	      j_blue_idx = packet->current_shell_id * storage->line_lists_j_blues_nd + packet->next_line_id;
-	      increment_j_blue_estimator(&(packet->next_line_id), &(packet->nu), &(packet->energy), &(packet->mu), &(packet->r), d_line, j_blue_idx, storage->inverse_time_explosion, storage->line_lists_j_blues);
+	      increment_j_blue_estimator(packet, storage, d_line, j_blue_idx);
 	    }
 	  tau_line = storage->line_lists_tau_sobolevs[packet->current_shell_id * storage->line_lists_tau_sobolevs_nd + packet->next_line_id];
 	  tau_electron = storage->sigma_thomson * storage->electron_densities[packet->current_shell_id] * d_line;
