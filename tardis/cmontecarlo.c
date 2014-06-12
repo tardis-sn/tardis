@@ -122,25 +122,27 @@ inline npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition,
     }
 }
 
-inline npy_float64 move_packet(npy_float64 *r, npy_float64 *mu, npy_float64 nu, npy_float64 energy, npy_float64 distance, npy_float64 *js, npy_float64 *nubars, npy_float64 inverse_t_exp, npy_int64 cur_zone_id, npy_int64 virtual_packet)
+npy_float64 move_packet(rpacket_t *packet, storage_model_t *storage, 
+			npy_float64 distance, npy_int64 virtual_packet)
 {
   npy_float64 new_r, doppler_factor, comov_energy, comov_nu;
-  doppler_factor = 1.0 - *mu * (*r) * inverse_t_exp * INVERSE_C;
+  doppler_factor = 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
   if (distance <= 0.0)
     {
       return doppler_factor;
     }
-  new_r = sqrt((*r) * (*r) + distance * distance + 2.0 * (*r) * distance * (*mu));
-  *mu = (*mu * (*r) + distance) / new_r;
-  *r = new_r;
+  new_r = sqrt(packet->r * packet->r + distance * distance + 
+	       2.0 * packet->r * distance * packet->mu);
+  packet->mu = (packet->mu * packet->r + distance) / new_r;
+  packet->r = new_r;
   if (virtual_packet > 0)
     {
       return doppler_factor;
     }
-  comov_energy = energy * doppler_factor;
-  comov_nu = nu * doppler_factor;
-  js[cur_zone_id] += comov_energy * distance;
-  nubars[cur_zone_id] += comov_energy * distance * comov_nu;
+  comov_energy = packet->energy * doppler_factor;
+  comov_nu = packet->nu * doppler_factor;
+  storage->js[packet->current_shell_id] += comov_energy * distance;
+  storage->nubars[packet->current_shell_id] += comov_energy * distance * comov_nu;
   return doppler_factor;
 }
 
@@ -335,7 +337,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
       // Propagating outwards.
       if ((d_outer <= d_inner) && (d_outer <= d_electron) && (d_outer < d_line))
 	{
-	  move_packet(&(packet->r), &(packet->mu), packet->nu, packet->energy, d_outer, storage->js, storage->nubars, storage->inverse_time_explosion, packet->current_shell_id, virtual_packet);
+	  move_packet(packet, storage, d_outer, virtual_packet);
 	  if (virtual_packet > 0)
 	    {
 	      tau_event += d_outer * storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
@@ -358,7 +360,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
       // Propagating inwards.
       else if ((d_inner <= d_electron) && (d_inner < d_line))
 	{
-	  move_packet(&(packet->r), &(packet->mu), packet->nu, packet->energy, d_inner, storage->js, storage->nubars, storage->inverse_time_explosion, packet->current_shell_id, virtual_packet);
+	  move_packet(packet, storage, d_inner, virtual_packet);
 	  if (virtual_packet > 0)
 	    {
 	      tau_event += d_inner * storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
@@ -398,7 +400,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
 	}
       else if (d_electron < d_line)
 	{
-	  doppler_factor = move_packet(&(packet->r), &(packet->mu), packet->nu, packet->energy, d_electron, storage->js, storage->nubars, storage->inverse_time_explosion, packet->current_shell_id, virtual_packet);
+	  doppler_factor = move_packet(packet, storage, d_electron, virtual_packet);
 	  comov_nu = packet->nu * doppler_factor;
 	  comov_energy = packet->energy * doppler_factor;
 	  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
@@ -437,7 +439,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
 	    {
 	      if (tau_event < tau_combined)
 		{
-		  old_doppler_factor = move_packet(&(packet->r), &(packet->mu), packet->nu, packet->energy, d_line, storage->js, storage->nubars, storage->inverse_time_explosion, packet->current_shell_id, virtual_packet);
+		  old_doppler_factor = move_packet(packet, storage, d_line, virtual_packet);
 		  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
 		  inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
 		  comov_nu = packet->nu * old_doppler_factor;
