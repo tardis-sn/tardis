@@ -167,7 +167,7 @@ npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu,
  */
 npy_float64 compute_distance2electron(npy_float64 r, npy_float64 mu, npy_float64 tau_event, npy_float64 inverse_ne);
 
-inline npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition, npy_int64 p_transition_nd, npy_int64 *type_transition, npy_int64 *target_level_id, npy_int64 *target_line_id, npy_int64 *unroll_reference, npy_int64 cur_zone_id);
+npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition, npy_int64 p_transition_nd, npy_int64 *type_transition, npy_int64 *target_level_id, npy_int64 *target_line_id, npy_int64 *unroll_reference, npy_int64 cur_zone_id);
 
 npy_float64 move_packet(rpacket_t *packet, storage_model_t *storage, 
 			npy_float64 distance, npy_int64 virtual_packet);
