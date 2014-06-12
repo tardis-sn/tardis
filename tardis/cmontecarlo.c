@@ -251,8 +251,9 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 	      fprintf(stderr, "Something has gone horribly wrong!\n");
 	      exit(1);	      
 	    }
-	  doppler_factor_ratio = rpacket_doppler_factor(packet, storage) /
-	    rpacket_doppler_factor(virt_packet, storage);
+	  doppler_factor_ratio = 
+	    rpacket_doppler_factor(packet, storage) /
+	    rpacket_doppler_factor(&virt_packet, storage);
 	  virt_packet.energy = packet->energy * doppler_factor_ratio;
 	  virt_packet.nu = packet->nu * doppler_factor_ratio;
 	  montecarlo_one_packet_loop(storage, &virt_packet, 1);
@@ -325,11 +326,11 @@ int64_t montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage
 	}
       else
 	{
-	  doppler_factor = 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
+	  doppler_factor = rpacket_doppler_factor(packet, storage);
 	  comov_nu = packet->nu * doppler_factor;
 	  comov_energy = packet->energy * doppler_factor;
 	  packet->mu = rk_double(&mt_state);
-	  inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+	  inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
 	  packet->nu = comov_nu * inverse_doppler_factor;
 	  packet->energy = comov_energy * inverse_doppler_factor;
 	  packet->recently_crossed_boundary = 1;
@@ -352,8 +353,7 @@ int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
   comov_nu = packet->nu * doppler_factor;
   comov_energy = packet->energy * doppler_factor;
   packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
-  inverse_doppler_factor = 1.0 / 
-    (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+  inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
   packet->nu = comov_nu * inverse_doppler_factor;
   packet->energy = comov_energy * inverse_doppler_factor;
   *tau_event = -log(rk_double(&mt_state));
@@ -402,7 +402,7 @@ int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
     {
       old_doppler_factor = move_packet(packet, storage, distance, virtual_packet);
       packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
-      inverse_doppler_factor = 1.0 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+      inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
       comov_energy = packet->energy * old_doppler_factor;
       packet->energy = comov_energy * inverse_doppler_factor;
       storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
