@@ -25,6 +25,8 @@ New Features
 - added a test that runs the full calculation and compares the spectrum output [wkerzendorf #144]
 - added the new documentation validator [mklauser & wkerzendorf #134, #136]
 - added a new configuration object for TARDIS [wkerzendorf #143]
+- changed TARDISConfiguration -> Configuration [wkerzendorf #154]
+- changed most small functions to C [V. Jancauskas #142]
 
 0.9.1 (2014-02-03)
 ------------------
