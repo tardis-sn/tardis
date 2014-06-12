@@ -336,6 +336,29 @@ npy_int64 montecarlo_propagade_inwards(rpacket_t *packet, storage_model_t *stora
   return 0;
 }
 
+npy_int64 montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
+				     npy_float64 distance, npy_float64 *tau_event,
+				     npy_int64 *reabsorbed, npy_int64 virtual_packet)
+{
+  npy_float64 comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
+  doppler_factor = move_packet(packet, storage, distance, virtual_packet);
+  comov_nu = packet->nu * doppler_factor;
+  comov_energy = packet->energy * doppler_factor;
+  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
+  inverse_doppler_factor = 1.0 / 
+    (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
+  packet->nu = comov_nu * inverse_doppler_factor;
+  packet->energy = comov_energy * inverse_doppler_factor;
+  *tau_event = -log(rk_double(&mt_state));
+  packet->recently_crossed_boundary = 0;
+  storage->last_interaction_type[storage->current_packet_id] = 1;
+  if (packet->virtual_packet_flag > 0)
+    {
+      montecarlo_one_packet(storage, packet, 1);
+    }  
+  return 0;
+}
+
 npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_packet)
 {
   npy_float64 nu_electron = 0.0;
@@ -426,21 +449,13 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
 	      break;
 	    }
 	}
+      // Thomson scatter event.
       else if (d_electron < d_line)
 	{
-	  doppler_factor = move_packet(packet, storage, d_electron, virtual_packet);
-	  comov_nu = packet->nu * doppler_factor;
-	  comov_energy = packet->energy * doppler_factor;
-	  packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
-	  inverse_doppler_factor = 1 / (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C);
-	  packet->nu = comov_nu * inverse_doppler_factor;
-	  packet->energy = comov_energy * inverse_doppler_factor;
-	  tau_event = -log(rk_double(&mt_state));
-	  packet->recently_crossed_boundary = 0;
-	  storage->last_interaction_type[storage->current_packet_id] = 1;
-	  if (packet->virtual_packet_flag > 0)
+	  if (montecarlo_thomson_scatter(packet, storage, d_electron, &tau_event, 
+					 &reabsorbed, virtual_packet))
 	    {
-	      montecarlo_one_packet(storage, packet, 1);
+	      break;
 	    }
 	}
       // Line scatter event.
