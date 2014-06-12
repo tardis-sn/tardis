@@ -261,9 +261,10 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy
     }
 }
 
-npy_int64 montecarlo_propagade_outwards(rpacket_t *packet, storage_model_t *storage,
+npy_int64 montecarlo_propagate_outwards(rpacket_t *packet, storage_model_t *storage,
 					npy_float64 distance, npy_float64 *tau_event,
-					npy_int64 *reabsorbed, npy_int64 virtual_packet)
+					npy_int64 *reabsorbed, npy_float64 *nu_line,
+					npy_int64 virtual_packet)
 {
   move_packet(packet, storage, distance, virtual_packet);
   if (virtual_packet > 0)
@@ -288,9 +289,10 @@ npy_int64 montecarlo_propagade_outwards(rpacket_t *packet, storage_model_t *stor
   return 0;
 }
 
-npy_int64 montecarlo_propagade_inwards(rpacket_t *packet, storage_model_t *storage,
+npy_int64 montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage,
 				       npy_float64 distance, npy_float64 *tau_event,
-				       npy_int64 *reabsorbed, npy_int64 virtual_packet)
+				       npy_int64 *reabsorbed, npy_float64 *nu_line,
+				       npy_int64 virtual_packet)
 {
   npy_float64 comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
   move_packet(packet, storage, distance, virtual_packet);
@@ -336,7 +338,8 @@ npy_int64 montecarlo_propagade_inwards(rpacket_t *packet, storage_model_t *stora
 
 npy_int64 montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
 				     npy_float64 distance, npy_float64 *tau_event,
-				     npy_int64 *reabsorbed, npy_int64 virtual_packet)
+				     npy_int64 *reabsorbed, npy_float64 *nu_line,
+				     npy_int64 virtual_packet)
 {
   npy_float64 comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
   doppler_factor = move_packet(packet, storage, distance, virtual_packet);
@@ -449,6 +452,32 @@ npy_int64 montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
   return 0;
 }
 
+montecarlo_event_handler_t get_event_handler(npy_float64 d_inner, npy_float64 d_outer,
+					     npy_float64 d_electron, npy_float64 d_line,
+					     npy_float64 *distance)
+{
+  if ((d_outer <= d_inner) && (d_outer <= d_electron) && (d_outer < d_line))
+    {
+      *distance = d_outer;
+      return &montecarlo_propagate_outwards;
+    }
+  else if ((d_inner <= d_electron) && (d_inner < d_line))
+    {
+      *distance = d_inner;
+      return &montecarlo_propagate_inwards;
+    }
+  else if (d_electron < d_line)
+    {
+      *distance = d_electron;
+      return &montecarlo_thomson_scatter;
+    }
+  else
+    {
+      *distance = d_line;
+      return &montecarlo_line_scatter;
+    }  
+}
+
 npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_packet)
 {
   npy_float64 tau_event = 0.0;
@@ -507,41 +536,13 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
 	      d_electron = compute_distance2electron(packet->r, packet->mu, tau_event, storage->inverse_electron_densities[packet->current_shell_id] * storage->inverse_sigma_thomson);
 	    }
 	}
-      // Propagating outwards.
-      if ((d_outer <= d_inner) && (d_outer <= d_electron) && (d_outer < d_line))
+      montecarlo_event_handler_t event_handler;
+      npy_float64 distance;
+      event_handler = get_event_handler(d_inner, d_outer, d_electron, d_line, &distance);
+      if (event_handler(packet, storage, distance, 
+			&tau_event, &reabsorbed, &nu_line, virtual_packet))
 	{
-	  if (montecarlo_propagade_outwards(packet, storage, d_outer, &tau_event, 
-					    &reabsorbed, virtual_packet))
-	    {
-	      break;
-	    }
-	}
-      // Propagating inwards.
-      else if ((d_inner <= d_electron) && (d_inner < d_line))
-	{
-	  if (montecarlo_propagade_inwards(packet, storage, d_inner, &tau_event, 
-					   &reabsorbed, virtual_packet))
-	    {
-	      break;
-	    }
-	}
-      // Thomson scatter event.
-      else if (d_electron < d_line)
-	{
-	  if (montecarlo_thomson_scatter(packet, storage, d_electron, &tau_event, 
-					 &reabsorbed, virtual_packet))
-	    {
-	      break;
-	    }
-	}
-      // Line scatter event.
-      else
-	{
-	  if (montecarlo_line_scatter(packet, storage, d_line, &tau_event, 
-				      &reabsorbed, &nu_line, virtual_packet))
-	    {
-	      break;
-	    }
+	  break;
 	}
       if (virtual_packet > 0)
 	{

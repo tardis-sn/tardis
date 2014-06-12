@@ -101,6 +101,11 @@ typedef struct StorageModel
   npy_int64 current_packet_id;
 } storage_model_t;
 
+typedef npy_int64 (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t *storage,
+						npy_float64 distance, npy_float64 *tau_event,
+						npy_int64 *reabsorbed, npy_float64 *nu_line,
+						npy_int64 virtual_packet);
+
 /** Look for a place to insert a value in an inversely sorted float array.
  *
  * @param x an inversely (largest to lowest) sorted float array
