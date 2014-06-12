@@ -4,3 +4,4 @@ pandas>=0.12
 h5py>=2.0
 matplotlib>=1.1
 astropy>=0.3.2
+PyYaml>=0.3
