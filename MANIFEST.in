@@ -13,7 +13,7 @@ exclude tardis/_compiler.c
 
 recursive-include tardis *.pyx *.c *.h
 recursive-include tardis/randomkit *.c *.h
-recursive-include tardis/tardis.cfg
+include tardis/tardis.cfg
 
 recursive-include docs *
 recursive-include licenses *
