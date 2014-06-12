@@ -49,6 +49,11 @@ int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
   return imin;
 }
 
+static inline double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage)
+{
+  return 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
+}
+
 double compute_distance2outer(double r, double mu, double r_outer)
 {
   return sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
@@ -126,7 +131,7 @@ double move_packet(rpacket_t *packet, storage_model_t *storage,
 			double distance, int64_t virtual_packet)
 {
   double new_r, doppler_factor, comov_energy, comov_nu;
-  doppler_factor = 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
+  doppler_factor = rpacket_doppler_factor(packet, storage);
   if (distance <= 0.0)
     {
       return doppler_factor;
@@ -246,7 +251,8 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 	      fprintf(stderr, "Something has gone horribly wrong!\n");
 	      exit(1);	      
 	    }
-	  doppler_factor_ratio = (1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C) / (1.0 - virt_packet.mu * virt_packet.r * storage->inverse_time_explosion * INVERSE_C);
+	  doppler_factor_ratio = rpacket_doppler_factor(packet, storage) /
+	    rpacket_doppler_factor(virt_packet, storage);
 	  virt_packet.energy = packet->energy * doppler_factor_ratio;
 	  virt_packet.nu = packet->nu * doppler_factor_ratio;
 	  montecarlo_one_packet_loop(storage, &virt_packet, 1);
@@ -290,9 +296,9 @@ int64_t montecarlo_propagate_outwards(rpacket_t *packet, storage_model_t *storag
 }
 
 int64_t montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage,
-				       double distance, double *tau_event,
-				       int64_t *reabsorbed, double *nu_line,
-				       int64_t virtual_packet)
+				     double distance, double *tau_event,
+				     int64_t *reabsorbed, double *nu_line,
+				     int64_t virtual_packet)
 {
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
   move_packet(packet, storage, distance, virtual_packet);
@@ -337,9 +343,9 @@ int64_t montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage
 }
 
 int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
-				     double distance, double *tau_event,
-				     int64_t *reabsorbed, double *nu_line,
-				     int64_t virtual_packet)
+				   double distance, double *tau_event,
+				   int64_t *reabsorbed, double *nu_line,
+				   int64_t virtual_packet)
 {
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
   doppler_factor = move_packet(packet, storage, distance, virtual_packet);
@@ -361,9 +367,9 @@ int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
 }
 
 int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
-				  double distance, double *tau_event,
-				  int64_t *reabsorbed, double *nu_line,
-				  int64_t virtual_packet)
+				double distance, double *tau_event,
+				int64_t *reabsorbed, double *nu_line,
+				int64_t virtual_packet)
 {
   double comov_energy = 0.0;
   int64_t emission_line_id = 0;
