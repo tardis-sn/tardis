@@ -95,7 +95,7 @@ npy_float64 compute_distance2electron(npy_float64 r, npy_float64 mu, npy_float64
   return tau_event * inverse_ne;
 }
 
-inline npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition, npy_int64 p_transition_nd, npy_int64 *type_transition, npy_int64 *target_level_id, npy_int64 *target_line_id, npy_int64 *unroll_reference, npy_int64 cur_zone_id)
+npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition, npy_int64 p_transition_nd, npy_int64 *type_transition, npy_int64 *target_level_id, npy_int64 *target_line_id, npy_int64 *unroll_reference, npy_int64 cur_zone_id)
 {
   npy_int64 emit, i = 0;
   npy_float64 p, event_random = 0.0;
@@ -146,7 +146,7 @@ npy_float64 move_packet(rpacket_t *packet, storage_model_t *storage,
   return doppler_factor;
 }
 
-inline void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage,
+void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage,
 				       npy_float64 d_line, npy_int64 j_blue_idx)
 {
   npy_float64 comov_energy, comov_nu, r_interaction, mu_interaction, doppler_factor;
@@ -263,6 +263,33 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy
     }
 }
 
+npy_int64 montecarlo_propagade_outwards(rpacket_t *packet, storage_model_t *storage,
+					npy_float64 distance, npy_float64 *tau_event,
+					npy_int64 *reabsorbed, npy_int64 virtual_packet)
+{
+  move_packet(packet, storage, distance, virtual_packet);
+  if (virtual_packet > 0)
+    {
+      *tau_event += distance * storage->electron_densities[packet->current_shell_id] * 
+	storage->sigma_thomson;
+    }
+  else
+    {
+      *tau_event = -log(rk_double(&mt_state));
+    }
+  if (packet->current_shell_id < storage->no_of_shells - 1)
+    {
+      packet->current_shell_id += 1;
+      packet->recently_crossed_boundary = 1;
+    }
+  else
+    {
+      *reabsorbed = 0;
+      return 1;
+    }
+  return 0;
+}
+
 npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_packet)
 {
   npy_float64 nu_electron = 0.0;
@@ -338,23 +365,8 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
       // Propagating outwards.
       if ((d_outer <= d_inner) && (d_outer <= d_electron) && (d_outer < d_line))
 	{
-	  move_packet(packet, storage, d_outer, virtual_packet);
-	  if (virtual_packet > 0)
+	  if (montecarlo_propagade_outwards(packet, storage, d_outer, &tau_event, &reabsorbed, virtual_packet))
 	    {
-	      tau_event += d_outer * storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
-	    }
-	  else
-	    {
-	      tau_event = -log(rk_double(&mt_state));
-	    }
-	  if (packet->current_shell_id < storage->no_of_shells - 1)
-	    {
-	      packet->current_shell_id += 1;
-	      packet->recently_crossed_boundary = 1;
-	    }
-	  else
-	    {
-	      reabsorbed = 0;
 	      break;
 	    }
 	}
