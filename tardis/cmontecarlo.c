@@ -1,8 +1,8 @@
 #include "cmontecarlo.h"
 
-npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_of_lines)
+int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines)
 {
-  npy_int64 imin, imax;
+  int64_t imin, imax;
   imin = 0;
   imax = number_of_lines - 1;
   if (nu_insert > nu[imin])
@@ -19,12 +19,12 @@ npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_o
     }
 }
 
-npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax)
+int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
 {
   if (x_insert > x[imin] || x_insert < x[imax])
     {
-      PyErr_SetString(PyExc_ValueError, "Binary Search called but not inside domain. Abort!");
-      return -1;
+      fprintf(stderr, "Binary Search called but not inside domain. Abort!");
+      exit(1);
     }
   int imid;
   while (imax - imin > 2)
@@ -49,14 +49,14 @@ npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, np
   return imin;
 }
 
-npy_float64 compute_distance2outer(npy_float64 r, npy_float64 mu, npy_float64 r_outer)
+double compute_distance2outer(double r, double mu, double r_outer)
 {
   return sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
 }
 
-npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_float64 r_inner)
+double compute_distance2inner(double r, double mu, double r_inner)
 {
-  npy_float64 check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
+  double check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
   if (check < 0.0) 
     {
       return MISS_DISTANCE;
@@ -67,9 +67,9 @@ npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_float64 r_
     }
 }
 
-npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu, npy_float64 nu_line, npy_float64 t_exp, npy_float64 inverse_t_exp, npy_float64 last_line, npy_float64 next_line, npy_int64 cur_zone_id)
+double compute_distance2line(double r, double mu, double nu, double nu_line, double t_exp, double inverse_t_exp, double last_line, double next_line, int64_t cur_zone_id)
 {
-  npy_float64 comov_nu, doppler_factor;
+  double comov_nu, doppler_factor;
   doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
   comov_nu = nu * doppler_factor;
   if (comov_nu < nu_line)
@@ -90,15 +90,15 @@ npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu,
   return ((comov_nu - nu_line) / nu) * C * t_exp;
 }
 
-npy_float64 compute_distance2electron(npy_float64 r, npy_float64 mu, npy_float64 tau_event, npy_float64 inverse_ne)
+double compute_distance2electron(double r, double mu, double tau_event, double inverse_ne)
 {
   return tau_event * inverse_ne;
 }
 
-npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition, npy_int64 p_transition_nd, npy_int64 *type_transition, npy_int64 *target_level_id, npy_int64 *target_line_id, npy_int64 *unroll_reference, npy_int64 cur_zone_id)
+int64_t macro_atom(int64_t activate_level, double *p_transition, int64_t p_transition_nd, int64_t *type_transition, int64_t *target_level_id, int64_t *target_line_id, int64_t *unroll_reference, int64_t cur_zone_id)
 {
-  npy_int64 emit, i = 0;
-  npy_float64 p, event_random = 0.0;
+  int64_t emit, i = 0;
+  double p, event_random = 0.0;
   while (1)
     {
       event_random = rk_double(&mt_state);
@@ -122,10 +122,10 @@ npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition, npy_in
     }
 }
 
-npy_float64 move_packet(rpacket_t *packet, storage_model_t *storage, 
-			npy_float64 distance, npy_int64 virtual_packet)
+double move_packet(rpacket_t *packet, storage_model_t *storage, 
+			double distance, int64_t virtual_packet)
 {
-  npy_float64 new_r, doppler_factor, comov_energy, comov_nu;
+  double new_r, doppler_factor, comov_energy, comov_nu;
   doppler_factor = 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
   if (distance <= 0.0)
     {
@@ -147,9 +147,9 @@ npy_float64 move_packet(rpacket_t *packet, storage_model_t *storage,
 }
 
 void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage,
-				       npy_float64 d_line, npy_int64 j_blue_idx)
+				double d_line, int64_t j_blue_idx)
 {
-  npy_float64 comov_energy, r_interaction, mu_interaction, doppler_factor;
+  double comov_energy, r_interaction, mu_interaction, doppler_factor;
   r_interaction = sqrt(packet->r * packet->r + d_line * d_line + 
 		       2.0 * packet->r * d_line * packet->mu);
   mu_interaction = (packet->mu * packet->r + d_line) / r_interaction;
@@ -160,25 +160,25 @@ void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage,
 }
 
 void init_storage_model(storage_model_t *storage, 
-			npy_float64 *packet_nus,
-			npy_float64 *packet_mus,
-			npy_float64 *packet_energies,
-			npy_float64 *r_inner,
-			npy_float64 *line_list_nu,
-			npy_float64 *output_nus,
-			npy_float64 *output_energies,
-			npy_float64 time_explosion,
-			npy_float64 spectrum_start_nu,
-			npy_float64 spectrum_end_nu,
-			npy_float64 spectrum_delta_nu,
-			npy_float64 *spectrum_virt_nu,
-			npy_float64 sigma_thomson,
-			npy_float64 *electron_densities,
-			npy_float64 *inverse_electron_densities,
-			npy_float64 *js,
-			npy_float64 *nubars,
-			npy_int64 no_of_lines,
-			npy_int64 no_of_packets)
+			double *packet_nus,
+			double *packet_mus,
+			double *packet_energies,
+			double *r_inner,
+			double *line_list_nu,
+			double *output_nus,
+			double *output_energies,
+			double time_explosion,
+			double spectrum_start_nu,
+			double spectrum_end_nu,
+			double spectrum_delta_nu,
+			double *spectrum_virt_nu,
+			double sigma_thomson,
+			double *electron_densities,
+			double *inverse_electron_densities,
+			double *js,
+			double *nubars,
+			int64_t no_of_lines,
+			int64_t no_of_packets)
 {
   storage->packet_nus = packet_nus;
   storage->packet_mus = packet_mus;
@@ -203,15 +203,15 @@ void init_storage_model(storage_model_t *storage,
   storage->current_packet_id = -1;
 }
 
-npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_mode)
+int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64_t virtual_mode)
 {
-  npy_int64 i;
+  int64_t i;
   rpacket_t virt_packet;
-  npy_float64 mu_bin;
-  npy_float64 mu_min;
-  npy_float64 doppler_factor_ratio;
-  npy_float64 weight; 
-  npy_int64 virt_id_nu;
+  double mu_bin;
+  double mu_min;
+  double doppler_factor_ratio;
+  double weight; 
+  int64_t virt_id_nu;
   if (virtual_mode == 0)
     {
       montecarlo_one_packet_loop(storage, packet, 0);
@@ -261,10 +261,10 @@ npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, npy
     }
 }
 
-npy_int64 montecarlo_propagate_outwards(rpacket_t *packet, storage_model_t *storage,
-					npy_float64 distance, npy_float64 *tau_event,
-					npy_int64 *reabsorbed, npy_float64 *nu_line,
-					npy_int64 virtual_packet)
+int64_t montecarlo_propagate_outwards(rpacket_t *packet, storage_model_t *storage,
+					double distance, double *tau_event,
+					int64_t *reabsorbed, double *nu_line,
+					int64_t virtual_packet)
 {
   move_packet(packet, storage, distance, virtual_packet);
   if (virtual_packet > 0)
@@ -289,12 +289,12 @@ npy_int64 montecarlo_propagate_outwards(rpacket_t *packet, storage_model_t *stor
   return 0;
 }
 
-npy_int64 montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage,
-				       npy_float64 distance, npy_float64 *tau_event,
-				       npy_int64 *reabsorbed, npy_float64 *nu_line,
-				       npy_int64 virtual_packet)
+int64_t montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage,
+				       double distance, double *tau_event,
+				       int64_t *reabsorbed, double *nu_line,
+				       int64_t virtual_packet)
 {
-  npy_float64 comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
+  double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
   move_packet(packet, storage, distance, virtual_packet);
   if (virtual_packet > 0)
     {
@@ -336,12 +336,12 @@ npy_int64 montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *stora
   return 0;
 }
 
-npy_int64 montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
-				     npy_float64 distance, npy_float64 *tau_event,
-				     npy_int64 *reabsorbed, npy_float64 *nu_line,
-				     npy_int64 virtual_packet)
+int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
+				     double distance, double *tau_event,
+				     int64_t *reabsorbed, double *nu_line,
+				     int64_t virtual_packet)
 {
-  npy_float64 comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
+  double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
   doppler_factor = move_packet(packet, storage, distance, virtual_packet);
   comov_nu = packet->nu * doppler_factor;
   comov_energy = packet->energy * doppler_factor;
@@ -360,21 +360,21 @@ npy_int64 montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage
   return 0;
 }
 
-npy_int64 montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
-				  npy_float64 distance, npy_float64 *tau_event,
-				  npy_int64 *reabsorbed, npy_float64 *nu_line,
-				  npy_int64 virtual_packet)
+int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
+				  double distance, double *tau_event,
+				  int64_t *reabsorbed, double *nu_line,
+				  int64_t virtual_packet)
 {
-  npy_float64 comov_energy = 0.0;
-  npy_int64 emission_line_id = 0;
-  npy_int64 activate_level_id = 0;
-  npy_float64 old_doppler_factor = 0.0;
-  npy_float64 inverse_doppler_factor = 0.0;
-  npy_float64 tau_line = 0.0;
-  npy_float64 tau_electron = 0.0;
-  npy_float64 tau_combined = 0.0;
-  npy_int64 virtual_close_line = 0;
-  npy_int64 j_blue_idx = -1;
+  double comov_energy = 0.0;
+  int64_t emission_line_id = 0;
+  int64_t activate_level_id = 0;
+  double old_doppler_factor = 0.0;
+  double inverse_doppler_factor = 0.0;
+  double tau_line = 0.0;
+  double tau_electron = 0.0;
+  double tau_combined = 0.0;
+  int64_t virtual_close_line = 0;
+  int64_t j_blue_idx = -1;
   if (virtual_packet == 0)
     {
       j_blue_idx = packet->current_shell_id * storage->line_lists_j_blues_nd + packet->next_line_id;
@@ -446,9 +446,9 @@ npy_int64 montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
   return 0;
 }
 
-montecarlo_event_handler_t get_event_handler(npy_float64 d_inner, npy_float64 d_outer,
-					     npy_float64 d_electron, npy_float64 d_line,
-					     npy_float64 *distance)
+montecarlo_event_handler_t get_event_handler(double d_inner, double d_outer,
+					     double d_electron, double d_line,
+					     double *distance)
 {
   if ((d_outer <= d_inner) && (d_outer <= d_electron) && (d_outer < d_line))
     {
@@ -473,10 +473,10 @@ montecarlo_event_handler_t get_event_handler(npy_float64 d_inner, npy_float64 d_
 }
 
 void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
-				  npy_float64 *d_inner, npy_float64 *d_outer,
-				  npy_float64 *d_electron, npy_float64 *d_line,
-				  npy_float64 tau_event, npy_float64 nu_line,
-				  npy_int64 virtual_packet)
+				  double *d_inner, double *d_outer,
+				  double *d_electron, double *d_line,
+				  double tau_event, double nu_line,
+				  int64_t virtual_packet)
 {
   // Check if the last line was the same nu as the current line.
   if (packet->close_line == 1)
@@ -516,15 +516,15 @@ void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
     }
 }
 
-npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, npy_int64 virtual_packet)
+int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, int64_t virtual_packet)
 {
-  npy_float64 tau_event = 0.0;
-  npy_float64 d_inner = 0.0;
-  npy_float64 d_outer = 0.0;
-  npy_float64 d_line = 0.0;
-  npy_float64 d_electron = 0.0;
-  npy_int64 reabsorbed = 0;
-  npy_float64 nu_line = 0.0;
+  double tau_event = 0.0;
+  double d_inner = 0.0;
+  double d_outer = 0.0;
+  double d_line = 0.0;
+  double d_electron = 0.0;
+  int64_t reabsorbed = 0;
+  double nu_line = 0.0;
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
@@ -540,7 +540,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
 	}
       montecarlo_compute_distances(packet, storage, &d_inner, &d_outer, &d_electron, &d_line, tau_event, nu_line, virtual_packet);
       montecarlo_event_handler_t event_handler;
-      npy_float64 distance;
+      double distance;
       event_handler = get_event_handler(d_inner, d_outer, d_electron, d_line, &distance);
       if (event_handler(packet, storage, distance, 
 			&tau_event, &reabsorbed, &nu_line, virtual_packet))
@@ -561,7 +561,7 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
   return reabsorbed;
 }
 
-void rpacket_init(rpacket_t *packet, storage_model_t *storage, npy_float64 nu, npy_float64 mu, npy_float64 energy, npy_int64 virtual_packet_flag)
+void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double mu, double energy, int64_t virtual_packet_flag)
 {
   packet->nu = nu;
   packet->mu = mu;
