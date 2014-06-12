@@ -1,10 +1,10 @@
-
 #ifndef TARDIS_CMONTECARLO_H
 #define TARDIS_CMONTECARLO_H
 
+#include <stdio.h>
 #include <stdbool.h>
-#include <Python.h>
-#include <numpy/arrayobject.h>
+#include <stdint.h>
+#include <math.h>
 #include "randomkit.h"
 
 #define MISS_DISTANCE 1e99
@@ -24,87 +24,87 @@ typedef enum
  */
 typedef struct RPacket
 {
-  npy_float64 nu; /**< Frequency of the packet in Hz. */
-  npy_float64 mu; /**< Cosine of the angle of the packet. */
-  npy_float64 energy; /**< Energy of the packet in erg. */
-  npy_float64 r; /**< Distance from center in cm. */
-  npy_int64 current_shell_id; /**< ID of the current shell. */
-  npy_int64 next_line_id; /**< The index of the next line that the packet will encounter. */
+  double nu; /**< Frequency of the packet in Hz. */
+  double mu; /**< Cosine of the angle of the packet. */
+  double energy; /**< Energy of the packet in erg. */
+  double r; /**< Distance from center in cm. */
+  int64_t current_shell_id; /**< ID of the current shell. */
+  int64_t next_line_id; /**< The index of the next line that the packet will encounter. */
   /**
    * @brief The packet has a nu red-ward of the last line.
    * It will not encounter any lines anymore.
    */
-  npy_int64 last_line; 
+  int64_t last_line; 
   /** 
    * @brief The packet just encountered a line that is very close to the next line.
    * The next iteration will automatically make an interaction with the next line 
    * (avoiding numerical problems).
    */
-  npy_int64 close_line;
+  int64_t close_line;
   /** 
    * @brief The packet has recently crossed the boundary and is now sitting on the boundary. 
    * To avoid numerical errors, make sure that d_inner is not calculated.
    */
-  npy_int64 recently_crossed_boundary;
+  int64_t recently_crossed_boundary;
   /**
    * @brief packet is a virtual packet and will ignore any d_line or d_electron checks.
    * It now whenever a d_line is calculated only adds the tau_line to an 
    * internal float.
    */
-  npy_int64 virtual_packet_flag;
+  int64_t virtual_packet_flag;
 } rpacket_t;
 
 typedef struct StorageModel
 {
-  npy_float64 *packet_nus;
-  npy_float64 *packet_mus;
-  npy_float64 *packet_energies;
-  npy_float64 *output_nus;
-  npy_float64 *output_energies;
-  npy_int64 *last_line_interaction_in_id;
-  npy_int64 *last_line_interaction_out_id;
-  npy_int64 *last_line_interaction_shell_id;
-  npy_int64 *last_interaction_type;
-  npy_int64 no_of_packets;
-  npy_int64 no_of_shells;
-  npy_float64 *r_inner;
-  npy_float64 *r_outer;
-  npy_float64 *v_inner;
-  npy_float64 time_explosion;
-  npy_float64 inverse_time_explosion;
-  npy_float64 *electron_densities;
-  npy_float64 *inverse_electron_densities;
-  npy_float64 *line_list_nu;
-  npy_float64 *line_lists_tau_sobolevs;
-  npy_int64 line_lists_tau_sobolevs_nd;
-  npy_float64 *line_lists_j_blues;
-  npy_int64 line_lists_j_blues_nd;
-  npy_int64 no_of_lines;
-  npy_int64 line_interaction_id;
-  npy_float64 *transition_probabilities;
-  npy_int64 transition_probabilities_nd;
-  npy_int64 *line2macro_level_upper;
-  npy_int64 *macro_block_references;
-  npy_int64 *transition_type;
-  npy_int64 *destination_level_id;
-  npy_int64 *transition_line_id;
-  npy_float64 *js;
-  npy_float64 *nubars;
-  npy_float64 spectrum_start_nu;
-  npy_float64 spectrum_delta_nu;
-  npy_float64 spectrum_end_nu;
-  npy_float64 *spectrum_virt_nu;
-  npy_float64 sigma_thomson;
-  npy_float64 inverse_sigma_thomson;
-  npy_float64 inner_boundary_albedo;
-  npy_int64 reflective_inner_boundary;
-  npy_int64 current_packet_id;
+  double *packet_nus;
+  double *packet_mus;
+  double *packet_energies;
+  double *output_nus;
+  double *output_energies;
+  int64_t *last_line_interaction_in_id;
+  int64_t *last_line_interaction_out_id;
+  int64_t *last_line_interaction_shell_id;
+  int64_t *last_interaction_type;
+  int64_t no_of_packets;
+  int64_t no_of_shells;
+  double *r_inner;
+  double *r_outer;
+  double *v_inner;
+  double time_explosion;
+  double inverse_time_explosion;
+  double *electron_densities;
+  double *inverse_electron_densities;
+  double *line_list_nu;
+  double *line_lists_tau_sobolevs;
+  int64_t line_lists_tau_sobolevs_nd;
+  double *line_lists_j_blues;
+  int64_t line_lists_j_blues_nd;
+  int64_t no_of_lines;
+  int64_t line_interaction_id;
+  double *transition_probabilities;
+  int64_t transition_probabilities_nd;
+  int64_t *line2macro_level_upper;
+  int64_t *macro_block_references;
+  int64_t *transition_type;
+  int64_t *destination_level_id;
+  int64_t *transition_line_id;
+  double *js;
+  double *nubars;
+  double spectrum_start_nu;
+  double spectrum_delta_nu;
+  double spectrum_end_nu;
+  double *spectrum_virt_nu;
+  double sigma_thomson;
+  double inverse_sigma_thomson;
+  double inner_boundary_albedo;
+  int64_t reflective_inner_boundary;
+  int64_t current_packet_id;
 } storage_model_t;
 
-typedef npy_int64 (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t *storage,
-						npy_float64 distance, npy_float64 *tau_event,
-						npy_int64 *reabsorbed, npy_float64 *nu_line,
-						npy_int64 virtual_packet);
+typedef int64_t (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t *storage,
+					      double distance, double *tau_event,
+					      int64_t *reabsorbed, double *nu_line,
+					      int64_t virtual_packet);
 
 /** Look for a place to insert a value in an inversely sorted float array.
  *
@@ -115,7 +115,7 @@ typedef npy_int64 (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model
  *
  * @return index of the next boundary to the left
  */
-npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, npy_int64 imax);
+int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax);
 
 /** Insert a value in to an array of line frequencies
  *
@@ -125,7 +125,7 @@ npy_int64 binary_search(npy_float64 *x, npy_float64 x_insert, npy_int64 imin, np
  *
  * @return index of the next line ot the red. If the key value is redder than the reddest line returns number_of_lines.
  */
-npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_of_lines);
+int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines);
 
 /** Calculate the distance to the outer boundary.
  *
@@ -135,7 +135,7 @@ npy_int64 line_search(npy_float64 *nu, npy_float64 nu_insert, npy_int64 number_o
  *
  * @return distance to the outer boundary
  */
-npy_float64 compute_distance2outer(npy_float64 r, npy_float64 mu, npy_float64 r_outer);
+double compute_distance2outer(double r, double mu, double r_outer);
 
 /** Calculate the distance to the inner boundary.
  *
@@ -145,7 +145,7 @@ npy_float64 compute_distance2outer(npy_float64 r, npy_float64 mu, npy_float64 r_
  *
  * @return distance to the inner boundary
  */
-npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_float64 r_inner);
+double compute_distance2inner(double r, double mu, double r_inner);
 
 /** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
  *
@@ -160,7 +160,7 @@ npy_float64 compute_distance2inner(npy_float64 r, npy_float64 mu, npy_float64 r_
  *
  * @return distance to the next spectral line
  */
-npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu, npy_float64 nu_line, npy_float64 t_exp, npy_float64 inverse_t_exp, npy_float64 last_line, npy_float64 next_line, npy_int64 cur_zone_id);
+double compute_distance2line(double r, double mu, double nu, double nu_line, double t_exp, double inverse_t_exp, double last_line, double next_line, int64_t cur_zone_id);
 
 /** Calculate the distance to the Thomson scatter event.
  * @param r distance from the center to the packet
@@ -170,21 +170,21 @@ npy_float64 compute_distance2line(npy_float64 r, npy_float64 mu, npy_float64 nu,
  *
  * @return distance to the Thomson scatter event in centimeters
  */
-npy_float64 compute_distance2electron(npy_float64 r, npy_float64 mu, npy_float64 tau_event, npy_float64 inverse_ne);
+double compute_distance2electron(double r, double mu, double tau_event, double inverse_ne);
 
-npy_int64 macro_atom(npy_int64 activate_level, npy_float64 *p_transition, npy_int64 p_transition_nd, npy_int64 *type_transition, npy_int64 *target_level_id, npy_int64 *target_line_id, npy_int64 *unroll_reference, npy_int64 cur_zone_id);
+int64_t macro_atom(int64_t activate_level, double *p_transition, int64_t p_transition_nd, int64_t *type_transition, int64_t *target_level_id, int64_t *target_line_id, int64_t *unroll_reference, int64_t cur_zone_id);
 
-npy_float64 move_packet(rpacket_t *packet, storage_model_t *storage, 
-			npy_float64 distance, npy_int64 virtual_packet);
+double move_packet(rpacket_t *packet, storage_model_t *storage, 
+		   double distance, int64_t virtual_packet);
 
 void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage, 
-				npy_float64 d_line, npy_int64 j_blue_idx);
+				double d_line, int64_t j_blue_idx);
 
-npy_int64 montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, 
-				npy_int64 virtual_mode);
+int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, 
+			      int64_t virtual_mode);
 
-npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
-				     npy_int64 virtual_packet);
+int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
+				   int64_t virtual_packet);
 
 /**
  * @brief Initialize RPacket data structure.
@@ -197,6 +197,6 @@ npy_int64 montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet
  * @param r distance to the packet from the center in cm
  * @param virtual_packet is the packet virtual
  */
-void rpacket_init(rpacket_t *packet, storage_model_t *storage, npy_float64 nu, npy_float64 mu, npy_float64 energy, npy_int64 virtual_packet);
+void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double mu, double energy, int64_t virtual_packet);
 
 #endif // TARDIS_CMONTECARLO_H
