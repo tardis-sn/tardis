@@ -100,10 +100,11 @@ double compute_distance2electron(double r, double mu, double tau_event, double i
   return tau_event * inverse_ne;
 }
 
-int64_t macro_atom(rpacket_t *packet, storage_model_t *storage, int64_t activate_level)
+int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
 {
-  int64_t emit, i;
+  int emit, i = 0;
   double p, event_random;
+  int activate_level = storage->line2macro_level_upper[packet->next_line_id - 1];
   while (emit != -1)
     {
       event_random = rk_double(&mt_state);
@@ -365,7 +366,6 @@ int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
 {
   double comov_energy = 0.0;
   int64_t emission_line_id = 0;
-  int64_t activate_level_id = 0;
   double old_doppler_factor = 0.0;
   double inverse_doppler_factor = 0.0;
   double tau_line = 0.0;
@@ -406,8 +406,7 @@ int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
 	}
       else if (storage->line_interaction_id >= 1)
 	{
-	  activate_level_id = storage->line2macro_level_upper[packet->next_line_id - 1];
-	  emission_line_id = macro_atom(packet, storage, activate_level_id);
+	  emission_line_id = macro_atom(packet, storage);
 	}
       storage->last_line_interaction_out_id[storage->current_packet_id] = emission_line_id;
       packet->nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;

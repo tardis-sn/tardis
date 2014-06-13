@@ -79,7 +79,6 @@ cdef extern double compute_distance2outer(double r, double mu, double r_outer)
 cdef extern double compute_distance2inner(double r, double mu, double r_inner)
 cdef extern double compute_distance2line(double r, double mu, double nu, double nu_line, double t_exp, double inverse_t_exp, double last_line, double next_line, int_type_t cur_zone_id) except? 0
 cdef extern double compute_distance2electron(double r, double mu, double tau_event, double inverse_ne)
-cdef extern int_type_t macro_atom(int_type_t activate_level, double *p_transition, int_type_t p_transition_nd, int_type_t *type_transition, int_type_t *target_level_id, int_type_t *target_line_id, int_type_t *unroll_reference, int_type_t cur_zone_id)
 cdef extern double move_packet(double *r, double *mu, double nu, double energy, double distance, double *js, double *nubars, double inverse_t_exp, int_type_t cur_zone_id, int_type_t virtual_packet)
 cdef extern void increment_j_blue_estimator(int_type_t *current_line_id, double *current_nu, double *current_energy, double *mu, double *r, double d_line, int_type_t j_blue_idx, double inverse_time_explosion, double *line_lists_j_blues)
 cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)

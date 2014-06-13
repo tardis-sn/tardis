@@ -174,7 +174,7 @@ double compute_distance2line(double r, double mu, double nu, double nu_line, dou
  */
 double compute_distance2electron(double r, double mu, double tau_event, double inverse_ne);
 
-int64_t macro_atom(rpacket_t *packet, storage_model_t *storage, int64_t activate_level);
+int64_t macro_atom(rpacket_t *packet, storage_model_t *storage);
 
 double move_packet(rpacket_t *packet, storage_model_t *storage, 
 		   double distance, int64_t virtual_packet);
