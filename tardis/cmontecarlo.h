@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <string.h>
+#include <stdlib.h>
 #include <math.h>
 #include "randomkit.h"
 
@@ -172,7 +174,7 @@ double compute_distance2line(double r, double mu, double nu, double nu_line, dou
  */
 double compute_distance2electron(double r, double mu, double tau_event, double inverse_ne);
 
-int64_t macro_atom(int64_t activate_level, double *p_transition, int64_t p_transition_nd, int64_t *type_transition, int64_t *target_level_id, int64_t *target_line_id, int64_t *unroll_reference, int64_t cur_zone_id);
+int64_t macro_atom(rpacket_t *packet, storage_model_t *storage, int64_t activate_level);
 
 double move_packet(rpacket_t *packet, storage_model_t *storage, 
 		   double distance, int64_t virtual_packet);
