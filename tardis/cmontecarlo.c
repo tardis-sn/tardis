@@ -26,10 +26,9 @@ int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
       fprintf(stderr, "Binary Search called but not inside domain. Abort!");
       exit(1);
     }
-  int imid;
+  int imid = (imin + imax) / 2;
   while (imax - imin > 2)
     {
-      imid = (imin + imax) / 2;
       if (x[imid] < x_insert)
 	{
 	  imax = imid + 1;
@@ -38,6 +37,7 @@ int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
 	{
 	  imin = imid;
 	}
+      imid = (imin + imax) / 2;
     }
   if (imax - imid == 2)
     {
@@ -100,35 +100,27 @@ double compute_distance2electron(double r, double mu, double tau_event, double i
   return tau_event * inverse_ne;
 }
 
-int64_t macro_atom(int64_t activate_level, double *p_transition, int64_t p_transition_nd, int64_t *type_transition, int64_t *target_level_id, int64_t *target_line_id, int64_t *unroll_reference, int64_t cur_zone_id)
+int64_t macro_atom(rpacket_t *packet, storage_model_t *storage, int64_t activate_level)
 {
-  int64_t emit, i = 0;
-  double p, event_random = 0.0;
-  while (1)
+  int64_t emit, i;
+  double p, event_random;
+  while (emit != -1)
     {
       event_random = rk_double(&mt_state);
-      i = unroll_reference[activate_level];
+      i = storage->macro_block_references[activate_level] - 1;
       p = 0.0;
-      while (1)
+      do
 	{
-	  p = p + p_transition[cur_zone_id * p_transition_nd + i];
-	  if (p > event_random)
-	    {
-	      emit = type_transition[i];
-	      activate_level = target_level_id[i];
-	      break;
-	    }
-	  i += 1;
-	}
-      if (emit == -1)
-	{
-	  return target_line_id[i];
-	}
+	  p += storage->transition_probabilities[packet->current_shell_id * storage->transition_probabilities_nd + (++i)];
+	} while (p <= event_random);
+      emit = storage->transition_type[i];
+      activate_level = storage->destination_level_id[i];
     }
+  return storage->transition_line_id[i];
 }
 
 double move_packet(rpacket_t *packet, storage_model_t *storage, 
-			double distance, int64_t virtual_packet)
+		   double distance, int64_t virtual_packet)
 {
   double new_r, doppler_factor, comov_energy, comov_nu;
   doppler_factor = rpacket_doppler_factor(packet, storage);
@@ -269,9 +261,9 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 }
 
 int64_t montecarlo_propagate_outwards(rpacket_t *packet, storage_model_t *storage,
-					double distance, double *tau_event,
-					int64_t *reabsorbed, double *nu_line,
-					int64_t virtual_packet)
+				      double distance, double *tau_event,
+				      int64_t *reabsorbed, double *nu_line,
+				      int64_t virtual_packet)
 {
   move_packet(packet, storage, distance, virtual_packet);
   if (virtual_packet > 0)
@@ -415,7 +407,7 @@ int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
       else if (storage->line_interaction_id >= 1)
 	{
 	  activate_level_id = storage->line2macro_level_upper[packet->next_line_id - 1];
-	  emission_line_id = macro_atom(activate_level_id, storage->transition_probabilities, storage->transition_probabilities_nd, storage->transition_type, storage->destination_level_id, storage->transition_line_id, storage->macro_block_references, packet->current_shell_id);
+	  emission_line_id = macro_atom(packet, storage, activate_level_id);
 	}
       storage->last_line_interaction_out_id[storage->current_packet_id] = emission_line_id;
       packet->nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;
