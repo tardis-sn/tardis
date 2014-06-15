@@ -147,7 +147,7 @@ inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage
  *
  * @return distance to the inner boundary
  */
-double compute_distance2inner(double r, double mu, double r_inner);
+inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage);
 
 /** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
  *
