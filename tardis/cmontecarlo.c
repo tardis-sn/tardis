@@ -49,7 +49,7 @@ int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
   return imin;
 }
 
-double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage)
+inline double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage)
 {
   return 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
 }
@@ -62,10 +62,13 @@ inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage
   return sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
 }
 
-double compute_distance2inner(double r, double mu, double r_inner)
+inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage)
 {
+  double r = packet->r;
+  double mu = packet->mu;
+  double r_inner = storage->r_inner[packet->current_shell_id];
   double check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
-  if (check < 0.0) 
+  if (check < 0.0 || packet->recently_crossed_boundary == 1) 
     {
       return MISS_DISTANCE;
     }
@@ -488,14 +491,7 @@ void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
     }
   else
     {
-      if (packet->recently_crossed_boundary == 1)
-	{
-	  *d_inner = MISS_DISTANCE;
-	}
-      else
-	{
-	  *d_inner = compute_distance2inner(packet->r, packet->mu, storage->r_inner[packet->current_shell_id]);
-	}
+      *d_inner = compute_distance2inner(packet, storage);
       *d_outer = compute_distance2outer(packet, storage);
       if (packet->last_line == 1)
 	{
