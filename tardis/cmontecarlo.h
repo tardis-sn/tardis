@@ -137,7 +137,7 @@ int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines);
  *
  * @return distance to the outer boundary
  */
-double compute_distance2outer(double r, double mu, double r_outer);
+inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage);
 
 /** Calculate the distance to the inner boundary.
  *
