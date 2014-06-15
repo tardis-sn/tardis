@@ -49,13 +49,16 @@ int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
   return imin;
 }
 
-static inline double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage)
+double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage)
 {
   return 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
 }
 
-double compute_distance2outer(double r, double mu, double r_outer)
+inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage)
 {
+  double r = packet->r;
+  double mu = packet->mu;
+  double r_outer = storage->r_outer[packet->current_shell_id];
   return sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
 }
 
@@ -493,7 +496,7 @@ void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
 	{
 	  *d_inner = compute_distance2inner(packet->r, packet->mu, storage->r_inner[packet->current_shell_id]);
 	}
-      *d_outer = compute_distance2outer(packet->r, packet->mu, storage->r_outer[packet->current_shell_id]);
+      *d_outer = compute_distance2outer(packet, storage);
       if (packet->last_line == 1)
 	{
 	  *d_line = MISS_DISTANCE;
