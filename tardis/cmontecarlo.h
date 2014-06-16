@@ -57,6 +57,10 @@ typedef struct RPacket
    */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
+  double d_inner;
+  double d_outer;
+  double d_line;
+  double d_electron;
 } rpacket_t;
 
 typedef struct StorageModel
@@ -118,7 +122,7 @@ typedef int64_t (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t
  *
  * @return index of the next boundary to the left
  */
-int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax);
+inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax);
 
 /** Insert a value in to an array of line frequencies
  *
@@ -128,7 +132,7 @@ int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax);
  *
  * @return index of the next line ot the red. If the key value is redder than the reddest line returns number_of_lines.
  */
-int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines);
+inline int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines);
 
 /** Calculate the distance to the outer boundary.
  *
