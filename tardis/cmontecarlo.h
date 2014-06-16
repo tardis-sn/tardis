@@ -164,7 +164,7 @@ inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage
  *
  * @return distance to the next spectral line
  */
-double compute_distance2line(double r, double mu, double nu, double nu_line, double t_exp, double inverse_t_exp, double last_line, double next_line, int64_t cur_zone_id);
+double compute_distance2line(rpacket_t *packet, storage_model_t *storage);
 
 /** Calculate the distance to the Thomson scatter event.
  * @param r distance from the center to the packet
