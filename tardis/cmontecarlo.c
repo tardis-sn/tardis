@@ -491,26 +491,26 @@ inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_m
   d_outer = packet->d_outer;
   d_electron = packet->d_electron;
   d_line = packet->d_line;
-  if ((d_outer <= d_inner) && (d_outer <= d_electron) && (d_outer < d_line))
+  if ((d_line <= d_outer) && (d_line <= d_inner) && (d_line <= d_electron))
+    {
+      *distance = d_line;
+      return &montecarlo_line_scatter;
+    }
+  else if ((d_outer <= d_inner) && (d_outer <= d_electron))
     {
       *distance = d_outer;
       return &montecarlo_propagate_outwards;
     }
-  else if ((d_inner <= d_electron) && (d_inner < d_line))
+  else if ((d_inner <= d_electron))
     {
       *distance = d_inner;
       return &montecarlo_propagate_inwards;
     }
-  else if (d_electron < d_line)
+  else
     {
       *distance = d_electron;
       return &montecarlo_thomson_scatter;
     }
-  else
-    {
-      *distance = d_line;
-      return &montecarlo_line_scatter;
-    }  
 }
 
 int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, int64_t virtual_packet)
