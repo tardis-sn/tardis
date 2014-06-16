@@ -82,8 +82,21 @@ inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage
     }
 }
 
-double compute_distance2line(double r, double mu, double nu, double nu_line, double t_exp, double inverse_t_exp, double last_line, double next_line, int64_t cur_zone_id)
+double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
 {
+  if (packet->last_line == 1)
+    {
+      return MISS_DISTANCE;
+    }
+  double r = packet->r;
+  double mu = packet->mu;
+  double nu = packet->nu;
+  double nu_line = packet->nu_line;
+  double t_exp = storage->time_explosion;
+  double inverse_t_exp = storage->inverse_time_explosion;
+  double last_line = storage->line_list_nu[packet->next_line_id - 1];
+  double next_line = storage->line_list_nu[packet->next_line_id + 1];
+  int64_t cur_zone_id = packet->current_shell_id;
   double comov_nu, doppler_factor;
   doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
   comov_nu = nu * doppler_factor;
@@ -497,14 +510,7 @@ void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
     {
       *d_inner = compute_distance2inner(packet, storage);
       *d_outer = compute_distance2outer(packet, storage);
-      if (packet->last_line == 1)
-	{
-	  *d_line = MISS_DISTANCE;
-	}
-      else
-	{
-	  *d_line = compute_distance2line(packet->r, packet->mu, packet->nu, nu_line, storage->time_explosion, storage->inverse_time_explosion, storage->line_list_nu[packet->next_line_id - 1], storage->line_list_nu[packet->next_line_id + 1], packet->current_shell_id);
-	}
+      *d_line = compute_distance2line(packet, storage);
       if (virtual_packet > 0)
 	{
 	  *d_electron = MISS_DISTANCE;
