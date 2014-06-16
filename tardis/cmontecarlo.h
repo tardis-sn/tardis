@@ -107,9 +107,7 @@ typedef struct StorageModel
 } storage_model_t;
 
 typedef int64_t (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t *storage,
-					      double distance, double *tau_event,
-					      int64_t *reabsorbed, double *nu_line,
-					      int64_t virtual_packet);
+					      double distance, int64_t *reabsorbed);
 
 /** Look for a place to insert a value in an inversely sorted float array.
  *
