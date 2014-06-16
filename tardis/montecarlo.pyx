@@ -20,6 +20,8 @@ ctypedef struct rpacket_t:
     double mu
     double energy
     double r
+    double tau_event
+    double nu_line
     int_type_t current_shell_id
     int_type_t next_line_id
     int_type_t last_line

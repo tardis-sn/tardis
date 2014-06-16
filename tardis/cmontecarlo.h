@@ -30,6 +30,8 @@ typedef struct RPacket
   double mu; /**< Cosine of the angle of the packet. */
   double energy; /**< Energy of the packet in erg. */
   double r; /**< Distance from center in cm. */
+  double tau_event;
+  double nu_line;
   int64_t current_shell_id; /**< ID of the current shell. */
   int64_t next_line_id; /**< The index of the next line that the packet will encounter. */
   /**
