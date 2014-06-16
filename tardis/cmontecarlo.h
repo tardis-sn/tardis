@@ -56,6 +56,7 @@ typedef struct RPacket
    * internal float.
    */
   int64_t virtual_packet_flag;
+  int64_t virtual_packet;
 } rpacket_t;
 
 typedef struct StorageModel
@@ -164,7 +165,7 @@ inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage
  *
  * @return distance to the next spectral line
  */
-double compute_distance2line(rpacket_t *packet, storage_model_t *storage);
+inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage);
 
 /** Calculate the distance to the Thomson scatter event.
  * @param r distance from the center to the packet
@@ -174,15 +175,15 @@ double compute_distance2line(rpacket_t *packet, storage_model_t *storage);
  *
  * @return distance to the Thomson scatter event in centimeters
  */
-double compute_distance2electron(double r, double mu, double tau_event, double inverse_ne);
+inline double compute_distance2electron(rpacket_t *packet, storage_model_t *storage);
 
-int64_t macro_atom(rpacket_t *packet, storage_model_t *storage);
+inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage);
 
-double move_packet(rpacket_t *packet, storage_model_t *storage, 
-		   double distance, int64_t virtual_packet);
+inline double move_packet(rpacket_t *packet, storage_model_t *storage, 
+			  double distance, int64_t virtual_packet);
 
-void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage, 
-				double d_line, int64_t j_blue_idx);
+inline void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage, 
+				       double d_line, int64_t j_blue_idx);
 
 int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, 
 			      int64_t virtual_mode);

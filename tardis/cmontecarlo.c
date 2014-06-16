@@ -82,7 +82,7 @@ inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage
     }
 }
 
-double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
+inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
 {
   if (packet->last_line == 1)
     {
@@ -118,12 +118,18 @@ double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
   return ((comov_nu - nu_line) / nu) * C * t_exp;
 }
 
-double compute_distance2electron(double r, double mu, double tau_event, double inverse_ne)
+inline double compute_distance2electron(rpacket_t *packet, storage_model_t *storage)
 {
-  return tau_event * inverse_ne;
+  if (packet->virtual_packet > 0)
+    {
+      return MISS_DISTANCE;
+    }
+  double inverse_ne = storage->inverse_electron_densities[packet->current_shell_id] * 
+    storage->inverse_sigma_thomson;
+  return packet->tau_event * inverse_ne;
 }
 
-int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
+inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
 {
   int emit, i = 0;
   double p, event_random;
@@ -143,8 +149,8 @@ int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
   return storage->transition_line_id[i];
 }
 
-double move_packet(rpacket_t *packet, storage_model_t *storage, 
-		   double distance, int64_t virtual_packet)
+inline double move_packet(rpacket_t *packet, storage_model_t *storage, 
+			  double distance, int64_t virtual_packet)
 {
   double new_r, doppler_factor, comov_energy, comov_nu;
   doppler_factor = rpacket_doppler_factor(packet, storage);
@@ -167,8 +173,8 @@ double move_packet(rpacket_t *packet, storage_model_t *storage,
   return doppler_factor;
 }
 
-void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage,
-				double d_line, int64_t j_blue_idx)
+inline void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage,
+				       double d_line, int64_t j_blue_idx)
 {
   double comov_energy, r_interaction, mu_interaction, doppler_factor;
   r_interaction = sqrt(packet->r * packet->r + d_line * d_line + 
@@ -511,14 +517,7 @@ void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
       *d_inner = compute_distance2inner(packet, storage);
       *d_outer = compute_distance2outer(packet, storage);
       *d_line = compute_distance2line(packet, storage);
-      if (virtual_packet > 0)
-	{
-	  *d_electron = MISS_DISTANCE;
-	}
-      else
-	{
-	  *d_electron = compute_distance2electron(packet->r, packet->mu, tau_event, storage->inverse_electron_densities[packet->current_shell_id] * storage->inverse_sigma_thomson);
-	}
+      *d_electron = compute_distance2electron(packet, storage);
     }
 }
 
@@ -531,6 +530,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
   int64_t reabsorbed = 0;
   packet->tau_event = 0.0;
   packet->nu_line = 0.0;
+  packet->virtual_packet = virtual_packet;
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
