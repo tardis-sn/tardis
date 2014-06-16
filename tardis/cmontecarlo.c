@@ -514,17 +514,17 @@ void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
 
 int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, int64_t virtual_packet)
 {
-  double tau_event = 0.0;
   double d_inner = 0.0;
   double d_outer = 0.0;
   double d_line = 0.0;
   double d_electron = 0.0;
   int64_t reabsorbed = 0;
-  double nu_line = 0.0;
+  packet->tau_event = 0.0;
+  packet->nu_line = 0.0;
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
-      tau_event = -log(rk_double(&mt_state));
+      packet->tau_event = -log(rk_double(&mt_state));
     }
   // For a virtual packet tau_event is the sum of all the tau's that the packet passes.
   while (1)
@@ -532,27 +532,27 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
       // Check if we are at the end of line list.
       if (packet->last_line == 0)
 	{
-	  nu_line = storage->line_list_nu[packet->next_line_id];
+	  packet->nu_line = storage->line_list_nu[packet->next_line_id];
 	}
-      montecarlo_compute_distances(packet, storage, &d_inner, &d_outer, &d_electron, &d_line, tau_event, nu_line, virtual_packet);
+      montecarlo_compute_distances(packet, storage, &d_inner, &d_outer, &d_electron, &d_line, packet->tau_event, packet->nu_line, virtual_packet);
       montecarlo_event_handler_t event_handler;
       double distance;
       event_handler = get_event_handler(d_inner, d_outer, d_electron, d_line, &distance);
       if (event_handler(packet, storage, distance, 
-			&tau_event, &reabsorbed, &nu_line, virtual_packet))
+			&(packet->tau_event), &reabsorbed, &(packet->nu_line), virtual_packet))
 	{
 	  break;
 	}
-      if (virtual_packet > 0 && tau_event > 10.0)
+      if (virtual_packet > 0 && packet->tau_event > 10.0)
 	{
-	  tau_event = 100.0;
+	  packet->tau_event = 100.0;
 	  reabsorbed = 0;
 	  break;
 	}
     } 
   if (virtual_packet > 0)
     {
-      packet->energy = packet->energy * exp(-1.0 * tau_event);
+      packet->energy = packet->energy * exp(-1.0 * packet->tau_event);
     }
   return reabsorbed;
 }
