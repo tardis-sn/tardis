@@ -1,6 +1,6 @@
 #include "cmontecarlo.h"
 
-int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines)
+inline int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines)
 {
   int64_t imin, imax;
   imin = 0;
@@ -19,7 +19,7 @@ int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines)
     }
 }
 
-int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
+inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
 {
   if (x_insert > x[imin] || x_insert < x[imax])
     {
@@ -464,10 +464,33 @@ int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
   return 0;
 }
 
-montecarlo_event_handler_t get_event_handler(double d_inner, double d_outer,
-					     double d_electron, double d_line,
-					     double *distance)
+inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage)
 {
+  // Check if the last line was the same nu as the current line.
+  if (packet->close_line == 1)
+    {
+      // If so set the distance to the line to 0.0
+      packet->d_line = 0.0;
+      // Reset close_line.
+      packet->close_line = 0;
+    }
+  else
+    {
+      packet->d_inner = compute_distance2inner(packet, storage);
+      packet->d_outer = compute_distance2outer(packet, storage);
+      packet->d_line = compute_distance2line(packet, storage);
+      packet->d_electron = compute_distance2electron(packet, storage);
+    }
+}
+
+inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_model_t *storage, double *distance)
+{
+  double d_inner, d_outer, d_electron, d_line;
+  montecarlo_compute_distances(packet, storage);
+  d_inner = packet->d_inner;
+  d_outer = packet->d_outer;
+  d_electron = packet->d_electron;
+  d_line = packet->d_line;
   if ((d_outer <= d_inner) && (d_outer <= d_electron) && (d_outer < d_line))
     {
       *distance = d_outer;
@@ -490,33 +513,8 @@ montecarlo_event_handler_t get_event_handler(double d_inner, double d_outer,
     }  
 }
 
-inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage,
-					 double *d_inner, double *d_outer,
-					 double *d_electron, double *d_line)
-{
-  // Check if the last line was the same nu as the current line.
-  if (packet->close_line == 1)
-    {
-      // If so set the distance to the line to 0.0
-      *d_line = 0.0;
-      // Reset close_line.
-      packet->close_line = 0;
-    }
-  else
-    {
-      *d_inner = compute_distance2inner(packet, storage);
-      *d_outer = compute_distance2outer(packet, storage);
-      *d_line = compute_distance2line(packet, storage);
-      *d_electron = compute_distance2electron(packet, storage);
-    }
-}
-
 int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, int64_t virtual_packet)
 {
-  double d_inner = 0.0;
-  double d_outer = 0.0;
-  double d_line = 0.0;
-  double d_electron = 0.0;
   int64_t reabsorbed = 0;
   packet->tau_event = 0.0;
   packet->nu_line = 0.0;
@@ -534,10 +532,9 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
 	{
 	  packet->nu_line = storage->line_list_nu[packet->next_line_id];
 	}
-      montecarlo_compute_distances(packet, storage, &d_inner, &d_outer, &d_electron, &d_line);
       montecarlo_event_handler_t event_handler;
       double distance;
-      event_handler = get_event_handler(d_inner, d_outer, d_electron, d_line, &distance);
+      event_handler = get_event_handler(packet, storage, &distance);
       if (event_handler(packet, storage, distance, &reabsorbed))
 	{
 	  break;
