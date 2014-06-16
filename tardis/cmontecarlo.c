@@ -64,11 +64,15 @@ inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage
 
 inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage)
 {
+  if (packet->recently_crossed_boundary == 1)
+    {
+      return MISS_DISTANCE;
+    }
   double r = packet->r;
   double mu = packet->mu;
   double r_inner = storage->r_inner[packet->current_shell_id];
   double check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
-  if (check < 0.0 || packet->recently_crossed_boundary == 1) 
+  if (check < 0.0) 
     {
       return MISS_DISTANCE;
     }
