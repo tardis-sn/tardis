@@ -28,6 +28,7 @@ ctypedef struct rpacket_t:
     int_type_t close_line
     int_type_t recently_crossed_boundary
     int_type_t virtual_packet_flag
+    int_type_t virtual_packet
 
 ctypedef struct storage_model_t:
     double *packet_nus
