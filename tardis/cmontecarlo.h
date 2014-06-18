@@ -61,6 +61,7 @@ typedef struct RPacket
   double d_outer;
   double d_line;
   double d_electron;
+  int64_t moved;
 } rpacket_t;
 
 typedef struct StorageModel
