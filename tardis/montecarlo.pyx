@@ -83,12 +83,12 @@ ctypedef struct storage_model_t:
 
 cdef extern int_type_t line_search(double *nu, double nu_insert, int_type_t number_of_lines) except -1
 cdef extern int_type_t binary_search(double *x, double x_insert, int_type_t imin, int_type_t imax) except -1
-cdef extern double compute_distance2outer(double r, double mu, double r_outer)
-cdef extern double compute_distance2inner(double r, double mu, double r_inner)
-cdef extern double compute_distance2line(double r, double mu, double nu, double nu_line, double t_exp, double inverse_t_exp, double last_line, double next_line, int_type_t cur_zone_id) except? 0
-cdef extern double compute_distance2electron(double r, double mu, double tau_event, double inverse_ne)
-cdef extern double move_packet(double *r, double *mu, double nu, double energy, double distance, double *js, double *nubars, double inverse_t_exp, int_type_t cur_zone_id, int_type_t virtual_packet)
-cdef extern void increment_j_blue_estimator(int_type_t *current_line_id, double *current_nu, double *current_energy, double *mu, double *r, double d_line, int_type_t j_blue_idx, double inverse_time_explosion, double *line_lists_j_blues)
+cdef extern double compute_distance2outer(rpacket_t *packet, storage_model_t *storage)
+cdef extern double compute_distance2inner(rpacket_t *packet, storage_model_t *storage)
+cdef extern double compute_distance2line(rpacket_t *packet, storage_model_t *storage) except? 0
+cdef extern double compute_distance2electron(rpacket_t *packet, storage_model_t *storage)
+cdef extern double move_packet(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
+cdef extern void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
 cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
 cdef extern void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double mu, double energy, int_type_t virtual_packet)
 
@@ -305,3 +305,45 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         storage.output_nus[i] = packet.nu
         storage.output_energies[i] = -packet.energy if reabsorbed == 1 else packet.energy
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
+
+
+def binary_search_wrapper(np.ndarray x, double x_insert, int_type_t imin, int_type_t imax):
+    cdef double* x_pointer
+    x_pointer = <double*> x.data
+    return binary_search(x_pointer, x_insert, imin, imax)
+
+
+def line_search_wrapper(np.ndarray nu, double nu_insert, int_type_t number_of_lines):
+    cdef double* nu_pointer
+    nu_pointer = <double*> nu.data
+    return line_search(nu_pointer, nu_insert, number_of_lines)
+
+
+def compute_distance2outer_wrapper(double r, double mu, double r_outer):
+    cdef rpacket_t packet
+    cdef storage_model_t storage
+    packet.r = r
+    packet.mu = mu
+    packet.r_outer = r_outer
+    return compute_distance2outer(&packet, &storage)
+
+
+def compute_distance2inner_wrapper(double r, double mu, double r_inner):
+    cdef rpacket_t packet
+    cdef storage_model_t storage
+    packet.r = r
+    packet.mu = mu
+    packet.r_inner = r_inner
+    return compute_distance2inner(&packet, &storage)
+
+
+def compute_distance2line_wrapper(double r, double mu, double nu, double nu_line, double t_exp, double inverse_t_exp, double last_line, double next_line, int_type_t cur_zone_id):
+    cdef rpacket_t packet
+    cdef storage_model_t storage
+    return compute_distance2line(&packet, &storage)
+
+
+def compute_distance2electron_wrapper(double r, double mu, double tau_event, double inverse_ne):
+    cdef rpacket_t packet
+    cdef storage_model_t storage
+    return compute_distance2electron(&packet, &storage)
