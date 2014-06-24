@@ -1,6 +1,5 @@
 import numpy as np
-#from tardis import montecarlo
-from tardis.tests import montecarlo_test_wrappers as montecarlo
+from tardis import montecarlo
 import pytest
 
 
