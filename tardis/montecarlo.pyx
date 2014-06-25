@@ -317,34 +317,3 @@ def line_search_wrapper(np.ndarray nu, double nu_insert, int_type_t number_of_li
     cdef double* nu_pointer
     nu_pointer = <double*> nu.data
     return line_search(nu_pointer, nu_insert, number_of_lines)
-
-
-def compute_distance2outer_wrapper(double r, double mu, double r_outer):
-    cdef rpacket_t packet
-    cdef storage_model_t storage
-    packet.r = r
-    packet.mu = mu
-    storage.r_outer[1] = r_outer
-    packet.current_shell_id = 1
-    return compute_distance2outer(&packet, &storage)
-
-
-def compute_distance2inner_wrapper(double r, double mu, double r_inner):
-    cdef rpacket_t packet
-    cdef storage_model_t storage
-    packet.r = r
-    packet.mu = mu
-    packet.r_inner = r_inner
-    return compute_distance2inner(&packet, &storage)
-
-
-def compute_distance2line_wrapper(double r, double mu, double nu, double nu_line, double t_exp, double inverse_t_exp, double last_line, double next_line, int_type_t cur_zone_id):
-    cdef rpacket_t packet
-    cdef storage_model_t storage
-    return compute_distance2line(&packet, &storage)
-
-
-def compute_distance2electron_wrapper(double r, double mu, double tau_event, double inverse_ne):
-    cdef rpacket_t packet
-    cdef storage_model_t storage
-    return compute_distance2electron(&packet, &storage)
