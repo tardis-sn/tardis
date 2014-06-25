@@ -324,7 +324,8 @@ def compute_distance2outer_wrapper(double r, double mu, double r_outer):
     cdef storage_model_t storage
     packet.r = r
     packet.mu = mu
-    packet.r_outer = r_outer
+    storage.r_outer[1] = r_outer
+    packet.current_shell_id = 1
     return compute_distance2outer(&packet, &storage)
 
 
