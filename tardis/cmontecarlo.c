@@ -89,6 +89,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
   double r_outer = storage->r_outer[packet->current_shell_id];
   double r_inner = storage->r_inner[packet->current_shell_id];
   double d_outer = sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
+  double d_inner;
   if (packet->recently_crossed_boundary == 1)
     {
       return d_outer;
@@ -102,9 +103,10 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
 	}
       else
 	{
-	  return mu < 0.0 ? -r * mu - sqrt(check) : MISS_DISTANCE;
+	  d_inner =  mu < 0.0 ? -r * mu - sqrt(check) : MISS_DISTANCE;
 	}
     }
+  return d_inner < d_outer ? d_inner : d_outer;
 }
 
 inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
