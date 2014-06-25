@@ -34,6 +34,8 @@ ctypedef struct rpacket_t:
     double d_line
     double d_electron
     int_type_t moved
+    double d_boundary
+    int_type_t next_shell_id
 
 ctypedef struct storage_model_t:
     double *packet_nus
