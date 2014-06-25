@@ -147,9 +147,8 @@ inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage
 
 /** Calculate the distance to the inner boundary.
  *
- * @param r distance from the center to the packet
- * @param mu cosine of the angle the packet is moving at
- * @param r_inner distance from the center to the inner boundary
+ * @param packet rpacket structure with packet information
+ * @param storage storage model data
  *
  * @return distance to the inner boundary
  */
@@ -157,24 +156,17 @@ inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage
 
 /** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
  *
- * @param r distance from the center to the packet
- * @param mu angle at which the packet is moving
- * @param nu frequency of the packet
- * @param nu_line frequency of the next line the packet will encounter
- * @param t_exp time since the explosion
- * @param last_line 
- * @param next_line
- * @param cur_zone_id id of the current shell
+ * @param packet rpacket structure with packet information
+ * @param storage storage model data
  *
  * @return distance to the next spectral line
  */
 inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage);
 
 /** Calculate the distance to the Thomson scatter event.
- * @param r distance from the center to the packet
- * @param mu cosine of the angle the packet is moving at
- * @param tau_event
- * @param inverse_ne
+ *
+ * @param packet rpacket structure with packet information
+ * @param storage storage model data
  *
  * @return distance to the Thomson scatter event in centimeters
  */
