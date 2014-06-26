@@ -47,7 +47,8 @@ typedef struct RPacket
   int64_t close_line;
   /** 
    * @brief The packet has recently crossed the boundary and is now sitting on the boundary. 
-   * To avoid numerical errors, make sure that d_inner is not calculated.
+   * To avoid numerical errors, make sure that d_inner is not calculated. The value is -1
+   * if the packed moved inwards, 1 if the packet moved outwards and 0 otherwise.
    */
   int64_t recently_crossed_boundary;
   /**
