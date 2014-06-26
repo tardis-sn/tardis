@@ -156,6 +156,15 @@ inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage
  */
 inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage);
 
+/** Calculate the distance to shell boundary.
+ *
+ * @param packet rpacket structure with packet information
+ * @param storage storage model data
+ *
+ * @return distance to shell boundary
+ */
+inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *storage);
+
 /** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
  *
  * @param packet rpacket structure with packet information
