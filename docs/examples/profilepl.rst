@@ -8,7 +8,7 @@ flexible) class of model is when the density is parameterised as an
 power law function of velocity, as described below.
 
 
-Exponential density profile
+Power-law density profile
 =========================
 
 In this mode, the density profile (function of velocity and time since
@@ -16,7 +16,7 @@ explosion) is assumed to follow a functional form:
 
 .. math::
 
-    \rho (v, t_{exp}) = \rho_0 (t_{0} / t_{exp})^{3} ( -v / v_{0})^{\rm exponent}
+    \rho (v, t_{exp}) = \rho_0 (t_{0} / t_{exp})^{3} ( v / v_{0})^{\rm exponent}
 
 This form is defined by reference density, velocity and time parameters, and the
 "exponent", each of which is set in the input file ("structure"
