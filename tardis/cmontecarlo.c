@@ -201,6 +201,7 @@ inline double move_packet(rpacket_t *packet, storage_model_t *storage,
 	       2.0 * packet->r * distance * packet->mu);
   packet->mu = (packet->mu * packet->r + distance) / new_r;
   packet->r = new_r;
+  compute_distance2boundary(packet, storage);
   if (virtual_packet > 0)
     {
       return doppler_factor;
