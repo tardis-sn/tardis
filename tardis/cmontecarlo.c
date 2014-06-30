@@ -92,6 +92,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
   double d_inner;
   if (packet->recently_crossed_boundary == 1)
     {
+      packet->next_shell_id += 1;
       return d_outer;
     }
   else
@@ -99,6 +100,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
       double check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
       if (check < 0.0) 
 	{
+	  packet->next_shell_id += 1;
 	  return d_outer;
 	}
       else
@@ -106,7 +108,16 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
 	  d_inner =  mu < 0.0 ? -r * mu - sqrt(check) : MISS_DISTANCE;
 	}
     }
-  return d_inner < d_outer ? d_inner : d_outer;
+  if (d_inner < d_outer)
+    {
+      packet->next_shell_id -= 1;
+      return d_inner;
+    }
+  else
+    {
+      packet->next_shell_id += 1;
+      return d_outer;
+    }
 }
 
 inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
