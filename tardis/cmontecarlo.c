@@ -302,19 +302,34 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
     }
 }
 
-int64_t montecarlo_propagate_outwards(rpacket_t *packet, storage_model_t *storage,
-				      double distance, int64_t *reabsorbed)
-{
-  *reabsorbed = 0;
-  return 1;
-}
-
-int64_t montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage,
-				     double distance, int64_t *reabsorbed)
+int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *storage, 
+					  double distance, int64_t *reabsorbed)
 {
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
-  if ((storage->reflective_inner_boundary == 0) || 
-      (rk_double(&mt_state) > storage->inner_boundary_albedo))
+  move_packet(packet, storage, distance, packet->virtual_packet);
+  if (packet->virtual_packet > 0)
+    {
+      packet->tau_event += distance * 
+	storage->electron_densities[packet->current_shell_id] * 
+	storage->sigma_thomson;
+    }
+  else
+    {
+      packet->tau_event = -log(rk_double(&mt_state));
+    }
+  if ((packet->current_shell_id < storage->no_of_shells - 1 && packet->next_shell_id == 1) || 
+      (packet->current_shell_id > 0 && packet->next_shell_id == -1))
+    {
+      packet->current_shell_id += packet->next_shell_id;
+      packet->recently_crossed_boundary = packet->next_shell_id;
+    }
+  else if (packet->next_shell_id == 1)
+    {
+      *reabsorbed = 0;
+      return 1;
+    }
+  else if ((storage->reflective_inner_boundary == 0) || 
+	   (rk_double(&mt_state) > storage->inner_boundary_albedo))
     {
       *reabsorbed = 1;
       return 1;
@@ -334,42 +349,7 @@ int64_t montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage
 	  montecarlo_one_packet(storage, packet, -2);
 	}
     }
-}
-
-int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *storage, 
-					  double distance, int64_t *reabsorbed)
-{
-  move_packet(packet, storage, distance, packet->virtual_packet);
-  if (packet->virtual_packet > 0)
-    {
-      packet->tau_event += distance * 
-	storage->electron_densities[packet->current_shell_id] * 
-	storage->sigma_thomson;
-    }
-  else
-    {
-      packet->tau_event = -log(rk_double(&mt_state));
-    }
-  if (packet->current_shell_id < storage->no_of_shells - 1 && packet->next_shell_id == 1)
-    {
-      packet->current_shell_id += 1;
-      packet->recently_crossed_boundary = 1;
-      return 0;
-    }
-  if (packet->current_shell_id > 0 && packet->next_shell_id == -1)
-    {
-      packet->current_shell_id -= 1;
-      packet->recently_crossed_boundary = -1;
-      return 0;
-    }
-  if (packet->next_shell_id == -1)
-    {
-      return montecarlo_propagate_inwards(packet, storage, distance, reabsorbed);
-    }
-  if (packet->next_shell_id == 1)
-    {
-      return montecarlo_propagate_outwards(packet, storage, distance, reabsorbed);
-    }
+  return 0;
 }
 
 int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
