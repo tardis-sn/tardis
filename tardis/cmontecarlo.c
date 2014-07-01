@@ -162,7 +162,6 @@ inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
 inline double move_packet(rpacket_t *packet, storage_model_t *storage, 
 			  double distance, int64_t virtual_packet)
 {
-  packet->moved = 1;
   double new_r, doppler_factor, comov_energy, comov_nu;
   doppler_factor = rpacket_doppler_factor(packet, storage);
   if (distance <= 0.0)
@@ -173,7 +172,6 @@ inline double move_packet(rpacket_t *packet, storage_model_t *storage,
 	       2.0 * packet->r * distance * packet->mu);
   packet->mu = (packet->mu * packet->r + distance) / new_r;
   packet->r = new_r;
-  compute_distance2boundary(packet, storage);
   if (virtual_packet > 0)
     {
       return doppler_factor;
@@ -467,11 +465,7 @@ inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *sto
     }
   else
     {
-      if (packet->moved)
-	{
-	  packet->d_boundary = compute_distance2boundary(packet, storage);
-	  packet->moved = 0;
-	}
+      packet->d_boundary = compute_distance2boundary(packet, storage);
       packet->d_line = compute_distance2line(packet, storage);
       packet->d_electron = compute_distance2electron(packet, storage);
     }
@@ -484,7 +478,7 @@ inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_m
   d_boundary = packet->d_boundary;
   d_electron = packet->d_electron;
   d_line = packet->d_line;
-  if ((d_line <= d_boundary) && (d_line <= d_electron))
+  if (d_line <= d_boundary && d_line <= d_electron)
     {
       *distance = d_line;
       return &montecarlo_line_scatter;
@@ -507,7 +501,6 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
   packet->tau_event = 0.0;
   packet->nu_line = 0.0;
   packet->virtual_packet = virtual_packet;
-  packet->moved = 1;
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
