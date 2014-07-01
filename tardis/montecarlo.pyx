@@ -85,8 +85,7 @@ ctypedef struct storage_model_t:
 
 cdef extern int_type_t line_search(double *nu, double nu_insert, int_type_t number_of_lines) except -1
 cdef extern int_type_t binary_search(double *x, double x_insert, int_type_t imin, int_type_t imax) except -1
-cdef extern double compute_distance2outer(rpacket_t *packet, storage_model_t *storage)
-cdef extern double compute_distance2inner(rpacket_t *packet, storage_model_t *storage)
+cdef extern double compute_distance2boundary(rpacket_t *packet, storage_model_t *storage)
 cdef extern double compute_distance2line(rpacket_t *packet, storage_model_t *storage) except? 0
 cdef extern double compute_distance2electron(rpacket_t *packet, storage_model_t *storage)
 cdef extern double move_packet(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
