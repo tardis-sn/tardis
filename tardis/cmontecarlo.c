@@ -54,34 +54,6 @@ inline double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage
   return 1.0 - packet->mu * packet->r * storage->inverse_time_explosion * INVERSE_C;
 }
 
-inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage)
-{
-  double r = packet->r;
-  double mu = packet->mu;
-  double r_outer = storage->r_outer[packet->current_shell_id];
-  return sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
-}
-
-inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage)
-{
-  if (packet->recently_crossed_boundary == 1)
-    {
-      return MISS_DISTANCE;
-    }
-  double r = packet->r;
-  double mu = packet->mu;
-  double r_inner = storage->r_inner[packet->current_shell_id];
-  double check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
-  if (check < 0.0) 
-    {
-      return MISS_DISTANCE;
-    }
-  else
-    {
-      return mu < 0.0 ? -r * mu - sqrt(check) : MISS_DISTANCE;
-    }
-}
-
 inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *storage)
 {
   double r = packet->r;
