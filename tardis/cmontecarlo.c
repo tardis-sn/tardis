@@ -305,17 +305,8 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 int64_t montecarlo_propagate_outwards(rpacket_t *packet, storage_model_t *storage,
 				      double distance, int64_t *reabsorbed)
 {
-  if (packet->current_shell_id < storage->no_of_shells - 1)
-    {
-      packet->current_shell_id += 1;
-      packet->recently_crossed_boundary = 1;
-    }
-  else
-    {
-      *reabsorbed = 0;
-      return 1;
-    }
-  return 0;
+  *reabsorbed = 0;
+  return 1;
 }
 
 int64_t montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage,
@@ -367,6 +358,12 @@ int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *st
   else
     {
       packet->tau_event = -log(rk_double(&mt_state));
+    }
+  if (packet->current_shell_id < storage->no_of_shells - 1 && packet->next_shell_id == 1)
+    {
+      packet->current_shell_id += 1;
+      packet->recently_crossed_boundary = 1;
+      return 0;
     }
   if (packet->next_shell_id == -1)
     {
