@@ -138,25 +138,6 @@ inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t i
  */
 inline int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines);
 
-/** Calculate the distance to the outer boundary.
- *
- * @param r distance from the center to the packet
- * @param mu cosine of the angle the packet is moving at
- * @param r_outer distance from the center to the outer boundary
- *
- * @return distance to the outer boundary
- */
-inline double compute_distance2outer(rpacket_t *packet, storage_model_t *storage);
-
-/** Calculate the distance to the inner boundary.
- *
- * @param packet rpacket structure with packet information
- * @param storage storage model data
- *
- * @return distance to the inner boundary
- */
-inline double compute_distance2inner(rpacket_t *packet, storage_model_t *storage);
-
 /** Calculate the distance to shell boundary.
  *
  * @param packet rpacket structure with packet information
