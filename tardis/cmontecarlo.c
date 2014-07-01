@@ -569,12 +569,6 @@ inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *sto
     }
   else
     {
-      if (packet->moved)
-	{
-	  packet->d_inner = compute_distance2inner(packet, storage);
-	  packet->d_outer = compute_distance2outer(packet, storage);
-	  packet->moved = 0;
-	}
       packet->d_line = compute_distance2line(packet, storage);
       packet->d_electron = compute_distance2electron(packet, storage);
     }
@@ -582,26 +576,20 @@ inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *sto
 
 inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_model_t *storage, double *distance)
 {
-  double d_inner, d_outer, d_electron, d_line;
+  double d_boundary, d_electron, d_line;
   montecarlo_compute_distances(packet, storage);
-  d_inner = packet->d_inner;
-  d_outer = packet->d_outer;
+  d_boundary = packet->d_boundary;
   d_electron = packet->d_electron;
   d_line = packet->d_line;
-  if ((d_line <= d_outer) && (d_line <= d_inner) && (d_line <= d_electron))
+  if ((d_line <= d_boundary) && (d_line <= d_electron))
     {
       *distance = d_line;
       return &montecarlo_line_scatter;
     }
-  else if ((d_outer <= d_inner) && (d_outer <= d_electron))
+  else if (d_boundary <= d_electron)
     {
-      *distance = d_outer;
-      return &montecarlo_propagate_outwards;
-    }
-  else if ((d_inner <= d_electron))
-    {
-      *distance = d_inner;
-      return &montecarlo_propagate_inwards;
+      *distance = d_boundary;
+      return &move_packet_across_shell_boundary;
     }
   else
     {
@@ -617,6 +605,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
   packet->nu_line = 0.0;
   packet->virtual_packet = virtual_packet;
   packet->moved = 1;
+  compute_distance2boundary(packet, storage);
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
