@@ -376,54 +376,14 @@ int64_t montecarlo_propagate_inwards(rpacket_t *packet, storage_model_t *storage
 int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *storage, 
 					  double distance, int64_t *reabsorbed)
 {
-  double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
-  move_packet(packet, storage, distance, packet->virtual_packet);
-  if (packet->virtual_packet > 0)
+  if (packet->next_shell_id == -1)
     {
-      packet->tau_event += distance * 
-	storage->electron_densities[packet->current_shell_id] * 
-	storage->sigma_thomson;
+      return montecarlo_propagate_inwards(packet, storage, distance, reabsorbed);
     }
-  else
+  if (packet->next_shell_id == 1)
     {
-      packet->tau_event = -log(rk_double(&mt_state));
+      return montecarlo_propagate_outwards(packet, storage, distance, reabsorbed);
     }
-  if (packet->next_shell_id > 1 && packet->next_shell_id < storage->no_of_shells - 2)
-    {
-      packet->current_shell_id = packet->next_shell_id;
-      packet->recently_crossed_boundary = 
-	packet->current_shell_id < packet->next_shell_id ? 1 : -1; 
-    }
-  else
-    {
-      if (packet->current_shell_id < packet->next_shell_id)
-	{
-	  *reabsorbed = 0;
-	  return 1;
-	}
-      else if ((storage->reflective_inner_boundary == 0) || 
-	       (rk_double(&mt_state) > storage->inner_boundary_albedo))
-	{
-	  *reabsorbed = 1;
-	  return 1;
-	}
-      else
-	{
-	  doppler_factor = rpacket_doppler_factor(packet, storage);
-	  comov_nu = packet->nu * doppler_factor;
-	  comov_energy = packet->energy * doppler_factor;
-	  packet->mu = rk_double(&mt_state);
-	  inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
-	  packet->nu = comov_nu * inverse_doppler_factor;
-	  packet->energy = comov_energy * inverse_doppler_factor;
-	  packet->recently_crossed_boundary = 1;
-	  if (packet->virtual_packet_flag > 0)
-	    {
-	      montecarlo_one_packet(storage, packet, -2);
-	    }
-	}
-    }
-  return 0;
 }
 
 int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
@@ -566,14 +526,7 @@ inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_m
   else if (d_boundary <= d_electron)
     {
       *distance = d_boundary;
-      if (packet->next_shell_id == -1)
-	{
-	  return &montecarlo_propagate_inwards;
-	}
-      if (packet->next_shell_id == 1)
-	{
-	  return &montecarlo_propagate_outwards;
-	}
+      return &move_packet_across_shell_boundary;
     }
   else
     {
