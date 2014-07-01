@@ -304,6 +304,7 @@ int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *st
 					  double distance, int64_t *reabsorbed)
 {
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
+  int64_t result = 0;
   move_packet(packet, storage, distance, packet->virtual_packet);
   if (packet->virtual_packet > 0)
     {
@@ -324,13 +325,13 @@ int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *st
   else if (packet->next_shell_id == 1)
     {
       *reabsorbed = 0;
-      return 1;
+      result = 1;
     }
   else if ((storage->reflective_inner_boundary == 0) || 
 	   (rk_double(&mt_state) > storage->inner_boundary_albedo))
     {
       *reabsorbed = 1;
-      return 1;
+      result = 1;
     }
   else
     {
@@ -347,7 +348,7 @@ int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *st
 	  montecarlo_one_packet(storage, packet, -2);
 	}
     }
-  return 0;
+  return result;
 }
 
 int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
@@ -478,21 +479,23 @@ inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_m
   d_boundary = packet->d_boundary;
   d_electron = packet->d_electron;
   d_line = packet->d_line;
+  montecarlo_event_handler_t handler;
   if (d_line <= d_boundary && d_line <= d_electron)
     {
       *distance = d_line;
-      return &montecarlo_line_scatter;
+      handler =  &montecarlo_line_scatter;
     }
   else if (d_boundary <= d_electron)
     {
       *distance = d_boundary;
-      return &move_packet_across_shell_boundary;
+      handler =  &move_packet_across_shell_boundary;
     }
   else
     {
       *distance = d_electron;
-      return &montecarlo_thomson_scatter;
+      handler = &montecarlo_thomson_scatter;
     }
+  return handler;
 }
 
 int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, int64_t virtual_packet)
