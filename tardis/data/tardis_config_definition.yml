@@ -180,7 +180,8 @@ model:
             property_type: container-property
             type:
                 property_type: container-declaration
-                containers: ['branch85_w7','exponential','power_law']
+                containers: ['branch85_w7','exponential','power_law', 'uniform']
+                _uniform: ['value']
                 _branch85_w7: []
                 +branch85_w7: ['w7_time_0', 'w7_rho_0', 'w7_v_0']
                 _power_law: ['time_0', 'rho_0', 'v_0', 'exponent']
@@ -227,6 +228,12 @@ model:
                 default: None
                 mandatory: True
                 help: exponent for exponential density profile
+
+            value:
+                property_type: quantity
+                default: None
+                mandatory: True
+                help: value for uniform density
 
     abundances:
         property_type: container-property
