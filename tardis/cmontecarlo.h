@@ -21,6 +21,13 @@ typedef enum
     TARDIS_ERROR_BOUNDS_ERROR
   } TARDIS_ERROR;
 
+typedef enum
+  {
+    TARDIS_PACKET_STATUS_IN_PROCESS,
+    TARDIS_PACKET_STATUS_EMITTED,
+    TARDIS_PACKET_STATUS_REABSORBED
+  } rpacket_status_t;
+
 /**
  * @brief A photon packet.
  */
@@ -64,6 +71,7 @@ typedef struct RPacket
   double d_electron;
   double d_boundary; /**< Distance to shell boundary. */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
+  rpacket_status_t status;
 } rpacket_t;
 
 typedef struct StorageModel
