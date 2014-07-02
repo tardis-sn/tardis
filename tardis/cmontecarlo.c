@@ -298,11 +298,9 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
     }
 }
 
-int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *storage, 
-					  double distance, int64_t *reabsorbed)
+void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *storage, double distance)
 {
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
-  int64_t result = 0;
   move_packet(packet, storage, distance, packet->virtual_packet);
   if (packet->virtual_packet > 0)
     {
@@ -322,14 +320,12 @@ int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *st
     }
   else if (packet->next_shell_id == 1)
     {
-      *reabsorbed = 0;
-      result = 1;
+      packet->status = TARDIS_PACKET_STATUS_EMITTED;
     }
   else if ((storage->reflective_inner_boundary == 0) || 
 	   (rk_double(&mt_state) > storage->inner_boundary_albedo))
     {
-      *reabsorbed = 1;
-      result = 1;
+      packet->status = TARDIS_PACKET_STATUS_REABSORBED;
     }
   else
     {
@@ -346,11 +342,9 @@ int64_t move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *st
 	  montecarlo_one_packet(storage, packet, -2);
 	}
     }
-  return result;
 }
 
-int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
-				   double distance, int64_t *reabsorbed)
+void montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage, double distance)
 {
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
   doppler_factor = move_packet(packet, storage, distance, packet->virtual_packet);
@@ -367,11 +361,9 @@ int64_t montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage,
     {
       montecarlo_one_packet(storage, packet, 1);
     }  
-  return 0;
 }
 
-int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
-				double distance, int64_t *reabsorbed)
+void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double distance)
 {
   double comov_energy = 0.0;
   int64_t emission_line_id = 0;
@@ -449,7 +441,6 @@ int64_t montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage,
     {
       packet->close_line = 1;
     }
-  return 0;
 }
 
 inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage)
@@ -498,17 +489,17 @@ inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_m
 
 int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, int64_t virtual_packet)
 {
-  int64_t reabsorbed = 0;
   packet->tau_event = 0.0;
   packet->nu_line = 0.0;
   packet->virtual_packet = virtual_packet;
+  packet->status = TARDIS_PACKET_STATUS_IN_PROCESS;
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
       packet->tau_event = -log(rk_double(&mt_state));
     }
   // For a virtual packet tau_event is the sum of all the tau's that the packet passes.
-  while (1)
+  while (packet->status == TARDIS_PACKET_STATUS_IN_PROCESS)
     {
       // Check if we are at the end of line list.
       if (packet->last_line == 0)
@@ -518,22 +509,18 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
       montecarlo_event_handler_t event_handler;
       double distance;
       event_handler = get_event_handler(packet, storage, &distance);
-      if (event_handler(packet, storage, distance, &reabsorbed))
-	{
-	  break;
-	}
+      event_handler(packet, storage, distance);
       if (virtual_packet > 0 && packet->tau_event > 10.0)
 	{
 	  packet->tau_event = 100.0;
-	  reabsorbed = 0;
-	  break;
+	  packet->status = TARDIS_PACKET_STATUS_EMITTED;
 	}
     } 
   if (virtual_packet > 0)
     {
       packet->energy = packet->energy * exp(-1.0 * packet->tau_event);
     }
-  return reabsorbed;
+  return packet->status == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
 
 void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double mu, double energy, int64_t virtual_packet_flag)
