@@ -164,22 +164,20 @@ inline double move_packet(rpacket_t *packet, storage_model_t *storage,
 {
   double new_r, doppler_factor, comov_energy, comov_nu;
   doppler_factor = rpacket_doppler_factor(packet, storage);
-  if (distance <= 0.0)
+  if (distance > 0.0)
     {
-      return doppler_factor;
+      new_r = sqrt(packet->r * packet->r + distance * distance + 
+		   2.0 * packet->r * distance * packet->mu);
+      packet->mu = (packet->mu * packet->r + distance) / new_r;
+      packet->r = new_r;
+      if (virtual_packet <= 0)
+	{
+	  comov_energy = packet->energy * doppler_factor;
+	  comov_nu = packet->nu * doppler_factor;
+	  storage->js[packet->current_shell_id] += comov_energy * distance;
+	  storage->nubars[packet->current_shell_id] += comov_energy * distance * comov_nu;
+	}
     }
-  new_r = sqrt(packet->r * packet->r + distance * distance + 
-	       2.0 * packet->r * distance * packet->mu);
-  packet->mu = (packet->mu * packet->r + distance) / new_r;
-  packet->r = new_r;
-  if (virtual_packet > 0)
-    {
-      return doppler_factor;
-    }
-  comov_energy = packet->energy * doppler_factor;
-  comov_nu = packet->nu * doppler_factor;
-  storage->js[packet->current_shell_id] += comov_energy * distance;
-  storage->nubars[packet->current_shell_id] += comov_energy * distance * comov_nu;
   return doppler_factor;
 }
 
