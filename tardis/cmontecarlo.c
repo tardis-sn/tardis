@@ -506,10 +506,8 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
 	{
 	  packet->nu_line = storage->line_list_nu[packet->next_line_id];
 	}
-      montecarlo_event_handler_t event_handler;
       double distance;
-      event_handler = get_event_handler(packet, storage, &distance);
-      event_handler(packet, storage, distance);
+      get_event_handler(packet, storage, &distance)(packet, storage, distance);
       if (virtual_packet > 0 && packet->tau_event > 10.0)
 	{
 	  packet->tau_event = 100.0;
