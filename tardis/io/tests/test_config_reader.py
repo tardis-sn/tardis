@@ -211,7 +211,23 @@ class TestParseConfigV1ArtisDensityAbundancesVSlice:
     def test_abundances(self):
         assert_almost_equal(self.config.abundances.ix[14, 31], 2.156751e-01)
 
-        
+
+class TestParseConfigV1UniformDensity:
+
+    def setup(self):
+        #general parsing of the paper config
+        filename = 'tardis_configv1_uniform_density.yml'
+
+        self.yaml_data = yaml.load(open(data_path(filename)))
+
+        self.config = config_reader.Configuration.from_config_dict(self.yaml_data,
+                                                                  test_parser=True)
+
+    def test_density(self):
+        assert_array_almost_equal(self.config.structure.mean_densities,
+                                  1.e-14 * u.Unit('g / cm3'))
+
+
 class TestParseConfigV1ArtisDensityAbundancesAllAscii:
 
     def setup(self):

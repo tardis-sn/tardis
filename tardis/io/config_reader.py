@@ -389,8 +389,7 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
     #Parse density uniform
     def parse_uniform(density_dict, v_inner, v_outer, time_explosion):
         no_of_shells = len(v_inner)
-        return parse_quantity(density_dict['value']).to('g cm^-3') * \
-               np.ones(no_of_shells)
+        return density_dict['value'].to('g cm^-3') * np.ones(no_of_shells)
 
     density_parser['uniform'] = parse_uniform
 
