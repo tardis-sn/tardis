@@ -62,7 +62,6 @@ typedef struct RPacket
   double d_outer;
   double d_line;
   double d_electron;
-  int64_t moved;
   double d_boundary; /**< Distance to shell boundary. */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
 } rpacket_t;
