@@ -136,7 +136,7 @@ inline double compute_distance2electron(rpacket_t *packet, storage_model_t *stor
     }
   double inverse_ne = storage->inverse_electron_densities[packet->current_shell_id] * 
     storage->inverse_sigma_thomson;
-  return packet->tau_event * inverse_ne;
+  return rpacket_get_tau_event(packet) * inverse_ne;
 }
 
 inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
@@ -260,13 +260,14 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
   move_packet(packet, storage, distance, packet->virtual_packet);
   if (packet->virtual_packet > 0)
     {
-      packet->tau_event += distance * 
+      double delta_tau_event = distance * 
 	storage->electron_densities[packet->current_shell_id] * 
 	storage->sigma_thomson;
+      rpacket_set_tau_event(packet, rpacket_get_tau_event(packet) + delta_tau_event);
     }
   else
     {
-      packet->tau_event = -log(rk_double(&mt_state));
+      rpacket_reset_tau_event(packet);
     }
   if ((packet->current_shell_id < storage->no_of_shells - 1 && packet->next_shell_id == 1) || 
       (packet->current_shell_id > 0 && packet->next_shell_id == -1))
@@ -310,7 +311,7 @@ void montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage, dou
   inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
   packet->nu = comov_nu * inverse_doppler_factor;
   packet->energy = comov_energy * inverse_doppler_factor;
-  packet->tau_event = -log(rk_double(&mt_state));
+  rpacket_reset_tau_event(packet);
   packet->recently_crossed_boundary = 0;
   storage->last_interaction_type[storage->current_packet_id] = 1;
   if (packet->virtual_packet_flag > 0)
@@ -345,9 +346,9 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
     }
   if (packet->virtual_packet > 0)
     {
-      packet->tau_event += tau_line;
+      rpacket_set_tau_event(packet, rpacket_get_tau_event(packet) + tau_line);
     }
-  else if (packet->tau_event < tau_combined)
+  else if (rpacket_get_tau_event(packet) < tau_combined)
     {
       old_doppler_factor = move_packet(packet, storage, distance, packet->virtual_packet);
       packet->mu = 2.0 * rk_double(&mt_state) - 1.0;
@@ -369,7 +370,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       packet->nu = storage->line_list_nu[emission_line_id] * inverse_doppler_factor;
       packet->nu_line = storage->line_list_nu[emission_line_id];
       packet->next_line_id = emission_line_id + 1;
-      packet->tau_event = -log(rk_double(&mt_state));
+      rpacket_reset_tau_event(packet);
       packet->recently_crossed_boundary = 0;
       if (packet->virtual_packet_flag > 0)
 	{
@@ -390,7 +391,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
     }
   else 
     {
-      packet->tau_event -= tau_line;
+      rpacket_set_tau_event(packet, rpacket_get_tau_event(packet) - tau_line);
     }
   if (packet->last_line == 0 &&
       fabs(storage->line_list_nu[packet->next_line_id] - packet->nu_line) / packet->nu_line < 1e-7)
@@ -445,14 +446,14 @@ inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_m
 
 int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, int64_t virtual_packet)
 {
-  packet->tau_event = 0.0;
+  rpacket_set_tau_event(packet, 0.0);
   packet->nu_line = 0.0;
   packet->virtual_packet = virtual_packet;
   packet->status = TARDIS_PACKET_STATUS_IN_PROCESS;
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
-      packet->tau_event = -log(rk_double(&mt_state));
+      rpacket_reset_tau_event(packet);
     }
   // For a virtual packet tau_event is the sum of all the tau's that the packet passes.
   while (packet->status == TARDIS_PACKET_STATUS_IN_PROCESS)
@@ -464,15 +465,15 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
 	}
       double distance;
       get_event_handler(packet, storage, &distance)(packet, storage, distance);
-      if (virtual_packet > 0 && packet->tau_event > 10.0)
+      if (virtual_packet > 0 && rpacket_get_tau_event(packet) > 10.0)
 	{
-	  packet->tau_event = 100.0;
+	  rpacket_set_tau_event(packet, 100.0);
 	  packet->status = TARDIS_PACKET_STATUS_EMITTED;
 	}
     } 
   if (virtual_packet > 0)
     {
-      packet->energy = packet->energy * exp(-1.0 * packet->tau_event);
+      packet->energy = packet->energy * exp(-1.0 * rpacket_get_tau_event(packet));
     }
   return packet->status == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }

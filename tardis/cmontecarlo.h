@@ -198,4 +198,23 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet,
  */
 void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double mu, double energy, int64_t virtual_packet);
 
+/*
+  Getter and setter methods.
+*/
+
+inline double rpacket_get_tau_event(rpacket_t *packet)
+{
+  return packet->tau_event;
+}
+
+inline void rpacket_set_tau_event(rpacket_t *packet, double tau_event)
+{
+  packet->tau_event = tau_event;
+}
+
+inline void rpacket_reset_tau_event(rpacket_t *packet)
+{
+  rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
+}
+
 #endif // TARDIS_CMONTECARLO_H
