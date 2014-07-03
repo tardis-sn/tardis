@@ -194,50 +194,6 @@ inline void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *stora
   storage->line_lists_j_blues[j_blue_idx] += comov_energy / packet->nu;
 }
 
-void init_storage_model(storage_model_t *storage, 
-			double *packet_nus,
-			double *packet_mus,
-			double *packet_energies,
-			double *r_inner,
-			double *line_list_nu,
-			double *output_nus,
-			double *output_energies,
-			double time_explosion,
-			double spectrum_start_nu,
-			double spectrum_end_nu,
-			double spectrum_delta_nu,
-			double *spectrum_virt_nu,
-			double sigma_thomson,
-			double *electron_densities,
-			double *inverse_electron_densities,
-			double *js,
-			double *nubars,
-			int64_t no_of_lines,
-			int64_t no_of_packets)
-{
-  storage->packet_nus = packet_nus;
-  storage->packet_mus = packet_mus;
-  storage->packet_energies = packet_energies;
-  storage->r_inner = r_inner;
-  storage->output_nus = output_nus;
-  storage->output_energies = output_energies;
-  storage->time_explosion = time_explosion;
-  storage->inverse_time_explosion = 1.0 / time_explosion;
-  storage->spectrum_start_nu = spectrum_start_nu;
-  storage->spectrum_end_nu = spectrum_end_nu;
-  storage->spectrum_delta_nu = spectrum_delta_nu;
-  storage->spectrum_virt_nu = spectrum_virt_nu;
-  storage->sigma_thomson = sigma_thomson;
-  storage->inverse_sigma_thomson = 1.0 / sigma_thomson;
-  storage->electron_densities = electron_densities;
-  storage->inverse_electron_densities = inverse_electron_densities;
-  storage->js = js;
-  storage->nubars = nubars;
-  storage->no_of_lines = no_of_lines;
-  storage->no_of_packets = no_of_packets;
-  storage->current_packet_id = -1;
-}
-
 int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64_t virtual_mode)
 {
   int64_t i;
@@ -519,18 +475,4 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
       packet->energy = packet->energy * exp(-1.0 * packet->tau_event);
     }
   return packet->status == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
-}
-
-void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double mu, double energy, int64_t virtual_packet_flag)
-{
-  packet->nu = nu;
-  packet->mu = mu;
-  packet->energy = energy;
-  packet->r = storage->r_inner[0];
-  packet->current_shell_id = 0;
-  packet->recently_crossed_boundary = 1;
-  packet->next_line_id = line_search(storage->line_list_nu, packet->nu, storage->no_of_lines);
-  packet->last_line = (packet->next_line_id == storage->no_of_lines) ? 1 : 0;
-  packet->close_line = 0;
-  packet->virtual_packet_flag = virtual_packet_flag;
 }
