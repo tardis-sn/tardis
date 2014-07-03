@@ -214,7 +214,8 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 	  memcpy((void *)&virt_packet, (void *)packet, sizeof(rpacket_t));
 	  if (virt_packet.r > storage->r_inner[0])
 	    {
-	      mu_min = -1.0 * sqrt(1.0 - (storage->r_inner[0] / virt_packet.r) * (storage->r_inner[0] / virt_packet.r));
+	      mu_min = -1.0 * sqrt(1.0 - (storage->r_inner[0] / virt_packet.r) * 
+				   (storage->r_inner[0] / virt_packet.r));
 	    }
 	  else
 	    {
