@@ -29,8 +29,6 @@ ctypedef struct rpacket_t:
     int_type_t recently_crossed_boundary
     int_type_t virtual_packet_flag
     int_type_t virtual_packet
-    double d_inner
-    double d_outer
     double d_line
     double d_electron
     double d_boundary

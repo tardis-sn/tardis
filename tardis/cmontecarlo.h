@@ -65,8 +65,6 @@ typedef struct RPacket
    */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
-  double d_inner;
-  double d_outer;
   double d_line;
   double d_electron;
   double d_boundary; /**< Distance to shell boundary. */
