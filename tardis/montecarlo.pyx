@@ -395,7 +395,7 @@ cdef float_type_t move_packet(float_type_t*r,
     if distance <= 0:
         return doppler_factor
 
-    new_r = sqrt(r[0] ** 2 + distance ** 2 + 2 * r[0] * distance * mu[0])
+    new_r = sqrt(r[0] * r[0] + distance * distance + 2 * r[0] * distance * mu[0])
     mu[0] = (mu[0] * r[0] + distance) / new_r
 
     if mu[0] == 0.0:
@@ -416,7 +416,7 @@ cdef float_type_t move_packet(float_type_t*r,
 
     #print "move packet before mu", mu[0], distance, new_r, r[0]
     #    if distance/new_r > 1e-6:
-    #        mu[0] = (distance**2 + new_r**2 - r[0]**2) / (2*distance*new_r)
+    #        mu[0] = (distance*distance + new_r*new_r - r[0]*r[0]) / (2*distance*new_r)
     #if ((((mu[0] * r[0] + distance) / new_r) < 0.0) and (mu[0] > 0.0)):
 
     return doppler_factor
@@ -428,7 +428,7 @@ cdef void increment_j_blue_estimator(int_type_t*current_line_id, float_type_t*cu
 
     distance = d_line
 
-    r_interaction = sqrt(r[0] ** 2 + distance ** 2 + 2 * r[0] * distance * mu[0])
+    r_interaction = sqrt(r[0] * r[0] + distance * distance + 2 * r[0] * distance * mu[0])
     mu_interaction = (mu[0] * r[0] + distance) / r_interaction
 
     doppler_factor = (1 - (mu_interaction * r_interaction * storage.inverse_time_explosion * inverse_c))
@@ -616,7 +616,7 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
 
             #choose a direction for the extract packet. We don't want any directions that will hit the inner boundary. So this sets a minimum value for the packet mu
             if (current_r_virt > storage.r_inner[0]): 
-                mu_min = -1. * sqrt(1.0 - ( storage.r_inner[0] / current_r_virt) ** 2)
+                mu_min = -1. * sqrt(1.0 - ( storage.r_inner[0] / current_r_virt) * ( storage.r_inner[0] / current_r_virt)
             else:
                 #this is a catch case for packets that are right on the boundary (or even, due to rounding errors, technically below it).
                 mu_min = 0.0
