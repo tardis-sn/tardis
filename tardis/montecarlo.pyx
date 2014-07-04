@@ -616,7 +616,7 @@ cdef int_type_t montecarlo_one_packet(StorageModel storage, float_type_t*current
 
             #choose a direction for the extract packet. We don't want any directions that will hit the inner boundary. So this sets a minimum value for the packet mu
             if (current_r_virt > storage.r_inner[0]): 
-                mu_min = -1. * sqrt(1.0 - ( storage.r_inner[0] / current_r_virt) * ( storage.r_inner[0] / current_r_virt)
+                mu_min = -1. * sqrt(1.0 - ( storage.r_inner[0] / current_r_virt) * ( storage.r_inner[0] / current_r_virt))
             else:
                 #this is a catch case for packets that are right on the boundary (or even, due to rounding errors, technically below it).
                 mu_min = 0.0
