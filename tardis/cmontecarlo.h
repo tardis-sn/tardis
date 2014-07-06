@@ -225,6 +225,14 @@ inline void rpacket_set_status(rpacket_t *packet, rpacket_status_t status)
   packet->status = status;
 }
 
+inline double rpacket_get_nu(rpacket_t *packet)
+{
+  return packet->nu;
+}
 
+inline void rpacket_set_nu(rpacket_t *packet, double nu)
+{
+  packet->nu = nu;
+}
 
 #endif // TARDIS_CMONTECARLO_H
