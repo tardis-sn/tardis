@@ -278,12 +278,12 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
     }
   else if (packet->next_shell_id == 1)
     {
-      packet->status = TARDIS_PACKET_STATUS_EMITTED;
+      rpacket_set_status(packet, TARDIS_PACKET_STATUS_EMITTED);
     }
   else if ((storage->reflective_inner_boundary == 0) || 
 	   (rk_double(&mt_state) > storage->inner_boundary_albedo))
     {
-      packet->status = TARDIS_PACKET_STATUS_REABSORBED;
+      rpacket_set_status(packet, TARDIS_PACKET_STATUS_REABSORBED);
     }
   else
     {
@@ -450,14 +450,14 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
   rpacket_set_tau_event(packet, 0.0);
   packet->nu_line = 0.0;
   packet->virtual_packet = virtual_packet;
-  packet->status = TARDIS_PACKET_STATUS_IN_PROCESS;
+  rpacket_set_status(packet, TARDIS_PACKET_STATUS_IN_PROCESS);
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
     {
       rpacket_reset_tau_event(packet);
     }
   // For a virtual packet tau_event is the sum of all the tau's that the packet passes.
-  while (packet->status == TARDIS_PACKET_STATUS_IN_PROCESS)
+  while (rpacket_get_status(packet) == TARDIS_PACKET_STATUS_IN_PROCESS)
     {
       // Check if we are at the end of line list.
       if (packet->last_line == 0)
@@ -469,12 +469,12 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
       if (virtual_packet > 0 && rpacket_get_tau_event(packet) > 10.0)
 	{
 	  rpacket_set_tau_event(packet, 100.0);
-	  packet->status = TARDIS_PACKET_STATUS_EMITTED;
+	  rpacket_set_status(packet, TARDIS_PACKET_STATUS_EMITTED);
 	}
     } 
   if (virtual_packet > 0)
     {
       packet->energy = packet->energy * exp(-1.0 * rpacket_get_tau_event(packet));
     }
-  return packet->status == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
+  return rpacket_get_status(packet) == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
