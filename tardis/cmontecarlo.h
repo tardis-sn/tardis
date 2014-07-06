@@ -245,4 +245,14 @@ inline void rpacket_set_mu(rpacket_t *packet, double mu)
   packet->mu = mu;
 }
 
+inline double rpacket_get_r(rpacket_t *packet)
+{
+  return packet->r;
+}
+
+inline void rpacket_set_r(rpacket_t *packet, double r)
+{
+  packet->r = r;
+}
+
 #endif // TARDIS_CMONTECARLO_H
