@@ -215,4 +215,16 @@ inline void rpacket_reset_tau_event(rpacket_t *packet)
   rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
 }
 
+inline rpacket_status_t rpacket_get_status(rpacket_t *packet)
+{
+  return packet->status;
+}
+
+inline void rpacket_set_status(rpacket_t *packet, rpacket_status_t status)
+{
+  packet->status = status;
+}
+
+
+
 #endif // TARDIS_CMONTECARLO_H
