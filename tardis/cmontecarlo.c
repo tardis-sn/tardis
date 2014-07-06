@@ -51,12 +51,12 @@ inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t i
 
 inline double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage)
 {
-  return 1.0 - rpacket_get_mu(packet) * packet->r * storage->inverse_time_explosion * INVERSE_C;
+  return 1.0 - rpacket_get_mu(packet) * rpacket_get_r(packet) * storage->inverse_time_explosion * INVERSE_C;
 }
 
 inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *storage)
 {
-  double r = packet->r;
+  double r = rpacket_get_r(packet);
   double mu = rpacket_get_mu(packet);  
   double r_outer = storage->r_outer[packet->current_shell_id];
   double r_inner = storage->r_inner[packet->current_shell_id];
@@ -98,7 +98,7 @@ inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
     {
       return MISS_DISTANCE;
     }
-  double r = packet->r;
+  double r = rpacket_get_r(packet);
   double mu = rpacket_get_mu(packet);
   double nu = rpacket_get_nu(packet);
   double nu_line = packet->nu_line;
@@ -166,10 +166,10 @@ inline double move_packet(rpacket_t *packet, storage_model_t *storage,
   doppler_factor = rpacket_doppler_factor(packet, storage);
   if (distance > 0.0)
     {
-      new_r = sqrt(packet->r * packet->r + distance * distance + 
-		   2.0 * packet->r * distance * rpacket_get_mu(packet));
-      rpacket_set_mu(packet, (rpacket_get_mu(packet) * packet->r + distance) / new_r);
-      packet->r = new_r;
+      double r = rpacket_get_r(packet);
+      new_r = sqrt(r * r + distance * distance + 2.0 * r * distance * rpacket_get_mu(packet));
+      rpacket_set_mu(packet, (rpacket_get_mu(packet) * r + distance) / new_r);
+      rpacket_set_r(packet, new_r);
       if (virtual_packet <= 0)
 	{
 	  comov_energy = packet->energy * doppler_factor;
@@ -185,9 +185,9 @@ inline void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *stora
 				       double d_line, int64_t j_blue_idx)
 {
   double comov_energy, r_interaction, mu_interaction, doppler_factor;
-  r_interaction = sqrt(packet->r * packet->r + d_line * d_line + 
-		       2.0 * packet->r * d_line * rpacket_get_mu(packet));
-  mu_interaction = (rpacket_get_mu(packet) * packet->r + d_line) / r_interaction;
+  double r = rpacket_get_r(packet);
+  r_interaction = sqrt(r * r + d_line * d_line + 2.0 * r * d_line * rpacket_get_mu(packet));
+  mu_interaction = (rpacket_get_mu(packet) * r + d_line) / r_interaction;
   doppler_factor = 1.0 - mu_interaction * r_interaction * 
     storage->inverse_time_explosion * INVERSE_C;
   comov_energy = packet->energy * doppler_factor;
