@@ -285,4 +285,14 @@ inline void rpacket_set_d_line(rpacket_t *packet, double d_line)
   packet->d_line = d_line;
 }
 
+inline double rpacket_get_energy(rpacket_t *packet)
+{
+  return packet->energy;
+}
+
+inline void rpacket_set_energy(rpacket_t *packet, double energy)
+{
+  packet->energy = energy;
+}
+
 #endif // TARDIS_CMONTECARLO_H
