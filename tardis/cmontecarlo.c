@@ -104,8 +104,8 @@ inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
   double nu_line = packet->nu_line;
   double t_exp = storage->time_explosion;
   double inverse_t_exp = storage->inverse_time_explosion;
-  double last_line = storage->line_list_nu[packet->next_line_id - 1];
-  double next_line = storage->line_list_nu[packet->next_line_id + 1];
+  double last_line = storage->line_list_nu[rpacket_get_next_line_id(packet) - 1];
+  double next_line = storage->line_list_nu[rpacket_get_next_line_id(packet) + 1];
   int64_t cur_zone_id = rpacket_get_current_shell_id(packet);
   double comov_nu, doppler_factor;
   doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
@@ -143,7 +143,7 @@ inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
 {
   int emit, i = 0;
   double p, event_random;
-  int activate_level = storage->line2macro_level_upper[packet->next_line_id - 1];
+  int activate_level = storage->line2macro_level_upper[rpacket_get_next_line_id(packet) - 1];
   while (emit != -1)
     {
       event_random = rk_double(&mt_state);
@@ -334,14 +334,14 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
   int64_t j_blue_idx = -1;
   if (packet->virtual_packet == 0)
     {
-      j_blue_idx = rpacket_get_current_shell_id(packet) * storage->line_lists_j_blues_nd + packet->next_line_id;
+      j_blue_idx = rpacket_get_current_shell_id(packet) * storage->line_lists_j_blues_nd + rpacket_get_next_line_id(packet);
       increment_j_blue_estimator(packet, storage, distance, j_blue_idx);
     }
-  tau_line = storage->line_lists_tau_sobolevs[rpacket_get_current_shell_id(packet) * storage->line_lists_tau_sobolevs_nd + packet->next_line_id];
+  tau_line = storage->line_lists_tau_sobolevs[rpacket_get_current_shell_id(packet) * storage->line_lists_tau_sobolevs_nd + rpacket_get_next_line_id(packet)];
   tau_electron = storage->sigma_thomson * storage->electron_densities[rpacket_get_current_shell_id(packet)] * distance;
   tau_combined = tau_line + tau_electron;
-  packet->next_line_id += 1;
-  if (packet->next_line_id == storage->no_of_lines)
+  rpacket_set_next_line_id(packet, rpacket_get_next_line_id(packet) + 1);
+  if (rpacket_get_next_line_id(packet) == storage->no_of_lines)
     {
       packet->last_line = 1;
     }
@@ -356,12 +356,12 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
       comov_energy = rpacket_get_energy(packet) * old_doppler_factor;
       rpacket_set_energy(packet, comov_energy * inverse_doppler_factor);
-      storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
+      storage->last_line_interaction_in_id[storage->current_packet_id] = rpacket_get_next_line_id(packet) - 1;
       storage->last_line_interaction_shell_id[storage->current_packet_id] = rpacket_get_current_shell_id(packet);
       storage->last_interaction_type[storage->current_packet_id] = 2;
       if (storage->line_interaction_id == 0)
 	{
-	  emission_line_id = packet->next_line_id - 1;
+	  emission_line_id = rpacket_get_next_line_id(packet) - 1;
 	}
       else if (storage->line_interaction_id >= 1)
 	{
@@ -370,14 +370,14 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       storage->last_line_interaction_out_id[storage->current_packet_id] = emission_line_id;
       rpacket_set_nu(packet, storage->line_list_nu[emission_line_id] * inverse_doppler_factor);
       packet->nu_line = storage->line_list_nu[emission_line_id];
-      packet->next_line_id = emission_line_id + 1;
+      rpacket_set_next_line_id(packet, emission_line_id + 1);
       rpacket_reset_tau_event(packet);
       packet->recently_crossed_boundary = 0;
       if (packet->virtual_packet_flag > 0)
 	{
 	  virtual_close_line = 0;
 	  if (packet->last_line == 0 &&
-	      fabs(storage->line_list_nu[packet->next_line_id] - packet->nu_line) / 
+	      fabs(storage->line_list_nu[rpacket_get_next_line_id(packet)] - packet->nu_line) / 
 	      packet->nu_line < 1e-7)
 	    {
 	      virtual_close_line = 1;
@@ -395,7 +395,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       rpacket_set_tau_event(packet, rpacket_get_tau_event(packet) - tau_line);
     }
   if (packet->last_line == 0 &&
-      fabs(storage->line_list_nu[packet->next_line_id] - packet->nu_line) / packet->nu_line < 1e-7)
+      fabs(storage->line_list_nu[rpacket_get_next_line_id(packet)] - packet->nu_line) / packet->nu_line < 1e-7)
     {
       packet->close_line = 1;
     }
@@ -462,7 +462,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
       // Check if we are at the end of line list.
       if (packet->last_line == 0)
 	{
-	  packet->nu_line = storage->line_list_nu[packet->next_line_id];
+	  packet->nu_line = storage->line_list_nu[rpacket_get_next_line_id(packet)];
 	}
       double distance;
       get_event_handler(packet, storage, &distance)(packet, storage, distance);
