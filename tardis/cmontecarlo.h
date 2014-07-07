@@ -65,11 +65,11 @@ typedef struct RPacket
    */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
-  double d_line;
-  double d_electron;
+  double d_line; /**< Distance to electron event. */
+  double d_electron; /**< Distance to line event. */
   double d_boundary; /**< Distance to shell boundary. */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
-  rpacket_status_t status;
+  rpacket_status_t status; /**< Packet status (in process, emitted or reabsorbed). */
 } rpacket_t;
 
 typedef struct StorageModel
@@ -240,16 +240,6 @@ inline void rpacket_set_r(rpacket_t *packet, double r)
   packet->r = r;
 }
 
-inline double rpacket_get_nu_line(rpacket_t *packet)
-{
-  return packet->nu_line;
-}
-
-inline void rpacket_set_nu_line(rpacket_t *packet, double nu_line)
-{
-  packet->nu_line = nu_line;
-}
-
 inline double rpacket_get_tau_event(rpacket_t *packet)
 {
   return packet->tau_event;
@@ -260,19 +250,44 @@ inline void rpacket_set_tau_event(rpacket_t *packet, double tau_event)
   packet->tau_event = tau_event;
 }
 
-inline void rpacket_reset_tau_event(rpacket_t *packet)
+inline double rpacket_get_nu_line(rpacket_t *packet)
 {
-  rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
+  return packet->nu_line;
 }
 
-inline rpacket_status_t rpacket_get_status(rpacket_t *packet)
+inline void rpacket_set_nu_line(rpacket_t *packet, double nu_line)
 {
-  return packet->status;
+  packet->nu_line = nu_line;
 }
 
-inline void rpacket_set_status(rpacket_t *packet, rpacket_status_t status)
+inline unsigned int rpacket_get_current_shell_id(rpacket_t *packet)
 {
-  packet->status = status;
+  return packet->current_shell_id;
+}
+
+inline void rpacket_set_current_shell_id(rpacket_t *packet, unsigned int current_shell_id)
+{
+  packet->current_shell_id = current_shell_id;
+}
+
+inline unsigned int rpacket_get_next_line_id(rpacket_t *packet)
+{
+  return packet->next_line_id;
+}
+
+inline void rpacket_set_next_line_id(rpacket_t *packet, unsigned int next_line_id)
+{
+  packet->next_line_id = next_line_id;
+}
+
+inline bool rpacket_get_last_line(rpacket_t *packet)
+{
+  return packet->last_line;
+}
+
+inline void rpacket_set_last_line(rpacket_t *packet, bool last_line)
+{
+  packet->last_line = last_line;
 }
 
 inline double rpacket_get_d_boundary(rpacket_t *packet)
@@ -305,24 +320,22 @@ inline void rpacket_set_d_line(rpacket_t *packet, double d_line)
   packet->d_line = d_line;
 }
 
-inline unsigned int rpacket_get_current_shell_id(rpacket_t *packet)
+inline rpacket_status_t rpacket_get_status(rpacket_t *packet)
 {
-  return packet->current_shell_id;
+  return packet->status;
 }
 
-inline void rpacket_set_current_shell_id(rpacket_t *packet, unsigned int current_shell_id)
+inline void rpacket_set_status(rpacket_t *packet, rpacket_status_t status)
 {
-  packet->current_shell_id = current_shell_id;
+  packet->status = status;
 }
 
-inline unsigned int rpacket_get_next_line_id(rpacket_t *packet)
+/* Other accessor methods. */
+
+inline void rpacket_reset_tau_event(rpacket_t *packet)
 {
-  return packet->next_line_id;
+  rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
 }
 
-inline void rpacket_set_next_line_id(rpacket_t *packet, unsigned int next_line_id)
-{
-  packet->next_line_id = next_line_id;
-}
 
 #endif // TARDIS_CMONTECARLO_H
