@@ -94,7 +94,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
 
 inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
 {
-  if (packet->last_line == 1)
+  if (rpacket_get_last_line(packet))
     {
       return MISS_DISTANCE;
     }
@@ -343,7 +343,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
   rpacket_set_next_line_id(packet, rpacket_get_next_line_id(packet) + 1);
   if (rpacket_get_next_line_id(packet) == storage->no_of_lines)
     {
-      packet->last_line = 1;
+      rpacket_set_last_line(packet, true);
     }
   if (packet->virtual_packet > 0)
     {
@@ -376,7 +376,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       if (packet->virtual_packet_flag > 0)
 	{
 	  virtual_close_line = 0;
-	  if (packet->last_line == 0 &&
+	  if (!rpacket_get_last_line(packet) &&
 	      fabs(storage->line_list_nu[rpacket_get_next_line_id(packet)] - 
 		   rpacket_get_nu_line(packet)) / rpacket_get_nu_line(packet) < 1e-7)
 	    {
@@ -394,7 +394,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
     {
       rpacket_set_tau_event(packet, rpacket_get_tau_event(packet) - tau_line);
     }
-  if (packet->last_line == 0 &&
+  if (!rpacket_get_last_line(packet) &&
       fabs(storage->line_list_nu[rpacket_get_next_line_id(packet)] - 
 	   rpacket_get_nu_line(packet)) / rpacket_get_nu_line(packet) < 1e-7)
     {
@@ -461,7 +461,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
   while (rpacket_get_status(packet) == TARDIS_PACKET_STATUS_IN_PROCESS)
     {
       // Check if we are at the end of line list.
-      if (packet->last_line == 0)
+      if (!rpacket_get_last_line(packet))
 	{
 	  rpacket_set_nu_line(packet, storage->line_list_nu[rpacket_get_next_line_id(packet)]);
 	}
