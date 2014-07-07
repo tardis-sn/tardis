@@ -330,7 +330,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
   double tau_line = 0.0;
   double tau_electron = 0.0;
   double tau_combined = 0.0;
-  int64_t virtual_close_line = 0;
+  bool virtual_close_line = false;
   int64_t j_blue_idx = -1;
   if (packet->virtual_packet == 0)
     {
@@ -375,19 +375,19 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       packet->recently_crossed_boundary = 0;
       if (packet->virtual_packet_flag > 0)
 	{
-	  virtual_close_line = 0;
+	  virtual_close_line = false;
 	  if (!rpacket_get_last_line(packet) &&
 	      fabs(storage->line_list_nu[rpacket_get_next_line_id(packet)] - 
 		   rpacket_get_nu_line(packet)) / rpacket_get_nu_line(packet) < 1e-7)
 	    {
-	      virtual_close_line = 1;
+	      virtual_close_line = true;
 	    }
 	  // QUESTIONABLE!!!
-	  int old_close_line = packet->close_line;
-	  packet->close_line = virtual_close_line;
+	  bool old_close_line = rpacket_get_close_line(packet);
+	  rpacket_set_close_line(packet, virtual_close_line);
 	  montecarlo_one_packet(storage, packet, 1);
-	  packet->close_line = old_close_line;
-	  virtual_close_line = 0;
+	  rpacket_set_close_line(packet, old_close_line);
+	  virtual_close_line = false;
 	}
     }
   else 
@@ -398,19 +398,19 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       fabs(storage->line_list_nu[rpacket_get_next_line_id(packet)] - 
 	   rpacket_get_nu_line(packet)) / rpacket_get_nu_line(packet) < 1e-7)
     {
-      packet->close_line = 1;
+      rpacket_set_close_line(packet, true);
     }
 }
 
 inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage)
 {
   // Check if the last line was the same nu as the current line.
-  if (packet->close_line == 1)
+  if (rpacket_get_close_line(packet))
     {
       // If so set the distance to the line to 0.0
       rpacket_set_d_line(packet, 0.0);
       // Reset close_line.
-      packet->close_line = 0;
+      rpacket_set_close_line(packet, false);
     }
   else
     {

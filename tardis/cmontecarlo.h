@@ -290,6 +290,16 @@ inline void rpacket_set_last_line(rpacket_t *packet, bool last_line)
   packet->last_line = last_line;
 }
 
+inline bool rpacket_get_close_line(rpacket_t *packet)
+{
+  return packet->close_line;
+}
+
+inline void rpacket_set_close_line(rpacket_t *packet, bool close_line)
+{
+  packet->close_line = close_line;
+}
+
 inline double rpacket_get_d_boundary(rpacket_t *packet)
 {
   return packet->d_boundary;
