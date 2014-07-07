@@ -255,4 +255,34 @@ inline void rpacket_set_r(rpacket_t *packet, double r)
   packet->r = r;
 }
 
+inline double rpacket_get_d_boundary(rpacket_t *packet)
+{
+  return packet->d_boundary;
+}
+
+inline void rpacket_set_d_boundary(rpacket_t *packet, double d_boundary)
+{
+  packet->d_boundary = d_boundary;
+}
+
+inline double rpacket_get_d_electron(rpacket_t *packet)
+{
+  return packet->d_electron;
+}
+
+inline void rpacket_set_d_electron(rpacket_t *packet, double d_electron)
+{
+  packet->d_electron = d_electron;
+}
+
+inline double rpacket_get_d_line(rpacket_t *packet)
+{
+  return packet->d_line;
+}
+
+inline void rpacket_set_d_line(rpacket_t *packet, double d_line)
+{
+  packet->d_line = d_line;
+}
+
 #endif // TARDIS_CMONTECARLO_H

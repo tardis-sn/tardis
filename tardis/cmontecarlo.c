@@ -407,15 +407,15 @@ inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *sto
   if (packet->close_line == 1)
     {
       // If so set the distance to the line to 0.0
-      packet->d_line = 0.0;
+      rpacket_set_d_line(packet, 0.0);
       // Reset close_line.
       packet->close_line = 0;
     }
   else
     {
-      packet->d_boundary = compute_distance2boundary(packet, storage);
-      packet->d_line = compute_distance2line(packet, storage);
-      packet->d_electron = compute_distance2electron(packet, storage);
+      rpacket_set_d_boundary(packet, compute_distance2boundary(packet, storage));
+      rpacket_set_d_line(packet, compute_distance2line(packet, storage));
+      rpacket_set_d_electron(packet, compute_distance2electron(packet, storage));
     }
 }
 
@@ -423,9 +423,9 @@ inline montecarlo_event_handler_t get_event_handler(rpacket_t *packet, storage_m
 {
   double d_boundary, d_electron, d_line;
   montecarlo_compute_distances(packet, storage);
-  d_boundary = packet->d_boundary;
-  d_electron = packet->d_electron;
-  d_line = packet->d_line;
+  d_boundary = rpacket_get_d_boundary(packet);
+  d_electron = rpacket_get_d_electron(packet);
+  d_line = rpacket_get_d_line(packet);
   montecarlo_event_handler_t handler;
   if (d_line <= d_boundary && d_line <= d_electron)
     {
