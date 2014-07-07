@@ -172,7 +172,7 @@ inline double move_packet(rpacket_t *packet, storage_model_t *storage,
       rpacket_set_r(packet, new_r);
       if (virtual_packet <= 0)
 	{
-	  comov_energy = packet->energy * doppler_factor;
+	  comov_energy = rpacket_get_energy(packet) * doppler_factor;
 	  comov_nu = rpacket_get_nu(packet) * doppler_factor;
 	  storage->js[packet->current_shell_id] += comov_energy * distance;
 	  storage->nubars[packet->current_shell_id] += comov_energy * distance * comov_nu;
@@ -190,7 +190,7 @@ inline void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *stora
   mu_interaction = (rpacket_get_mu(packet) * r + d_line) / r_interaction;
   doppler_factor = 1.0 - mu_interaction * r_interaction * 
     storage->inverse_time_explosion * INVERSE_C;
-  comov_energy = packet->energy * doppler_factor;
+  comov_energy = rpacket_get_energy(packet) * doppler_factor;
   storage->line_lists_j_blues[j_blue_idx] += comov_energy / rpacket_get_nu(packet);
 }
 
@@ -241,7 +241,7 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 	  doppler_factor_ratio = 
 	    rpacket_doppler_factor(packet, storage) /
 	    rpacket_doppler_factor(&virt_packet, storage);
-	  virt_packet.energy = packet->energy * doppler_factor_ratio;
+	  virt_packet.energy = rpacket_get_energy(packet) * doppler_factor_ratio;
 	  virt_packet.nu = rpacket_get_nu(packet) * doppler_factor_ratio;
 	  montecarlo_one_packet_loop(storage, &virt_packet, 1);
 	  if ((virt_packet.nu < storage->spectrum_end_nu) && 
@@ -289,11 +289,11 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
     {
       doppler_factor = rpacket_doppler_factor(packet, storage);
       comov_nu = rpacket_get_nu(packet) * doppler_factor;
-      comov_energy = packet->energy * doppler_factor;
+      comov_energy = rpacket_get_energy(packet) * doppler_factor;
       rpacket_set_mu(packet, rk_double(&mt_state));
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
       rpacket_set_nu(packet, comov_nu * inverse_doppler_factor);
-      packet->energy = comov_energy * inverse_doppler_factor;
+      rpacket_set_energy(packet, comov_energy * inverse_doppler_factor);
       packet->recently_crossed_boundary = 1;
       if (packet->virtual_packet_flag > 0)
 	{
@@ -307,11 +307,11 @@ void montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage, dou
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
   doppler_factor = move_packet(packet, storage, distance, packet->virtual_packet);
   comov_nu = rpacket_get_nu(packet) * doppler_factor;
-  comov_energy = packet->energy * doppler_factor;
+  comov_energy = rpacket_get_energy(packet) * doppler_factor;
   rpacket_set_mu(packet, 2.0 * rk_double(&mt_state) - 1.0);
   inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
   rpacket_set_nu(packet, comov_nu * inverse_doppler_factor);
-  packet->energy = comov_energy * inverse_doppler_factor;
+  rpacket_set_energy(packet, comov_energy * inverse_doppler_factor);
   rpacket_reset_tau_event(packet);
   packet->recently_crossed_boundary = 0;
   storage->last_interaction_type[storage->current_packet_id] = 1;
@@ -354,8 +354,8 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       old_doppler_factor = move_packet(packet, storage, distance, packet->virtual_packet);
       rpacket_set_mu(packet, 2.0 * rk_double(&mt_state) - 1.0);
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
-      comov_energy = packet->energy * old_doppler_factor;
-      packet->energy = comov_energy * inverse_doppler_factor;
+      comov_energy = rpacket_get_energy(packet) * old_doppler_factor;
+      rpacket_set_energy(packet, comov_energy * inverse_doppler_factor);
       storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
       storage->last_line_interaction_shell_id[storage->current_packet_id] = packet->current_shell_id;
       storage->last_interaction_type[storage->current_packet_id] = 2;
@@ -474,7 +474,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
     } 
   if (virtual_packet > 0)
     {
-      packet->energy = packet->energy * exp(-1.0 * rpacket_get_tau_event(packet));
+      rpacket_set_energy(packet, rpacket_get_energy(packet) * exp(-1.0 * rpacket_get_tau_event(packet)));
     }
   return rpacket_get_status(packet) == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
