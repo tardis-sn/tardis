@@ -58,8 +58,8 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
 {
   double r = rpacket_get_r(packet);
   double mu = rpacket_get_mu(packet);  
-  double r_outer = storage->r_outer[packet->current_shell_id];
-  double r_inner = storage->r_inner[packet->current_shell_id];
+  double r_outer = storage->r_outer[rpacket_get_current_shell_id(packet)];
+  double r_inner = storage->r_inner[rpacket_get_current_shell_id(packet)];
   double d_outer = sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
   double d_inner;
   if (packet->recently_crossed_boundary == 1)
@@ -106,7 +106,7 @@ inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
   double inverse_t_exp = storage->inverse_time_explosion;
   double last_line = storage->line_list_nu[packet->next_line_id - 1];
   double next_line = storage->line_list_nu[packet->next_line_id + 1];
-  int64_t cur_zone_id = packet->current_shell_id;
+  int64_t cur_zone_id = rpacket_get_current_shell_id(packet);
   double comov_nu, doppler_factor;
   doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
   comov_nu = nu * doppler_factor;
@@ -134,7 +134,7 @@ inline double compute_distance2electron(rpacket_t *packet, storage_model_t *stor
     {
       return MISS_DISTANCE;
     }
-  double inverse_ne = storage->inverse_electron_densities[packet->current_shell_id] * 
+  double inverse_ne = storage->inverse_electron_densities[rpacket_get_current_shell_id(packet)] * 
     storage->inverse_sigma_thomson;
   return rpacket_get_tau_event(packet) * inverse_ne;
 }
@@ -151,7 +151,7 @@ inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
       p = 0.0;
       do
 	{
-	  p += storage->transition_probabilities[packet->current_shell_id * storage->transition_probabilities_nd + (++i)];
+	  p += storage->transition_probabilities[rpacket_get_current_shell_id(packet) * storage->transition_probabilities_nd + (++i)];
 	} while (p <= event_random);
       emit = storage->transition_type[i];
       activate_level = storage->destination_level_id[i];
@@ -174,8 +174,8 @@ inline double move_packet(rpacket_t *packet, storage_model_t *storage,
 	{
 	  comov_energy = rpacket_get_energy(packet) * doppler_factor;
 	  comov_nu = rpacket_get_nu(packet) * doppler_factor;
-	  storage->js[packet->current_shell_id] += comov_energy * distance;
-	  storage->nubars[packet->current_shell_id] += comov_energy * distance * comov_nu;
+	  storage->js[rpacket_get_current_shell_id(packet)] += comov_energy * distance;
+	  storage->nubars[rpacket_get_current_shell_id(packet)] += comov_energy * distance * comov_nu;
 	}
     }
   return doppler_factor;
@@ -262,7 +262,7 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
   if (packet->virtual_packet > 0)
     {
       double delta_tau_event = distance * 
-	storage->electron_densities[packet->current_shell_id] * 
+	storage->electron_densities[rpacket_get_current_shell_id(packet)] * 
 	storage->sigma_thomson;
       rpacket_set_tau_event(packet, rpacket_get_tau_event(packet) + delta_tau_event);
     }
@@ -270,10 +270,10 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
     {
       rpacket_reset_tau_event(packet);
     }
-  if ((packet->current_shell_id < storage->no_of_shells - 1 && packet->next_shell_id == 1) || 
-      (packet->current_shell_id > 0 && packet->next_shell_id == -1))
+  if ((rpacket_get_current_shell_id(packet) < storage->no_of_shells - 1 && packet->next_shell_id == 1) || 
+      (rpacket_get_current_shell_id(packet) > 0 && packet->next_shell_id == -1))
     {
-      packet->current_shell_id += packet->next_shell_id;
+      rpacket_set_current_shell_id(packet, rpacket_get_current_shell_id(packet) + packet->next_shell_id);
       packet->recently_crossed_boundary = packet->next_shell_id;
     }
   else if (packet->next_shell_id == 1)
@@ -334,11 +334,11 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
   int64_t j_blue_idx = -1;
   if (packet->virtual_packet == 0)
     {
-      j_blue_idx = packet->current_shell_id * storage->line_lists_j_blues_nd + packet->next_line_id;
+      j_blue_idx = rpacket_get_current_shell_id(packet) * storage->line_lists_j_blues_nd + packet->next_line_id;
       increment_j_blue_estimator(packet, storage, distance, j_blue_idx);
     }
-  tau_line = storage->line_lists_tau_sobolevs[packet->current_shell_id * storage->line_lists_tau_sobolevs_nd + packet->next_line_id];
-  tau_electron = storage->sigma_thomson * storage->electron_densities[packet->current_shell_id] * distance;
+  tau_line = storage->line_lists_tau_sobolevs[rpacket_get_current_shell_id(packet) * storage->line_lists_tau_sobolevs_nd + packet->next_line_id];
+  tau_electron = storage->sigma_thomson * storage->electron_densities[rpacket_get_current_shell_id(packet)] * distance;
   tau_combined = tau_line + tau_electron;
   packet->next_line_id += 1;
   if (packet->next_line_id == storage->no_of_lines)
@@ -357,7 +357,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       comov_energy = rpacket_get_energy(packet) * old_doppler_factor;
       rpacket_set_energy(packet, comov_energy * inverse_doppler_factor);
       storage->last_line_interaction_in_id[storage->current_packet_id] = packet->next_line_id - 1;
-      storage->last_line_interaction_shell_id[storage->current_packet_id] = packet->current_shell_id;
+      storage->last_line_interaction_shell_id[storage->current_packet_id] = rpacket_get_current_shell_id(packet);
       storage->last_interaction_type[storage->current_packet_id] = 2;
       if (storage->line_interaction_id == 0)
 	{
