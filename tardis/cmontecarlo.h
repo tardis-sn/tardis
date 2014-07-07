@@ -200,6 +200,56 @@ void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double
   Getter and setter methods.
 */
 
+inline double rpacket_get_nu(rpacket_t *packet)
+{
+  return packet->nu;
+}
+
+inline void rpacket_set_nu(rpacket_t *packet, double nu)
+{
+  packet->nu = nu;
+}
+
+inline double rpacket_get_mu(rpacket_t *packet)
+{
+  return packet->mu;
+}
+
+inline void rpacket_set_mu(rpacket_t *packet, double mu)
+{
+  packet->mu = mu;
+}
+
+inline double rpacket_get_energy(rpacket_t *packet)
+{
+  return packet->energy;
+}
+
+inline void rpacket_set_energy(rpacket_t *packet, double energy)
+{
+  packet->energy = energy;
+}
+
+inline double rpacket_get_r(rpacket_t *packet)
+{
+  return packet->r;
+}
+
+inline void rpacket_set_r(rpacket_t *packet, double r)
+{
+  packet->r = r;
+}
+
+inline double rpacket_get_nu_line(rpacket_t *packet)
+{
+  return packet->nu_line;
+}
+
+inline void rpacket_set_nu_line(rpacket_t *packet, double nu_line)
+{
+  packet->nu_line = nu_line;
+}
+
 inline double rpacket_get_tau_event(rpacket_t *packet)
 {
   return packet->tau_event;
@@ -223,36 +273,6 @@ inline rpacket_status_t rpacket_get_status(rpacket_t *packet)
 inline void rpacket_set_status(rpacket_t *packet, rpacket_status_t status)
 {
   packet->status = status;
-}
-
-inline double rpacket_get_nu(rpacket_t *packet)
-{
-  return packet->nu;
-}
-
-inline void rpacket_set_nu(rpacket_t *packet, double nu)
-{
-  packet->nu = nu;
-}
-
-inline double rpacket_get_mu(rpacket_t *packet)
-{
-  return packet->mu;
-}
-
-inline void rpacket_set_mu(rpacket_t *packet, double mu)
-{
-  packet->mu = mu;
-}
-
-inline double rpacket_get_r(rpacket_t *packet)
-{
-  return packet->r;
-}
-
-inline void rpacket_set_r(rpacket_t *packet, double r)
-{
-  packet->r = r;
 }
 
 inline double rpacket_get_d_boundary(rpacket_t *packet)
@@ -283,16 +303,6 @@ inline double rpacket_get_d_line(rpacket_t *packet)
 inline void rpacket_set_d_line(rpacket_t *packet, double d_line)
 {
   packet->d_line = d_line;
-}
-
-inline double rpacket_get_energy(rpacket_t *packet)
-{
-  return packet->energy;
-}
-
-inline void rpacket_set_energy(rpacket_t *packet, double energy)
-{
-  packet->energy = energy;
 }
 
 inline unsigned int rpacket_get_current_shell_id(rpacket_t *packet)
