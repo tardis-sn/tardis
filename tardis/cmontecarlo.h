@@ -305,4 +305,14 @@ inline void rpacket_set_current_shell_id(rpacket_t *packet, unsigned int current
   packet->current_shell_id = current_shell_id;
 }
 
+inline unsigned int rpacket_get_next_line_id(rpacket_t *packet)
+{
+  return packet->next_line_id;
+}
+
+inline void rpacket_set_next_line_id(rpacket_t *packet, unsigned int next_line_id)
+{
+  packet->next_line_id = next_line_id;
+}
+
 #endif // TARDIS_CMONTECARLO_H
