@@ -295,4 +295,14 @@ inline void rpacket_set_energy(rpacket_t *packet, double energy)
   packet->energy = energy;
 }
 
+inline unsigned int rpacket_get_current_shell_id(rpacket_t *packet)
+{
+  return packet->current_shell_id;
+}
+
+inline void rpacket_set_current_shell_id(rpacket_t *packet, unsigned int current_shell_id)
+{
+  packet->current_shell_id = current_shell_id;
+}
+
 #endif // TARDIS_CMONTECARLO_H
