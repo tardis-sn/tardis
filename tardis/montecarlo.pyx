@@ -88,7 +88,7 @@ cdef extern double compute_distance2electron(rpacket_t *packet, storage_model_t 
 cdef extern double move_packet(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
 cdef extern void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
 cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
-cdef extern void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double mu, double energy, int_type_t virtual_packet)
+cdef extern void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index)
 
 cdef extern from "math.h":
     double log(double)

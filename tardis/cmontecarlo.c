@@ -478,3 +478,38 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
     }
   return rpacket_get_status(packet) == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
+
+inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index)
+{
+  double nu_line;
+  double current_r;
+  double current_mu;
+  double current_nu;
+  double comov_current_nu;
+  double current_energy;
+  int current_line_id;
+  int current_shell_id;
+  bool last_line;
+  bool close_line;
+  int recently_crossed_boundary;
+  current_nu = storage->packet_nus[packet_index];
+  current_energy = storage->packet_energies[packet_index];
+  current_mu = storage->packet_mus[packet_index];
+  comov_current_nu = current_nu;
+  current_shell_id = 0;
+  current_r = storage->r_inner[0];
+  current_nu = current_nu / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
+  current_energy = current_energy / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
+  current_line_id = line_search(storage->line_list_nu, comov_current_nu, storage->no_of_lines);
+  last_line = (current_line_id == storage->no_of_lines);
+  recently_crossed_boundary = 1;
+  rpacket_set_nu(packet, current_nu);
+  rpacket_set_mu(packet, current_mu);
+  rpacket_set_energy(packet, current_energy);
+  rpacket_set_r(packet, current_r);
+  rpacket_set_current_shell_id(packet, current_shell_id);
+  rpacket_set_next_line_id(packet, current_line_id);
+  rpacket_set_last_line(packet, last_line);
+  rpacket_set_close_line(packet, close_line);
+  rpacket_set_recently_crossed_boundary(packet, recently_crossed_boundary);
+}
