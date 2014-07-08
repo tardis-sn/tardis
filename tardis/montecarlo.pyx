@@ -247,17 +247,17 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     cdef int_type_t reabsorbed = 0
-    for i in range(storage.no_of_packets):
-        storage.current_packet_id = i
-        rpacket_init(&packet, &storage, i)
+    for packet_index in range(storage.no_of_packets):
+        storage.current_packet_id = packet_index
+        rpacket_init(&packet, &storage, packet_index)
         packet.virtual_packet_flag = virtual_packet_flag
         if (virtual_packet_flag > 0):
             #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
             reabsorbed = montecarlo_one_packet(&storage, &packet, -1)
         #Now can do the propagation of the real packet
         reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
-        storage.output_nus[i] = packet.nu
-        storage.output_energies[i] = -packet.energy if reabsorbed == 1 else packet.energy
+        storage.output_nus[packet_index] = packet.nu
+        storage.output_energies[packet_index] = -packet.energy if reabsorbed == 1 else packet.energy
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
 
