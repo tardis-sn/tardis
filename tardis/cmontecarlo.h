@@ -182,19 +182,6 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet,
 int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
 				   int64_t virtual_packet);
 
-/**
- * @brief Initialize RPacket data structure.
- *
- * @param packet a pointer to the packet structure
- * @param storage a pointer to the corresponding storage model
- * @param nu frequency of the packet in Hz
- * @param mu cosine of the angle the packet is moving at
- * @param energy energy of the packet in erg
- * @param r distance to the packet from the center in cm
- * @param virtual_packet is the packet virtual
- */
-void rpacket_init(rpacket_t *packet, storage_model_t *storage, double nu, double mu, double energy, int64_t virtual_packet);
-
 /*
   Getter and setter methods.
 */
@@ -386,5 +373,8 @@ inline void rpacket_reset_tau_event(rpacket_t *packet)
   rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
 }
 
+inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index);
 
 #endif // TARDIS_CMONTECARLO_H
+
+
