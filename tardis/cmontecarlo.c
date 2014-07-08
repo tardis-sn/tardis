@@ -62,7 +62,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
   double r_inner = storage->r_inner[rpacket_get_current_shell_id(packet)];
   double d_outer = sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
   double d_inner;
-  if (packet->recently_crossed_boundary == 1)
+  if (rpacket_get_recently_crossed_boundary(packet) == 1)
     {
       packet->next_shell_id = 1;
       return d_outer;
@@ -274,7 +274,7 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
       (rpacket_get_current_shell_id(packet) > 0 && packet->next_shell_id == -1))
     {
       rpacket_set_current_shell_id(packet, rpacket_get_current_shell_id(packet) + packet->next_shell_id);
-      packet->recently_crossed_boundary = packet->next_shell_id;
+      rpacket_set_recently_crossed_boundary(packet, packet->next_shell_id);
     }
   else if (packet->next_shell_id == 1)
     {
@@ -294,7 +294,7 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
       rpacket_set_nu(packet, comov_nu * inverse_doppler_factor);
       rpacket_set_energy(packet, comov_energy * inverse_doppler_factor);
-      packet->recently_crossed_boundary = 1;
+      rpacket_set_recently_crossed_boundary(packet, 1);
       if (packet->virtual_packet_flag > 0)
 	{
 	  montecarlo_one_packet(storage, packet, -2);
@@ -313,7 +313,7 @@ void montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage, dou
   rpacket_set_nu(packet, comov_nu * inverse_doppler_factor);
   rpacket_set_energy(packet, comov_energy * inverse_doppler_factor);
   rpacket_reset_tau_event(packet);
-  packet->recently_crossed_boundary = 0;
+  rpacket_set_recently_crossed_boundary(packet, 0);
   storage->last_interaction_type[storage->current_packet_id] = 1;
   if (packet->virtual_packet_flag > 0)
     {
@@ -372,7 +372,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       rpacket_set_nu_line(packet, storage->line_list_nu[emission_line_id]);
       rpacket_set_next_line_id(packet, emission_line_id + 1);
       rpacket_reset_tau_event(packet);
-      packet->recently_crossed_boundary = 0;
+      rpacket_set_recently_crossed_boundary(packet, 0);
       if (packet->virtual_packet_flag > 0)
 	{
 	  virtual_close_line = false;
