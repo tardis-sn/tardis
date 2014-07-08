@@ -300,6 +300,16 @@ inline void rpacket_set_close_line(rpacket_t *packet, bool close_line)
   packet->close_line = close_line;
 }
 
+inline int64_t rpacket_get_recently_crossed_boundary(rpacket_t *packet)
+{
+  return packet->recently_crossed_boundary;
+}
+
+inline void rpacket_set_recently_crossed_boundary(rpacket_t *packet, int64_t recently_crossed_boundary)
+{
+  packet->recently_crossed_boundary = recently_crossed_boundary;
+}
+
 inline double rpacket_get_d_boundary(rpacket_t *packet)
 {
   return packet->d_boundary;
