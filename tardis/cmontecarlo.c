@@ -502,7 +502,7 @@ inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet
   current_energy = current_energy / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
   current_line_id = line_search(storage->line_list_nu, comov_current_nu, storage->no_of_lines);
   last_line = (current_line_id == storage->no_of_lines);
-  recently_crossed_boundary = 1;
+  recently_crossed_boundary = true;
   rpacket_set_nu(packet, current_nu);
   rpacket_set_mu(packet, current_mu);
   rpacket_set_energy(packet, current_energy);
@@ -510,6 +510,6 @@ inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet
   rpacket_set_current_shell_id(packet, current_shell_id);
   rpacket_set_next_line_id(packet, current_line_id);
   rpacket_set_last_line(packet, last_line);
-  rpacket_set_close_line(packet, close_line);
+  rpacket_set_close_line(packet, false);
   rpacket_set_recently_crossed_boundary(packet, recently_crossed_boundary);
 }

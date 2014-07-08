@@ -246,54 +246,10 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
-    ######## Setting up the running variable ########
-    cdef double nu_line = 0.0
-    cdef double current_r = 0.0
-    cdef double current_mu = 0.0
-    cdef double current_nu = 0.0
-    cdef double comov_current_nu = 0.0
-    cdef double current_energy = 0.0
-    #indices
-    cdef int_type_t current_line_id = 0
-    cdef int_type_t current_shell_id = 0
-    #Flags for close lines and last line, etc
-    cdef int_type_t last_line = 0
-    cdef int_type_t close_line = 0
     cdef int_type_t reabsorbed = 0
-    cdef int_type_t recently_crossed_boundary = 0
-    cdef int i = 0
     for i in range(storage.no_of_packets):
         storage.current_packet_id = i
-        #setting up the properties of the packet
-        current_nu = storage.packet_nus[i]
-        current_energy = storage.packet_energies[i]
-        current_mu = storage.packet_mus[i]
-        #these have been drawn for the comoving frame so we want to convert them        
-        comov_current_nu = current_nu
-        #Location of the packet
-        current_shell_id = 0
-        current_r = storage.r_inner[0]
-        current_nu = current_nu / (1 - (current_mu * current_r * storage.inverse_time_explosion * inverse_c))
-        current_energy = current_energy / (1 - (current_mu * current_r * storage.inverse_time_explosion * inverse_c))
-        #linelists
-        current_line_id = line_search(storage.line_list_nu, comov_current_nu, storage.no_of_lines)
-        if current_line_id == storage.no_of_lines:
-            #setting flag that the packet is off the red end of the line list
-            last_line = 1
-        else:
-            last_line = 0
-        #### FLAGS ####
-        #Packet recently crossed the inner boundary
-        recently_crossed_boundary = 1
-        packet.nu = current_nu
-        packet.mu = current_mu
-        packet.energy = current_energy
-        packet.r = current_r
-        packet.current_shell_id = current_shell_id
-        packet.next_line_id = current_line_id
-        packet.last_line = last_line
-        packet.close_line = close_line
-        packet.recently_crossed_boundary = recently_crossed_boundary
+        rpacket_init(&packet, &storage, i)
         packet.virtual_packet_flag = virtual_packet_flag
         if (virtual_packet_flag > 0):
             #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
