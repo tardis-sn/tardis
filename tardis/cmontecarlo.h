@@ -171,8 +171,7 @@ inline double compute_distance2electron(rpacket_t *packet, storage_model_t *stor
 
 inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage);
 
-inline double move_packet(rpacket_t *packet, storage_model_t *storage, 
-			  double distance, int64_t virtual_packet);
+inline double move_packet(rpacket_t *packet, storage_model_t *storage, double distance);
 
 inline void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage, 
 				       double d_line, int64_t j_blue_idx);
@@ -300,14 +299,34 @@ inline void rpacket_set_close_line(rpacket_t *packet, bool close_line)
   packet->close_line = close_line;
 }
 
-inline int64_t rpacket_get_recently_crossed_boundary(rpacket_t *packet)
+inline int rpacket_get_recently_crossed_boundary(rpacket_t *packet)
 {
   return packet->recently_crossed_boundary;
 }
 
-inline void rpacket_set_recently_crossed_boundary(rpacket_t *packet, int64_t recently_crossed_boundary)
+inline void rpacket_set_recently_crossed_boundary(rpacket_t *packet, int recently_crossed_boundary)
 {
   packet->recently_crossed_boundary = recently_crossed_boundary;
+}
+
+inline int rpacket_get_virtual_packet_flag(rpacket_t *packet)
+{
+  return packet->virtual_packet_flag;
+}
+
+inline void rpacket_set_virtual_packet_flag(rpacket_t *packet, int virtual_packet_flag)
+{
+  packet->virtual_packet_flag = virtual_packet_flag;
+}
+
+inline int rpacket_get_virtual_packet(rpacket_t *packet)
+{
+  return packet->virtual_packet;
+}
+
+inline void rpacket_set_virtual_packet(rpacket_t *packet, int virtual_packet)
+{
+  packet->virtual_packet = virtual_packet;
 }
 
 inline double rpacket_get_d_boundary(rpacket_t *packet)
