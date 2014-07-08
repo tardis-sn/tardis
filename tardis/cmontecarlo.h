@@ -359,6 +359,16 @@ inline void rpacket_set_d_line(rpacket_t *packet, double d_line)
   packet->d_line = d_line;
 }
 
+inline int rpacket_get_next_shell_id(rpacket_t *packet)
+{
+  return packet->next_shell_id;
+}
+
+inline void rpacket_set_next_shell_id(rpacket_t *packet, int next_shell_id)
+{
+  packet->next_shell_id = next_shell_id;
+}
+
 inline rpacket_status_t rpacket_get_status(rpacket_t *packet)
 {
   return packet->status;

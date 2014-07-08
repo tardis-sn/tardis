@@ -64,7 +64,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
   double d_inner;
   if (rpacket_get_recently_crossed_boundary(packet) == 1)
     {
-      packet->next_shell_id = 1;
+      rpacket_set_next_shell_id(packet, 1);
       return d_outer;
     }
   else
@@ -72,7 +72,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
       double check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
       if (check < 0.0) 
 	{
-	  packet->next_shell_id = 1;
+	  rpacket_set_next_shell_id(packet, 1);
 	  return d_outer;
 	}
       else
@@ -82,12 +82,12 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
     }
   if (d_inner < d_outer)
     {
-      packet->next_shell_id = -1;
+      rpacket_set_next_shell_id(packet, -1);
       return d_inner;
     }
   else
     {
-      packet->next_shell_id = 1;
+      rpacket_set_next_shell_id(packet, 1);
       return d_outer;
     }
 }
@@ -269,13 +269,13 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
     {
       rpacket_reset_tau_event(packet);
     }
-  if ((rpacket_get_current_shell_id(packet) < storage->no_of_shells - 1 && packet->next_shell_id == 1) || 
-      (rpacket_get_current_shell_id(packet) > 0 && packet->next_shell_id == -1))
+  if ((rpacket_get_current_shell_id(packet) < storage->no_of_shells - 1 && rpacket_get_next_shell_id(packet) == 1) || 
+      (rpacket_get_current_shell_id(packet) > 0 && rpacket_get_next_shell_id(packet) == -1))
     {
-      rpacket_set_current_shell_id(packet, rpacket_get_current_shell_id(packet) + packet->next_shell_id);
-      rpacket_set_recently_crossed_boundary(packet, packet->next_shell_id);
+      rpacket_set_current_shell_id(packet, rpacket_get_current_shell_id(packet) + rpacket_get_next_shell_id(packet));
+      rpacket_set_recently_crossed_boundary(packet, rpacket_get_next_shell_id(packet));
     }
-  else if (packet->next_shell_id == 1)
+  else if (rpacket_get_next_shell_id(packet) == 1)
     {
       rpacket_set_status(packet, TARDIS_PACKET_STATUS_EMITTED);
     }
