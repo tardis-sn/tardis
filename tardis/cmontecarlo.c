@@ -130,7 +130,7 @@ inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
 
 inline double compute_distance2electron(rpacket_t *packet, storage_model_t *storage)
 {
-  if (packet->virtual_packet > 0)
+  if (rpacket_get_virtual_packet(packet) > 0)
     {
       return MISS_DISTANCE;
     }
@@ -159,8 +159,7 @@ inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
   return storage->transition_line_id[i];
 }
 
-inline double move_packet(rpacket_t *packet, storage_model_t *storage, 
-			  double distance, int64_t virtual_packet)
+inline double move_packet(rpacket_t *packet, storage_model_t *storage, double distance)
 {
   double new_r, doppler_factor, comov_energy, comov_nu;
   doppler_factor = rpacket_doppler_factor(packet, storage);
@@ -170,7 +169,7 @@ inline double move_packet(rpacket_t *packet, storage_model_t *storage,
       new_r = sqrt(r * r + distance * distance + 2.0 * r * distance * rpacket_get_mu(packet));
       rpacket_set_mu(packet, (rpacket_get_mu(packet) * r + distance) / new_r);
       rpacket_set_r(packet, new_r);
-      if (virtual_packet <= 0)
+      if (rpacket_get_virtual_packet(packet) <= 0)
 	{
 	  comov_energy = rpacket_get_energy(packet) * doppler_factor;
 	  comov_nu = rpacket_get_nu(packet) * doppler_factor;
@@ -209,7 +208,7 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
     }
   else
     {
-      for (i = 0; i < packet->virtual_packet_flag; i++)
+      for (i = 0; i < rpacket_get_virtual_packet_flag(packet); i++)
 	{
 	  memcpy((void *)&virt_packet, (void *)packet, sizeof(rpacket_t));
 	  if (virt_packet.r > storage->r_inner[0])
@@ -221,18 +220,18 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 	    {
 	      mu_min = 0.0;
 	    }
-	  mu_bin = (1.0 - mu_min) / packet->virtual_packet_flag;
+	  mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag(packet);
 	  virt_packet.mu = mu_min + (i + rk_double(&mt_state)) * mu_bin;
 	  switch(virtual_mode)
 	    {
 	    case -2:
-	      weight = 1.0 / packet->virtual_packet_flag;
+	      weight = 1.0 / rpacket_get_virtual_packet_flag(packet);
 	      break;
 	    case -1:
-	      weight = 2.0 * virt_packet.mu / packet->virtual_packet_flag;
+	      weight = 2.0 * virt_packet.mu / rpacket_get_virtual_packet_flag(packet);
 	      break;
 	    case 1:
-	      weight = (1.0 - mu_min) / 2.0 / packet->virtual_packet_flag;
+	      weight = (1.0 - mu_min) / 2.0 / rpacket_get_virtual_packet_flag(packet);
 	      break;
 	    default:
 	      fprintf(stderr, "Something has gone horribly wrong!\n");
@@ -258,8 +257,8 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *storage, double distance)
 {
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
-  move_packet(packet, storage, distance, packet->virtual_packet);
-  if (packet->virtual_packet > 0)
+  move_packet(packet, storage, distance);
+  if (rpacket_get_virtual_packet(packet) > 0)
     {
       double delta_tau_event = distance * 
 	storage->electron_densities[rpacket_get_current_shell_id(packet)] * 
@@ -295,7 +294,7 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
       rpacket_set_nu(packet, comov_nu * inverse_doppler_factor);
       rpacket_set_energy(packet, comov_energy * inverse_doppler_factor);
       rpacket_set_recently_crossed_boundary(packet, 1);
-      if (packet->virtual_packet_flag > 0)
+      if (rpacket_get_virtual_packet_flag(packet) > 0)
 	{
 	  montecarlo_one_packet(storage, packet, -2);
 	}
@@ -305,7 +304,7 @@ void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *stora
 void montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage, double distance)
 {
   double comov_energy, doppler_factor, comov_nu, inverse_doppler_factor;
-  doppler_factor = move_packet(packet, storage, distance, packet->virtual_packet);
+  doppler_factor = move_packet(packet, storage, distance);
   comov_nu = rpacket_get_nu(packet) * doppler_factor;
   comov_energy = rpacket_get_energy(packet) * doppler_factor;
   rpacket_set_mu(packet, 2.0 * rk_double(&mt_state) - 1.0);
@@ -315,7 +314,7 @@ void montecarlo_thomson_scatter(rpacket_t *packet, storage_model_t *storage, dou
   rpacket_reset_tau_event(packet);
   rpacket_set_recently_crossed_boundary(packet, 0);
   storage->last_interaction_type[storage->current_packet_id] = 1;
-  if (packet->virtual_packet_flag > 0)
+  if (rpacket_get_virtual_packet_flag(packet) > 0)
     {
       montecarlo_one_packet(storage, packet, 1);
     }  
@@ -332,7 +331,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
   double tau_combined = 0.0;
   bool virtual_close_line = false;
   int64_t j_blue_idx = -1;
-  if (packet->virtual_packet == 0)
+  if (rpacket_get_virtual_packet(packet) == 0)
     {
       j_blue_idx = rpacket_get_current_shell_id(packet) * storage->line_lists_j_blues_nd + rpacket_get_next_line_id(packet);
       increment_j_blue_estimator(packet, storage, distance, j_blue_idx);
@@ -345,13 +344,13 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
     {
       rpacket_set_last_line(packet, true);
     }
-  if (packet->virtual_packet > 0)
+  if (rpacket_get_virtual_packet(packet) > 0)
     {
       rpacket_set_tau_event(packet, rpacket_get_tau_event(packet) + tau_line);
     }
   else if (rpacket_get_tau_event(packet) < tau_combined)
     {
-      old_doppler_factor = move_packet(packet, storage, distance, packet->virtual_packet);
+      old_doppler_factor = move_packet(packet, storage, distance);
       rpacket_set_mu(packet, 2.0 * rk_double(&mt_state) - 1.0);
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor(packet, storage);
       comov_energy = rpacket_get_energy(packet) * old_doppler_factor;
@@ -373,7 +372,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
       rpacket_set_next_line_id(packet, emission_line_id + 1);
       rpacket_reset_tau_event(packet);
       rpacket_set_recently_crossed_boundary(packet, 0);
-      if (packet->virtual_packet_flag > 0)
+      if (rpacket_get_virtual_packet_flag(packet) > 0)
 	{
 	  virtual_close_line = false;
 	  if (!rpacket_get_last_line(packet) &&
@@ -450,7 +449,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
 {
   rpacket_set_tau_event(packet, 0.0);
   rpacket_set_nu_line(packet, 0.0);
-  packet->virtual_packet = virtual_packet;
+  rpacket_set_virtual_packet(packet, virtual_packet);
   rpacket_set_status(packet, TARDIS_PACKET_STATUS_IN_PROCESS);
   // Initializing tau_event if it's a real packet.
   if (virtual_packet == 0)
