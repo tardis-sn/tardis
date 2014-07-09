@@ -19,7 +19,7 @@ typedef enum
   {
     TARDIS_ERROR_OK,
     TARDIS_ERROR_BOUNDS_ERROR
-  } TARDIS_ERROR;
+  } tardis_error_t;
 
 typedef enum
   {
@@ -373,7 +373,7 @@ inline void rpacket_reset_tau_event(rpacket_t *packet)
   rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
 }
 
-inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index);
+inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag);
 
 #endif // TARDIS_CMONTECARLO_H
 
