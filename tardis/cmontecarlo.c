@@ -2,21 +2,22 @@
 
 inline int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines)
 {
-  int64_t imin, imax;
+  int64_t imin, imax, result;
   imin = 0;
   imax = number_of_lines - 1;
   if (nu_insert > nu[imin])
     {
-      return imin;
+      result = imin;
     }
   else if (nu_insert < nu[imax])
     {
-      return imax + 1;
+      result = imax + 1;
     }
   else
     {
-      return binary_search(nu, nu_insert, imin, imax) + 1;
+      result = binary_search(nu, nu_insert, imin, imax) + 1;
     }
+  return result;
 }
 
 inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
@@ -479,7 +480,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
   return rpacket_get_status(packet) == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
 
-inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index)
+inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
 {
   double nu_line;
   double current_r;
@@ -512,4 +513,5 @@ inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet
   rpacket_set_last_line(packet, last_line);
   rpacket_set_close_line(packet, false);
   rpacket_set_recently_crossed_boundary(packet, recently_crossed_boundary);
+  rpacket_set_virtual_packet_flag(packet, virtual_packet_flag);
 }
