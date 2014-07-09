@@ -88,14 +88,9 @@ cdef extern double compute_distance2electron(rpacket_t *packet, storage_model_t 
 cdef extern double move_packet(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
 cdef extern void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
 cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
-cdef extern void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index)
-
-cdef extern from "math.h":
-    double log(double)
-    double sqrt(double)
-    double exp(double)
-    int_type_t floor(double)
-    bint isnan(double x)
+cdef extern void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
+cdef extern double rpacket_get_nu(rpacket_t *packet)
+cdef extern double rpacket_get_energy(rpacket_t *packet)
 
 cdef extern from "randomkit.h":
     ctypedef struct rk_state:
@@ -113,12 +108,6 @@ cdef extern from "randomkit.h":
     double rk_double(rk_state *state)
 
 cdef extern rk_state mt_state
-
-#constants
-cdef double miss_distance = 1e99
-cdef double c = constants.c.cgs.value # cm/s
-cdef double inverse_c = 1 / c
-#DEBUG STATEMENT TAKE OUT
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     """
@@ -249,15 +238,14 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     cdef int_type_t reabsorbed = 0
     for packet_index in range(storage.no_of_packets):
         storage.current_packet_id = packet_index
-        rpacket_init(&packet, &storage, packet_index)
-        packet.virtual_packet_flag = virtual_packet_flag
+        rpacket_init(&packet, &storage, packet_index, virtual_packet_flag)
         if (virtual_packet_flag > 0):
             #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
             reabsorbed = montecarlo_one_packet(&storage, &packet, -1)
         #Now can do the propagation of the real packet
         reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
-        storage.output_nus[packet_index] = packet.nu
-        storage.output_energies[packet_index] = -packet.energy if reabsorbed == 1 else packet.energy
+        storage.output_nus[packet_index] = rpacket_get_nu(&packet)
+        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
 
