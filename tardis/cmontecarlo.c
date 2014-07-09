@@ -22,32 +22,37 @@ inline int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines
 
 inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
 {
+  int64_t result;
   if (x_insert > x[imin] || x_insert < x[imax])
     {
       fprintf(stderr, "Binary Search called but not inside domain. Abort!");
       exit(1);
     }
-  int imid = (imin + imax) / 2;
-  while (imax - imin > 2)
+  else
     {
-      if (x[imid] < x_insert)
+      int imid = (imin + imax) / 2;
+      while (imax - imin > 2)
 	{
-	  imax = imid + 1;
+	  if (x[imid] < x_insert)
+	    {
+	      imax = imid + 1;
+	    }
+	  else
+	    {
+	      imin = imid;
+	    }
+	  imid = (imin + imax) / 2;
+	}
+      if (imax - imid == 2 && x_insert < x[imin + 1])
+	{
+	  result = imin + 1;
 	}
       else
 	{
-	  imin = imid;
-	}
-      imid = (imin + imax) / 2;
-    }
-  if (imax - imid == 2)
-    {
-      if (x_insert < x[imin + 1])
-	{
-	  return imin + 1;
+	  result = imin;
 	}
     }
-  return imin;
+  return result;
 }
 
 inline double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage)
