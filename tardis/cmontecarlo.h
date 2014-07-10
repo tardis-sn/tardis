@@ -130,7 +130,7 @@ typedef void (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t *s
  *
  * @return index of the next boundary to the left
  */
-inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax);
+inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax, int64_t *result);
 
 /** Insert a value in to an array of line frequencies
  *
@@ -140,7 +140,7 @@ inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t i
  *
  * @return index of the next line ot the red. If the key value is redder than the reddest line returns number_of_lines.
  */
-inline int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines);
+inline tardis_error_t line_search(double *nu, double nu_insert, int64_t number_of_lines, int64_t *result);
 
 /** Calculate the distance to shell boundary.
  *
