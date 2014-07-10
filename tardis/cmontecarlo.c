@@ -1,31 +1,34 @@
 #include "cmontecarlo.h"
 
-inline int64_t line_search(double *nu, double nu_insert, int64_t number_of_lines)
+inline tardis_error_t line_search(double *nu, double nu_insert, int64_t number_of_lines, int64_t *result)
 {
-  int64_t imin, imax, result;
+  tardis_error_t ret_val = TARDIS_ERROR_OK;
+  int64_t imin, imax;
   imin = 0;
   imax = number_of_lines - 1;
   if (nu_insert > nu[imin])
     {
-      result = imin;
+      *result = imin;
     }
   else if (nu_insert < nu[imax])
     {
-      result = imax + 1;
+      *result = imax + 1;
     }
   else
     {
-      result = binary_search(nu, nu_insert, imin, imax) + 1;
+      ret_val = binary_search(nu, nu_insert, imin, imax, result);
+      *result = *result + 1;
     }
-  return result;
+  return ret_val;
 }
 
-inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax)
+inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax, int64_t *result)
 {
-  int64_t result;
+  tardis_error_t ret_val = TARDIS_ERROR_OK;
   if (x_insert > x[imin] || x_insert < x[imax])
     {
-      fprintf(stderr, "Binary Search called but not inside domain. Abort!");
+      ret_val = TARDIS_ERROR_BOUNDS_ERROR;
+      // Crashes without this exit, this doesn't make sense.
       exit(1);
     }
   else
@@ -45,14 +48,14 @@ inline int64_t binary_search(double *x, double x_insert, int64_t imin, int64_t i
 	}
       if (imax - imid == 2 && x_insert < x[imin + 1])
 	{
-	  result = imin + 1;
+	  *result = imin + 1;
 	}
       else
 	{
-	  result = imin;
+	  *result = imin;
 	}
     }
-  return result;
+  return ret_val;
 }
 
 inline double rpacket_doppler_factor(rpacket_t *packet, storage_model_t *storage)
@@ -68,6 +71,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
   double r_inner = storage->r_inner[rpacket_get_current_shell_id(packet)];
   double d_outer = sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
   double d_inner;
+  double result;
   if (rpacket_get_recently_crossed_boundary(packet) == 1)
     {
       rpacket_set_next_shell_id(packet, 1);
@@ -129,7 +133,6 @@ inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
       fprintf(stderr, "nu = %f\n", nu);
       fprintf(stderr, "doppler_factor = %f\n", doppler_factor);
       fprintf(stderr, "cur_zone_id = %d\n", cur_zone_id);
-      exit(1);
     }
   return ((comov_nu - nu_line) / nu) * C * t_exp;
 }
@@ -241,7 +244,6 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 	      break;
 	    default:
 	      fprintf(stderr, "Something has gone horribly wrong!\n");
-	      exit(1);	      
 	    }
 	  doppler_factor_ratio = 
 	    rpacket_doppler_factor(packet, storage) /
@@ -506,7 +508,7 @@ inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet
   current_r = storage->r_inner[0];
   current_nu = current_nu / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
   current_energy = current_energy / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
-  current_line_id = line_search(storage->line_list_nu, comov_current_nu, storage->no_of_lines);
+  line_search(storage->line_list_nu, comov_current_nu, storage->no_of_lines, &current_line_id);
   last_line = (current_line_id == storage->no_of_lines);
   recently_crossed_boundary = true;
   rpacket_set_nu(packet, current_nu);
