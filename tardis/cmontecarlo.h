@@ -373,7 +373,7 @@ inline void rpacket_reset_tau_event(rpacket_t *packet)
   rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
 }
 
-inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag);
+inline tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag);
 
 #endif // TARDIS_CMONTECARLO_H
 

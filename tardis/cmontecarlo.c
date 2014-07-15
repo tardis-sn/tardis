@@ -492,7 +492,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
   return rpacket_get_status(packet) == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
 
-inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
+inline tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
 {
   double nu_line;
   double current_r;
@@ -505,6 +505,7 @@ inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet
   bool last_line;
   bool close_line;
   int recently_crossed_boundary;
+  tardis_error_t ret_val;
   current_nu = storage->packet_nus[packet_index];
   current_energy = storage->packet_energies[packet_index];
   current_mu = storage->packet_mus[packet_index];
@@ -513,7 +514,10 @@ inline void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet
   current_r = storage->r_inner[0];
   current_nu = current_nu / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
   current_energy = current_energy / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
-  line_search(storage->line_list_nu, comov_current_nu, storage->no_of_lines, &current_line_id);
+  if ((ret_val = line_search(storage->line_list_nu, comov_current_nu, storage->no_of_lines, &current_line_id)) != TARDIS_ERROR_OK)
+    {
+      return ret_val;
+    }
   last_line = (current_line_id == storage->no_of_lines);
   recently_crossed_boundary = true;
   rpacket_set_nu(packet, current_nu);
