@@ -24,6 +24,11 @@ inline tardis_error_t line_search(double *nu, double nu_insert, int64_t number_o
 
 inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax, int64_t *result)
 {
+  /*
+    Have in mind that *x points to a reverse sorted array.
+    That is large values will have small indices and small ones
+    will have large indices.
+  */
   tardis_error_t ret_val = TARDIS_ERROR_OK;
   if (x_insert > x[imin] || x_insert < x[imax])
     {
