@@ -33,7 +33,6 @@ inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin, in
   if (x_insert > x[imin] || x_insert < x[imax])
     {
       ret_val = TARDIS_ERROR_BOUNDS_ERROR;
-      // Crashes without this exit, this doesn't make sense.
       exit(1);
     }
   else
