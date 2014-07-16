@@ -33,7 +33,6 @@ inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin, in
   if (x_insert > x[imin] || x_insert < x[imax])
     {
       ret_val = TARDIS_ERROR_BOUNDS_ERROR;
-      exit(1);
     }
   else
     {
@@ -499,7 +498,7 @@ inline tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, 
   double current_nu;
   double comov_current_nu;
   double current_energy;
-  int current_line_id;
+  int64_t current_line_id;
   int current_shell_id;
   bool last_line;
   bool close_line;
