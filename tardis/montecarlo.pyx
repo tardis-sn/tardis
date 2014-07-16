@@ -15,6 +15,11 @@ np.import_array()
 
 ctypedef np.int64_t int_type_t
 
+ctypedef enum rpacket_status_t:
+    TARDIS_PACKET_STATUS_IN_PROCESS = 0
+    TARDIS_PACKET_STATUS_EMITTED = 1
+    TARDIS_PACKET_STATUS_REABSORBED = 2
+
 ctypedef struct rpacket_t:
     double nu
     double mu
@@ -32,7 +37,7 @@ ctypedef struct rpacket_t:
     double d_line
     double d_electron
     double d_boundary
-    int_type_t next_shell_id
+    rpacket_status_t next_shell_id
 
 ctypedef struct storage_model_t:
     double *packet_nus
@@ -79,14 +84,6 @@ ctypedef struct storage_model_t:
     int_type_t reflective_inner_boundary
     int_type_t current_packet_id
 
-
-cdef extern int_type_t line_search(double *nu, double nu_insert, int_type_t number_of_lines) except -1
-cdef extern int_type_t binary_search(double *x, double x_insert, int_type_t imin, int_type_t imax) except -1
-cdef extern double compute_distance2boundary(rpacket_t *packet, storage_model_t *storage)
-cdef extern double compute_distance2line(rpacket_t *packet, storage_model_t *storage) except? 0
-cdef extern double compute_distance2electron(rpacket_t *packet, storage_model_t *storage)
-cdef extern double move_packet(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
-cdef extern void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *storage, double distance, int_type_t virtual_packet)
 cdef extern int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
 cdef extern void rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
 cdef extern double rpacket_get_nu(rpacket_t *packet)
@@ -248,14 +245,3 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
-
-def binary_search_wrapper(np.ndarray x, double x_insert, int_type_t imin, int_type_t imax):
-    cdef double* x_pointer
-    x_pointer = <double*> x.data
-    return binary_search(x_pointer, x_insert, imin, imax)
-
-
-def line_search_wrapper(np.ndarray nu, double nu_insert, int_type_t number_of_lines):
-    cdef double* nu_pointer
-    nu_pointer = <double*> nu.data
-    return line_search(nu_pointer, nu_insert, number_of_lines)
