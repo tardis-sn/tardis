@@ -105,39 +105,48 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
     }
 }
 
-inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage)
+inline tardis_error_t compute_distance2line(rpacket_t *packet, storage_model_t *storage, double *result)
 {
+  tardis_error_t ret_val = TARDIS_ERROR_OK;
   if (rpacket_get_last_line(packet))
     {
-      return MISS_DISTANCE;
+      *result = MISS_DISTANCE;
     }
-  double r = rpacket_get_r(packet);
-  double mu = rpacket_get_mu(packet);
-  double nu = rpacket_get_nu(packet);
-  double nu_line = rpacket_get_nu_line(packet);
-  double t_exp = storage->time_explosion;
-  double inverse_t_exp = storage->inverse_time_explosion;
-  double last_line = storage->line_list_nu[rpacket_get_next_line_id(packet) - 1];
-  double next_line = storage->line_list_nu[rpacket_get_next_line_id(packet) + 1];
-  int64_t cur_zone_id = rpacket_get_current_shell_id(packet);
-  double comov_nu, doppler_factor;
-  doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
-  comov_nu = nu * doppler_factor;
-  if (comov_nu < nu_line)
+  else
     {
-      fprintf(stderr, "ERROR: Comoving nu less than nu_line!\n");
-      fprintf(stderr, "comov_nu = %f\n", comov_nu);
-      fprintf(stderr, "nu_line = %f\n", nu_line);
-      fprintf(stderr, "(comov_nu - nu_line) / nu_line = %f\n", (comov_nu - nu_line) / nu_line);
-      fprintf(stderr, "last_line = %f\n", last_line);
-      fprintf(stderr, "next_line = %f\n", next_line);
-      fprintf(stderr, "r = %f\n", r);
-      fprintf(stderr, "mu = %f\n", mu);
-      fprintf(stderr, "nu = %f\n", nu);
-      fprintf(stderr, "doppler_factor = %f\n", doppler_factor);
-      fprintf(stderr, "cur_zone_id = %d\n", cur_zone_id);
+      double r = rpacket_get_r(packet);
+      double mu = rpacket_get_mu(packet);
+      double nu = rpacket_get_nu(packet);
+      double nu_line = rpacket_get_nu_line(packet);
+      double t_exp = storage->time_explosion;
+      double inverse_t_exp = storage->inverse_time_explosion;
+      double last_line = storage->line_list_nu[rpacket_get_next_line_id(packet) - 1];
+      double next_line = storage->line_list_nu[rpacket_get_next_line_id(packet) + 1];
+      int64_t cur_zone_id = rpacket_get_current_shell_id(packet);
+      double comov_nu, doppler_factor;
+      doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
+      comov_nu = nu * doppler_factor;
+      if (comov_nu < nu_line)
+	{
+	  fprintf(stderr, "ERROR: Comoving nu less than nu_line!\n");
+	  fprintf(stderr, "comov_nu = %f\n", comov_nu);
+	  fprintf(stderr, "nu_line = %f\n", nu_line);
+	  fprintf(stderr, "(comov_nu - nu_line) / nu_line = %f\n", (comov_nu - nu_line) / nu_line);
+	  fprintf(stderr, "last_line = %f\n", last_line);
+	  fprintf(stderr, "next_line = %f\n", next_line);
+	  fprintf(stderr, "r = %f\n", r);
+	  fprintf(stderr, "mu = %f\n", mu);
+	  fprintf(stderr, "nu = %f\n", nu);
+	  fprintf(stderr, "doppler_factor = %f\n", doppler_factor);
+	  fprintf(stderr, "cur_zone_id = %d\n", cur_zone_id);
+	  ret_val = TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
+	}
+      else
+	{
+	  *result = ((comov_nu - nu_line) / nu) * C * t_exp;
+	}
     }
-  return ((comov_nu - nu_line) / nu) * C * t_exp;
+  return ret_val;
 }
 
 inline double compute_distance2electron(rpacket_t *packet, storage_model_t *storage)
@@ -425,7 +434,9 @@ inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *sto
   else
     {
       rpacket_set_d_boundary(packet, compute_distance2boundary(packet, storage));
-      rpacket_set_d_line(packet, compute_distance2line(packet, storage));
+      double d_line;
+      compute_distance2line(packet, storage, &d_line);
+      rpacket_set_d_line(packet, d_line);
       rpacket_set_d_electron(packet, compute_distance2electron(packet, storage));
     }
 }

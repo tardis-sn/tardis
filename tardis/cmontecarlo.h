@@ -17,8 +17,9 @@ rk_state mt_state;
 
 typedef enum
   {
-    TARDIS_ERROR_OK,
-    TARDIS_ERROR_BOUNDS_ERROR
+    TARDIS_ERROR_OK = 0,
+    TARDIS_ERROR_BOUNDS_ERROR = 1,
+    TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE = 2
   } tardis_error_t;
 
 typedef enum
@@ -158,7 +159,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
  *
  * @return distance to the next spectral line
  */
-inline double compute_distance2line(rpacket_t *packet, storage_model_t *storage);
+inline tardis_error_t compute_distance2line(rpacket_t *packet, storage_model_t *storage, double *result);
 
 /** Calculate the distance to the Thomson scatter event.
  *
