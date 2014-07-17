@@ -503,7 +503,7 @@ inline tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, 
   bool last_line;
   bool close_line;
   int recently_crossed_boundary;
-  tardis_error_t ret_val;
+  tardis_error_t ret_val = TARDIS_ERROR_OK;
   current_nu = storage->packet_nus[packet_index];
   current_energy = storage->packet_energies[packet_index];
   current_mu = storage->packet_mus[packet_index];
@@ -528,4 +528,5 @@ inline tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, 
   rpacket_set_close_line(packet, false);
   rpacket_set_recently_crossed_boundary(packet, recently_crossed_boundary);
   rpacket_set_virtual_packet_flag(packet, virtual_packet_flag);
+  return ret_val;
 }
