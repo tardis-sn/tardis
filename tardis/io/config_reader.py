@@ -736,7 +736,7 @@ class Configuration(ConfigurationNameSpace):
 
     @classmethod
     def from_config_dict(cls, config_dict, atom_data=None, test_parser=False,
-                         config_definition_file=None):
+                         config_definition_file=None, validate=True):
         """
         Validating and subsequently parsing a config file.
 
@@ -759,6 +759,9 @@ class Configuration(ConfigurationNameSpace):
             path to config definition file, if `None` will be set to the default
             in the `data` directory that ships with TARDIS
 
+        validate: ~bool
+            Turn validation on or off. 
+
 
         Returns
         -------
@@ -771,9 +774,11 @@ class Configuration(ConfigurationNameSpace):
             config_definition_file = default_config_definition_file
 
         config_definition = yaml.load(open(config_definition_file))
-
-        validated_config_dict = ConfigurationValidator(config_definition,
+        if validate:
+            validated_config_dict = ConfigurationValidator(config_definition,
                                        config_dict).get_config()
+        else:
+            validated_config_dict = config_dict
 
         #First let's see if we can find an atom_db anywhere:
         if test_parser:
