@@ -759,6 +759,9 @@ class Configuration(ConfigurationNameSpace):
             path to config definition file, if `None` will be set to the default
             in the `data` directory that ships with TARDIS
 
+        validate: ~bool
+            Turn validation on or off. 
+
 
         Returns
         -------
