@@ -912,6 +912,8 @@ class Configuration(ConfigurationNameSpace):
             logger.info('"initial_t_inner" is not specified in the plasma '
                         'section - initializing to %s with given luminosity',
                         plasma_section['t_inner'])
+        else:
+            plasma_section['t_inner'] = plasma_section['initial_t_inner']
 
         plasma_section['t_rads'] = np.ones(no_of_shells) * \
                                    plasma_section['initial_t_rad']
