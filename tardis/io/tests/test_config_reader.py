@@ -227,6 +227,21 @@ class TestParseConfigV1UniformDensity:
         assert_array_almost_equal(self.config.structure.mean_densities,
                                   1.e-14 * u.Unit('g / cm3'))
 
+class TestParseConfigTinner:
+
+    def setup(self):
+        #general parsing of the paper config
+        filename = 'tardis_configv1_uniform_density.yml'
+
+        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data['plasma']['initial_t_inner'] = "2508 K"
+
+        self.config = config_reader.Configuration.from_config_dict(self.yaml_data,
+                                                                  test_parser=True)
+
+    def test_initial_temperature(self):
+        assert_almost_equal(self.config.plasma.t_inner, 2508 * u.K)
+
 
 class TestParseConfigV1ArtisDensityAbundancesAllAscii:
 
