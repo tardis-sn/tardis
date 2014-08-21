@@ -105,7 +105,7 @@ inline double compute_distance2boundary(rpacket_t *packet, storage_model_t *stor
     }
 }
 
-inline tardis_error_t compute_distance2line(rpacket_t *packet, storage_model_t *storage, double *result)
+extern inline tardis_error_t compute_distance2line(rpacket_t *packet, storage_model_t *storage, double *result)
 {
   tardis_error_t ret_val = TARDIS_ERROR_OK;
   if (rpacket_get_last_line(packet))
@@ -421,7 +421,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
     }
 }
 
-inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage)
+extern inline void montecarlo_compute_distances(rpacket_t *packet, storage_model_t *storage)
 {
   // Check if the last line was the same nu as the current line.
   if (rpacket_get_close_line(packet))
@@ -501,7 +501,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
   return rpacket_get_status(packet) == TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
 
-inline tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
+tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
 {
   double nu_line;
   double current_r;
@@ -540,4 +540,195 @@ inline tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, 
   rpacket_set_recently_crossed_boundary(packet, recently_crossed_boundary);
   rpacket_set_virtual_packet_flag(packet, virtual_packet_flag);
   return ret_val;
+}
+
+/*
+  Getter and setter methods.
+*/
+
+extern inline double rpacket_get_nu(rpacket_t *packet)
+{
+  return packet->nu;
+}
+
+inline void rpacket_set_nu(rpacket_t *packet, double nu)
+{
+  packet->nu = nu;
+}
+
+inline double rpacket_get_mu(rpacket_t *packet)
+{
+  return packet->mu;
+}
+
+inline void rpacket_set_mu(rpacket_t *packet, double mu)
+{
+  packet->mu = mu;
+}
+
+extern inline double rpacket_get_energy(rpacket_t *packet)
+{
+  return packet->energy;
+}
+
+inline void rpacket_set_energy(rpacket_t *packet, double energy)
+{
+  packet->energy = energy;
+}
+
+inline double rpacket_get_r(rpacket_t *packet)
+{
+  return packet->r;
+}
+
+inline void rpacket_set_r(rpacket_t *packet, double r)
+{
+  packet->r = r;
+}
+
+inline double rpacket_get_tau_event(rpacket_t *packet)
+{
+  return packet->tau_event;
+}
+
+inline void rpacket_set_tau_event(rpacket_t *packet, double tau_event)
+{
+  packet->tau_event = tau_event;
+}
+
+inline double rpacket_get_nu_line(rpacket_t *packet)
+{
+  return packet->nu_line;
+}
+
+inline void rpacket_set_nu_line(rpacket_t *packet, double nu_line)
+{
+  packet->nu_line = nu_line;
+}
+
+inline unsigned int rpacket_get_current_shell_id(rpacket_t *packet)
+{
+  return packet->current_shell_id;
+}
+
+inline void rpacket_set_current_shell_id(rpacket_t *packet, unsigned int current_shell_id)
+{
+  packet->current_shell_id = current_shell_id;
+}
+
+inline unsigned int rpacket_get_next_line_id(rpacket_t *packet)
+{
+  return packet->next_line_id;
+}
+
+inline void rpacket_set_next_line_id(rpacket_t *packet, unsigned int next_line_id)
+{
+  packet->next_line_id = next_line_id;
+}
+
+inline bool rpacket_get_last_line(rpacket_t *packet)
+{
+  return packet->last_line;
+}
+
+inline void rpacket_set_last_line(rpacket_t *packet, bool last_line)
+{
+  packet->last_line = last_line;
+}
+
+inline bool rpacket_get_close_line(rpacket_t *packet)
+{
+  return packet->close_line;
+}
+
+inline void rpacket_set_close_line(rpacket_t *packet, bool close_line)
+{
+  packet->close_line = close_line;
+}
+
+inline int rpacket_get_recently_crossed_boundary(rpacket_t *packet)
+{
+  return packet->recently_crossed_boundary;
+}
+
+inline void rpacket_set_recently_crossed_boundary(rpacket_t *packet, int recently_crossed_boundary)
+{
+  packet->recently_crossed_boundary = recently_crossed_boundary;
+}
+
+inline int rpacket_get_virtual_packet_flag(rpacket_t *packet)
+{
+  return packet->virtual_packet_flag;
+}
+
+inline void rpacket_set_virtual_packet_flag(rpacket_t *packet, int virtual_packet_flag)
+{
+  packet->virtual_packet_flag = virtual_packet_flag;
+}
+
+inline int rpacket_get_virtual_packet(rpacket_t *packet)
+{
+  return packet->virtual_packet;
+}
+
+inline void rpacket_set_virtual_packet(rpacket_t *packet, int virtual_packet)
+{
+  packet->virtual_packet = virtual_packet;
+}
+
+inline double rpacket_get_d_boundary(rpacket_t *packet)
+{
+  return packet->d_boundary;
+}
+
+inline void rpacket_set_d_boundary(rpacket_t *packet, double d_boundary)
+{
+  packet->d_boundary = d_boundary;
+}
+
+inline double rpacket_get_d_electron(rpacket_t *packet)
+{
+  return packet->d_electron;
+}
+
+inline void rpacket_set_d_electron(rpacket_t *packet, double d_electron)
+{
+  packet->d_electron = d_electron;
+}
+
+inline double rpacket_get_d_line(rpacket_t *packet)
+{
+  return packet->d_line;
+}
+
+inline void rpacket_set_d_line(rpacket_t *packet, double d_line)
+{
+  packet->d_line = d_line;
+}
+
+inline int rpacket_get_next_shell_id(rpacket_t *packet)
+{
+  return packet->next_shell_id;
+}
+
+inline void rpacket_set_next_shell_id(rpacket_t *packet, int next_shell_id)
+{
+  packet->next_shell_id = next_shell_id;
+}
+
+inline rpacket_status_t rpacket_get_status(rpacket_t *packet)
+{
+  return packet->status;
+}
+
+inline void rpacket_set_status(rpacket_t *packet, rpacket_status_t status)
+{
+  packet->status = status;
+}
+
+/* Other accessor methods. */
+
+inline void rpacket_reset_tau_event(rpacket_t *packet)
+{
+  rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
 }
