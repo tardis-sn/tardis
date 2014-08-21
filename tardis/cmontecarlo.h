@@ -183,7 +183,7 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet,
 int64_t montecarlo_one_packet_loop(storage_model_t *storage, rpacket_t *packet, 
 				   int64_t virtual_packet);
 
-extern inline double rpacket_get_nu(rpacket_t *packet);
+inline double rpacket_get_nu(rpacket_t *packet);
 
 inline void rpacket_set_nu(rpacket_t *packet, double nu);
 
@@ -191,7 +191,7 @@ inline double rpacket_get_mu(rpacket_t *packet);
 
 inline void rpacket_set_mu(rpacket_t *packet, double mu);
 
-extern inline double rpacket_get_energy(rpacket_t *packet);
+inline double rpacket_get_energy(rpacket_t *packet);
 
 inline void rpacket_set_energy(rpacket_t *packet, double energy);
 
