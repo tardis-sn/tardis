@@ -89,23 +89,9 @@ cdef extern from "cmontecarlo.h":
     int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
     double rpacket_get_nu(rpacket_t *packet)
     double rpacket_get_energy(rpacket_t *packet)
+    void initialize_random_kit(unsigned long seed)
 
-cdef extern from "randomkit.h":
-    ctypedef struct rk_state:
-        unsigned long key[624]
-        int pos
-        int has_gauss
-        double gauss
 
-    ctypedef enum rk_error:
-        RK_NOERR = 0
-        RK_ENODEV = 1
-        RK_ERR_MAX = 2
-
-    void rk_seed(unsigned long seed, rk_state *state)
-    double rk_double(rk_state *state)
-
-cdef extern rk_state mt_state
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     """
@@ -137,7 +123,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     """
     cdef storage_model_t storage
     cdef rpacket_t packet
-    rk_seed(model.tardis_config.montecarlo.seed, &mt_state)
+    initialize_random_kit(model.tardis_config.montecarlo.seed)
     cdef np.ndarray[double, ndim=1] packet_nus = model.packet_src.packet_nus
     storage.packet_nus = <double*> packet_nus.data
     cdef np.ndarray[double, ndim=1] packet_mus = model.packet_src.packet_mus

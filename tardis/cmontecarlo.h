@@ -13,8 +13,6 @@
 #define C 29979245800.0
 #define INVERSE_C 3.33564095198152e-11
 
-rk_state mt_state;
-
 typedef enum
   {
     TARDIS_ERROR_OK = 0,
@@ -258,6 +256,8 @@ inline void rpacket_set_status(rpacket_t *packet, rpacket_status_t status);
 inline void rpacket_reset_tau_event(rpacket_t *packet);
 
 tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag);
+
+void initialize_random_kit(unsigned long seed);
 
 #endif // TARDIS_CMONTECARLO_H
 

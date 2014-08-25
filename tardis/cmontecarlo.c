@@ -1,5 +1,12 @@
 #include "cmontecarlo.h"
 
+rk_state mt_state;
+
+void initialize_random_kit(unsigned long seed)
+{
+    rk_seed(seed, &mt_state);
+}
+
 inline tardis_error_t line_search(double *nu, double nu_insert, int64_t number_of_lines, int64_t *result)
 {
   tardis_error_t ret_val = TARDIS_ERROR_OK;
