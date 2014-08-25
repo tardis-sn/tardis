@@ -223,9 +223,10 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
   double doppler_factor_ratio;
   double weight; 
   int64_t virt_id_nu;
+  int64_t reabsorbed;
   if (virtual_mode == 0)
     {
-      montecarlo_one_packet_loop(storage, packet, 0);
+      reabsorbed = montecarlo_one_packet_loop(storage, packet, 0);
     }
   else
     {
@@ -262,7 +263,7 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 	    rpacket_doppler_factor(&virt_packet, storage);
 	  virt_packet.energy = rpacket_get_energy(packet) * doppler_factor_ratio;
 	  virt_packet.nu = rpacket_get_nu(packet) * doppler_factor_ratio;
-	  montecarlo_one_packet_loop(storage, &virt_packet, 1);
+	  reabsorbed = montecarlo_one_packet_loop(storage, &virt_packet, 1);
 	  if ((virt_packet.nu < storage->spectrum_end_nu) && 
 	      (virt_packet.nu > storage->spectrum_start_nu))
 	    {
@@ -272,6 +273,7 @@ int64_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int64
 	    }
 	}
     }
+  return reabsorbed;
 }
 
 void move_packet_across_shell_boundary(rpacket_t *packet, storage_model_t *storage, double distance)
