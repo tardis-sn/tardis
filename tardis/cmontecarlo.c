@@ -169,7 +169,7 @@ inline double compute_distance2electron(rpacket_t *packet, storage_model_t *stor
 
 inline int64_t macro_atom(rpacket_t *packet, storage_model_t *storage)
 {
-  int emit, i = 0;
+  int emit = 0, i = 0;
   double p, event_random;
   int activate_level = storage->line2macro_level_upper[rpacket_get_next_line_id(packet) - 1];
   while (emit != -1)
