@@ -616,6 +616,55 @@ class ConfigurationNameSpace(dict):
     config_ns: ConfigurationNameSpace
     """
 
+    @classmethod
+    def from_yaml(cls, fname):
+        """
+        Read a configuration from a YAML file
+
+        Parameters
+        ----------
+
+        fname: str
+            filename or path
+        """
+        try:
+            yaml_dict = yaml.load(file(fname))
+        except IOError as e:
+            logger.critical('No config file named: %s', fname)
+            raise e
+
+
+        return cls.from_config_dict(yaml_dict)
+
+    @classmethod
+    def from_config_dict(cls, config_dict, config_definition_file=None):
+        """
+        Validating a config file.
+
+
+        Parameters
+        ----------
+
+        config_dict : ~dict
+            dictionary of a raw unvalidated config file
+
+
+
+        Returns
+        -------
+
+        `tardis.config_reader.Configuration`
+
+        """
+
+        if config_definition_file is None:
+            config_definition_file = default_config_definition_file
+
+        config_definition = yaml.load(open(config_definition_file))
+
+        return cls(ConfigurationValidator(config_definition,
+                                       config_dict).get_config())
+    
     marker = object()
     def __init__(self, value=None):
         if value is None:
