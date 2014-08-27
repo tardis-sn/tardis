@@ -27,3 +27,5 @@ def test_atomic_symbol():
 def test_atomic_symbol_reverse():
     assert atomic.symbol2atomic_number['Si'] == 14
 
+
+def test_atomic_reprepare():
