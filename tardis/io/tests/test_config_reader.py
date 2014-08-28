@@ -126,6 +126,15 @@ class TestParsePaper1Config:
         assert_almost_equal(self.config['supernova']['time_explosion'],
                             13.0 * u.day)
 
+
+def test_last_no_of_packets():
+    yaml_data = yaml.load(open(data_path('paper1_tardis_configv1.yml')))
+    del yaml_data['montecarlo']['last_no_of_packets']
+    config = config_reader.Configuration.from_config_dict(yaml_data,
+                                                          test_parser=True)
+    assert (config.montecarlo.last_no_of_packets ==
+            config.montecarlo.no_of_packets)
+
 class TestParseConfigV1ASCIIDensity:
 
     def setup(self):

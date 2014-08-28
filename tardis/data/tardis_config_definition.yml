@@ -288,9 +288,11 @@ montecarlo:
 
     last_no_of_packets:
         property_type: int
-        default: 100
+        default: -1
         mandatory: False
-        help: This can set the number of packets for the last run. If set to None it will remain the same as all other runs.
+        help: >
+            This can set the number of packets for the last run.
+            If set negative it will remain the same as all other runs.
 
     no_of_virtual_packets:
         property_type: int
