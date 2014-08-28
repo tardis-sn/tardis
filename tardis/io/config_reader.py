@@ -1024,9 +1024,6 @@ class Configuration(ConfigurationNameSpace):
         if montecarlo_section['convergence_strategy'] is None:
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
             montecarlo_section['convergence_strategy'] = default_convergence_section
-        else:
-            1/0
-
         montecarlo_section['convergence_strategy'] = parse_convergence_section(
             montecarlo_section['convergence_strategy'])
 
