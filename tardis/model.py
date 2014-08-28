@@ -160,7 +160,6 @@ class Radial1DModel(object):
             raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
 
 
-
     @property
     def t_inner(self):
         return self._t_inner
@@ -349,6 +348,8 @@ class Radial1DModel(object):
         if np.any(np.isnan(self.plasma_array.tau_sobolevs.values)) or np.any(np.isinf(self.plasma_array.tau_sobolevs.values)) \
             or np.any(np.isneginf(self.plasma_array.tau_sobolevs.values)):
             raise ValueError('Some tau_sobolevs are nan, inf, -inf in tau_sobolevs. Something went wrong!')
+
+        print(repr(self.packet_src.packet_energies.data))
 
         self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
         self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)

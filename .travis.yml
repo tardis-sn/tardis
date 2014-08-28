@@ -7,17 +7,15 @@ virtualenv:
   system_site_packages: true
 
 env:
-    - COMPILER=gcc CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test' TEST_MODE='normal'
-    - COMPILER=gcc CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test' TEST_MODE='normal'
-    - COMPILER=gcc CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
-    - COMPILER=clang CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
-
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test' TEST_MODE='normal'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test' TEST_MODE='normal'
+#    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=0.12 ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test --coverage'
+    - CYTHON_VERSION=0.20.1 NUMPY_VERSION=1.8.0 PANDAS_VERSION=latest ASTROPY_VERSION=0.3.2 ASTROPY_USE_SYSTEM_PYTEST=1 SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
 
 before_install:
    # We do this to make sure we get the dependencies so pip works below
    - sudo apt-get update -qq
    - sudo apt-get install -qq python-numpy python-pandas python-scipy python-h5py python-sphinx python-yaml cython libatlas-dev liblapack-dev gfortran
-   - if [[ $COMPILER == 'clang' ]]; then sudo apt-get install -qq clang; fi
    - if [[ $TEST_MODE == 'spectrum' ]]; then wget http://moria.astro.utoronto.ca/\~wkerzend/tardis_atomic_databases/kurucz_cd23_chianti_H_He.zip; fi
    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
    - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
@@ -35,7 +33,7 @@ install:
 
 script:
     - echo $SETUP_CMD
-    - CC=$COMPILER python setup.py $SETUP_CMD
+    - python setup.py $SETUP_CMD
 
 after_success:
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls; fi

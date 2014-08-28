@@ -10,6 +10,7 @@ from scipy import interpolate
 
 from tardis import macro_atom, io
 from tardis.io.util import parse_abundance_dict_to_dataframe
+import  ipdb
 
 
 logger = logging.getLogger(__name__)
@@ -254,6 +255,7 @@ class BasePlasmaArray(object):
 
         self.calculate_level_populations(initialize_nlte=initialize_nlte, excitation_mode=self.excitation_mode)
         self.tau_sobolevs = self.calculate_tau_sobolev()
+        self.calculate_bound_free()
 
         if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
@@ -680,27 +682,186 @@ class BasePlasmaArray(object):
                      columns=self.tau_sobolevs.columns)
 
 
+
+    def _get_population_ratio(self):
+        """
+         Calculate the level population ratio for the ions using the following formula, where
+        :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
+
+        .. math::
+            r_{i,j,k} = \\frac{n_{0,j+1,k}}{n_{i,j,k}}
+
+
+        Returns
+        -------
+
+         :level population ratio `pandas.Dataframe `
+        """
+        return self.level_populations.groupby(level=['atomic_number', 'ion_number']).apply(
+            lambda g: pd.DataFrame(
+                g.__array__()[0, :] / g.__array__()[:, :]))
+
+
+    def _get_level_population_lte(self, bf_dataf):
+
+        _level_g_ratio = self.atom_data.levels.g.values[np.newaxis].T * np.exp(
+        np.outer(bf_dataf.energy.values, -self.beta_rads))
+
+
+        _level_population_proportionalities = pd.DataFrame(_level_g_ratio, index=self.atom_data.levels.index,
+                                                          columns=np.arange(len(self.t_rads)),
+                                                          dtype=np.float64)  #\frac{g_{upper}}{g_lower}
+        level_populations_lte = (self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values /
+                                 self.partition_functions.ix[self.atom_data.levels.index.droplevel(
+                                     2)].values) * _level_population_proportionalities
+
+        return level_populations_lte
+
+
+    def _get_population_ratio_lte(self, bf_dataf):
+        """
+         Calculate the level population ratio in LTE for the ions using the following formula, where
+        :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
+
+        .. math::
+            r_{i,j,k} = \\frac{n_{0,j+1,k}}{n_{i,j,k}}^{*}
+
+
+        Returns
+        -------
+
+         :level population ratio in LTE `pandas.Dataframe `
+        """
+        level_populations_lte = self._get_level_population_lte(bf_dataf)
+        level_populations = self.level_populations.__array__()
+        return level_populations_lte.groupby(level=['atomic_number', 'ion_number']).apply(
+            lambda g: pd.DataFrame(
+                g.__array__()[0, :] / g.__array__()[:, :]))  #\frac{n_{0,j+1,k}}{n_{i,j,k}} not in LTE
+
+    def _get_bound_free_th_frequency(self):
+        ionization_energy2lower = pd.DataFrame(self.atom_data.ionization_data_reduced).reset_index()
+        ionization_energy2lower['ion_number'] = ionization_energy2lower['ion_number'] - 1
+        ionization_energy2lower.set_index(['atomic_number', 'ion_number'], inplace=True)
+        photoionization_energy = ionization_energy2lower['ionization_energy'] - self.atom_data.levels[
+            'energy'].reset_index(level=2, drop=True)
+
+        return photoionization_energy.fillna(1e99).__array__() / h_cgs
+
+
+    def _get_chi_bf(self, nu_bins, level_population_ratio, level_population_ratio_lte, bound_free_th_frequency, bound_free_cross_section_at_threshold):
+        level_populations = self.level_populations.__array__()
+        #Compute
+        exponential_factor = np.exp(- h_cgs * nu_bins[:, None] / k_B_cgs / self.t_electrons[None, :])
+        #bound_free_cross_section_at_threshold.__array__()
+        helper = (level_population_ratio.__array__() ** -1 * level_population_ratio_lte.__array__())
+        helper[np.isnan(helper)] = 0
+        helper[helper < 0] = 0
+        #set the helper to 1 for <0 and NaN
+
+
+        #helper[:,None] * exponential_factor[None,:]
+
+        right_term = 1 - helper[None, :, :] * exponential_factor[:, None, :]
+        nu_gr_th_fq = bound_free_th_frequency[None, :] < nu_bins[:, None]
+
+        cross_sections = np.zeros_like(nu_gr_th_fq, dtype=np.float)
+        cross_sections[:, :] = bound_free_cross_section_at_threshold.__array__()[None, :]
+        cross_sections[~nu_gr_th_fq] = 0
+        chi_bf = level_populations[None, :, :] * cross_sections[:, :, None] * right_term
+        return chi_bf
+
+    def _get_lpopulation_ratio_nlte_lte(self,bound_free_cross_section_at_threshold, level_population_ratio, level_population_ratio_lte):
+
+        helper = (level_population_ratio.__array__()  * level_population_ratio_lte.__array__() ** -1)
+        helper[np.isnan(helper)] = 0
+        helper[helper < 0] = 0
+
+        filter_mask = bound_free_cross_section_at_threshold.__array__()[:] > 1e-35
+        return np.array(helper[filter_mask, :], dtype=np.float64)  #[level,shell]
+
+
+
     def calculate_bound_free(self):
         #TODO DOCUMENTATION missing!!!
         """
         None
 
         """
-        nu_bins = range(1000, 10000, 1000) #TODO: get the binning from the input file.
-        try:
-            bf = np.zeros(len(self.atom_data.levels), len(self.atom_data.selected_atomic_numbers), len(nu_bins))
-        except AttributeError:
-            logger.critical("Err creating the bf array.")
 
-        phis = self.calculate_saha()
-        nnlevel = self.level_populations
-        for nu in nu_bins:
-            for i, (level_id, level) in enumerate(self.atom_data.levels.iterrows()):
-                atomic_number = level.name[0]
-                ion_number = level.name[1]
-                level_number = level.name[2]
-                sigma_bf_th = self.atom_data.ion_cx_th.ix[atomic_number, ion_number, level_number]
-                phi = phis.ix[atomic_number, ion_number]
+        def sorting(data_a, index_a):
+            # l1 and l2 has to be numpy arrays. a1 is the master array
+            for shell_id in range(len(index_a[0, 0, :])):
+                for nu_id in range(len(index_a[:, 0, 0])):
+                    idx = np.argsort(data_a[nu_id, :, shell_id])
+                    data_a[nu_id, :, shell_id] = data_a[nu_id, idx, shell_id]
+                    index_a[nu_id, :, shell_id, :] = index_a[nu_id, idx, shell_id, :]
+            return data_a, index_a
+
+            #the g values
+
+
+        #create a cross section table with the shape of the level data array.
+
+
+        #levels = self.atom_data.levels
+        nu_bins = np.linspace(2.9979246e+14, 5.9979246e+15, 10)
+
+
+#        bf_dataf = self.atom_data.levels.join(self.atom_data.ion_cx_th)
+        bf_dataf = pd.concat([self.atom_data.levels,self.atom_data.ion_cx_th], axis=1)
+        bf_dataf['cross_section'] = bf_dataf['cross_section'].fillna(0) #*5e-5# add factor here to increase the cross section. For debugging
+
+#        level_populations = self.level_populations.__array__()
+
+        level_population_ratio = self._get_population_ratio()
+        level_population_ratio_lte = self._get_population_ratio_lte(bf_dataf)
+
+#        bound_free_cross_section_at_threshold = self.atom_data.ion_cx_th
+
+        bound_free_th_frequency = self._get_bound_free_th_frequency()
+
+        bound_free_cross_section_at_threshold = bf_dataf['cross_section']
+
+        nu_gr_th_fq = bound_free_th_frequency[None, :] < nu_bins[:, None]
+
+        cross_sections = np.zeros_like(nu_gr_th_fq, dtype=np.float)
+        cross_sections[:, :] = bound_free_cross_section_at_threshold.__array__()[None, :]
+        cross_sections[~nu_gr_th_fq] = 0
+
+        chi_bf = self._get_chi_bf(nu_bins,level_population_ratio,level_population_ratio_lte,bound_free_th_frequency,bound_free_cross_section_at_threshold)
+ #       chi_bf_sum = np.sum(chi_bf, axis=1)  #sum in color bins over all levels
+        chi_bf_index_to_level = bf_dataf.reset_index()[['atomic_number', 'ion_number',
+                                                      'level_number']].__array__()[None,:, None,:].repeat(chi_bf.shape[0], axis=0).repeat(chi_bf.shape[2],
+                                                        axis=2)  #index [nu_bin, level_id, shell_id, [atomic, ion, level]]
+
+#        chi_bf_sorted, chi_bf_index_to_level_sorted = sorting(chi_bf, chi_bf_index_to_level)
+
+#        self.chi_bound_free_sorted = np.array(chi_bf_sorted, dtype=np.float64)
+#        self.chi_bf_index_to_level_sorted = np.array(chi_bf_index_to_level_sorted, dtype=np.int64)
+#        self.chi_bound_free_nu_bins = np.array(chi_bf_sum, dtype=np.float64)
+
+        self.bf_index_to_level = np.array(chi_bf_index_to_level[0, :, 0, :], dtype=np.int64)
+#        self.bf_cross_sections_x_lpopulation = np.array(level_populations * cross_sections[0][:, None],
+#                                                        dtype=np.float64)
+
+
+
+        #for computing chi in the mc part
+
+
+        filter_mask = bound_free_cross_section_at_threshold.__array__()[:] > 1e-35
+
+        self.bf_level_populations = np.array(self.level_populations.__array__()[filter_mask, :])
+        self.chi_bf_index_to_level = np.array(chi_bf_index_to_level[0, filter_mask, 0, :], dtype=np.int64)  #[nu_bins,
+        # level,shell,(atom,ion,level)] reduced to [level,(atom,ion,level)]
+
+        self.bf_cross_sections = np.array(bound_free_cross_section_at_threshold.__array__()[filter_mask]
+                                          , dtype=np.float64)
+        self.bf_lpopulation_ratio_nlte_lte = self._get_lpopulation_ratio_nlte_lte(bound_free_cross_section_at_threshold, level_population_ratio, level_population_ratio_lte)
+        self.bound_free_th_frequency = np.array(bound_free_th_frequency[filter_mask], dtype=np.float64)  #[levels]
+
+
+
 
 
     def to_hdf5(self, hdf5_store, path, mode='full'):
