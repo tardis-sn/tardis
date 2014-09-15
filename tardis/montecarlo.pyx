@@ -57,6 +57,8 @@ cdef extern from "cmontecarlo.h":
         double d_th
         double d_ff
         double d_cont
+        double last_bf_edge
+        double *chi_bf_partial
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -130,6 +132,8 @@ cdef extern from "cmontecarlo.h":
     double rpacket_get_nu(rpacket_t *packet)
     double rpacket_get_energy(rpacket_t *packet)
     void initialize_random_kit(unsigned long seed)
+
+    void free(void*ptr)
 
 
 
@@ -298,5 +302,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
         storage.output_nus[packet_index] = rpacket_get_nu(&packet)
         storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
+        free(packet.chi_bf_partial)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 

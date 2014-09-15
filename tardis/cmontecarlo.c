@@ -344,6 +344,14 @@ inline double calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 //            fprintf(stderr, "lpop = %e \n", l_pop);
 //            fprintf(stderr, "lpop ratio = %e \n", l_pop_r);
 //            fprintf(stderr, "<<< \n");
+
+            set_array_double(i,
+                             0,
+                             storage->bf_level_population_nrow,
+                             storage->bf_level_population_ncolum,
+                             packet->chi_bf_partial,
+                             bf_helper
+                             )
 		}
 	}
 	return bf_helper;
@@ -657,6 +665,22 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 void montecarlo_bound_free_scatter(rpacket_t * packet,
 				   storage_model_t * storage, double distance)
 {
+    double nu;
+    double nu_bf_edge;
+    double zrand;
+    int64_t i = 0;
+    int64_t I;
+
+    //Determine in which continuum the bf-absorption occurs
+    nu_edge = rpacket_get_last_bf_edge(packet);
+    nu  = rpacket_get_nu(packet);
+    I = storage->chi_bf_index_to_level_nrow;
+
+    for (i = 0; i <= I; ++i) {
+
+    }
+    //decide whether we go to ionisation energy
+
 	rpacket_set_status(packet, TARDIS_PACKET_STATUS_REABSORBED);
 }
 
@@ -813,6 +837,11 @@ tardis_error_t rpacket_init(rpacket_t * packet, storage_model_t * storage,
 	bool last_line;
 	bool close_line;
 	int recently_crossed_boundary;
+
+	//malloc for the temporary opacity storage
+	int nr,nc;
+	nr = storage->bf_level_population_nrow;
+	packet.chi_bf_partial = (double *) malloc(nt *  sizeof(double));
 
 	/* Get packet information from storage */
 	tardis_error_t ret_val = TARDIS_ERROR_OK;
@@ -1190,4 +1219,14 @@ inline double rpacket_get_comov_energy(rpacket_t * packet)
 inline void rpacket_set_comov_energy(rpacket_t * packet, double comov_energy)
 {
 	packet->comov_energy = comov_energy;
+}
+
+inline void rpacket_set_last_bf_edge(rpacket_t * packet, double nu_edge)
+{
+    packet->last_bf_edge = nu_edge;
+}
+
+inline double rpacket_get_last_bf_edge(rpacket_t * packet)
+{
+    return packet->last_bf_edge;
 }

@@ -130,6 +130,8 @@ typedef struct RPacket {
 	double d_th;
 	double d_ff;
 	double d_cont;
+	double last_bf_edge;
+	double *chi_bf_partial;
 } rpacket_t;
 
 typedef struct StorageModel {
