@@ -807,6 +807,7 @@ tardis_error_t rpacket_init(rpacket_t * packet, storage_model_t * storage,
 	double comov_nu;
 	double comov_current_nu;
 	double comov_energy;
+	double current_nu, current_energy, current_mu;
 	int64_t current_line_id;
 	int current_shell_id;
 	bool last_line;
@@ -821,9 +822,11 @@ tardis_error_t rpacket_init(rpacket_t * packet, storage_model_t * storage,
 	comov_current_nu = comov_nu;
 	current_shell_id = 0;
 	current_r = storage->r_inner[0];
+	current_mu = comov_mu;
 
-	//current_nu = current_nu / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
-	//current_energy = current_energy / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
+	current_nu = comov_nu / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
+
+	current_energy = comov_energy / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
 
 	if ((ret_val =
 	     line_search(storage->line_list_nu, comov_current_nu,
@@ -835,6 +838,8 @@ tardis_error_t rpacket_init(rpacket_t * packet, storage_model_t * storage,
 	//rpacket_set_nu(packet, current_nu);
 	//rpacket_set_mu(packet, current_mu);
 	//rpacket_set_energy(packet, current_energy);
+	rpacket_set_comov_energy(packet, comov_energy);
+	rpacket_set_energy(packet, current_energy);
 	rpacket_set_r(packet, current_r);
 	rpacket_set_current_shell_id(packet, current_shell_id);
 	rpacket_set_close_line(packet, false);
