@@ -465,7 +465,7 @@ class AtomData(object):
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_species = nlte_species
-
+        self._levels = self._levels.reset_index()
         self._levels = self._levels[self._levels['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
             self._levels = self._levels[self._levels['ion_number'] <= max_ion_number]
