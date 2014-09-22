@@ -9,6 +9,12 @@
 #include <math.h>
 #include "randomkit.h"
 
+#ifdef __clang__
+#define INLINE extern inline
+#else
+#define INLINE inline
+#endif
+
 #define MISS_DISTANCE 1e99
 #define C 29979245800.0
 #define INVERSE_C 3.33564095198152e-11
