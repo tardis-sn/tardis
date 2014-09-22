@@ -1012,6 +1012,9 @@ class Configuration(ConfigurationNameSpace):
         ##### Monte Carlo Section
 
         montecarlo_section = validated_config_dict['montecarlo']
+        if montecarlo_section['last_no_of_packets'] < 0:
+            montecarlo_section['last_no_of_packets'] = \
+                montecarlo_section['no_of_packets']
 
         default_convergence_section = {'type': 'damped',
                                       'lock_t_inner_cyles': 1,
