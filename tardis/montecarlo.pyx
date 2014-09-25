@@ -58,7 +58,9 @@ cdef extern from "cmontecarlo.h":
         double d_ff
         double d_cont
         double last_bf_edge
-        double *chi_bf_partial
+        double *chi_bf_tmp_partial
+        int_type_t chi_bf_tmp_partial_last_shell_id
+        double chi_bf_tmp_partial_last_nu
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -125,6 +127,7 @@ cdef extern from "cmontecarlo.h":
         double *bound_free_th_frequency
 
         double *t_electrons
+        double *chi_bf_tmp_partial
     #double kB
 
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
@@ -134,6 +137,7 @@ cdef extern from "cmontecarlo.h":
     void initialize_random_kit(unsigned long seed)
 
     void free(void*ptr)
+    void* malloc(size_t size)
 
 
 
@@ -292,6 +296,9 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     cdef int_type_t reabsorbed = 0
+
+    #malloc for the temporary opacity storage. The first column is for the current chi the second for the sum
+    storage.chi_bf_tmp_partial = <double *> malloc(2 * storage.bf_level_population_nrow *  sizeof(double))
     for packet_index in range(storage.no_of_packets):
         storage.current_packet_id = packet_index
         rpacket_init(&packet, &storage, packet_index, virtual_packet_flag)
@@ -302,6 +309,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
         storage.output_nus[packet_index] = rpacket_get_nu(&packet)
         storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
-        free(packet.chi_bf_partial)
+    free(storage.chi_bf_tmp_partial)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 

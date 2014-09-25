@@ -14,7 +14,9 @@
 #define INVERSE_C 3.33564095198152e-11
 #define H 6.6260755e-27		// erg*s, converted to CGS units from the NIST Constant Index
 #define KB 1.3806488e-16	//erg / K converted to CGS units from the NIST Constant Index
+#define BF_DELTA_NU_RECOMPUTE 100 // Allowed deviation from the nu used for the bf chi until the stored chi is recomputed
 #define TRUE 1
+
 #define FALSE 0
 /*
 defines for the packet_status_t flags
@@ -132,6 +134,8 @@ typedef struct RPacket {
 	double d_cont;
 	double last_bf_edge;
 	double *chi_bf_partial;
+	int64_t chi_bf_tmp_partial_last_shell_id;
+	double chi_bf_tmp_partial_last_nu;
 } rpacket_t;
 
 typedef struct StorageModel {
@@ -199,6 +203,7 @@ typedef struct StorageModel {
 	double *bound_free_th_frequency;
 
 	double *t_electrons;
+	double *chi_bf_tmp_partial;
 	//double kB;
 
 } storage_model_t;
@@ -423,7 +428,7 @@ inline int64_t get_array_int(int64_t irow, int64_t icolums, int64_t nrow,
 inline double get_array_double(int64_t irow, int64_t icolums, int64_t nrow,
 			       int64_t ncolums, double *array);
 
-inline double calculate_chi_bf(rpacket_t * packet, storage_model_t * storage);
+inline void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage);
 
 void montecarlo_bound_free_scatter(rpacket_t * packet,
 				   storage_model_t * storage, double distance);

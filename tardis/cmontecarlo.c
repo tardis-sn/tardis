@@ -255,8 +255,8 @@ inline double compute_distance2electron(rpacket_t * packet,
 		return MISS_DISTANCE;
 	}
 	double inverse_ne =
-	    storage->
-	    inverse_electron_densities[rpacket_get_current_shell_id(packet)] *
+	    storage->inverse_electron_densities[rpacket_get_current_shell_id
+						(packet)] *
 	    storage->inverse_sigma_thomson;
 	return rpacket_get_tau_event(packet) * inverse_ne;
 }
@@ -275,8 +275,10 @@ inline void compute_distance2continuum(rpacket_t * packet,
 		rpacket_set_chi_continuum(packet, 0.0);
 	} else {
 		// Compute the continuum oddities for a real packet
+		calculate_chi_bf(packet, storage);
+
 		chi_boundfree = 0.0;	//calculate_chi_bf(packet, storage);
-		chi_boundfree = calculate_chi_bf(packet, storage);	// For Debug;
+		chi_boundfree = rpacket_get_chi_boundfree(packet);	// For Debug;
 		chi_freefree = 0.0;
 		chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;	// For Debugging set * to /
 		chi_continuum = chi_boundfree + chi_freefree + chi_electron;
@@ -290,71 +292,101 @@ inline void compute_distance2continuum(rpacket_t * packet,
 //        fprintf(stderr, "--------\n");
 
 		rpacket_set_chi_freefree(packet, chi_freefree);
-		rpacket_set_chi_boundfree(packet, chi_boundfree);
 		rpacket_set_chi_electron(packet, chi_electron);
-		rpacket_set_chi_continuum(packet, chi_continuum);
 		rpacket_set_d_continuum(packet, d_continuum);
 	}
 }
 
-inline double calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
+inline void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 {
 	double bf_helper = 0;
+	double chi_bf = 0;
 	double nu_th;
 	double l_pop_r;
 	double l_pop;
 	double T;
-//    double kB;
 	double nu;
+	double delta_nu;
+	int64_t shell_id;
 	int64_t i = 0;
 	int64_t I;
 	int64_t atom;
 	int64_t ion;
 	int64_t level;
 
+	shell_id = rpacket_get_current_shell_id(packet);
+	last_shell_id = rpacket_get_chi_bf_tmp_nu(packet);
 	nu = rpacket_get_nu(packet);
-	T = storage->t_electrons[packet->current_shell_id];
-//    kB = storage->kB;
-	I = storage->chi_bf_index_to_level_nrow;	// This is equal to the number of levels
+	delta_nu = abs(nu - rpacket_get_chi_bf_tmp_nu(packet));
 
-	for (i = 0; i <= I; ++i) {
-		nu_th = storage->bound_free_th_frequency[i];
-		if (nu_th < nu) {
+	//check if we can use the stored values
+	if (delta_nu > BF_DELTA_NU_RECOMPUTE || shell_id != last_shell_id) {
+	    // set identification values for the tmp data storage
+		T = storage->t_electrons[packet->current_shell_id];
+		I = storage->chi_bf_index_to_level_nrow;	// This is equal to the number of levels
+        rpacket_set_chi_bf_tmp_nu(packet);
 
-			// get the levelpopulation for the level ijk in the current shell
-			l_pop =
-			    get_array_double(i, packet->current_shell_id,
-					     storage->bf_level_population_nrow,
-					     storage->bf_level_population_ncolum,
-					     storage->bf_level_population);
 
-			//get the levelpopulation ratio \frac{n_{0,j+1,k}}{n_{i,j,k}} \frac{n_{i,j,k}}{n_{0,j+1,k}}^{*}
-			l_pop_r =
-			    get_array_double(i, packet->current_shell_id,
-					     storage->bf_lpopulation_ratio_nlte_lte_nrow,
-					     storage->bf_lpopulation_ratio_nlte_lte_ncolum,
-					     storage->bf_lpopulation_ratio_nlte_lte);
+		for (i = 0; i <= I; ++i) {
+			nu_th = storage->bound_free_th_frequency[i];
+			if (nu_th < nu) {
 
-			bf_helper +=
-			    l_pop * storage->bf_cross_sections[i] *
-			    pow((nu_th / nu),
-				3) * (1 - (l_pop_r * exp(-(H * nu) / KB / T)));
-//            fprintf(stderr, ">>> \n");
-//            fprintf(stderr, "exp  = %e \n" ,exp(-(H * nu)/KB /T));
-//            fprintf(stderr, "lpop = %e \n", l_pop);
-//            fprintf(stderr, "lpop ratio = %e \n", l_pop_r);
-//            fprintf(stderr, "<<< \n");
+				// get the levelpopulation for the level ijk in the current shell
+				l_pop =
+				    get_array_double(i,
+						     packet->current_shell_id,
+						     storage->
+						     bf_level_population_nrow,
+						     storage->
+						     bf_level_population_ncolum,
+						     storage->
+						     bf_level_population);
 
-            set_array_double(i,
-                             0,
-                             storage->bf_level_population_nrow,
-                             storage->bf_level_population_ncolum,
-                             packet->chi_bf_partial,
-                             bf_helper
-                             )
+				//get the levelpopulation ratio \frac{n_{0,j+1,k}}{n_{i,j,k}} \frac{n_{i,j,k}}{n_{0,j+1,k}}^{*}
+				l_pop_r =
+				    get_array_double(i,
+						     packet->current_shell_id,
+						     storage->
+						     bf_lpopulation_ratio_nlte_lte_nrow,
+						     storage->
+						     bf_lpopulation_ratio_nlte_lte_ncolum,
+						     storage->
+						     bf_lpopulation_ratio_nlte_lte);
+
+				level_chi =
+				    l_pop * storage->bf_cross_sections[i] *
+				    pow((nu_th / nu),
+					3) * (1 -
+					      (l_pop_r *
+					       exp(-(H * nu) / KB / T)));
+				bf_helper += level_chi;
+				// DEBUG
+				//            fprintf(stderr, ">>> \n");
+				//            fprintf(stderr, "exp  = %e \n" ,exp(-(H * nu)/KB /T));
+				//            fprintf(stderr, "lpop = %e \n", l_pop);
+				//            fprintf(stderr, "lpop ratio = %e \n", l_pop_r);
+				//            fprintf(stderr, "<<< \n");
+				// END DEBUG
+				//Save the chi bf partial for this packet;  used later for selecting the bf continuum
+			} else {
+				level_chi = 0;
+			}
+			// store the sum of all chis up to the current level. We store the data reversed, this allows us to use the
+			// existing  binary search
+			set_array_double(storage-> bf_lpopulation_ratio_nlte_lte_nrow - i,
+					 1,
+					 storage-> bf_lpopulation_ratio_nlte_lte_nrow,
+					 2,
+					 packet->chi_bf_partial, bf_helper)
+			// store the current chi
+			set_array_double(i,
+					 0,
+					 storage-> bf_lpopulation_ratio_nlte_lte_nrow,
+					 2,
+					 packet->chi_bf_partial, level_chi)
 		}
+		rpacket_set_chi_boundfree(packet, bf_helper);
 	}
-	return bf_helper;
 }
 
 inline int64_t macro_atom(rpacket_t * packet, storage_model_t * storage)
@@ -369,8 +401,7 @@ inline int64_t macro_atom(rpacket_t * packet, storage_model_t * storage)
 		i = storage->macro_block_references[activate_level] - 1;
 		p = 0.0;
 		do {
-			p += storage->
-			    transition_probabilities
+			p += storage->transition_probabilities
 			    [rpacket_get_current_shell_id(packet) *
 			     storage->transition_probabilities_nd + (++i)];
 		} while (p <= event_random);
@@ -590,8 +621,8 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 	tau_line =
 	    storage->line_lists_tau_sobolevs[rpacket_get_current_shell_id
 					     (packet) *
-					     storage->
-					     line_lists_tau_sobolevs_nd +
+					     storage->line_lists_tau_sobolevs_nd
+					     +
 					     rpacket_get_next_line_id(packet)];
 	tau_continuum = rpacket_get_chi_continuum(packet) * distance;
 	tau_combined = tau_line + tau_continuum;
@@ -610,11 +641,11 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 		comov_energy = rpacket_get_energy(packet) * old_doppler_factor;
 		rpacket_set_energy(packet,
 				   comov_energy * inverse_doppler_factor);
-		storage->last_line_interaction_in_id[storage->
-						     current_packet_id] =
+		storage->
+		    last_line_interaction_in_id[storage->current_packet_id] =
 		    rpacket_get_next_line_id(packet) - 1;
-		storage->last_line_interaction_shell_id[storage->
-							current_packet_id] =
+		storage->
+		    last_line_interaction_shell_id[storage->current_packet_id] =
 		    rpacket_get_current_shell_id(packet);
 		storage->last_interaction_type[storage->current_packet_id] = 2;
 		if (storage->line_interaction_id == 0) {
@@ -622,8 +653,8 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 		} else if (storage->line_interaction_id >= 1) {
 			emission_line_id = macro_atom(packet, storage);
 		}
-		storage->last_line_interaction_out_id[storage->
-						      current_packet_id] =
+		storage->
+		    last_line_interaction_out_id[storage->current_packet_id] =
 		    emission_line_id;
 		rpacket_set_nu(packet,
 			       storage->line_list_nu[emission_line_id] *
@@ -636,8 +667,8 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 		if (rpacket_get_virtual_packet_flag(packet) > 0) {
 			virtual_close_line = false;
 			if (!rpacket_get_last_line(packet) &&
-			    fabs(storage->
-				 line_list_nu[rpacket_get_next_line_id(packet)]
+			    fabs(storage->line_list_nu
+				 [rpacket_get_next_line_id(packet)]
 				 -
 				 rpacket_get_nu_line(packet)) /
 			    rpacket_get_nu_line(packet) < 1e-7) {
@@ -665,24 +696,47 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 void montecarlo_bound_free_scatter(rpacket_t * packet,
 				   storage_model_t * storage, double distance)
 {
-    double nu;
-    double nu_bf_edge;
-    double zrand;
-    int64_t i = 0;
-    int64_t I;
+    tardis_error_t error;
 
-    //Determine in which continuum the bf-absorption occurs
-    nu_edge = rpacket_get_last_bf_edge(packet);
-    nu  = rpacket_get_nu(packet);
-    I = storage->chi_bf_index_to_level_nrow;
+	double nu;
+	double nu_bf_edge;
+	double chi_bf;
+	double chi_sum;
+	double zrand;
+	double zrand_x_chibf;
 
-    for (i = 0; i <= I; ++i) {
+	int64_t ccontinuum;
+	int64_t i = 0;
+	int64_t I;
 
+	//Determine in which continuum the bf-absorption occurs
+	nu_edge = rpacket_get_last_bf_edge(packet);
+	nu = rpacket_get_nu(packet);
+	I = storage->chi_bf_index_to_level_nrow;
+    chi_bf = rpacket_get_chi_boundfree(packet);
+    // get new zrand
+    zrand = (rk_double(&mt_state));
+    zrand_x_chibf  = zrand * chi_bf;
+
+    error = binary_search(packet.chi_bf_tmp_partial, zrand_x_chibf, I, 2*I, &ccontinuum);
+    // decide whether we go to ionisation energy
+    zrand = (rk_double(&mt_state));
+    if (zrand < nu/nu_edge ){
+    // go th the ionisation energy
+    // EXTENDE the MACRO ATOM
+
+    } else {
+    //go to the thermal pool
+    create_kpacket(packet);
     }
-    //decide whether we go to ionisation energy
+
+
+	//decide whether we go to ionisation energy
 
 	rpacket_set_status(packet, TARDIS_PACKET_STATUS_REABSORBED);
 }
+
+//////
 
 void montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage,
 				  double distance)
@@ -799,8 +853,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t * storage,
 		// Check if we are at the end of line list.
 		if (!rpacket_get_last_line(packet)) {
 			rpacket_set_nu_line(packet,
-					    storage->
-					    line_list_nu
+					    storage->line_list_nu
 					    [rpacket_get_next_line_id(packet)]);
 		}
 		double distance;
@@ -838,10 +891,13 @@ tardis_error_t rpacket_init(rpacket_t * packet, storage_model_t * storage,
 	bool close_line;
 	int recently_crossed_boundary;
 
-	//malloc for the temporary opacity storage
-	int nr,nc;
-	nr = storage->bf_level_population_nrow;
-	packet.chi_bf_partial = (double *) malloc(nt *  sizeof(double));
+	//assign temporary opacity storage pointer from storage to packet
+	packet.chi_bf_partial = storage.chi_bf_partial;
+	packet.chi_bf_tmp_partial_last_shell_id = -1;
+	packet.chi_bf_tmp_partial_last_nu = 0;
+	//int nr,nc;
+	//nr = storage->bf_level_population_nrow;
+	//packet.chi_bf_partial = (double *) malloc(nt *  sizeof(double));
 
 	/* Get packet information from storage */
 	tardis_error_t ret_val = TARDIS_ERROR_OK;
@@ -853,9 +909,15 @@ tardis_error_t rpacket_init(rpacket_t * packet, storage_model_t * storage,
 	current_r = storage->r_inner[0];
 	current_mu = comov_mu;
 
-	current_nu = comov_nu / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
+	current_nu =
+	    comov_nu / (1 -
+			(current_mu * current_r *
+			 storage->inverse_time_explosion * INVERSE_C));
 
-	current_energy = comov_energy / (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C));
+	current_energy =
+	    comov_energy / (1 -
+			    (current_mu * current_r *
+			     storage->inverse_time_explosion * INVERSE_C));
 
 	if ((ret_val =
 	     line_search(storage->line_list_nu, comov_current_nu,
@@ -1223,10 +1285,43 @@ inline void rpacket_set_comov_energy(rpacket_t * packet, double comov_energy)
 
 inline void rpacket_set_last_bf_edge(rpacket_t * packet, double nu_edge)
 {
-    packet->last_bf_edge = nu_edge;
+	packet->last_bf_edge = nu_edge;
 }
 
 inline double rpacket_get_last_bf_edge(rpacket_t * packet)
 {
-    return packet->last_bf_edge;
+	return packet->last_bf_edge;
+}
+
+inline int64_t rpacket_get_chi_bf_tmp_shell_id(rpacket_t * packet);
+{
+/*
+Get the shell_id for which we have computed the chi_bf_tmp_partial
+*/
+	return packet->chi_bf_tmp_partial_last_shell_id;
+}
+
+inline void rpacket_set_chi_bf_tmp_shell_id(rpacket_t * packet,
+					    int64_t shell_id);
+{
+/*
+Set the shell_id for which we have computed the chi_bf_tmp_partial
+*/
+	packet->chi_bf_tmp_partial_last_shell_id = shell_id;
+}
+
+inline double rpacket_get_chi_bf_tmp_nu(rpacket_t * packet);
+{
+/*
+Get the nu for which we have computed the chi_bf_tmp_partial
+*/
+	return packet->chi_bf_tmp_partial_nu;
+}
+
+inline void rpacket_set_chi_bf_tmp_shell_id(rpacket_t * packet, double nu);
+{
+/*
+Set the nu for which we have computed the chi_bf_tmp_partial
+*/
+	packet->chi_bf_tmp_partial_nu = nu;
 }

@@ -10,6 +10,8 @@ from scipy import interpolate
 
 from tardis import macro_atom, io
 from tardis.io.util import parse_abundance_dict_to_dataframe
+from scipy.integrate import quad
+import mpmath
 import  ipdb
 
 
@@ -256,6 +258,7 @@ class BasePlasmaArray(object):
         self.calculate_level_populations(initialize_nlte=initialize_nlte, excitation_mode=self.excitation_mode)
         self.tau_sobolevs = self.calculate_tau_sobolev()
         self.calculate_bound_free()
+        self.calculate_coolingrates()
 
         if self.nlte_config is not None and self.nlte_config.species:
             self.calculate_nlte_level_populations()
@@ -681,6 +684,76 @@ class BasePlasmaArray(object):
         return pd.DataFrame(transition_probabilities, index=macro_atom_data.transition_line_id,
                      columns=self.tau_sobolevs.columns)
 
+    def calculate_coolingrates(self):
+        """
+        Calculate the coolingrates. For the direct processes by continuum emission free-bound, free-free or for indirect
+        processes by collisional excitations/ionizations.
+
+
+        @return:
+        """
+        cr_dataf = pd.concat([self.atom_data.levels,self.atom_data.ion_cx_th], axis=1)
+        cr_dataf['cross_section'] = cr_dataf['cross_section'].fillna(0)
+
+        bound_free_th_frequency = self._get_bound_free_th_frequency()
+        phi = self.calculate_saha().__array__()
+        level_populations = self.level_populations.__array__()
+        Te = self.t_electrons
+
+        #integral for the spontaneous recombinations to level i (Mihalas 131)
+        @np.vectorize
+        def spont_recom_int(phi, nu_th,  T, sigma_i):
+
+            """
+            solution for the integral
+            ..math::
+            \\alpha^{sp}_i = 4 \\pi \\phi \\int_{\\nu}^{\\infty} \\frac{a_{ik}(\\nu)}{h\\nu} \\frac{2 h \\nu^3}{c^2} e^{-h \\nu / kt}
+            \\alpha^{sp}_i = 4 \\pi \\phi \\frac{a_{i} 2}{c^2} Ei\\left(- \frac{  h}{kt} \right)
+            @param phi: saha factor
+            @param nu_th: photo ionization threshold frequency
+            @param T: temperature
+            @param sigma_i: photo ionization cross section
+            @return:
+            """
+            def integrand1(x, a):
+                return 1/x * np.exp(- a * x)
+
+            a =h_cgs / k_B_cgs / T
+            helper1, nerror = quad(integrand1,nu_th, np.inf,  args=(a))
+            return 8. * np.pi * phi * sigma_i * nu_th**3 /  c_cgs**2 * helper1
+
+
+        #integral for the modified  spontaneous recombinations to level i (Lucy 2003 MC II Eq. 20)
+        @np.vectorize
+        def mod_spont_recom_int(phi, nu_th,  T, sigma_i):
+
+            """
+            ..math::
+            alpha^{E,sp}_i \\frac{ 8 a_i k_B T \\phi \\nu_i^2 }{c^2 h} e^{frac{\\nu_i h}{k_B T}}
+            @param phi: saha factor
+            @param nu_th: photo ionization threshold frequency
+            @param T: temperature
+            @param sigma_i: photo ionization cross section
+            @return:
+            """
+            return 8. * np.pi * sigma_i * k_B_cgs * T *  phi * nu_th**2 / c_cgs**2 / h_cgs\
+                   * np.exp(nu_th * h_cgs / k_B_cgs / T)
+
+        a = 1
+        asp = spont_recom_int(np.array(phi[None,:]), bound_free_th_frequency[:,None], Te[None,:],
+                              np.array(cr_dataf['cross_section'].__array__())[:,None])
+        aspe = mod_spont_recom_int(np.array(phi[None,:]), bound_free_th_frequency[:,None], Te[None,:],
+                              np.array(cr_dataf['cross_section'].__array__())[:,None])
+
+        #go through all shells
+        
+        cr_dataf['asp'] = asp[0]
+        cr_dataf['aspe'] = aspe[0]
+
+        a = 1
+
+
+
 
 
     def _get_population_ratio(self):
@@ -744,8 +817,9 @@ class BasePlasmaArray(object):
         ionization_energy2lower.set_index(['atomic_number', 'ion_number'], inplace=True)
         photoionization_energy = ionization_energy2lower['ionization_energy'] - self.atom_data.levels[
             'energy'].reset_index(level=2, drop=True)
-
-        return photoionization_energy.fillna(1e99).__array__() / h_cgs
+#Test if fillna with 0 works
+        return photoionization_energy.fillna(0).__array__() / h_cgs
+#        return photoionization_energy.fillna(1e99).__array__() / h_cgs
 
 
     def _get_chi_bf(self, nu_bins, level_population_ratio, level_population_ratio_lte, bound_free_th_frequency, bound_free_cross_section_at_threshold):
