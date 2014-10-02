@@ -17,6 +17,7 @@ before_install:
    # We do this to make sure we get the dependencies so pip works below
    - sudo apt-get update -qq
    - sudo apt-get install -qq python-numpy python-pandas python-scipy python-h5py python-sphinx python-yaml cython libatlas-dev liblapack-dev gfortran
+   - pip install pip --upgrade
    - if [[ $COMPILER == 'clang' ]]; then sudo apt-get install -qq clang; fi
    - if [[ $TEST_MODE == 'spectrum' ]]; then wget http://moria.astro.utoronto.ca/\~wkerzend/tardis_atomic_databases/kurucz_cd23_chianti_H_He.zip; fi
    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
@@ -24,7 +25,7 @@ before_install:
 
 install:
    - export PYTHONIOENCODING=UTF8 # just in case
-   - pip install -q --upgrade "Cython==$CYTHON_VERSION"
+   - pip install --upgrade "Cython==$CYTHON_VERSION"
    - if [[ $PANDAS_VERSION == 'latest' ]]; then pip install -q --upgrade pandas; else pip install -q --upgrade "pandas==$PANDAS_VERSION"; fi
    - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else pip install -q --upgrade "astropy==$ASTROPY_VERSION"; fi
    - pip install -q --upgrade pytest==2.5.1
