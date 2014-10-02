@@ -4,7 +4,7 @@ import yaml
 import tardis
 from tardis import io, model, simulation
 from tardis.io.config_reader import Configuration
-from numpy.testing import assert_array_almost_equal
+import numpy.testing as nptesting
 from astropy import units as u
 import os
 
@@ -42,5 +42,5 @@ class TestSimpleRun():
 
         luminosity_density = luminosity_density * u.Unit('erg / (Angstrom s)')
 
-        assert_array_almost_equal(self.model.spectrum.luminosity_density_lambda,
+        np.testing.assert_allclose(self.model.spectrum.luminosity_density_lambda,
                                   luminosity_density)
