@@ -39,9 +39,13 @@ def read_density_file(density_filename, density_filetype, time_explosion, v_inne
     mean_densities = calculate_density_after_time(unscaled_mean_densities, time_of_model, time_explosion)
 
     if v_inner_boundary > v_outer_boundary:
-        raise ConfigurationError('v_inner_boundary > v_outer_boundary ({0:s} > {1:s}). unphysical!'.format(v_inner_boundary, v_outer_boundary))
+        raise ConfigurationError('v_inner_boundary > v_outer_boundary '
+                                 '({0:s} > {1:s}). unphysical!'.format(
+            v_inner_boundary, v_outer_boundary))
     
-    if not np.isclose(v_inner_boundary, 0.0) and v_inner_boundary > v_inner[0]:
+    if (not np.isclose(v_inner_boundary, 0.0 * u.km / u.s,
+                       atol=1e-8 * u.km / u.s)
+        and v_inner_boundary > v_inner[0]):
 
         if v_inner_boundary > v_outer[-1]:
             raise ConfigurationError('Inner boundary selected outside of model')
@@ -51,7 +55,8 @@ def read_density_file(density_filename, density_filetype, time_explosion, v_inne
     else:
         inner_boundary_index = None
         v_inner_boundary = v_inner[0]
-        logger.warning("v_inner_boundary requested too small for readin file. Boundary shifted to match file.")
+        logger.warning("v_inner_boundary requested too small for readin file."
+                       " Boundary shifted to match file.")
 
     if not np.isinf(v_outer_boundary) and v_outer_boundary < v_outer[-1]:
         outer_boundary_index = v_outer.searchsorted(v_outer_boundary) + 1
