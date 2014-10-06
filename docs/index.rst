@@ -24,6 +24,7 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     atomic/atomic_data
     workflow/development_workflow
     physics/index
+    model
     changelog
     glossary
     zreferences
