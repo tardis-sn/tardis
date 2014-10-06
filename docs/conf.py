@@ -48,6 +48,8 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.graphviz',
     'numpydoc',
+    'astropy_helpers.sphinx.ext.automodsumm',
+    'astropy_helpers.sphinx.ext.automodapi'
 ]
 
 source_suffix = '.rst'
