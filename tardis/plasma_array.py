@@ -739,6 +739,24 @@ class BasePlasmaArray(object):
             return 8. * np.pi * sigma_i * k_B_cgs * T *  phi * nu_th**2 / c_cgs**2 / h_cgs\
                    * np.exp(nu_th * h_cgs / k_B_cgs / T)
 
+        def get_interpolated_collision_r(collision_data, collision_data_temperatures, current_T):
+            a = 1
+
+            def interp(fp, xp, x):
+                """
+                wrapper function to change the argument order of interp
+                """
+                a = 1
+                return np.interp(x, xp, fp)
+
+            interpolated_collision = np.apply_along_axis(interp, 1, collision_data.values[:, 1:],
+                                                         collision_data_temperatures, current_T)
+
+            return interpolated_collision
+
+
+
+
         a = 1
         asp = spont_recom_int(np.array(phi[None,:]), bound_free_th_frequency[:,None], Te[None,:],
                               np.array(cr_dataf['cross_section'].__array__())[:,None])
@@ -758,16 +776,37 @@ class BasePlasmaArray(object):
         continuums_pop = continuums_pop.fillna(0).reset_index(2, drop=True)
 
         #Compute C_bf and C_ff
-        Cr_fb_kj = pd.DataFrame()
+        Cr_fb_kj_all = pd.DataFrame()
+        Cr_fb_kj_cumsum_all = pd.DataFrame()
         Cr_ff_kj = pd.DataFrame()
         Cr_fb_kji_sorted = np.zeros((len(Te),len(self.level_populations)))
+
+        Cr_fb_kji_cumsum_all = np.zeros((len(Te), len(self.level_populations)))
+        Cr_fb_kji_all = np.zeros((len(Te), len(self.level_populations)))
+        Cr_fb_kji_index = np.zeros(len(self.level_populations))
+
         Cr_fb_kji_index_sorted = np.zeros((len(Te),len(self.level_populations)))
 
-        #create the index to level array
-        index_to_level = np.zeros((len(self.level_populations),1))
-        index_to_level[:,0] += self.level_populations.reset_index()['atomic_number'].__array__() * 100000
-        index_to_level[:,0] += self.level_populations.reset_index()['ion_number'].__array__() *1000
-        index_to_level[:,0] += self.level_populations.reset_index()['level_number'].__array__()
+
+        # Bound Bound CR
+        collision_data = self.atom_data.collision_data
+        collision_data_temperatures = self.atom_data.collision_data_temperatures
+
+        #The index of the array to the index of the upper level
+        index_to_level = np.zeros(len(self.atom_data.collision_data))
+        index_to_level[:] += self.atom_data.collision_data.reset_index()['atomic_number'].__array__() * 100000
+        index_to_level[:] += self.atom_data.collision_data.reset_index()['ion_number'].__array__() * 1000
+        index_to_level[:] += self.atom_data.collision_data.reset_index()['level_number_upper'].__array__()
+
+        Cr_bb_kij_all = np.zeros((len(Te), len(collision_data)))
+        Cr_bb_kij_cumsum_all = np.zeros((len(Te), len(collision_data)))
+        Cr_bb_kij_index = index_to_level
+
+        #create the index to level array for bound free
+        index_to_level = np.zeros(len(self.level_populations))
+        index_to_level[:] += self.level_populations.reset_index()['atomic_number'].__array__() * 100000
+        index_to_level[:] += self.level_populations.reset_index()['ion_number'].__array__() * 1000
+        index_to_level[:] += self.level_populations.reset_index()['level_number'].__array__()
         #some helpers
         C_ff_coefficent = 1.426e-21 # Gaunt factor =1 Osterbrock 1974
         #create the gi value array for the Seaton approximation
@@ -778,6 +817,8 @@ class BasePlasmaArray(object):
         gi[_mask] = 0.2
         _mask = self.level_populations.reset_index()['ion_number'].__array__() >= 2
         gi[_mask] = 0.3
+
+        Cr_fb_kji_index_cumsum = index_to_level
         #go through all shells
         for i in range(len(Te)):
             #To C_bf
@@ -786,15 +827,30 @@ class BasePlasmaArray(object):
             cr_dataf['Cfb_right_%d'%i] = (cr_dataf['aspe_%d'%i]- cr_dataf['asp_%d'%i]) * h_cgs * bound_free_th_frequency
             #store the level coolingrates
             Cr_fb_kji = self.electron_densities[i] * continuums_pop[i]  * cr_dataf['Cfb_right_%d'%i].reset_index(level=2,drop=True)
-            Cr_fb_kji.index = cr_dataf['Cfb_right_%d'%i].index
-            _Cr_fb_kji_sorted = np.concatenate((index_to_level.copy(),Cr_fb_kji.__array__()[:,None]), axis=1)
-            _Cr_fb_kji_sorted = _Cr_fb_kji_sorted[np.argsort(_Cr_fb_kji_sorted[:,1])]
-            Cr_fb_kji_sorted[i] = _Cr_fb_kji_sorted[:,1]
-            Cr_fb_kji_index_sorted[i] =  _Cr_fb_kji_sorted[:,0] #the index key is k*100000 +j*1000 +i
+            Cr_fb_kji_all[i] = Cr_fb_kji
+            Cr_fb_kji_cumsum = Cr_fb_kji.copy()
+            Cr_fb_kji_cumsum = np.cumsum(Cr_fb_kji.values)
+            Cr_fb_kji_cumsum_all[i] = Cr_fb_kji_cumsum
+
+
+            # Cr_fb_kji.index = cr_dataf['Cfb_right_%d'%i].index
+
+            #_Cr_fb_kji_sorted = np.concatenate((index_to_level.copy(),Cr_fb_kji.__array__()[:,None]), axis=1)
+            #_Cr_fb_kji_sorted = _Cr_fb_kji_sorted[np.argsort(_Cr_fb_kji_sorted[:,1])]
+            #Cr_fb_kji_sorted[i] = _Cr_fb_kji_sorted[:,1]
+            #Cr_fb_kji_index_sorted[i] =  _Cr_fb_kji_sorted[:,0] #the index key is k*100000 +j*1000 +i
+
             Cfb_right_sum =  cr_dataf['Cfb_right_%d'%i].groupby(level=[0, 1]).sum()
-            Cr_fb_kj[i]= self.electron_densities[i] \
+            Cr_fb_kj_all[i] = self.electron_densities[i] \
                               * continuums_pop[i] \
                               * Cfb_right_sum
+            # create index at i=0
+            if i == 0:
+                Cr_fb_kj_cumsum_all = Cr_fb_kj_all.copy()
+                Cr_fb_kj_cumsum_all[:] = 0
+
+            Cr_fb_kj_cumsum_all[i] = np.cumsum(Cr_fb_kj_all[i].values)
+
             #To C_ff
             Cr_ff_kj[i] = C_ff_coefficent * Te[i] **(0.5) *self.electron_densities[i] * continuums_pop[i]
 
@@ -802,23 +858,45 @@ class BasePlasmaArray(object):
             c_ion_ijk = self.electron_densities[i] * 1.55e13 * gi \
                         * (cr_dataf['cross_section'].__array__())  /h_cgs  / bound_free_th_frequency *k_B_cgs \
                         * Te[i] **(0.5) * np.exp(h_cgs * bound_free_th_frequency / k_B_cgs / Te[i] )
-            
+
 
 
 
             #To C_exc in the  Regemorter approximation
+            Cr_bb_kij_all[i] = self.electron_densities[i] * get_interpolated_collision_r(collision_data,
+                                                                                         collision_data_temperatures,
+                                                                                         Te[i])
+            Cr_bb_kij_cumsum_all[i] = np.cumsum(Cr_bb_kij_all[i])
+
+        Cr_fb_kj_index = np.zeros(len(Cr_fb_kj_all[0].values))
+        Cr_fb_kj_index += Cr_fb_kj_all.reset_index()['atomic_number'].__array__() * 100000
+        Cr_fb_kj_index += Cr_fb_kj_all.reset_index()['ion_number'].__array__() * 1000
+
+        # Store all data in the plasma array
+        self.Cr_fb_kji_all = np.array(Cr_fb_kji_all.__array__(), dtype=np.float64)
+        self.Cr_fb_kji_cumsum_all = np.array(Cr_fb_kji_cumsum_all.__array__(), dtype=np.float64)
+        self.Cr_fb_kji_index = np.array(Cr_fb_kji_index, dtype=np.int)
+
+        self.Cr_fb_kj_all = np.array(Cr_fb_kj_all.__array__(), dtype=np.float64)
+        self.Cr_fb_kj_cumsum_all = np.array(Cr_fb_kj_cumsum_all.__array__(), dtype=np.float64)
+        self.Cr_fb_kj_index = np.array(Cr_fb_kj_index, dtype=np.int)
+
+        self.Cr_bb_kij_all = np.array(Cr_bb_kij_all, dtype=np.float64)
+        self.Cr_bb_kij_cumsum_all = np.array(Cr_bb_kij_cumsum_all, dtype=np.float64)
+        self.Cr_bb_kij_index = np.array(Cr_bb_kij_index, dtype=np.int64)
 
 
 
-        self.Cr_fb_kji_sorted = np.array(Cr_fb_kji_sorted, dtype=np.float64)
-        self.Cr_fb_kji_index_sorted = np.array(Cr_fb_kji_index_sorted,dtype=np.int)
 
-        self.Cr_fb_kj = np.array(Cr_fb_kj.__array__(), dtype=np.float64)
-        self.Cr_ff_kj = np.array(Cr_ff_kj, dtype=np.float64)
-        _Cr_bf_i = np.zeros((len(Cr_fb_kj),1)) #the index key is k*100000 +j*1000 +i
-        _Cr_bf_i[:,0] += Cr_fb_kj.reset_index()['atomic_number'].__array__() * 100000
-        _Cr_bf_i[:,1] += Cr_fb_kj.reset_index()['ion_number'].__array__()  *1000
-        self.CR_bf_kj_index = np.array(_Cr_bf_i, dtype=np.float64)
+        #        self.Cr_fb_kji_sorted = np.array(Cr_fb_kji_sorted, dtype=np.float64)
+        #        self.Cr_fb_kji_index_sorted = np.array(Cr_fb_kji_index_sorted,dtype=np.int)
+
+        #        self.Cr_fb_kj = np.array(Cr_fb_kj.__array__(), dtype=np.float64)
+        #        self.Cr_ff_kj = np.array(Cr_ff_kj, dtype=np.float64)
+        #        _Cr_bf_i = np.zeros((len(Cr_fb_kj),1)) #the index key is k*100000 +j*1000 +i
+        #        _Cr_bf_i[:,0] += Cr_fb_kj.reset_index()['atomic_number'].__array__() * 100000
+        #        _Cr_bf_i[:,1] += Cr_fb_kj.reset_index()['ion_number'].__array__()  *1000
+        #        self.CR_bf_kj_index = np.array(_Cr_bf_i, dtype=np.float64)
 
         #Compute C_ff
         #go through all shells

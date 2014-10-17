@@ -124,10 +124,39 @@ cdef extern from "cmontecarlo.h":
         int_type_t bf_lpopulation_ratio_nlte_lte_ncolum
 
         double *bf_cross_sections
+
         double *bound_free_th_frequency
 
         double *t_electrons
         double *chi_bf_tmp_partial
+
+        double *Cr_fb_kji_all
+        int_type_t Cr_fb_kji_all_nrow
+        int_type_t Cr_fb_kji_all_ncolum
+
+        double *Cr_fb_kji_cumsum_all
+        int_type_t Cr_fb_kji_cumsum_all_nrow
+        int_type_t Cr_fb_kji_cumsum_all_ncolum
+        int_type_t *Cr_fb_kji_index
+
+        double *Cr_fb_kj_all
+        int_type_t Cr_fb_kj_all_nrow
+        int_type_t Cr_fb_kj_all_ncolum
+
+        double *Cr_fb_kj_cumsum_all
+        int_type_t Cr_fb_kj_cumsum_all_nrow
+        int_type_t Cr_fb_kj_cumsum_all_ncolum
+        int_type_t *Cr_fb_kj_index
+
+        double *Cr_bb_kij_all
+        int_type_t Cr_bb_kij_all_nrow
+        int_type_t Cr_bb_kij_all_ncolum
+
+        double *Cr_bb_kij_cumsum_all
+        int_type_t Cr_bb_kij_cumsum_all_nrow
+        int_type_t Cr_bb_kij_cumsum_all_ncolum
+
+        int_type_t *Cr_bb_kij_index
     #double kB
 
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
@@ -289,6 +318,29 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
     cdef np.ndarray[double, ndim=1] bound_free_th_frequency = model.plasma_array.bound_free_th_frequency
     storage.bound_free_th_frequency = <double*> bound_free_th_frequency.data
+
+    cdef np.ndarray[double, ndim=2, mode='c'] Cr_fb_kji_all = np.ascontiguousarray(model.Cr_fb_kji_all)
+    storage.Cr_fb_kji_all = <double*> Cr_fb_kji_all.data
+    storage.Cr_fb_kji_all_nrow = Cr_fb_kji_all.shape[0]
+    storage.Cr_fb_kji_all_ncolum = Cr_fb_kji_all.shape[1]
+
+    cdef np.ndarray[double, ndim=2, mode='c'] Cr_fb_kji_cumsum_all = np.ascontiguousarray(model.Cr_fb_kji_cumsum_all)
+    storage.Cr_fb_kji_cumsum_all = <double*> Cr_fb_kji_cumsum_all.data
+    storage.Cr_fb_kji_cumsum_all_nrow = Cr_fb_kji_cumsum_all.shape[0]
+    storage.Cr_fb_kji_cumsum_all_ncolum = Cr_fb_kji_cumsum_all.shape[1]
+
+    cdef np.ndarray[double, ndim=2, mode='c'] Cr_bb_kij_all = np.ascontiguousarray(model.Cr_bb_kij_all)
+    storage.Cr_bb_kij_all = <double*> Cr_bb_kij_all.data
+    storage.Cr_bb_kij_all_nrow = Cr_bb_kij_all.shape[0]
+    storage.Cr_bb_kij_all_ncolum = Cr_bb_kij_all.shape[1]
+
+    cdef np.ndarray[double, ndim=2, mode='c'] Cr_bb_kij_cumsum_all = np.ascontiguousarray(model.Cr_bb_kij_cumsum_all)
+    storage.Cr_bb_kij_cumsum_all = <double*> Cr_bb_kij_cumsum_all.data
+    storage.Cr_bb_kij_cumsum_all_nrow = Cr_bb_kij_cumsum_all.shape[0]
+    storage.Cr_bb_kij_cumsum_all_ncolum = Cr_bb_kij_cumsum_all.shape[1]
+
+
+
 
     print("Setting up the storage is complete")
 

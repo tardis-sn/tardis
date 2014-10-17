@@ -204,6 +204,39 @@ typedef struct StorageModel {
 
 	double *t_electrons;
 	double *chi_bf_tmp_partial;
+
+
+    double *Cr_fb_kji_all;
+    int64_t Cr_fb_kji_all_nrow;
+    int64_t Cr_fb_kji_all_ncolum;
+
+    double *Cr_fb_kji_cumsum_all;
+    int64_t Cr_fb_kji_cumsum_all_nrow;
+    int64_t Cr_fb_kji_cumsum_all_ncolum;
+
+    int64_t *Cr_fb_kji_index;
+
+
+    double *Cr_fb_kj_all;
+    int64_t Cr_fb_kj_all_nrow;
+    int64_t Cr_fb_kj_all_ncolum;
+
+    double *Cr_fb_kj_cumsum_all;
+    int64_t Cr_fb_kj_cumsum_all_nrow;
+    int64_t Cr_fb_kj_cumsum_all_ncolum;
+
+    int64_t *Cr_fb_kj_index;
+
+
+    double *Cr_bb_kij_all;
+    int64_t Cr_bb_kij_all_nrow;
+    int64_t Cr_bb_kij_all_ncolum;
+
+    double *Cr_bb_kij_cumsum_all;
+    int64_t Cr_bb_kij_cumsum_all_nrow;
+    int64_t Cr_bb_kij_cumsum_all_ncolum;
+
+    int64_t *Cr_bb_kij_index;
 	//double kB;
 
 } storage_model_t;
