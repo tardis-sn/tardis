@@ -19,13 +19,13 @@ inline tardis_error_t line_search(double *nu, double nu_insert,
 	} else if (nu_insert < nu[imax]) {
 		*result = imax + 1;
 	} else {
-		ret_val = binary_search(nu, nu_insert, imin, imax, result);
+		ret_val = reverse_binary_search(nu, nu_insert, imin, imax, result);
 		*result = *result + 1;
 	}
 	return ret_val;
 }
 
-inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin,
+inline tardis_error_t reverse_binary_search(double *x, double x_insert, int64_t imin,
 				    int64_t imax, int64_t * result)
 {
 	/*
@@ -54,6 +54,40 @@ inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin,
 	}
 	return ret_val;
 }
+
+inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin,
+				    int64_t imax, int64_t * result)
+{
+	/*
+	   Have in mind that *x points to a sorted array.
+       Like [1,2,3,4,5,...]
+	 */
+	int imid;
+	tardis_error_t ret_val = TARDIS_ERROR_OK;
+	if (x_insert < x[imin] || x_insert > x[imax]) {
+		ret_val = TARDIS_ERROR_BOUNDS_ERROR;
+	} else {
+		while (imax >= imin) {
+			imid = (imin + imax) / 2;
+			if (x[imid] == x_insert) {
+				*result = imid;
+				break;
+			} else if (x[imid] < x_insert) {
+				imin = imid + 1;
+			} else {
+				imax = imid - 1;
+			}
+		}
+		if (imax - imid == 2 && x_insert < x[imin + 1]) {
+			*result = imin;
+		} else {
+			*result = imin ;
+		}
+	}
+	return ret_val;
+}
+
+
 
 inline void check_array_bounds(int64_t ioned, int64_t nrow, int64_t ncolums)
 {
@@ -718,7 +752,7 @@ void montecarlo_bound_free_scatter(rpacket_t * packet,
     zrand = (rk_double(&mt_state));
     zrand_x_chibf  = zrand * chi_bf;
 
-    error = binary_search(packet.chi_bf_tmp_partial, zrand_x_chibf, I, 2*I, &ccontinuum);
+    error = reverse_binary_search(packet.chi_bf_tmp_partial, zrand_x_chibf, I, 2*I, &ccontinuum);
     // decide whether we go to ionisation energy
     zrand = (rk_double(&mt_state));
     if (zrand < nu/nu_edge ){
