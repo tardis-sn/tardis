@@ -14,3 +14,5 @@ def test_simple_radial_model1d_1():
 
     assert test_model.radius.unit == u.cm
     assert test_model.density.unit == u.g / u.cm**3
+    1/0
+    test_model.volume
