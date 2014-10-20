@@ -1,0 +1,2 @@
+class BaseModel(object):
+    pass
