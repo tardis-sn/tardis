@@ -745,7 +745,7 @@ void montecarlo_bound_free_scatter(rpacket_t * packet,
 
 	//Determine in which continuum the bf-absorption occurs
 	nu_edge = rpacket_get_last_bf_edge(packet);
-	nu = rpacket_get_nu(packet);
+	nu = rpacket_get_nu(packet)udo 
 	I = storage->chi_bf_index_to_level_nrow;
     chi_bf = rpacket_get_chi_boundfree(packet);
     // get new zrand
