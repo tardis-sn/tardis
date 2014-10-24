@@ -23,13 +23,6 @@ class RadialModel1D(BaseModel):
     def radius(self, value):
         self._radius = u.Quantity(value, u.cm)
 
-    @property
-    def density(self):
-        return self._density
-
-    @density.setter
-    def density(self, value):
-        self._density = u.Quantity(value, u.g / u.cm**3)
 
     @property
     def volume(self):
@@ -46,6 +39,15 @@ class RadialModel1D(BaseModel):
 
 
 class RadialHomologousModel1D(RadialModel1D):
+    """
+    Radial homologous 1D model.
+
+    Parameters
+    ----------
+
+    velocity: ~astropy.units.Quantity
+    
+    """
 
     def __init__(self, velocity, temperature, density, abundances, t_0, n_electron=None):
         pass

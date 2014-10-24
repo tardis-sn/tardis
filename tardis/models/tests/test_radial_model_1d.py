@@ -2,6 +2,8 @@ import pytest
 
 import numpy as np
 
+import numpy.testing as nptesting
+
 from astropy import units as u
 
 from tardis.models.model1d import RadialModel1D
@@ -14,5 +16,9 @@ def test_simple_radial_model1d_1():
 
     assert test_model.radius.unit == u.cm
     assert test_model.density.unit == u.g / u.cm**3
-    1/0
-    test_model.volume
+
+    nptesting.assert_allclose(test_model.volume[0],
+                              4.1887902047863903e+24 * u.cm**3)
+
+    nptesting.assert_allclose(test_model.mass[0],  2.488679615529453e+26 * u.g)
+
