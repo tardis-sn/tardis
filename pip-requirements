@@ -6,5 +6,4 @@ matplotlib>=1.1
 astropy>=0.3.2
 PyYAML>=3.0
 numexpr>=2.0.0
-tables>=3.0
 Cython>=0.2
