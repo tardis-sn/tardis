@@ -11,7 +11,6 @@ env:
         - COMPILER = gcc
         - CYTHON_VERSION=0.21
         - NUMPY_VERSION=1.8
-        - SCIPY_VERSION=0.10
         - PANDAS_VERSION=0.12
         - ASTROPY_VERSION=0.4
         - ASTROPY_USE_SYSTEM_PYTEST=1
@@ -41,22 +40,26 @@ matrix:
 
 
 before_install:
-   # We do this to make sure we get the dependencies so pip works below
-   - sudo apt-get update -qq
-   - sudo apt-get install -qq python-virtualenv python-numpy python-pandas python-scipy python-h5py python-yaml cython
-   - pip install pip --upgrade
-   - if [[ $COMPILER == 'clang' ]]; then sudo apt-get install -qq clang; fi
-   - if [[ $TEST_MODE == 'spectrum' ]]; then wget http://moria.astro.utoronto.ca/\~wkerzend/tardis_atomic_databases/kurucz_cd23_chianti_H_He.zip; fi
-   - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
-   - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
+    # We do this to make sure we get the dependencies so pip works below
+    - export PYTHONIOENCODING=UTF8
+    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+    - chmod +x miniconda.sh
+    - ./miniconda.sh -b
+    - export PATH=/home/travis/miniconda/bin:$PATH
+    - conda update --yes conda
+
+    - if [[ $COMPILER == 'clang' ]]; then sudo apt-get install -qq clang; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then wget http://moria.astro.utoronto.ca/\~wkerzend/tardis_atomic_databases/kurucz_cd23_chianti_H_He.zip; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
 
 install:
-   - export PYTHONIOENCODING=UTF8 # just in case
-   - pip install -r pip-requirements
-   - pip install --upgrade "Cython==$CYTHON_VERSION"
-   - if [[ $PANDAS_VERSION == 'latest' ]]; then pip install -q --upgrade pandas; else pip install -q --upgrade "pandas==$PANDAS_VERSION"; fi
-   - if [[ $NUMPY_VERSION == 'latest' ]]; then pip install -q --upgrade numpy; else pip install -q --upgrade "numpy==$NUMPY_VERSION"; fi
-   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else pip install -q --upgrade "astropy==$ASTROPY_VERSION"; fi
+   - conda create --yes -n tardis-travis --file pip-requirements python=$TRAVIS_PYTHON_VERSION
+   - source activate tardis-travis
+   - if [[ $NUMPY_VERSION == 'latest' ]]; then conda install --yes  numpy; else conda install --yes "numpy==$NUMPY_VERSION"; fi
+   - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
+
+   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else conda install --yes "astropy==$ASTROPY_VERSION"; fi
    - pip install -q --upgrade pytest==2.5.1
    - pip install -q --upgrade pytest-cov
 
