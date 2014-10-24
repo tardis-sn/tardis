@@ -17,11 +17,11 @@ TARDIS has the following requirements:
 
 - `Python <http://www.python.org/>`_ 2.7
 
-- `Numpy <http://www.numpy.org/>`_ 1.5 or later
+- `Numpy <http://www.numpy.org/>`_ 1.7 or later
 
 - `Scipy <http://www.scipy.org/>`_ 0.10 or later
 
-- `Astropy <http://www.astropy.org/>`_ 0.2.4 or later
+- `Astropy <http://www.astropy.org/>`_ 0.4 or later
 
 - `h5py <http://www.h5py.org/>`_ 2.0.0 or later
 
@@ -37,12 +37,12 @@ TARDIS is using astropy's excellent installation helpers and thus uses similar i
 Installing TARDIS
 =================
 
-On Ubuntu (13.10)
+On Ubuntu (14.04)
 -----------------
 
-We use a clean install of Ubuntu 13.10 as one of our testing grounds. Here's how we get TARDIS to run::
+We use a clean install of Ubuntu 14.04 as one of our testing grounds. Here's how we get TARDIS to run::
 
-    sudo apt-get install python-dev python-pip python-numpy python-scipy python-h5py python-pandas python-yaml
+    sudo apt-get install python-dev python-lspip python-numpy python-scipy python-h5py python-pandas python-yaml
 
 We now need to install the newest astropy and we will install everything into our users directory::
 
@@ -50,10 +50,7 @@ We now need to install the newest astropy and we will install everything into ou
     
 Once astropy is installed, install TARDIS::
 
-    pip install tardis-sn --user --pre
-
-Add a `--pre` to install the latest development version (currently no stable version is available).
-
+    pip install tardis-sn
 
 .. note::
     pip often tries to take care of many of the dependencies, this might be annoying as they already exist.
