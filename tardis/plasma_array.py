@@ -627,7 +627,7 @@ class BasePlasmaArray(object):
         wavelength = self.atom_data.lines['wavelength_cm'].values
 
 
-        #todo fix this is a concern the mode='safe' 
+        #todo fix this is a concern the mode='safe'
         n_lower = self.level_populations.values.take(self.atom_data.lines_lower2level_idx, axis=0, mode='raise').copy('F')
         n_upper = self.level_populations.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise').copy('F')
         meta_stable_upper = self.atom_data.levels.metastable.values.take(self.atom_data.lines_upper2level_idx, axis=0, mode='raise')
@@ -751,8 +751,11 @@ class BasePlasmaArray(object):
 
             interpolated_collision = np.apply_along_axis(interp, 1, collision_data.values[:, 1:],
                                                          collision_data_temperatures, current_T)
-
-            return interpolated_collision
+            data = pd.DataFrame(np.zeros(len(collision_data)))
+            data.index = collision_data.index
+            data['interpolated_collision'] = interpolated_collision
+            a = 1
+            return data
 
 
 
@@ -798,9 +801,17 @@ class BasePlasmaArray(object):
         index_to_level[:] += self.atom_data.collision_data.reset_index()['ion_number'].__array__() * 1000
         index_to_level[:] += self.atom_data.collision_data.reset_index()['level_number_upper'].__array__()
 
-        Cr_bb_kij_all = np.zeros((len(Te), len(collision_data)))
-        Cr_bb_kij_cumsum_all = np.zeros((len(Te), len(collision_data)))
-        Cr_bb_kij_index = index_to_level
+        #cr_bb_kij_all = np.zeros((len(Te), len(self.atom_data.lines)))
+        Cr_bb_kij_all = np.zeros((len(Te), len(self.atom_data.lines)))
+        Cr_bb_kij_cumsum_all = np.zeros((len(Te), len(self.atom_data.lines)))
+
+        Cr_ion_ijk_all = np.zeros((len(Te), len(self.atom_data.levels)))
+        Cr_ion_ijk_cumsum_all = np.zeros((len(Te), len(self.atom_data.levels)))
+        #create the index to level array for coll ion
+        Cr_ion_ijk_index = np.zeros(( len(self.atom_data.levels)))
+        Cr_ion_ijk_index = self.atom_data.levels.reset_index()['atomic_number'].__array__() * 100000
+        Cr_ion_ijk_index += self.atom_data.levels.reset_index()['ion_number'].__array__() * 1000
+        Cr_ion_ijk_index += self.atom_data.levels.reset_index()['level_number'].__array__()
 
         #create the index to level array for bound free
         index_to_level = np.zeros(len(self.level_populations))
@@ -858,19 +869,38 @@ class BasePlasmaArray(object):
             c_ion_ijk = self.electron_densities[i] * 1.55e13 * gi \
                         * (cr_dataf['cross_section'].__array__())  /h_cgs  / bound_free_th_frequency *k_B_cgs \
                         * Te[i] **(0.5) * np.exp(h_cgs * bound_free_th_frequency / k_B_cgs / Te[i] )
+            Cr_ion_ijk_all[i] = c_ion_ijk * self.level_populations.__array__()[:,i] * bound_free_th_frequency * k_B_cgs
+            Cr_ion_ijk_cumsum_all[i] = np.cumsum(Cr_ion_ijk_all[i])
+
 
 
 
 
             #To C_exc in the  Regemorter approximation
-            Cr_bb_kij_all[i] = self.electron_densities[i] * get_interpolated_collision_r(collision_data,
-                                                                                         collision_data_temperatures,
-                                                                                         Te[i])
+            interpolated_collision = get_interpolated_collision_r(collision_data, collision_data_temperatures,
+                                                                    Te[i])
+            lines_data = self.atom_data.lines.copy()
+            lines_data.set_index(['atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper'], inplace = True)
+            lines_data_a, interpolated_collision_a = lines_data.align(interpolated_collision, axis=0, join='inner')
+            Cr_bb_kij_all_tmp = self.electron_densities[i] * interpolated_collision_a['interpolated_collision'] * h_cgs * c_cgs / lines_data_a['wavelength_cm']
+            Cr_bb_kij_all[i] =  Cr_bb_kij_all_tmp.__array__()
             Cr_bb_kij_cumsum_all[i] = np.cumsum(Cr_bb_kij_all[i])
+            #cr_bb_kij_all[i] = self.electron_densities[i] * get_interpolated_collision_r(collision_data,
+            #                                                                             collision_data_temperatures,
+            #                                                                             Te[i])['interpolated_collision']
+            #Cr_bb_kij_all[i]= cr_bb_kij_all[i]
+            #Cr_bb_kij_cumsum_all[i] = np.cumsum(Cr_bb_kij_all[i])
+
 
         Cr_fb_kj_index = np.zeros(len(Cr_fb_kj_all[0].values))
         Cr_fb_kj_index += Cr_fb_kj_all.reset_index()['atomic_number'].__array__() * 100000
         Cr_fb_kj_index += Cr_fb_kj_all.reset_index()['ion_number'].__array__() * 1000
+
+        Cr_bb_kij_index = np.zeros(len(Cr_bb_kij_all_tmp))
+        Cr_bb_kij_index += Cr_bb_kij_all_tmp.reset_index()['atomic_number'].__array__() * 100000
+        Cr_bb_kij_index += Cr_bb_kij_all_tmp.reset_index()['ion_number'].__array__() * 1000
+        Cr_bb_kij_index += Cr_bb_kij_all_tmp.reset_index()['level_number_upper'].__array__()
+
 
         # Store all data in the plasma array
         self.Cr_fb_kji_all = np.array(Cr_fb_kji_all.__array__(), dtype=np.float64)
@@ -885,7 +915,9 @@ class BasePlasmaArray(object):
         self.Cr_bb_kij_cumsum_all = np.array(Cr_bb_kij_cumsum_all, dtype=np.float64)
         self.Cr_bb_kij_index = np.array(Cr_bb_kij_index, dtype=np.int64)
 
-
+        self.Cr_ion_ijk_all = np.array(Cr_ion_ijk_all, dtype=np.float64)
+        self.Cr_ion_ijk_cumsum_all = np.array(Cr_ion_ijk_cumsum_all, dtype=np.float64)
+        self.Cr_ion_ijk_index = np.array(Cr_ion_ijk_index, dtype=np.int)
 
 
         #        self.Cr_fb_kji_sorted = np.array(Cr_fb_kji_sorted, dtype=np.float64)

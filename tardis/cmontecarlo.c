@@ -19,14 +19,16 @@ inline tardis_error_t line_search(double *nu, double nu_insert,
 	} else if (nu_insert < nu[imax]) {
 		*result = imax + 1;
 	} else {
-		ret_val = reverse_binary_search(nu, nu_insert, imin, imax, result);
+		ret_val =
+		    reverse_binary_search(nu, nu_insert, imin, imax, result);
 		*result = *result + 1;
 	}
 	return ret_val;
 }
 
-inline tardis_error_t reverse_binary_search(double *x, double x_insert, int64_t imin,
-				    int64_t imax, int64_t * result)
+inline tardis_error_t reverse_binary_search(double *x, double x_insert,
+					    int64_t imin, int64_t imax,
+					    int64_t * result)
 {
 	/*
 	   Have in mind that *x points to a reverse sorted array.
@@ -60,7 +62,7 @@ inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin,
 {
 	/*
 	   Have in mind that *x points to a sorted array.
-       Like [1,2,3,4,5,...]
+	   Like [1,2,3,4,5,...]
 	 */
 	int imid;
 	tardis_error_t ret_val = TARDIS_ERROR_OK;
@@ -81,13 +83,11 @@ inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin,
 		if (imax - imid == 2 && x_insert < x[imin + 1]) {
 			*result = imin;
 		} else {
-			*result = imin ;
+			*result = imin;
 		}
 	}
 	return ret_val;
 }
-
-
 
 inline void check_array_bounds(int64_t ioned, int64_t nrow, int64_t ncolums)
 {
@@ -355,11 +355,10 @@ inline void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 
 	//check if we can use the stored values
 	if (delta_nu > BF_DELTA_NU_RECOMPUTE || shell_id != last_shell_id) {
-	    // set identification values for the tmp data storage
+		// set identification values for the tmp data storage
 		T = storage->t_electrons[packet->current_shell_id];
 		I = storage->chi_bf_index_to_level_nrow;	// This is equal to the number of levels
-        rpacket_set_chi_bf_tmp_nu(packet);
-
+		rpacket_set_chi_bf_tmp_nu(packet);
 
 		for (i = 0; i <= I; ++i) {
 			nu_th = storage->bound_free_th_frequency[i];
@@ -369,23 +368,17 @@ inline void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 				l_pop =
 				    get_array_double(i,
 						     packet->current_shell_id,
-						     storage->
-						     bf_level_population_nrow,
-						     storage->
-						     bf_level_population_ncolum,
-						     storage->
-						     bf_level_population);
+						     storage->bf_level_population_nrow,
+						     storage->bf_level_population_ncolum,
+						     storage->bf_level_population);
 
 				//get the levelpopulation ratio \frac{n_{0,j+1,k}}{n_{i,j,k}} \frac{n_{i,j,k}}{n_{0,j+1,k}}^{*}
 				l_pop_r =
 				    get_array_double(i,
 						     packet->current_shell_id,
-						     storage->
-						     bf_lpopulation_ratio_nlte_lte_nrow,
-						     storage->
-						     bf_lpopulation_ratio_nlte_lte_ncolum,
-						     storage->
-						     bf_lpopulation_ratio_nlte_lte);
+						     storage->bf_lpopulation_ratio_nlte_lte_nrow,
+						     storage->bf_lpopulation_ratio_nlte_lte_ncolum,
+						     storage->bf_lpopulation_ratio_nlte_lte);
 
 				level_chi =
 				    l_pop * storage->bf_cross_sections[i] *
@@ -407,17 +400,17 @@ inline void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 			}
 			// store the sum of all chis up to the current level. We store the data reversed, this allows us to use the
 			// existing  binary search
-			set_array_double(storage-> bf_lpopulation_ratio_nlte_lte_nrow - i,
-					 1,
-					 storage-> bf_lpopulation_ratio_nlte_lte_nrow,
-					 2,
-					 packet->chi_bf_partial, bf_helper)
-			// store the current chi
-			set_array_double(i,
-					 0,
-					 storage-> bf_lpopulation_ratio_nlte_lte_nrow,
-					 2,
-					 packet->chi_bf_partial, level_chi)
+			set_array_double
+			    (storage->bf_lpopulation_ratio_nlte_lte_nrow - i, 1,
+			     storage->bf_lpopulation_ratio_nlte_lte_nrow, 2,
+			     packet->chi_bf_partial, bf_helper)
+			    // store the current chi
+			    set_array_double(i,
+					     0,
+					     storage->
+					     bf_lpopulation_ratio_nlte_lte_nrow,
+					     2, packet->chi_bf_partial,
+					     level_chi)
 		}
 		rpacket_set_chi_boundfree(packet, bf_helper);
 	}
@@ -675,11 +668,11 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 		comov_energy = rpacket_get_energy(packet) * old_doppler_factor;
 		rpacket_set_energy(packet,
 				   comov_energy * inverse_doppler_factor);
-		storage->
-		    last_line_interaction_in_id[storage->current_packet_id] =
+		storage->last_line_interaction_in_id[storage->
+						     current_packet_id] =
 		    rpacket_get_next_line_id(packet) - 1;
-		storage->
-		    last_line_interaction_shell_id[storage->current_packet_id] =
+		storage->last_line_interaction_shell_id[storage->
+							current_packet_id] =
 		    rpacket_get_current_shell_id(packet);
 		storage->last_interaction_type[storage->current_packet_id] = 2;
 		if (storage->line_interaction_id == 0) {
@@ -687,8 +680,8 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 		} else if (storage->line_interaction_id >= 1) {
 			emission_line_id = macro_atom(packet, storage);
 		}
-		storage->
-		    last_line_interaction_out_id[storage->current_packet_id] =
+		storage->last_line_interaction_out_id[storage->
+						      current_packet_id] =
 		    emission_line_id;
 		rpacket_set_nu(packet,
 			       storage->line_list_nu[emission_line_id] *
@@ -730,7 +723,7 @@ void montecarlo_line_scatter(rpacket_t * packet, storage_model_t * storage,
 void montecarlo_bound_free_scatter(rpacket_t * packet,
 				   storage_model_t * storage, double distance)
 {
-    tardis_error_t error;
+	tardis_error_t error;
 
 	double nu;
 	double nu_bf_edge;
@@ -745,25 +738,26 @@ void montecarlo_bound_free_scatter(rpacket_t * packet,
 
 	//Determine in which continuum the bf-absorption occurs
 	nu_edge = rpacket_get_last_bf_edge(packet);
-	nu = rpacket_get_nu(packet)udo 
+	nu = rpacket_get_nu(packet);
 	I = storage->chi_bf_index_to_level_nrow;
-    chi_bf = rpacket_get_chi_boundfree(packet);
-    // get new zrand
-    zrand = (rk_double(&mt_state));
-    zrand_x_chibf  = zrand * chi_bf;
+	chi_bf = rpacket_get_chi_boundfree(packet);
+	// get new zrand
+	zrand = (rk_double(&mt_state));
+	zrand_x_chibf = zrand * chi_bf;
 
-    error = reverse_binary_search(packet.chi_bf_tmp_partial, zrand_x_chibf, I, 2*I, &ccontinuum);
-    // decide whether we go to ionisation energy
-    zrand = (rk_double(&mt_state));
-    if (zrand < nu/nu_edge ){
-    // go th the ionisation energy
-    // EXTENDE the MACRO ATOM
+	error =
+	    reverse_binary_search(packet.chi_bf_tmp_partial, zrand_x_chibf, I,
+				  2 * I, &ccontinuum);
+	// decide whether we go to ionisation energy
+	zrand = (rk_double(&mt_state));
+	if (zrand < nu / nu_edge) {
+		// go th the ionisation energy
+		// EXTENDE the MACRO ATOM
 
-    } else {
-    //go to the thermal pool
-    create_kpacket(packet);
-    }
-
+	} else {
+		//go to the thermal pool
+		create_kpacket(packet);
+	}
 
 	//decide whether we go to ionisation energy
 
@@ -800,6 +794,144 @@ extern inline void montecarlo_compute_distances(rpacket_t * packet,
 		//rpacket_set_d_electron(packet, compute_distance2electron(packet, storage));
 		compute_distance2continuum(packet, storage);
 	}
+}
+
+void montecarlo_collisional_excitations(rpacket_t * packet,
+					storage_model_t * storage,
+					double distance)
+{
+	//Goes into an i packet
+	exit(1);
+}
+
+void montecarlo_collisional_ionizations(rpacket_t * packet,
+					storage_model_t * storage,
+					double distance)
+{
+	//Goes into an i packet
+	exit(1);
+}
+
+void montecarlo_cooling_free_free(rpacket_t * packet, storage_model_t * storage,
+				  double distance)
+{
+	double comov_nu;
+	double current_nu;
+	double comov_mu;
+	double current_mu;
+	double current_r;
+
+	double zrand;
+	double T;
+	double shell_id;
+
+	shell_id = rpacket_get_current_shell_id(packet);
+	T = storage_get_current_electron_temperature(storage, shell_id);
+	zrand = (rk_double(&mt_state));
+	//Goes into an r packet
+	//sample nu (lucy 2003 eq. 41)
+	create_rpacket(packet);
+	comov_mu = rk_double(&mt_state);
+	current_mu = comov_mu;
+	current_r = storage_get_r_for_shell(storage, current_shell_id);
+	comov_nu = -KB * T / H * log(zrand);
+	current_nu =
+	    comov_nu / (1 -
+			(current_mu * current_r *
+			 storage->inverse_time_explosion * INVERSE_C));
+	rpacket_set_comov_nu(packet, 0);	//Never use the comov nu of an r packet
+	rpacket_set_nu(packet, current_nu);
+}
+
+void montecarlo_cooling_free_bound(rpacket_t * packet,
+				   storage_model_t * storage, double distance)
+{
+	double comov_nu;
+	double current_nu;
+	double comov_mu;
+	double current_mu;
+	double current_r;
+
+	double zrand;
+	double T;
+	double shell_id;
+
+	shell_id = rpacket_get_current_shell_id(packet);
+	T = storage_get_current_electron_temperature(storage, shell_id);
+	zrand = (rk_double(&mt_state));
+	//Goes into an r packet
+	//sample nu (lucy 2003 eq. 41)
+	create_rpacket(packet);
+	comov_mu = rk_double(&mt_state);
+	current_mu = comov_mu;
+	current_r = storage_get_r_for_shell(storage, current_shell_id);
+	comov_nu = -KB * T / H * log(zrand);
+	current_nu =
+	    comov_nu / (1 -
+			(current_mu * current_r *
+			 storage->inverse_time_explosion * INVERSE_C));
+	rpacket_set_comov_nu(packet, 0);	//Never use the comov nu of an r packet
+	rpacket_set_nu(packet, current_nu);
+}
+
+inline montecarlo_event_handler_t get_k_event_handler(rpacket_t * packet,
+						      storage_model_t * storage,
+						      double *distance)
+{
+	double Cr_fb_kji_max;
+	double Cr_fb_kj_ma;
+	double Cr_bb_kij_max;
+	double Cr_ion_ijk_max;
+	double Cr_all_max;
+	double zrand, zrand_normalized;
+
+	// The k packet performs always an cooling process.
+	// We have to select the process via sampling the coolingrates
+	Cr_fb_kji_max =
+	    get_array_double(storage.Cr_fb_kji_cumsum_all_nrow - 1,
+			     packet->current_shell_id,
+			     storage.Cr_fb_kji_cumsum_all_nrow,
+			     storage.Cr_fb_kji_cumsum_all_ncolums,
+			     storage.Cr_fb_kji_cumsum_all);
+
+	Cr_fb_kj_max_max =
+	    get_array_double(storage.Cr_fb_kj_cumsum_all_nrow - 1,
+			     packet->current_shell_id,
+			     storage.Cr_fb_kj_cumsum_all_nrow,
+			     storage.Cr_fb_kj_cumsum_all_ncolums,
+			     storage.Cr_fb_kj_cumsum_all);
+
+	Cr_bb_kij_max =
+	    get_array_double(storage.Cr_bb_kij_cumsum_all_nrow - 1,
+			     packet->current_shell_id,
+			     storage.Cr_bb_kij_cumsum_all_nrow,
+			     storage.Cr_bb_kij_cumsum_all_ncolums,
+			     storage.Cr_bb_kij_cumsum_all);
+
+	Cr_ion_ijk_max =
+	    get_array_double(storage.Cr_ion_ijk_cumsum_all_nrow - 1,
+			     packet->current_shell_id,
+			     storage.Cr_ion_ijk_cumsum_all_nrow,
+			     storage.Cr_ion_ijk_cumsum_all_ncolums,
+			     storage.Cr_ion_ijk_cumsum_all);
+
+	Cr_all_max =
+	    Cr_fb_kji_max + Cr_fb_kj_max + Cr_bb_kij_max + Cr_ion_ijk_max;
+
+	//sample the cooling process
+	zrand = (rk_double(&mt_state));
+	zrand_normalized = zrand * Cr_all_max;
+	if (zrand_normalized < Cr_bb_kij_max) {
+		//Do bound bound (col exi)
+	} else if (zrand_normalized < (Cr_bb_kij_max + Cr_ion_ijk_max)) {
+		//Do col ion
+	} else if (zrand_normalized <
+		   (Cr_bb_kij_max + Cr_ion_ijk_max + Cr_fb_kj_max_max)) {
+		//Do free-free
+	} else {
+		//Do free-bound
+	}
+
 }
 
 inline montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t *
@@ -1056,6 +1188,19 @@ inline void rpacket_set_nu_line(rpacket_t * packet, double nu_line)
 inline unsigned int rpacket_get_current_shell_id(rpacket_t * packet)
 {
 	return packet->current_shell_id;
+}
+
+inline double storage_get_current_electron_temperature(storage_model_t *
+						       storage,
+						       int64_t current_shell_id)
+{
+	return storage->t_electrons[current_shell_id];
+}
+
+inline double storage_get_r_for_shell(storage_model_t * storage,
+				      int64_t current_shell_id);
+{
+	return storage->r_inner[current_shell_id];
 }
 
 inline void rpacket_set_current_shell_id(rpacket_t * packet,

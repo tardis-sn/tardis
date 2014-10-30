@@ -157,6 +157,17 @@ cdef extern from "cmontecarlo.h":
         int_type_t Cr_bb_kij_cumsum_all_ncolum
 
         int_type_t *Cr_bb_kij_index
+
+        double *Cr_ion_ijk_all
+        int_type_t Cr_ion_ijk_all_nrow
+        int_type_t Cr_ion_ijk_all_ncolum
+
+        double *Cr_ion_ijk_cumsum_all
+        int_type_t Cr_ion_ijk_cumsum_all_nrow
+        int_type_t Cr_ion_ijk_cumsum_all_ncolum
+
+        int_type_t *Cr_ion_ijk_index
+
     #double kB
 
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
@@ -329,6 +340,22 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.Cr_fb_kji_cumsum_all_nrow = Cr_fb_kji_cumsum_all.shape[0]
     storage.Cr_fb_kji_cumsum_all_ncolum = Cr_fb_kji_cumsum_all.shape[1]
 
+    cdef np.ndarray[int_type_t, ndim=1, mode='c']  Cr_fb_kji_index = np.ascontiguousarray(model.Cr_fb_kji_index)
+    storage.Cr_fb_kji_index = <int_type_t*> Cr_fb_kji_index.data
+
+    cdef np.ndarray[double, ndim=2, mode='c'] Cr_fb_kj_all = np.ascontiguousarray(model.Cr_fb_kj_all)
+    storage.Cr_fb_kj_all = <double*> Cr_fb_kj_all.data
+    storage.Cr_fb_kj_all_nrow = Cr_fb_kj_all.shape[0]
+    storage.Cr_fb_kj_all_ncolum = Cr_fb_kj_all.shape[1]
+
+    cdef np.ndarray[double, ndim=2, mode='c'] Cr_fb_kj_cumsum_all = np.ascontiguousarray(model.Cr_fb_kj_cumsum_all)
+    storage.Cr_fb_kj_cumsum_all = <double*> Cr_fb_kj_cumsum_all.data
+    storage.Cr_fb_kj_cumsum_all_nrow = Cr_fb_kj_cumsum_all.shape[0]
+    storage.Cr_fb_kj_cumsum_all_ncolum = Cr_fb_kj_cumsum_all.shape[1]
+
+    cdef np.ndarray[int_type_t, ndim=1, mode='c'] Cr_fb_kj_index = np.ascontiguousarray(model.Cr_fb_kj_index )
+    storage.Cr_fb_kj_index = <int_type_t*> Cr_fb_kj_index.data
+
     cdef np.ndarray[double, ndim=2, mode='c'] Cr_bb_kij_all = np.ascontiguousarray(model.Cr_bb_kij_all)
     storage.Cr_bb_kij_all = <double*> Cr_bb_kij_all.data
     storage.Cr_bb_kij_all_nrow = Cr_bb_kij_all.shape[0]
@@ -338,6 +365,22 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.Cr_bb_kij_cumsum_all = <double*> Cr_bb_kij_cumsum_all.data
     storage.Cr_bb_kij_cumsum_all_nrow = Cr_bb_kij_cumsum_all.shape[0]
     storage.Cr_bb_kij_cumsum_all_ncolum = Cr_bb_kij_cumsum_all.shape[1]
+
+    cdef np.ndarray[double, ndim=2, mode='c'] Cr_ion_ijk_all = np.ascontiguousarray(model.Cr_ion_ijk_all)
+    storage.Cr_ion_ijk_all = <double*> Cr_ion_ijk_all.data
+    storage.Cr_ion_ijk_all_nrow = Cr_ion_ijk_all.shape[0]
+    storage.Cr_ion_ijk_all_ncolum = Cr_ion_ijk_all.shape[1]
+
+    cdef np.ndarray[double, ndim=2, mode='c'] Cr_ion_ijk_cumsum_all = np.ascontiguousarray(model.Cr_ion_ijk_cumsum_all)
+    storage.Cr_ion_ijk_cumsum_all = <double*> Cr_ion_ijk_cumsum_all.data
+    storage.Cr_ion_ijk_cumsum_all_nrow =Cr_ion_ijk_cumsum_all.shape[0]
+    storage.Cr_ion_ijk_cumsum_all_ncolum = Cr_ion_ijk_cumsum_all.shape[1]
+
+    cdef np.ndarray[int_type_t, ndim=1, mode='c'] Cr_ion_ijk_index = np.ascontiguousarray(model.Cr_ion_ijk_index)
+    storage.Cr_ion_ijk_index = <int_type_t*> Cr_ion_ijk_index.data
+
+
+
 
 
 

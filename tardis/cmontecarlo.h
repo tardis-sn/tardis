@@ -237,6 +237,17 @@ typedef struct StorageModel {
     int64_t Cr_bb_kij_cumsum_all_ncolum;
 
     int64_t *Cr_bb_kij_index;
+
+    double *Cr_ion_ijk_all;
+    int64_t Cr_ion_ijk_all_nrow;
+    int64_t Cr_ion_ijk_all_ncolum;
+
+    double *Cr_ion_ijk_cumsum_all;
+    int64_t Cr_ion_ijk_cumsum_all_nrow;
+    int64_t Cr_ion_ijk_cumsum_all_ncolum;
+
+    int64_t *Cr_ion_ijk_index;
+
 	//double kB;
 
 } storage_model_t;
@@ -482,6 +493,12 @@ void montecarlo_bound_free_scatter(rpacket_t * packet,
 
 void montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage,
 				  double distance);
+
+inline montecarlo_event_handler_t get_k_event_handler(rpacket_t * packet,
+						      storage_model_t * storage,
+						      double *distance);
+
+
 
 inline montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t *
 								     packet,
