@@ -8,7 +8,7 @@ virtualenv:
 
 env:
     global:
-        - COMPILER = gcc
+        - COMPILER=gcc
         - CYTHON_VERSION=0.21
         - NUMPY_VERSION=1.8
         - PANDAS_VERSION=0.12
