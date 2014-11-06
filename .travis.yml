@@ -58,15 +58,14 @@ install:
    - source activate tardis-travis
    - if [[ $NUMPY_VERSION == 'latest' ]]; then conda install --yes  numpy; else conda install --yes "numpy==$NUMPY_VERSION"; fi
    - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
-
-   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else conda install --yes "astropy==$ASTROPY_VERSION"; fi
+   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+https://github.com/astropy/astropy.git#egg=astropy; else conda install --yes "astropy==$ASTROPY_VERSION"; fi
    - conda install --yes pytest
 
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
 
 script:
-    - echo $SETUP_CMD
+    - echo CC=$COMPILER python setup.py $SETUP_CMD
     - CC=$COMPILER python setup.py $SETUP_CMD
 
 after_success:
