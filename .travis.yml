@@ -60,8 +60,7 @@ install:
    - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
 
    - if [[ $ASTROPY_VERSION == 'development' ]]; then pip -q install git+http://github.com/astropy/astropy.git#egg=astropy; else conda install --yes "astropy==$ASTROPY_VERSION"; fi
-   - pip install -q --upgrade pytest==2.5.1
-   - pip install -q --upgrade pytest-cov
+   - conda install --yes pytest
 
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
