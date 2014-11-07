@@ -71,3 +71,6 @@ script:
 
 after_success:
     - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls; fi
+
+after_failure:
+    - cat /home/travis/.pip/pip.log
