@@ -25,8 +25,8 @@ matrix:
         - python: "2.7"
           env: PANDAS_VERSION=latest
 
-        - python: "2.7"
-          env: ASTROPY_VERSION=development
+#        - python: "2.7"
+#          env: ASTROPY_VERSION=development
 
         - python: "2.7"
           env: COMPILER=gcc SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
@@ -59,7 +59,7 @@ install:
    - if [[ $NUMPY_VERSION == 'latest' ]]; then conda install --yes  numpy; else conda install --yes "numpy==$NUMPY_VERSION"; fi
    - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
    - conda install --yes pytables
-   - conda install --yes cython
+   #- conda install --yes cython
    - if [[ $ASTROPY_VERSION == 'development' ]]; then pip install git+https://github.com/astropy/astropy; else conda install --yes "astropy==$ASTROPY_VERSION"; fi
    - conda install --yes pytest
 
