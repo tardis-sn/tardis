@@ -39,6 +39,7 @@ def test_atomic_reprepare():
         atom_data_filename))
     atom_data = atomic.AtomData.from_hdf5(atom_data_filename)
     atom_data.prepare_atom_data([14])
+    assert len(atom_data.lines) > 0
     atom_data.prepare_atom_data([20])
-
+    assert len(atom_data.lines) > 0
 
