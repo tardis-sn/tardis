@@ -466,26 +466,31 @@ class AtomData(object):
 
         self.nlte_species = nlte_species
         self._levels = self._levels.reset_index()
-        self._levels = self._levels[self._levels['atomic_number'].isin(self.selected_atomic_numbers)]
-        if max_ion_number is not None:
-            self._levels = self._levels[self._levels['ion_number'] <= max_ion_number]
-        self._levels = self._levels.set_index(['atomic_number', 'ion_number', 'level_number'])
         self.levels = self._levels.copy()
 
-        self.levels_index = pd.Series(np.arange(len(self._levels), dtype=int), index=self._levels.index)
-        #cutting levels_lines
-        self._lines = self._lines[self._lines['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.levels = self.levels[self.levels['atomic_number'].isin(self.selected_atomic_numbers)]
+
         if max_ion_number is not None:
-            self._lines = self._lines[self._lines['ion_number'] <= max_ion_number]
+            self.levels = self.levels[self.levels['ion_number'] <= max_ion_number]
 
-        self._lines.sort('wavelength', inplace=True)
+        self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
+
+        self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
+        #cutting levels_lines
         self.lines = self._lines.copy()
-    
-        self.lines_index = pd.Series(np.arange(len(self._lines), dtype=int), index=self._lines.index)
+        self.lines = self.lines[self.lines['atomic_number'].isin(self.selected_atomic_numbers)]
+        if max_ion_number is not None:
+            self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
 
-        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self._lines['atomic_number'], self._lines['ion_number'],
-                                                               self._lines['level_number_lower']])
+        self.lines.sort('wavelength', inplace=True)
+
+
+    
+        self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
+
+        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
+                                                               self.lines['level_number_lower']])
 
         self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values.astype(np.int64)
 
