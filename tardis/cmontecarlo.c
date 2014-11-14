@@ -796,45 +796,77 @@ extern inline void montecarlo_compute_distances(rpacket_t * packet,
 	}
 }
 
-void montecarlo_collisional_excitations(rpacket_t * packet,
-					storage_model_t * storage,
-					double distance)
+double sample_nu_free_free(rpacket_t * packet, storage_model_t * storage)
+{
+	double T;
+	double zrand;
+	double shell_id;
+
+	shell_id = rpacket_get_current_shell_id(packet);
+	T = storage_get_current_electron_temperature(storage, shell_id);
+	zrand = (rk_double(&mt_state));
+	return -KB * T / H * log(zrand);	// Lucy 2003 MC II Eq.41
+}
+
+double sample_nu_free_bound(rpacket_t * packet,
+			    storage_model_t * storage, int64_t emission_index)
+{
+	double T;
+	double zrand;
+	double shell_id;
+	double th_frequency;
+
+	//We don't need to know the atom ion or level
+	//Look for the corresponding th frequency
+	th_frequency = storage.Cr_fb_ijk_th_frequency[emission_index];
+
+	shell_id = rpacket_get_current_shell_id(packet);
+	T = storage_get_current_electron_temperature(storage, shell_id);
+	zrand = (rk_double(&mt_state));
+	return th_frequency * (1 - (KB * T / H / th_frequency * log(zrand)));	//Lucy 2003 MC II Eq.26
+}
+
+void montecarlo_collisional_excitations(rpacket_t
+					* packet,
+					storage_model_t
+					* storage, double distance)
 {
 	//Goes into an i packet
 	exit(1);
 }
 
-void montecarlo_collisional_ionizations(rpacket_t * packet,
-					storage_model_t * storage,
-					double distance)
+void montecarlo_collisional_ionizations(rpacket_t
+					* packet,
+					storage_model_t
+					* storage, double distance)
 {
 	//Goes into an i packet
 	exit(1);
 }
 
-void montecarlo_cooling_free_free(rpacket_t * packet, storage_model_t * storage,
-				  double distance)
+void montecarlo_cooling_free_free(rpacket_t *
+				  packet,
+				  storage_model_t * storage, double distance)
 {
 	double comov_nu;
 	double current_nu;
 	double comov_mu;
 	double current_mu;
 	double current_r;
+	double Cr_ff_jk_max;
 
-	double zrand;
 	double T;
 	double shell_id;
 
 	shell_id = rpacket_get_current_shell_id(packet);
-	T = storage_get_current_electron_temperature(storage, shell_id);
-	zrand = (rk_double(&mt_state));
+	Cr_ff_jk_max = rpacket_get_Cr_ff_max(packet);
 	//Goes into an r packet
 	//sample nu (lucy 2003 eq. 41)
 	create_rpacket(packet);
 	comov_mu = rk_double(&mt_state);
 	current_mu = comov_mu;
 	current_r = storage_get_r_for_shell(storage, current_shell_id);
-	comov_nu = -KB * T / H * log(zrand);
+	comov_nu = sample_nu_free_free(packet, storage);
 	current_nu =
 	    comov_nu / (1 -
 			(current_mu * current_r *
@@ -846,38 +878,54 @@ void montecarlo_cooling_free_free(rpacket_t * packet, storage_model_t * storage,
 void montecarlo_cooling_free_bound(rpacket_t * packet,
 				   storage_model_t * storage, double distance)
 {
+	tardis_error_t ret_val = TARDIS_ERROR_OK;
 	double comov_nu;
 	double current_nu;
 	double comov_mu;
 	double current_mu;
 	double current_r;
-
-	double zrand;
-	double T;
 	double shell_id;
+	double Cr_bf_ijk_max;
+	double *Cr_fb_ijk_cumsum_all_current_shell;
+
+	int64_t emission_index;
+	int64_t emission_level;
+	int64_t emission_ion;
+	int64_t emission_atom;
 
 	shell_id = rpacket_get_current_shell_id(packet);
-	T = storage_get_current_electron_temperature(storage, shell_id);
+	Cr_fb_ijk_max = rpacket_get_Cr_fb_max(packet);
+
+	//Sample bf level
 	zrand = (rk_double(&mt_state));
+	zrand_normalized = zrand * Cr_fb_ijk_max;
+
+	Cr_fb_ijk_cumsum_all_current_shell =
+	    storage.Cr_fb_ijk_cumsum_all +
+	    (storage.Cr_fb_ijk_cumsum_all_nrow * shell_id);
+
+	ret_val =
+	    binary_search(Cr_fb_ijk_cumsum_all_current_shell, zrand_normalized,
+			  storage.Cr_fb_ijk_cumsum_all_nrow, &emission_index);
+
 	//Goes into an r packet
 	//sample nu (lucy 2003 eq. 41)
 	create_rpacket(packet);
+
 	comov_mu = rk_double(&mt_state);
 	current_mu = comov_mu;
 	current_r = storage_get_r_for_shell(storage, current_shell_id);
-	comov_nu = -KB * T / H * log(zrand);
+	comov_nu = sample_nu_free_bound(packet, storage, emission_index);
 	current_nu =
 	    comov_nu / (1 -
 			(current_mu * current_r *
 			 storage->inverse_time_explosion * INVERSE_C));
 	rpacket_set_comov_nu(packet, 0);	//Never use the comov nu of an r packet
 	rpacket_set_nu(packet, current_nu);
-}
-
-inline montecarlo_event_handler_t get_k_event_handler(rpacket_t * packet,
-						      storage_model_t * storage,
-						      double *distance)
-{
+} inline montecarlo_event_handler_t get_k_event_handler(rpacket_t * packet,
+							storage_model_t *
+							storage,
+							double *distance) {
 	double Cr_fb_kji_max;
 	double Cr_fb_kj_ma;
 	double Cr_bb_kij_max;
@@ -887,52 +935,59 @@ inline montecarlo_event_handler_t get_k_event_handler(rpacket_t * packet,
 
 	// The k packet performs always an cooling process.
 	// We have to select the process via sampling the coolingrates
-	Cr_fb_kji_max =
+	 Cr_fb_ijk_max =
 	    get_array_double(storage.Cr_fb_kji_cumsum_all_nrow - 1,
 			     packet->current_shell_id,
-			     storage.Cr_fb_kji_cumsum_all_nrow,
-			     storage.Cr_fb_kji_cumsum_all_ncolums,
-			     storage.Cr_fb_kji_cumsum_all);
+			     storage.Cr_fb_ijk_cumsum_all_nrow,
+			     storage.Cr_fb_ijk_cumsum_all_ncolums,
+			     storage.Cr_fb_ijk_cumsum_all);
 
-	Cr_fb_kj_max_max =
+	 Cr_ff_jk_max =
 	    get_array_double(storage.Cr_fb_kj_cumsum_all_nrow - 1,
 			     packet->current_shell_id,
-			     storage.Cr_fb_kj_cumsum_all_nrow,
-			     storage.Cr_fb_kj_cumsum_all_ncolums,
-			     storage.Cr_fb_kj_cumsum_all);
+			     storage.Cr_ff_jk_cumsum_all_nrow,
+			     storage.Cr_ff_jk_cumsum_all_ncolums,
+			     storage.Cr_ff_jk_cumsum_all);
 
-	Cr_bb_kij_max =
+	 Cr_bb_ijk_max =
 	    get_array_double(storage.Cr_bb_kij_cumsum_all_nrow - 1,
 			     packet->current_shell_id,
-			     storage.Cr_bb_kij_cumsum_all_nrow,
-			     storage.Cr_bb_kij_cumsum_all_ncolums,
-			     storage.Cr_bb_kij_cumsum_all);
+			     storage.Cr_bb_ijk_cumsum_all_nrow,
+			     storage.Cr_bb_ijk_cumsum_all_ncolums,
+			     storage.Cr_bb_ijk_cumsum_all);
 
-	Cr_ion_ijk_max =
+	 Cr_ion_ijk_max =
 	    get_array_double(storage.Cr_ion_ijk_cumsum_all_nrow - 1,
 			     packet->current_shell_id,
 			     storage.Cr_ion_ijk_cumsum_all_nrow,
 			     storage.Cr_ion_ijk_cumsum_all_ncolums,
 			     storage.Cr_ion_ijk_cumsum_all);
 
-	Cr_all_max =
-	    Cr_fb_kji_max + Cr_fb_kj_max + Cr_bb_kij_max + Cr_ion_ijk_max;
+	 rpacket_set_Cr_fb_max(packet, Cr_fb_ijk_max);
+	 rpacket_set_Cr_ff_max(packet, Cr_ff_jk_max);
+	 rpacket_set_Cr_bb_max(packet, Cr_bb_ijk_max);
+	 rpacket_set_Cr_ion_max(packet, Cr_ion_ijk_max);
+
+	 Cr_all_max =
+	    Cr_fb_ijk_max + Cr_ff_jk_max + Cr_bb_ijk_max + Cr_ion_ijk_max;
 
 	//sample the cooling process
-	zrand = (rk_double(&mt_state));
-	zrand_normalized = zrand * Cr_all_max;
+	 zrand = (rk_double(&mt_state));
+	 zrand_normalized = zrand * Cr_all_max;
 	if (zrand_normalized < Cr_bb_kij_max) {
 		//Do bound bound (col exi)
-	} else if (zrand_normalized < (Cr_bb_kij_max + Cr_ion_ijk_max)) {
+	} else if (zrand_normalized < (Cr_bb_ijk_max + Cr_ion_ijk_max)) {
 		//Do col ion
 	} else if (zrand_normalized <
-		   (Cr_bb_kij_max + Cr_ion_ijk_max + Cr_fb_kj_max_max)) {
+		   (Cr_bb_ijk_max + Cr_ion_ijk_max + Cr_ff_jk_max)) {
 		//Do free-free
+		handler = &montecarlo_cooling_free_free;
 	} else {
 		//Do free-bound
-	}
+		handler = &montecarlo_cooling_free_bound;
 
-}
+	}
+return handler}
 
 inline montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t *
 								     packet,
@@ -966,8 +1021,7 @@ inline montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t *
 
 inline montecarlo_event_handler_t get_r_event_handler(rpacket_t * packet,
 						      storage_model_t * storage,
-						      double *distance)
-{
+						      double *distance) {
 	double d_boundary, d_continuum, d_line;
 	montecarlo_compute_distances(packet, storage);
 	d_boundary = rpacket_get_d_boundary(packet);
@@ -989,13 +1043,12 @@ inline montecarlo_event_handler_t get_r_event_handler(rpacket_t * packet,
 
 inline montecarlo_event_handler_t get_event_handler(rpacket_t * packet,
 						    storage_model_t * storage,
-						    double *distance)
-{
+						    double *distance) {
 	montecarlo_event_handler_t handler;
 	if (packet_is_r_packet(packet)) {
 		handler = get_r_event_handler(packet, storage, distance);
 	} else if (packet_is_k_packet(packet)) {
-		//ToDo:add the k event handler
+		handler = get_k_event_handler(packet, storage, distance);
 	} else if (packet_is_i_packet(packet)) {
 		//ToDo:add the i event handler
 	}
@@ -1004,8 +1057,7 @@ inline montecarlo_event_handler_t get_event_handler(rpacket_t * packet,
 }
 
 int64_t montecarlo_one_packet_loop(storage_model_t * storage,
-				   rpacket_t * packet, int64_t virtual_packet)
-{
+				   rpacket_t * packet, int64_t virtual_packet) {
 	rpacket_set_tau_event(packet, 0.0);
 	rpacket_set_nu_line(packet, 0.0);
 	rpacket_set_virtual_packet(packet, virtual_packet);
@@ -1042,8 +1094,7 @@ int64_t montecarlo_one_packet_loop(storage_model_t * storage,
 }
 
 tardis_error_t rpacket_init(rpacket_t * packet, storage_model_t * storage,
-			    int packet_index, int virtual_packet_flag)
-{
+			    int packet_index, int virtual_packet_flag) {
 	double nu_line;
 	double current_r;
 	double comov_mu;
@@ -1125,68 +1176,49 @@ tardis_error_t rpacket_init(rpacket_t * packet, storage_model_t * storage,
   Getter and setter methods.
 */
 
-extern inline double rpacket_get_nu(rpacket_t * packet)
-{
+extern inline double rpacket_get_nu(rpacket_t * packet) {
 	return packet->nu;
 }
 
-inline void rpacket_set_nu(rpacket_t * packet, double nu)
-{
+inline void rpacket_set_nu(rpacket_t * packet, double nu) {
 	packet->nu = nu;
-}
+} inline double rpacket_get_mu(rpacket_t * packet) {
 
-inline double rpacket_get_mu(rpacket_t * packet)
-{
 	return packet->mu;
 }
 
-inline void rpacket_set_mu(rpacket_t * packet, double mu)
-{
+inline void rpacket_set_mu(rpacket_t * packet, double mu) {
 	packet->mu = mu;
-}
+} extern inline double rpacket_get_energy(rpacket_t * packet) {
 
-extern inline double rpacket_get_energy(rpacket_t * packet)
-{
 	return packet->energy;
 }
 
-inline void rpacket_set_energy(rpacket_t * packet, double energy)
-{
+inline void rpacket_set_energy(rpacket_t * packet, double energy) {
 	packet->energy = energy;
-}
+} inline double rpacket_get_r(rpacket_t * packet) {
 
-inline double rpacket_get_r(rpacket_t * packet)
-{
 	return packet->r;
 }
 
-inline void rpacket_set_r(rpacket_t * packet, double r)
-{
+inline void rpacket_set_r(rpacket_t * packet, double r) {
 	packet->r = r;
-}
+} inline double rpacket_get_tau_event(rpacket_t * packet) {
 
-inline double rpacket_get_tau_event(rpacket_t * packet)
-{
 	return packet->tau_event;
 }
 
-inline void rpacket_set_tau_event(rpacket_t * packet, double tau_event)
-{
+inline void rpacket_set_tau_event(rpacket_t * packet, double tau_event) {
 	packet->tau_event = tau_event;
-}
+} inline double rpacket_get_nu_line(rpacket_t * packet) {
 
-inline double rpacket_get_nu_line(rpacket_t * packet)
-{
 	return packet->nu_line;
 }
 
-inline void rpacket_set_nu_line(rpacket_t * packet, double nu_line)
-{
+inline void rpacket_set_nu_line(rpacket_t * packet, double nu_line) {
 	packet->nu_line = nu_line;
-}
+} inline unsigned int rpacket_get_current_shell_id(rpacket_t * packet) {
 
-inline unsigned int rpacket_get_current_shell_id(rpacket_t * packet)
-{
 	return packet->current_shell_id;
 }
 
@@ -1204,44 +1236,34 @@ inline double storage_get_r_for_shell(storage_model_t * storage,
 }
 
 inline void rpacket_set_current_shell_id(rpacket_t * packet,
-					 unsigned int current_shell_id)
-{
+					 unsigned int current_shell_id) {
 	packet->current_shell_id = current_shell_id;
-}
+} inline unsigned int rpacket_get_next_line_id(rpacket_t * packet) {
 
-inline unsigned int rpacket_get_next_line_id(rpacket_t * packet)
-{
 	return packet->next_line_id;
 }
 
 inline void rpacket_set_next_line_id(rpacket_t * packet,
-				     unsigned int next_line_id)
-{
+				     unsigned int next_line_id) {
 	packet->next_line_id = next_line_id;
-}
+} inline bool rpacket_get_last_line(rpacket_t * packet) {
 
-inline bool rpacket_get_last_line(rpacket_t * packet)
-{
 	return packet->last_line;
 }
 
-inline void rpacket_set_last_line(rpacket_t * packet, bool last_line)
-{
+inline void rpacket_set_last_line(rpacket_t * packet, bool last_line) {
 	packet->last_line = last_line;
 }
 
-inline bool rpacket_get_close_line(rpacket_t * packet)
-{
+inline bool rpacket_get_close_line(rpacket_t * packet) {
 	return packet->close_line;
 }
 
-inline void rpacket_set_close_line(rpacket_t * packet, bool close_line)
-{
+inline void rpacket_set_close_line(rpacket_t * packet, bool close_line) {
 	packet->close_line = close_line;
 }
 
-inline int rpacket_get_recently_crossed_boundary(rpacket_t * packet)
-{
+inline int rpacket_get_recently_crossed_boundary(rpacket_t * packet) {
 	return packet->recently_crossed_boundary;
 }
 
@@ -1249,156 +1271,112 @@ inline void rpacket_set_recently_crossed_boundary(rpacket_t * packet,
 						  int recently_crossed_boundary)
 {
 	packet->recently_crossed_boundary = recently_crossed_boundary;
-}
+} inline int rpacket_get_virtual_packet_flag(rpacket_t * packet) {
 
-inline int rpacket_get_virtual_packet_flag(rpacket_t * packet)
-{
 	return packet->virtual_packet_flag;
 }
 
 inline void rpacket_set_virtual_packet_flag(rpacket_t * packet,
-					    int virtual_packet_flag)
-{
+					    int virtual_packet_flag) {
 	packet->virtual_packet_flag = virtual_packet_flag;
-}
+} inline int rpacket_get_virtual_packet(rpacket_t * packet) {
 
-inline int rpacket_get_virtual_packet(rpacket_t * packet)
-{
 	return packet->virtual_packet;
 }
 
-inline void rpacket_set_virtual_packet(rpacket_t * packet, int virtual_packet)
-{
+inline void rpacket_set_virtual_packet(rpacket_t * packet, int virtual_packet) {
 	packet->virtual_packet = virtual_packet;
-}
+} inline double rpacket_get_d_boundary(rpacket_t * packet) {
 
-inline double rpacket_get_d_boundary(rpacket_t * packet)
-{
 	return packet->d_boundary;
 }
 
-inline void rpacket_set_d_boundary(rpacket_t * packet, double d_boundary)
-{
+inline void rpacket_set_d_boundary(rpacket_t * packet, double d_boundary) {
 	packet->d_boundary = d_boundary;
-}
+} inline double rpacket_get_d_line(rpacket_t * packet) {
 
-inline double rpacket_get_d_line(rpacket_t * packet)
-{
 	return packet->d_line;
 }
 
-inline void rpacket_set_d_line(rpacket_t * packet, double d_line)
-{
+inline void rpacket_set_d_line(rpacket_t * packet, double d_line) {
 	packet->d_line = d_line;
-}
+} inline int rpacket_get_next_shell_id(rpacket_t * packet) {
 
-inline int rpacket_get_next_shell_id(rpacket_t * packet)
-{
 	return packet->next_shell_id;
 }
 
-inline void rpacket_set_next_shell_id(rpacket_t * packet, int next_shell_id)
-{
+inline void rpacket_set_next_shell_id(rpacket_t * packet, int next_shell_id) {
 	packet->next_shell_id = next_shell_id;
-}
+} inline double rpacket_get_d_continuum(rpacket_t * packet) {
 
-inline double rpacket_get_d_continuum(rpacket_t * packet)
-{
 	return packet->d_cont;
 }
 
-inline double rpacket_get_d_electron(rpacket_t * packet)
-{
+inline double rpacket_get_d_electron(rpacket_t * packet) {
 	return packet->d_th;
 }
 
-inline double rpacket_get_d_freefree(rpacket_t * packet)
-{
+inline double rpacket_get_d_freefree(rpacket_t * packet) {
 	return packet->d_ff;
 }
 
-inline double rpacket_get_d_boundfree(rpacket_t * packet)
-{
+inline double rpacket_get_d_boundfree(rpacket_t * packet) {
 	return packet->d_bf;
 }
 
-inline void rpacket_set_d_continuum(rpacket_t * packet, double d_continuum)
-{
+inline void rpacket_set_d_continuum(rpacket_t * packet, double d_continuum) {
 	packet->d_cont = d_continuum;
-}
+} inline void rpacket_set_d_electron(rpacket_t * packet, double d_electron) {
 
-inline void rpacket_set_d_electron(rpacket_t * packet, double d_electron)
-{
 	packet->d_th = d_electron;
-}
+} inline void rpacket_set_d_freefree(rpacket_t * packet, double d_freefree) {
 
-inline void rpacket_set_d_freefree(rpacket_t * packet, double d_freefree)
-{
 	packet->d_ff = d_freefree;
-}
+} inline void rpacket_set_d_boundfree(rpacket_t * packet, double d_boundfree) {
 
-inline void rpacket_set_d_boundfree(rpacket_t * packet, double d_boundfree)
-{
 	packet->d_bf = d_boundfree;
-}
+} inline double rpacket_get_chi_continuum(rpacket_t * packet) {
 
-inline double rpacket_get_chi_continuum(rpacket_t * packet)
-{
 	return packet->chi_cont;
 }
 
-inline double rpacket_get_chi_electron(rpacket_t * packet)
-{
+inline double rpacket_get_chi_electron(rpacket_t * packet) {
 	return packet->chi_th;
 }
 
-inline double rpacket_get_chi_freefree(rpacket_t * packet)
-{
+inline double rpacket_get_chi_freefree(rpacket_t * packet) {
 	return packet->chi_ff;
 }
 
-inline double rpacket_get_chi_boundfree(rpacket_t * packet)
-{
+inline double rpacket_get_chi_boundfree(rpacket_t * packet) {
 	return packet->chi_bf;
 }
 
-inline void rpacket_set_chi_continuum(rpacket_t * packet, double chi_continuum)
-{
+inline void rpacket_set_chi_continuum(rpacket_t * packet, double chi_continuum) {
 	packet->chi_cont = chi_continuum;
-}
+} inline void rpacket_set_chi_electron(rpacket_t * packet, double chi_electron) {
 
-inline void rpacket_set_chi_electron(rpacket_t * packet, double chi_electron)
-{
 	packet->chi_th = chi_electron;
-}
+} inline void rpacket_set_chi_freefree(rpacket_t * packet, double chi_freefree) {
 
-inline void rpacket_set_chi_freefree(rpacket_t * packet, double chi_freefree)
-{
 	packet->chi_ff = chi_freefree;
-}
-
-inline void rpacket_set_chi_boundfree(rpacket_t * packet, double chi_boundfree)
-{
+} inline void rpacket_set_chi_boundfree(rpacket_t * packet,
+					double chi_boundfree) {
 	packet->chi_bf = chi_boundfree;
-}
+} inline rpacket_status_t rpacket_get_status(rpacket_t * packet) {
 
-inline rpacket_status_t rpacket_get_status(rpacket_t * packet)
-{
 	return packet->status;
 }
 
-inline void rpacket_set_status(rpacket_t * packet, rpacket_status_t status)
-{
+inline void rpacket_set_status(rpacket_t * packet, rpacket_status_t status) {
 	packet->status = status;
 }
 
-inline packet_status_t packet_get_status(rpacket_t * packet)
-{
+inline packet_status_t packet_get_status(rpacket_t * packet) {
 	return packet->packet_status;
 }
 
-inline void packet_set_status(rpacket_t * packet, packet_status_t status)
-{
+inline void packet_set_status(rpacket_t * packet, packet_status_t status) {
 	packet->status = status & (15);	// get the first 4 bits
 	packet->packet_status = status;
 	/* if (status & 1<<3)// is in process
@@ -1420,55 +1398,42 @@ inline void packet_set_status(rpacket_t * packet, packet_status_t status)
 
 /* Other accessor methods. */
 
-inline int64_t packet_is_r_packet(rpacket_t * packet)
-{
+inline int64_t packet_is_r_packet(rpacket_t * packet) {
 	return packet_get_status(packet) & 1 << 6;
 }
 
-inline int64_t packet_is_k_packet(rpacket_t * packet)
-{
+inline int64_t packet_is_k_packet(rpacket_t * packet) {
 	return packet_get_status(packet) & 1 << 5;
 }
 
-inline int64_t packet_is_i_packet(rpacket_t * packet)
-{
+inline int64_t packet_is_i_packet(rpacket_t * packet) {
 	return packet_get_status(packet) & 1 << 4;
 }
 
 /* Other accessor methods. */
 
-inline void rpacket_reset_tau_event(rpacket_t * packet)
-{
+inline void rpacket_reset_tau_event(rpacket_t * packet) {
 	rpacket_set_tau_event(packet, -log(rk_double(&mt_state)));
 }
 
-inline void rpacket_set_comov_nu(rpacket_t * packet, double comov_nu)
-{
+inline void rpacket_set_comov_nu(rpacket_t * packet, double comov_nu) {
 	packet->comov_nu = comov_nu;
-}
+} inline double rpacket_get_comov_nu(rpacket_t * packet) {
 
-inline double rpacket_get_comov_nu(rpacket_t * packet)
-{
 	return packet->comov_nu;
 }
 
-inline double rpacket_get_comov_energy(rpacket_t * packet)
-{
+inline double rpacket_get_comov_energy(rpacket_t * packet) {
 	return packet->comov_energy;
 }
 
-inline void rpacket_set_comov_energy(rpacket_t * packet, double comov_energy)
-{
+inline void rpacket_set_comov_energy(rpacket_t * packet, double comov_energy) {
 	packet->comov_energy = comov_energy;
-}
+} inline void rpacket_set_last_bf_edge(rpacket_t * packet, double nu_edge) {
 
-inline void rpacket_set_last_bf_edge(rpacket_t * packet, double nu_edge)
-{
 	packet->last_bf_edge = nu_edge;
-}
+} inline double rpacket_get_last_bf_edge(rpacket_t * packet) {
 
-inline double rpacket_get_last_bf_edge(rpacket_t * packet)
-{
 	return packet->last_bf_edge;
 }
 
@@ -1503,4 +1468,68 @@ inline void rpacket_set_chi_bf_tmp_shell_id(rpacket_t * packet, double nu);
 Set the nu for which we have computed the chi_bf_tmp_partial
 */
 	packet->chi_bf_tmp_partial_nu = nu;
+}
+
+inline void rpacket_set_Cr_fb_max(rpacket_t * packet, double Cr_fb_max);
+{
+/*
+Set the sum of all bound free cooling rates
+*/
+	packet->Cr_fb_max = Cr_fb_max;
+}
+
+inline double rpacket_get_Cr_fb_max(rpacket_t * packet);
+{
+/*
+Get the sum of all bound free cooling rates
+*/
+	return packet->Cr_fb_max;
+}
+
+inline void rpacket_set_Cr_ff_max(rpacket_t * packet, double Cr_ff_max);
+{
+/*
+Set the sum of all free free cooling rates
+*/
+	packet->Cr_ff_max = Cr_ff_max;
+}
+
+inline double rpacket_get_Cr_ff_max(rpacket_t * packet);
+{
+/*
+Get the sum of all free free cooling rates
+*/
+	return packet->Cr_ff_max;
+}
+
+inline void rpacket_set_Cr_bb_max(rpacket_t * packet, double Cr_bb_max);
+{
+/*
+Set the sum of all bound bound cooling rates (collisional excitation)
+*/
+	packet->Cr_bb_max = Cr_bb_max;
+}
+
+inline double rpacket_get_Cr_bb_max(rpacket_t * packet);
+{
+/*
+Get the sum of all bound bound cooling rates (collisional excitation)
+*/
+	return packet->Cr_bb_max;
+}
+
+inline void rpacket_set_Cr_ion_max(rpacket_t * packet, double Cr_ion_max);
+{
+/*
+Set the sum of all collisional ionization rates
+*/
+	packet->Cr_ion_max = Cr_ion_max;
+}
+
+inline double rpacket_set_Cr_ion_max(rpacket_t * packet);
+{
+/*
+Get the sum of all collisional ionization rates
+*/
+	return packet->Cr_ion_max;
 }

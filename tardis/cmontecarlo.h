@@ -136,6 +136,10 @@ typedef struct RPacket {
 	double *chi_bf_partial;
 	int64_t chi_bf_tmp_partial_last_shell_id;
 	double chi_bf_tmp_partial_last_nu;
+	double Cr_fb_ijk_max;
+    double Cr_ff_jk_max;
+    double Cr_bb_ijk_max;
+    double Cr_ion_ijk_max;
 } rpacket_t;
 
 typedef struct StorageModel {
@@ -206,37 +210,41 @@ typedef struct StorageModel {
 	double *chi_bf_tmp_partial;
 
 
-    double *Cr_fb_kji_all;
-    int64_t Cr_fb_kji_all_nrow;
-    int64_t Cr_fb_kji_all_ncolum;
+    double *Cr_fb_ijk_all;
+    int64_t Cr_fb_ijk_all_nrow;
+    int64_t Cr_fb_ijk_all_ncolum;
 
-    double *Cr_fb_kji_cumsum_all;
-    int64_t Cr_fb_kji_cumsum_all_nrow;
-    int64_t Cr_fb_kji_cumsum_all_ncolum;
+    double *Cr_fb_ijk_cumsum_all;
+    int64_t Cr_fb_ijk_cumsum_all_nrow;
+    int64_t Cr_fb_ijk_cumsum_all_ncolum;
 
-    int64_t *Cr_fb_kji_index;
+    double *Cr_fb_ijk_th_frequency;
+    int64_t Cr_fb_ijk_th_frequency_nrow;
+    int64_t Cr_fb_ijk_th_frequency_ncolum;
 
-
-    double *Cr_fb_kj_all;
-    int64_t Cr_fb_kj_all_nrow;
-    int64_t Cr_fb_kj_all_ncolum;
-
-    double *Cr_fb_kj_cumsum_all;
-    int64_t Cr_fb_kj_cumsum_all_nrow;
-    int64_t Cr_fb_kj_cumsum_all_ncolum;
-
-    int64_t *Cr_fb_kj_index;
+    int64_t *Cr_fb_ijk_index;
 
 
-    double *Cr_bb_kij_all;
-    int64_t Cr_bb_kij_all_nrow;
-    int64_t Cr_bb_kij_all_ncolum;
+    double *Cr_ff_jk_all;
+    int64_t Cr_ff_jk_all_nrow;
+    int64_t Cr_ff_jk_all_ncolum;
 
-    double *Cr_bb_kij_cumsum_all;
-    int64_t Cr_bb_kij_cumsum_all_nrow;
-    int64_t Cr_bb_kij_cumsum_all_ncolum;
+    double *Cr_ff_jk_cumsum_all;
+    int64_t Cr_ff_jk_cumsum_all_nrow;
+    int64_t Cr_ff_jk_cumsum_all_ncolum;
 
-    int64_t *Cr_bb_kij_index;
+    int64_t *Cr_ff_jk_index;
+
+
+    double *Cr_bb_ijk_all;
+    int64_t Cr_bb_ijk_all_nrow;
+    int64_t Cr_bb_ijk_all_ncolum;
+
+    double *Cr_bb_ijk_cumsum_all;
+    int64_t Cr_bb_ijk_cumsum_all_nrow;
+    int64_t Cr_bb_ijk_cumsum_all_ncolum;
+
+    int64_t *Cr_bb_ijk_index;
 
     double *Cr_ion_ijk_all;
     int64_t Cr_ion_ijk_all_nrow;
