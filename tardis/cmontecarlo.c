@@ -127,20 +127,29 @@ INLINE tardis_error_t compute_distance2line(rpacket_t *packet, storage_model_t *
       double nu_line = rpacket_get_nu_line(packet);
       double t_exp = storage->time_explosion;
       double inverse_t_exp = storage->inverse_time_explosion;
-      double last_line = storage->line_list_nu[rpacket_get_next_line_id(packet) - 1];
-      double next_line = storage->line_list_nu[rpacket_get_next_line_id(packet) + 1];
       int64_t cur_zone_id = rpacket_get_current_shell_id(packet);
       double comov_nu, doppler_factor;
       doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
       comov_nu = nu * doppler_factor;
       if (comov_nu < nu_line)
 	{
+	  if (rpacket_get_next_line_id(packet) == storage->no_of_lines -1)
+	    {
+	    fprintf(stderr, "last_line = %f\n", storage->line_list_nu[rpacket_get_next_line_id(packet) - 1]);
+	    fprintf(stderr, "Last line in line list reached!");
+	    }else if (rpacket_get_next_line_id(packet) == 0 )
+	    {
+        fprintf(stderr, "First line in line list!");
+	    fprintf(stderr, "next_line = %f\n", storage->line_list_nu[rpacket_get_next_line_id(packet) + 1]);
+	    }else
+	    {
+	    fprintf(stderr, "last_line = %f\n", storage->line_list_nu[rpacket_get_next_line_id(packet) - 1]);
+	    fprintf(stderr, "next_line = %f\n", storage->line_list_nu[rpacket_get_next_line_id(packet) + 1]);
+	    }
 	  fprintf(stderr, "ERROR: Comoving nu less than nu_line!\n");
 	  fprintf(stderr, "comov_nu = %f\n", comov_nu);
 	  fprintf(stderr, "nu_line = %f\n", nu_line);
 	  fprintf(stderr, "(comov_nu - nu_line) / nu_line = %f\n", (comov_nu - nu_line) / nu_line);
-	  fprintf(stderr, "last_line = %f\n", last_line);
-	  fprintf(stderr, "next_line = %f\n", next_line);
 	  fprintf(stderr, "r = %f\n", r);
 	  fprintf(stderr, "mu = %f\n", mu);
 	  fprintf(stderr, "nu = %f\n", nu);
