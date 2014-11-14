@@ -29,7 +29,9 @@ INLINE tardis_error_t line_search(double *nu, double nu_insert, int64_t number_o
   return ret_val;
 }
 
-INLINE tardis_error_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax, int64_t *result)
+inline tardis_error_t reverse_binary_search(double *x, double x_insert,
+					    int64_t imin, int64_t imax,
+					    int64_t * result)
 {
   /*
     Have in mind that *x points to a reverse sorted array.
@@ -59,9 +61,39 @@ INLINE tardis_error_t binary_search(double *x, double x_insert, int64_t imin, in
       if (imax - imid == 2 && x_insert < x[imin + 1])
 	{
 	  *result = imin + 1;
+		} else {
+			*result = imin;
 	}
-      else
+	}
+	return ret_val;
+}
+
+inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin,
+				    int64_t imax, int64_t * result)
 	{
+	/*
+	   Have in mind that *x points to a sorted array.
+	   Like [1,2,3,4,5,...]
+	 */
+	int imid;
+	tardis_error_t ret_val = TARDIS_ERROR_OK;
+	if (x_insert < x[imin] || x_insert > x[imax]) {
+		ret_val = TARDIS_ERROR_BOUNDS_ERROR;
+	} else {
+		while (imax >= imin) {
+			imid = (imin + imax) / 2;
+			if (x[imid] == x_insert) {
+				*result = imid;
+				break;
+			} else if (x[imid] < x_insert) {
+				imin = imid + 1;
+			} else {
+				imax = imid - 1;
+			}
+		}
+		if (imax - imid == 2 && x_insert < x[imin + 1]) {
+			*result = imin;
+		} else {
 	  *result = imin;
 	}
     }
