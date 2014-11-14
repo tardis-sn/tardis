@@ -126,6 +126,19 @@ inline tardis_error_t compute_distance2line(rpacket_t *packet, storage_model_t *
       comov_nu = nu * doppler_factor;
       if (comov_nu < nu_line)
 	{
+	  if (rpacket_get_next_line_id(packet) == storage->no_of_lines -1)
+	    {
+	    fprintf(stderr, "last_line = %f\n", storage->line_list_nu[rpacket_get_next_line_id(packet) - 1]);
+	    fprintf(stderr, "Last line in line list reached!");
+	    }else if (rpacket_get_next_line_id(packet) == 0 )
+	    {
+        fprintf(stderr, "First line in line list!");
+	    fprintf(stderr, "next_line = %f\n", storage->line_list_nu[rpacket_get_next_line_id(packet) + 1]);
+	    }else
+	    {
+	    fprintf(stderr, "last_line = %f\n", storage->line_list_nu[rpacket_get_next_line_id(packet) - 1]);
+	    fprintf(stderr, "next_line = %f\n", storage->line_list_nu[rpacket_get_next_line_id(packet) + 1]);
+	    }
 	  fprintf(stderr, "ERROR: Comoving nu less than nu_line!\n");
 	  fprintf(stderr, "comov_nu = %f\n", comov_nu);
 	  fprintf(stderr, "nu_line = %f\n", nu_line);
