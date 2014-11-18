@@ -135,7 +135,21 @@ typedef void (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t *s
  *
  * @return index of the next boundary to the left
  */
-inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin, int64_t imax, int64_t *result);
+inline tardis_error_t reverse_binary_search(double *x, double x_insert,
+					    int64_t imin, int64_t imax,
+					    int64_t * result);
+
+/** Look for a place to insert a value in a sorted float array.
+ *
+ * @param x a (lowest to largest) sorted float array
+ * @param x_insert a value to insert
+ * @param imin lower bound
+ * @param imax upper bound
+ *
+ * @return index of the next boundary to the left
+ */
+inline tardis_error_t binary_search(double *x, double x_insert, int64_t imin,
+				    int64_t imax, int64_t * result);
 
 /** Insert a value in to an array of line frequencies
  *
