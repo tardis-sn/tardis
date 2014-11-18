@@ -23,7 +23,7 @@ INLINE tardis_error_t line_search(double *nu, double nu_insert, int64_t number_o
     }
   else
     {
-      ret_val = binary_search(nu, nu_insert, imin, imax, result);
+      ret_val = reverse_binary_search(nu, nu_insert, imin, imax, result);
       *result = *result + 1;
     }
   return ret_val;
