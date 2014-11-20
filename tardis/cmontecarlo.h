@@ -18,34 +18,78 @@
 #define MISS_DISTANCE 1e99
 #define C 29979245800.0
 #define INVERSE_C 3.33564095198152e-11
+#define H 6.6260755e-27		// erg*s, converted to CGS units from the NIST Constant Index
+#define KB 1.3806488e-16	//erg / K converted to CGS units from the NIST Constant Index
+#define BF_DELTA_NU_RECOMPUTE 100 // Allowed deviation from the nu used for the bf chi until the stored chi is recomputed
+#define TRUE 1
 
-typedef enum
-  {
+#define FALSE 0
+/*
+defines for the packet_status_t flags
+[R,K,I,IN_PROCESS,STATUS_EMITTED,STATUS_REABSORBED,STATUS_DISABLED]
+*/
+#define R_PACKET 1 << 6
+#define K_PACKET 1 << 5
+#define I_PACKET 1 << 4
+#define PACKET_IN_PROCESS 1 << 3
+#define PACKET_STATUS_DISABLED 1 << 0
+#define PACKET_STATUS_REABSORBED 1 << 1
+#define PACKET_STATUS_EMITTED 1 << 2
+
+
+
+typedef enum {
     TARDIS_ERROR_OK = 0,
     TARDIS_ERROR_BOUNDS_ERROR = 1,
     TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE = 2
   } tardis_error_t;
 
-typedef enum
+typedef enum			// This is the new main status for packet types
   {
-    TARDIS_PACKET_STATUS_IN_PROCESS = 0,
-    TARDIS_PACKET_STATUS_EMITTED = 1,
-    TARDIS_PACKET_STATUS_REABSORBED = 2
+	//[IN_PROCESS,STATUS_EMITTED,STATUS_REABSORBED,STATUS_DISABLED]
+	TARDIS_PACKET_STATUS_IN_PROCESS = PACKET_IN_PROCESS,
+	TARDIS_PACKET_STATUS_EMITTED = PACKET_STATUS_EMITTED,
+	TARDIS_PACKET_STATUS_REABSORBED = PACKET_STATUS_REABSORBED,
+	TARDIS_PACKET_STATUS_DISABLED = PACKET_STATUS_DISABLED
   } rpacket_status_t;
+
+typedef enum {
+	// > 0 IN_PROCESS; > 10 EMITTED ; > 20 REABSORBED ; > 30 DISABLED
+	// [R,K,I,IN_PROCESS,STATUS_EMITTED,STATUS_REABSORBED,STATUS_DISABLED]
+	TARDIS_R_PACKET_IN_PROCESS = R_PACKET | PACKET_IN_PROCESS,
+	TARDIS_R_PACKET_STATUS_EMITTED = R_PACKET | PACKET_STATUS_EMITTED,
+	TARDIS_R_PACKET_STATUS_REABSORBED = R_PACKET | PACKET_STATUS_REABSORBED,
+	TARDIS_R_PACKET_STATUS_DISABLED = R_PACKET | PACKET_STATUS_DISABLED,
+	TARDIS_K_PACKET_IN_PROCESS = K_PACKET | PACKET_IN_PROCESS,
+	TARDIS_K_PACKET_STATUS_DISABLED = K_PACKET | PACKET_STATUS_DISABLED,
+	TARDIS_I_PACKET_IN_PROCESS = I_PACKET | PACKET_IN_PROCESS,
+	TARDIS_I_PACKET_STATUS_DISABLED = I_PACKET | PACKET_STATUS_DISABLED
+} packet_status_t;
 
 /**
  * @brief A photon packet.
  */
-typedef struct RPacket
-{
-  double nu; /**< Frequency of the packet in Hz. */
-  double mu; /**< Cosine of the angle of the packet. */
-  double energy; /**< Energy of the packet in erg. */
-  double r; /**< Distance from center in cm. */
+typedef struct RPacket {
+	double nu;
+	     /**< Frequency of the packet in Hz. */
+	double mu;
+	     /**< Cosine of the angle of the packet. */
+	double energy;
+		 /**< Energy of the packet in erg. */
+	double comov_nu;
+		   /**<Frequency of the packet in the comoving frame. */
+	double comov_energy;
+		       /**< Energy of the packet in the comoving frame. */
+	double r;
+	    /**< Distance from center in cm. */
   double tau_event;
+		    /**< Optical depth to next event. */
   double nu_line;
-  int64_t current_shell_id; /**< ID of the current shell. */
-  int64_t next_line_id; /**< The index of the next line that the packet will encounter. */
+		  /**< frequency of the last line. */
+	int64_t current_shell_id;
+			    /**< ID of the current shell. */
+	int64_t next_line_id;
+			/**< The index of the next line that the packet will encounter. */
   /**
    * @brief The packet has a nu red-ward of the last line.
    * It will not encounter any lines anymore.
@@ -70,11 +114,38 @@ typedef struct RPacket
    */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
-  double d_line; /**< Distance to electron event. */
-  double d_electron; /**< Distance to line event. */
-  double d_boundary; /**< Distance to shell boundary. */
-  int64_t next_shell_id; /**< ID of the next shell packet visits. */
-  rpacket_status_t status; /**< Packet status (in process, emitted or reabsorbed). */
+	double d_inner;
+		  /**< Distance to the inner shell boundary. */
+	double d_outer;
+		  /**< Distance to the outer shell boundary. */
+	double d_line;
+		 /**< Distance to the next possible line event. */
+	double d_electron;
+		     /**< Distance to the next electron scatter event. */
+	int64_t moved;
+	double d_boundary;
+		     /**< Distance to shell boundary. */
+	int64_t next_shell_id;
+			 /**< ID of the next shell packet visits. */
+	rpacket_status_t status;
+			   /**< Packet status (in process, emitted or reabsorbed). */
+	packet_status_t packet_status;
+	double chi_bf;
+	double chi_th;
+	double chi_ff;
+	double chi_cont;
+	double d_bf;
+	double d_th;
+	double d_ff;
+	double d_cont;
+	double last_bf_edge;
+	double *chi_bf_tmp_partial;
+	int64_t chi_bf_tmp_partial_last_shell_id;
+	double chi_bf_tmp_partial_last_nu;
+	double Cr_fb_max;
+    double Cr_ff_max;
+    double Cr_bb_max;
+    double Cr_ion_max;
 } rpacket_t;
 
 typedef struct StorageModel
@@ -122,6 +193,78 @@ typedef struct StorageModel
   double inner_boundary_albedo;
   int64_t reflective_inner_boundary;
   int64_t current_packet_id;
+
+	int64_t *chi_bf_index_to_level;
+	int64_t chi_bf_index_to_level_nrow;
+	int64_t chi_bf_index_to_level_ncolum;
+
+	double *bf_level_population;
+	int64_t bf_level_population_nrow;
+	int64_t bf_level_population_ncolum;
+
+	double *bf_lpopulation_ratio;
+	int64_t bf_lpopulation_ratio_nrow;
+	int64_t bf_lpopulation_ratio_ncolum;
+
+	double *bf_lpopulation_ratio_nlte_lte;
+	int64_t bf_lpopulation_ratio_nlte_lte_nrow;
+	int64_t bf_lpopulation_ratio_nlte_lte_ncolum;
+
+	double *bf_cross_sections;
+	double *bound_free_th_frequency;
+
+	double *t_electrons;
+	double *chi_bf_tmp_partial;
+
+
+    double *Cr_fb_ijk_all;
+    int64_t Cr_fb_ijk_all_nrow;
+    int64_t Cr_fb_ijk_all_ncolum;
+
+    double *Cr_fb_ijk_cumsum_all;
+    int64_t Cr_fb_ijk_cumsum_all_nrow;
+    int64_t Cr_fb_ijk_cumsum_all_ncolum;
+
+    double *Cr_fb_ijk_th_frequency;
+    int64_t Cr_fb_ijk_th_frequency_nrow;
+    int64_t Cr_fb_ijk_th_frequency_ncolum;
+
+    int64_t *Cr_fb_ijk_index;
+
+
+    double *Cr_ff_jk_all;
+    int64_t Cr_ff_jk_all_nrow;
+    int64_t Cr_ff_jk_all_ncolum;
+
+    double *Cr_ff_jk_cumsum_all;
+    int64_t Cr_ff_jk_cumsum_all_nrow;
+    int64_t Cr_ff_jk_cumsum_all_ncolum;
+
+    int64_t *Cr_ff_jk_index;
+
+
+    double *Cr_bb_ijk_all;
+    int64_t Cr_bb_ijk_all_nrow;
+    int64_t Cr_bb_ijk_all_ncolum;
+
+    double *Cr_bb_ijk_cumsum_all;
+    int64_t Cr_bb_ijk_cumsum_all_nrow;
+    int64_t Cr_bb_ijk_cumsum_all_ncolum;
+
+    int64_t *Cr_bb_ijk_index;
+
+    double *Cr_ion_ijk_all;
+    int64_t Cr_ion_ijk_all_nrow;
+    int64_t Cr_ion_ijk_all_ncolum;
+
+    double *Cr_ion_ijk_cumsum_all;
+    int64_t Cr_ion_ijk_cumsum_all_nrow;
+    int64_t Cr_ion_ijk_cumsum_all_ncolum;
+
+    int64_t *Cr_ion_ijk_index;
+
+	//double kB;
+
 } storage_model_t;
 
 typedef void (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t *storage, double distance);
@@ -138,6 +281,8 @@ typedef void (*montecarlo_event_handler_t)(rpacket_t *packet, storage_model_t *s
 inline tardis_error_t reverse_binary_search(double *x, double x_insert,
 					    int64_t imin, int64_t imax,
 					    int64_t * result);
+
+
 
 /** Look for a place to insert a value in a sorted float array.
  *
@@ -253,13 +398,55 @@ inline int rpacket_get_virtual_packet(rpacket_t *packet);
 
 inline void rpacket_set_virtual_packet(rpacket_t *packet, int virtual_packet);
 
+inline void rpacket_set_d_boundary(rpacket_t * packet, double d_boundary);
+
+inline double rpacket_get_d_electron(rpacket_t * packet);
+
+inline void rpacket_set_d_electron(rpacket_t * packet, double d_electron);
+
+inline double rpacket_get_d_line(rpacket_t * packet);
+
+inline void rpacket_set_d_line(rpacket_t * packet, double d_line);
+
+inline int rpacket_get_next_shell_id(rpacket_t * packet);
+
+inline void rpacket_set_next_shell_id(rpacket_t * packet, int next_shell_id);
+
 inline double rpacket_get_d_boundary(rpacket_t *packet);
 
 inline void rpacket_set_d_boundary(rpacket_t *packet, double d_boundary);
 
+inline double rpacket_get_d_continuum(rpacket_t * packet);
+
 inline double rpacket_get_d_electron(rpacket_t *packet);
 
+inline double rpacket_get_d_freefree(rpacket_t * packet);
+
+inline double rpacket_get_d_boundfree(rpacket_t * packet);
+
+inline void rpacket_set_d_continuum(rpacket_t * packet, double d_continuum);
+
 inline void rpacket_set_d_electron(rpacket_t *packet, double d_electron);
+
+inline void rpacket_set_d_freefree(rpacket_t * packet, double d_freefree);
+
+inline void rpacket_set_d_boundfree(rpacket_t * packet, double d_boundfree);
+
+inline double rpacket_get_chi_continuum(rpacket_t * packet);
+
+inline double rpacket_get_chi_electron(rpacket_t * packet);
+
+inline double rpacket_get_chi_freefree(rpacket_t * packet);
+
+inline double rpacket_get_chi_boundfree(rpacket_t * packet);
+
+inline void rpacket_set_chi_continuum(rpacket_t * packet, double chi_continuum);
+
+inline void rpacket_set_chi_electron(rpacket_t * packet, double chi_electron);
+
+inline void rpacket_set_chi_freefree(rpacket_t * packet, double chi_freefree);
+
+inline void rpacket_set_chi_boundfree(rpacket_t * packet, double chi_boundfree);
 
 inline double rpacket_get_d_line(rpacket_t *packet);
 
@@ -273,12 +460,106 @@ inline rpacket_status_t rpacket_get_status(rpacket_t *packet);
 
 inline void rpacket_set_status(rpacket_t *packet, rpacket_status_t status);
 
+inline packet_status_t packet_get_status(rpacket_t * packet);
+
+inline void packet_set_status(rpacket_t * packet, packet_status_t status);
+
+inline int64_t packet_is_r_packet(rpacket_t * packet);
+
+inline int64_t packet_is_k_packet(rpacket_t * packet);
+
+inline int64_t packet_is_i_packet(rpacket_t * packet);
+
+inline tardis_error_t rpacket_init(rpacket_t * packet,
+				   storage_model_t * storage, int packet_index,
+				   int virtual_packet_flag);
+
+inline void check_array_bounds(int64_t ioned, int64_t nrow, int64_t ncolums);
+
+inline void set_array_int(int64_t irow, int64_t icolums, int64_t nrow,
+			  int64_t ncolums, int64_t * array, int64_t val);
+
+inline void set_array_double(int64_t irow, int64_t icolums, int64_t nrow,
+			     int64_t ncolums, double *array, double val);
+
+inline int64_t get_array_int(int64_t irow, int64_t icolums, int64_t nrow,
+			     int64_t ncolums, int64_t * array);
+
+inline double get_array_double(int64_t irow, int64_t icolums, int64_t nrow,
+			       int64_t ncolums, double *array);
+
+inline void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage);
+
+void montecarlo_bound_free_scatter(rpacket_t * packet,
+				   storage_model_t * storage, double distance);
+
+void montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage,
+				  double distance);
+
+inline montecarlo_event_handler_t get_k_event_handler(rpacket_t * packet,
+						      storage_model_t * storage,
+						      double *distance);
+
+
+
+inline montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t *
+								     packet,
+								     storage_model_t
+								     * storage);
+
+inline montecarlo_event_handler_t get_r_event_handler(rpacket_t * packet,
+						      storage_model_t * storage,
+						      double *distance);
+
+inline montecarlo_event_handler_t get_event_handler(rpacket_t * packet,
+						    storage_model_t * storage,
+						    double *distance);
+
 inline void rpacket_reset_tau_event(rpacket_t *packet);
 
-tardis_error_t rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag);
+inline double rpacket_doppler_factor(rpacket_t * packet,
+				     storage_model_t * storage);
 
-void initialize_random_kit(unsigned long seed);
+inline void rpacket_set_comov_nu(rpacket_t * packet, double comov_nu);
 
-#endif // TARDIS_CMONTECARLO_H
+inline double rpacket_get_comov_nu(rpacket_t * packet);
+
+inline double rpacket_get_comov_energy(rpacket_t * packet);
+
+inline void rpacket_set_comov_energy(rpacket_t * packet, double comov_energy);
+
+inline int64_t rpacket_get_chi_bf_tmp_shell_id(rpacket_t * packet);
+
+inline void rpacket_set_chi_bf_tmp_shell_id(rpacket_t * packet, int64_t shell_id);
+
+inline double rpacket_get_chi_bf_tmp_nu(rpacket_t * packet);
+
+inline void rpacket_set_chi_bf_tmp_last_nu(rpacket_t * packet, double nu);
+
+inline void rpacket_set_Cr_fb_max(rpacket_t * packet, double Cr_fb_max);
+
+inline double rpacket_get_Cr_fb_max(rpacket_t * packet);
+
+inline void rpacket_set_Cr_ff_max(rpacket_t * packet, double Cr_ff_max);
+
+inline double rpacket_get_Cr_ff_max(rpacket_t * packet);
+
+inline void rpacket_set_Cr_bb_max(rpacket_t * packet, double Cr_bb_max);
+
+inline double rpacket_get_Cr_bb_max(rpacket_t * packet);
+
+inline void rpacket_set_Cr_ion_max(rpacket_t * packet, double Cr_ion_max);
+
+inline double rpacket_get_Cr_ion_max(rpacket_t * packet);
+
+inline double rpacket_get_last_bf_edge(rpacket_t * packet);
+
+inline double storage_get_current_electron_temperature(storage_model_t * storage, int64_t current_shell_id);
+
+inline double storage_get_r_for_shell(storage_model_t * storage, int64_t current_shell_id);
+
+inline double storage_get_r_for_shell(storage_model_t * storage, int64_t current_shell_id);
 
 
+
+#endif				// TARDIS_CMONTECARLO_H
