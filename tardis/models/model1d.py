@@ -10,9 +10,10 @@ class RadialModel1D(BaseModel):
 
     """
 
-    def __init__(self, radius, density, abundances, n_electron=None):
+    def __init__(self, radius, density, temperature, abundances, n_electron=None):
         self.radius = radius
         self.density = density
+        self.temperature = temperature
 
     @property
     def radius(self):
@@ -50,7 +51,7 @@ class RadialHomologousModel1D(RadialModel1D):
     """
 
     def __init__(self, velocity, temperature, density, abundances, t_0, n_electron=None):
-        pass
+        super(RadialHomologousModel1D, self).__init__()
 
     @property
     def radius(self):
