@@ -50,8 +50,10 @@ class RadialHomologousModel1D(RadialModel1D):
     
     """
 
-    def __init__(self, velocity, temperature, density, abundances, t_0, n_electron=None):
-        super(RadialHomologousModel1D, self).__init__()
+    def __init__(self, velocity, temperature, density, abundances, t_0, t_model):
+        self.velocity = velocity
+        self.temperature = temperature
+        self.density
 
     @property
     def radius(self):
