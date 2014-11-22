@@ -1,7 +1,7 @@
 Reporting Bugs
 **************
 
-Despite our best efforts TARDIS contains bugs. Now we want to make sure that fixing
+Despite our best efforts TARDIS contains bugs. We want to make sure that fixing
 these is quick and painless for users and developers.
 
 When reporting bugs please use the mailing list
@@ -72,13 +72,22 @@ please tell us the installed version of third party packages. The easiest way is
 and pasting the output in your error report, this will show us what packages are
 installed and used.
 
-The next thing you can do if you have TARDIS downloaded in a directory you can run::
+The next thing that is useful to do if TARDIS is downloaded in a directory is to run
+the test suites and find if any of the tests fail::
 
     python setup.py test
-    ============================== test session starts ==============================
+    running test
+    running build
+    running build_py
+    copying tardis/./macro_atom.c -> build/lib.macosx-10.9-x86_64-2.7/tardis/.
+    copying tardis/./montecarlo.c -> build/lib.macosx-10.9-x86_64-2.7/tardis/.
+    running build_ext
+    skipping 'tardis/montecarlo.c' Cython extension (up-to-date)
+    skipping 'tardis/macro_atom.c' Cython extension (up-to-date)
+    running build_scripts
+    ============================= test session starts ==============================
     platform darwin -- Python 2.7.8 -- pytest-2.5.1
 
-    Running tests with Astropy version 1.0.dev10065.
     Running tests in tardis /Users/wkerzend/scripts/python/tardis/docs.
 
     Platform: Darwin-13.4.0-x86_64-i386-64bit
@@ -93,19 +102,22 @@ The next thing you can do if you have TARDIS downloaded in a directory you can r
     byteorder: little
     float info: dig: 15, mant_dig: 15
 
-    Numpy: 1.9.0
+    Numpy: 1.9.1
     Scipy: 0.13.3
-    Matplotlib: 1.4.0
+    astropy: 1.0.dev10065
+    yaml: 3.11
+    cython: 0.20.2
     h5py: 2.4.0a0
+    Matplotlib: 1.4.0
+    ipython: 1.2.1
 
     plugins: cache, cov, ipdb, pep8
-    collected 108 items
+    collected 107 items
 
     tardis/io/tests/test_ascii_readers.py .......
     tardis/io/tests/test_config_reader.py .............................
     tardis/io/tests/test_config_validator.py ........................
     tardis/io/tests/test_configuration_namespace.py .........
-    tardis/models/tests/test_radial_model_1d.py .
     tardis/tests/test_atomic.py .....s
     tardis/tests/test_lte_plasma.py ssssssssss
     tardis/tests/test_plasma_nlte.py .....
@@ -113,6 +125,9 @@ The next thing you can do if you have TARDIS downloaded in a directory you can r
     tardis/tests/test_tardis_full.py s
     tardis/tests/test_util.py ...............
 
+    ==================== 95 passed, 12 skipped in 8.53 seconds =====================
 
 
 
+This will hopefully help us to identify us the problem. We will continue to
+update this document with other techniques.
