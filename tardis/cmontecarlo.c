@@ -337,9 +337,8 @@ compute_distance2electron (rpacket_t * packet, storage_model_t * storage)
       return MISS_DISTANCE;
     }
   double inverse_ne =
-    storage->
-    inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
-    storage->inverse_sigma_thomson;
+    storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)]
+    * storage->inverse_sigma_thomson;
   return rpacket_get_tau_event (packet) * inverse_ne;
 }
 
@@ -360,10 +359,10 @@ compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
   else
     {
       // Compute the continuum oddities for a real packet
-      calculate_chi_bf (packet, storage);
+      //calculate_chi_bf (packet, storage);
 
       chi_boundfree = 0.0;	//calculate_chi_bf(packet, storage);
-      chi_boundfree = rpacket_get_chi_boundfree (packet);	// For Debug;
+      //chi_boundfree = rpacket_get_chi_boundfree (packet);	// For Debug;
       chi_freefree = 0.0;
       chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;	// For Debugging set * to /
       chi_continuum = chi_boundfree + chi_freefree + chi_electron;
@@ -413,7 +412,7 @@ calculate_chi_bf (rpacket_t * packet, storage_model_t * storage)
       // set identification values for the tmp data storage
       T = storage->t_electrons[packet->current_shell_id];
       I = storage->chi_bf_index_to_level_nrow;	// This is equal to the number of levels
-      rpacket_set_chi_bf_tmp_nu (packet);
+      rpacket_set_chi_bf_tmp_last_nu (packet, nu);
 
       for (i = 0; i <= I; ++i)
 	{
@@ -434,8 +433,7 @@ calculate_chi_bf (rpacket_t * packet, storage_model_t * storage)
 		get_array_double (i,
 				  packet->current_shell_id,
 				  storage->bf_lpopulation_ratio_nlte_lte_nrow,
-				  storage->
-				  bf_lpopulation_ratio_nlte_lte_ncolum,
+				  storage->bf_lpopulation_ratio_nlte_lte_ncolum,
 				  storage->bf_lpopulation_ratio_nlte_lte);
 
 	      level_chi =
@@ -487,10 +485,11 @@ macro_atom (rpacket_t * packet, storage_model_t * storage)
       do
 	{
 	  p +=
-	    storage->
-	    transition_probabilities[rpacket_get_current_shell_id (packet) *
-				     storage->transition_probabilities_nd +
-				     (++i)];
+	    storage->transition_probabilities[rpacket_get_current_shell_id
+					      (packet) *
+					      storage->
+					      transition_probabilities_nd +
+					      (++i)];
 	}
       while (p <= event_random);
       emit = storage->transition_type[i];
@@ -1190,9 +1189,8 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
       if (!rpacket_get_last_line (packet))
 	{
 	  rpacket_set_nu_line (packet,
-			       storage->
-			       line_list_nu[rpacket_get_next_line_id
-					    (packet)]);
+			       storage->line_list_nu[rpacket_get_next_line_id
+						     (packet)]);
 	}
       double distance;
       get_event_handler (packet, storage, &distance) (packet, storage,
