@@ -211,7 +211,7 @@ create_rpacket (rpacket_t * packet, double comov_nu,
 	   storage->inverse_time_explosion * INVERSE_C);
   current_energy = rpacket_get_comov_energy (packet) * inverse_doppler_factor;
   current_nu = comov_nu * inverse_doppler_factor;
-  current_mu = comov_mu;
+  current_mu = comov_mu; //Approximation
 
   rpacket_set_energy (packet, current_energy);
   rpacket_set_nu (packet, current_nu);
@@ -219,6 +219,7 @@ create_rpacket (rpacket_t * packet, double comov_nu,
   rpacket_set_comov_energy (packet, -1.0);	//comoving energy should never be used in an r packet
   rpacket_set_comov_nu (packet, -1.0);	//comoving nu should never be used in an r packet
 
+  //ToDo: Use the error
   error =
     line_search (storage->line_list_nu, comov_nu, storage->no_of_lines,
 		 &current_line_id);
@@ -251,7 +252,6 @@ compute_distance2boundary (rpacket_t * packet, storage_model_t * storage)
   double d_outer =
     sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
   double d_inner;
-  double result;
   if (rpacket_get_recently_crossed_boundary (packet) == 1)
     {
       rpacket_set_next_shell_id (packet, 1);
@@ -299,10 +299,10 @@ compute_distance2line (rpacket_t * packet,
       double nu_line = rpacket_get_nu_line (packet);
       double t_exp = storage->time_explosion;
       double inverse_t_exp = storage->inverse_time_explosion;
-      double last_line =
-	storage->line_list_nu[rpacket_get_next_line_id (packet) - 1];
-      double next_line =
-	storage->line_list_nu[rpacket_get_next_line_id (packet) + 1];
+//      double last_line =
+//	storage->line_list_nu[rpacket_get_next_line_id (packet) - 1];
+ //     double next_line =
+//	storage->line_list_nu[rpacket_get_next_line_id (packet) + 1];
       int64_t cur_zone_id = rpacket_get_current_shell_id (packet);
       double comov_nu, doppler_factor;
       doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
@@ -371,7 +371,7 @@ compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
 //        fprintf(stderr, "--------\n");
 //        fprintf(stderr, "nu = %e \n", rpacket_get_nu(packet));
 //        fprintf(stderr, "chi_electron = %e\n", chi_electron);
-//        fprintf(stderr, "chi_boundfree = %e\n", calculate_chi_bf(packet, storage));
+//        fprintf(stderr, "chi_boundfree = %e\n", chi_boundfree);
 //        fprintf(stderr, "chi_line = %e \n", rpacket_get_tau_event(packet) / rpacket_get_d_line(packet));
 //        fprintf(stderr, "--------\n");
 
@@ -385,7 +385,7 @@ inline void
 calculate_chi_bf (rpacket_t * packet, storage_model_t * storage)
 {
   double bf_helper = 0;
-  double chi_bf = 0;
+//double chi_bf = 0;
   double nu_th;
   double l_pop_r;
   double l_pop;
@@ -397,9 +397,9 @@ calculate_chi_bf (rpacket_t * packet, storage_model_t * storage)
   int64_t shell_id;
   int64_t i = 0;
   int64_t I;
-  int64_t atom;
-  int64_t ion;
-  int64_t level;
+//  int64_t atom;
+//  int64_t ion;
+//  int64_t level;
 
   shell_id = rpacket_get_current_shell_id (packet);
   last_shell_id = rpacket_get_chi_bf_tmp_nu (packet);
@@ -799,15 +799,15 @@ montecarlo_bound_free_scatter (rpacket_t * packet,
   tardis_error_t error;
 
   double nu;
-  double nu_bf_edge;
+//  double nu_bf_edge;
   double nu_edge;
   double chi_bf;
-  double chi_sum;
+//  double chi_sum;
   double zrand;
   double zrand_x_chibf;
 
   int64_t ccontinuum;
-  int64_t i = 0;
+//  int64_t i = 0;
   int64_t I;
 
   //Determine in which continuum the bf-absorption occurs
@@ -819,6 +819,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet,
   zrand = (rk_double (&mt_state));
   zrand_x_chibf = zrand * chi_bf;
 
+  //ToDo: Use the error
   error =
     reverse_binary_search (&packet->chi_bf_tmp_partial, zrand_x_chibf, I,
 			   2 * I, &ccontinuum);
@@ -870,8 +871,6 @@ montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
       double d_line;
       compute_distance2line (packet, storage, &d_line);
       rpacket_set_d_line (packet, d_line);
-      //ToDo: Remove old rpacket_set_d_electron
-      //rpacket_set_d_electron(packet, compute_distance2electron(packet, storage));
       compute_distance2continuum (packet, storage);
     }
 }
@@ -940,7 +939,7 @@ montecarlo_cooling_free_free (rpacket_t *
   double current_r;
   double Cr_ff_jk_max;
 
-  double T;
+//  double T;
   double shell_id;
 
   shell_id = rpacket_get_current_shell_id (packet);
@@ -992,6 +991,7 @@ montecarlo_cooling_free_bound (rpacket_t * packet,
     storage->Cr_fb_ijk_cumsum_all +
     (storage->Cr_fb_ijk_cumsum_all_nrow * shell_id);
 
+  //ToDo: use the error
   ret_val =
     binary_search (Cr_fb_ijk_cumsum_all_current_shell, zrand_normalized, 0,
 		   storage->Cr_fb_ijk_cumsum_all_nrow, &emission_index);
@@ -1125,8 +1125,8 @@ get_r_event_handler (rpacket_t * packet,
   double d_boundary, d_continuum, d_line;
   montecarlo_compute_distances (packet, storage);
   d_boundary = rpacket_get_d_boundary (packet);
-  //d_continuum = rpacket_get_d_continuum(packet);
-  d_continuum = 1e99;		//Do not use the new part of the code ToDo: Remove this later
+  d_continuum = rpacket_get_d_continuum(packet);
+  //d_continuum = 1e99;		//Do not use the new part of the code ToDo: Remove this later
   d_line = rpacket_get_d_line (packet);
 
   montecarlo_event_handler_t handler;
