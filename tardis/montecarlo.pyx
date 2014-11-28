@@ -189,8 +189,6 @@ cdef extern from "cmontecarlo.h":
     double rpacket_get_energy(rpacket_t *packet)
     void initialize_random_kit(unsigned long seed)
 
-    void free(void*ptr)
-    void* malloc(size_t size)
 
 
 
@@ -318,15 +316,19 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
     storage.current_packet_id = -1
+
+
+    cdef np.ndarray[double, ndim=1, mode='c'] chi_bf_tmp_partial = np.zeros(2 * storage.bf_level_population_nrow, dtype=np.double)
+    storage.chi_bf_tmp_partial = <double *> chi_bf_tmp_partial.data
+
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     cdef int_type_t reabsorbed = 0
 
-    #malloc for the temporary opacity storage. The first column is for the current chi the second for the sum
-    #storage.chi_bf_tmp_partial = <double *> malloc(2 * storage.bf_level_population_nrow *  sizeof(double))
-    storage.chi_bf_tmp_partial = <double *> malloc(100 * sizeof(double)) #This is only to implement the framework
     for packet_index in range(storage.no_of_packets):
+        if not packet_index % (storage.no_of_packets/20):
+            print(packet_index)
         storage.current_packet_id = packet_index
         rpacket_init(&packet, &storage, packet_index, virtual_packet_flag)
         if (virtual_packet_flag > 0):
@@ -335,7 +337,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         #Now can do the propagation of the real packet
         reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
         storage.output_nus[packet_index] = rpacket_get_nu(&packet)
-        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
-    free(storage.chi_bf_tmp_partial)
+        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(
+            &packet)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
