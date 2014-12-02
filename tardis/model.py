@@ -360,7 +360,7 @@ class Radial1DModel(object):
                                                      virtual_packet_flag=no_of_virtual_packets)
 
         if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
-            logger.warning("No r-packet escaped through the outer boundary.")
+            logger.critical("No r-packet escaped through the outer boundary.")
 
         self.montecarlo_nu = montecarlo_nu * u.Hz
         self.montecarlo_luminosity = montecarlo_energies *  1 * u.erg / self.time_of_simulation
