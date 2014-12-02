@@ -16,6 +16,7 @@ env:
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
         - TEST_MODE='normal'
+        - ATOM_DATA_URL='http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
 
 matrix:
     include:
@@ -49,7 +50,7 @@ before_install:
     - conda update --yes conda
 
     - if [[ $COMPILER == 'clang' ]]; then sudo apt-get install -qq clang; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then wget http://moria.astro.utoronto.ca/\~wkerzend/tardis_atomic_databases/kurucz_cd23_chianti_H_He.zip; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then wget $ATOM_DATA_URL; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
 
