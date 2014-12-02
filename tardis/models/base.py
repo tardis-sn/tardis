@@ -10,11 +10,14 @@ class ModelMeta(type):
     """
     def __new__(cls, name, bases, attrs):
         # find all descriptors, auto-set their labels
-        attrs['all_model_attributes'] = []
+
+        attrs['all_model_attributes'] = getattr(bases[0],
+                                                'all_model_attributes', [])
+
         for n, v in attrs.items():
             if isinstance(v, BaseAttribute):
                 attrs['all_model_attributes'].append(n)
-        1/0
+
         return super(ModelMeta, cls).__new__(cls, name, bases, attrs)
 
 
