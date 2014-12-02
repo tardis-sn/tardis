@@ -11,8 +11,6 @@ class RadialModel1D(BaseModel):
     """
 
     radius = QuantityAttribute(default_unit=u.cm)
-    density = QuantityAttribute(default_unit=u.g / u.cm**3)
-    temperature = QuantityAttribute(default_unit=u.K)
 
     def __init__(self, radius, **kwargs):
         self.radius = radius

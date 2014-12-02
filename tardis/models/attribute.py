@@ -1,6 +1,10 @@
 from astropy import units as u
 
-class QuantityAttribute(object):
+class BaseAttribute(object):
+    pass
+
+
+class QuantityAttribute(BaseAttribute):
     """
     A model attribute is a descriptor for
     """
