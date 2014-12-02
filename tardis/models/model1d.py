@@ -1,5 +1,6 @@
 import numpy as np
 from astropy import units as u
+from tardis.models.attribute import QuantityAttribute
 
 from tardis.models.base import BaseModel
 
@@ -7,22 +8,15 @@ from tardis.models.base import BaseModel
 class RadialModel1D(BaseModel):
     """
     Radial Model 1D
-
     """
 
-    def __init__(self, radius, density, temperature, abundances, n_electron=None):
+    radius = QuantityAttribute(default_unit=u.cm)
+    density = QuantityAttribute(default_unit=u.g / u.cm**3)
+    temperature = QuantityAttribute(default_unit=u.K)
+
+    def __init__(self, radius, **kwargs):
         self.radius = radius
-        self.density = density
-        self.temperature = temperature
 
-    @property
-    def radius(self):
-        return self._radius
-
-
-    @radius.setter
-    def radius(self, value):
-        self._radius = u.Quantity(value, u.cm)
 
 
     @property
