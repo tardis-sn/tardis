@@ -10,4 +10,7 @@ def get_extensions():
     return [Extension('tardis.montecarlo',
                       ['tardis/montecarlo.pyx', 'tardis/cmontecarlo.c'] +
                       randomkit_files,
-                      include_dirs=['tardis/randomkit', np.get_include()])]
+                      include_dirs=['tardis/randomkit', np.get_include()],
+                      extra_compile_args=['-fopenmp'],
+                      extra_link_args=['-lgomp']
+                      )]
