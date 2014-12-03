@@ -1,5 +1,4 @@
 from astropy.tests.pytest_plugins import *
-from astropy_helpers.setup_helpers import add_command_option
 
 
 def pytest_addoption(parser):
