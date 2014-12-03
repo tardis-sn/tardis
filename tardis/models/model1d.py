@@ -8,15 +8,15 @@ from tardis.models.attribute import (QuantityAttribute,
 from tardis.models.base import BaseModel
 
 
-class RadialModel1D(BaseModel):
+class Radial1D(BaseModel):
     """
     Radial Model 1D
     """
 
-    radius = RadialGeometryQuantityAttribute(u.cm, 'r')
+    radius = Radius1DAttribute(u.cm, 'r')
 
     def __init__(self, radius, **kwargs):
-        super(RadialModel1D, self).__init__()
+        super(Radial1D, self).__init__()
         self._register_attribute('radius', radius)
 
 
@@ -25,7 +25,7 @@ class RadialModel1D(BaseModel):
         return self.volume * self.density
 
 
-class RadialHomologousModel1D(RadialModel1D):
+class RadialHomologous1D(Radial1D):
     """
     Radial homologous 1D model.
 

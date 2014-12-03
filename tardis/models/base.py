@@ -34,14 +34,14 @@ class BaseModel(object):
 
 
     def __getattr__(self, item):
-        if item in self.model_subattributes:
-            return self.model_subattributes[item]()
+        if item in self._subattribute_getters:
+            return self._subattribute_getters[item]()
         else:
-            super(BaseModel, self).__getattribute__(item)
+            return super(BaseModel, self).__getattribute__(item)
 
     def __init__(self):
         self.model_attributes = []
-        self.subattribute_getters = {}
+        self._subattribute_getters = {}
 
     def _register_attribute(self, name, value):
         """
@@ -71,6 +71,6 @@ class BaseModel(object):
         setattr(self, name, value)
 
         attribute_descriptor = getattr(self.__class__, name)
-        self.model_subattributes.update(getattr(attribute_descriptor,
-                                                '_subattribute_getter', {}))
+        self._subattribute_getters.update(getattr(attribute_descriptor,
+                                                '_subattribute_getters', {}))
         self.model_attributes.append(name)
