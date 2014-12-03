@@ -1,8 +1,6 @@
 from astropy.tests.pytest_plugins import *
 from astropy_helpers.setup_helpers import add_command_option
 
-add_command_option('test', 'no-openmp', 'compile TARDIS with OpenMP',
-                   is_bool=True)
 
 def pytest_addoption(parser):
     parser.addoption("--remote-data", action="store_true",
