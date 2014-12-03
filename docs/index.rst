@@ -17,6 +17,7 @@ rapid spectral modelling of supernovae. The code is described in this documentat
     installation
     running
     uses
+    bugs
     configuration/index
     examples/examples
     testing
@@ -45,7 +46,7 @@ please mention the website and cite Kerzendorf & Sim 2014.
 User modifications and additions that lead to publications need to be handed back to the community by incorporating them
 into this publicly available version of TARDIS.
 
-The current stable version of TARDIS is 0.9 and can be downloaded `here <https://pypi.python.org/pypi/tardis-sn>`_, further installation instructions are
+The current stable version of TARDIS is 0.9.2 and can be downloaded `here <https://pypi.python.org/pypi/tardis-sn>`_, further installation instructions are
 available here :ref:`installation`.
 
 A file containing an example configuration file and an atomic database can be found in the section :ref:`running`
