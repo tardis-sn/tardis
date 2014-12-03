@@ -230,19 +230,37 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     cdef int_type_t num_threads
 
 
-
-    with nogil, parallel():
-        num_threads = openmp.omp_get_num_threads()
-        for packet_index in prange(no_of_packets):
+    IF OPENMP:
+        with nogil, parallel():
+            num_threads = openmp.omp_get_num_threads()
+            for packet_index in prange(no_of_packets):
+                packet = <rpacket_t *> malloc(sizeof(rpacket_t))
+                if not packet_index % (no_of_packets/20):
+                    printf("%d\n",packet_index)
+                storage.current_packet_id = packet_index
+                rpacket_init(packet, &storage, packet_index, virtual_packet_flag)
+                if (virtual_packet_flag > 0):
+                #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
+                    reabsorbed = montecarlo_one_packet(&storage, packet, -1)
+            #Now can do the propagation of the real packet
+                reabsorbed = montecarlo_one_packet(&storage, packet, 0)
+                storage.output_nus[packet_index] = rpacket_get_nu(packet)
+                if reabsorbed ==1 :
+                    storage.output_energies[packet_index] = -rpacket_get_energy(packet)
+                else:
+                    storage.output_energies[packet_index] = rpacket_get_energy(packet)
+                free(packet)
+    ELSE:
+        for packet_index in range(no_of_packets):
             packet = <rpacket_t *> malloc(sizeof(rpacket_t))
             if not packet_index % (no_of_packets/20):
                 printf("%d\n",packet_index)
             storage.current_packet_id = packet_index
             rpacket_init(packet, &storage, packet_index, virtual_packet_flag)
             if (virtual_packet_flag > 0):
-            #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
+                #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
                 reabsorbed = montecarlo_one_packet(&storage, packet, -1)
-        #Now can do the propagation of the real packet
+                #Now can do the propagation of the real packet
             reabsorbed = montecarlo_one_packet(&storage, packet, 0)
             storage.output_nus[packet_index] = rpacket_get_nu(packet)
             if reabsorbed ==1 :
@@ -250,6 +268,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
             else:
                 storage.output_energies[packet_index] = rpacket_get_energy(packet)
             free(packet)
+
 
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 

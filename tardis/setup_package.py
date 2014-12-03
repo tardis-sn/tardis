@@ -60,7 +60,7 @@ def hasfunction(cc, funcname, include=None, extra_postargs=None):
             os.dup2(oldstderr, sys.stderr.fileno())
         if devnull is not None:
             devnull.close()
-            #shutil.rmtree(tmpdir)
+            shutil.rmtree(tmpdir)
 
 
 def detect_openmp():
