@@ -8,11 +8,11 @@ cimport numpy as np
 from libc.stdlib cimport malloc, free
 from libc.stdio cimport printf
 
-from cython.parallel cimport parallel, prange, threadid
-cimport openmp
-
-cdef int num_threads
-openmp.omp_set_dynamic(1)
+IF OPENMP:
+    from cython.parallel cimport parallel, prange, threadid
+    cimport openmp
+    cdef int num_threads
+    openmp.omp_set_dynamic(1)
 
 
 np.import_array()

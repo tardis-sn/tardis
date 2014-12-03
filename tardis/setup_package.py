@@ -1,5 +1,5 @@
 #setting the right include
-from setuptools import Extension
+from Cython.Distutils import  Extension
 import numpy as np
 import os
 import sys
@@ -18,9 +18,9 @@ def get_extensions():
                       ['tardis/montecarlo.pyx', 'tardis/cmontecarlo.c'] +
                       randomkit_files,
                       include_dirs=['tardis/randomkit', np.get_include()],
-                      extra_compile_args=['-fopenmp'],
-                      extra_link_args=['-lgomp'],
-                      pyrex_compile_time_env = {'OPENMP': True}
+                      extra_compile_args= extra_compile_args,
+                      extra_link_args= extra_link_args,
+                      cython_compile_time_env = {'OPENMP': True},
                       )]
 
 ##OpenMP
