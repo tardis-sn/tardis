@@ -34,7 +34,7 @@ def hasfunction(cc, funcname, include=None, extra_postargs=None):
             fname = os.path.join(tmpdir, 'funcname.c')
             print(fname)
             f = open(fname, 'w')
-            f.write('#include <stdio.h>\n')
+            f.write('#include <omp.h>\n')
             f.write('#include <stdio.h>\n')
             f.write('int main(void) {\n')
             f.write('    %s();\n' % funcname)
