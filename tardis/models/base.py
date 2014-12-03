@@ -1,3 +1,5 @@
+import inspect
+
 from astropy import units as u
 
 from tardis.models.attribute import BaseAttribute, QuantityAttribute
@@ -31,3 +33,44 @@ class BaseModel(object):
     density = QuantityAttribute(u.g / u.cm**3)
 
 
+    def __getattr__(self, item):
+        if item in self.model_subattributes:
+            return self.model_subattributes[item]()
+        else:
+            super(BaseModel, self).__getattribute__(item)
+
+    def __init__(self):
+        self.model_attributes = []
+        self.subattribute_getters = {}
+
+    def _register_attribute(self, name, value):
+        """
+        Registering an attribute to the model
+
+        Parameters
+        ----------
+
+        name: ~str
+            name of the attribute
+
+        value:
+            value of the attribute
+
+
+        Examples
+        --------
+
+            `self._register_attribute('radius', radius)
+        """
+
+        if name not in self.all_model_attributes:
+            raise AttributeError('{0} not a valid attribute (allowed are {1})'
+                                 .format(name, ', '.join(
+                self.all_model_attributes)))
+
+        setattr(self, name, value)
+
+        attribute_descriptor = getattr(self.__class__, name)
+        self.model_subattributes.update(getattr(attribute_descriptor,
+                                                '_subattribute_getter', {}))
+        self.model_attributes.append(name)

@@ -1,6 +1,9 @@
 import numpy as np
+
 from astropy import units as u
-from tardis.models.attribute import QuantityAttribute
+from tardis.models.attribute import (QuantityAttribute,
+                                     RadialGeometryQuantityAttribute,
+                                     Radius1DAttribute)
 
 from tardis.models.base import BaseModel
 
@@ -10,21 +13,12 @@ class RadialModel1D(BaseModel):
     Radial Model 1D
     """
 
-    radius = QuantityAttribute(default_unit=u.cm)
+    radius = RadialGeometryQuantityAttribute(u.cm, 'r')
 
     def __init__(self, radius, **kwargs):
-        self.radius = radius
+        super(RadialModel1D, self).__init__()
+        self._register_attribute('radius', radius)
 
-
-
-    @property
-    def volume(self):
-        volume_0 = (4 * np.pi / 3) * self.radius[0]**3
-        volume = np.hstack(((volume_0.value),
-                            (4 * np.pi / 3) * np.diff(self.radius.value**3)))
-        volume = u.Quantity(volume, volume_0.unit)
-
-        return volume
 
     @property
     def mass(self):
