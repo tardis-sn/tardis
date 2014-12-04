@@ -9,6 +9,8 @@ from astropy import units as u
 import os
 
 
+from tardis import run_tardis
+
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
 
@@ -31,9 +33,7 @@ class TestSimpleRun():
         self.config_yaml = yaml.load(open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
         self.config_yaml['atom_data'] = self.atom_data_filename
 
-        self.config = Configuration.from_config_dict(self.config_yaml)
-        self.model = model.Radial1DModel(self.config)
-        simulation.run_radial1d(self.model)
+        self.model = run_tardis(self.config_yaml)
 
 
     def test_spectrum(self):
