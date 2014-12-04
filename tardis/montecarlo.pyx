@@ -224,33 +224,11 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
-    cdef int_type_t reabsorbed = 0
-    cdef int_type_t no_of_packets = storage.no_of_packets
-    cdef int_type_t packet_index = 0
-    cdef int_type_t num_threads
 
-
-    IF OPENMP:
-        with nogil, parallel():
-            num_threads = openmp.omp_get_num_threads()
-            for packet_index in prange(no_of_packets):
-                packet = <rpacket_t *> malloc(sizeof(rpacket_t))
-                if not packet_index % (no_of_packets/20):
-                    printf("%d\n",packet_index)
-                storage.current_packet_id = packet_index
-                rpacket_init(packet, &storage, packet_index, virtual_packet_flag)
-                if (virtual_packet_flag > 0):
-                #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
-                    reabsorbed = montecarlo_one_packet(&storage, packet, -1)
-            #Now can do the propagation of the real packet
-                reabsorbed = montecarlo_one_packet(&storage, packet, 0)
-                storage.output_nus[packet_index] = rpacket_get_nu(packet)
-                if reabsorbed ==1 :
-                    storage.output_energies[packet_index] = -rpacket_get_energy(packet)
-                else:
-                    storage.output_energies[packet_index] = rpacket_get_energy(packet)
-                free(packet)
-    ELSE:
+    def start_mc_none_parallel():
+        cdef int_type_t reabsorbed = 0
+        cdef int_type_t no_of_packets = storage.no_of_packets
+        cdef int_type_t packet_index = 0
         for packet_index in range(no_of_packets):
             packet = <rpacket_t *> malloc(sizeof(rpacket_t))
             if not packet_index % (no_of_packets/20):
@@ -269,6 +247,41 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                 storage.output_energies[packet_index] = rpacket_get_energy(packet)
             free(packet)
 
+    def start_mc_parallel():
+        IF OPENMP:
+            cdef int_type_t reabsorbed = 0
+            cdef int_type_t no_of_packets = storage.no_of_packets
+            cdef int_type_t packet_index = 0
+            cdef int_type_t num_threads
+            with nogil, parallel():
+                num_threads = openmp.omp_get_num_threads()
+                for packet_index in prange(no_of_packets):
+                    packet = <rpacket_t *> malloc(sizeof(rpacket_t))
+                    if not packet_index % (no_of_packets/20):
+                        printf("%d\n",packet_index)
+                    storage.current_packet_id = packet_index
+                    rpacket_init(packet, &storage, packet_index, virtual_packet_flag)
+                    if (virtual_packet_flag > 0):
+                        #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
+                        reabsorbed = montecarlo_one_packet(&storage, packet, -1)
+                        #Now can do the propagation of the real packet
+                    reabsorbed = montecarlo_one_packet(&storage, packet, 0)
+                    storage.output_nus[packet_index] = rpacket_get_nu(packet)
+                    if reabsorbed ==1 :
+                        storage.output_energies[packet_index] = -rpacket_get_energy(packet)
+                    else:
+                        storage.output_energies[packet_index] = rpacket_get_energy(packet)
+                    free(packet)
+        ELSE:
+            printf('CRITICAL - Tardis was build without openmp support. Fallback to none parallel run')
+            start_mc_none_parallel()
+
+
+
+    if model.tardis_config.montecarlo.enable_openmp:
+        start_mc_parallel()
+    else:
+        start_mc_none_parallel()
 
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
