@@ -1,6 +1,5 @@
 #setting the right include
 from Cython.Distutils import  Extension
-from Cython.Distutils import
 import numpy as np
 import os
 import sys
