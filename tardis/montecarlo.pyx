@@ -17,14 +17,27 @@ ctypedef np.int64_t int_type_t
 
 cdef extern from "cmontecarlo.h":
     ctypedef enum rpacket_status_t:
-        TARDIS_PACKET_STATUS_IN_PROCESS = 0
-        TARDIS_PACKET_STATUS_EMITTED = 1
-        TARDIS_PACKET_STATUS_REABSORBED = 2
+        TARDIS_PACKET_STATUS_IN_PROCESS = 1 << 3
+        TARDIS_PACKET_STATUS_EMITTED = 1 << 2
+        TARDIS_PACKET_STATUS_REABSORBED = 1 << 1
+        TARDIS_PACKET_STATUS_DISABLED = 1 << 0
+
+    ctypedef enum packet_status_t:
+        TARDIS_R_PACKET_IN_PROCESS = 1 << 6 | 1 << 3
+        TARDIS_R_PACKET_STATUS_EMITTED = 1 << 6 | 1 << 2
+        TARDIS_R_PACKET_STATUS_REABSORBED = 1 << 6 | 1 << 1
+        TARDIS_R_PACKET_STATUS_DISABLED = 1 << 6 | 1 << 0
+        TARDIS_K_PACKET_IN_PROCESS = 1 << 5 | 1 << 3
+        TARDIS_K_PACKET_STATUS_DISABLED = 1 << 5 | 1 << 0
+        TARDIS_I_PACKET_IN_PROCESS = 1 << 4 | 1 << 3
+        TARDIS_I_PACKET_STATUS_DISABLED = 1 << 4 | 1 << 0
 
     ctypedef struct rpacket_t:
         double nu
         double mu
         double energy
+        double comov_nu
+        double comov_energy
         double r
         double tau_event
         double nu_line
@@ -39,6 +52,24 @@ cdef extern from "cmontecarlo.h":
         double d_electron
         double d_boundary
         rpacket_status_t next_shell_id
+        packet_status_t status
+        double chi_bf
+        double chi_th
+        double chi_ff
+        double chi_cont
+        double d_bf
+        double d_th
+        double d_ff
+        double d_cont
+        double last_bf_edge
+        double *chi_bf_tmp_partial
+        int_type_t chi_bf_tmp_partial_last_shell_id
+        double chi_bf_tmp_partial_last_nu
+        double Cr_fb_max
+        double Cr_ff_max
+        double Cr_bb_max
+        double Cr_ion_max
+
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -85,11 +116,79 @@ cdef extern from "cmontecarlo.h":
         int_type_t reflective_inner_boundary
         int_type_t current_packet_id
 
+        int_type_t *chi_bf_index_to_level
+        int_type_t chi_bf_index_to_level_nrow
+        int_type_t chi_bf_index_to_level_ncolum
+
+        double *bf_level_population
+        int_type_t bf_level_population_nrow
+        int_type_t bf_level_population_ncolum
+
+        double *bf_lpopulation_ratio
+        int_type_t bf_lpopulation_ratio_nrow
+        int_type_t bf_lpopulation_ratio_ncolum
+
+        double *bf_lpopulation_ratio_nlte_lte
+        int_type_t bf_lpopulation_ratio_nlte_lte_nrow
+        int_type_t bf_lpopulation_ratio_nlte_lte_ncolum
+
+        double *bf_cross_sections
+
+        double *bound_free_th_frequency
+
+        double *t_electrons
+        double *chi_bf_tmp_partial
+
+        double *Cr_fb_ijk_all
+        int_type_t Cr_fb_ijk_all_nrow
+        int_type_t Cr_fb_ijk_all_ncolum
+
+        double *Cr_fb_ijk_cumsum_all
+        int_type_t Cr_fb_ijk_cumsum_all_nrow
+        int_type_t Cr_fb_ijk_cumsum_all_ncolum
+        int_type_t *Cr_fb_ijk_index
+
+        double *Cr_fb_ijk_th_frequency
+        int_type_t Cr_fb_ijk_th_frequency_nrow
+        int_type_t Cr_fb_ijk_th_frequency_ncolum
+
+        double *Cr_ff_jk_all
+        int_type_t Cr_ff_jk_all_nrow
+        int_type_t Cr_ff_jk_all_ncolum
+
+        double *Cr_ff_jk_cumsum_all
+        int_type_t Cr_ff_jk_cumsum_all_nrow
+        int_type_t Cr_ff_jk_cumsum_all_ncolum
+        int_type_t *Cr_ff_jk_index
+
+        double *Cr_bb_ijk_all
+        int_type_t Cr_bb_ijk_all_nrow
+        int_type_t Cr_bb_ijk_all_ncolum
+
+        double *Cr_bb_ijk_cumsum_all
+        int_type_t Cr_bb_ijk_cumsum_all_nrow
+        int_type_t Cr_bb_ijk_cumsum_all_ncolum
+
+        int_type_t *Cr_bb_ijk_index
+
+        double *Cr_ion_ijk_all
+        int_type_t Cr_ion_ijk_all_nrow
+        int_type_t Cr_ion_ijk_all_ncolum
+
+        double *Cr_ion_ijk_cumsum_all
+        int_type_t Cr_ion_ijk_cumsum_all_nrow
+        int_type_t Cr_ion_ijk_cumsum_all_ncolum
+
+        int_type_t *Cr_ion_ijk_index
+
+    #double kB
+
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
     int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
     double rpacket_get_nu(rpacket_t *packet)
     double rpacket_get_energy(rpacket_t *packet)
     void initialize_random_kit(unsigned long seed)
+
 
 
 
@@ -121,6 +220,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                     int_type_t log_packets,
                     int_type_t do_scatter
     """
+    print("Start montecarlo_radial1d")
     cdef storage_model_t storage
     cdef rpacket_t packet
     initialize_random_kit(model.tardis_config.montecarlo.seed)
@@ -216,11 +316,19 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
     storage.current_packet_id = -1
+
+
+    cdef np.ndarray[double, ndim=1, mode='c'] chi_bf_tmp_partial = np.zeros(2 * storage.bf_level_population_nrow, dtype=np.double)
+    storage.chi_bf_tmp_partial = <double *> chi_bf_tmp_partial.data
+
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     cdef int_type_t reabsorbed = 0
+
     for packet_index in range(storage.no_of_packets):
+        if not packet_index % (storage.no_of_packets/20):
+            print(packet_index)
         storage.current_packet_id = packet_index
         rpacket_init(&packet, &storage, packet_index, virtual_packet_flag)
         if (virtual_packet_flag > 0):
@@ -229,6 +337,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
         #Now can do the propagation of the real packet
         reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
         storage.output_nus[packet_index] = rpacket_get_nu(&packet)
-        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
+        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(
+            &packet)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 

@@ -228,8 +228,8 @@ def read_collision_data(fname):
 def read_ion_cx_data(fname):
     try:
         h5_file = h5py.File(fname, 'r')
-        ion_cx_th_data = h5_file['ionization_cx_threshold']
-        ion_cx_sp_data = h5_file['ionization_cx_support']
+        ion_cx_th_data = h5_file['ion_cx_data']
+        ion_cx_sp_data = h5_file['ion_cx_sp_data']
         return ion_cx_th_data, ion_cx_sp_data
     except IOError, err:
         print(err.errno)
@@ -339,7 +339,7 @@ class AtomData(object):
         else:
             synpp_refs = None
 
-        if 'ion_cx_data' in h5_datasets and 'ion_cx_data' in h5_datasets:
+        if 'ion_cx_data' in h5_datasets:
             ion_cx_data = read_ion_cx_data(fname)
         else:
             ion_cx_data = None
@@ -349,15 +349,10 @@ class AtomData(object):
                         collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs,
                         ion_cx_data=ion_cx_data)
 
-        with h5py.File(fname, 'r') as h5_file:
-            atom_data.uuid1 = h5_file.attrs['uuid1']
-            atom_data.md5 = h5_file.attrs['md5']
-            atom_data.version = h5_file.attrs.get('database_version', None)
-
-            if atom_data.version is not None:
-                atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
-
-            logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
+        #with h5py.File(fname) as h5_file:
+        #    atom_data.uuid1 = h5_file.attrs['uuid1']
+        #    atom_data.md5 = h5_file.attrs['md5']
+        #    logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
 
         return atom_data
 
@@ -377,10 +372,11 @@ class AtomData(object):
             self.has_ion_cx_data = True
             #TODO:Farm a panda here
             self.ion_cx_th_data = DataFrame(np.array(ion_cx_data[0]))
-            self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_id'], inplace=True)
+            #self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_number'], inplace=True)
 
             self.ion_cx_sp_data = DataFrame(np.array(ion_cx_data[1]))
-            self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_id'])
+            self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_number'])
+#            self.ion_cx_sp_data['nu'] = units.Unit('angstrom').to('Hz', self.ion_cx_sp_data['wavelength'], units.spectral())
         else:
             self.has_ion_cx_data = False
 
@@ -465,32 +461,35 @@ class AtomData(object):
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_species = nlte_species
-        self._levels = self._levels.reset_index()
+
+        self.levels_data = self._levels.copy()
+
+        self._levels = self._levels[self._levels['atomic_number'].isin(self.selected_atomic_numbers)]
+        if max_ion_number is not None:
+            self._levels = self._levels[self._levels['ion_number'] <= max_ion_number]
+        self._levels = self._levels.set_index(['atomic_number', 'ion_number', 'level_number'])
         self.levels = self._levels.copy()
 
-        self.levels = self.levels[self.levels['atomic_number'].isin(self.selected_atomic_numbers)]
-
-        if max_ion_number is not None:
-            self.levels = self.levels[self.levels['ion_number'] <= max_ion_number]
-
-        self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
-
-
-        self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
+        self.levels_index = pd.Series(np.arange(len(self._levels), dtype=int), index=self._levels.index)
         #cutting levels_lines
-        self.lines = self._lines.copy()
-        self.lines = self.lines[self.lines['atomic_number'].isin(self.selected_atomic_numbers)]
+        self._lines = self._lines[self._lines['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
-            self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
-
-        self.lines.sort('wavelength', inplace=True)
+            self._lines = self._lines[self._lines['ion_number'] <= max_ion_number]
 
 
-    
-        self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
+        #cut self.ionization_data
+        self.ionization_data_reduced = self.ionization_data[self.ionization_data.index.get_level_values('atomic_number').isin(self.selected_atomic_numbers)]
+        if max_ion_number is not None:
+            self.ionization_data_reduced = self.ionization_data_reduced[self.ionization_data.index.get_level_values('ion_number') <= max_ion_number +1 ]
 
-        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_lower']])
+        self._lines.sort('wavelength', inplace=True)
+
+        self.lines = self._lines.copy()
+
+        self.lines_index = pd.Series(np.arange(len(self._lines), dtype=int), index=self._lines.index)
+
+        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self._lines['atomic_number'], self._lines['ion_number'],
+                                                               self._lines['level_number_lower']])
 
         self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values.astype(np.int64)
 
@@ -554,6 +553,15 @@ class AtomData(object):
                     np.int64)
 
         self.nlte_data = NLTEData(self, nlte_species)
+
+        if self.has_ion_cx_data:
+            self.ion_cx_th = self.ion_cx_th_data[
+                self.ion_cx_th_data['atomic_number'].isin(self.selected_atomic_numbers).values]
+            if max_ion_number is not None:
+                self.ion_cx_th = self.ion_cx_th[(self.ion_cx_th['ion_number'] <= max_ion_number).values]
+            self.ion_cx_th = self.ion_cx_th.set_index(['atomic_number', 'ion_number', 'level_number'])
+
+        #self.ion_cx_th_index = pd.Series(np.arange(len(self.ion_cx_th), dtype=int), index=self.ion_cx_the.index)
 
 
     def __repr__(self):
