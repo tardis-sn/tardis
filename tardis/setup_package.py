@@ -37,7 +37,6 @@ def hasfunction(cc, funcname, include=None, extra_postargs=None):
     try:
         try:
             fname = os.path.join(tmpdir, 'funcname.c')
-            print(fname)
             f = open(fname, 'w')
             f.write('#include <omp.h>\n')
             f.write('#include <stdio.h>\n')
