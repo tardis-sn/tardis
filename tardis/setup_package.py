@@ -88,9 +88,6 @@ def detect_openmp():
     return hasopenmp
 
 
-<<<<<<< HEAD
-has_openmp = detect_openmp()
-=======
 def _get_compile_link_args():
     no_openmp = get_distutils_build_option('no_openmp')
     has_openmp = detect_openmp()
@@ -103,4 +100,3 @@ def _get_compile_link_args():
         extra_link_args = []
         compile_openmp = False
     return extra_compile_args, extra_link_args, compile_openmp
->>>>>>> added setup_package.py flags to work with the openmp stuff
