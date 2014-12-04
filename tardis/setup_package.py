@@ -1,11 +1,14 @@
 #setting the right include
 from Cython.Distutils import  Extension
+from Cython.Distutils import
 import numpy as np
 import os
 import sys
 import tempfile
 import shutil
 from distutils.ccompiler import new_compiler
+
+import subprocess
 
 from astropy_helpers.setup_helpers import get_distutils_build_option
 
@@ -50,6 +53,15 @@ def hasfunction(cc, funcname, include=None, extra_postargs=None):
             # from the compiler.
             # This will have to be changed if we ever have to check
             # for a function on Windows.
+            if 'CC' in os.environ:
+                compiler = os.environ['CC']
+                command = compiler + ' ' + fname +' -fopenmp' + ' -lgomp'
+                process = subprocess.Popen(command,shell=True, stdout=subprocess.PIPE)
+                process.wait()
+                if process.returncode == 0:
+                    return True
+                else:
+                    return False
             devnull = open('/dev/null', 'w')
             oldstderr = os.dup(sys.stderr.fileno())
             os.dup2(devnull.fileno(), sys.stderr.fileno())
