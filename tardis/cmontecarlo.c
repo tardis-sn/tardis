@@ -259,6 +259,7 @@ INLINE void increment_j_blue_estimator(rpacket_t *packet, storage_model_t *stora
   doppler_factor = 1.0 - mu_interaction * r_interaction * 
     storage->inverse_time_explosion * INVERSE_C;
   comov_energy = rpacket_get_energy(packet) * doppler_factor;
+  #pragma omp atomic
   storage->line_lists_j_blues[j_blue_idx] += comov_energy / rpacket_get_nu(packet);
 }
 
