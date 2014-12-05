@@ -61,7 +61,7 @@ reverse_binary_search (double *x, double x_insert,
 	    }
 	  imid = (imin + imax) / 2;
 	}
-      if (imax - imid == 2 && x_insert < x[imin + 1])
+      if (imax - imin == 2 && x_insert < x[imin + 1])
 	{
 	  *result = imin + 1;
 	}
