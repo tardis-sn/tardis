@@ -12,7 +12,7 @@ inspect the model properties.
 
 
 Runing in interactive Python session
-------------------------------
+------------------------------------
 
 With iPython installed launch a session using
 
@@ -25,10 +25,9 @@ and then run your calculation, which is based on your "my_config.yml" file
 .. code-block:: python
 
     from tardis import run_tardis
-    import yaml
 
-    configuration_dict = yaml.load(open('myconfig.yml')
-    model = run_tardis(configuration_dict)
+
+    model = run_tardis('myconfig.yml')
 
 
 If all goes well, the simulation should run as usual. Afterwards, the

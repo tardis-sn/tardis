@@ -772,7 +772,7 @@ class Configuration(ConfigurationNameSpace):
     @classmethod
     def from_yaml(cls, fname, test_parser=False):
         try:
-            yaml_dict = yaml.load(file(fname))
+            yaml_dict = yaml.load(open(fname))
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e
