@@ -101,6 +101,7 @@ montecarlo:
     seed: 23111963171620
     no_of_packets : 2.e+4
     iterations: 100
+    enable_openmp: True
     convergence_criteria:
         type: specific
         damping_constant: 0.5

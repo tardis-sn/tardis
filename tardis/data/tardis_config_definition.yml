@@ -306,6 +306,12 @@ montecarlo:
         mandatory: False
         help: >
             experimental feature to enable a reflective boundary.
+
+    enable_openmp:
+        property_type: bool
+        default: False
+        mandatory: False
+        help: Enabel multicore support, if Tardis is build with openmp support.
     
     inner_boundary_albedo:
         property_type: float
