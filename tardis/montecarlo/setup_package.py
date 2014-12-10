@@ -14,3 +14,7 @@ def get_extensions():
                       include_dirs=['tardis/montecarlo/src',
                                     'tardis/montecarlo/src/randomkit',
                                     np.get_include()])]
+def get_package_data():
+    return {'tardis.montecarlo.montecarlo': ['src/*.c', 'src/*.h',
+                                             'src/randomkit/*.c',
+                                             'src/randomkit/*.h']}
