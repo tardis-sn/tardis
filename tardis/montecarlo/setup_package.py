@@ -8,13 +8,9 @@ randomkit_files = ['rk_isaac.c', 'rk_mt.c', 'rk_primitive.c','rk_sobol.c']
 def get_extensions():
     return [Extension('tardis.montecarlo.montecarlo',
                       ['tardis/montecarlo/montecarlo.pyx',
-                       'tardis/montecarlo/src/cmontecarlo.c'] +
-                      [os.path.join('tardis/montecarlo/src/randomkit', fname)
+                       'src/cmontecarlo.c'] +
+                      [os.path.join('src/randomkit', fname)
                        for fname in randomkit_files],
                       include_dirs=['tardis/montecarlo/src',
                                     'tardis/montecarlo/src/randomkit',
                                     np.get_include()])]
-def get_package_data():
-    return {'tardis.montecarlo.montecarlo': ['src/*.c', 'src/*.h',
-                                             'src/randomkit/*.c',
-                                             'src/randomkit/*.h']}
