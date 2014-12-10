@@ -32,10 +32,8 @@ class RadialHomologous1D(Radial1D):
     
     """
 
-    def __init__(self, velocity, temperature, density, abundances, t_0, t_model):
+    def __init__(self, velocity, t):
         self.velocity = velocity
-        self.temperature = temperature
-        self.density
 
 
 

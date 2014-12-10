@@ -73,4 +73,5 @@ class BaseModel(object):
         attribute_descriptor = getattr(self.__class__, name)
         self._subattribute_getters.update(getattr(attribute_descriptor,
                                                 '_subattribute_getters', {}))
+
         self.model_attributes.append(name)

@@ -6,6 +6,20 @@ class BaseAttribute(object):
     def __init__(self):
         self._subattribute_getters={}
 
+    def __get__(self, instance, owner):
+        if instance is None:
+            return self
+        else:
+            if hasattr(self, '_value'):
+                return self._value
+            else:
+                raise AttributeError('{0} object does not provide the '
+                                     'requested attribute'.format(
+                    owner.__name__))
+
+
+
+
 
 class QuantityAttribute(BaseAttribute):
     """
@@ -22,11 +36,6 @@ class QuantityAttribute(BaseAttribute):
         super(QuantityAttribute, self).__init__()
         self.default_unit = default_unit
 
-    def __get__(self, instance, owner):
-        if instance is None:
-            return self
-        else:
-            return self._value
 
     def __set__(self, instance, value):
         if self.default_unit is not None:
@@ -55,10 +64,12 @@ class RadialGeometryQuantityAttribute(QuantityAttribute):
 
 class Radius1DAttribute(RadialGeometryQuantityAttribute):
 
-    def __init__(self, default_unit, prefix):
+    def __init__(self, default_unit=u.cm, prefix='r'):
         super(Radius1DAttribute, self).__init__(default_unit, prefix)
 
         self._subattribute_getters.update({'volume': self._get_volume})
+
+        self.default_name = 'radius'
 
     def _get_volume(self):
         volume_0 = (4 * np.pi / 3) * self._value[0]**3
@@ -67,3 +78,23 @@ class Radius1DAttribute(RadialGeometryQuantityAttribute):
         volume = u.Quantity(volume, volume_0.unit)
 
         return volume
+
+class HomologousVelocity1D(RadialGeometryQuantityAttribute):
+    def __init__(self, default_unit=u.cm / u.s, prefix='v'):
+        super(HomologousVelocity1D, self).__init__(default_unit, prefix)
+
+
+    def __set__(self, instance, value):
+        super(HomologousVelocity1D, self).__set__(instance, value)
+
+        try:
+            time = instance.time
+        except AttributeError:
+            time = None
+
+        if hasattr(instance, 'radius') and hasattr(object, 'time'):
+                instance.radius = self._value * instance.time
+
+
+
+
