@@ -61,13 +61,20 @@ def pytest_report_header(config):
         sys.float_info)
 
     import numpy
-    s += "Numpy: {0}\n".format(numpy.__version__)
+    s += "numpy: {0}\n".format(numpy.__version__)
 
     try:
         import scipy
-        s += "Scipy: {0}\n".format(scipy.__version__)
+        s += "scipy: {0}\n".format(scipy.__version__)
     except:
-        s += "Scipy: not available\n"
+        s += "scipy: not available\n"
+
+    try:
+        import pandas
+        s += "pandas: {0}\n".format(pandas.__version__)
+    except:
+        s += "pandas: not available\n"
+
 
     try:
         import astropy
@@ -102,9 +109,9 @@ def pytest_report_header(config):
 
     try:
         import matplotlib
-        s += "Matplotlib: {0}\n".format(matplotlib.__version__)
+        s += "matplotlib: {0}\n".format(matplotlib.__version__)
     except:
-        s += "Matplotlib: not available\n"
+        s += "matplotlib: not available\n"
 
     try:
         import IPython
