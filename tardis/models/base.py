@@ -39,9 +39,13 @@ class BaseModel(object):
         else:
             return super(BaseModel, self).__getattribute__(item)
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         self.model_attributes = []
         self._subattribute_getters = {}
+
+        for key, value in kwargs.items():
+            self._register_attribute(key, value)
+
 
     def _register_attribute(self, name, value):
         """

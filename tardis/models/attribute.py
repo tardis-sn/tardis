@@ -38,6 +38,9 @@ class QuantityAttribute(BaseAttribute):
 
 
     def __set__(self, instance, value):
+        self._set_quantity(value)
+
+    def _set_quantity(self, value):
         if self.default_unit is not None:
             self._value = u.Quantity(value, self.default_unit)
         else:
@@ -69,7 +72,6 @@ class Radius1DAttribute(RadialGeometryQuantityAttribute):
 
         self._subattribute_getters.update({'volume': self._get_volume})
 
-        self.default_name = 'radius'
 
     def _get_volume(self):
         volume_0 = (4 * np.pi / 3) * self._value[0]**3
@@ -90,11 +92,21 @@ class HomologousVelocity1D(RadialGeometryQuantityAttribute):
         try:
             time = instance.time
         except AttributeError:
-            time = None
+            pass
+        else:
+            instance.__class__.radius._set_quantity(self._value * time)
 
-        if hasattr(instance, 'radius') and hasattr(object, 'time'):
-                instance.radius = self._value * instance.time
+class HomologousTime(QuantityAttribute):
+    def __set__(self, instance, value):
+        super(HomologousTime, self).__set__(instance, value)
+
+        try:
+            velocity = instance.velocity
+        except AttributeError:
+            pass
+        else:
+            instance.__class__.radius._set_quantity(velocity * self._value)
 
 
-
-
+class ModelTime(object):
+    pass
