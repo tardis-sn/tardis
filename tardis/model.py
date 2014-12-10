@@ -10,7 +10,7 @@ from astropy import constants, units as u
 import scipy.special
 
 from tardis import packet_source, plasma_array
-import montecarlo
+from tardis.montecarlo import montecarlo
 from util import intensity_black_body
 
 
