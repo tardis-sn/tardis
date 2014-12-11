@@ -15,7 +15,7 @@ np.import_array()
 
 ctypedef np.int64_t int_type_t
 
-cdef extern from "cmontecarlo.h":
+cdef extern from "src/cmontecarlo.h":
     ctypedef enum rpacket_status_t:
         TARDIS_PACKET_STATUS_IN_PROCESS = 0
         TARDIS_PACKET_STATUS_EMITTED = 1
