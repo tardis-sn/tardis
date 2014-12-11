@@ -18,21 +18,31 @@ def time():
     return 10 * u.day
 
 @pytest.fixture
+def time0():
+    return 2 * u.s
+
+@pytest.fixture
+def density0():
+    return np.linspace(20, 1, 20) * u.g / u.cm**3
+
+@pytest.fixture
 def velocity():
     return np.linspace(10000, 30000, 20) * u.km / u.s
+
+@pytest.fixture
+def simple_rh_model(velocity, time, time0, density0):
+    return RadialHomologous1D(velocity, time, time0, density0=density0)
+
+
 def test_simple_radial_model1d_1(radius):
 
     model = Radial1D(radius)
 
     assert model.radius.unit == u.cm
-    #assert model.density.unit == u.g / u.cm**3
 
 
-#    nptesting.assert_allclose(test_model.mass[0],  2.488679615529453e+26 * u.g)
-
-
-def test_simple_homologous_model(velocity, time):
-    model = RadialHomologous1D(velocity, time)
+def test_simple_homologous_model(velocity, time, time0):
+    model = RadialHomologous1D(velocity, time, time0)
 
     assert model.radius.unit == u.cm
     assert model.velocity.unit == u.cm / u.s
@@ -41,3 +51,13 @@ def test_simple_homologous_model(velocity, time):
                               4. / 3. * np.pi * model.r_inner[0]**3)
 
 
+def test_len_check():
+    with pytest.raises(AttributeError):
+        model = RadialHomologous1D(np.arange(1, 10) * u.km/u.s, time=10*u.day,
+                               density0=np.arange(1, 20), time0=5)
+
+
+def test_homologous_density(simple_rh_model):
+    model = simple_rh_model
+
+    assert model.density[0] == (model.time0/model.time)**3 * model.density0[0]

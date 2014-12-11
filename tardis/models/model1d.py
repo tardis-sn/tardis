@@ -1,10 +1,8 @@
 import numpy as np
 
 from astropy import units as u
-from tardis.models.attribute import (QuantityAttribute,
-                                     RadialGeometryQuantityAttribute,
-                                     Radius1DAttribute, HomologousVelocity1D,
-                                     HomologousTime)
+
+from tardis.models import attribute
 
 from tardis.models.base import BaseModel
 
@@ -14,11 +12,11 @@ class Radial1D(BaseModel):
     Radial Model 1D
     """
 
-    radius = Radius1DAttribute(u.cm, 'r')
+    radius = attribute.Radius1DAttribute(u.cm, 'r')
 
     def __init__(self, radius, **kwargs):
         super(Radial1D, self).__init__(**kwargs)
-        self._register_attribute('radius', radius)
+        self.radius = radius
 
 
 
@@ -35,15 +33,24 @@ class RadialHomologous1D(BaseModel):
     time: ~astropy.units.Quantity
     """
 
-    radius = Radius1DAttribute(u.cm, 'r')
-    velocity = HomologousVelocity1D(u.cm / u.s, 'v')
-    time = HomologousTime(u.s)
+    radius = attribute.Radius1DAttribute(u.cm, 'r')
+    velocity = attribute.HomologousVelocity1D(u.cm / u.s, 'v')
+    time = attribute.HomologousTime()
+    time0 = attribute.HomologousTime0()
+    density0 = attribute.HomologousDensity0()
 
-    def __init__(self, velocity, time, **kwargs):
+    def __init__(self, velocity, time, time0, **kwargs):
         super(RadialHomologous1D, self).__init__(**kwargs)
-        self._register_attribute('velocity', velocity)
-        self._register_attribute('time', time)
-        self._register_attribute('radius', self.radius)
+
+        self.velocity = velocity
+        self.time = time
+        self.time0 = time0
+
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+
+
 
 
 
