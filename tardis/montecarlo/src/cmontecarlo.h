@@ -7,7 +7,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include "randomkit.h"
+#include "randomkit/randomkit.h"
 
 #ifdef __clang__
 #define INLINE extern inline
