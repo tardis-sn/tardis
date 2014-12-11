@@ -6,7 +6,7 @@ import numpy.testing as nptesting
 
 from astropy import units as u
 
-from tardis.models.model1d import Radial1D, RadialHomologous1D
+from tardis.models.model1d import Radial1D, HomologousRadial1D
 
 
 @pytest.fixture
@@ -31,7 +31,7 @@ def velocity():
 
 @pytest.fixture
 def simple_rh_model(velocity, time, time0, density0):
-    return RadialHomologous1D(velocity, time, time0, density0=density0)
+    return HomologousRadial1D(velocity, time, time0, density0)
 
 
 def test_simple_radial_model1d_1(radius):
@@ -42,7 +42,7 @@ def test_simple_radial_model1d_1(radius):
 
 
 def test_simple_homologous_model(velocity, time, time0):
-    model = RadialHomologous1D(velocity, time, time0)
+    model = HomologousRadial1D(velocity, time, time0)
 
     assert model.radius.unit == u.cm
     assert model.velocity.unit == u.cm / u.s
@@ -53,11 +53,13 @@ def test_simple_homologous_model(velocity, time, time0):
 
 def test_len_check():
     with pytest.raises(AttributeError):
-        model = RadialHomologous1D(np.arange(1, 10) * u.km/u.s, time=10*u.day,
+        model = HomologousRadial1D(np.arange(1, 10) * u.km/u.s, time=10*u.day,
                                density0=np.arange(1, 20), time0=5)
 
 
 def test_homologous_density(simple_rh_model):
     model = simple_rh_model
 
-    assert model.density[0] == (model.time0/model.time)**3 * model.density0[0]
+    nptesting.assert_allclose(model.density, (model.time0/model.time)**3
+                              * model.density0)
+    nptesting.assert_allclose(model.mass, model.density * model.volume)

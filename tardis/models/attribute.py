@@ -165,10 +165,14 @@ class HomologousDensity0(QuantityAttribute):
     def __init__(self, default_unit=u.g / u.cm**3):
         super(HomologousDensity0, self).__init__(default_unit)
 
-        self._subattribute_getters.update({'density': self._get_scaled_density})
+        self._subattribute_getters.update({'density': self._get_scaled_density,
+                                           'mass': self._get_mass})
 
     def _get_scaled_density(self, instance):
         return (instance.time0 / instance.time)**3 * instance.__dict__[self.label]
+
+    def _get_mass(self, instance):
+        return instance.volume * instance.density
 
 
 

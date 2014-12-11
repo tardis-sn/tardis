@@ -22,7 +22,7 @@ class Radial1D(BaseModel):
 
     
 
-class RadialHomologous1D(BaseModel):
+class HomologousRadial1D(BaseModel):
     """
     Radial homologous 1D model.
 
@@ -39,12 +39,13 @@ class RadialHomologous1D(BaseModel):
     time0 = attribute.HomologousTime0()
     density0 = attribute.HomologousDensity0()
 
-    def __init__(self, velocity, time, time0, **kwargs):
-        super(RadialHomologous1D, self).__init__(**kwargs)
+    def __init__(self, velocity, time, time0, density0, **kwargs):
+        super(HomologousRadial1D, self).__init__(**kwargs)
 
         self.velocity = velocity
         self.time = time
         self.time0 = time0
+        self.density0 = density0
 
         for key, value in kwargs.items():
             setattr(self, key, value)
