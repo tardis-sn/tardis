@@ -7,13 +7,14 @@ from glob import glob
 
 
 def get_extensions():
-    sources = ['tardis/montecarlo/tests/test_packets.pyx']
+    sources = ['tardis/montecarlo/tests/packet_test_wrapper.pyx']
     sources += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src', '*.c'))]
+        os.path.join(os.path.dirname(__file__), '..', 'src', '*.c'))]
     sources += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.c'))]
-
-    return [Extension('tardis.montecarlo.tests.test_packets', sources,
+        os.path.join(os.path.dirname(__file__), '..', 'src',
+                     'randomkit', '*.c'))]
+    print sources
+    return [Extension('tardis.montecarlo.tests.packet_test_wrapper', sources,
                       include_dirs=['tardis/montecarlo/src',
                                     'tardis/montecarlo/src/randomkit',
                                     np.get_include()])]
