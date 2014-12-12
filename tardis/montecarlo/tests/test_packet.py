@@ -23,7 +23,10 @@ def rpacket():
      'virtual_packet_flag': -1}
     return rpacket
 
-
 def test_set_get_nu(rpacket):
-    packet_test_wrapper.rpacket_get_nu_w(rpacket)
+    pass
+#    packet_test_wrapper.rpacket_set_nu_w(rpacket, 100.)
+#    gotten_nu = packet_test_wrapper.rpacket_get_nu_w(rpacket)
+
+#    assert gotten_nu == 100.
 
