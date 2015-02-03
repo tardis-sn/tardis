@@ -1,23 +1,36 @@
-
+from astropy import constants as const
 
 class PlasmaProperty(object):
     def __init__(self, plasma_parent):
         self.plasma_parent = plasma_parent
+        self.current_cycle_id = None
 
-    def get_dependencies(self):
-        return self.dependencies
 
-    def get_fullfilled_dependencies(self):
-        return X
+class LevelPopulationCoefficient(PlasmaProperty):
 
-    def get_required_dependencies(self):
-        return Y
-
-    def register_dependency(self, name):
+    def calculate(self, levels, beta_rads):
         pass
 
-    def f1(self):
-        self.plasma_parent[]
+
+class BetaRadiation(PlasmaProperty):
+
+    name = 'beta_rad'
+    inputs = ['t_rad']
+
+    def __init__(self, plasma_parent):
+        super(BetaRadiation, self).__init__(self, plasma_parent)
+        self.k_B_cgs = const.k_B.cgs.value
+
+    def __call__(self, t_rad):
+        if self.current_cycle_id == self.plasma_parent.current_cycle_id:
+            return self.beta_rad
+        else:
+            self.current_cycle_id = self.plasma_parent.current_cycle_id
+            self.beta_rad = self.calculate(t_rad)
+
+    def calculate(self, t_rad):
+        return (1 / (self.k_B_cgs * t_rad))
+
 
 class PartitionFunction(PlasmaProperty):
     """
@@ -44,7 +57,7 @@ class PartitionFunction(PlasmaProperty):
     dependency = ['number_density', 'levels']
 
 
-    def evaluate(self, *args, **kwargs):
+    def calculate(self, ):
         levels = self.atom_data.levels
 
         level_population_proportional_array = levels.g.values[np.newaxis].T *\
@@ -70,4 +83,3 @@ class PartitionFunction(PlasmaProperty):
         return level_population_proportionalities, partition_functions
 
 
-pf = PartitionFunction()
