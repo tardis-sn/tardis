@@ -14,7 +14,7 @@ explains how to do that.
 
 
 General Workflow to add a new feature
--------------------------------------
+=====================================
 
 In TARDIS we aim to stick to a test driven development. This uses the testing
 framework extensively starting with a test that shows this feature lacking via
@@ -23,7 +23,6 @@ repository.
 
 In most cases we try to break down big features into small, quantifiable goals
 which are then acted upon.
-
 
  * Document feature to be added in an issue and maybe ask the mailing
    list if this feature exists
@@ -37,3 +36,6 @@ which are then acted upon.
  * Run the test to verify that it passes.
  * Write documentation about your feature.
  * close issue/partial PR and add to changelog.
+
+
+.. include:: release_workflow.inc
