@@ -1,6 +1,14 @@
 1.0.0 (unreleased)
 ------------------
 
+New Features
+^^^^^^^^^^^^
+- the main feature is the re-write of the montecarlo code to C, which comes
+with a 4x speed increase.
+
+Pull Requests
+^^^^^^^^^^^^^
+
 - [#210](https://github.com/tardis-sn/tardis/pull/210) a restructure of the C-file file structure (@wkerzendorf, @mklauser)
 - [#7](https://github.com/tardis-sn/tardis/pull/7) include .c in montecarlo/src/ for the randomkit files (@mklauser)
 - [#209](https://github.com/tardis-sn/tardis/pull/209) Testing/pandas version info (@wkerzendorf)
@@ -15,7 +23,6 @@
 - [#194](https://github.com/tardis-sn/tardis/pull/194) Setup/fix requirements (@wkerzendorf)
 - [#188](https://github.com/tardis-sn/tardis/pull/188) A macro to automagically fix inline issues (@orbitfold)
 - [#190](https://github.com/tardis-sn/tardis/pull/190) General/fixing unit problems (@wkerzendorf)
-- [#183](https://github.com/tardis-sn/tardis/pull/183) Added colon (@sofiatti)
 - [#179](https://github.com/tardis-sn/tardis/pull/179) making sure that if last_no_of_packets is not specified that it is set t... (@wkerzendorf)
 - [#178](https://github.com/tardis-sn/tardis/pull/178) Atomic/fix reprepare (@wkerzendorf)
 - [#177](https://github.com/tardis-sn/tardis/pull/177) added from_yaml and from_config_dict to ConfigurationNameSpace (@wkerzendorf)
