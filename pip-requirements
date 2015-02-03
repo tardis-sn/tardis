@@ -7,3 +7,4 @@ astropy>=0.4
 PyYAML>=3.0
 numexpr>=2.0.0
 Cython>=0.21
+jinja2
