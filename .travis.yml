@@ -12,7 +12,7 @@ env:
         - CYTHON_VERSION=0.21
         - NUMPY_VERSION=1.8
         - PANDAS_VERSION=0.12
-        - ASTROPY_VERSION=0.4
+        - ASTROPY_VERSION=1.0rc1
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
         - TEST_MODE='normal'
