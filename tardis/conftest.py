@@ -26,7 +26,11 @@ def pytest_addoption(parser):
                   "Run the doctests in the rst documentation",
                   default=False)
 
-    parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None, help="filename for atomic dataset")
+    parser.addoption('--repeat', action='store',
+                     help='Number of times to repeat each test')
+
+    parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
+                     help="filename for atomic dataset")
 
 def pytest_report_header(config):
 
