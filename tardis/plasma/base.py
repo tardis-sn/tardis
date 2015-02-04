@@ -5,8 +5,11 @@ class BasePlasma(object):
             self._build_graph(plasma_properties)
 
         def _build_graph(self, plasma_properties):
+            self.graph = nx.DiGraph()
             for plasma_property in plasma_properties:
-                self.graph = nx.DiGraph()
+                for input in plasma_property.inputs:
+                    self.graph.add_edge(input, plasma_property.name)
+            1/0
 
 
 class PlasmaMissingModule(Exception):
