@@ -155,4 +155,4 @@ def atomic_data_fname():
 from tardis.atomic import AtomData
 @pytest.fixture
 def atomic_data(atomic_data_fname):
-    pass
+    return AtomData.from_hdf5(atomic_data_fname)

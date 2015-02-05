@@ -13,7 +13,7 @@ class BasePlasma(object):
         self._build_graph(plasma_modules)
 
     def __getattr__(self, item):
-        if item in self.input_modules:
+        if item in self.module_dict:
             return self.module_dict[item].value
         else:
             super(BasePlasma, self).__getattribute__(item)
