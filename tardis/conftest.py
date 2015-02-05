@@ -154,5 +154,5 @@ def atomic_data_fname():
 
 from tardis.atomic import AtomData
 @pytest.fixture
-def atomic_data():
+def atomic_data(atomic_data_fname):
     pass
