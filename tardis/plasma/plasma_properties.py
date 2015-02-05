@@ -11,8 +11,10 @@ class BasePlasmaProperty(object):
         self.plasma_parent = plasma_parent
         self.current_cycle_id = None
 
-    def update_property(self, *args):
+    def update(self):
+        args = [getattr(self.plasma_parent, item) for item in self.inputs]
         self.value = self.calculate(*args)
+
 
 
 class BaseAtomicDataProperty(BasePlasmaProperty):
