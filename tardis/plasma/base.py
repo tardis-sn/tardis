@@ -48,11 +48,6 @@ class BasePlasma(object):
                                               ' to this plasma'.format(
                         plasma_module.name, input))
                 self.graph.add_edge(input, plasma_module.name)
-            1/0
-
-            
-
-
 
     def _init_modules(self, plasma_modules, **kwargs):
         """
@@ -77,9 +72,16 @@ class BasePlasma(object):
 
 
 
-    def update_plasma(self, **kwargs):
-        for key, value in kwargs.items():
-            pass
+    def update(self, **kwargs):
+        for key in kwargs:
+            if key not in self.module_dict:
+                raise PlasmaMissingModule('Trying to update property {0}'
+                                          ' that is unavailable'.format(key))
+
+        update_list = self._resolve_update_list(kwargs.keys())
+
+        for module in update_list:
+            module.update()
 
 
 
