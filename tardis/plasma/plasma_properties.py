@@ -23,15 +23,15 @@ class BaseAtomicDataProperty(BasePlasmaProperty):
         super(BaseAtomicDataProperty, self).__init__(plasma_parent)
         self.value = None
 
-    def calculate(self):
+    def calculate(self, atomic_data):
         if self.value is not None:
             return self.value
         else:
-            if not getattr(self.plasma_parent.atomic_data, 'has_{0}'.format(
+            if not getattr(atomic_data, 'has_{0}'.format(
                     self.name)):
                 raise IncompleteAtomicData(self.name)
             else:
-                self.value = getattr(self.plasma_parent.atomic_data, self.name)
+                self.value = getattr(atomic_data, self.name)
 
 
 
