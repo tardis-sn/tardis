@@ -20,7 +20,7 @@ class BasePlasmaProperty(object):
 class BaseAtomicDataProperty(BasePlasmaProperty):
     inputs = ['atomic_data']
     def __init__(self, plasma_parent):
-        super(BasePlasmaProperty, self).__init__(plasma_parent)
+        super(BaseAtomicDataProperty, self).__init__(plasma_parent)
         self.value = None
 
     def calculate(self):
@@ -50,7 +50,7 @@ class BetaRadiation(BasePlasmaProperty):
     inputs = ['t_rad']
 
     def __init__(self, plasma_parent):
-        super(BetaRadiation, self).__init__(self, plasma_parent)
+        super(BetaRadiation, self).__init__(plasma_parent)
         self.k_B_cgs = const.k_B.cgs.value
 
 
