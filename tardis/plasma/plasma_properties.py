@@ -2,21 +2,47 @@ from astropy import constants as const
 import numpy as np
 import pandas as pd
 
-class PlasmaProperty(object):
+from tardis.plasma.exceptions import IncompleteAtomicData
+
+
+
+class BasePlasmaProperty(object):
     def __init__(self, plasma_parent):
         self.plasma_parent = plasma_parent
         self.current_cycle_id = None
 
-    def __call__(self, *args):
-        if self.current_cycle_id == self.plasma_parent.current_cycle_id:
-            return getattr(self, self.name)
+    def update_property(self, *args):
+        self.value = self.calculate(*args)
+
+
+class BaseAtomicDataProperty(BasePlasmaProperty):
+    inputs = ['atomic_data']
+    def __init__(self, plasma_parent):
+        super(BasePlasmaProperty, self).__init__(plasma_parent)
+        self.value = None
+
+    def calculate(self):
+        if self.value is not None:
+            return self.value
         else:
-            self.current_cycle_id = self.plasma_parent.current_cycle_id
-            setattr(self, self.name, self.calculate(*args))
+            if not getattr(self.plasma_parent.atomic_data, 'has_{0}'.format(
+                    self.name)):
+                raise IncompleteAtomicData(self.name)
+            else:
+                self.value = getattr(self.plasma_parent.atomic_data, self.name)
 
 
 
-class BetaRadiation(PlasmaProperty):
+class AtomicLevels(BaseAtomicDataProperty):
+    name = 'levels'
+
+class AtomicLines(BaseAtomicDataProperty):
+    name = 'lines'
+
+
+
+
+class BetaRadiation(BasePlasmaProperty):
 
     name = 'beta_rad'
     inputs = ['t_rad']
@@ -29,7 +55,7 @@ class BetaRadiation(PlasmaProperty):
     def calculate(self, t_rad):
         return (1 / (self.k_B_cgs * t_rad))
 
-class LevelBoltzmannFactor(PlasmaProperty):
+class LevelBoltzmannFactor(BasePlasmaProperty):
     """
     Calculate the level population Boltzmann factor
     """
@@ -49,7 +75,7 @@ class LevelBoltzmannFactor(PlasmaProperty):
                                               dtype=np.float64)
         return level_boltzmann_factor
 
-class PartitionFunction(PlasmaProperty):
+class PartitionFunction(BasePlasmaProperty):
     """
     Calculate partition functions for the ions using the following formula, where
     :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
@@ -71,10 +97,10 @@ class PartitionFunction(PlasmaProperty):
 
     """
 
-    inputs = ['levels']
+    inputs = ['levels', 'level_boltzmann_factor']
 
 
-    def calculate(self, levels, ):
+    def calculate(self, levels, level_boltzmann_factor):
 
         level_population_proportional_array = levels.g.values[np.newaxis].T *\
                                               np.exp(np.outer(levels.energy.values, -self.beta_rads))

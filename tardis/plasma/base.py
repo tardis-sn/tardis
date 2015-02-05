@@ -1,19 +1,64 @@
 import networkx as nx
 
-class BasePlasma(object):
-        def __init__(self, plasma_properties):
-            self._build_graph(plasma_properties)
 
-        def _build_graph(self, plasma_properties):
+
+class BasePlasma(object):
+        def __init__(self, plasma_modules):
+            self._build_dictionary(plasma_modules)
+            self._build_graph(plasma_modules)
+
+        def _build_graph(self, plasma_modules):
+            """
+            Builds the directed Graph using network X
+
+            :param plasma_modules:
+            :return:
+            """
+
             self.graph = nx.DiGraph()
-            for plasma_property in plasma_properties:
-                for input in plasma_property.inputs:
-                    self.graph.add_edge(input, plasma_property.name)
+
+            ## Adding all nodes
+            self.graph.add_nodes_from(self.module_dict.keys())
+
+            #Flagging all input modules
+            self.input_modules = [item for item in plasma_modules
+                                  if not hasattr(item, 'inputs')]
+
+            for plasma_module in plasma_modules:
+
+                #Skipping any module that is an input module
+                if plasma_module in self.input_modules:
+                    continue
+
+                for input in plasma_module.inputs:
+                    if input not in self.graph:
+                        raise PlasmaMissingModule('Module {0} requires input '
+                                                  '{1} which has not been added'
+                                                  ' to this plasma'.format(
+                            plasma_module.name, input))
+                    self.graph.add_edge(input, plasma_module.name)
+
+            
+
             1/0
 
+        def _build_dictionary(self, plasma_module):
+            """
+            Builds a dictionary with the plasma module names as keys
+            :param plasma_module:
+            :return:
+            """
+            self.module_dict = dict([
+                (module.name, module) for module in plasma_module])
 
-class PlasmaMissingModule(Exception):
-    pass
+
+        def update_plasma(self, **kwargs):
+            for key, value in kwargs.items():
+                pass
+
+
+
+
 
 class StandardPlasma(BasePlasma):
 
