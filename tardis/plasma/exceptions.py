@@ -15,3 +15,5 @@ class PlasmaMissingModule(PlasmaException):
 class PlasmaIsolatedModule(PlasmaException):
     pass
 
+class NotInitializedModule(PlasmaException):
+    pass

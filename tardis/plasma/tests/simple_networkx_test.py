@@ -7,4 +7,4 @@ from tardis.plasma.plasma_input import TRadiative, AtomicData
 
 
 def test_simple_networkx_test1():
-    bp = BasePlasma([TRadiative, BetaRadiation, LevelBoltzmannFactor, AtomicLevels, AtomicLines, AtomicData])
+    bp = BasePlasma([TRadiative, BetaRadiation, LevelBoltzmannFactor, AtomicLevels, AtomicLines, AtomicData], t_rad=5000, atomic_data=None)

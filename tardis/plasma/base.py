@@ -1,21 +1,22 @@
 import networkx as nx
-from tardis.plasma.exceptions import PlasmaMissingModule
+from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
+from plasma_input import PlasmaInput
 
 
 class BasePlasma(object):
 
-    input_modules = None
-    
-    def __init__(self, plasma_modules):
+    input_modules = []
 
-        self._build_dictionary(plasma_modules)
+    def __init__(self, plasma_modules, **kwargs):
+
+        self._init_modules(plasma_modules, **kwargs)
         self._build_graph(plasma_modules)
 
     def __getattr__(self, item):
         if item in self.input_modules:
-            return self.input_modules[item].value
+            return self.module_dict[item].value
         else:
-            super(BasePlasma).__getattribute__(item)
+            super(BasePlasma, self).__getattribute__(item)
 
     def _build_graph(self, plasma_modules):
         """
@@ -31,13 +32,13 @@ class BasePlasma(object):
         self.graph.add_nodes_from(self.module_dict.keys())
 
         #Flagging all input modules
-        self.input_modules = [item for item in plasma_modules
+        self.input_modules = [item.name for item in plasma_modules
                               if not hasattr(item, 'inputs')]
 
         for plasma_module in plasma_modules:
 
             #Skipping any module that is an input module
-            if plasma_module in self.input_modules:
+            if plasma_module.name in self.input_modules:
                 continue
 
             for input in plasma_module.inputs:
@@ -47,24 +48,38 @@ class BasePlasma(object):
                                               ' to this plasma'.format(
                         plasma_module.name, input))
                 self.graph.add_edge(input, plasma_module.name)
+            1/0
 
             
 
 
 
-        def _build_dictionary(self, plasma_module):
-            """
-            Builds a dictionary with the plasma module names as keys
-            :param plasma_module:
-            :return:
-            """
-            self.module_dict = dict([
-                (module.name, module) for module in plasma_module])
+    def _init_modules(self, plasma_modules, **kwargs):
+        """
+        Builds a dictionary with the plasma module names as keys
+        :param plasma_modules:
+        :return:
+        """
+
+        self.module_dict = {}
+        for module in plasma_modules:
+            if not hasattr(module, 'inputs'):
+                if module.name not in kwargs:
+                    raise NotInitializedModule('Input {0} required for '
+                                               'plasma but not given when '
+                                               'instantiating the '
+                                               'plasma'.format(module.name))
+                current_module_object = module(kwargs[module.name])
+            else:
+                current_module_object = module(self)
+
+            self.module_dict[module.name] = current_module_object
 
 
-        def update_plasma(self, **kwargs):
-            for key, value in kwargs.items():
-                pass
+
+    def update_plasma(self, **kwargs):
+        for key, value in kwargs.items():
+            pass
 
 
 
