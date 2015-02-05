@@ -1,10 +1,14 @@
 from tardis.plasma.plasma_properties import BasePlasmaProperty
 
 
-class StaticPlasmaInput(BasePlasmaProperty):
+
+class PlasmaInput(BasePlasmaProperty):
     pass
 
-class DynamicPlasmaInput(BasePlasmaProperty):
+class StaticPlasmaInput(PlasmaInput):
+    pass
+
+class DynamicPlasmaInput(PlasmaInput):
     pass
 
 
