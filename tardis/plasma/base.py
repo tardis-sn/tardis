@@ -1,46 +1,56 @@
 import networkx as nx
-
+from tardis.plasma.exceptions import PlasmaMissingModule
 
 
 class BasePlasma(object):
-        def __init__(self, plasma_modules):
-            self._build_dictionary(plasma_modules)
-            self._build_graph(plasma_modules)
 
-        def _build_graph(self, plasma_modules):
-            """
-            Builds the directed Graph using network X
+    input_modules = None
+    
+    def __init__(self, plasma_modules):
 
-            :param plasma_modules:
-            :return:
-            """
+        self._build_dictionary(plasma_modules)
+        self._build_graph(plasma_modules)
 
-            self.graph = nx.DiGraph()
+    def __getattr__(self, item):
+        if item in self.input_modules:
+            return self.input_modules[item].value
+        else:
+            super(BasePlasma).__getattribute__(item)
 
-            ## Adding all nodes
-            self.graph.add_nodes_from(self.module_dict.keys())
+    def _build_graph(self, plasma_modules):
+        """
+        Builds the directed Graph using network X
 
-            #Flagging all input modules
-            self.input_modules = [item for item in plasma_modules
-                                  if not hasattr(item, 'inputs')]
+        :param plasma_modules:
+        :return:
+        """
 
-            for plasma_module in plasma_modules:
+        self.graph = nx.DiGraph()
 
-                #Skipping any module that is an input module
-                if plasma_module in self.input_modules:
-                    continue
+        ## Adding all nodes
+        self.graph.add_nodes_from(self.module_dict.keys())
 
-                for input in plasma_module.inputs:
-                    if input not in self.graph:
-                        raise PlasmaMissingModule('Module {0} requires input '
-                                                  '{1} which has not been added'
-                                                  ' to this plasma'.format(
-                            plasma_module.name, input))
-                    self.graph.add_edge(input, plasma_module.name)
+        #Flagging all input modules
+        self.input_modules = [item for item in plasma_modules
+                              if not hasattr(item, 'inputs')]
+
+        for plasma_module in plasma_modules:
+
+            #Skipping any module that is an input module
+            if plasma_module in self.input_modules:
+                continue
+
+            for input in plasma_module.inputs:
+                if input not in self.graph:
+                    raise PlasmaMissingModule('Module {0} requires input '
+                                              '{1} which has not been added'
+                                              ' to this plasma'.format(
+                        plasma_module.name, input))
+                self.graph.add_edge(input, plasma_module.name)
 
             
 
-            1/0
+
 
         def _build_dictionary(self, plasma_module):
             """
