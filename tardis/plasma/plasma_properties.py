@@ -1,12 +1,11 @@
 from abc import ABCMeta, abstractmethod
+import logging
 
 from astropy import constants as const
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.exceptions import IncompleteAtomicData
-
-
+logger = logging.getLogger(__name__)
 
 class BasePlasmaProperty(object):
     __metaclass__ = ABCMeta
@@ -28,60 +27,6 @@ class BasePlasmaProperty(object):
                                                   getattr(self,
                                                           'latex_str', ''))
 
-
-class BaseAtomicDataProperty(BasePlasmaProperty):
-    __metaclass__ = ABCMeta
-
-    inputs = ['atomic_data', 'selected_atoms']
-
-    def __init__(self, plasma_parent):
-        super(BaseAtomicDataProperty, self).__init__(plasma_parent)
-        self.value = None
-
-    def calculate(self, atomic_data, selected_atoms):
-        if self.value is not None:
-            return self.value
-        else:
-            if not getattr(atomic_data, 'has_{0}'.format(
-                    self.name)):
-                raise IncompleteAtomicData(self.name)
-            else:
-                raw_atomic_property = getattr(atomic_data, '_' + self.name)
-                return self._set_index(self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms))
-
-
-
-class AtomicLevels(BaseAtomicDataProperty):
-    name = 'levels'
-    type_str = 'pandas.DataFrame'
-
-    def _filter_atomic_property(self, levels, selected_atoms):
-        return levels[levels.atomic_number.isin(selected_atoms)]
-
-    def _set_index(self, levels):
-        return levels.set_index(['atomic_number', 'ion_number', 'level_number'])
-
-class AtomicLines(BaseAtomicDataProperty):
-    name = 'lines'
-    type_str = 'pandas.DataFrame'
-
-    def _filter_atomic_property(self, lines, selected_atoms):
-        return lines[lines.atomic_number.isin(selected_atoms)]
-
-    def _set_index(self, lines):
-        return lines
-
-class AtomicMass(BaseAtomicDataProperty):
-    name = 'atomic_mass'
-    type_str = 'pandas.DataFrame'
-
-    def calculate(self, atomic_data, selected_atoms):
-        if self.value is not None:
-            return self.value
-        else:
-            return atomic_data.atom_data.ix[selected_atoms].mass
-
 class BetaRadiation(BasePlasmaProperty):
 
     name = 'beta_rad'
@@ -96,6 +41,16 @@ class BetaRadiation(BasePlasmaProperty):
 
     def calculate(self, t_rad):
         return (1 / (self.k_B_cgs * t_rad))
+
+class GElectron(BasePlasmaProperty):
+
+    name = 'g_electron'
+    inputs = ['beta_rad']
+
+    @staticmethod
+    def calculate(self, beta_rad):
+        return ((2 * np.pi * const.m_e.cgs.value / beta_rad) /
+                (const.h.cgs.value ** 2)) ** 1.5
 
 class LevelBoltzmannFactor(BasePlasmaProperty):
     """
@@ -116,6 +71,60 @@ class LevelBoltzmannFactor(BasePlasmaProperty):
                                               columns=np.arange(len(beta_rad)),
                                               dtype=np.float64)
         return level_boltzmann_factor
+
+class LTEPartitionFunction(BasePlasmaProperty):
+    name = 'function'
+    inputs = ['levels', 'level_boltzmann_factor']
+    type_str = 'NA'
+
+    @staticmethod
+    def calculate(levels, level_boltzmann_factor):
+        return level_boltzmann_factor.groupby(
+            level=['atomic_number', 'ion_number']).sum()
+
+class DiluteLTEPartitionFunction(BasePlasmaProperty):
+    """
+    Calculate partition functions for the ions using the following formula, where
+    :math:`i` is the atomic_number, :math:`j` is the ion_number and :math:`k` is the level number.
+
+    .. math::
+        Z_{i,j} = \\sum_{k=0}^{max(k)_{i,j}} g_k \\times e^{-E_k / (k_\\textrm{b} T)}
+
+
+
+    if self.initialize is True set the first time the partition functions are initialized.
+    This will set a self.partition_functions and initialize with LTE conditions.
+
+
+    Returns
+    -------
+
+    partition_functions : `~astropy.table.Table`
+        with fields atomic_number, ion_number, partition_function
+
+    """
+    name = 'partition_function'
+    inputs = ['levels', 'level_boltzmann_factor']
+    type_str = 'NA'
+
+    @staticmethod
+    def calculate(w, levels, level_boltzmann_factor):
+        metastable = levels.metastable
+        partition_functions = level_boltzmann_factor[metastable].groupby(
+            level=['atomic_number', 'ion_number']).sum()
+
+        partition_functions_non_meta = w * level_boltzmann_factor[~metastable].groupby(
+            level=['atomic_number', 'ion_number']).sum()
+
+        partition_functions.ix[
+            partition_functions_non_meta.index] += partition_functions_non_meta
+
+        #if self.nlte_config is not None   and self.nlte_config.species != [] and not initialize_nlte:
+        #    for species in self.nlte_config.species:
+        #        partition_functions.ix[species] = self.atom_data.levels.g.ix[species].ix[0] * \
+        #                                               (self.level_populations.ix[species] /
+        #                                                self.level_populations.ix[species].ix[0]).sum()
+
 
 class PartitionFunction(BasePlasmaProperty):
     """
@@ -139,32 +148,6 @@ class PartitionFunction(BasePlasmaProperty):
 
     """
 
-    inputs = ['levels', 'level_boltzmann_factor']
-    label = 'test'
-
-    def calculate(self, levels, level_boltzmann_factor):
-
-        level_population_proportional_array = levels.g.values[np.newaxis].T *\
-                                              np.exp(np.outer(levels.energy.values, -self.beta_rads))
-        level_population_proportionalities = pd.DataFrame(level_population_proportional_array,
-                                                               index=self.atom_data.levels.index,
-                                                               columns=np.arange(len(self.t_rads)), dtype=np.float64)
-
-
-        #level_props = self.level_population_proportionalities
-
-        partition_functions = level_population_proportionalities[self.atom_data.levels.metastable].groupby(
-            level=['atomic_number', 'ion_number']).sum()
-        partition_functions_non_meta = self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
-            level=['atomic_number', 'ion_number']).sum()
-        partition_functions.ix[partition_functions_non_meta.index] += partition_functions_non_meta
-        if self.nlte_config is not None and self.nlte_config.species != [] and not initialize_nlte:
-            for species in self.nlte_config.species:
-                partition_functions.ix[species] = self.atom_data.levels.g.ix[species].ix[0] * \
-                                                       (self.level_populations.ix[species] /
-                                                        self.level_populations.ix[species].ix[0]).sum()
-
-        return level_population_proportionalities, partition_functions
 
 
 class NumberDensity(BasePlasmaProperty):
@@ -182,3 +165,34 @@ class SelectedAtoms(BasePlasmaProperty):
 
     def calculate(self, abundance):
         return self.plasma_parent.abundance.index
+
+    def calculate_saha_lte(self):
+        """
+        Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
+        j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
+        and :math:`\chi` is the ionization energy.
+
+        .. math::
+
+
+            \\Phi_{i,j} = \\frac{N_{i, j+1} n_e}{N_{i, j}}
+
+            \\Phi_{i, j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}} e^{-\chi_{j\\rightarrow j+1}/k_\\textrm{B}T}
+
+        """
+
+        logger.debug('Calculating Saha using LTE approximation')
+
+        def calculate_phis(group):
+            return group[1:] / group[:-1].values
+
+        phis = self.partition_functions.groupby(level='atomic_number').apply(calculate_phis)
+
+        phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
+
+        phi_coefficient = 2 * self.g_electrons * \
+                          np.exp(np.outer(self.atom_data.ionization_data.ionization_energy.ix[phis.index].values,
+                                          -self.beta_rads))
+
+        return phis * phi_coefficient
+
