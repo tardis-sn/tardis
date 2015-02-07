@@ -22,6 +22,11 @@ class BasePlasmaProperty(object):
     def calculate(self, *args, **kwargs):
         raise NotImplementedError('This method needs to be implemented by ')
 
+    def get_label(self):
+        return "Name: {0}\nType: {1}\n{2}".format(self.name, self.type_str,
+                                                  getattr(self,
+                                                          'latex_str', ''))
+
 
 class BaseAtomicDataProperty(BasePlasmaProperty):
     inputs = ['atomic_data']
@@ -43,10 +48,11 @@ class BaseAtomicDataProperty(BasePlasmaProperty):
 
 class AtomicLevels(BaseAtomicDataProperty):
     name = 'levels'
+    type_str = 'pandas.DataFrame'
 
 class AtomicLines(BaseAtomicDataProperty):
     name = 'lines'
-
+    type_str = 'pandas.DataFrame'
 
 
 
@@ -54,6 +60,8 @@ class BetaRadiation(BasePlasmaProperty):
 
     name = 'beta_rad'
     inputs = ['t_rad']
+    type_str = 'numpy.array'
+    latex_str = '$\\frac{1}{K_B T_\\textrm{rad}}$'
 
     def __init__(self, plasma_parent):
         super(BetaRadiation, self).__init__(plasma_parent)
@@ -68,9 +76,9 @@ class LevelBoltzmannFactor(BasePlasmaProperty):
     Calculate the level population Boltzmann factor
     """
 
-
     name = 'level_boltzmann_factor'
     inputs = ['levels', 'beta_rad']
+    label = 'test'
 
     def calculate(self, levels, beta_rad):
         exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
@@ -106,7 +114,7 @@ class PartitionFunction(BasePlasmaProperty):
     """
 
     inputs = ['levels', 'level_boltzmann_factor']
-
+    label = 'test'
 
     def calculate(self, levels, level_boltzmann_factor):
 
