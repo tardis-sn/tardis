@@ -1,22 +1,35 @@
+import logging
+
 import networkx as nx
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from plasma_input import PlasmaInput
 
+logger = logging.getLogger(__name__)
+
 
 class BasePlasma(object):
 
-    input_modules = []
-
     def __init__(self, plasma_modules, **kwargs):
-
+        self.module_dict = {}
+        self.input_modules = []
         self._init_modules(plasma_modules, **kwargs)
         self._build_graph(plasma_modules)
+        self.update(**kwargs)
 
     def __getattr__(self, item):
         if item in self.module_dict:
             return self.module_dict[item].value
         else:
             super(BasePlasma, self).__getattribute__(item)
+
+
+    def __setattr__(self, key, value):
+        if key != 'module_dict' and key in self.module_dict:
+            raise AttributeError('Plasma inputs can only be updated using '
+                                 'the \'update\' method')
+        else:
+            super(BasePlasma, self).__setattr__(key, value)
+
 
     def _build_graph(self, plasma_modules):
         """
@@ -58,13 +71,13 @@ class BasePlasma(object):
 
         self.module_dict = {}
         for module in plasma_modules:
-            if not hasattr(module, 'inputs'):
+            if hasattr(module, 'set_value'):
                 if module.name not in kwargs:
                     raise NotInitializedModule('Input {0} required for '
                                                'plasma but not given when '
                                                'instantiating the '
                                                'plasma'.format(module.name))
-                current_module_object = module(kwargs[module.name])
+                current_module_object = module()
             else:
                 current_module_object = module(self)
 
@@ -77,13 +90,48 @@ class BasePlasma(object):
             if key not in self.module_dict:
                 raise PlasmaMissingModule('Trying to update property {0}'
                                           ' that is unavailable'.format(key))
-
-        update_list = self._resolve_update_list(kwargs.keys())
-
-        for module in update_list:
-            module.update()
+            self.module_dict[key].set_value(kwargs[key])
 
 
+        for module_name in self._resolve_update_list(kwargs.keys()):
+
+            self.module_dict[module_name].update()
+
+    def _resolve_update_list(self, changed_modules):
+        """
+        Returns a list of all plasma models which are affected by the
+        changed_modules due to there dependency in the
+        the plasma_graph.
+
+        Parameters
+        ----------
+
+        graph: ~networkx.Grapht
+            the plasma graph as
+        changed_modules: ~list
+            all modules changed in the plasma
+
+        Returns
+        -------
+
+            : ~list
+            all affected modules.
+        """
+
+        descendants_ob = []
+
+        for module in changed_modules:
+            descendants_ob += nx.descendants(self.graph, module)
+
+        descendants_ob = list(set(descendants_ob))
+        sort_order = nx.topological_sort(self.graph)
+
+        descendants_ob.sort(key=lambda val: sort_order.index(val) )
+
+        logger.debug('Updating modules in the following order:'.format(
+            '->'.join(descendants_ob)))
+
+        return descendants_ob
 
 
 
