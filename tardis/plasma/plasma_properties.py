@@ -23,7 +23,8 @@ class BasePlasmaProperty(object):
         raise NotImplementedError('This method needs to be implemented by ')
 
     def get_label(self):
-        return "Name: {0}\nType: {1}\n{2}".format(self.name, self.type_str,
+        return "Name: {0}\nType: {1}\n{2}".format(self.name.replace('_', r'\\_'),
+                                                  self.type_str,
                                                   getattr(self,
                                                           'latex_str', ''))
 
@@ -78,7 +79,7 @@ class LevelBoltzmannFactor(BasePlasmaProperty):
 
     name = 'level_boltzmann_factor'
     inputs = ['levels', 'beta_rad']
-    label = 'test'
+    type_str = 'pandas.DataFrame'
 
     def calculate(self, levels, beta_rad):
         exponential = np.exp(np.outer(levels.energy.values, -beta_rad))

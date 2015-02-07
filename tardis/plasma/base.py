@@ -42,7 +42,7 @@ class BasePlasma(object):
         self.graph = nx.DiGraph()
 
         ## Adding all nodes
-        self.graph.add_nodes_from([(key, {'label': value.label})
+        self.graph.add_nodes_from([(key, {'label': value.get_label()})
                                    for key, value in self.module_dict.items()])
 
         #Flagging all input modules
