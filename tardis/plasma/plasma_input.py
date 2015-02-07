@@ -9,7 +9,8 @@ class PlasmaInput(object):
     def set_value(self, value):
         self.value = value
     def get_label(self):
-        return "Name: {0}\nType: {1}\n{2}".format(self.name, self.type_str,
+        return "Name: {0}\nType: {1}\n{2}".format(self.name.replace('_', '\\n'),
+                                                  self.type_str,
                                                   getattr(self,
                                                           'latex_str', ''))
 
