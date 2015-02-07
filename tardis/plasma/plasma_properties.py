@@ -1,3 +1,5 @@
+from abc import ABCMeta, abstractmethod
+
 from astropy import constants as const
 import numpy as np
 import pandas as pd
@@ -7,14 +9,18 @@ from tardis.plasma.exceptions import IncompleteAtomicData
 
 
 class BasePlasmaProperty(object):
+    __metaclass__ = ABCMeta
+
     def __init__(self, plasma_parent):
         self.plasma_parent = plasma_parent
-        self.current_cycle_id = None
 
     def update(self):
         args = [getattr(self.plasma_parent, item) for item in self.inputs]
         self.value = self.calculate(*args)
 
+    @abstractmethod
+    def calculate(self, *args, **kwargs):
+        raise NotImplementedError('This method needs to be implemented by ')
 
 
 class BaseAtomicDataProperty(BasePlasmaProperty):
