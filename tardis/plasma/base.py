@@ -30,6 +30,14 @@ class BasePlasma(object):
         else:
             super(BasePlasma, self).__setattr__(key, value)
 
+    def __dir__(self):
+        attrs = [item for item in self.__dict__
+                 if not item.startswith('_')]
+        attrs += [item for item in self.__class__.__dict__
+                 if not item.startswith('_')]
+        attrs += self.module_dict.keys()
+
+        return attrs
 
     def _build_graph(self, plasma_modules):
         """
@@ -84,8 +92,6 @@ class BasePlasma(object):
 
             self.module_dict[module.name] = current_module_object
 
-
-
     def update(self, **kwargs):
         for key in kwargs:
             if key not in self.module_dict:
@@ -93,9 +99,7 @@ class BasePlasma(object):
                                           ' that is unavailable'.format(key))
             self.module_dict[key].set_value(kwargs[key])
 
-
         for module_name in self._resolve_update_list(kwargs.keys()):
-
             self.module_dict[module_name].update()
 
     def _resolve_update_list(self, changed_modules):
