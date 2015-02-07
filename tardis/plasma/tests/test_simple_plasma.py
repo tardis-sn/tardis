@@ -7,7 +7,8 @@ from tardis.plasma.base import BasePlasma
 from tardis.plasma.plasma_properties import (BetaRadiation,
                                              LevelBoltzmannFactor,
                                              AtomicLevels, AtomicLines,
-                                             SelectedAtoms, AtomicMass)
+                                             SelectedAtoms, AtomicMass,
+                                             LTEPartitionFunction)
 
 from tardis.plasma.plasma_input import TRadiative, AtomicData, Abundance
 
@@ -26,7 +27,7 @@ def t_rad():
 def test_simple_networkx_test1(atomic_data, abundance, t_rad):
     modules = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
                AtomicLevels, AtomicLines, AtomicData, Abundance, SelectedAtoms,
-               AtomicMass]
+               AtomicMass, LTEPartitionFunction]
     bp = BasePlasma(modules, t_rad=t_rad, atomic_data=atomic_data,
                     abundance=abundance)
     assert bp.t_rad[0] == 5000
