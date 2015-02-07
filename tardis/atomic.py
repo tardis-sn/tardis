@@ -372,7 +372,6 @@ class AtomData(object):
             self.has_macro_atom = True
             self.macro_atom_data_all = DataFrame(macro_atom_data[0].__array__())
             self.macro_atom_references_all = DataFrame(macro_atom_data[1].__array__())
-
         else:
             self.has_macro_atom = False
 

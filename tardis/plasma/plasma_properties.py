@@ -30,12 +30,12 @@ class BasePlasmaProperty(object):
 
 
 class BaseAtomicDataProperty(BasePlasmaProperty):
-    inputs = ['atomic_data']
+    inputs = ['atomic_data', 'selected_atoms']
     def __init__(self, plasma_parent):
         super(BaseAtomicDataProperty, self).__init__(plasma_parent)
         self.value = None
 
-    def calculate(self, atomic_data):
+    def calculate(self, atomic_data, selected_atoms):
         if self.value is not None:
             return self.value
         else:
@@ -44,8 +44,6 @@ class BaseAtomicDataProperty(BasePlasmaProperty):
                 raise IncompleteAtomicData(self.name)
             else:
                 self.value = getattr(atomic_data, self.name)
-
-
 
 class AtomicLevels(BaseAtomicDataProperty):
     name = 'levels'
@@ -142,3 +140,19 @@ class PartitionFunction(BasePlasmaProperty):
         return level_population_proportionalities, partition_functions
 
 
+class NumberDensity(BasePlasmaProperty):
+    name = 'number_density'
+    inputs = ['atomic_mass', 'abundance']
+    typestr = 'pandas.DataFrame'
+
+    def calculate(self, atomic_mass, abundance):
+        pass
+
+
+class SelectedAtoms(BasePlasmaProperty):
+    name = 'selected_atoms'
+    inputs = ['abundance']
+    type_str = 'iterable'
+
+    def calculate(self, abundance):
+        return self.plasma_parent.abundance.index
