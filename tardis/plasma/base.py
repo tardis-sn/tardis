@@ -42,7 +42,8 @@ class BasePlasma(object):
         self.graph = nx.DiGraph()
 
         ## Adding all nodes
-        self.graph.add_nodes_from(self.module_dict.keys())
+        self.graph.add_nodes_from([(key, {'label': value.label})
+                                   for key, value in self.module_dict.items()])
 
         #Flagging all input modules
         self.input_modules = [item.name for item in plasma_modules
@@ -132,6 +133,14 @@ class BasePlasma(object):
             '->'.join(descendants_ob)))
 
         return descendants_ob
+
+    def write_to_dot(self):
+        try:
+            import pygraphviz
+        except ImportError:
+            raise ImportError('pygraphviz is needed for method '
+                              '\'plasma_to_dot\'')
+
 
 
 
