@@ -2,7 +2,7 @@ import logging
 
 import networkx as nx
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
-from plasma_input import PlasmaInput
+from plasma_input import Input
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +15,7 @@ class BasePlasma(object):
         self._init_modules(plasma_modules, **kwargs)
         self._build_graph(plasma_modules)
         self.update(**kwargs)
+
 
     def __getattr__(self, item):
         if item in self.module_dict:
@@ -50,7 +51,7 @@ class BasePlasma(object):
         self.graph = nx.DiGraph()
 
         ## Adding all nodes
-        self.graph.add_nodes_from([(key, {'label': value.get_label()})
+        self.graph.add_nodes_from([(key, {})
                                    for key, value in self.module_dict.items()])
 
         #Flagging all input modules
@@ -102,6 +103,10 @@ class BasePlasma(object):
         for module_name in self._resolve_update_list(kwargs.keys()):
             self.module_dict[module_name].update()
 
+    def _update_module_type_str(self):
+        for node in self.graph:
+            self.module_dict[node]._update_type_str()
+
     def _resolve_update_list(self, changed_modules):
         """
         Returns a list of all plasma models which are affected by the
@@ -138,13 +143,17 @@ class BasePlasma(object):
 
         return descendants_ob
 
-    def write_to_dot(self):
+    def write_to_dot(self, fname):
+        self._update_module_type_str()
+
         try:
             import pygraphviz
         except ImportError:
             raise ImportError('pygraphviz is needed for method '
                               '\'plasma_to_dot\'')
 
+        for node in self.graph:
+            self.graph[node]['label'] = 'tmp'
 
 
 

@@ -2,38 +2,25 @@ from tardis.plasma.plasma_properties import BasePlasmaProperty
 
 
 
-class PlasmaInput(object):
+class Input(BasePlasmaProperty):
 
-    def __init__(self):
-        self.value = None
     def set_value(self, value):
         self.value = value
-    def get_label(self):
-        return "Name: {0}\nType: {1}\n{2}".format(self.name.replace('_', '\\n'),
-                                                  self.type_str,
-                                                  getattr(self,
-                                                          'latex_str', ''))
 
+    def get_latex_label(self):
+        return "Name: {0}".format(self.name)
 
-
-class StaticPlasmaInput(PlasmaInput):
+class StaticInput(Input):
     pass
 
-class DynamicPlasmaInput(PlasmaInput):
+class DynamicInput(Input):
     pass
 
-
-
-
-class TRadiative(DynamicPlasmaInput):
+class TRadiative(DynamicInput):
     name = 't_rad'
-    type_str = 'numpy.array'
 
-class AtomicData(StaticPlasmaInput):
+class AtomicData(StaticInput):
     name = 'atomic_data'
-    type_str = 'tardis.atomic.AtomicData'
-    label = 'Atomic Data'
 
-class Abundance(DynamicPlasmaInput):
+class Abundance(DynamicInput):
     name = 'abundance'
-    type_str = 'pandas.DataFrame'

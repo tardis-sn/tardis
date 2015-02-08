@@ -3,16 +3,14 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.plasma_properties import BasePlasmaProperty
+from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
 
-class TauSobolev(BasePlasmaProperty):
+class TauSobolev(ProcessingPlasmaProperty):
     """
     This function calculates the Sobolev optical depth :math:`\\tau_\\textrm{Sobolev}`
-
-
 
     .. math::
         C_\\textrm{Sobolev} = \\frac{\\pi e^2}{m_e c}
