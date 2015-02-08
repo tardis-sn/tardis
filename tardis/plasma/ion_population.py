@@ -175,3 +175,43 @@ class RadiationFieldCorrection():
 
         return pd.DataFrame(radiation_field_correction, columns=np.arange(len(self.t_rads)),
                             index=ionization_data.index)
+
+class IonPopulation(BasePlasmaProperty):
+    """
+    Calculate the ionization balance
+
+    .. math::
+        N(X) = N_1 + N_2 + N_3 + \\dots
+
+        N(X) = (N_2/N_1) \\times N_1 + (N3/N2) \\times (N_2/N_1) \\times N_1 + \\dots
+
+        N(X) = N_1(1 + N_2/N_1 + (N_3/N_2) \\times (N_2/N_1) + \\dots
+
+        N(X) = N_1(1+ \\Phi_{i,j}/N_e + \\Phi_{i, j}/N_e \\times \\Phi_{i, j+1}/N_e + \\dots)
+
+    """
+
+    inputs = ['phi']
+
+    def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
+        self.ion_zero_threshold = ion_zero_threshold
+        super(IonPopulation, self).__init__(plasma_parent)
+
+    @staticmethod
+    def calculate(phi):
+        #TODO see if self.ion_populations is None is needed (first class should be enough)
+        if not hasattr(self, 'ion_populations'):
+            self.ion_populations = pd.DataFrame(index=self.partition_functions.index.copy(),
+                                                columns=np.arange(len(self.t_rads)), dtype=np.float64)
+
+        for atomic_number, groups in phis.groupby(level='atomic_number'):
+            current_phis = (groups / self.electron_densities).replace(np.nan, 0.0).values
+            phis_product = np.cumproduct(current_phis, axis=0)
+
+            neutral_atom_density = self.number_densities.ix[atomic_number] / (1 + np.sum(phis_product, axis=0))
+
+
+
+            self.ion_populations.ix[atomic_number].values[0] = neutral_atom_density.values
+            self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
+            self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
