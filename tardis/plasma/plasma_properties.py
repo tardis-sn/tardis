@@ -165,34 +165,3 @@ class SelectedAtoms(BasePlasmaProperty):
 
     def calculate(self, abundance):
         return self.plasma_parent.abundance.index
-
-    def calculate_saha_lte(self):
-        """
-        Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
-        j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
-        and :math:`\chi` is the ionization energy.
-
-        .. math::
-
-
-            \\Phi_{i,j} = \\frac{N_{i, j+1} n_e}{N_{i, j}}
-
-            \\Phi_{i, j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}} e^{-\chi_{j\\rightarrow j+1}/k_\\textrm{B}T}
-
-        """
-
-        logger.debug('Calculating Saha using LTE approximation')
-
-        def calculate_phis(group):
-            return group[1:] / group[:-1].values
-
-        phis = self.partition_functions.groupby(level='atomic_number').apply(calculate_phis)
-
-        phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
-
-        phi_coefficient = 2 * self.g_electrons * \
-                          np.exp(np.outer(self.atom_data.ionization_data.ionization_energy.ix[phis.index].values,
-                                          -self.beta_rads))
-
-        return phis * phi_coefficient
-
