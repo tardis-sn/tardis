@@ -3,12 +3,12 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.plasma_properties import BasePlasmaProperty
+from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
 
-class LevelPopulationLTE(BasePlasmaProperty):
+class LevelPopulationLTE(ProcessingPlasmaProperty):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
         :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
@@ -35,7 +35,7 @@ class LevelPopulationLTE(BasePlasmaProperty):
             return level_boltzmann_factor / partition_function_broadcast
 
 
-class LevelPopulationDiluteLTE(BasePlasmaProperty):
+class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
         """
         Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
         :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
