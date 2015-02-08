@@ -3,11 +3,11 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.plasma_properties import BasePlasmaProperty
+from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
-class PhiSahaNebular(BasePlasmaProperty):
+class PhiSahaNebular(ProcessingPlasmaProperty):
     """
     Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
     j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
@@ -62,7 +62,7 @@ class PhiSahaNebular(BasePlasmaProperty):
 
         return phis
 
-class PhiSahaLTE(BasePlasmaProperty):
+class PhiSahaLTE(ProcessingPlasmaProperty):
     """
     Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
     j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
@@ -176,7 +176,7 @@ class RadiationFieldCorrection():
         return pd.DataFrame(radiation_field_correction, columns=np.arange(len(self.t_rads)),
                             index=ionization_data.index)
 
-class IonPopulation(BasePlasmaProperty):
+class IonPopulation(ProcessingPlasmaProperty):
     """
     Calculate the ionization balance
 

@@ -1,9 +1,9 @@
 from abc import ABCMeta
 
-from tardis.plasma.plasma_properties import BasePlasmaProperty
+from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import IncompleteAtomicData
 
-class BaseAtomicDataProperty(BasePlasmaProperty):
+class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     __metaclass__ = ABCMeta
 
     inputs = ['atomic_data', 'selected_atoms']
