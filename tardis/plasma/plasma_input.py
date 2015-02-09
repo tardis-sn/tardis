@@ -23,7 +23,6 @@ class DilutionFactor(DynamicInput):
     name = 'w'
     latex_name = r'$W$'
 
-
 class AtomicData(StaticInput):
     name = 'atomic_data'
     latex_name = 'Atomic Data'
@@ -31,3 +30,7 @@ class AtomicData(StaticInput):
 class Abundance(DynamicInput):
     name = 'abundance'
     latex_name = 'Abundance'
+
+class Density(DynamicInput):
+    name = 'density'
+    latex_name = r'$\rho$'

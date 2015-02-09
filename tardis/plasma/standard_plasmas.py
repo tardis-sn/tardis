@@ -4,22 +4,26 @@ import numpy as np
 import pandas as pd
 
 from tardis.plasma import BasePlasma
-from tardis.plasma.plasma_input import TRadiative, AtomicData, Abundance
+from tardis.plasma.plasma_input import (TRadiative, AtomicData, Abundance,
+                                        Density)
 from tardis.plasma.base_properties import (
     BetaRadiation, LevelBoltzmannFactor, AtomicLevels, AtomicLines,
     SelectedAtoms, AtomicMass, LTEPartitionFunction, LevelPopulationLTE,
-    LevelNumberDensity, PhiSahaLTE, GElectron, IonizationData)
+    LevelNumberDensity, PhiSahaLTE, GElectron, IonizationData, NumberDensity,
+    IonNumberDensity)
 
 logger = logging.getLogger(__name__)
 
 class LTEPlasma(BasePlasma):
 
-    def __init__(self, t_rad, abundance, atomic_data):
+    def __init__(self, t_rad, abundance, density, atomic_data):
         plasma_modules = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
                AtomicLevels, AtomicLines, AtomicData, Abundance, SelectedAtoms,
                AtomicMass, LTEPartitionFunction, LevelPopulationLTE, PhiSahaLTE,
-               GElectron, IonizationData]
+               GElectron, IonizationData, Density, NumberDensity,
+               IonNumberDensity, LevelNumberDensity]
         super(LTEPlasma, self).__init__(plasma_modules=plasma_modules,
                                         t_rad=t_rad, abundance=abundance,
-                                        atomic_data=atomic_data)
+                                        atomic_data=atomic_data,
+                                        density=density)
 

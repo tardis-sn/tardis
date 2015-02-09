@@ -109,9 +109,9 @@ class GElectron(ProcessingPlasmaProperty):
 class NumberDensity(ProcessingPlasmaProperty):
     name = 'number_density'
 
-
-    def calculate(self, atomic_mass, abundance):
-        pass
+    def calculate(self, atomic_mass, abundance, density):
+        number_densities = (abundance * density)
+        return number_densities.div(atomic_mass.ix[abundance.index], axis=0)
 
 class SelectedAtoms(ProcessingPlasmaProperty):
     name = 'selected_atoms'
@@ -127,7 +127,7 @@ from tardis.plasma.partition_function import (LTEPartitionFunction,
 from tardis.plasma.level_population import (LevelPopulationLTE,
                                             LevelNumberDensity)
 
-from tardis.plasma.ion_population import (IonPopulation, PhiSahaLTE,
+from tardis.plasma.ion_population import (IonNumberDensity, PhiSahaLTE,
                                           PhiSahaNebular,
                                           RadiationFieldCorrection)
 from tardis.plasma.radiative_properties import TauSobolev
