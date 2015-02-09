@@ -17,3 +17,6 @@ class PlasmaIsolatedModule(PlasmaException):
 
 class NotInitializedModule(PlasmaException):
     pass
+
+class PlasmaIonizationError(PlasmaException):
+    pass

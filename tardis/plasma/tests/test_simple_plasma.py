@@ -29,6 +29,9 @@ def abundance(number_of_cells):
 def t_rad(number_of_cells):
     return np.ones(number_of_cells) * 10000.
 
+@pytest.fixture
+def density(number_of_cells):
+    return np.ones(number_of_cells) * 1e-14
 
 @pytest.fixture
 def w(number_of_cells):
@@ -36,16 +39,16 @@ def w(number_of_cells):
 
 
 
-def test_simple_networkx_test1(atomic_data, abundance, t_rad):
-    modules = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
-               AtomicLevels, AtomicLines, AtomicData, Abundance, SelectedAtoms,
-               AtomicMass]
-    bp = BasePlasma(modules, t_rad=t_rad, atomic_data=atomic_data,
-                    abundance=abundance)
-    assert bp.t_rad[0] == 5000
+#def test_simple_networkx_test1(atomic_data, abundance, t_rad):
+#    modules = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
+#               AtomicLevels, AtomicLines, AtomicData, Abundance, SelectedAtoms,
+#               AtomicMass]
+#    bp = BasePlasma(modules, t_rad=t_rad, atomic_data=atomic_data,
+#                    abundance=abundance)
+#    assert bp.t_rad[0] == 5000
 
 
-def test_simple_lte_plasma(atomic_data, abundance, t_rad):
-    lte_plasma = LTEPlasma(t_rad, abundance, atomic_data)
+def test_simple_lte_plasma(atomic_data, abundance, t_rad, density):
+    lte_plasma = LTEPlasma(t_rad, abundance, density, atomic_data)
     lte_plasma.write_to_dot('test.dot')
     1/0
