@@ -28,7 +28,6 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
 
 class AtomicLevels(BaseAtomicDataProperty):
     name = 'levels'
-    type_str = 'pandas.DataFrame'
 
     def _filter_atomic_property(self, levels, selected_atoms):
         return levels[levels.atomic_number.isin(selected_atoms)]
@@ -38,7 +37,6 @@ class AtomicLevels(BaseAtomicDataProperty):
 
 class AtomicLines(BaseAtomicDataProperty):
     name = 'lines'
-    type_str = 'pandas.DataFrame'
 
     def _filter_atomic_property(self, lines, selected_atoms):
         return lines[lines.atomic_number.isin(selected_atoms)]
@@ -48,7 +46,6 @@ class AtomicLines(BaseAtomicDataProperty):
 
 class AtomicMass(BaseAtomicDataProperty):
     name = 'atomic_mass'
-    type_str = 'pandas.DataFrame'
 
     def calculate(self, atomic_data, selected_atoms):
         if self.value is not None:
