@@ -4,8 +4,10 @@ import numpy as np
 import pandas as pd
 
 from tardis.plasma.base_properties import ProcessingPlasmaProperty
-
+from tardis.plasma.exceptions import PlasmaIonizationError
 logger = logging.getLogger(__name__)
+
+
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
@@ -34,7 +36,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
     """
 
-    name = 'phi_saha'
+    name = 'phi'
 
     def calculate(self):
         logger.debug('Calculating Saha using Nebular approximation')
@@ -66,7 +68,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
 
-    name = 'phi_saha'
+    name = 'phi'
 
     latex_formula = (r'$\Phi_{i,j} &= \frac{N_{i, j+1} n_e}{N_{i, j}} \\'
                      r' \Phi_{i, j} &= g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} '
@@ -74,8 +76,6 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate(g_electron, beta_rad, partition_function, ionization_data):
-
-        logger.debug('Calculating Saha using LTE approximation')
 
         def calculate_phis(group):
             return group[1:] / group[:-1].values
@@ -86,7 +86,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
         phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
 
         phi_coefficient = (2 * g_electron * np.exp(np.outer(
-            ionization_data.ionization_energy.ix[phis.index].values, beta_rad)))
+            ionization_data.ionization_energy.ix[phis.index].values, -beta_rad)))
 
         return phis * phi_coefficient
 
@@ -166,7 +166,7 @@ class RadiationFieldCorrection():
         return pd.DataFrame(radiation_field_correction, columns=np.arange(len(self.t_rads)),
                             index=ionization_data.index)
 
-class IonPopulation(ProcessingPlasmaProperty):
+class IonNumberDensity(ProcessingPlasmaProperty):
     """
     Calculate the ionization balance
 
@@ -188,25 +188,57 @@ class IonPopulation(ProcessingPlasmaProperty):
 
 
 
-    name = 'ion_population'
-
-    inputs = ['phi']
+    name = 'ion_number_density'
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
-        super(IonPopulation, self).__init__(plasma_parent)
+        super(IonNumberDensity, self).__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
 
+    def calculate_with_n_electron(self, phi, partition_function, number_density,
+                                  n_electron):
+        ion_populations = pd.DataFrame(data=0.0,
+            index=partition_function.index.copy(),
+            columns=partition_function.columns.copy(),
+            dtype=np.float64)
 
-    @staticmethod
-    def calculate(phi, number_density, n_electron):
         for atomic_number, groups in phi.groupby(level='atomic_number'):
+
             current_phis = (groups / n_electron).replace(np.nan, 0.0).values
             phis_product = np.cumproduct(current_phis, axis=0)
 
-            neutral_atom_density = number_density.ix[atomic_number] / (1 + np.sum(phis_product, axis=0))
+            neutral_atom_density = (number_density.ix[atomic_number] /
+                                    (1 + np.sum(phis_product, axis=0)))
 
+            ion_populations.ix[atomic_number, 0] = (
+                neutral_atom_density.values)
+            ion_populations.ix[atomic_number].values[1:] = (
+                neutral_atom_density.values * phis_product)
+            ion_populations[ion_populations < self.ion_zero_threshold] = 0.0
 
+        return ion_populations
 
-            ion_populations.ix[atomic_number].values[0] = neutral_atom_density.values
-            ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
-            ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
+    def calculate(self, phi, partition_function, number_density):
+        n_electron = number_density.sum(axis=0)
+        n_electron_iterations = 0
+        new_n_electron = np.zeros_like(n_electron)
+        while not np.allclose(new_n_electron, n_electron):
+            ion_number_density = self.calculate_with_n_electron(
+                phi, partition_function, number_density, n_electron)
+            ion_numbers = ion_number_density.index.get_level_values(1).values
+            ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
+            new_n_electron = (ion_number_density.values * ion_numbers).sum(
+                axis=0)
+
+            if np.any(np.isnan(new_n_electron)):
+                raise PlasmaIonizationError('n_electron just turned "nan" -'
+                                            ' aborting')
+
+            n_electron_iterations += 1
+            if n_electron_iterations > 100:
+                logger.warn('n_electron iterations above 100 ({0}) -'
+                            ' something is probably wrong'.format(
+                    n_electron_iterations))
+
+            n_electron = 0.5 * (new_n_electron + n_electron)
+
+        return ion_number_density
