@@ -8,31 +8,33 @@ from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 
+
+
 class LevelPopulationLTE(ProcessingPlasmaProperty):
-        """
-        Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
-        :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
-        j is the ion number and k is the level number. For non-metastable levels we add the dilution factor (W) to the calculation.
 
-        .. math::
-
-            N_{i, j, k}(\\textrm{metastable}) &= \\frac{g_k}{Z_{i, j}}\\times N_{i, j} \\times e^{-\\beta_\\textrm{rad} E_k} \\\\
-            N_{i, j, k}(\\textrm{not metastable}) &= W\\frac{g_k}{Z_{i, j}}\\times N_{i, j} \\times e^{-\\beta_\\textrm{rad} E_k} \\\\
-
-
-        This function updates the 'number_density' column on the levels table (or adds it if non-existing)
-        """
+        name = 'level_population'
+        latex_formula = (r'N_{i, j, k} = \frac{g_{i, j, k} '
+                         r'e^{-\beta_\textrm{rad} E_{i, j, k}}{Z_{i, j}}')
 
         @staticmethod
-        def calculate_level_populations(levels, partition_function,
-                                        level_boltzmann_factor,
-                                        ion_number_density):
+        def calculate(levels, partition_function,
+                                        level_boltzmann_factor):
+
             partition_function_broadcast = partition_function.ix[
                 levels.index.droplevel(2)].values
 
-            ion_number_density_broadcast = ion_number_density.ix[levels.index.droplevel(2)].values
+            #ion_number_density_broadcast = ion_number_density.ix[levels.index.droplevel(2)].values
 
             return level_boltzmann_factor / partition_function_broadcast
+
+class LevelNumberDensityLTE(ProcessingPlasmaProperty):
+    name = 'level_number_density'
+
+    @staticmethod
+    def calculate(level_population, ion_number_density):
+        ion_number_density_broadcast = ion_number_density.ix[
+            level_population.index.droplevel(2)].values
+        return level_population * ion_number_density_broadcast
 
 
 class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
@@ -51,7 +53,7 @@ class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
         """
 
         @staticmethod
-        def calculate_level_populations(levels, partition_function,
+        def calculate(levels, partition_function,
                                         level_boltzmann_factor,
                                         ion_number_density, w):
             partition_function_broadcast = partition_function.ix[
@@ -82,7 +84,9 @@ class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
                 self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
 
 
-    def calculate_nlte_level_populations(self):
+class LevelPopulationNLTE(ProcessingPlasmaProperty):
+    @staticmethod
+    def calculate(self):
         """
         Calculating the NLTE level populations for specific ions
 
