@@ -13,7 +13,7 @@ class BasePlasma(object):
         self.module_dict = {}
         self.input_modules = []
         self._init_modules(plasma_modules, **kwargs)
-        self._build_graph(plasma_modules)
+        self._build_graph()
         self.update(**kwargs)
 
 
@@ -40,7 +40,7 @@ class BasePlasma(object):
 
         return attrs
 
-    def _build_graph(self, plasma_modules):
+    def _build_graph(self):
         """
         Builds the directed Graph using network X
 
@@ -55,11 +55,10 @@ class BasePlasma(object):
                                    for key, value in self.module_dict.items()])
 
         #Flagging all input modules
-        self.input_modules = [item.name for item in plasma_modules
+        self.input_modules = [key for key, item in self.module_dict.items()
                               if not hasattr(item, 'inputs')]
 
-        for plasma_module in plasma_modules:
-
+        for plasma_module in self.module_dict.values():
             #Skipping any module that is an input module
             if plasma_module.name in self.input_modules:
                 continue
@@ -153,8 +152,11 @@ class BasePlasma(object):
                               '\'plasma_to_dot\'')
 
         for node in self.graph:
-            self.graph[node]['label'] = 'tmp'
+            self.graph.node[node]['label'] = self.module_dict[node].get_latex_label()
+            self.graph.node[node]['color'] = 'red'
+            self.graph.node[node]['shape'] = 'box '
 
+        nx.write_dot(self.graph, fname)
 
 
 class StandardPlasma(BasePlasma):
