@@ -4,7 +4,7 @@ import pandas as pd
 import numpy as np
 
 from tardis.plasma.base import BasePlasma
-from tardis.plasma.plasma_properties import (BetaRadiation,
+from tardis.plasma.base_properties import (BetaRadiation,
                                              LevelBoltzmannFactor,
                                              AtomicLevels, AtomicLines,
                                              SelectedAtoms, AtomicMass,
@@ -47,5 +47,5 @@ def test_simple_networkx_test1(atomic_data, abundance, t_rad):
 
 def test_simple_lte_plasma(atomic_data, abundance, t_rad):
     lte_plasma = LTEPlasma(t_rad, abundance, atomic_data)
-    lte_plasma.write_to_dot('test')
+    lte_plasma.write_to_dot('test.dot')
     1/0

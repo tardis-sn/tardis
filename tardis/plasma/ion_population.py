@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
+from tardis.plasma.base_properties import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +34,8 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
     """
 
+    name = 'phi_saha'
+
     def calculate(self):
         logger.debug('Calculating Saha using Nebular approximation')
 
@@ -63,34 +65,22 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         return phis
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
-    """
-    Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
-    j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
-    and :math:`\chi` is the ionization energy.
 
-    .. math::
+    name = 'phi_saha'
 
-
-        \\Phi_{i,j} = \\frac{N_{i, j+1} n_e}{N_{i, j}}
-
-        \\Phi_{i, j} = g_e \\times \\frac{Z_{i, j+1}}{Z_{i, j}} e^{-\chi_{j\\rightarrow j+1}/k_\\textrm{B}T}
-
-    """
-    name = 'phi'
-    inputs = ['g_electron', 'beta_rad', 'partition_function',
-              'ionization_data']
-    type_str = []
+    latex_formula = (r'$\Phi_{i,j} &= \frac{N_{i, j+1} n_e}{N_{i, j}} \\'
+                     r' \Phi_{i, j} &= g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} '
+                     r'e^{-\chi_{j\rightarrow j+1}/k_\textrm{B}T}$')
 
     @staticmethod
-    def calculate(g_electron, beta_rad, partition_functions,
-                  ionization_data):
+    def calculate(g_electron, beta_rad, partition_function, ionization_data):
 
         logger.debug('Calculating Saha using LTE approximation')
 
         def calculate_phis(group):
             return group[1:] / group[:-1].values
 
-        phis = partition_functions.groupby(level='atomic_number').apply(
+        phis = partition_function.groupby(level='atomic_number').apply(
             calculate_phis)
 
         phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
@@ -182,36 +172,41 @@ class IonPopulation(ProcessingPlasmaProperty):
 
     .. math::
         N(X) = N_1 + N_2 + N_3 + \\dots
-
         N(X) = (N_2/N_1) \\times N_1 + (N3/N2) \\times (N_2/N_1) \\times N_1 + \\dots
-
         N(X) = N_1(1 + N_2/N_1 + (N_3/N_2) \\times (N_2/N_1) + \\dots
-
         N(X) = N_1(1+ \\Phi_{i,j}/N_e + \\Phi_{i, j}/N_e \\times \\Phi_{i, j+1}/N_e + \\dots)
 
     """
 
+    latex_formula = (r'N(X) &= N_1 + N_2 + N_3 + \dots \\ '
+                     r'N(X) &= (N_2/N_1) \times N_1 + (N3/N2) '
+                     r'\times (N_2/N_1) \times N_1 + \dots \\'
+                     r'N(X) &= N_1(1 + N_2/N_1 + (N_3/N_2) \times (N_2/N_1) '
+                     r'+ \dots \\'
+                     r'N(X) &= N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
+                     r'\times \Phi_{i, j+1}/N_e + \dots)')
+
+
+
+    name = 'ion_population'
+
     inputs = ['phi']
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
-        self.ion_zero_threshold = ion_zero_threshold
         super(IonPopulation, self).__init__(plasma_parent)
+        self.ion_zero_threshold = ion_zero_threshold
+
 
     @staticmethod
-    def calculate(phi):
-        #TODO see if self.ion_populations is None is needed (first class should be enough)
-        if not hasattr(self, 'ion_populations'):
-            self.ion_populations = pd.DataFrame(index=self.partition_functions.index.copy(),
-                                                columns=np.arange(len(self.t_rads)), dtype=np.float64)
-
-        for atomic_number, groups in phis.groupby(level='atomic_number'):
-            current_phis = (groups / self.electron_densities).replace(np.nan, 0.0).values
+    def calculate(phi, number_density, n_electron):
+        for atomic_number, groups in phi.groupby(level='atomic_number'):
+            current_phis = (groups / n_electron).replace(np.nan, 0.0).values
             phis_product = np.cumproduct(current_phis, axis=0)
 
-            neutral_atom_density = self.number_densities.ix[atomic_number] / (1 + np.sum(phis_product, axis=0))
+            neutral_atom_density = number_density.ix[atomic_number] / (1 + np.sum(phis_product, axis=0))
 
 
 
-            self.ion_populations.ix[atomic_number].values[0] = neutral_atom_density.values
-            self.ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
-            self.ion_populations[self.ion_populations < ion_zero_threshold] = 0.0
+            ion_populations.ix[atomic_number].values[0] = neutral_atom_density.values
+            ion_populations.ix[atomic_number].values[1:] = neutral_atom_density.values * phis_product
+            ion_populations[self.ion_populations < ion_zero_threshold] = 0.0

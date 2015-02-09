@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
+from tardis.plasma.base_properties import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
