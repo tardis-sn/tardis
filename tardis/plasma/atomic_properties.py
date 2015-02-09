@@ -1,6 +1,6 @@
 from abc import ABCMeta
 
-from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
+from tardis.plasma.base_properties import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import IncompleteAtomicData
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
@@ -52,3 +52,12 @@ class AtomicMass(BaseAtomicDataProperty):
             return self.value
         else:
             return atomic_data.atom_data.ix[selected_atoms].mass
+
+class IonizationData(BaseAtomicDataProperty):
+    name = 'ionization_data'
+
+    def calculate(self, atomic_data, selected_atoms):
+        if self.value is not None:
+            return self.value
+        else:
+            return atomic_data.ionization_data

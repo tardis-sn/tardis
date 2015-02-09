@@ -100,9 +100,8 @@ class GElectron(ProcessingPlasmaProperty):
     latex_formula = (r'\left(\\frac{2\pi m_\textrm{e} '
                      r'\beta_\textrm{rad}}{h^2}\right)^{3/2}')
 
-
     @staticmethod
-    def calculate(self, beta_rad):
+    def calculate(beta_rad):
         return ((2 * np.pi * const.m_e.cgs.value / beta_rad) /
                 (const.h.cgs.value ** 2)) ** 1.5
 
@@ -126,12 +125,12 @@ from tardis.plasma.partition_function import (LTEPartitionFunction,
                                               DiluteLTEPartitionFunction)
 
 from tardis.plasma.level_population import (LevelPopulationLTE,
-                                            LevelNumberDensityLTE)
+                                            LevelNumberDensity)
 
 from tardis.plasma.ion_population import (IonPopulation, PhiSahaLTE,
                                           PhiSahaNebular,
                                           RadiationFieldCorrection)
 from tardis.plasma.radiative_properties import TauSobolev
 from tardis.plasma.atomic_properties import (AtomicMass, AtomicLevels,
-                                             AtomicLines)
+                                             AtomicLines, IonizationData)
 ######################################################
