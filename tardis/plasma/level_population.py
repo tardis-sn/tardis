@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.plasma_properties import ProcessingPlasmaProperty
+from tardis.plasma.base_properties import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class LevelPopulationLTE(ProcessingPlasmaProperty):
 
             return level_boltzmann_factor / partition_function_broadcast
 
-class LevelNumberDensityLTE(ProcessingPlasmaProperty):
+class LevelNumberDensity(ProcessingPlasmaProperty):
     name = 'level_number_density'
 
     @staticmethod

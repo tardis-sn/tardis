@@ -1,4 +1,4 @@
-from tardis.plasma.plasma_properties import BasePlasmaProperty
+from tardis.plasma.base_properties import BasePlasmaProperty
 
 
 
