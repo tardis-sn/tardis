@@ -153,6 +153,21 @@ def atomic_data_fname():
         return os.path.expandvars(os.path.expanduser(atomic_data_fname))
 
 from tardis.atomic import AtomData
+
 @pytest.fixture
-def atomic_data(atomic_data_fname):
-    return AtomData.from_hdf5(atomic_data_fname)
+def kurucz_atomic_data(atomic_data_fname):
+    atomic_data = AtomData.from_hdf5(atomic_data_fname)
+
+    if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
+        pytest.skip('Need default Kurucz atomic dataset '
+                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
+    else:
+        return atomic_data
+
+@pytest.fixture
+def included_he_atomic_data():
+    import os, tardis
+    atomic_db_fname = os.path.join(tardis.__path__[0], 'tests', 'data',
+                                   'chianti_he_db.h5')
+    return AtomData.from_hdf5(atomic_db_fname)
+
