@@ -6,7 +6,7 @@ import pandas as pd
 from tardis.plasma import BasePlasma
 from tardis.plasma.plasma_input import (TRadiative, AtomicData, Abundance,
                                         Density, TimeExplosion)
-from tardis.plasma.base_properties import (
+from tardis.plasma.properties import (
     BetaRadiation, LevelBoltzmannFactor, Levels, Lines,
     SelectedAtoms, AtomicMass, LTEPartitionFunction, LevelPopulationLTE,
     LevelNumberDensity, PhiSahaLTE, GElectron, IonizationData, NumberDensity,
