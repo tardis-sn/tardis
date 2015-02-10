@@ -1,5 +1,8 @@
 from abc import ABCMeta
 
+import numpy as np
+import pandas as pd
+
 from tardis.plasma.base_properties import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import IncompleteAtomicData
 
@@ -26,7 +29,7 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
 
 
 
-class AtomicLevels(BaseAtomicDataProperty):
+class Levels(BaseAtomicDataProperty):
     name = 'levels'
 
     def _filter_atomic_property(self, levels, selected_atoms):
@@ -35,7 +38,7 @@ class AtomicLevels(BaseAtomicDataProperty):
     def _set_index(self, levels):
         return levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
-class AtomicLines(BaseAtomicDataProperty):
+class Lines(BaseAtomicDataProperty):
     name = 'lines'
 
     def _filter_atomic_property(self, lines, selected_atoms):
@@ -43,6 +46,30 @@ class AtomicLines(BaseAtomicDataProperty):
 
     def _set_index(self, lines):
         return lines
+
+class LinesLowerLevelIndex(ProcessingPlasmaProperty):
+    name = 'lines_lower_level_index'
+
+    def calculate(self, levels, lines):
+        levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
+                                 index=levels.index)
+        lines_index = lines.set_index(
+            ['atomic_number', 'ion_number',
+             'level_number_lower']).index
+        return np.array(levels_index.ix[lines_index])
+
+class LinesUpperLevelIndex(ProcessingPlasmaProperty):
+    name = 'lines_upper_level_index'
+
+    def calculate(self, levels, lines):
+        levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
+                                 index=levels.index)
+        lines_index = lines.set_index(
+            ['atomic_number', 'ion_number',
+             'level_number_upper']).index
+        return np.array(levels_index.ix[lines_index])
+
+
 
 class AtomicMass(BaseAtomicDataProperty):
     name = 'atomic_mass'
