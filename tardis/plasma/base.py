@@ -2,7 +2,7 @@ import logging
 
 import networkx as nx
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
-from plasma_input import Input
+
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class BasePlasma(object):
 
     def __getattr__(self, item):
         if item in self.module_dict:
-            return self.module_dict[item].value
+            return self.get_value(item)
         else:
             super(BasePlasma, self).__getattribute__(item)
 
@@ -39,6 +39,9 @@ class BasePlasma(object):
         attrs += self.module_dict.keys()
 
         return attrs
+
+    def get_value(self, item):
+        return self.module_dict[item].value
 
     def _build_graph(self):
         """
