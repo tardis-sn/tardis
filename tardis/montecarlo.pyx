@@ -26,6 +26,7 @@ cdef extern from "cmontecarlo.h":
         TARDIS_PACKET_STATUS_REABSORBED = 2
 
     ctypedef struct rpacket_t:
+        int_type_t id
         double nu
         double mu
         double energy
@@ -39,6 +40,10 @@ cdef extern from "cmontecarlo.h":
         int_type_t recently_crossed_boundary
         int_type_t virtual_packet_flag
         int_type_t virtual_packet
+        int_type_t line_interaction_in_id
+        int_type_t last_line_interaction_shell_id
+        int_type_t last_interaction_type
+        int_type_t last_line_interaction_out_id
         double d_line
         double d_electron
         double d_boundary
@@ -94,7 +99,16 @@ cdef extern from "cmontecarlo.h":
     double rpacket_get_nu(rpacket_t *packet) nogil
     double rpacket_get_energy(rpacket_t *packet)  nogil
     void initialize_random_kit(unsigned long seed)
-
+    void rpacket_set_last_line_interaction_in_id(rpacket_t *packet, int last_line_interaction_in_id) nogil
+    int rpacket_get_last_line_interaction_in_id(rpacket_t *packet) nogil
+    void rpacket_set_last_line_interaction_shell_id(rpacket_t *packet, int last_line_interaction_shell_id) nogil
+    int rpacket_get_last_line_interaction_shell_id(rpacket_t *packet) nogil
+    void rpacket_set_last_interaction_type(rpacket_t *packet, int last_interaction_type) nogil
+    int rpacket_get_last_interaction_type(rpacket_t *packet) nogil
+    void rpacket_set_last_line_interaction_out_id(rpacket_t *packet,int last_line_interaction_out_id) nogil
+    int rpacket_get_last_line_interaction_out_id(rpacket_t *packet) nogil
+    void rpacket_set_id(rpacket_t *packet, int id) nogil
+    int rpacket_get_id(rpacket_t *packet) nogil
 
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
@@ -260,6 +274,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                     if not packet_index % (no_of_packets/20):
                         printf("%d\n",packet_index)
                     storage.current_packet_id = packet_index
+                    rpacket_set_id(packet, packet_index)
                     rpacket_init(packet, &storage, packet_index, virtual_packet_flag)
                     if (virtual_packet_flag > 0):
                         #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
@@ -267,6 +282,11 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                         #Now can do the propagation of the real packet
                     reabsorbed = montecarlo_one_packet(&storage, packet, 0)
                     storage.output_nus[packet_index] = rpacket_get_nu(packet)
+                    storage.last_line_interaction_in_id[packet_index] = rpacket_get_last_line_interaction_in_id(packet)
+                    storage.last_line_interaction_shell_id[packet_index] = rpacket_get_last_line_interaction_shell_id(packet)
+                    storage.last_interaction_type[packet_index] = rpacket_get_last_interaction_type(packet)
+                    storage.last_line_interaction_out_id[packet_index] = rpacket_get_last_line_interaction_out_id(packet)
+
                     if reabsorbed ==1 :
                         storage.output_energies[packet_index] = -rpacket_get_energy(packet)
                     else:
