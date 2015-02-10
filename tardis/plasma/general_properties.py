@@ -1,4 +1,13 @@
+import logging
 
+import numpy as np
+import pandas as pd
+
+from astropy import constants as const
+
+from tardis.plasma.base_properties import ProcessingPlasmaProperty
+
+logger = logging.getLogger(__name__)
 
 
 class BetaRadiation(ProcessingPlasmaProperty):
@@ -39,4 +48,4 @@ class SelectedAtoms(ProcessingPlasmaProperty):
     name = 'selected_atoms'
 
     def calculate(self, abundance):
-        return self.plasma_parent.abundance.index
+        return abundance.index
