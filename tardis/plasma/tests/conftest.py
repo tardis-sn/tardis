@@ -5,6 +5,8 @@ import pandas as pd
 
 from astropy import units as u
 
+from tardis.plasma.standard_plasmas import LTEPlasma
+
 
 @pytest.fixture
 def number_of_cells():
@@ -35,3 +37,8 @@ def t_rad(number_of_cells):
     return np.ones(number_of_cells) * 10000
 
 
+@pytest.fixture
+def standard_lte_plasma_he_db(t_rad, abundance, density, time_explosion,
+                              included_he_atomic_data):
+    return LTEPlasma(t_rad, abundance, density, time_explosion,
+                     included_he_atomic_data)

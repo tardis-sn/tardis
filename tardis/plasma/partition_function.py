@@ -19,11 +19,10 @@ class LevelBoltzmannFactor(ProcessingPlasmaProperty):
     """
 
     name = 'level_boltzmann_factor'
-    inputs = ['levels', 'beta_rad']
     latex_formula = r'$g_{i, j, k} e^{E_{i, j, k} \times \beta_\textrm{rad}}$'
 
-
-    def calculate(self, levels, beta_rad):
+    @staticmethod
+    def calculate(levels, beta_rad):
         exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
         level_boltzmann_factor_array = (levels.g.values[np.newaxis].T *
                                         exponential)
@@ -37,7 +36,7 @@ class LevelBoltzmannFactor(ProcessingPlasmaProperty):
 class LTEPartitionFunction(ProcessingPlasmaProperty):
     name = 'partition_function'
     latex_name = '$Z_{i, j}$'
-    inputs = ['levels', 'level_boltzmann_factor']
+
     latex_formula = (r'$Z_{i, j} = \sum_{k=1}^n g_{i, j, k} '
                      r'e^{E_{i, j, k} \times \beta_\textrm{rad}}$')
 
