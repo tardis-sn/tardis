@@ -43,7 +43,7 @@ LONG_DESCRIPTION = "" #package.__doc__
 builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
 
 # VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
-VERSION = '0.0.dev'
+VERSION = '1.0.dev'
 
 # Indicates if this version is a release version
 RELEASE = 'dev' not in VERSION
@@ -96,7 +96,7 @@ for root, dirs, files in os.walk(PACKAGENAME):
                     os.path.relpath(root, PACKAGENAME), filename))
 package_info['package_data'][PACKAGENAME].extend(c_files)
 
-setup(name=PACKAGENAME,
+setup(name=PACKAGENAME + '-sn',
       version=VERSION,
       description=DESCRIPTION,
       scripts=scripts,
