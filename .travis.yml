@@ -12,7 +12,7 @@ env:
         - CYTHON_VERSION=0.21
         - NUMPY_VERSION=1.8
         - PANDAS_VERSION=0.12
-        - ASTROPY_VERSION=0.4
+        - ASTROPY_VERSION=0.4.4
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
         - TEST_MODE='normal'
@@ -55,13 +55,11 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
 
 install:
-   - conda create --yes -n tardis-travis --file pip-requirements python=$TRAVIS_PYTHON_VERSION
+   - conda create --yes -n tardis-travis --file pip-requirements pip python=$TRAVIS_PYTHON_VERSION
    - source activate tardis-travis
    - if [[ $NUMPY_VERSION == 'latest' ]]; then conda install --yes  numpy; else conda install --yes "numpy==$NUMPY_VERSION"; fi
    - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
-   - conda install --yes pytables
-   #- conda install --yes cython
-   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip install git+https://github.com/astropy/astropy; else conda install --yes "astropy==$ASTROPY_VERSION"; fi
+   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip install git+https://github.com/astropy/astropy; else conda install --yes "astropy=$ASTROPY_VERSION"; fi
    - conda install --yes pytest
 
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
