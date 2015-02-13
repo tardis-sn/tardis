@@ -1,6 +1,6 @@
-======
+******
 TARDIS
-======
+******
 
 .. image:: https://pypip.in/v/tardis-sn/badge.png
   :target: https://pypi.python.org/pypi/tardis-sn

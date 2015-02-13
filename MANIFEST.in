@@ -1,26 +1,22 @@
 include README.rst
-include pip-requirements
+include CHANGES.rst
 
 include ez_setup.py
 include ah_bootstrap.py
 include setup.cfg
 
-recursive-include astropy_helpers *
-exclude astropy_helpers/.git
-exclude astropy_helpers/.gitignore
-exclude tardis/_compiler.c
-
-
-recursive-include tardis *.pyx *.c *.h
-recursive-include tardis/randomkit *.c *.h
-include tardis/tardis.cfg
-
+recursive-include *.pyx *.c *.pxd
 recursive-include docs *
 recursive-include licenses *
 recursive-include cextern *
 recursive-include scripts *
 
-exclude *.pyc *.o
-prune docs/_build
 prune build
+prune docs/_build
+prune docs/api
 
+recursive-include astropy_helpers *
+exclude astropy_helpers/.git
+exclude astropy_helpers/.gitignore
+
+global-exclude *.pyc *.o

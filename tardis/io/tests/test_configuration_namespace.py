@@ -29,11 +29,11 @@ def test_quantity_configuration_namespace():
     config_ns = ConfigurationNameSpace(simple_config_dict)
 
     config_ns.a.b.param3 = 3
-    assert_almost_equal(config_ns['a']['b']['param3'], 3 * u.km)
+    assert_almost_equal(config_ns['a']['b']['param3'].to(u.km).value, 3)
 
 
     config_ns.a.b.param3 = 5000 * u.m
-    assert_almost_equal(config_ns['a']['b']['param3'], 5 * u.km)
+    assert_almost_equal(config_ns['a']['b']['param3'].to(u.km).value, 5)
 
 
 
@@ -48,7 +48,7 @@ def test_set_with_config_item_string_quantity():
     config_ns = ConfigurationNameSpace(simple_config_dict)
 
     config_ns.set_config_item('a.b.param3', 2)
-    assert_almost_equal(config_ns.a.b.param3, 2 * u.km)
+    assert_almost_equal(config_ns.a.b.param3.to(u.km).value, 2)
 
 
 def test_get_with_config_item_string_item_access():
@@ -72,7 +72,7 @@ def test_set_with_config_item_string_item_access_quantity():
 
     item = config_ns.get_config_item('a.b.param2.item2')
 
-    assert_almost_equal(item ,7*u.km)
+    assert_almost_equal(item.to(u.km).value ,7)
 
 
 

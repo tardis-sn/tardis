@@ -1,5 +1,6 @@
+**************
 Testing TARDIS
---------------
+**************
 
 Testing a code like TARDIS is an important step to making sure that the output is trustworthy. The TARDIS team has opted
 to use the py.test testing framework for use with TARDIS (and some astropy extensions of it). To run the tests download
