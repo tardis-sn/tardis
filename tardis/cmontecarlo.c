@@ -409,9 +409,7 @@ void montecarlo_line_scatter(rpacket_t *packet, storage_model_t *storage, double
   int64_t j_blue_idx = -1;
   if (rpacket_get_virtual_packet(packet) == 0)
     {
-      #pragma omp critical
       j_blue_idx = rpacket_get_current_shell_id(packet) * storage->line_lists_j_blues_nd + rpacket_get_next_line_id(packet);
-      #pragma omp critical
       increment_j_blue_estimator(packet, storage, distance, j_blue_idx);
     }
   tau_line = storage->line_lists_tau_sobolevs[rpacket_get_current_shell_id(packet) * storage->line_lists_tau_sobolevs_nd + rpacket_get_next_line_id(packet)];

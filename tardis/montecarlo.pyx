@@ -48,6 +48,12 @@ cdef extern from "cmontecarlo.h":
         double d_electron
         double d_boundary
         rpacket_status_t next_shell_id
+        #ToDo for openmp
+        double *nubars
+        double *js
+        int_type_t line_lists_j_blues_nd
+        double *spectrum_virt_nu
+        double *line_lists_j_blues
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -266,13 +272,36 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
             cdef int_type_t reabsorbed = 0
             cdef int_type_t no_of_packets = storage.no_of_packets
             cdef int_type_t packet_index = 0
-            cdef int_type_t num_threads
+            cdef int_type_t num_threads = 0
+            cdef int_type_t threads_num =0
+            cdef int_type_t spectrum_virt_nu_len = 0
+            cdef int_type_t  line_lists_j_blues_len = 0
+            cdef rpacket_t* packet = NULL
+            cdef rpacket_t* big_packet = NULL
+            cdef double* big_thread_spectrum_virt_nu = NULL
+            cdef double* big_thread_line_lists_j_blues = NULL
+
+            spectrum_virt_nu_len =len(model.montecarlo_virtual_luminosity)
+            line_lists_j_blues_len = len(model.j_blue_estimators)
+
+            num_threads = openmp.omp_get_num_threads()
+            big_packet = <rpacket_t *> malloc(sizeof(rpacket_t) *num_threads )
+            big_thread_spectrum_virt_nu = <double*> malloc(sizeof(double) * (spectrum_virt_nu_len * num_threads))
+            big_thread_line_lists_j_blues = <double*> malloc(sizeof(double) * (line_lists_j_blues_len * num_threads))
             with nogil, parallel():
-                num_threads = openmp.omp_get_num_threads()
+                printf("big_packet prt: %p\n", big_packet)
+                printf("big_thread_spectrum_virt_nu prt: %p\n",big_thread_spectrum_virt_nu )
+                printf("big_thread_line_lists_j_blues prt: %p\n",big_thread_line_lists_j_blues )
                 for packet_index in prange(no_of_packets):
-                    packet = <rpacket_t *> malloc(sizeof(rpacket_t))
+                    threads_num =openmp.omp_get_thread_num()
+                    packet = <rpacket_t *> (big_packet + threads_num)
+                    packet.spectrum_virt_nu = <double*> big_thread_spectrum_virt_nu + threads_num
+                    packet.line_lists_j_blues = <double*> big_thread_line_lists_j_blues + threads_num
                     if not packet_index % (no_of_packets/20):
+                        printf("threads_num: %d\n", threads_num)
                         printf("%d\n",packet_index)
+                        printf("packet prt: %p\n", packet)
+                        printf("packet.spectrum_virt_nu  prt: %p\n", packet.spectrum_virt_nu )
                     storage.current_packet_id = packet_index
                     rpacket_set_id(packet, packet_index)
                     rpacket_init(packet, &storage, packet_index, virtual_packet_flag)
@@ -291,7 +320,9 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                         storage.output_energies[packet_index] = -rpacket_get_energy(packet)
                     else:
                         storage.output_energies[packet_index] = rpacket_get_energy(packet)
-                    free(packet)
+
+            #free(big_packet)
+            #big_packet = NULL
         ELSE:
             printf('CRITICAL - Tardis was build without openmp support. Fallback to none parallel run')
             start_mc_none_parallel()

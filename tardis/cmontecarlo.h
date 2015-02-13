@@ -80,6 +80,11 @@ typedef struct RPacket
   double d_boundary; /**< Distance to shell boundary. */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
   rpacket_status_t status; /**< Packet status (in process, emitted or reabsorbed). */
+  double *nubars;
+  double *js;
+  int64_t line_lists_j_blues_nd;
+  double *spectrum_virt_nu;
+  double *line_lists_j_blues;
 } rpacket_t;
 
 typedef struct StorageModel
