@@ -8,7 +8,7 @@ from matplotlib.patches import Circle
 from matplotlib.figure import *
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
-from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
 from astropy import units as u
 from tardis import analysis, util
 
@@ -476,23 +476,23 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
             if self.iterate_header[0] == 1:
-                return QtCore.QVariant(self.headerdata[0][0] + str(section + 1))
+                return self.headerdata[0][0] + str(section + 1)
             elif self.iterate_header[0] == 2:
                 if self.index_info:
-                    return QtCore.QVariant(self.headerdata[0][0] + str(self.index_info[section]))
+                    return self.headerdata[0][0] + str(self.index_info[section])
                 else:
-                    return QtCore.QVariant(self.headerdata[0][0] + str(section + 1))
+                    return self.headerdata[0][0] + str(section + 1)
             else:
-                return QtCore.QVariant(self.headerdata[0][section])
+                return self.headerdata[0][section]
         elif orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
             if self.iterate_header[1] == 1:
-                return QtCore.QVariant(self.headerdata[1][0] + str(section + 1))
+                return self.headerdata[1][0] + str(section + 1)
             elif self.iterate_header[1] == 2:
                 if self.index_info:
-                    return QtCore.QVariant(self.headerdata[1][0] + str(self.index_info[section]))
+                    return self.headerdata[1][0] + str(self.index_info[section])
             else:
-                return QtCore.QVariant(self.headerdata[1][section])
-        return QtCore.QVariant()
+                return self.headerdata[1][section]
+        return ""
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid():
@@ -514,7 +514,7 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         for r in range(self.rowCount()):
             for c in range(self.columnCount()):
                 index = self.createIndex(r, c)
-                self.setData(index, QtCore.QVariant(self.arraydata[c][r]))
+                self.setData(index, self.arraydata[c][r])
 
 class MatplotlibWidget(FigureCanvas):
 
