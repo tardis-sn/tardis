@@ -1,16 +1,3 @@
-numpy>=1.4.0
-scipy>=0.10
-pandas>=0.12
-# currently not needed or supported pytables
-h5py>=2.0
-matplotlib>=1.1
-astropy>=0.4
-PyYAML>=3.0
-numexpr>=2.0.0
-Cython>=0.21
-jinja2
-
-#for documentation
 numpydoc
 pybtex
 sphinx_bootstrap_theme
