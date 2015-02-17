@@ -38,6 +38,7 @@ typedef enum
  */
 typedef struct RPacket
 {
+  int64_t id;
   double nu; /**< Frequency of the packet in Hz. */
   double mu; /**< Cosine of the angle of the packet. */
   double energy; /**< Energy of the packet in erg. */
@@ -70,11 +71,20 @@ typedef struct RPacket
    */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
+  int64_t last_line_interaction_in_id;
+  int64_t last_line_interaction_shell_id;
+  int64_t last_interaction_type;
+  int64_t last_line_interaction_out_id;
   double d_line; /**< Distance to electron event. */
   double d_electron; /**< Distance to line event. */
   double d_boundary; /**< Distance to shell boundary. */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
   rpacket_status_t status; /**< Packet status (in process, emitted or reabsorbed). */
+  double *nubars;
+  double *js;
+  int64_t line_lists_j_blues_nd;
+  double *spectrum_virt_nu;
+  double *line_lists_j_blues;
 } rpacket_t;
 
 typedef struct StorageModel
@@ -101,6 +111,7 @@ typedef struct StorageModel
   double *line_lists_tau_sobolevs;
   int64_t line_lists_tau_sobolevs_nd;
   double *line_lists_j_blues;
+  int64_t line_lists_j_blues_len;
   int64_t line_lists_j_blues_nd;
   int64_t no_of_lines;
   int64_t line_interaction_id;
@@ -117,6 +128,7 @@ typedef struct StorageModel
   double spectrum_delta_nu;
   double spectrum_end_nu;
   double *spectrum_virt_nu;
+  int64_t spectrum_virt_nu_len;
   double sigma_thomson;
   double inverse_sigma_thomson;
   double inner_boundary_albedo;
@@ -294,6 +306,27 @@ inline void rpacket_reset_tau_event (rpacket_t * packet);
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
 			     int packet_index, int virtual_packet_flag);
 
+inline void rpacket_set_last_line_interaction_in_id(rpacket_t *packet, int last_line_interaction_in_id);
+
+inline int rpacket_get_last_line_interaction_in_id(rpacket_t *packet);
+
+inline void rpacket_set_last_line_interaction_shell_id(rpacket_t *packet, int last_line_interaction_shell_id);
+
+inline int rpacket_get_last_line_interaction_shell_id(rpacket_t *packet);
+
+inline void rpacket_set_last_interaction_type(rpacket_t *packet, int last_interaction_type);
+
+inline int rpacket_get_last_interaction_type(rpacket_t *packet);
+
+inline void rpacket_set_last_line_interaction_out_id(rpacket_t *packet, int last_line_interaction_out_id);
+
+inline int rpacket_get_last_line_interaction_out_id(rpacket_t *packet);
+
+inline void rpacket_set_id(rpacket_t *packet, int id);
+
+inline int rpacket_get_id(rpacket_t *packet);
+
 void initialize_random_kit (unsigned long seed);
 
 #endif // TARDIS_CMONTECARLO_H
+

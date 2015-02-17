@@ -292,10 +292,11 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 	{
 	  comov_energy = rpacket_get_energy (packet) * doppler_factor;
 	  comov_nu = rpacket_get_nu (packet) * doppler_factor;
-	  storage->js[rpacket_get_current_shell_id (packet)] +=
-	    comov_energy * distance;
-	  storage->nubars[rpacket_get_current_shell_id (packet)] +=
-	    comov_energy * distance * comov_nu;
+
+#pragma omp atomic
+	  storage->js[rpacket_get_current_shell_id(packet)] += comov_energy * distance;
+#pragma omp atomic
+	  storage->nubars[rpacket_get_current_shell_id(packet)] += comov_energy * distance * comov_nu;
 	}
     }
   return doppler_factor;
@@ -314,8 +315,8 @@ increment_j_blue_estimator (rpacket_t * packet, storage_model_t * storage,
   doppler_factor = 1.0 - mu_interaction * r_interaction *
     storage->inverse_time_explosion * INVERSE_C;
   comov_energy = rpacket_get_energy (packet) * doppler_factor;
-  storage->line_lists_j_blues[j_blue_idx] +=
-    comov_energy / rpacket_get_nu (packet);
+  #pragma omp atomic
+  storage->line_lists_j_blues[j_blue_idx] += comov_energy / rpacket_get_nu(packet);
 }
 
 int64_t
@@ -384,8 +385,8 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		floor ((virt_packet.nu -
 			storage->spectrum_start_nu) /
 		       storage->spectrum_delta_nu);
-	      storage->spectrum_virt_nu[virt_id_nu] +=
-		virt_packet.energy * weight;
+#pragma omp atomic
+	      storage->spectrum_virt_nu[virt_id_nu] += virt_packet.energy * weight;
 	    }
 	}
     }
@@ -463,7 +464,8 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   rpacket_reset_tau_event (packet);
   rpacket_set_recently_crossed_boundary (packet, 0);
-  storage->last_interaction_type[storage->current_packet_id] = 1;
+  //storage->last_interaction_type[storage->current_packet_id] = 1;
+  rpacket_set_last_interaction_type(packet, 1);
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
       montecarlo_one_packet (storage, packet, 1);
@@ -516,11 +518,12 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
       comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
-      storage->last_line_interaction_in_id[storage->current_packet_id] =
-	rpacket_get_next_line_id (packet) - 1;
-      storage->last_line_interaction_shell_id[storage->current_packet_id] =
-	rpacket_get_current_shell_id (packet);
-      storage->last_interaction_type[storage->current_packet_id] = 2;
+      rpacket_set_last_line_interaction_in_id(packet, rpacket_get_next_line_id(packet) - 1);
+      rpacket_set_last_line_interaction_shell_id(packet, rpacket_get_current_shell_id(packet));
+      rpacket_set_last_interaction_type(packet, 2);
+      //storage->last_line_interaction_in_id[storage->current_packet_id] = rpacket_get_next_line_id(packet) - 1;
+      //storage->last_line_interaction_shell_id[storage->current_packet_id] = rpacket_get_current_shell_id(packet);
+      //storage->last_interaction_type[storage->current_packet_id] = 2;
       if (storage->line_interaction_id == 0)
 	{
 	  emission_line_id = rpacket_get_next_line_id (packet) - 1;
@@ -529,11 +532,9 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 	{
 	  emission_line_id = macro_atom (packet, storage);
 	}
-      storage->last_line_interaction_out_id[storage->current_packet_id] =
-	emission_line_id;
-      rpacket_set_nu (packet,
-		      storage->line_list_nu[emission_line_id] *
-		      inverse_doppler_factor);
+
+      rpacket_set_last_line_interaction_out_id(packet, emission_line_id);
+      rpacket_set_nu(packet, storage->line_list_nu[emission_line_id] * inverse_doppler_factor);
       rpacket_set_nu_line (packet, storage->line_list_nu[emission_line_id]);
       rpacket_set_next_line_id (packet, emission_line_id + 1);
       rpacket_reset_tau_event (packet);
@@ -714,6 +715,10 @@ rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
   rpacket_set_close_line (packet, false);
   rpacket_set_recently_crossed_boundary (packet, recently_crossed_boundary);
   rpacket_set_virtual_packet_flag (packet, virtual_packet_flag);
+  rpacket_set_last_interaction_type(packet, 0);
+  rpacket_set_last_line_interaction_in_id(packet, 0);
+  rpacket_set_last_line_interaction_shell_id(packet, 0);
+  rpacket_set_last_line_interaction_out_id(packet,0);
   return ret_val;
 }
 
@@ -938,6 +943,57 @@ rpacket_set_status (rpacket_t * packet, rpacket_status_t status)
 {
   packet->status = status;
 }
+
+INLINE void rpacket_set_last_line_interaction_in_id(rpacket_t *packet, int last_line_interaction_in_id)
+{
+packet->last_line_interaction_in_id = last_line_interaction_in_id;
+}
+
+INLINE int rpacket_get_last_line_interaction_in_id(rpacket_t *packet)
+{
+return packet->last_line_interaction_in_id;
+}
+
+INLINE void rpacket_set_last_line_interaction_shell_id(rpacket_t *packet, int last_line_interaction_shell_id)
+{
+packet->last_line_interaction_shell_id = last_line_interaction_shell_id;
+}
+
+INLINE int rpacket_get_last_line_interaction_shell_id(rpacket_t *packet)
+{
+return packet->last_line_interaction_shell_id;
+}
+
+INLINE void rpacket_set_last_interaction_type(rpacket_t *packet, int last_interaction_type)
+{
+packet->last_interaction_type = last_interaction_type;
+}
+
+INLINE int rpacket_get_last_interaction_type(rpacket_t *packet)
+{
+return packet->last_interaction_type;
+}
+
+INLINE void rpacket_set_last_line_interaction_out_id(rpacket_t *packet,int last_line_interaction_out_id)
+{
+packet->last_line_interaction_out_id = last_line_interaction_out_id;
+}
+
+INLINE int rpacket_get_last_line_interaction_out_id(rpacket_t *packet)
+{
+return packet->last_line_interaction_out_id;
+}
+
+INLINE void rpacket_set_id(rpacket_t *packet, int id)
+{
+packet->id = id;
+}
+
+INLINE int rpacket_get_id(rpacket_t *packet)
+{
+return packet->id;
+}
+
 
 /* Other accessor methods. */
 
