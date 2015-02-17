@@ -1,7 +1,7 @@
 numpy>=1.4.0
 scipy>=0.10
 pandas>=0.12
-pytables
+# currently not needed or supported pytables
 h5py>=2.0
 matplotlib>=1.1
 astropy>=0.4
