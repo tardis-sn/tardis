@@ -22,6 +22,7 @@ cdef extern from "src/cmontecarlo.h":
         TARDIS_PACKET_STATUS_REABSORBED = 2
 
     ctypedef struct rpacket_t:
+        int_type_t id
         double nu
         double mu
         double energy
@@ -35,10 +36,20 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t recently_crossed_boundary
         int_type_t virtual_packet_flag
         int_type_t virtual_packet
+        int_type_t line_interaction_in_id
+        int_type_t last_line_interaction_shell_id
+        int_type_t last_interaction_type
+        int_type_t last_line_interaction_out_id
         double d_line
         double d_electron
         double d_boundary
         rpacket_status_t next_shell_id
+        #ToDo for openmp
+        double *nubars
+        double *js
+        int_type_t line_lists_j_blues_nd
+        double *spectrum_virt_nu
+        double *line_lists_j_blues
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -63,6 +74,7 @@ cdef extern from "src/cmontecarlo.h":
         double *line_lists_tau_sobolevs
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
+        int_type_t line_lists_j_blues_len
         int_type_t line_lists_j_blues_nd
         int_type_t no_of_lines
         int_type_t line_interaction_id
@@ -79,6 +91,7 @@ cdef extern from "src/cmontecarlo.h":
         double spectrum_delta_nu
         double spectrum_end_nu
         double *spectrum_virt_nu
+        int_type_t spectrum_virt_nu_len
         double sigma_thomson
         double inverse_sigma_thomson
         double inner_boundary_albedo
@@ -90,6 +103,11 @@ cdef extern from "src/cmontecarlo.h":
     double rpacket_get_nu(rpacket_t *packet)
     double rpacket_get_energy(rpacket_t *packet)
     void initialize_random_kit(unsigned long seed)
+
+cdef extern from "src/cmontecarlo_mainloop.h":
+
+    void montecarlo_main_loop(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode, int_type_t openmp_threads)
+
 
 
 
@@ -159,6 +177,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     cdef np.ndarray[double, ndim=2] line_lists_j_blues = model.j_blue_estimators
     storage.line_lists_j_blues = <double*> line_lists_j_blues.data
     storage.line_lists_j_blues_nd = line_lists_j_blues.shape[1]
+    storage.line_lists_j_blues_len = len(line_lists_j_blues)
     line_interaction_type = model.tardis_config.plasma.line_interaction_type
     if line_interaction_type == 'scatter':
         storage.line_interaction_id = 0
@@ -211,6 +230,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - model.tardis_config.spectrum.frequency.value[0]
     cdef np.ndarray[double, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
     storage.spectrum_virt_nu = <double*> spectrum_virt_nu.data
+    storage.spectrum_virt_nu_len = len(spectrum_virt_nu)
     storage.sigma_thomson = model.tardis_config.montecarlo.sigma_thomson.to('1/cm^2').value
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
@@ -219,16 +239,25 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
-    cdef int_type_t reabsorbed = 0
-    for packet_index in range(storage.no_of_packets):
-        storage.current_packet_id = packet_index
-        rpacket_init(&packet, &storage, packet_index, virtual_packet_flag)
-        if (virtual_packet_flag > 0):
-            #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
-            reabsorbed = montecarlo_one_packet(&storage, &packet, -1)
-        #Now can do the propagation of the real packet
-        reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
-        storage.output_nus[packet_index] = rpacket_get_nu(&packet)
-        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
+
+
+
+    def start_mc_none_parallel():
+        montecarlo_main_loop(storage, 0, virtual_packet_flag)
+
+
+    def start_mc_parallel():
+        IF OPENMP:
+            montecarlo_main_loop(storage, openmp_threads, virtual_packet_flag)
+        ELSE:
+            printf('CRITICAL - Tardis was build without openmp support. Fallback to none parallel run')
+            start_mc_none_parallel()
+
+
+    if model.tardis_config.montecarlo.enable_openmp:
+        start_mc_parallel()
+    else:
+        start_mc_none_parallel()
+
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
