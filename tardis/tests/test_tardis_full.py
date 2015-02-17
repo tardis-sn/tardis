@@ -9,7 +9,7 @@ from astropy import units as u
 import os
 
 
-from tardis import run_tardis
+from tardis.base import run_tardis
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
