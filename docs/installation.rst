@@ -30,15 +30,63 @@ TARDIS has the following requirements:
 - `pyyaml <http://pyyaml.org/>`_ 3.0 or later
 
 Most of these requirements are easy to install using package managers like
-OS X's macports or linux package managers.
+OS X's macports or linux package managers or using the Anaconda python
+distribution.
 
 TARDIS is using astropy's excellent installation helpers and thus uses similar
 instructions to astropy.
 
-Installing TARDIS with virtualenvs (recommended)
+If you are interested in doing some development for TARDIS please read
+:doc:`workflow/development_workflow`.
+
+
+Once you are done you can run the simple example listed in :doc:`running`.
+
+
+
+
+Installing TARDIS with Anaconda (recommended)
+=============================================
+
+We highly recommend using the Anaconda python environment to install TARDIS (or
+ any other scientific packages for that matter). Anaconda has the advantage of
+ being an isolated environment that can be set to be the default one, but
+by no means will mess with your other environments. It will also work on
+computers where ``root``-rights are not available. Use these
+`instructions <http://docs.continuum.io/anaconda/install.html>`_ to install
+Anaconda on your machine. The next step is to create an environment for tardis
+that contains all of the necessary packages (this ensures that TARDIS
+requirements won't clash with any other python installs on disc::
+
+    conda create -n tardis-release --file https://raw.githubusercontent.com/tardis-sn/tardis/master/pip-requirements python=2 pip
+
+Then to activate this environment simply do::
+
+    source activate tardis-release
+
+and after you are done with TARDIS you can deactivate::
+
+    source deactivate
+
+One does not need to recreate the environment, but simply activate it everytime
+TARDIS is used.
+
+To install the latest stable version of TARDIS simply do::
+
+    pip install tardis-sn
+
+or to use the development version::
+
+    pip install git+https://github.com/tardis-sn/tardis
+
+
+
+
+
+Installing TARDIS with virtualenvs
 ================================================
 
-We highly recommend installing TARDIS in a virtual environment. A virtual
+A virtual
 environment is python's way to ensure that the versions of third-party libraries
 that TARDIS requires do not interfere with the system-wide installation. This
 is also the way that the majority of core developers for TARDIS operate.
