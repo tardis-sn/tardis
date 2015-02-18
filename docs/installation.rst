@@ -36,6 +36,14 @@ distribution.
 TARDIS is using astropy's excellent installation helpers and thus uses similar
 instructions to astropy.
 
+If you are interested in doing some development for TARDIS please read
+:doc:`workflow/development_workflow`.
+
+
+Once you are done you can run the simple example listed in :doc:`running`.
+
+
+
 
 Installing TARDIS with Anaconda (recommended)
 =============================================
