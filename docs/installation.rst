@@ -48,9 +48,10 @@ Once you are done you can run the simple example listed in :doc:`running`.
 Installing TARDIS with Anaconda (recommended)
 =============================================
 
+
 We highly recommend using the Anaconda python environment to install TARDIS (or
- any other scientific packages for that matter). Anaconda has the advantage of
- being an isolated environment that can be set to be the default one, but
+any other scientific packages for that matter). Anaconda has the advantage of
+being an isolated environment that can be set to be the default one, but
 by no means will mess with your other environments. It will also work on
 computers where ``root``-rights are not available. Use these
 `instructions <http://docs.continuum.io/anaconda/install.html>`_ to install
@@ -79,15 +80,11 @@ or to use the development version::
 
     pip install git+https://github.com/tardis-sn/tardis
 
-
-
-
-
 Installing TARDIS with virtualenvs
-================================================
+==================================
 
-A virtual
-environment is python's way to ensure that the versions of third-party libraries
+
+A virtual environment is python's way to ensure that the versions of third-party libraries
 that TARDIS requires do not interfere with the system-wide installation. This
 is also the way that the majority of core developers for TARDIS operate.
 
