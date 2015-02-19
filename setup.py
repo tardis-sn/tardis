@@ -80,7 +80,7 @@ package_info['package_data'][PACKAGENAME].append('data/*')
 
 # Define entry points for command-line scripts
 entry_points = {}
-entry_points = {}
+
 for hook in [('prereleaser', 'middle'), ('releaser', 'middle'),
              ('postreleaser', 'before'), ('postreleaser', 'middle')]:
     hook_ep = 'zest.releaser.' + '.'.join(hook)
