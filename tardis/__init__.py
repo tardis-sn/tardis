@@ -7,6 +7,7 @@ import logging
 from ._astropy_init import *
 # ----------------------------------------------------------------------------
 
+from tardis.base import run_tardis
 
 logger = logging.getLogger('tardis')
 logger.setLevel(logging.INFO)
