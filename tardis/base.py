@@ -1,11 +1,5 @@
 #functions that are important for the general usage of TARDIS
 
-import yaml
-
-from tardis.io import config_reader
-from tardis import model, simulation, atomic
-
-
 def run_tardis(config, atom_data=None):
     """
     This function is one of the core functions to run TARDIS from a given
@@ -25,6 +19,10 @@ def run_tardis(config, atom_data=None):
         atomic data will be loaded according to keywords set in the configuration
         [default=None]
     """
+    import yaml
+
+    from tardis.io import config_reader
+    from tardis import model, simulation, atomic
 
     try:
         config_dict = yaml.load(open(config))
