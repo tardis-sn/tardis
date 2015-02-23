@@ -5,17 +5,15 @@
 #include "cmontecarlo_mainloop.h"
 #include "cmontecarlo.h"
 
-static void* safe_malloc(size_t n)
+static void *safe_malloc(size_t n)
 {
-    void* p = malloc(n);
-    if (!p)
-    {
-        printf("CRITICAL - Out of memory");
-        abort();
-    }
-    return p;
+	void *p = malloc(n);
+	if (!p) {
+		printf("CRITICAL - Out of memory");
+		abort();
+	}
+	return p;
 }
-
 
 void
 montecarlo_main_loop(storage_model_t * storage,
@@ -100,12 +98,12 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 		}
 #pragma single
 		{
-		free(big_packet);
-		big_packet = NULL;
-		free(big_thread_spectrum_virt_nu);
-		big_thread_spectrum_virt_nu = NULL;
-		free(big_thread_line_lists_j_blues);
-		big_thread_line_lists_j_blues = NULL;
+			free(big_packet);
+			big_packet = NULL;
+			free(big_thread_spectrum_virt_nu);
+			big_thread_spectrum_virt_nu = NULL;
+			free(big_thread_line_lists_j_blues);
+			big_thread_line_lists_j_blues = NULL;
 		}
 
 	}
