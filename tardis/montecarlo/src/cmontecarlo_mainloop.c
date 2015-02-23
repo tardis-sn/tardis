@@ -32,8 +32,7 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 	{
 		int64_t npacket;
 		int64_t reabsorbed = 0;
-		int64_t num_threads = 0;
-		int64_t threads_num = 0;
+		int64_t thread_num = 0;
 		int64_t spectrum_virt_nu_len = 0;
 		int64_t line_lists_j_blues_len = 0;
 		RPacket *packet = NULL;
@@ -46,7 +45,7 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 
 #pragma single
 		{
-			num_threads = omp_get_num_threads();
+			int64_t num_threads = omp_get_num_threads();
 			big_packet =
 			    (RPacket *) malloc(sizeof(RPacket) * num_threads);
 			big_thread_spectrum_virt_nu =
@@ -61,15 +60,15 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 		}
 #pragma omp for
 		for (int ip = 0; ip <= npacket; ip++) {
-			threads_num = omp_get_thread_num();
-			packet = (RPacket *) (big_packet + threads_num);
+			thread_num = omp_get_thread_num();
+			packet = (RPacket *) (big_packet + thread_num);
 			rpacket_set_id(packet, ip);
 			packet->thread_spectrum_virt_nu =
 			    (double *)(big_thread_spectrum_virt_nu +
-				       threads_num);
+				       thread_num);
 			packet->thread_line_lists_j_blues =
 			    (double *)(big_thread_line_lists_j_blues +
-				       threads_num);
+				       thread_num);
 			rpacket_init(packet, &storage, ip, virtual_packet_flag);
 
 			if (!(npacket % (npacket / 20))) {
@@ -87,8 +86,15 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 			move_data_packet2storage(storage, packet, ip,
 						 reabsorbed);
 		}
-		free(packet);
-		packet = NULL;
+#pragma single
+		{
+		free(big_packet);
+		big_packet = NULL;
+		free(big_thread_spectrum_virt_nu);
+		big_thread_spectrum_virt_nu = NULL;
+		free(big_thread_line_lists_j_blues);
+		big_thread_line_lists_j_blues = NULL;
+		}
 
 	}
 #else
