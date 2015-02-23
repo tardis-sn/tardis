@@ -242,16 +242,15 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
 
 
-    def start_mc_none_parallel():
-        montecarlo_main_loop(storage, 0, virtual_packet_flag)
-
+    cdef  int_type_t openmp_threads
 
     def start_mc_parallel():
         IF OPENMP:
+            openmp_threads = 4
             montecarlo_main_loop(storage, openmp_threads, virtual_packet_flag)
         ELSE:
             printf('CRITICAL - Tardis was build without openmp support. Fallback to none parallel run')
-            start_mc_none_parallel()
+            montecarlo_main_loop(storage, 0, virtual_packet_flag)
 
 
     if model.tardis_config.montecarlo.enable_openmp:

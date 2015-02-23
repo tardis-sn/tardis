@@ -16,7 +16,8 @@ else:
 builtins._ASTROPY_SETUP_ = True
 
 from astropy_helpers.setup_helpers import (
-    register_commands, adjust_compiler, get_debug_option, get_package_info)
+    register_commands, adjust_compiler, get_debug_option, get_package_info,
+    add_command_option)
 from astropy_helpers.git_helpers import get_git_devstr
 from astropy_helpers.version_helpers import generate_version_py
 
@@ -43,7 +44,7 @@ LONG_DESCRIPTION = "" #package.__doc__
 builtins._ASTROPY_PACKAGE_NAME_ = PACKAGENAME
 
 # VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
-VERSION = '1.0.dev'
+VERSION = '1.0.0.dev'
 
 # Indicates if this version is a release version
 RELEASE = 'dev' not in VERSION
@@ -55,6 +56,13 @@ if not RELEASE:
 # invoking any other functionality from distutils since it can potentially
 # modify distutils' behavior.
 cmdclassd = register_commands(PACKAGENAME, VERSION, RELEASE)
+add_command_option('install', 'no-openmp', 'compile TARDIS with OpenMP',
+                   is_bool=True)
+
+add_command_option('build', 'no-openmp', 'compile TARDIS with OpenMP',
+                   is_bool=True)
+
+
 
 # Adjust the compiler in case the default on this platform is to use a
 # broken one.
