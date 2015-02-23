@@ -24,6 +24,11 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 			 int64_t virtual_packet_flag)
 {
 #ifdef OPENMP
+
+#pragma omp parallel (shared(storage,openmp_threads, virtual_packet_flag), private(reabsorbed,packet))
+{
+#pragma single
+{
 	int64_t npacket;
 	int64_t reabsorbed = 0;
 	int64_t num_threads = 0;
@@ -50,7 +55,8 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 	    (double *)malloc(sizeof(double) *
 			     (line_lists_j_blues_len * num_threads));
 
-#pragma omp parallel for (shared(storage,openmp_threads, virtual_packet_flag), private(reabsorbed,packet))
+}
+#pragma omp for
 	for (int ip = 0; ip <= npacket; ip++) {
 		threads_num = omp_get_thread_num();
 		packet = (RPacket *) (big_packet + threads_num);
@@ -77,7 +83,7 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 	free(packet);
 	packet = NULL;
 
-
+}
 #else
 	printf
 	    ('CRITICAL - Tardis was build without openmp support. Fallback to none parallel run');
