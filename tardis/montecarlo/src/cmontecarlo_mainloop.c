@@ -9,7 +9,7 @@ static void *safe_malloc(size_t n)
 {
 	void *p = malloc(n);
 	if (!p) {
-		printf("CRITICAL - Out of memory");
+		perror("CRITICAL - Error in malloc");
 		abort();
 	}
 	return p;
@@ -57,13 +57,13 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 		{
 			int64_t num_threads = omp_get_num_threads();
 			big_packet =
-			    (RPacket *) malloc(sizeof(RPacket) * num_threads);
+			    (RPacket *) safe_malloc(sizeof(RPacket) * num_threads);
 			big_thread_spectrum_virt_nu =
-			    (double *)malloc(sizeof(double) *
+			    (double *)safe_malloc(sizeof(double) *
 					     (spectrum_virt_nu_len *
 					      num_threads));
 			big_thread_line_lists_j_blues =
-			    (double *)malloc(sizeof(double) *
+			    (double *)safe_malloc(sizeof(double) *
 					     (line_lists_j_blues_len *
 					      num_threads));
 
@@ -129,11 +129,11 @@ montecarlo_serial_loop(storage_model_t * storage, int64_t openmp_threads,
 	npacket = storage->no_of_packets;
 	spectrum_virt_nu_len = storage->spectrum_virt_nu_len;
 	line_lists_j_blues_len = storage->line_lists_j_blues_len;
-	packet = (RPacket *) malloc(sizeof(RPacket));
+	packet = (RPacket *) safe_malloc(sizeof(RPacket));
 	packet->thread_spectrum_virt_nu =
-	    (double *)malloc(sizeof(double) * (spectrum_virt_nu_len));
+	    (double *)safe_malloc(sizeof(double) * (spectrum_virt_nu_len));
 	packet->line_lists_j_blues =
-	    (double *)malloc(sizeof(double) * (line_lists_j_blues_len));
+	    (double *)safe_malloc(sizeof(double) * (line_lists_j_blues_len));
 
 	for (int ip = 0; ip <= npacket; ip++) {
 		storage->current_packet_id = ip;
