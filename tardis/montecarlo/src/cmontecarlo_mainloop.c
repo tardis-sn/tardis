@@ -5,6 +5,18 @@
 #include "cmontecarlo_mainloop.h"
 #include "cmontecarlo.h"
 
+static void* safe_malloc(size_t n)
+{
+    void* p = malloc(n);
+    if (!p)
+    {
+        printf("CRITICAL - Out of memory");
+        abort();
+    }
+    return p;
+}
+
+
 void
 montecarlo_main_loop(storage_model_t * storage,
 		     int64_t virtual_mode, int64_t openmp_threads,
@@ -99,7 +111,7 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 	}
 #else
 	printf
-	    ('CRITICAL - Tardis was build without openmp support. Fallback to none parallel run');
+	    ('CRITICAL - Tardis was built without openmp support. Fallback to none parallel run');
 	montecarlo_serial_loop(storage, 0, virtual_packet_flag);
 
 #endif
