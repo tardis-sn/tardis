@@ -24,8 +24,11 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 			 int64_t virtual_packet_flag)
 {
 #ifdef OPENMP
+	RPacket *big_packet = NULL;
+	double *big_thread_spectrum_virt_nu = NULL;
+	double *big_thread_line_lists_j_blues = NULL;
 
-#pragma omp parallel (shared(storage,openmp_threads, virtual_packet_flag), private(reabsorbed,packet))
+#pragma omp parallel (shared(storage,openmp_threads, virtual_packet_flag, big_packet, big_thread_spectrum_virt_nu, big_thread_line_lists_j_blues), private(reabsorbed,packet), default (none) )
 	{
 		int64_t npacket;
 		int64_t reabsorbed = 0;
@@ -34,9 +37,6 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 		int64_t spectrum_virt_nu_len = 0;
 		int64_t line_lists_j_blues_len = 0;
 		RPacket *packet = NULL;
-		RPacket *big_packet = NULL;
-		double *big_thread_spectrum_virt_nu = NULL;
-		double *big_thread_line_lists_j_blues = NULL;
 
 		npacket = storage->no_of_packets;
 		spectrum_virt_nu_len = storage->spectrum_virt_nu_len;
