@@ -19,7 +19,7 @@
 static void *safe_malloc(size_t n);
 
 void montecarlo_main_loop(storage_model_t * storage,
-			       int64_t virtual_mode, int64_t openmp_threads);
+			       int64_t openmp_threads, int64_t virtual_packet_flag);
 
 
 void montecarlo_parallel_loop (storage_model_t * storage, int64_t openmp_threads,

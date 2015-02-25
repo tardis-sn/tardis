@@ -1,4 +1,3 @@
-#define OPENMP = True
 #ifdef OPENMP
 #include <omp.h>
 #endif
@@ -17,9 +16,10 @@ static void *safe_malloc(size_t n)
 
 void
 montecarlo_main_loop(storage_model_t * storage,
-		     int64_t virtual_mode, int64_t openmp_threads,
+		     int64_t openmp_threads,
 		     int64_t virtual_packet_flag)
 {
+    printf("montecarlo_main_loop - storage prt %p", storage);
 	if (openmp_threads == 0) {
 		montecarlo_serial_loop(storage, openmp_threads,
 				       virtual_packet_flag);
@@ -38,8 +38,9 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 	double *big_thread_spectrum_virt_nu = NULL;
 	double *big_thread_line_lists_j_blues = NULL;
 	int64_t ip;
+    printf("montecarlo_parallel_loop - storage prt %p", storage);
 
-#pragma omp parallel shared(storage,openmp_threads, virtual_packet_flag, big_packet, big_thread_spectrum_virt_nu, big_thread_line_lists_j_blues),privat(ip) ,default(none)
+#pragma omp parallel shared(storage,openmp_threads, virtual_packet_flag, big_packet, big_thread_spectrum_virt_nu, big_thread_line_lists_j_blues),private(ip) ,default(none)
 	{
 		int64_t npacket;
 		int64_t reabsorbed = 0;
@@ -74,10 +75,10 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 			thread_num = omp_get_thread_num();
 			packet = (rpacket_t *) (big_packet + thread_num);
 			rpacket_set_id(packet, ip);
-			packet->thread_spectrum_virt_nu =
+			packet->spectrum_virt_nu =
 			    (double *)(big_thread_spectrum_virt_nu +
 				       thread_num);
-			packet->thread_line_lists_j_blues =
+			packet->line_lists_j_blues =
 			    (double *)(big_thread_line_lists_j_blues +
 				       thread_num);
 			rpacket_init(packet, &storage, ip, virtual_packet_flag);
@@ -110,7 +111,7 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 	}
 #else
 	printf
-	    ('CRITICAL - Tardis was built without openmp support. Fallback to none parallel run');
+	    ("CRITICAL - Tardis was built without openmp support. Fallback to none parallel run");
 	montecarlo_serial_loop(storage, 0, virtual_packet_flag);
 
 #endif

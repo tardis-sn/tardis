@@ -106,7 +106,7 @@ cdef extern from "src/cmontecarlo.h":
 
 cdef extern from "src/cmontecarlo_mainloop.h":
 
-    void montecarlo_main_loop(storage_model_t *storage, int_type_t virtual_mode, int_type_t openmp_threads)
+    void montecarlo_main_loop(storage_model_t *storage, int_type_t openmp_threads,int_type_t virtual_packet_flag)
 
 
 
@@ -242,19 +242,18 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
 
 
-    cdef  int_type_t openmp_threads
 
-    def start_mc_parallel():
+    def start_mc_parallel(openmp_threads):
         IF OPENMP:
-            openmp_threads = 4
+            print("start montecarlo_main_loop from pyx")
             montecarlo_main_loop(&storage, openmp_threads, virtual_packet_flag)
         ELSE:
             printf('CRITICAL - Tardis was build without openmp support. Fallback to none parallel run')
             montecarlo_main_loop(&storage, 0, virtual_packet_flag)
 
 
-    if model.tardis_config.montecarlo.enable_openmp:
-        start_mc_parallel()
+    if model.tardis_config.montecarlo.openmp_threads >  0:
+        start_mc_parallel(model.tardis_config.montecarlo.openmp_threads)
     else:
         montecarlo_main_loop(&storage, 0, virtual_packet_flag)
 
