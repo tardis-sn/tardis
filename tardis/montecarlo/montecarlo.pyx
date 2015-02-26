@@ -10,6 +10,7 @@ import time
 import numpy as np
 cimport numpy as np
 from astropy import constants
+from libc.stdio cimport printf
 
 np.import_array()
 
@@ -50,6 +51,12 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t line_lists_j_blues_nd
         double *spectrum_virt_nu
         double *line_lists_j_blues
+        int_type_t* spectrum_virt_nu_todo_index
+        double* spectrum_virt_nu_todo_value
+        int_type_t spectrum_virt_nu_todo_len
+        int_type_t* line_lists_j_blues_todo_index
+        double* line_lists_j_blues_todo_value
+        int_type_t line_lists_j_blues_todo_len
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -245,7 +252,10 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
 
     def start_mc_parallel(openmp_threads):
         IF OPENMP:
+            print(storage.no_of_lines)
             print("start montecarlo_main_loop from pyx")
+            printf("storage.line_list_nu %p", storage.line_list_nu)
+            printf("the storage pointer is: %p\n ",&storage )
             montecarlo_main_loop(&storage, openmp_threads, virtual_packet_flag)
         ELSE:
             printf('CRITICAL - Tardis was build without openmp support. Fallback to none parallel run')
