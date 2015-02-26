@@ -47,6 +47,8 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 	int64_t ip;
     //printf("montecarlo_parallel_loop - storage prt %p", storage);
 
+	//omp_set_num_threads(20);
+	omp_set_num_threads(openmp_threads);
 #pragma omp parallel shared(storage,openmp_threads, virtual_packet_flag, big_packet, big_thread_spectrum_virt_nu, big_thread_line_lists_j_blues, big_spectrum_virt_nu_todo_index,big_spectrum_virt_nu_todo_value, big_line_lists_j_blues_todo_index,big_line_lists_j_blues_todo_value) ,private(ip) ,default(none)
 	{
 		int64_t npacket;
@@ -60,7 +62,6 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 		spectrum_virt_nu_len = storage->spectrum_virt_nu_len;
 		line_lists_j_blues_len = storage->line_lists_j_blues_len;
 
-		omp_set_num_threads(openmp_threads);
 
 #pragma single
 		{
@@ -76,11 +77,11 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 					     (line_lists_j_blues_len *
 					      num_threads));
 
-			big_spectrum_virt_nu_todo_index = (int64_t* )safe_malloc(sizeof(int64_t) * thread_num * MAX_TODO_LEN);
-			big_spectrum_virt_nu_todo_value = (double* )safe_malloc(sizeof(int64_t) * thread_num * MAX_TODO_LEN);
+			big_spectrum_virt_nu_todo_index = (int64_t* )safe_malloc(sizeof(int64_t) * num_threads * MAX_TODO_LEN);
+			big_spectrum_virt_nu_todo_value = (double* )safe_malloc(sizeof(int64_t) * num_threads * MAX_TODO_LEN);
 
-			big_line_lists_j_blues_todo_index = (int64_t* )safe_malloc(sizeof(int64_t) * thread_num * MAX_TODO_LEN);
-			big_line_lists_j_blues_todo_value = (double* )safe_malloc(sizeof(int64_t) * thread_num * MAX_TODO_LEN);
+			big_line_lists_j_blues_todo_index = (int64_t* )safe_malloc(sizeof(int64_t) * num_threads * MAX_TODO_LEN);
+			big_line_lists_j_blues_todo_value = (double* )safe_malloc(sizeof(int64_t) * num_threads * MAX_TODO_LEN);
 
 
 		}
@@ -219,8 +220,6 @@ move_data_packet2storage(storage_model_t * storage,rpacket_t  * packet,
 
     if (svntd_len > 0)
     {
-    INFO("DO spectrum_virt_nu__");
-    printf("svntd_len = %d", svntd_len);
     for (i = 0; i < svntd_len; i++) {
         ii = packet->spectrum_virt_nu_todo_index[i];
         #pragma omp atomic
@@ -230,8 +229,6 @@ move_data_packet2storage(storage_model_t * storage,rpacket_t  * packet,
 
     if (svntd_len > 0)
     {
-    INFO("DO line_lists_j_blues_");
-    printf("svntd_len = %d", lljbtd_len);
     for (i = 0; i < lljbtd_len; i++) {
         ii = packet->line_lists_j_blues_todo_index[i];
         #pragma omp atomic
@@ -244,7 +241,6 @@ void
 assign_packet_todo(rpacket_t * packet, int64_t thread_num, int64_t * big_spectrum_virt_nu_todo_index,
 double * big_spectrum_virt_nu_todo_value, int64_t * big_line_lists_j_blues_todo_index, double * big_line_lists_j_blues_todo_value
 ){
-printf("assign_packet_todo - assign_packet_todo for %d thread of packet %d \n",packet->id,  thread_num);
 packet->spectrum_virt_nu_todo_len = 0;
 packet->spectrum_virt_nu_todo_index = (int64_t*) big_spectrum_virt_nu_todo_index + (thread_num * MAX_TODO_LEN);
 packet->spectrum_virt_nu_todo_value = (double*) big_spectrum_virt_nu_todo_value +(thread_num * MAX_TODO_LEN);
