@@ -38,8 +38,6 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 {
 #ifdef OPENMP
 	rpacket_t *big_packet = NULL;
-	double *big_thread_spectrum_virt_nu = NULL;
-	double *big_thread_line_lists_j_blues = NULL;
 	int64_t *big_spectrum_virt_nu_todo_index = NULL;
 	double * big_spectrum_virt_nu_todo_value = NULL;
 	int64_t *big_line_lists_j_blues_todo_index =NULL;
@@ -49,18 +47,15 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 
 	//omp_set_num_threads(20);
 	omp_set_num_threads(openmp_threads);
-#pragma omp parallel shared(storage,openmp_threads, virtual_packet_flag, big_packet, big_thread_spectrum_virt_nu, big_thread_line_lists_j_blues, big_spectrum_virt_nu_todo_index,big_spectrum_virt_nu_todo_value, big_line_lists_j_blues_todo_index,big_line_lists_j_blues_todo_value) ,private(ip) ,default(none)
+	
+#pragma omp parallel shared(storage,openmp_threads, virtual_packet_flag, big_packet, big_spectrum_virt_nu_todo_index,big_spectrum_virt_nu_todo_value, big_line_lists_j_blues_todo_index,big_line_lists_j_blues_todo_value) ,private(ip) ,default(none)
 	{
 		int64_t npacket;
 		int64_t reabsorbed = 0;
 		int64_t thread_num = 0;
-		int64_t spectrum_virt_nu_len = 0;
-		int64_t line_lists_j_blues_len = 0;
 		rpacket_t *packet = NULL;
 
 		npacket = storage->no_of_packets;
-		spectrum_virt_nu_len = storage->spectrum_virt_nu_len;
-		line_lists_j_blues_len = storage->line_lists_j_blues_len;
 
 
 #pragma single
@@ -68,14 +63,6 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 			int64_t num_threads = omp_get_num_threads();
 			big_packet =
 			    (rpacket_t *) safe_malloc(sizeof(rpacket_t) * num_threads);
-			big_thread_spectrum_virt_nu =
-			    (double *)safe_malloc(sizeof(double) *
-					     (spectrum_virt_nu_len *
-					      num_threads));
-			big_thread_line_lists_j_blues =
-			    (double *)safe_malloc(sizeof(double) *
-					     (line_lists_j_blues_len *
-					      num_threads));
 
 			big_spectrum_virt_nu_todo_index = (int64_t* )safe_malloc(sizeof(int64_t) * num_threads * MAX_TODO_LEN);
 			big_spectrum_virt_nu_todo_value = (double* )safe_malloc(sizeof(int64_t) * num_threads * MAX_TODO_LEN);
@@ -90,12 +77,8 @@ montecarlo_parallel_loop(storage_model_t * storage, int64_t openmp_threads,
 			thread_num = omp_get_thread_num();
 			packet = (rpacket_t *) (big_packet + thread_num);
 			rpacket_set_id(packet, ip);
-			packet->spectrum_virt_nu =
-			    (double *)(big_thread_spectrum_virt_nu +
-				       thread_num);
-			packet->line_lists_j_blues =
-			    (double *)(big_thread_line_lists_j_blues +
-				       thread_num);
+			packet->spectrum_virt_nu = NULL;
+			packet->line_lists_j_blues = NULL;
 
     assign_packet_todo(packet, 0,big_spectrum_virt_nu_todo_index, big_spectrum_virt_nu_todo_value, big_line_lists_j_blues_todo_index, big_line_lists_j_blues_todo_value);
 
@@ -144,8 +127,6 @@ montecarlo_serial_loop(storage_model_t * storage, int64_t openmp_threads,
 	int64_t npacket;
 	int64_t reabsorbed;
 	rpacket_t *packet = NULL;
-	int64_t spectrum_virt_nu_len = 0;
-	int64_t line_lists_j_blues_len = 0;
 	int64_t ip =0;
 
 	int64_t *big_spectrum_virt_nu_todo_index = NULL;
@@ -154,13 +135,9 @@ montecarlo_serial_loop(storage_model_t * storage, int64_t openmp_threads,
 	double * big_line_lists_j_blues_todo_value=NULL;
 
 	npacket = storage->no_of_packets;
-	spectrum_virt_nu_len = storage->spectrum_virt_nu_len;
-	line_lists_j_blues_len = storage->line_lists_j_blues_len;
 	packet = (rpacket_t*) safe_malloc(sizeof(rpacket_t));
-	packet->spectrum_virt_nu =
-	    (double*)safe_malloc(sizeof(double) * (spectrum_virt_nu_len));
-	packet->line_lists_j_blues =
-	    (double*)safe_malloc(sizeof(double) * (line_lists_j_blues_len));
+	packet->spectrum_virt_nu = NULL;
+	packet->line_lists_j_blues = NULL;
 
     		big_spectrum_virt_nu_todo_index = (int64_t* )safe_malloc(sizeof(int64_t) *  MAX_TODO_LEN);
 			big_spectrum_virt_nu_todo_value = (double* )safe_malloc(sizeof(int64_t) *  MAX_TODO_LEN);
@@ -194,8 +171,6 @@ void
 move_data_packet2storage(storage_model_t * storage,rpacket_t  * packet,
 			 int64_t ip, int64_t reabsorbed)
 {
-	int64_t svn_len = storage->spectrum_virt_nu_len;
-	int64_t lljb_len = storage->line_lists_j_blues_len;
 	int64_t i =0;
 	int64_t ii = 0;
 
