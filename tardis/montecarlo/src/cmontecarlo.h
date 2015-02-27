@@ -85,6 +85,12 @@ typedef struct RPacket
   int64_t line_lists_j_blues_nd;
   double *spectrum_virt_nu;
   double *line_lists_j_blues;
+  int64_t *spectrum_virt_nu_todo_index;
+  double *spectrum_virt_nu_todo_value;
+  int64_t spectrum_virt_nu_todo_len;
+  int64_t *line_lists_j_blues_todo_index;
+  double *line_lists_j_blues_todo_value;
+  int64_t line_lists_j_blues_todo_len;
 } rpacket_t;
 
 typedef struct StorageModel
@@ -325,6 +331,10 @@ inline int rpacket_get_last_line_interaction_out_id(rpacket_t *packet);
 inline void rpacket_set_id(rpacket_t *packet, int id);
 
 inline int rpacket_get_id(rpacket_t *packet);
+
+INLINE void rpacket_set_spectrum_virt_nu_todo(rpacket_t * packet, double value, int64_t index);
+
+INLINE void rpacket_set_line_lists_j_blues_todo(rpacket_t * packet, double value, int64_t index);
 
 void initialize_random_kit (unsigned long seed);
 

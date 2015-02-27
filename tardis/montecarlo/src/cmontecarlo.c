@@ -315,8 +315,8 @@ increment_j_blue_estimator (rpacket_t * packet, storage_model_t * storage,
   doppler_factor = 1.0 - mu_interaction * r_interaction *
     storage->inverse_time_explosion * INVERSE_C;
   comov_energy = rpacket_get_energy (packet) * doppler_factor;
-  #pragma omp atomic
-  storage->line_lists_j_blues[j_blue_idx] += comov_energy / rpacket_get_nu(packet);
+  //storage->line_lists_j_blues[j_blue_idx] += comov_energy / rpacket_get_nu(packet);
+  rpacket_set_line_lists_j_blues(packet, comov_energy / rpacket_get_nu(packet), j_blue_idx);
 }
 
 int64_t
@@ -385,8 +385,8 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		floor ((virt_packet.nu -
 			storage->spectrum_start_nu) /
 		       storage->spectrum_delta_nu);
-#pragma omp atomic
-	      storage->spectrum_virt_nu[virt_id_nu] += virt_packet.energy * weight;
+	      //storage->spectrum_virt_nu[virt_id_nu] += virt_packet.energy * weight;
+	      rpacket_set_spectrum_virt_nu_todo(packet, virt_packet.energy * weight, virt_id_nu);
 	    }
 	}
     }
@@ -992,6 +992,24 @@ packet->id = id;
 INLINE int rpacket_get_id(rpacket_t *packet)
 {
 return packet->id;
+}
+
+INLINE void rpacket_set_spectrum_virt_nu_todo(rpacket_t * packet, double value, int64_t index)
+{
+int64_t current_index = packet->spectrum_virt_nu_todo_len;
+packet->spectrum_virt_nu_todo_index[current_index] = index;
+packet->spectrum_virt_nu_todo_value[current_index] = value;
+packet->spectrum_virt_nu_todo_len += 1;
+
+}
+
+INLINE void rpacket_set_line_lists_j_blues(rpacket_t * packet, double value, int64_t index)
+{
+int64_t current_index = packet->line_lists_j_blues_todo_len;
+packet->line_lists_j_blues_todo_index[current_index] = index;
+packet->line_lists_j_blues_todo_value[current_index] = value;
+packet->line_lists_j_blues_todo_len +=1;
+
 }
 
 
