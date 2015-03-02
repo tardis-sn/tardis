@@ -1,10 +1,7 @@
 import logging
 
-import numpy as np
-import pandas as pd
-
 from tardis.plasma import BasePlasma
-from tardis.plasma.plasma_input import (TRadiative, AtomicData, Abundance,
+from tardis.plasma.properties.plasma_input import (TRadiative, AtomicData, Abundance,
                                         Density, TimeExplosion)
 from tardis.plasma.properties import (
     BetaRadiation, LevelBoltzmannFactor, Levels, Lines,
