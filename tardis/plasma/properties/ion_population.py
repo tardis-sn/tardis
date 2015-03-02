@@ -3,11 +3,12 @@ import logging
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.base_properties import ProcessingPlasmaProperty
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaIonizationError
 logger = logging.getLogger(__name__)
 
-
+__all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
+           'IonNumberDensity', ]
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """

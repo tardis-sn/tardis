@@ -439,7 +439,7 @@ class AtomData(object):
 
 
 
-
+        self.ion_cx_data = ion_cx_data
 
 
 

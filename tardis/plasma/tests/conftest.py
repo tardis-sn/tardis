@@ -1,10 +1,8 @@
-import pytest
 import numpy as np
-
 import pandas as pd
-
 from astropy import units as u
 
+import pytest
 from tardis.plasma.standard_plasmas import LTEPlasma
 
 

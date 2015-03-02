@@ -1,9 +1,9 @@
-from abc import ABCMeta
+from abc import ABCMeta, abstractmethod
 
 import numpy as np
 import pandas as pd
 
-from tardis.plasma.base_properties import ProcessingPlasmaProperty
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import IncompleteAtomicData
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
@@ -14,6 +14,15 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     def __init__(self, plasma_parent):
         super(BaseAtomicDataProperty, self).__init__(plasma_parent)
         self.value = None
+
+    @abstractmethod
+    def _set_index(self, raw_atomic_property):
+        raise NotImplementedError('Needs to be implemented in subclasses')
+
+    @abstractmethod
+    def _filter_atomic_property(self, raw_atomic_property):
+        raise NotImplementedError('Needs to be implemented in subclasses')
+
 
     def calculate(self, atomic_data, selected_atoms):
         if self.value is not None:
@@ -69,6 +78,15 @@ class LinesUpperLevelIndex(ProcessingPlasmaProperty):
              'level_number_upper']).index
         return np.array(levels_index.ix[lines_index])
 
+
+class IonCXData(BaseAtomicDataProperty):
+    name = 'ion_cx_data'
+
+    def _filter_atomic_property(self, ion_cx_data, selected_atoms):
+        return filtered_ion_cx_data
+
+    def _set_index(self, ion_cx_data):
+        return levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
 
 class AtomicMass(BaseAtomicDataProperty):

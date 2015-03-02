@@ -2,10 +2,9 @@ import logging
 
 import numpy as np
 import pandas as pd
-
 from astropy import units as u, constants as const
 
-from tardis.plasma.base_properties import ProcessingPlasmaProperty
+from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
