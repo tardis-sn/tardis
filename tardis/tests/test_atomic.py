@@ -16,6 +16,16 @@ def test_ionization_h5_readin():
     hi_ionization = data['ionization_energy'][0]
     testing.assert_almost_equal(hi_ionization, 13.59844, decimal=4)
 
+def test_levels_h5_readin():
+    data = atomic.read_levels_data(atomic.default_atom_h5_path)
+    assert data['atomic_number'][4] == 14
+    assert data['ion_number'][4] == 0
+    assert data['level_number'][4] == 4
+    si_energy = data['energy'][4]
+    testing.assert_almost_equal(si_energy, 1.90865, decimal=4)
+    assert data['g'][4] == 1
+    assert data['metastable'][4] == False
+
 
 def test_atom_levels():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
