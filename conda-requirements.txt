@@ -1,9 +1,9 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
-flask=0.10.1=py27_1
-itsdangerous=0.24=py27_0
-werkzeug=0.10.1=py27_0
+flask=0.10.1
+itsdangerous=0.24
+werkzeug=0.10.1
 numpy>=1.4.0
 scipy>=0.10
 pandas>=0.12
