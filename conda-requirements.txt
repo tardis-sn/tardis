@@ -1,0 +1,41 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+astropy=1.0=np19py27_0
+cairo=1.12.18=0
+cython=0.22=py27_0
+dateutil=2.1=py27_2
+flask=0.10.1=py27_1
+freetype=2.4.10=0
+h5py=2.4.0=np19py27_0
+hdf5=1.8.14=0
+itsdangerous=0.24=py27_0
+jinja2=2.7.3=py27_1
+libpng=1.5.13=1
+markupsafe=0.23=py27_0
+matplotlib=1.4.3=np19py27_0
+numexpr=2.3.1=np19py27_0
+numpy=1.9.2=py27_0
+openssl=1.0.1k=0
+pandas=0.15.2=np19py27_0
+pip=6.0.8=py27_0
+pixman=0.26.2=0
+py2cairo=1.10.0=py27_2
+pyparsing=2.0.3=py27_0
+pyqt=4.10.4=py27_0
+pytables=3.1.1=np19py27_2
+python=2.7.9=1
+pytz=2014.9=py27_0
+pyyaml=3.11=py27_0
+qt=4.8.5=0
+readline=6.2=2
+scipy=0.15.1=np19py27_0
+setuptools=12.3=py27_0
+sip=4.15.5=py27_0
+six=1.9.0=py27_0
+sqlite=3.8.4.1=0
+system=5.8=1
+tk=8.5.15=0
+werkzeug=0.10.1=py27_0
+yaml=0.1.4=0
+zlib=1.2.8=0
