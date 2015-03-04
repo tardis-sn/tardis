@@ -55,7 +55,7 @@ Overview
 This is done using::
 
     git clone git@github.com:your-user-name/tardis.git
-    cd astropy
+    cd tardis
     git remote add upstream git://github.com/tardis-sn/tardis.git
 
 In detail
@@ -67,7 +67,7 @@ In detail
 
 #. Change directory to your new repo::
 
-    cd astropy
+    cd tardis
 
    Then type::
 
