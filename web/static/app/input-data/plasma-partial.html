@@ -73,18 +73,6 @@
     </span>
   </div>
   <div class="clearfix"></div>
-  <div class="form-group col-sm-6">
-    <label for="exampleInputEmail1" class="col-sm-8 control-label">
-      disable electron scattering:
-    </label>
-    <div class="col-sm-4">
-      <input type="text" class="form-control">
-    </div>
-    <span class="help-block pull-right">
-      disable electron scattering process in montecarlo part - non-physical only
-      for tests
-    </span>
-  </div>
   <div class="form-group col-sm-6 pull-right">
     <label for="exampleInputEmail1" class="col-sm-4 control-label">
       w epsilon:
@@ -97,11 +85,10 @@
     </span>
   </div>
   <div class="form-group col-sm-6">
-    <label for="exampleInputEmail1" class="col-sm-8 control-label">
-      delta treatment:
-    </label>
-    <div class="col-sm-4">
-      <input type="text" class="form-control">
+    <div class="checkbox">
+      <label>
+        <input type="checkbox"> delta treatment
+      </label>
     </div>
     <span class="help-block pull-right">
       In the saha calculation set delta equals to the number given in
@@ -109,41 +96,45 @@
       treatment (as described in Mazzali &amp; Lucy 1993) will be applied
     </span>
   </div>
-  
-  <div class="col-md-12">
+  <div class="clearfix"></div>
+  <div class="form-group col-sm-6">
     <div class="checkbox">
       <label>
-        <input type="checkbox" ng-model="main.nlteCheck"> config nlte
+        <input type="checkbox"> disable electron scattering
       </label>
     </div>
-    <div ng-show="main.nlteCheck">
-      <h4 class="col-sm-12">nlte options</h4>
-      <div class="form-group col-sm-12">
-        <label for="exampleInputEmail1" class="col-sm-2 control-label">
-          species:
-        </label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control">
-        </div>
-        <span class="help-block pull-right">
-          Species that are requested to be NLTE treated in the format 
-          ['Si 2', 'Ca 1', etc.]
-        </span>
-      </div>
-      
-      <div>
-        <div class="checkbox col-sm-6">
-          <label>
-            <input type="checkbox"> coronal approximation
-          </label>
-        </div>
-        <div class="checkbox col-sm-6">
-          <label>
-            <input type="checkbox"> classical nebular
-          </label>
-        </div>
-      </div>
-
-    </div>
+    <span class="help-block pull-right">
+      disable electron scattering process in montecarlo part - non-physical only
+      for tests
+    </span>
   </div>
+  <div class="clearfix"></div>
+  <h4 class="col-sm-12">nlte options</h4>
+  <div class="form-group col-sm-12">
+    <label for="exampleInputEmail1" class="col-sm-3 control-label">
+      nlte - species:
+    </label>
+    <div class="col-sm-9">
+      <input type="text" class="form-control">
+    </div>
+    <span class="help-block pull-right">
+      Species that are requested to be NLTE treated in the format 
+      ['Si 2', 'Ca 1', etc.]
+    </span>
+  </div>
+  
+    
+  <div class="checkbox col-sm-6">
+    <label>
+      <input type="checkbox"> nlte - coronal approximation
+    </label>
+  </div>
+  <div class="checkbox col-sm-6">
+    <label>
+      <input type="checkbox"> nlte - classical nebular
+    </label>
+  </div>  
+      
+
+    
 </div>
