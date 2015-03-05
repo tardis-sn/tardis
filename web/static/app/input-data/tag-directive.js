@@ -5,85 +5,113 @@
  */
 angular
     .module('tardisApp')
-    .directive('tagInput', function() {
-    return {
-      restrict: 'E',
-      scope: {
-        inputTags: '=taglist',
-      },
-      link: function($scope, element, attrs) {
-        $scope.defaultWidth = 200;
-        $scope.tagText = '';
-        $scope.placeholder = attrs.placeholder;
+    .directive('tagInput', tagInput);
 
+function tagInput() {
+  var directive = {
+    restrict: 'E',
+    templateUrl: '/static/app/input-data/tag-input-template.html',
+    scope: {
+      inputTags: '=taglist',        
+    },    
+    link: link,
+    controller: tagInputCtrl,
+    controllerAs: 'vm',
+    bindToController: true
+  }
+  return directive;
+
+  function link (scope, elem, attrs){
+    scope.vm.defaultWidth = 200;
+    scope.vm.tagText = '';
+    scope.vm.placeholder = attrs.placeholder;
+    scope.vm.tagArray = tagArray;
+    scope.vm.addTag = addTag;
+    scope.vm.deleteTag = deleteTag;
+
+    scope.$watch('tagText', watch);
+    elem.bind('keydown', keydown);
+    return elem.bind('keyup', keyup);
+
+    function tagArray() {
+      if (scope.vm.inputTags === undefined) {
+        return [];
+      }
+      return scope.vm.inputTags.split(',').filter(function(tag) {
+        return tag !== "";
+      });
+    }
         
-        $scope.tagArray = function() {
-          if ($scope.inputTags === undefined) {
-            return [];
-          }
-          return $scope.inputTags.split(',').filter(function(tag) {
-            return tag !== "";
-          });
-        };
-        $scope.addTag = function() {
-          var tagArray;
-          if ($scope.tagText.length === 0) {
-            return;
-          }
-          tagArray = $scope.tagArray();
-          //evaluate if new is already in array
-          var inx = tagArray.indexOf($scope.tagText);
-          if (inx == -1){
-            tagArray.push($scope.tagText);
-            $scope.inputTags = tagArray.join(',');
-            return $scope.tagText = "";
-          }else{
-            window.alert('repeated value');
-          }
-        };
-        $scope.deleteTag = function(key) {
-          var tagArray;
-          tagArray = $scope.tagArray();
-          if (tagArray.length > 0 && $scope.tagText.length === 0 && key === undefined) {
-            tagArray.pop();
-          } else {
-            if (key !== undefined) {
-              tagArray.splice(key, 1);
-            }
-          }
-          return $scope.inputTags = tagArray.join(',');
-        };
-        $scope.$watch('tagText', function(newVal, oldVal) {
-          var tempEl;
-          if (!(newVal === oldVal && newVal === undefined)) {
-            tempEl = $("<span>" + newVal + "</span>").appendTo("body");
-            $scope.inputWidth = tempEl.width() + 5;
-            if ($scope.inputWidth < $scope.defaultWidth) {
-              $scope.inputWidth = $scope.defaultWidth;
-            }
-            return tempEl.remove();
-          }
-        });
-        element.bind("keydown", function(e) {
-          var key;
-          key = e.which;
-          if (key === 9 || key === 13) {
-            e.preventDefault();
-          }
-          if (key === 8) {
-            return $scope.$apply('deleteTag()');
-          }
-        });
-        return element.bind("keyup", function(e) {
-          var key;
-          key = e.which;
-          if (key === 9 || key === 13 || key === 188) {
-            e.preventDefault();
-            return $scope.$apply('addTag()');
-          }
-        });
-      },
-      template: "<div class='tag-input-ctn'><div class='input-tag' data-ng-repeat=\"tag in tagArray()\">{{tag}}<div class='delete-tag' data-ng-click='deleteTag($index)'>&times;</div></div><input type='text' data-ng-style='{width: inputWidth}' data-ng-model='tagText' placeholder='{{placeholder}}'/></div>"
-    };
-  });
+    function addTag () {
+      var tagArray;
+      if (scope.vm.tagText.length === 0) {
+        console.log('lalalla');
+        return;
+      }
+      tagArray = scope.vm.tagArray();
+      //evaluate if new is already in array
+      var inx = tagArray.indexOf(scope.vm.tagText);
+      if (inx == -1){
+        tagArray.push(scope.vm.tagText);
+        scope.vm.inputTags = tagArray.join(',');
+        return scope.vm.tagText = "";
+      }else{
+        window.alert('repeated value');
+      }
+    }
+    
+    function deleteTag(key) {
+      var tagArray;
+      tagArray = scope.vm.tagArray();
+      if (tagArray.length > 0 && scope.vm.tagText.length === 0 && key === undefined) {
+        tagArray.pop();
+      } else {
+        if (key !== undefined) {
+          tagArray.splice(key, 1);
+        }
+      }
+      return scope.vm.inputTags = tagArray.join(',');
+    }
+     
+    function watch(newVal, oldVal) {
+      var tempEl;
+      if (!(newVal === oldVal && newVal === undefined)) {
+        tempEl = $("<span>" + newVal + "</span>").appendTo("body");
+        scope.vm.inputWidth = tempEl.width() + 5;
+        if (scope.vm.inputWidth < scope.vm.defaultWidth) {
+          scope.vm.inputWidth = scope.vm.defaultWidth;
+        }
+        return tempEl.remove();
+      }
+    }
+    
+    function keydown(e) {
+      var key;
+      key = e.which;
+      if (key === 9 || key === 13) {
+        e.preventDefault();
+      }
+      if (key === 8) {
+        return scope.$apply(scope.vm.deleteTag);
+      }
+    }
+      
+    function keyup(e) {
+      var key;
+      key = e.which;
+      if (key === 9 || key === 13 || key === 188) {
+        e.preventDefault();
+        return scope.$apply(scope.vm.addTag);
+      }
+    }
 
+  }
+
+}
+
+tagInputCtrl.$inject = ['$scope'];
+
+function tagInputCtrl($scope){
+  var vm = this;
+}
+   

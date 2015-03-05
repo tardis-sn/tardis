@@ -3,15 +3,15 @@ body{
 }
 /* centered columns styles */
 .row-centered {
-    text-align:center;
+	text-align:center;
 }
 .col-centered {
-    display:inline-block;
-    float:none;
-    /* reset the text-align */
-    text-align:left;
-    /* inline-block space fix */
-    margin-right:-4px;
+	display:inline-block;
+	float:none;
+	/* reset the text-align */
+	text-align:left;
+	/* inline-block space fix */
+	margin-right:-4px;
 }
 
 .input-form{
@@ -30,46 +30,49 @@ span.pull-right{
 }
 
 .tag-input-ctn {
-  border: 1px solid #ccc;
-  padding: 2px 3px;
-  display: inline-block;
-  width: 500px;
-  border-radius: 3px;
-  box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.075);
+	border: 1px solid #ccc;
+	padding: 2px 3px;
+	padding: 5px;
+	display: inline-block;
+	width: 500px;
+	border-radius: 3px;
+	box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.075);
 }
 .tag-input-ctn  input {
-    display: inline-block;
-    float: left;
-    height: 18px;
-    padding: 0px;
-    font-size: 13px;
-    line-height: 18px;
-    color: black;
-    border: 0px;
-    margin: 2px;
+	display: inline-block;
+	float: left;
+	height: 18px;
+	padding: 0px;
+	font-size: 13px;
+	line-height: 18px;
+	color: black;
+	border: 0px;
+	margin: 2px;
+	min-width: 100%;
 }
 .tag-input-ctn  input:focus {
-  outline: 0;
-  box-shadow: 0px;
+	outline: 0;
+	box-shadow: 0px;
 }
 .tag-input-ctn   .input-tag {
-    padding: 2px 4px;
-    line-height: 12px;
-    font-size: 11px;
-    background-color: #e3eaf6;
-    display: inline-block;
-    float: left;
-    border-radius: 2px;
-    margin: 2px 5px 2px 0px;
-    border: 1px solid #a9b6d2;
+	padding: 2px 4px;
+	line-height: 12px;
+	font-size: 11px;
+	background-color: #e3eaf6;
+	display: inline-block;
+	float: left;
+	border-radius: 2px;
+	margin: 2px 5px 2px 0px;
+	border: 1px solid #a9b6d2;
 }
-.tag-input-ctn   .input-tag     .delete-tag {
-      display: inline-block;
-      font-size: 12px;
-      cursor: pointer;
-      padding: 0px 2px;
-      &:hover {
-        background-color: #96b4d2;
+.tag-input-ctn .input-tag .delete-tag {
+	display: inline-block;
+	font-size: 12px;
+	cursor: pointer;
+	padding: 0px 2px;
+}
+.tag-input-ctn .input-tag .delete-tag:hover{
+	background-color: #96b4d2;
 }
 
 
