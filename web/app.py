@@ -2,7 +2,7 @@ import tornado.ioloop
 import tornado.web
 import tornado.template
 import os
-from forms.forms import *
+from forms.forms import TardisForm
 from jinja2 import Environment, FileSystemLoader
 
 templates = tornado.template.Loader("templates")
@@ -14,15 +14,13 @@ template = templateEnv.get_template(TEMPLATE_FILE)
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
         form = TardisForm()
-        for field in form:
-            print field.label
         # loader = tornado.template.Loader("templates")
         # self.write(loader.load("index.html").generate(form=form))
         self.write(template.render(form=form))
         # self.render("index.html",form=form)
     def post(self):
         form = TardisForm(self.request.arguments)
-        details = '';
+        details = ''
         if form.validate():
             for f in self.request.arguments:
                 details += self.get_argument(f, default=None, strip=False)

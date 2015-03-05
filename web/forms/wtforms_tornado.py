@@ -3,11 +3,8 @@
 # (http://www.apache.org/licenses/LICENSE-2.0)
 
 # -*- coding: utf-8 -*-
-import re
-
 from tornado import escape
 from wtforms import form
-from wtforms.compat import text_type
 
 class TornadoInputWrapper(object):
 
