@@ -1,0 +1,43 @@
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins)-->
+    <script src="js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed-->
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+      $("select#spectrum-type").change(function(){
+        selected = $(this).children(":selected").val();
+        $( ".spectrum_type" ).removeClass( "visible");
+        $( "."+selected ).addClass( "visible");
+      });
+      $("select#model-model_structure-specific-density_type").change(function(){
+        selected = $(this).children(":selected").val();
+        $( ".density_type" ).removeClass( "visible");
+        $( "."+selected ).addClass( "visible");
+      });
+      $("input[type='checkbox']").change(function(){
+        var value = $(this)[0].id
+        if($(this).is(":checked")) {
+          $( "."+value ).addClass( "visible");
+          $("select").each(function() {
+            $(this).trigger("change");
+          });
+        }
+        else {
+          $( "."+value ).removeClass("visible");
+          $("."+value+" input[type='checkbox']").each(function() {
+            $(this).attr('checked', false);
+            $(this).trigger("change");
+          });
+        }
+      });
+
+      $("input[type='radio']").change(function(){
+
+      });
+    </script>
+  </body>
+ </html>
