@@ -3,7 +3,7 @@
 import pytest
 from astropy import units as u
 from tardis import atomic
-from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
+from tardis.util import species_string_to_tuple, species_tuple_to_string, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
 
 def test_quantity_parser_normal():
     q1 = parse_quantity('5 km/s')
@@ -30,7 +30,7 @@ def test_element_symbol2atomic_number():
             ('Fe', 26)]
 
     for element_symbol, atomic_number in data:
-        yield _test_element_symbol2atomic_number, element_symbol, atomic_number
+        _test_element_symbol2atomic_number(element_symbol, atomic_number)
 
 def test_element_symbol_reformatter():
     def _test_element_symbol_reformatter(unformatted_element_string, formatted_element_string):
@@ -44,9 +44,9 @@ def test_element_symbol_reformatter():
             ]
 
     for unformatted_element_string, formatted_element_string in data:
-        yield _test_element_symbol_reformatter, unformatted_element_string, formatted_element_string
+        _test_element_symbol_reformatter(unformatted_element_string, formatted_element_string)
 
-def test_species_string_to_species():
+def test_species_string_to_species_tuple():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     def _test_species_string_to_species_tuple(species_string, species_tuple):
         assert species_string_to_tuple(species_string) == species_tuple
@@ -57,4 +57,17 @@ def test_species_string_to_species():
             ]
 
     for species_string, species_tuple in data:
-        yield _test_species_string_to_species_tuple, species_string, species_tuple
+        _test_species_string_to_species_tuple(species_string, species_tuple)
+
+def test_species_tuple_to_species_string():
+    atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
+    def _test_species_tuple_to_species_string(species_string, species_tuple):
+        assert species_tuple_to_string(species_tuple) == species_string
+
+    data = [('Si II', (14, 1) ),
+            ('Si IV', (14, 3)),
+            ('Si IX', (14, 8)),
+            ]
+
+    for species_string, species_tuple in data:
+        _test_species_tuple_to_species_string(species_string, species_tuple)
