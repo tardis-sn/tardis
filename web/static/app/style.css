@@ -1,0 +1,30 @@
+body{
+	padding-top: 40px;
+}
+/* centered columns styles */
+.row-centered {
+    text-align:center;
+}
+.col-centered {
+    display:inline-block;
+    float:none;
+    /* reset the text-align */
+    text-align:left;
+    /* inline-block space fix */
+    margin-right:-4px;
+}
+
+.input-form{
+	max-width: 800px;
+}
+.padding {
+	padding: 2em 1em;
+}
+
+span.pull-right{
+	text-align: right;
+}
+
+.advanced label {
+	color: darkorange;
+}
