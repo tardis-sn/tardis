@@ -1,0 +1,8 @@
+<div class='tag-input-ctn'>
+	<div class='input-tag' data-ng-repeat="tag in vm.tagArray()">
+		{$ tag $}
+		<div class='delete-tag' data-ng-click='vm.deleteTag($index)'>&times;</div>
+	</div>
+	<input type='text' data-ng-style='{width: vm.inputWidth}' 
+			data-ng-model='tagText' placeholder='{$ vm.placeholder $}'/>
+</div>
