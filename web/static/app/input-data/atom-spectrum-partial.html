@@ -5,7 +5,7 @@
     Atomic data:
   </label>
   <div>
-    <input type="file" class="form-control" required>
+    <input type="file" class="form-control" required ng-model="main.data.atom_data">
   </div>
   <span class="help-block pull-right">select Atomic Data HDF5 file</span>
 </div>
@@ -16,15 +16,18 @@
       quantity range sampled:
     </label>
     <div class="col-sm-3">
-      <input type="number" class="form-control pull-right" step="any" required>
+      <input type="number" class="form-control pull-right" step="any" required
+              ng-model="main.data.spectrum.start">
       <span class="help-block pull-right">start</span>
     </div>
     <div class="col-sm-3">
-      <input type="number" class="form-control pull-right" step="any" required>
+      <input type="number" class="form-control pull-right" step="any" required
+              ng-model="main.data.spectrum.end">
       <span class="help-block pull-right">end</span>
     </div>
     <div class="col-sm-3">
-      <input type="number" class="form-control pull-right" step="any" required>
+      <input type="number" class="form-control pull-right" step="any" required
+              ng-model="main.data.spectrum.num">
       <span class="help-block pull-right">num</span>
     </div>
     <span class="help-block pull-right">description of the boundaries of the shells</span>

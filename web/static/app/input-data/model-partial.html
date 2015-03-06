@@ -1,35 +1,27 @@
 <!-- strutre option -->
 <div class="form-group col-sm-6">
-  <label for="exampleInputEmail1" class="col-sm-4 control-label">
-    structure:
+  <label for="exampleInputEmail1" class="control-label">
+    structure: 
   </label>
+  <select ng-model="main.data.model.struture.type">
+    <option value="file">file</option>
+    <option value="specific">specific</option>
+  </select>
 
-  <div class="col-sm-8">
-      <div class="radio-inline">
-        <label>
-          <input type="radio" ng-model="main.model.struture" value="file" checked> 
-          file
-        </label>
-      </div>
-      <div class="radio-inline">
-        <label>
-          <input type="radio" ng-model="main.model.struture" value="specific"> 
-          specific
-        </label>
-      </div>
-  </div>
+  
 </div>
 
 <div class="clearfix"></div>
-<ng-switch on="main.model.struture">
-  <div ng-switch-when="file">
+<ng-switch on="main.data.model.struture.type">
+  <div ng-switch-when="file" class="well clearfix">
     
     <div class="form-group col-sm-7">
       <label for="exampleInputEmail1" class="control-label">
         filename:
       </label>
       <div>
-        <input type="file" class="form-control" required>
+        <input type="file" class="form-control" required
+                ng-model="main.data.model.struture.filemane">
       </div>
       <span class="help-block">select to structure model file</span>
     </div>
@@ -39,7 +31,7 @@
         filetype:
       </label>
       <div>
-        <select class="form-control">
+        <select class="form-control" ng-model="main.data.model.struture.filetype">
           <option value="simple_ascii">simple_ascii</option>
           <option value="artis">artis</option>
         </select>
@@ -53,7 +45,8 @@
           v inner boundary:
         </label>
         <div class="input-group">
-          <input type="number" class="form-control" step="any" required>
+          <input type="number" class="form-control" step="any" required
+                  ng-model="main.data.model.struture.v_inner_boundary">
           <div class="input-group-addon">
             <select id="">
               <option value="lal">km/s</option>
@@ -64,10 +57,11 @@
       </div>
       <div class="form-group col-sm-6 pull-right">
         <label for="exampleInputEmail1" class="control-label">
-          v_outer_boundary:
+          v outer boundary:
         </label>
         <div class="input-group">
-          <input type="number" class="form-control" step="any" required>
+          <input type="number" class="form-control" step="any" required
+                  ng-model="main.data.model.struture.v_outer_boundary">
           <div class="input-group-addon">
             <select id="">
               <option value="lal">km/s</option>
@@ -79,62 +73,44 @@
     </div>
 
   </div>
-  <div ng-switch-when="specific">
+  <div ng-switch-when="specific" class="well clearfix">
 
     <div class="form-group col-sm-12 pull-right">
       <label for="exampleInputEmail1" class="col-sm-3 control-label">
         Velocity:
       </label>
       <div class="col-sm-3">
-        <input type="number" class="form-control" required>
+        <input type="number" class="form-control" required
+                ng-model="main.data.model.struture.velocity.start">
         <span class="help-block">start</span>
       </div>
       <div class="col-sm-3">
-        <input type="number" class="form-control" required>
+        <input type="number" class="form-control" required
+                ng-model="main.data.model.struture.velocity.end">
         <span class="help-block">end</span>
       </div>
       <div class="col-sm-3">
-        <input type="number" class="form-control" required>
+        <input type="number" class="form-control" required
+                ng-model="main.data.model.struture.velocity.num">
         <span class="help-block">num</span>
       </div>
       <span class="help-block pull-right">description of the boundaries of the shells</span>
     </div>
     <div class="clearfix"></div>
     <div class="form-group col-sm-12">
-      <label for="exampleInputEmail1" class="col-sm-4 control-label">
-        density:
+      <label for="exampleInputEmail1" class="control-label">
+        density: 
       </label>
-
-      <div class="col-sm-8">
-        <div class="radio-inline">
-          <label>
-            <input type="radio" ng-model="main.model.density" value="branch85_w7"> 
-            branch85_w7
-          </label>
-        </div>
-        <div class="radio-inline">
-          <label>
-            <input type="radio" ng-model="main.model.density" value="exponential"> 
-            exponential
-          </label>
-        </div>
-        <div class="radio-inline">
-          <label>
-            <input type="radio" ng-model="main.model.density" value="power_law" checked> 
-            power law
-          </label>
-        </div>
-        <div class="radio-inline">
-          <label>
-            <input type="radio" ng-model="main.model.density" value="uniform"> 
-            uniform
-          </label>
-        </div>
-      </div>
+      <select ng-model="main.data.model.struture.density.type">
+        <option value="branch85_w7">branch85_w7</option>
+        <option value="exponential">exponential</option>
+        <option value="power_law">power law</option>
+        <option value="uniform">uniform</option>
+      </select>
     </div>
     <!-- density options -->
     <div class="clearfix"></div>
-    <ng-switch on ="main.model.density">
+    <ng-switch on ="main.data.model.struture.density.type">
       <div ng-switch-when="exponential">
           
         <div class="form-group col-sm-6">
@@ -145,9 +121,9 @@
             <input type="number" class="form-control" step="any" required>
             <div class="input-group-addon">
               <select id="">
-                <option value="lal">years</option>
-                <option value="lal">months</option>
-                <option value="lal">days</option>
+                <option value="lal">year</option>
+                <option value="lal">month</option>
+                <option value="lal">day</option>
               </select>
             </div>
           </div>
@@ -243,7 +219,7 @@
 
       </div>
       <div ng-switch-when="uniform">
-        <div class="form-group col-sm-6 pull-right">
+        <div class="form-group col-sm-6">
           <label for="exampleInputEmail1" class="control-label">
             value:
           </label>
@@ -267,36 +243,26 @@
 <!-- abundace option -->
 <div class="clearfix"></div>
 <div class="form-group col-sm-6">
-  <label for="exampleInputEmail1" class="col-sm-4 control-label">
-    abundance:
+  <label for="exampleInputEmail1" class="control-label">
+    abundance: 
   </label>
-
-  <div class="col-sm-8">
-      <div class="radio-inline">
-        <label>
-          <input type="radio" ng-model="main.model.abundance" value="file"> 
-          file
-        </label>
-      </div>
-      <div class="radio-inline">
-        <label>
-          <input type="radio" ng-model="main.model.abundance" value="uniform" checked> 
-          uniform
-        </label>
-      </div>
-  </div>
+  <select ng-model="main.data.model.abundance.type">
+    <option value="uniform">uniform</option>
+    <option value="file">file</option>
+  </select>
 </div>
 
 <div class="clearfix"></div>
-<ng-switch on="main.model.abundance">
-  <div ng-switch-when="file">
+<ng-switch on="main.data.model.abundance.type">
+  <div ng-switch-when="file" class="well clearfix">
     
     <div class="form-group col-sm-7">
       <label for="exampleInputEmail1" class="control-label">
         filename:
       </label>
       <div>
-        <input type="file" class="form-control" required>
+        <input type="file" class="form-control" required
+                ng-model="main.data.model.abundance.file">
       </div>
       <span class="help-block">select to abundance model file</span>
     </div>
@@ -306,7 +272,7 @@
         filetype:
       </label>
       <div>
-        <select class="form-control">
+        <select class="form-control" ng-model="main.data.model.abundance.filetype">
           <option value="simple_ascii">simple_ascii</option>
           <option value="artis">artis</option>
         </select>
@@ -316,10 +282,12 @@
   </div>
 
   </div>
-  <div ng-switch-when="uniform">
+  <div ng-switch-when="uniform" class="well clearfix">
     
     <div class="col-sm-12">
-      <tag-input taglist="main.uniform" placeholder="add abundace"></tag-input>
+      <tag-input taglist="main.data.model.abundance.uniform" placeholder="add abundace" 
+                  ng-model="main.data.model.abundance.uniform">
+      </tag-input>
     </div>
     <span class="help-block pull-right">
       set the elemental abundances, specified as mass fractions e.g. Si: 0.6, S: 0.4

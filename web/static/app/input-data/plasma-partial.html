@@ -3,7 +3,7 @@
     ionization:
   </label>
   <div class="col-sm-8">
-    <select class="form-control">
+    <select class="form-control" ng-model="main.data.plasma.ionization">
       <option value="nebular">nebular</option>
       <option value="lte">lte</option>
     </select>
@@ -15,7 +15,7 @@
     excitation:
   </label>
   <div class="col-sm-8">
-    <select class="form-control">
+    <select class="form-control" ng-model="main.data.plasma.excitation">
       <option value="lte">lte</option>
       <option value="dilute-lte">dilute-lte</option>
     </select>
@@ -27,7 +27,7 @@
     radiative rates type:
   </label>
   <div class="col-sm-6">
-    <select class="form-control">
+    <select class="form-control" ng-model="main.data.plasma.radiative_rates_type">
       <option value="dilute-blackbody">dilute-blackbody</option>
       <option value="detailed">detailed</option>
     </select>
@@ -39,7 +39,7 @@
     line interaction type:
   </label>
   <div class="col-sm-6">
-    <select class="form-control">
+    <select class="form-control" ng-model="main.data.plasma.line_interaction_type">
       <option value="scatter">scatter</option>
       <option value="downbranch">downbranch</option>
       <option value="macroatom">macroatom</option>
@@ -56,7 +56,8 @@
       initial t inner:
     </label>
     <div class="input-group">
-      <input type="number" class="form-control" step="any" required>
+      <input type="number" class="form-control" step="any" required
+              ng-model="main.data.plasma.initial_t_inner">
       <div class="input-group-addon">
         <select id="">
           <option value="lal">K</option>
@@ -73,7 +74,8 @@
       initial t rad:
     </label>
     <div class="input-group">
-      <input type="number" class="form-control" step="any" required>
+      <input type="number" class="form-control" step="any" required
+              ng-model="main.data.plasma.initial_t_rad">
       <div class="input-group-addon">
         <select id="">
           <option value="lal">K</option>
@@ -88,7 +90,7 @@
   <div class="form-group col-sm-6">
     <div class="checkbox">
       <label>
-        <input type="checkbox"> delta treatment
+        <input type="checkbox" ng-model="main.data.plasma.delta_treatment"> delta treatment
       </label>
     </div>
     <span class="help-block">
@@ -102,7 +104,8 @@
       w epsilon:
     </label>
     <div>
-      <input type="text" class="form-control" required>
+      <input type="text" class="form-control" required
+              ng-model="main.data.plasma.w_epsilon">
     </div>
     <span class="help-block">
       w to use when j_blues get numerically 0. - avoids numerical complications
@@ -112,7 +115,8 @@
   <div class="form-group col-sm-6">
     <div class="checkbox">
       <label>
-        <input type="checkbox"> disable electron scattering
+        <input type="checkbox" ng-model="main.data.plasma.disable_electron_scattering"> 
+        disable electron scattering
       </label>
     </div>
     <span class="help-block">
@@ -127,7 +131,9 @@
       nlte - species:
     </label>
     <div>
-      <tag-input taglist="main.specie" placeholder="add specie"></tag-input>
+      <tag-input taglist="main.data.plasma.nlte.species" placeholder="add specie" 
+                  ng-model="main.data.plasma.nlte.species">
+      </tag-input>
     </div>
     <span class="help-block pull-right">
       Species that are requested to be NLTE treated in the format 
@@ -138,12 +144,14 @@
     
   <div class="checkbox col-sm-6">
     <label>
-      <input type="checkbox"> nlte - coronal approximation
+      <input type="checkbox" ng-model="main.data.plasma.nlte.coronal_approximation"> 
+      nlte - coronal approximation
     </label>
   </div>
   <div class="checkbox col-sm-6">
     <label>
-      <input type="checkbox"> nlte - classical nebular
+      <input type="checkbox" ng-model="main.data.plasma.nlte.classical_nebular"> 
+      nlte - classical nebular
     </label>
   </div>  
       

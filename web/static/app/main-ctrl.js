@@ -32,15 +32,27 @@ function MainCtrl (){
   ]
   vm.tabIndex = 0;
   vm.CurrentTab = vm.tabs[vm.tabIndex];
-  vm.model = {};
-  vm.model.struture = 'file';
-  vm.model.abundance = 'uniform';
-  vm.model.density = 'branch85_w7';
+  // define the ng-models object for input data
+  vm.data = {};
+  vm.data.supernova = {};
+  vm.data.atom_data = {};
+  vm.data.spectrum = {};
+  vm.data.plasma = {};
+  vm.data.plasma.nlte = {};
+  vm.data.montecarlo = {};
+  vm.data.montecarlo.black_body_sampling = {};
+  vm.data.model = {};
+  vm.data.model.struture = {};
+  vm.data.model.struture.type = 'file';
+  vm.data.model.struture.velocity = {}
+  vm.data.model.struture.density = {};
+  vm.data.model.struture.density.type = 'branch85_w7';
+  vm.data.model.abundance = {};
+  vm.data.model.abundance.type = 'uniform';
 
   vm.changeTab = changeTab;
   vm.nextTab = nextTab;
   vm.prevTab = prevTab;
-  vm.nextButtonName = 'next'
 
   function changeTab(index, tab) {
     vm.tabIndex = index;

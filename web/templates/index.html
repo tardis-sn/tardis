@@ -39,23 +39,31 @@
             </li>
           </ul>
         </div>
-        <form class="form-horizontal">
+        <form novalidate class="form-horizontal">
 
           <div class="col-xs-12 col-centered input-form padding">
-            <div ng-include src="'/static/app/' + main.CurrentTab.template"></div>            
+            <div ng-repeat="tab in main.tabs" ng-show="main.tabIndex == $index">
+              <div ng-include src="'/static/app/' + tab.template"></div>
+            </div>
           </div>         
 
-
           <div class="col-sm-12 col-centered input-form">
-            <button class="btn btn-success pull-left" ng-click="main.prevTab()" ng-show="main.tabIndex > 0">
+            <button class="btn btn-success pull-left" ng-click="main.prevTab()" ng-hide="main.tabIndex == 0">
               <i class="glyphicon glyphicon-chevron-left"></i>
               prev
             </button>
-            <button class="btn btn-success pull-right" ng-click="main.nextTab()">
+            <button class="btn btn-success pull-right" ng-click="main.nextTab()" 
+                    ng-hide="main.tabIndex == main.tabs.length - 1">
               next
               <i class="glyphicon glyphicon-chevron-right"></i>
             </button>
+            <button class="btn btn-info pull-right" ng-click="main.nextTab()" 
+                    ng-show="main.tabIndex == main.tabs.length - 1">
+              <i class="glyphicon glyphicon-log-out"></i>
+              generate input file
+            </button>
           </div>
+
         </form>
 
       </div>

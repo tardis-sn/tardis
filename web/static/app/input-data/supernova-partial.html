@@ -3,7 +3,8 @@
     luminosity requested:
   </label>
   <div class="input-group">
-    <input type="number" class="form-control" step="any" required>
+    <input type="number" class="form-control" step="any" required
+            ng-model="main.data.supernova.luminosity_requested">
     <div class="input-group-addon">
       <select id="">
         <option value="lal">solLum</option>
@@ -18,7 +19,8 @@
     time explosion:
   </label>
   <div class="input-group">
-    <input type="number" class="form-control" step="any" required>
+    <input type="number" class="form-control" step="any" required
+            ng-model="main.data.supernova.time_explosion">
     <div class="input-group-addon">
       <select id="">
         <option value="lal">years</option>
@@ -36,7 +38,8 @@
       luminosity wavelength start:
     </label>
     <div class="input-group">
-      <input type="number" class="form-control" step="any" required>
+      <input type="number" class="form-control" step="any" required
+              ng-model="main.data.supernova.luminosity_wavelength_start">
       <div class="input-group-addon">
         <select id="">
           <option value="lal">angstrom</option>
@@ -52,7 +55,8 @@
       luminosity wavelength end:
     </label>
     <div class="input-group">
-      <input type="number" class="form-control" step="any" required>
+      <input type="number" class="form-control" step="any" required
+              ng-model="main.data.supernova.luminosity_wavelength_end">
       <div class="input-group-addon">
         <select id="">
           <option value="lal">angstrom</option>
@@ -68,7 +72,8 @@
       distance:
     </label>
     <div class="input-group">
-      <input type="number" class="form-control" step="any" required>
+      <input type="number" class="form-control" step="any" required
+              ng-model="main.data.supernova.distance">
       <div class="input-group-addon">
         <select id="">
           <option value="lal">lightyear</option>
