@@ -1,77 +1,78 @@
 <div class="form-group col-sm-6">
-  <label for="exampleInputEmail1" class="col-sm-8 control-label">
+  <label for="exampleInputEmail1" class="control-label">
   no of packets:
   </label>
-  <div class="col-sm-4">
-    <input type="number" class="form-control" required>
+  <div>
+    <input type="number" step="any" class="form-control" required>
   </div>
-  <span class="help-block pull-right">Seed for the random number generator</span>
+  <span class="help-block">Seed for the random number generator</span>
 </div>
 <div class="form-group col-sm-6 pull-right">
-  <label for="exampleInputEmail1" class="col-sm-8 control-label">
+  <label for="exampleInputEmail1" class="control-label">
   iterations:
   </label>
-  <div class="col-sm-4">
-    <input type="number" class="form-control" required>
+  <div>
+    <input type="number" step="any" class="form-control" required>
   </div>
-  <span class="help-block pull-right">Number of maximum iterations</span>
+  <span class="help-block">Number of maximum iterations</span>
 </div>
-
+<!--  -->
 <!-- Advanced options -->
+<!--  -->
 <div class="advanced" ng-show="main.advanced">
 
   <div class="form-group col-sm-6">
-    <label for="exampleInputEmail1" class="col-sm-8 control-label">
+    <label for="exampleInputEmail1" class="control-label">
       seed:
     </label>
-    <div class="col-sm-4">
-      <input type="number" class="form-control" required>
+    <div>
+      <input type="number" step="any" class="form-control" required>
     </div>
-    <span class="help-block pull-right">Seed for the random number generator</span>
+    <span class="help-block">Seed for the random number generator</span>
   </div>
   <div class="form-group col-sm-6 pull-right">
-    <label for="exampleInputEmail1" class="col-sm-8 control-label">
+    <label for="exampleInputEmail1" class="control-label">
       last no of packets:
     </label>
-    <div class="col-sm-4">
-      <input type="number" class="form-control" required>
+    <div>
+      <input type="text" class="form-control" required>
     </div>
-    <span class="help-block pull-right">This can set the number of packets for the last run.
+    <span class="help-block">This can set the number of packets for the last run.
             If set negative it will remain the same as all other runs.</span>
   </div>
   <div class="form-group col-sm-6">
-    <label for="exampleInputEmail1" class="col-sm-8 control-label">
+    <label for="exampleInputEmail1" class="control-label">
       no of virtual packets:
     </label>
-    <div class="col-sm-4">
-      <input type="number" class="form-control" required>
+    <div>
+      <input type="text" class="form-control" required>
     </div>
-    <span class="help-block pull-right">Setting the number of virtual packets for the last iteration.</span>
+    <span class="help-block">Setting the number of virtual packets for the last iteration.</span>
   </div>
   <div class="form-group col-sm-6 pull-right">
-    <label for="exampleInputEmail1" class="col-sm-8 control-label">
+    <label for="exampleInputEmail1" class="control-label">
       inner boundary albedo:
     </label>
-    <div class="col-sm-4">
-      <input type="number" class="form-control" required>
+    <div>
+      <input type="number" step="any" class="form-control" required>
     </div>
-    <span class="help-block pull-right">albedo of the reflective boundary.</span>
+    <span class="help-block">albedo of the reflective boundary.</span>
   </div>
   <div class="form-group col-sm-12 pull-right">
     <label for="exampleInputEmail1" class="col-sm-3 control-label">
       black body sampling:
     </label>
     <div class="col-sm-3">
-      <input type="number" class="form-control" required>
-      <span class="help-block pull-right">start</span>
+      <input type="number" step="any" class="form-control" required>
+      <span class="help-block">start</span>
     </div>
     <div class="col-sm-3">
-      <input type="number" class="form-control" required>
-      <span class="help-block pull-right">end</span>
+      <input type="number" step="any" class="form-control" required>
+      <span class="help-block">end</span>
     </div>
     <div class="col-sm-3">
-      <input type="number" class="form-control" required>
-      <span class="help-block pull-right">num</span>
+      <input type="number" step="any" class="form-control" required>
+      <span class="help-block">num</span>
     </div>
     <span class="help-block pull-right">Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)</span>
   </div>

@@ -29,6 +29,9 @@ span.pull-right{
 	color: darkorange;
 }
 
+tag-input{
+	min-width: 100%;
+}
 .tag-input-ctn {
 	border: 1px solid #ccc;
 	padding: 2px 3px;
@@ -37,6 +40,7 @@ span.pull-right{
 	width: 500px;
 	border-radius: 3px;
 	box-shadow: inset 0px 1px 1px rgba(0, 0, 0, 0.075);
+	min-width: 100%;
 }
 .tag-input-ctn  input {
 	display: inline-block;
@@ -48,7 +52,6 @@ span.pull-right{
 	color: black;
 	border: 0px;
 	margin: 2px;
-	min-width: 100%;
 }
 .tag-input-ctn  input:focus {
 	outline: 0;

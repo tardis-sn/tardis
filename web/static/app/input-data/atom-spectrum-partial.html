@@ -1,37 +1,32 @@
 <h3>Atom data</h3>
 <p>The atomic data for tardis is stored in hdf5 files. TARDIS ships with a relatively simple atomic dataset which only contains silicon lines and levels. use this to link download example <a href="http://tardis.readthedocs.org/en/latest/atomic/atomic_data.html">Tardis Atomic Dataset</a></p>
 <div class="form-group col-sm-12">
-  <label for="exampleInputEmail1" class="col-sm-2 control-label">
+  <label for="exampleInputEmail1" class="control-label">
     Atomic data:
   </label>
-  <div class="col-sm-10">
+  <div>
     <input type="file" class="form-control" required>
   </div>
   <span class="help-block pull-right">select Atomic Data HDF5 file</span>
 </div>
 
-<h3>Spectrum</h3>
-<div class="form-group col-sm-4">
-  <label for="exampleInputEmail1" class="col-sm-6 control-label">
-    start:
-  </label>
-  <div class="col-sm-6">
-    <input type="number" class="form-control" required>
-  </div>
-</div>
-<div class="form-group col-sm-4">
-  <label for="exampleInputEmail1" class="col-sm-6 control-label">
-    end:
-  </label>
-  <div class="col-sm-6">
-    <input type="number" class="form-control" required>
-  </div>
-</div>
-<div class="form-group col-sm-4">
-  <label for="exampleInputEmail1" class="col-sm-6 control-label">
-    num:
-  </label>
-  <div class="col-sm-6">
-    <input type="number" class="form-control" required>
+  <h3>Spectrum</h3>
+  <div class="form-group col-sm-12 pull-right">
+    <label for="exampleInputEmail1" class="col-sm-3 control-label">
+      quantity range sampled:
+    </label>
+    <div class="col-sm-3">
+      <input type="number" class="form-control pull-right" step="any" required>
+      <span class="help-block pull-right">start</span>
+    </div>
+    <div class="col-sm-3">
+      <input type="number" class="form-control pull-right" step="any" required>
+      <span class="help-block pull-right">end</span>
+    </div>
+    <div class="col-sm-3">
+      <input type="number" class="form-control pull-right" step="any" required>
+      <span class="help-block pull-right">num</span>
+    </div>
+    <span class="help-block pull-right">description of the boundaries of the shells</span>
   </div>
 </div>

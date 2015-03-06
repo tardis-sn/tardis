@@ -91,7 +91,7 @@ function tagInput() {
       if (key === 9 || key === 13) {
         e.preventDefault();
       }
-      if (key === 8) {
+      if (key === 8 && scope.vm.tagText.length === 0) {
         return scope.$apply(scope.vm.deleteTag);
       }
     }
