@@ -30,6 +30,7 @@ def test_atomic_number2element_symbol():
 def test_element_symbol2atomic_number(element_symbol, atomic_number):
     assert element_symbol2atomic_number(element_symbol) == atomic_number
 
+
 @pytest.mark.parametrize("unformatted_element_string, formatted_element_string", [
     ('si', 'Si'),
     ('sI', 'Si'),
