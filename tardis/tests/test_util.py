@@ -60,23 +60,11 @@ def test_species_string_to_species():
 		yield _test_species_string_to_species_tuple, species_string, species_tuple
 
 
-def test_int_to_roman2():
-	with pytest.raises(ValueError):
-		result = int_to_roman(4000)
-
 def test_roman_to_int():
-	with pytest.raises(TypeError):
-		result = roman_to_int(56)
-
-def test_roman_to_int2():
 	
 	input = 'MDCCC'
 	result = roman_to_int(input)
 	assert result == 1800
-
-def test_roman_to_int3():
-	with pytest.raises(TypeError):
-		result = roman_to_int('VVVIV')
 
 def test_reformat_element_symbol():
 
