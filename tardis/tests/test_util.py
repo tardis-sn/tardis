@@ -3,7 +3,11 @@
 import pytest
 from astropy import units as u
 from tardis import atomic
-from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
+from nose.tools import assert_equal
+from nose.tools import assert_not_equal
+from nose.tools import assert_raises
+from nose.tools import raises
+from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError, int_to_roman, roman_to_int, reformat_element_symbol
 
 def test_quantity_parser_normal():
     q1 = parse_quantity('5 km/s')
@@ -58,3 +62,49 @@ def test_species_string_to_species():
 
     for species_string, species_tuple in data:
         yield _test_species_string_to_species_tuple, species_string, species_tuple
+
+def test_int_to_roman():
+
+    #Case within bounds
+    input = 10
+    result = int_to_roman(input)
+    assert_equal('X', result)
+
+    #Boundary Case
+    input = 4000
+    assert_raises(ValueError, int_to_roman, input)
+
+    #Boundary Case
+    input = 0
+    assert_raises(ValueError, int_to_roman, input)
+
+    #Case for checking Roman value for inbounds input
+    input = 1999
+    result = int_to_roman(input)
+    assert_equal('MCMXCIX', result)
+    
+
+def test_roman_to_int():
+    
+    #invalid input
+    input = 56
+    assert_raises(TypeError, roman_to_int, input)
+
+    #not a valid roman literal
+    input = 'VVVIV'
+    assert_raises(ValueError, roman_to_int, input)
+
+    #not a valid roman literal
+    input = 'LS'
+    assert_raises(ValueError, roman_to_int, input)
+
+    #valid input
+    input = 'MDCCC'
+    result = roman_to_int(input)
+    assert_equal(1800, result)
+
+def test_reformat_element_symbol():
+
+    input = 'str'
+    result = reformat_element_symbol(input)
+    assert_equal('Str', result)
