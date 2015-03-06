@@ -39,6 +39,7 @@ supernova:
 
 atom_data:
     property_type: string
+    file: True
     mandatory: True
     help: path or filename to the Atomic Data HDF5 file
 
@@ -146,6 +147,7 @@ model:
 
         filename:
             property_type: string
+            file: True
             default: None
             mandatory: True
             help: file name (with path) to structure model
@@ -245,6 +247,7 @@ model:
 
         filename:
             property_type: string
+            file: True
             default: None
             mandatory: True
             help: filename
