@@ -8,7 +8,7 @@ bash miniconda.sh -b
 export PATH=/home/vagrant/miniconda/bin:$PATH
 conda update --yes conda
 
-conda create --yes -n tardis --file /vagrant/pip-requirements pip
+conda create --yes -n tardis --file /vagrant/conda-requirements pip
 
 echo "export PATH=/home/vagrant/miniconda/bin:$PATH" >> .bashrc
 
