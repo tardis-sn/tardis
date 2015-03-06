@@ -57,7 +57,7 @@
               next
               <i class="glyphicon glyphicon-chevron-right"></i>
             </button>
-            <button class="btn btn-info pull-right" ng-click="main.nextTab()" 
+            <button class="btn btn-info pull-right" ng-click="main.createYamlFile()" 
                     ng-show="main.tabIndex == main.tabs.length - 1">
               <i class="glyphicon glyphicon-log-out"></i>
               generate input file
@@ -71,9 +71,41 @@
 
   </div>
 
+  <!-- help modal to download the created file -->
+  <div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" 
+        aria-labelledby="donwloadFile" aria-hidden="true" id="donwloadFile">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">configuration complete</h4>
+        </div>
+        <div class="modal-body">
+          <a href="input_data.yml" class="btn btn-primary" download>
+            <i class="glyphicon glyphicon-save"></i>
+            Download input file
+          </a>
+          <div class="clearfix"></div>
+          <p>after download the run tardis with:</p>
+          <pre>tardis input_data.yml output_spectrum.dat</pre>
+          <p>Then plot the output_spectrum.dat with your favourite plotting program. Here’s an example how to do this with python. (The only thing you need to install is ipython and matplotlib - in addition to TARDIS’s requirements)</p>
+<pre>
+ipython --pylab
+>>> tardis_spec = loadtxt('output_spectrum.dat')
+>>> plot(tardis_spec[:,0], tardis_spec[:,1])
+</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
   <script src="http://getbootstrap.com/dist/js/bootstrap.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+  <script src="https://code.angularjs.org/1.3.14/angular-resource.min.js"></script>
 
   <script src="/static/app.js"></script>
   <script src="/static/app/input-data/tag-directive.js"></script>

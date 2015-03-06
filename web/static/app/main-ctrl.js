@@ -4,10 +4,11 @@ angular
   .module('tardisApp')
   .controller('MainCtrl', MainCtrl);
 
-function MainCtrl (){
-  var vm = this;
 
-  vm.title = 'pruba de esto'
+MainCtrl.$inject = ['$resource'];
+
+function MainCtrl ($resource){
+  var vm = this;
   vm.tabs = [
     {
       'name': 'Supernova',
@@ -53,6 +54,9 @@ function MainCtrl (){
   vm.changeTab = changeTab;
   vm.nextTab = nextTab;
   vm.prevTab = prevTab;
+  vm.createYamlFile = createYamlFile;
+
+  var yaml = $resource('/yaml/:yamlId', {yamlId:'@id'});
 
   function changeTab(index, tab) {
     vm.tabIndex = index;
@@ -72,5 +76,11 @@ function MainCtrl (){
       vm.CurrentTab = vm.tabs[vm.tabIndex];
     }
   };
+
+  function createYamlFile (){
+    var yamlFile = new yaml(vm.data);
+    yamlFile.$save();
+    $('#donwloadFile').modal();
+  }
 
 }
