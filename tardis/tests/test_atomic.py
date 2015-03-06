@@ -16,7 +16,7 @@ def test_ionization_h5_readin():
     hi_ionization = data['ionization_energy'][0]
     testing.assert_almost_equal(hi_ionization, 13.59844, decimal=4)
     
-def test_lines_h5_reading():
+def test_lines_h5_readin():
     data=atomic.read_lines_data(atomic.default_atom_h5_path)
     assert data['line_id'][7] == 20
     assert data['wavelength'][7] == 71.533
