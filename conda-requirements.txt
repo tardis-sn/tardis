@@ -1,0 +1,17 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: linux-64
+flask=0.10.1
+itsdangerous=0.24
+werkzeug=0.10.1
+numpy>=1.4.0
+scipy>=0.10
+pandas>=0.12
+pytables
+h5py>=2.0
+matplotlib>=1.1
+astropy>=0.4
+PyYAML>=3.0
+numexpr>=2.0.0
+Cython>=0.21
+jinja2

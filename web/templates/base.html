@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TARDIS</title>
+</head>   
+<body>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div>
+                <ul>
+                    {% for message in messages %}
+                        <li>{{message}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+
+
+</body>
+</html>

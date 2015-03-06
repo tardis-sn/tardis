@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+    <form id='yaml-form' method="post">
+
+        luminosity requested:{{form.luminosity_requested}}<br>
+        time explosion:{{form.time_explosion}}<br>
+        distance:{{ form.distance }}<br>
+        luminosity wavelength start: {{ form.luminosity_wavelength_start }}<br>
+        luminosity wavelength end: {{ form.luminosity_wavelength_end }}<br>
+        <input type="submit" value="Submit">
+    </form>
+{% endblock %}
