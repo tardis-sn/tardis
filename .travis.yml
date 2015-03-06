@@ -55,7 +55,7 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
 
 install:
-   - conda create --yes -n tardis-travis --file pip-requirements pip python=$TRAVIS_PYTHON_VERSION
+   - conda create --yes -n tardis-travis --file conda-requirements pip python=$TRAVIS_PYTHON_VERSION
    - source activate tardis-travis
    - if [[ $NUMPY_VERSION == 'latest' ]]; then conda install --yes  numpy; else conda install --yes "numpy==$NUMPY_VERSION"; fi
    - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
