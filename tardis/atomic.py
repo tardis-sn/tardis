@@ -628,6 +628,8 @@ class NLTEData(object):
 
 
     def get_collision_matrix(self, species, t_electrons):
+        if not hasattr(self, 'C_ul_interpolator'):
+            raise AttributeError('Collisional Data is missing')
         c_ul_matrix = self.C_ul_interpolator[species](t_electrons)
         no_of_levels = c_ul_matrix.shape[0]
         c_ul_matrix[np.isnan(c_ul_matrix)] = 0.0
