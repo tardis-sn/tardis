@@ -55,6 +55,17 @@ This model can then be used for inspecting the run as described
 Graphical User Interface
 ========================
 
-A graphical user interface is being developed for this code using QT.
-We envision to have this available in the next few minor releases.
+The code brings a GUI that let's users explore the model. Currently, this is
+in beta version, but already very usable. The current version needs to be
+used with ``PySide``. Please in addition to the normal requirements install
+anaconda. Then run the code in the following way
+
+.. code-block:: python
+
+    $ipython --pylab=qt4
+    >>> from tardis import run_tardis
+    >>> mdl = run_tardis('tardis_example.yml', 'kurucz_cd23_chianti_H_He.h5')
+    >>> from tardis import gui
+    >>> mdlvwr = gui.ModelViewer()
+    >>> mdlvwr.show_model(mdl)
 
