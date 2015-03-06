@@ -15,7 +15,7 @@ class MainHandler(RequestHandler):
 
 class YamlHandler(RequestHandler):
     def post(self):
-        config_file = file('input_data.yml', 'w')
+        config_file = file('static/input_data.yml', 'w')
         config_file.write('tardis_config_version: v1.0\n')
         data = json.loads(self.request.body)
         yml = yaml.safe_dump(data, config_file)
