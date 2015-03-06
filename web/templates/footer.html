@@ -8,12 +8,12 @@
       $(function () {
         $('[data-toggle="tooltip"]').tooltip()
       })
-      $("select#spectrum-type").change(function(){
+      $("select#montecarlo-type").change(function(){
         selected = $(this).children(":selected").val();
         $( ".spectrum_type" ).removeClass( "visible");
         $( "."+selected ).addClass( "visible");
       });
-      $("select#model-model_structure-specific-density_type").change(function(){
+      $("select#structure_model-density_type").change(function(){
         selected = $(this).children(":selected").val();
         $( ".density_type" ).removeClass( "visible");
         $( "."+selected ).addClass( "visible");
