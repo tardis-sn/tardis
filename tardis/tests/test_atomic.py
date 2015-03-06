@@ -1,5 +1,5 @@
 from tardis import atomic
-from numpy import testing
+from numpy import testing, float64
 import pytest
 import os
 
@@ -25,6 +25,30 @@ def test_levels_h5_readin():
     testing.assert_almost_equal(si_energy, 1.90865, decimal=4)
     assert data['g'][4] == 1
     assert data['metastable'][4] == False
+
+def test_lines_h5_readin():
+    data = atomic.read_lines_data(atomic.default_atom_h5_path)
+    assert data['line_id'][5] == 18
+    si_wavelength = data['wavelength'][5]
+    testing.assert_almost_equal(si_wavelength, 71.273)
+    assert data['atomic_number'][5] == 14
+    assert data['ion_number'][5] == 5
+    si_f_ul = data['f_ul'][5]
+    testing.assert_almost_equal(si_f_ul, 0.00075, decimal=4)
+    si_f_lu = data['f_lu'][5]
+    testing.assert_almost_equal(si_f_lu, 0.00075, decimal=4)
+    si_level_number_lower = data['level_number_lower'][5]
+    testing.assert_almost_equal(si_level_number_lower, 0.0)
+    si_level_number_upper = data['level_number_upper'][5]
+    testing.assert_almost_equal(si_level_number_upper, 32.0)
+    si_nu = data['nu'][5]
+    testing.assert_almost_equal(si_nu, float64(4.2062556367769e+16))
+    si_B_lu = data['B_lu'][5]
+    testing.assert_almost_equal(si_B_lu, 903442.64270, decimal=4)
+    si_B_ul = data['B_ul'][5]
+    testing.assert_almost_equal(si_B_ul, 903442.64270, decimal=4)
+    si_A_ul = data['A_ul'][5]
+    testing.assert_almost_equal(si_A_ul, 991361747.81935, decimal=4)
 
 
 def test_atom_levels():
