@@ -28,7 +28,7 @@ class TestMonteCarlo():
 
         self.model = run_tardis(self.config_yaml)
 
-    def test_montecarlo_radial1d():
+    def test_montecarlo_radial1d(self):
         output_nu, output_energies, j_estimators, nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
         last_interaction_type, last_line_interaction_shell_id = \
