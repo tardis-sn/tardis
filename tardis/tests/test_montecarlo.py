@@ -28,19 +28,19 @@ class TestMonteCarlo():
 
         self.model = run_tardis(self.config_yaml)
 
-    def test_montecarlo_radial1d():
-        output_nu, output_energies, j_estimators, nubar_estimators, \
-        last_line_interaction_in_id, last_line_interaction_out_id, \
-        last_interaction_type, last_line_interaction_shell_id = \
-            montecarlo.montecarlo_radial1d(self.model)
-        testing.assert_almost_equal(ouput_nu[0], 494994844798236.5)
-        testing.assert_almost_equal(output_energies[0], 2.0570649803508353e-06)
-        testing.assert_almost_equal(j_estimators[0], 114564286557777.5)
-        testing.assert_almost_equal(nubar_estimators[0], 1.0088596598917336e+29)
-        assert last_line_interaction_in_id[0] == -1
-        assert last_line_interaction_out_id[0] == -1
-        assert last_interaction_type[0] == -1
-        assert last_line_interaction_shell_id[0] == -1
+#    def test_montecarlo_radial1d():
+#        output_nu, output_energies, j_estimators, nubar_estimators, \
+#        last_line_interaction_in_id, last_line_interaction_out_id, \
+#        last_interaction_type, last_line_interaction_shell_id = \
+#            montecarlo.montecarlo_radial1d(self.model)
+#        testing.assert_almost_equal(ouput_nu[0], 494994844798236.5)
+#        testing.assert_almost_equal(output_energies[0], 2.0570649803508353e-06)
+#        testing.assert_almost_equal(j_estimators[0], 114564286557777.5)
+#        testing.assert_almost_equal(nubar_estimators[0], 1.0088596598917336e+29)
+#        assert last_line_interaction_in_id[0] == -1
+#        assert last_line_interaction_out_id[0] == -1
+#        assert last_interaction_type[0] == -1
+#        assert last_line_interaction_shell_id[0] == -1
 
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
