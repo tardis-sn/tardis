@@ -6,6 +6,9 @@ import pandas as pd
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import IncompleteAtomicData
 
+__all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
+           'AtomicMass', 'IonizationData']
+
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     __metaclass__ = ABCMeta
 

@@ -7,7 +7,7 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
-
+__all__ = ['LevelBoltzmannFactor', 'LTEPartitionFunction']
 
 class LevelBoltzmannFactor(ProcessingPlasmaProperty):
     """

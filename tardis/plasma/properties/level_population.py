@@ -6,7 +6,7 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
-
+__all__ = ['LevelPopulationLTE', 'LevelNumberDensity']
 
 
 class LevelPopulationLTE(ProcessingPlasmaProperty):
@@ -16,13 +16,10 @@ class LevelPopulationLTE(ProcessingPlasmaProperty):
                          r'e^{-\beta_\textrm{rad} E_{i, j, k}}{Z_{i, j}}')
 
         @staticmethod
-        def calculate(levels, partition_function,
-                                        level_boltzmann_factor):
+        def calculate(levels, partition_function, level_boltzmann_factor):
 
             partition_function_broadcast = partition_function.ix[
                 levels.index.droplevel(2)].values
-
-            #ion_number_density_broadcast = ion_number_density.ix[levels.index.droplevel(2)].values
 
             return level_boltzmann_factor / partition_function_broadcast
 
@@ -62,25 +59,6 @@ class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
 
             level_population = level_boltzmann_factor / partition_function_broadcast
             level_population[~levels.metastable] *= np.min([w, np.ones_like(w)],axis=0)
-
-
-        def calculate_level_populations(self, initialize_nlte=False, excitation_mode='lte'):
-            Z = self.partition_functions.ix[self.atom_data.levels.index.droplevel(2)].values
-
-            ion_number_density = self.ion_populations.ix[self.atom_data.levels.index.droplevel(2)].values
-
-
-            level_populations = (ion_number_density / Z) * self.level_population_proportionalities
-
-            if excitation_mode == 'lte':
-                pass
-            elif excitation_mode == 'dilute-lte':
-                level_populations[~self.atom_data.levels.metastable] *= np.min([self.ws, np.ones_like(self.ws)],axis=0)
-
-            if initialize_nlte:
-                self.level_populations.update(level_populations)
-            else:
-                self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
 
 
 class LevelPopulationNLTE(ProcessingPlasmaProperty):

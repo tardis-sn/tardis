@@ -7,6 +7,7 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
+__all__ = ['BetaRadiation', 'GElectron', 'NumberDensity', 'SelectedAtoms']
 
 class BetaRadiation(ProcessingPlasmaProperty):
     name = 'beta_rad'
