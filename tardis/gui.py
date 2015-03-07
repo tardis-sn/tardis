@@ -8,7 +8,12 @@ from matplotlib.patches import Circle
 from matplotlib.figure import *
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
-from PySide import QtGui, QtCore
+import os
+if os.environ.get('QT_API', None) is None:
+    from PyQt4 import QtGui, QtCore
+else:
+    from PySide import QtGui, QtCore
+    
 from astropy import units as u
 from tardis import analysis, util
 

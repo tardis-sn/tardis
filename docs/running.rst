@@ -55,6 +55,34 @@ This model can then be used for inspecting the run as described
 Graphical User Interface
 ========================
 
-A graphical user interface is being developed for this code using QT.
-We envision to have this available in the next few minor releases.
+**To run the GUI(under development) follow these steps:**
 
+The gui can use one of two python bindings for qt, namely PyQt4
+and PySide. You can choose which binding is used by setting the
+environment variable QT_API in your bash.
+
+**1**. Choosing between PySide and PyQt4 (optional)
+
+.. code-block:: none
+
+	#To choose PySide
+	export QT_API=pyside
+	
+	#To go back to PyQt4
+	unset QT_API
+
+**2**. An example of creating a model and GUI
+
+As of now, the GUI can be started from the ipython shell.  Currently there is no way to work completely from inside the GUI. 
+
+.. code-block:: none
+
+	ipython --pylab=qt4
+
+.. code-block:: python
+
+	>>> from tardis import run_tardis
+	>>> mdl = run_tardis('tardis_example.yml', 'kurucz_cd23_chianti_H_He.h5')
+	>>> from tardis import gui
+	>>> mdviewer = gui.ModelViewer()
+	>>> mdviewer.show_model(mdl)
