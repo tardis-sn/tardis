@@ -9,12 +9,15 @@ def test_atomic_h5_readin():
     assert data['symbol'][13] == "Si"
     si_mass = data['mass'][13]
     testing.assert_almost_equal(si_mass, 28.085, decimal=4)
+    assert data['name'][13] == "Silicon"
     pass
 
 def test_ionization_h5_readin():
     data = atomic.read_ionization_data(atomic.default_atom_h5_path)
     hi_ionization = data['ionization_energy'][0]
     testing.assert_almost_equal(hi_ionization, 13.59844, decimal=4)
+    assert data['atomic_number'][0] == 1
+    assert data['ion_number'][0] == 1
 
 def test_levels_h5_readin():
     data = atomic.read_levels_data(atomic.default_atom_h5_path)
@@ -26,6 +29,29 @@ def test_levels_h5_readin():
     assert data['g'][4] == 1
     assert data['metastable'][4] == False
 
+def test_lines_h5_readin():
+    data = atomic.read_lines_data(atomic.default_atom_h5_path)
+    assert data['line_id'][0] == 8
+    si_wavelength = data['wavelength'][0]
+    testing.assert_almost_equal(si_wavelength, 66.7720, decimal=4)
+    assert data['atomic_number'][0] == 14
+    assert data['ion_number'][0] == 5
+    si_f_ul = data['f_ul'][0]
+    testing.assert_almost_equal(si_f_ul, 0.027030, decimal=4)
+    si_f_lu = data['f_lu'][0]
+    testing.assert_almost_equal(si_f_lu, 0.040545, decimal=4)
+    si_level_number_lower = data['level_number_lower'][0]
+    testing.assert_almost_equal(si_level_number_lower, 0.0, decimal=1)
+    si_level_number_upper = data['level_number_upper'][0]
+    testing.assert_almost_equal(si_level_number_upper, 36.0, decimal=1)
+    si_nu = data['nu'][0]
+    testing.assert_almost_equal(si_nu, 44897929970646368.0, decimal=1)
+    si_B_lu = data['B_lu'][0]
+    testing.assert_almost_equal(si_B_lu, 45453772.17738, decimal=4)
+    si_B_ul =  data['B_ul'][0]
+    testing.assert_almost_equal(si_B_ul, 30302514.78492, decimal=4)
+    si_A_ul = data['A_ul'][0]
+    testing.assert_almost_equal(si_A_ul, 40439167617.50946, decimal=4)
 
 def test_atom_levels():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
