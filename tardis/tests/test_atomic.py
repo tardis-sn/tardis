@@ -26,6 +26,17 @@ def test_levels_h5_readin():
     assert data['g'][4] == 1
     assert data['metastable'][4] == False
 
+def test_collision_h5_readin():
+    with pytest.raises(ValueError) as excinfo:
+        data = atomic.read_collision_data(None)
+    assert excinfo.value.message == 'fname can not be "None" when trying to use NebularAtom'
+    atom_data_path = '../atomic_data.h5'
+    with pytest.raises(IOError) as excinfo:
+        data = atomic.read_collision_data(atom_data_path)
+    assert excinfo.value.message == 'HDF5 File doesn\'t exist'
+    with pytest.raises(ValueError) as excinfo:
+        data = atomic.read_collision_data(atomic.default_atom_h5_path)
+    assert excinfo.value.message == 'collision_data not available in this HDF5-data file. It can not be used with NLTE'
 
 def test_atom_levels():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
