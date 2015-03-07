@@ -2,6 +2,7 @@ from tardis import atomic
 from numpy import testing
 import pytest
 import os
+import h5py
 
 def test_atomic_h5_readin():
     data = atomic.read_basic_atom_data(atomic.default_atom_h5_path)
@@ -37,6 +38,23 @@ def test_atomic_symbol():
 
 def test_atomic_symbol_reverse():
     assert atomic.symbol2atomic_number['Si'] == 14
+
+@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
+		    reason='--atomic_database was not specified')
+def test_macro_atom_h5_readin(): 
+    atom_data_filename = os.path.expanduser(os.path.expandvars(
+	pytest.config.getvalue('atomic-dataset')))
+    assert os.path.exists(atom_data_filename), ("{0} atomic datafiles "
+		                                         "does not seem to "
+							 "exist".format(
+	atom_data_filename))
+    data = atomic.read_macro_atom_data(atom_data_filename)
+    with pytest.raises(ValueError):
+        raise ValueError('macro_atom_data is not in the given HDF5 file')
+
+    h5_file = h5py.File(atom_data_filename)
+    assert data[0] == h5_file['macro_atom_data']
+    assert data[1] == h5_file['macro_atom_references']
 
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
