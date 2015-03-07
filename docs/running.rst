@@ -61,7 +61,15 @@ The gui can use one of two python bindings for qt, namely PyQt4
 and PySide. You can choose which binding is used by setting the
 environment variable QT_API in your bash.
 
-**1**. Choosing between PySide and PyQt4 (optional)
+**1**. Installing required packages
+
+.. code-block:: none
+	
+	source activate tardis
+	conda install ipython=3.0.0 pyside=1.2.1 shiboken=1.2.1
+
+
+**2**. Choosing between PySide and PyQt4 (optional)
 
 .. code-block:: none
 
@@ -71,7 +79,7 @@ environment variable QT_API in your bash.
 	#To go back to PyQt4
 	unset QT_API
 
-**2**. An example of creating a model and GUI
+**3**. An example of creating a model and GUI
 
 As of now, the GUI can be started from the ipython shell.  Currently there is no way to work completely from inside the GUI. 
 
