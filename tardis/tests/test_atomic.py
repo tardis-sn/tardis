@@ -15,6 +15,19 @@ def test_ionization_h5_readin():
     data = atomic.read_ionization_data(atomic.default_atom_h5_path)
     hi_ionization = data['ionization_energy'][0]
     testing.assert_almost_equal(hi_ionization, 13.59844, decimal=4)
+    
+def test_lines_h5_readin():
+    data=atomic.read_lines_data(atomic.default_atom_h5_path)
+    assert data['line_id'][7] == 20
+    assert data['wavelength'][7] == 71.533
+    assert data['atomic_number'][7] == 14
+    assert data['ion_number'][7] == 5
+    assert data['level_number_lower'][7] == 1.0
+    assert data['level_number_upper'][7] == 32.0
+    si_frequency_ul = data['f_ul'][7]
+    si_frequency_lu = data['f_lu'][7]
+    testing.assert_almost_equal(si_frequency_ul,0.0772574,decimal=7)
+    testing.assert_almost_equal(si_frequency_lu,0.1545148,decimal=7)
 
 def test_levels_h5_readin():
     data = atomic.read_levels_data(atomic.default_atom_h5_path)
