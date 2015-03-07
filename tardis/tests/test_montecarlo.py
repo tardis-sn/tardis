@@ -28,11 +28,11 @@ class TestMonteCarlo():
 
         self.model = run_tardis(self.config_yaml)
 
-#    def test_montecarlo_radial1d():
-#        output_nu, output_energies, j_estimators, nubar_estimators, \
-#        last_line_interaction_in_id, last_line_interaction_out_id, \
-#        last_interaction_type, last_line_interaction_shell_id = \
-#            montecarlo.montecarlo_radial1d(self.model)
+    def test_montecarlo_radial1d():
+        output_nu, output_energies, j_estimators, nubar_estimators, \
+        last_line_interaction_in_id, last_line_interaction_out_id, \
+        last_interaction_type, last_line_interaction_shell_id = \
+            montecarlo.montecarlo.montecarlo_radial1d(self.model, 0)
 #        testing.assert_almost_equal(ouput_nu[0], 494994844798236.5)
 #        testing.assert_almost_equal(output_energies[0], 2.0570649803508353e-06)
 #        testing.assert_almost_equal(j_estimators[0], 114564286557777.5)
