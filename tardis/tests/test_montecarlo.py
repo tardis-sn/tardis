@@ -1,8 +1,46 @@
 import numpy as np
-from tardis import montecarlo
+import yaml
 import pytest
+import os
+from numpy import testing
+from tardis import montecarlo
+from tardis.base import run_tardis
+from tardis.io.config_reader import Configuration
 
 test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
+
+@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
+                    reason='--atomic_database was not specified')
+
+class TestMonteCarlo():
+
+    @classmethod
+    @pytest.fixture(scope="class", autouse=True)
+    def setup(self):
+        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
+            pytest.config.getvalue('atomic-dataset')))
+        assert os.path.exists(self.atom_data_filename), ("{0} atomic datafiles "
+                                                         "does not seem to "
+                                                         "exist".format(
+            self.atom_data_filename))
+        self.config_yaml = yaml.load(open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
+        self.config_yaml['atom_data'] = self.atom_data_filename
+
+        self.model = run_tardis(self.config_yaml)
+
+    def test_montecarlo_radial1d():
+        output_nu, output_energies, j_estimators, nubar_estimators, \
+        last_line_interaction_in_id, last_line_interaction_out_id, \
+        last_interaction_type, last_line_interaction_shell_id = \
+            montecarlo.montecarlo_radial1d(self.model)
+        testing.assert_almost_equal(ouput_nu[0], 494994844798236.5)
+        testing.assert_almost_equal(output_energies[0], 2.0570649803508353e-06)
+        testing.assert_almost_equal(j_estimators[0], 114564286557777.5)
+        testing.assert_almost_equal(nubar_estimators[0], 1.0088596598917336e+29)
+        assert last_line_interaction_in_id[0] == -1
+        assert last_line_interaction_out_id[0] == -1
+        assert last_interaction_type[0] == -1
+        assert last_line_interaction_shell_id[0] == -1
 
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
