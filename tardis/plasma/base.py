@@ -3,6 +3,8 @@ import logging
 import networkx as nx
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 
+import tempfile
+
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +120,7 @@ class BasePlasma(object):
         Parameters
         ----------
 
-        graph: ~networkx.Grapht
+        graph: ~networkx.Graph
             the plasma graph as
         changed_modules: ~list
             all modules changed in the plasma
@@ -152,7 +154,7 @@ class BasePlasma(object):
             import pygraphviz
         except ImportError:
             raise ImportError('pygraphviz is needed for method '
-                              '\'plasma_to_dot\'')
+                              '\'write_to_dot\'')
 
         for node in self.graph:
             self.graph.node[node]['label'] = self.module_dict[node].get_latex_label()
@@ -160,6 +162,21 @@ class BasePlasma(object):
             self.graph.node[node]['shape'] = 'box '
 
         nx.write_dot(self.graph, fname)
+
+    def write_to_tex(self, fname):
+        try:
+            import dot2tex
+        except ImportError:
+            raise ImportError('dot2tex is needed for method\'write_to_tex\'')
+
+        temp_fname = tempfile.NamedTemporaryFile().name
+
+        self.write_to_dot(temp_fname)
+
+        dot_string = open(temp_fname).read()
+
+        open(fname, 'w').write(dot2tex.dot2tex(dot_string, texmode='raw'))
+
 
 
 class StandardPlasma(BasePlasma):

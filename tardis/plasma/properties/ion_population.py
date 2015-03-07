@@ -71,8 +71,8 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
 
     name = 'phi'
 
-    latex_formula = (r'$\Phi_{i,j} &= \frac{N_{i, j+1} n_e}{N_{i, j}} \\'
-                     r' \Phi_{i, j} &= g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} '
+    latex_formula = (r'$\Phi_{i,j} = \frac{N_{i, j+1} n_e}{N_{i, j}} \\'
+                     r' \Phi_{i, j} = g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} '
                      r'e^{-\chi_{j\rightarrow j+1}/k_\textrm{B}T}$')
 
     @staticmethod
@@ -179,13 +179,13 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
     """
 
-    latex_formula = (r'N(X) &= N_1 + N_2 + N_3 + \dots \\ '
-                     r'N(X) &= (N_2/N_1) \times N_1 + (N3/N2) '
+    latex_formula = (r'$N(X) = N_1 + N_2 + N_3 + \dots \\ '
+                     r'N(X) = (N_2/N_1) \times N_1 + (N3/N2) '
                      r'\times (N_2/N_1) \times N_1 + \dots \\'
-                     r'N(X) &= N_1(1 + N_2/N_1 + (N_3/N_2) \times (N_2/N_1) '
+                     r'N(X) = N_1(1 + N_2/N_1 + (N_3/N_2) \times (N_2/N_1) '
                      r'+ \dots \\'
-                     r'N(X) &= N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
-                     r'\times \Phi_{i, j+1}/N_e + \dots)')
+                     r'N(X) = N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
+                     r'\times \Phi_{i, j+1}/N_e + \dots)$')
 
 
 

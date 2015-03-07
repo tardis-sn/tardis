@@ -1,4 +1,6 @@
+import numpy as np
 from tardis.plasma.properties.base import BasePlasmaProperty
+
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
            'TimeExplosion']
 
@@ -15,12 +17,18 @@ class StaticInput(Input):
 class DynamicInput(Input):
     pass
 
-class TRadiative(DynamicInput):
+
+class ArrayInput(DynamicInput):
+    def set_value(self, value):
+        self.value = np.array(value, copy=False)
+
+
+class TRadiative(ArrayInput):
     name = 't_rad'
     latex_name = r'$T_\textrm{rad}$'
 
 
-class DilutionFactor(DynamicInput):
+class DilutionFactor(ArrayInput):
     name = 'w'
     latex_name = r'$W$'
 
@@ -32,7 +40,7 @@ class Abundance(DynamicInput):
     name = 'abundance'
 
 
-class Density(DynamicInput):
+class Density(ArrayInput):
     name = 'density'
     latex_name = r'$\rho$'
 

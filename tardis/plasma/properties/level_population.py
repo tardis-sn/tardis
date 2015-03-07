@@ -12,8 +12,8 @@ __all__ = ['LevelPopulationLTE', 'LevelNumberDensity']
 class LevelPopulationLTE(ProcessingPlasmaProperty):
 
         name = 'level_population'
-        latex_formula = (r'N_{i, j, k} = \frac{g_{i, j, k} '
-                         r'e^{-\beta_\textrm{rad} E_{i, j, k}}{Z_{i, j}}')
+        latex_formula = (r'$N_{i, j, k} = \frac{g_{i, j, k} '
+                         r'e^{-\beta_\textrm{rad} E_{i, j, k}}}{Z_{i, j}}$')
 
         @staticmethod
         def calculate(levels, partition_function, level_boltzmann_factor):

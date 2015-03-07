@@ -20,15 +20,15 @@ class BetaRadiation(ProcessingPlasmaProperty):
 
 
     def calculate(self, t_rad):
-        return (1 / (self.k_B_cgs * t_rad))
+        return 1 / (self.k_B_cgs * t_rad)
 
 class GElectron(ProcessingPlasmaProperty):
 
     name = 'g_electron'
     latex_name = r'$g_\textrm{electron}$'
 
-    latex_formula = (r'\left(\\frac{2\pi m_\textrm{e} '
-                     r'\beta_\textrm{rad}}{h^2}\right)^{3/2}')
+    latex_formula = (r'$\left(\frac{2\pi m_\textrm{e} '
+                     r'\beta_\textrm{rad}}{h^2}\right)^{3/2}$')
 
     @staticmethod
     def calculate(beta_rad):
