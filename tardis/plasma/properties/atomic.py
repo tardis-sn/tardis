@@ -92,7 +92,7 @@ class IonCXData(BaseAtomicDataProperty):
         return levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
 
-class AtomicMass(BaseAtomicDataProperty):
+class AtomicMass(ProcessingPlasmaProperty):
     name = 'atomic_mass'
 
     def calculate(self, atomic_data, selected_atoms):
@@ -101,7 +101,7 @@ class AtomicMass(BaseAtomicDataProperty):
         else:
             return atomic_data.atom_data.ix[selected_atoms].mass
 
-class IonizationData(BaseAtomicDataProperty):
+class IonizationData(ProcessingPlasmaProperty):
     name = 'ionization_data'
 
     def calculate(self, atomic_data, selected_atoms):
