@@ -7,7 +7,7 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaIonizationError
 logger = logging.getLogger(__name__)
 
-__all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
+__all__ = ['PhiSahaLTE', 'RadiationFieldCorrection',
            'IonNumberDensity', ]
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
