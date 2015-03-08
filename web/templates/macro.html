@@ -1,10 +1,14 @@
 {% macro render_field(form,field, label_visible=true) -%}
 
     <div class="form-group row {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }} {% if 'parent' in field.description %} hidden {{form[field.description['parent']].id}} {% endif %} {% if 'association' in field.description %} hidden {{field.description['association']}} {% endif %}">
+    {#{% if 'association' in field.description %} {{field.description['association']}} {% endif %}#}
+    {#{% if 'parent' in field.description %} , {{field.description['parent']}} {% endif %}#}
         <div class="col-md-8">
             {% if (field.type != 'HiddenField' or field.type !='CSRFTokenField') and label_visible %}
                 {% if field.validators %}
                     {{ field.label(class_='control-label col-md-6 mandatory', **kwargs) }}
+                {% elif field.type ==  'HiddenField'%}
+                    {{ field.label(class_='control-label col-md-6 heading-label', **kwargs) }}
                 {% else %}
                     {{ field.label(class_='control-label col-md-6', **kwargs) }}
                 {% endif %}

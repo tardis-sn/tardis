@@ -6,7 +6,7 @@
     <h1>TARDIS</h1>
     <form action="/" method="post" class="form-horizontal">
       {% for field in form %}
-        <div class="panel panel-default">
+        <div class="panel panel-default" id="{{field.id}}">
           <div class="panel-heading">
             <h3 class="panel-title">
               {{field.label}}

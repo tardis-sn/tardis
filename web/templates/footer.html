@@ -8,21 +8,37 @@
       $(function () {
         $('[data-toggle="tooltip"]').tooltip()
       })
-      $("select#montecarlo-type").change(function(){
+      $("select#montecarlo-convergence_strategy_type").change(function(){
+        var div = $(this).closest('.panel')[0].id;
         selected = $(this).children(":selected").val();
-        $( ".spectrum_type" ).removeClass( "visible");
-        $( "."+selected ).addClass( "visible");
+        $( "#"+div+" ."+$(this)[0].id.split('-')[1]).removeClass( "visible");
+        $( "#"+div+" ."+selected ).addClass( "visible");
+      });
+      $("select#structure_model-type").change(function(){
+        var div = $(this).closest('.panel')[0].id;
+        selected = $(this).children(":selected").val();
+        $( "#"+div+" ."+$(this)[0].id.split('-')[1]).removeClass( "visible");
+        $( "#"+div+" ."+selected ).addClass( "visible");
       });
       $("select#structure_model-density_type").change(function(){
+        var div = $(this).closest('.panel')[0].id;
         selected = $(this).children(":selected").val();
-        $( ".density_type" ).removeClass( "visible");
-        $( "."+selected ).addClass( "visible");
+        console.log($(this)[0].id.split('-')[1])
+        $( "#"+div+" ."+$(this)[0].id.split('-')[1]).removeClass( "visible");
+        $( "#"+div+" ."+selected ).addClass( "visible");
+      });
+      $("select#abundances_model-type").change(function(){
+        var div = $(this).closest('.panel')[0].id;
+        selected = $(this).children(":selected").val();
+        $( "#"+div+" ."+$(this)[0].id.split('-')[1]).removeClass( "visible");
+        $( "#"+div+" ."+selected ).addClass( "visible");
       });
       $("input[type='checkbox']").change(function(){
         var value = $(this)[0].id
         if($(this).is(":checked")) {
           $( "."+value ).addClass( "visible");
-          $("select").each(function() {
+          $("."+value+" > .col-md-8 > .col-md-6 > select").each(function() {
+            console.log(this);
             $(this).trigger("change");
           });
         }
@@ -38,6 +54,14 @@
       $("input[type='radio']").change(function(){
 
       });
+      $(document).ready(function () {
+        $("select").each(function() {
+            $(this).trigger("change");
+          });
+        $("input[type='checkbox']").each(function() {
+            $(this).trigger("change");
+          });
+      })
     </script>
   </body>
  </html>
