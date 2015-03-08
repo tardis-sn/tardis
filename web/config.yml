@@ -71,7 +71,7 @@ plasma:
         property_type: string
         mandatory: True
         default: None
-        allowed_value: nebular lte
+        allowed_value: ['nebular', 'lte']
         help: ionization treatment mode
 
 
@@ -79,21 +79,21 @@ plasma:
         property_type: string
         mandatory: True
         default: None
-        allowed_value: lte dilute-lte
+        allowed_value: ['lte', 'dilute-lte']
         help: excitation treatment mode
 
     radiative_rates_type:
         property_type: string
         mandatory: True
         default: None
-        allowed_value: dilute-blackbody detailed
+        allowed_value: ['dilute-blackbody', 'detailed']
         help: radiative rates treatment mode
 
     line_interaction_type:
         property_type: string
         mandatory: True
         default: None
-        allowed_value: scatter downbranch macroatom
+        allowed_value: ['scatter', 'downbranch', 'macroatom']
         help: line interaction mode
 
     w_epsilon:
@@ -241,7 +241,7 @@ model:
         property_type: container-property
         type:
             property_type: container-declaration
-            containers: ['file','uniform']
+            containers: ['uniform','file']
             _uniform: []
             _file: ['filetype','filename']
 
