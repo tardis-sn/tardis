@@ -1,4 +1,4 @@
-#TODO: quantity_range_sampled
+#TODO: Added a property for label names in the YAML File, to make the web-app more clear.
 
 from wtforms import validators, fields
 from wtforms_tornado import Form
@@ -41,7 +41,6 @@ association_dict = {}
 def createField(schema,parent='',name=None):
     description = {}
     validation = []
-    # print schema
     if 'help' in schema:
         description['help_text'] = schema['help']
     if 'default' in schema and schema['default']!='None':
@@ -58,8 +57,6 @@ def createField(schema,parent='',name=None):
         description['parent']=parent
     if 'mandatory' in schema and schema['mandatory']:
         validation = [validators.DataRequired()]
-    # print schema
-    # print
     if 'file' in schema and schema['file']:
         form_field = fields.FileField
     elif 'allowed_value' in schema:
@@ -73,7 +70,6 @@ def createField(schema,parent='',name=None):
             children = [i  for i in schema if (i[0]=='_' or i[0]=='+')]
             for i in children:
                 for j in schema[i]:
-                    print j
                     if j in association_dict:
                         association_dict[j]['association'] = association_dict[j]['association']+" "+i[1:]
                     else:
@@ -90,7 +86,6 @@ def createField(schema,parent='',name=None):
 
 def populate_fields(yml_field,single_item,parent=''):
     def run(cls):
-        # print parent
         global association_dict
         if single_item:
             setattr(cls, single_item, createField(yml_field))
@@ -109,20 +104,13 @@ def populate_fields(yml_field,single_item,parent=''):
                             setattr(cls, i, fields.BooleanField(description={'association':association}))
                         else:
                             setattr(cls, i, fields.BooleanField())
-                        # print parent,i
                         populate_fields(yml_field[i],single_item,parent=i)(cls)
                         association_dict = {}
-                        try:
-                            association.pop()
-                        except: pass
                     else:
-                        name = i
                         if parent:
-                            print 'd',i,parent
-                            setattr(cls, parent+'_'+i, createField(yml_field[i],parent=parent,name=name))
+                            setattr(cls, parent+'_'+i, createField(yml_field[i],parent=parent,name=i))
                         else:
-                            # print 'hoo'
-                            setattr(cls, i, createField(yml_field[i],parent=parent,name=name))
+                            setattr(cls, i, createField(yml_field[i],parent=parent,name=i))
                 else:
                     if parent:
                         setattr(cls, i, fields.BooleanField(description={'association':association,'parent':parent}))
