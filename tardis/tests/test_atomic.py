@@ -27,7 +27,7 @@ def test_levels_h5_readin():
     assert data['metastable'][4] == False
 
 def test_lines_h5_readin():
-    data=atomic.read_lines_data(atomic.default_atom_h5_path)
+    data = atomic.read_lines_data(atomic.default_atom_h5_path)
     assert data['line_id'][7] == 20
     assert data['wavelength'][7] == 71.533
     assert data['atomic_number'][7] == 14
@@ -38,12 +38,27 @@ def test_lines_h5_readin():
     si_frequency_lu = data['f_lu'][7]
     testing.assert_almost_equal(si_frequency_ul,0.0772574,decimal=7)
     testing.assert_almost_equal(si_frequency_lu,0.1545148,decimal=7)
+
+def test_zeta_h5_readin():
+    with pytest.raises(ValueError) as excinfo:
+	atomic.read_zeta_data(None)
+    assert 'fname can not' in str(excinfo.value)
+    test = '../doesnt_exist.h5'
+    with pytest.raises(IOError) as excinfo:
+        atomic.read_zeta_data(test)
+    assert 'HDF5 File' in str(excinfo.value)
+    with pytest.raises(ValueError) as excinfo:
+	atomic.read_zeta_data(atomic.default_atom_h5_path)
+    assert 'not available' in str(excinfo.value)
+    path = os.path.join(os.path.dirname(__file__), 'data', 'chianti_he_db.h5')
+    zeta_data = atomic.read_zeta_data(path)
+    #checks for the data read have to be added
     
 def test_collision_h5_readin():
     with pytest.raises(ValueError) as excinfo:
         atomic.read_collision_data(None)
     assert 'fname can not' in str(excinfo.value)
-    test='../doesnt_exist.h5'
+    test = '../doesnt_exist.h5'
     with pytest.raises(IOError) as excinfo:
         atomic.read_collision_data(test)
     assert 'HDF5 File' in str(excinfo.value)
