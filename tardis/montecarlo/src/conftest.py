@@ -2,7 +2,6 @@ import subprocess
 import pytest
 import os
 
-
 def pytest_collect_file(parent, path):
     if path.ext == ".c" and path.basename.startswith("test_"):
         return CTestFile(path, parent)

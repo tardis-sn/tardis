@@ -3,8 +3,9 @@ ifdef V
 Q=
 endif
 
-# Directory variables.
 INC_DIR = .
+
+CFLAGS += -g -Wall -Wextra -Wno-nonnull
 
 CFLAGS += -g -Wall -Wextra -Wno-nonnull
 
