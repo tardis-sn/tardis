@@ -128,33 +128,3 @@ class BetaSobolev(ProcessingPlasmaProperty):
     name = 'beta_sobolev'
 
     pass
-
-class TransitionProbabilities(ProcessingPlasmaProperty):
-
-    @staticmethod
-    def calculate(macro_atom_data):
-        """
-            Updating the Macro Atom computations
-        """
-
-        if not hasattr(self, 'beta_sobolevs'):
-            self.beta_sobolevs = np.zeros_like(self.tau_sobolevs.values)
-
-        if not self.beta_sobolevs_precalculated:
-            macro_atom.calculate_beta_sobolev(self.tau_sobolevs.values.ravel(order='F'),
-                                          self.beta_sobolevs.ravel(order='F'))
-
-        transition_probabilities = (macro_atom_data.transition_probability.values[np.newaxis].T *
-                                    self.beta_sobolevs.take(self.atom_data.macro_atom_data.lines_idx.values.astype(int),
-                                                            axis=0, mode='raise')).copy('F')
-        transition_up_filter = (macro_atom_data.transition_type == 1).values
-        macro_atom_transition_up_filter = macro_atom_data.lines_idx.values[transition_up_filter]
-        j_blues = self.j_blues.values.take(macro_atom_transition_up_filter, axis=0, mode='raise')
-        macro_stimulated_emission = self.stimulated_emission_factor.take(macro_atom_transition_up_filter, axis=0, mode='raise')
-        transition_probabilities[transition_up_filter] *= j_blues * macro_stimulated_emission
-        #Normalizing the probabilities
-        block_references = np.hstack((self.atom_data.macro_atom_references.block_references,
-                                      len(macro_atom_data)))
-        macro_atom.normalize_transition_probabilities(transition_probabilities, block_references)
-        return pd.DataFrame(transition_probabilities, index=macro_atom_data.transition_line_id,
-                     columns=self.tau_sobolevs.columns)
