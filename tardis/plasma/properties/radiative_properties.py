@@ -122,6 +122,13 @@ class TauSobolev(ProcessingPlasmaProperty):
         return pd.DataFrame(tau_sobolevs, index=lines.index,
                             columns=np.array(level_number_density.columns))
 
+
+
+class BetaSobolev(ProcessingPlasmaProperty):
+    name = 'beta_sobolev'
+
+    pass
+
 class TransitionProbabilities(ProcessingPlasmaProperty):
 
     @staticmethod
