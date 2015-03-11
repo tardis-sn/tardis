@@ -57,9 +57,9 @@ def createField(schema,parent='',name=None):
         description['parent']=parent
     if 'mandatory' in schema and schema['mandatory']:
         validation = [validators.DataRequired()]
-    if 'file' in schema and schema['file']:
-        form_field = fields.FileField
-    elif 'allowed_value' in schema:
+    # if 'file' in schema and schema['file']:
+        # form_field = fields.FileField
+    if 'allowed_value' in schema:
         form_field = fields.SelectField
         choices = [(i,i) for i in schema['allowed_value']]
         return form_field(choices=choices,validators=validation,description=description)
@@ -76,7 +76,7 @@ def createField(schema,parent='',name=None):
                         association_dict[j] = {}
                         if parent:
                             association_dict[j]['parent'] = parent
-                            association_dict[j]['association'] = i[1:] + " " +parent+'_'+ name
+                            association_dict[j]['association'] = i[1:] + " " +parent+'|'+ name
                         else:
                             association_dict[j]['parent'] = parent
                             association_dict[j]['association'] = i[1:] + " " +name
@@ -108,7 +108,7 @@ def populate_fields(yml_field,single_item,parent=''):
                         association_dict = {}
                     else:
                         if parent:
-                            setattr(cls, parent+'_'+i, createField(yml_field[i],parent=parent,name=i))
+                            setattr(cls, parent+'|'+i, createField(yml_field[i],parent=parent,name=i))
                         else:
                             setattr(cls, i, createField(yml_field[i],parent=parent,name=i))
                 else:
