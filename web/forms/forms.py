@@ -76,7 +76,7 @@ def createField(schema,parent='',name=None):
                         association_dict[j] = {}
                         if parent:
                             association_dict[j]['parent'] = parent
-                            association_dict[j]['association'] = i[1:] + " " +parent+'|'+ name
+                            association_dict[j]['association'] = i[1:] + " " +parent+'__'+ name
                         else:
                             association_dict[j]['parent'] = parent
                             association_dict[j]['association'] = i[1:] + " " +name
@@ -108,7 +108,7 @@ def populate_fields(yml_field,single_item,parent=''):
                         association_dict = {}
                     else:
                         if parent:
-                            setattr(cls, parent+'|'+i, createField(yml_field[i],parent=parent,name=i))
+                            setattr(cls, parent+'__'+i, createField(yml_field[i],parent=parent,name=i))
                         else:
                             setattr(cls, i, createField(yml_field[i],parent=parent,name=i))
                 else:

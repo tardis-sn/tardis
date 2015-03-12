@@ -3,7 +3,10 @@
 {% include 'header.html' %}
   {% block main %}
 
-    <h1>TARDIS</h1>
+    <div style="display:inline-block;">
+      <h1 style="float:left">TARDIS</h1>
+      <button class="btn btn-primary" onClick="fillExampleValues()" style="z-index: 5;text-align: right;float: right;margin: 20px;">Fill the form with the example values</button>
+    </div>
     <form action="/" method="post" class="form-horizontal">
       {% for field in form %}
         <div class="panel panel-default" id="{{field.id}}">

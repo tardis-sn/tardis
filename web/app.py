@@ -4,6 +4,7 @@ import tornado.template
 import os
 from forms.forms import TardisForm
 from jinja2 import Environment, FileSystemLoader
+from lib.gallifrey import generate_yaml
 
 templates = tornado.template.Loader("templates")
 TEMPLATE_FILE = "index.html"
@@ -20,14 +21,7 @@ class MainHandler(tornado.web.RequestHandler):
         # self.render("index.html",form=form)
     def post(self):
         form = TardisForm(self.request.arguments)
-        details = ''
-        if form.validate():
-            for f in self.request.arguments:
-                details += self.get_argument(f, default=None, strip=False)
-            self.write(details)
-        else:
-            self.set_status(400)
-            self.write(form.errors)
+        generate_yaml(self,form)
 
 application = tornado.web.Application([
     (r"/", MainHandler),
