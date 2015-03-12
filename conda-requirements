@@ -10,4 +10,3 @@ numexpr>=2.0.0
 Cython>=0.21
 jinja2
 tornado>=4.1
-WTForms>=1.0.4
