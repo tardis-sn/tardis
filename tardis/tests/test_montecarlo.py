@@ -1,8 +1,45 @@
 import numpy as np
 from tardis import montecarlo
+from numpy import testing
 import pytest
+import tardis
+import ctypes
+import os
+import subprocess
 
-test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
+src_path = os.path.join(tardis.__path__[0], 'montecarlo')
+montecarlo_path = os.path.join(src_path, 'montecarlo.so')
+#montecarlo_path = subprocess.check_output(['locate', 'montecarlo/src/cmontecarlo.so'])
+#montecarlo_path = montecarlo_path[:-1]
+
+def test_rpacket_get_nu():
+    MonteCarlo = ctypes.CDLL(montecarlo_path);
+    assert MonteCarlo.rpacket_get_nu_wrapper(3, 3) == 1
+    assert MonteCarlo.rpacket_get_nu_wrapper(4, 5) == 0
+
+def test_rpacket_set_nu():
+    MonteCarlo = ctypes.CDLL(montecarlo_path);
+    assert MonteCarlo.rpacket_set_nu_wrapper(3) == 1
+
+def test_rpacket_get_mu():
+    MonteCarlo = ctypes.CDLL(montecarlo_path);
+    assert MonteCarlo.rpacket_get_mu_wrapper(8, 8) == 1
+    assert MonteCarlo.rpacket_get_mu_wrapper(10, 1) == 0
+
+def test_rpacket_set_mu():
+    MonteCarlo = ctypes.CDLL(montecarlo_path);
+    assert MonteCarlo.rpacket_set_mu_wrapper(2) == 1
+
+def test_rpacket_get_energy():
+    MonteCarlo = ctypes.CDLL(montecarlo_path);
+    assert MonteCarlo.rpacket_get_energy_wrapper(11, 12) == 0
+    assert MonteCarlo.rpacket_get_energy_wrapper(32, 32) == 1
+
+def test_rpacket_set_energy():
+    MonteCarlo = ctypes.CDLL(montecarlo_path);
+    assert MonteCarlo.rpacket_set_energy_wrapper(31) == 1
+
+# test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
 
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
