@@ -18,7 +18,7 @@ class YamlHandler(RequestHandler):
         config_file = file('static/input_data.yml', 'w')
         config_file.write('tardis_config_version: v1.0\n')
         data = json.loads(self.request.body)
-        yml = yaml.safe_dump(data, config_file)
+        yaml.safe_dump(data, config_file, default_flow_style=False)
         config_file.close()
         self.set_header("Content-Type", "application/json")
         self.set_status(201)
