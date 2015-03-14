@@ -1,8 +1,6 @@
-import urllib2
 import yaml
 
 from django import forms
-from django.utils.encoding import smart_text
 
 _URL = 'https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis/data/tardis_config_definition.yml'
 
