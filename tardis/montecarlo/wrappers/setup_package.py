@@ -8,9 +8,9 @@ from glob import glob
 def get_extensions():
     sources = ['tardis/montecarlo/wrappers/get_test_wrapper.pyx']
     sources += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src', '*.c'))]
+        os.path.join(os.path.dirname(__file__), '..', 'src', '*.c'))]
     sources += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.c'))]
+        os.path.join(os.path.dirname(__file__), '..', 'src', 'randomkit', '*.c'))]
 
     return [Extension('tardis.montecarlo.wrappers.get_test_wrapper', sources,
                       include_dirs=['tardis/montecarlo/src',
