@@ -1,0 +1,11 @@
+Django
+dj-database-url
+dj-static
+django-toolbelt
+gunicorn
+psycopg2
+static3
+django-bootstrap3
+wsgiref
+django-crispy-forms
+pyyaml

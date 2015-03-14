@@ -1,0 +1,65 @@
+{% extends 'tardis/base.html' %}
+
+{% load bootstrap3 %}
+
+{% load crispy_forms_tags %}
+
+{% block title %}
+Configuration Generator
+{% endblock %}
+
+{% block content %}
+<form class="form" method="post">
+  {% csrf_token %}
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      Tardis Config Version:
+    </div>
+    <div class="panel-body">
+      {% bootstrap_form config_version_form layout="horizontal" %}
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      Supernova
+    </div>
+    <div class="panel-body">
+      {% bootstrap_form supernova_form layout="horizontal" %}
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      Atom Data
+    </div>
+    <div class="panel-body">
+      {% bootstrap_form atom_data_form layout="horizontal" %}
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      Plasma
+    </div>
+    <div class="panel-body">
+      {% bootstrap_form plasma_form layout="horizontal" %}
+    </div>
+    <div class="panel panel-primary">
+      <div class="panel-heading">
+        NLTE
+      </div>
+      <div class="panel-body">
+        {% bootstrap_form nlte_form layout="horizontal" %}
+      </div>
+    </div>
+  </div>
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      Spectrum
+    </div>
+    <div class="panel-body">
+      {% bootstrap_form spectrum_form layout="horizontal" %}
+    </div>
+  </div>
+  {% buttons submit='Generate YAML' reset='Clear' layout='' %}{% endbuttons %}
+</form>
+{% endblock %}
+  
