@@ -10,6 +10,10 @@ def test_preliminary():
     y = get_test_wrapper.getit(3)
     assert y == 3
 
+def test_rpacket_get_nu():
+    nu_value = get_test_wrapper.get_rpacket_nu_value(1.456)
+    assert nu_value == 1.456
+
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
 #     (8.5, 1),

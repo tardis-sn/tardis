@@ -28,7 +28,19 @@ cdef extern from "../src/cmontecarlo.h":
         double d_boundary
         rpacket_status_t next_shell_id
 
+    double rpacket_get_nu(rpacket_t *packet)
+    void rpacket_set_nu(rpacket_t *packet, double nu)
+
 def getit(x):
     return x
+
+def get_rpacket_nu_value(nu_value):
+    cdef rpacket_t packet
+    rpacket_set_nu(&packet, nu_value)
+    ret_nu_value = rpacket_get_nu(&packet)
+    return ret_nu_value
+    
+
+
     
 
