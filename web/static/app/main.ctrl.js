@@ -16,20 +16,20 @@
         'template': 'input-data/supernova.partial.html'
       },
       {
-        'name': 'Atom data & Spectrum',
-        'template': 'input-data/atom.spectrum.partial.html'
-      },
-      {
         'name': 'Plasma',
         'template': 'input-data/plasma.partial.html'
+      },
+      {
+        'name': 'Model',
+        'template': 'input-data/model.partial.html'
       },
       {
         'name': 'montecarlo',
         'template': 'input-data/montecarlo.partial.html'
       },
       {
-        'name': 'Model',
-        'template': 'input-data/model.partial.html'
+        'name': 'Atom data & Spectrum',
+        'template': 'input-data/atom.spectrum.partial.html'
       }
     ]
     vm.tabIndex = 0;

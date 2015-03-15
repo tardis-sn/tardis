@@ -32,8 +32,9 @@
 
 
         scope.$watch('vm.unit + vm.value', function() {
-          var value = scope.vm.value || 0;
-          ngModelCtrl.$setViewValue(value +' '+ scope.vm.unit);
+          if (scope.vm.value){
+            ngModelCtrl.$setViewValue(scope.vm.value +' '+ scope.vm.unit);            
+          }
         });
         
         function unitArray() {

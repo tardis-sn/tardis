@@ -41,61 +41,49 @@
     <!-- Advanced options -->
     <div class="advanced" ng-show="main.advanced">
       <div class="form-group col-sm-6">
-        <label for="exampleInputEmail1" class="control-label">
-          v inner boundary:
-        </label>
-        <div class="input-group">
-          <input type="number" class="form-control" step="any" required
-                  ng-model="main.data.model.struture.v_inner_boundary">
-          <div class="input-group-addon">
-            <select id="">
-              <option value="lal">km/s</option>
-            </select>
-          </div>
-        </div>
-        <span class="help-block">location of the inner boundary chosen from the model</span>
+        <quantity-field ng-model="main.data.model.struture.v_inner_boundary" 
+                        name="v inner boundary"
+                        units="km/s"
+                        help="location of the inner boundary chosen from the model">
+        </quantity-field>
       </div>
-      <div class="form-group col-sm-6 pull-right">
-        <label for="exampleInputEmail1" class="control-label">
-          v outer boundary:
-        </label>
-        <div class="input-group">
-          <input type="number" class="form-control" step="any" required
-                  ng-model="main.data.model.struture.v_outer_boundary">
-          <div class="input-group-addon">
-            <select id="">
-              <option value="lal">km/s</option>
-            </select>
-          </div>
-        </div>
-        <span class="help-block">location of the inner boundary chosen from the model</span>
+      <div class="form-group col-sm-6">
+        <quantity-field ng-model="main.data.model.struture.v_outer_boundary" 
+                        name="v outer boundary"
+                        units="km/s"
+                        help="location of the inner boundary chosen from the model">
+        </quantity-field>
       </div>
     </div>
 
   </div>
   <div ng-switch-when="specific" class="well clearfix">
-
-    <div class="form-group col-sm-12 pull-right">
-      <label for="exampleInputEmail1" class="col-sm-3 control-label">
-        Velocity:
-      </label>
-      <div class="col-sm-3">
-        <input type="number" class="form-control" required
-                ng-model="main.data.model.struture.velocity.start">
-        <span class="help-block">start</span>
-      </div>
-      <div class="col-sm-3">
-        <input type="number" class="form-control" required
-                ng-model="main.data.model.struture.velocity.end">
-        <span class="help-block">end</span>
-      </div>
-      <div class="col-sm-3">
-        <input type="number" class="form-control" required
-                ng-model="main.data.model.struture.velocity.num">
-        <span class="help-block">num</span>
+    <div class="clearfix"></div>
+      <h4>Velocity</h4>
+      <div class="col-sm-12 pull-right">
+        <div class="form-group col-sm-6">
+          <quantity-field ng-model="main.data.model.struture.velocity.start" 
+                          name="start"
+                          units="Km/s">
+          </quantity-field>
+        </div>
+        <div class="form-group col-sm-6 pull-right">
+          <quantity-field ng-model="main.data.model.struture.velocity.end" 
+                          name="start"
+                          units="Km/s">
+          </quantity-field>
+        </div>
+        <div class="form-group col-sm-6">
+          <label for="exampleInputEmail1" class="control-label">
+            num:
+          </label>
+          <div>
+            <input type="text" class="form-control" ng-model="main.data.model.struture.velocity.num">
+          </div>
       </div>
       <span class="help-block pull-right">description of the boundaries of the shells</span>
     </div>
+
     <div class="clearfix"></div>
     <div class="form-group col-sm-12">
       <label for="exampleInputEmail1" class="control-label">
@@ -112,99 +100,50 @@
     <div class="clearfix"></div>
     <ng-switch on ="main.data.model.struture.density.type">
       <div ng-switch-when="exponential">
-          
         <div class="form-group col-sm-6">
-          <label for="exampleInputEmail1" class="control-label">
-            time 0:
-          </label>
-          <div class="input-group">
-            <input type="number" class="form-control" step="any" required>
-            <div class="input-group-addon">
-              <select id="">
-                <option value="lal">year</option>
-                <option value="lal">month</option>
-                <option value="lal">day</option>
-              </select>
-            </div>
-          </div>
-          <span class="help-block">Time at which the pure model densities are right</span>
+          <quantity-field ng-model="main.data.model.struture.density.time_0" 
+                          name="time 0"
+                          units="day, month, year"
+                          help="Time at which the pure model densities are right">
+          </quantity-field>
         </div>
         <div class="form-group col-sm-6 pull-right">
-          <label for="exampleInputEmail1" class="control-label">
-            rho 0:
-          </label>
-          <div class="input-group">
-            <input type="text" class="form-control" required>
-            <div class="input-group-addon">
-              <select id="">
-                <option value="lal">g/cm^3</option>
-              </select>
-            </div>
-          </div>
-          <span class="help-block">density at time 0</span>
+          <quantity-field ng-model="main.data.model.struture.density.rho_0" 
+                          name="rho 0"
+                          units="g/cm^3"
+                          help="density at time 0">
+          </quantity-field>
         </div>
         <div class="form-group col-sm-6">
-          <label for="exampleInputEmail1" class="control-label">
-            v 0:
-          </label>
-          <div class="input-group">
-            <input type="number" class="form-control" step="any" required>
-            <div class="input-group-addon">
-              <select id="">
-                <option value="lal">km/s</option>
-              </select>
-            </div>
-          </div>
-          <span class="help-block">at what velocity the density rho_0 applies</span>
+          <quantity-field ng-model="main.data.model.struture.density.v_0" 
+                          name="v 0"
+                          units="Km/s"
+                          help="at what velocity the density rho_0 applies">
+          </quantity-field>
         </div>
-
-
       </div>
       <div ng-switch-when="power_law">
           
         <div class="form-group col-sm-6">
-          <label for="exampleInputEmail1" class="control-label">
-            time 0:
-          </label>
-          <div class="input-group">
-            <input type="number" class="form-control" step="any" required>
-            <div class="input-group-addon">
-              <select id="">
-                <option value="lal">years</option>
-                <option value="lal">months</option>
-                <option value="lal">days</option>
-              </select>
-            </div>
-          </div>
-          <span class="help-block">Time at which the pure model densities are right</span>
+          <quantity-field ng-model="main.data.model.struture.density.time_0" 
+                          name="time 0"
+                          units="day, month, year"
+                          help="Time at which the pure model densities are right">
+          </quantity-field>
         </div>
         <div class="form-group col-sm-6 pull-right">
-          <label for="exampleInputEmail1" class="control-label">
-            rho 0:
-          </label>
-          <div class="input-group">
-            <input type="text" class="form-control" required>
-            <div class="input-group-addon">
-              <select id="">
-                <option value="lal">g/cm^3</option>
-              </select>
-            </div>
-          </div>
-          <span class="help-block">density at time 0</span>
+          <quantity-field ng-model="main.data.model.struture.density.rho_0" 
+                          name="rho 0"
+                          units="g/cm^3"
+                          help="density at time 0">
+          </quantity-field>
         </div>
         <div class="form-group col-sm-6">
-          <label for="exampleInputEmail1" class="control-label">
-            v 0:
-          </label>
-          <div class="input-group">
-            <input type="number" class="form-control" step="any" required>
-            <div class="input-group-addon">
-              <select id="">
-                <option value="lal">km/s</option>
-              </select>
-            </div>
-          </div>
-          <span class="help-block">at what velocity the density rho_0 applies</span>
+          <quantity-field ng-model="main.data.model.struture.density.v_0" 
+                          name="v 0"
+                          units="Km/s"
+                          help="at what velocity the density rho_0 applies">
+          </quantity-field>
         </div>
         <div class="form-group col-sm-6 pull-right">
           <label for="exampleInputEmail1" class="control-label">
@@ -220,18 +159,11 @@
       </div>
       <div ng-switch-when="uniform">
         <div class="form-group col-sm-6">
-          <label for="exampleInputEmail1" class="control-label">
-            value:
-          </label>
-          <div class="input-group">
-            <input type="number" class="form-control" step="any" required>
-            <div class="input-group-addon">
-              <select id="">
-                <option value="lal">???</option>
-              </select>
-            </div>
-          </div>
-          <span class="help-block">value for uniform density</span>
+          <quantity-field ng-model="main.data.model.struture.density.value" 
+                          name="value"
+                          units="???"
+                          help="value for uniform density">
+          </quantity-field>
         </div>
       </div>
 

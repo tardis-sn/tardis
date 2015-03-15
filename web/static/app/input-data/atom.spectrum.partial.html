@@ -11,25 +11,25 @@
 </div>
 
   <h3>Spectrum</h3>
-  <div class="form-group col-sm-12 pull-right">
-    <label for="exampleInputEmail1" class="col-sm-3 control-label">
-      quantity range sampled:
-    </label>
-    <div class="col-sm-3">
-      <input type="number" class="form-control pull-right" step="any" required
-              ng-model="main.data.spectrum.start">
-      <span class="help-block pull-right">start</span>
+  <div class="col-sm-12 pull-right">
+    <div class="form-group col-sm-6">
+      <quantity-field ng-model="main.data.spectrum.start" 
+                      name="start"
+                      units="angstrom">
+      </quantity-field>
     </div>
-    <div class="col-sm-3">
-      <input type="number" class="form-control pull-right" step="any" required
-              ng-model="main.data.spectrum.end">
-      <span class="help-block pull-right">end</span>
+    <div class="form-group col-sm-6 pull-right">
+      <quantity-field ng-model="main.data.spectrum.end" 
+                      name="start"
+                      units="angstrom">
+      </quantity-field>
     </div>
-    <div class="col-sm-3">
-      <input type="number" class="form-control pull-right" step="any" required
-              ng-model="main.data.spectrum.num">
-      <span class="help-block pull-right">num</span>
-    </div>
-    <span class="help-block pull-right">description of the boundaries of the shells</span>
+    <div class="form-group col-sm-6">
+      <label for="exampleInputEmail1" class="control-label">
+        num:
+      </label>
+      <div>
+        <input type="text" class="form-control" ng-model="main.data.spectrum.num">
+      </div>
   </div>
 </div>

@@ -52,39 +52,19 @@
 <!--  -->
 <div class="advanced" ng-show="main.advanced">
   <div class="form-group col-sm-6">
-    <label for="exampleInputEmail1" class="control-label">
-      initial t inner:
-    </label>
-    <div class="input-group">
-      <input type="number" class="form-control" step="any" required
-              ng-model="main.data.plasma.initial_t_inner">
-      <div class="input-group-addon">
-        <select id="">
-          <option value="lal">K</option>
-        </select>
-      </div>
-    </div>
-    <span class="help-block">
-      initial temperature of the inner boundary black body. If set to -1 K 
-      will result in automatic calculation of boundary
-    </span>
+    <quantity-field ng-model="main.data.plasma.initial_t_inner" 
+                    name="initial t rad"
+                    units="K"
+                    help="initial temperature of the inner boundary black body. If set to -1 K 
+                          will result in automatic calculation of boundary">
+    </quantity-field>
   </div>
   <div class="form-group col-sm-6 pull-right">
-    <label for="exampleInputEmail1" class="control-label">
-      initial t rad:
-    </label>
-    <div class="input-group">
-      <input type="number" class="form-control" step="any" required
-              ng-model="main.data.plasma.initial_t_rad">
-      <div class="input-group-addon">
-        <select id="">
-          <option value="lal">K</option>
-        </select>
-      </div>
-    </div>
-    <span class="help-block">
-      initial radiative temperature in all cells (if set
-    </span>
+    <quantity-field ng-model="main.data.plasma.initial_t_rad" 
+                    name="initial t inner"
+                    units="K"
+                    help="initial radiative temperature in all cells (if set">
+    </quantity-field>
   </div>
   <div class="clearfix"></div>
   <div class="form-group col-sm-6">

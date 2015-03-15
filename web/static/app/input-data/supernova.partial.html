@@ -6,71 +6,35 @@
   </quantity-field>
 </div>
 <div class="form-group col-sm-6 pull-right">
-  <label for="exampleInputEmail1" class="control-label">
-    time explosion:
-  </label>
-  <div class="input-group">
-    <input type="number" class="form-control" step="any" required
-            ng-model="main.data.supernova.time_explosion">
-    <div class="input-group-addon">
-      <select id="">
-        <option value="lal">years</option>
-        <option value="lal">months</option>
-        <option value="lal">days</option>
-      </select>
-    </div>
-  </div>
-  <span class="help-block">time since explosion</span>
+  <quantity-field ng-model="main.data.supernova.time_explosion" 
+                  name="time explosion"
+                  units="day, month, year"
+                  help="time since explosion">
+  </quantity-field>
 </div>
+<!--  -->
 <!-- Advanced options -->
+<!--  -->
 <div class="advanced" ng-show="main.advanced" >
   <div class="form-group col-sm-6">
-    <label for="exampleInputEmail1" class="control-label">
-      luminosity wavelength start:
-    </label>
-    <div class="input-group">
-      <input type="number" class="form-control" step="any" required
-              ng-model="main.data.supernova.luminosity_wavelength_start">
-      <div class="input-group-addon">
-        <select id="">
-          <option value="lal">angstrom</option>
-        </select>
-      </div>
-    </div>
-    <span class="help-block">
-      start of the integral needed for getting the luminosity right
-    </span>
+    <quantity-field ng-model="main.data.supernova.luminosity_wavelength_start" 
+                    name="luminosity wavelength start"
+                    units="angstrom"
+                    help="start of the integral needed for getting the luminosity right">
+    </quantity-field>
   </div>
   <div class="form-group col-sm-6 pull-right">
-    <label for="exampleInputEmail1" class="control-label">
-      luminosity wavelength end:
-    </label>
-    <div class="input-group">
-      <input type="number" class="form-control" step="any" required
-              ng-model="main.data.supernova.luminosity_wavelength_end">
-      <div class="input-group-addon">
-        <select id="">
-          <option value="lal">angstrom</option>
-        </select>
-      </div>
-    </div>
-    <span class="help-block">
-      end of the integral needed for getting the luminosity right
-    </span>
+    <quantity-field ng-model="main.data.supernova.luminosity_wavelength_end" 
+                    name="luminosity wavelength end"
+                    units="angstrom"
+                    help="end of the integral needed for getting the luminosity right">
+    </quantity-field>
   </div>
   <div class="form-group col-sm-6">
-    <label for="exampleInputEmail1" class="control-label">
-      distance:
-    </label>
-    <div class="input-group">
-      <input type="number" class="form-control" step="any" required
-              ng-model="main.data.supernova.distance">
-      <div class="input-group-addon">
-        <select id="">
-          <option value="lal">lightyear</option>
-        </select>
-      </div>
-    </div>
-    <span class="help-block">distance to supernova</span>
+    <quantity-field ng-model="main.data.supernova.distance" 
+                    name="distance"
+                    units="lightyear"
+                    help="distance to supernova">
+    </quantity-field>
   </div>
 </div>

@@ -19,5 +19,4 @@ plasma:
   nlte: {}
   radiative_rates_type: dilute-blackbody
 spectrum: {}
-supernova:
-  luminosity_requested: 4523 solLum
+supernova: {}
