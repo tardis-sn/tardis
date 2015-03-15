@@ -38,6 +38,31 @@ def test_rpacket_set_nu_line(packet):
 def test_C_value():
     C = wrapper.C_value()
     np.testing.assert_almost_equal(C, 29979245800.0)
+
+def test_get_nu(packet):
+    nu = wrapper.get_nu(packet['nu'])
+    assert packet['nu'] == nu
+
+def test_get_mu(packet):
+    mu = wrapper.get_mu(packet['mu'])
+    assert packet['mu'] == mu
+
+def test_get_energy(packet):
+    energy = wrapper.get_energy(packet['energy'])
+    assert packet['energy'] == energy
+
+def test_get_r(packet):
+    r = wrapper.get_r(packet['r'])
+    assert packet['r'] == r
+
+def test_get_tau_event(packet):
+    tau_event = wrapper.get_tau_event(packet['tau_event'])
+    assert packet['tau_event'] == tau_event
+
+def test_get_nu_line(packet):
+    nu_line = wrapper.get_nu_line(packet['nu_line'])
+    assert packet['nu_line'] == nu_line
+
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
 #     (8.5, 1),

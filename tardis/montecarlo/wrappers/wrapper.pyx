@@ -34,6 +34,13 @@ cdef extern from "../src/cmontecarlo.h":
     void rpacket_set_r (rpacket_t * packet, double r);
     void rpacket_set_tau_event (rpacket_t * packet, double tau_event);
     void rpacket_set_nu_line (rpacket_t * packet, double nu_line);
+    
+    double rpacket_get_nu(rpacket_t *packet)
+    double rpacket_get_mu(rpacket_t *packet)
+    double rpacket_get_energy(rpacket_t *packet)
+    double rpacket_get_r(rpacket_t *packet)
+    double rpacket_get_tau_event(rpacket_t *packet)
+    double rpacket_get_nu_line(rpacket_t *packet)
 
     cdef double C "C"
     
@@ -49,4 +56,36 @@ def struct_to_dict(dictionary):
 
 def C_value():
     return C
+
+def get_nu(nu):
+    cdef rpacket_t packet
+    packet.nu = nu
+    return rpacket_get_nu(&packet)
+
+def get_mu(mu):
+    cdef rpacket_t packet
+    packet.mu = mu
+    return rpacket_get_mu(&packet)
+
+def get_energy(energy):
+    cdef rpacket_t packet
+    packet.energy = energy
+    return rpacket_get_energy(&packet)
+
+def get_r(r):
+    cdef rpacket_t packet
+    packet.r = r
+    return rpacket_get_r(&packet)
+
+def get_tau_event(tau_event):
+    cdef rpacket_t packet
+    packet.tau_event = tau_event
+    return rpacket_get_tau_event(&packet)
+
+def get_nu_line(nu_line):
+    cdef rpacket_t packet
+    packet.nu_line = nu_line
+    return rpacket_get_nu_line(&packet)
+
+
 
