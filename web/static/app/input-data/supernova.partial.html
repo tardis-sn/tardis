@@ -1,18 +1,9 @@
 <div class="form-group col-sm-6">
-  <label for="exampleInputEmail1" class="control-label">
-    luminosity requested:
-  </label>
-  <div class="input-group">
-    <input type="number" class="form-control" step="any" required
-            ng-model="main.data.supernova.luminosity_requested">
-    <div class="input-group-addon">
-      <select id="">
-        <option value="lal">solLum</option>
-        <option value="lal">log_lsun</option>
-      </select>
-    </div>
-  </div>
-  <span class="help-block">requested output luminosity for simulation</span>
+  <quantity-field ng-model="main.data.supernova.luminosity_requested" 
+                  name="luminosity requested"
+                  units="solLum, log_lsun"
+                  help="requested output luminosity for simulation">
+  </quantity-field>
 </div>
 <div class="form-group col-sm-6 pull-right">
   <label for="exampleInputEmail1" class="control-label">

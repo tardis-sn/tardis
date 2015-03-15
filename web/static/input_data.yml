@@ -1,1 +1,23 @@
 tardis_config_version: v1.0
+atom_data: {}
+model:
+  abundance:
+    type: uniform
+  struture:
+    density:
+      type: branch85_w7
+    type: file
+    velocity: {}
+montecarlo:
+  black_body_sampling: {}
+  convergence_strategy:
+    type: damped
+plasma:
+  excitation: lte
+  ionization: nebular
+  line_interaction_type: scatter
+  nlte: {}
+  radiative_rates_type: dilute-blackbody
+spectrum: {}
+supernova:
+  luminosity_requested: 4523 solLum

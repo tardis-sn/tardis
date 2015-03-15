@@ -13,23 +13,23 @@
     vm.tabs = [
       {
         'name': 'Supernova',
-        'template': 'input-data/supernova-partial.html'
+        'template': 'input-data/supernova.partial.html'
       },
       {
         'name': 'Atom data & Spectrum',
-        'template': 'input-data/atom-spectrum-partial.html'
+        'template': 'input-data/atom.spectrum.partial.html'
       },
       {
         'name': 'Plasma',
-        'template': 'input-data/plasma-partial.html'
+        'template': 'input-data/plasma.partial.html'
       },
       {
         'name': 'montecarlo',
-        'template': 'input-data/montecarlo-partial.html'
+        'template': 'input-data/montecarlo.partial.html'
       },
       {
         'name': 'Model',
-        'template': 'input-data/model-partial.html'
+        'template': 'input-data/model.partial.html'
       }
     ]
     vm.tabIndex = 0;
