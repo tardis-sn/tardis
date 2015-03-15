@@ -4,6 +4,12 @@ import pytest
 
 test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
 
+from tardis.montecarlo.src import cmontecarlo
+
+def test_rpacket_get_nu():
+	value = cmontecarlo.check_rpacket_nu_value(23.23)
+	assert nu_value ==  23.23
+
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
 #     (8.5, 1),
