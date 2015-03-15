@@ -62,6 +62,7 @@
     vm.nextTab = nextTab;
     vm.prevTab = prevTab;
     vm.createYamlFile = createYamlFile;
+    vm.selectFile = selectFile;
 
     var yaml = $resource('/yaml/:yamlId', {yamlId:'@id'});
 
@@ -90,6 +91,15 @@
       yamlFile.$save();
       $('#donwloadFile').modal();
 
+    }
+
+    function selectFile (input, which){
+      alert('yuju');
+      vm.$apply(function() {
+          var path = input.files[0];
+          if (which == 'atom')
+            vm.data.atom_data = path;
+      });
     }
 
 }
