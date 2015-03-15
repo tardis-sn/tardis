@@ -35,6 +35,9 @@ def test_rpacket_set_tau_event(packet):
 def test_rpacket_set_nu_line(packet):
     assert packet['nu_line'] == -1.0
 
+def test_C_value():
+    C = wrapper.C_value()
+    np.testing.assert_almost_equal(C, 29979245800.0)
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
 #     (8.5, 1),

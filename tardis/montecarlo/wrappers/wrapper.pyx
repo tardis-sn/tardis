@@ -34,6 +34,8 @@ cdef extern from "../src/cmontecarlo.h":
     void rpacket_set_r (rpacket_t * packet, double r);
     void rpacket_set_tau_event (rpacket_t * packet, double tau_event);
     void rpacket_set_nu_line (rpacket_t * packet, double nu_line);
+
+    cdef double C "C"
     
 def struct_to_dict(dictionary):
     cdef rpacket_t packet
@@ -44,4 +46,7 @@ def struct_to_dict(dictionary):
     rpacket_set_tau_event(&packet, dictionary['tau_event'])
     rpacket_set_nu_line(&packet, dictionary['nu_line'])
     return packet
+
+def C_value():
+    return C
 
