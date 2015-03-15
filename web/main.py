@@ -29,7 +29,7 @@ def make_app():
             (r"/yaml", YamlHandler),
             (r'/static/(.*)', StaticFileHandler, {'path': STATIC_PATH})
         ],
-        template_path = TEMPLATE_PATH)
+        template_path = TEMPLATE_PATH, debug=True)
 
 def main():
     app = make_app()

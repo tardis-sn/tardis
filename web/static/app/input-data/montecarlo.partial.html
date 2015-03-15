@@ -1,0 +1,184 @@
+<div class="form-group col-sm-6">
+  <label for="exampleInputEmail1" class="control-label">
+  no of packets:
+  </label>
+  <div>
+    <input type="number" step="any" class="form-control" required
+            ng-model="main.data.montecarlo.no_of_packets">
+  </div>
+  <span class="help-block">Seed for the random number generator</span>
+</div>
+<div class="form-group col-sm-6 pull-right">
+  <label for="exampleInputEmail1" class="control-label">
+  iterations:
+  </label>
+  <div>
+    <input type="number" step="any" class="form-control" required
+            ng-model="main.data.montecarlo.iterations">
+  </div>
+  <span class="help-block">Number of maximum iterations</span>
+</div>
+<!--  -->
+<!-- Advanced options -->
+<!--  -->
+<div class="advanced" ng-show="main.advanced">
+
+  <div class="form-group col-sm-6">
+    <label for="exampleInputEmail1" class="control-label">
+      seed:
+    </label>
+    <div>
+      <input type="number" step="any" class="form-control"
+              ng-model="main.data.montecarlo.seed">
+    </div>
+    <span class="help-block">Seed for the random number generator</span>
+  </div>
+  <div class="form-group col-sm-6 pull-right">
+    <label for="exampleInputEmail1" class="control-label">
+      last no of packets:
+    </label>
+    <div>
+      <input type="text" class="form-control"
+              ng-model="main.data.montecarlo.last_no_of_packets">
+    </div>
+    <span class="help-block">This can set the number of packets for the last run.
+            If set negative it will remain the same as all other runs.</span>
+  </div>
+  <div class="form-group col-sm-6">
+    <label for="exampleInputEmail1" class="control-label">
+      no of virtual packets:
+    </label>
+    <div>
+      <input type="text" class="form-control"
+              ng-model="main.data.montecarlo.no_of_virtual_packets">
+    </div>
+    <span class="help-block">Setting the number of virtual packets for the last iteration.</span>
+  </div>
+  <div class="form-group col-sm-6 pull-right">
+    <label for="exampleInputEmail1" class="control-label">
+      inner boundary albedo:
+    </label>
+    <div>
+      <input type="number" step="any" class="form-control"
+              ng-model="main.data.montecarlo.inner_boundary_albedo">
+    </div>
+    <span class="help-block">albedo of the reflective boundary.</span>
+  </div>
+  <div class="form-group col-sm-12 pull-right">
+    <label for="exampleInputEmail1" class="col-sm-3 control-label">
+      black body sampling:
+    </label>
+    <div class="col-sm-3">
+      <input type="number" step="any" class="form-control" 
+              ng-model="main.data.montecarlo.black_body_sampling.start">
+      <span class="help-block">start</span>
+    </div>
+    <div class="col-sm-3">
+      <input type="number" step="any" class="form-control" 
+              ng-model="main.data.montecarlo.black_body_sampling.end">
+      <span class="help-block">end</span>
+    </div>
+    <div class="col-sm-3">
+      <input type="number" step="any" class="form-control" 
+              ng-model="main.data.montecarlo.black_body_sampling.num">
+      <span class="help-block">num</span>
+    </div>
+    <span class="help-block pull-right">Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)</span>
+  </div>
+</div>
+
+
+<!-- convergence_strategy option -->
+<div class="form-group col-sm-6">
+  <label for="exampleInputEmail1" class="control-label">
+    convergence strategy: 
+  </label>
+  <select ng-model="main.data.montecarlo.convergence_strategy.type">
+    <option value="damped">damped</option>
+    <option value="specific">specific</option>
+  </select>    
+</div>
+<div class="clearfix"></div>
+<ng-switch on="main.data.montecarlo.convergence_strategy.type">
+  <div class="well advanced clearfix" ng-switch-when="damped" ng-show="main.advanced">
+    <div class="form-group col-sm-6">
+      <label for="exampleInputEmail1" class="control-label">
+        damping constant:
+      </label>
+      <div>
+        <input type="text" class="form-control"
+                ng-model="main.data.montecarlo.convergence_strategy.damping_constant">
+      </div>
+      <span class="help-block">damping constant</span>
+    </div>
+    <div class="clearfix"></div>
+    <h4>t inner</h4>
+    <div class="form-group col-sm-6">
+      <label for="exampleInputEmail1" class="control-label">
+        damping constant:
+      </label>
+      <div>
+        <input type="text" class="form-control"
+                ng-model="main.data.montecarlo.convergence_strategy.t_inner.damping_constant">
+      </div>
+      <span class="help-block">damping constant</span>
+    </div>
+    <div class="form-group col-sm-6 pull-right">
+      <label for="exampleInputEmail1" class="control-label">
+        threshold:
+      </label>
+      <div>
+        <input type="text" class="form-control"
+                ng-model="main.data.montecarlo.convergence_strategy.t_inner.threshold" required>
+      </div>
+      <span class="help-block">specifies the threshold that is taken as convergence 
+                  (i.e. 0.05 means that the value does not change more than 5%)</span>
+    </div>
+    <div class="clearfix"></div>
+    <h4>t rad</h4>
+    <div class="form-group col-sm-6">
+      <label for="exampleInputEmail1" class="control-label">
+        damping constant:
+      </label>
+      <div>
+        <input type="text" class="form-control"
+                ng-model="main.data.montecarlo.convergence_strategy.t_rad.damping_constant">
+      </div>
+      <span class="help-block">damping constant</span>
+    </div>
+    <div class="form-group col-sm-6 pull-right">
+      <label for="exampleInputEmail1" class="control-label">
+        threshold:
+      </label>
+      <div>
+        <input type="text" class="form-control"
+                ng-model="main.data.montecarlo.convergence_strategy.t_rad.threshold" required>
+      </div>
+      <span class="help-block">specifies the threshold that is taken as convergence 
+                  (i.e. 0.05 means that the value does not change more than 5%)</span>
+    </div>
+    <div class="clearfix"></div>
+    <h4>w</h4>
+    <div class="form-group col-sm-6">
+      <label for="exampleInputEmail1" class="control-label">
+        damping constant:
+      </label>
+      <div>
+        <input type="text" class="form-control"
+                ng-model="main.data.montecarlo.convergence_strategy.w.damping_constant">
+      </div>
+      <span class="help-block">damping constant</span>
+    </div>
+    <div class="form-group col-sm-6 pull-right">
+      <label for="exampleInputEmail1" class="control-label">
+        threshold:
+      </label>
+      <div>
+        <input type="text" class="form-control"
+                ng-model="main.data.montecarlo.convergence_strategy.w.threshold" required>
+      </div>
+      <span class="help-block">specifies the threshold that is taken as convergence 
+                  (i.e. 0.05 means that the value does not change more than 5%)</span>
+    </div>
+  </div>
+</ng-switch>
