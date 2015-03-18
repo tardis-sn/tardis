@@ -22,7 +22,9 @@ kb = constants.k_B.cgs.value
 
 w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
 
-t_rad_estimator_constant = (np.pi ** 4 / (15 * 24 * scipy.special.zeta(5, 1))) * h / kb
+t_rad_estimator_constant = (np.pi**4 / (15 * 24 * scipy.special.zeta(5, 1))) * h / kb
+
+
 
 
 class Radial1DModel(object):
@@ -78,7 +80,7 @@ class Radial1DModel(object):
 
 
     def __init__(self, tardis_config):
-        # final preparation for configuration object
+        #final preparation for configuration object
         self.tardis_config = tardis_config
         self.gui = None
         self.converged = False
@@ -92,11 +94,10 @@ class Radial1DModel(object):
             if not self.atom_data.has_zeta_data:
                 raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma ionization")
 
-        self.packet_src = packet_source.SimplePacketSource.from_wavelength(
-            tardis_config.montecarlo.black_body_sampling.start,
-            tardis_config.montecarlo.black_body_sampling.end,
-            blackbody_sampling=tardis_config.montecarlo.black_body_sampling.samples,
-            seed=self.tardis_config.montecarlo.seed)
+        self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.montecarlo.black_body_sampling.start,
+                                                                           tardis_config.montecarlo.black_body_sampling.end,
+                                                                           blackbody_sampling=tardis_config.montecarlo.black_body_sampling.samples,
+                                                                           seed=self.tardis_config.montecarlo.seed)
         self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
 
         self.t_inner = tardis_config.plasma.t_inner
@@ -105,6 +106,7 @@ class Radial1DModel(object):
         self.iterations_max_requested = tardis_config.montecarlo.iterations
         self.iterations_remaining = self.iterations_max_requested
         self.iterations_executed = 0
+
 
         if tardis_config.montecarlo.convergence_strategy.type == 'specific':
             self.global_convergence_parameters = (tardis_config.montecarlo.
@@ -118,9 +120,11 @@ class Radial1DModel(object):
         t_inner_lock_cycle[0] = True
         self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
 
+
+
         self.ws = (0.5 * (1 - np.sqrt(1 -
-                                      (tardis_config.structure.r_inner[
-                                           0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
+                    (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
+
 
         self.plasma_array = plasma_array.BasePlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
                                                          tardis_config.supernova.time_explosion.to('s').value,
@@ -129,9 +133,14 @@ class Radial1DModel(object):
                                                          ionization_mode=tardis_config.plasma.ionization,
                                                          excitation_mode=tardis_config.plasma.excitation)
 
+
+
+
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_reabsorbed = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+
+
 
 
     @property
@@ -143,12 +152,13 @@ class Radial1DModel(object):
         if value in ['scatter', 'downbranch', 'macroatom']:
             self._line_interaction_type = value
             self.tardis_config.plasma.line_interaction_type = value
-            # final preparation for atom_data object - currently building data
+            #final preparation for atom_data object - currently building data
             self.atom_data.prepare_atom_data(self.tardis_config.number_densities.columns,
                                              line_interaction_type=self.line_interaction_type, max_ion_number=None,
                                              nlte_species=self.tardis_config.plasma.nlte.species)
         else:
             raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
+
 
 
     @property
@@ -159,10 +169,10 @@ class Radial1DModel(object):
     def t_inner(self, value):
         self._t_inner = value
         self.luminosity_inner = (4 * np.pi * constants.sigma_sb.cgs * self.tardis_config.structure.r_inner[0] ** 2 * \
-                                 self.t_inner ** 4).to('erg/s')
+                                self.t_inner ** 4).to('erg/s')
         self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
-        self.j_blues_norm_factor = constants.c.cgs * self.tardis_config.supernova.time_explosion / \
-                                   (4 * np.pi * self.time_of_simulation * self.tardis_config.structure.volumes)
+        self.j_blues_norm_factor = constants.c.cgs *  self.tardis_config.supernova.time_explosion / \
+                       (4 * np.pi * self.time_of_simulation * self.tardis_config.structure.volumes)
 
 
     def calculate_j_blues(self, init_detailed_j_blues=False):
@@ -193,6 +203,8 @@ class Radial1DModel(object):
             raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
 
+
+
     def calculate_updated_radiationfield(self, nubar_estimator, j_estimator):
         """
         Calculate an updated radiation field from the :math:`\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
@@ -214,6 +226,7 @@ class Radial1DModel(object):
 
         """
 
+
         updated_t_rads = t_rad_estimator_constant * nubar_estimator / j_estimator
         updated_ws = j_estimator / (
             4 * constants.sigma_sb.cgs.value * updated_t_rads ** 4 * self.time_of_simulation.value
@@ -224,7 +237,8 @@ class Radial1DModel(object):
     def update_plasmas(self, initialize_nlte=False):
 
         self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
-                                                initialize_nlte=initialize_nlte)
+                                        initialize_nlte=initialize_nlte)
+
 
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.calculate_transition_probabilities()
@@ -240,7 +254,7 @@ class Radial1DModel(object):
         old_ws = self.ws.copy()
         old_t_inner = self.t_inner
         luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
-                                       (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
+                            (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
         emitted_filter = self.montecarlo_luminosity.value >= 0
         emitted_luminosity = np.sum(self.montecarlo_luminosity.value[emitted_filter & luminosity_wavelength_filter]) \
                              * self.montecarlo_luminosity.unit
@@ -251,20 +265,21 @@ class Radial1DModel(object):
                           * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value \
                             ** convergence_section.t_inner_update_exponent
 
-        # updated_t_inner = np.max([np.min([updated_t_inner, 30000]), 3000])
+        #updated_t_inner = np.max([np.min([updated_t_inner, 30000]), 3000])
 
         convergence_t_rads = (abs(old_t_rads - updated_t_rads) / updated_t_rads).value
         convergence_ws = (abs(old_ws - updated_ws) / updated_ws)
         convergence_t_inner = (abs(old_t_inner - updated_t_inner) / updated_t_inner).value
 
+
         if convergence_section.type == 'damped' or convergence_section.type == 'specific':
             self.t_rads += convergence_section.t_rad.damping_constant * (updated_t_rads - self.t_rads)
             self.ws += convergence_section.w.damping_constant * (updated_ws - self.ws)
             if self.t_inner_update.next():
-                t_inner_new = self.t_inner + convergence_section.t_inner.damping_constant * (
-                updated_t_inner - self.t_inner)
+                t_inner_new = self.t_inner + convergence_section.t_inner.damping_constant * (updated_t_inner - self.t_inner)
             else:
                 t_inner_new = self.t_inner
+
 
         if convergence_section.type == 'specific':
 
@@ -304,6 +319,7 @@ class Radial1DModel(object):
                     self.tardis_config.supernova.luminosity_requested.value)
         logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
 
+
         return t_inner_new
 
 
@@ -321,6 +337,7 @@ class Radial1DModel(object):
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
         self.update_plasmas(initialize_nlte=initialize_nlte)
 
+
         self.t_inner = t_inner_new
 
         self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
@@ -329,9 +346,8 @@ class Radial1DModel(object):
             no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
         else:
             no_of_virtual_packets = 0
-        if np.any(np.isnan(self.plasma_array.tau_sobolevs.values)) or np.any(
-                np.isinf(self.plasma_array.tau_sobolevs.values)) \
-                or np.any(np.isneginf(self.plasma_array.tau_sobolevs.values)):
+        if np.any(np.isnan(self.plasma_array.tau_sobolevs.values)) or np.any(np.isinf(self.plasma_array.tau_sobolevs.values)) \
+            or np.any(np.isneginf(self.plasma_array.tau_sobolevs.values)):
             raise ValueError('Some tau_sobolevs are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
         self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
@@ -341,40 +357,43 @@ class Radial1DModel(object):
         last_line_interaction_in_id, last_line_interaction_out_id, \
         self.last_interaction_type, self.last_line_interaction_shell_id = \
             montecarlo.montecarlo_radial1d(self,
-                                           virtual_packet_flag=no_of_virtual_packets)
+                                                     virtual_packet_flag=no_of_virtual_packets)
 
         if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
             logger.critical("No r-packet escaped through the outer boundary.")
 
         self.montecarlo_nu = montecarlo_nu * u.Hz
-        self.montecarlo_luminosity = montecarlo_energies * 1 * u.erg / self.time_of_simulation
+        self.montecarlo_luminosity = montecarlo_energies *  1 * u.erg / self.time_of_simulation
+
 
         montecarlo_reabsorbed_luminosity = -np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value < 0],
-                                                         weights=self.montecarlo_luminosity.value[
-                                                             self.montecarlo_luminosity.value < 0],
-                                                         bins=self.tardis_config.spectrum.frequency.value)[0] \
-                                           * self.montecarlo_luminosity.unit
+                                         weights=self.montecarlo_luminosity.value[self.montecarlo_luminosity.value < 0],
+                                         bins=self.tardis_config.spectrum.frequency.value)[0] \
+                                      * self.montecarlo_luminosity.unit
 
         montecarlo_emitted_luminosity = np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value >= 0],
-                                                     weights=self.montecarlo_luminosity.value[
-                                                         self.montecarlo_luminosity.value >= 0],
-                                                     bins=self.tardis_config.spectrum.frequency.value)[0] \
-                                        * self.montecarlo_luminosity.unit
+                                         weights=self.montecarlo_luminosity.value[self.montecarlo_luminosity.value >= 0],
+                                         bins=self.tardis_config.spectrum.frequency.value)[0] \
+                                   * self.montecarlo_luminosity.unit
+
+
 
         self.spectrum.update_luminosity(montecarlo_emitted_luminosity)
         self.spectrum_reabsorbed.update_luminosity(montecarlo_reabsorbed_luminosity)
+
 
         if no_of_virtual_packets > 0:
             self.montecarlo_virtual_luminosity = self.montecarlo_virtual_luminosity \
                                                  * 1 * u.erg / self.time_of_simulation
             self.spectrum_virtual.update_luminosity(self.montecarlo_virtual_luminosity)
 
+
+
         self.last_line_interaction_in_id = self.atom_data.lines_index.index.values[last_line_interaction_in_id]
         self.last_line_interaction_in_id = self.last_line_interaction_in_id[last_line_interaction_in_id != -1]
         self.last_line_interaction_out_id = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
         self.last_line_interaction_out_id = self.last_line_interaction_out_id[last_line_interaction_out_id != -1]
-        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
-                                                                                                       u.spectral())
+        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',u.spectral())
 
         last_line_interaction_full = np.zeros((self.tardis_config.montecarlo.no_of_packets, 8))
         last_line_interaction_full[:, 0] = np.arange(0, self.tardis_config.montecarlo.no_of_packets)
@@ -395,12 +414,14 @@ class Radial1DModel(object):
                                                                 'last_line_interaction_in_line_id',
                                                                 'last_line_interaction_out_line_id', 'emitted'])
 
+
         self.iterations_executed += 1
         self.iterations_remaining -= 1
 
         if self.gui is not None:
             self.gui.update_data(self)
             self.gui.show()
+
 
 
     def save_spectra(self, fname):
@@ -416,6 +437,7 @@ class Radial1DModel(object):
         else:
             raise IOError('Please specify either a filename or an HDFStore')
         logger.info('Writing to path %s', path)
+
 
         level_populations_path = os.path.join(path, 'level_populations')
         self.plasma_array.level_populations.to_hdf(hdf_store, level_populations_path)
@@ -435,10 +457,13 @@ class Radial1DModel(object):
         ws_path = os.path.join(path, 'ws')
         pd.Series(self.ws).to_hdf(hdf_store, ws_path)
 
+
         configuration_dict = dict(t_inner=self.t_inner.value)
+
 
         configuration_dict_path = os.path.join(path, 'configuration')
         pd.Series(configuration_dict).to_hdf(hdf_store, configuration_dict_path)
+
 
         electron_densities_path = os.path.join(path, 'electron_densities')
         pd.Series(self.plasma_array.electron_densities).to_hdf(hdf_store, electron_densities_path)
@@ -458,6 +483,7 @@ class Radial1DModel(object):
         montecarlo_luminosity_path = os.path.join(path, 'montecarlo_energies')
         pd.Series(self.montecarlo_luminosity).to_hdf(hdf_store, montecarlo_luminosity_path)
 
+
         luminosity_density = pd.DataFrame.from_dict(dict(wave=self.spectrum.wavelength.value,
                                                          flux=self.spectrum.luminosity_density_lambda.value))
 
@@ -465,7 +491,7 @@ class Radial1DModel(object):
 
         if self.spectrum_virtual.luminosity_density_lambda is not None:
             luminosity_density_virtual = pd.DataFrame.from_dict(dict(wave=self.spectrum_virtual.wavelength.value,
-                                                                     flux=self.spectrum_virtual.luminosity_density_lambda.value))
+                                                           flux=self.spectrum_virtual.luminosity_density_lambda.value))
             luminosity_density_virtual.to_hdf(hdf_store, os.path.join(path, 'luminosity_density_virtual'))
 
         hdf_store.flush()
@@ -473,7 +499,6 @@ class Radial1DModel(object):
             hdf_store.close()
         else:
             return hdf_store
-
 
 class TARDISSpectrum(object):
     """
@@ -485,6 +510,8 @@ class TARDISSpectrum(object):
         self.wavelength = self.frequency.to('angstrom', u.spectral())
 
         self.distance = distance
+
+
 
         self.delta_frequency = frequency[1] - frequency[0]
 
@@ -518,13 +545,13 @@ class TARDISSpectrum(object):
                                          * u.Unit('erg / (s Angstrom)')
 
         if self.distance is not None:
-            self._flux_nu = (self.luminosity_density_nu / (4 * np.pi * self.distance.to('cm') ** 2))
+            self._flux_nu = (self.luminosity_density_nu / (4 * np.pi * self.distance.to('cm')**2))
 
             self._flux_lambda = self.f_nu_to_f_lambda(self.flux_nu.value) * u.Unit('erg / (s Angstrom cm^2)')
 
 
     def f_nu_to_f_lambda(self, f_nu):
-        return f_nu * self.frequency.value ** 2 / constants.c.cgs.value / 1e8
+        return f_nu * self.frequency.value**2 / constants.c.cgs.value / 1e8
 
 
     def plot(self, ax, mode='wavelength'):
@@ -532,6 +559,7 @@ class TARDISSpectrum(object):
             ax.plot(self.wavelength.value, self.flux_lambda.value)
             ax.set_xlabel('Wavelength [%s]' % self.wavelength.unit._repr_latex_())
             ax.set_ylabel('Flux [%s]' % self.flux_lambda.unit._repr_latex_())
+
 
 
     def to_ascii(self, fname, mode='luminosity_density'):
