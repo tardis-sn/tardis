@@ -395,8 +395,8 @@ class Radial1DModel(object):
         self.last_line_interaction_out_id = self.last_line_interaction_out_id[last_line_interaction_out_id != -1]
         self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',u.spectral())
 
-        last_line_interaction_full = np.zeros((self.tardis_config.montecarlo.no_of_packets, 8))
-        last_line_interaction_full[:, 0] = np.arange(0, self.tardis_config.montecarlo.no_of_packets)
+        last_line_interaction_full = np.zeros((self.tardis_config.montecarlo.last_no_of_packets, 8))
+        last_line_interaction_full[:, 0] = np.arange(0, self.tardis_config.montecarlo.last_no_of_packets)
         last_line_interaction_full[:, 1] = montecarlo_nu
         last_line_interaction_full[:, 2] = montecarlo_energies
         last_line_interaction_full[:, 3] = last_line_interaction_in_id
