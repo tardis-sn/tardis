@@ -1,0 +1,66 @@
+{% autoescape None %}
+{% if yaml_config.has_key('property_type') %}
+        <label class="yaml-form-input-label" for="{{ yaml_config_name }}"> {{ get_label_from_property(yaml_config_name) }}:</label>
+        {% if yaml_config['property_type'] == 'string' %}
+                <input
+                        type="text"
+                        id="{{ yaml_config_name }}"
+                        {% if yaml_config['mandatory'] == True %}required=""{% end %}
+                        {% try %}
+                                {% if yaml_config['default']!='None' %}
+                                        placeholder="{{ yaml_config['default'] }}"
+                                {% end %}
+                        {% except KeyError %}
+                        {% end %}
+                        >
+        {% elif yaml_config['property_type'] == 'container-property' %}
+        {% elif yaml_config['property_type'] == 'bool' %}
+                <input
+                        type="checkbox"
+                        id="{{ yaml_config_name }}"
+                        {% try %}
+                                {% if yaml_config['default']!='None' %}
+                                        {% if yaml_config['default']==True %}
+                                                checked
+                                        {% end %}
+                                {% end %}
+                        {% except KeyError %}
+                        {% end %}
+                        >
+        {% elif yaml_config['property_type'] == 'quantity_range_sampled' %}
+                <input
+                        type="text"
+                        id="{{ yaml_config_name }}"
+                        {% try %}
+                                {% if yaml_config['default']!='None' %}
+                                        {% if yaml_config['default']==True %}
+                                                checked
+                                        {% end %}
+                                {% end %}
+                        {% except KeyError %}
+                        {% end %}
+                        >
+        {% else %}
+                <input
+                        type="text",
+                        id="{{ yaml_config_name }}"
+                        {% try %}
+                                {% if yaml_config['default']!='None' %}
+                                        value="{{ yaml_config['default'] }}"
+                                {% end %}
+                        {% except KeyError %}
+                        {% end %}
+                        >
+        {% end %}
+        {% try %}
+                <div class="yaml-form-input-help">
+                        &nbsp &nbsp{{ get_label_from_property(yaml_config['help']) }}
+                </div>
+                <br><br>
+        {% except KeyError%}
+        {% end %}
+{% else %}
+        {% for key in yaml_config %}
+        {{ render_form(yaml_config[key], key) }}
+        {% end %}
+{% end %}
