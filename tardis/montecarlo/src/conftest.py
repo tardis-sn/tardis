@@ -1,9 +1,3 @@
-###############################################################################
-#
-# Simple py.test hooks to enable execution and collection of C unit tests.
-#
-# Copyright 2014, John McNamara, jmcnamara@cpan.org
-#
 import subprocess
 import pytest
 import os

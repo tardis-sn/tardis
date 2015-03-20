@@ -28,10 +28,10 @@ printf(" [GOT] %s\n", (got) ? (got) : "(null)"); \
 #define ASSERT_EQUAL_FLOAT(exp, got) \
 do { \
 if ((exp) == (got)) { \
-printf("\n[PASS] %s:%s():%f\n", __FILE__, __func__, __LINE__); \
+printf("\n[PASS] %s:%s():%d\n", __FILE__, __func__, __LINE__); \
 } \
 else { \
-printf("\n[FAIL] %s:%s():%f\n", __FILE__, __func__, __LINE__); \
+printf("\n[FAIL] %s:%s():%d\n", __FILE__, __func__, __LINE__); \
 printf(" [TST] ASSERT_EQUAL_STR(" #exp ", " #got ")\n"); \
 printf(" [EXP] %f\n", (exp)); \
 printf(" [GOT] %f\n", (got)); \
