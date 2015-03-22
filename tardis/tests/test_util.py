@@ -3,7 +3,9 @@
 import pytest
 from astropy import units as u
 from tardis import atomic
-from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
+from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, 
+                        atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError,
+                        roman_to_int,  int_to_roman
 
 def test_quantity_parser_normal():
     q1 = parse_quantity('5 km/s')
@@ -17,6 +19,14 @@ def test_quantity_parser_malformed_quantity1():
 def test_quantity_parser_malformed_quantity2():
     with pytest.raises(MalformedQuantityError):
         q1 = parse_quantity('5 abcd')
+
+def test_int_to_roman():
+    q1 =  int_to_roman(2000)
+    assert q1 == 'MM' 
+    q2 = int_to_roman(1999)
+    assert q2 == 'MCMXCIX'
+    with pytest.raises(ValueError):
+        q3 = int_to_roman(0)
 
 def test_atomic_number2element_symbol():
     assert atomic_number2element_symbol(14) == 'Si'
