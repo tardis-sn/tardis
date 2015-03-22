@@ -24,6 +24,7 @@ class CTestFile(pytest.File):
         C unit test executable.
 
         """
+	import os.path
         # Run the exe that corresponds to the .c file and capture the output.
         test_exe = os.path.splitext(str(self.fspath))[0]
         test_output = subprocess.check_output(test_exe)
