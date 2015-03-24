@@ -17,10 +17,10 @@ def packet():
 	packet = montecarlo_wrapper.convert_to_dict(rpacket)
 	return packet
 
-def test_rpacket_set_nu(rpacket):
-	assert rpacket['nu'] == 23.23
+def test_rpacket_set_nu(packet):
+	assert packet['nu'] == 23.23
 
-def test_rpacket_get_nu(rpacket):
+def test_rpacket_get_nu(packet):
 	nu = montecarlo_wrapper.call_rpacket_get_nu(23.23)	
 	assert nu == 23.23
 
