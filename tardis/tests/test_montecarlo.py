@@ -4,6 +4,25 @@ import pytest
 
 test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
 
+from tardis.montecarlo.src import cmontecarlo_wrapper
+
+@pytest.fixture
+def packet():
+	rpacket['energy'] = 23.23
+	rpacket['mu'] = 23
+	rpacket['nu'] = 23.23
+	rpacket['r'] = 23.23
+	rpacket['tau_event'] = 23.23
+	rpacket['nu_line'] = 23.23
+	packet = montecarlo_wrapper.convert_to_dict(rpacket)
+	return packet
+
+def test_rpacket_set_nu(rpacket):
+	assert rpacket['nu'] == 23.23
+
+def test_rpacket_get_nu(rpacket):
+	nu = montecarlo_wrapper.call_rpacket_get_nu(23.23)	
+	assert nu == 23.23
 
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
