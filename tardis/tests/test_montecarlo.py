@@ -1,8 +1,13 @@
 import numpy as np
-from tardis import montecarlo
+from tardis.montecarlo import montecarlo
+import tardis
 import pytest
 
 test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
+
+def test_rpacket():
+    print dir(tardis.montecarlo.montecarlo)
+    assert montecarlo.rpacket_test() == True
 
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
@@ -55,4 +60,3 @@ test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
 
 # def test_compute_distance2electron():
 #     assert montecarlo.compute_distance2electron_wrapper(0.0, 0.0, 2.0, 2.0) == 4.0
-
