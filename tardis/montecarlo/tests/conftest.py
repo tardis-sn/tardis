@@ -27,8 +27,9 @@ class CTestFile(pytest.File):
 	import os.path
         # Run the exe that corresponds to the .c file and capture the output.
         test_exe = os.path.splitext(str(self.fspath))[0]
-        test_output = subprocess.check_output(test_exe)
-
+	print str(test_exe+'.so')
+	print os.path.isfile(test_exe+'.so')
+        test_output = subprocess.check_output(test_exe+'.so')
         # Clean up the unit test output and remove non test data lines.
         lines = test_output.split("\n")
         lines = [line.strip() for line in lines]
