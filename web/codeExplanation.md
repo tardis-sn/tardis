@@ -13,6 +13,7 @@ The structure of the js object is maintained using the following data-* tags pre
 3. data-type: Used to represent the type of the field (i.e int,float,quantity,string)
 
 Finally to tackle the container fields :
+
 1. Initially the containers and not shown
 2. Once a user chooses a container the required container is shown using data-targetCont tag in jquery
 3. Finally in the js object the field associated with the containers are recreated every time a different container is selected
