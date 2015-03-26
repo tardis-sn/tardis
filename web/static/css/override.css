@@ -1,0 +1,8 @@
+.tooltip-inner {
+    white-space:pre-wrap;
+}
+.badge{
+    margin-right:5px; 
+    cursor:pointer; 
+    font-weight:900;
+}

@@ -1,0 +1,34 @@
+<div class="form-group well" id="fileContStructure" style="display:none;">
+    <div class="form-group">
+        <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">filename</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="file" class="form-control" data-field="filename" data-parentTags="model-structure" data-type="string">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="file name (with path) to structure model">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">file type</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <select class="form-control" data-field="filetype" data-parentTags="model-structure" data-type="string">
+                <option value="">---</option>
+                <option value="simple_ascii">simple ascii</option>
+                <option value="artis">artis</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="file type">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">v inner boundary</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="v_inner_boundary" data-parentTags="model-structure" placeholder="v inner boundary">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="location of the inner boundary chosen from the model">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">v outer boundary</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="v_outer_boundary" data-parentTags="model-structure" placeholder="v outer boundary">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="location of the outer boundary chosen from the model">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+</div>

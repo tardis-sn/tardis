@@ -1,0 +1,29 @@
+<div class="well col-lg-8 col-lg-offset-2" id="modelDiv" style="display:none;">
+    <legend>Model</legend>
+    <div class="form-group">
+        <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">structure</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <select class="form-control containerProp" data-field="type" data-parentTags="model-structure" data-type="string">
+              <option value="" data-targetCont="">---</option>
+              <option value="file" data-targetCont="#fileContStructure">file</option>
+              <option value="specific" data-targetCont="#specificContStructure">specific</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="structure">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    {% include __modelStructureFileContainer.html %}
+    {% include __modelStructureSpecificContainer.html %}
+    <div class="form-group">
+        <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">abundancies</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <select class="form-control containerProp" data-field="type" data-parentTags="model-abundances" data-type="string">
+              <option value="" data-targetCont="">---</option>
+              <option value="file" data-targetCont="#fileContAbund">file</option>
+              <option value="uniform" data-targetCont="#uniformContAbund">uniform</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="abundances">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    {% include __modelAbundancyFileContainer.html %}
+    {% include __modelAbundancyUniformContainer.html %}
+</div>
