@@ -216,8 +216,8 @@ class ModelViewer(QtGui.QWidget):
             r_outer = self.model.tardis_config.structure.r_outer.value[i] * self.graph.normalizing_factor
             # This is the portion that has to be altered for the GUI to change from ellipses to circles.
             # However this needs a constant factor as seen in the below function for circles.
-            #def circle (x,y,r) where x is r_inner and y is r_outer, I am not sure what constant has to be added
-                #random_object = self.shells.append(Shell(i, (0,0), r_inner -r, r_outer - r))
+            #def circle (x,y,r) where x is r_inner and y is r_outer, I am not sure what constant has to be added amd 
+                #random_object = self.shells.append(Shell(i, (0 + r,0 + r), r_inner -r, r_outer - r))
                 #return random object
             self.shells.append(Shell(i, (0,0), r_inner, r_outer, facecolor=t_rad_color_map.to_rgba(t_rad),
                                      picker=self.graph.shell_picker))
