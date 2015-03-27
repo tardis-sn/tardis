@@ -319,8 +319,10 @@ montecarlo:
             property_type: container-declaration
             containers: ['damped', 'specific']
             _damped: []
-            +damped: ['damping_constant', 't_inner', 't_rad', 'w']
-            _specific: ['damping_constant', 'threshold', 'fraction', 'hold-iterations']
+            +damped: ['damping_constant', 't_inner', 't_rad', 'w',
+            't_inner_update_exponent']
+            _specific: ['damping_constant', 'threshold', 'fraction',
+            'hold-iterations', 'lock_t_inner_cycles', 't_inner_update_exponent']
             +specific: ['t_inner', 't_rad', 'w']
         
         t_inner_update_exponent:
