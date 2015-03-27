@@ -556,18 +556,17 @@ def parse_convergence_section(convergence_section_dict):
     """
 
 
+    convergence_parameters = ['damping_constant', 'threshold', 'fraction',
+            'hold-iterations']
 
     for convergence_variable in ['t_inner', 't_rad', 'w']:
         if convergence_variable not in convergence_section_dict:
             convergence_section_dict[convergence_variable] = {}
-
-        updated_convergence_dict = convergence_section_dict[
-            'global_convergence_parameters'].copy()
-        updated_convergence_dict.update(
-            convergence_section_dict[convergence_variable])
-
-        convergence_section_dict[convergence_variable] = \
-            updated_convergence_dict
+        convergence_variable_section = convergence_section_dict[convergence_variable]
+        for param in convergence_parameters:
+            if convergence_variable_section.get(param, None) is None:
+                convergence_section_dict[convergence_variable][param] = (
+                    convergence_section_dict[param])
 
     return convergence_section_dict
 
@@ -1028,9 +1027,7 @@ class Configuration(ConfigurationNameSpace):
             logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
             montecarlo_section['convergence_strategy'] = default_convergence_section
         else:
-            1/0
-
-        montecarlo_section['convergence_strategy'] = parse_convergence_section(
+            montecarlo_section['convergence_strategy'] = parse_convergence_section(
             montecarlo_section['convergence_strategy'])
 
         black_body_section = montecarlo_section['black_body_sampling']
