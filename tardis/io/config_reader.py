@@ -1018,8 +1018,7 @@ class Configuration(ConfigurationNameSpace):
         default_convergence_section = {'type': 'damped',
                                       'lock_t_inner_cyles': 1,
                                       't_inner_update_exponent': -0.5,
-                                      'global_convergence_parameters' : {
-                                          'damping_constant': 0.5}}
+                                      'damping_constant': 0.5}
 
 
 
