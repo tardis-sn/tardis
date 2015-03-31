@@ -1017,18 +1017,21 @@ class Configuration(ConfigurationNameSpace):
                 montecarlo_section['no_of_packets']
 
         default_convergence_section = {'type': 'damped',
-                                      'lock_t_inner_cyles': 1,
+                                      'lock_t_inner_cycles': 1,
                                       't_inner_update_exponent': -0.5,
                                       'damping_constant': 0.5}
 
 
 
         if montecarlo_section['convergence_strategy'] is None:
-            logger.warning('No convergence criteria selected - just damping by 0.5 for w, t_rad and t_inner')
-            montecarlo_section['convergence_strategy'] = default_convergence_section
+            logger.warning('No convergence criteria selected - '
+                           'just damping by 0.5 for w, t_rad and t_inner')
+            montecarlo_section['convergence_strategy'] = (
+                parse_convergence_section(default_convergence_section))
         else:
-            montecarlo_section['convergence_strategy'] = parse_convergence_section(
-            montecarlo_section['convergence_strategy'])
+            montecarlo_section['convergence_strategy'] = (
+                parse_convergence_section(
+                    montecarlo_section['convergence_strategy']))
 
         black_body_section = montecarlo_section['black_body_sampling']
         montecarlo_section['black_body_sampling'] = {}
