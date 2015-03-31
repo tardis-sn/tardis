@@ -565,8 +565,9 @@ def parse_convergence_section(convergence_section_dict):
         convergence_variable_section = convergence_section_dict[convergence_variable]
         for param in convergence_parameters:
             if convergence_variable_section.get(param, None) is None:
-                convergence_section_dict[convergence_variable][param] = (
-                    convergence_section_dict[param])
+                if param in convergence_section_dict:
+                    convergence_section_dict[convergence_variable][param] = (
+                        convergence_section_dict[param])
 
     return convergence_section_dict
 
