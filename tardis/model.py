@@ -412,6 +412,59 @@ class Radial1DModel(object):
 
 
     def to_hdf5(self, buffer_or_fname, path='', close_h5=True):
+        """
+            This allows the model to be written to an HDF5 file for later analysis. Currently, the saved properties
+            are specified hard coded in include_from_model_in_hdf5. This is a dict where the key corresponds to the
+            name of the property and the value describes the type. If the value is None the property can be dumped
+            to hdf via its attribute to_hdf or by converting it to a pd.DataFrame. For more complex properties
+            which can not simply be dumped to an hdf file the dict can contain a function which is called with
+            the parameters key, path, and  hdf_store. This function then should dump the data to the given
+            hdf_store object. To dump  properties of sub-properties of  the model, you can use a dict as value.
+            This dict is then treated in the same way as described above.
+
+        Parameters
+        ----------
+
+        buffer_or_fname: buffer or ~str
+            buffer or filename for HDF5 file (see pandas.HDFStore for description)
+        path: ~str, optional
+            path in the HDF5 file
+        close_h5: ~bool
+            close the HDF5 file or not.
+        """
+
+
+        # Functions to save properties of the model without to_hdf attribute and no simple conversion to a pd.DataFrame.
+        #This functions are always called with the parameters key, path and,  hdf_store.
+        def _save_luminosity_density(key, path, hdf_store):
+
+            luminosity_density = pd.DataFrame.from_dict(dict(wave=self.spectrum.wavelength.value,
+                                                             flux=self.spectrum.luminosity_density_lambda.value))
+            luminosity_density.to_hdf(hdf_store, os.path.join(path, key))
+
+        def _save_spectrum_virtual(key, path, hdf_store):
+            if self.spectrum_virtual.luminosity_density_lambda is not None:
+                luminosity_density_virtual = pd.DataFrame.from_dict(dict(wave=self.spectrum_virtual.wavelength.value,
+                                                                         flux=self.spectrum_virtual.luminosity_density_lambda.value))
+                luminosity_density_virtual.to_hdf(hdf_store, os.path.join(path, key))
+
+        def _save_configuration_dict(key, path, hdf_store):
+            configuration_dict = dict(t_inner=self.t_inner.value)
+            configuration_dict_path = os.path.join(path, 'configuration')
+            pd.Series(configuration_dict).to_hdf(hdf_store, configuration_dict_path)
+
+        include_from_plasma_ = {'level_populations': None, 'ion_populations': None, 'tau_sobolevs': None,
+                                'electron_densities': None,
+                                't_rads': None, 'ws': None}
+        include_from_model_in_hdf5 = {'plasma_array': include_from_plasma_, 'j_blues': None,
+                                      'last_line_interaction_in_id': None,
+                                      'last_line_interaction_out_id': None,
+                                      'last_line_interaction_shell_id': None, 'montecarlo_nu': None,
+                                      'luminosity_density': _save_luminosity_density,
+                                      'luminosity_density_virtual': _save_spectrum_virtual,
+                                      'configuration_dict': _save_configuration_dict,
+                                      'last_line_interaction_angstrom': None}
+
         if isinstance(buffer_or_fname, basestring):
             hdf_store = pd.HDFStore(buffer_or_fname)
         elif isinstance(buffer_or_fname, pd.HDFStore):
@@ -420,61 +473,43 @@ class Radial1DModel(object):
             raise IOError('Please specify either a filename or an HDFStore')
         logger.info('Writing to path %s', path)
 
+        def _get_hdf5_path(path, property_name):
+            return os.path.join(path, property_name)
 
-        level_populations_path = os.path.join(path, 'level_populations')
-        self.plasma_array.level_populations.to_hdf(hdf_store, level_populations_path)
-
-        ion_populations_path = os.path.join(path, 'ion_populations')
-        self.plasma_array.ion_populations.to_hdf(hdf_store, ion_populations_path)
-
-        tau_sobolevs_path = os.path.join(path, 'tau_sobolevs')
-        self.plasma_array.tau_sobolevs.to_hdf(hdf_store, tau_sobolevs_path)
-
-        j_blues_path = os.path.join(path, 'j_blues')
-        pd.DataFrame(self.j_blues, index=self.atom_data.lines.index).to_hdf(hdf_store, j_blues_path)
-
-        t_rads_path = os.path.join(path, 't_rads')
-        pd.Series(self.t_rads.value).to_hdf(hdf_store, t_rads_path)
-
-        ws_path = os.path.join(path, 'ws')
-        pd.Series(self.ws).to_hdf(hdf_store, ws_path)
+        def _to_smallest_pandas(object):
+            try:
+                return pd.Series(object)
+            except Exception:
+                return pd.DataFrame(object)
 
 
-        configuration_dict = dict(t_inner=self.t_inner.value)
+        def _save_model_property(object, property_name, path, hdf_store):
+            property_path = _get_hdf5_path(path, property_name)
+
+            try:
+                object.to_hdf(hdf_store, property_path)
+            except AttributeError:
+                _to_smallest_pandas(object).to_hdf(hdf_store, property_path)
 
 
-        configuration_dict_path = os.path.join(path, 'configuration')
-        pd.Series(configuration_dict).to_hdf(hdf_store, configuration_dict_path)
+        for key in include_from_model_in_hdf5:
+            if include_from_model_in_hdf5[key] is None:
+                _save_model_property(getattr(self, key), key, path, hdf_store)
+            elif callable(include_from_model_in_hdf5[key]):
+                include_from_model_in_hdf5[key](key, path, hdf_store)
+            else:
+                try:
+                    for subkey in include_from_model_in_hdf5[key]:
+                        if include_from_model_in_hdf5[key][subkey] is None:
+                            _save_model_property(getattr(getattr(self, key), subkey), subkey, os.path.join(path, key),
+                                                 hdf_store)
+                        elif callable(include_from_model_in_hdf5[key][subkey]):
+                            include_from_model_in_hdf5[key][subkey](subkey, os.path.join(path, key), hdf_store)
+                        else:
+                            logger.critical('Can not save %s', str(os.path.join(path, key, subkey)))
+                except:
+                    logger.critical('An error occurred while dumping %s to HDF.', str(os.path.join(path, key)))
 
-
-        electron_densities_path = os.path.join(path, 'electron_densities')
-        pd.Series(self.plasma_array.electron_densities).to_hdf(hdf_store, electron_densities_path)
-
-        last_line_interaction_in_id_path = os.path.join(path, 'last_line_interaction_in_id')
-        pd.Series(self.last_line_interaction_in_id).to_hdf(hdf_store, last_line_interaction_in_id_path)
-
-        last_line_interaction_out_id_path = os.path.join(path, 'last_line_interaction_out_id')
-        pd.Series(self.last_line_interaction_out_id).to_hdf(hdf_store, last_line_interaction_out_id_path)
-
-        last_line_interaction_shell_id_path = os.path.join(path, 'last_line_interaction_shell_id')
-        pd.Series(self.last_line_interaction_shell_id).to_hdf(hdf_store, last_line_interaction_shell_id_path)
-
-        montecarlo_nus_path = os.path.join(path, 'montecarlo_nus')
-        pd.Series(self.montecarlo_nu.value).to_hdf(hdf_store, montecarlo_nus_path)
-
-        montecarlo_luminosity_path = os.path.join(path, 'montecarlo_energies')
-        pd.Series(self.montecarlo_luminosity).to_hdf(hdf_store, montecarlo_luminosity_path)
-
-
-        luminosity_density = pd.DataFrame.from_dict(dict(wave=self.spectrum.wavelength.value,
-                                                         flux=self.spectrum.luminosity_density_lambda.value))
-
-        luminosity_density.to_hdf(hdf_store, os.path.join(path, 'luminosity_density'))
-
-        if self.spectrum_virtual.luminosity_density_lambda is not None:
-            luminosity_density_virtual = pd.DataFrame.from_dict(dict(wave=self.spectrum_virtual.wavelength.value,
-                                                           flux=self.spectrum_virtual.luminosity_density_lambda.value))
-            luminosity_density_virtual.to_hdf(hdf_store, os.path.join(path, 'luminosity_density_virtual'))
 
         hdf_store.flush()
         if close_h5:
