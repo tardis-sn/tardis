@@ -412,7 +412,30 @@ class Radial1DModel(object):
 
 
     def to_hdf5(self, buffer_or_fname, path='', close_h5=True):
+        """
+            This allows the model to be written to an HDF5 file for later analysis. Currently, the saved properties
+            are specified hard coded in include_from_model_in_hdf5. This is a dict where the key corresponds to the
+            name of the property and the value describes the type. If the value is None the property can be dumped
+            to hdf via its attribute to_hdf or by converting it to a pd.DataFrame. For more complex properties
+            which can not simply be dumped tp an hdf file the dict can contain a function which is called with
+            the parameters key, path and,  hdf_store. This function then should dump the data to the given
+            hdf_store object. To dump  properties of sub-properties of  the model, you can use a dict as value.
+            This dict is then treated in the same way as described above.
 
+        Parameters
+        ----------------
+
+        buffer_or_fname: buffer or ~str
+            buffer or filename for HDF5 file (see pandas.HDFStore for description)
+        path: ~str, optional
+            path in the HDF5 file
+        close_h5: ~bool
+            close the HDF5 file or not.
+        """
+
+
+        # Functions to save properties of the model without to_hdf attribute and no simple conversion to a pd.DataFrame.
+        #This functions are always called with the parameters key, path and,  hdf_store.
         def _save_luminosity_density(key, path, hdf_store):
 
             luminosity_density = pd.DataFrame.from_dict(dict(wave=self.spectrum.wavelength.value,
@@ -476,16 +499,16 @@ class Radial1DModel(object):
                 include_from_model_in_hdf5[key](key, path, hdf_store)
             else:
                 try:
-                    for keykey in include_from_model_in_hdf5[key]:
-                        if include_from_model_in_hdf5[key][keykey] is None:
-                            _save_model_property(getattr(getattr(self, key), keykey), keykey, os.path.join(path, key),
+                    for subkey in include_from_model_in_hdf5[key]:
+                        if include_from_model_in_hdf5[key][subkey] is None:
+                            _save_model_property(getattr(getattr(self, key), subkey), subkey, os.path.join(path, key),
                                                  hdf_store)
-                        elif callable(include_from_model_in_hdf5[key][keykey]):
-                            include_from_model_in_hdf5[key][keykey](keykey, os.path.join(path, key), hdf_store)
+                        elif callable(include_from_model_in_hdf5[key][subkey]):
+                            include_from_model_in_hdf5[key][subkey](subkey, os.path.join(path, key), hdf_store)
                         else:
-                            logger.critical('Can not save %s', str(os.path.join(path, key, keykey)))
+                            logger.critical('Can not save %s', str(os.path.join(path, key, subkey)))
                 except:
-                    logger.critical('Ex Can not save %s', str(os.path.join(path, key)))
+                    logger.critical('An error occurred while dumping %s to HDF.', str(os.path.join(path, key)))
 
 
         hdf_store.flush()
