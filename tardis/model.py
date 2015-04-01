@@ -417,13 +417,13 @@ class Radial1DModel(object):
             are specified hard coded in include_from_model_in_hdf5. This is a dict where the key corresponds to the
             name of the property and the value describes the type. If the value is None the property can be dumped
             to hdf via its attribute to_hdf or by converting it to a pd.DataFrame. For more complex properties
-            which can not simply be dumped tp an hdf file the dict can contain a function which is called with
-            the parameters key, path and,  hdf_store. This function then should dump the data to the given
+            which can not simply be dumped to an hdf file the dict can contain a function which is called with
+            the parameters key, path, and  hdf_store. This function then should dump the data to the given
             hdf_store object. To dump  properties of sub-properties of  the model, you can use a dict as value.
             This dict is then treated in the same way as described above.
 
         Parameters
-        ----------------
+        ----------
 
         buffer_or_fname: buffer or ~str
             buffer or filename for HDF5 file (see pandas.HDFStore for description)
