@@ -3,7 +3,7 @@
 import pytest
 from astropy import units as u
 from tardis import atomic
-from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
+from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError, roman_to_int, int_to_roman
 
 def test_quantity_parser_normal():
     q1 = parse_quantity('5 km/s')
@@ -58,3 +58,32 @@ def test_species_string_to_species():
 
     for species_string, species_tuple in data:
         yield _test_species_string_to_species_tuple, species_string, species_tuple
+
+testData = [('CMXC', 990),
+	    ('CCCLVI', 356),
+	    ('MCCCXV', 1315), 
+	    ('DCLXXIV', 674),
+	   ]
+
+@pytest.mark.parametrize("roman_number, int_number", testData)
+def test_roman_to_int(roman_number, int_number):
+    assert roman_to_int(roman_number) == int_number
+
+testData = [(823, 'DCCCXXIII'),
+	    (2421, 'MMCDXXI'),
+	    (372, 'CCCLXXII'),
+	    (1443, 'MCDXLIII'),
+	   ]
+
+@pytest.mark.parametrize("int_number, roman_number", testData)
+def test_int_to_roman(int_number, roman_number):
+    assert int_to_roman(int_number) == roman_number
+
+"""This test is written to check the boundary conditions for the functions
+   roman_to_int and int_to_roman"""
+def test_boundary():
+    with pytest.raises(ValueError):
+	int_number = roman_to_int("MMMM")
+
+    with pytest.raises(ValueError):
+	roman_number = int_to_roman("4000")
