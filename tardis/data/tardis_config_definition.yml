@@ -338,7 +338,7 @@ montecarlo:
             help: >
                 The number of cycles to lock the update of the inner boundary temperature.
                 This process helps with convergence. The default is to switch it off (1 cycle)
-        hold-iterations:
+        hold_iterations:
             property_type: int
             default: 3
             mandatory: True
