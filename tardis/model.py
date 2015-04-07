@@ -294,7 +294,7 @@ class Radial1DModel(object):
             if t_rad_converged and t_inner_converged and w_converged:
                 if not self.converged:
                     self.converged = True
-                    self.iterations_remaining = self.global_convergence_parameters['hold']
+                    self.iterations_remaining = self.global_convergence_parameters['hold_iterations']
 
             else:
                 if self.converged:
