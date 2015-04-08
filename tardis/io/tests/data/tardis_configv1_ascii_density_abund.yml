@@ -43,12 +43,12 @@ montecarlo:
     last_no_of_packets: 1.e+5
     no_of_virtual_packets: 5
 
-    convergence_criteria:
+    convergence_strategy:
         type: specific
         damping_constant: 1.0
         threshold: 0.05
         fraction: 0.8
-        hold: 3
+        hold_iterations: 3
         t_inner:
             damping_constant: 1.0
     
