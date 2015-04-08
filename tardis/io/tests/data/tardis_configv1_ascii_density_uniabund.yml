@@ -52,7 +52,7 @@ montecarlo:
         damping_constant: 1.0
         threshold: 0.05
         fraction: 0.8
-        hold-iterations: 3
+        hold_iterations: 3
         t_inner:
             damping_constant: 1.0
     
