@@ -321,7 +321,7 @@ montecarlo:
             _damped: []
             +damped: ['damping_constant', 't_inner', 't_rad', 'w',
             'lock_t_inner_cycles', 't_inner_update_exponent',]
-            _specific: ['threshold', 'fraction', 'hold-iterations']
+            _specific: ['threshold', 'fraction', 'hold_iterations']
             +specific: ['t_inner', 't_rad', 'w', 'lock_t_inner_cycles',
             'damping_constant', 't_inner_update_exponent']
         
