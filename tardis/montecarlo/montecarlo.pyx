@@ -21,6 +21,11 @@ cdef extern from "src/cmontecarlo.h":
         TARDIS_PACKET_STATUS_EMITTED = 1
         TARDIS_PACKET_STATUS_REABSORBED = 2
 
+    ctypedef enum tardis_error_t:
+        TARDIS_ERROR_OK = 0,
+        TARDIS_ERROR_BOUNDS_ERROR = 1,
+        TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE = 2
+
     ctypedef struct rpacket_t:
         double nu
         double mu
@@ -90,7 +95,17 @@ cdef extern from "src/cmontecarlo.h":
     double rpacket_get_nu(rpacket_t *packet)
     double rpacket_get_energy(rpacket_t *packet)
     void initialize_random_kit(unsigned long seed)
+    tardis_error_t reverse_binary_search(double *x, double x_insert, int_type_t imin, int_type_t imax, int_type_t * result)
 
+def reverse_binary_search_wrapper(np.ndarray[double, ndim=1, mode="c"] x, double x_insert, int_type_t imin, int_type_t imax):
+    
+    cdef int_type_t result
+    cdef tardis_error_t error
+    error = reverse_binary_search(<double *> x.data, x_insert, imin, imax, &result)
+    if error == TARDIS_ERROR_BOUNDS_ERROR:
+        raise ValueError("reverse_binary_search returned TARDIS_ERROR_BOUNDS_ERROR")
+    assert error == TARDIS_ERROR_OK, "reverse_binary_search returns unexpected error"
+    return result
 
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
