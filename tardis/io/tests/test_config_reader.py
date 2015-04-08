@@ -45,7 +45,7 @@ def test_convergence_section_parser():
                                 'damping_constant': 0.5,
                                 'threshold':0.05,
                                 'fraction': 0.8,
-                                'hold-iterations': 3,
+                                'hold_iterations': 3,
                                 't_rad': {'damping_constant':1.0}}
 
     parsed_convergence_section = config_reader.parse_convergence_section(
