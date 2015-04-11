@@ -497,7 +497,7 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
                     return self.headerdata[1][0] + str(self.index_info[section])
             else:
                 return self.headerdata[1][section]
-        return ""
+        return None
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid():
