@@ -3,7 +3,22 @@
 import pytest
 from astropy import units as u
 from tardis import atomic
-from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
+from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError, intensity_black_body
+from astropy import constants
+
+k_B_cgs = constants.k_B.cgs.value
+c_cgs = constants.c.cgs.value
+h_cgs = constants.h.cgs.value
+m_e_cgs = constants.m_e.cgs.value
+e_charge_gauss = constants.e.gauss.value
+
+testdata = [(10**4, 1092, 3.3550151563259252e-26),
+            (10**6, 1365, 4.1937684951576179e-22),
+            (10**7, 1683, 5.1707776564400651e-20)]
+
+@pytest.mark.parametrize("nu,T,expected", testdata)
+def test_intensity_black_body(nu, T, expected):
+    assert intensity_black_body(nu, T) == expected
 
 def test_quantity_parser_normal():
     q1 = parse_quantity('5 km/s')
