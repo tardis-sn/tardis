@@ -88,10 +88,25 @@ cdef extern from "src/cmontecarlo.h":
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
     int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
     double rpacket_get_nu(rpacket_t *packet)
+    double rpacket_set_nu(rpacket_t *packet, double setto)
     double rpacket_get_energy(rpacket_t *packet)
     void initialize_random_kit(unsigned long seed)
 
 
+def rpacket_test():
+    """
+    Test the rpacket functionality
+    """
+    cdef rpacket_t rpack
+    rpack.nu = 3.0
+    assert rpacket_get_nu(&rpack) == 3.0, 'rpack is not 3.0'
+    rpacket_set_nu(&rpack, 4.4)
+    assert rpacket_get_nu(&rpack) != 3.0, 'rpack is 3.0, should be 4'
+    assert rpacket_get_nu(&rpack) == 4.4, 'rpack should be 4.4'
+    
+    return True
+
+    
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     """
