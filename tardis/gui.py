@@ -199,6 +199,7 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax2.set_title('Shell View')
         self.graph.ax2.set_xlabel('Arbitrary')
         self.graph.ax2.set_ylabel('Arbitrary')
+        self.graph.ax2.set_aspect('equal')
         self.shells = []
         t_rad_normalizer = colors.Normalize(vmin=self.model.t_rads.value.min(), vmax=self.model.t_rads.value.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
