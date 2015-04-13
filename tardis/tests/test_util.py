@@ -4,6 +4,7 @@ import pytest
 from astropy import units as u
 from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
+from tardis.util import roman_to_int,  int_to_roman
 
 def test_quantity_parser_normal():
     q1 = parse_quantity('5 km/s')
