@@ -1,0 +1,43 @@
+{% macro render_field(form,field, label_visible=true) -%}
+
+    <div class="form-group row {% if field.errors %}has-error{% endif %} {{ kwargs.pop('class_', '') }} {% if 'parent' in field.description %} hidden {{form[field.description['parent']].id}} {% endif %} {% if 'association' in field.description %} hidden {{field.description['association']}} {% endif %}">
+    {#{% if 'association' in field.description %} {{field.description['association']}} {% endif %}#}
+    {#{% if 'parent' in field.description %} , {{field.description['parent']}} {% endif %}#}
+        <div class="col-md-8">
+            {% if (field.type != 'HiddenField' or field.type !='CSRFTokenField') and label_visible %}
+                {% if field.validators %}
+                    {{ field.label(class_='control-label col-md-6 mandatory', **kwargs) }}
+                {% elif field.type ==  'HiddenField'%}
+                    {{ field.label(class_='control-label col-md-6 heading-label', **kwargs) }}
+                {% else %}
+                    {{ field.label(class_='control-label col-md-6', **kwargs) }}
+                {% endif %}
+            {% endif %}
+            <div class="col-md-6">
+                {% if field.type == 'BooleanField' or field.type == '_Option' %}
+                    {{ field(class_='big', **kwargs) }}
+                {% elif 'default' in field.description %}
+                    {{ field(class_='form-control', placeholder=field.description['default'], **kwargs) }}
+                {% else %}
+                    {{ field(class_='form-control', **kwargs) }}
+                {% endif %}
+            </div>
+            {% if field.errors %}
+                {% for e in field.errors %}
+                    <p class="help-block">{{ e }}</p>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="col-md-4">
+            {% if 'help_text' in field.description %}
+                <span data-toggle="tooltip" data-placement="right" title="{{ field.description['help_text'] }}" class="help">?</span>
+            {% endif %}
+        </div>
+    </div>
+{%- endmacro %}
+{% macro render_form(form) -%}
+    {{ form.hidden_tag() if form.hidden_tag }}
+    {% for f in form %}
+        {{ render_field(form,f) }}
+    {% endfor %}
+{%- endmacro %}

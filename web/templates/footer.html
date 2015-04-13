@@ -1,0 +1,80 @@
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins)-->
+    <script src="js/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed-->
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      })
+      $("select").change(function(){
+        var div = $(this).closest('.panel')[0].id;
+        selected = $(this).children(":selected").val();
+        console.log($(this)[0].id.split('-')[1])
+        $( "#"+div+" ."+$(this)[0].id.split('-')[1]).removeClass( "visible");
+        $( "#"+div+" ."+selected ).addClass( "visible");
+      });
+      $("input[type='checkbox']").change(function(){
+        var value = $(this)[0].id
+        if($(this).is(":checked")) {
+          $( "."+value ).addClass( "visible");
+          $("."+value+" > .col-md-8 > .col-md-6 > select").each(function() {
+            console.log(this);
+            $(this).trigger("change");
+          });
+        }
+        else {
+          $( "."+value ).removeClass("visible");
+          $("."+value+" input[type='checkbox']").each(function() {
+            $(this).attr('checked', false);
+            $(this).trigger("change");
+          });
+        }
+      });
+
+      $("input[type='radio']").change(function(){
+
+      });
+      $(document).ready(function () {
+        $("select").each(function() {
+            $(this).trigger("change");
+          });
+        $("input[type='checkbox']").each(function() {
+            $(this).trigger("change");
+          });
+      })
+
+      function fillExampleValues () {
+        $('#supernova-luminosity_requested').val('9.44 log_lsun')
+        $('#supernova-time_explosion').val('13 day')
+        $('#atom_data-atom_data').val('kurucz_cd23_chianti_H_He.h5')
+        $('#structure_model-type').val('specific').trigger('change')
+        $('#structure_model-velocity').val('1.1e4 km/s,20000 km/s,20')
+        $('#structure_model-density').prop('checked', true).trigger('change')
+        $('#abundances_model-uniform_abundances').val('O 0.19\nMg 0.03\nSi 0.52\nS 0.19\nAr 0.04\nCa 0.03')
+        $('#plasma-disable_electron_scattering').prop('checked', false).trigger('change')
+        $('#plasma-ionization').val('lte')
+        $('#plasma-excitation').val('lte')
+        $('#plasma-radiative_rates_type').val('dilute-blackbody')
+        $('#plasma-line_interaction_type').val('macroatom')
+        $('#montecarlo-seed').val('23111963')
+        $('#montecarlo-no_of_packets').val('4.0e+4')
+        $('#montecarlo-iterations').val('20')
+        $('#montecarlo-black_body_sampling').val('1 angstrom, 1000000 angstrom, 1.e+6')
+        $('#montecarlo-last_no_of_packets').val('1.e+5')
+        $('#montecarlo-no_of_virtual_packets').val('10')
+        $('#montecarlo-convergence_strategy').prop('checked', true).trigger('change')
+        $('#montecarlo-convergence_strategy__type').val('specific').trigger('change')
+        $('#montecarlo-convergence_strategy__damping_constant').val('1.0')
+        $('#montecarlo-convergence_strategy__threshold').val('0.05')
+        $('#montecarlo-convergence_strategy__fraction').val('0.8')
+        $('#montecarlo-convergence_strategy__hold-iterations').val('3')
+        $('#montecarlo-t_inner').prop('checked', true).trigger('change')
+        $('#montecarlo-t_inner__damping_constant').val('1.0')
+        $('#spectrum-spectrum').val('500 angstrom,20000 angstrom,10000')
+
+      }
+    </script>
+  </body>
+ </html>

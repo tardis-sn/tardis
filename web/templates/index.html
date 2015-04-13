@@ -1,0 +1,52 @@
+{# {% autoescape None %} #}
+{% from 'macro.html' import render_form %}
+{% include 'header.html' %}
+  {% block main %}
+
+    <div style="display:inline-block;">
+      <h1 style="float:left">TARDIS</h1>
+      <button class="btn btn-primary" onClick="fillExampleValues()" style="z-index: 5;text-align: right;float: right;margin: 20px;">Fill the form with the example values</button>
+    </div>
+    <form action="/" method="post" class="form-horizontal">
+      {% for field in form %}
+        <div class="panel panel-default" id="{{field.id}}">
+          <div class="panel-heading">
+            <h3 class="panel-title">
+              {{field.label}}
+            </h3>
+          </div>
+          <div class="panel-body">
+            {% if field.id=='model' %}
+              <h3>Structure</h3><br/>
+              <div role="tabpanel" class="well">
+                <ul role="tablist" class="nav nav-pills">
+                  <li role="presentation" class="active"><a href="#specific" aria-controls="specific" role="tab" data-toggle="tab">Specific Entries</a></li>
+                  <li style="vertical-align=middle;padding:10px 50px;"><span>OR </span></li>
+                  <li role="presentation"><a href="#file" aria-controls="file" role="tab" data-toggle="tab">File Upload</a></li>
+                </ul>
+                <div class="tab-content">
+                  <div id="specific" role="tabpanel" class="tab-pane active">
+                  {{ render_form(field['model_structure']['specific']) }}
+                  </div>
+                  <div id="file" role="tabpanel" class="tab-pane">
+                  {{ render_form(field['model_structure']['file']) }}
+                  </div>
+                </div>
+              </div>
+              <h3>Abundance</h3>
+              {{ render_form(field['model_abundance']) }}
+            {% else %}
+            <p>
+                {{ render_form(field) }}
+            </p>
+            {% endif %}
+            {% if field.errors %}*{{ field.errors[0] }}{% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+
+      <input type="submit" value="Generate YAML File" class="btn btn-primary btn-lg btn-block" />
+    </form>
+  {% endblock %}
+{% include 'footer.html' %}
