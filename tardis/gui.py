@@ -214,6 +214,11 @@ class ModelViewer(QtGui.QWidget):
         for i, t_rad in enumerate(self.model.t_rads.value):
             r_inner = self.model.tardis_config.structure.r_inner.value[i] * self.graph.normalizing_factor
             r_outer = self.model.tardis_config.structure.r_outer.value[i] * self.graph.normalizing_factor
+            # This is the portion that has to be altered for the GUI to change from ellipses to circles.
+            # However this needs a constant factor as seen in the below function for circles.
+            #def circle (x,y,r) where x is r_inner and y is r_outer, I am not sure what constant has to be added amd 
+                #random_object = self.shells.append(Shell(i, (0 + r,0 + r), r_inner -r, r_outer - r))
+                #return random object
             self.shells.append(Shell(i, (0,0), r_inner, r_outer, facecolor=t_rad_color_map.to_rgba(t_rad),
                                      picker=self.graph.shell_picker))
             self.graph.ax2.add_patch(self.shells[i])
@@ -497,7 +502,7 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
                     return self.headerdata[1][0] + str(self.index_info[section])
             else:
                 return self.headerdata[1][section]
-        return ""
+        return None  #returning none instead of an empty string enables the gui to properly display the header files      
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid():
