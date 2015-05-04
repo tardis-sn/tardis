@@ -31,6 +31,7 @@ from tardis import analysis, util
 #     else:
 #         return current_ion_index(index - 1, duplicate_list) + 1
 
+#The main TARDIS window
 class ModelViewer(QtGui.QWidget):
     def __init__(self, parent=None):
         # assumes that qt has already been initialized by starting IPython with the flag "--pylab=qt"
@@ -44,58 +45,75 @@ class ModelViewer(QtGui.QWidget):
             app.exec_()
 
         super(ModelViewer, self).__init__(parent)
+        
+        #Data structures
         self.model = None
         self.shell_info = {}
         self.line_info = []
+
+        #Setting QWidget properties
         self.setGeometry(20, 35, 1250, 500)
         self.setWindowTitle('Shells Viewer')
-        self.tablemodel = SimpleTableModel([['Shell: '], ["Rad. temp", "Ws"]], (1, 0))
-        self.tableview = QtGui.QTableView()
+
+        #Plot of shells
         self.graph = MatplotlibWidget(self, 'model')
         self.graph_label = QtGui.QLabel('Select Property:')
         self.graph_button = QtGui.QToolButton()
+        self.graph_button.setText('Rad. temp')
+        self.graph_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
+        self.graph_button.setMenu(QtGui.QMenu(self.graph_button))
+        self.graph_button.menu().addAction('Rad. temp').triggered.connect(self.change_graph_to_t_rads)
+        self.graph_button.menu().addAction('Ws').triggered.connect(self.change_graph_to_ws)
+        
+        #Plot of spectrum
         self.spectrum = MatplotlibWidget(self)
         self.spectrum_label = QtGui.QLabel('Select Spectrum:')
         self.spectrum_button = QtGui.QToolButton()
+        self.spectrum_button.setText('spec_flux_angstrom')
+        self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
+        self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
+        self.spectrum_button.menu().addAction('spec_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
+        self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
         self.spectrum_span_button = QtGui.QPushButton('Show Wavelength Range')
+        self.spectrum_span_button.clicked.connect(self.spectrum.show_span)
         self.spectrum_line_info_button = QtGui.QPushButton('Show Line Info')
-        self.layout = QtGui.QHBoxLayout()
-        self.graph_sublayout = QtGui.QVBoxLayout()
-        self.graph_subsublayout = QtGui.QHBoxLayout()
-        self.spectrum_sublayout = QtGui.QVBoxLayout()
-        self.spectrum_subsublayout = QtGui.QHBoxLayout()
+        self.spectrum_line_info_button.hide()
+        self.spectrum_line_info_button.clicked.connect(self.spectrum.show_line_info)
 
+        #Table widget
+        self.tablemodel = SimpleTableModel([['Shell: '], ["Rad. temp", "Ws"]], (1, 0))
+        self.tableview = QtGui.QTableView()
         self.tableview.setMinimumWidth(200)
         self.tableview.connect(self.tableview.verticalHeader(), QtCore.SIGNAL('sectionClicked(int)'), self.graph.highlight_shell)
         self.tableview.connect(self.tableview.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
                                self.on_header_double_clicked)
-        self.graph_button.setText('Rad. temp')
-        self.spectrum_button.setText('spec_flux_angstrom')
-        self.graph_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.graph_button.setMenu(QtGui.QMenu(self.graph_button))
-        self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
-        self.graph_button.menu().addAction('Rad. temp').triggered.connect(self.change_graph_to_t_rads)
-        self.graph_button.menu().addAction('Ws').triggered.connect(self.change_graph_to_ws)
-        self.spectrum_button.menu().addAction('spec_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
-        self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
-        self.spectrum_span_button.clicked.connect(self.spectrum.show_span)
-        self.spectrum_line_info_button.clicked.connect(self.spectrum.show_line_info)
-        self.layout.addWidget(self.tableview)
+
+
+        #Layout
+        self.graph_subsublayout = QtGui.QHBoxLayout()
         self.graph_subsublayout.addWidget(self.graph_label)
         self.graph_subsublayout.addWidget(self.graph_button)
+
+        self.graph_sublayout = QtGui.QVBoxLayout()
         self.graph_sublayout.addLayout(self.graph_subsublayout)
         self.graph_sublayout.addWidget(self.graph)
-        self.layout.addLayout(self.graph_sublayout)
+
+        self.spectrum_subsublayout = QtGui.QHBoxLayout()
         self.spectrum_subsublayout.addWidget(self.spectrum_span_button)
         self.spectrum_subsublayout.addWidget(self.spectrum_label)
         self.spectrum_subsublayout.addWidget(self.spectrum_button)
+        
+        self.spectrum_sublayout = QtGui.QVBoxLayout()
         self.spectrum_sublayout.addLayout(self.spectrum_subsublayout)
         self.spectrum_sublayout.addWidget(self.spectrum_line_info_button)
         self.spectrum_sublayout.addWidget(self.spectrum)
         self.spectrum_sublayout.addWidget(self.spectrum.toolbar)
+
+        self.layout = QtGui.QHBoxLayout()
+        self.layout.addWidget(self.tableview)
+        self.layout.addLayout(self.graph_sublayout)
         self.layout.addLayout(self.spectrum_sublayout)
-        self.spectrum_line_info_button.hide()
+                
         self.setLayout(self.layout)
 
     def show_model(self, model=None):
@@ -497,7 +515,7 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
                     return self.headerdata[1][0] + str(self.index_info[section])
             else:
                 return self.headerdata[1][section]
-        return ""
+        return None
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
         if not index.isValid():
