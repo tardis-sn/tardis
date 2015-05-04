@@ -32,7 +32,8 @@ from tardis import analysis, util
 #         return current_ion_index(index - 1, duplicate_list) + 1
 
 #The main TARDIS window
-class ModelViewer(QtGui.QWidget):
+class Tardis(QtGui.QMainWindow):
+
     def __init__(self, parent=None):
         # assumes that qt has already been initialized by starting IPython with the flag "--pylab=qt"
         app = QtCore.QCoreApplication.instance()
@@ -43,6 +44,24 @@ class ModelViewer(QtGui.QWidget):
             start_event_loop_qt4(app)
         except ImportError:
             app.exec_()
+
+        super(Tardis, self).__init__(parent)
+
+        self.mdv = ModelViewer() 
+        self.setCentralWidget(self.mdv) 
+
+    def show_model(self, model=None):
+        if model:
+            self.mdv.change_model(model)
+        self.mdv.tableview.setModel(self.mdv.tablemodel)
+        self.mdv.plot_model()
+        self.mdv.plot_spectrum()
+        self.show()
+
+#The central widget
+class ModelViewer(QtGui.QWidget):
+
+    def __init__(self, parent=None):
 
         super(ModelViewer, self).__init__(parent)
         
