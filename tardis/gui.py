@@ -47,8 +47,30 @@ class Tardis(QtGui.QMainWindow):
 
         super(Tardis, self).__init__(parent)
 
+        #Central Widget
         self.mdv = ModelViewer() 
-        self.setCentralWidget(self.mdv) 
+        self.setCentralWidget(self.mdv)
+
+        #Statusbar
+        statusbr = self.statusBar()
+        self.successLabel = QtGui.QLabel("Converged")
+        self.successLabel.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
+        statusbr.addPermanentWidget(self.successLabel)
+        statusbr.showMessage("Ready", 5000) 
+
+        #Menubar
+        self.fileMenu = self.menuBar().addMenu("&File")
+        quitAction = QtGui.QAction("&Quit", self)
+        quitAction.setIcon(QtGui.QIcon("closeicon.png"))
+        quitAction.triggered.connect(self.close)
+        self.fileMenu.addAction(quitAction)
+        self.viewMenu = self.menuBar().addMenu("&View")
+        self.helpMenu = self.menuBar().addMenu("&Help")
+
+        #Toolbar
+        fileToolbar = self.addToolBar("File")
+        fileToolbar.setObjectName("FileToolBar")  
+        fileToolbar.addAction(quitAction)
 
     def show_model(self, model=None):
         if model:
