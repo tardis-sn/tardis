@@ -61,7 +61,7 @@ class Tardis(QtGui.QMainWindow):
         #Menubar
         self.fileMenu = self.menuBar().addMenu("&File")
         quitAction = QtGui.QAction("&Quit", self)
-        quitAction.setIcon(QtGui.QIcon("closeicon.png"))
+        quitAction.setIcon(QtGui.QIcon(":/closeicon.png"))
         quitAction.triggered.connect(self.close)
         self.fileMenu.addAction(quitAction)
         self.viewMenu = self.menuBar().addMenu("&View")
@@ -77,7 +77,7 @@ class Tardis(QtGui.QMainWindow):
             self.mdv.change_model(model)
         self.mdv.tableview.setModel(self.mdv.tablemodel)
         self.mdv.plot_model()
-        self.mdv.plot_spectrum()
+        #self.mdv.plot_spectrum()
         self.show()
 
 #The central widget
@@ -94,9 +94,8 @@ class ModelViewer(QtGui.QWidget):
 
         #Setting QWidget properties
         self.setGeometry(20, 35, 1250, 500)
-        self.setWindowTitle('Shells Viewer')
 
-        #Plot of shells
+        #Widgets for plot of shells
         self.graph = MatplotlibWidget(self, 'model')
         self.graph_label = QtGui.QLabel('Select Property:')
         self.graph_button = QtGui.QToolButton()
@@ -106,7 +105,7 @@ class ModelViewer(QtGui.QWidget):
         self.graph_button.menu().addAction('Rad. temp').triggered.connect(self.change_graph_to_t_rads)
         self.graph_button.menu().addAction('Ws').triggered.connect(self.change_graph_to_ws)
         
-        #Plot of spectrum
+        #Widgets for plot of spectrum
         self.spectrum = MatplotlibWidget(self)
         self.spectrum_label = QtGui.QLabel('Select Spectrum:')
         self.spectrum_button = QtGui.QToolButton()
@@ -129,41 +128,85 @@ class ModelViewer(QtGui.QWidget):
         self.tableview.connect(self.tableview.verticalHeader(), QtCore.SIGNAL('sectionDoubleClicked(int)'),
                                self.on_header_double_clicked)
 
+        #Label for text output
+        self.outputLabel = QtGui.QLabel("<b>Model's parameters will be displayed here</b><br/> Html sylesheets can be used meaning that the text can be formatted.")
+        self.outputLabel.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
+        self.outputLabel.setStyleSheet("QLabel{background-color:white;}")
 
-        #Layout
+        #Radio buttons
+        radio1 = QtGui.QRadioButton("&Shells")
+        radio2 = QtGui.QRadioButton("S&pectrum")
+        radio3 = QtGui.QRadioButton("&W and T")
+
+        radio1.setChecked(True)
+
+        radio4 = QtGui.QRadioButton("S&pectrum")
+        radio5 = QtGui.QRadioButton("&W and T")
+
+        radio5.setChecked(True)
+
+        #Group boxes
+        graphsBox = QtGui.QGroupBox("Visualized results")
+        textsBox = QtGui.QGroupBox("Model parameters")
+        tableBox = QtGui.QGroupBox("Tabulated results")
+        radioBox = QtGui.QGroupBox()
+        radioBox2 = QtGui.QGroupBox()
+
+        #Layouts: bottom up
         self.graph_subsublayout = QtGui.QHBoxLayout()
         self.graph_subsublayout.addWidget(self.graph_label)
         self.graph_subsublayout.addWidget(self.graph_button)
+
+        #For textbox
+        textlayout = QtGui.QHBoxLayout()
+        textlayout.addWidget(self.outputLabel)
+
+        #self.spectrum_subsublayout = QtGui.QHBoxLayout()
+        #self.spectrum_subsublayout.addWidget(self.spectrum_span_button)
+        #self.spectrum_subsublayout.addWidget(self.spectrum_label)
+        #self.spectrum_subsublayout.addWidget(self.spectrum_button)
+        
+        radiolayout1 = QtGui.QHBoxLayout()
+        radiolayout1.addWidget(radio1)
+        radiolayout1.addWidget(radio2)
+        radiolayout1.addWidget(radio3)
+        radiolayout1.addStretch(1)
+        radioBox.setLayout(radiolayout1)
+
+        radiolayout2 = QtGui.QHBoxLayout()
+        radiolayout2.addWidget(radio4)
+        radiolayout2.addWidget(radio5)
+        radioBox2.setLayout(radiolayout2)
 
         self.graph_sublayout = QtGui.QVBoxLayout()
         self.graph_sublayout.addLayout(self.graph_subsublayout)
         self.graph_sublayout.addWidget(self.graph)
 
-        self.spectrum_subsublayout = QtGui.QHBoxLayout()
-        self.spectrum_subsublayout.addWidget(self.spectrum_span_button)
-        self.spectrum_subsublayout.addWidget(self.spectrum_label)
-        self.spectrum_subsublayout.addWidget(self.spectrum_button)
-        
-        self.spectrum_sublayout = QtGui.QVBoxLayout()
-        self.spectrum_sublayout.addLayout(self.spectrum_subsublayout)
-        self.spectrum_sublayout.addWidget(self.spectrum_line_info_button)
-        self.spectrum_sublayout.addWidget(self.spectrum)
-        self.spectrum_sublayout.addWidget(self.spectrum.toolbar)
+        #self.spectrum_sublayout = QtGui.QVBoxLayout()
+        #self.spectrum_sublayout.addLayout(self.spectrum_subsublayout)
+        #self.spectrum_sublayout.addWidget(self.spectrum_line_info_button)
+        #self.spectrum_sublayout.addWidget(self.spectrum)
+        #self.spectrum_sublayout.addWidget(self.spectrum.toolbar)
+
+        tableslayout = QtGui.QVBoxLayout()
+        tableslayout.addWidget(radioBox2)
+        tableslayout.addWidget(self.tableview)
+        tableBox.setLayout(tableslayout)
+
+        visualayout = QtGui.QVBoxLayout()
+        visualayout.addWidget(radioBox)
+        visualayout.addLayout(self.graph_sublayout)
+        graphsBox.setLayout(visualayout)
 
         self.layout = QtGui.QHBoxLayout()
-        self.layout.addWidget(self.tableview)
-        self.layout.addLayout(self.graph_sublayout)
-        self.layout.addLayout(self.spectrum_sublayout)
-                
-        self.setLayout(self.layout)
+        self.layout.addWidget(graphsBox)
+        textntablelayout = QtGui.QVBoxLayout()
+        textsBox.setLayout(textlayout)
+        textntablelayout.addWidget(textsBox)
+        textntablelayout.addWidget(tableBox)
 
-    def show_model(self, model=None):
-        if model:
-            self.change_model(model)
-        self.tableview.setModel(self.tablemodel)
-        self.plot_model()
-        self.plot_spectrum()
-        self.show()
+        self.layout.addLayout(textntablelayout)                
+        self.setLayout(self.layout)
 
     def update_data(self, model=None):
         if model:
