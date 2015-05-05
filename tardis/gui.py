@@ -17,6 +17,10 @@ else:
 from astropy import units as u
 from tardis import analysis, util
 
+from tardis import resource_rc
+#Run this command before importing resource_rc
+#pyside-rcc resources.qrc -o resource_rc.py
+
 # def current_ion_index(index, index_list):
 #     if not index in index_list:
 #         return None
@@ -106,19 +110,19 @@ class ModelViewer(QtGui.QWidget):
         self.graph_button.menu().addAction('Ws').triggered.connect(self.change_graph_to_ws)
         
         #Widgets for plot of spectrum
-        self.spectrum = MatplotlibWidget(self)
-        self.spectrum_label = QtGui.QLabel('Select Spectrum:')
-        self.spectrum_button = QtGui.QToolButton()
-        self.spectrum_button.setText('spec_flux_angstrom')
-        self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
-        self.spectrum_button.menu().addAction('spec_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
-        self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
-        self.spectrum_span_button = QtGui.QPushButton('Show Wavelength Range')
-        self.spectrum_span_button.clicked.connect(self.spectrum.show_span)
-        self.spectrum_line_info_button = QtGui.QPushButton('Show Line Info')
-        self.spectrum_line_info_button.hide()
-        self.spectrum_line_info_button.clicked.connect(self.spectrum.show_line_info)
+        #self.spectrum = MatplotlibWidget(self)
+        #self.spectrum_label = QtGui.QLabel('Select Spectrum:')
+        #self.spectrum_button = QtGui.QToolButton()
+        #self.spectrum_button.setText('spec_flux_angstrom')
+        #self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
+        #self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
+        #self.spectrum_button.menu().addAction('spec_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
+        #self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
+        #self.spectrum_span_button = QtGui.QPushButton('Show Wavelength Range')
+        #self.spectrum_span_button.clicked.connect(self.spectrum.show_span)
+        #self.spectrum_line_info_button = QtGui.QPushButton('Show Line Info')
+        #self.spectrum_line_info_button.hide()
+        #self.spectrum_line_info_button.clicked.connect(self.spectrum.show_line_info)
 
         #Table widget
         self.tablemodel = SimpleTableModel([['Shell: '], ["Rad. temp", "Ws"]], (1, 0))
