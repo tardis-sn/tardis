@@ -99,30 +99,16 @@ class ModelViewer(QtGui.QWidget):
         #Setting QWidget properties
         self.setGeometry(20, 35, 1250, 500)
 
-        #Widgets for plot of shells
-        self.graph = MatplotlibWidget(self, 'model')
-        self.graph_label = QtGui.QLabel('Select Property:')
-        self.graph_button = QtGui.QToolButton()
-        self.graph_button.setText('Rad. temp')
-        self.graph_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.graph_button.setMenu(QtGui.QMenu(self.graph_button))
-        self.graph_button.menu().addAction('Rad. temp').triggered.connect(self.change_graph_to_t_rads)
-        self.graph_button.menu().addAction('Ws').triggered.connect(self.change_graph_to_ws)
+        #Shells widget
+        self.shellWidget = self.makeShellWidget()
         
-        #Widgets for plot of spectrum
-        #self.spectrum = MatplotlibWidget(self)
-        #self.spectrum_label = QtGui.QLabel('Select Spectrum:')
-        #self.spectrum_button = QtGui.QToolButton()
-        #self.spectrum_button.setText('spec_flux_angstrom')
-        #self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        #self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
-        #self.spectrum_button.menu().addAction('spec_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
-        #self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
-        #self.spectrum_span_button = QtGui.QPushButton('Show Wavelength Range')
-        #self.spectrum_span_button.clicked.connect(self.spectrum.show_span)
-        #self.spectrum_line_info_button = QtGui.QPushButton('Show Line Info')
-        #self.spectrum_line_info_button.hide()
-        #self.spectrum_line_info_button.clicked.connect(self.spectrum.show_line_info)
+        #Spectrum widget
+        self.spectrumWidget = self.makeSpectrumWidget()
+
+        #Plot tab widget
+        self.plotTabWidget = QtGui.QTabWidget()
+        self.plotTabWidget.addTab(self.shellWidget,"&Shells")
+        self.plotTabWidget.addTab(self.spectrumWidget, "S&pectrum")
 
         #Table widget
         self.tablemodel = SimpleTableModel([['Shell: '], ["Rad. temp", "Ws"]], (1, 0))
@@ -138,11 +124,6 @@ class ModelViewer(QtGui.QWidget):
         self.outputLabel.setStyleSheet("QLabel{background-color:white;}")
 
         #Radio buttons
-        radio1 = QtGui.QRadioButton("&Shells")
-        radio2 = QtGui.QRadioButton("S&pectrum")
-        radio3 = QtGui.QRadioButton("&W and T")
-
-        radio1.setChecked(True)
 
         radio4 = QtGui.QRadioButton("S&pectrum")
         radio5 = QtGui.QRadioButton("&W and T")
@@ -153,44 +134,16 @@ class ModelViewer(QtGui.QWidget):
         graphsBox = QtGui.QGroupBox("Visualized results")
         textsBox = QtGui.QGroupBox("Model parameters")
         tableBox = QtGui.QGroupBox("Tabulated results")
-        radioBox = QtGui.QGroupBox()
         radioBox2 = QtGui.QGroupBox()
-
-        #Layouts: bottom up
-        self.graph_subsublayout = QtGui.QHBoxLayout()
-        self.graph_subsublayout.addWidget(self.graph_label)
-        self.graph_subsublayout.addWidget(self.graph_button)
 
         #For textbox
         textlayout = QtGui.QHBoxLayout()
         textlayout.addWidget(self.outputLabel)
 
-        #self.spectrum_subsublayout = QtGui.QHBoxLayout()
-        #self.spectrum_subsublayout.addWidget(self.spectrum_span_button)
-        #self.spectrum_subsublayout.addWidget(self.spectrum_label)
-        #self.spectrum_subsublayout.addWidget(self.spectrum_button)
-        
-        radiolayout1 = QtGui.QHBoxLayout()
-        radiolayout1.addWidget(radio1)
-        radiolayout1.addWidget(radio2)
-        radiolayout1.addWidget(radio3)
-        radiolayout1.addStretch(1)
-        radioBox.setLayout(radiolayout1)
-
         radiolayout2 = QtGui.QHBoxLayout()
         radiolayout2.addWidget(radio4)
         radiolayout2.addWidget(radio5)
         radioBox2.setLayout(radiolayout2)
-
-        self.graph_sublayout = QtGui.QVBoxLayout()
-        self.graph_sublayout.addLayout(self.graph_subsublayout)
-        self.graph_sublayout.addWidget(self.graph)
-
-        #self.spectrum_sublayout = QtGui.QVBoxLayout()
-        #self.spectrum_sublayout.addLayout(self.spectrum_subsublayout)
-        #self.spectrum_sublayout.addWidget(self.spectrum_line_info_button)
-        #self.spectrum_sublayout.addWidget(self.spectrum)
-        #self.spectrum_sublayout.addWidget(self.spectrum.toolbar)
 
         tableslayout = QtGui.QVBoxLayout()
         tableslayout.addWidget(radioBox2)
@@ -198,8 +151,7 @@ class ModelViewer(QtGui.QWidget):
         tableBox.setLayout(tableslayout)
 
         visualayout = QtGui.QVBoxLayout()
-        visualayout.addWidget(radioBox)
-        visualayout.addLayout(self.graph_sublayout)
+        visualayout.addWidget(self.plotTabWidget)
         graphsBox.setLayout(visualayout)
 
         self.layout = QtGui.QHBoxLayout()
@@ -211,6 +163,62 @@ class ModelViewer(QtGui.QWidget):
 
         self.layout.addLayout(textntablelayout)                
         self.setLayout(self.layout)
+
+    def makeShellWidget(self):
+        
+        #Widgets for plot of shells
+        self.graph = MatplotlibWidget(self, 'model')
+        self.graph_label = QtGui.QLabel('Select Property:')
+        self.graph_button = QtGui.QToolButton()
+        self.graph_button.setText('Rad. temp')
+        self.graph_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
+        self.graph_button.setMenu(QtGui.QMenu(self.graph_button))
+        self.graph_button.menu().addAction('Rad. temp').triggered.connect(self.change_graph_to_t_rads)
+        self.graph_button.menu().addAction('Ws').triggered.connect(self.change_graph_to_ws)
+
+        #Layouts: bottom up
+        self.graph_subsublayout = QtGui.QHBoxLayout()
+        self.graph_subsublayout.addWidget(self.graph_label)
+        self.graph_subsublayout.addWidget(self.graph_button)
+
+        self.graph_sublayout = QtGui.QVBoxLayout()
+        self.graph_sublayout.addLayout(self.graph_subsublayout)
+        self.graph_sublayout.addWidget(self.graph)
+
+        containerWidget = QtGui.QWidget()
+        containerWidget.setLayout(self.graph_sublayout)
+        return containerWidget
+
+    def makeSpectrumWidget(self):
+        self.spectrum = MatplotlibWidget(self)
+        self.spectrum_label = QtGui.QLabel('Select Spectrum:')
+        self.spectrum_button = QtGui.QToolButton()
+        self.spectrum_button.setText('spec_flux_angstrom')
+        self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
+        self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
+        self.spectrum_button.menu().addAction('spec_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
+        self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom').triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
+        self.spectrum_span_button = QtGui.QPushButton('Show Wavelength Range')
+        self.spectrum_span_button.clicked.connect(self.spectrum.show_span)
+        self.spectrum_line_info_button = QtGui.QPushButton('Show Line Info')
+        self.spectrum_line_info_button.hide()
+        self.spectrum_line_info_button.clicked.connect(self.spectrum.show_line_info)
+
+        self.spectrum_subsublayout = QtGui.QHBoxLayout()
+        self.spectrum_subsublayout.addWidget(self.spectrum_span_button)
+        self.spectrum_subsublayout.addWidget(self.spectrum_label)
+        self.spectrum_subsublayout.addWidget(self.spectrum_button)
+
+        self.spectrum_sublayout = QtGui.QVBoxLayout()
+        self.spectrum_sublayout.addLayout(self.spectrum_subsublayout)
+        self.spectrum_sublayout.addWidget(self.spectrum_line_info_button)
+        self.spectrum_sublayout.addWidget(self.spectrum)
+        self.spectrum_sublayout.addWidget(self.spectrum.toolbar)
+
+        containerWidget = QtGui.QWidget()
+        containerWidget.setLayout(self.spectrum_sublayout)
+        return containerWidget
+
 
     def update_data(self, model=None):
         if model:
