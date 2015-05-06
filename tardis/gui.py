@@ -1,5 +1,12 @@
 import numpy as np
 import matplotlib
+matplotlib.style.use('fivethirtyeight')
+matplotlib.rcParams['font.family']='serif'
+matplotlib.rcParams['font.size']=10.0
+matplotlib.rcParams['lines.linewidth']=1.0
+matplotlib.rcParams['axes.formatter.use_mathtext']=True
+matplotlib.rcParams['axes.edgecolor']=matplotlib.rcParams['grid.color']
+matplotlib.rcParams['axes.linewidth']=matplotlib.rcParams['grid.linewidth']
 #matplotlib.use('KtAgg')
 import matplotlib.pylab as plt
 import matplotlib.gridspec as gridspec
@@ -81,8 +88,8 @@ class Tardis(QtGui.QMainWindow):
             self.mdv.change_model(model)
         self.mdv.tableview.setModel(self.mdv.tablemodel)
         self.mdv.plot_model()
-        #self.mdv.plot_spectrum()
-        self.show()
+        self.mdv.plot_spectrum()
+        self.showMaximized()
 
 #The central widget
 class ModelViewer(QtGui.QWidget):
@@ -95,9 +102,6 @@ class ModelViewer(QtGui.QWidget):
         self.model = None
         self.shell_info = {}
         self.line_info = []
-
-        #Setting QWidget properties
-        self.setGeometry(20, 35, 1250, 500)
 
         #Shells widget
         self.shellWidget = self.makeShellWidget()
@@ -123,30 +127,17 @@ class ModelViewer(QtGui.QWidget):
         self.outputLabel.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
         self.outputLabel.setStyleSheet("QLabel{background-color:white;}")
 
-        #Radio buttons
-
-        radio4 = QtGui.QRadioButton("S&pectrum")
-        radio5 = QtGui.QRadioButton("&W and T")
-
-        radio5.setChecked(True)
 
         #Group boxes
         graphsBox = QtGui.QGroupBox("Visualized results")
         textsBox = QtGui.QGroupBox("Model parameters")
         tableBox = QtGui.QGroupBox("Tabulated results")
-        radioBox2 = QtGui.QGroupBox()
 
         #For textbox
         textlayout = QtGui.QHBoxLayout()
         textlayout.addWidget(self.outputLabel)
 
-        radiolayout2 = QtGui.QHBoxLayout()
-        radiolayout2.addWidget(radio4)
-        radiolayout2.addWidget(radio5)
-        radioBox2.setLayout(radiolayout2)
-
         tableslayout = QtGui.QVBoxLayout()
-        tableslayout.addWidget(radioBox2)
         tableslayout.addWidget(self.tableview)
         tableBox.setLayout(tableslayout)
 
@@ -311,8 +302,10 @@ class ModelViewer(QtGui.QWidget):
         self.graph.dataplot = self.graph.ax1.plot(range(len(self.model.t_rads.value)), self.model.t_rads.value)
         self.graph.ax2.clear()
         self.graph.ax2.set_title('Shell View')
-        self.graph.ax2.set_xlabel('Arbitrary')
-        self.graph.ax2.set_ylabel('Arbitrary')
+        self.graph.ax2.set_xticklabels([])
+        self.graph.ax2.set_yticklabels([])
+        self.graph.ax2.grid = True
+
         self.shells = []
         t_rad_normalizer = colors.Normalize(vmin=self.model.t_rads.value.min(), vmax=self.model.t_rads.value.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, cmap=plt.cm.jet)
@@ -639,14 +632,14 @@ class MatplotlibWidget(FigureCanvas):
 
     def __init__(self, parent, fig=None):
         self.parent = parent
-        self.figure = Figure()
+        self.figure = Figure()#(frameon=False,facecolor=(1,1,1))
         self.cid = {}
         if fig != 'model':
             self.ax = self.figure.add_subplot(111)
         else:
             self.gs = gridspec.GridSpec(2, 1, height_ratios=[1, 3])
             self.ax1 = self.figure.add_subplot(self.gs[0])
-            self.ax2 = self.figure.add_subplot(self.gs[1])
+            self.ax2 = self.figure.add_subplot(self.gs[1])#, aspect='equal')
         self.cb = None
         self.span = None
 
