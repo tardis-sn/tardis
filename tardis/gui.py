@@ -64,7 +64,7 @@ class Tardis(QtGui.QMainWindow):
 
         #Statusbar
         statusbr = self.statusBar()
-        self.successLabel = QtGui.QLabel("Converged")
+        self.successLabel = QtGui.QLabel('<font color="red"><b>Calculation did not converge</b></font>')
         self.successLabel.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
         statusbr.addPermanentWidget(self.successLabel)
         statusbr.showMessage("Ready", 5000) 
@@ -86,6 +86,9 @@ class Tardis(QtGui.QMainWindow):
     def show_model(self, model=None):
         if model:
             self.mdv.change_model(model)
+        if model.converged:
+            self.successLabel.setText('<font color="green">converged</font>')
+        self.mdv.fillOutputLabel()
         self.mdv.tableview.setModel(self.mdv.tablemodel)
         self.mdv.plot_model()
         self.mdv.plot_spectrum()
@@ -123,10 +126,9 @@ class ModelViewer(QtGui.QWidget):
                                self.on_header_double_clicked)
 
         #Label for text output
-        self.outputLabel = QtGui.QLabel("<b>Model's parameters will be displayed here</b><br/> Html sylesheets can be used meaning that the text can be formatted.")
+        self.outputLabel = QtGui.QLabel()
         self.outputLabel.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
         self.outputLabel.setStyleSheet("QLabel{background-color:white;}")
-
 
         #Group boxes
         graphsBox = QtGui.QGroupBox("Visualized results")
@@ -155,8 +157,19 @@ class ModelViewer(QtGui.QWidget):
         self.layout.addLayout(textntablelayout)                
         self.setLayout(self.layout)
 
+    def fillOutputLabel(self):
+        labeltext = 'Iterations requested: {} <br/> Iterations executed:  {}<br/>\
+                     Model converged     : {} <br/> Simulation Time    :  {} s <br/>\
+                     Inner Temperature   : {} K <br/> Number of packets  :  {}<br/>\
+                     Inner Luminosity    : {}'\
+                     .format(self.model.iterations_max_requested, self.model.iterations_executed,\
+                        '<font color="green"><b>True</b></font>' if self.model.converged else \
+                        '<font color="red"><b>False</b></font>', self.model.time_of_simulation.value,\
+                        self.model.t_inner.value, self.model.current_no_of_packets,\
+                        self.model.luminosity_inner)
+        self.outputLabel.setText(labeltext)
+
     def makeShellWidget(self):
-        
         #Widgets for plot of shells
         self.graph = MatplotlibWidget(self, 'model')
         self.graph_label = QtGui.QLabel('Select Property:')
