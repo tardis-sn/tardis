@@ -45,7 +45,7 @@ from tardis import resource_rc
 #The main TARDIS window
 class Tardis(QtGui.QMainWindow):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config=None, atom_data=None):
         # assumes that qt has already been initialized by starting IPython with the flag "--pylab=qt"
         app = QtCore.QCoreApplication.instance()
         if app is None:
@@ -58,24 +58,46 @@ class Tardis(QtGui.QMainWindow):
 
         super(Tardis, self).__init__(parent)
 
-        #Central Widget
-        self.mdv = ModelViewer() 
-        self.setCentralWidget(self.mdv)
+        #Check if configuration file was provided
+        self.mode = 'passive'
+        if config is not None:
+            from tardis import run_tardis
+            self.mode = 'active'
 
         #Statusbar
         statusbr = self.statusBar()
         self.successLabel = QtGui.QLabel('<font color="red"><b>Calculation did not converge</b></font>')
         self.successLabel.setFrameStyle(QtGui.QFrame.StyledPanel | QtGui.QFrame.Sunken)
         statusbr.addPermanentWidget(self.successLabel)
+        self.modeLabel = QtGui.QLabel('Passive mode')
+        statusbr.addPermanentWidget(self.modeLabel)
+        statusbr.showMessage(self.mode, 5000)
         statusbr.showMessage("Ready", 5000) 
 
-        #Menubar
-        self.fileMenu = self.menuBar().addMenu("&File")
+        #Actions
         quitAction = QtGui.QAction("&Quit", self)
         quitAction.setIcon(QtGui.QIcon(":/closeicon.png"))
         quitAction.triggered.connect(self.close)
+        
+        self.viewMdv = QtGui.QAction("View &Model", self)
+        self.viewMdv.setIcon(QtGui.QIcon(":/mdvswitch.png"))
+        self.viewMdv.setCheckable(True)
+        self.viewMdv.setChecked(True)
+        self.viewMdv.setEnabled(False)
+        self.viewMdv.triggered.connect(self.switchToMdv)
+        
+        self.viewForm = QtGui.QAction("&Edit Model", self)
+        self.viewForm.setIcon(QtGui.QIcon(":/formswitch.png"))
+        self.viewForm.setCheckable(True)
+        self.viewForm.setEnabled(False)
+        self.viewForm.triggered.connect(self.switchToForm)
+
+        #Menubar
+        self.fileMenu = self.menuBar().addMenu("&File")
         self.fileMenu.addAction(quitAction)
         self.viewMenu = self.menuBar().addMenu("&View")
+        self.viewMenu.addAction(self.viewMdv)
+        self.viewMenu.addAction(self.viewForm)
         self.helpMenu = self.menuBar().addMenu("&Help")
 
         #Toolbar
@@ -83,18 +105,63 @@ class Tardis(QtGui.QMainWindow):
         fileToolbar.setObjectName("FileToolBar")  
         fileToolbar.addAction(quitAction)
 
+        viewToolbar = self.addToolBar("View")
+        viewToolbar.setObjectName("ViewToolBar")
+        viewToolbar.addAction(self.viewMdv)
+        viewToolbar.addAction(self.viewForm)
+
+        #Central Widget
+        self.stackedWidget = QtGui.QStackedWidget()
+        self.mdv = ModelViewer() 
+        self.stackedWidget.addWidget(self.mdv)
+        
+        #In case of active mode
+        if self.mode == 'active':
+            self.formWidget = ConfigEditor()
+            self.stackedWidget.addWidget(self.formWidget)
+            self.viewForm.setEnabled(True)
+            self.viewMdv.setEnabled(True)
+            model = run_tardis(config, atom_data)
+            self.show_model(model)
+
+        self.setCentralWidget(self.stackedWidget)
+
     def show_model(self, model=None):
         if model:
             self.mdv.change_model(model)
         if model.converged:
             self.successLabel.setText('<font color="green">converged</font>')
+        if self.mode == 'active':
+            self.modeLabel.setText('Active Mode')
+
         self.mdv.fillOutputLabel()
         self.mdv.tableview.setModel(self.mdv.tablemodel)
         self.mdv.plot_model()
         self.mdv.plot_spectrum()
         self.showMaximized()
 
-#The central widget
+    #Note to self: Add slot decorator decorator. And try to get all the
+    #view changer slots into a single function
+    def switchToMdv(self):
+        self.stackedWidget.setCurrentIndex(0)
+        self.viewForm.setChecked(False)
+    def switchToForm(self):
+        self.stackedWidget.setCurrentIndex(1)
+        self.viewMdv.setChecked(False)
+
+
+class ConfigEditor(QtGui.QWidget):
+    
+    def __init__(self, parent=None):
+
+        super(ConfigEditor, self).__init__(parent)
+        
+        self.layout = QtGui.QHBoxLayout()
+        self.label = QtGui.QLabel('this is the form ;(')
+        self.layout.addWidget(self.label)
+        self.setLayout(self.layout)
+        
+
 class ModelViewer(QtGui.QWidget):
 
     def __init__(self, parent=None):
