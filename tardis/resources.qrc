@@ -1,5 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
 <file alias="closeicon.png">images/closeicon.png</file>
+<file alias="formswitch.png">images/formswitch.png</file>
+<file alias="mdvswitch.png">images/mdvswitch.png</file>
 </qresource>
 </RCC>
