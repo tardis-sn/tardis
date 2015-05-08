@@ -25,6 +25,7 @@ from astropy import units as u
 from tardis import analysis, util
 
 from tardis import resource_rc
+import yaml
 #Run this command before importing resource_rc
 #pyside-rcc resources.qrc -o resource_rc.py
 
@@ -117,8 +118,11 @@ class Tardis(QtGui.QMainWindow):
         
         #In case of active mode
         if self.mode == 'active':
-            self.formWidget = ConfigEditor()
-            self.stackedWidget.addWidget(self.formWidget)
+            self.formWidget = ConfigEditor(config)
+            #scrollarea
+            scrollarea = QtGui.QScrollArea()
+            scrollarea.setWidget(self.formWidget)
+            self.stackedWidget.addWidget(scrollarea)
             self.viewForm.setEnabled(True)
             self.viewMdv.setEnabled(True)
             model = run_tardis(config, atom_data)
@@ -152,15 +156,128 @@ class Tardis(QtGui.QMainWindow):
 
 class ConfigEditor(QtGui.QWidget):
     
-    def __init__(self, parent=None):
+    def __init__(self, yamlconfigfile, parent=None):
 
         super(ConfigEditor, self).__init__(parent)
         
-        self.layout = QtGui.QHBoxLayout()
-        self.label = QtGui.QLabel('this is the form ;(')
-        self.layout.addWidget(self.label)
-        self.setLayout(self.layout)
+        #Configurations from the input and template    
+        self.configDict = yaml.load(open(yamlconfigfile))
+        self.configTemplate = {'tardis_config_version':[True, None],
+                                'supernova':{ 'luminosity_requested':[True, '1 solLum'],
+                                              'time_explosion':[True, None],
+                                              'distance':[False, None],
+                                              'luminosity_wavelength_start':[False, '0 angstrom'],
+                                              'luminosity_wavelength_end':[False, 'inf angstrom'],
+                                            },
+                                'atom_data':[True,'File Browser'],
+                                'plasma':{ 'initial_t_inner':[False, '-1K'],
+                                           'initial_t_rad':[False,'10000K'],
+                                           'disable_electron_scattering':[False, False],
+                                           'ionization':[True, None],
+                                           'excitation':[True, None],
+                                           'radiative_rates_type':[True, None],
+                                           'line_interaction_type':[True, None],
+                                           'w_epsilon':[False, 1e-10],
+                                           'delta_treatment':[False, None],
+                                           'nlte':{ 'species':[False, []],
+                                                    'coronal_approximation':[False, False],
+                                                    'classical_nebular':[False, False]
+                                                  }
+                                          },
+                                'model':{ 'structure':{'type':[True, ['file', 'specific']],
+                                          'filename':[True, None],
+                                          'filetype':[True, None],
+                                          'v_inner_boundary':[False, '0 km/s'],
+                                          'v_outer_boundary':[False, 'inf km/s'],
+                                          'velocity':[True, None],
+                                          'density':{ 'type':[True, ['branch85_w7','exponential','power_law', 'uniform']],
+                                                      'w7_time_0':[False, '0.000231481 day'],
+                                                      'w7_rho_0':[False, '3e29 g/cm^3'],
+                                                      'w7_v_0': [False, '1 km/s'],
+                                                      'time_0':[True, None],
+                                                      'rho_0':[True, None],
+                                                      'v_0': [True, None], 
+                                                      'exponent': [True, None],
+                                                      'value':[True, None] 
+                                                    }
+                                                      },
+                                          'abundances':{ 'type':[True, ['file', 'uniform']],
+                                                         'filename':[True, None],
+                                                         'filetype':[False, None]
+                                                        }
+                                        },
+                                'montecarlo':{'seed':[False, 23111963],
+                                              'no_of_packets':[True, None],
+                                              'iterations':[True, None],
+                                              'black_body_sampling':[False, ['50 angstrom', '200000 angstrom', '1000000 angstrom']],
+                                              'last_no_of_packets':[False, -1],
+                                              'no_of_virtual_packets':[False, 0],
+                                              'enable_reflective_inner_boundary':[False, False],
+                                              'inner_boundary_albedo':[False, 0.0],
+                                              'convergence_strategy':{ 'type':[True, ['damped', 'specific']],
+                                                                       't_inner_update_exponent':[False, -0.5],
+                                                                       'lock_t_inner_cycles':[False, 1],
+                                                                       'hold_iterations':[True, 3],
+                                                                       'fraction':[True, 0.8],
+                                                                       'damping_constant':[False, 0.5],
+                                                                       'threshold':[True, None],
+                                                                       't_inner':{ 'damping_constant':[False, 0.5],
+                                                                                   'threshold': [False, None]
+                                                                                 },
+                                                                       't_rad':{'damping_constant':[False, 0.5],
+                                                                                'threshold':[True, None]
+                                                                                },
+                                                                        'w':{'damping_constant': [False, 0.5],
+                                                                             'threshold': [True, None]
+                                                                             }
+                                                                    }
+                                              },
+                                'spectrum':None
+                                }
         
+        self.layout = QtGui.QVBoxLayout()
+        
+        #Convert config dict to widgets
+        for key in self.configDict:
+            self.layout.addWidget(self.widgetFromDict(key, self.configDict[key]))
+
+        #Recalculate button
+        button = QtGui.QPushButton('Recalculate')
+        self.layout.addStretch(1)
+        self.layout.addWidget(button)
+        button.clicked.connect(self.recalculate)
+
+        #Finally put them all in
+        self.setLayout(self.layout)
+
+    def recalculate(self):
+        pass
+
+    def widgetFromDict(self, k, val):
+        if isinstance(val, dict):
+            groupbox = QtGui.QGroupBox(k)
+            layout = QtGui.QVBoxLayout()
+            for key in val:
+                layout.addWidget(self.widgetFromDict(key, val[key]))
+            groupbox.setLayout(layout)
+            return groupbox
+        else:
+            if isinstance(val, list):
+                pass
+            else:
+                return LabelLineEdit(labeltext=k)
+
+class LabelLineEdit(QtGui.QWidget):
+    def __init__(self, labeltext, parent=None):
+
+        super(LabelLineEdit, self).__init__(parent)
+
+        self.label = QtGui.QLabel(labeltext)
+        self.edit = QtGui.QLineEdit()
+        layout = QtGui.QHBoxLayout()
+        layout.addWidget(self.label)
+        layout.addWidget(self.edit)
+        self.setLayout(layout)
 
 class ModelViewer(QtGui.QWidget):
 
