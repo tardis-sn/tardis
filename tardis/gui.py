@@ -162,7 +162,127 @@ class ConfigEditor(QtGui.QWidget):
         
         #Configurations from the input and template    
         self.configDict = yaml.load(open(yamlconfigfile))
-        self.configTemplate = {'tardis_config_version':[True, None],
+
+        self.layout = QtGui.QVBoxLayout()
+
+        #Make tree
+        self.trmodel = TreeModel()
+        self.colView = QtGui.QColumnView()
+        self.colView.setModel(self.trmodel)
+        self.colView.setFixedWidth(256*5) #Five columns of width 256 each can be visible at once
+        self.layout.addWidget(self.colView)
+
+        #Recalculate button
+        button = QtGui.QPushButton('Recalculate')
+        self.layout.addWidget(button)
+        button.clicked.connect(self.recalculate)
+
+        #Finally put them all in
+        self.setLayout(self.layout)
+
+    def recalculate(self):
+        pass
+
+class Node(object):
+    """Object that is an item of the tree"""
+
+    def __init__(self, data, parent=None):
+        self.parent = parent
+        self.children = []
+        self.data = data
+
+    def appendChild(self, child):
+        self.children.append(child)
+        child.parent = self
+
+    def getChild(self, i):
+        if i < self.numChildren():
+            return self.children[i]
+        else:
+            return None
+
+    def numChildren(self):
+        return len(self.children)
+
+    def numColumns(self):
+        return len(self.data)
+
+    def getData(self, i):
+        try:
+            return self.data[i]
+        except IndexError:
+            return None
+
+    def getParent(self):
+        return self.parent
+
+    def getIndexOfSelf(self):
+        if self.parent:
+            return self.parent.children.index(self)
+        else:
+            return 0
+
+    #--------------------------------------------------------------------------------------------------------------
+    #For editable model
+    def insertChildren(self, position, count, columns):
+        if (position < 0) or (position > self.numChildren()):
+            return False
+
+        for row in range(count):
+            data = [None for v in range(columns)]
+            item = Node(data, self)
+            self.children.insert(position, item)
+
+        return True 
+
+    def removeChildren(self, position, count):
+        if (position < 0) or ((position + count) > self.numChildren()):
+            return False
+
+        for row in range(count):
+            self.children.pop(position)
+
+        return True
+
+    def insertColumns(self, position, columns):
+        if (position < 0) or (position > self.numColumns()):
+            return False
+
+        for column in range(columns):
+            self.data.insert(position, None)
+
+        for child in self.children:
+            child.insertColumns(position, columns)
+
+        return True
+
+    def removeColumns(self, position, columns):
+        if (position < 0) or ((position + columns) > self.numColumns()):
+            return False
+
+        for column in range(columns):
+            self.itemData.pop(position)
+
+        for child in self.children:
+            child.removeColumns(position, columns)
+
+        return True
+
+    def setData(self, column, value):
+        if column < 0 or column >= self.numColumns():
+            return False
+
+        self.data[column] = value
+
+        return True
+
+#Note to self: For columnview headerdata seems to be unused. Try removing.
+class TreeModel(QtCore.QAbstractItemModel):
+    def __init__(self, parent=None):
+        super(TreeModel, self).__init__(parent)
+
+        self.root = Node(["column A"])
+        dictionary ={'tardis_config_version':[True, None],
                                 'supernova':{ 'luminosity_requested':[True, '1 solLum'],
                                               'time_explosion':[True, None],
                                               'distance':[False, None],
@@ -234,50 +354,159 @@ class ConfigEditor(QtGui.QWidget):
                                               },
                                 'spectrum':None
                                 }
-        
-        self.layout = QtGui.QVBoxLayout()
-        
-        #Convert config dict to widgets
-        for key in self.configDict:
-            self.layout.addWidget(self.widgetFromDict(key, self.configDict[key]))
+        self.treeFromDict(dictionary, self.root)
 
-        #Recalculate button
-        button = QtGui.QPushButton('Recalculate')
-        self.layout.addStretch(1)
-        self.layout.addWidget(button)
-        button.clicked.connect(self.recalculate)
-
-        #Finally put them all in
-        self.setLayout(self.layout)
-
-    def recalculate(self):
-        pass
-
-    def widgetFromDict(self, k, val):
-        if isinstance(val, dict):
-            groupbox = QtGui.QGroupBox(k)
-            layout = QtGui.QVBoxLayout()
-            for key in val:
-                layout.addWidget(self.widgetFromDict(key, val[key]))
-            groupbox.setLayout(layout)
-            return groupbox
-        else:
-            if isinstance(val, list):
-                pass
+    def treeFromDict(self, dictionary, root):
+        for key in dictionary:
+            child = Node([key])
+            root.appendChild(child)
+            if isinstance(dictionary[key], dict):
+                self.treeFromDict(dictionary[key], child)
+            elif isinstance(dictionary[key], list):
+                if dictionary[key][0]:
+                    data = child.getData(0)
+                    data = data + '*'
+                    child.setData(0, data)
+                leaf = Node([dictionary[key][1]])
+                child.appendChild(leaf)
             else:
-                return LabelLineEdit(labeltext=k)
+                leaf = Node([dictionary[key]])
+                child.appendChild(leaf)
 
-class LabelLineEdit(QtGui.QWidget):
-    def __init__(self, labeltext, parent=None):
+    def dictFromNode(self, node): 
+        children = [node.getChild(i) for i in range(node.numChildren())]
+        if len(children) > 1:
+            dictionary = {}
+            for nd in children:
+                dictionary[nd.getData(0)] = self.dictFromNode(nd)
+            return dictionary
+        elif len(children)==1:
+            return children[0].getData(0)
 
-        super(LabelLineEdit, self).__init__(parent)
+    def columnCount(self, index):
+        if index.isValid():
+            return index.internalPointer().numColumns()
+        else:
+            return self.root.numColumns()
 
-        self.label = QtGui.QLabel(labeltext)
-        self.edit = QtGui.QLineEdit()
-        layout = QtGui.QHBoxLayout()
-        layout.addWidget(self.label)
-        layout.addWidget(self.edit)
-        self.setLayout(layout)
+    def data(self, index, role):
+        if not index.isValid():
+            return None
+
+        if role != QtCore.Qt.DisplayRole:
+            return None
+
+        item = index.internalPointer()
+
+        return item.getData(index.column())
+
+    def flags(self, index):
+        if not index.isValid():
+            return QtCore.Qt.NoItemFlags
+        node = index.internalPointer()
+        if node.numChildren()==0:
+            return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
+
+        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable        
+
+    def getItem(self, index):
+        if index.isValid():
+            item = index.internalPointer()
+            if item:
+                return item
+
+        return self.root
+
+    def headerData(self, section, orientation, role):
+        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            return self.root.getData(section)
+
+        return None
+
+    def index(self, row, column, parent=QtCore.QModelIndex()):
+        if parent.isValid() and parent.column() != 0:
+            return QtCore.QModelIndex()
+
+        parentItem = self.getItem(parent)
+        childItem = parentItem.getChild(row)
+        if childItem:
+            return self.createIndex(row, column, childItem)
+        else:
+            return QtCore.QModelIndex()
+
+    def insertColumns(self, position, columns, parent=QtCore.QModelIndex()):
+        self.beginInsertColumns(parent, position, position + columns - 1)
+        success = self.root.insertColumns(position, columns)
+        self.endInsertColumns()
+
+        return success
+
+    def insertRows(self, position, rows, parent=QtCore.QModelIndex()):
+        parentItem = self.getItem(parent)
+        self.beginInsertRows(parent, position, position + rows - 1)
+        success = parentItem.insertChildren(position, rows,
+                self.rootItem.columnCount())
+        self.endInsertRows()
+
+        return success
+
+    def removeColumns(self, position, columns, parent=QtCore.QModelIndex()):
+        self.beginRemoveColumns(parent, position, position + columns - 1)
+        success = self.root.removeColumns(position, columns)
+        self.endRemoveColumns()
+
+        if self.root.numColumns() == 0:
+            self.removeRows(0, rowCount())
+
+        return success
+
+    def removeRows(self, position, rows, parent=QtCore.QModelIndex()):
+        parentItem = self.getItem(parent)
+
+        self.beginRemoveRows(parent, position, position + rows - 1)
+        success = parentItem.removeChildren(position, rows)
+        self.endRemoveRows()
+
+        return success
+
+    def parent(self, index):
+        if not index.isValid():
+            return QtCore.QModelIndex()
+
+        childItem = index.internalPointer()
+        parentItem = childItem.getParent()
+
+        if parentItem == self.root:
+            return QtCore.QModelIndex()
+
+        return self.createIndex(parentItem.getIndexOfSelf(), 0, parentItem)
+
+    def rowCount(self, parent=QtCore.QModelIndex()):
+        parentItem = self.getItem(parent)
+
+        return parentItem.numChildren()
+
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        if role != QtCore.Qt.EditRole:
+            return False
+
+        item = self.getItem(index)
+        result = item.setData(index.column(), value)
+
+        if result:
+            self.dataChanged.emit(index, index)
+            print self.dictFromNode(self.root)
+        return result
+
+    def setHeaderData(self, section, orientation, value, role=QtCore.Qt.EditRole):
+        if role != QtCore.Qt.EditRole or orientation != QtCore.Qt.Horizontal:
+            return False
+
+        result = self.root.setData(section, value)
+        if result:
+            self.headerDataChanged.emit(orientation, section, section)
+
+        return result
 
 class ModelViewer(QtGui.QWidget):
 
