@@ -174,6 +174,7 @@ class ConfigEditor(QtGui.QWidget):
 
         #Recalculate button
         button = QtGui.QPushButton('Recalculate')
+        button.setFixedWidth(90)
         self.layout.addWidget(button)
         button.clicked.connect(self.recalculate)
 
