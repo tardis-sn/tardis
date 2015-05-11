@@ -1,28 +1,4 @@
-#include "cmontecarlo.h"
-
-INLINE tardis_error_t
-line_search (double *nu, double nu_insert, int64_t number_of_lines,
-	     int64_t * result)
-{
-  tardis_error_t ret_val = TARDIS_ERROR_OK;
-  int64_t imin, imax;
-  imin = 0;
-  imax = number_of_lines - 1;
-  if (nu_insert > nu[imin])
-    {
-      *result = imin;
-    }
-  else if (nu_insert < nu[imax])
-    {
-      *result = imax + 1;
-    }
-  else
-    {
-      ret_val = reverse_binary_search (nu, nu_insert, imin, imax, result);
-      *result = *result + 1;
-    }
-  return ret_val;
-}
+#include "search_routines.h"
 
 inline tardis_error_t
 reverse_binary_search (double *x, double x_insert,
@@ -106,6 +82,30 @@ binary_search (double *x, double x_insert, int64_t imin,
 	{
 	  *result = imin;
 	}
+    }
+  return ret_val;
+}
+
+INLINE tardis_error_t
+line_search (double *nu, double nu_insert, int64_t number_of_lines,
+	     int64_t * result)
+{
+  tardis_error_t ret_val = TARDIS_ERROR_OK;
+  int64_t imin, imax;
+  imin = 0;
+  imax = number_of_lines - 1;
+  if (nu_insert > nu[imin])
+    {
+      *result = imin;
+    }
+  else if (nu_insert < nu[imax])
+    {
+      *result = imax + 1;
+    }
+  else
+    {
+      ret_val = reverse_binary_search (nu, nu_insert, imin, imax, result);
+      *result = *result + 1;
     }
   return ret_val;
 }
