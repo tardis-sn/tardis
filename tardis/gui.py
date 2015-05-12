@@ -161,15 +161,88 @@ class ConfigEditor(QtGui.QWidget):
         super(ConfigEditor, self).__init__(parent)
         
         #Configurations from the input and template    
-        self.configDict = yaml.load(open(yamlconfigfile))
+        configDict = yaml.load(open(yamlconfigfile))
+        templatedictionary ={'tardis_config_version':[True, 'v1.0'],
+                                'supernova':{ 'luminosity_requested':[True, '1 solLum'],
+                                              'time_explosion':[True, None],
+                                              'distance':[False, None],
+                                              'luminosity_wavelength_start':[False, '0 angstrom'],
+                                              'luminosity_wavelength_end':[False, 'inf angstrom'],
+                                            },
+                                'atom_data':[True,'File Browser'],
+                                'plasma':{ 'initial_t_inner':[False, '-1K'],
+                                           'initial_t_rad':[False,'10000K'],
+                                           'disable_electron_scattering':[False, False],
+                                           'ionization':[True, None],
+                                           'excitation':[True, None],
+                                           'radiative_rates_type':[True, None],
+                                           'line_interaction_type':[True, None],
+                                           'w_epsilon':[False, 1e-10],
+                                           'delta_treatment':[False, None],
+                                           'nlte':{ 'species':[False, []],
+                                                    'coronal_approximation':[False, False],
+                                                    'classical_nebular':[False, False]
+                                                  }
+                                          },
+                                'model':{ 'structure':{'type':[True, ['file|_:_|filename|_:_|filetype|_:_|v_inner_boundary|_:_|v_outer_boundary', 'specific|_:_|velocity|_:_|density']],
+                                          'filename':[True, None],
+                                          'filetype':[True, None],
+                                          'v_inner_boundary':[False, '0 km/s'],
+                                          'v_outer_boundary':[False, 'inf km/s'],
+                                          'velocity':[True, None],
+                                          'density':{ 'type':[True, ['branch85_w7|_:_|w7_time_0|_:_|w7_time_0|_:_|w7_time_0','exponential|_:_|time_0|_:_|rho_0|_:_|v_0','power_law|_:_|time_0|_:_|rho_0|_:_|v_0|_:_|exponent', 'uniform|_:_|value']],
+                                                      'w7_time_0':[False, '0.000231481 day'],
+                                                      'w7_rho_0':[False, '3e29 g/cm^3'],
+                                                      'w7_v_0': [False, '1 km/s'],
+                                                      'time_0':[True, None],
+                                                      'rho_0':[True, None],
+                                                      'v_0': [True, None], 
+                                                      'exponent': [True, None],
+                                                      'value':[True, None] 
+                                                    }
+                                                      },
+                                          'abundances':{ 'type':[True, ['file|_:_|filetype|_:_|filename', 'uniform']],
+                                                         'filename':[True, None],
+                                                         'filetype':[False, None]
+                                                        }
+                                        },
+                                'montecarlo':{'seed':[False, 23111963],
+                                              'no_of_packets':[True, None],
+                                              'iterations':[True, None],
+                                              'black_body_sampling':[False, ['50 angstrom', '200000 angstrom', '1000000 angstrom']],
+                                              'last_no_of_packets':[False, -1],
+                                              'no_of_virtual_packets':[False, 0],
+                                              'enable_reflective_inner_boundary':[False, False],
+                                              'inner_boundary_albedo':[False, 0.0],
+                                              'convergence_strategy':{ 'type':[True, ['damped|_:_|damping_constant|_:_|t_inner|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|t_inner_update_exponent', 'specific|_:_|threshold|_:_|fraction|_:_|hold_iterations|_:_|t_inner|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|damping_constant|_:_|t_inner_update_exponent']],
+                                                                       't_inner_update_exponent':[False, -0.5],
+                                                                       'lock_t_inner_cycles':[False, 1],
+                                                                       'hold_iterations':[True, 3],
+                                                                       'fraction':[True, 0.8],
+                                                                       'damping_constant':[False, 0.5],
+                                                                       'threshold':[True, None],
+                                                                       't_inner':{ 'damping_constant':[False, 0.5],
+                                                                                   'threshold': [False, None]
+                                                                                 },
+                                                                       't_rad':{'damping_constant':[False, 0.5],
+                                                                                'threshold':[True, None]
+                                                                                },
+                                                                        'w':{'damping_constant': [False, 0.5],
+                                                                             'threshold': [True, None]
+                                                                             }
+                                                                    }
+                                              },
+                                'spectrum':[True, None]
+                                }
 
         self.layout = QtGui.QVBoxLayout()
 
         #Make tree
-        self.trmodel = TreeModel()
+        self.trmodel = TreeModel(templatedictionary)
         self.colView = QtGui.QColumnView()
         self.colView.setModel(self.trmodel)
         self.colView.setFixedWidth(256*5) #Five columns of width 256 each can be visible at once
+        self.colView.setItemDelegate(TreeDelegate(self))
         self.layout.addWidget(self.colView)
 
         #Recalculate button
@@ -181,6 +254,13 @@ class ConfigEditor(QtGui.QWidget):
         #Finally put them all in
         self.setLayout(self.layout)
 
+    def matchDicts(self, dict1, dict2): #dict1<=dict2
+        for key in dict1:
+            if not isinstance(dict2[key], dict):
+                dict2[key][1] = dict1[key]
+            else:
+                self.matchDicts(dict1[key], dict2[key])
+
     def recalculate(self):
         pass
 
@@ -191,6 +271,8 @@ class Node(object):
         self.parent = parent
         self.children = []
         self.data = data
+        self.siblings = {} #For 'type' fields. Will store the nodes to 
+                           #enable disable on selection
 
     def appendChild(self, child):
         self.children.append(child)
@@ -279,107 +361,79 @@ class Node(object):
 
 #Note to self: For columnview headerdata seems to be unused. Try removing.
 class TreeModel(QtCore.QAbstractItemModel):
-    def __init__(self, parent=None):
+    def __init__(self, dictionary, parent=None):
         super(TreeModel, self).__init__(parent)
 
         self.root = Node(["column A"])
-        dictionary ={'tardis_config_version':[True, None],
-                                'supernova':{ 'luminosity_requested':[True, '1 solLum'],
-                                              'time_explosion':[True, None],
-                                              'distance':[False, None],
-                                              'luminosity_wavelength_start':[False, '0 angstrom'],
-                                              'luminosity_wavelength_end':[False, 'inf angstrom'],
-                                            },
-                                'atom_data':[True,'File Browser'],
-                                'plasma':{ 'initial_t_inner':[False, '-1K'],
-                                           'initial_t_rad':[False,'10000K'],
-                                           'disable_electron_scattering':[False, False],
-                                           'ionization':[True, None],
-                                           'excitation':[True, None],
-                                           'radiative_rates_type':[True, None],
-                                           'line_interaction_type':[True, None],
-                                           'w_epsilon':[False, 1e-10],
-                                           'delta_treatment':[False, None],
-                                           'nlte':{ 'species':[False, []],
-                                                    'coronal_approximation':[False, False],
-                                                    'classical_nebular':[False, False]
-                                                  }
-                                          },
-                                'model':{ 'structure':{'type':[True, ['file', 'specific']],
-                                          'filename':[True, None],
-                                          'filetype':[True, None],
-                                          'v_inner_boundary':[False, '0 km/s'],
-                                          'v_outer_boundary':[False, 'inf km/s'],
-                                          'velocity':[True, None],
-                                          'density':{ 'type':[True, ['branch85_w7','exponential','power_law', 'uniform']],
-                                                      'w7_time_0':[False, '0.000231481 day'],
-                                                      'w7_rho_0':[False, '3e29 g/cm^3'],
-                                                      'w7_v_0': [False, '1 km/s'],
-                                                      'time_0':[True, None],
-                                                      'rho_0':[True, None],
-                                                      'v_0': [True, None], 
-                                                      'exponent': [True, None],
-                                                      'value':[True, None] 
-                                                    }
-                                                      },
-                                          'abundances':{ 'type':[True, ['file', 'uniform']],
-                                                         'filename':[True, None],
-                                                         'filetype':[False, None]
-                                                        }
-                                        },
-                                'montecarlo':{'seed':[False, 23111963],
-                                              'no_of_packets':[True, None],
-                                              'iterations':[True, None],
-                                              'black_body_sampling':[False, ['50 angstrom', '200000 angstrom', '1000000 angstrom']],
-                                              'last_no_of_packets':[False, -1],
-                                              'no_of_virtual_packets':[False, 0],
-                                              'enable_reflective_inner_boundary':[False, False],
-                                              'inner_boundary_albedo':[False, 0.0],
-                                              'convergence_strategy':{ 'type':[True, ['damped', 'specific']],
-                                                                       't_inner_update_exponent':[False, -0.5],
-                                                                       'lock_t_inner_cycles':[False, 1],
-                                                                       'hold_iterations':[True, 3],
-                                                                       'fraction':[True, 0.8],
-                                                                       'damping_constant':[False, 0.5],
-                                                                       'threshold':[True, None],
-                                                                       't_inner':{ 'damping_constant':[False, 0.5],
-                                                                                   'threshold': [False, None]
-                                                                                 },
-                                                                       't_rad':{'damping_constant':[False, 0.5],
-                                                                                'threshold':[True, None]
-                                                                                },
-                                                                        'w':{'damping_constant': [False, 0.5],
-                                                                             'threshold': [True, None]
-                                                                             }
-                                                                    }
-                                              },
-                                'spectrum':None
-                                }
-        self.treeFromDict(dictionary, self.root)
+        self.disabledNodes = []
+        self.typenodes = []
+        self.dictToTree(dictionary, self.root)
 
-    def treeFromDict(self, dictionary, root):
+    def dictToTree(self, dictionary, root):
+        #Construct tree with all nodes
+        self.treeFromNode(dictionary, root)
+
+        #Append siblings to type nodes
+        for node in self.typenodes: #For every type node
+            parent = node.getParent()
+            sibsdict = {}
+            for i in range(parent.numChildren()):
+                sibsdict[parent.getChild(i).getData(0)] = parent.getChild(i)
+
+            typesleaf = node.getChild(0)
+            for i in range(typesleaf.numColumns()):
+                sibstrings = typesleaf.getData(i).split('|_:_|')
+            
+                typesleaf.setData(i, sibstrings[0])
+                sibslist = []
+                for j in range(1, len(sibstrings)):
+                    if sibstrings[j] in sibsdict:
+                        sibslist.append(sibsdict[sibstrings[j]])
+
+                typesleaf.siblings[sibstrings[0]] = sibslist
+            
+            #Then append siblings of current selection for all type nodes to
+            #disabled nodes
+            
+            for i in range(1,typesleaf.numColumns()):
+                key = typesleaf.getData(i)
+                for nd in typesleaf.siblings[key]:
+                    self.disabledNodes.append(nd)
+
+
+    def treeFromNode(self, dictionary, root):
         for key in dictionary:
             child = Node([key])
             root.appendChild(child)
             if isinstance(dictionary[key], dict):
-                self.treeFromDict(dictionary[key], child)
+                self.treeFromNode(dictionary[key], child)
             elif isinstance(dictionary[key], list):
-                if dictionary[key][0]:
-                    data = child.getData(0)
-                    data = data + '*'
-                    child.setData(0, data)
-                leaf = Node([dictionary[key][1]])
+                #if dictionary[key][0]:
+                #    data = child.getData(0)
+                #    data = data + '*'
+                #    child.setData(0, data)
+
+                if isinstance(dictionary[key][1], list):
+                    leaf = Node(dictionary[key][1])    
+                else:
+                    leaf = Node([dictionary[key][1]])
+
                 child.appendChild(leaf)
-            else:
-                leaf = Node([dictionary[key]])
-                child.appendChild(leaf)
+                if key == 'type':
+                    self.typenodes.append(child)
+            #else: 
+            #    leaf = Node([dictionary[key]])
+            #    child.appendChild(leaf)
 
     def dictFromNode(self, node): 
         children = [node.getChild(i) for i in range(node.numChildren())]
         if len(children) > 1:
             dictionary = {}
             for nd in children:
-                dictionary[nd.getData(0)] = self.dictFromNode(nd)
+                if nd in self.disabledNodes:
+                    pass
+                else:
+                    dictionary[nd.getData(0)] = self.dictFromNode(nd)
             return dictionary
         elif len(children)==1:
             return children[0].getData(0)
@@ -404,7 +458,11 @@ class TreeModel(QtCore.QAbstractItemModel):
     def flags(self, index):
         if not index.isValid():
             return QtCore.Qt.NoItemFlags
+
         node = index.internalPointer()
+        if (node.getParent() in self.disabledNodes) or (node in self.disabledNodes):
+            return QtCore.Qt.NoItemFlags
+
         if node.numChildren()==0:
             return QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable
 
@@ -508,6 +566,50 @@ class TreeModel(QtCore.QAbstractItemModel):
             self.headerDataChanged.emit(orientation, section, section)
 
         return result
+
+class TreeDelegate(QtGui.QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super(TreeDelegate, self).__init__(parent)
+
+    def createEditor(self, parent, option, index):
+        node = index.internalPointer()
+        if node.numColumns()>1:
+            combobox = QtGui.QComboBox(parent)
+            combobox.addItems([node.getData(i) for i in range(node.numColumns())])
+            combobox.setEditable(False)
+            return combobox
+        else:
+            return QtGui.QStyledItemDelegate.createEditor(self, parent, option, index)
+
+    def setModelData(self, editor, model, index):
+        node = index.internalPointer()
+
+        if node.numColumns() > 1 and node.getParent().getData(0) != 'type':
+            selectedIndex = editor.currentIndex()
+            firstItem = node.getData(0)
+            node.setData(0, editor.currentText())
+            node.setData(selectedIndex, firstItem)
+
+        elif node.numColumns() > 1 and node.getParent().getData(0) == 'type':
+            selectedIndex = editor.currentIndex()
+            firstItem = node.getData(0)
+            node.setData(0, editor.currentText())
+            node.setData(selectedIndex, firstItem)
+
+            itemsToDisable = node.siblings[firstItem]
+            itemsToEnable = node.siblings[editor.currentText()]
+
+            for nd in itemsToDisable:
+                model.disabledNodes.append(nd)
+
+            for nd in itemsToEnable:
+                if nd in model.disabledNodes:
+                    model.disabledNodes.remove(nd) 
+
+        else:
+            QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
+
+        print model.dictFromNode(model.root) 
 
 class ModelViewer(QtGui.QWidget):
 
