@@ -618,7 +618,17 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
             combobox.setEditable(False)
             return combobox
         else:
-            return QtGui.QStyledItemDelegate.createEditor(self, parent, option, index)
+            #return QtGui.QStyledItemDelegate.createEditor(self, parent, option, index)
+            editor =  QtGui.QLineEdit(parent)
+            editor.setText(str(node.getData(0)))
+            editor.returnPressed.connect(self.closeAndCommit)
+            return editor
+
+    def closeAndCommit(self):
+        editor = self.sender()
+        if isinstance(editor, QtGui.QLineEdit):
+            self.commitData.emit(editor)
+            self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.NoHint)
 
     def setModelData(self, editor, model, index):
         node = index.internalPointer()
@@ -626,17 +636,17 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
         if node.numColumns() > 1 and node.getParent().getData(0) != 'type':
             selectedIndex = editor.currentIndex()
             firstItem = node.getData(0)
-            node.setData(0, editor.currentText())
-            node.setData(selectedIndex, firstItem)
+            node.setData(0, str(editor.currentText()))
+            node.setData(selectedIndex, str(firstItem))
 
         elif node.numColumns() > 1 and node.getParent().getData(0) == 'type':
             selectedIndex = editor.currentIndex()
             firstItem = node.getData(0)
-            node.setData(0, editor.currentText())
-            node.setData(selectedIndex, firstItem)
+            node.setData(0, str(editor.currentText()))
+            node.setData(selectedIndex, str(firstItem))
 
             itemsToDisable = node.siblings[firstItem]
-            itemsToEnable = node.siblings[editor.currentText()]
+            itemsToEnable = node.siblings[str(editor.currentText())]
 
             for nd in itemsToDisable:
                 model.disabledNodes.append(nd)
@@ -645,10 +655,15 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
                 if nd in model.disabledNodes:
                     model.disabledNodes.remove(nd) 
 
+        elif isinstance(editor, QtGui.QLineEdit):
+            node.setData(0, str(editor.text()))
         else:
             QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
-
+            
         print model.dictFromNode(model.root) 
+        f = open('dictester.dat','w')
+        f.write(yaml.dump(model.dictFromNode(model.root)))
+        f.close()
 
 class ModelViewer(QtGui.QWidget):
 
