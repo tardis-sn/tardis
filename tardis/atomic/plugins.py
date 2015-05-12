@@ -6,15 +6,26 @@ class BaseAtomicDataType(object):
     __metaclass__ = ABCMeta
 
     _value = None
+    _name = None
 
     @abstractproperty
     def hdf_name(self):
-        raise NotImplementedError
+        pass
+
+    @property
+    def name(self):
+        if self._name is None:
+            return self.hdf_name
+        else:
+            return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
 
 
-    @abstractmethod
     def load_hdf(self, hdf_store):
-        self._value = self.hdf_name[self.hdf_name]
+        self._value = self.hdf_store[self.hdf_name]
 
     @property
     def value(self):
