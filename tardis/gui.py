@@ -26,6 +26,8 @@ from tardis import analysis, util
 
 from tardis import resource_rc
 import yaml
+
+import exceptions
 #Run this command before importing resource_rc
 #pyside-rcc resources.qrc -o resource_rc.py
 
@@ -209,7 +211,11 @@ class ConfigEditor(QtGui.QWidget):
                                 'montecarlo':{'seed':[False, 23111963],
                                               'no_of_packets':[True, None],
                                               'iterations':[True, None],
-                                              'black_body_sampling':[False, ['50 angstrom', '200000 angstrom', '1000000 angstrom']],
+                                              'black_body_sampling':{
+                                                                        'start': '1 angstrom',
+                                                                        'stop': '1000000 angstrom',
+                                                                        'num': '1.e+6',
+                                                                    },
                                               'last_no_of_packets':[False, -1],
                                               'no_of_virtual_packets':[False, 0],
                                               'enable_reflective_inner_boundary':[False, False],
@@ -234,6 +240,7 @@ class ConfigEditor(QtGui.QWidget):
                                               },
                                 'spectrum':[True, None]
                                 }
+        self.matchDicts(configDict, templatedictionary)
 
         self.layout = QtGui.QVBoxLayout()
 
@@ -256,10 +263,42 @@ class ConfigEditor(QtGui.QWidget):
 
     def matchDicts(self, dict1, dict2): #dict1<=dict2
         for key in dict1:
-            if not isinstance(dict2[key], dict):
-                dict2[key][1] = dict1[key]
+            if key in dict2:
+                if isinstance(dict2[key], dict):
+                    self.matchDicts(dict1[key], dict2[key])
+
+                elif isinstance(dict2[key], list):
+                    if isinstance(dict2[key][1], list):
+                        
+                        #options = dict2[key][1] #This is passed by reference. So copy the list manually.
+                        options = [dict2[key][1][i] for i in range(len(dict2[key][1]))]
+
+                        for i in range(len(options)):
+                            options[i] = options[i].split('|_:_|')[0]
+
+                        optionselected = dict1[key]
+
+                        if optionselected in options:
+                            indexofselected = options.index(optionselected)
+                            temp = dict2[key][1][0]
+                            
+                            dict2[key][1][0] = dict2[key][1][indexofselected]
+                            dict2[key][1][indexofselected] = temp
+                            
+                            
+                        else:
+                            print 'The selected and available options'
+                            print optionselected
+                            print options
+                            raise exceptions.IOError("An invalid option was provided in the input file: ")
+                                #+str(key)+'='+optionselected)+" options="+str(options))
+
+                else:
+                    dict2[key] = dict1[key]
             else:
-                self.matchDicts(dict1[key], dict2[key])
+                toappend = [False, dict1[key]]
+                dict2[key] = toappend
+
 
     def recalculate(self):
         pass
@@ -554,7 +593,7 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         if result:
             self.dataChanged.emit(index, index)
-            print self.dictFromNode(self.root)
+            #print self.dictFromNode(self.root)
         return result
 
     def setHeaderData(self, section, orientation, value, role=QtCore.Qt.EditRole):
