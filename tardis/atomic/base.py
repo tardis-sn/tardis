@@ -24,29 +24,3 @@ class AtomicData(object):
             super(AtomicData, self).__getattribute__(item)
 
 
-class AtomicDataLeg(AtomicData):
-    _atom_data = None
-
-    def __init__(self, hdf_store, data_types):
-        super_object = super(AtomicDataLeg, self)
-        super_object.__init__(hdf_store, data_types)
-
-
-    @property
-    def atom_data(self):
-        return  # The new atom data with old shape
-
-
-    @atom_data.setter
-    def atom_data(self, value):
-        """
-        This function returns the basic atomic data in the same way as the old atomic.py
-
-
-        :param value:
-        :return: numpy
-        """
-        # Do stuff with value
-        self._atom_data = value
-
-
