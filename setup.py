@@ -118,3 +118,8 @@ setup(name=PACKAGENAME + '-sn',
       entry_points=entry_points,
       **package_info
 )
+
+#Compiling the resource file for the gui
+import subprocess
+subprocess.call(['pyside-rcc', 'tardis/resources.qrc',\
+ '-o', 'tardis/resource_rc.py'])

@@ -256,7 +256,7 @@ class ConfigEditor(QtGui.QWidget):
         button = QtGui.QPushButton('Recalculate')
         button.setFixedWidth(90)
         self.layout.addWidget(button)
-        button.clicked.connect(self.recalculate)
+        button.clicked.connect(self.recalculate) 
 
         #Finally put them all in
         self.setLayout(self.layout)
@@ -655,7 +655,7 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
                 if nd in model.disabledNodes:
                     model.disabledNodes.remove(nd) 
 
-        elif isinstance(editor, QtGui.QLineEdit):
+        elif isinstance(editor, QtGui.QLineEdit): 
             node.setData(0, str(editor.text()))
         else:
             QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
