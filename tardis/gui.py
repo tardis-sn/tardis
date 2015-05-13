@@ -186,13 +186,16 @@ class ConfigEditor(QtGui.QWidget):
                                                     'classical_nebular':[False, False]
                                                   }
                                           },
-                                'model':{ 'structure':{'type':[True, ['file|_:_|filename|_:_|filetype|_:_|v_inner_boundary|_:_|v_outer_boundary', 'specific|_:_|velocity|_:_|density']],
+                                'model':{ 'structure':{'type':[True, ['file|_:_|filename|_:_|filetype|_:_|v_inner_boundary|_:_|v_outer_boundary', \
+                                                        'specific|_:_|velocity|_:_|density']],
                                           'filename':[True, None],
                                           'filetype':[True, None],
                                           'v_inner_boundary':[False, '0 km/s'],
                                           'v_outer_boundary':[False, 'inf km/s'],
                                           'velocity':[True, None],
-                                          'density':{ 'type':[True, ['branch85_w7|_:_|w7_time_0|_:_|w7_time_0|_:_|w7_time_0','exponential|_:_|time_0|_:_|rho_0|_:_|v_0','power_law|_:_|time_0|_:_|rho_0|_:_|v_0|_:_|exponent', 'uniform|_:_|value']],
+                                          'density':{ 'type':[True, ['branch85_w7|_:_|w7_time_0|_:_|w7_time_0|_:_|w7_time_0',\
+                                                        'exponential|_:_|time_0|_:_|rho_0|_:_|v_0','power_law|_:_|time_0|_:_|rho_0|_:_|v_0|_:_|exponent',\
+                                                        'uniform|_:_|value']],
                                                       'w7_time_0':[False, '0.000231481 day'],
                                                       'w7_rho_0':[False, '3e29 g/cm^3'],
                                                       'w7_v_0': [False, '1 km/s'],
@@ -220,7 +223,9 @@ class ConfigEditor(QtGui.QWidget):
                                               'no_of_virtual_packets':[False, 0],
                                               'enable_reflective_inner_boundary':[False, False],
                                               'inner_boundary_albedo':[False, 0.0],
-                                              'convergence_strategy':{ 'type':[True, ['damped|_:_|damping_constant|_:_|t_inner|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|t_inner_update_exponent', 'specific|_:_|threshold|_:_|fraction|_:_|hold_iterations|_:_|t_inner|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|damping_constant|_:_|t_inner_update_exponent']],
+                                              'convergence_strategy':{ 'type':[True, \
+                                              ['damped|_:_|damping_constant|_:_|t_inner|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|t_inner_update_exponent',\
+                                               'specific|_:_|threshold|_:_|fraction|_:_|hold_iterations|_:_|t_inner|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|damping_constant|_:_|t_inner_update_exponent']],
                                                                        't_inner_update_exponent':[False, -0.5],
                                                                        'lock_t_inner_cycles':[False, 1],
                                                                        'hold_iterations':[True, 3],
@@ -290,8 +295,8 @@ class ConfigEditor(QtGui.QWidget):
                             print 'The selected and available options'
                             print optionselected
                             print options
-                            raise exceptions.IOError("An invalid option was provided in the input file: ")
-                                #+str(key)+'='+optionselected)+" options="+str(options))
+                            raise exceptions.IOError("An invalid option was provided in the input file")
+                            #+str(key)+'='+optionselected)+" options="+str(options))
 
                 else:
                     dict2[key] = dict1[key]
@@ -310,8 +315,8 @@ class Node(object):
         self.parent = parent
         self.children = []
         self.data = data
-        self.siblings = {} #For 'type' fields. Will store the nodes to 
-                           #enable disable on selection
+        self.siblings = {}  #For 'type' fields. Will store the nodes to 
+                            #enable disable on selection
 
     def appendChild(self, child):
         self.children.append(child)
@@ -346,49 +351,49 @@ class Node(object):
 
     #--------------------------------------------------------------------------------------------------------------
     #For editable model
-    def insertChildren(self, position, count, columns):
-        if (position < 0) or (position > self.numChildren()):
-            return False
+    # def insertChildren(self, position, count, columns):
+    #     if (position < 0) or (position > self.numChildren()):
+    #         return False
 
-        for row in range(count):
-            data = [None for v in range(columns)]
-            item = Node(data, self)
-            self.children.insert(position, item)
+    #     for row in range(count):
+    #         data = [None for v in range(columns)]
+    #         item = Node(data, self)
+    #         self.children.insert(position, item)
 
-        return True 
+    #     return True 
 
-    def removeChildren(self, position, count):
-        if (position < 0) or ((position + count) > self.numChildren()):
-            return False
+    # def removeChildren(self, position, count):
+    #     if (position < 0) or ((position + count) > self.numChildren()):
+    #         return False
 
-        for row in range(count):
-            self.children.pop(position)
+    #     for row in range(count):
+    #         self.children.pop(position)
 
-        return True
+    #     return True
 
-    def insertColumns(self, position, columns):
-        if (position < 0) or (position > self.numColumns()):
-            return False
+    # def insertColumns(self, position, columns):
+    #     if (position < 0) or (position > self.numColumns()):
+    #         return False
 
-        for column in range(columns):
-            self.data.insert(position, None)
+    #     for column in range(columns):
+    #         self.data.insert(position, None)
 
-        for child in self.children:
-            child.insertColumns(position, columns)
+    #     for child in self.children:
+    #         child.insertColumns(position, columns)
 
-        return True
+    #     return True
 
-    def removeColumns(self, position, columns):
-        if (position < 0) or ((position + columns) > self.numColumns()):
-            return False
+    # def removeColumns(self, position, columns):
+    #     if (position < 0) or ((position + columns) > self.numColumns()):
+    #         return False
 
-        for column in range(columns):
-            self.itemData.pop(position)
+    #     for column in range(columns):
+    #         self.itemData.pop(position)
 
-        for child in self.children:
-            child.removeColumns(position, columns)
+    #     for child in self.children:
+    #         child.removeColumns(position, columns)
 
-        return True
+    #     return True
 
     def setData(self, column, value):
         if column < 0 or column >= self.numColumns():
@@ -401,7 +406,7 @@ class Node(object):
 #Note to self: For columnview headerdata seems to be unused. Try removing.
 class TreeModel(QtCore.QAbstractItemModel):
     def __init__(self, dictionary, parent=None):
-        super(TreeModel, self).__init__(parent)
+        QtCore.QAbstractItemModel.__init__(self, parent)
 
         self.root = Node(["column A"])
         self.disabledNodes = []
@@ -608,7 +613,7 @@ class TreeModel(QtCore.QAbstractItemModel):
 
 class TreeDelegate(QtGui.QStyledItemDelegate):
     def __init__(self, parent=None):
-        super(TreeDelegate, self).__init__(parent)
+        QtGui.QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
         node = index.internalPointer()
