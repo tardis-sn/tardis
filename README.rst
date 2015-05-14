@@ -14,6 +14,10 @@ TARDIS
 .. image:: https://img.shields.io/coveralls/tardis-sn/tardis.svg
   :target: https://coveralls.io/r/tardis-sn/tardis
 
+.. image:: https://zenodo.org/badge/5756/tardis-sn/tardis.svg   
+  :target: http://dx.doi.org/10.5281/zenodo.17630
+
+
 TARDIS is a tool that creates synthetic observations (spectra) for exploding stars (supernovae).
 
 Documentation can be found at http://tardis.readthedocs.org.
