@@ -104,9 +104,4 @@ int64_t montecarlo_one_packet_loop (storage_model_t * storage,
 				    rpacket_t * packet,
 				    int64_t virtual_packet);
 
-tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
-			     int packet_index, int virtual_packet_flag);
-
-void initialize_random_kit (unsigned long seed);
-
 #endif // TARDIS_CMONTECARLO_H
