@@ -18,14 +18,17 @@ from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationTo
 import os
 if os.environ.get('QT_API', None) is None:
     from PyQt4 import QtGui, QtCore
-else:
+    #from tardis import resource_rc_pyqt
+elif os.environ.get('QT_API', None)=='pyside':
     from PySide import QtGui, QtCore
+    #from tardis import resource_rc_pyside
     
 from astropy import units as u
 from tardis import analysis, util
 
-from tardis import resource_rc
 import yaml
+
+import tardis
 
 import exceptions
 #Run this command before importing resource_rc
@@ -47,7 +50,7 @@ import exceptions
 
 #The main TARDIS window
 class Tardis(QtGui.QMainWindow):
-
+    
     def __init__(self, parent=None, config=None, atom_data=None):
         # assumes that qt has already been initialized by starting IPython with the flag "--pylab=qt"
         app = QtCore.QCoreApplication.instance()
@@ -60,6 +63,14 @@ class Tardis(QtGui.QMainWindow):
             app.exec_()
 
         super(Tardis, self).__init__(parent)
+
+        #path to icons folder
+        self.path = tardis.__file__
+        self.path = self.path.split('/')
+        self.path.pop()
+        self.path.append('images')
+        self.path = '/'.join(self.path)
+        self.path = self.path+'/'  
 
         #Check if configuration file was provided
         self.mode = 'passive'
@@ -79,18 +90,18 @@ class Tardis(QtGui.QMainWindow):
 
         #Actions
         quitAction = QtGui.QAction("&Quit", self)
-        quitAction.setIcon(QtGui.QIcon(":/closeicon.png"))
+        quitAction.setIcon(QtGui.QIcon(self.path + "closeicon.png"))
         quitAction.triggered.connect(self.close)
         
         self.viewMdv = QtGui.QAction("View &Model", self)
-        self.viewMdv.setIcon(QtGui.QIcon(":/mdvswitch.png"))
+        self.viewMdv.setIcon(QtGui.QIcon(self.path + "mdvswitch.png"))
         self.viewMdv.setCheckable(True)
         self.viewMdv.setChecked(True)
         self.viewMdv.setEnabled(False)
         self.viewMdv.triggered.connect(self.switchToMdv)
         
         self.viewForm = QtGui.QAction("&Edit Model", self)
-        self.viewForm.setIcon(QtGui.QIcon(":/formswitch.png"))
+        self.viewForm.setIcon(QtGui.QIcon(self.path + "formswitch.png"))
         self.viewForm.setCheckable(True)
         self.viewForm.setEnabled(False)
         self.viewForm.triggered.connect(self.switchToForm)
