@@ -65,12 +65,7 @@ class Tardis(QtGui.QMainWindow):
         super(Tardis, self).__init__(parent)
 
         #path to icons folder
-        self.path = tardis.__file__
-        self.path = self.path.split('/')
-        self.path.pop()
-        self.path.append('images')
-        self.path = '/'.join(self.path)
-        self.path = self.path+'/'  
+        self.path = os.path.join(tardis.__path__[0],'images')  
 
         #Check if configuration file was provided
         self.mode = 'passive'
@@ -90,18 +85,18 @@ class Tardis(QtGui.QMainWindow):
 
         #Actions
         quitAction = QtGui.QAction("&Quit", self)
-        quitAction.setIcon(QtGui.QIcon(self.path + "closeicon.png"))
+        quitAction.setIcon(QtGui.QIcon(os.path.join(self.path, 'closeicon.png')))
         quitAction.triggered.connect(self.close)
         
         self.viewMdv = QtGui.QAction("View &Model", self)
-        self.viewMdv.setIcon(QtGui.QIcon(self.path + "mdvswitch.png"))
+        self.viewMdv.setIcon(QtGui.QIcon(os.path.join(self.path,'mdvswitch.png')))
         self.viewMdv.setCheckable(True)
         self.viewMdv.setChecked(True)
         self.viewMdv.setEnabled(False)
         self.viewMdv.triggered.connect(self.switchToMdv)
         
         self.viewForm = QtGui.QAction("&Edit Model", self)
-        self.viewForm.setIcon(QtGui.QIcon(self.path + "formswitch.png"))
+        self.viewForm.setIcon(QtGui.QIcon(os.path.join(self.path,'formswitch.png')))
         self.viewForm.setCheckable(True)
         self.viewForm.setEnabled(False)
         self.viewForm.triggered.connect(self.switchToForm)
