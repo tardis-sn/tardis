@@ -5,27 +5,29 @@ import pandas as pd
 class BaseAtomicDataType(object):
     __metaclass__ = ABCMeta
 
-    _value = None
+    _data = None
 
-    @abstractproperty
     def hdf_name(self):
         raise NotImplementedError
 
 
-    @abstractmethod
     def load_hdf(self, hdf_store):
-        self._value = self.hdf_name[self.hdf_name]
+        self._data = self.hdf_name[self.hdf_name]
 
     @property
-    def value(self):
-        if self._value is None:
+    def data(self):
+        if self._data is None:
             raise ValueError('{0} is not available please load first'.format(
                 self.__class__.__name__))
         else:
-            return self._value
+            return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
 
     def save_hdf(self, hdf_store):
-        hdf_store.put(self.hdf_name, self._value, format='table',
+        hdf_store.put(self.hdf_name, self._data, format='table',
                       data_columns=True)
 
 
