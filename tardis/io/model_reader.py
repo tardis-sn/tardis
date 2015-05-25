@@ -192,7 +192,7 @@ def read_artis_density(fname):
 
 
     velocity = u.Quantity(artis_model['velocities'], 'km/s').to('cm/s')
-    mean_density = u.Quantity(10 ** artis_model['mean_densities_0'], 'g/cm^3')
+    mean_density = u.Quantity(10 ** artis_model['mean_densities_0'], 'g/cm^3')[1:]
     v_inner, v_outer = velocity[:-1], velocity[1:]
 
     return time_of_model, artis_model['index'], v_inner, v_outer, mean_density
