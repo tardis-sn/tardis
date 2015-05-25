@@ -101,16 +101,16 @@ montecarlo:
     seed: 23111963171620
     no_of_packets : 2.e+4
     iterations: 100
-    convergence_criteria:
+    convergence_strategy:
         type: specific
         damping_constant: 0.5
         threshold: 0.05
         fraction: 0.8
-        hold: 3
+        hold_iterations: 3
 
 
 
-#    convergence_criteria:
+#    convergence_strategy:
 #        type: 'tighten'
 #        tighten_parameters: [1., 1., 0.75, 0.5, 0.25, 0.125]
 #        convergence_percentage: 0.01

@@ -2,27 +2,22 @@
 TARDIS
 ******
 
-.. image:: https://pypip.in/v/tardis-sn/badge.png
+.. image:: https://img.shields.io/pypi/v/tardis-sn.svg
   :target: https://pypi.python.org/pypi/tardis-sn
-  
-.. image:: https://pypip.in/d/tardis-sn/badge.png
+
+.. image:: https://img.shields.io/pypi/dm/tardis-sn.svg
   :target: https://pypi.python.org/pypi/tardis-sn
-  
 
-TARDIS is a code to create synthetic spectra for supernova ejecta
-
-Documentation at http://tardis.readthedocs.org
-
-
-Travis Build Status
--------------------
-
-.. image:: https://travis-ci.org/tardis-sn/tardis.png?branch=master
+.. image:: https://img.shields.io/travis/tardis-sn/tardis/master.svg
   :target: https://travis-ci.org/tardis-sn/tardis
 
-Test Coverage Status
---------------------
-
-.. image:: https://coveralls.io/repos/tardis-sn/tardis/badge.png
+.. image:: https://img.shields.io/coveralls/tardis-sn/tardis.svg
   :target: https://coveralls.io/r/tardis-sn/tardis
 
+.. image:: https://zenodo.org/badge/5756/tardis-sn/tardis.svg   
+  :target: http://dx.doi.org/10.5281/zenodo.17630
+
+
+TARDIS is a tool that creates synthetic observations (spectra) for exploding stars (supernovae).
+
+Documentation can be found at http://tardis.readthedocs.org.
