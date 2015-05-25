@@ -29,5 +29,5 @@ def test_number_density(included_he_atomic_data, abundance, density):
 def test_number_density(abundance):
     selected_atoms_module = SelectedAtoms(None)
     selected_atoms = selected_atoms_module.calculate(abundance)
-    assert np.isclose(selected_atoms, abundance.index)
+    assert selected_atoms==abundance.index
 
