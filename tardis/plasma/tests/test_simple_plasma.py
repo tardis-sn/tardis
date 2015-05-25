@@ -22,5 +22,5 @@ def included_he_atomic_data():
 def test_simple_lte_plasma(included_he_atomic_data, abundance, t_rad, density,
                            time_explosion):
     lte_plasma = LTEPlasma(t_rad, abundance, density, time_explosion,
-                           included_he_atomic_data)
+                           included_he_atomic_data())
 
