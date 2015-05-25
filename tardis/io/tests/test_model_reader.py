@@ -33,6 +33,3 @@ def test_read_simple_ascii_abundances(artis_abundances_fname):
     index, abundances = read_simple_ascii_abundances(artis_abundances_fname)
     assert len(abundances.columns) == 69
     assert np.isclose(abundances[23].ix[2], 2.672351e-08 , atol=1.e-12)
-
-
-
