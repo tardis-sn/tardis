@@ -1,22 +1,23 @@
 import pytest
 import numpy as np
 import os
+import tardis
 
 from tardis.plasma.properties.atomic import Levels, Lines, LinesLowerLevelIndex, LinesUpperLevelIndex, AtomicMass, IonizationData
 
 @pytest.fixture
 def included_he_atomic_data():
-    import tardis
+    from tardis import atomic
     atomic_db_fname = os.path.join(tardis.__path__[0], 'tests', 'data',
                                    'chianti_he_db.h5')
-    return tardis.atomic.AtomData.from_hdf5(atomic_db_fname)
+    return atomic.AtomData.from_hdf5(atomic_db_fname)
 
 def test_levels_property():
 
     levels_module = Levels(None)
     selected_atoms = [2]
     levels = levels_module.calculate(included_he_atomic_data(), selected_atoms)
-    assert np.isclose(levels.ix[2].ix[0].ix[1].energy, 3.17545416e-11)
+    assert np.isclose(levels.ix[2].ix[0].ix[1]['energy'], 3.17545416e-11)
 
 def test_lines_property():
 
