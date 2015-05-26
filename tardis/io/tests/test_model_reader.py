@@ -1,4 +1,5 @@
 import os
+
 from astropy import units as u
 import numpy as np
 import pytest
@@ -19,7 +20,7 @@ def artis_abundances_fname():
 
 def test_simple_read_artis_density(artis_density_fname):
     (time_of_model, index, v_inner, v_outer,
-     mean_density) = read_artis_density(artis_density_fname)
+        mean_density) = read_artis_density(artis_density_fname)
 
     assert np.isclose(0.00114661 * u.day, time_of_model, atol=1e-7 * u.day)
     assert np.isclose(mean_density[23], 0.2250048 * u.g / u.cm**3, atol=1.e-6
