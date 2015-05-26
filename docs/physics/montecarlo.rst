@@ -6,6 +6,52 @@ Radiative Monte Carlo
 
 .. :currentmodule:: tardis.montecarlo_multizone
 
+We assume the supernova is in homologous expansion and we assume that
+there is photon injection from an inner boundary and we assume an outer boundary
+where these photons can leave the simulation again.
+
+
+Montecarlo packets
+^^^^^^^^^^^^^^^^^^
+
+Montecarlo packets have a frequency, angle (:math:`\mu=\cos{\theta}` )
+and an energy: :math:`P(\nu, \mu, \epsilon)`. A large number  and are generated
+at the start of each Montecarlo run in TARDIS by drawing :math:`\nu` from a black-body distribution
+distribution with a mu drawn to be isotropic in angle for a half-sphere.
+
+These packets are then launched into the simulation and there are two possible
+outcomes for each packet.
+
+ * **packet leaves the simulation through the outer bound** and count towards the
+    spectrum
+ * **packet leaves the simulation through the inner boundary** and are lost
+    (reabsorbed)
+
+The packets can gain and loose energy throughout the simulation. If these packets
+scatter (through the various mechanisms), we transform into the comoving frame at
+that position :math:`v(r) = r / t_\textrm{explosion}`, where :math:`t_explosion`
+is the time since explosion with the doppler factor
+:math:`d_\textrm{rest \rightarrow comoving}` then change direction from
+:math:`\mu_\textrm{in}` to :math:`mu_\textrm{out}` and transform back and
+change the energy accordingly:
+
+.. math::
+    d_\textrm{rest \rightarrow comoving} = 1 - \mu_\textrm{in} v(r) / c \\
+    d_\textrm{rest \rightarrow comoving} = 1 - \mu_\textrm{out} v(r) / c \\
+    E_\textrm{after scatter} = E_\textrm{before scatter} \times \frac{1 - \mu_\textrm{in} v(r) / c}{1 - \mu_\textrm{out} v(r) / c}
+
+This way the montecarlo packets can gain or loose energy in the simulation:
+
+.. plot:: physics/pyplot/plot_mu_in_out_packet.py
+
+
+
+
+The spectrum is then generated as a weighted histogram. For each bin with edges
+:math:`\nu_{n}, \nu_{n+1}` we get all the packets that left the simulation through
+the outer boundary and add up their remaining energies.
+
+
 
 Montecarlo Geometry
 ^^^^^^^^^^^^^^^^^^^
@@ -22,7 +68,6 @@ The calculations for the distance to the inner boundary:
 
 .. image:: ../graphics/d_inner.png
     :width: 400
-
 
 
 
