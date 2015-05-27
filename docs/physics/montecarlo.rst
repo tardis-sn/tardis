@@ -15,9 +15,11 @@ Montecarlo packets
 ^^^^^^^^^^^^^^^^^^
 
 Montecarlo packets have a frequency, angle (:math:`\mu=\cos{\theta}` )
-and an energy: :math:`P(\nu, \mu, \epsilon)`. A large number  and are generated
-at the start of each Montecarlo run in TARDIS by drawing :math:`\nu` from a black-body distribution
-distribution with a mu drawn to be isotropic in angle for a half-sphere.
+and an energy: :math:`P(\nu, \mu, \epsilon)`. A large number :math:`n` are generated
+at the start of each Montecarlo run in TARDIS by drawing :math:`\nu` from a
+black-body distribution distribution with a :math:`\mu` being drawn from a
+:math:`\sqrt[2]{z}` distributeion and an
+energy that is :math:`1/n`.
 
 These packets are then launched into the simulation and there are two possible
 outcomes for each packet.
