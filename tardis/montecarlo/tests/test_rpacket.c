@@ -1,7 +1,9 @@
-#include "../src/rpacket.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <Python.h>
+
+#include "../src/rpacket.h"
+
 
 void test_rpacket_get_nu(){
 	rpacket_t * rp = (rpacket_t *) malloc(sizeof(rpacket_t));
