@@ -167,3 +167,11 @@ Before running, ensure that the directory ~/Library/Python/2.7/bin is in the app
     This has also been successfully tested on a clean MAC OS 10.9.1 (Mavericks) install.
 
 
+Installation Troubles (FAQ)
+===========================
+
+We highly encourage with any installation problems to try the recommended install
+method because this often fix problems. Here are some common problems when
+installing and their fixes:
+
+ * blah blah `python setup.py clean` blah blah `git -clean dfx` 
