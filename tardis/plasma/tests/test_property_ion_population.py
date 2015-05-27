@@ -1,14 +1,4 @@
-import pytest
-
 import numpy as np
-
-from tardis.plasma.properties.ion_population import (PhiSahaLTE,
-IonNumberDensity)
-from tardis.plasma.properties.general import (BetaRadiation, GElectron,
-NumberDensity)
-from tardis.plasma.properties.partition_function import (LevelBoltzmannFactor,
-LTEPartitionFunction)
-from tardis.plasma.properties.atomic import Levels, AtomicMass, IonizationData
 
 def test_phi_saha_lte(t_rad, beta_rad, g_electron, ionization_data,
         phi_saha_lte):
