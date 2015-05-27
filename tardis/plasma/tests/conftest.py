@@ -9,8 +9,10 @@ from tardis.plasma.properties.general import (BetaRadiation, GElectron,
 NumberDensity)
 from tardis.plasma.properties.partition_function import (LevelBoltzmannFactor,
 LTEPartitionFunction)
-from tardis.plasma.properties.atomic import Levels, AtomicMass, IonizationData
+from tardis.plasma.properties.atomic import (Levels, Lines, AtomicMass,
+IonizationData)
 from tardis.plasma.standard_plasmas import LTEPlasma
+from tardis.plasma.properties.level_population import LevelPopulationLTE
 
 @pytest.fixture
 def number_of_cells():
@@ -65,6 +67,11 @@ def levels(included_he_atomic_data, selected_atoms):
     return levels_module.calculate(included_he_atomic_data, selected_atoms)
 
 @pytest.fixture
+def lines(included_he_atomic_data, selected_atoms):
+    lines_module = Lines(None)
+    return lines_module.calculate(included_he_atomic_data, selected_atoms)
+
+@pytest.fixture
 def level_boltzmann_factor(levels, beta_rad):
     level_boltzmann_factor_module = LevelBoltzmannFactor(None)
     return level_boltzmann_factor_module.calculate(levels, beta_rad)
@@ -102,3 +109,9 @@ def ion_number_density(phi_saha_lte, partition_function, number_density):
     ion_number_density_module = IonNumberDensity(None)
     return ion_number_density_module.calculate(phi_saha_lte,
         partition_function, number_density)
+
+@pytest.fixture
+def level_population_lte(levels, partition_function, level_boltzmann_factor):
+    level_population_lte_module = LevelPopulationLTE(None)
+    return level_population_lte_module.calculate(levels,
+        partition_function, level_boltzmann_factor)
