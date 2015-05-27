@@ -7,7 +7,7 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactor,
 
 class LTEInputs(list):
     def __init__(self):
-        self.list = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
+        self.append = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
             Levels, Lines, AtomicData, Abundance, SelectedAtoms, AtomicMass,
             LTEPartitionFunction, LevelPopulationLTE, PhiSahaLTE, GElectron,
             IonizationData, Density, NumberDensity, IonNumberDensity,
