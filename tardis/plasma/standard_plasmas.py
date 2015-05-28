@@ -1,14 +1,14 @@
 import logging
 
 from tardis.plasma import BasePlasma
-from tardis.plasma.properties.property_collections import LTEInputs
+from tardis.plasma.properties.property_collections import LTEProperties
 
 logger = logging.getLogger(__name__)
 
 class LTEPlasma(BasePlasma):
 
     def __init__(self, t_rad, abundance, density, time_explosion, atomic_data):
-        plasma_modules = LTEInputs().list
+        plasma_modules = LTEProperties()
 
         super(LTEPlasma, self).__init__(plasma_modules=plasma_modules,
                                         t_rad=t_rad, abundance=abundance,
