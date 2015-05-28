@@ -5,11 +5,13 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactor,
     LinesUpperLevelIndex, TauSobolev, TRadiative, AtomicData, Abundance,
     Density, TimeExplosion)
 
-class LTEInputs(list):
+class LTEProperties(list):
     def __init__(self):
-        self.append = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
-            Levels, Lines, AtomicData, Abundance, SelectedAtoms, AtomicMass,
-            LTEPartitionFunction, LevelPopulationLTE, PhiSahaLTE, GElectron,
-            IonizationData, Density, NumberDensity, IonNumberDensity,
-            LevelNumberDensity, LinesLowerLevelIndex, LinesUpperLevelIndex,
-            TauSobolev, TimeExplosion]
+        properties = (BetaRadiation, LevelBoltzmannFactor, Levels, Lines, 
+            SelectedAtoms, AtomicMass, LTEPartitionFunction, 
+            LevelPopulationLTE, PhiSahaLTE, GElectron, IonizationData, 
+            NumberDensity, IonNumberDensity, LevelNumberDensity, 
+            LinesLowerLevelIndex, LinesUpperLevelIndex, TauSobolev,
+            TRadiative, Abundance, Density, TimeExplosion, AtomicData)
+        for module in properties:
+            self.append(module)
