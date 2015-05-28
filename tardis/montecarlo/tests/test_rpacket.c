@@ -14,3 +14,17 @@ test_rpacket_get_nu(){
 		PyErr_Format(PyExc_AssertionError, "value %g not %g", value, rpacket_get_nu(rp));
 	}
 }
+
+static PyMethodDef TestMethods[] = {
+	{ "test_rpacket_get_nu", test_rpacket_get_nu, METH_VARARGS },
+	{ NULL, NULL, 0, NULL }
+};
+
+
+/*
+ * Python calls this to let us initialize our module
+ */
+void inittest_cmontecarlo()
+{
+  (void) Py_InitModule("test_cmontecarlo", TestMethods);
+}
