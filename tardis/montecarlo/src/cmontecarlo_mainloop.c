@@ -152,6 +152,8 @@ montecarlo_serial_loop(storage_model_t * storage, int64_t openmp_threads,
 
 	for (ip = 0; ip <= npacket; ip++) {
 		storage->current_packet_id = ip;
+		rpacket_set_id(packet, ip);
+		rpacket_init(&packet, storage, ip, virtual_packet_flag);
 		assign_packet_todo(packet, 0, big_spectrum_virt_nu_todo_index,
 				   big_spectrum_virt_nu_todo_value,
 				   big_line_lists_j_blues_todo_index,
@@ -161,7 +163,6 @@ montecarlo_serial_loop(storage_model_t * storage, int64_t openmp_threads,
 		}
 		//printf("montecarlo_serial_loop - storage prt %p\n", storage);
 		//printf("montecarlo_serial_loop -storage->no_of_lines: %d\n",storage->no_of_lines);
-		rpacket_init(&packet, storage, ip, virtual_packet_flag);
 		if (virtual_packet_flag > 0) {
 			reabsorbed = montecarlo_one_packet(storage, packet, -1);
 		}

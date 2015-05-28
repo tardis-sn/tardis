@@ -17,12 +17,6 @@ from pandas import DataFrame
 import pandas as pd
 
 
-try:
-    import sqlparse
-
-    sqlparse_available = True
-except ImportError:
-    sqlparse_available = False
 
 logger = logging.getLogger(__name__)
 
@@ -231,9 +225,7 @@ def read_ion_cx_data(fname):
         ion_cx_th_data = h5_file['ionization_cx_threshold']
         ion_cx_sp_data = h5_file['ionization_cx_support']
         return ion_cx_th_data, ion_cx_sp_data
-    except IOError, err:
-        print(err.errno)
-        print(err)
+    except:
         logger.critical('Cannot import. Error opening the file to read ionization_cx')
 
 
@@ -350,14 +342,17 @@ class AtomData(object):
                         ion_cx_data=ion_cx_data)
 
         with h5py.File(fname, 'r') as h5_file:
-            atom_data.uuid1 = h5_file.attrs['uuid1']
-            atom_data.md5 = h5_file.attrs['md5']
-            atom_data.version = h5_file.attrs.get('database_version', None)
+            try:
+                atom_data.uuid1 = h5_file.attrs['uuid1']
+                atom_data.md5 = h5_file.attrs['md5']
+                atom_data.version = h5_file.attrs.get('database_version', None)
 
-            if atom_data.version is not None:
-                atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
+                if atom_data.version is not None:
+                    atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
 
-            logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
+                logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
+            except:
+                logger.warning("no md5 sum found")
 
         return atom_data
 

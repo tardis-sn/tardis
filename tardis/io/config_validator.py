@@ -7,6 +7,7 @@ import ast
 
 import numpy as np
 from astropy import units
+import os
 
 try:
     from astropy.units.core import UnitsException
@@ -18,7 +19,6 @@ from astropy import constants
 import yaml
 
 from tardis.atomic import atomic_symbols_data
-
 
 logger = logging.getLogger(__name__)
 

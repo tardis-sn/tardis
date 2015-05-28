@@ -268,6 +268,12 @@ montecarlo:
         mandatory: False
         help: Seed for the random number generator
 
+    openmp_threads:
+        property_type: int
+        default: 1
+        mandatory: False
+        help: The number of openmp threads. If set to 0 the code runs in the serial version. If set to 1 the code runs the parallel version with one thread
+
     no_of_packets:
         property_type: int
         default: None

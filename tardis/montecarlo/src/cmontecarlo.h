@@ -253,10 +253,10 @@ inline double rpacket_get_nu_line (rpacket_t * packet);
 
 inline void rpacket_set_nu_line (rpacket_t * packet, double nu_line);
 
-inline unsigned int rpacket_get_current_shell_id (rpacket_t * packet);
+inline int rpacket_get_current_shell_id (rpacket_t * packet);
 
 inline void rpacket_set_current_shell_id (rpacket_t * packet,
-					  unsigned int current_shell_id);
+					   int current_shell_id);
 
 inline unsigned int rpacket_get_next_line_id (rpacket_t * packet);
 
