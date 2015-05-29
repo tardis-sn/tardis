@@ -44,7 +44,7 @@ class TauSobolev(ProcessingPlasmaProperty):
 
     def get_g_lower(self, levels, lines_lower_level_index):
         if self._g_lower is None:
-            g_lower = np.array(levels.g.iloc[lines_lower_level_index],
+            g_lower = np.array(levels.g.ix[lines_lower_level_index],
                                      dtype=np.float64)
             self._g_lower = g_lower[np.newaxis].T
         return self._g_lower
@@ -52,7 +52,7 @@ class TauSobolev(ProcessingPlasmaProperty):
 
     def get_g_upper(self, levels, lines_upper_level_index):
         if self._g_upper is None:
-            g_upper = np.array(levels.g.iloc[lines_upper_level_index],
+            g_upper = np.array(levels.g.ix[lines_upper_level_index],
                                      dtype=np.float64)
             self._g_upper = g_upper[np.newaxis].T
         return self._g_upper
