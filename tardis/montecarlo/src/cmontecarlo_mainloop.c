@@ -8,6 +8,8 @@
 static void *safe_malloc(size_t n)
 {
 	void *p = malloc(n);
+	//This is for testing
+	memset(p,0,n);
 	if (!p) {
 		perror("CRITICAL - Error in malloc");
 		abort();
@@ -21,7 +23,7 @@ montecarlo_main_loop(storage_model_t * storage,
 {
 	//printf("montecarlo_main_loop - storage prt %p\n", storage);
 	//printf("montecarlo_main_loop -storage->no_of_lines: %d\n",storage->no_of_lines);
-	if (openmp_threads == 0) {
+	if (openmp_threads == 1) {
 		montecarlo_serial_loop(storage, openmp_threads,
 				       virtual_packet_flag);
 	} else {
@@ -153,7 +155,7 @@ montecarlo_serial_loop(storage_model_t * storage, int64_t openmp_threads,
 	for (ip = 0; ip <= npacket; ip++) {
 		storage->current_packet_id = ip;
 		rpacket_set_id(packet, ip);
-		rpacket_init(&packet, storage, ip, virtual_packet_flag);
+		rpacket_init(packet, storage, ip, virtual_packet_flag);
 		assign_packet_todo(packet, 0, big_spectrum_virt_nu_todo_index,
 				   big_spectrum_virt_nu_todo_value,
 				   big_line_lists_j_blues_todo_index,

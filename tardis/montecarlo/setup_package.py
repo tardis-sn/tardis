@@ -61,7 +61,7 @@ def hasfunction(cc, funcname, include=None, extra_postargs=None):
             # for a function on Windows.
             if 'CC' in os.environ:
                 compiler = os.environ['CC']
-                command = compiler + ' ' + fname +' -fopenmp' + ' -lgomp'
+                command = compiler + ' ' + fname +' -fopenmp' + ' -lgomp' '+O0'
                 process = subprocess.Popen(command,shell=True, stdout=subprocess.PIPE)
                 process.wait()
                 if process.returncode == 0:

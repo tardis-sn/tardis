@@ -801,7 +801,6 @@ rpacket_set_nu_line (rpacket_t * packet, double nu_line)
 INLINE  int
 rpacket_get_current_shell_id (rpacket_t * packet)
 {
-  printf(" get shell id %d\n", packet->current_shell_id);
   return packet->current_shell_id;
 }
 
@@ -809,9 +808,9 @@ INLINE void
 rpacket_set_current_shell_id (rpacket_t * packet,
 			       int current_shell_id)
 {
-  printf(" set shell id %d\n", current_shell_id);
   packet->current_shell_id = current_shell_id;
 }
+
 
 INLINE unsigned int
 rpacket_get_next_line_id (rpacket_t * packet)
