@@ -10,9 +10,11 @@ NumberDensity)
 from tardis.plasma.properties.partition_function import (LevelBoltzmannFactor,
 LTEPartitionFunction)
 from tardis.plasma.properties.atomic import (Levels, Lines, AtomicMass,
-IonizationData)
+IonizationData, LinesUpperLevelIndex, LinesLowerLevelIndex)
 from tardis.plasma.standard_plasmas import LTEPlasma
-from tardis.plasma.properties.level_population import LevelPopulationLTE
+from tardis.plasma.properties.level_population import (LevelPopulationLTE,
+LevelNumberDensity)
+from tardis.plasma.properties.radiative_properties import TauSobolev
 
 @pytest.fixture
 def number_of_cells():
@@ -34,7 +36,6 @@ def density(number_of_cells):
 @pytest.fixture
 def w(number_of_cells):
     return np.ones(number_of_cells) * 0.5
-
 
 @pytest.fixture
 def time_explosion():
@@ -63,7 +64,6 @@ def g_electron(beta_rad):
 @pytest.fixture
 def levels(included_he_atomic_data, selected_atoms):
     levels_module = Levels(None)
-    selected_atoms = [2]
     return levels_module.calculate(included_he_atomic_data, selected_atoms)
 
 @pytest.fixture
@@ -106,7 +106,8 @@ def number_density(atomic_mass, abundance, density):
     return number_density_module.calculate(atomic_mass, abundance, density)
 
 @pytest.fixture
-def ion_number_density(phi_saha_lte, partition_function_lte, number_density):
+def ion_number_density_lte(phi_saha_lte, partition_function_lte,
+    number_density):
     ion_number_density_module = IonNumberDensity(None)
     return ion_number_density_module.calculate(phi_saha_lte,
         partition_function_lte, number_density)
@@ -117,3 +118,27 @@ def level_population_lte(levels, partition_function_lte,
     level_population_lte_module = LevelPopulationLTE(None)
     return level_population_lte_module.calculate(levels,
         partition_function_lte, level_boltzmann_factor)
+
+@pytest.fixture
+def level_number_density_lte(level_population_lte, ion_number_density_lte):
+    level_number_density_module = LevelNumberDensity(None)
+    return level_number_density_module.calculate(level_population_lte,
+    ion_number_density_lte)
+
+@pytest.fixture
+def lines_upper_level_index(lines, levels):
+    upper_level_index_module = LinesUpperLevelIndex(None)
+    return upper_level_index_module.calculate(levels, lines)
+
+@pytest.fixture
+def lines_lower_level_index(lines, levels):
+    lower_level_index_module = LinesLowerLevelIndex(None)
+    return lower_level_index_module.calculate(levels, lines)
+
+@pytest.fixture
+def tau_sobolev(lines, levels, level_number_density_lte,
+    lines_upper_level_index, lines_lower_level_index, time_explosion):
+    tau_sobolev_module = TauSobolev(None)
+    return tau_sobolev_module.calculate(lines, levels,
+        level_number_density_lte, lines_upper_level_index,
+        lines_lower_level_index, time_explosion)

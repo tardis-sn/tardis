@@ -1,22 +1,15 @@
-import os
+from tardis.plasma.properties import (TRadiative, BetaRadiation,
+LevelBoltzmannFactor, Levels, Lines, AtomicData, Abundance,
+SelectedAtoms, AtomicMass)
+from tardis.plasma import BasePlasma
 
-import pytest
-
-import tardis
-from tardis.plasma.standard_plasmas import LTEPlasma
-
-@pytest.mark.xfail
-def test_simple_networkx_test1(atomic_data, abundance, t_rad):
+def test_simple_networkx_test(included_he_atomic_data, abundance, t_rad):
     modules = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
-               AtomicLevels, AtomicLines, AtomicData, Abundance, SelectedAtoms,
+               Levels, Lines, AtomicData, Abundance, SelectedAtoms,
                AtomicMass]
-    bp = BasePlasma(modules, t_rad=t_rad, atomic_data=atomic_data,
+    bp = BasePlasma(modules, t_rad=t_rad, atomic_data=included_he_atomic_data,
                     abundance=abundance)
-    assert bp.t_rad[0] == 5000
+    assert bp.t_rad[0] == 10000
 
-@pytest.mark.xfail
-def test_simple_lte_plasma(included_he_atomic_data, abundance, t_rad, density,
-                           time_explosion):
-    lte_plasma = LTEPlasma(t_rad, abundance, density, time_explosion,
-                           included_he_atomic_data)
-
+def test_simple_lte_plasma(standard_lte_plasma_he_db):
+    assert hasattr(standard_lte_plasma_he_db, 'tau_sobolev')
