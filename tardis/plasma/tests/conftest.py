@@ -77,7 +77,7 @@ def level_boltzmann_factor(levels, beta_rad):
     return level_boltzmann_factor_module.calculate(levels, beta_rad)
 
 @pytest.fixture
-def partition_function(levels, level_boltzmann_factor):
+def partition_function_lte(levels, level_boltzmann_factor):
     partition_function_module = LTEPartitionFunction(None)
     return partition_function_module.calculate(levels, level_boltzmann_factor)
 
@@ -88,9 +88,10 @@ def ionization_data(included_he_atomic_data, selected_atoms):
         selected_atoms)
 
 @pytest.fixture
-def phi_saha_lte(g_electron, beta_rad, partition_function, ionization_data):
+def phi_saha_lte(g_electron, beta_rad, partition_function_lte,
+    ionization_data):
     phi_module = PhiSahaLTE(None)
-    return phi_module.calculate(g_electron, beta_rad, partition_function,
+    return phi_module.calculate(g_electron, beta_rad, partition_function_lte,
         ionization_data)
 
 @pytest.fixture
@@ -105,13 +106,14 @@ def number_density(atomic_mass, abundance, density):
     return number_density_module.calculate(atomic_mass, abundance, density)
 
 @pytest.fixture
-def ion_number_density(phi_saha_lte, partition_function, number_density):
+def ion_number_density(phi_saha_lte, partition_function_lte, number_density):
     ion_number_density_module = IonNumberDensity(None)
     return ion_number_density_module.calculate(phi_saha_lte,
-        partition_function, number_density)
+        partition_function_lte, number_density)
 
 @pytest.fixture
-def level_population_lte(levels, partition_function, level_boltzmann_factor):
+def level_population_lte(levels, partition_function_lte,
+    level_boltzmann_factor):
     level_population_lte_module = LevelPopulationLTE(None)
     return level_population_lte_module.calculate(levels,
-        partition_function, level_boltzmann_factor)
+        partition_function_lte, level_boltzmann_factor)
