@@ -167,3 +167,26 @@ Before running, ensure that the directory ~/Library/Python/2.7/bin is in the app
     This has also been successfully tested on a clean MAC OS 10.9.1 (Mavericks) install.
 
 
+Installation Troubles (FAQ)
+===========================
+
+We highly encourage with any installation problems to try the recommended install
+method because this often fix problems. Here are some common problems when
+installing and their fixes:
+
+**Problem:** While building tardis via ``python setup.py`` build you
+may encounter the following error::
+
+    error: tardis/montecarlo/montecarlo.c: Could not find C file tardis/montecarlo/montecarlo.c for Cython file tardis/montecarlo/montecarlo.pyx when building extension tardis.montecarlo.montecarlo. Cython must be installed to build from a git checkout.
+
+
+**Solution:** There are several solutions to this problem. A clean checkout will
+help. To clean up your repository please try ``python setup.py clean`` and
+then ``git clean -dfx`` (**WARNING** will delete any non tardis file in that directory)
+This will often clean this problem. If it still persists:
+
+Go into the tardis/montecarlo directory and build montecarlo.c by hand::
+
+    cython montecarlo.pyx
+
+Then, ``python setup.py build`` should run without problems.
