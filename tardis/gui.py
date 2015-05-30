@@ -1,6 +1,10 @@
 import numpy as np
 import matplotlib
-matplotlib.style.use('fivethirtyeight')
+from pkg_resources import parse_version
+if (parse_version(matplotlib.__version__)>=parse_version('1.4')):
+    matplotlib.style.use('fivethirtyeight')
+else:
+    print "Please upgrade matplotlib to a version >=1.4 for best results!"
 matplotlib.rcParams['font.family']='serif'
 matplotlib.rcParams['font.size']=10.0
 matplotlib.rcParams['lines.linewidth']=1.0
@@ -18,21 +22,19 @@ from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationTo
 import os
 if os.environ.get('QT_API', None) is None:
     from PyQt4 import QtGui, QtCore
-    #from tardis import resource_rc_pyqt
 elif os.environ.get('QT_API', None)=='pyside':
     from PySide import QtGui, QtCore
-    #from tardis import resource_rc_pyside
     
 from astropy import units as u
 from tardis import analysis, util
+from tardis import run_tardis
 
 import yaml
 
 import tardis
 
 import exceptions
-#Run this command before importing resource_rc
-#pyside-rcc resources.qrc -o resource_rc.py
+
 
 # def current_ion_index(index, index_list):
 #     if not index in index_list:
@@ -70,7 +72,6 @@ class Tardis(QtGui.QMainWindow):
         #Check if configuration file was provided
         self.mode = 'passive'
         if config is not None:
-            from tardis import run_tardis
             self.mode = 'active'
 
         #Statusbar
@@ -157,10 +158,10 @@ class Tardis(QtGui.QMainWindow):
     def switchToMdv(self):
         self.stackedWidget.setCurrentIndex(0)
         self.viewForm.setChecked(False)
+
     def switchToForm(self):
         self.stackedWidget.setCurrentIndex(1)
         self.viewMdv.setChecked(False)
-
 
 class ConfigEditor(QtGui.QWidget):
     
@@ -559,24 +560,24 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         return success
 
-    def removeColumns(self, position, columns, parent=QtCore.QModelIndex()):
-        self.beginRemoveColumns(parent, position, position + columns - 1)
-        success = self.root.removeColumns(position, columns)
-        self.endRemoveColumns()
+    # def removeColumns(self, position, columns, parent=QtCore.QModelIndex()):
+    #     self.beginRemoveColumns(parent, position, position + columns - 1)
+    #     success = self.root.removeColumns(position, columns)
+    #     self.endRemoveColumns()
 
-        if self.root.numColumns() == 0:
-            self.removeRows(0, rowCount())
+    #     if self.root.numColumns() == 0:
+    #         self.removeRows(0, rowCount())
 
-        return success
+    #     return success
 
-    def removeRows(self, position, rows, parent=QtCore.QModelIndex()):
-        parentItem = self.getItem(parent)
+    # def removeRows(self, position, rows, parent=QtCore.QModelIndex()):
+    #     parentItem = self.getItem(parent)
 
-        self.beginRemoveRows(parent, position, position + rows - 1)
-        success = parentItem.removeChildren(position, rows)
-        self.endRemoveRows()
+    #     self.beginRemoveRows(parent, position, position + rows - 1)
+    #     success = parentItem.removeChildren(position, rows)
+    #     self.endRemoveRows()
 
-        return success
+    #     return success
 
     def parent(self, index):
         if not index.isValid():
@@ -1004,7 +1005,6 @@ class ShellInfo(QtGui.QDialog):
         self.setGeometry(400, 150, 200, 400)
         self.show()
 
-
 class LineInteractionTables(QtGui.QWidget):
 
     def __init__(self, line_interaction_analysis, atom_data, description):
@@ -1070,8 +1070,6 @@ class LineInteractionTables(QtGui.QWidget):
                                                                      current_last_line_in.wavelength.count()]])
         last_line_in_model.addData(last_line_count)
         self.transitions_table.setModel(last_line_in_model)
-
-
 
 class LineInfo(QtGui.QDialog):
 
