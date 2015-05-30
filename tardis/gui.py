@@ -39,6 +39,12 @@ import tardis
 
 import exceptions
 
+class TemporarilyUnavaliable(Exception):
+    def __init__(self, value):
+        self.value = value
+    def __str__(self):
+        return repr(self.value)
+
 
 # def current_ion_index(index, index_list):
 #     if not index in index_list:
@@ -131,15 +137,18 @@ class Tardis(QtGui.QMainWindow):
         
         #In case of active mode
         if self.mode == 'active':
-            self.formWidget = ConfigEditor(config)
-            #scrollarea
-            scrollarea = QtGui.QScrollArea()
-            scrollarea.setWidget(self.formWidget)
-            self.stackedWidget.addWidget(scrollarea)
-            self.viewForm.setEnabled(True)
-            self.viewMdv.setEnabled(True)
-            model = run_tardis(config, atom_data)
-            self.show_model(model)
+            #Disabled currently
+            # self.formWidget = ConfigEditor(config)
+            # #scrollarea
+            # scrollarea = QtGui.QScrollArea()
+            # scrollarea.setWidget(self.formWidget)
+            # self.stackedWidget.addWidget(scrollarea)
+            # self.viewForm.setEnabled(True)
+            # self.viewMdv.setEnabled(True)
+            # model = run_tardis(config, atom_data)
+            # self.show_model(model)
+            raise TemporarilyUnavaliable("The active mode is under development"+
+                ". Please use the passive mode for now.")
 
         self.setCentralWidget(self.stackedWidget)
 
