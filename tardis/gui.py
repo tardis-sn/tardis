@@ -20,10 +20,14 @@ from matplotlib.figure import *
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
 import os
-if os.environ.get('QT_API', None) is None:
+if os.environ.get('QT_API', None)=='pyqt':
     from PyQt4 import QtGui, QtCore
 elif os.environ.get('QT_API', None)=='pyside':
     from PySide import QtGui, QtCore
+else:
+    raise ImportError('QT_API was not set! Please exit the IPython console'+
+        ' and at the bash prompt use : \n\n export QT_API=pyside \n or \n'+
+        ' export QT_API=pyqt \n\n For more information refer to user guide.')
     
 from astropy import units as u
 from tardis import analysis, util
