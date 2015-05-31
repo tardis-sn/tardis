@@ -22,6 +22,5 @@ def get_extensions():
             Extension('tardis.montecarlo.tests.test_cmontecarlo', test_sources,
                       include_dirs=['tardis/montecarlo/src',
                                     'tardis/montecarlo/src/randomkit',
-                                    'tardis/montecarlo/tests',
                                     np.get_include()])
             ]
