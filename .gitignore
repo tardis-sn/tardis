@@ -9,6 +9,7 @@ __pycache__
 # add a non-generated .c extension, use `git add -f filename.c`.
 *.c
 !tardis/montecarlo/src/*.c
+!tardis/montecarlo/tests/*.c
 
 # Other generated files
 */version.py
