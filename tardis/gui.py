@@ -1,6 +1,61 @@
+"""Classes used to create the GUI for Tardis.
+
+This module contains all the classes and functions that create the GUI, but 
+it doesn't yet work outside IPython console. The console provides the event
+loop and the place to create/calculate the tardis model. So the module is
+basically a tool to visualize results. 
+
+Running instructions:
+--------------------
+    1. Decide which Qt binding you want to use (PySide or PyQt) and accordingly
+      set QT_API in shell::
+            export QT_API=pyside 
+            export QT_API=pyqt 
+    2. Start the IPython console with eventloop integration ::
+            ipython --pylab=qt4
+    3. Display your model::
+            from tardis import gui 
+            win = gui.Tardis()
+            win.show_model(mdl)
+
+Classes:
+-------
+    Tardis - The top level QMainWindow widget.
+
+Functions:
+---------
+    show_model(model) - A public method of Tardis(not gui itself) to take a 
+    model object and show its data.
+
+"""
+import os
+from pkg_resources import parse_version
+import exceptions
+
 import numpy as np
 import matplotlib
-from pkg_resources import parse_version
+import matplotlib.pylab as plt
+import matplotlib.gridspec as gridspec
+from matplotlib import colors
+from matplotlib.patches import Circle
+from matplotlib.figure import *
+from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
+if os.environ.get('QT_API', None)=='pyqt':
+    from PyQt4 import QtGui, QtCore
+elif os.environ.get('QT_API', None)=='pyside':
+    from PySide import QtGui, QtCore
+else:
+    raise ImportError('QT_API was not set! Please exit the IPython console'+
+        ' and at the bash prompt use : \n\n export QT_API=pyside \n or \n'+
+        ' export QT_API=pyqt \n\n For more information refer to user guide.')
+import yaml
+from astropy import units as u
+
+from tardis import analysis, util
+from tardis import run_tardis
+import tardis
+
 if (parse_version(matplotlib.__version__)>=parse_version('1.4')):
     matplotlib.style.use('fivethirtyeight')
 else:
@@ -11,37 +66,13 @@ matplotlib.rcParams['lines.linewidth']=1.0
 matplotlib.rcParams['axes.formatter.use_mathtext']=True
 matplotlib.rcParams['axes.edgecolor']=matplotlib.rcParams['grid.color']
 matplotlib.rcParams['axes.linewidth']=matplotlib.rcParams['grid.linewidth']
-#matplotlib.use('KtAgg')
-import matplotlib.pylab as plt
-import matplotlib.gridspec as gridspec
-from matplotlib import colors
-from matplotlib.patches import Circle
-from matplotlib.figure import *
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
-import os
-if os.environ.get('QT_API', None)=='pyqt':
-    from PyQt4 import QtGui, QtCore
-elif os.environ.get('QT_API', None)=='pyside':
-    from PySide import QtGui, QtCore
-else:
-    raise ImportError('QT_API was not set! Please exit the IPython console'+
-        ' and at the bash prompt use : \n\n export QT_API=pyside \n or \n'+
-        ' export QT_API=pyqt \n\n For more information refer to user guide.')
-    
-from astropy import units as u
-from tardis import analysis, util
-from tardis import run_tardis
-
-import yaml
-
-import tardis
-
-import exceptions
 
 class TemporarilyUnavaliable(Exception):
+    """Exception raised when creation of active mode of tardis is attempted."""
+    
     def __init__(self, value):
         self.value = value
+    
     def __str__(self):
         return repr(self.value)
 
@@ -60,11 +91,26 @@ class TemporarilyUnavaliable(Exception):
 #     else:
 #         return current_ion_index(index - 1, duplicate_list) + 1
 
-#The main TARDIS window
 class Tardis(QtGui.QMainWindow):
+    """Create the top level window for the GUI and wait for call to display 
+    data.
     
+    Public methods:
+    --------------
+        1. __init__
+          Take the parent (default None), configuration yaml file (None) and 
+          the hdf atom data file (None) and creates all the widgets for the 
+          GUI. 
+
+        2.show_model 
+          Take the tardis model object and give it to the Tardis main window 
+          object for display, and call the show method to paint the main 
+          window.
+    """
+
     def __init__(self, parent=None, config=None, atom_data=None):
-        # assumes that qt has already been initialized by starting IPython with the flag "--pylab=qt"
+        # assumes that qt has already been initialized by starting IPython 
+        #with the flag "--pylab=qt"
         app = QtCore.QCoreApplication.instance()
         if app is None:
             app = QtGui.QApplication([])
@@ -177,6 +223,19 @@ class Tardis(QtGui.QMainWindow):
         self.viewMdv.setChecked(False)
 
 class ConfigEditor(QtGui.QWidget):
+    """Create and return the configuration editor widget. 
+
+    This widget is added to the stacked widget that is the central widget of 
+    the main top level window created by Tardis. 
+
+    Public methods:
+    --------------
+        1. __init__
+          Take a yaml configuration file and a parent. Parse the configuration
+          file into a dictionary. Convert dictionary to a tree defined by the
+          TreeModel. Then create a QColumnView to display the tree and add it
+          to the widget. Return the widget.
+    """  
     
     def __init__(self, yamlconfigfile, parent=None):
 
@@ -329,7 +388,14 @@ class ConfigEditor(QtGui.QWidget):
         pass
 
 class Node(object):
-    """Object that is an item of the tree"""
+    """Object that serves as the nodes in the TreeModel.
+
+    Public methods:
+    --------------
+        1. __init__
+          Take the data and parent node. Create and return a new node with
+          the specified data and the parent.
+    """
 
     def __init__(self, data, parent=None):
         self.parent = parent
@@ -425,6 +491,13 @@ class Node(object):
 
 #Note to self: For columnview headerdata seems to be unused. Try removing.
 class TreeModel(QtCore.QAbstractItemModel):
+    """The class that defines the tree for ConfigEditor.
+
+    Public methods:
+    --------------
+        1.__init__
+          Take a dictionary of configuration. Create a tree and return it.
+    """
     def __init__(self, dictionary, parent=None):
         QtCore.QAbstractItemModel.__init__(self, parent)
 
@@ -632,6 +705,8 @@ class TreeModel(QtCore.QAbstractItemModel):
         return result
 
 class TreeDelegate(QtGui.QStyledItemDelegate):
+    """Create a custom delegate to modify the columnview that displays the 
+    TreeModel."""
     def __init__(self, parent=None):
         QtGui.QStyledItemDelegate.__init__(self, parent)
 
@@ -691,7 +766,11 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
         f.close()
 
 class ModelViewer(QtGui.QWidget):
-
+    """The widget that holds all the plots and tables that visualize the data
+    in the tardis model. This is also appended to the stacked widget in the
+    top level window.
+    """
+    
     def __init__(self, parent=None):
 
         super(ModelViewer, self).__init__(parent)
