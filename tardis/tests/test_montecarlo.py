@@ -8,4 +8,4 @@ test_path = os.path.join(path[0], 'montecarlo', 'tests', 'test_cmontecarlo.so')
 dl = CDLL(test_path)
 
 def test():
-	assert True == True
+	assert dl.testing_rpacket_get_nu() == True

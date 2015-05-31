@@ -1,18 +1,17 @@
 #include <assert.h>
 #include <stdlib.h>
-#include <Python/Python.h>
 
-#include "../src/rpacket.h"
+#include "../src/montecarlo.h"
 
-void testing_rpacket_get_nu(void);
+int testing_rpacket_get_nu(void);
 
-void
+int
 testing_rpacket_get_nu(void){
 	rpacket_t * rp = (rpacket_t *) malloc(sizeof(rpacket_t));
 	double value = 10.2;
-	/*rpacket_set_nu(rp, value);
-	if( value != rpacket_get_nu(rp) ){
-		//PyErr_Format(PyExc_AssertionError, "value %g not %g", value, rpacket_get_nu(rp));
+	rpacket_set_nu(rp, value);
+	/*if( value != rpacket_get_nu(rp) ){
+		return 0;
 	}*/
-	PyErr_Format(PyExc_AssertionError, "value %d not %d", 10, 10);
+	return 1;
 }
