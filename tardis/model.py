@@ -347,8 +347,8 @@ class Radial1DModel(object):
             no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
         else:
             no_of_virtual_packets = 0
-        if np.any(np.isnan(self.plasma_array.tau_sobolev.values)) or np.any(np.isinf(self.plasma_array.tau_sobolev.values)) \
-            or np.any(np.isneginf(self.plasma_array.tau_sobolev.values)):
+        if np.any(np.isnan(self.plasma_array.tau_sobolevs.values)) or np.any(np.isinf(self.plasma_array.tau_sobolevs.values)) \
+            or np.any(np.isneginf(self.plasma_array.tau_sobolevs.values)):
             raise ValueError('Some tau_sobolevs are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
         self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
