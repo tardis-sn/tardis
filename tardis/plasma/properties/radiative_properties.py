@@ -29,7 +29,7 @@ class TauSobolev(ProcessingPlasmaProperty):
 
     """
 
-    name = 'tau_sobolev'
+    name = 'tau_sobolevs'
 
 
     def __init__(self, plasma_parent):
