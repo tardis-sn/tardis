@@ -8,7 +8,7 @@ from tardis.plasma.exceptions import PlasmaIonizationError
 logger = logging.getLogger(__name__)
 
 __all__ = ['PhiSahaLTE', 'RadiationFieldCorrection',
-           'IonNumberDensity', ]
+           'IonNumberDensity', 'ElectronDensity']
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
@@ -243,3 +243,12 @@ class IonNumberDensity(ProcessingPlasmaProperty):
             n_electron = 0.5 * (new_n_electron + n_electron)
 
         return ion_number_density
+
+class ElectronDensity(ProcessingPlasmaProperty):
+    name = 'electron_densities'
+
+    def calculate(self, ion_number_density):
+        ion_numbers = ion_number_density.index.get_level_values(1).values
+        ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
+        n_electron = (ion_number_density.values * ion_numbers).sum(axis=0)
+        return n_electron

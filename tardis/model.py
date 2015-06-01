@@ -12,6 +12,7 @@ import scipy.special
 from tardis import packet_source, plasma_array
 from tardis.montecarlo import montecarlo
 from util import intensity_black_body
+from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 
 
 logger = logging.getLogger(__name__)
@@ -126,7 +127,7 @@ class Radial1DModel(object):
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
 
 
-        self.plasma_array = plasma_array.BasePlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
+        self.plasma_array = LegacyPlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
                                                          tardis_config.supernova.time_explosion.to('s').value,
                                                          nlte_config=tardis_config.plasma.nlte,
                                                          delta_treatment=tardis_config.plasma.delta_treatment,
@@ -346,8 +347,8 @@ class Radial1DModel(object):
             no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
         else:
             no_of_virtual_packets = 0
-        if np.any(np.isnan(self.plasma_array.tau_sobolevs.values)) or np.any(np.isinf(self.plasma_array.tau_sobolevs.values)) \
-            or np.any(np.isneginf(self.plasma_array.tau_sobolevs.values)):
+        if np.any(np.isnan(self.plasma_array.tau_sobolev.values)) or np.any(np.isinf(self.plasma_array.tau_sobolev.values)) \
+            or np.any(np.isneginf(self.plasma_array.tau_sobolev.values)):
             raise ValueError('Some tau_sobolevs are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
         self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
