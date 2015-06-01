@@ -251,4 +251,4 @@ class ElectronDensity(ProcessingPlasmaProperty):
         ion_numbers = ion_number_density.index.get_level_values(1).values
         ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
         n_electron = (ion_number_density.values * ion_numbers).sum(axis=0)
-        return n_electron
+        return pd.Series(n_electron, index=np.arange(0, len(n_electron)))
