@@ -22,7 +22,7 @@ class LegacyPlasmaArray(BasePlasma):
 
     def from_number_densities(self, number_densities, atomic_data):
         atomic_mass = atomic_data.atom_data.ix[number_densities.index].mass
-        elemental_density = number_densities.multiply(atomic_mass,
+        elemental_density = number_densities.mul(atomic_mass,
             axis='index')
         density = elemental_density.sum()
         abundance = pd.DataFrame(elemental_density/density,
@@ -33,7 +33,7 @@ class LegacyPlasmaArray(BasePlasma):
     def initial_t_rad(self, number_densities):
         return np.ones(len(number_densities.columns)) * 10000
 
-    def update_radiationfield(self, t_rad, ws=None, j_blues=None,
+    def update_radiationfield(self, t_rad, ws, j_blues,
         t_electrons=None, n_e_convergence_threshold=0.05,
         initialize_nlte=False):
         self.update(t_rad=t_rad)
