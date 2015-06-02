@@ -85,7 +85,7 @@ plasma:
         property_type: string
         mandatory: True
         default: None
-        allowed_value: dilute-blackbody detailed
+        allowed_value: dilute-blackbody detailed lte
         help: radiative rates treatment mode
         
     line_interaction_type:
