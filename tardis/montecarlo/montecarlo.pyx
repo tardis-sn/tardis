@@ -10,6 +10,7 @@ import time
 import numpy as np
 cimport numpy as np
 from astropy import constants
+from astropy import units
 
 np.import_array()
 
@@ -75,6 +76,8 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *transition_line_id
         double *js
         double *nubars
+        double spectrum_virt_start_nu
+        double spectrum_virt_end_nu
         double spectrum_start_nu
         double spectrum_delta_nu
         double spectrum_end_nu
@@ -208,6 +211,8 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.nubars = <double*> nubars.data
     storage.spectrum_start_nu = model.tardis_config.spectrum.frequency.value.min()
     storage.spectrum_end_nu = model.tardis_config.spectrum.frequency.value.max()
+    storage.spectrum_virt_start_nu = model.tardis_config.montecarlo.virtual_spectrum_range.end.to('Hz', units.spectral()).value
+    storage.spectrum_virt_end_nu = model.tardis_config.montecarlo.virtual_spectrum_range.start.to('Hz', units.spectral()).value
     storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - model.tardis_config.spectrum.frequency.value[0]
     cdef np.ndarray[double, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
     storage.spectrum_virt_nu = <double*> spectrum_virt_nu.data

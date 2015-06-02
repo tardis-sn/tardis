@@ -1041,6 +1041,15 @@ class Configuration(ConfigurationNameSpace):
             black_body_section[1]
         montecarlo_section['black_body_sampling']['samples'] = \
             black_body_section[2]
+        virtual_spectrum_section = montecarlo_section['virtual_spectrum_range']
+        montecarlo_section['virtual_spectrum_range'] = {}
+        montecarlo_section['virtual_spectrum_range']['start'] = \
+            virtual_spectrum_section[0]
+        montecarlo_section['virtual_spectrum_range']['end'] = \
+            virtual_spectrum_section[1]
+        montecarlo_section['virtual_spectrum_range']['samples'] = \
+            virtual_spectrum_section[2]
+
         ###### END of convergence section reading
 
 
