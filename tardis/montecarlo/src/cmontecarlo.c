@@ -336,6 +336,8 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
     }
   else
     {
+      if ((rpacket_get_nu (packet) > storage->spectrum_virt_start_nu) && (rpacket_get_nu(packet) < storage->spectrum_virt_end_nu))
+    {
       for (i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
 	{
 	  memcpy ((void *) &virt_packet, (void *) packet, sizeof (rpacket_t));
@@ -388,6 +390,10 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		virt_packet.energy * weight;
 	    }
 	}
+    }
+  else{
+    return 1;
+  }
     }
   return reabsorbed;
 }
