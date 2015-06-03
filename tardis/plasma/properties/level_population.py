@@ -11,8 +11,8 @@ __all__ = ['LevelPopulationLTE', 'LevelNumberDensity']
 
 class LevelPopulationLTE(ProcessingPlasmaProperty):
 
-        name = 'level_population'
-        latex_formula = (r'$N_{i, j, k} = \frac{g_{i, j, k} '
+        name = 'level_population_proportionality'
+        latexyformula = (r'$N_{i, j, k} = \frac{g_{i, j, k} '
                          r'e^{-\beta_\textrm{rad} E_{i, j, k}}}{Z_{i, j}}$')
 
         @staticmethod
@@ -24,13 +24,13 @@ class LevelPopulationLTE(ProcessingPlasmaProperty):
             return level_boltzmann_factor / partition_function_broadcast
 
 class LevelNumberDensity(ProcessingPlasmaProperty):
-    name = 'level_number_density'
+    name = 'level_population'
 
     @staticmethod
-    def calculate(level_population, ion_number_density):
+    def calculate(level_population_proportionality, ion_number_density):
         ion_number_density_broadcast = ion_number_density.ix[
-            level_population.index.droplevel(2)].values
-        return level_population * ion_number_density_broadcast
+            level_population_proportionality.index.droplevel(2)].values
+        return level_population_proportionality * ion_number_density_broadcast
 
 
 class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
@@ -57,8 +57,8 @@ class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
 
             ion_number_density_broadcast = ion_number_density.ix[levels.index.droplevel(2)].values
 
-            level_population = level_boltzmann_factor / partition_function_broadcast
-            level_population[~levels.metastable] *= np.min([w, np.ones_like(w)],axis=0)
+            level_population_proportionality = level_boltzmann_factor / partition_function_broadcast
+            level_population_proportionality[~levels.metastable] *= np.min([w, np.ones_like(w)],axis=0)
 
 
 class LevelPopulationNLTE(ProcessingPlasmaProperty):
@@ -92,7 +92,7 @@ class LevelPopulationNLTE(ProcessingPlasmaProperty):
             logger.info('Calculating rates for species %s', species)
             number_of_levels = self.atom_data.levels.energy.ix[species].count()
 
-            level_populations = self.level_populations.ix[species].values
+            level_population_proportionalitys = self.level_population_proportionalitys.ix[species].values
             lnl = self.atom_data.nlte_data.lines_level_number_lower[species]
             lnu = self.atom_data.nlte_data.lines_level_number_upper[species]
 
@@ -127,5 +127,5 @@ class LevelPopulationNLTE(ProcessingPlasmaProperty):
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
             for i in xrange(len(self.t_rads)):
-                relative_level_populations = np.linalg.solve(rates_matrix[:, :, i], x)
-                self.level_populations[i].ix[species] = relative_level_populations * self.ion_populations[i].ix[species]
+                relative_level_population_proportionalitys = np.linalg.solve(rates_matrix[:, :, i], x)
+                self.level_population_proportionalitys[i].ix[species] = relative_level_population_proportionalitys * self.ion_populations[i].ix[species]
