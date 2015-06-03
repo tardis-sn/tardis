@@ -94,7 +94,7 @@ class TauSobolev(ProcessingPlasmaProperty):
 
     def calculate(self, lines, levels, level_population,
                   lines_upper_level_index, lines_lower_level_index,
-                  time_explosion, atomic_data):
+                  time_explosion):
 
         f_lu = lines.f_lu.values[np.newaxis].T
         wavelength = lines.wavelength_cm.values[np.newaxis].T
@@ -119,10 +119,8 @@ class TauSobolev(ProcessingPlasmaProperty):
         tau_sobolevs = (self.sobolev_coefficient * f_lu * wavelength *
                         time_explosion * n_lower * stimulated_emission_factor)
 
-        taus_dataframe = pd.DataFrame(tau_sobolevs, index=lines.index,
+        return pd.DataFrame(tau_sobolevs, index=lines.index,
                             columns=np.array(level_population.columns))
-
-        return taus_dataframe.ix[atomic_data.lines.index]
 
 
 
