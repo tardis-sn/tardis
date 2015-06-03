@@ -300,6 +300,13 @@ montecarlo:
         mandatory: False
         help: Setting the number of virtual packets for the last iteration.
 
+    virtual_spectrum_range:
+        property_type: quantity_range_sampled
+        default: [50 angstrom, 250000 angstrom, 1000000]
+        mandatory: False
+        help: Limits of virtual packet spectrum (giving maximum and minimum packet frequency)
+
+
     enable_reflective_inner_boundary:
         property_type: bool
         default: False
