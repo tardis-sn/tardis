@@ -302,7 +302,7 @@ montecarlo:
 
     virtual_spectrum_range:
         property_type: quantity_range_sampled
-        default: [50 angstrom, 200000 angstrom, 1000000]
+        default: [50 angstrom, 250000 angstrom, 1000000]
         mandatory: False
         help: Limits of virtual packet spectrum (giving maximum and minimum packet frequency)
 
