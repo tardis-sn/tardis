@@ -1,32 +1,33 @@
-"""Classes used to create the GUI for Tardis.
+"""gui.py contains all the classes used to create the GUI for Tardis.
 
-This module contains all the classes and functions that create the GUI, but 
-it doesn't yet work outside IPython console. The console provides the event
-loop and the place to create/calculate the tardis model. So the module is
-basically a tool to visualize results. 
+3. routine listings
+4. see also
+5. notes
+6. references
+7. examples
 
-Running instructions:
+This module must be imported inside IPython console started with eventloop
+integration. The console provides the event loop and the place to 
+create/calculate the tardis model. So the module is basically a tool to 
+visualize results. 
+
+Running instructions
 --------------------
-    1. Decide which Qt binding you want to use (PySide or PyQt) and accordingly
-      set QT_API in shell::
+    1. Decide which Qt binding you want to use (PySide or PyQt) and 
+    accordingly set QT_API in shell
             export QT_API=pyside 
             export QT_API=pyqt 
-    2. Start the IPython console with eventloop integration ::
+    2. Start the IPython console with eventloop integration 
             ipython --pylab=qt4
-    3. Display your model::
+    3. Display your model
             from tardis import gui 
             win = gui.Tardis()
             win.show_model(mdl)
 
-Classes:
--------
-    Tardis - The top level QMainWindow widget.
-
-Functions:
----------
-    show_model(model) - A public method of Tardis(not gui itself) to take a 
-    model object and show its data.
-
+Raises
+------
+    TemporarilyUnavaliable
+        Raised when the currently disabled active mode is requested.
 """
 import os
 from pkg_resources import parse_version
@@ -77,23 +78,34 @@ class TemporarilyUnavaliable(Exception):
         return repr(self.value)
 
 class Tardis(QtGui.QMainWindow):
-    """Create the top level window for the GUI and wait for call to display 
-    data.
-    
-    Public methods:
-    --------------
-        1. __init__
-          Take the parent (default None), configuration yaml file (None) and 
-          the hdf atom data file (None) and creates all the widgets for the 
-          GUI. 
-
-        2.show_model 
-          Take the tardis model object and give it to the Tardis main window 
-          object for display, and call the show method to paint the main 
-          window.
+    """Create the top level window for the GUI and wait for call to 
+    display data.
     """
 
     def __init__(self, parent=None, config=None, atom_data=None):
+        """Create the top level window and all widgets it contains.
+
+        When called with no arguments it initializes the GUI in passive
+        mode. When a yaml config file and atom data are provided the 
+        GUI starts in the active mode.
+
+        Parameters
+        ---------
+            parent: None
+                Set to None by default and shouldn't be changed unless 
+                you are developing something new.
+            config: string 
+                yaml file with configuration information for TARDIS.
+            atom_data: string
+                hdf file that has the atom data.
+
+        Raises
+        ------
+            TemporarilyUnavaliable
+                Raised when an attempt is made to start the active mode. 
+                This will be removed when active mode is developed.
+        """
+
         # assumes that qt has already been initialized by starting IPython 
         #with the flag "--pylab=qt"
         app = QtCore.QCoreApplication.instance()
@@ -189,6 +201,13 @@ class Tardis(QtGui.QMainWindow):
         self.setCentralWidget(self.stackedWidget)
 
     def show_model(self, model=None):
+        """Set the provided model into the GUI and show the main window.
+
+        Parameters
+        ----------
+        model: TARDIS model object 
+            A keyword argument that takes the tardis model object.
+        """
         if model:
             self.mdv.change_model(model)
         if model.converged:
@@ -205,30 +224,33 @@ class Tardis(QtGui.QMainWindow):
     #Note to self: Add slot decorator decorator. And try to get all the
     #view changer slots into a single function
     def switchToMdv(self):
+        """Switch the cental stacked widget to show the modelviewer."""
         self.stackedWidget.setCurrentIndex(0)
         self.viewForm.setChecked(False)
 
     def switchToForm(self):
+        """Switch the cental stacked widget to show the ConfigEditor."""
         self.stackedWidget.setCurrentIndex(1)
         self.viewMdv.setChecked(False)
 
 class ConfigEditor(QtGui.QWidget):
-    """Create and return the configuration editor widget. 
+    """The configuration editor widget. 
 
     This widget is added to the stacked widget that is the central widget of 
     the main top level window created by Tardis. 
-
-    Public methods:
-    --------------
-        1. __init__
-          Take a yaml configuration file and a parent. Parse the configuration
-          file into a dictionary. Convert dictionary to a tree defined by the
-          TreeModel. Then create a QColumnView to display the tree and add it
-          to the widget. Return the widget.
     """  
     
     def __init__(self, yamlconfigfile, parent=None):
+        """Create and return the configuration widget.
 
+        Parameters
+        ----------
+            yamlconfigfile: string 
+                File name of the yaml configuration file.
+            parent: None
+                Set to None. The parent is changed when the widget is 
+                appended to the layout of its parent.
+        """
         super(ConfigEditor, self).__init__(parent)
         
         #Configurations from the input and template    
@@ -345,6 +367,34 @@ class ConfigEditor(QtGui.QWidget):
         self.setLayout(self.layout)
 
     def matchDicts(self, dict1, dict2): #dict1<=dict2
+        """Compare and combine two dictionaries.
+
+        If there are new keys in `dict1` then they are appended to `dict2`.
+        The `dict2` stores the values for the keys in `dict1` but it 
+        first modifies them by taking the value and appending to a 
+        list whose first item is either True or False, indicating if 
+        that key is mandatory or not. The goal of this method is to
+        perform validation by inserting user provided values into the 
+        template dictionary. After inserting user given values into the 
+        template dictionary, all the keys have either default or user 
+        provided values. Then it can be used to build a tree to be 
+        shown in the ConfigEditor.
+
+        Parameters
+        ----------
+            dict1: dictionary
+                The dictionary of user provided configuration.
+            dict2: dictionary
+                The template dictionary with all default values set. This 
+                one may have some keys missing that are present in the
+                `dict1`. Such keys will be appended.
+        Raises
+        ------
+            IOError
+                If the configuration file has an invalid value for a 
+                key that can only take values from a predefined list,
+                then this error is raised.
+        """
         for key in dict1:
             if key in dict2:
                 if isinstance(dict2[key], dict):
@@ -384,21 +434,69 @@ class ConfigEditor(QtGui.QWidget):
                 toappend = [False, dict1[key]]
                 dict2[key] = toappend
 
-
     def recalculate(self):
+        """Recalculate and display the model from the modified data in
+        the ConfigEditor.
+        """
         pass
 
 class Node(object):
     """Object that serves as the nodes in the TreeModel.
 
-    Public methods:
-    --------------
-        1. __init__
-          Take the data and parent node. Create and return a new node with
-          the specified data and the parent.
+    Attributes
+    ----------
+        parent: None/Node 
+            The parent of the node.
+        children: list of Node
+            The children of the node.
+        data: list of string 
+            The data stored on the node. Can be a key or a value.
+        siblings: dictionary 
+            A dictionary of nodes that are siblings of this node. The 
+            keys are the values of the nodes themselves. This is 
+            used to keep track of which value the user has selected
+            if the parent of this node happens to be a key that can
+            take values from a list.
     """
 
     def __init__(self, data, parent=None):
+        """Create one node with the data and parent provided.
+
+        Parameters
+        ----------
+            data: list of string
+                The data that is intended to be stored on the node.
+            parent: Node 
+                Another node which is the parent of this node. The 
+                root node has parent set to None.
+
+        Note
+        ----
+            A leaf node is a node that is the only child of its parent. 
+            For this tree this will always be the case. This is because
+            the tree stores the key at every node except the leaf node
+            where it stores the value for the key. So if in the dictionary
+            the value of a key is another dictionary, then it will 
+            be a node with no leafs. If the key has a value that is a 
+            value or a list then it will have one child that is a leaf.
+            The leaf can have no children. For example-
+
+            'a':val1
+            'b':{'c':val2
+                 'd':val3
+                 'e':{'f':val4
+                      'g':val5
+                         :val6
+                         :val7}} *In this case the key g can take values
+                                  val7, val5 and val6 and is currently
+                                  set to val5.
+
+            In the tree shown above all quoted values are keys in the 
+            dictionary and are non-leaf nodes in the tree. All values 
+            of the form valx are leaf nodes and are not dictionaries 
+            themselves. If the keys have non-dictionary values then they
+            have a leaf attached. And no leaf can have a child.
+        """
         self.parent = parent
         self.children = []
         self.data = data
@@ -406,37 +504,55 @@ class Node(object):
                             #enable disable on selection
 
     def appendChild(self, child):
+        """Add a child to this node."""
         self.children.append(child)
         child.parent = self
 
     def getChild(self, i):
+        """Get the ith child of this node. 
+
+        No error is raised if the cild requested doesn't exist. A 
+        None is returned in such cases.
+        """
         if i < self.numChildren():
             return self.children[i]
         else:
             return None
 
     def numChildren(self):
+        """Number of children this node has."""
         return len(self.children)
 
     def numColumns(self):
+        """Returns the number of strings stored in the data attribute."""
         return len(self.data)
 
     def getData(self, i):
+        """Returns the ith string from the data list.
+
+        No error is raised if the data list index is exceeded. A None is
+        returned in such cases.
+        """
         try:
             return self.data[i]
         except IndexError:
             return None
 
     def getParent(self):
+        """Return the parent of this node."""
         return self.parent
 
     def getIndexOfSelf(self):
+        """Returns the number at which it comes in the list of its 
+        parent's children. For root the index 0 is returned."""
         if self.parent:
             return self.parent.children.index(self)
         else:
             return 0
 
     def setData(self, column, value):
+        """Set the data for the ith index to the provided value. Returns
+        true if the data was set successfully."""
         if column < 0 or column >= self.numColumns():
             return False
 
@@ -444,16 +560,30 @@ class Node(object):
 
         return True
 
-#Note to self: For columnview headerdata seems to be unused. Try removing.
 class TreeModel(QtCore.QAbstractItemModel):
     """The class that defines the tree for ConfigEditor.
 
-    Public methods:
-    --------------
-        1.__init__
-          Take a dictionary of configuration. Create a tree and return it.
+    Parameters
+    ----------
+        root: Node
+            Root node of the tree.
+        disabledNodes: list of Node 
+            List of leaf nodes that are not editable currently.
+        typenodes: list of Node 
+            List of nodes that correspond to keys that set container 
+            types. Look at tardis configuration template. These are the
+            nodes that have values that can be set from a list.
     """
     def __init__(self, dictionary, parent=None):
+        """Create a tree of tardis configuration dictionary.
+
+        Parameters
+        ----------
+            dictionary: dictionary            
+                The dictionary that needs to be converted to the tree.
+            parent: None 
+                Used to instantiate the QAbstractItemModel
+        """
         QtCore.QAbstractItemModel.__init__(self, parent)
 
         self.root = Node(["column A"])
@@ -462,6 +592,15 @@ class TreeModel(QtCore.QAbstractItemModel):
         self.dictToTree(dictionary, self.root)
 
     def dictToTree(self, dictionary, root):
+        """Create the tree and append siblings to nodes that need them.
+
+        Parameters
+        ----------
+            dictionary: dictionary
+                The dictionary that is to be converted to the tree.
+            root: Node 
+                The root node of the tree.
+        """
         #Construct tree with all nodes
         self.treeFromNode(dictionary, root)
 
@@ -494,6 +633,7 @@ class TreeModel(QtCore.QAbstractItemModel):
 
 
     def treeFromNode(self, dictionary, root):
+        """Convert dictionary to tree. Called by dictToTree."""
         for key in dictionary:
             child = Node([key])
             root.appendChild(child)
@@ -510,6 +650,9 @@ class TreeModel(QtCore.QAbstractItemModel):
                     self.typenodes.append(child)
 
     def dictFromNode(self, node): 
+        """Take a node and convert the whole subtree rooted at it into a 
+        dictionary.
+        """
         children = [node.getChild(i) for i in range(node.numChildren())]
         if len(children) > 1:
             dictionary = {}
@@ -523,12 +666,16 @@ class TreeModel(QtCore.QAbstractItemModel):
             return children[0].getData(0)
 
     def columnCount(self, index):
+        """Return the number of columns in the node pointed to by
+        the given model index."""
         if index.isValid():
             return index.internalPointer().numColumns()
         else:
             return self.root.numColumns()
 
     def data(self, index, role):
+        """Returns the asked data for the node specified by the modeLabel
+        index."""
         if not index.isValid():
             return None
 
@@ -540,6 +687,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         return item.getData(index.column())
 
     def flags(self, index):
+        """Return flags for the items whose model index is provided."""
         if not index.isValid():
             return QtCore.Qt.NoItemFlags
 
@@ -555,6 +703,8 @@ class TreeModel(QtCore.QAbstractItemModel):
         return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable        
 
     def getItem(self, index):
+        """Returns the node to which the model index is pointing. If the
+        model index is invalid then the root node is returned."""
         if index.isValid():
             item = index.internalPointer()
             if item:
@@ -563,12 +713,18 @@ class TreeModel(QtCore.QAbstractItemModel):
         return self.root
 
     def headerData(self, section, orientation, role):
-        if orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+        """Returns header data. This is not used in QColumnView. But will
+        be needed for QTreeView."""
+        if (orientation == QtCore.Qt.Horizontal and 
+          role == QtCore.Qt.DisplayRole):
             return self.root.getData(section)
 
         return None
 
     def index(self, row, column, parent=QtCore.QModelIndex()):
+        """Create a model index for the given row and column. For a 
+        tree model, the row is the set of nodes with the same parents and
+        the column indexes the data in the node."""
         if parent.isValid() and parent.column() != 0:
             return QtCore.QModelIndex()
 
@@ -580,6 +736,7 @@ class TreeModel(QtCore.QAbstractItemModel):
             return QtCore.QModelIndex()
 
     def insertColumns(self, position, columns, parent=QtCore.QModelIndex()):
+        """Insert columns in the tree model."""
         self.beginInsertColumns(parent, position, position + columns - 1)
         success = self.root.insertColumns(position, columns)
         self.endInsertColumns()
@@ -587,6 +744,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         return success
 
     def insertRows(self, position, rows, parent=QtCore.QModelIndex()):
+        """Insert rows in the tree model."""
         parentItem = self.getItem(parent)
         self.beginInsertRows(parent, position, position + rows - 1)
         success = parentItem.insertChildren(position, rows,
@@ -596,6 +754,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         return success
 
     def parent(self, index):
+        """Return the parent of the node to which the index points."""
         if not index.isValid():
             return QtCore.QModelIndex()
 
@@ -608,11 +767,18 @@ class TreeModel(QtCore.QAbstractItemModel):
         return self.createIndex(parentItem.getIndexOfSelf(), 0, parentItem)
 
     def rowCount(self, parent=QtCore.QModelIndex()):
+        """The number of rows for a given node. 
+        
+        (The number of rows is just the number of children for a node.)
+        """
         parentItem = self.getItem(parent)
 
         return parentItem.numChildren()
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
+        """Set the value as the data at the location pointed by the 
+        index.
+        """
         if role != QtCore.Qt.EditRole:
             return False
 
@@ -624,7 +790,9 @@ class TreeModel(QtCore.QAbstractItemModel):
             #print self.dictFromNode(self.root)
         return result
 
-    def setHeaderData(self, section, orientation, value, role=QtCore.Qt.EditRole):
+    def setHeaderData(self, section, orientation, value, 
+        role=QtCore.Qt.EditRole):
+        """Change header data. Unused in columnview."""
         if role != QtCore.Qt.EditRole or orientation != QtCore.Qt.Horizontal:
             return False
 
@@ -638,9 +806,11 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
     """Create a custom delegate to modify the columnview that displays the 
     TreeModel."""
     def __init__(self, parent=None):
+        """Call the constructor of the superclass."""
         QtGui.QStyledItemDelegate.__init__(self, parent)
 
     def createEditor(self, parent, option, index):
+        """Create a lineEdit or combobox depending on the type of node."""
         node = index.internalPointer()
         if node.numColumns()>1:
             combobox = QtGui.QComboBox(parent)
@@ -654,12 +824,16 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
             return editor
 
     def closeAndCommit(self):
+        """Saver for the line edits."""
         editor = self.sender()
         if isinstance(editor, QtGui.QLineEdit):
             self.commitData.emit(editor)
             self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.NoHint)
 
     def setModelData(self, editor, model, index):
+        """Called when new data id set in the model. This is where the
+        siblings of type nodes are enabled or disabled according to the 
+        new choice made."""
         node = index.internalPointer()
 
         if node.numColumns() > 1 and node.getParent().getData(0) != 'type':
@@ -689,19 +863,19 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
         else:
             QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
             
-        print model.dictFromNode(model.root) 
-        f = open('dictester.dat','w')
-        f.write(yaml.dump(model.dictFromNode(model.root)))
-        f.close()
+        #print model.dictFromNode(model.root) 
+        #f = open('dictester.dat','w')
+        #f.write(yaml.dump(model.dictFromNode(model.root)))
+        #f.close()
 
 class ModelViewer(QtGui.QWidget):
-    """The widget that holds all the plots and tables that visualize the data
-    in the tardis model. This is also appended to the stacked widget in the
-    top level window.
+    """The widget that holds all the plots and tables that visualize 
+    the data in the tardis model. This is also appended to the stacked 
+    widget in the top level window.
     """
     
     def __init__(self, parent=None):
-
+        """Create all widgets that are children of ModelViewer."""
         super(ModelViewer, self).__init__(parent)
         
         #Data structures
@@ -765,6 +939,8 @@ class ModelViewer(QtGui.QWidget):
         self.setLayout(self.layout)
 
     def fillOutputLabel(self):
+        """Read some data from tardis model and display on the label for 
+        quick user access."""
         labeltext = 'Iterations requested: {} <br/> Iterations executed:  {}<br/>\
                      Model converged     : {} <br/> Simulation Time    :  {} s <br/>\
                      Inner Temperature   : {} K <br/> Number of packets  :  {}<br/>\
@@ -781,6 +957,8 @@ class ModelViewer(QtGui.QWidget):
         self.outputLabel.setText(labeltext)
 
     def makeShellWidget(self):
+        """Create the plot of the the shells and place it inside a 
+        container widget. Return the container widget."""
         #Widgets for plot of shells
         self.graph = MatplotlibWidget(self, 'model')
         self.graph_label = QtGui.QLabel('Select Property:')
@@ -807,6 +985,8 @@ class ModelViewer(QtGui.QWidget):
         return containerWidget
 
     def makeSpectrumWidget(self):
+        """Create the spectrum plot and associated buttons and append to
+        a container widget. Return the container widget."""
         self.spectrum = MatplotlibWidget(self)
         self.spectrum_label = QtGui.QLabel('Select Spectrum:')
         self.spectrum_button = QtGui.QToolButton()
@@ -840,6 +1020,7 @@ class ModelViewer(QtGui.QWidget):
 
 
     def update_data(self, model=None):
+        """Associate the given model with the GUI and display results."""
         if model:
             self.change_model(model)
         self.tablemodel.updateTable()
@@ -854,12 +1035,14 @@ class ModelViewer(QtGui.QWidget):
         self.show()
 
     def change_model(self, model):
+        """Reset the model set in the GUI."""
         self.model = model
         self.tablemodel.arraydata = []
         self.tablemodel.addData(model.t_rads.value.tolist())
         self.tablemodel.addData(model.ws.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
+        """Change the spectrum data to the virtual spectrum."""
         if self.model.spectrum_virtual.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
                 self.model.spectrum_virtual.wavelength)
@@ -870,6 +1053,8 @@ class ModelViewer(QtGui.QWidget):
         self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
 
     def change_spectrum_to_spec_flux_angstrom(self):
+        """Change spectrum data back from virtual spectrum. (See the 
+            method above)."""
         if self.model.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
                 self.model.spectrum.wavelength)
@@ -880,6 +1065,8 @@ class ModelViewer(QtGui.QWidget):
         self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
 
     def change_spectrum(self, data, name):
+        """Replot the spectrum plot using the data provided. Called
+        when changing spectrum types. See the two methods above."""
         self.spectrum_button.setText(name)
         self.spectrum.dataplot[0].set_ydata(data)
         self.spectrum.ax.relim()
@@ -887,6 +1074,7 @@ class ModelViewer(QtGui.QWidget):
         self.spectrum.draw()
 
     def plot_spectrum(self):
+        """Plot the spectrum and add labels to the graph."""
         self.spectrum.ax.clear()
         self.spectrum.ax.set_title('Spectrum')
         self.spectrum.ax.set_xlabel('Wavelength (A)')
@@ -903,12 +1091,15 @@ class ModelViewer(QtGui.QWidget):
         self.spectrum.draw()
 
     def change_graph_to_ws(self):
+        """Change the shell plot to show dilution factor."""
         self.change_graph(self.model.ws, 'Ws', '')
 
     def change_graph_to_t_rads(self):
+        """Change the graph back to radiation Temperature."""
         self.change_graph(self.model.t_rads.value, 't_rads', '(K)')
 
     def change_graph(self, data, name, unit):
+        """Called to change the shell plot by the two methods above."""
         self.graph_button.setText(name)
         self.graph.dataplot[0].set_ydata(data)
         self.graph.ax1.relim()
@@ -928,6 +1119,8 @@ class ModelViewer(QtGui.QWidget):
         self.graph.draw()
 
     def plot_model(self):
+        """Plot the two graphs, the shell model and the line plot 
+        both showing the radiation temperature and set labels."""
         self.graph.ax1.clear()
         self.graph.ax1.set_title('Rad. Temp vs Shell')
         self.graph.ax1.set_xlabel('Shell Number')
@@ -979,12 +1172,14 @@ class ModelViewer(QtGui.QWidget):
         self.graph.draw()
 
     def on_header_double_clicked(self, index):
+        """Callback to get counts for different Z from table."""
         self.shell_info[index] = ShellInfo(index, self)
 
 class ShellInfo(QtGui.QDialog):
-    """Create a dialog to display the shell info."""
+    """Dialog to display Shell abundances."""
 
     def __init__(self, index, parent=None):
+        """Create the widget to display shell info and set data."""
         super(ShellInfo, self).__init__(parent)
         self.parent = parent
         self.shell_index = index
@@ -1018,6 +1213,8 @@ class ShellInfo(QtGui.QDialog):
         self.show()
 
     def on_atom_header_double_clicked(self, index):
+        """Called when a header in the first column is clicked to show 
+        ion populations."""
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
         self.table2_data = self.parent.model.plasma_array.ion_populations[
             self.shell_index].ix[self.current_atom_index]
@@ -1043,6 +1240,7 @@ class ShellInfo(QtGui.QDialog):
         self.show()
 
     def on_ion_header_double_clicked(self, index):
+        """Called on double click of ion headers to show level populations."""
         self.current_ion_index = self.table2_data.index.values.tolist()[index]
         self.table3_data = self.parent.model.plasma_array.level_populations[
             self.shell_index].ix[self.current_atom_index, self.current_ion_index]
@@ -1062,6 +1260,7 @@ class ShellInfo(QtGui.QDialog):
         self.show()
 
     def update_tables(self):
+        """Update table data for shell info viewer."""
         self.table1_data = self.parent.model.plasma_array[
             self.shell_index].number_densities
         self.atomsdata.index_info=self.table1_data.index.values.tolist()
@@ -1074,9 +1273,11 @@ class ShellInfo(QtGui.QDialog):
         self.show()
 
 class LineInteractionTables(QtGui.QWidget):
-    """Create a widget to hold the line interaction table widget."""
+    """Widget to hold the line interaction tables used by 
+    LineInfo which in turn is used by spectrum widget.."""
 
     def __init__(self, line_interaction_analysis, atom_data, description):
+        """Create the widget and set data."""
         super(LineInteractionTables, self).__init__()
         self.text_description = QtGui.QLabel(str(description))
         self.species_table = QtGui.QTableView()
@@ -1110,6 +1311,7 @@ class LineInteractionTables(QtGui.QWidget):
         self.show()
 
     def on_species_clicked(self, index):
+        """"""
         current_species = self.species_selected[index]
         last_line_in = self.line_interaction_analysis.last_line_in
         last_line_out = self.line_interaction_analysis.last_line_out
@@ -1148,8 +1350,10 @@ class LineInteractionTables(QtGui.QWidget):
         self.transitions_table.setModel(last_line_in_model)
 
 class LineInfo(QtGui.QDialog):
-    """Create dialog to show the line info."""
+    """Dialog to show the line info used by spectrum widget."""
     def __init__(self, parent, wavelength_start, wavelength_end):
+        """Create the dialog and set data in it from the model. 
+        Show widget."""
         super(LineInfo, self).__init__(parent)
         self.parent = parent
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
@@ -1179,6 +1383,8 @@ class LineInfo(QtGui.QDialog):
         self.show()
 
     def get_data(self, wavelength_start, wavelength_end):
+        """Fetch line info data for the specified wavelength range 
+        from the model and create ionstable."""
         self.wavelength_start = wavelength_start * u.angstrom
         self.wavelength_end = wavelength_end * u.angstrom
         last_line_in_ids, last_line_out_ids = analysis.get_last_line_interaction(
@@ -1200,6 +1406,8 @@ class LineInfo(QtGui.QDialog):
             self.header_list.append('Z = %d: Ion %d' % (z, ion))
 
     def get_transition_table(self, lines, atom, ion):
+        """Called by the two methods below to get transition table for
+        given lines, atom and ions."""
         grouped = lines.groupby(['atomic_number', 'ion_number'])
         transitions_with_duplicates = lines.ix[grouped.groups[(atom, ion)]
             ].groupby(['level_number_lower', 'level_number_upper']).groups
@@ -1224,6 +1432,8 @@ class LineInfo(QtGui.QDialog):
         return transitions_parsed, transitions_count
 
     def on_atom_clicked(self, index):
+        """Create and show transition table for the clicked item in the
+        dialog created by the spectrum widget."""
         self.transitionsin_parsed, self.transitionsin_count = (
             self.get_transition_table(self.last_line_in, 
             self.ions_in[index][0], self.ions_in[index][1]))
@@ -1244,6 +1454,8 @@ class LineInfo(QtGui.QDialog):
         self.show()
 
     def on_atom_clicked2(self, index):
+        """Create and show transition table for the clicked item in the
+        dialog created by the spectrum widget."""
         self.transitionsin_parsed, self.transitionsin_count = (
             self.get_transition_table(self.last_line_in, self.ions_in[index][0], 
             self.ions_in[index][1]))
@@ -1265,8 +1477,12 @@ class LineInfo(QtGui.QDialog):
 
 class SimpleTableModel(QtCore.QAbstractTableModel):
     """Create a table data structure for the table widgets."""
+    
     def __init__(self, headerdata=None, iterate_header=(0, 0), 
-        index_info=None, parent=None, *args):
+            index_info=None, parent=None, *args):
+        """Call constructor of the QAbstractTableModel and set parameters
+        given by user.
+        """
         super(SimpleTableModel, self).__init__(parent, *args)
         self.headerdata = headerdata
         self.arraydata = []
@@ -1274,15 +1490,19 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         self.index_info = index_info
 
     def addData(self, datain):
+        """Add data to the model."""
         self.arraydata.append(datain)
 
     def rowCount(self, parent=QtCore.QModelIndex()):
+        """Return number of rows."""
         return len(self.arraydata[0])
 
     def columnCount(self, parent=QtCore.QModelIndex()):
+        """Return number of columns."""
         return len(self.arraydata)
 
     def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
+        """Set the header data."""
         if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
             if self.iterate_header[0] == 1:
                 return self.headerdata[0][0] + str(section + 1)
@@ -1304,6 +1524,7 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         return None
 
     def data(self, index, role=QtCore.Qt.DisplayRole):
+        """Return data of specified index and role."""
         if not index.isValid():
             return None
         elif role != QtCore.Qt.DisplayRole:
@@ -1311,6 +1532,8 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         return (self.arraydata[index.column()][index.row()])
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
+        """Change the data in the model for specified index and role
+        to specified value."""
         if not index.isValid():
             return False
         elif role != QtCore.Qt.EditRole:
@@ -1322,15 +1545,17 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         return True
 
     def updateTable(self):
+        """Update table to set all the new data."""
         for r in range(self.rowCount()):
             for c in range(self.columnCount()):
                 index = self.createIndex(r, c)
                 self.setData(index, self.arraydata[c][r])
 
 class MatplotlibWidget(FigureCanvas):
-    """A matplotlib widget to be subclassed when a plot is to be shown."""
+    """Canvas to draw graphs on."""
 
     def __init__(self, parent, fig=None):
+        """Create the canvas. Add toolbar depending on the parent."""
         self.parent = parent
         self.figure = Figure()#(frameon=False,facecolor=(1,1,1))
         self.cid = {}
@@ -1356,10 +1581,13 @@ class MatplotlibWidget(FigureCanvas):
                 self.on_shell_pick)
 
     def show_line_info(self):
+        """Show line info for span selected region."""
         self.parent.line_info.append(LineInfo(self.parent, self.span.xy[0][0], 
             self.span.xy[2][0]))
 
     def show_span(self, garbage=0, left=5000, right=10000):
+        """Hide/Show/Change the buttons that show line info
+        in spectrum plot widget."""
         if self.parent.spectrum_span_button.text() == 'Show Wavelength Range':
             if not self.span:
                 self.span = self.ax.axvspan(left, right, color='r', alpha=0.3, 
@@ -1375,6 +1603,7 @@ class MatplotlibWidget(FigureCanvas):
         self.draw()
 
     def on_span_pick(self, event):
+        """Callback to 'pick'(grab with mouse) the span selector tool."""
         self.figure.canvas.mpl_disconnect(self.cid[0])
         self.span.set_edgecolor('m')
         self.span.set_linewidth(5)
@@ -1389,6 +1618,8 @@ class MatplotlibWidget(FigureCanvas):
             self.on_span_resized)
 
     def on_span_left_motion(self, mouseevent):
+        """Update data of span selector tool on left movement of mouse and
+        redraw."""
         if mouseevent.xdata < self.span.xy[2][0]:
             self.span.xy[0][0] = mouseevent.xdata
             self.span.xy[1][0] = mouseevent.xdata
@@ -1396,12 +1627,15 @@ class MatplotlibWidget(FigureCanvas):
             self.draw()
 
     def on_span_right_motion(self, mouseevent):
+        """Update data of span selector tool on right movement of mouse and
+        redraw."""
         if mouseevent.xdata > self.span.xy[0][0]:
             self.span.xy[2][0] = mouseevent.xdata
             self.span.xy[3][0] = mouseevent.xdata
             self.draw()
 
     def on_span_resized(self, mouseevent):
+        """Redraw the red rectangle to currently selected span."""
         self.figure.canvas.mpl_disconnect(self.cid[1])
         self.figure.canvas.mpl_disconnect(self.cid[2])
         self.cid[0] = self.figure.canvas.mpl_connect('pick_event', 
@@ -1411,9 +1645,11 @@ class MatplotlibWidget(FigureCanvas):
         self.draw()
 
     def on_shell_pick(self, event):
+        """Highlight the shell that was picked."""
         self.highlight_shell(event.artist.index)
 
     def highlight_shell(self, index):
+        """Change edgecolor of highlighted shell."""
         self.parent.tableview.selectRow(index)
         for i in range(len(self.parent.shells)):
             if i != index and i != index + 1:
@@ -1423,6 +1659,7 @@ class MatplotlibWidget(FigureCanvas):
         self.draw()
 
     def shell_picker(self, shell, mouseevent):
+        """Enable picking shells in the shell plot."""
         if mouseevent.xdata is None:
             return False, dict()
         mouse_r2 = mouseevent.xdata ** 2 + mouseevent.ydata ** 2
@@ -1431,6 +1668,8 @@ class MatplotlibWidget(FigureCanvas):
         return False, dict()
 
     def span_picker(self, span, mouseevent, tolerance=5):
+        """Detect mouseclicks inside tolerance region of the span selector
+        tool and pick it."""
         left = float(span.xy[0][0])
         right = float(span.xy[2][0])
         tolerance = span.axes.transData.inverted().transform((tolerance, 0)
