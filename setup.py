@@ -118,3 +118,4 @@ setup(name=PACKAGENAME + '-sn',
       entry_points=entry_points,
       **package_info
 )
+
