@@ -100,8 +100,8 @@ class TauSobolev(ProcessingPlasmaProperty):
         wavelength = lines.wavelength_cm.values[np.newaxis].T
 
         ### Why copy ??? #####
-        n_lower = level_population.values.take(lines_lower_level_index, axis=0, mode='raise')
-        n_upper = level_population.values.take(lines_upper_level_index, axis=0, mode='raise')
+        n_lower = level_population.values.take(lines_lower_level_index, axis=0, mode='raise').copy('F')
+        n_upper = level_population.values.take(lines_upper_level_index, axis=0, mode='raise').copy('F')
 
         stimulated_emission_factor = self._calculate_stimulated_emission_factor(
             levels, n_lower, n_upper, lines_lower_level_index,
