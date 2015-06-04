@@ -48,8 +48,8 @@ if os.environ.get('QT_API', None)=='pyqt':
 elif os.environ.get('QT_API', None)=='pyside':
     from PySide import QtGui, QtCore
 else:
-    raise ImportError('QT_API was not set! Please exit the IPython console'+
-        ' and at the bash prompt use : \n\n export QT_API=pyside \n or \n'+
+    raise ImportError('QT_API was not set! Please exit the IPython console\n'
+        ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
         ' export QT_API=pyqt \n\n For more information refer to user guide.')
 import yaml
 from astropy import units as u
@@ -58,16 +58,16 @@ from tardis import analysis, util
 from tardis import run_tardis
 import tardis
 
-if (parse_version(matplotlib.__version__)>=parse_version('1.4')):
+if (parse_version(matplotlib.__version__) >= parse_version('1.4')):
     matplotlib.style.use('fivethirtyeight')
 else:
     print "Please upgrade matplotlib to a version >=1.4 for best results!"
-matplotlib.rcParams['font.family']='serif'
-matplotlib.rcParams['font.size']=10.0
-matplotlib.rcParams['lines.linewidth']=1.0
-matplotlib.rcParams['axes.formatter.use_mathtext']=True
-matplotlib.rcParams['axes.edgecolor']=matplotlib.rcParams['grid.color']
-matplotlib.rcParams['axes.linewidth']=matplotlib.rcParams['grid.linewidth']
+matplotlib.rcParams['font.family'] = 'serif'
+matplotlib.rcParams['font.size'] = 10.0
+matplotlib.rcParams['lines.linewidth'] = 1.0 
+matplotlib.rcParams['axes.formatter.use_mathtext'] = True
+matplotlib.rcParams['axes.edgecolor'] = matplotlib.rcParams['grid.color']
+matplotlib.rcParams['axes.linewidth'] = matplotlib.rcParams['grid.linewidth']
 
 class TemporarilyUnavaliable(Exception):
     """Exception raised when creation of active mode of tardis is attempted."""
@@ -132,8 +132,8 @@ class Tardis(QtGui.QMainWindow):
 
         #Statusbar
         statusbr = self.statusBar()
-        self.successLabel = QtGui.QLabel('<font color="red"><b>Calculation'+ 
-            'did not converge</b></font>')
+        lblstr = '<font color="red"><b>Calculation did not converge</b></font>'
+        self.successLabel = QtGui.QLabel(lblstr)
         self.successLabel.setFrameStyle(QtGui.QFrame.StyledPanel |
             QtGui.QFrame.Sunken)
         statusbr.addPermanentWidget(self.successLabel)
@@ -198,8 +198,8 @@ class Tardis(QtGui.QMainWindow):
             # self.viewMdv.setEnabled(True)
             # model = run_tardis(config, atom_data)
             # self.show_model(model)
-            raise TemporarilyUnavaliable("The active mode is under development"+
-                ". Please use the passive mode for now.")
+            raise TemporarilyUnavaliable("The active mode is under" 
+                "development. Please use the passive mode for now.")
 
         self.setCentralWidget(self.stackedWidget)
 
@@ -280,7 +280,7 @@ class ConfigEditor(QtGui.QWidget):
                                 'classical_nebular':[False, False]
                               }
                       },
-            'model':{ 'structure':{'type':[True, ['file|_:_|filename|_:_|'+
+            'model':{ 'structure':{'type':[True, ['file|_:_|filename|_:_|'
             'filetype|_:_|v_inner_boundary|_:_|v_outer_boundary', 
             'specific|_:_|velocity|_:_|density']],
                       'filename':[True, None],
@@ -288,10 +288,10 @@ class ConfigEditor(QtGui.QWidget):
                       'v_inner_boundary':[False, '0 km/s'],
                       'v_outer_boundary':[False, 'inf km/s'],
                       'velocity':[True, None],
-                      'density':{ 'type':[True, ['branch85_w7|_:_|w7_time_0'+
+                      'density':{ 'type':[True, ['branch85_w7|_:_|w7_time_0'
                                     '|_:_|w7_time_0|_:_|w7_time_0',
-                                    'exponential|_:_|time_0|_:_|rho_0|_:_|'+
-                                    'v_0','power_law|_:_|time_0|_:_|rho_0'+
+                                    'exponential|_:_|time_0|_:_|rho_0|_:_|'
+                                    'v_0','power_law|_:_|time_0|_:_|rho_0'
                                     '|_:_|v_0|_:_|exponent','uniform|_:_|value']],
                                   'w7_time_0':[False, '0.000231481 day'],
                                   'w7_rho_0':[False, '3e29 g/cm^3'],
@@ -303,7 +303,7 @@ class ConfigEditor(QtGui.QWidget):
                                   'value':[True, None] 
                                 }
                                   },
-                      'abundances':{ 'type':[True, ['file|_:_|filetype|_:_|'+
+                      'abundances':{ 'type':[True, ['file|_:_|filetype|_:_|'
                                      'filename', 'uniform']],
                                      'filename':[True, None],
                                      'filetype':[False, None]
@@ -322,11 +322,11 @@ class ConfigEditor(QtGui.QWidget):
                           'enable_reflective_inner_boundary':[False, False],
                           'inner_boundary_albedo':[False, 0.0],
                           'convergence_strategy':{ 'type':[True, 
-                          ['damped|_:_|damping_constant|_:_|t_inner|_:_|'+
-                          't_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|'+
-                          't_inner_update_exponent','specific|_:_|threshold'+
-                          '|_:_|fraction|_:_|hold_iterations|_:_|t_inner'+
-                          '|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|'+
+                          ['damped|_:_|damping_constant|_:_|t_inner|_:_|'
+                          't_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|'
+                          't_inner_update_exponent','specific|_:_|threshold'
+                          '|_:_|fraction|_:_|hold_iterations|_:_|t_inner'
+                          '|_:_|t_rad|_:_|w|_:_|lock_t_inner_cycles|_:_|'
                           'damping_constant|_:_|t_inner_update_exponent']],
                                    't_inner_update_exponent':[False, -0.5],
                                    'lock_t_inner_cycles':[False, 1],
