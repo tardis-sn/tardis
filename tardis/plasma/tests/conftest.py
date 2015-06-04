@@ -14,7 +14,8 @@ IonizationData, LinesUpperLevelIndex, LinesLowerLevelIndex)
 from tardis.plasma.standard_plasmas import LTEPlasma
 from tardis.plasma.properties.level_population import (LevelPopulationLTE,
 LevelNumberDensity)
-from tardis.plasma.properties.radiative_properties import TauSobolev
+from tardis.plasma.properties.radiative_properties import (TauSobolev,
+StimulatedEmissionFactor)
 
 @pytest.fixture
 def number_of_cells():
@@ -136,9 +137,15 @@ def lines_lower_level_index(lines, levels):
     return lower_level_index_module.calculate(levels, lines)
 
 @pytest.fixture
-def tau_sobolev(lines, levels, level_number_density_lte,
-    lines_upper_level_index, lines_lower_level_index, time_explosion):
+def stimulated_emission_factor(levels, level_number_density_lte,
+    lines_lower_level_index, lines_upper_level_index):
+    factor_module = StimulatedEmissionFactor(None)
+    return factor_module.calculate(levels, level_number_density_lte,
+        lines_lower_level_index,lines_upper_level_index)
+
+@pytest.fixture
+def tau_sobolev(lines, level_number_density_lte, lines_lower_level_index,
+    time_explosion, stimulated_emission_factor):
     tau_sobolev_module = TauSobolev(None)
-    return tau_sobolev_module.calculate(lines, levels,
-        level_number_density_lte, lines_upper_level_index,
-        lines_lower_level_index, time_explosion)
+    return tau_sobolev_module.calculate(lines, level_number_density_lte,
+        lines_lower_level_index, time_explosion, stimulated_emission_factor)
