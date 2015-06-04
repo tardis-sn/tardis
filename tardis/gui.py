@@ -1,11 +1,5 @@
 """gui.py contains all the classes used to create the GUI for Tardis.
 
-3. routine listings
-4. see also
-5. notes
-6. references
-7. examples
-
 This module must be imported inside IPython console started with eventloop
 integration. The console provides the event loop and the place to 
 create/calculate the tardis model. So the module is basically a tool to 
