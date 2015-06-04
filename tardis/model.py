@@ -131,7 +131,8 @@ class Radial1DModel(object):
                                                          nlte_config=tardis_config.plasma.nlte,
                                                          delta_treatment=tardis_config.plasma.delta_treatment,
                                                          ionization_mode=tardis_config.plasma.ionization,
-                                                         excitation_mode=tardis_config.plasma.excitation)
+                                                         excitation_mode=tardis_config.plasma.excitation,
+                                                         line_interaction_type=tardis_config.plasma.line_interaction_type)
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
@@ -238,7 +239,7 @@ class Radial1DModel(object):
 
 
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
-            self.transition_probabilities = self.plasma_array.calculate_transition_probabilities()
+            self.transition_probabilities = self.plasma_array.transition_probabilities
 
 
     def update_radiationfield(self, log_sampling=5):
