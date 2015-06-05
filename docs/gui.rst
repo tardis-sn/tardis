@@ -18,27 +18,55 @@ to create/calculate the tardis model. So the module is basically a tool to visua
 
 Running instructions
 --------------------
-    1. Decide which Qt binding you want to use (PySide or PyQt) and 
-    accordingly set QT_API in shell
-            ```bash
-            export QT_API=pyside 
-            or
+    Decide which Qt binding you want to use (PySide or PyQt) and 
+    accordingly set QT_API in shell::
+
+            export QT_API=pyside
+            or:
             export QT_API=pyqt
-            ``` 
-    2. Start the IPython console with eventloop integration 
-            ```bash
+            
+    Start the IPython console with eventloop integration::
+    
             ipython --pylab=qt4
-            ```
-    3. Display your model
-            ```python
-            from tardis import gui 
-            win = gui.Tardis()
-            win.show_model(mdl)
-            ```
-Raises
-------
+            
+    Display your model
+    
+    .. code-block:: python
+    
+        from tardis import gui 
+        win = gui.Tardis()
+        win.show_model(mdl)
+
+Exceptions
+----------
     TemporarilyUnavaliable
         Raised when the currently disabled active mode is requested.
 
 GUI Layout and Features
 -----------------------
+When you launch the gui the first screen that you see will be something like the snapshot below. 
+    
+.. image:: graphics/OpeningScreen.png
+    :width: 900
+
+Shell Info
+~~~~~~~~~~
+You can inspect the plot of shells on the first window you see and use the toggle button to see the 
+plot of dilution factor and the radiation temperature in shells.
+
+To see the abundances in a shell double-click on the shell number in the table. You can follow a 
+similar strategy in the tables that appear to bring up the ion and level populations for each shell.
+The snapshot below shows all the tables that you can bring up by successively clicking the horizontal
+table headers. 
+
+.. image:: graphics/ShellInfo.png
+    :width: 900
+
+Line Info
+~~~~~~~~~
+If you switch to the spectrum tab you can see the spectrum plot and a button to show line info.
+Once again you can double-click the table headers to get further information. The snapshot below
+shows all the tables that you can bring up in this window.
+
+.. image:: graphics/LineInfo.png
+    :width: 900
