@@ -219,10 +219,11 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         return ion_populations
 
     def calculate(self, phi, partition_function, number_density):
+        n_e_convergence_threshold = 0.05
         n_electron = number_density.sum(axis=0)
         n_electron_iterations = 0
         new_n_electron = np.zeros_like(n_electron)
-        while not np.allclose(new_n_electron, n_electron):
+        while True:
             ion_number_density = self.calculate_with_n_electron(
                 phi, partition_function, number_density, n_electron)
             ion_numbers = ion_number_density.index.get_level_values(1).values
@@ -240,6 +241,10 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                             ' something is probably wrong'.format(
                     n_electron_iterations))
 
+            if np.all(np.abs(new_n_electron - n_electron)
+                / n_electron < n_e_convergence_threshold):
+                break
+
             n_electron = 0.5 * (new_n_electron + n_electron)
 
         return ion_number_density
@@ -247,8 +252,18 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 class ElectronDensity(ProcessingPlasmaProperty):
     name = 'electron_densities'
 
-    def calculate(self, ion_number_density):
-        ion_numbers = ion_number_density.index.get_level_values(1).values
-        ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
-        n_electron = (ion_number_density.values * ion_numbers).sum(axis=0)
+    def calculate(self, ion_number_density, phi):
+        # Could check electron density for any element/ions in each zone, but
+        # if number density of element/ions was zero, it would not work.
+        # So setting this to calculate from the dominant ion in each zone.
+        dominant_ions = ion_number_density.sum(level=(0,1)).idxmax()
+        upper_ions = []
+        for ion in dominant_ions.values:
+            upper_ions.append((ion[0], ion[1]+1))
+        n_electron = []
+        for zone in range(len(ion_number_density.columns)):
+            n_electron.append(
+                (ion_number_density[zone].ix[dominant_ions[zone]] /
+                ion_number_density[zone].ix[upper_ions[zone]]) *
+                phi.ix[upper_ions[zone]][zone])
         return pd.Series(n_electron, index=np.arange(0, len(n_electron)))
