@@ -76,8 +76,8 @@ environment variable QT_API in your bash.
 	#To choose PySide
 	export QT_API=pyside
 	
-	#To go back to PyQt4
-	unset QT_API
+	#To choose PyQt
+	export QT_API=pyqt
 
 **3**. An example of creating a model and GUI
 
