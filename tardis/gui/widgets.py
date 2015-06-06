@@ -16,14 +16,17 @@ from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationTo
 from matplotlib import colors
 from matplotlib.patches import Circle
 import matplotlib.pylab as plt
+from astropy import units as u
 
 import tardis
+from tardis import analysis, util
 
 class MatplotlibWidget(FigureCanvas):
     """Canvas to draw graphs on."""
 
-    def __init__(self, parent, fig=None):
+    def __init__(self, tablecreator, parent, fig=None):
         """Create the canvas. Add toolbar depending on the parent."""
+        self.tablecreator = tablecreator
         self.parent = parent
         self.figure = Figure()#(frameon=False,facecolor=(1,1,1))
         self.cid = {}
@@ -51,7 +54,7 @@ class MatplotlibWidget(FigureCanvas):
     def show_line_info(self):
         """Show line info for span selected region."""
         self.parent.line_info.append(LineInfo(self.parent, self.span.xy[0][0], 
-            self.span.xy[2][0]))
+            self.span.xy[2][0], self.tablecreator))
 
     def show_span(self, garbage=0, left=5000, right=10000):
         """Hide/Show/Change the buttons that show line info
@@ -484,7 +487,7 @@ class ModelViewer(QtGui.QWidget):
 
         """
         #Widgets for plot of shells
-        self.graph = MatplotlibWidget(self, 'model')
+        self.graph = MatplotlibWidget(self.createTable, self, 'model')
         self.graph_label = QtGui.QLabel('Select Property:')
         self.graph_button = QtGui.QToolButton()
         self.graph_button.setText('Rad. temp')
@@ -513,7 +516,7 @@ class ModelViewer(QtGui.QWidget):
         a container widget. Return the container widget.
 
         """
-        self.spectrum = MatplotlibWidget(self)
+        self.spectrum = MatplotlibWidget(self.createTable, self)
         self.spectrum_label = QtGui.QLabel('Select Spectrum:')
         self.spectrum_button = QtGui.QToolButton()
         self.spectrum_button.setText('spec_flux_angstrom')
@@ -805,10 +808,11 @@ class ShellInfo(QtGui.QDialog):
 
 class LineInfo(QtGui.QDialog):
     """Dialog to show the line info used by spectrum widget."""
-    def __init__(self, parent, wavelength_start, wavelength_end):
+    def __init__(self, parent, wavelength_start, wavelength_end, tablecreator):
         """Create the dialog and set data in it from the model. 
         Show widget."""
         super(LineInfo, self).__init__(parent)
+        self.createTable = tablecreator
         self.parent = parent
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
         self.setWindowTitle('Line Interaction: %.2f - %.2f (A) ' % (
@@ -828,10 +832,11 @@ class LineInfo(QtGui.QDialog):
 
 
         self.layout.addWidget(LineInteractionTables(packet_nu_line_interaction, 
-            self.parent.model.atom_data, 'filtered by frequency of packet'))
+            self.parent.model.atom_data, 'filtered by frequency of packet', 
+            self.createTable))
         self.layout.addWidget(LineInteractionTables(line_in_nu_line_interaction, 
             self.parent.model.atom_data, 
-            'filtered by frequency of line interaction'))
+            'filtered by frequency of line interaction', self.createTable))
 
         self.setLayout(self.layout)
         self.show()
@@ -900,9 +905,9 @@ class LineInfo(QtGui.QDialog):
         self.transitionsout_parsed, self.transitionsout_count = (
             self.get_transition_table(self.last_line_out, 
             self.ions_out[index][0], self.ions_out[index][1]))
-        self.transitionsindata = SimpleTableModel([self.transitionsin_parsed, 
+        self.transitionsindata = self.createTable([self.transitionsin_parsed, 
             ['Lines In']])
-        self.transitionsoutdata = SimpleTableModel([self.transitionsout_parsed, 
+        self.transitionsoutdata = self.createTable([self.transitionsout_parsed, 
             ['Lines Out']])
         self.transitionsindata.addData(self.transitionsin_count)
         self.transitionsoutdata.addData(self.transitionsout_count)
@@ -924,9 +929,9 @@ class LineInfo(QtGui.QDialog):
         self.transitionsout_parsed, self.transitionsout_count = (
             self.get_transition_table(self.last_line_out, 
             self.ions_out[index][0], self.ions_out[index][1]))
-        self.transitionsindata = SimpleTableModel([self.transitionsin_parsed, 
+        self.transitionsindata = self.createTable([self.transitionsin_parsed, 
             ['Lines In']])
-        self.transitionsoutdata = SimpleTableModel([self.transitionsout_parsed,
+        self.transitionsoutdata = self.createTable([self.transitionsout_parsed,
             ['Lines Out']])
         self.transitionsindata.addData(self.transitionsin_count)
         self.transitionsoutdata.addData(self.transitionsout_count)
@@ -943,9 +948,11 @@ class LineInteractionTables(QtGui.QWidget):
 
     """
 
-    def __init__(self, line_interaction_analysis, atom_data, description):
+    def __init__(self, line_interaction_analysis, atom_data, description, 
+        tablecreator):
         """Create the widget and set data."""
         super(LineInteractionTables, self).__init__()
+        self.createTable = tablecreator
         self.text_description = QtGui.QLabel(str(description))
         self.species_table = QtGui.QTableView()
         self.transitions_table = QtGui.QTableView()
@@ -959,7 +966,7 @@ class LineInteractionTables(QtGui.QWidget):
             line_interaction_species_group.groups.keys())
         species_symbols = [util.species_tuple_to_string(item, 
             atom_data) for item in self.species_selected]
-        species_table_model = SimpleTableModel([species_symbols, ['Species']])
+        species_table_model = self.createTable([species_symbols, ['Species']])
         species_abundances = (
             line_interaction_species_group.wavelength.count().astype(float) /
             line_interaction_analysis.last_line_in.wavelength.count()).astype(float).tolist()
@@ -1011,7 +1018,7 @@ class LineInteractionTables(QtGui.QWidget):
             last_line_count.append(int(row))
 
 
-        last_line_in_model = SimpleTableModel([last_line_in_string, [
+        last_line_in_model = self.createTable([last_line_in_string, [
             'Num. pkts %d' % current_last_line_in.wavelength.count()]])
         last_line_in_model.addData(last_line_count)
         self.transitions_table.setModel(last_line_in_model)

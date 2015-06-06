@@ -34,7 +34,10 @@ def show(model):
     except ImportError:
         app.exec_()
 
-# if __name__=='__main__':
-#     yamlfile = sys.argv[1]
-#     atomfile = sys.argv[2]
-#     win = Tardis(tablemodel, yamlfile, atomfile)
+if __name__=='__main__':
+    from tardis import run_tardis
+    
+    yamlfile = sys.argv[1]
+    atomfile = sys.argv[2]
+    mdl = run_tardis(yamlfile, atomfile)
+    show(mdl) 
