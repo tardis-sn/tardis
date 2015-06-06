@@ -42,9 +42,7 @@ else:
         ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
         ' export QT_API=pyqt \n\n For more information refer to user guide.')
 import yaml
-from astropy import units as u
 
-from tardis import analysis, util
 from tardis import run_tardis
 from tardis.gui.widgets import MatplotlibWidget, ModelViewer, ShellInfo
 from tardis.gui.widgets import LineInfo, LineInteractionTables
