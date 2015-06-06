@@ -1,0 +1,590 @@
+"""gui.py contains all the classes used to create the GUI for Tardis.
+
+This module must be imported inside IPython console started with eventloop
+integration. The console provides the event loop and the place to 
+create/calculate the tardis model. So the module is basically a tool to 
+visualize results. 
+
+Running instructions
+--------------------
+    1. Decide which Qt binding you want to use (PySide or PyQt) and 
+    accordingly set QT_API in shell
+            export QT_API=pyside 
+            export QT_API=pyqt 
+    2. Start the IPython console with eventloop integration 
+            ipython --pylab=qt4
+    3. Display your model
+            from tardis import gui 
+            win = gui.Tardis()
+            win.show_model(mdl)
+
+Raises
+------
+    TemporarilyUnavaliable
+        Raised when the currently disabled active mode is requested.
+
+"""
+import os
+from pkg_resources import parse_version
+import exceptions
+
+import numpy as np
+import matplotlib
+import matplotlib.pylab as plt
+
+
+if os.environ.get('QT_API', None)=='pyqt':
+    from PyQt4 import QtGui, QtCore
+elif os.environ.get('QT_API', None)=='pyside':
+    from PySide import QtGui, QtCore
+else:
+    raise ImportError('QT_API was not set! Please exit the IPython console\n'
+        ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
+        ' export QT_API=pyqt \n\n For more information refer to user guide.')
+import yaml
+from astropy import units as u
+
+from tardis import analysis, util
+from tardis import run_tardis
+from tardis.gui.widgets import MatplotlibWidget, ModelViewer, ShellInfo
+from tardis.gui.widgets import LineInfo, LineInteractionTables
+
+if (parse_version(matplotlib.__version__) >= parse_version('1.4')):
+    matplotlib.style.use('fivethirtyeight')
+else:
+    print "Please upgrade matplotlib to a version >=1.4 for best results!"
+matplotlib.rcParams['font.family'] = 'serif'
+matplotlib.rcParams['font.size'] = 10.0
+matplotlib.rcParams['lines.linewidth'] = 1.0 
+matplotlib.rcParams['axes.formatter.use_mathtext'] = True
+matplotlib.rcParams['axes.edgecolor'] = matplotlib.rcParams['grid.color']
+matplotlib.rcParams['axes.linewidth'] = matplotlib.rcParams['grid.linewidth']
+
+class Node(object):
+    """Object that serves as the nodes in the TreeModel.
+
+    Attributes
+    ----------
+        parent: None/Node 
+            The parent of the node.
+        children: list of Node
+            The children of the node.
+        data: list of string 
+            The data stored on the node. Can be a key or a value.
+        siblings: dictionary 
+            A dictionary of nodes that are siblings of this node. The 
+            keys are the values of the nodes themselves. This is 
+            used to keep track of which value the user has selected
+            if the parent of this node happens to be a key that can
+            take values from a list.
+
+    """
+
+    def __init__(self, data, parent=None):
+        """Create one node with the data and parent provided.
+
+        Parameters
+        ----------
+            data: list of string
+                The data that is intended to be stored on the node.
+            parent: Node 
+                Another node which is the parent of this node. The 
+                root node has parent set to None.
+
+        Note
+        ----
+            A leaf node is a node that is the only child of its parent. 
+            For this tree this will always be the case. This is because
+            the tree stores the key at every node except the leaf node
+            where it stores the value for the key. So if in the dictionary
+            the value of a key is another dictionary, then it will 
+            be a node with no leafs. If the key has a value that is a 
+            value or a list then it will have one child that is a leaf.
+            The leaf can have no children. For example-
+
+            'a':val1
+            'b':{'c':val2
+                 'd':val3
+                 'e':{'f':val4
+                      'g':val5
+                         :val6
+                         :val7}} *In this case the key g can take values
+                                  val7, val5 and val6 and is currently
+                                  set to val5.
+
+            In the tree shown above all quoted values are keys in the 
+            dictionary and are non-leaf nodes in the tree. All values 
+            of the form valx are leaf nodes and are not dictionaries 
+            themselves. If the keys have non-dictionary values then they
+            have a leaf attached. And no leaf can have a child.
+        
+        """
+        self.parent = parent
+        self.children = []
+        self.data = data
+        self.siblings = {}  #For 'type' fields. Will store the nodes to 
+                            #enable disable on selection
+
+    def appendChild(self, child):
+        """Add a child to this node."""
+        self.children.append(child)
+        child.parent = self
+
+    def getChild(self, i):
+        """Get the ith child of this node. 
+
+        No error is raised if the cild requested doesn't exist. A 
+        None is returned in such cases.
+
+        """
+        if i < self.numChildren():
+            return self.children[i]
+        else:
+            return None
+
+    def numChildren(self):
+        """Number of children this node has."""
+        return len(self.children)
+
+    def numColumns(self):
+        """Returns the number of strings stored in the data attribute."""
+        return len(self.data)
+
+    def getData(self, i):
+        """Returns the ith string from the data list.
+
+        No error is raised if the data list index is exceeded. A None is
+        returned in such cases.
+
+        """
+        try:
+            return self.data[i]
+        except IndexError:
+            return None
+
+    def getParent(self):
+        """Return the parent of this node."""
+        return self.parent
+
+    def getIndexOfSelf(self):
+        """Returns the number at which it comes in the list of its 
+        parent's children. For root the index 0 is returned.
+
+        """
+        if self.parent:
+            return self.parent.children.index(self)
+        else:
+            return 0
+
+    def setData(self, column, value):
+        """Set the data for the ith index to the provided value. Returns
+        true if the data was set successfully.
+
+        """
+        if column < 0 or column >= self.numColumns():
+            return False
+
+        self.data[column] = value
+
+        return True
+
+class TreeModel(QtCore.QAbstractItemModel):
+    """The class that defines the tree for ConfigEditor.
+
+    Parameters
+    ----------
+        root: Node
+            Root node of the tree.
+        disabledNodes: list of Node 
+            List of leaf nodes that are not editable currently.
+        typenodes: list of Node 
+            List of nodes that correspond to keys that set container 
+            types. Look at tardis configuration template. These are the
+            nodes that have values that can be set from a list.
+
+    """
+    def __init__(self, dictionary, parent=None):
+        """Create a tree of tardis configuration dictionary.
+
+        Parameters
+        ----------
+            dictionary: dictionary            
+                The dictionary that needs to be converted to the tree.
+            parent: None 
+                Used to instantiate the QAbstractItemModel
+
+        """
+        QtCore.QAbstractItemModel.__init__(self, parent)
+
+        self.root = Node(["column A"])
+        self.disabledNodes = []
+        self.typenodes = []
+        self.dictToTree(dictionary, self.root)
+
+    def dictToTree(self, dictionary, root):
+        """Create the tree and append siblings to nodes that need them.
+
+        Parameters
+        ----------
+            dictionary: dictionary
+                The dictionary that is to be converted to the tree.
+            root: Node 
+                The root node of the tree.
+
+        """
+        #Construct tree with all nodes
+        self.treeFromNode(dictionary, root)
+
+        #Append siblings to type nodes
+        for node in self.typenodes: #For every type node
+            parent = node.getParent()
+            sibsdict = {}
+            for i in range(parent.numChildren()):
+                sibsdict[parent.getChild(i).getData(0)] = parent.getChild(i)
+
+            typesleaf = node.getChild(0)
+            for i in range(typesleaf.numColumns()):
+                sibstrings = typesleaf.getData(i).split('|_:_|')
+            
+                typesleaf.setData(i, sibstrings[0])
+                sibslist = []
+                for j in range(1, len(sibstrings)):
+                    if sibstrings[j] in sibsdict:
+                        sibslist.append(sibsdict[sibstrings[j]])
+
+                typesleaf.siblings[sibstrings[0]] = sibslist
+            
+            #Then append siblings of current selection for all type nodes to
+            #disabled nodes
+            for i in range(1,typesleaf.numColumns()):
+                key = typesleaf.getData(i)
+                for nd in typesleaf.siblings[key]:
+                    self.disabledNodes.append(nd)
+
+
+    def treeFromNode(self, dictionary, root):
+        """Convert dictionary to tree. Called by dictToTree."""
+        for key in dictionary:
+            child = Node([key])
+            root.appendChild(child)
+            if isinstance(dictionary[key], dict):
+                self.treeFromNode(dictionary[key], child)
+            elif isinstance(dictionary[key], list):
+                if isinstance(dictionary[key][1], list):
+                    leaf = Node(dictionary[key][1])    
+                else:
+                    leaf = Node([dictionary[key][1]])
+
+                child.appendChild(leaf)
+                if key == 'type':
+                    self.typenodes.append(child)
+
+    def dictFromNode(self, node): 
+        """Take a node and convert the whole subtree rooted at it into a 
+        dictionary.
+
+        """
+        children = [node.getChild(i) for i in range(node.numChildren())]
+        if len(children) > 1:
+            dictionary = {}
+            for nd in children:
+                if nd in self.disabledNodes:
+                    pass
+                else:
+                    dictionary[nd.getData(0)] = self.dictFromNode(nd)
+            return dictionary
+        elif len(children)==1:
+            return children[0].getData(0)
+
+    def columnCount(self, index):
+        """Return the number of columns in the node pointed to by
+        the given model index.
+
+        """
+        if index.isValid():
+            return index.internalPointer().numColumns()
+        else:
+            return self.root.numColumns()
+
+    def data(self, index, role):
+        """Returns the asked data for the node specified by the modeLabel
+        index."""
+        if not index.isValid():
+            return None
+
+        if role != QtCore.Qt.DisplayRole:
+            return None
+
+        item = index.internalPointer()
+
+        return item.getData(index.column())
+
+    def flags(self, index):
+        """Return flags for the items whose model index is provided."""
+        if not index.isValid():
+            return QtCore.Qt.NoItemFlags
+
+        node = index.internalPointer()
+        if ((node.getParent() in self.disabledNodes) or 
+            (node in self.disabledNodes)):
+            return QtCore.Qt.NoItemFlags
+
+        if node.numChildren()==0:
+            return (QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled | 
+                QtCore.Qt.ItemIsSelectable)
+
+        return QtCore.Qt.ItemIsEnabled | QtCore.Qt.ItemIsSelectable        
+
+    def getItem(self, index):
+        """Returns the node to which the model index is pointing. If the
+        model index is invalid then the root node is returned.
+
+        """
+        if index.isValid():
+            item = index.internalPointer()
+            if item:
+                return item
+
+        return self.root
+
+    def headerData(self, section, orientation, role):
+        """Returns header data. This is not used in QColumnView. But will
+        be needed for QTreeView.
+
+        """
+        if (orientation == QtCore.Qt.Horizontal and 
+          role == QtCore.Qt.DisplayRole):
+            return self.root.getData(section)
+
+        return None
+
+    def index(self, row, column, parent=QtCore.QModelIndex()):
+        """Create a model index for the given row and column. For a 
+        tree model, the row is the set of nodes with the same parents and
+        the column indexes the data in the node.
+
+        """
+        if parent.isValid() and parent.column() != 0:
+            return QtCore.QModelIndex()
+
+        parentItem = self.getItem(parent)
+        childItem = parentItem.getChild(row)
+        if childItem:
+            return self.createIndex(row, column, childItem)
+        else:
+            return QtCore.QModelIndex()
+
+    def insertColumns(self, position, columns, parent=QtCore.QModelIndex()):
+        """Insert columns in the tree model."""
+        self.beginInsertColumns(parent, position, position + columns - 1)
+        success = self.root.insertColumns(position, columns)
+        self.endInsertColumns()
+
+        return success
+
+    def insertRows(self, position, rows, parent=QtCore.QModelIndex()):
+        """Insert rows in the tree model."""
+        parentItem = self.getItem(parent)
+        self.beginInsertRows(parent, position, position + rows - 1)
+        success = parentItem.insertChildren(position, rows,
+                    self.rootItem.columnCount())
+        self.endInsertRows()
+
+        return success
+
+    def parent(self, index):
+        """Return the parent of the node to which the index points."""
+        if not index.isValid():
+            return QtCore.QModelIndex()
+
+        childItem = index.internalPointer()
+        parentItem = childItem.getParent()
+
+        if parentItem == self.root:
+            return QtCore.QModelIndex()
+
+        return self.createIndex(parentItem.getIndexOfSelf(), 0, parentItem)
+
+    def rowCount(self, parent=QtCore.QModelIndex()):
+        """The number of rows for a given node. 
+        
+        (The number of rows is just the number of children for a node.)
+
+        """
+        parentItem = self.getItem(parent)
+
+        return parentItem.numChildren()
+
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        """Set the value as the data at the location pointed by the 
+        index.
+
+        """
+        if role != QtCore.Qt.EditRole:
+            return False
+
+        item = self.getItem(index)
+        result = item.setData(index.column(), value)
+
+        if result:
+            self.dataChanged.emit(index, index)
+            #print self.dictFromNode(self.root)
+        return result
+
+    def setHeaderData(self, section, orientation, value, 
+        role=QtCore.Qt.EditRole):
+        """Change header data. Unused in columnview."""
+        if role != QtCore.Qt.EditRole or orientation != QtCore.Qt.Horizontal:
+            return False
+
+        result = self.root.setData(section, value)
+        if result:
+            self.headerDataChanged.emit(orientation, section, section)
+
+        return result
+
+class TreeDelegate(QtGui.QStyledItemDelegate):
+    """Create a custom delegate to modify the columnview that displays the 
+    TreeModel.
+
+    """
+    def __init__(self, parent=None):
+        """Call the constructor of the superclass."""
+        QtGui.QStyledItemDelegate.__init__(self, parent)
+
+    def createEditor(self, parent, option, index):
+        """Create a lineEdit or combobox depending on the type of node."""
+        node = index.internalPointer()
+        if node.numColumns()>1:
+            combobox = QtGui.QComboBox(parent)
+            combobox.addItems([node.getData(i) for i in range(node.numColumns())])
+            combobox.setEditable(False)
+            return combobox
+        else:
+            editor =  QtGui.QLineEdit(parent)
+            editor.setText(str(node.getData(0)))
+            editor.returnPressed.connect(self.closeAndCommit)
+            return editor
+
+    def closeAndCommit(self):
+        """Saver for the line edits."""
+        editor = self.sender()
+        if isinstance(editor, QtGui.QLineEdit):
+            self.commitData.emit(editor)
+            self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.NoHint)
+
+    def setModelData(self, editor, model, index):
+        """Called when new data id set in the model. This is where the
+        siblings of type nodes are enabled or disabled according to the 
+        new choice made.
+
+        """
+        node = index.internalPointer()
+
+        if node.numColumns() > 1 and node.getParent().getData(0) != 'type':
+            selectedIndex = editor.currentIndex()
+            firstItem = node.getData(0)
+            node.setData(0, str(editor.currentText()))
+            node.setData(selectedIndex, str(firstItem))
+
+        elif node.numColumns() > 1 and node.getParent().getData(0) == 'type':
+            selectedIndex = editor.currentIndex()
+            firstItem = node.getData(0)
+            node.setData(0, str(editor.currentText()))
+            node.setData(selectedIndex, str(firstItem))
+
+            itemsToDisable = node.siblings[firstItem]
+            itemsToEnable = node.siblings[str(editor.currentText())]
+
+            for nd in itemsToDisable:
+                model.disabledNodes.append(nd)
+
+            for nd in itemsToEnable:
+                if nd in model.disabledNodes:
+                    model.disabledNodes.remove(nd) 
+
+        elif isinstance(editor, QtGui.QLineEdit): 
+            node.setData(0, str(editor.text()))
+        else:
+            QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
+            
+        #print model.dictFromNode(model.root) 
+        #f = open('dictester.dat','w')
+        #f.write(yaml.dump(model.dictFromNode(model.root)))
+        #f.close()
+
+class SimpleTableModel(QtCore.QAbstractTableModel):
+    """Create a table data structure for the table widgets."""
+    
+    def __init__(self, headerdata=None, iterate_header=(0, 0), 
+            index_info=None, parent=None, *args):
+        """Call constructor of the QAbstractTableModel and set parameters
+        given by user.
+        """
+        super(SimpleTableModel, self).__init__(parent, *args)
+        self.headerdata = headerdata
+        self.arraydata = []
+        self.iterate_header = iterate_header
+        self.index_info = index_info
+
+    def addData(self, datain):
+        """Add data to the model."""
+        self.arraydata.append(datain)
+
+    def rowCount(self, parent=QtCore.QModelIndex()):
+        """Return number of rows."""
+        return len(self.arraydata[0])
+
+    def columnCount(self, parent=QtCore.QModelIndex()):
+        """Return number of columns."""
+        return len(self.arraydata)
+
+    def headerData(self, section, orientation, role=QtCore.Qt.DisplayRole):
+        """Set the header data."""
+        if orientation == QtCore.Qt.Vertical and role == QtCore.Qt.DisplayRole:
+            if self.iterate_header[0] == 1:
+                return self.headerdata[0][0] + str(section + 1)
+            elif self.iterate_header[0] == 2:
+                if self.index_info:
+                    return self.headerdata[0][0] + str(self.index_info[section])
+                else:
+                    return self.headerdata[0][0] + str(section + 1)
+            else:
+                return self.headerdata[0][section]
+        elif orientation == QtCore.Qt.Horizontal and role == QtCore.Qt.DisplayRole:
+            if self.iterate_header[1] == 1:
+                return self.headerdata[1][0] + str(section + 1)
+            elif self.iterate_header[1] == 2:
+                if self.index_info:
+                    return self.headerdata[1][0] + str(self.index_info[section])
+            else:
+                return self.headerdata[1][section]
+        return None
+
+    def data(self, index, role=QtCore.Qt.DisplayRole):
+        """Return data of specified index and role."""
+        if not index.isValid():
+            return None
+        elif role != QtCore.Qt.DisplayRole:
+            return None
+        return (self.arraydata[index.column()][index.row()])
+
+    def setData(self, index, value, role=QtCore.Qt.EditRole):
+        """Change the data in the model for specified index and role
+        to specified value."""
+        if not index.isValid():
+            return False
+        elif role != QtCore.Qt.EditRole:
+            return False
+        self.arraydata[index.column()][index.row()] = value
+        self.emit(QtCore.SIGNAL(
+            'dataChanged(const QModelIndex &, const QModelIndex &)'), 
+            index, index)
+        return True
+
+    def updateTable(self):
+        """Update table to set all the new data."""
+        for r in range(self.rowCount()):
+            for c in range(self.columnCount()):
+                index = self.createIndex(r, c)
+                self.setData(index, self.arraydata[c][r])
