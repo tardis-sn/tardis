@@ -18,29 +18,27 @@ to create/calculate the tardis model. So the module is basically a tool to visua
 
 Running instructions
 --------------------
-    Decide which Qt binding you want to use (PySide or PyQt) and 
-    accordingly set QT_API in shell::
+Decide which Qt binding you want to use (PySide or PyQt) and 
+accordingly set QT_API in shell::
 
-            export QT_API=pyside
-            or:
-            export QT_API=pyqt
-            
-    Start the IPython console with eventloop integration::
-    
-            ipython --pylab=qt4
-            
-    Display your model
-    
-    .. code-block:: python
-    
-        from tardis import gui 
-        win = gui.Tardis()
-        win.show_model(mdl)
+    export QT_API=pyside
+    or:
+    export QT_API=pyqt
+        
+Start the IPython console with eventloop integration::
+
+    ipython --pylab=qt4
+        
+Display your model::
+
+    from tardis import gui 
+    win = gui.Tardis()
+    win.show_model(mdl)
 
 Exceptions
 ----------
-    TemporarilyUnavaliable
-        Raised when the currently disabled active mode is requested.
+TemporarilyUnavaliable
+    Raised when the currently disabled active mode is requested.
 
 GUI Layout and Features
 -----------------------
