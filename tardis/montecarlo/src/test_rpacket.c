@@ -20,6 +20,7 @@ bool test_rpacket_get_d_line(double);
 
 bool test_rpacket_get_current_shell_id(unsigned int);
 bool test_rpacket_get_next_line_id(unsigned int);
+
 bool test_rpacket_get_recently_crossed_boundary(int);
 bool test_rpacket_get_virtual_packet_flag(int);
 bool test_rpacket_get_virtual_packet(int);

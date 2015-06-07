@@ -9,130 +9,110 @@ import numpy as np
 from tardis import __path__ as path
 
 test_path = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
-MAX_FLOAT, MIN_FLOAT = floats[0], floats[3]
-MAX_INT = 10000
-MIN_INT = -10000
 
 tests = CDLL(test_path)
 SIZE = 10
 
+np.random.seed(1)
+doubles = map(c_double, np.random.uniform(
+			floats[3], floats[0], size=SIZE))
+unsigned_integers = np.random.randint(0, 10000, size=SIZE)
+integers = np.random.randint(-10000, 10000, size=SIZE)
 
 # Testing functions with float(C double) valued parameters
-np.random.seed(1)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
 def test_rpacket_get_nu(double_value):
 	assert tests.test_rpacket_get_nu(double_value)
 
-np.random.seed(2)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
 def test_rpacket_get_mu(double_value):
 	assert tests.test_rpacket_get_mu(double_value)
 
-np.random.seed(3)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
 def test_rpacket_get_energy(double_value):
 	assert tests.test_rpacket_get_energy(double_value)
 
-np.random.seed(4)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
 def test_rpacket_get_r(double_value):
 	assert tests.test_rpacket_get_r(double_value)
 
-np.random.seed(5)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
 def test_rpacket_get_tau_event(double_value):
 	assert tests.test_rpacket_get_tau_event(double_value)
 
-np.random.seed(6)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
 def test_rpacket_get_nu_line(double_value):
 	assert tests.test_rpacket_get_nu_line(double_value)
 
-np.random.seed(7)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
-def test_rpacket_get_nu_line(double_value):
+def test_rpacket_get_d_boundary(double_value):
 	assert tests.test_rpacket_get_d_boundary(double_value)
 
-np.random.seed(8)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
-def test_rpacket_get_nu_line(double_value):
+def test_rpacket_get_d_electron(double_value):
 	assert tests.test_rpacket_get_d_electron(double_value)
 
-np.random.seed(9)
 @pytest.mark.parametrize(
-	"double_value", map(c_double, np.random.uniform(
-						MIN_FLOAT, MAX_FLOAT, size=SIZE))
+	"double_value", doubles
 	)
-def test_rpacket_get_nu_line(double_value):
+def test_rpacket_get_d_line(double_value):
 	assert tests.test_rpacket_get_d_line(double_value)
 
 
-# Testing functions with Integer valued parameters
-np.random.seed(10)
+# Testing functions with Unsigned Integer valued parameters
 @pytest.mark.parametrize(
-	"unsigned_int_value", np.random.randint(0, MAX_INT, size=SIZE)
+	"unsigned_int_value", unsigned_integers
 	)
 def test_rpacket_get_current_shell_id(unsigned_int_value):
 	assert tests.test_rpacket_get_current_shell_id(unsigned_int_value)
 
-np.random.seed(11)
 @pytest.mark.parametrize(
-	"nt_value", np.random.randint(MIN_INT, MAX_INT, size=SIZE)
+	"unsigned_int_value", unsigned_integers
 	)
-def test_rpacket_get_next_line_id(int_value):
-	assert tests.test_rpacket_get_next_line_id(int_value)
+def test_rpacket_get_next_line_id(unsigned_int_value):
+	assert tests.test_rpacket_get_next_line_id(unsigned_int_value)
 
-np.random.seed(12)
+
+# Testing functions with Integer valued parameters
 @pytest.mark.parametrize(
-	"int_value", np.random.randint(MIN_INT, MAX_INT, size=SIZE)
+	"int_value", integers
 	)
-def test_rpacket_get_next_line_id(int_value):
+def test_rpacket_get_recently_crossed_boundary(int_value):
 	assert tests.test_rpacket_get_recently_crossed_boundary(int_value)
 
-np.random.seed(13)
 @pytest.mark.parametrize(
-	"int_value", np.random.randint(MIN_INT, MAX_INT, size=SIZE)
+	"int_value", integers
 	)
-def test_rpacket_get_next_line_id(int_value):
+def test_rpacket_get_virtual_packet_flag(int_value):
 	assert tests.test_rpacket_get_virtual_packet_flag(int_value)
 
-np.random.seed(14)
 @pytest.mark.parametrize(
-	"int_value", np.random.randint(MIN_INT, MAX_INT, size=SIZE)
+	"int_value", integers
 	)
-def test_rpacket_get_next_line_id(int_value):
+def test_rpacket_get_virtual_packet(int_value):
 	assert tests.test_rpacket_get_virtual_packet(int_value)
 
-np.random.seed(15)
 @pytest.mark.parametrize(
-	"int_value", np.random.randint(MIN_INT, MAX_INT, size=SIZE)
+	"int_value", integers
 	)
-def test_rpacket_get_next_line_id(int_value):
-	assert tests.test_rpacket_get_next_line_id(int_value)
+def test_rpacket_get_next_shell_id(int_value):
+	assert tests.test_rpacket_get_next_shell_id(int_value)
 
 
 # Testing functions without any parameters
