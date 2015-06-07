@@ -6,7 +6,7 @@ TARDIS uses the `PyQt4 framework <http://www.riverbankcomputing.com/software/pyq
 interface.
 
 The GUI runs through the `IPython Interpreter <http://ipython.org/install.html>`_ which should be started with the
-command ``ipython --pylab=qt``, so that it has acess to pylab.
+command ``ipython --pylab=qt4``, so that it has acess to pylab.
 
 Creating an instance of the :class:`ModelViewer`-class requires that PyQt4/PySide has already been initialized in
 IPython. The above command to start IPython accomplishes this.
@@ -18,29 +18,22 @@ to create/calculate the tardis model. So the module is basically a tool to visua
 
 Running instructions
 --------------------
-    Decide which Qt binding you want to use (PySide or PyQt) and 
-    accordingly set QT_API in shell::
+Decide which Qt binding you want to use (PySide or PyQt) and 
+accordingly set QT_API in shell::
 
-            export QT_API=pyside
-            or:
-            export QT_API=pyqt
-            
-    Start the IPython console with eventloop integration::
-    
-            ipython --pylab=qt4
-            
-    Display your model
-    
-    .. code-block:: python
-    
-        from tardis import gui 
-        win = gui.Tardis()
-        win.show_model(mdl)
+    export QT_API=pyside
+    or:
+    export QT_API=pyqt
+        
+Start the IPython console with eventloop integration::
 
-Exceptions
-----------
-    TemporarilyUnavaliable
-        Raised when the currently disabled active mode is requested.
+    ipython --pylab=qt4
+        
+Display your model::
+
+    from tardis import gui 
+    win = gui.Tardis()
+    win.show_model(mdl)
 
 GUI Layout and Features
 -----------------------
