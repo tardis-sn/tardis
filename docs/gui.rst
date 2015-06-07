@@ -8,7 +8,7 @@ TARDIS uses the `PyQt4 framework <http://www.riverbankcomputing.com/software/pyq
 interface.
 
 The GUI runs through the `IPython Interpreter <http://ipython.org/install.html>`_ which should be started with the
-command ``ipython --pylab=qt``, so that it has acess to pylab.
+command ``ipython --pylab=qt4``, so that it has acess to pylab.
 
 Creating an instance of the :class:`ModelViewer`-class requires that PyQt4/PySide has already been initialized in
 IPython. The above command to start IPython accomplishes this.
