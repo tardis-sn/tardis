@@ -1,35 +1,3 @@
-"""gui.py contains all the classes used to create the GUI for Tardis.
-
-3. routine listings
-4. see also
-5. notes
-6. references
-7. examples
-
-This module must be imported inside IPython console started with eventloop
-integration. The console provides the event loop and the place to 
-create/calculate the tardis model. So the module is basically a tool to 
-visualize results. 
-
-Running instructions
---------------------
-    1. Decide which Qt binding you want to use (PySide or PyQt) and 
-    accordingly set QT_API in shell
-            export QT_API=pyside 
-            export QT_API=pyqt 
-    2. Start the IPython console with eventloop integration 
-            ipython --pylab=qt4
-    3. Display your model
-            from tardis import gui 
-            win = gui.Tardis()
-            win.show_model(mdl)
-
-Raises
-------
-    TemporarilyUnavaliable
-        Raised when the currently disabled active mode is requested.
-
-"""
 import os
 from pkg_resources import parse_version
 import exceptions

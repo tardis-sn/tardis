@@ -4,7 +4,7 @@
 Running TARDIS
 **************
 
-To run TARDIS requires two files. The atomic database (for more info refer to :ref:`atomic-data`) and a
+To run TARDIS requires two files. The atomic database (for more info refer to :ref:`atomic-data-download`) and a
 configuration file (more info at :ref:`config-file`).
 
 Running TARDIS in the commandline
@@ -54,8 +54,9 @@ This model can then be used for inspecting the run as described
 
 Graphical User Interface
 ========================
+To get a detailed explanation on gui layout go to :ref:`gui_explanation` .
 
-**To run the GUI(under development) follow these steps:**
+**To setup and run the GUI(under development) follow these steps:**
 
 The gui can use one of two python bindings for qt, namely PyQt4
 and PySide. You can choose which binding is used by setting the
@@ -69,19 +70,20 @@ environment variable QT_API in your bash.
 	conda install ipython=3.0.0 pyside=1.2.1 shiboken=1.2.1
 
 
-**2**. Choosing between PySide and PyQt4 (optional)
+**2**. Choosing between PySide and PyQt4
 
 .. code-block:: none
 
 	#To choose PySide
 	export QT_API=pyside
 	
-	#To go back to PyQt4
-	unset QT_API
+	#To choose PyQt
+	export QT_API=pyqt
 
 **3**. An example of creating a model and GUI
 
-As of now, the GUI can be started from the ipython shell.  Currently there is no way to work completely from inside the GUI. 
+As of now, the GUI can be started from the ipython shell.  Currently there is no way to work completely from inside the GUI
+or to run the gui outside the ipython shell. 
 
 .. code-block:: none
 
@@ -90,7 +92,7 @@ As of now, the GUI can be started from the ipython shell.  Currently there is no
 .. code-block:: python
 
 	>>> from tardis import run_tardis
-	>>> mdl = run_tardis('tardis_example.yml', 'kurucz_cd23_chianti_H_He.h5')
+	>>> mdl = run_tardis('yamlconfigfile.yml', 'atomdatafile.h5')
 	>>> from tardis import gui
-	>>> mdviewer = gui.ModelViewer()
-	>>> mdviewer.show_model(mdl)
+	>>> win = gui.Tardis()
+	>>> win.show_model(mdl)
