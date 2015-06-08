@@ -1,5 +1,4 @@
 import os
-from sys import float_info as floats
 import random
 from ctypes import CDLL, c_double
 
@@ -11,65 +10,88 @@ from tardis import __path__ as path
 test_path = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 
 tests = CDLL(test_path)
-SIZE = 10
 
 np.random.seed(1)
-doubles = map(c_double, np.random.uniform(
-			floats[3], floats[0], size=SIZE))
-unsigned_integers = np.random.randint(0, 10000, size=SIZE)
-integers = np.random.randint(-10000, 10000, size=SIZE)
+@pytest.fixture
+def doubles():
+	from sys import float_info as floats
+	MAX_INT, MIN_INT = floats[0], floats[3]
+	SIZE = 10
+
+	
+
+unsigned_integers = np.random.randint(0, 10000, size=10)
+integers = np.random.randint(-10000, 10000, size=10)
 
 # Testing functions with float(C double) valued parameters
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_nu(double_value):
 	assert tests.test_rpacket_get_nu(double_value)
 
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_mu(double_value):
 	assert tests.test_rpacket_get_mu(double_value)
 
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_energy(double_value):
 	assert tests.test_rpacket_get_energy(double_value)
 
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_r(double_value):
 	assert tests.test_rpacket_get_r(double_value)
 
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_tau_event(double_value):
 	assert tests.test_rpacket_get_tau_event(double_value)
 
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_nu_line(double_value):
 	assert tests.test_rpacket_get_nu_line(double_value)
 
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_d_boundary(double_value):
 	assert tests.test_rpacket_get_d_boundary(double_value)
 
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_d_electron(double_value):
 	assert tests.test_rpacket_get_d_electron(double_value)
 
 @pytest.mark.parametrize(
-	"double_value", doubles
+	"double_value", map(c_double, np.random.uniform(
+			   			MIN_INT, MAX_INT, size=SIZE)
+			  			)
 	)
 def test_rpacket_get_d_line(double_value):
 	assert tests.test_rpacket_get_d_line(double_value)
