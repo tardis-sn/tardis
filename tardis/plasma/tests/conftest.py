@@ -4,7 +4,7 @@ from astropy import units as u
 import pytest
 
 from tardis.plasma.properties.ion_population import (PhiSahaLTE,
-IonNumberDensity)
+IonNumberDensity, ElectronDensity)
 from tardis.plasma.properties.general import (BetaRadiation, GElectron,
 NumberDensity)
 from tardis.plasma.properties.partition_function import (LevelBoltzmannFactor,
@@ -47,12 +47,6 @@ def t_rad(number_of_cells):
     return np.ones(number_of_cells) * 10000
 
 @pytest.fixture
-def standard_lte_plasma_he_db(t_rad, abundance, density, time_explosion,
-                              included_he_atomic_data):
-    return LTEPlasma(t_rad, abundance, density, time_explosion,
-                     included_he_atomic_data)
-
-@pytest.fixture
 def beta_rad(t_rad):
     beta_rad_module = BetaRadiation(None)
     return beta_rad_module.calculate(t_rad)
@@ -71,6 +65,16 @@ def levels(included_he_atomic_data, selected_atoms):
 def lines(included_he_atomic_data, selected_atoms):
     lines_module = Lines(None)
     return lines_module.calculate(included_he_atomic_data, selected_atoms)
+
+@pytest.fixture
+def j_blues(lines):
+    return pd.DataFrame(1.e-5, index=lines.index, columns=range(20))
+
+@pytest.fixture
+def standard_lte_plasma_he_db(t_rad, abundance, density, time_explosion,
+                              included_he_atomic_data, j_blues):
+    return LTEPlasma(t_rad, abundance, density, time_explosion,
+                     included_he_atomic_data, j_blues)
 
 @pytest.fixture
 def level_boltzmann_factor(levels, beta_rad):
@@ -114,6 +118,12 @@ def ion_number_density_lte(phi_saha_lte, partition_function_lte,
         partition_function_lte, number_density)
 
 @pytest.fixture
+def electron_densities(ion_number_density_lte, phi_saha_lte):
+    electron_density_module = ElectronDensity(None)
+    return electron_density_module.calculate(ion_number_density_lte,
+        phi_saha_lte)
+
+@pytest.fixture
 def level_population_lte(levels, partition_function_lte,
     level_boltzmann_factor):
     level_population_lte_module = LevelPopulationLTE(None)
@@ -145,7 +155,8 @@ def stimulated_emission_factor(levels, level_number_density_lte,
 
 @pytest.fixture
 def tau_sobolev(lines, level_number_density_lte, lines_lower_level_index,
-    time_explosion, stimulated_emission_factor):
+    time_explosion, stimulated_emission_factor, j_blues):
     tau_sobolev_module = TauSobolev(None)
     return tau_sobolev_module.calculate(lines, level_number_density_lte,
-        lines_lower_level_index, time_explosion, stimulated_emission_factor)
+        lines_lower_level_index, time_explosion, stimulated_emission_factor,
+        j_blues)

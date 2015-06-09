@@ -12,7 +12,7 @@ __all__ = ['LevelPopulationLTE', 'LevelNumberDensity']
 class LevelPopulationLTE(ProcessingPlasmaProperty):
 
         name = 'level_population_proportionality'
-        latexyformula = (r'$N_{i, j, k} = \frac{g_{i, j, k} '
+        latexformula = (r'$N_{i, j, k} = \frac{g_{i, j, k} '
                          r'e^{-\beta_\textrm{rad} E_{i, j, k}}}{Z_{i, j}}$')
 
         @staticmethod

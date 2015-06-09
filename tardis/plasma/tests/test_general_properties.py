@@ -9,6 +9,3 @@ def test_g_electron(g_electron):
 
 def test_number_density(number_density):
     assert np.isclose(number_density[0].loc[2], 1504556808.6958313)
-
-def test_number_density(selected_atoms, abundance):
-    assert selected_atoms==abundance.index
