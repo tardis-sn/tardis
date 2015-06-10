@@ -88,6 +88,8 @@ extern inline tardis_error_t compute_distance2line (rpacket_t * packet,
 inline double compute_distance2electron (rpacket_t * packet,
 					 storage_model_t * storage);
 
+inline void compute_distance2continuum (rpacket_t * packet, storage_model_t * storage);
+
 inline int64_t macro_atom (rpacket_t * packet, storage_model_t * storage);
 
 inline double move_packet (rpacket_t * packet, storage_model_t * storage,
@@ -103,5 +105,15 @@ int64_t montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 int64_t montecarlo_one_packet_loop (storage_model_t * storage,
 				    rpacket_t * packet,
 				    int64_t virtual_packet);
+
+/* New handlers for continuum implementation
+?Have to declare them here*/
+
+inline montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage);
+
+void montecarlo_free_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance);
+
+void montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance);
+
 
 #endif // TARDIS_CMONTECARLO_H

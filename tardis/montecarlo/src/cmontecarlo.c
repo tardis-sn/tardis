@@ -253,14 +253,14 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 {
   double chi_boundfree, chi_freefree, chi_electron, chi_continuum, d_continuum;
   if (packet->virtual_packet > 0)
-    {
-      chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
+    { chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
 	  //Set all continuum distances to MISS_DISTANCE in case of an virtual_packet
+	  rpacket_set_d_electron (packet, MISS_DISTANCE); // must be replaced
 	  rpacket_set_d_continuum(packet, MISS_DISTANCE);
 	  rpacket_set_chi_boundfree(packet, 0.0);
 	  rpacket_set_chi_electron(packet, chi_electron);
       rpacket_set_chi_freefree(packet, 0.0);
-      rpacket_set_chi_continuum(packet, 0.0);
+      rpacket_set_chi_continuum(packet, chi_electron);
 	}
 	else
 	{
@@ -270,7 +270,8 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 	  chi_boundfree = 0.0;	//calculate_chi_bf(packet, storage);
 //	  chi_boundfree = rpacket_get_chi_boundfree(packet);	// For Debug;
 	  chi_freefree = 0.0;
-	  chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;	// For Debugging set * to /
+	  chi_electron = 0.0;
+	  //chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;	// For Debugging set * to /
 	  chi_continuum = chi_boundfree + chi_freefree + chi_electron;
 	  d_continuum = rpacket_get_tau_event(packet) / chi_continuum;
 

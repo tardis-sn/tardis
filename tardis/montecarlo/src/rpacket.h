@@ -61,8 +61,15 @@ typedef struct RPacket
   double d_line; /**< Distance to electron event. */
   double d_electron; /**< Distance to line event. */
   double d_boundary; /**< Distance to shell boundary. */
+  double d_cont; /**< Distance to continuum event */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
   rpacket_status_t status; /**< Packet status (in process, emitted or reabsorbed). */
+  double chi_th; /**< Opacity due to electron scattering */
+  double chi_cont; /**< Opacity due to continuum processes */
+  double chi_ff; /**< Opacity due to free-free processes */
+  double chi_bf; /**< Opacity due to bound-free processes */
+
+
 } rpacket_t;
 
 inline double rpacket_get_nu (rpacket_t * packet);
@@ -149,5 +156,28 @@ tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
            int packet_index, int virtual_packet_flag);
 
 void initialize_random_kit (unsigned long seed);
+
+/* New getter and setter methods for continuum implementation */
+
+inline void rpacket_set_d_continuum (rpacket_t * packet, double d_continuum);
+
+inline double rpacket_get_d_continuum (rpacket_t * packet);
+
+inline void rpacket_set_chi_electron (rpacket_t * packet, double chi_electron);
+
+inline double rpacket_get_chi_electron (rpacket_t * packet);
+
+inline void rpacket_set_chi_continuum (rpacket_t * packet, double chi_continuum);
+
+inline double rpacket_get_chi_continuum (rpacket_t * packet);
+
+inline void rpacket_set_chi_freefree (rpacket_t * packet, double chi_freefree);
+
+inline double rpacket_get_chi_freefree (rpacket_t * packet);
+
+inline void rpacket_set_chi_boundfree (rpacket_t * packet, double chi_boundfree);
+
+inline double rpacket_get_chi_boundfree (rpacket_t * packet);
+
 
 #endif // TARDIS_RPACKET_H
