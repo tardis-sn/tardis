@@ -12,33 +12,19 @@ test_path = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 
 tests = CDLL(test_path)
 
-np.random.seed(1)
+np.random.seed(26061963)
 
-def generate_testcases_doubles(metafunc):
-	from sys import float_info as floats
-	MAX_FLOAT, MIN_FLOAT = floats[0], floats[3]
-	for each in metafunc.fixturenames:
-		if 'double_value' in inspect.getargspec(each):
-			metafunc.parametrize("double_value", map(c_double, 
-				np.random.uniform(MIN_FLOAT, MAX_FLOAT, size=10)))
 
-def generate_testcases_integers(metafunc):
-	MAX_INT, MIN_INT = 10000, -10000
-	if 'int_value' in metafunc.fixturenames:
-		metafunc.parametrize("int_value",
-			np.random.randint(MIN_INT, MAX_INT, size=10))
+@pytest.fixture(params=np.random.random(size=10))
+def random_double_value(request):
+	return request.params
 
-def generate_testcases_unsigned_integers(metafunc):
-	MAX_INT = 10000
-	if 'unsigned_int_value' in metafunc.params:
-		metafunc.parametrize("unsigned_int_value",
-			np.random.randint(0, MAX_INT, size=10))
 
 
 # Testing functions with float(C double) valued parameters
-@pytest.fixture
-def test_rpacket_get_nu(double_value):
-	assert tests.test_rpacket_get_nu(request.params)
+
+def test_rpacket_get_nu(random_double_value):
+	assert tests.test_rpacket_get_nu(random_double_value)
 
 @pytest.fixture
 def test_rpacket_get_mu(double_value):
