@@ -39,7 +39,12 @@ cdef extern from "src/cmontecarlo.h":
         double d_line
         double d_electron
         double d_boundary
+        double d_cont
         rpacket_status_t next_shell_id
+        double chi_th
+        double chi_cont
+        double chi_ff
+        double chi_bf
 
     ctypedef struct storage_model_t:
         double *packet_nus
