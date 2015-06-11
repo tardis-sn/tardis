@@ -1,4 +1,4 @@
-mport os
+import os
 import random
 from ctypes import CDLL, c_double
 
