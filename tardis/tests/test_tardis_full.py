@@ -16,6 +16,7 @@ def data_path(fname):
 
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
+@pytest.mark.xfail
 class TestSimpleRun():
     """
     Very simple run
