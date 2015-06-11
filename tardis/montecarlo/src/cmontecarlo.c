@@ -256,7 +256,7 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
   	  // Compute the continuum oddities for a real packet
 //	  calculate_chi_bf(packet, storage);
 
-  chi_boundfree = 0.0 ; //1.0e-15;	calculate_chi_bf(packet, storage);
+  chi_boundfree = 0.2e-15;	//calculate_chi_bf(packet, storage);
 //chi_boundfree = rpacket_get_chi_boundfree(packet);	// For Debug;
   chi_freefree = 0.0;
   chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;	// For Debugging set * to /
