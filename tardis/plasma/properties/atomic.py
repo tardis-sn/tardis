@@ -19,7 +19,7 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
         self.value = None
 
     @abstractmethod
-    def _set_index(self, raw_atomic_property):
+    def _set_index(self, raw_atomic_property, atomic_data):
         raise NotImplementedError('Needs to be implemented in subclasses')
 
     @abstractmethod
@@ -37,7 +37,7 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
             else:
                 raw_atomic_property = getattr(atomic_data, '_' + self.name)
                 return self._set_index(self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms))
+                    raw_atomic_property, selected_atoms), atomic_data)
 
 
 
@@ -47,7 +47,7 @@ class Levels(BaseAtomicDataProperty):
     def _filter_atomic_property(self, levels, selected_atoms):
         return levels[levels.atomic_number.isin(selected_atoms)]
 
-    def _set_index(self, levels):
+    def _set_index(self, levels, atomic_data):
         return levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
 class Lines(BaseAtomicDataProperty):
@@ -56,8 +56,12 @@ class Lines(BaseAtomicDataProperty):
     def _filter_atomic_property(self, lines, selected_atoms):
         return lines[lines.atomic_number.isin(selected_atoms)]
 
-    def _set_index(self, lines):
-        return lines
+    def _set_index(self, lines, atomic_data):
+        try:
+            reindexed = lines.reindex(atomic_data.lines.index)
+        except:
+            reindexed = lines.reindex(atomic_data._lines.index)
+        return reindexed
 
 class LinesLowerLevelIndex(ProcessingPlasmaProperty):
     name = 'lines_lower_level_index'
@@ -88,7 +92,7 @@ class IonCXData(BaseAtomicDataProperty):
     def _filter_atomic_property(self, ion_cx_data, selected_atoms):
         return filtered_ion_cx_data
 
-    def _set_index(self, ion_cx_data):
+    def _set_index(self, ion_cx_data, atomic_data):
         return levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
 

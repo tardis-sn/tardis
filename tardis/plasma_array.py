@@ -244,6 +244,7 @@ class BasePlasmaArray(object):
                 raise PlasmaException('electron density just turned "nan" - aborting')
 
             n_e_iterations += 1
+
             if n_e_iterations > 100:
                 logger.warn('electron density iterations above 100 (%d) - something is probably wrong', n_e_iterations)
 
@@ -292,11 +293,14 @@ class BasePlasmaArray(object):
 
 
         #level_props = self.level_population_proportionalities
-
         partition_functions = level_population_proportionalities[self.atom_data.levels.metastable].groupby(
             level=['atomic_number', 'ion_number']).sum()
-        partition_functions_non_meta = self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
-            level=['atomic_number', 'ion_number']).sum()
+        if self.excitation_mode == 'lte':
+            partition_functions_non_meta = level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
+                level=['atomic_number', 'ion_number']).sum()
+        else:
+            partition_functions_non_meta = self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
+                level=['atomic_number', 'ion_number']).sum()
         partition_functions.ix[partition_functions_non_meta.index] += partition_functions_non_meta
         if self.nlte_config is not None and self.nlte_config.species != [] and not initialize_nlte:
             for species in self.nlte_config.species:

@@ -1,8 +1,9 @@
 import numpy as np
+import pandas as pd
 from tardis.plasma.properties.base import BasePlasmaProperty
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion']
+           'TimeExplosion', 'JBlues']
 
 
 class Input(BasePlasmaProperty):
@@ -22,6 +23,9 @@ class ArrayInput(DynamicInput):
     def set_value(self, value):
         self.value = np.array(value, copy=False)
 
+class DataFrameInput(DynamicInput):
+    def set_value(self, value):
+        self.value = pd.DataFrame(value)
 
 class TRadiative(ArrayInput):
     name = 't_rad'
@@ -46,3 +50,6 @@ class Density(ArrayInput):
 
 class TimeExplosion(DynamicInput):
     name = 'time_explosion'
+
+class JBlues(DataFrameInput):
+    name = 'j_blues'
