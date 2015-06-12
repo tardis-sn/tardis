@@ -11,7 +11,7 @@ __all__ = ['LevelPopulationLTE', 'LevelNumberDensity']
 
 class LevelPopulationLTE(ProcessingPlasmaProperty):
 
-        name = 'level_population_proportionality'
+        name = 'level_population_fraction'
         latexformula = (r'$N_{i, j, k} = \frac{g_{i, j, k} '
                          r'e^{-\beta_\textrm{rad} E_{i, j, k}}}{Z_{i, j}}$')
 
@@ -24,13 +24,13 @@ class LevelPopulationLTE(ProcessingPlasmaProperty):
             return level_boltzmann_factor / partition_function_broadcast
 
 class LevelNumberDensity(ProcessingPlasmaProperty):
-    name = 'level_population'
+    name = 'level_number_density'
 
     @staticmethod
-    def calculate(level_population_proportionality, ion_number_density):
+    def calculate(level_population_fraction, ion_number_density):
         ion_number_density_broadcast = ion_number_density.ix[
-            level_population_proportionality.index.droplevel(2)].values
-        return level_population_proportionality * ion_number_density_broadcast
+            level_population_fraction.index.droplevel(2)].values
+        return level_population_fraction * ion_number_density_broadcast
 
 
 class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
