@@ -160,3 +160,9 @@ def tau_sobolev(lines, level_number_density_lte, lines_lower_level_index,
     return tau_sobolev_module.calculate(lines, level_number_density_lte,
         lines_lower_level_index, time_explosion, stimulated_emission_factor,
         j_blues)
+
+@pytest.fixture
+def electron_densities_lte(ion_number_density_lte, phi_saha_lte):
+    electron_densities_module = ElectronDensity(None)
+    return electron_densities_module.calculate(ion_number_density_lte,
+        phi_saha_lte)
