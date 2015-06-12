@@ -15,3 +15,6 @@ def test_ion_number_density(phi_saha_lte, ion_number_density_lte,
         axis=0)
     assert np.all(np.abs((n_electron_from_ions - electron_densities)/
         electron_densities) < 0.05) == True
+
+def test_electron_densities(electron_densities_lte):
+    assert np.allclose(electron_densities_lte, 1.181197e+09)
