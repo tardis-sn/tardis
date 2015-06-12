@@ -57,6 +57,8 @@ inline tardis_error_t binary_search (double *x, double x_insert, int64_t imin,
 inline tardis_error_t line_search (double *nu, double nu_insert,
 				   int64_t number_of_lines, int64_t * result);
 
+inline double rpacket_doppler_factor(rpacket_t * packet, storage_model_t * storage);
+
 /** Calculate the distance to shell boundary.
  *
  * @param packet rpacket structure with packet information
