@@ -19,7 +19,8 @@ class LTEPlasma(BasePlasma):
 
         super(LTEPlasma, self).__init__(plasma_modules=plasma_modules,
             t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,
-            density=density, time_explosion=time_explosion, j_blues=j_blues)
+            density=density, time_explosion=time_explosion, j_blues=j_blues,
+	    w=None)
 
 class LegacyPlasmaArray(BasePlasma):
 
