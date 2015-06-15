@@ -2,13 +2,36 @@ import logging
 
 import numpy as np
 import pandas as pd
+from scipy import interpolate
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaIonizationError
+
 logger = logging.getLogger(__name__)
 
-__all__ = ['PhiSahaLTE', 'RadiationFieldCorrection',
-           'IonNumberDensity', 'ElectronDensity']
+__all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
+           'IonNumberDensity', 'ElectronDensity', 'PhiGeneral']
+
+class PhiGeneral(ProcessingPlasmaProperty):
+
+    name = 'general_phi'
+
+    latex_formula = (r'$\Phi_{i,j} = \frac{N_{i, j+1} n_e}{N_{i, j}} \\'
+                     r' \Phi_{i, j} = g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} '
+                     r'e^{-\chi_{j\rightarrow j+1}/k_\textrm{B}T}$')
+
+    @staticmethod
+    def calculate(g_electron, beta_rad, partition_function, ionization_data):
+        def calculate_phis(group):
+            return group[1:] / group[:-1].values
+
+        phis = partition_function.groupby(level='atomic_number').apply(
+            calculate_phis)
+        phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
+        phi_coefficient = (2 * g_electron * np.exp(np.outer(
+            ionization_data.ionization_energy.ix[phis.index].values,
+            -beta_rad)))
+        return phis * phi_coefficient
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
@@ -39,58 +62,34 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
     name = 'phi'
 
-    def calculate(self):
+    @staticmethod
+    def calculate(general_phi, t_rad, w, zeta_data):
         logger.debug('Calculating Saha using Nebular approximation')
 
-        phis = self.calculate_saha_lte()
-        if self.delta_treatment is None:
-            delta = self.calculate_radfield_correction().ix[phis.index]
-        else:
-            delta = self.delta_treatment
-
-        zeta_data = self.atom_data.zeta_data
         try:
-            zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[phis.index].values)(self.t_rads)
+            zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[
+                general_phi.index].values)(t_rad)
         except ValueError:
             raise ValueError('t_rads outside of zeta factor interpolation'
                              ' zeta_min={0:.2f} zeta_max={1:.2f} '
                              '- requested {2}'.format(
                 zeta_data.columns.values.min(), zeta_data.columns.values.max(),
-                self.t_rads))
+                t_rad))
         else:
             # fixing missing nan data
             # issue created - fix with warning some other day
             zeta[np.isnan(zeta)] = 1.0
-
-        phis *= self.ws * (delta * zeta + self.ws * (1 - zeta)) * \
-                (self.t_electrons / self.t_rads) ** .5
-
+        phis = general_phi * w * (zeta + w * (1 - zeta)) * \
+                (0.9) ** .5
         return phis
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
 
     name = 'phi'
 
-    latex_formula = (r'$\Phi_{i,j} = \frac{N_{i, j+1} n_e}{N_{i, j}} \\'
-                     r' \Phi_{i, j} = g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} '
-                     r'e^{-\chi_{j\rightarrow j+1}/k_\textrm{B}T}$')
-
     @staticmethod
-    def calculate(g_electron, beta_rad, partition_function, ionization_data):
-
-        def calculate_phis(group):
-            return group[1:] / group[:-1].values
-
-        phis = partition_function.groupby(level='atomic_number').apply(
-            calculate_phis)
-
-        phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
-
-        phi_coefficient = (2 * g_electron * np.exp(np.outer(
-            ionization_data.ionization_energy.ix[phis.index].values, -beta_rad)))
-
-        return phis * phi_coefficient
-
+    def calculate(general_phi):
+        return general_phi
 
 class RadiationFieldCorrection():
     """
@@ -138,33 +137,28 @@ class RadiationFieldCorrection():
     """
 
     def calculate(self, w, departure_coefficient=None, chi_0_species=(20, 2)):
-        #factor delta ML 1993
+        # factor delta ML 1993
         if departure_coefficient is None:
             departure_coefficient = 1. / self.ws
-
         ionization_data = self.atom_data.ionization_data
-
         chi_0 = ionization_data.ionization_energy.ix[chi_0_species]
-        radiation_field_correction = -np.ones((len(ionization_data), len(self.beta_rads)))
+        radiation_field_correction = -np.ones((len(ionization_data), len(
+            self.beta_rads)))
         less_than_chi_0 = (ionization_data.ionization_energy < chi_0).values
-
-        factor_a =  (self.t_electrons / (departure_coefficient * self.ws * self.t_rads))
-
+        factor_a = (self.t_electrons / (departure_coefficient * self.ws *
+                                        self.t_rads))
         radiation_field_correction[~less_than_chi_0] = factor_a * \
-                                     np.exp(np.outer(ionization_data.ionization_energy.values[~less_than_chi_0],
-                                                     self.beta_rads - self.beta_electrons))
-
-
-
-
-        radiation_field_correction[less_than_chi_0] = 1 - np.exp(np.outer(ionization_data.ionization_energy.values
-                                                                      [less_than_chi_0], self.beta_rads)
-                                                                 - self.beta_rads * chi_0)
+            np.exp(np.outer(ionization_data.ionization_energy.values[
+            ~less_than_chi_0], self.beta_rads - self.beta_electrons))
+        radiation_field_correction[less_than_chi_0] = 1 - np.exp(np.outer(
+            ionization_data.ionization_energy.values[less_than_chi_0],
+            self.beta_rads) - self.beta_rads * chi_0)
         radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
-            np.outer(ionization_data.ionization_energy.values[less_than_chi_0], self.beta_rads) -
-             chi_0*self.beta_electrons)
-
-        return pd.DataFrame(radiation_field_correction, columns=np.arange(len(self.t_rads)),
+            np.outer(ionization_data.ionization_energy.values[less_than_chi_0],
+                     self.beta_rads) -
+            chi_0 * self.beta_electrons)
+        return pd.DataFrame(radiation_field_correction,
+                            columns=np.arange(len(self.t_rads)),
                             index=ionization_data.index)
 
 class IonNumberDensity(ProcessingPlasmaProperty):
@@ -187,35 +181,28 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                      r'N(X) = N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
                      r'\times \Phi_{i, j+1}/N_e + \dots)$')
 
-
-
     name = 'ion_number_density'
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
         super(IonNumberDensity, self).__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
 
-    def calculate_with_n_electron(self, phi, partition_function, number_density,
-                                  n_electron):
+    def calculate_with_n_electron(self, phi, partition_function,
+                                  number_density, n_electron):
         ion_populations = pd.DataFrame(data=0.0,
             index=partition_function.index.copy(),
-            columns=partition_function.columns.copy(),
-            dtype=np.float64)
+            columns=partition_function.columns.copy(), dtype=np.float64)
 
         for atomic_number, groups in phi.groupby(level='atomic_number'):
-
             current_phis = (groups / n_electron).replace(np.nan, 0.0).values
             phis_product = np.cumproduct(current_phis, axis=0)
-
             neutral_atom_density = (number_density.ix[atomic_number] /
                                     (1 + np.sum(phis_product, axis=0)))
-
             ion_populations.ix[atomic_number, 0] = (
                 neutral_atom_density.values)
             ion_populations.ix[atomic_number].values[1:] = (
                 neutral_atom_density.values * phis_product)
             ion_populations[ion_populations < self.ion_zero_threshold] = 0.0
-
         return ion_populations
 
     def calculate(self, phi, partition_function, number_density):
@@ -229,40 +216,41 @@ class IonNumberDensity(ProcessingPlasmaProperty):
             ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
             new_n_electron = (ion_number_density.values * ion_numbers).sum(
                 axis=0)
-
             if np.any(np.isnan(new_n_electron)):
                 raise PlasmaIonizationError('n_electron just turned "nan" -'
                                             ' aborting')
-
             n_electron_iterations += 1
             if n_electron_iterations > 100:
                 logger.warn('n_electron iterations above 100 ({0}) -'
                             ' something is probably wrong'.format(
                     n_electron_iterations))
-
             if np.all(np.abs(new_n_electron - n_electron)
-                / n_electron < n_e_convergence_threshold):
+                              / n_electron < n_e_convergence_threshold):
                 break
-
             n_electron = 0.5 * (new_n_electron + n_electron)
-
         return ion_number_density
 
 class ElectronDensity(ProcessingPlasmaProperty):
+    """
+    Calculate the electron density using the Saha equation with the ion
+    population ratio of a particular element.
+    """
+    latex_formula = r'$n_e = \frac{N_{i,j}}{N_{i,j+1}} \times \Phi_{i,j}$'
+
     name = 'electron_densities'
 
     def calculate(self, ion_number_density, phi):
         # Could check electron density for any element/ions in each zone, but
         # if number density of element/ions was zero, it would not work.
         # So setting this to calculate from the dominant ion in each zone.
-        dominant_ions = ion_number_density.sum(level=(0,1)).idxmax()
+        dominant_ions = ion_number_density.sum(level=(0, 1)).idxmax()
         upper_ions = []
         for ion in dominant_ions.values:
-            upper_ions.append((ion[0], ion[1]+1))
+            upper_ions.append((ion[0], ion[1] + 1))
         n_electron = []
         for zone in range(len(ion_number_density.columns)):
             n_electron.append(
                 (ion_number_density[zone].ix[dominant_ions[zone]] /
-                ion_number_density[zone].ix[upper_ions[zone]]) *
+                 ion_number_density[zone].ix[upper_ions[zone]]) *
                 phi.ix[upper_ions[zone]][zone])
         return pd.Series(n_electron, index=np.arange(0, len(n_electron)))

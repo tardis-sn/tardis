@@ -5,7 +5,8 @@ import numpy as np
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
-    macro_atom_properties)
+    macro_atom_properties, dilute_lte_excitation_properties,
+    nebular_ionization_properties)
 
 logger = logging.getLogger(__name__)
 
@@ -35,10 +36,13 @@ class LegacyPlasmaArray(BasePlasma):
     def initial_t_rad(self, number_densities):
         return np.ones(len(number_densities.columns)) * 10000
 
+    def initial_w(self, number_densities):
+        return np.ones(len(number_densities.columns)) * 0.5
+
     def update_radiationfield(self, t_rad, ws, j_blues,
         t_electrons=None, n_e_convergence_threshold=0.05,
         initialize_nlte=False):
-        self.update(t_rad=t_rad, j_blues=j_blues)
+        self.update(t_rad=t_rad, w=ws, j_blues=j_blues)
 
     def __init__(self, number_densities, atomic_data, time_explosion,
         t_rad=None, delta_treatment=None, nlte_config=None,
@@ -46,14 +50,20 @@ class LegacyPlasmaArray(BasePlasma):
         line_interaction_type='scatter'):
 
         plasma_modules = basic_inputs + basic_properties
+
         if excitation_mode == 'lte':
             plasma_modules += lte_excitation_properties
         elif excitation_mode == 'dilute-lte':
+            plasma_modules += dilute_lte_excitation_properties
+        else:
             raise NotImplementedError('Sorry ' + excitation_mode +
                 ' not implemented yet.')
+
         if ionization_mode == 'lte':
             plasma_modules += lte_ionization_properties
         elif ionization_mode == 'nebular':
+            plasma_modules += nebular_ionization_properties
+        else:
             raise NotImplementedError('Sorry ' + ionization_mode +
                 ' not implemented yet.')
         if nlte_config.species:
@@ -68,10 +78,12 @@ class LegacyPlasmaArray(BasePlasma):
         if t_rad is None:
             t_rad = self.initial_t_rad(number_densities)
 
+        w = self.initial_w(number_densities)
+
         abundance, density = self.from_number_densities(number_densities,
             atomic_data)
 
         super(LegacyPlasmaArray, self).__init__(plasma_modules=plasma_modules,
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
-            j_blues=None)
+            j_blues=None, w=w)
