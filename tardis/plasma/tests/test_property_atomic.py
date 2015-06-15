@@ -5,6 +5,7 @@ def test_levels_property(levels):
 
 def test_lines_property(lines):
     assert np.isclose(lines.ix[564954]['wavelength'], 10833.307)
+    assert lines.index[124] == 564954
 
 def test_lines_lower_level_index_property(lines_lower_level_index):
     assert lines_lower_level_index[9] == 0

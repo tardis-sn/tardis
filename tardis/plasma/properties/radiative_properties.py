@@ -36,12 +36,12 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             self._g_upper = g_upper[np.newaxis].T
         return self._g_upper
 
-    def calculate(self, levels, level_population, lines_lower_level_index,
+    def calculate(self, levels, level_number_density, lines_lower_level_index,
         lines_upper_level_index):
 
-        n_lower = level_population.values.take(lines_lower_level_index,
+        n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise').copy('F')
-        n_upper = level_population.values.take(lines_upper_level_index,
+        n_upper = level_number_density.values.take(lines_upper_level_index,
             axis=0, mode='raise').copy('F')
 
         meta_stable_upper = levels.metastable.values.take(
@@ -88,13 +88,13 @@ class TauSobolev(ProcessingPlasmaProperty):
                                     (const.m_e.cgs * const.c.cgs))
                                     * u.cm * u.s / u.cm**3).to(1).value
 
-    def calculate(self, lines, level_population, lines_lower_level_index,
+    def calculate(self, lines, level_number_density, lines_lower_level_index,
                   time_explosion, stimulated_emission_factor, j_blues):
 
         f_lu = lines.f_lu.values[np.newaxis].T
         wavelength = lines.wavelength_cm.values[np.newaxis].T
 
-        n_lower = level_population.values.take(lines_lower_level_index, axis=0, mode='raise').copy('F')
+        n_lower = level_number_density.values.take(lines_lower_level_index, axis=0, mode='raise').copy('F')
 
         #if self.nlte_config is not None and self.nlte_config.species != []:
         #    nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
@@ -107,12 +107,8 @@ class TauSobolev(ProcessingPlasmaProperty):
         tau_sobolevs = (self.sobolev_coefficient * f_lu * wavelength *
                         time_explosion * n_lower * stimulated_emission_factor)
 
-        tau_dataframe = pd.DataFrame(tau_sobolevs, index=lines.index,
-                            columns=np.array(level_population.columns))
-
-        return tau_dataframe.reindex(j_blues.index)
-
-
+        return pd.DataFrame(tau_sobolevs, index=lines.index,
+            columns=np.array(level_number_density.columns))
 
 class BetaSobolev(ProcessingPlasmaProperty):
     name = 'beta_sobolev'
