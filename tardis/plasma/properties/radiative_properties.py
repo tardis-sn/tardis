@@ -133,7 +133,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             transition_probabilities = (
                 macro_atom_data.transition_probability.values[np.newaxis].T *
                 beta_sobolev.take(macro_atom_data.lines_idx.values.astype(int),
-                    axis=0, mode='raise')).copy('F')
+                    axis=0, mode='raise'))
             transition_up_filter = \
                 (macro_atom_data.transition_type == 1).values
             macro_atom_transition_up_filter = \
