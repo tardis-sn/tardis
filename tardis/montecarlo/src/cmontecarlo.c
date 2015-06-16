@@ -253,12 +253,12 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 {
   double chi_boundfree, chi_freefree, chi_electron, chi_continuum, d_continuum;
 
-  	  // Compute the continuum oddities for a real packet
+//    Compute the continuum oddities for a real packet
 //	  calculate_chi_bf(packet, storage);
-
-  chi_boundfree = 0.2e-15;	//calculate_chi_bf(packet, storage);
-//chi_boundfree = rpacket_get_chi_boundfree(packet);	// For Debug;
-  chi_freefree = 0.0;
+  rpacket_set_chi_boundfree(packet, 0.2e-15); // replace by calculate_chi_bf(packet, storage);
+  chi_boundfree = rpacket_get_chi_boundfree(packet);
+  rpacket_set_chi_freefree(packet, 0.0);
+  chi_freefree = rpacket_get_chi_freefree(packet);
   chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;	// For Debugging set * to /
   chi_continuum = chi_boundfree + chi_freefree + chi_electron;
   d_continuum = rpacket_get_tau_event(packet) / chi_continuum;
@@ -749,4 +749,19 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
     }
   return rpacket_get_status (packet) ==
     TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
+}
+
+/* Methods for calculating continuum opacities */
+
+INLINE
+void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
+{
+  double bf_helper = 0;
+  double nu_th; //threshold frequency for ionization
+  double nu;
+  int64_t shell_id;
+
+  shell_id = rpacket_get_current_shell_id(packet);
+
+  rpacket_set_chi_boundfree(packet, bf_helper);
 }
