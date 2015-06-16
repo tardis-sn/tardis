@@ -8,9 +8,9 @@
 rpacket_t * rp;
 storage_model_t * sm;
 
-double TIME_EXPLOSION = 51840000.0;
-double R_INNER_VALUE = 622080000.0;
-double R_OUTER_VALUE = 7776600000.0;
+double TIME_EXPLOSION =     51840000.0;
+double R_INNER_VALUE =  622080000000.0; /* 12,000xTIME_EXPLOSION */
+double R_OUTER_VALUE = 7776600000000.0; /* 15,000xTIME_EXPLOSION */
 
 void init_rpacket(void);
 void init_storage_model(void);
@@ -22,7 +22,7 @@ init_rpacket(void){
 	rp = (rpacket_t *) malloc(sizeof(rpacket_t));
 	
 	double MU = 0.3;
-	double R = 13*pow(10, 3)*TIME_EXPLOSION;
+	double R = 673920000000.0; /* 13,000xTIME_EXPLOSION */
 	double ENERGY = 0.9;
 
 	rpacket_set_current_shell_id(rp, 0);
