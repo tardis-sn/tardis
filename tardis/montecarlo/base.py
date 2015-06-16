@@ -4,7 +4,7 @@ class MontecarloRunner():
 
     def __init__(self, no_of_virtual_packets, tardis_config, packet_src,
         plasma_array, atom_data, j_blue_estimators,
-        montecarlo_virtual_luminosity):
+        montecarlo_virtual_luminosity, transition_probabilities):
         self.no_of_virtual_packets = no_of_virtual_packets
         self.tardis_config = tardis_config
         self.packet_src = packet_src
@@ -12,6 +12,7 @@ class MontecarloRunner():
         self.atom_data = atom_data
         self.j_blue_estimators = j_blue_estimators
         self.montecarlo_virtual_luminosity = montecarlo_virtual_luminosity
+        self.transition_probabilities = transition_probabilities
         self.plasma_array.tau_sobolevs.update(self.plasma_array.tau_sobolevs.copy('F'))
         self.plasma_array.electron_densities.update(self.plasma_array.electron_densities.copy('F'))
 

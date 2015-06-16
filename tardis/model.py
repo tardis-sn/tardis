@@ -357,7 +357,8 @@ class Radial1DModel(object):
 
         self.montecarlo_runner = MontecarloRunner(no_of_virtual_packets,
             self.tardis_config, self.packet_src, self.plasma_array,
-            self.atom_data, self.j_blue_estimators, self.montecarlo_virtual_luminosity)
+            self.atom_data, self.j_blue_estimators, self.montecarlo_virtual_luminosity,
+            self.transition_probabilities)
 
         montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
