@@ -1,12 +1,12 @@
 import numpy as np
 
 from tardis.plasma.properties import (TRadiative, BetaRadiation,
-LevelBoltzmannFactor, Levels, Lines, AtomicData, Abundance,
+LevelBoltzmannFactorLTE, Levels, Lines, AtomicData, Abundance,
 SelectedAtoms, AtomicMass)
 from tardis.plasma import BasePlasma
 
 def test_simple_networkx_test(included_he_atomic_data, abundance, t_rad):
-    modules = [TRadiative, BetaRadiation, LevelBoltzmannFactor,
+    modules = [TRadiative, BetaRadiation, LevelBoltzmannFactorLTE,
                Levels, Lines, AtomicData, Abundance, SelectedAtoms,
                AtomicMass]
     bp = BasePlasma(modules, t_rad=t_rad, atomic_data=included_he_atomic_data,

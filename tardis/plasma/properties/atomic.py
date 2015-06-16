@@ -1,5 +1,4 @@
 from abc import ABCMeta, abstractmethod
-
 import numpy as np
 import pandas as pd
 
@@ -7,7 +6,7 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import IncompleteAtomicData
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData']
+           'AtomicMass', 'IonizationData', 'ZetaData']
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     __metaclass__ = ABCMeta
@@ -48,7 +47,8 @@ class Levels(BaseAtomicDataProperty):
         return levels[levels.atomic_number.isin(selected_atoms)]
 
     def _set_index(self, levels, atomic_data):
-        return levels.set_index(['atomic_number', 'ion_number', 'level_number'])
+        return levels.set_index(['atomic_number', 'ion_number',
+            'level_number'])
 
 class Lines(BaseAtomicDataProperty):
     name = 'lines'
@@ -93,7 +93,8 @@ class IonCXData(BaseAtomicDataProperty):
         return filtered_ion_cx_data
 
     def _set_index(self, ion_cx_data, atomic_data):
-        return levels.set_index(['atomic_number', 'ion_number', 'level_number'])
+        return levels.set_index(['atomic_number', 'ion_number',
+                                 'level_number'])
 
 
 class AtomicMass(ProcessingPlasmaProperty):
@@ -113,3 +114,12 @@ class IonizationData(ProcessingPlasmaProperty):
             return self.value
         else:
             return atomic_data.ionization_data
+
+class ZetaData(ProcessingPlasmaProperty):
+    name = 'zeta_data'
+
+    def calculate(self, atomic_data, selected_atoms):
+        if self.value is not None:
+            return self.value
+        else:
+            return atomic_data.zeta_data

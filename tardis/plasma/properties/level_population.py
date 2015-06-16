@@ -6,10 +6,10 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['LevelPopulationLTE', 'LevelNumberDensity']
+__all__ = ['LevelPopulation', 'LevelNumberDensity']
 
 
-class LevelPopulationLTE(ProcessingPlasmaProperty):
+class LevelPopulation(ProcessingPlasmaProperty):
 
         name = 'level_population_fraction'
         latexformula = (r'$N_{i, j, k} = \frac{g_{i, j, k} '
@@ -31,35 +31,6 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
         ion_number_density_broadcast = ion_number_density.ix[
             level_population_fraction.index.droplevel(2)].values
         return level_population_fraction * ion_number_density_broadcast
-
-
-class LevelPopulationDiluteLTE(ProcessingPlasmaProperty):
-        """
-        Calculate the level populations and putting them in the column 'number-density' of the self.levels table.
-        :math:`N` denotes the ion number density calculated with `calculate_ionization_balance`, i is the atomic number,
-        j is the ion number and k is the level number. For non-metastable levels we add the dilution factor (W) to the calculation.
-
-        .. math::
-
-            N_{i, j, k}(\\textrm{metastable}) &= \\frac{g_k}{Z_{i, j}}\\times N_{i, j} \\times e^{-\\beta_\\textrm{rad} E_k} \\\\
-            N_{i, j, k}(\\textrm{not metastable}) &= W\\frac{g_k}{Z_{i, j}}\\times N_{i, j} \\times e^{-\\beta_\\textrm{rad} E_k} \\\\
-
-
-        This function updates the 'number_density' column on the levels table (or adds it if non-existing)
-        """
-
-        @staticmethod
-        def calculate(levels, partition_function,
-                                        level_boltzmann_factor,
-                                        ion_number_density, w):
-            partition_function_broadcast = partition_function.ix[
-                levels.index.droplevel(2)].values
-
-            ion_number_density_broadcast = ion_number_density.ix[levels.index.droplevel(2)].values
-
-            level_population_proportionality = level_boltzmann_factor / partition_function_broadcast
-            level_population_proportionality[~levels.metastable] *= np.min([w, np.ones_like(w)],axis=0)
-
 
 class LevelPopulationNLTE(ProcessingPlasmaProperty):
     @staticmethod
