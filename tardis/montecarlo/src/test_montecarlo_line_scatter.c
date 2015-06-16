@@ -71,7 +71,7 @@ init_storage_model(void){
 double
 test_compute_distance2boundary(){
 	/*
-	* distance to boundary = -0.0109999775
+	* this returns nan
 	*/
 	double D_BOUNDARY = compute_distance2boundary(rp, sm);
 	rpacket_set_d_boundary(rp, D_BOUNDARY);
