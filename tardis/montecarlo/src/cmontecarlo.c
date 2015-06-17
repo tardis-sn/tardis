@@ -126,6 +126,40 @@ rpacket_doppler_factor (rpacket_t * packet, storage_model_t * storage)
     storage->inverse_time_explosion * INVERSE_C;
 }
 
+/* Methods for calculating continuum opacities */
+
+INLINE
+void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
+{
+  /* Temporary hardcoded values */
+  double cont_list_nu[] = {3.288e15, 8.223e14, 3.656e14}; // threshold frequencies for ionization for Lymann, Balmer, Paschen
+  int64_t no_of_continuum_edges = 3;
+  double chi_bf_partial = 1.0e-15;
+  /* End of temporary hardcoded values*/
+
+  double bf_helper = 0;
+  double nu_th; //threshold frequency for ionization
+  double comov_nu, doppler_factor;
+  int64_t shell_id;
+  int64_t current_continuum_id; // id for continuum edges similar to line_id;
+  int64_t i;
+
+  doppler_factor = rpacket_doppler_factor (packet, storage);
+  comov_nu = rpacket_get_nu (packet) * doppler_factor;
+
+
+  line_search(cont_list_nu, comov_nu, no_of_continuum_edges, &current_continuum_id); //? want to do something with returned tardis_error_t
+
+  shell_id = rpacket_get_current_shell_id(packet);
+
+  for(i = current_continuum_id; i < no_of_continuum_edges; i++)
+  {
+    bf_helper += chi_bf_partial;
+  }
+
+  rpacket_set_chi_boundfree(packet, bf_helper);
+}
+
 INLINE double
 compute_distance2boundary (rpacket_t * packet, storage_model_t * storage)
 {
@@ -254,8 +288,8 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
   double chi_boundfree, chi_freefree, chi_electron, chi_continuum, d_continuum;
 
 //    Compute the continuum oddities for a real packet
-//	  calculate_chi_bf(packet, storage);
-  rpacket_set_chi_boundfree(packet, 0.2e-15); // replace by calculate_chi_bf(packet, storage);
+  calculate_chi_bf(packet, storage);
+  //rpacket_set_chi_boundfree(packet, 0.0e-15); // replace by calculate_chi_bf(packet, storage);
   chi_boundfree = rpacket_get_chi_boundfree(packet);
   rpacket_set_chi_freefree(packet, 0.0);
   chi_freefree = rpacket_get_chi_freefree(packet);
@@ -751,17 +785,3 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
     TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
 
-/* Methods for calculating continuum opacities */
-
-INLINE
-void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
-{
-  double bf_helper = 0;
-  double nu_th; //threshold frequency for ionization
-  double nu;
-  int64_t shell_id;
-
-  shell_id = rpacket_get_current_shell_id(packet);
-
-  rpacket_set_chi_boundfree(packet, bf_helper);
-}
