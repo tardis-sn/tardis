@@ -51,9 +51,13 @@ init_storage_model(void){
 	sm = (storage_model_t *) malloc(sizeof(storage_model_t));
 	double R_OUTER[2] = {R_OUTER_VALUE, R_OUTER_VALUE};
 	double R_INNER[2] = {R_INNER_VALUE, R_INNER_VALUE};
-	sm->r_outer = R_OUTER;
-	sm->r_inner = R_INNER;
-	
+	int NUMBER_OF_PACKETS = 2;
+	sm->r_outer = (double *) malloc(sizeof(double)*NUMBER_OF_PACKETS);
+	sm->r_outer[0] = R_OUTER_VALUE;
+	sm->r_outer[1] = R_OUTER_VALUE;
+	sm->r_inner = (double *) malloc(sizeof(double)*NUMBER_OF_PACKETS);
+	sm->r_inner[0] = R_INNER_VALUE;
+	sm->r_inner[1] = R_INNER_VALUE;
 	/*
 	double LINE_LIST_NU[2] = {1.5, 3.2};
 	double LINE_LISTS_J_BLUES[2] = {5.6, 4.4};
