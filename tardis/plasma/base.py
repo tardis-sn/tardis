@@ -183,7 +183,8 @@ class StandardPlasma(BasePlasma):
 
     def __init__(self, number_densities, atom_data, time_explosion,
                  delta_treatment=None, nlte_config=None, ionization_mode='lte',
-                 excitation_mode='lte', w=None, link_t_rad_t_electron=0.9):
+                 excitation_mode='lte', w=None,
+                 link_t_rad_t_electron=0.9):
 
         pass
 
