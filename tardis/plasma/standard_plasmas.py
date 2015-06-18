@@ -13,14 +13,14 @@ logger = logging.getLogger(__name__)
 class LTEPlasma(BasePlasma):
 
     def __init__(self, t_rad, abundance, density, time_explosion, atomic_data,
-        j_blues):
+        j_blues, link_t_rad_t_electron=0.9):
         plasma_modules = basic_inputs + basic_properties + \
             lte_excitation_properties + lte_ionization_properties
 
         super(LTEPlasma, self).__init__(plasma_modules=plasma_modules,
             t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,
             density=density, time_explosion=time_explosion, j_blues=j_blues,
-	    w=None)
+	    w=None, link_t_rad_t_electron=link_t_rad_t_electron)
 
 class LegacyPlasmaArray(BasePlasma):
 
@@ -87,4 +87,4 @@ class LegacyPlasmaArray(BasePlasma):
         super(LegacyPlasmaArray, self).__init__(plasma_modules=plasma_modules,
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
-            j_blues=None, w=w, link_t_rad_t_electron=0.9)
+            j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron)

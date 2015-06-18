@@ -71,10 +71,15 @@ def j_blues(lines):
     return pd.DataFrame(1.e-5, index=lines.index, columns=range(20))
 
 @pytest.fixture
+def link_t_rad_t_electron():
+    return 0.9
+
+@pytest.fixture
 def standard_lte_plasma_he_db(t_rad, abundance, density, time_explosion,
-                              included_he_atomic_data, j_blues):
+                              included_he_atomic_data, j_blues,
+                              link_t_rad_t_electron):
     return LTEPlasma(t_rad, abundance, density, time_explosion,
-                     included_he_atomic_data, j_blues)
+                     included_he_atomic_data, j_blues, link_t_rad_t_electron)
 
 @pytest.fixture
 def level_boltzmann_factor(levels, beta_rad):
