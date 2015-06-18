@@ -6,13 +6,13 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactorLTE,
     Density, TimeExplosion, ElectronDensity, BetaSobolev, JBlues,
     TransitionProbabilities, StimulatedEmissionFactor, SelectedAtoms,
     PhiGeneral, PhiSahaNebular, LevelBoltzmannFactorDiluteLTE, DilutionFactor,
-    ZetaData)
+    ZetaData, ElectronTemperature, LinkTRadTElectron)
 
 class PlasmaPropertyCollection(list):
     pass
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
-    TimeExplosion, AtomicData, JBlues, DilutionFactor])
+    TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, LevelPopulation, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
@@ -23,6 +23,6 @@ lte_excitation_properties = PlasmaPropertyCollection([LevelBoltzmannFactorLTE])
 macro_atom_properties = PlasmaPropertyCollection([BetaSobolev,
     TransitionProbabilities])
 nebular_ionization_properties = PlasmaPropertyCollection([PhiSahaNebular,
-    ZetaData])
+    ZetaData, ElectronTemperature])
 dilute_lte_excitation_properties = PlasmaPropertyCollection([
     LevelBoltzmannFactorDiluteLTE])

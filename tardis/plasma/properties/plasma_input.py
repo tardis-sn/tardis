@@ -3,7 +3,7 @@ import pandas as pd
 from tardis.plasma.properties.base import BasePlasmaProperty
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlues']
+           'TimeExplosion', 'JBlues', 'LinkTRadTElectron']
 
 
 class Input(BasePlasmaProperty):
@@ -53,3 +53,6 @@ class TimeExplosion(DynamicInput):
 
 class JBlues(DataFrameInput):
     name = 'j_blues'
+
+class LinkTRadTElectron(StaticInput):
+    name = 'link_t_rad_t_electron'

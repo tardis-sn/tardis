@@ -48,7 +48,7 @@ class LegacyPlasmaArray(BasePlasma):
     def __init__(self, number_densities, atomic_data, time_explosion,
         t_rad=None, delta_treatment=None, nlte_config=None,
         ionization_mode='lte', excitation_mode='lte',
-        line_interaction_type='scatter'):
+        line_interaction_type='scatter', link_t_rad_t_electron=0.9):
 
         plasma_modules = basic_inputs + basic_properties
 
@@ -87,4 +87,4 @@ class LegacyPlasmaArray(BasePlasma):
         super(LegacyPlasmaArray, self).__init__(plasma_modules=plasma_modules,
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
-            j_blues=None, w=w)
+            j_blues=None, w=w, link_t_rad_t_electron=0.9)
