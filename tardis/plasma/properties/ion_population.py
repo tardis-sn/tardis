@@ -63,7 +63,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
     name = 'phi'
 
     @staticmethod
-    def calculate(general_phi, t_rad, w, zeta_data):
+    def calculate(general_phi, t_rad, w, zeta_data, t_electron):
         logger.debug('Calculating Saha using Nebular approximation')
 
         try:
@@ -80,7 +80,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
             # issue created - fix with warning some other day
             zeta[np.isnan(zeta)] = 1.0
         phis = general_phi * w * (zeta + w * (1 - zeta)) * \
-                (0.9) ** .5
+               (t_electron/t_rad) ** .5
         return phis
 
 class PhiSahaLTE(ProcessingPlasmaProperty):

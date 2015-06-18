@@ -7,7 +7,8 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['BetaRadiation', 'GElectron', 'NumberDensity', 'SelectedAtoms']
+__all__ = ['BetaRadiation', 'GElectron', 'NumberDensity', 'SelectedAtoms',
+           'ElectronTemperature']
 
 class BetaRadiation(ProcessingPlasmaProperty):
     name = 'beta_rad'
@@ -48,3 +49,9 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 
     def calculate(self, abundance):
         return abundance.index
+
+class ElectronTemperature(ProcessingPlasmaProperty):
+    name = 't_electron'
+
+    def calculate(self, t_rad, link_t_rad_t_electron):
+        return t_rad * link_t_rad_t_electron
