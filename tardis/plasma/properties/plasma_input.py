@@ -3,7 +3,8 @@ import pandas as pd
 from tardis.plasma.properties.base import BasePlasmaProperty
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlues', 'LinkTRadTElectron']
+           'TimeExplosion', 'JBlues', 'LinkTRadTElectron',
+           'RadiationFieldCorrectionInput']
 
 
 class Input(BasePlasmaProperty):
@@ -43,6 +44,9 @@ class AtomicData(StaticInput):
 class Abundance(DynamicInput):
     name = 'abundance'
 
+
+class RadiationFieldCorrectionInput(StaticInput):
+    name = 'delta_input'
 
 class Density(ArrayInput):
     name = 'density'
