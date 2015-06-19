@@ -139,27 +139,31 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """
     @staticmethod
     def calculate(w, ionization_data, beta_rad, t_electron, t_rad,
-        beta_electron, levels):
+        beta_electron, levels, delta_input):
         # factor delta ML 1993
-        departure_coefficient = 1. / w
-        chi_0_species=(20, 2)
-        chi_0 = ionization_data.ionization_energy.ix[chi_0_species]
-        radiation_field_correction = -np.ones((len(ionization_data), len(
-            beta_rad)))
-        less_than_chi_0 = (ionization_data.ionization_energy < chi_0).values
-        factor_a = (t_electron / (departure_coefficient * w * t_rad))
-        radiation_field_correction[~less_than_chi_0] = factor_a * \
-            np.exp(np.outer(ionization_data.ionization_energy.values[
-            ~less_than_chi_0], beta_rad - beta_electron))
-        radiation_field_correction[less_than_chi_0] = 1 - np.exp(np.outer(
-            ionization_data.ionization_energy.values[less_than_chi_0],
-            beta_rad) - beta_rad * chi_0)
-        radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
-            np.outer(ionization_data.ionization_energy.values[less_than_chi_0],
-                     beta_rad) - chi_0 * beta_electron)
+        if delta_input is None:
+            departure_coefficient = 1. / w
+            chi_0_species=(20, 2)
+            chi_0 = ionization_data.ionization_energy.ix[chi_0_species]
+            radiation_field_correction = -np.ones((len(ionization_data), len(
+                beta_rad)))
+            less_than_chi_0 = (
+                ionization_data.ionization_energy < chi_0).values
+            factor_a = (t_electron / (departure_coefficient * w * t_rad))
+            radiation_field_correction[~less_than_chi_0] = factor_a * \
+                np.exp(np.outer(ionization_data.ionization_energy.values[
+                ~less_than_chi_0], beta_rad - beta_electron))
+            radiation_field_correction[less_than_chi_0] = 1 - np.exp(np.outer(
+                ionization_data.ionization_energy.values[less_than_chi_0],
+                beta_rad) - beta_rad * chi_0)
+            radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
+                np.outer(ionization_data.ionization_energy.values[
+                less_than_chi_0],beta_rad) - chi_0 * beta_electron)
+        else:
+            radiation_field_correction = np.ones((len(ionization_data),
+                len(beta_rad))) * delta_input
         delta = pd.DataFrame(radiation_field_correction,
-                            columns=np.arange(len(t_rad)),
-                            index=ionization_data.index)
+            columns=np.arange(len(t_rad)), index=ionization_data.index)
         delta.drop([(1,1), (4,3)], inplace=True)
         return delta
 
