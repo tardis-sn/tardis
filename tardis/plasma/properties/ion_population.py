@@ -137,13 +137,23 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
     This function adds a field 'delta' to the phi table given to the function
 
     """
+
+    def __init__(self, plasma_parent, departure_coefficient=None,
+        chi_0_species=(20,2)):
+        super(RadiationFieldCorrection, self).__init__(plasma_parent)
+        self.departure_coefficient = departure_coefficient
+        self.chi_0_species = chi_0_species
+
     @staticmethod
-    def calculate(w, ionization_data, beta_rad, t_electron, t_rad,
+    def calculate(self, w, ionization_data, beta_rad, t_electron, t_rad,
         beta_electron, levels, delta_input):
         # factor delta ML 1993
         if delta_input is None:
-            departure_coefficient = 1. / w
-            chi_0_species=(20, 2)
+            if self.departure_coefficient is None:
+                departure_coefficient = 1. / w
+            else:
+                departure_coefficient = self.departure_coefficient
+            chi_0_species=self.chi_0_species
             chi_0 = ionization_data.ionization_energy.ix[chi_0_species]
             radiation_field_correction = -np.ones((len(ionization_data), len(
                 beta_rad)))
