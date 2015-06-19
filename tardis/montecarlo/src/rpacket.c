@@ -339,6 +339,18 @@ rpacket_set_chi_boundfree(rpacket_t * packet, double chi_boundfree)
   packet->chi_bf = chi_boundfree;
 }
 
+INLINE void
+rpacket_set_current_continuum_id (rpacket_t * packet, unsigned int current_continuum_id)
+{
+  packet->current_continuum_id = current_continuum_id;
+}
+
+INLINE unsigned int
+rpacket_get_current_continuum_id (rpacket_t * packet)
+{
+  return packet->current_continuum_id;
+}
+
 /* Other accessor methods. */
 
 INLINE void

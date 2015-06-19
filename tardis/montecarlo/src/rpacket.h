@@ -56,6 +56,8 @@ typedef struct RPacket
    * It now whenever a d_line is calculated only adds the tau_line to an 
    * internal float.
    */
+
+  int64_t current_continuum_id; /* Packet can interact with continuum edges with an index equal or bigger than this */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
   double d_line; /**< Distance to electron event. */
@@ -179,5 +181,8 @@ inline void rpacket_set_chi_boundfree (rpacket_t * packet, double chi_boundfree)
 
 inline double rpacket_get_chi_boundfree (rpacket_t * packet);
 
+inline unsigned int rpacket_get_current_continuum_id (rpacket_t * packet);
+
+inline void rpacket_set_current_continuum_id (rpacket_t * packet, unsigned int current_continuum_id);
 
 #endif // TARDIS_RPACKET_H
