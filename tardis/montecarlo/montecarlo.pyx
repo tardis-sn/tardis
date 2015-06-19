@@ -36,6 +36,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t recently_crossed_boundary
         int_type_t virtual_packet_flag
         int_type_t virtual_packet
+        int_type_t current_continuum_id;
         double d_line
         double d_electron
         double d_boundary
@@ -67,10 +68,12 @@ cdef extern from "src/cmontecarlo.h":
         double *inverse_electron_densities
         double *line_list_nu
         double *line_lists_tau_sobolevs
+        double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
         int_type_t line_lists_j_blues_nd
         int_type_t no_of_lines
+        int_type_t no_of_edges
         int_type_t line_interaction_id
         double *transition_probabilities
         int_type_t transition_probabilities_nd
@@ -157,6 +160,11 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.electron_densities = <double*> electron_densities.data
     cdef np.ndarray[double, ndim=1] inverse_electron_densities = 1.0 / electron_densities
     storage.inverse_electron_densities = <double*> inverse_electron_densities.data
+    # Continuum list
+    cdef np.ndarray[double, ndim=1] continuum_list_nu = np.array(
+        [9.0e14, 8.223e14, 6.0e14, 3.656e14, 3.0e14])  # Dummy data
+    storage.continuum_list_nu = <double*> continuum_list_nu.data
+    storage.no_of_edges = 5  #continuum_list_nu.size
     # Line lists
     cdef np.ndarray[double, ndim=1] line_list_nu = model.atom_data.lines.nu.values
     storage.line_list_nu = <double*> line_list_nu.data

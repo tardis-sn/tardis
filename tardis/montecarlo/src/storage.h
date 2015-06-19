@@ -35,11 +35,13 @@ typedef struct StorageModel
   double *electron_densities;
   double *inverse_electron_densities;
   double *line_list_nu;
+  double *continuum_list_nu;
   double *line_lists_tau_sobolevs;
   int64_t line_lists_tau_sobolevs_nd;
   double *line_lists_j_blues;
   int64_t line_lists_j_blues_nd;
   int64_t no_of_lines;
+  int64_t no_of_edges;
   int64_t line_interaction_id;
   double *transition_probabilities;
   int64_t transition_probabilities_nd;
