@@ -7,13 +7,14 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactorLTE,
     TransitionProbabilities, StimulatedEmissionFactor, SelectedAtoms,
     PhiGeneral, PhiSahaNebular, LevelBoltzmannFactorDiluteLTE, DilutionFactor,
     ZetaData, ElectronTemperature, LinkTRadTElectron, BetaElectron,
-    RadiationFieldCorrection)
+    RadiationFieldCorrection, RadiationFieldCorrectionInput)
 
 class PlasmaPropertyCollection(list):
     pass
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
-    TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron])
+    TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
+    RadiationFieldCorrectionInput])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, LevelPopulation, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
