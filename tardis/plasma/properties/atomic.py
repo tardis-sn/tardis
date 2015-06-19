@@ -109,7 +109,7 @@ class AtomicMass(ProcessingPlasmaProperty):
 class IonizationData(ProcessingPlasmaProperty):
     name = 'ionization_data'
 
-    def calculate(self, atomic_data, selected_atoms):
+    def calculate(self, atomic_data, levels):
         if self.value is not None:
             return self.value
         else:
