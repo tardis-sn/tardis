@@ -393,8 +393,26 @@ class Radial1DModel(object):
         self.last_line_interaction_in_id = self.last_line_interaction_in_id[last_line_interaction_in_id != -1]
         self.last_line_interaction_out_id = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
         self.last_line_interaction_out_id = self.last_line_interaction_out_id[last_line_interaction_out_id != -1]
-        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
-                                                                                                       u.spectral())
+        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',u.spectral())
+
+        last_line_interaction_full = np.zeros((self.current_no_of_packets, 8))
+        last_line_interaction_full[:, 0] = np.arange(0, self.current_no_of_packets)
+        last_line_interaction_full[:, 1] = montecarlo_nu
+        last_line_interaction_full[:, 2] = montecarlo_energies
+        last_line_interaction_full[:, 3] = last_line_interaction_in_id
+        last_line_interaction_full[:, 4] = last_line_interaction_out_id
+        last_line_interaction_full[:, 5] = self.atom_data.lines_index.index.values[last_line_interaction_in_id]
+        last_line_interaction_full[:, 6] = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
+        last_line_interaction_full[:, 7] = False
+        last_line_interaction_full[:, 7] = montecarlo_energies > 0
+
+        self.last_line_interaction_full = pd.DataFrame(last_line_interaction_full,
+                                                       index=last_line_interaction_full[:, 0],
+                                                       columns=['packet_id', 'nu', 'energies',
+                                                                'last_line_interaction_in_id',
+                                                                'last_line_interaction_out_id',
+                                                                'last_line_interaction_in_line_id',
+                                                                'last_line_interaction_out_line_id', 'emitted'])
 
 
         self.iterations_executed += 1
