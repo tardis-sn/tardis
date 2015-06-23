@@ -34,7 +34,10 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
                     self.name)):
                 raise IncompleteAtomicData(self.name)
             else:
-                raw_atomic_property = getattr(atomic_data, '_' + self.name)
+                try:
+                    raw_atomic_property = getattr(atomic_data, '_' + self.name)
+                except:
+                    raw_atomic_property = getattr(atomic_data, self.name)
                 return self._set_index(self._filter_atomic_property(
                     raw_atomic_property, selected_atoms), atomic_data)
 
@@ -115,11 +118,13 @@ class IonizationData(ProcessingPlasmaProperty):
         else:
             return atomic_data.ionization_data
 
-class ZetaData(ProcessingPlasmaProperty):
+class ZetaData(BaseAtomicDataProperty):
     name = 'zeta_data'
 
-    def calculate(self, atomic_data, selected_atoms):
-        if self.value is not None:
-            return self.value
-        else:
-            return atomic_data.zeta_data
+    def _filter_atomic_property(self, zeta_data, selected_atoms):
+        zeta_data['atomic_number'] = zeta_data.index.labels[0]
+        zeta_data['ion_number'] = zeta_data.index.labels[1]
+        return zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
+
+    def _set_index(self, zeta_data, atomic_data):
+        return zeta_data.set_index(['atomic_number', 'ion_number'])
