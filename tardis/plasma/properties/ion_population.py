@@ -69,6 +69,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         try:
             zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[
                 general_phi.index].values)(t_rad)
+            zeta = zeta.astype(float)
         except ValueError:
             raise ValueError('t_rads outside of zeta factor interpolation'
                              ' zeta_min={0:.2f} zeta_max={1:.2f} '
@@ -144,7 +145,6 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         self.departure_coefficient = departure_coefficient
         self.chi_0_species = chi_0_species
 
-    @staticmethod
     def calculate(self, w, ionization_data, beta_rad, t_electron, t_rad,
         beta_electron, levels, delta_input):
         # factor delta ML 1993
