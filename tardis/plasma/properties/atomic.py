@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import numpy as np
 import pandas as pd
+from collections import Counter as counter
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import IncompleteAtomicData
@@ -30,17 +31,14 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
         if self.value is not None:
             return self.value
         else:
-            if not getattr(atomic_data, 'has_{0}'.format(
-                    self.name)):
-                raise IncompleteAtomicData(self.name)
-            else:
-                try:
-                    raw_atomic_property = getattr(atomic_data, '_' + self.name)
-                except:
-                    raw_atomic_property = getattr(atomic_data, self.name)
+            try:
+                raw_atomic_property = getattr(atomic_data, '_' + self.name)
                 return self._set_index(self._filter_atomic_property(
                     raw_atomic_property, selected_atoms), atomic_data)
-
+            except:
+                raw_atomic_property = getattr(atomic_data, self.name)
+                return self._set_index(self._filter_atomic_property(
+                    raw_atomic_property, selected_atoms), atomic_data)
 
 
 class Levels(BaseAtomicDataProperty):
@@ -109,22 +107,59 @@ class AtomicMass(ProcessingPlasmaProperty):
         else:
             return atomic_data.atom_data.ix[selected_atoms].mass
 
-class IonizationData(ProcessingPlasmaProperty):
+class IonizationData(BaseAtomicDataProperty):
     name = 'ionization_data'
 
-    def calculate(self, atomic_data, levels):
-        if self.value is not None:
-            return self.value
+    def _filter_atomic_property(self, ionization_data, selected_atoms):
+        ionization_data['atomic_number'] = ionization_data.index.labels[0]+1
+        ionization_data['ion_number'] = ionization_data.index.labels[1]+1
+        ionization_data = ionization_data[ionization_data.atomic_number.isin(
+            selected_atoms)]
+        ion_data_check = counter(ionization_data.atomic_number.values)
+        keys = np.array(ion_data_check.keys())
+        values = np.array(ion_data_check.values())
+        if np.alltrue(keys==values):
+            return ionization_data
         else:
-            return atomic_data.ionization_data
+            raise IncompleteAtomicData('ion(s) for atomic number(s) ' +
+                            str(keys[keys!=values]))
+
+    def _set_index(self, ionization_data, atomic_data):
+        return ionization_data.set_index(['atomic_number', 'ion_number'])
 
 class ZetaData(BaseAtomicDataProperty):
     name = 'zeta_data'
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
-        zeta_data['atomic_number'] = zeta_data.index.labels[0]
-        zeta_data['ion_number'] = zeta_data.index.labels[1]
-        return zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
+        zeta_data['atomic_number'] = zeta_data.index.labels[0]+1
+        zeta_data['ion_number'] = zeta_data.index.labels[1]+1
+        zeta_data =  zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
+        zeta_data_check = counter(zeta_data.atomic_number.values)
+        keys = np.array(zeta_data_check.keys())
+        values = np.array(zeta_data_check.values())
+        if np.alltrue(keys+1==values):
+            return zeta_data
+        else:
+            updated_index = []
+            for atom in selected_atoms:
+                for ion in range(1, atom+2):
+                    updated_index.append([atom,ion])
+            updated_index = np.array(updated_index)
+            updated_dataframe = pd.DataFrame(index=pd.MultiIndex.from_arrays(
+                updated_index.transpose().astype(int)),
+                columns = zeta_data.columns)
+            for value in range(len(zeta_data)):
+                updated_dataframe.ix[zeta_data.atomic_number.values[value]].ix[
+                    zeta_data.ion_number.values[value]] = \
+                    zeta_data.ix[zeta_data.atomic_number.values[value]].ix[
+                    zeta_data.ion_number.values[value]]
+            updated_dataframe = updated_dataframe.astype(float)
+            updated_index = pd.DataFrame(updated_index)
+            updated_dataframe['atomic_number'] = np.array(updated_index[0])
+            updated_dataframe['ion_number'] = np.array(updated_index[1])
+            updated_dataframe.fillna(1.0, inplace=True)
+            return updated_dataframe
 
     def _set_index(self, zeta_data, atomic_data):
         return zeta_data.set_index(['atomic_number', 'ion_number'])
+
