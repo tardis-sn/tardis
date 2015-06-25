@@ -89,7 +89,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t current_packet_id
 
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
-    void montecarlo_main_loop(storage_model_t * storage, rpacket_t * packet, int64_t * reabsorbed, int64_t virtual_packet_flag)
+    void montecarlo_main_loop(storage_model_t * storage, rpacket_t * packet, int_type_t * reabsorbed, int_type_t virtual_packet_flag)
     int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
     double rpacket_get_nu(rpacket_t *packet)
     double rpacket_get_energy(rpacket_t *packet)
@@ -226,6 +226,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     cdef int_type_t reabsorbed = 0
-    montecarlo_main_loop(storage, packet, &reabsorbed, virtual_packet_flag)
+    montecarlo_main_loop(&storage, &packet, &reabsorbed, virtual_packet_flag)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
