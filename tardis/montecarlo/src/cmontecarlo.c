@@ -670,3 +670,28 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
   return rpacket_get_status (packet) ==
     TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
+
+void
+montecarlo_main_loop(storage_model_t * storage, rpacket_t * packet, int64_t * reabsorbed, int64_t virtual_packet_flag)
+{
+  int64_t packet_index;
+  for (packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
+    {
+      storage->current_packet_id = packet_index;
+      rpacket_init(packet, storage, packet_index, virtual_packet_flag);
+      if (virtual_packet_flag > 0)
+	{
+	  *reabsorbed = montecarlo_one_packet(storage, packet, -1);
+	}
+      *reabsorbed = montecarlo_one_packet(storage, packet, 0);
+      storage->output_nus[packet_index] = rpacket_get_nu(packet);
+      if (*reabsorbed == 1)
+	{
+	  storage->output_energies[packet_index] = -rpacket_get_energy(packet);
+	}
+      else
+	{
+	  storage->output_energies[packet_index] = rpacket_get_energy(packet);
+	}
+    }
+}

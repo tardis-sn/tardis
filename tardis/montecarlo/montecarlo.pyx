@@ -89,6 +89,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t current_packet_id
 
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
+    void montecarlo_main_loop(storage_model_t * storage, rpacket_t * packet, int64_t * reabsorbed, int64_t virtual_packet_flag)
     int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
     double rpacket_get_nu(rpacket_t *packet)
     double rpacket_get_energy(rpacket_t *packet)
@@ -225,15 +226,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     cdef int_type_t reabsorbed = 0
-    for packet_index in range(storage.no_of_packets):
-        storage.current_packet_id = packet_index
-        rpacket_init(&packet, &storage, packet_index, virtual_packet_flag)
-        if (virtual_packet_flag > 0):
-            #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
-            reabsorbed = montecarlo_one_packet(&storage, &packet, -1)
-        #Now can do the propagation of the real packet
-        reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
-        storage.output_nus[packet_index] = rpacket_get_nu(&packet)
-        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
+    montecarlo_main_loop(storage, packet, &reabsorbed, virtual_packet_flag)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
