@@ -129,7 +129,10 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
         if j_blues.empty:
             transition_probabilities = None
         else:
-            macro_atom_data = atomic_data.macro_atom_data
+            try:
+                macro_atom_data = atomic_data.macro_atom_data
+            except:
+                macro_atom_data = atomic_data.macro_atom_data_all
             transition_probabilities = (
                 macro_atom_data.transition_probability.values[np.newaxis].T *
                 beta_sobolev.take(macro_atom_data.lines_idx.values.astype(int),
