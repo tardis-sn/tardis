@@ -15,8 +15,7 @@ try:
 except ImportError:
     importFailed = True
 
-from tardis.gui.widgets import MatplotlibWidget, ModelViewer, ShellInfo
-from tardis.gui.widgets import LineInfo, LineInteractionTables, Tardis 
+from tardis.gui.widgets import Tardis 
 from tardis.gui.datahandler import SimpleTableModel
 from tardis import run_tardis
     

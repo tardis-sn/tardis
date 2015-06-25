@@ -97,32 +97,32 @@ class Node(object):
         self.siblings = {}  #For 'type' fields. Will store the nodes to 
                             #enable disable on selection
 
-    def appendChild(self, child):
+    def append_child(self, child):
         """Add a child to this node."""
         self.children.append(child)
         child.parent = self
 
-    def getChild(self, i):
+    def get_child(self, i):
         """Get the ith child of this node. 
 
         No error is raised if the cild requested doesn't exist. A 
         None is returned in such cases.
 
         """
-        if i < self.numChildren():
+        if i < self.num_children():
             return self.children[i]
         else:
             return None
 
-    def numChildren(self):
+    def num_children(self):
         """Number of children this node has."""
         return len(self.children)
 
-    def numColumns(self):
+    def num_columns(self):
         """Returns the number of strings stored in the data attribute."""
         return len(self.data)
 
-    def getData(self, i):
+    def get_data(self, i):
         """Returns the ith string from the data list.
 
         No error is raised if the data list index is exceeded. A None is
@@ -134,11 +134,11 @@ class Node(object):
         except IndexError:
             return None
 
-    def getParent(self):
+    def get_parent(self):
         """Return the parent of this node."""
         return self.parent
 
-    def getIndexOfSelf(self):
+    def get_index_of_self(self):
         """Returns the number at which it comes in the list of its 
         parent's children. For root the index 0 is returned.
 
@@ -148,12 +148,12 @@ class Node(object):
         else:
             return 0
 
-    def setData(self, column, value):
+    def set_data(self, column, value):
         """Set the data for the ith index to the provided value. Returns
         true if the data was set successfully.
 
         """
-        if column < 0 or column >= self.numColumns():
+        if column < 0 or column >= self.num_columns():
             return False
 
         self.data[column] = value
@@ -209,16 +209,16 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         #Append siblings to type nodes
         for node in self.typenodes: #For every type node
-            parent = node.getParent()
+            parent = node.get_parent()
             sibsdict = {}
-            for i in range(parent.numChildren()):
-                sibsdict[parent.getChild(i).getData(0)] = parent.getChild(i)
+            for i in range(parent.num_children()):
+                sibsdict[parent.get_child(i).get_data(0)] = parent.get_child(i)
 
-            typesleaf = node.getChild(0)
-            for i in range(typesleaf.numColumns()):
-                sibstrings = typesleaf.getData(i).split('|_:_|')
+            typesleaf = node.get_child(0)
+            for i in range(typesleaf.num_columns()):
+                sibstrings = typesleaf.get_data(i).split('|_:_|')
             
-                typesleaf.setData(i, sibstrings[0])
+                typesleaf.set_data(i, sibstrings[0])
                 sibslist = []
                 for j in range(1, len(sibstrings)):
                     if sibstrings[j] in sibsdict:
@@ -228,8 +228,8 @@ class TreeModel(QtCore.QAbstractItemModel):
             
             #Then append siblings of current selection for all type nodes to
             #disabled nodes
-            for i in range(1,typesleaf.numColumns()):
-                key = typesleaf.getData(i)
+            for i in range(1,typesleaf.num_columns()):
+                key = typesleaf.get_data(i)
                 for nd in typesleaf.siblings[key]:
                     self.disabledNodes.append(nd)
 
@@ -238,7 +238,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         """Convert dictionary to tree. Called by dictToTree."""
         for key in dictionary:
             child = Node([key])
-            root.appendChild(child)
+            root.append_child(child)
             if isinstance(dictionary[key], dict):
                 self.treeFromNode(dictionary[key], child)
             elif isinstance(dictionary[key], list):
@@ -247,7 +247,7 @@ class TreeModel(QtCore.QAbstractItemModel):
                 else:
                     leaf = Node([dictionary[key][1]])
 
-                child.appendChild(leaf)
+                child.append_child(leaf)
                 if key == 'type':
                     self.typenodes.append(child)
 
@@ -256,17 +256,17 @@ class TreeModel(QtCore.QAbstractItemModel):
         dictionary.
 
         """
-        children = [node.getChild(i) for i in range(node.numChildren())]
+        children = [node.get_child(i) for i in range(node.num_children())]
         if len(children) > 1:
             dictionary = {}
             for nd in children:
                 if nd in self.disabledNodes:
                     pass
                 else:
-                    dictionary[nd.getData(0)] = self.dictFromNode(nd)
+                    dictionary[nd.get_data(0)] = self.dictFromNode(nd)
             return dictionary
         elif len(children)==1:
-            return children[0].getData(0)
+            return children[0].get_data(0)
 
     def columnCount(self, index):
         """Return the number of columns in the node pointed to by
@@ -274,9 +274,9 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         """
         if index.isValid():
-            return index.internalPointer().numColumns()
+            return index.internalPointer().num_columns()
         else:
-            return self.root.numColumns()
+            return self.root.num_columns()
 
     def data(self, index, role):
         """Returns the asked data for the node specified by the modeLabel
@@ -289,7 +289,7 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         item = index.internalPointer()
 
-        return item.getData(index.column())
+        return item.get_data(index.column())
 
     def flags(self, index):
         """Return flags for the items whose model index is provided."""
@@ -297,11 +297,11 @@ class TreeModel(QtCore.QAbstractItemModel):
             return QtCore.Qt.NoItemFlags
 
         node = index.internalPointer()
-        if ((node.getParent() in self.disabledNodes) or 
+        if ((node.get_parent() in self.disabledNodes) or 
             (node in self.disabledNodes)):
             return QtCore.Qt.NoItemFlags
 
-        if node.numChildren()==0:
+        if node.num_children()==0:
             return (QtCore.Qt.ItemIsEditable | QtCore.Qt.ItemIsEnabled | 
                 QtCore.Qt.ItemIsSelectable)
 
@@ -326,7 +326,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         """
         if (orientation == QtCore.Qt.Horizontal and 
           role == QtCore.Qt.DisplayRole):
-            return self.root.getData(section)
+            return self.root.get_data(section)
 
         return None
 
@@ -340,7 +340,7 @@ class TreeModel(QtCore.QAbstractItemModel):
             return QtCore.QModelIndex()
 
         parentItem = self.getItem(parent)
-        childItem = parentItem.getChild(row)
+        childItem = parentItem.get_child(row)
         if childItem:
             return self.createIndex(row, column, childItem)
         else:
@@ -370,12 +370,12 @@ class TreeModel(QtCore.QAbstractItemModel):
             return QtCore.QModelIndex()
 
         childItem = index.internalPointer()
-        parentItem = childItem.getParent()
+        parentItem = childItem.get_parent()
 
         if parentItem == self.root:
             return QtCore.QModelIndex()
 
-        return self.createIndex(parentItem.getIndexOfSelf(), 0, parentItem)
+        return self.createIndex(parentItem.get_index_of_self(), 0, parentItem)
 
     def rowCount(self, parent=QtCore.QModelIndex()):
         """The number of rows for a given node. 
@@ -385,7 +385,7 @@ class TreeModel(QtCore.QAbstractItemModel):
         """
         parentItem = self.getItem(parent)
 
-        return parentItem.numChildren()
+        return parentItem.num_hildren()
 
     def setData(self, index, value, role=QtCore.Qt.EditRole):
         """Set the value as the data at the location pointed by the 
@@ -427,14 +427,14 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         """Create a lineEdit or combobox depending on the type of node."""
         node = index.internalPointer()
-        if node.numColumns()>1:
+        if node.num_columns()>1:
             combobox = QtGui.QComboBox(parent)
-            combobox.addItems([node.getData(i) for i in range(node.numColumns())])
+            combobox.addItems([node.get_data(i) for i in range(node.num_columns())])
             combobox.setEditable(False)
             return combobox
         else:
             editor =  QtGui.QLineEdit(parent)
-            editor.setText(str(node.getData(0)))
+            editor.setText(str(node.get_data(0)))
             editor.returnPressed.connect(self.closeAndCommit)
             return editor
 
@@ -453,15 +453,15 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
         """
         node = index.internalPointer()
 
-        if node.numColumns() > 1 and node.getParent().getData(0) != 'type':
+        if node.num_columns() > 1 and node.get_parent().get_data(0) != 'type':
             selectedIndex = editor.currentIndex()
-            firstItem = node.getData(0)
+            firstItem = node.get_data(0)
             node.setData(0, str(editor.currentText()))
             node.setData(selectedIndex, str(firstItem))
 
-        elif node.numColumns() > 1 and node.getParent().getData(0) == 'type':
+        elif node.num_columns() > 1 and node.get_parent().get_data(0) == 'type':
             selectedIndex = editor.currentIndex()
-            firstItem = node.getData(0)
+            firstItem = node.get_data(0)
             node.setData(0, str(editor.currentText()))
             node.setData(selectedIndex, str(firstItem))
 
