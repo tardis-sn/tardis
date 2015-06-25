@@ -144,26 +144,27 @@ class ZetaData(BaseAtomicDataProperty):
         if np.alltrue(keys+1==values):
             return zeta_data
         else:
-            logger.warn('Zeta_data missing - replaced with 1s')
-            updated_index = []
-            for atom in selected_atoms:
-                for ion in range(1, atom+2):
-                    updated_index.append([atom,ion])
-            updated_index = np.array(updated_index)
-            updated_dataframe = pd.DataFrame(index=pd.MultiIndex.from_arrays(
-                updated_index.transpose().astype(int)),
-                columns = zeta_data.columns)
-            for value in range(len(zeta_data)):
-                updated_dataframe.ix[zeta_data.atomic_number.values[value]].ix[
-                    zeta_data.ion_number.values[value]] = \
-                    zeta_data.ix[zeta_data.atomic_number.values[value]].ix[
-                    zeta_data.ion_number.values[value]]
-            updated_dataframe = updated_dataframe.astype(float)
-            updated_index = pd.DataFrame(updated_index)
-            updated_dataframe['atomic_number'] = np.array(updated_index[0])
-            updated_dataframe['ion_number'] = np.array(updated_index[1])
-            updated_dataframe.fillna(1.0, inplace=True)
-            return updated_dataframe
+            raise IncompleteAtomicData('zeta data')
+#            logger.warn('Zeta_data missing - replaced with 1s')
+#            updated_index = []
+#            for atom in selected_atoms:
+#                for ion in range(1, atom+2):
+#                    updated_index.append([atom,ion])
+#            updated_index = np.array(updated_index)
+#            updated_dataframe = pd.DataFrame(index=pd.MultiIndex.from_arrays(
+#                updated_index.transpose().astype(int)),
+#                columns = zeta_data.columns)
+#            for value in range(len(zeta_data)):
+#                updated_dataframe.ix[zeta_data.atomic_number.values[value]].ix[
+#                    zeta_data.ion_number.values[value]] = \
+#                    zeta_data.ix[zeta_data.atomic_number.values[value]].ix[
+#                    zeta_data.ion_number.values[value]]
+#            updated_dataframe = updated_dataframe.astype(float)
+#            updated_index = pd.DataFrame(updated_index)
+#            updated_dataframe['atomic_number'] = np.array(updated_index[0])
+#            updated_dataframe['ion_number'] = np.array(updated_index[1])
+#            updated_dataframe.fillna(1.0, inplace=True)
+#            return updated_dataframe
 
     def _set_index(self, zeta_data, atomic_data):
         return zeta_data.set_index(['atomic_number', 'ion_number'])
