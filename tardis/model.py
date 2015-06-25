@@ -132,7 +132,8 @@ class Radial1DModel(object):
                                                          delta_treatment=tardis_config.plasma.delta_treatment,
                                                          ionization_mode=tardis_config.plasma.ionization,
                                                          excitation_mode=tardis_config.plasma.excitation,
-                                                         line_interaction_type=tardis_config.plasma.line_interaction_type)
+                                                         line_interaction_type=tardis_config.plasma.line_interaction_type,
+                                                         link_t_rad_t_electron=0.9)
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
