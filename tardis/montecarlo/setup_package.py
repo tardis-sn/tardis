@@ -16,4 +16,6 @@ def get_extensions():
     return [Extension('tardis.montecarlo.montecarlo', sources,
                       include_dirs=['tardis/montecarlo/src',
                                     'tardis/montecarlo/src/randomkit',
-                                    np.get_include()])]
+                                    np.get_include()],
+                      extra_compile_args=['-fopenmp'],
+                      extra_link_args=['-fopenmp'])]

@@ -63,6 +63,7 @@ typedef struct RPacket
   double d_boundary; /**< Distance to shell boundary. */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
   rpacket_status_t status; /**< Packet status (in process, emitted or reabsorbed). */
+  int64_t id;
 } rpacket_t;
 
 inline double rpacket_get_nu (rpacket_t * packet);
