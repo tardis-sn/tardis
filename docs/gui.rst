@@ -35,9 +35,14 @@ Display your model::
     
     from tardis import run_tardis
     mdl = run_tardis('yamlconfigfile.yml', 'atomdatafile.h5')
-    from tardis import gui 
-    win = gui.Tardis()
-    win.show_model(mdl)
+    from tardis.gui import interface  
+    interface.show(mdl)
+
+(WIP) You can also run a configuration from the shell. To do this first set 
+QT_API in the shell. Then navigate to the tardis installation folder and go to
+tardis/tardis/gui. Then use the command::
+    
+    python interface.py path-to-configuration-file path-to-atomic-data-file 
 
 GUI Layout and Features
 -----------------------
