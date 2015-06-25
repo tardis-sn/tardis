@@ -2,9 +2,12 @@ from abc import ABCMeta, abstractmethod
 import numpy as np
 import pandas as pd
 from collections import Counter as counter
+import logging
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import IncompleteAtomicData
+
+logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
            'AtomicMass', 'IonizationData', 'ZetaData']
@@ -121,8 +124,9 @@ class IonizationData(BaseAtomicDataProperty):
         if np.alltrue(keys==values):
             return ionization_data
         else:
-            raise IncompleteAtomicData('ion(s) for atomic number(s) ' +
-                            str(keys[keys!=values]))
+            raise IncompleteAtomicData('ionization data for the ion (' +
+                            str(keys[keys!=values]) +
+                            str(values[keys!=values]) + ')')
 
     def _set_index(self, ionization_data, atomic_data):
         return ionization_data.set_index(['atomic_number', 'ion_number'])
@@ -140,6 +144,7 @@ class ZetaData(BaseAtomicDataProperty):
         if np.alltrue(keys+1==values):
             return zeta_data
         else:
+            logger.warn('Zeta_data missing - replaced with 1s')
             updated_index = []
             for atom in selected_atoms:
                 for ion in range(1, atom+2):

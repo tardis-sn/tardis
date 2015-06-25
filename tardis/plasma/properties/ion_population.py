@@ -76,10 +76,6 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
                              '- requested {2}'.format(
                 zeta_data.columns.values.min(), zeta_data.columns.values.max(),
                 t_rad))
-        else:
-            # fixing missing nan data
-            # issue created - fix with warning some other day
-            zeta[np.isnan(zeta)] = 1.0
         phis = general_phi * delta * w * (zeta + w * (1 - zeta)) * \
                (t_electron/t_rad) ** .5
         return phis
@@ -174,7 +170,6 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
                 len(beta_rad))) * delta_input
         delta = pd.DataFrame(radiation_field_correction,
             columns=np.arange(len(t_rad)), index=ionization_data.index)
-        delta.drop([(1,1), (4,3)], inplace=True)
         return delta
 
 class IonNumberDensity(ProcessingPlasmaProperty):
