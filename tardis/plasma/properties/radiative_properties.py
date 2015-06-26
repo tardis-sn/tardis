@@ -94,7 +94,7 @@ class TauSobolev(ProcessingPlasmaProperty):
         f_lu = lines.f_lu.values[np.newaxis].T
         wavelength = lines.wavelength_cm.values[np.newaxis].T
 
-        n_lower = level_number_density.values.take(lines_lower_level_index, axis=0, mode='raise').copy('F')
+        n_lower = level_number_density.values.take(lines_lower_level_index, axis=0, mode='raise')
 
         #if self.nlte_config is not None and self.nlte_config.species != []:
         #    nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
