@@ -8,7 +8,24 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 __all__ = ['LevelBoltzmannFactorLTE', 'LevelBoltzmannFactorDiluteLTE',
-           'PartitionFunction']
+           'PartitionFunction', 'LevelBoltzmannFactorWithNLTE',
+           'LevelBoltzmannFactorWithoutNLTE']
+
+class LevelBoltzmannFactorWithNLTE(ProcessingPlasmaProperty):
+
+    name = 'level_boltzmann_factor'
+
+    @staticmethod
+    def calculate(level_boltzmann_factor_nlte):
+        return level_boltzmann_factor_nlte
+
+class LevelBoltzmannFactorWithoutNLTE(ProcessingPlasmaProperty):
+
+    name = 'level_boltzmann_factor'
+
+    @staticmethod
+    def calculate(general_level_boltzmann_factor):
+        return general_level_boltzmann_factor
 
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     """
@@ -19,7 +36,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
 
     """
 
-    name = 'level_boltzmann_factor'
+    name = 'general_level_boltzmann_factor'
     latex_formula = r'$g_{i, j, k} e^{E_{i, j, k} \times \beta_\textrm{rad}}$'
 
     @staticmethod
@@ -36,7 +53,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
 
 class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
 
-    name = 'level_boltzmann_factor'
+    name = 'general_level_boltzmann_factor'
 
     @staticmethod
     def calculate(levels, beta_rad, w):
