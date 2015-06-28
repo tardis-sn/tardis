@@ -290,7 +290,7 @@ class ConfigEditor(QtGui.QWidget):
                           },
             'spectrum':[True, None]
             }
-        self.matchDicts(configDict, templatedictionary)
+        self.match_dicts(configDict, templatedictionary)
 
         self.layout = QtGui.QVBoxLayout()
 
@@ -312,7 +312,7 @@ class ConfigEditor(QtGui.QWidget):
         #Finally put them all in
         self.setLayout(self.layout)
 
-    def matchDicts(self, dict1, dict2): #dict1<=dict2
+    def match_dicts(self, dict1, dict2): #dict1<=dict2
         """Compare and combine two dictionaries.
 
         If there are new keys in `dict1` then they are appended to `dict2`.
@@ -345,7 +345,7 @@ class ConfigEditor(QtGui.QWidget):
         for key in dict1:
             if key in dict2:
                 if isinstance(dict2[key], dict):
-                    self.matchDicts(dict1[key], dict2[key])
+                    self.match_dicts(dict1[key], dict2[key])
 
                 elif isinstance(dict2[key], list):
                     if isinstance(dict2[key][1], list):
@@ -407,10 +407,10 @@ class ModelViewer(QtGui.QWidget):
         self.createTable = tablecreator
 
         #Shells widget
-        self.shellWidget = self.makeShellWidget()
+        self.shellWidget = self.make_shell_widget()
         
         #Spectrum widget
-        self.spectrumWidget = self.makeSpectrumWidget()
+        self.spectrumWidget = self.make_spectrum_widget()
 
         #Plot tab widget
         self.plotTabWidget = QtGui.QTabWidget()
@@ -461,7 +461,7 @@ class ModelViewer(QtGui.QWidget):
         self.layout.addLayout(textntablelayout)                
         self.setLayout(self.layout)
 
-    def fillOutputLabel(self):
+    def fill_output_label(self):
         """Read some data from tardis model and display on the label for 
         quick user access.
 
@@ -481,7 +481,7 @@ class ModelViewer(QtGui.QWidget):
                         self.model.luminosity_inner)
         self.outputLabel.setText(labeltext)
 
-    def makeShellWidget(self):
+    def make_shell_widget(self):
         """Create the plot of the the shells and place it inside a 
         container widget. Return the container widget.
 
@@ -511,7 +511,7 @@ class ModelViewer(QtGui.QWidget):
         containerWidget.setLayout(self.graph_sublayout)
         return containerWidget
 
-    def makeSpectrumWidget(self):
+    def make_spectrum_widget(self):
         """Create the spectrum plot and associated buttons and append to
         a container widget. Return the container widget.
 
@@ -551,7 +551,7 @@ class ModelViewer(QtGui.QWidget):
         """Associate the given model with the GUI and display results."""
         if model:
             self.change_model(model)
-        self.tablemodel.updateTable()
+        self.tablemodel.update_table()
         for index in self.shell_info.keys():
             self.shell_info[index].update_tables()
         self.plot_model()
@@ -566,8 +566,8 @@ class ModelViewer(QtGui.QWidget):
         """Reset the model set in the GUI."""
         self.model = model
         self.tablemodel.arraydata = []
-        self.tablemodel.addData(model.t_rads.value.tolist())
-        self.tablemodel.addData(model.ws.tolist())
+        self.tablemodel.add_data(model.t_rads.value.tolist())
+        self.tablemodel.add_data(model.ws.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
         """Change the spectrum data to the virtual spectrum."""
@@ -734,7 +734,7 @@ class ShellInfo(QtGui.QDialog):
             index_info=self.table1_data.index.values.tolist())
         self.ionsdata = None
         self.levelsdata = None
-        self.atomsdata.addData(self.table1_data.values.tolist())
+        self.atomsdata.add_data(self.table1_data.values.tolist())
         self.atomstable.setModel(self.atomsdata)
 
         self.layout = QtGui.QHBoxLayout()
@@ -763,7 +763,7 @@ class ShellInfo(QtGui.QDialog):
                .ix[self.current_atom_index]))
 
 
-        self.ionsdata.addData(normalized_data)
+        self.ionsdata.add_data(normalized_data)
         self.ionstable.setModel(self.ionsdata)
         self.ionstable.connect(self.ionstable.verticalHeader(), QtCore.SIGNAL(
             'sectionClicked(int)'),self.on_ion_header_double_clicked)
@@ -786,7 +786,7 @@ class ShellInfo(QtGui.QDialog):
         for item in self.table3_data.values.tolist():
             normalized_data.append(float(item / 
             self.table2_data.ix[self.current_ion_index]))
-        self.levelsdata.addData(normalized_data)
+        self.levelsdata.add_data(normalized_data)
         self.levelstable.setModel(self.levelsdata)
         self.levelstable.setColumnWidth(0, 120)
         self.levelstable.show()
@@ -799,8 +799,8 @@ class ShellInfo(QtGui.QDialog):
             self.shell_index].number_densities
         self.atomsdata.index_info=self.table1_data.index.values.tolist()
         self.atomsdata.arraydata = []
-        self.atomsdata.addData(self.table1_data.values.tolist())
-        self.atomsdata.updateTable()
+        self.atomsdata.add_data(self.table1_data.values.tolist())
+        self.atomsdata.update_table()
         self.ionstable.hide()
         self.levelstable.hide()
         self.setGeometry(400, 150, 200, 400)
@@ -909,8 +909,8 @@ class LineInfo(QtGui.QDialog):
             ['Lines In']])
         self.transitionsoutdata = self.createTable([self.transitionsout_parsed, 
             ['Lines Out']])
-        self.transitionsindata.addData(self.transitionsin_count)
-        self.transitionsoutdata.addData(self.transitionsout_count)
+        self.transitionsindata.add_data(self.transitionsin_count)
+        self.transitionsoutdata.add_data(self.transitionsout_count)
         self.transitionsintable.setModel(self.transitionsindata)
         self.transitionsouttable.setModel(self.transitionsoutdata)
         self.transitionsintable.show()
@@ -933,8 +933,8 @@ class LineInfo(QtGui.QDialog):
             ['Lines In']])
         self.transitionsoutdata = self.createTable([self.transitionsout_parsed,
             ['Lines Out']])
-        self.transitionsindata.addData(self.transitionsin_count)
-        self.transitionsoutdata.addData(self.transitionsout_count)
+        self.transitionsindata.add_data(self.transitionsin_count)
+        self.transitionsoutdata.add_data(self.transitionsout_count)
         self.transitionsintable2.setModel(self.transitionsindata)
         self.transitionsouttable2.setModel(self.transitionsoutdata)
         self.transitionsintable2.show()
@@ -971,7 +971,7 @@ class LineInteractionTables(QtGui.QWidget):
             line_interaction_species_group.wavelength.count().astype(float) /
             line_interaction_analysis.last_line_in.wavelength.count()).astype(float).tolist()
         species_abundances = map(float, species_abundances)
-        species_table_model.addData(species_abundances)
+        species_table_model.add_data(species_abundances)
         self.species_table.setModel(species_table_model)
 
         line_interaction_species_group.wavelength.count()
@@ -1020,7 +1020,7 @@ class LineInteractionTables(QtGui.QWidget):
 
         last_line_in_model = self.createTable([last_line_in_string, [
             'Num. pkts %d' % current_last_line_in.wavelength.count()]])
-        last_line_in_model.addData(last_line_count)
+        last_line_in_model.add_data(last_line_count)
         self.transitions_table.setModel(last_line_in_model)
 
 class Tardis(QtGui.QMainWindow):
@@ -1099,14 +1099,14 @@ class Tardis(QtGui.QMainWindow):
         self.viewMdv.setCheckable(True)
         self.viewMdv.setChecked(True)
         self.viewMdv.setEnabled(False)
-        self.viewMdv.triggered.connect(self.switchToMdv)
+        self.viewMdv.triggered.connect(self.switch_to_mdv)
         
         self.viewForm = QtGui.QAction("&Edit Model", self)
         self.viewForm.setIcon(QtGui.QIcon(os.path.join(self.path,
             'formswitch.png')))
         self.viewForm.setCheckable(True)
         self.viewForm.setEnabled(False)
-        self.viewForm.triggered.connect(self.switchToForm)
+        self.viewForm.triggered.connect(self.switch_to_form)
 
         #Menubar
         self.fileMenu = self.menuBar().addMenu("&File")
@@ -1164,19 +1164,19 @@ class Tardis(QtGui.QMainWindow):
         if self.mode == 'active':
             self.modeLabel.setText('Active Mode')
 
-        self.mdv.fillOutputLabel()
+        self.mdv.fill_output_label()
         self.mdv.tableview.setModel(self.mdv.tablemodel)
         self.mdv.plot_model()
         self.mdv.plot_spectrum()
         self.showMaximized()
         
 
-    def switchToMdv(self):
+    def switch_to_mdv(self):
         """Switch the cental stacked widget to show the modelviewer."""
         self.stackedWidget.setCurrentIndex(0)
         self.viewForm.setChecked(False)
 
-    def switchToForm(self):
+    def switch_to_form(self):
         """Switch the cental stacked widget to show the ConfigEditor."""
         self.stackedWidget.setCurrentIndex(1)
         self.viewMdv.setChecked(False)

@@ -191,83 +191,9 @@ class TreeModel(QtCore.QAbstractItemModel):
         self.root = Node(["column A"])
         self.disabledNodes = []
         self.typenodes = []
-        self.dictToTree(dictionary, self.root)
+        self.dict_to_tree(dictionary, self.root)
 
-    def dictToTree(self, dictionary, root):
-        """Create the tree and append siblings to nodes that need them.
-
-        Parameters
-        ----------
-            dictionary: dictionary
-                The dictionary that is to be converted to the tree.
-            root: Node 
-                The root node of the tree.
-
-        """
-        #Construct tree with all nodes
-        self.treeFromNode(dictionary, root)
-
-        #Append siblings to type nodes
-        for node in self.typenodes: #For every type node
-            parent = node.get_parent()
-            sibsdict = {}
-            for i in range(parent.num_children()):
-                sibsdict[parent.get_child(i).get_data(0)] = parent.get_child(i)
-
-            typesleaf = node.get_child(0)
-            for i in range(typesleaf.num_columns()):
-                sibstrings = typesleaf.get_data(i).split('|_:_|')
-            
-                typesleaf.set_data(i, sibstrings[0])
-                sibslist = []
-                for j in range(1, len(sibstrings)):
-                    if sibstrings[j] in sibsdict:
-                        sibslist.append(sibsdict[sibstrings[j]])
-
-                typesleaf.siblings[sibstrings[0]] = sibslist
-            
-            #Then append siblings of current selection for all type nodes to
-            #disabled nodes
-            for i in range(1,typesleaf.num_columns()):
-                key = typesleaf.get_data(i)
-                for nd in typesleaf.siblings[key]:
-                    self.disabledNodes.append(nd)
-
-
-    def treeFromNode(self, dictionary, root):
-        """Convert dictionary to tree. Called by dictToTree."""
-        for key in dictionary:
-            child = Node([key])
-            root.append_child(child)
-            if isinstance(dictionary[key], dict):
-                self.treeFromNode(dictionary[key], child)
-            elif isinstance(dictionary[key], list):
-                if isinstance(dictionary[key][1], list):
-                    leaf = Node(dictionary[key][1])    
-                else:
-                    leaf = Node([dictionary[key][1]])
-
-                child.append_child(leaf)
-                if key == 'type':
-                    self.typenodes.append(child)
-
-    def dictFromNode(self, node): 
-        """Take a node and convert the whole subtree rooted at it into a 
-        dictionary.
-
-        """
-        children = [node.get_child(i) for i in range(node.num_children())]
-        if len(children) > 1:
-            dictionary = {}
-            for nd in children:
-                if nd in self.disabledNodes:
-                    pass
-                else:
-                    dictionary[nd.get_data(0)] = self.dictFromNode(nd)
-            return dictionary
-        elif len(children)==1:
-            return children[0].get_data(0)
-
+    #mandatory functions for subclasses
     def columnCount(self, index):
         """Return the number of columns in the node pointed to by
         the given model index.
@@ -400,7 +326,6 @@ class TreeModel(QtCore.QAbstractItemModel):
 
         if result:
             self.dataChanged.emit(index, index)
-            #print self.dictFromNode(self.root)
         return result
 
     def setHeaderData(self, section, orientation, value, 
@@ -414,6 +339,83 @@ class TreeModel(QtCore.QAbstractItemModel):
             self.headerDataChanged.emit(orientation, section, section)
 
         return result
+    
+    #Custom functions
+    def dict_to_tree(self, dictionary, root):
+        """Create the tree and append siblings to nodes that need them.
+
+        Parameters
+        ----------
+            dictionary: dictionary
+                The dictionary that is to be converted to the tree.
+            root: Node 
+                The root node of the tree.
+
+        """
+        #Construct tree with all nodes
+        self.tree_from_node(dictionary, root)
+
+        #Append siblings to type nodes
+        for node in self.typenodes: #For every type node
+            parent = node.get_parent()
+            sibsdict = {}
+            for i in range(parent.num_children()):
+                sibsdict[parent.get_child(i).get_data(0)] = parent.get_child(i)
+
+            typesleaf = node.get_child(0)
+            for i in range(typesleaf.num_columns()):
+                sibstrings = typesleaf.get_data(i).split('|_:_|')
+            
+                typesleaf.set_data(i, sibstrings[0])
+                sibslist = []
+                for j in range(1, len(sibstrings)):
+                    if sibstrings[j] in sibsdict:
+                        sibslist.append(sibsdict[sibstrings[j]])
+
+                typesleaf.siblings[sibstrings[0]] = sibslist
+            
+            #Then append siblings of current selection for all type nodes to
+            #disabled nodes
+            for i in range(1,typesleaf.num_columns()):
+                key = typesleaf.get_data(i)
+                for nd in typesleaf.siblings[key]:
+                    self.disabledNodes.append(nd)
+
+
+    def tree_from_node(self, dictionary, root):
+        """Convert dictionary to tree. Called by dict_to_tree."""
+        for key in dictionary:
+            child = Node([key])
+            root.append_child(child)
+            if isinstance(dictionary[key], dict):
+                self.tree_from_node(dictionary[key], child)
+            elif isinstance(dictionary[key], list):
+                if isinstance(dictionary[key][1], list):
+                    leaf = Node(dictionary[key][1])    
+                else:
+                    leaf = Node([dictionary[key][1]])
+
+                child.append_child(leaf)
+                if key == 'type':
+                    self.typenodes.append(child)
+
+    def dict_from_node(self, node): 
+        """Take a node and convert the whole subtree rooted at it into a 
+        dictionary.
+
+        """
+        children = [node.get_child(i) for i in range(node.num_children())]
+        if len(children) > 1:
+            dictionary = {}
+            for nd in children:
+                if nd in self.disabledNodes:
+                    pass
+                else:
+                    dictionary[nd.get_data(0)] = self.dict_from_node(nd)
+            return dictionary
+        elif len(children)==1:
+            return children[0].get_data(0)
+
 
 class TreeDelegate(QtGui.QStyledItemDelegate):
     """Create a custom delegate to modify the columnview that displays the 
@@ -423,7 +425,8 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
     def __init__(self, parent=None):
         """Call the constructor of the superclass."""
         QtGui.QStyledItemDelegate.__init__(self, parent)
-
+    
+    #Mandatory methods for subclassing
     def createEditor(self, parent, option, index):
         """Create a lineEdit or combobox depending on the type of node."""
         node = index.internalPointer()
@@ -435,15 +438,8 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
         else:
             editor =  QtGui.QLineEdit(parent)
             editor.setText(str(node.get_data(0)))
-            editor.returnPressed.connect(self.closeAndCommit)
+            editor.returnPressed.connect(self.close_and_commit)
             return editor
-
-    def closeAndCommit(self):
-        """Saver for the line edits."""
-        editor = self.sender()
-        if isinstance(editor, QtGui.QLineEdit):
-            self.commitData.emit(editor)
-            self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.NoHint)
 
     def setModelData(self, editor, model, index):
         """Called when new data id set in the model. This is where the
@@ -479,11 +475,14 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
             node.setData(0, str(editor.text()))
         else:
             QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
-            
-        #print model.dictFromNode(model.root) 
-        #f = open('dictester.dat','w')
-        #f.write(yaml.dump(model.dictFromNode(model.root)))
-        #f.close()
+    
+    #Custom methods
+    def close_and_commit(self):
+        """Saver for the line edits."""
+        editor = self.sender()
+        if isinstance(editor, QtGui.QLineEdit):
+            self.commitData.emit(editor)
+            self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.NoHint)
 
 class SimpleTableModel(QtCore.QAbstractTableModel):
     """Create a table data structure for the table widgets."""
@@ -498,11 +497,8 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         self.arraydata = []
         self.iterate_header = iterate_header
         self.index_info = index_info
-
-    def addData(self, datain):
-        """Add data to the model."""
-        self.arraydata.append(datain)
-
+    
+    #Implementing methods mandatory for subclassing QAbstractTableModel
     def rowCount(self, parent=QtCore.QModelIndex()):
         """Return number of rows."""
         return len(self.arraydata[0])
@@ -554,9 +550,14 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
             index, index)
         return True
 
-    def updateTable(self):
+    #Methods used to inderact with the SimpleTableModel
+    def update_table(self):
         """Update table to set all the new data."""
         for r in range(self.rowCount()):
             for c in range(self.columnCount()):
                 index = self.createIndex(r, c)
                 self.setData(index, self.arraydata[c][r])
+    
+    def add_data(self, datain):
+        """Add data to the model."""
+        self.arraydata.append(datain)
