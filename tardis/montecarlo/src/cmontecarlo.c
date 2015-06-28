@@ -1,3 +1,6 @@
+#ifdef WITHOPENMP
+#include <omp.h>
+#endif
 #include "cmontecarlo.h"
 
 rk_state mt_state;
@@ -292,8 +295,14 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 	{
 	  comov_energy = rpacket_get_energy (packet) * doppler_factor;
 	  comov_nu = rpacket_get_nu (packet) * doppler_factor;
+#ifdef WITHOPENMP
+#pragma omp atomic
+#endif
 	  storage->js[rpacket_get_current_shell_id (packet)] +=
 	    comov_energy * distance;
+#ifdef WITHOPENMP
+#pragma omp atomic
+#endif
 	  storage->nubars[rpacket_get_current_shell_id (packet)] +=
 	    comov_energy * distance * comov_nu;
 	}
@@ -314,6 +323,9 @@ increment_j_blue_estimator (rpacket_t * packet, storage_model_t * storage,
   doppler_factor = 1.0 - mu_interaction * r_interaction *
     storage->inverse_time_explosion * INVERSE_C;
   comov_energy = rpacket_get_energy (packet) * doppler_factor;
+#ifdef WITHOPENMP
+#pragma omp atomic
+#endif
   storage->line_lists_j_blues[j_blue_idx] +=
     comov_energy / rpacket_get_nu (packet);
 }
@@ -672,10 +684,14 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
 }
 
 void
-montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag)
+montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads)
 {
   int64_t packet_index;
-#pragma omp parallel for num_threads(4)
+#ifdef WITHOPENMP
+  omp_set_dynamic(0);
+  omp_set_num_threads(nthreads);
+#pragma omp parallel for
+#endif
   for (packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
     {
       int reabsorbed = 0;
