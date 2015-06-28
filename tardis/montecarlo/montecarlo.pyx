@@ -17,30 +17,6 @@ np.import_array()
 ctypedef np.int64_t int_type_t
 
 cdef extern from "src/cmontecarlo.h":
-    ctypedef enum rpacket_status_t:
-        TARDIS_PACKET_STATUS_IN_PROCESS = 0
-        TARDIS_PACKET_STATUS_EMITTED = 1
-        TARDIS_PACKET_STATUS_REABSORBED = 2
-
-    ctypedef struct rpacket_t:
-        double nu
-        double mu
-        double energy
-        double r
-        double tau_event
-        double nu_line
-        int_type_t current_shell_id
-        int_type_t next_line_id
-        int_type_t last_line
-        int_type_t close_line
-        int_type_t recently_crossed_boundary
-        int_type_t virtual_packet_flag
-        int_type_t virtual_packet
-        double d_line
-        double d_electron
-        double d_boundary
-        rpacket_status_t next_shell_id
-
     ctypedef struct storage_model_t:
         double *packet_nus
         double *packet_mus
@@ -88,11 +64,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t reflective_inner_boundary
         int_type_t current_packet_id
 
-    int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads)
-    int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
-    double rpacket_get_nu(rpacket_t *packet)
-    double rpacket_get_energy(rpacket_t *packet)
     void initialize_random_kit(unsigned long seed)
 
 
@@ -126,7 +98,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
                     int_type_t do_scatter
     """
     cdef storage_model_t storage
-    cdef rpacket_t packet
     initialize_random_kit(model.tardis_config.montecarlo.seed)
     cdef np.ndarray[double, ndim=1] packet_nus = model.packet_src.packet_nus
     storage.packet_nus = <double*> packet_nus.data
