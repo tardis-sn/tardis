@@ -6,7 +6,7 @@ from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
-    nebular_ionization_properties)
+    nebular_ionization_properties, nlte_properties, non_nlte_properties)
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +15,8 @@ class LTEPlasma(BasePlasma):
     def __init__(self, t_rad, abundance, density, time_explosion, atomic_data,
         j_blues, link_t_rad_t_electron=0.9, delta_treatment=None):
         plasma_modules = basic_inputs + basic_properties + \
-            lte_excitation_properties + lte_ionization_properties
+            lte_excitation_properties + lte_ionization_properties + \
+            non_nlte_properties
 
         super(LTEPlasma, self).__init__(plasma_modules=plasma_modules,
             t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,
@@ -47,7 +48,7 @@ class LegacyPlasmaArray(BasePlasma):
         self.update(t_rad=t_rad, w=ws, j_blues=j_blues)
 
     def __init__(self, number_densities, atomic_data, time_explosion,
-        t_rad=None, delta_treatment=None, nlte_config=None,
+        t_rad=None, delta_treatment=None, nlte_input=None,
         ionization_mode='lte', excitation_mode='lte',
         line_interaction_type='scatter', link_t_rad_t_electron=0.9):
 
@@ -68,9 +69,10 @@ class LegacyPlasmaArray(BasePlasma):
         else:
             raise NotImplementedError('Sorry ' + ionization_mode +
                 ' not implemented yet.')
-        if nlte_config.species:
-            raise NotImplementedError('Sorry, NLTE treatment not implemented \
-                yet.')
+        if nlte_input.species:
+            plasma_modules += nlte_properties
+        else:
+            plasma_modules += non_nlte_properties
 
         if line_interaction_type in ('downbranch', 'macroatom'):
             plasma_modules += macro_atom_properties
@@ -87,4 +89,4 @@ class LegacyPlasmaArray(BasePlasma):
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
             j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment)
+            delta_input=delta_treatment, nlte_input=nlte_input)

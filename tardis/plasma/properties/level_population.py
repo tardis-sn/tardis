@@ -6,7 +6,8 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['LevelPopulation', 'LevelNumberDensity']
+__all__ = ['LevelPopulation', 'LevelNumberDensity',
+           'LevelBoltzmannFactorNLTE']
 
 
 class LevelPopulation(ProcessingPlasmaProperty):
@@ -32,63 +33,64 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
             level_population_fraction.index.droplevel(2)].values
         return level_population_fraction * ion_number_density_broadcast
 
-class LevelPopulationNLTE(ProcessingPlasmaProperty):
+class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
+    name = 'level_boltzmann_factor_nlte'
+
     @staticmethod
-    def calculate(self):
+    def calculate(nlte_input, beta_sobolev, j_blues, levels, nlte_data,
+        t_electron, electron_densities, general_level_boltzmann_factor):
         """
         Calculating the NLTE level populations for specific ions
 
         """
 
-        if not hasattr(self, 'beta_sobolevs'):
-            self.beta_sobolevs = np.zeros_like(self.tau_sobolevs.values)
-
-        macro_atom.calculate_beta_sobolev(self.tau_sobolevs.values.ravel(order='F'),
-                                          self.beta_sobolevs.ravel(order='F'))
-        self.beta_sobolevs_precalculated = True
-
-        if self.nlte_config.get('coronal_approximation', False):
-            beta_sobolevs = np.ones_like(self.beta_sobolevs)
-            j_blues = np.zeros_like(self.j_blues)
+        if nlte_input.get('coronal_approximation', False):
+            beta_sobolev_nlte = np.ones_like(beta_sobolev)
+            j_blues_nlte = np.zeros_like(j_blues)
             logger.info('using coronal approximation = setting beta_sobolevs to 1 AND j_blues to 0')
         else:
-            beta_sobolevs = self.beta_sobolevs
-            j_blues = self.j_blues.values
+            beta_sobolev_nlte = beta_sobolev
+            j_blues_nlte = j_blues.values
 
-        if self.nlte_config.get('classical_nebular', False):
+        if nlte_input.get('classical_nebular', False):
             logger.info('using Classical Nebular = setting beta_sobolevs to 1')
-            beta_sobolevs = np.ones_like(self.beta_sobolevs)
+            beta_sobolev_nlte = np.ones_like(beta_sobolev)
 
-        for species in self.nlte_config.species:
+        for species in nlte_input.species:
             logger.info('Calculating rates for species %s', species)
-            number_of_levels = self.atom_data.levels.energy.ix[species].count()
+            number_of_levels = len(levels.ix[species])
 
-            level_population_proportionalitys = self.level_population_proportionalitys.ix[species].values
-            lnl = self.atom_data.nlte_data.lines_level_number_lower[species]
-            lnu = self.atom_data.nlte_data.lines_level_number_upper[species]
+            lnl = nlte_data.lines_level_number_lower[species]
+            lnu = nlte_data.lines_level_number_upper[species]
 
-            lines_index = self.atom_data.nlte_data.lines_idx[species]
-            A_uls = self.atom_data.nlte_data.A_uls[species]
-            B_uls = self.atom_data.nlte_data.B_uls[species]
-            B_lus = self.atom_data.nlte_data.B_lus[species]
+            lines_index = nlte_data.lines_idx[species]
+            A_uls = nlte_data.A_uls[species]
+            B_uls = nlte_data.B_uls[species]
+            B_lus = nlte_data.B_lus[species]
 
             r_lu_index = lnu * number_of_levels + lnl
             r_ul_index = lnl * number_of_levels + lnu
 
-            r_ul_matrix = np.zeros((number_of_levels, number_of_levels, len(self.t_rads)), dtype=np.float64)
-            r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels**2, len(self.t_rads)))
-            r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T + B_uls[np.newaxis].T * j_blues[lines_index]
-            r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
+            r_ul_matrix = np.zeros((number_of_levels, number_of_levels,
+                len(t_electron)), dtype=np.float64)
+            r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels**2,
+                len(t_electron)))
+            r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T + \
+                B_uls[np.newaxis].T * j_blues[lines_index]
+            r_ul_matrix_reshaped[r_ul_index] *= beta_sobolev_nlte[lines_index]
 
             r_lu_matrix = np.zeros_like(r_ul_matrix)
-            r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2, len(self.t_rads)))
-            r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * j_blues[lines_index] * beta_sobolevs[lines_index]
+            r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2,
+                len(t_electron)))
+            r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
+                j_blues[lines_index] * beta_sobolev_nlte[lines_index]
 
-            collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
-                               self.electron_densities.values
-
+            collision_matrix = nlte_data.get_collision_matrix(species,
+                t_electron) * electron_densities.values
 
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
+
+            level_boltzmann_factor = general_level_boltzmann_factor
 
             for i in xrange(number_of_levels):
                 rates_matrix[i, i] = -rates_matrix[:, i].sum(axis=0)
@@ -97,6 +99,9 @@ class LevelPopulationNLTE(ProcessingPlasmaProperty):
 
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
-            for i in xrange(len(self.t_rads)):
-                relative_level_population_proportionalitys = np.linalg.solve(rates_matrix[:, :, i], x)
-                self.level_population_proportionalitys[i].ix[species] = relative_level_population_proportionalitys * self.ion_populations[i].ix[species]
+            for i in xrange(len(t_electron)):
+                nlte_level_boltzmann_factor = \
+                    np.linalg.solve(rates_matrix[:, :, i], x)
+                level_boltzmann_factor[i].ix[species] = \
+                    nlte_level_boltzmann_factor
+            return level_boltzmann_factor
