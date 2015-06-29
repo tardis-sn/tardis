@@ -20,6 +20,8 @@
 #define MISS_DISTANCE 1e99
 #define C 29979245800.0
 #define INVERSE_C 3.33564095198152e-11
+#define H 6.6260755e-27		// erg*s, converted to CGS units from the NIST Constant Index
+#define KB 1.3806488e-16	//erg / K converted to CGS units from the NIST Constant Index
 
 /**
  * @brief A photon packet.
@@ -46,14 +48,14 @@ typedef struct RPacket
    */
   int64_t close_line;
   /** 
-   * @brief The packet has recently crossed the boundary and is now sitting on the boundary. 
+   * @brief The packet has recently crossed the boundary and is now sitting on the boundary.
    * To avoid numerical errors, make sure that d_inner is not calculated. The value is -1
    * if the packed moved inwards, 1 if the packet moved outwards and 0 otherwise.
    */
   int64_t recently_crossed_boundary;
   /**
    * @brief packet is a virtual packet and will ignore any d_line or d_electron checks.
-   * It now whenever a d_line is calculated only adds the tau_line to an 
+   * It now whenever a d_line is calculated only adds the tau_line to an
    * internal float.
    */
 
