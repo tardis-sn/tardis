@@ -595,11 +595,9 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
 
 // Seems like a better alternative to the reverse binary search
   ccontinuum = current_continuum_id;
-  chi_bf_2level = storage->chi_bf_tmp_partial[ccontinuum];
-  while (chi_bf_2level <= zrand_x_chibf)
+  while (storage->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf)
   {
     ccontinuum++;
-    chi_bf_2level = storage->chi_bf_tmp_partial[ccontinuum];
   }
 //  error =
 //  binary_search(storage->chi_bf_tmp_partial, zrand_x_chibf, current_continuum_id, no_of_continuum_edges - 1, &ccontinuum); // storage->no_of_edges
@@ -611,7 +609,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   zrand = (rk_double(&mt_state));
   if (zrand < storage->continuum_list_nu[ccontinuum] / nu)
   {
-	// go to ionisation energy
+	// go to ionization energy
     rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
   }
   else
