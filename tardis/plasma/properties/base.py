@@ -10,6 +10,10 @@ class BasePlasmaProperty(object):
     def outputs(self):
         pass
 
+    @property
+    def name(self):
+        return self.__class__.__name__
+        
     def __init__(self):
         self.value = None
 
@@ -81,8 +85,3 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
     def calculate(self, *args, **kwargs):
         raise NotImplementedError('This method needs to be implemented by '
                                   'processing plasma modules')
-
-
-
-
-
