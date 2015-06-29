@@ -192,7 +192,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                      r'N(X) = N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
                      r'\times \Phi_{i, j+1}/N_e + \dots)$')
 
-    name = 'ion_number_density'
+    name = ('ion_number_density', 'electron_density')
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
         super(IonNumberDensity, self).__init__(plasma_parent)
@@ -239,7 +239,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                               / n_electron < n_e_convergence_threshold):
                 break
             n_electron = 0.5 * (new_n_electron + n_electron)
-        return ion_number_density
+        return ion_number_density, n_electron
 
 class ElectronDensity(ProcessingPlasmaProperty):
     """
