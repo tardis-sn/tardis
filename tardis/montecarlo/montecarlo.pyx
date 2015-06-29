@@ -95,6 +95,10 @@ cdef extern from "src/cmontecarlo.h":
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
         int_type_t current_packet_id
+        double *chi_bf_tmp_partial
+        double *t_electrons
+        double *l_pop
+        double *l_pop_r
 
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
     int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
@@ -162,9 +166,15 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.inverse_electron_densities = <double*> inverse_electron_densities.data
     # Continuum list
     cdef np.ndarray[double, ndim=1] continuum_list_nu = np.array(
-        [9.0e14, 8.223e14, 6.0e14, 3.656e14, 3.0e14])  # Dummy data
+        [9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # Dummy data
     storage.continuum_list_nu = <double*> continuum_list_nu.data
-    storage.no_of_edges = 5  #continuum_list_nu.size
+    storage.no_of_edges = continuum_list_nu.size
+    cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial = np.zeros(continuum_list_nu.size)
+    storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
+    cdef np.ndarray[double, ndim=1] l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
+    storage.l_pop = <double*> l_pop.data
+    cdef np.ndarray[double, ndim=1] l_pop_r = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
+    storage.l_pop_r = <double*> l_pop_r.data
     # Line lists
     cdef np.ndarray[double, ndim=1] line_list_nu = model.atom_data.lines.nu.values
     storage.line_list_nu = <double*> line_list_nu.data
@@ -234,6 +244,11 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
     storage.current_packet_id = -1
+
+    # Data for continuum implementation
+    cdef np.ndarray[double, ndim=1] t_electrons = model.plasma_array.t_electrons
+    storage.t_electrons = <double*> t_electrons.data
+
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)

@@ -138,16 +138,25 @@ rpacket_doppler_factor (rpacket_t * packet, storage_model_t * storage)
 
 /* Methods for calculating continuum opacities */
 
-INLINE
-void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
+INLINE double
+bf_cross_section(storage_model_t * storage, int64_t continuum_id, double comov_nu)
 {
   /* Temporary hardcoded values */
   double chi_bf_partial = 0.5e-15;
-  double cont_chi_bf[] = {chi_bf_partial, 0.0, 2.0 * chi_bf_partial, 0.0 * chi_bf_partial, 1.0 * chi_bf_partial};
-  /* End of temporary hardcoded values*/
+  double cont_chi_bf[] = {chi_bf_partial, 0.0, 2.0 * chi_bf_partial, 0.3 * chi_bf_partial, 2.0 * chi_bf_partial};
+  /* End of temporary hardcoded values */
 
+  double sigma_bf = cont_chi_bf[continuum_id]; //storage->bf_cross_sections[continuum_id]
+  return sigma_bf * pow((storage->continuum_list_nu[continuum_id] / comov_nu), 3);
+}
+
+INLINE
+void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
+{
   double bf_helper = 0;
   double comov_nu, doppler_factor;
+  double T;
+  double boltzmann_factor;
   int64_t shell_id;
   int64_t current_continuum_id;
   int64_t i;
@@ -156,16 +165,22 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   doppler_factor = rpacket_doppler_factor (packet, storage);
   comov_nu = rpacket_get_nu (packet) * doppler_factor;
 
-  line_search(storage->continuum_list_nu, comov_nu, no_of_continuum_edges, &current_continuum_id); //? want to do something with returned tardis_error_t
+  line_search(storage->continuum_list_nu, comov_nu, no_of_continuum_edges, &current_continuum_id);
   rpacket_set_current_continuum_id(packet, current_continuum_id);
-  //double chi_bf_sums[no_of_continuum_edges - current_continuum_id];
 
   shell_id = rpacket_get_current_shell_id(packet);
+  T = storage->t_electrons[shell_id];
+  boltzmann_factor = exp(-(H * comov_nu) / KB / T);
 
   for(i = current_continuum_id; i < no_of_continuum_edges; i++)
   {
-    bf_helper += cont_chi_bf[i]* pow((storage->continuum_list_nu[i] / comov_nu), 3);
-    //chi_bf_sums[no_of_continuum_edges - 1 - i] = bf_helper;
+    // get the levelpopulation for the level ijk in the current shell:
+    double l_pop = storage->l_pop[shell_id * no_of_continuum_edges + i];
+    // get the levelpopulation ratio \frac{n_{0,j+1,k}}{n_{i,j,k}} \frac{n_{i,j,k}}{n_{0,j+1,k}}^{*}:
+    double l_pop_r = storage->l_pop_r[shell_id * no_of_continuum_edges + i];
+    bf_helper += l_pop * bf_cross_section(storage, i, comov_nu) * (1 - l_pop_r * boltzmann_factor);
+
+    storage->chi_bf_tmp_partial[i] = bf_helper;
   }
 
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
@@ -278,21 +293,6 @@ compute_distance2line (rpacket_t * packet, storage_model_t * storage,
   return ret_val;
 }
 
-/*?still needed (should be possible to replace completely with distance2continuum)*/
-INLINE double
-compute_distance2electron (rpacket_t * packet, storage_model_t * storage)
-{
-  if (rpacket_get_virtual_packet (packet) > 0)
-    {
-      return MISS_DISTANCE;
-    }
-  double inverse_ne =
-    storage->
-    inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
-    storage->inverse_sigma_thomson / rpacket_doppler_factor (packet, storage);
-  return rpacket_get_tau_event (packet) * inverse_ne;
-}
-
 INLINE void
 compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 {
@@ -343,7 +343,6 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 
 	  rpacket_set_chi_freefree(packet, chi_freefree);
 	  rpacket_set_chi_electron(packet, chi_electron);
-	  rpacket_set_chi_boundfree(packet, chi_boundfree); /* Becomes unnecessary when calculate_chi_bf(packet, storage) is used*/
 	  rpacket_set_d_continuum(packet, d_continuum);
 	  rpacket_set_chi_continuum(packet, chi_continuum);
 	}
@@ -579,17 +578,48 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 void
 montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance)
 {
-  //int64_t ccontinuum; /* continuum_id of the continuum in which bf-absorption occurs */
+  tardis_error_t error;
+  int64_t current_continuum_id = rpacket_get_current_continuum_id(packet); /* current position in list of continuum edges -> indicates
+                                                         which bound free processes are possible */
+  int64_t ccontinuum; /* continuum_id of the continuum in which bf-absorption occurs */
+  int64_t no_of_continuum_edges = storage->no_of_edges;
 
-  //double zrand, zrand_x_chibf, chi_bf;
+  double zrand, zrand_x_chibf, chi_bf, nu;
+  double chi_bf_2level;
   //Determine in which continuum the bf-absorption occurs
-  //chi_bf = rpacket_get_chi_boundfree(packet);
+  nu = rpacket_get_nu(packet);
+  chi_bf = rpacket_get_chi_boundfree(packet);
   // get new zrand
-  //zrand = (rk_double(&mt_state));
-  //zrand_x_chibf = zrand * chi_bf;
-  //?line_search or reverse binary search
+  zrand = (rk_double(&mt_state));
+  zrand_x_chibf = zrand * chi_bf;
 
-  rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
+// Seems like a better alternative to the reverse binary search
+  ccontinuum = current_continuum_id;
+  chi_bf_2level = storage->chi_bf_tmp_partial[ccontinuum];
+  while (chi_bf_2level <= zrand_x_chibf)
+  {
+    ccontinuum++;
+    chi_bf_2level = storage->chi_bf_tmp_partial[ccontinuum];
+  }
+//  error =
+//  binary_search(storage->chi_bf_tmp_partial, zrand_x_chibf, current_continuum_id, no_of_continuum_edges - 1, &ccontinuum); // storage->no_of_edges
+//  if (error == TARDIS_ERROR_BOUNDS_ERROR) // x_insert < x[imin] -> set index equal to imin
+//   {
+//      ccontinuum = current_continuum_id;
+//   }
+
+  zrand = (rk_double(&mt_state));
+  if (zrand < storage->continuum_list_nu[ccontinuum] / nu)
+  {
+	// go to ionisation energy
+    rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
+  }
+  else
+  {
+    //go to the thermal pool
+    //create_kpacket(packet);
+    rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
+  }
 }
 
 void
