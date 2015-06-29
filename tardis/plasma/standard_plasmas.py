@@ -58,8 +58,8 @@ class LegacyPlasmaArray(BasePlasma):
         elif excitation_mode == 'dilute-lte':
             plasma_modules += dilute_lte_excitation_properties
         else:
-            raise NotImplementedError('Sorry ' + excitation_mode +
-                ' not implemented yet.')
+            raise NotImplementedError('Sorry {0} not implemented yet.'.format(
+            excitation_mode))
 
         if ionization_mode == 'lte':
             plasma_modules += lte_ionization_properties

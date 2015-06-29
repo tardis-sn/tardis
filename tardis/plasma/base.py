@@ -12,22 +12,22 @@ logger = logging.getLogger(__name__)
 class BasePlasma(object):
 
     def __init__(self, plasma_modules, **kwargs):
-        self.module_dict = {}
+        self.outputs_dict = {}
+        self.plasma_modules = plasma_modules
+
         self.input_modules = []
         self._init_modules(plasma_modules, **kwargs)
         self._build_graph()
         self.update(**kwargs)
 
-
     def __getattr__(self, item):
-        if item in self.module_dict:
+        if item in self.outputs_dict:
             return self.get_value(item)
         else:
             super(BasePlasma, self).__getattribute__(item)
 
-
     def __setattr__(self, key, value):
-        if key != 'module_dict' and key in self.module_dict:
+        if key != 'module_dict' and key in self.outputs_dict:
             raise AttributeError('Plasma inputs can only be updated using '
                                  'the \'update\' method')
         else:
@@ -56,46 +56,60 @@ class BasePlasma(object):
         self.graph = nx.DiGraph()
 
         ## Adding all nodes
-        self.graph.add_nodes_from([(key, {})
-                                   for key, value in self.module_dict.items()])
+        self.graph.add_nodes_from([(item.name, {})
+                                    for name in self.plasma_modules])
 
         #Flagging all input modules
-        self.input_modules = [key for key, item in self.module_dict.items()
-                              if not hasattr(item, 'inputs')]
+        self.input_modules = [item for item in self.plasma_modules
+                                if not hasattr(item, 'inputs')]
 
-        for plasma_module in self.module_dict.values():
+        for plasma_module in self.plasma_modules:
             #Skipping any module that is an input module
-            if plasma_module.name in self.input_modules:
+            if plasma_module in self.input_modules:
                 continue
 
             for input in plasma_module.inputs:
-                if input not in self.graph:
+                if input not in self.outputs_dict:
                     raise PlasmaMissingModule('Module {0} requires input '
                                               '{1} which has not been added'
                                               ' to this plasma'.format(
                         plasma_module.name, input))
-                self.graph.add_edge(input, plasma_module.name)
+                self.graph.add_edge(self.outputs_dict[input].name,
+                plasma_module.name, label=input)
 
     def _init_modules(self, plasma_modules, **kwargs):
         """
         Builds a dictionary with the plasma module names as keys
-        :param plasma_modules:
-        :return:
+
+        Parameters
+        ----------
+
+        plasma_modules: ~list
+            list of Plasma properties
+        kwargs: dictionary
+            input values for input properties. For example, t_rad=[5000, 6000,],
+            j_blues=[..]
+
         """
 
-        self.module_dict = {}
+        self.outputs_dict = {}
         for module in plasma_modules:
             if hasattr(module, 'set_value'):
-                if module.outputs not in kwargs:
+                #duck-typing for PlasmaInputProperty
+                #that means if it is an input property from model
+                if not set(kwargs.keys()).issuperset(module.outputs):
+                    missing_input_values = (set(module.outputs) -
+                    set(kwargs.keys()))
                     raise NotInitializedModule('Input {0} required for '
                                                'plasma but not given when '
                                                'instantiating the '
-                                               'plasma'.format(module.outputs))
+                                               'plasma'.format(
+                                               missing_input_values))
                 current_module_object = module()
             else:
                 current_module_object = module(self)
-
-            self.module_dict[module.outputs] = current_module_object
+            for output in module.outputs:
+                self.outputs_dict[output] = current_module_object
 
     def update(self, **kwargs):
         for key in kwargs:
@@ -120,8 +134,6 @@ class BasePlasma(object):
         Parameters
         ----------
 
-        graph: ~networkx.Graph
-            the plasma graph as
         changed_modules: ~list
             all modules changed in the plasma
 
@@ -147,7 +159,7 @@ class BasePlasma(object):
 
         return descendants_ob
 
-    def write_to_dot(self, fname):
+    def write_to_dot(self, fname, latex_label=True):
         self._update_module_type_str()
 
         try:
@@ -187,4 +199,3 @@ class StandardPlasma(BasePlasma):
                  link_t_rad_t_electron=0.9):
 
         pass
-
