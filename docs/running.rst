@@ -82,8 +82,7 @@ environment variable QT_API in your bash.
 
 **3**. An example of creating a model and GUI
 
-As of now, the GUI can be started from the ipython shell.  Currently there is no way to work completely from inside the GUI
-or to run the gui outside the ipython shell. 
+To show the gui from the ipython shell use the following commands.
 
 .. code-block:: none
 
@@ -93,6 +92,13 @@ or to run the gui outside the ipython shell.
 
 	>>> from tardis import run_tardis
 	>>> mdl = run_tardis('yamlconfigfile.yml', 'atomdatafile.h5')
-	>>> from tardis import gui
-	>>> win = gui.Tardis()
-	>>> win.show_model(mdl)
+	>>> from tardis.gui import interface 
+	>>> interface.show(mdl)
+
+If you just want to run from a configuration file and show the results, you can 
+do that outside the ipython shell.To do this navigate to the folder where you 
+installed tardis and go to tardis/tardis/gui, and use the following command.
+
+.. code-block:: none
+
+    python interface.py path-to-yaml-configuration-file path-to-atomic-data-file 
