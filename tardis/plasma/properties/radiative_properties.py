@@ -14,7 +14,7 @@ __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
 
-    name = 'stimulated_emission_factor'
+    outputs = ('stimulated_emission_factor',)
 
     def __init__(self, plasma_parent):
         super(StimulatedEmissionFactor, self).__init__(plasma_parent)
@@ -79,7 +79,7 @@ class TauSobolev(ProcessingPlasmaProperty):
 
     """
 
-    name = 'tau_sobolevs'
+    outputs = ('tau_sobolevs',)
 
 
     def __init__(self, plasma_parent):
@@ -111,7 +111,7 @@ class TauSobolev(ProcessingPlasmaProperty):
             columns=np.array(level_number_density.columns))
 
 class BetaSobolev(ProcessingPlasmaProperty):
-    name = 'beta_sobolev'
+    outputs = ('beta_sobolev',)
 
     def calculate(self, tau_sobolevs):
         if not hasattr(self, 'beta_sobolev'):
@@ -122,7 +122,7 @@ class BetaSobolev(ProcessingPlasmaProperty):
         return beta_sobolev
 
 class TransitionProbabilities(ProcessingPlasmaProperty):
-    name = 'transition_probabilities'
+    outputs = ('transition_probabilities',)
 
     def calculate(self, atomic_data, beta_sobolev, j_blues,
         stimulated_emission_factor, tau_sobolevs):
