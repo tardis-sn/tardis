@@ -86,16 +86,16 @@ class BasePlasma(object):
         self.module_dict = {}
         for module in plasma_modules:
             if hasattr(module, 'set_value'):
-                if module.name not in kwargs:
+                if module.outputs not in kwargs:
                     raise NotInitializedModule('Input {0} required for '
                                                'plasma but not given when '
                                                'instantiating the '
-                                               'plasma'.format(module.name))
+                                               'plasma'.format(module.outputs))
                 current_module_object = module()
             else:
                 current_module_object = module(self)
 
-            self.module_dict[module.name] = current_module_object
+            self.module_dict[module.outputs] = current_module_object
 
     def update(self, **kwargs):
         for key in kwargs:

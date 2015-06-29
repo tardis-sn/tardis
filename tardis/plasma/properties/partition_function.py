@@ -19,7 +19,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
 
     """
 
-    name = 'level_boltzmann_factor'
+    outputs = ('level_boltzmann_factor',)
     latex_formula = r'$g_{i, j, k} e^{E_{i, j, k} \times \beta_\textrm{rad}}$'
 
     @staticmethod
@@ -36,7 +36,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
 
 class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
 
-    name = 'level_boltzmann_factor'
+    outputs = ('level_boltzmann_factor',)
 
     @staticmethod
     def calculate(levels, beta_rad, w):
@@ -52,8 +52,8 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
         return level_boltzmann_factor
 
 class PartitionFunction(ProcessingPlasmaProperty):
-    name = 'partition_function'
-    latex_name = '$Z_{i, j}$'
+    outputs = ('partition_function',)
+    latex_outputs = '$Z_{i, j}$'
 
     latex_formula = (r'$Z_{i, j} = \sum_{k=1}^n g_{i, j, k} '
                      r'e^{E_{i, j, k} \times \beta_\textrm{rad}}$')
