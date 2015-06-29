@@ -79,23 +79,36 @@ class BasePlasma(object):
     def _init_modules(self, plasma_modules, **kwargs):
         """
         Builds a dictionary with the plasma module names as keys
-        :param plasma_modules:
-        :return:
+
+        Parameters
+        ----------
+
+        plasma_modules: ~list
+            list of Plasma properties
+        kwargs: dictionary
+            input values for input properties. For example, t_rad=[5000, 6000,],
+            j_blues=[..]
+
         """
 
         self.module_dict = {}
         for module in plasma_modules:
             if hasattr(module, 'set_value'):
-                if module.outputs not in kwargs:
+                #duck-typing for PlasmaInputProperty
+                #that means if it is an input property from model
+                if not set(kwargs.keys()).issuperset(module.outputs):
+                    missing_input_values = (set(module.outputs) -
+                    set(kwargs.keys()))
                     raise NotInitializedModule('Input {0} required for '
                                                'plasma but not given when '
                                                'instantiating the '
-                                               'plasma'.format(module.outputs))
+                                               'plasma'.format(
+                                               missing_input_values))
                 current_module_object = module()
             else:
                 current_module_object = module(self)
-
-            self.module_dict[module.outputs] = current_module_object
+            for output in module.outputs:
+                self.module_dict[output] = current_module_object
 
     def update(self, **kwargs):
         for key in kwargs:
@@ -120,8 +133,6 @@ class BasePlasma(object):
         Parameters
         ----------
 
-        graph: ~networkx.Graph
-            the plasma graph as
         changed_modules: ~list
             all modules changed in the plasma
 
@@ -187,4 +198,3 @@ class StandardPlasma(BasePlasma):
                  link_t_rad_t_electron=0.9):
 
         pass
-
