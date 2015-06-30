@@ -1,4 +1,4 @@
-#ifdef WITHOPENMP
+#ifndef WITHOUTOPENMP
 #include <omp.h>
 #endif
 #include "cmontecarlo.h"
@@ -295,12 +295,12 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 	{
 	  comov_energy = rpacket_get_energy (packet) * doppler_factor;
 	  comov_nu = rpacket_get_nu (packet) * doppler_factor;
-#ifdef WITHOPENMP
+#ifndef WITHOUTOPENMP
 #pragma omp atomic
 #endif
 	  storage->js[rpacket_get_current_shell_id (packet)] +=
 	    comov_energy * distance;
-#ifdef WITHOPENMP
+#ifndef WITHOUTOPENMP
 #pragma omp atomic
 #endif
 	  storage->nubars[rpacket_get_current_shell_id (packet)] +=
@@ -323,7 +323,7 @@ increment_j_blue_estimator (rpacket_t * packet, storage_model_t * storage,
   doppler_factor = 1.0 - mu_interaction * r_interaction *
     storage->inverse_time_explosion * INVERSE_C;
   comov_energy = rpacket_get_energy (packet) * doppler_factor;
-#ifdef WITHOPENMP
+#ifndef WITHOUTOPENMP
 #pragma omp atomic
 #endif
   storage->line_lists_j_blues[j_blue_idx] +=
@@ -687,7 +687,7 @@ void
 montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads)
 {
   int64_t packet_index;
-#ifdef WITHOPENMP
+#ifndef WITHOUTOPENMP
   omp_set_dynamic(0);
   omp_set_num_threads(nthreads);
 #pragma omp parallel for
