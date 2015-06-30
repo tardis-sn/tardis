@@ -27,7 +27,7 @@ class BasePlasma(object):
             super(BasePlasma, self).__getattribute__(item)
 
     def __setattr__(self, key, value):
-        if key != 'module_dict' and key in self.outputs_dict:
+        if key != 'outputs_dict' and key in self.outputs_dict:
             raise AttributeError('Plasma inputs can only be updated using '
                                  'the \'update\' method')
         else:
@@ -56,25 +56,26 @@ class BasePlasma(object):
         self.graph = nx.DiGraph()
 
         ## Adding all nodes
-        self.graph.add_nodes_from([(item.name, {})
-                                    for name in self.plasma_modules])
+
+        for item in self.outputs_dict: self.graph.add_node(item, {})
 
         #Flagging all input modules
-        self.input_modules = [item for item in self.plasma_modules
-                                if not hasattr(item, 'inputs')]
+        self.input_modules = [item for item in self.outputs_dict.keys()
+                                if hasattr(self.outputs_dict[item],
+                                'set_value')]
 
-        for plasma_module in self.plasma_modules:
+        for plasma_module in self.outputs_dict.keys():
             #Skipping any module that is an input module
             if plasma_module in self.input_modules:
                 continue
 
-            for input in plasma_module.inputs:
+            for input in self.outputs_dict[plasma_module].inputs:
                 if input not in self.outputs_dict:
                     raise PlasmaMissingModule('Module {0} requires input '
                                               '{1} which has not been added'
                                               ' to this plasma'.format(
                         plasma_module.name, input))
-                self.graph.add_edge(self.outputs_dict[input].name,
+                self.graph.add_edge(self.outputs_dict[input].outputs,
                 plasma_module.name, label=input)
 
     def _init_modules(self, plasma_modules, **kwargs):
@@ -113,13 +114,13 @@ class BasePlasma(object):
 
     def update(self, **kwargs):
         for key in kwargs:
-            if key not in self.module_dict:
+            if key not in self.outputs_dict:
                 raise PlasmaMissingModule('Trying to update property {0}'
                                           ' that is unavailable'.format(key))
-            self.module_dict[key].set_value(kwargs[key])
+            self.outputs_dict[key].set_value(kwargs[key])
 
         for module_name in self._resolve_update_list(kwargs.keys()):
-            self.module_dict[module_name].update()
+            self.outputs_dict[module_name].update()
 
     def _update_module_type_str(self):
         for node in self.graph:
@@ -169,7 +170,7 @@ class BasePlasma(object):
                               '\'write_to_dot\'')
 
         for node in self.graph:
-            self.graph.node[node]['label'] = self.module_dict[node].get_latex_label()
+            self.graph.node[node]['label'] = self.outputs_dict[node].name
             self.graph.node[node]['color'] = 'red'
             self.graph.node[node]['shape'] = 'box '
 
