@@ -64,6 +64,7 @@ class BasePlasma(object):
                                 if hasattr(self.outputs_dict[item],
                                 'set_value')]
 
+        edge_labels = {}
         for plasma_module in self.outputs_dict.keys():
             #Skipping any module that is an input module
             if plasma_module in self.input_modules:
@@ -75,8 +76,10 @@ class BasePlasma(object):
                                               '{1} which has not been added'
                                               ' to this plasma'.format(
                         plasma_module.name, input))
-                self.graph.add_edge(self.outputs_dict[input].outputs,
-                plasma_module.name, label=input)
+                self.graph.add_edge(plasma_module, input,
+                    label=self.outputs_dict[plasma_module].name)
+                edge_labels[(plasma_module, input)] = \
+                    self.outputs_dict[plasma_module].name
 
     def _init_modules(self, plasma_modules, **kwargs):
         """
