@@ -60,7 +60,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
     """
 
-    outputs = 'phi'
+    outputs = ('phi',)
 
     @staticmethod
     def calculate(general_phi, t_rad, w, zeta_data, t_electron, delta):
