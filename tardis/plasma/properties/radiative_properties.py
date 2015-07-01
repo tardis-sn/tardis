@@ -14,7 +14,7 @@ __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
 
-    name = 'stimulated_emission_factor'
+    outputs = ('stimulated_emission_factor',)
 
     def __init__(self, plasma_parent):
         super(StimulatedEmissionFactor, self).__init__(plasma_parent)
@@ -79,7 +79,7 @@ class TauSobolev(ProcessingPlasmaProperty):
 
     """
 
-    name = 'tau_sobolevs'
+    outputs = ('tau_sobolevs',)
 
 
     def __init__(self, plasma_parent):
@@ -111,22 +111,25 @@ class TauSobolev(ProcessingPlasmaProperty):
             columns=np.array(level_number_density.columns))
 
 class BetaSobolev(ProcessingPlasmaProperty):
-    name = 'beta_sobolev'
+    outputs = ('beta_sobolev',)
 
     def calculate(self, tau_sobolevs):
-        if not hasattr(self, 'beta_sobolev'):
+        if getattr(self, 'beta_sobolev', None) is None:
             beta_sobolev = np.zeros_like(tau_sobolevs.values)
+        else:
+            beta_sobolev = self.beta_sobolev
+
         macro_atom.calculate_beta_sobolev(
             tau_sobolevs.values.ravel(order='F'),
             beta_sobolev.ravel(order='F'))
         return beta_sobolev
 
 class TransitionProbabilities(ProcessingPlasmaProperty):
-    name = 'transition_probabilities'
+    outputs = ('transition_probabilities',)
 
     def calculate(self, atomic_data, beta_sobolev, j_blues,
         stimulated_emission_factor, tau_sobolevs):
-        if j_blues.empty:
+        if len(j_blues) == 0:
             transition_probabilities = None
         else:
             try:
@@ -141,7 +144,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 (macro_atom_data.transition_type == 1).values
             macro_atom_transition_up_filter = \
                 macro_atom_data.lines_idx.values[transition_up_filter]
-            j_blues = j_blues.values.take(macro_atom_transition_up_filter,
+            j_blues = j_blues.take(macro_atom_transition_up_filter,
                 axis=0, mode='raise')
             macro_stimulated_emission = stimulated_emission_factor.take(
                 macro_atom_transition_up_filter, axis=0, mode='raise')

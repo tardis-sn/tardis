@@ -11,7 +11,7 @@ __all__ = ['BetaRadiation', 'GElectron', 'NumberDensity', 'SelectedAtoms',
            'ElectronTemperature', 'BetaElectron']
 
 class BetaRadiation(ProcessingPlasmaProperty):
-    name = 'beta_rad'
+    outputs = ('beta_rad',)
     latex_name = r'$\beta_\textrm{rad}$'
     latex_formula = r'$\frac{1}{K_B T_\textrm{rad}}$'
 
@@ -25,7 +25,7 @@ class BetaRadiation(ProcessingPlasmaProperty):
 
 class GElectron(ProcessingPlasmaProperty):
 
-    name = 'g_electron'
+    outputs = ('g_electron',)
     latex_name = r'$g_\textrm{electron}$'
 
     latex_formula = (r'$\left(\frac{2\pi m_\textrm{e} '
@@ -38,26 +38,26 @@ class GElectron(ProcessingPlasmaProperty):
 
 
 class NumberDensity(ProcessingPlasmaProperty):
-    name = 'number_density'
+    outputs = ('number_density',)
 
     def calculate(self, atomic_mass, abundance, density):
         number_densities = (abundance * density)
         return number_densities.div(atomic_mass.ix[abundance.index], axis=0)
 
 class SelectedAtoms(ProcessingPlasmaProperty):
-    name = 'selected_atoms'
+    outputs = ('selected_atoms',)
 
     def calculate(self, abundance):
         return abundance.index
 
 class ElectronTemperature(ProcessingPlasmaProperty):
-    name = 't_electron'
+    outputs = ('t_electron',)
 
     def calculate(self, t_rad, link_t_rad_t_electron):
         return t_rad * link_t_rad_t_electron
 
 class BetaElectron(ProcessingPlasmaProperty):
-    name = 'beta_electron'
+    outputs = ('beta_electron',)
 
     def __init__(self, plasma_parent):
         super(BetaElectron, self).__init__(plasma_parent)
