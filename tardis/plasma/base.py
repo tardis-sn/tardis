@@ -115,7 +115,6 @@ class BasePlasma(object):
             else:
                 current_property_object = plasma_property(self)
             for output in plasma_property.outputs:
-                print output
                 self.outputs_dict[output] = current_property_object
                 plasma_property_objects.append(current_property_object)
         return plasma_property_objects
