@@ -7,11 +7,16 @@ class BasePlasmaProperty(object):
     __metaclass__ = ABCMeta
 
     @abstractproperty
-    def name(self):
+    def outputs(self):
         pass
 
+    @property
+    def name(self):
+        return self.__class__.__name__
+
     def __init__(self):
-        self.value = None
+        for output in self.outputs:
+            setattr(self, output, None)
 
     def _update_type_str(self):
         """
@@ -30,7 +35,7 @@ class BasePlasmaProperty(object):
 \textbf{{Formula}} {formula}
 {description}
 """
-        name = self.name.replace('_', r'\_')
+        outputs = self.outputs.replace('_', r'\_')
         latex_name = getattr(self, 'latex_name', '')
         if latex_name != '':
             complete_name = '{0} [{1}]'.format(name, self.latex_name)
@@ -66,7 +71,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
 
 
     def _get_input_values(self):
-        return [self.plasma_parent.get_value(item) for item in self.inputs]
+        return (self.plasma_parent.get_value(item) for item in self.inputs)
 
     def update(self):
         """
@@ -75,14 +80,17 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
 
         :return:
         """
-        self.value = self.calculate(*self._get_input_values())
+
+        if len(self.outputs) == 1:
+            setattr(self, self.outputs[0], self.calculate(
+                *self._get_input_values()))
+        else:
+            new_values = self.calculate(*self._get_input_values())
+            for i, output in enumerate(self.outputs):
+                setattr(self, output, new_values[i])
+
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
         raise NotImplementedError('This method needs to be implemented by '
                                   'processing plasma modules')
-
-
-
-
-

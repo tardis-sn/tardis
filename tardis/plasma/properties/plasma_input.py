@@ -9,8 +9,12 @@ __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
 
 class Input(BasePlasmaProperty):
 
+    def _set_output_value(self, output, value):
+        setattr(self, output, value)
+
     def set_value(self, value):
-        self.value = value
+        assert len(self.outputs) == 1
+        self._set_output_value(self.outputs[0], value)
 
 
 class StaticInput(Input):
@@ -21,42 +25,43 @@ class DynamicInput(Input):
 
 
 class ArrayInput(DynamicInput):
-    def set_value(self, value):
-        self.value = np.array(value, copy=False)
+    def _set_output_value(self, output, value):
+        setattr(self, output, np.array(value, copy=False))
+
 
 class DataFrameInput(DynamicInput):
-    def set_value(self, value):
-        self.value = pd.DataFrame(value)
+    def _set_output_value(self, output, value):
+        setattr(self, output, np.array(pd.DataFrame(value), copy=False))
 
 class TRadiative(ArrayInput):
-    name = 't_rad'
+    outputs = ('t_rad',)
     latex_name = r'$T_\textrm{rad}$'
 
 
 class DilutionFactor(ArrayInput):
-    name = 'w'
+    outputs = ('w',)
     latex_name = r'$W$'
 
 class AtomicData(StaticInput):
-    name = 'atomic_data'
+    outputs = ('atomic_data',)
 
 
 class Abundance(DynamicInput):
-    name = 'abundance'
+    outputs = ('abundance',)
 
 
 class RadiationFieldCorrectionInput(StaticInput):
-    name = 'delta_input'
+    outputs = ('delta_input',)
 
 class Density(ArrayInput):
-    name = 'density'
+    outputs = ('density',)
     latex_name = r'$\rho$'
 
 class TimeExplosion(DynamicInput):
-    name = 'time_explosion'
+    outputs = ('time_explosion',)
 
 class JBlues(DataFrameInput):
-    name = 'j_blues'
+    outputs = ('j_blues',)
 
 class LinkTRadTElectron(StaticInput):
-    name = 'link_t_rad_t_electron'
+    outputs = ('link_t_rad_t_electron',)
