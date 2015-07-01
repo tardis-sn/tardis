@@ -71,7 +71,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
 
 
     def _get_input_values(self):
-        return [self.plasma_parent.get_value(item) for item in self.inputs]
+        return (self.plasma_parent.get_value(item) for item in self.inputs)
 
     def update(self):
         """
@@ -80,9 +80,14 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
 
         :return:
         """
-        new_values = self.calculate(*self._get_input_values())
-        for i, output in enumerate(self.outputs):
-            setattr(self, output, new_values[i])
+
+        if len(self.outputs) == 1:
+            setattr(self, self.outputs[0], self.calculate(
+                *self._get_input_values()))
+        else:
+            new_values = self.calculate(*self._get_input_values())
+            for i, output in enumerate(self.outputs):
+                setattr(self, output, new_values[i])
 
 
     @abstractmethod

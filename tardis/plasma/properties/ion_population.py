@@ -239,7 +239,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                               / n_electron < n_e_convergence_threshold):
                 break
             n_electron = 0.5 * (new_n_electron + n_electron)
-        return ion_number_density, n_electron
+        return ion_number_density
 
 class ElectronDensity(ProcessingPlasmaProperty):
     """

@@ -18,8 +18,10 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     inputs = ['atomic_data', 'selected_atoms']
 
     def __init__(self, plasma_parent):
+
         super(BaseAtomicDataProperty, self).__init__(plasma_parent)
         self.value = None
+        assert len(self.outputs) == 1
 
     @abstractmethod
     def _set_index(self, raw_atomic_property, atomic_data):
@@ -31,15 +33,15 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
 
 
     def calculate(self, atomic_data, selected_atoms):
-        if self.value is not None:
-            return self.value
+
+        if getattr(self, self.outputs[0]) is not None:
+            return getattr(self, self.outputs[0])
         else:
             try:
                 raw_atomic_property = getattr(atomic_data, '_' + self.outputs[0])
-                return self._set_index(self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms), atomic_data)
-            except:
+            except AttributeError:
                 raw_atomic_property = getattr(atomic_data, self.outputs[0])
+            finally:
                 return self._set_index(self._filter_atomic_property(
                     raw_atomic_property, selected_atoms), atomic_data)
 
@@ -48,7 +50,9 @@ class Levels(BaseAtomicDataProperty):
     outputs = ('levels',)
 
     def _filter_atomic_property(self, levels, selected_atoms):
-        return levels[levels.atomic_number.isin(selected_atoms)]
+        return levels[levels.atomic_number.isin([selected_atoms]
+                                                if np.isscalar(selected_atoms)
+                                                else selected_atoms)]
 
     def _set_index(self, levels, atomic_data):
         return levels.set_index(['atomic_number', 'ion_number',
@@ -106,7 +110,7 @@ class AtomicMass(ProcessingPlasmaProperty):
 
     def calculate(self, atomic_data, selected_atoms):
         if getattr(self, self.outputs[0]) is not None:
-            return getattr(self, self.outputs[0])
+            return (getattr(self, self.outputs[0]),)
         else:
             return atomic_data.atom_data.ix[selected_atoms].mass
 
