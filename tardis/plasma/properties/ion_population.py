@@ -10,7 +10,7 @@ from tardis.plasma.exceptions import PlasmaIonizationError
 logger = logging.getLogger(__name__)
 
 __all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
-           'IonNumberDensity', 'ElectronDensity', 'PhiGeneral']
+           'IonNumberDensity', 'PhiGeneral']
 
 class PhiGeneral(ProcessingPlasmaProperty):
 
@@ -192,7 +192,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                      r'N(X) = N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
                      r'\times \Phi_{i, j+1}/N_e + \dots)$')
 
-    outputs = ('ion_number_density',)
+    outputs = ('ion_number_density', 'electron_densities')
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
         super(IonNumberDensity, self).__init__(plasma_parent)
@@ -239,8 +239,9 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                               / n_electron < n_e_convergence_threshold):
                 break
             n_electron = 0.5 * (new_n_electron + n_electron)
-        return ion_number_density
+        return ion_number_density, n_electron
 
+'''
 class ElectronDensity(ProcessingPlasmaProperty):
     """
     Calculate the electron density using the Saha equation with the ion
@@ -265,3 +266,4 @@ class ElectronDensity(ProcessingPlasmaProperty):
                  ion_number_density[zone].ix[upper_ions[zone]]) *
                 phi.ix[upper_ions[zone]][zone])
         return pd.Series(n_electron, index=np.arange(0, len(n_electron)))
+'''
