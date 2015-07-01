@@ -35,11 +35,11 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
             return self.value
         else:
             try:
-                raw_atomic_property = getattr(atomic_data, '_' + self.outputs)
+                raw_atomic_property = getattr(atomic_data, '_' + self.outputs[0])
                 return self._set_index(self._filter_atomic_property(
                     raw_atomic_property, selected_atoms), atomic_data)
             except:
-                raw_atomic_property = getattr(atomic_data, self.outputs)
+                raw_atomic_property = getattr(atomic_data, self.outputs[0])
                 return self._set_index(self._filter_atomic_property(
                     raw_atomic_property, selected_atoms), atomic_data)
 
@@ -105,8 +105,8 @@ class AtomicMass(ProcessingPlasmaProperty):
     outputs = ('atomic_mass',)
 
     def calculate(self, atomic_data, selected_atoms):
-        if self.value is not None:
-            return self.value
+        if getattr(self, self.outputs[0]) is not None:
+            return getattr(self, self.outputs[0])
         else:
             return atomic_data.atom_data.ix[selected_atoms].mass
 

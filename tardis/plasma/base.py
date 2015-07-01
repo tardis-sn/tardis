@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class BasePlasma(object):
-
+    outputs_dict = {}
     def __init__(self, plasma_modules, **kwargs):
         self.outputs_dict = {}
         self.plasma_modules = plasma_modules
@@ -43,7 +43,7 @@ class BasePlasma(object):
         return attrs
 
     def get_value(self, item):
-        return self.module_dict[item].value
+        return getattr(self.outputs_dict[item], item)
 
     def _build_graph(self):
         """
@@ -56,7 +56,7 @@ class BasePlasma(object):
         self.graph = nx.DiGraph()
 
         ## Adding all nodes
-        self.graph.add_nodes_from([(item.name, {})
+        self.graph.add_nodes_from([(name, {})
                                     for name in self.plasma_modules])
 
         #Flagging all input modules
