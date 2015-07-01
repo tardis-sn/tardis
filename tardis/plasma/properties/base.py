@@ -7,9 +7,13 @@ class BasePlasmaProperty(object):
     __metaclass__ = ABCMeta
 
     @abstractproperty
-    def name(self):
+    def outputs(self):
         pass
 
+    @property
+    def name(self):
+        return self.__class__.__name__
+        
     def __init__(self):
         self.value = None
 
@@ -30,7 +34,7 @@ class BasePlasmaProperty(object):
 \textbf{{Formula}} {formula}
 {description}
 """
-        name = self.name.replace('_', r'\_')
+        outputs = self.outputs.replace('_', r'\_')
         latex_name = getattr(self, 'latex_name', '')
         if latex_name != '':
             complete_name = '{0} [{1}]'.format(name, self.latex_name)
@@ -81,8 +85,3 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
     def calculate(self, *args, **kwargs):
         raise NotImplementedError('This method needs to be implemented by '
                                   'processing plasma modules')
-
-
-
-
-

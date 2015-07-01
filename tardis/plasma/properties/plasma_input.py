@@ -29,34 +29,34 @@ class DataFrameInput(DynamicInput):
         self.value = pd.DataFrame(value)
 
 class TRadiative(ArrayInput):
-    name = 't_rad'
+    outputs = ('t_rad',)
     latex_name = r'$T_\textrm{rad}$'
 
 
 class DilutionFactor(ArrayInput):
-    name = 'w'
+    outputs = ('w',)
     latex_name = r'$W$'
 
 class AtomicData(StaticInput):
-    name = 'atomic_data'
+    outputs = ('atomic_data',)
 
 
 class Abundance(DynamicInput):
-    name = 'abundance'
+    outputs = ('abundance',)
 
 
 class RadiationFieldCorrectionInput(StaticInput):
-    name = 'delta_input'
+    outputs = ('delta_input',)
 
 class Density(ArrayInput):
-    name = 'density'
+    outputs = ('density',)
     latex_name = r'$\rho$'
 
 class TimeExplosion(DynamicInput):
-    name = 'time_explosion'
+    outputs = ('time_explosion',)
 
 class JBlues(DataFrameInput):
-    name = 'j_blues'
+    outputs = ('j_blues',)
 
 class LinkTRadTElectron(StaticInput):
-    name = 'link_t_rad_t_electron'
+    outputs = ('link_t_rad_t_electron',)
