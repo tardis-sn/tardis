@@ -13,9 +13,10 @@ class BasePlasmaProperty(object):
     @property
     def name(self):
         return self.__class__.__name__
-        
+
     def __init__(self):
-        self.value = None
+        for output in self.outputs:
+            setattr(self, output, None)
 
     def _update_type_str(self):
         """
@@ -79,7 +80,10 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
 
         :return:
         """
-        self.value = self.calculate(*self._get_input_values())
+        new_values = self.calculate(*self._get_input_values())
+        for i, output in enumerate(self.outputs):
+            setattr(self, output, new_values[i])
+
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
