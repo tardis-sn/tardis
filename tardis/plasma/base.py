@@ -11,12 +11,12 @@ logger = logging.getLogger(__name__)
 
 class BasePlasma(object):
     outputs_dict = {}
-    def __init__(self, plasma_modules, **kwargs):
+    def __init__(self, plasma_properties, **kwargs):
         self.outputs_dict = {}
-        self.plasma_modules = plasma_modules
-
-        self.input_modules = []
-        self._init_modules(plasma_modules, **kwargs)
+        self.input_properties = []
+        self.plasma_properties = self._init_properties(plasma_properties,
+                                                       **kwargs)
+        
         self._build_graph()
         self.update(**kwargs)
 
@@ -42,6 +42,10 @@ class BasePlasma(object):
 
         return attrs
 
+    @property
+    def plasma_properties_dict(self):
+        return {item.name:item for item in self.plasma_properties}
+
     def get_value(self, item):
         return getattr(self.outputs_dict[item], item)
 
@@ -56,28 +60,29 @@ class BasePlasma(object):
         self.graph = nx.DiGraph()
 
         ## Adding all nodes
-        self.graph.add_nodes_from([(name, {})
-                                    for name in self.plasma_modules])
+        self.graph.add_nodes_from([(plasma_property.name, {})
+                                   for plasma_property
+                                   in self.plasma_properties])
 
         #Flagging all input modules
-        self.input_modules = [item for item in self.plasma_modules
+        self.input_properties = [item for item in self.plasma_properties
                                 if not hasattr(item, 'inputs')]
 
-        for plasma_module in self.plasma_modules:
+        for plasma_property in self.plasma_properties:
             #Skipping any module that is an input module
-            if plasma_module in self.input_modules:
+            if plasma_property in self.input_properties:
                 continue
 
-            for input in plasma_module.inputs:
+            for input in plasma_property.inputs:
                 if input not in self.outputs_dict:
                     raise PlasmaMissingModule('Module {0} requires input '
                                               '{1} which has not been added'
                                               ' to this plasma'.format(
-                        plasma_module.name, input))
+                        plasma_property.name, input))
                 self.graph.add_edge(self.outputs_dict[input].name,
-                plasma_module.name, label=input)
+                plasma_property.name, label=input)
 
-    def _init_modules(self, plasma_modules, **kwargs):
+    def _init_properties(self, plasma_properties, **kwargs):
         """
         Builds a dictionary with the plasma module names as keys
 
@@ -91,41 +96,45 @@ class BasePlasma(object):
             j_blues=[..]
 
         """
-
+        plasma_property_objects = []
         self.outputs_dict = {}
-        for module in plasma_modules:
-            if hasattr(module, 'set_value'):
+        for plasma_property in plasma_properties:
+
+            if hasattr(plasma_property, 'set_value'):
                 #duck-typing for PlasmaInputProperty
                 #that means if it is an input property from model
-                if not set(kwargs.keys()).issuperset(module.outputs):
-                    missing_input_values = (set(module.outputs) -
+                if not set(kwargs.keys()).issuperset(plasma_property.outputs):
+                    missing_input_values = (set(plasma_property.outputs) -
                     set(kwargs.keys()))
                     raise NotInitializedModule('Input {0} required for '
                                                'plasma but not given when '
                                                'instantiating the '
                                                'plasma'.format(
                                                missing_input_values))
-                current_module_object = module()
+                current_property_object = plasma_property()
             else:
-                current_module_object = module(self)
-            for output in module.outputs:
-                self.outputs_dict[output] = current_module_object
+                current_property_object = plasma_property(self)
+            for output in plasma_property.outputs:
+                print output
+                self.outputs_dict[output] = current_property_object
+                plasma_property_objects.append(current_property_object)
+        return plasma_property_objects
 
     def update(self, **kwargs):
         for key in kwargs:
-            if key not in self.module_dict:
+            if key not in self.outputs_dict:
                 raise PlasmaMissingModule('Trying to update property {0}'
                                           ' that is unavailable'.format(key))
-            self.module_dict[key].set_value(kwargs[key])
+            self.outputs_dict[key].set_value(kwargs[key])
 
         for module_name in self._resolve_update_list(kwargs.keys()):
-            self.module_dict[module_name].update()
+            self.plasma_properties_dict[module_name].update()
 
     def _update_module_type_str(self):
         for node in self.graph:
-            self.module_dict[node]._update_type_str()
+            self.outputs_dict[node]._update_type_str()
 
-    def _resolve_update_list(self, changed_modules):
+    def _resolve_update_list(self, changed_properties):
         """
         Returns a list of all plasma models which are affected by the
         changed_modules due to there dependency in the
@@ -146,8 +155,9 @@ class BasePlasma(object):
 
         descendants_ob = []
 
-        for module in changed_modules:
-            descendants_ob += nx.descendants(self.graph, module)
+        for plasma_property in changed_properties:
+            node_name = self.outputs_dict[plasma_property].name
+            descendants_ob += nx.descendants(self.graph, node_name)
 
         descendants_ob = list(set(descendants_ob))
         sort_order = nx.topological_sort(self.graph)

@@ -114,8 +114,9 @@ class BetaSobolev(ProcessingPlasmaProperty):
     outputs = ('beta_sobolev',)
 
     def calculate(self, tau_sobolevs):
-        if not hasattr(self, 'beta_sobolev'):
+        if getattr(self, 'beta_sobolev', None) is None:
             beta_sobolev = np.zeros_like(tau_sobolevs.values)
+
         macro_atom.calculate_beta_sobolev(
             tau_sobolevs.values.ravel(order='F'),
             beta_sobolev.ravel(order='F'))

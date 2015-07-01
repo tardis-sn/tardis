@@ -9,8 +9,12 @@ __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
 
 class Input(BasePlasmaProperty):
 
+    def _set_output_value(self, output, value):
+        setattr(self, output, value)
+
     def set_value(self, value):
-        self.value = value
+        assert len(self.outputs) == 1
+        self._set_output_value(self.outputs[0], value)
 
 
 class StaticInput(Input):
@@ -21,12 +25,13 @@ class DynamicInput(Input):
 
 
 class ArrayInput(DynamicInput):
-    def set_value(self, value):
-        self.value = np.array(value, copy=False)
+    def _set_output_value(self, output, value):
+        setattr(self, output, np.array(value, copy=False))
+
 
 class DataFrameInput(DynamicInput):
-    def set_value(self, value):
-        self.value = pd.DataFrame(value)
+    def _set_output_value(self, output, value):
+        setattr(self, output, np.array(pd.DataFrame(value), copy=False))
 
 class TRadiative(ArrayInput):
     outputs = ('t_rad',)
