@@ -60,8 +60,6 @@ add_command_option('install', 'without-openmp', 'compile TARDIS without OpenMP',
                    is_bool=True)
 add_command_option('build', 'without-openmp', 'compile TARDIS without OpenMP',
                    is_bool=True)
-add_command_option('test', 'without-openmp', 'compile TARDIS without OpenMP',
-                   is_bool=True)
 
 # Adjust the compiler in case the default on this platform is to use a
 # broken one.
