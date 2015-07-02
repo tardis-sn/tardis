@@ -407,10 +407,12 @@ class ModelViewer(QtGui.QWidget):
         self.createTable = tablecreator
 
         #Shells widget
-        self.shellWidget = self.make_shell_widget()
+        self.shellWidget = Frame()
+        self.shellWidget.setWidget(self.make_shell_widget())
         
         #Spectrum widget
-        self.spectrumWidget = self.make_spectrum_widget()
+        self.spectrumWidget = Frame()
+        self.spectrumWidget.setWidget(self.make_spectrum_widget())
 
         #Plot tab widget
         self.plotTabWidget = QtGui.QTabWidget()
@@ -420,7 +422,9 @@ class ModelViewer(QtGui.QWidget):
         #Table widget
         self.tablemodel = self.createTable([['Shell: '], ["Rad. temp", "Ws"]],
                             (1, 0))
+        tablecontainer = Frame()
         self.tableview = QtGui.QTableView()
+        tablecontainer.setWidget(self.tableview)
         self.tableview.setMinimumWidth(200)
         self.tableview.connect(self.tableview.verticalHeader(), 
             QtCore.SIGNAL('sectionClicked(int)'), self.graph.highlight_shell)
@@ -429,7 +433,9 @@ class ModelViewer(QtGui.QWidget):
             self.on_header_double_clicked)
 
         #Label for text output
+        lblcontainer = Frame()
         self.outputLabel = QtGui.QLabel()
+        lblcontainer.setWidget(self.outputLabel)
         self.outputLabel.setFrameStyle(QtGui.QFrame.StyledPanel | 
             QtGui.QFrame.Sunken)
         self.outputLabel.setStyleSheet("QLabel{background-color:white;}")
@@ -441,10 +447,10 @@ class ModelViewer(QtGui.QWidget):
 
         #For textbox
         textlayout = QtGui.QHBoxLayout()
-        textlayout.addWidget(self.outputLabel)
+        textlayout.addWidget(lblcontainer)
 
         tableslayout = QtGui.QVBoxLayout()
-        tableslayout.addWidget(self.tableview)
+        tableslayout.addWidget(tablecontainer)
         tableBox.setLayout(tableslayout)
 
         visualayout = QtGui.QVBoxLayout()
