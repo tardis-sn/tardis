@@ -1189,3 +1189,151 @@ class TemporarilyUnavaliable(Exception):
     
     def __str__(self):
         return repr(self.value)
+
+class TitleBar(QtGui.QDialog):
+    """The titlebar for the custom window widget that houses every poppable 
+    widget in the GUI.
+    
+    This class implements a titlebar with a single 'pop' button for popping
+    the window. This is used in conjunction with the Frame and FreeWin classes to
+    create the poppable widgets in the GUI."""
+
+    def __init__(self, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        css = """        
+QWidget
+{
+Background: #E0E0E0;
+color:black;
+font:12px bold;
+font-weight:bold;
+border-radius: 1px;
+height: 11px;
+
+}
+QDialog{
+font-size:12px;
+color: black;
+
+}
+QToolButton{
+Background:#E0E0E0;
+font-size:11px;
+}
+QToolButton:hover{
+Background:n #E0E0E0;
+font-size:11px;
+}
+"""
+        self.setAutoFillBackground(True)
+        self.setBackgroundRole(QtGui.QPalette.Highlight)
+        self.setStyleSheet(css)
+
+        popout = QtGui.QToolButton(self)
+        popout.setIcon(QtGui.QIcon('max2.png'))
+        popout.setMinimumHeight(10)
+
+        label=QtGui.QLabel(self)
+        label.setText("Window Title")
+        self.setWindowTitle("Window Title")
+        hbox=QtGui.QHBoxLayout(self)
+        
+        hbox.addWidget(label)
+        hbox.addWidget(popout)
+        hbox.insertStretch(1,500)
+        hbox.setSpacing(0)
+        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Fixed)
+        self.maxNormal = False
+        
+        popout.clicked.connect(self.pop)
+
+    def pop(self):
+        if (self.parent().popped == False):
+            self.parent().hide()
+            self.freewin = FreeWin(self.parent(), parent=None)
+            self.freewin.showit()
+        else:
+            self.parent().dock()
+
+    def mousePressEvent(self,event):
+        if event.button() == QtCore.Qt.LeftButton:
+            box = self.parent()
+            box.moving = True; box.offset = event.pos()
+
+    def mouseMoveEvent(self,event):
+        box = self.parent()
+        if box.moving: box.move(event.globalPos()-box.offset)
+
+class Frame(QtGui.QFrame):
+    """This class implements the window in which the poppable widgets appear in
+    the gui.
+    """
+    
+    def __init__(self, parent=None):
+        self.popped = False 
+        QtGui.QFrame.__init__(self, parent)
+        self.m_mouse_down = False 
+        self.setFrameShape(QtGui.QFrame.StyledPanel)
+
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        self.setMouseTracking(True)
+        self.m_titleBar = TitleBar()
+        self.m_content = QtGui.QWidget()
+        
+        vbox=QtGui.QVBoxLayout()
+        vbox.addWidget(self.m_titleBar)
+        vbox.setContentsMargins(0,0,0,0)
+        vbox.setSpacing(0)
+        self.layout=QtGui.QVBoxLayout()
+        self.layout.addWidget(self.m_content)
+        self.layout.setContentsMargins(5,5,5,5)
+        self.layout.setSpacing(0)
+        vbox.addLayout(self.layout)
+        self.setLayout(vbox)
+        # Allows you to access the content area of the frame
+        # where widgets and layouts can be added
+
+    def reinsertWidget(self):
+        self.popped = False 
+        self.layout.addWidget(self.m_content)
+
+    def setWidget(self, wid):
+        layout = QtGui.QVBoxLayout()
+        layout.setContentsMargins(0,0,0,0)
+        layout.addWidget(wid)
+        wid.parent = self
+        self.m_content.setLayout(layout)
+
+    def titleBar(self):
+        return self.m_titleBar
+
+    def mousePressEvent(self,event):
+        self.m_old_pos = event.pos();
+        self.m_mouse_down = event.button()== QtCore.Qt.LeftButton;
+    def mouseMoveEvent(self,event):
+
+        x=event.x();
+        y=event.y();
+
+    def mouseReleaseEvent(self,event):
+        m_mouse_down=False;
+
+class FreeWin(Frame):
+    """This is a subclass of Frame and is used to display the widgets once they
+    are popped from the main GUI window.
+    """
+    def __init__(self, caller, parent=None):
+        Frame.__init__(self, parent)
+        self.popped = True
+        self.frame = caller
+        self.content = self.frame.m_content
+        self.setWidget(self.content)
+
+    def showit(self):
+        self.show()
+    
+    def dock(self):
+        self.frame.reinsertWidget()
+        self.frame.show()
+        self.close()
