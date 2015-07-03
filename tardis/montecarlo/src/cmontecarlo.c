@@ -2,16 +2,6 @@
 
 rk_state mt_state;
 
-/* Manual switch for continuum processes */
-enum ContinuumProccessesStatus
-  {
-    ON,
-    OFF,
-  };
-
-enum ContinuumProccessesStatus ContinuumProccesses = OFF;
-/*---------------------------------------*/
-
 void
 initialize_random_kit (unsigned long seed)
 {
@@ -142,7 +132,7 @@ INLINE double
 bf_cross_section(storage_model_t * storage, int64_t continuum_id, double comov_nu)
 {
   /* Temporary hardcoded values */
-  double chi_bf_partial = 0.5e-15;
+  double chi_bf_partial = 0.25e-15;
   double cont_chi_bf[] = {chi_bf_partial, 0.0, 2.0 * chi_bf_partial, 0.3 * chi_bf_partial, 2.0 * chi_bf_partial};
   /* End of temporary hardcoded values */
 
@@ -298,8 +288,7 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 {
   double chi_boundfree, chi_freefree, chi_electron, chi_continuum, d_continuum;
 
-//    Compute the continuum oddities for a real packet
-  if (ContinuumProccesses == ON)
+  if (storage->cont_status == CONTINUUM_ON)
   {
     calculate_chi_bf(packet, storage);
     chi_boundfree = rpacket_get_chi_boundfree(packet);
@@ -310,7 +299,7 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
     chi_continuum = chi_boundfree + chi_freefree + chi_electron;
     d_continuum = rpacket_get_tau_event(packet) / chi_continuum;
   }
-  else if (ContinuumProccesses == OFF)
+  else if (storage->cont_status == CONTINUUM_OFF)
   {
     rpacket_set_chi_freefree(packet, 0.0);
     rpacket_set_chi_boundfree(packet, 0.0);
@@ -585,7 +574,6 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   int64_t no_of_continuum_edges = storage->no_of_edges;
 
   double zrand, zrand_x_chibf, chi_bf, nu;
-  double chi_bf_2level;
   //Determine in which continuum the bf-absorption occurs
   nu = rpacket_get_nu(packet);
   chi_bf = rpacket_get_chi_boundfree(packet);
@@ -593,7 +581,6 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   zrand = (rk_double(&mt_state));
   zrand_x_chibf = zrand * chi_bf;
 
-// Seems like a better alternative to the reverse binary search
   ccontinuum = current_continuum_id;
   while (storage->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf)
   {
@@ -778,7 +765,7 @@ get_event_handler (rpacket_t * packet, storage_model_t * storage,
 INLINE montecarlo_event_handler_t
 montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage)
 {
-  if (ContinuumProccesses == OFF)
+  if (storage->cont_status == CONTINUUM_OFF)
     {
       return &montecarlo_thomson_scatter;
     }

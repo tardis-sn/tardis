@@ -106,14 +106,12 @@ int64_t montecarlo_one_packet_loop (storage_model_t * storage,
 				    rpacket_t * packet,
 				    int64_t virtual_packet);
 
-/* New handlers for continuum implementation
-?Have to declare them here*/
+/* New handlers for continuum implementation*/
 
 inline montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage);
 
 void montecarlo_free_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance);
 
 void montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance);
-
 
 #endif // TARDIS_CMONTECARLO_H

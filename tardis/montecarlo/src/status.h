@@ -21,4 +21,10 @@ typedef enum
   TARDIS_PACKET_STATUS_REABSORBED = 2
 } rpacket_status_t;
 
+typedef enum
+{
+  CONTINUUM_OFF = 0,
+  CONTINUUM_ON = 1,
+} ContinuumProccessesStatus;
+
 #endif // TARDIS_STATUS_H
