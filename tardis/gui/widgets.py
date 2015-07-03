@@ -441,31 +441,41 @@ class ModelViewer(QtGui.QWidget):
         self.outputLabel.setStyleSheet("QLabel{background-color:white;}")
 
         #Group boxes
-        graphsBox = QtGui.QGroupBox("Visualized results")
-        textsBox = QtGui.QGroupBox("Model parameters")
-        tableBox = QtGui.QGroupBox("Tabulated results")
+        #graphsBox = QtGui.QGroupBox("Visualized results")
+        #textsBox = QtGui.QGroupBox("Model parameters")
+        #tableBox = QtGui.QGroupBox("Tabulated results")
 
         #For textbox
-        textlayout = QtGui.QHBoxLayout()
-        textlayout.addWidget(lblcontainer)
-
-        tableslayout = QtGui.QVBoxLayout()
-        tableslayout.addWidget(tablecontainer)
-        tableBox.setLayout(tableslayout)
-
-        visualayout = QtGui.QVBoxLayout()
-        visualayout.addWidget(self.plotTabWidget)
-        graphsBox.setLayout(visualayout)
-
-        self.layout = QtGui.QHBoxLayout()
-        self.layout.addWidget(graphsBox)
-        textntablelayout = QtGui.QVBoxLayout()
-        textsBox.setLayout(textlayout)
-        textntablelayout.addWidget(textsBox)
-        textntablelayout.addWidget(tableBox)
-
-        self.layout.addLayout(textntablelayout)                
+        self.layout = QtGui.QVBoxLayout()
+        plottablesplit = QtGui.QSplitter(QtCore.Qt.Horizontal)
+        plottablesplit.addWidget(self.plotTabWidget)
+        tablelabelsplit = QtGui.QSplitter(QtCore.Qt.Vertical)
+        plottablesplit.addWidget(tablelabelsplit)
+        tablelabelsplit.addWidget(lblcontainer)
+        tablelabelsplit.addWidget(tablecontainer)
+        self.layout.addWidget(plottablesplit)
         self.setLayout(self.layout)
+
+        #textlayout = QtGui.QHBoxLayout()
+        #textlayout.addWidget(lblcontainer)
+
+        #tableslayout = QtGui.QVBoxLayout()
+        #tableslayout.addWidget(tablecontainer)
+        #tableBox.setLayout(tableslayout)
+
+        #visualayout = QtGui.QVBoxLayout()
+        #visualayout.addWidget(self.plotTabWidget)
+        #graphsBox.setLayout(visualayout)
+
+        #self.layout = QtGui.QHBoxLayout()
+        #self.layout.addWidget(graphsBox)
+        #textntablelayout = QtGui.QVBoxLayout()
+        #textsBox.setLayout(textlayout)
+        #textntablelayout.addWidget(textsBox)
+        #textntablelayout.addWidget(tableBox)
+
+        #self.layout.addLayout(textntablelayout)                
+        #self.setLayout(self.layout)
 
     def fill_output_label(self):
         """Read some data from tardis model and display on the label for 
