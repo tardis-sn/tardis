@@ -277,12 +277,14 @@ rpacket_set_status (rpacket_t * packet, rpacket_status_t status)
   packet->status = status;
 }
 
-inline int rpacket_get_id (rpacket_t * packet)
+INLINE
+int rpacket_get_id (rpacket_t * packet)
 {
   return packet->id;
 }
 
-inline void rpacket_set_id (rpacket_t * packet, int id)
+INLINE
+void rpacket_set_id (rpacket_t * packet, int id)
 {
   packet->id = id;
 }
