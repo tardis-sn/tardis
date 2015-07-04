@@ -685,15 +685,18 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
 }
 
 void
-montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads)
+montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
 {
   int64_t packet_index;
 #ifdef WITHOPENMP
   omp_set_dynamic(0);
   omp_set_num_threads(nthreads);
-#pragma omp parallel for
+#pragma omp parallel
+  {
+    initialize_random_kit(seed + omp_get_thread_num());
+#pragma omp for
 #else
-
+  initialize_random_kit(seed);
 #endif
   for (packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
     {
@@ -716,4 +719,7 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 	  storage->output_energies[packet_index] = rpacket_get_energy(&packet);
 	}
     }
+#ifdef WITHOPENMP
+  }
+#endif
 }
