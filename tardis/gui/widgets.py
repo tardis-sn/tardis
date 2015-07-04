@@ -407,11 +407,11 @@ class ModelViewer(QtGui.QWidget):
         self.createTable = tablecreator
 
         #Shells widget
-        self.shellWidget = Frame()
+        self.shellWidget = Frame('Shell Plot')
         self.shellWidget.setWidget(self.make_shell_widget())
         
         #Spectrum widget
-        self.spectrumWidget = Frame()
+        self.spectrumWidget = Frame('Spectrum Plot')
         self.spectrumWidget.setWidget(self.make_spectrum_widget())
 
         #Plot tab widget
@@ -422,7 +422,7 @@ class ModelViewer(QtGui.QWidget):
         #Table widget
         self.tablemodel = self.createTable([['Shell: '], ["Rad. temp", "Ws"]],
                             (1, 0))
-        tablecontainer = Frame()
+        tablecontainer = Frame('Shell Data')
         self.tableview = QtGui.QTableView()
         tablecontainer.setWidget(self.tableview)
         self.tableview.setMinimumWidth(200)
@@ -433,7 +433,7 @@ class ModelViewer(QtGui.QWidget):
             self.on_header_double_clicked)
 
         #Label for text output
-        lblcontainer = Frame()
+        lblcontainer = Frame('Model Data')
         self.outputLabel = QtGui.QLabel()
         lblcontainer.setWidget(self.outputLabel)
         self.outputLabel.setFrameStyle(QtGui.QFrame.StyledPanel | 
@@ -1214,45 +1214,47 @@ class TitleBar(QtGui.QDialog):
     the window. This is used in conjunction with the Frame and FreeWin classes to
     create the poppable widgets in the GUI."""
 
-    def __init__(self, parent=None):
+    def __init__(self, title ,parent=None):
         QtGui.QDialog.__init__(self, parent)
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         css = """        
 QWidget
 {
-Background: #E0E0E0;
-color:black;
-font:12px bold;
-font-weight:bold;
-border-radius: 1px;
-height: 11px;
+Background: #005C5C;
+color:white;
+font:12px;
+font-weight:normal;
+border-radius: 0px;
+height: 3px;
 
 }
 QDialog{
-font-size:12px;
-color: black;
+font-size:6px;
+color: white;
 
 }
 QToolButton{
-Background:#E0E0E0;
+Background:#005C5C;
 font-size:11px;
+border: 1px;
 }
 QToolButton:hover{
-Background:n #E0E0E0;
-font-size:11px;
+Background:n #4D8D8D;
+font-size:5px;
 }
 """
+        self.path = os.path.join(tardis.__path__[0],'gui','images') 
         self.setAutoFillBackground(True)
         self.setBackgroundRole(QtGui.QPalette.Highlight)
         self.setStyleSheet(css)
 
         popout = QtGui.QToolButton(self)
-        popout.setIcon(QtGui.QIcon('max2.png'))
+        popout.setIcon(QtGui.QIcon(os.path.join(self.path,'pop.png')))
         popout.setMinimumHeight(10)
 
         label=QtGui.QLabel(self)
-        label.setText("Window Title")
-        self.setWindowTitle("Window Title")
+        label.setText(title)
+        self.setWindowTitle(title)
         hbox=QtGui.QHBoxLayout(self)
         
         hbox.addWidget(label)
@@ -1286,7 +1288,7 @@ class Frame(QtGui.QFrame):
     the gui.
     """
     
-    def __init__(self, parent=None):
+    def __init__(self, title, parent=None):
         self.popped = False 
         QtGui.QFrame.__init__(self, parent)
         self.m_mouse_down = False 
@@ -1294,7 +1296,7 @@ class Frame(QtGui.QFrame):
 
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.setMouseTracking(True)
-        self.m_titleBar = TitleBar()
+        self.m_titleBar = TitleBar(title)
         self.m_content = QtGui.QWidget()
         
         vbox=QtGui.QVBoxLayout()
@@ -1307,8 +1309,6 @@ class Frame(QtGui.QFrame):
         self.layout.setSpacing(0)
         vbox.addLayout(self.layout)
         self.setLayout(vbox)
-        # Allows you to access the content area of the frame
-        # where widgets and layouts can be added
 
     def reinsertWidget(self):
         self.popped = False 
