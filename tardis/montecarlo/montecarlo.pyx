@@ -64,10 +64,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t reflective_inner_boundary
         int_type_t current_packet_id
 
-    void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads)
-    void initialize_random_kit(unsigned long seed)
-
-
+    void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
 def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4):
     """
@@ -98,7 +95,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
                     int_type_t do_scatter
     """
     cdef storage_model_t storage
-    initialize_random_kit(model.tardis_config.montecarlo.seed)
     cdef np.ndarray[double, ndim=1] packet_nus = model.packet_src.packet_nus
     storage.packet_nus = <double*> packet_nus.data
     cdef np.ndarray[double, ndim=1] packet_mus = model.packet_src.packet_mus
@@ -196,6 +192,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
-    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads)
+    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, model.tardis_config.montecarlo.seed)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
