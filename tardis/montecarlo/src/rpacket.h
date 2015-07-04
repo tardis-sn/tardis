@@ -144,6 +144,10 @@ inline rpacket_status_t rpacket_get_status (rpacket_t * packet);
 
 inline void rpacket_set_status (rpacket_t * packet, rpacket_status_t status);
 
+inline int rpacket_get_id (rpacket_t * packet);
+
+inline void rpacket_set_id (rpacket_t * packet, int id);
+
 inline void rpacket_reset_tau_event (rpacket_t * packet);
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
