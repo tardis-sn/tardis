@@ -482,7 +482,7 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   rpacket_reset_tau_event (packet);
   rpacket_set_recently_crossed_boundary (packet, 0);
-  storage->last_interaction_type[packet->id] = 1;
+  storage->last_interaction_type[rpacket_get_id (packet)] = 1;
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
       montecarlo_one_packet (storage, packet, 1);
@@ -535,11 +535,11 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
       comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
-      storage->last_line_interaction_in_id[packet->id] =
+      storage->last_line_interaction_in_id[rpacket_get_id (packet)] =
 	rpacket_get_next_line_id (packet) - 1;
-      storage->last_line_interaction_shell_id[packet->id] =
+      storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =
 	rpacket_get_current_shell_id (packet);
-      storage->last_interaction_type[packet->id] = 2;
+      storage->last_interaction_type[rpacket_get_id (packet)] = 2;
       if (storage->line_interaction_id == 0)
 	{
 	  emission_line_id = rpacket_get_next_line_id (packet) - 1;
@@ -548,7 +548,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 	{
 	  emission_line_id = macro_atom (packet, storage);
 	}
-      storage->last_line_interaction_out_id[packet->id] =
+      storage->last_line_interaction_out_id[rpacket_get_id (packet)] =
 	emission_line_id;
       rpacket_set_nu (packet,
 		      storage->line_list_nu[emission_line_id] *
@@ -702,7 +702,7 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
     {
       int reabsorbed = 0;
       rpacket_t packet;
-      packet.id = packet_index;
+      rpacket_set_id(&packet, packet_index);
       rpacket_init(&packet, storage, packet_index, virtual_packet_flag);
       if (virtual_packet_flag > 0)
 	{
