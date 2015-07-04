@@ -6,13 +6,13 @@ from astropy_helpers.setup_helpers import get_distutils_option
 
 from glob import glob
 
-if get_distutils_option('without_openmp', ['build', 'install']) is not None:
-    compile_args = []
-    link_args = []
-    define_macros = [('WITHOUTOPENMP', None)]
-else:
+if get_distutils_option('with_openmp', ['build', 'install']) is not None:
     compile_args = ['-fopenmp']
     link_args = ['-fopenmp']
+    define_macros = [('WITHOPENMP', None)]
+else:
+    compile_args = []
+    link_args = []
     define_macros = []
 
 def get_extensions():
