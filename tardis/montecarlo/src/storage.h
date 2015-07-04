@@ -60,7 +60,6 @@ typedef struct StorageModel
   double inverse_sigma_thomson;
   double inner_boundary_albedo;
   int64_t reflective_inner_boundary;
-  int64_t current_packet_id;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

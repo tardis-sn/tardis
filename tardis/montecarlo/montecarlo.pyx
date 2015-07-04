@@ -62,7 +62,6 @@ cdef extern from "src/cmontecarlo.h":
         double inverse_sigma_thomson
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
-        int_type_t current_packet_id
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -188,7 +187,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
-    storage.current_packet_id = -1
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
