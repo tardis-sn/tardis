@@ -349,63 +349,64 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
   else
     {
       if ((rpacket_get_nu (packet) > storage->spectrum_virt_start_nu) && (rpacket_get_nu(packet) < storage->spectrum_virt_end_nu))
-    {
-      for (i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
 	{
-	  memcpy ((void *) &virt_packet, (void *) packet, sizeof (rpacket_t));
-	  if (virt_packet.r > storage->r_inner[0])
+	  for (i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
 	    {
-	      mu_min =
-		-1.0 * sqrt (1.0 -
-			     (storage->r_inner[0] / virt_packet.r) *
-			     (storage->r_inner[0] / virt_packet.r));
-	    }
-	  else
-	    {
-	      mu_min = 0.0;
-	    }
-	  mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
-	  virt_packet.mu = mu_min + (i + rk_double (&mt_state)) * mu_bin;
-	  switch (virtual_mode)
-	    {
-	    case -2:
-	      weight = 1.0 / rpacket_get_virtual_packet_flag (packet);
-	      break;
-	    case -1:
-	      weight =
-		2.0 * virt_packet.mu /
-		rpacket_get_virtual_packet_flag (packet);
-	      break;
-	    case 1:
-	      weight =
-		(1.0 -
-		 mu_min) / 2.0 / rpacket_get_virtual_packet_flag (packet);
-	      break;
-	    default:
-	      fprintf (stderr, "Something has gone horribly wrong!\n");
-	    }
-	  doppler_factor_ratio =
-	    rpacket_doppler_factor (packet, storage) /
-	    rpacket_doppler_factor (&virt_packet, storage);
-	  virt_packet.energy =
-	    rpacket_get_energy (packet) * doppler_factor_ratio;
-	  virt_packet.nu = rpacket_get_nu (packet) * doppler_factor_ratio;
-	  reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1);
-	  if ((virt_packet.nu < storage->spectrum_end_nu) &&
-	      (virt_packet.nu > storage->spectrum_start_nu))
-	    {
-	      virt_id_nu =
-		floor ((virt_packet.nu -
-			storage->spectrum_start_nu) /
-		       storage->spectrum_delta_nu);
-	      storage->spectrum_virt_nu[virt_id_nu] +=
-		virt_packet.energy * weight;
+	      memcpy ((void *) &virt_packet, (void *) packet, sizeof (rpacket_t));
+	      if (virt_packet.r > storage->r_inner[0])
+		{
+		  mu_min =
+		    -1.0 * sqrt (1.0 -
+				 (storage->r_inner[0] / virt_packet.r) *
+				 (storage->r_inner[0] / virt_packet.r));
+		}
+	      else
+		{
+		  mu_min = 0.0;
+		}
+	      mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
+	      virt_packet.mu = mu_min + (i + rk_double (&mt_state)) * mu_bin;
+	      switch (virtual_mode)
+		{
+		case -2:
+		  weight = 1.0 / rpacket_get_virtual_packet_flag (packet);
+		  break;
+		case -1:
+		  weight =
+		    2.0 * virt_packet.mu /
+		    rpacket_get_virtual_packet_flag (packet);
+		  break;
+		case 1:
+		  weight =
+		    (1.0 -
+		     mu_min) / 2.0 / rpacket_get_virtual_packet_flag (packet);
+		  break;
+		default:
+		  fprintf (stderr, "Something has gone horribly wrong!\n");
+		}
+	      doppler_factor_ratio =
+		rpacket_doppler_factor (packet, storage) /
+		rpacket_doppler_factor (&virt_packet, storage);
+	      virt_packet.energy =
+		rpacket_get_energy (packet) * doppler_factor_ratio;
+	      virt_packet.nu = rpacket_get_nu (packet) * doppler_factor_ratio;
+	      reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1);
+	      if ((virt_packet.nu < storage->spectrum_end_nu) &&
+		  (virt_packet.nu > storage->spectrum_start_nu))
+		{
+		  virt_id_nu =
+		    floor ((virt_packet.nu -
+			    storage->spectrum_start_nu) /
+			   storage->spectrum_delta_nu);
+		  storage->spectrum_virt_nu[virt_id_nu] +=
+		    virt_packet.energy * weight;
+		}
 	    }
 	}
-    }
-  else{
-    return 1;
-  }
+      else
+	{
+	  return 1;
+	}
     }
   return reabsorbed;
 }
@@ -691,6 +692,8 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   omp_set_dynamic(0);
   omp_set_num_threads(nthreads);
 #pragma omp parallel for
+#else
+
 #endif
   for (packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
     {
