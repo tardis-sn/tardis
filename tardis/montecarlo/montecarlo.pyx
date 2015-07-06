@@ -17,30 +17,6 @@ np.import_array()
 ctypedef np.int64_t int_type_t
 
 cdef extern from "src/cmontecarlo.h":
-    ctypedef enum rpacket_status_t:
-        TARDIS_PACKET_STATUS_IN_PROCESS = 0
-        TARDIS_PACKET_STATUS_EMITTED = 1
-        TARDIS_PACKET_STATUS_REABSORBED = 2
-
-    ctypedef struct rpacket_t:
-        double nu
-        double mu
-        double energy
-        double r
-        double tau_event
-        double nu_line
-        int_type_t current_shell_id
-        int_type_t next_line_id
-        int_type_t last_line
-        int_type_t close_line
-        int_type_t recently_crossed_boundary
-        int_type_t virtual_packet_flag
-        int_type_t virtual_packet
-        double d_line
-        double d_electron
-        double d_boundary
-        rpacket_status_t next_shell_id
-
     ctypedef struct storage_model_t:
         double *packet_nus
         double *packet_mus
@@ -86,17 +62,10 @@ cdef extern from "src/cmontecarlo.h":
         double inverse_sigma_thomson
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
-        int_type_t current_packet_id
 
-    int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
-    int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
-    double rpacket_get_nu(rpacket_t *packet)
-    double rpacket_get_energy(rpacket_t *packet)
-    void initialize_random_kit(unsigned long seed)
+    void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
-
-
-def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
+def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4):
     """
     Parameters
     ----------
@@ -125,8 +94,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                     int_type_t do_scatter
     """
     cdef storage_model_t storage
-    cdef rpacket_t packet
-    initialize_random_kit(model.tardis_config.montecarlo.seed)
     cdef np.ndarray[double, ndim=1] packet_nus = model.packet_src.packet_nus
     storage.packet_nus = <double*> packet_nus.data
     cdef np.ndarray[double, ndim=1] packet_mus = model.packet_src.packet_mus
@@ -220,20 +187,9 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
-    storage.current_packet_id = -1
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
-    cdef int_type_t reabsorbed = 0
-    for packet_index in range(storage.no_of_packets):
-        storage.current_packet_id = packet_index
-        rpacket_init(&packet, &storage, packet_index, virtual_packet_flag)
-        if (virtual_packet_flag > 0):
-            #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
-            reabsorbed = montecarlo_one_packet(&storage, &packet, -1)
-        #Now can do the propagation of the real packet
-        reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
-        storage.output_nus[packet_index] = rpacket_get_nu(&packet)
-        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
+    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, model.tardis_config.montecarlo.seed)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 

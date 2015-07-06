@@ -104,4 +104,9 @@ int64_t montecarlo_one_packet_loop (storage_model_t * storage,
 				    rpacket_t * packet,
 				    int64_t virtual_packet);
 
+void montecarlo_main_loop(storage_model_t * storage, 
+			  int64_t virtual_packet_flag,
+			  int nthreads, 
+			  unsigned long seed);
+
 #endif // TARDIS_CMONTECARLO_H

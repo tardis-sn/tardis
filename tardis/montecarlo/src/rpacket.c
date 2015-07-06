@@ -277,6 +277,18 @@ rpacket_set_status (rpacket_t * packet, rpacket_status_t status)
   packet->status = status;
 }
 
+INLINE
+int rpacket_get_id (rpacket_t * packet)
+{
+  return packet->id;
+}
+
+INLINE
+void rpacket_set_id (rpacket_t * packet, int id)
+{
+  packet->id = id;
+}
+
 /* Other accessor methods. */
 
 INLINE void
