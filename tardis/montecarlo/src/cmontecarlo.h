@@ -88,6 +88,14 @@ extern inline tardis_error_t compute_distance2line (rpacket_t * packet,
 inline double compute_distance2electron (rpacket_t * packet,
 					 storage_model_t * storage);
 
+/** Calculate the distance to the next continuum event, which can be a Thomson scattering, bound-free absorption or
+    free-free transition.
+ *
+ * @param packet rpacket structure with packet information
+ * @param storage storage model data
+ *
+ * sets distance to the next continuum event (in centimeters) in packet rpacket structure
+ */
 inline void compute_distance2continuum (rpacket_t * packet, storage_model_t * storage);
 
 inline int64_t macro_atom (rpacket_t * packet, storage_model_t * storage);
@@ -106,7 +114,7 @@ int64_t montecarlo_one_packet_loop (storage_model_t * storage,
 				    rpacket_t * packet,
 				    int64_t virtual_packet);
 
-/* New handlers for continuum implementation*/
+/* New handlers for continuum implementation */
 
 inline montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage);
 

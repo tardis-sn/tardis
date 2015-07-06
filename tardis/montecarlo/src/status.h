@@ -25,6 +25,6 @@ typedef enum
 {
   CONTINUUM_OFF = 0,
   CONTINUUM_ON = 1,
-} ContinuumProccessesStatus;
+} ContinuumProcessesStatus;
 
 #endif // TARDIS_STATUS_H

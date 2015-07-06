@@ -20,8 +20,8 @@
 #define MISS_DISTANCE 1e99
 #define C 29979245800.0
 #define INVERSE_C 3.33564095198152e-11
-#define H 6.6260755e-27		// erg*s, converted to CGS units from the NIST Constant Index
-#define KB 1.3806488e-16	//erg / K converted to CGS units from the NIST Constant Index
+#define H 6.6260755e-27		// erg * s, converted to CGS units from the NIST Constant Index
+#define KB 1.3806488e-16	// erg / K converted to CGS units from the NIST Constant Index
 
 /**
  * @brief A photon packet.
@@ -58,8 +58,7 @@ typedef struct RPacket
    * It now whenever a d_line is calculated only adds the tau_line to an
    * internal float.
    */
-
-  int64_t current_continuum_id; /* Packet can interact with continuum edges with an index equal or bigger than this */
+  int64_t current_continuum_id; /* Packet can interact with bf-continua with an index equal or bigger than this */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
   double d_line; /**< Distance to electron event. */
@@ -72,8 +71,6 @@ typedef struct RPacket
   double chi_cont; /**< Opacity due to continuum processes */
   double chi_ff; /**< Opacity due to free-free processes */
   double chi_bf; /**< Opacity due to bound-free processes */
-
-
 } rpacket_t;
 
 inline double rpacket_get_nu (rpacket_t * packet);
