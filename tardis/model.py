@@ -128,7 +128,7 @@ class Radial1DModel(object):
 
         self.plasma_array = LegacyPlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
                                                          tardis_config.supernova.time_explosion.to('s').value,
-                                                         nlte_config=tardis_config.plasma.nlte,
+                                                         nlte_input=tardis_config.plasma.nlte,
                                                          delta_treatment=tardis_config.plasma.delta_treatment,
                                                          ionization_mode=tardis_config.plasma.ionization,
                                                          excitation_mode=tardis_config.plasma.excitation,

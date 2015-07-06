@@ -4,7 +4,7 @@ from tardis.plasma.properties.base import BasePlasmaProperty
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
            'TimeExplosion', 'JBlues', 'LinkTRadTElectron',
-           'RadiationFieldCorrectionInput']
+           'RadiationFieldCorrectionInput', 'NLTEInput']
 
 
 class Input(BasePlasmaProperty):
@@ -31,7 +31,7 @@ class ArrayInput(DynamicInput):
 
 class DataFrameInput(DynamicInput):
     def _set_output_value(self, output, value):
-        setattr(self, output, np.array(pd.DataFrame(value), copy=False))
+        setattr(self, output, pd.DataFrame(value))
 
 class TRadiative(ArrayInput):
     outputs = ('t_rad',)
@@ -61,7 +61,13 @@ class TimeExplosion(DynamicInput):
     outputs = ('time_explosion',)
 
 class JBlues(DataFrameInput):
+
+
     outputs = ('j_blues',)
 
 class LinkTRadTElectron(StaticInput):
     outputs = ('link_t_rad_t_electron',)
+
+class NLTEInput(StaticInput):
+    outputs = ('nlte_input',)
+

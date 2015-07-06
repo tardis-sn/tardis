@@ -9,7 +9,7 @@ import tardis
 from tardis.atomic import AtomData
 
 from tardis.plasma.properties.ion_population import (PhiGeneral,
-PhiSahaLTE, IonNumberDensity, ElectronDensity, PhiSahaNebular,
+PhiSahaLTE, IonNumberDensity, PhiSahaNebular,
 RadiationFieldCorrection)
 from tardis.plasma.properties.general import (BetaRadiation, GElectron,
 NumberDensity, ElectronTemperature, BetaElectron)
@@ -139,14 +139,18 @@ def number_density(atomic_mass, abundance, density):
 def ion_number_density(phi_saha_lte, partition_function,
     number_density):
     ion_number_density_module = IonNumberDensity(None)
-    return ion_number_density_module.calculate(phi_saha_lte,
+    ion_number_density, electron_densities = \
+        ion_number_density_module.calculate(phi_saha_lte,
         partition_function, number_density)
+    return ion_number_density
 
 @pytest.fixture
-def electron_densities(ion_number_density, phi_saha_lte):
-    electron_density_module = ElectronDensity(None)
-    return electron_density_module.calculate(ion_number_density,
-        phi_saha_lte)
+def electron_densities(phi_saha_lte, partition_function, number_density):
+    electron_density_module = IonNumberDensity(None)
+    ion_number_density, electron_densities = \
+        electron_density_module.calculate(phi_saha_lte, partition_function,
+        number_density)
+    return electron_densities
 
 @pytest.fixture
 def level_population(levels, partition_function,
@@ -195,12 +199,6 @@ def t_electron(t_rad, link_t_rad_t_electron):
 def beta_electron(t_electron):
     beta_electron_module = BetaElectron(None)
     return beta_electron_module.calculate(t_electron)
-
-@pytest.fixture
-def electron_densities(ion_number_density, phi_saha_lte):
-    electron_densities_module = ElectronDensity(None)
-    return electron_densities_module.calculate(ion_number_density,
-        phi_saha_lte)
 
 @pytest.fixture
 def delta(w, ionization_data, beta_rad, t_electron, t_rad, beta_electron,

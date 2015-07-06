@@ -7,19 +7,21 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactorLTE,
     TransitionProbabilities, StimulatedEmissionFactor, SelectedAtoms,
     PhiGeneral, PhiSahaNebular, LevelBoltzmannFactorDiluteLTE, DilutionFactor,
     ZetaData, ElectronTemperature, LinkTRadTElectron, BetaElectron,
-    RadiationFieldCorrection, RadiationFieldCorrectionInput)
+    RadiationFieldCorrection, RadiationFieldCorrectionInput, NLTEInput,
+    NLTEData, IonNumberDensityNLTE, LevelBoltzmannFactor)
 
 class PlasmaPropertyCollection(list):
     pass
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
     TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
-    RadiationFieldCorrectionInput])
+    RadiationFieldCorrectionInput, NLTEInput])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, LevelPopulation, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
     LinesUpperLevelIndex, TauSobolev, LevelNumberDensity, IonNumberDensity,
-    StimulatedEmissionFactor, SelectedAtoms, PhiGeneral])
+    StimulatedEmissionFactor, SelectedAtoms, PhiGeneral, NLTEData,
+    LevelBoltzmannFactor])
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
 lte_excitation_properties = PlasmaPropertyCollection([LevelBoltzmannFactorLTE])
 macro_atom_properties = PlasmaPropertyCollection([BetaSobolev,
@@ -28,3 +30,8 @@ nebular_ionization_properties = PlasmaPropertyCollection([PhiSahaNebular,
     ZetaData, ElectronTemperature, BetaElectron, RadiationFieldCorrection])
 dilute_lte_excitation_properties = PlasmaPropertyCollection([
     LevelBoltzmannFactorDiluteLTE])
+nlte_properties = PlasmaPropertyCollection([BetaRadiation,
+    Levels, Lines, AtomicMass, LevelPopulation, PartitionFunction,
+    GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
+    LinesUpperLevelIndex, IonNumberDensityNLTE, SelectedAtoms, NLTEData,
+    ElectronTemperature, ZetaData, RadiationFieldCorrection, BetaElectron])
