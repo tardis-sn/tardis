@@ -15,7 +15,8 @@ class LTEPlasma(BasePlasma):
     def __init__(self, t_rad, abundance, density, time_explosion, atomic_data,
         j_blues, link_t_rad_t_electron=0.9, delta_treatment=None):
         plasma_modules = basic_inputs + basic_properties + \
-            lte_excitation_properties + lte_ionization_properties
+            lte_excitation_properties + lte_ionization_properties + \
+            non_nlte_properties
 
         super(LTEPlasma, self).__init__(plasma_properties=plasma_modules,
             t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,

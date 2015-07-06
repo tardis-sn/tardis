@@ -61,8 +61,6 @@ class TimeExplosion(DynamicInput):
     outputs = ('time_explosion',)
 
 class JBlues(DataFrameInput):
-
-
     outputs = ('j_blues',)
 
 class LinkTRadTElectron(StaticInput):
@@ -70,4 +68,3 @@ class LinkTRadTElectron(StaticInput):
 
 class NLTEInput(StaticInput):
     outputs = ('nlte_input',)
-

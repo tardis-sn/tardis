@@ -20,6 +20,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     """
 
     outputs = ('general_level_boltzmann_factor',)
+
     latex_formula = r'$g_{i, j, k} e^{E_{i, j, k} \times \beta_\textrm{rad}}$'
 
     @staticmethod

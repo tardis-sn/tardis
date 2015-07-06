@@ -174,6 +174,7 @@ class ZetaData(BaseAtomicDataProperty):
         return zeta_data.set_index(['atomic_number', 'ion_number'])
 
 class NLTEData(ProcessingPlasmaProperty):
+
     outputs = ('nlte_data',)
 
     def calculate(self, atomic_data):
@@ -182,5 +183,3 @@ class NLTEData(ProcessingPlasmaProperty):
         except:
             nlte_data = None
         return nlte_data
-
-
