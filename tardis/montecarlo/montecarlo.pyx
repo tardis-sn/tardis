@@ -22,7 +22,7 @@ cdef extern from "src/cmontecarlo.h":
         TARDIS_PACKET_STATUS_EMITTED = 1
         TARDIS_PACKET_STATUS_REABSORBED = 2
 
-    ctypedef enum ContinuumProccessesStatus:
+    ctypedef enum ContinuumProcessesStatus:
         CONTINUUM_OFF = 0
         CONTINUUM_ON = 1
 
@@ -103,7 +103,7 @@ cdef extern from "src/cmontecarlo.h":
         double *t_electrons
         double *l_pop
         double *l_pop_r
-        ContinuumProccessesStatus cont_status
+        ContinuumProcessesStatus cont_status
 
     int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
     int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
@@ -177,7 +177,7 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     cdef np.ndarray[double, ndim=1] l_pop
     cdef np.ndarray[double, ndim=1] l_pop_r
     if storage.cont_status == CONTINUUM_ON:
-        continuum_list_nu = np.array([9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # Dummy data
+        continuum_list_nu = np.array([9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # sorted list of threshold frequencies
         storage.continuum_list_nu = <double*> continuum_list_nu.data
         storage.no_of_edges = continuum_list_nu.size
         chi_bf_tmp_partial = np.zeros(continuum_list_nu.size)

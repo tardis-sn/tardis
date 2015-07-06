@@ -67,7 +67,7 @@ typedef struct StorageModel
   double *t_electrons;
   double *l_pop;
   double *l_pop_r;
-  ContinuumProccessesStatus cont_status;
+  ContinuumProcessesStatus cont_status;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

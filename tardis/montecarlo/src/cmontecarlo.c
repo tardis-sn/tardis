@@ -186,7 +186,7 @@ compute_distance2boundary (rpacket_t * packet, storage_model_t * storage)
   double d_outer =
     sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
   double d_inner;
-  double result;
+  //double result;
   if (rpacket_get_recently_crossed_boundary (packet) == 1)
     {
       rpacket_set_next_shell_id (packet, 1);
@@ -272,7 +272,7 @@ compute_distance2line (rpacket_t * packet, storage_model_t * storage,
 	  fprintf (stderr, "mu = %f\n", mu);
 	  fprintf (stderr, "nu = %f\n", nu);
 	  fprintf (stderr, "doppler_factor = %f\n", doppler_factor);
-	  fprintf (stderr, "cur_zone_id = %d\n", cur_zone_id);
+	  fprintf (stderr, "cur_zone_id = %lld\n", cur_zone_id);
 	  ret_val = TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
 	}
       else
@@ -299,10 +299,8 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
     chi_continuum = chi_boundfree + chi_freefree + chi_electron;
     d_continuum = rpacket_get_tau_event(packet) / chi_continuum;
   }
-  else if (storage->cont_status == CONTINUUM_OFF)
+  else
   {
-    rpacket_set_chi_freefree(packet, 0.0);
-    rpacket_set_chi_boundfree(packet, 0.0);
     chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
     chi_continuum = chi_electron;
     d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
@@ -312,7 +310,6 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
   if (packet->virtual_packet > 0)
     {
 	  //Set all continuum distances to MISS_DISTANCE in case of an virtual_packet
-	  rpacket_set_d_electron (packet, MISS_DISTANCE); // must be replaced
 	  rpacket_set_d_continuum(packet, MISS_DISTANCE);
 	  rpacket_set_chi_boundfree(packet, 0.0);
 	  rpacket_set_chi_electron(packet, chi_electron);
@@ -321,7 +318,6 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 	}
 	else
 	{
-
 
 //        fprintf(stderr, "--------\n");
 //        fprintf(stderr, "nu = %e \n", rpacket_get_nu(packet));
@@ -332,8 +328,8 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 
 	  rpacket_set_chi_freefree(packet, chi_freefree);
 	  rpacket_set_chi_electron(packet, chi_electron);
-	  rpacket_set_d_continuum(packet, d_continuum);
 	  rpacket_set_chi_continuum(packet, chi_continuum);
+	  rpacket_set_d_continuum(packet, d_continuum);
 	}
 }
 
@@ -567,14 +563,12 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 void
 montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance)
 {
-  tardis_error_t error;
-  int64_t current_continuum_id = rpacket_get_current_continuum_id(packet); /* current position in list of continuum edges -> indicates
-                                                         which bound free processes are possible */
+  /* current position in list of continuum edges -> indicates which bound-free processes are possible */
+  int64_t current_continuum_id = rpacket_get_current_continuum_id(packet);
   int64_t ccontinuum; /* continuum_id of the continuum in which bf-absorption occurs */
-  int64_t no_of_continuum_edges = storage->no_of_edges;
 
   double zrand, zrand_x_chibf, chi_bf, nu;
-  //Determine in which continuum the bf-absorption occurs
+  // Determine in which continuum the bf-absorption occurs
   nu = rpacket_get_nu(packet);
   chi_bf = rpacket_get_chi_boundfree(packet);
   // get new zrand
@@ -587,7 +581,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
     ccontinuum++;
   }
 //  error =
-//  binary_search(storage->chi_bf_tmp_partial, zrand_x_chibf, current_continuum_id, no_of_continuum_edges - 1, &ccontinuum); // storage->no_of_edges
+//  binary_search(storage->chi_bf_tmp_partial, zrand_x_chibf, current_continuum_id,no_of_continuum_edges-1,&ccontinuum);
 //  if (error == TARDIS_ERROR_BOUNDS_ERROR) // x_insert < x[imin] -> set index equal to imin
 //   {
 //      ccontinuum = current_continuum_id;
@@ -711,7 +705,6 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     }
 }
 
-/* Distance to electron scattering no longer computed*/
 INLINE void
 montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
 {
@@ -733,7 +726,7 @@ montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
       compute_distance2continuum (packet, storage);
     }
 }
-/* Will become event handler for r_packets in the future */
+
 INLINE montecarlo_event_handler_t
 get_event_handler (rpacket_t * packet, storage_model_t * storage,
 		   double *distance)
@@ -838,4 +831,3 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
   return rpacket_get_status (packet) ==
     TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
 }
-
