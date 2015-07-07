@@ -10,7 +10,7 @@ from tardis.plasma.exceptions import PlasmaIonizationError
 logger = logging.getLogger(__name__)
 
 __all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
-           'IonNumberDensity', 'ElectronDensity', 'PhiGeneral']
+           'IonNumberDensity', 'PhiGeneral']
 
 class PhiGeneral(ProcessingPlasmaProperty):
 
@@ -192,7 +192,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                      r'N(X) = N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
                      r'\times \Phi_{i, j+1}/N_e + \dots)$')
 
-    outputs = ('ion_number_density',)
+    outputs = ('ion_number_density', 'electron_densities')
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
         super(IonNumberDensity, self).__init__(plasma_parent)
@@ -239,29 +239,4 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                               / n_electron < n_e_convergence_threshold):
                 break
             n_electron = 0.5 * (new_n_electron + n_electron)
-        return ion_number_density
-
-class ElectronDensity(ProcessingPlasmaProperty):
-    """
-    Calculate the electron density using the Saha equation with the ion
-    population ratio of a particular element.
-    """
-    latex_formula = r'$n_e = \frac{N_{i,j}}{N_{i,j+1}} \times \Phi_{i,j}$'
-
-    outputs = ('electron_densities',)
-
-    def calculate(self, ion_number_density, phi):
-        # Could check electron density for any element/ions in each zone, but
-        # if number density of element/ions was zero, it would not work.
-        # So setting this to calculate from the dominant ion in each zone.
-        dominant_ions = ion_number_density.sum(level=(0, 1)).idxmax()
-        upper_ions = []
-        for ion in dominant_ions.values:
-            upper_ions.append((ion[0], ion[1] + 1))
-        n_electron = []
-        for zone in range(len(ion_number_density.columns)):
-            n_electron.append(
-                (ion_number_density[zone].ix[dominant_ions[zone]] /
-                 ion_number_density[zone].ix[upper_ions[zone]]) *
-                phi.ix[upper_ions[zone]][zone])
-        return pd.Series(n_electron, index=np.arange(0, len(n_electron)))
+        return ion_number_density, n_electron
