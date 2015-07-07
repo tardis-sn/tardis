@@ -289,6 +289,80 @@ void rpacket_set_id (rpacket_t * packet, int id)
   packet->id = id;
 }
 
+/* New getter and setter methods for continuum implementation*/
+
+INLINE void
+rpacket_set_d_continuum(rpacket_t * packet, double d_continuum)
+{
+  packet->d_cont = d_continuum;
+}
+
+INLINE double
+rpacket_get_d_continuum(rpacket_t * packet)
+{
+  return packet->d_cont;
+}
+
+INLINE void
+rpacket_set_chi_electron(rpacket_t * packet, double chi_electron)
+{
+  packet->chi_th = chi_electron;
+}
+
+INLINE double
+rpacket_get_chi_electron(rpacket_t * packet)
+{
+  return packet->chi_th;
+}
+
+INLINE double
+rpacket_get_chi_continuum(rpacket_t * packet)
+{
+  return packet->chi_cont;
+}
+
+INLINE void
+rpacket_set_chi_continuum(rpacket_t * packet, double chi_continuum)
+{
+  packet->chi_cont = chi_continuum;
+}
+
+INLINE void
+rpacket_set_chi_freefree(rpacket_t * packet, double chi_freefree)
+{
+  packet->chi_ff = chi_freefree;
+}
+
+INLINE double
+rpacket_get_chi_freefree(rpacket_t * packet)
+{
+  return packet->chi_ff;
+}
+
+INLINE double
+rpacket_get_chi_boundfree(rpacket_t * packet)
+{
+  return packet->chi_bf;
+}
+
+INLINE void
+rpacket_set_chi_boundfree(rpacket_t * packet, double chi_boundfree)
+{
+  packet->chi_bf = chi_boundfree;
+}
+
+INLINE void
+rpacket_set_current_continuum_id (rpacket_t * packet, unsigned int current_continuum_id)
+{
+  packet->current_continuum_id = current_continuum_id;
+}
+
+INLINE unsigned int
+rpacket_get_current_continuum_id (rpacket_t * packet)
+{
+  return packet->current_continuum_id;
+}
+
 /* Other accessor methods. */
 
 INLINE void
