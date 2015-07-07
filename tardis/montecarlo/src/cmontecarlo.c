@@ -189,7 +189,6 @@ compute_distance2boundary (rpacket_t * packet, storage_model_t * storage)
   double d_outer =
     sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
   double d_inner;
-  //double result;
   if (rpacket_get_recently_crossed_boundary (packet) == 1)
     {
       rpacket_set_next_shell_id (packet, 1);
@@ -593,6 +592,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   {
     ccontinuum++;
   }
+//  Alternative way to choose a continuum for bf-absorption:
 //  error =
 //  binary_search(storage->chi_bf_tmp_partial, zrand_x_chibf, current_continuum_id,no_of_continuum_edges-1,&ccontinuum);
 //  if (error == TARDIS_ERROR_BOUNDS_ERROR) // x_insert < x[imin] -> set index equal to imin
