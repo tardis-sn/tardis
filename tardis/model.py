@@ -135,6 +135,8 @@ class Radial1DModel(object):
                                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
                                                          link_t_rad_t_electron=0.9)
 
+        self.previous_iteration_beta_sobolevs = np.ones((len(self.plasma_array.lines), len(self.plasma_array.t_electron)))
+
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_reabsorbed = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
@@ -236,8 +238,10 @@ class Radial1DModel(object):
     def update_plasmas(self, initialize_nlte=False):
 
         self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
-                                        initialize_nlte=initialize_nlte, n_e_convergence_threshold=0.05)
+                                        initialize_nlte=initialize_nlte, n_e_convergence_threshold=0.05,
+                                        previous_iteration_beta_sobolevs = self.previous_iteration_beta_sobolevs)
 
+        self.previous_iteration_beta_sobolevs = self.plasma_array.beta_sobolevs
 
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.transition_probabilities
