@@ -135,7 +135,7 @@ class Radial1DModel(object):
                                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
                                                          link_t_rad_t_electron=0.9)
 
-        self.previous_iteration_beta_sobolevs = np.ones((len(self.plasma_array.lines), len(self.plasma_array.t_electron)))
+        self.previous_iteration_beta_sobolevs = np.ones((len(self.plasma_array.lines), len(self.plasma_array.t_rad)))
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
