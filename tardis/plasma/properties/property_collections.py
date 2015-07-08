@@ -10,14 +10,16 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactorLTE,
     RadiationFieldCorrection, RadiationFieldCorrectionInput,
     LevelBoltzmannFactorNoNLTE, LevelBoltzmannFactorNLTECoronal, NLTEData,
     NLTESpecies, PreviousIterationBetaSobolevs, LTEJBlues,
-    LevelBoltzmannFactorNLTEGeneral, LevelBoltzmannFactorNLTEClassicalNebular)
+    LevelBoltzmannFactorNLTEGeneral, LevelBoltzmannFactorNLTEClassicalNebular,
+    PreviousIterationElectronDensities)
 
 class PlasmaPropertyCollection(list):
     pass
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
     TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
-    RadiationFieldCorrectionInput, NLTESpecies, PreviousIterationBetaSobolevs])
+    RadiationFieldCorrectionInput, NLTESpecies, PreviousIterationBetaSobolevs,
+    PreviousIterationElectronDensities])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, LevelPopulation, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
@@ -38,5 +40,4 @@ nlte_classical_nebular_properties = PlasmaPropertyCollection([
     LevelBoltzmannFactorNLTEClassicalNebular, NLTEData, NLTESpecies,
     LTEJBlues])
 nlte_general_properties = PlasmaPropertyCollection([
-    LevelBoltzmannFactorNLTEGeneral, NLTEData, NLTESpecies,
-    PreviousIterationBetaSobolevs, LTEJBlues])
+    LevelBoltzmannFactorNLTEGeneral, NLTEData, NLTESpecies, LTEJBlues])
