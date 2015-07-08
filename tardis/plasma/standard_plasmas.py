@@ -7,7 +7,8 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
-    nlte_coronal_properties, nlte_general_properties)
+    nlte_coronal_properties, nlte_general_properties,
+    nlte_classical_nebular_properties)
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +77,8 @@ class LegacyPlasmaArray(BasePlasma):
         if nlte_config.species:
             if nlte_config.coronal_approximation == True:
                 plasma_modules += nlte_coronal_properties
+            elif nlte_config.classical_nebular == True:
+                plasma_modules += nlte_classical_nebular_properties
             else:
                 plasma_modules += nlte_general_properties
         else:
