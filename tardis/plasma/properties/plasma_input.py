@@ -5,7 +5,8 @@ from tardis.plasma.properties.base import BasePlasmaProperty
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
            'TimeExplosion', 'JBlues', 'LinkTRadTElectron',
            'RadiationFieldCorrectionInput', 'NLTESpecies',
-           'PreviousIterationBetaSobolevs']
+           'PreviousIterationBetaSobolevs',
+           'PreviousIterationElectronDensities']
 
 
 class Input(BasePlasmaProperty):
@@ -72,3 +73,6 @@ class NLTESpecies(StaticInput):
 
 class PreviousIterationBetaSobolevs(DynamicInput):
     outputs = ('previous_beta_sobolevs',)
+
+class PreviousIterationElectronDensities(DynamicInput):
+    outputs = ('previous_electron_densities',)

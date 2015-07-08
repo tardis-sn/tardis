@@ -67,7 +67,8 @@ class LevelBoltzmannFactorNLTECoronal(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate(t_electron, lines, atomic_data, nlte_data,
-            general_level_boltzmann_factor, nlte_species):
+            general_level_boltzmann_factor, nlte_species,
+            previous_electron_densities):
         """
         Calculating the NLTE level populations for specific ions
 
@@ -105,10 +106,16 @@ class LevelBoltzmannFactorNLTECoronal(ProcessingPlasmaProperty):
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
                 j_blues[lines_index] * beta_sobolevs[lines_index]
 
-#            collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
-#                               self.electron_densities.values
-            collision_matrix = r_ul_matrix.copy()
-            collision_matrix.fill(0.0)
+            if atomic_data.has_collision_data:
+                if previous_electron_densities is None:
+                    collision_matrix = r_ul_matrix.copy()
+                    collision_matrix.fill(0.0)
+                else:
+                    collision_matrix = nlte_data.get_collision_matrix(species,
+                        t_electron) * previous_electron_densities.values
+            else:
+                collision_matrix = r_ul_matrix.copy()
+                collision_matrix.fill(0.0)
 
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
 
@@ -132,7 +139,7 @@ class LevelBoltzmannFactorNLTEClassicalNebular(ProcessingPlasmaProperty):
     @staticmethod
     def calculate(t_electron, lines, atomic_data, nlte_data,
             general_level_boltzmann_factor, nlte_species, j_blues,
-            previous_beta_sobolevs, lte_j_blues):
+            previous_beta_sobolevs, lte_j_blues, previous_electron_densities):
         """
         Calculating the NLTE level populations for specific ions
 
@@ -176,10 +183,16 @@ class LevelBoltzmannFactorNLTEClassicalNebular(ProcessingPlasmaProperty):
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
                 j_blues.ix[j_blues_index] * beta_sobolevs[lines_index]
 
-#            collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
-#                               self.electron_densities.values
-            collision_matrix = r_ul_matrix.copy()
-            collision_matrix.fill(0.0)
+            if atomic_data.has_collision_data:
+                if previous_electron_densities is None:
+                    collision_matrix = r_ul_matrix.copy()
+                    collision_matrix.fill(0.0)
+                else:
+                    collision_matrix = nlte_data.get_collision_matrix(species,
+                        t_electron) * previous_electron_densities.values
+            else:
+                collision_matrix = r_ul_matrix.copy()
+                collision_matrix.fill(0.0)
 
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
 
@@ -203,7 +216,7 @@ class LevelBoltzmannFactorNLTEGeneral(ProcessingPlasmaProperty):
     @staticmethod
     def calculate(t_electron, lines, atomic_data, nlte_data,
             general_level_boltzmann_factor, nlte_species, j_blues,
-            previous_beta_sobolevs, lte_j_blues):
+            previous_beta_sobolevs, lte_j_blues, previous_electron_densities):
         """
         Calculating the NLTE level populations for specific ions
 
@@ -250,10 +263,16 @@ class LevelBoltzmannFactorNLTEGeneral(ProcessingPlasmaProperty):
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
                 j_blues.ix[j_blues_index] * beta_sobolevs[lines_index]
 
-#            collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
-#                               self.electron_densities.values
-            collision_matrix = r_ul_matrix.copy()
-            collision_matrix.fill(0.0)
+            if atomic_data.has_collision_data:
+                if previous_electron_densities is None:
+                    collision_matrix = r_ul_matrix.copy()
+                    collision_matrix.fill(0.0)
+                else:
+                    collision_matrix = nlte_data.get_collision_matrix(species,
+                        t_electron) * previous_electron_densities.values
+            else:
+                collision_matrix = r_ul_matrix.copy()
+                collision_matrix.fill(0.0)
 
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
 

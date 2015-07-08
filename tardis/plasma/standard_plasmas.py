@@ -25,7 +25,7 @@ class LTEPlasma(BasePlasma):
             density=density, time_explosion=time_explosion, j_blues=j_blues,
 	        w=None, link_t_rad_t_electron=link_t_rad_t_electron,
             delta_input=delta_treatment, nlte_species=None,
-            previous_beta_sobolevs=None)
+            previous_beta_sobolevs=None, previous_electron_densities=None)
 
 class LegacyPlasmaArray(BasePlasma):
 
@@ -49,7 +49,8 @@ class LegacyPlasmaArray(BasePlasma):
         t_electrons=None, n_e_convergence_threshold=0.05,
         initialize_nlte=False, previous_beta_sobolevs=None):
         self.update(t_rad=t_rad, w=ws, j_blues=j_blues,
-            previous_beta_sobolevs=previous_beta_sobolevs)
+            previous_beta_sobolevs=previous_beta_sobolevs,
+            previous_electron_densities=previous_electron_densities)
 
     def __init__(self, number_densities, atomic_data, time_explosion,
         t_rad=None, delta_treatment=None, nlte_config=None,
@@ -100,4 +101,4 @@ class LegacyPlasmaArray(BasePlasma):
             atomic_data=atomic_data, time_explosion=time_explosion,
             j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
             delta_input=delta_treatment, nlte_species=nlte_config.species,
-            previous_beta_sobolevs=None)
+            previous_beta_sobolevs=None, previous_electron_densities=None)
