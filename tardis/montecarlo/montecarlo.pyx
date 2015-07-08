@@ -17,6 +17,10 @@ np.import_array()
 ctypedef np.int64_t int_type_t
 
 cdef extern from "src/cmontecarlo.h":
+    ctypedef enum ContinuumProcessesStatus:
+        CONTINUUM_OFF = 0
+        CONTINUUM_ON = 1
+
     ctypedef struct storage_model_t:
         double *packet_nus
         double *packet_mus
@@ -38,10 +42,12 @@ cdef extern from "src/cmontecarlo.h":
         double *inverse_electron_densities
         double *line_list_nu
         double *line_lists_tau_sobolevs
+        double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
         int_type_t line_lists_j_blues_nd
         int_type_t no_of_lines
+        int_type_t no_of_edges
         int_type_t line_interaction_id
         double *transition_probabilities
         int_type_t transition_probabilities_nd
@@ -62,6 +68,11 @@ cdef extern from "src/cmontecarlo.h":
         double inverse_sigma_thomson
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
+        double *chi_bf_tmp_partial
+        double *t_electrons
+        double *l_pop
+        double *l_pop_r
+        ContinuumProcessesStatus cont_status
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -119,6 +130,23 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
     storage.electron_densities = <double*> electron_densities.data
     cdef np.ndarray[double, ndim=1] inverse_electron_densities = 1.0 / electron_densities
     storage.inverse_electron_densities = <double*> inverse_electron_densities.data
+    # Switch for continuum processes
+    storage.cont_status = CONTINUUM_OFF
+    # Continuum data
+    cdef np.ndarray[double, ndim=1] continuum_list_nu
+    cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
+    cdef np.ndarray[double, ndim=1] l_pop
+    cdef np.ndarray[double, ndim=1] l_pop_r
+    if storage.cont_status == CONTINUUM_ON:
+        continuum_list_nu = np.array([9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # sorted list of threshold frequencies
+        storage.continuum_list_nu = <double*> continuum_list_nu.data
+        storage.no_of_edges = continuum_list_nu.size
+        chi_bf_tmp_partial = np.zeros(continuum_list_nu.size)
+        storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
+        l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
+        storage.l_pop = <double*> l_pop.data
+        l_pop_r = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
+        storage.l_pop_r = <double*> l_pop_r.data
     # Line lists
     cdef np.ndarray[double, ndim=1] line_list_nu = model.atom_data.lines.nu.values
     storage.line_list_nu = <double*> line_list_nu.data
@@ -187,6 +215,9 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
+    # Data for continuum implementation
+    cdef np.ndarray[double, ndim=1] t_electrons = model.plasma_array.t_electrons
+    storage.t_electrons = <double*> t_electrons.data
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
