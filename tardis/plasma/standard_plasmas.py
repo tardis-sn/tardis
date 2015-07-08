@@ -47,7 +47,8 @@ class LegacyPlasmaArray(BasePlasma):
 
     def update_radiationfield(self, t_rad, ws, j_blues,
         t_electrons=None, n_e_convergence_threshold=0.05,
-        initialize_nlte=False, previous_beta_sobolevs=None):
+        initialize_nlte=False, previous_beta_sobolevs=None,
+        previous_electron_densities=None):
         self.update(t_rad=t_rad, w=ws, j_blues=j_blues,
             previous_beta_sobolevs=previous_beta_sobolevs,
             previous_electron_densities=previous_electron_densities)
