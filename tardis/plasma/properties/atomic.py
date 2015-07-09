@@ -13,6 +13,7 @@ __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
            'AtomicMass', 'IonizationData', 'ZetaData']
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
+
     __metaclass__ = ABCMeta
 
     inputs = ['atomic_data', 'selected_atoms']
@@ -24,7 +25,7 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
         assert len(self.outputs) == 1
 
     @abstractmethod
-    def _set_index(self, raw_atomic_property, atomic_data):
+    def _set_index(self, raw_atomic_property):
         raise NotImplementedError('Needs to be implemented in subclasses')
 
     @abstractmethod
@@ -37,41 +38,64 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
         if getattr(self, self.outputs[0]) is not None:
             return getattr(self, self.outputs[0])
         else:
+#Atomic Data Issue: Some atomic property names in the h5 files are preceded
+#by an underscore, e.g. _levels, _lines.
             try:
-                raw_atomic_property = getattr(atomic_data, '_' + self.outputs[0])
+                raw_atomic_property = getattr(atomic_data, '_'
+                    + self.outputs[0])
             except AttributeError:
                 raw_atomic_property = getattr(atomic_data, self.outputs[0])
             finally:
                 return self._set_index(self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms), atomic_data)
+                    raw_atomic_property, selected_atoms))
 
 
 class Levels(BaseAtomicDataProperty):
+    """
+    Outputs:
+    levels : Pandas DataFrame
+        Levels data needed for particular simulation
+    """
     outputs = ('levels',)
 
     def _filter_atomic_property(self, levels, selected_atoms):
-        return levels[levels.atomic_number.isin([selected_atoms]
-                                                if np.isscalar(selected_atoms)
-                                                else selected_atoms)]
+        return levels[levels.atomic_number.isin(selected_atoms)]
 
-    def _set_index(self, levels, atomic_data):
+    def _set_index(self, levels):
         return levels.set_index(['atomic_number', 'ion_number',
             'level_number'])
 
+
 class Lines(BaseAtomicDataProperty):
+    """
+    Outputs:
+    lines : Pandas DataFrame
+        Lines data needed for particular simulation
+    """
     outputs = ('lines',)
 
     def _filter_atomic_property(self, lines, selected_atoms):
         return lines[lines.atomic_number.isin(selected_atoms)]
 
-    def _set_index(self, lines, atomic_data):
+    def _set_index(self, lines):
+#Filtering process re-arranges the index. This puts it back in the right order.
+#It seems to be important that the lines stay indexed in the correct order
+#so that the tau_sobolevs values are in the right order for the montecarlo
+#code, or it returns the wrong answer.
         try:
-            reindexed = lines.reindex(atomic_data.lines.index)
+            reindexed = lines.reindex(lines.index)
         except:
-            reindexed = lines.reindex(atomic_data._lines.index)
-        return reindexed
+            reindexed = lines.reindex(lines.index)
+        return reindexed.dropna(subset=['atomic_number'])
+
 
 class LinesLowerLevelIndex(ProcessingPlasmaProperty):
+    """
+    Outputs:
+    lines_lower_level_index : One-dimensional Numpy Array
+        Levels data for lower levels of particular lines
+        Usage: levels.ix[lines_lower_level_index]
+    """
     outputs = ('lines_lower_level_index',)
 
     def calculate(self, levels, lines):
@@ -82,7 +106,14 @@ class LinesLowerLevelIndex(ProcessingPlasmaProperty):
              'level_number_lower']).index
         return np.array(levels_index.ix[lines_index])
 
+
 class LinesUpperLevelIndex(ProcessingPlasmaProperty):
+    """
+    Outputs:
+    lines_upper_level_index : One-dimensional Numpy Array
+        Levels data for upper levels of particular lines
+        Usage: levels.ix[lines_upper_level_index]
+    """
     outputs = ('lines_upper_level_index',)
 
     def calculate(self, levels, lines):
@@ -98,14 +129,21 @@ class IonCXData(BaseAtomicDataProperty):
     outputs = ('ion_cx_data',)
 
     def _filter_atomic_property(self, ion_cx_data, selected_atoms):
-        return filtered_ion_cx_data
+        return ion_cx_data[ion_cx_data.atomic_number.isin([selected_atoms]
+                                                if np.isscalar(selected_atoms)
+                                                else selected_atoms)]
 
-    def _set_index(self, ion_cx_data, atomic_data):
-        return levels.set_index(['atomic_number', 'ion_number',
-                                 'level_number'])
+    def _set_index(self, ion_cx_data):
+        return ion_cx_data.set_index(['atomic_number', 'ion_number',
+            'level_number'])
 
 
 class AtomicMass(ProcessingPlasmaProperty):
+    """
+    Outputs:
+    atomic_mass : Pandas Series
+        Atomic masses of the elements used, indexed by atomic number
+    """
     outputs = ('atomic_mass',)
 
     def calculate(self, atomic_data, selected_atoms):
@@ -114,7 +152,13 @@ class AtomicMass(ProcessingPlasmaProperty):
         else:
             return atomic_data.atom_data.ix[selected_atoms].mass
 
+
 class IonizationData(BaseAtomicDataProperty):
+    """
+    Outputs:
+    ionization_data : Pandas DataFrame
+        Ionization energies of the elements used
+    """
     outputs = ('ionization_data',)
 
     def _filter_atomic_property(self, ionization_data, selected_atoms):
@@ -132,10 +176,19 @@ class IonizationData(BaseAtomicDataProperty):
                             str(keys[keys!=values]) +
                             str(values[keys!=values]) + ')')
 
-    def _set_index(self, ionization_data, atomic_data):
+    def _set_index(self, ionization_data):
         return ionization_data.set_index(['atomic_number', 'ion_number'])
 
+
 class ZetaData(BaseAtomicDataProperty):
+    """
+    Outputs:
+    zeta_data : Pandas DataFrame
+        Zeta data for the elements used
+        Required for the nebular ionization scheme.
+        The zeta value represents the fraction of recombination events
+        from the ionized state that go directly to the ground state.
+    """
     outputs = ('zeta_data',)
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
@@ -149,6 +202,9 @@ class ZetaData(BaseAtomicDataProperty):
             return zeta_data
         else:
 #            raise IncompleteAtomicData('zeta data')
+# This currently replaces missing zeta data with 1, which is necessary with
+# the present atomic data. Will replace with the error above when I have
+# complete atomic data.
             logger.warn('Zeta_data missing - replaced with 1s')
             updated_index = []
             for atom in selected_atoms:
@@ -170,6 +226,6 @@ class ZetaData(BaseAtomicDataProperty):
             updated_dataframe.fillna(1.0, inplace=True)
             return updated_dataframe
 
-    def _set_index(self, zeta_data, atomic_data):
+    def _set_index(self, zeta_data):
         return zeta_data.set_index(['atomic_number', 'ion_number'])
 
