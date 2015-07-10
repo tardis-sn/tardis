@@ -86,7 +86,7 @@ class Lines(BaseAtomicDataProperty):
             reindexed = lines.reindex(lines.index)
         except:
             reindexed = lines.reindex(lines.index)
-        return reindexed.dropna(subset=['atomic_number'])
+        return reindexed
 
 
 class LinesLowerLevelIndex(ProcessingPlasmaProperty):
