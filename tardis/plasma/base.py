@@ -58,7 +58,6 @@ class BasePlasma(object):
         """
 
         self.graph = nx.DiGraph()
-
         ## Adding all nodes
         self.graph.add_nodes_from([(plasma_property.name, {})
                                    for plasma_property
@@ -79,8 +78,12 @@ class BasePlasma(object):
                                               '{1} which has not been added'
                                               ' to this plasma'.format(
                         plasma_property.name, input))
+                try:
+                    label = self.outputs_dict[input].latex_name
+                except:
+                    label = input.replace('_', '-')
                 self.graph.add_edge(self.outputs_dict[input].name,
-                plasma_property.name, label=input)
+                    plasma_property.name, label = label)
 
     def _init_properties(self, plasma_properties, **kwargs):
         """
@@ -169,7 +172,7 @@ class BasePlasma(object):
         return descendants_ob
 
     def write_to_dot(self, fname, latex_label=True):
-        self._update_module_type_str()
+#        self._update_module_type_str()
 
         try:
             import pygraphviz
@@ -178,9 +181,7 @@ class BasePlasma(object):
                               '\'write_to_dot\'')
 
         for node in self.graph:
-            self.graph.node[node]['label'] = self.module_dict[node].get_latex_label()
-            self.graph.node[node]['color'] = 'red'
-            self.graph.node[node]['shape'] = 'box '
+            self.graph.node[str(node)]['label'] = node
 
         nx.write_dot(self.graph, fname)
 
