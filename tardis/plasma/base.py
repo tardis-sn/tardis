@@ -4,6 +4,7 @@ import networkx as nx
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 
 import tempfile
+import fileinput
 
 
 logger = logging.getLogger(__name__)
@@ -18,6 +19,8 @@ class BasePlasma(object):
                                                        **kwargs)
         
         self._build_graph()
+        self.write_to_tex('test')
+        debug
         self.update(**kwargs)
 
     def __getattr__(self, item):
@@ -199,7 +202,12 @@ class BasePlasma(object):
 
         open(fname, 'w').write(dot2tex.dot2tex(dot_string, texmode='raw'))
 
+        for line in fileinput.input(fname, inplace = 1):
+            print line.replace('\documentclass{article}',
+                '\documentclass[class=minimal,border=20pt]{standalone}'),
 
+        for line in fileinput.input(fname, inplace = 1):
+            print line.replace('\enlargethispage{100cm}', ''),
 
 class StandardPlasma(BasePlasma):
 
