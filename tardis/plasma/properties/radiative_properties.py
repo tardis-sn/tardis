@@ -10,10 +10,13 @@ from tardis import macro_atom
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-    'TransitionProbabilities']
+           'TransitionProbabilities']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
-
+    """
+    Outputs:
+        stimulated_emission_factor : Numpy Array [len(lines), len(t_rad)]
+    """
     outputs = ('stimulated_emission_factor',)
 
     def __init__(self, plasma_parent):
@@ -28,7 +31,6 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             self._g_lower = g_lower[np.newaxis].T
         return self._g_lower
 
-
     def get_g_upper(self, levels, lines_upper_level_index):
         if self._g_upper is None:
             g_upper = np.array(levels.g.ix[lines_upper_level_index],
@@ -38,49 +40,31 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
 
     def calculate(self, levels, level_number_density, lines_lower_level_index,
         lines_upper_level_index):
-
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise').copy('F')
         n_upper = level_number_density.values.take(lines_upper_level_index,
             axis=0, mode='raise').copy('F')
-
         meta_stable_upper = levels.metastable.values.take(
             lines_upper_level_index, axis=0, mode='raise')[np.newaxis].T
-
         g_lower = self.get_g_lower(levels, lines_lower_level_index)
         g_upper = self.get_g_upper(levels, lines_upper_level_index)
-
-        stimulated_emission_factor = 1 - ((g_lower * n_upper) / (g_upper * n_lower))
-
+        stimulated_emission_factor = 1 - ((g_lower * n_upper) /
+            (g_upper * n_lower))
         stimulated_emission_factor[n_lower == 0.0] = 0.0
-        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)] = 0.0
+        stimulated_emission_factor[np.isneginf(stimulated_emission_factor)]\
+            = 0.0
         stimulated_emission_factor[meta_stable_upper &
                                    (stimulated_emission_factor < 0)] = 0.0
-
         return stimulated_emission_factor
-
 
 class TauSobolev(ProcessingPlasmaProperty):
     """
-    This function calculates the Sobolev optical depth :math:`\\tau_\\textrm{Sobolev}`
-
-    .. math::
-        C_\\textrm{Sobolev} = \\frac{\\pi e^2}{m_e c}
-
-        \\tau_\\textrm{Sobolev} = C_\\textrm{Sobolev}\,  \\lambda\\, f_{\\textrm{lower}\\rightarrow\\textrm{upper}}\\,
-            t_\\textrm{explosion}\, N_\\textrm{lower}
-
-
-
-    .. note::
-        Currently we're ignoring the term for stimulated emission:
-            :math:`(1 - \\frac{g_\\textrm{lower}}{g_\\textrm{upper}}\\frac{N_\\textrm{upper}}{N_\\textrm{lower}})`
-
-
+    Outputs:
+        tau_sobolev : Pandas DataFrame
+        Sobolev optical depth for each line.
     """
-
     outputs = ('tau_sobolevs',)
-
+    latex_name = r'$\\tau_{\\textrm{sob}}$'
 
     def __init__(self, plasma_parent):
         super(TauSobolev, self).__init__(plasma_parent)
@@ -90,41 +74,45 @@ class TauSobolev(ProcessingPlasmaProperty):
 
     def calculate(self, lines, level_number_density, lines_lower_level_index,
                   time_explosion, stimulated_emission_factor, j_blues):
-
         f_lu = lines.f_lu.values[np.newaxis].T
         wavelength = lines.wavelength_cm.values[np.newaxis].T
-
-        n_lower = level_number_density.values.take(lines_lower_level_index, axis=0, mode='raise').copy('F')
-
+        n_lower = level_number_density.values.take(lines_lower_level_index,
+            axis=0, mode='raise').copy('F')
+#To be added for NLTE.
         #if self.nlte_config is not None and self.nlte_config.species != []:
         #    nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
         #    for species in self.nlte_config.species:
         #        nlte_lines_mask |= (self.atom_data.lines.atomic_number == species[0]) & \
         #                           (self.atom_data.lines.ion_number == species[1])
         #    self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask[np.newaxis].T] = 0.0
-
-
         tau_sobolevs = (self.sobolev_coefficient * f_lu * wavelength *
                         time_explosion * n_lower * stimulated_emission_factor)
-
         return pd.DataFrame(tau_sobolevs, index=lines.index,
             columns=np.array(level_number_density.columns))
 
 class BetaSobolev(ProcessingPlasmaProperty):
+    """
+    Outputs:
+        beta_sobolev : Numpy Array
+    """
     outputs = ('beta_sobolev',)
+    latex_name = r'$\\beta_{\textrm{sob}}$'
 
     def calculate(self, tau_sobolevs):
         if getattr(self, 'beta_sobolev', None) is None:
             beta_sobolev = np.zeros_like(tau_sobolevs.values)
         else:
             beta_sobolev = self.beta_sobolev
-
         macro_atom.calculate_beta_sobolev(
             tau_sobolevs.values.ravel(order='F'),
             beta_sobolev.ravel(order='F'))
         return beta_sobolev
 
 class TransitionProbabilities(ProcessingPlasmaProperty):
+    """
+    Outputs:
+        transition_probabilities : Pandas DataFrame
+    """
     outputs = ('transition_probabilities',)
 
     def calculate(self, atomic_data, beta_sobolev, j_blues,
