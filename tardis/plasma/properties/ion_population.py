@@ -90,12 +90,12 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """
     outputs = ('delta',)
     latex_name = r'$\delta$'
-    latex_formula = r'\chi>\chi_0:\frac{T_{e}}{b_1 W T_{R}}\exp\left ('\
-                    r'\frac{\chi}{kT_{R}} - \frac{\chi}{kT_{e}} \right )'\
-                    r'\chi<\chi_0: 1 - \exp\left ( \frac{h\nu}{kT_R} -'\
-                    r'\frac{h\nu_0}{kT_R} \right ) + \frac{T_e}{b_1 WT_R}'\
-                    r'\exp\left ( \frac{h\nu}{kT_R} -\frac{h\nu_0}{kT_e}'\
-                    r'\right )'
+    latex_formula = (r'\chi>\chi_0:\frac{T_{e}}{b_1 W T_{R}}\exp\left ('
+                    r'\frac{\chi}{kT_{R}} - \frac{\chi}{kT_{e}} \right )'
+                    r'\chi<\chi_0: 1 - \exp\left ( \frac{h\nu}{kT_R} -'
+                    r'\frac{h\nu_0}{kT_R} \right ) + \frac{T_e}{b_1 WT_R}'
+                    r'\exp\left ( \frac{h\nu}{kT_R} -\frac{h\nu_0}{kT_e}'
+                    r'\right )')
 
     def __init__(self, plasma_parent, departure_coefficient=None,
         chi_0_species=(20,2)):
@@ -135,17 +135,20 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 
 class IonNumberDensity(ProcessingPlasmaProperty):
     """
-    Calculate the ionization balance
-
-    .. math::
-        N(X) = N_1 + N_2 + N_3 + \\dots
-        N(X) = (N_2/N_1) \\times N_1 + (N3/N2) \\times (N_2/N_1) \\times N_1 + \\dots
-        N(X) = N_1(1 + N_2/N_1 + (N_3/N_2) \\times (N_2/N_1) + \\dots
-        N(X) = N_1(1+ \\Phi_{i,j}/N_e + \\Phi_{i, j}/N_e \\times \\Phi_{i, j+1}/N_e + \\dots)
-
+    Outputs:
+    ion_number_density: Pandas DataFrame
+    electron_densities: Numpy Array
+        Convergence process to find the correct solution. A trial value for
+        the electron density is initiated in a particular zone. The ion
+        number densities are then calculated using the Saha equation. The
+        electron density is then re-calculated by using the ion number
+        densities to sum over the number of free electrons. If the two values
+        for the electron densities are not similar to within the threshold
+        value, a new guess for the value of the electron density is chosen
+        and the process is repeated.
     """
     outputs = ('ion_number_density', 'electron_densities')
-    latex_name = (r'$N_{i,j}$', r'$n_e$')
+    latex_name = r'$N_{i,j}$, $n_e$'
     latex_formula = (r'$N(X) = N_1 + N_2 + N_3 + \dots \\ '
                      r'N(X) = (N_2/N_1) \times N_1 + (N3/N2) '
                      r'\times (N_2/N_1) \times N_1 + \dots \\'
