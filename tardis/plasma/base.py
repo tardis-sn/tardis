@@ -18,9 +18,7 @@ class BasePlasma(object):
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        **kwargs)
         
-        self._build_graph()
-        self.write_to_tex('test')
-        debug
+        self._build_graph()s
         self.update(**kwargs)
 
     def __getattr__(self, item):
