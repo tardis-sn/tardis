@@ -1,6 +1,6 @@
 import numpy as np
 
-def test_level_population(level_population_fraction):
+def test_level_population_fraction(level_population_fraction):
     assert np.allclose(level_population_fraction.ix[2].ix[0].ix[0], 1.0)
     assert np.allclose(level_population_fraction.ix[2].ix[0].sum(), 1.0)
 

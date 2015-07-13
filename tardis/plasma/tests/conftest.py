@@ -185,6 +185,15 @@ def electron_densities(phi_saha_lte, partition_function, number_density):
                                           number_density)
     return electron_densities
 
+@pytest.fixture
+def delta(w, ionization_data, beta_rad, t_electron, t_rad, beta_electron,
+          levels):
+    delta_input = None
+    delta_module = RadiationFieldCorrection(None)
+    delta_module.chi_0_species = (2, 2)
+    return delta_module.calculate(w, ionization_data, beta_rad, t_electron,
+                                  t_rad, beta_electron, levels, delta_input)
+
 # LEVEL POPULATION PROPERTIES
 
 @pytest.fixture
@@ -221,15 +230,6 @@ def tau_sobolev(lines, level_number_density, lines_lower_level_index,
                                         time_explosion,
                                         stimulated_emission_factor,
                                         j_blues)
-
-@pytest.fixture
-def delta(w, ionization_data, beta_rad, t_electron, t_rad, beta_electron,
-          levels):
-    delta_input = None
-    delta_module = RadiationFieldCorrection(None)
-    delta_module.chi_0_species = (2, 2)
-    return delta_module.calculate(w, ionization_data, beta_rad, t_electron,
-                                  t_rad, beta_electron, levels, delta_input)
 
 @pytest.fixture
 def beta_sobolev(tau_sobolev):

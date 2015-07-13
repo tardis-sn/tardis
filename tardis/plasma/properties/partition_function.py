@@ -12,22 +12,17 @@ __all__ = ['LevelBoltzmannFactorLTE', 'LevelBoltzmannFactorDiluteLTE',
 
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     """
-    Calculate the level population Boltzmann factor
-
-    .. math:
-        {latex_formula}
-
+    Outputs:
+        level_boltzmann_factor : Pandas DataFrame
     """
-
     outputs = ('level_boltzmann_factor',)
+    latex_name = r'$bf_{i,j,k}$'
     latex_formula = r'$g_{i, j, k} e^{E_{i, j, k} \times \beta_\textrm{rad}}$'
 
-    @staticmethod
-    def calculate(levels, beta_rad):
+    def calculate(self, levels, beta_rad):
         exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
         level_boltzmann_factor_array = (levels.g.values[np.newaxis].T *
                                         exponential)
-
         level_boltzmann_factor = pd.DataFrame(level_boltzmann_factor_array,
                                               index=levels.index,
                                               columns=np.arange(len(beta_rad)),
@@ -35,15 +30,17 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
         return level_boltzmann_factor
 
 class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
-
+    """
+    Outputs:
+        level_boltzmann_factor : Pandas DataFrame
+    """
     outputs = ('level_boltzmann_factor',)
+    latex_name = r'$bf_{i,j,k}$'
 
-    @staticmethod
-    def calculate(levels, beta_rad, w):
+    def calculate(self, levels, beta_rad, w):
         exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
         level_boltzmann_factor_array = (levels.g.values[np.newaxis].T *
                                         exponential)
-
         level_boltzmann_factor = pd.DataFrame(level_boltzmann_factor_array,
                                               index=levels.index,
                                               columns=np.arange(len(beta_rad)),
@@ -52,13 +49,15 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
         return level_boltzmann_factor
 
 class PartitionFunction(ProcessingPlasmaProperty):
+    """
+    Outputs:
+        partition_function : Pandas DataFrame
+    """
     outputs = ('partition_function',)
-    latex_outputs = '$Z_{i, j}$'
-
+    latex_name = '$Z_{i, j}$'
     latex_formula = (r'$Z_{i, j} = \sum_{k=1}^n g_{i, j, k} '
                      r'e^{E_{i, j, k} \times \beta_\textrm{rad}}$')
 
-    @staticmethod
-    def calculate(levels, level_boltzmann_factor):
+    def calculate(self, levels, level_boltzmann_factor):
         return level_boltzmann_factor.groupby(
             level=['atomic_number', 'ion_number']).sum()
