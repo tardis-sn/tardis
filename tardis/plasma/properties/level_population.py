@@ -12,8 +12,6 @@ class LevelPopulationFraction(ProcessingPlasmaProperty):
     level_population_fraction : Pandas DataFrame
     """
     outputs = ('level_population_fraction',)
-    latexformula = (r'$N_{i, j, k} = \frac{g_{i, j, k} '
-                         r'e^{-\beta_\textrm{rad} E_{i, j, k}}}{Z_{i, j}}$')
 
     def calculate(self, levels, partition_function, level_boltzmann_factor):
         partition_function_broadcast = partition_function.ix[

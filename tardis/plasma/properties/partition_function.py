@@ -16,8 +16,6 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
         level_boltzmann_factor : Pandas DataFrame
     """
     outputs = ('level_boltzmann_factor',)
-    latex_name = r'$bf_{i,j,k}$'
-    latex_formula = r'$g_{i, j, k} e^{E_{i, j, k} \times \beta_\textrm{rad}}$'
 
     def calculate(self, levels, beta_rad):
         exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
@@ -35,7 +33,6 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
         level_boltzmann_factor : Pandas DataFrame
     """
     outputs = ('level_boltzmann_factor',)
-    latex_name = r'$bf_{i,j,k}$'
 
     def calculate(self, levels, beta_rad, w):
         exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
@@ -54,9 +51,6 @@ class PartitionFunction(ProcessingPlasmaProperty):
         partition_function : Pandas DataFrame
     """
     outputs = ('partition_function',)
-    latex_name = '$Z_{i, j}$'
-    latex_formula = (r'$Z_{i, j} = \sum_{k=1}^n g_{i, j, k} '
-                     r'e^{E_{i, j, k} \times \beta_\textrm{rad}}$')
 
     def calculate(self, levels, level_boltzmann_factor):
         return level_boltzmann_factor.groupby(
