@@ -35,7 +35,6 @@ class TRadiative(ArrayInput):
     t_rad : Numpy Array
     """
     outputs = ('t_rad',)
-    latex_name = r'$T_{\\textrm{rad}}$'
 
 class DilutionFactor(ArrayInput):
     """
@@ -45,8 +44,6 @@ class DilutionFactor(ArrayInput):
         to account for the dilution of the radiation field.
     """
     outputs = ('w',)
-    latex_name = r'$W$'
-    latex_formula = r'$\frac{J_{\nu}}{B_{\nu}(T_\textrm{rad})}$'
 
 class AtomicData(StaticInput):
     outputs = ('atomic_data',)
@@ -62,15 +59,12 @@ class RadiationFieldCorrectionInput(StaticInput):
         blanketing in the blue.
     """
     outputs = ('delta_input',)
-    latex_name = r'$\\delta$'
 
 class Density(ArrayInput):
     outputs = ('density',)
-    latex_name = r'$\\rho$'
 
 class TimeExplosion(DynamicInput):
     outputs = ('time_explosion',)
-    latex_name = r'$t_{\\textrm{exp}}$'
 
 class JBlues(DataFrameInput):
     """
@@ -79,8 +73,6 @@ class JBlues(DataFrameInput):
         Mean intensity in the blue wing of each line.
     """
     outputs = ('j_blues',)
-    latex_name = r'$J^{b}_{lu}$'
 
 class LinkTRadTElectron(StaticInput):
     outputs = ('link_t_rad_t_electron',)
-    latex_formula = r'$\\frac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}$'

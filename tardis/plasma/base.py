@@ -19,6 +19,7 @@ class BasePlasma(object):
                                                        **kwargs)
         
         self._build_graph()
+        self.write_to_tex('Plasma_Graph', 'Plasma_Formulae')
         self.update(**kwargs)
 
     def __getattr__(self, item):
@@ -80,7 +81,10 @@ class BasePlasma(object):
                                               ' to this plasma'.format(
                         plasma_property.name, input))
                 try:
-                    label = self.outputs_dict[input].latex_name
+                    position = self.outputs_dict[input].outputs.index(input)
+                    label = self.outputs_dict[input].latex_name[position]
+                    label = '$' + label + '$'
+                    label = label.replace('\\', '\\\\')
                 except:
                     label = input.replace('_', '-')
                 self.graph.add_edge(self.outputs_dict[input].name,
@@ -186,7 +190,7 @@ class BasePlasma(object):
 
         nx.write_dot(self.graph, fname)
 
-    def write_to_tex(self, fname):
+    def write_to_tex(self, fname_graph, fname_formulae):
         try:
             import dot2tex
         except ImportError:
@@ -198,14 +202,33 @@ class BasePlasma(object):
 
         dot_string = open(temp_fname).read()
 
-        open(fname, 'w').write(dot2tex.dot2tex(dot_string, texmode='raw'))
+        open(fname_graph, 'w').write(dot2tex.dot2tex(dot_string,
+            texmode='raw'))
 
-        for line in fileinput.input(fname, inplace = 1):
+        for line in fileinput.input(fname_graph, inplace = 1):
             print line.replace('\documentclass{article}',
                 '\documentclass[class=minimal,border=20pt]{standalone}'),
 
-        for line in fileinput.input(fname, inplace = 1):
+        for line in fileinput.input(fname_graph, inplace = 1):
             print line.replace('\enlargethispage{100cm}', ''),
+
+        formulae = open(fname_formulae, 'w')
+        print>>formulae, '\\documentclass{minimal}', '\n',\
+            '\usepackage{amsmath}', '\n', '\\begin{document}', '\n'
+
+        for key in self.outputs_dict.keys():
+            for output_number in range(len(self.outputs_dict[key].outputs)):
+                try:
+                    label = self.outputs_dict[key].latex_name[output_number]
+                except:
+                    label = key.replace('_', '-')
+                if hasattr(self.outputs_dict[key], 'latex_formula'):
+                    print>>formulae, '$' + label + '$' + '\\['
+                    print>>formulae, self.outputs_dict[key].latex_formula[
+                        output_number]
+                    print>>formulae, '\\]' + '\n'
+        print>>formulae, '\\end{document}'
+        formulae.close()
 
 class StandardPlasma(BasePlasma):
 
