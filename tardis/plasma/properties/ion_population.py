@@ -22,10 +22,6 @@ class PhiGeneral(ProcessingPlasmaProperty):
         properties that generate a property called 'phi'.
     """
     outputs = ('general_phi',)
-    latex_name = r'$\Phi_{i,j}(LTE)$'
-    latex_formula = (r'$\frac{N_{i, j+1} n_e}{N_{i, j}} \\'
-                     r' \Phi_{i, j} = g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} '
-                     r'e^{-\chi_{j\rightarrow j+1}/k_\textrm{B}T}$')
 
     @staticmethod
     def calculate(g_electron, beta_rad, partition_function, ionization_data):
@@ -48,8 +44,6 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         the Saha equation that accounts for dilution of the radiation field.
     """
     outputs = ('phi',)
-    latex_name = r'$\Phi_{i,j}$'
-    latex_formula = r'$\delta W[\zeta+W(1-\zeta)]\Phi_{i,j}_{\textrm{(LTE)}}$'
 
     def calculate(self, general_phi, t_rad, w, zeta_data, t_electron, delta):
         try:
@@ -73,8 +67,6 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
         The ionization equilibrium as calculated using the Saha equation.
     """
     outputs = ('phi',)
-    latex_name = r'$\Phi_{i,j}$'
-    latex_formula = r'$\Phi_{i,j}_{\textrm{(LTE)}}$'
 
     def calculate(self, general_phi):
         return general_phi
@@ -89,13 +81,6 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         (1, 1) should be used.
     """
     outputs = ('delta',)
-    latex_name = r'$\delta$'
-    latex_formula = (r'\chi>\chi_0:\frac{T_{e}}{b_1 W T_{R}}\exp\left ('
-                    r'\frac{\chi}{kT_{R}} - \frac{\chi}{kT_{e}} \right )'
-                    r'\chi<\chi_0: 1 - \exp\left ( \frac{h\nu}{kT_R} -'
-                    r'\frac{h\nu_0}{kT_R} \right ) + \frac{T_e}{b_1 WT_R}'
-                    r'\exp\left ( \frac{h\nu}{kT_R} -\frac{h\nu_0}{kT_e}'
-                    r'\right )')
 
     def __init__(self, plasma_parent, departure_coefficient=None,
         chi_0_species=(20,2)):
@@ -147,16 +132,6 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         value, a new guess for the value of the electron density is chosen
         and the process is repeated.
     """
-    outputs = ('ion_number_density', 'electron_densities')
-    latex_name = r'$N_{i,j}$, $n_e$'
-    latex_formula = (r'$N(X) = N_1 + N_2 + N_3 + \dots \\ '
-                     r'N(X) = (N_2/N_1) \times N_1 + (N3/N2) '
-                     r'\times (N_2/N_1) \times N_1 + \dots \\'
-                     r'N(X) = N_1(1 + N_2/N_1 + (N_3/N_2) \times (N_2/N_1) '
-                     r'+ \dots \\'
-                     r'N(X) = N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
-                     r'\times \Phi_{i, j+1}/N_e + \dots)$')
-
     outputs = ('ion_number_density', 'electron_densities')
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
