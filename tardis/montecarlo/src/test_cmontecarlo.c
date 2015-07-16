@@ -19,7 +19,7 @@ void init_rpacket(void);
 void init_storage_model(void);
 double test_compute_distance2boundary(void);
 double test_compute_distance2line(void);
-double test_compute_distance2electron(void);
+double test_compute_distance2continuum(void);
 double test_rpacket_doppler_factor(void);
 double test_move_packet(void);
 int64_t test_montecarlo_one_packet(void);
@@ -173,10 +173,9 @@ test_compute_distance2line(){
 }
 
 double
-test_compute_distance2electron(){
-	double D_ELECTRON = compute_distance2electron(rp, sm);
-	rpacket_set_d_electron(rp, D_ELECTRON);
-	return D_ELECTRON;
+test_compute_distance2continuum(){
+	compute_distance2continuum(rp, sm);
+	return rp->d_cont;
 }
 
 double
