@@ -27,10 +27,10 @@ def test_compute_distance2line():
 	assert_almost_equal(tests.test_compute_distance2line(), 
 		distance_to_line)
 
-def test_compute_distance2electron():
+def test_compute_distance2continuum():
 	distance_to_electron = 4.359272608766106e+28
-	tests.test_compute_distance2electron.restype = c_double
-	assert_almost_equal(tests.test_compute_distance2electron(), 
+	tests.test_compute_distance2continuum.restype = c_double
+	assert_almost_equal(tests.test_compute_distance2continuum(), 
 		distance_to_electron)
 
 def test_rpacket_doppler_factor():
