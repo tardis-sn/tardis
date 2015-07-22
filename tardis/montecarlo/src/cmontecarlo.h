@@ -127,4 +127,7 @@ void montecarlo_free_free_scatter (rpacket_t * packet, storage_model_t * storage
 
 void montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance);
 
+/* Other new stuff */
+inline void macro_atom_new (rpacket_t * packet, storage_model_t * storage, int activation2level_or_cont);
+
 #endif // TARDIS_CMONTECARLO_H

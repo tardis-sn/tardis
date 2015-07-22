@@ -313,9 +313,9 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
     {
 	  //Set all continuum distances to MISS_DISTANCE in case of an virtual_packet
 	  rpacket_set_d_continuum(packet, MISS_DISTANCE);
-	  rpacket_set_chi_boundfree(packet, 0.0);
-	  rpacket_set_chi_electron(packet, chi_electron);
-      rpacket_set_chi_freefree(packet, 0.0);
+	  rpacket_set_chi_boundfree(packet, 0.0);          // don't think this is needed
+	  rpacket_set_chi_electron(packet, chi_electron);  // don't think this is needed
+	  rpacket_set_chi_freefree(packet, 0.0);           // don't think this is needed
       rpacket_set_chi_continuum(packet, chi_continuum);
 	}
 	else
@@ -361,6 +361,100 @@ macro_atom (rpacket_t * packet, storage_model_t * storage)
     }
   return storage->transition_line_id[i];
 }
+
+#if 0
+INLINE void
+macro_atom_new (rpacket_t * packet, storage_model_t * storage, int activation2level_or_cont)
+{
+  int level_or_cont = activation2level_or_cont;
+  int emit = 0, i = 0, activate_level;
+  double p, event_random;
+
+  switch (activation2level_or_cont)
+    {
+    // Macro-atom is activated to a normal level.
+    case 0:
+      activate_level =
+      storage->line2macro_level_upper[rpacket_get_next_line_id (packet) - 1];
+      break;
+
+     // Macro-atom is activated to a continuum level.
+    case 1:
+      activate_level = storage->cont_edge2macro_continuum[rpacket_get_current_continuum_id(packet)]; // ? -1 as in : rpacket_get_next_line_id (packet) - 1
+      break;
+    }
+
+  /*
+     Do internal jumps until deactivation occurs:
+     - radiatively from a macro-atom level (emit = -1)
+     - radiatively from a continuum level (emit = -3)
+     - collisionally (emit = -2)
+  */
+  while (emit >= 0)
+    {
+      event_random = rk_double (&mt_state);
+      p = 0.0;
+      if (level_or_cont == 0) // Macro-atom is in a normal level.
+        {
+          i = storage->macro_block_references[activate_level] - 1;
+          do
+	        {
+	          p += storage->transition_probabilities[rpacket_get_current_shell_id (packet) *
+				     storage->transition_probabilities_nd +
+				     (++i)];
+	        }
+          while ((p <= event_random));
+          emit = storage->transition_type[i];
+          activate_level = storage->destination_level_id[i];
+          if (emit == 2) // internal jump to higher ionization state
+            {
+              level_or_cont = 1; // set macro-atom to operate in continuum
+              fprintf(stderr, "Internal jumps to higher ionization states are not implemented yet.\n");
+            }
+        }
+      else  // Macro-atom is in a continuum level.
+        {
+          i = storage->macro_block_references_continuum[activate_level] - 1; // - 1 because of i++
+          do
+	        {
+	          p += storage->transition_probabilities_continuum[rpacket_get_current_shell_id (packet) *
+				     storage->transition_probabilities_nd_continuum +
+				     (++i)];
+	        }
+          while ((p <= event_random));
+          emit = storage->transition_type_continuum[i];
+          activate_level = storage->destination_level_id_continuum[i];
+          level_or_cont = 0; // set macro-atom to normal level
+        }
+    }
+  switch (emit)
+    {
+    // radiative deactivation from a level within the macro ion (not a continuum level)
+    case -1:
+      emission_line_id  = storage->transition_line_id[i];
+      storage->last_line_interaction_out_id[rpacket_get_id (packet)] = emission_line_id;
+      rpacket_set_macro_atom_deactivation_type (packet, 0);
+      break;
+
+    // radiative deactivation from a continuum level
+    case -3:
+      // continuum_id of edge corresponding to a continuum transition probability in the macro-atom
+      emission_cont_id = storage -> probabilities2cont_edge[i];
+      rpacket_set_macro_atom_deactivation_type (packet, 1);
+      break;
+
+    // collisional deactivation from level or continuum
+    case -2:
+      rpacket_set_macro_atom_deactivation_type (packet, 2);
+      fprintf(stderr, "Collisional macro-atom deactivations are not implemented yet.\n");
+      break;
+
+    default:
+      fprintf(stderr, "This process for macro-atom deactivation should not exist!\n");
+    }
+}
+
+#endif
 
 INLINE double
 move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
@@ -581,7 +675,10 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
 
   double zrand, zrand_x_chibf, chi_bf, nu;
   // Determine in which continuum the bf-absorption occurs
-  nu = rpacket_get_nu(packet);
+  nu = rpacket_get_nu(packet); // frequency from before moving the packet
+
+  // old_doppler_factor = move_packet (packet, storage, distance);
+
   chi_bf = rpacket_get_chi_boundfree(packet);
   // get new zrand
   zrand = (rk_double(&mt_state));
@@ -655,7 +752,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
   if (rpacket_get_virtual_packet (packet) > 0)
     {
       rpacket_set_tau_event (packet,
-			     rpacket_get_tau_event (packet) + tau_line);
+			     rpacket_get_tau_event (packet) + tau_line); // ? use combined instead of line optical depth
     }
   else if (rpacket_get_tau_event (packet) < tau_combined)
     {
@@ -676,6 +773,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       else if (storage->line_interaction_id >= 1)
 	{
 	  emission_line_id = macro_atom (packet, storage);
+	  // emission_line_id = storage->last_line_interaction_out_id[rpacket_get_id (packet)]; //set in new_macro_atom
 	}
       storage->last_line_interaction_out_id[rpacket_get_id (packet)] =
 	emission_line_id;

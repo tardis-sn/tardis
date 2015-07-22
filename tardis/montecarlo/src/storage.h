@@ -50,6 +50,7 @@ typedef struct StorageModel
   int64_t *transition_type;
   int64_t *destination_level_id;
   int64_t *transition_line_id;
+  //int64_t *cont_edge2macro_continuum; // continuum equivalent to line2macro_level_upper
   double *js;
   double *nubars;
   double spectrum_start_nu;
