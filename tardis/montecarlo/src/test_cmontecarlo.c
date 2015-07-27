@@ -30,6 +30,7 @@ bool test_montecarlo_thomson_scatter(void);
 bool test_macro_atom(void);
 double test_calculate_chi_bf(void);
 bool test_montecarlo_bound_free_scatter(void);
+double test_bf_cross_section(void);
 
 /* initialise RPacket */
 void
@@ -173,10 +174,10 @@ init_storage_model(void){
 	memset(sm->l_pop, 2, sizeof(sm->l_pop));
 
 	sm->l_pop_r = (double *) malloc(sizeof(double )* 20000);
-	memset(sm->l_pop_r, 3, sizeof(sm->l_pop_r));
+	memset(sm->l_pop_r, 3, sizeof(double)*20000);
 
 	sm->continuum_list_nu = (double *) malloc(sizeof(double )* 20000);
-	memset(sm->continuum_list_nu, 100, sizeof(sm->continuum_list_nu));
+	memset(sm->continuum_list_nu, 1e13, sizeof(double)*20000);
 
 	sm->no_of_edges = 100;
 
@@ -274,4 +275,10 @@ test_montecarlo_bound_free_scatter(){
 	montecarlo_bound_free_scatter(rp, sm, DISTANCE);
 	return true;
 	return rpacket_get_status(rp) == 0;
+}
+
+double
+test_bf_cross_section(){
+	double CONV_MU = 0.4;
+	return bf_cross_section(sm, 1, CONV_MU);
 }
