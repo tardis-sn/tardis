@@ -274,7 +274,6 @@ bool
 test_montecarlo_bound_free_scatter(){
 	double DISTANCE = 1e13;
 	montecarlo_bound_free_scatter(rp, sm, DISTANCE);
-	return true;
 	return rpacket_get_status(rp);
 }
 
