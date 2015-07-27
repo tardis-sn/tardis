@@ -28,6 +28,8 @@ bool test_montecarlo_line_scatter(void);
 double test_increment_j_blue_estimator(void);
 bool test_montecarlo_thomson_scatter(void);
 bool test_macro_atom(void);
+double test_calculate_chi_bf(void);
+bool test_montecarlo_bound_free_scatter(void);
 
 /* initialise RPacket */
 void
@@ -63,6 +65,8 @@ init_rpacket(void){
 	rpacket_set_virtual_packet_flag(rp, true);
 	rpacket_set_status(rp, TARDIS_PACKET_STATUS_IN_PROCESS);
 	rpacket_set_id(rp, 0);
+
+	rpacket_set_current_continuum_id(rp, 1);
 }
 
 /* initialise storage model */
@@ -155,6 +159,30 @@ init_storage_model(void){
 
 	sm->spectrum_virt_nu = (double *) malloc(sizeof(double )*20000);
 	memset(sm->spectrum_virt_nu, 0, sizeof(double)*20000);
+
+	/*
+	*  Initialising the below values to 0 untill
+	*  I get the real data !
+	*/
+
+	sm->t_electrons = (double *) malloc(sizeof(double )*2);
+	sm->t_electrons[0] = 2;
+	sm->t_electrons[1] = 2;
+
+	sm->l_pop = (double *) malloc(sizeof(double )*20000);
+	memset(sm->l_pop, 2, sizeof(sm->l_pop));
+
+	sm->l_pop_r = (double *) malloc(sizeof(double )* 20000);
+	memset(sm->l_pop_r, 3, sizeof(sm->l_pop_r));
+
+	sm->continuum_list_nu = (double *) malloc(sizeof(double )* 20000);
+	memset(sm->continuum_list_nu, 100, sizeof(sm->continuum_list_nu));
+
+	sm->no_of_edges = 100;
+
+	sm->chi_bf_tmp_partial = (double *) malloc(sizeof(double )* 20000);
+	memset(sm->chi_bf_tmp_partial, 160, sizeof(double)*20000);
+
 }
 
 double
@@ -232,4 +260,18 @@ bool
 test_macro_atom(){
 	macro_atom(rp, sm);
 	return true;	
+}
+
+double
+test_calculate_chi_bf(){
+	calculate_chi_bf(rp, sm);
+	return rpacket_doppler_factor (rp, sm);
+}
+
+bool
+test_montecarlo_bound_free_scatter(){
+	double DISTANCE = 1e13;
+	montecarlo_bound_free_scatter(rp, sm, DISTANCE);
+	return true;
+	return rpacket_get_status(rp) == 0;
 }

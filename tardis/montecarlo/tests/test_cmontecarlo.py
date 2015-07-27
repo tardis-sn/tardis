@@ -65,3 +65,15 @@ def test_montecarlo_one_packet_loop():
 
 def test_montecarlo_thomson_scatter():
 	assert tests.test_montecarlo_thomson_scatter()
+
+def test_calculate_chi_bf():
+	chi_bf = 1.0006697327643788
+	tests.test_calculate_chi_bf.restype = c_double
+	assert_almost_equal(tests.test_calculate_chi_bf(),
+		chi_bf)
+
+def test_montecarlo_bound_free_scatter():
+	assert tests.test_montecarlo_bound_free_scatter()
+
+def test_bf_cross_section():
+	assert True
