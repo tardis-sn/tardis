@@ -31,6 +31,7 @@ bool test_macro_atom(void);
 double test_calculate_chi_bf(void);
 bool test_montecarlo_bound_free_scatter(void);
 double test_bf_cross_section(void);
+int64_t test_montecarlo_free_free_scatter(void);
 
 /* initialise RPacket */
 void
@@ -274,11 +275,18 @@ test_montecarlo_bound_free_scatter(){
 	double DISTANCE = 1e13;
 	montecarlo_bound_free_scatter(rp, sm, DISTANCE);
 	return true;
-	return rpacket_get_status(rp) == 0;
+	return rpacket_get_status(rp);
 }
 
 double
 test_bf_cross_section(){
 	double CONV_MU = 0.4;
 	return bf_cross_section(sm, 1, CONV_MU);
+}
+
+int64_t
+test_montecarlo_free_free_scatter(){
+	double DISTANCE = 1e13;
+	montecarlo_free_free_scatter(rp, sm, DISTANCE);
+	return rpacket_get_status(rp);
 }
