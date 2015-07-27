@@ -76,4 +76,7 @@ def test_montecarlo_bound_free_scatter():
 	assert tests.test_montecarlo_bound_free_scatter()
 
 def test_bf_cross_section():
-	assert True
+	bf_cross_section = -1
+	tests.test_bf_cross_section.restype = c_double
+	assert_almost_equal(tests.test_bf_cross_section(),
+		bf_cross_section)
