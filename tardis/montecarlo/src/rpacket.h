@@ -74,6 +74,7 @@ typedef struct RPacket
   double chi_bf; /**< Opacity due to bound-free processes */
 } rpacket_t;
 
+
 inline double rpacket_get_nu (rpacket_t * packet);
 
 inline void rpacket_set_nu (rpacket_t * packet, double nu);
