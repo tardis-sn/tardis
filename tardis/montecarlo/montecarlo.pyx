@@ -56,7 +56,14 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *transition_type
         int_type_t *destination_level_id
         int_type_t *transition_line_id
-        #int_type_t *cont_edge2macro_continuum # continuum equivalent to line2macro_level_upper
+        double *transition_probabilities_continuum
+        int_type_t transition_probabilities_nd_continuum
+        int_type_t *cont_edge2macro_continuum  # continuum equivalent to line2macro_level_upper
+        int_type_t *macro_block_references_continuum
+        int_type_t *transition_type_continuum
+        int_type_t *destination_level_id_continuum
+        int_type_t *transition_continuum_id  # connects index i in transition_probabilities_nd_continuum to continuum_id
+        # of emission
         double *js
         double *nubars
         double spectrum_virt_start_nu
@@ -132,47 +139,68 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
     cdef np.ndarray[double, ndim=1] inverse_electron_densities = 1.0 / electron_densities
     storage.inverse_electron_densities = <double*> inverse_electron_densities.data
     # Switch for continuum processes
-    storage.cont_status = CONTINUUM_ON
+    storage.cont_status = CONTINUUM_OFF
     # Continuum data
     cdef np.ndarray[double, ndim=1] continuum_list_nu
     cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
     cdef np.ndarray[double, ndim=1] l_pop
     cdef np.ndarray[double, ndim=1] l_pop_r
-    #cdef np.ndarray[int_type_t, ndim=1] cont_edge2macro_continuum
-    if storage.cont_status == CONTINUUM_OFF:
-        try:
-            I_H = 13.5984 * units.eV.to(units.erg)
-            I_HeI = 24.5874 * units.eV.to(units.erg)
-            I_HeII = 54.417760 * units.eV.to(units.erg)
+    cdef np.ndarray[double, ndim=1] transition_probabilities_continuum
+    cdef np.ndarray[int_type_t, ndim=1] cont_edge2macro_continuum
+    cdef np.ndarray[int_type_t, ndim=1] macro_block_references_continuum
+    cdef np.ndarray[int_type_t, ndim=1] transition_type_continuum
+    cdef np.ndarray[int_type_t, ndim=1] destination_level_id_continuum
+    cdef np.ndarray[int_type_t, ndim=1] transition_continuum_id
+    if storage.cont_status == CONTINUUM_ON:
+        I_H = 13.5984 * units.eV.to(units.erg)
+        #I_HeI = 24.5874 * units.eV.to(units.erg)
+        #I_HeII = 54.417760 * units.eV.to(units.erg)
+        energy_list_nu_H = I_H - model.atom_data.levels.ix[(1, 0)].energy.values
+        cont_list_nu_H = (units.erg).to(units.Hz, equivalencies=units.spectral()) * energy_list_nu_H
+        continuum_list_nu = cont_list_nu_H
+        #print continuum_list_nu , type(continuum_list_nu)
+        #time.sleep(20)
+        #cont_list_nu_HeI = I_HeI - model.atom_data.levels.ix[(2, 0)].energy.values
+        #cont_list_nu_HeII = I_HeII - model.atom_data.levels.ix[(2, 1)].energy.values
+        #continuum_list_nu = np.concatenate((cont_list_nu_H, cont_list_nu_HeI, cont_list_nu_HeII))
+        #sorting_order = np.argsort(continuum_list_nu)[::-1]
+        #continuum_list_nu = continuum_list_nu[sorting_order]
+        #l_pop = np.zeros(0)
+        #for i in range(0, storage.no_of_shells):
+        #    l_pop_H = model.plasma_array.level_populations[0].ix[(1, 0)].values
+        #    l_pop_HeI = model.plasma_array.level_populations[0].ix[(2, 0)].values
+        #    l_pop_HeII = model.plasma_array.level_populations[0].ix[(2, 1)].values
+        #    l_pop_shell = np.concatenate((l_pop_H, l_pop_HeI, l_pop_HeII))
+        #    l_pop_shell = l_pop_shell[sorting_order]
+        #    l_pop = np.append(l_pop, l_pop_shell)
+        # Prepare continuum data for macro_atom_new
+        edge2cont_HI = np.zeros(len(cont_list_nu_H), dtype=np.int64)
+        cont_edge2macro_continuum = edge2cont_HI
+        macro_block_references_continuum = np.zeros(1, dtype=np.int64)
+        transition_probabilities_HI_cont = np.ones(2 * len(cont_list_nu_H) * storage.no_of_shells, dtype=np.float64)
+        transition_probabilities_continuum = transition_probabilities_HI_cont
+        #
+        transition_type_continuum = np.ones(2 * len(cont_list_nu_H), dtype=np.int64) * (-3)
+        destination_level_id_continuum = np.ones(2 * len(cont_list_nu_H), dtype=np.int64) * 15
+        transition_continuum_id = np.ones(2 * len(cont_list_nu_H), dtype=np.int64) * 10  # not needed atm
 
-            cont_list_nu_H = I_H - model.atom_data.levels.ix[(1, 0)].energy.values
-            cont_list_nu_HeI = I_HeI - model.atom_data.levels.ix[(2, 0)].energy.values
-            cont_list_nu_HeII = I_HeII - model.atom_data.levels.ix[(2, 1)].energy.values
+        #edge2cont_HeI = np.ones(len(cont_list_nu_HeI), dtype = np.int64)
+        #edge2cont_HeII = np.ones(len(cont_list_nu_HeII), dtype = np.int64) * 2
+        #cont_edge2macro_continuum = np.concatenate((edge2cont_HI, edge2cont_HeI, edge2cont_HeII))
+        #cont_edge2macro_continuum = cont_edge2macro_continuum[sorting_order]
 
-            continuum_list_nu = np.concatenate((cont_list_nu_H, cont_list_nu_HeI, cont_list_nu_HeII))
-            sorting_order = np.argsort(continuum_list_nu)[::-1]
-            continuum_list_nu = continuum_list_nu[sorting_order]
+        storage.transition_probabilities_continuum = <double*> transition_probabilities_continuum.data
+        storage.transition_probabilities_nd_continuum = 2 * len(cont_list_nu_H)
+        storage.cont_edge2macro_continuum = <int_type_t*> cont_edge2macro_continuum.data
+        storage.macro_block_references_continuum = <int_type_t*> macro_block_references_continuum.data
+        storage.transition_type_continuum = <int_type_t*> transition_type_continuum.data
+        storage.destination_level_id_continuum = <int_type_t*> destination_level_id_continuum.data
+        storage.transition_continuum_id = <int_type_t*> transition_continuum_id.data
+        #continuum_list_nu = np.array(
+        #    [9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # sorted list of threshold frequencies
+        #l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
 
-            l_pop = np.zeros(0)
-            for i in range(0, storage.no_of_shells):
-                l_pop_H = model.plasma_array.level_populations[0].ix[(1, 0)].values
-                l_pop_HeI = model.plasma_array.level_populations[0].ix[(2, 0)].values
-                l_pop_HeII = model.plasma_array.level_populations[0].ix[(2, 1)].values
-                l_pop_shell = np.concatenate((l_pop_H, l_pop_HeI, l_pop_HeII))
-                l_pop_shell = l_pop_shell[sorting_order]
-                l_pop = np.append(l_pop, l_pop_shell)
-
-                # Prepare continuum data for macro_atom_new
-                #edge2cont_HI = np.zeros(len(cont_list_nu_H), dtype = np.int64)
-                #edge2cont_HeI = np.ones(len(cont_list_nu_HeI), dtype = np.int64)
-                #edge2cont_HeII = np.ones(len(cont_list_nu_HeII), dtype = np.int64) * 2
-                #cont_edge2macro_continuum = np.concatenate((edge2cont_HI, edge2cont_HeI, edge2cont_HeII))
-                #cont_edge2macro_continuum = cont_edge2macro_continuum[sorting_order]
-
-        except:
-            continuum_list_nu = np.array(
-                [9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # sorted list of threshold frequencies
-            l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
+        l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
 
         storage.continuum_list_nu = <double*> continuum_list_nu.data
         storage.no_of_edges = continuum_list_nu.size
