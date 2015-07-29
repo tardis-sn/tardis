@@ -33,7 +33,7 @@ class GElectron(ProcessingPlasmaProperty):
     """
     outputs = ('g_electron',)
     latex_name = ('g_{\\textrm{electron}}',)
-    latex_formula = ('\\left(\\frac{2\\pi m_{e}\
+    latex_formula = ('\\left(\\frac{2\\pi m_{e}/\
                      \\beta_{\\textrm{rad}}}{h^2}\\right)^{3/2}',)
 
     def calculate(self, beta_rad):
