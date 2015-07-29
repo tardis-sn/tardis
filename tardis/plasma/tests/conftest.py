@@ -15,8 +15,7 @@ from tardis.plasma.properties.partition_function import (
     LevelBoltzmannFactorLTE, PartitionFunction, LevelBoltzmannFactorDiluteLTE)
 from tardis.plasma.properties.atomic import (Levels, Lines, AtomicMass,
     IonizationData, LinesUpperLevelIndex, LinesLowerLevelIndex, ZetaData)
-from tardis.plasma.properties.level_population import (LevelPopulationFraction,
-    LevelNumberDensity)
+from tardis.plasma.properties.level_population import LevelNumberDensity
 from tardis.plasma.properties.radiative_properties import (TauSobolev,
     StimulatedEmissionFactor, BetaSobolev, TransitionProbabilities)
 
@@ -197,18 +196,11 @@ def delta(w, ionization_data, beta_rad, t_electron, t_rad, beta_electron,
 # LEVEL POPULATION PROPERTIES
 
 @pytest.fixture
-def level_population_fraction(levels, partition_function,
-                              level_boltzmann_factor_lte):
-    level_population_fraction_module = LevelPopulationFraction(None)
-    return level_population_fraction_module.calculate(levels,
-                                                      partition_function,
-                                                      level_boltzmann_factor_lte)
-
-@pytest.fixture
-def level_number_density(level_population_fraction, ion_number_density):
+def level_number_density(level_boltzmann_factor_lte, ion_number_density,
+    levels, partition_function):
     level_number_density_module = LevelNumberDensity(None)
-    return level_number_density_module.calculate(level_population_fraction,
-                                                 ion_number_density)
+    return level_number_density_module.calculate(level_boltzmann_factor_lte,
+        ion_number_density, levels, partition_function)
 
 # RADIATIVE PROPERTIES
 
