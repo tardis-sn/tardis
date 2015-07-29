@@ -29,13 +29,18 @@ typedef enum
 
 typedef enum
 {
+  FREE_FREE_OFF = 0,
+  FREE_FREE_ON = 1,
+} FreeFreeStatus;
+
+typedef enum
+{
   BB_EMISSION = -1,
   BF_EMISSION = -2,
   FF_EMISSION = -3,
   COLL_EXCITATION = 0,
   COLL_IONIZATION = 1,
   KPACKET_CREATION = 2
-  //COLL_DEEX_OR_RECOMB = 2;
 } next_interaction2process;
 
 typedef enum
