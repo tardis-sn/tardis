@@ -24,6 +24,8 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     level_number_density : Pandas DataFrame
     """
     outputs = ('level_number_density',)
+    latex_name = ('N_{i,j,k}',)
+    latex_formula = ('N_{i,j}\\frac{bf_{i,j,k}}{Z_{i,j}}',)
 
     def calculate(self, level_population_fraction, ion_number_density):
         ion_number_density_broadcast = ion_number_density.ix[

@@ -215,18 +215,17 @@ class BasePlasma(object):
         formulae = open(fname_formulae, 'w')
         print>>formulae, '\\documentclass{minimal}', '\n',\
             '\usepackage{amsmath}', '\n', '\\begin{document}', '\n'
-
         for key in self.outputs_dict.keys():
-            for output_number in range(len(self.outputs_dict[key].outputs)):
-                try:
-                    label = self.outputs_dict[key].latex_name[output_number]
-                except:
-                    label = key.replace('_', '-')
-                if hasattr(self.outputs_dict[key], 'latex_formula'):
-                    print>>formulae, '$' + label + '$' + '\\['
-                    print>>formulae, self.outputs_dict[key].latex_formula[
-                        output_number]
-                    print>>formulae, '\\]' + '\n'
+            output_number = self.outputs_dict[key].outputs.index(key)
+            try:
+                label = self.outputs_dict[key].latex_name[output_number]
+            except:
+                label = key.replace('_', '-')
+            if hasattr(self.outputs_dict[key], 'latex_formula'):
+                print>>formulae, '$' + label + '$' + '\\['
+                print>>formulae, self.outputs_dict[key].latex_formula[
+                    output_number]
+                print>>formulae, '\\]' + '\n'
         print>>formulae, '\\end{document}'
         formulae.close()
 

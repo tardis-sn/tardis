@@ -38,9 +38,9 @@ class BasePlasmaProperty(object):
         outputs = self.outputs.replace('_', r'\_')
         latex_name = getattr(self, 'latex_name', '')
         if latex_name != '':
-            complete_name = '{0} [{1}]'.format(name, self.latex_name)
+            complete_name = '{0} [{1}]'.format(latex_name, self.latex_name)
         else:
-            complete_name = name
+            complete_name = latex_name
 
 
         latex_label = latex_template.format(name=complete_name,
