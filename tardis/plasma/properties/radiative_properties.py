@@ -64,6 +64,7 @@ class TauSobolev(ProcessingPlasmaProperty):
         Sobolev optical depth for each line.
     """
     outputs = ('tau_sobolevs',)
+    latex_name = ('\\tau_{\\textrm{sobolev}}',)
 
     def __init__(self, plasma_parent):
         super(TauSobolev, self).__init__(plasma_parent)
@@ -95,6 +96,7 @@ class BetaSobolev(ProcessingPlasmaProperty):
         beta_sobolev : Numpy Array
     """
     outputs = ('beta_sobolev',)
+    latex_name = ('\\beta_{\\textrm{sobolev}}',)
 
     def calculate(self, tau_sobolevs):
         if getattr(self, 'beta_sobolev', None) is None:
