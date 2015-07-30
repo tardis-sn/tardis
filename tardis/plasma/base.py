@@ -119,6 +119,12 @@ class BasePlasma(object):
                 plasma_property_objects.append(current_property_object)
         return plasma_property_objects
 
+    def store_previous_properties(self):
+        self.outputs_dict['previous_electron_densities'].set_value(
+            self.get_value('electron_densities'))
+        self.outputs_dict['previous_beta_sobolevs'].set_value(
+            self.get_value('beta_sobolev'))
+
     def update(self, **kwargs):
         for key in kwargs:
             if key not in self.outputs_dict:
