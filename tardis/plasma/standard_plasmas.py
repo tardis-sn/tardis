@@ -7,8 +7,7 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
-    nlte_coronal_properties, nlte_general_properties,
-    nlte_classical_nebular_properties)
+    nlte_properties)
 
 logger = logging.getLogger(__name__)
 
@@ -76,12 +75,7 @@ class LegacyPlasmaArray(BasePlasma):
                 ' not implemented yet.')
 
         if nlte_config.species:
-            if nlte_config.coronal_approximation == True:
-                plasma_modules += nlte_coronal_properties
-            elif nlte_config.classical_nebular == True:
-                plasma_modules += nlte_classical_nebular_properties
-            else:
-                plasma_modules += nlte_general_properties
+            plasma_modules += nlte_properties
         else:
             plasma_modules += non_nlte_properties
 
@@ -99,6 +93,8 @@ class LegacyPlasmaArray(BasePlasma):
         initial_beta_sobolevs = np.ones((len(atomic_data.lines),
             len(number_densities.columns)))
         initial_electron_densities = number_densities.sum(axis=0)
+
+        self.nlte_config = nlte_config
 
         super(LegacyPlasmaArray, self).__init__(plasma_properties=plasma_modules,
             t_rad=t_rad, abundance=abundance, density=density,

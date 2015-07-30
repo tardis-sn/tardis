@@ -8,17 +8,14 @@ from tardis.plasma.properties.base import ProcessingPlasmaProperty
 logger = logging.getLogger(__name__)
 
 __all__ = ['LevelBoltzmannFactorLTE', 'LevelBoltzmannFactorDiluteLTE',
-           'LevelBoltzmannFactorNoNLTE', 'LevelBoltzmannFactorNLTECoronal',
-           'LevelBoltzmannFactorNLTEClassicalNebular',
-           'LevelBoltzmannFactorNLTEGeneral', 'PartitionFunction']
+           'LevelBoltzmannFactorNoNLTE', 'LevelBoltzmannFactorNLTE',
+           'PartitionFunction']
 
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     """
     Calculate the level population Boltzmann factor
-
     .. math:
         {latex_formula}
-
     """
 
     outputs = ('general_level_boltzmann_factor',)
@@ -60,7 +57,7 @@ class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
     @staticmethod
     def calculate(general_level_boltzmann_factor):
         return general_level_boltzmann_factor
-
+'''
 class LevelBoltzmannFactorNLTECoronal(ProcessingPlasmaProperty):
 
     outputs = ('level_boltzmann_factor',)
@@ -71,7 +68,6 @@ class LevelBoltzmannFactorNLTECoronal(ProcessingPlasmaProperty):
             previous_electron_densities):
         """
         Calculating the NLTE level populations for specific ions
-
         """
 
         beta_sobolevs = np.ones((len(lines), len(t_electron)))
@@ -142,7 +138,6 @@ class LevelBoltzmannFactorNLTEClassicalNebular(ProcessingPlasmaProperty):
             previous_beta_sobolevs, lte_j_blues, previous_electron_densities):
         """
         Calculating the NLTE level populations for specific ions
-
         """
         beta_sobolevs = np.ones((len(lines), len(t_electron)))
 
@@ -209,17 +204,36 @@ class LevelBoltzmannFactorNLTEClassicalNebular(ProcessingPlasmaProperty):
                 general_level_boltzmann_factor[i].ix[species] = \
                     level_boltzmann_factor
         return general_level_boltzmann_factor
-
-class LevelBoltzmannFactorNLTEGeneral(ProcessingPlasmaProperty):
+'''
+class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     outputs = ('level_boltzmann_factor',)
 
+    def __init__(self, plasma_parent, classical_nebular=False,
+        coronal_approximation=False):
+        super(LevelBoltzmannFactorNLTE, self).__init__(plasma_parent)
+        if classical_nebular == True:
+            self.calculate = self._calculate_classical_nebular
+        elif coronal_approximation == True:
+            self.calculate = self._calculate_coronal_approximation
+        else:
+            self.calculate = self._calculate_general
+        self._update_inputs()
+
+    def _calculate_classical_nebular(self, general_level_boltzmann_factor):
+        return general_level_boltzmann_factor
+    def _calculate_coronal_approximation(self, general_level_boltzmann_factor):
+        return general_level_boltzmann_factor
+    def _calculate_general(self, general_level_boltzmann_factor):
+        return general_level_boltzmann_factor
+    def _main_nlte_calculation(self):
+        pass
+'''
     @staticmethod
     def calculate(t_electron, lines, atomic_data, nlte_data,
             general_level_boltzmann_factor, nlte_species, j_blues,
             previous_beta_sobolevs, lte_j_blues, previous_electron_densities):
         """
         Calculating the NLTE level populations for specific ions
-
         """
         if previous_beta_sobolevs is None:
             beta_sobolevs = np.ones((len(lines), len(t_electron)))
@@ -289,7 +303,7 @@ class LevelBoltzmannFactorNLTEGeneral(ProcessingPlasmaProperty):
                 general_level_boltzmann_factor[i].ix[species] = \
                     level_boltzmann_factor
         return general_level_boltzmann_factor
-
+'''
 class PartitionFunction(ProcessingPlasmaProperty):
     outputs = ('partition_function',)
     latex_outputs = '$Z_{i, j}$'

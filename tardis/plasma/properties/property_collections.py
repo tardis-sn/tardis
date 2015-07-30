@@ -8,9 +8,8 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactorLTE,
     PhiGeneral, PhiSahaNebular, LevelBoltzmannFactorDiluteLTE, DilutionFactor,
     ZetaData, ElectronTemperature, LinkTRadTElectron, BetaElectron,
     RadiationFieldCorrection, RadiationFieldCorrectionInput,
-    LevelBoltzmannFactorNoNLTE, LevelBoltzmannFactorNLTECoronal, NLTEData,
+    LevelBoltzmannFactorNoNLTE, LevelBoltzmannFactorNLTE, NLTEData,
     NLTESpecies, PreviousBetaSobolevs, LTEJBlues,
-    LevelBoltzmannFactorNLTEGeneral, LevelBoltzmannFactorNLTEClassicalNebular,
     PreviousElectronDensities)
 
 class PlasmaPropertyCollection(list):
@@ -34,10 +33,5 @@ nebular_ionization_properties = PlasmaPropertyCollection([PhiSahaNebular,
 dilute_lte_excitation_properties = PlasmaPropertyCollection([
     LevelBoltzmannFactorDiluteLTE])
 non_nlte_properties = PlasmaPropertyCollection([LevelBoltzmannFactorNoNLTE])
-nlte_coronal_properties = PlasmaPropertyCollection([
-    LevelBoltzmannFactorNLTECoronal, NLTEData, NLTESpecies])
-nlte_classical_nebular_properties = PlasmaPropertyCollection([
-    LevelBoltzmannFactorNLTEClassicalNebular, NLTEData, NLTESpecies,
-    LTEJBlues])
-nlte_general_properties = PlasmaPropertyCollection([
-    LevelBoltzmannFactorNLTEGeneral, NLTEData, NLTESpecies, LTEJBlues])
+nlte_properties = PlasmaPropertyCollection([
+    LevelBoltzmannFactorNLTE, NLTEData, NLTESpecies, LTEJBlues])
