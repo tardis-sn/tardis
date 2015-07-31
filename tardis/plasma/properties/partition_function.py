@@ -4,6 +4,7 @@ import numpy as np
 import pandas as pd
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.plasma.exceptions import PlasmaConfigContradiction
 
 logger = logging.getLogger(__name__)
 
@@ -67,10 +68,12 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def __init__(self, plasma_parent, classical_nebular=False,
         coronal_approximation=False):
         super(LevelBoltzmannFactorNLTE, self).__init__(plasma_parent)
-        if classical_nebular == True:
+        if classical_nebular == True and coronal_approximation == False:
             self.calculate = self._calculate_classical_nebular
-        elif coronal_approximation == True:
+        elif coronal_approximation == True and classical_nebular == False:
             self.calculate = self._calculate_coronal_approximation
+        elif coronal_approximation == True and classical_nebular == True:
+            raise PlasmaConfigContradiction
         else:
             self.calculate = self._calculate_general
         self._update_inputs()
