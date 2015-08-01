@@ -4,9 +4,7 @@ from tardis.plasma.properties.base import BasePlasmaProperty
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
            'TimeExplosion', 'JBlues', 'LinkTRadTElectron',
-           'RadiationFieldCorrectionInput', 'NLTESpecies',
-           'PreviousIterationBetaSobolevs',
-           'PreviousIterationElectronDensities']
+           'RadiationFieldCorrectionInput', 'NLTESpecies']
 
 class Input(BasePlasmaProperty):
 
@@ -79,8 +77,8 @@ class JBlues(DataFrameInput):
     j_blues : Pandas DataFrame
         Mean intensity in the blue wing of each line.
     """
-    outputs = ('J_{lu}^{b}',)
-    latex_name = ('j_{\\textrm{blue}}',)
+    outputs = ('j_blues',)
+    latex_name = ('J_{lu}^{b}',)
 
 class LinkTRadTElectron(StaticInput):
     outputs = ('link_t_rad_t_electron',)
