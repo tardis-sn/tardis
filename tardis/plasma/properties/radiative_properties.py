@@ -10,7 +10,7 @@ from tardis import macro_atom
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-    'TransitionProbabilities']
+    'TransitionProbabilities', 'LTEJBlues']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
 
@@ -159,3 +159,20 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 index=macro_atom_data.transition_line_id,
                 columns=tau_sobolevs.columns)
         return transition_probabilities
+
+class LTEJBlues(ProcessingPlasmaProperty):
+    outputs = ('lte_j_blues',)
+
+    @staticmethod
+    def calculate(lines, beta_rad):
+        beta_rad = pd.Series(beta_rad)
+        nu = pd.Series(lines.nu)
+        h = const.h.cgs.value
+        c = const.c.cgs.value
+        df = pd.DataFrame(1, index=nu.index, columns=beta_rad.index)
+        df = df.multiply(nu, axis='index') * beta_rad
+        exponential = (np.exp(h * df) - 1)**(-1)
+        remainder = (2 * (h * lines.nu.values ** 3) /
+            (c ** 2))
+        j_blues = exponential.multiply(remainder, axis=0)
+        return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)
