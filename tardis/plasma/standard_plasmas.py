@@ -6,7 +6,8 @@ from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
-    nebular_ionization_properties)
+    nebular_ionization_properties, non_nlte_properties,
+    nlte_properties)
 
 logger = logging.getLogger(__name__)
 
@@ -15,13 +16,15 @@ class LTEPlasma(BasePlasma):
     def __init__(self, t_rad, abundance, density, time_explosion, atomic_data,
         j_blues, link_t_rad_t_electron=0.9, delta_treatment=None):
         plasma_modules = basic_inputs + basic_properties + \
-            lte_excitation_properties + lte_ionization_properties
+            lte_excitation_properties + lte_ionization_properties + \
+            non_nlte_properties
 
         super(LTEPlasma, self).__init__(plasma_properties=plasma_modules,
             t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,
             density=density, time_explosion=time_explosion, j_blues=j_blues,
 	        w=None, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment)
+            delta_input=delta_treatment, nlte_species=None,
+            previous_beta_sobolevs=None, previous_electron_densities=None)
 
 class LegacyPlasmaArray(BasePlasma):
 
@@ -41,9 +44,11 @@ class LegacyPlasmaArray(BasePlasma):
     def initial_w(self, number_densities):
         return np.ones(len(number_densities.columns)) * 0.5
 
-    def update_radiationfield(self, t_rad, ws, j_blues,
+    def update_radiationfield(self, t_rad, ws, j_blues, nlte_config,
         t_electrons=None, n_e_convergence_threshold=0.05,
         initialize_nlte=False):
+        if nlte_config.species:
+            self.store_previous_properties()
         self.update(t_rad=t_rad, w=ws, j_blues=j_blues)
 
     def __init__(self, number_densities, atomic_data, time_explosion,
@@ -68,9 +73,11 @@ class LegacyPlasmaArray(BasePlasma):
         else:
             raise NotImplementedError('Sorry ' + ionization_mode +
                 ' not implemented yet.')
+
         if nlte_config.species:
-            raise NotImplementedError('Sorry, NLTE treatment not implemented \
-                yet.')
+            plasma_modules += nlte_properties
+        else:
+            plasma_modules += non_nlte_properties
 
         if line_interaction_type in ('downbranch', 'macroatom'):
             plasma_modules += macro_atom_properties
@@ -83,8 +90,16 @@ class LegacyPlasmaArray(BasePlasma):
         abundance, density = self.from_number_densities(number_densities,
             atomic_data)
 
+        initial_beta_sobolevs = np.ones((len(atomic_data.lines),
+            len(number_densities.columns)))
+        initial_electron_densities = number_densities.sum(axis=0)
+
+        self.nlte_config = nlte_config
+
         super(LegacyPlasmaArray, self).__init__(plasma_properties=plasma_modules,
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
             j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment)
+            delta_input=delta_treatment, nlte_species=nlte_config.species,
+            previous_electron_densities=initial_electron_densities,
+            previous_beta_sobolevs=initial_beta_sobolevs)

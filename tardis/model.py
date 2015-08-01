@@ -235,9 +235,8 @@ class Radial1DModel(object):
 
     def update_plasmas(self, initialize_nlte=False):
 
-        self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
-                                        initialize_nlte=initialize_nlte, n_e_convergence_threshold=0.05)
-
+        self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, self.j_blues,
+            self.tardis_config.plasma.nlte, initialize_nlte=initialize_nlte, n_e_convergence_threshold=0.05)
 
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.transition_probabilities
