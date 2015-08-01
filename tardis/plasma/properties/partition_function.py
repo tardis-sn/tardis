@@ -17,7 +17,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     Outputs:
         level_boltzmann_factor : Pandas DataFrame
     """
-    outputs = ('level_boltzmann_factor',)
+    outputs = ('general_level_boltzmann_factor',)
     latex_name = ('bf_{i,j,k}',)
     latex_formula = ('g_{i,j,k}e^\\frac{-\\epsilon_{i,j,k}}{k_{\
         \\textrm{B}}T_{\\textrm{rad}}}',)
@@ -37,7 +37,7 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     Outputs:
         level_boltzmann_factor : Pandas DataFrame
     """
-    outputs = ('level_boltzmann_factor',)
+    outputs = ('general_level_boltzmann_factor',)
     latex_name = ('bf_{i,j,k}',)
     latex_formula = ('Wg_{i,j,k}e^\\frac{-\\epsilon_{i,j,k}}{k_{\
         \\textrm{B}}T_{\\textrm{rad}}}',)

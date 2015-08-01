@@ -92,7 +92,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         (1, 1) should be used.
     """
     outputs = ('delta',)
-    latex_name = ('\\delta')
+    latex_name = ('\\delta',)
 
     def __init__(self, plasma_parent, departure_coefficient=None,
         chi_0_species=(20,2)):
