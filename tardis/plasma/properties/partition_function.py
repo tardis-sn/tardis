@@ -82,6 +82,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         t_electron, j_blues, beta_sobolevs, general_level_boltzmann_factor,
         previous_electron_densities):
         for species in nlte_species:
+            j_blues = j_blues.values
             logger.info('Calculating rates for species %s', species)
             number_of_levels = atomic_data.levels.energy.ix[species].count()
             lnl = nlte_data.lines_level_number_lower[species]
@@ -97,13 +98,13 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels**2,
                 len(t_electron)))
             r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T + \
-                B_uls[np.newaxis].T * j_blues.ix[lines_index]
+                B_uls[np.newaxis].T * j_blues[lines_index]
             r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs[lines_index]
             r_lu_matrix = np.zeros_like(r_ul_matrix)
             r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2,
                 len(t_electron)))
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
-                j_blues.ix[lines_index] * beta_sobolevs[lines_index]
+                j_blues[lines_index] * beta_sobolevs[lines_index]
             if atomic_data.has_collision_data:
                 if previous_electron_densities is None:
                     collision_matrix = r_ul_matrix.copy()
