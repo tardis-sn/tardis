@@ -23,13 +23,13 @@ basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, LevelPopulation, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
     LinesUpperLevelIndex, TauSobolev, LevelNumberDensity, IonNumberDensity,
-    StimulatedEmissionFactor, SelectedAtoms, PhiGeneral])
+    StimulatedEmissionFactor, SelectedAtoms, PhiGeneral, ElectronTemperature])
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
 lte_excitation_properties = PlasmaPropertyCollection([LevelBoltzmannFactorLTE])
 macro_atom_properties = PlasmaPropertyCollection([BetaSobolev,
     TransitionProbabilities])
 nebular_ionization_properties = PlasmaPropertyCollection([PhiSahaNebular,
-    ZetaData, ElectronTemperature, BetaElectron, RadiationFieldCorrection])
+    ZetaData, BetaElectron, RadiationFieldCorrection])
 dilute_lte_excitation_properties = PlasmaPropertyCollection([
     LevelBoltzmannFactorDiluteLTE])
 non_nlte_properties = PlasmaPropertyCollection([LevelBoltzmannFactorNoNLTE])
