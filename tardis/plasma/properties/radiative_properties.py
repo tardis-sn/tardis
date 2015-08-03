@@ -24,30 +24,30 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         self._g_upper = None
         self._g_lower = None
 
-    def get_g_lower(self, levels, lines_lower_level_index):
+    def get_g_lower(self, g, lines_lower_level_index):
         if self._g_lower is None:
-            g_lower = np.array(levels.g.ix[lines_lower_level_index],
+            g_lower = np.array(g.ix[lines_lower_level_index],
                                      dtype=np.float64)
             self._g_lower = g_lower[np.newaxis].T
         return self._g_lower
 
-    def get_g_upper(self, levels, lines_upper_level_index):
+    def get_g_upper(self, g, lines_upper_level_index):
         if self._g_upper is None:
-            g_upper = np.array(levels.g.ix[lines_upper_level_index],
+            g_upper = np.array(g.ix[lines_upper_level_index],
                                      dtype=np.float64)
             self._g_upper = g_upper[np.newaxis].T
         return self._g_upper
 
-    def calculate(self, levels, level_number_density, lines_lower_level_index,
-        lines_upper_level_index):
+    def calculate(self, g, level_number_density, lines_lower_level_index,
+        lines_upper_level_index, metastability):
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise').copy('F')
         n_upper = level_number_density.values.take(lines_upper_level_index,
             axis=0, mode='raise').copy('F')
-        meta_stable_upper = levels.metastable.values.take(
+        meta_stable_upper = metastability.values.take(
             lines_upper_level_index, axis=0, mode='raise')[np.newaxis].T
-        g_lower = self.get_g_lower(levels, lines_lower_level_index)
-        g_upper = self.get_g_upper(levels, lines_upper_level_index)
+        g_lower = self.get_g_lower(g, lines_lower_level_index)
+        g_upper = self.get_g_upper(g, lines_upper_level_index)
         stimulated_emission_factor = 1 - ((g_lower * n_upper) /
             (g_upper * n_lower))
         stimulated_emission_factor[n_lower == 0.0] = 0.0

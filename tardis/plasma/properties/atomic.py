@@ -21,7 +21,6 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
 
         super(BaseAtomicDataProperty, self).__init__(plasma_parent)
         self.value = None
-        assert len(self.outputs) == 1
 
     @abstractmethod
     def _set_index(self, raw_atomic_property):
@@ -53,14 +52,18 @@ class Levels(BaseAtomicDataProperty):
     levels : Pandas DataFrame
         Levels data needed for particular simulation
     """
-    outputs = ('levels',)
+    outputs = ('g', 'excitation_energy', 'metastability', 'levels')
+    latex_name = ('g', '\\epsilon_{\\textrm{k}}', '\\textrm{metastability}',
+        '\\textrm{levels}')
 
     def _filter_atomic_property(self, levels, selected_atoms):
         return levels[levels.atomic_number.isin(selected_atoms)]
 
     def _set_index(self, levels):
-        return levels.set_index(['atomic_number', 'ion_number',
+        levels = levels.set_index(['atomic_number', 'ion_number',
                                  'level_number'])
+        return (levels['g'], levels['energy'], levels['metastable'],
+            levels['index'])
 
 class Lines(BaseAtomicDataProperty):
     """
@@ -95,7 +98,7 @@ class LinesLowerLevelIndex(ProcessingPlasmaProperty):
 
     def calculate(self, levels, lines):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
-                                 index=levels.index)
+                                 index=levels)
         lines_index = lines.set_index(
             ['atomic_number', 'ion_number',
              'level_number_lower']).index
@@ -112,7 +115,7 @@ class LinesUpperLevelIndex(ProcessingPlasmaProperty):
 
     def calculate(self, levels, lines):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
-                                 index=levels.index)
+                                 index=levels)
         lines_index = lines.set_index(
             ['atomic_number', 'ion_number',
              'level_number_upper']).index

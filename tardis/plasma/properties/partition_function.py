@@ -22,12 +22,12 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     latex_formula = ('g_{i,j,k}e^\\frac{-\\epsilon_{i,j,k}}{k_{\
         \\textrm{B}}T_{\\textrm{rad}}}',)
 
-    def calculate(self, levels, beta_rad):
-        exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
-        level_boltzmann_factor_array = (levels.g.values[np.newaxis].T *
+    def calculate(self, excitation_energy, g, beta_rad, levels):
+        exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
+        level_boltzmann_factor_array = (g.values[np.newaxis].T *
                                         exponential)
         level_boltzmann_factor = pd.DataFrame(level_boltzmann_factor_array,
-                                              index=levels.index,
+                                              index=levels,
                                               columns=np.arange(len(beta_rad)),
                                               dtype=np.float64)
         return level_boltzmann_factor
@@ -42,15 +42,16 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     latex_formula = ('Wg_{i,j,k}e^\\frac{-\\epsilon_{i,j,k}}{k_{\
         \\textrm{B}}T_{\\textrm{rad}}}',)
 
-    def calculate(self, levels, beta_rad, w):
-        exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
-        level_boltzmann_factor_array = (levels.g.values[np.newaxis].T *
+    def calculate(self, levels, g, excitation_energy, beta_rad, w,
+        metastability):
+        exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
+        level_boltzmann_factor_array = (g.values[np.newaxis].T *
                                         exponential)
         level_boltzmann_factor = pd.DataFrame(level_boltzmann_factor_array,
-                                              index=levels.index,
+                                              index=levels,
                                               columns=np.arange(len(beta_rad)),
                                               dtype=np.float64)
-        level_boltzmann_factor[~levels.metastable] *= w
+        level_boltzmann_factor[~metastability] *= w
         return level_boltzmann_factor
 
 class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
@@ -183,6 +184,6 @@ class PartitionFunction(ProcessingPlasmaProperty):
     latex_name = ('Z_{i,j}',)
     latex_formula = ('\\sum_{k}bf_{i,j,k}',)
 
-    def calculate(self, levels, level_boltzmann_factor):
+    def calculate(self, level_boltzmann_factor):
         return level_boltzmann_factor.groupby(
             level=['atomic_number', 'ion_number']).sum()
