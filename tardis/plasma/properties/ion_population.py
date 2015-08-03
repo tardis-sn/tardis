@@ -101,7 +101,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         self.chi_0_species = chi_0_species
 
     def calculate(self, w, ionization_data, beta_rad, t_electron, t_rad,
-        beta_electron, levels, delta_input):
+        beta_electron, delta_input):
         if delta_input is None:
             if self.departure_coefficient is None:
                 departure_coefficient = 1. / w
