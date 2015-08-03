@@ -355,10 +355,11 @@ class Radial1DModel(object):
         
         montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
         last_line_interaction_in_id, last_line_interaction_out_id, \
-        self.last_interaction_type, self.last_line_interaction_shell_id = \
+        self.last_interaction_type, self.last_line_interaction_shell_id, \
+        self.virt_packet_nus, self.virt_packet_energies = \
             montecarlo.montecarlo_radial1d(self,
                                                      virtual_packet_flag=no_of_virtual_packets, nthreads=self.tardis_config.montecarlo.nthreads)
-
+        
         if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
             logger.critical("No r-packet escaped through the outer boundary.")
 

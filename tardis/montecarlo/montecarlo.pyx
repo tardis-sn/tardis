@@ -11,6 +11,7 @@ import numpy as np
 cimport numpy as np
 from astropy import constants
 from astropy import units
+from libc.stdlib cimport free
 
 np.import_array()
 
@@ -73,6 +74,10 @@ cdef extern from "src/cmontecarlo.h":
         double *l_pop
         double *l_pop_r
         ContinuumProcessesStatus cont_status
+        double *virt_packet_nus
+        double *virt_packet_energies
+        int_type_t virt_packet_count
+        int_type_t virt_array_size
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -222,5 +227,12 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, model.tardis_config.montecarlo.seed)
-    return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
+    cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
+    for i in range(storage.virt_packet_count):
+        virt_packet_nus[i] = storage.virt_packet_nus[i]
+        virt_packet_energies[i] = storage.virt_packet_energies[i]
+    free(<void *>storage.virt_packet_nus)
+    free(<void *>storage.virt_packet_energies)
+    return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies
 
