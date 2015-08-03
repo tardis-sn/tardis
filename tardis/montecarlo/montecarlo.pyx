@@ -11,6 +11,7 @@ import numpy as np
 cimport numpy as np
 from astropy import constants
 from astropy import units
+from libc.stdlib cimport free
 
 np.import_array()
 
@@ -73,6 +74,10 @@ cdef extern from "src/cmontecarlo.h":
         double *l_pop
         double *l_pop_r
         ContinuumProcessesStatus cont_status
+        double *virt_packet_nus
+        double *virt_packet_energies
+        int_type_t virt_packet_count
+        int_type_t virt_array_size
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -224,7 +229,13 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, model.tardis_config.montecarlo.seed)
 
-
+    cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
+    for i in range(storage.virt_packet_count):
+        virt_packet_nus[i] = storage.virt_packet_nus[i]
+        virt_packet_energies[i] = storage.virt_packet_energies[i]
+    free(<void *>storage.virt_packet_nus)
+    free(<void *>storage.virt_packet_energies)
     runner._packet_nu = output_nus
     runner._packet_energy = output_energies
     runner.j_estimator = js
@@ -233,6 +244,9 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     runner.last_line_interaction_out_id = last_line_interaction_out_id
     runner.last_interaction_type = last_interaction_type
     runner.last_line_interaction_shell_id = last_line_interaction_shell_id
+    runner.virt_packet_nus = virt_packet_nus
+    runner.virt_packet_energies = virt_packet_energies
+    
+    #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies
 
-    #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
