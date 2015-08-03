@@ -51,7 +51,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
         return abundance.index
 
 class ElectronTemperature(ProcessingPlasmaProperty):
-    outputs = ('t_electron',)
+    outputs = ('t_electrons',)
 
     def calculate(self, t_rad, link_t_rad_t_electron):
         return t_rad * link_t_rad_t_electron
