@@ -68,7 +68,7 @@ class ElectronTemperature(ProcessingPlasmaProperty):
     Outputs:
     t_electron : Numpy Array
     """
-    outputs = ('t_electron',)
+    outputs = ('t_electrons',)
     latex_name = ('T_{\\textrm{electron}}',)
     latex_formula = ('\\textrm{const.}\\times T_{\\textrm{rad}}',)
 
