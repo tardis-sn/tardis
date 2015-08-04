@@ -117,7 +117,22 @@ def g(atomic_data, selected_atoms):
 @pytest.fixture
 def lines(atomic_data, selected_atoms):
     lines_module = Lines(None)
-    return lines_module.calculate(atomic_data, selected_atoms)
+    return lines_module.calculate(atomic_data, selected_atoms)[0]
+
+@pytest.fixture
+def nu(atomic_data, selected_atoms):
+    lines_module = Lines(None)
+    return lines_module.calculate(atomic_data, selected_atoms)[1]
+
+@pytest.fixture
+def f_lu(atomic_data, selected_atoms):
+    lines_module = Lines(None)
+    return lines_module.calculate(atomic_data, selected_atoms)[2]
+
+@pytest.fixture
+def wavelength_cm(atomic_data, selected_atoms):
+    lines_module = Lines(None)
+    return lines_module.calculate(atomic_data, selected_atoms)[3]
 
 @pytest.fixture
 def ionization_data(atomic_data, selected_atoms):
@@ -231,13 +246,12 @@ def stimulated_emission_factor(g, level_number_density,
 
 @pytest.fixture
 def tau_sobolev(lines, level_number_density, lines_lower_level_index,
-                time_explosion, stimulated_emission_factor, j_blues):
+                  time_explosion, stimulated_emission_factor, j_blues,
+                  f_lu, wavelength_cm):
     tau_sobolev_module = TauSobolev(None)
     return tau_sobolev_module.calculate(lines, level_number_density,
-                                        lines_lower_level_index,
-                                        time_explosion,
-                                        stimulated_emission_factor,
-                                        j_blues)
+        lines_lower_level_index, time_explosion, stimulated_emission_factor,
+        j_blues, f_lu, wavelength_cm)
 
 @pytest.fixture
 def beta_sobolev(tau_sobolev):

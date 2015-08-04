@@ -73,9 +73,10 @@ class TauSobolev(ProcessingPlasmaProperty):
                                     * u.cm * u.s / u.cm**3).to(1).value
 
     def calculate(self, lines, level_number_density, lines_lower_level_index,
-                  time_explosion, stimulated_emission_factor, j_blues):
-        f_lu = lines.f_lu.values[np.newaxis].T
-        wavelength = lines.wavelength_cm.values[np.newaxis].T
+                  time_explosion, stimulated_emission_factor, j_blues,
+                  f_lu, wavelength_cm):
+        f_lu = f_lu.values[np.newaxis].T
+        wavelength = wavelength_cm.values[np.newaxis].T
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise').copy('F')
 #To be added for NLTE.
@@ -152,15 +153,15 @@ class LTEJBlues(ProcessingPlasmaProperty):
     outputs = ('lte_j_blues',)
 
     @staticmethod
-    def calculate(lines, beta_rad):
+    def calculate(lines, nu, beta_rad):
         beta_rad = pd.Series(beta_rad)
-        nu = pd.Series(lines.nu)
+        nu = pd.Series(nu)
         h = const.h.cgs.value
         c = const.c.cgs.value
         df = pd.DataFrame(1, index=nu.index, columns=beta_rad.index)
         df = df.multiply(nu, axis='index') * beta_rad
         exponential = (np.exp(h * df) - 1)**(-1)
-        remainder = (2 * (h * lines.nu.values ** 3) /
+        remainder = (2 * (h * nu.values ** 3) /
             (c ** 2))
         j_blues = exponential.multiply(remainder, axis=0)
         return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)

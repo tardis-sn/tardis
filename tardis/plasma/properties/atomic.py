@@ -71,7 +71,7 @@ class Lines(BaseAtomicDataProperty):
     lines : Pandas DataFrame
         Lines data needed for particular simulation
     """
-    outputs = ('lines',)
+    outputs = ('lines', 'nu', 'f_lu', 'wavelength_cm')
 
     def _filter_atomic_property(self, lines, selected_atoms):
         return lines[lines.atomic_number.isin(selected_atoms)]
@@ -85,7 +85,8 @@ class Lines(BaseAtomicDataProperty):
             reindexed = lines.reindex(lines.index)
         except:
             reindexed = lines.reindex(lines.index)
-        return reindexed.dropna(subset=['atomic_number'])
+        lines = reindexed.dropna(subset=['atomic_number'])
+        return lines, lines['nu'], lines['f_lu'], lines['wavelength_cm']
 
 class LinesLowerLevelIndex(ProcessingPlasmaProperty):
     """
