@@ -52,9 +52,9 @@ class Levels(BaseAtomicDataProperty):
     levels : Pandas DataFrame
         Levels data needed for particular simulation
     """
-    outputs = ('g', 'excitation_energy', 'metastability', 'levels')
-    latex_name = ('g', '\\epsilon_{\\textrm{k}}', '\\textrm{metastability}',
-        '\\textrm{levels}')
+    outputs = ('levels', 'excitation_energy', 'metastability', 'g')
+    latex_name = ('\\textrm{levels}', '\\epsilon_{\\textrm{k}}', '\\textrm{metastability}',
+        'g')
 
     def _filter_atomic_property(self, levels, selected_atoms):
         return levels[levels.atomic_number.isin(selected_atoms)]
@@ -62,8 +62,8 @@ class Levels(BaseAtomicDataProperty):
     def _set_index(self, levels):
         levels = levels.set_index(['atomic_number', 'ion_number',
                                  'level_number'])
-        return (levels['g'], levels['energy'], levels['metastable'],
-            levels['index'])
+        return (levels.index, levels['energy'], levels['metastable'],
+            levels['g'])
 
 class Lines(BaseAtomicDataProperty):
     """

@@ -10,7 +10,7 @@ from tardis import macro_atom
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-           'TransitionProbabilities', 'LTEJBlues']
+    'TransitionProbabilities', 'LTEJBlues']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """

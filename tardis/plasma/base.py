@@ -17,7 +17,6 @@ class BasePlasma(object):
         self.input_properties = []
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        **kwargs)
-        
         self._build_graph()
 #        self.write_to_tex('Plasma_Graph', 'Plasma_Formulae')
         self.update(**kwargs)

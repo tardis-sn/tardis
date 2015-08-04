@@ -97,7 +97,22 @@ def beta_electron(t_electron):
 @pytest.fixture
 def levels(atomic_data, selected_atoms):
     levels_module = Levels(None)
-    return levels_module.calculate(atomic_data, selected_atoms)
+    return levels_module.calculate(atomic_data, selected_atoms)[0]
+
+@pytest.fixture
+def excitation_energy(atomic_data, selected_atoms):
+    levels_module = Levels(None)
+    return levels_module.calculate(atomic_data, selected_atoms)[1]
+
+@pytest.fixture
+def metastability(atomic_data, selected_atoms):
+    levels_module = Levels(None)
+    return levels_module.calculate(atomic_data, selected_atoms)[2]
+
+@pytest.fixture
+def g(atomic_data, selected_atoms):
+    levels_module = Levels(None)
+    return levels_module.calculate(atomic_data, selected_atoms)[3]
 
 @pytest.fixture
 def lines(atomic_data, selected_atoms):
@@ -134,20 +149,22 @@ def lines_lower_level_index(lines, levels):
 # PARTITION FUNCTION PROPERTIES
 
 @pytest.fixture
-def level_boltzmann_factor_lte(levels, beta_rad):
+def level_boltzmann_factor_lte(excitation_energy, g, beta_rad, levels):
     level_boltzmann_factor_module = LevelBoltzmannFactorLTE(None)
-    return level_boltzmann_factor_module.calculate(levels, beta_rad)
+    return level_boltzmann_factor_module.calculate(excitation_energy, g,
+        beta_rad, levels)
 
 @pytest.fixture
-def level_boltzmann_factor_dilute_lte(levels, beta_rad, w):
+def level_boltzmann_factor_dilute_lte(levels, g, excitation_energy, beta_rad,
+        w, metastability):
     level_boltzmann_factor_module = LevelBoltzmannFactorDiluteLTE(None)
-    return level_boltzmann_factor_module.calculate(levels, beta_rad, w)
+    return level_boltzmann_factor_module.calculate(levels, g,
+        excitation_energy, beta_rad, w, metastability)
 
 @pytest.fixture
-def partition_function(levels, level_boltzmann_factor_lte):
+def partition_function(level_boltzmann_factor_lte):
     partition_function_module = PartitionFunction(None)
-    return partition_function_module.calculate(levels,
-                                               level_boltzmann_factor_lte)
+    return partition_function_module.calculate(level_boltzmann_factor_lte)
 
 # ION POPULATION PROPERTIES
 
@@ -163,7 +180,8 @@ def phi_saha_lte(general_phi):
     return phi_module.calculate(general_phi)
 
 @pytest.fixture
-def phi_saha_nebular(general_phi, t_rad, w, zeta_data, t_electron, delta):
+def phi_saha_nebular(w, ionization_data, beta_rad, t_electron, t_rad,
+        beta_electron, delta, general_phi, zeta_data):
     phi_saha_nebular_module = PhiSahaNebular(None)
     return phi_saha_nebular_module.calculate(general_phi, t_rad, w, zeta_data,
                                              t_electron, delta)
@@ -191,7 +209,7 @@ def delta(w, ionization_data, beta_rad, t_electron, t_rad, beta_electron,
     delta_module = RadiationFieldCorrection(None)
     delta_module.chi_0_species = (2, 2)
     return delta_module.calculate(w, ionization_data, beta_rad, t_electron,
-                                  t_rad, beta_electron, levels, delta_input)
+        t_rad, beta_electron, delta_input)
 
 # LEVEL POPULATION PROPERTIES
 
@@ -205,13 +223,11 @@ def level_number_density(level_boltzmann_factor_lte, ion_number_density,
 # RADIATIVE PROPERTIES
 
 @pytest.fixture
-def stimulated_emission_factor(levels, level_number_density,
-                               lines_lower_level_index,
-                               lines_upper_level_index):
+def stimulated_emission_factor(g, level_number_density,
+        lines_lower_level_index, lines_upper_level_index, metastability):
     factor_module = StimulatedEmissionFactor(None)
-    return factor_module.calculate(levels, level_number_density,
-                                   lines_lower_level_index,
-                                   lines_upper_level_index)
+    return factor_module.calculate(g, level_number_density,
+        lines_lower_level_index, lines_upper_level_index, metastability)
 
 @pytest.fixture
 def tau_sobolev(lines, level_number_density, lines_lower_level_index,
