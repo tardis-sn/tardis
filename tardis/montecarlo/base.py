@@ -1,5 +1,6 @@
-from astropy import units as u
-from astropy.utils import lazyproperty
+from astropy import units as u, constants as const
+
+from scipy.special import zeta
 
 from tardis.montecarlo import montecarlo
 
@@ -11,8 +12,18 @@ class MontecarloRunner(object):
     montecarlo C-part
     """
 
+    w_estimator_constant = ((const.c ** 2 / (2 * const.h)) *
+                            (15 / np.pi ** 4) * (const.h / const.k_B) ** 4 /
+                            (4 * np.pi)).cgs.value
+
+    t_rad_estimator_constant = ((np.pi**4 / (15 * 24 * zeta(5, 1))) *
+                                (const.h / const.k_B)).cgs.value
+
+
     def run(self, model, no_of_virtual_packets, nthreads=1):
         self.time_of_simulation = model.time_of_simulation
+        self.volume = model.tardis_config.structure.volumes
+
         montecarlo.montecarlo_radial1d(
             model, self, virtual_packet_flag=no_of_virtual_packets,
             nthreads=nthreads)
@@ -62,7 +73,32 @@ class MontecarloRunner(object):
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
 
+    def calculate_radiationfield_properties(self):
+        """
+        Calculate an updated radiation field from the :math:`\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
+        calculated in the montecarlo simulation. The details of the calculation can be found in the documentation.
 
-    @staticmethod
-    def generate_spectrum(nu, energy, nu_bins):
-        return np.histogram(nu, weights=energy, bins=nu_bins)
+        Parameters
+        ----------
+
+        nubar_estimator : ~np.ndarray (float)
+
+        j_estimator : ~np.ndarray (float)
+
+        Returns
+        -------
+
+        updated_t_rads : ~np.ndarray (float)
+
+        updated_ws : ~np.ndarray (float)
+
+        """
+
+
+        t_rad = (self.t_rad_estimator_constant * self.nu_bar_estimator
+                / self.j_estimator)
+        w = self.j_estimator / (4 * const.sigma_sb.cgs.value * t_rad ** 4
+                                * self.time_of_simulation.value
+                                * self.volume.value)
+
+        return t_rad * u.K, w
