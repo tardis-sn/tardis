@@ -76,7 +76,8 @@ cdef extern from "src/cmontecarlo.h":
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
-def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4):
+def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
+                        int nthreads=4):
     """
     Parameters
     ----------
@@ -222,5 +223,16 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, model.tardis_config.montecarlo.seed)
-    return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
+
+
+    runner._packet_nu = output_nus
+    runner._packet_energy = output_energies
+    runner.j_estimator = js
+    runner.nu_bar_estimator = nubars
+    runner.last_line_interaction_in_id = last_line_interaction_in_id
+    runner.last_line_interaction_out_id = last_line_interaction_out_id
+    runner.last_interaction_type = last_interaction_type
+    runner.last_line_interaction_shell_id = last_line_interaction_shell_id
+
+    #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
