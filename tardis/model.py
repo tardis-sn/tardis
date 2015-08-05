@@ -365,7 +365,6 @@ class Radial1DModel(object):
          last_line_interaction_out_id, self.last_interaction_type,
          self.last_line_interaction_shell_id) = self.runner.legacy_return()
 
-        1/0
         if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
             logger.critical("No r-packet escaped through the outer boundary.")
 
