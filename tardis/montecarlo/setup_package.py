@@ -6,7 +6,7 @@ from astropy_helpers.setup_helpers import get_distutils_option
 
 from glob import glob
 
-if get_distutils_option('with_openmp', ['build', 'install']) is not None:
+if get_distutils_option('with_openmp', ['build', 'install', 'develop']) is not None:
     compile_args = ['-fopenmp']
     link_args = ['-fopenmp']
     define_macros = [('WITHOPENMP', None)]
