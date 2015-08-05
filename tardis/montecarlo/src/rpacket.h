@@ -61,8 +61,8 @@ typedef struct RPacket
   int64_t current_continuum_id; /* Packet can interact with bf-continua with an index equal or bigger than this */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
-  double d_line; /**< Distance to electron event. */
-  double d_electron; /**< Distance to line event. */
+  double d_line; /**< Distance to line event. */
+  double d_electron; /**< Distance to electron scattering event. */
   double d_boundary; /**< Distance to shell boundary. */
   double d_cont; /**< Distance to continuum event */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
@@ -73,6 +73,7 @@ typedef struct RPacket
   double chi_ff; /**< Opacity due to free-free processes */
   double chi_bf; /**< Opacity due to bound-free processes */
 } rpacket_t;
+
 
 inline double rpacket_get_nu (rpacket_t * packet);
 
