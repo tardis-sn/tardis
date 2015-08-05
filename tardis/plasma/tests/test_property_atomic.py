@@ -1,7 +1,7 @@
 import numpy as np
 
-def test_levels_property(levels):
-    assert np.isclose(levels.ix[2].ix[0].ix[1]['energy'], 3.17545416e-11)
+def test_levels_property(excitation_energy):
+    assert np.isclose(excitation_energy.ix[2].ix[0].ix[1], 3.17545416e-11)
 
 def test_lines_property(lines):
     assert np.isclose(lines.ix[564954]['wavelength'], 10833.307)

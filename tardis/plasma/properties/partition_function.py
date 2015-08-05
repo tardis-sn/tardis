@@ -14,41 +14,44 @@ __all__ = ['LevelBoltzmannFactorLTE', 'LevelBoltzmannFactorDiluteLTE',
 
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     """
-    Calculate the level population Boltzmann factor
-    .. math:
-        {latex_formula}
+    Outputs:
+        level_boltzmann_factor : Pandas DataFrame
     """
-
     outputs = ('general_level_boltzmann_factor',)
-    latex_formula = r'$g_{i, j, k} e^{E_{i, j, k} \times \beta_\textrm{rad}}$'
+    latex_name = ('bf_{i,j,k}',)
+    latex_formula = ('g_{i,j,k}e^\\frac{-\\epsilon_{i,j,k}}{k_{\
+        \\textrm{B}}T_{\\textrm{rad}}}',)
 
-    @staticmethod
-    def calculate(levels, beta_rad):
-        exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
-        level_boltzmann_factor_array = (levels.g.values[np.newaxis].T *
+    def calculate(self, excitation_energy, g, beta_rad, levels):
+        exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
+        level_boltzmann_factor_array = (g.values[np.newaxis].T *
                                         exponential)
-
         level_boltzmann_factor = pd.DataFrame(level_boltzmann_factor_array,
-                                              index=levels.index,
+                                              index=levels,
                                               columns=np.arange(len(beta_rad)),
                                               dtype=np.float64)
         return level_boltzmann_factor
 
 class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
-
+    """
+    Outputs:
+        level_boltzmann_factor : Pandas DataFrame
+    """
     outputs = ('general_level_boltzmann_factor',)
+    latex_name = ('bf_{i,j,k}',)
+    latex_formula = ('Wg_{i,j,k}e^\\frac{-\\epsilon_{i,j,k}}{k_{\
+        \\textrm{B}}T_{\\textrm{rad}}}',)
 
-    @staticmethod
-    def calculate(levels, beta_rad, w):
-        exponential = np.exp(np.outer(levels.energy.values, -beta_rad))
-        level_boltzmann_factor_array = (levels.g.values[np.newaxis].T *
+    def calculate(self, levels, g, excitation_energy, beta_rad, w,
+        metastability):
+        exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
+        level_boltzmann_factor_array = (g.values[np.newaxis].T *
                                         exponential)
-
         level_boltzmann_factor = pd.DataFrame(level_boltzmann_factor_array,
-                                              index=levels.index,
+                                              index=levels,
                                               columns=np.arange(len(beta_rad)),
                                               dtype=np.float64)
-        level_boltzmann_factor[~levels.metastable] *= w
+        level_boltzmann_factor[~metastability] *= w
         return level_boltzmann_factor
 
 class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
@@ -173,13 +176,14 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         return general_level_boltzmann_factor
 
 class PartitionFunction(ProcessingPlasmaProperty):
+    """
+    Outputs:
+        partition_function : Pandas DataFrame
+    """
     outputs = ('partition_function',)
-    latex_outputs = '$Z_{i, j}$'
+    latex_name = ('Z_{i,j}',)
+    latex_formula = ('\\sum_{k}bf_{i,j,k}',)
 
-    latex_formula = (r'$Z_{i, j} = \sum_{k=1}^n g_{i, j, k} '
-                     r'e^{E_{i, j, k} \times \beta_\textrm{rad}}$')
-
-    @staticmethod
-    def calculate(levels, level_boltzmann_factor):
+    def calculate(self, level_boltzmann_factor):
         return level_boltzmann_factor.groupby(
             level=['atomic_number', 'ion_number']).sum()
