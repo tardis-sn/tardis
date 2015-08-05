@@ -189,11 +189,13 @@ class BasePlasma(object):
         except ImportError:
             raise ImportError('pygraphviz is needed for method '
                               '\'write_to_dot\'')
+        print_graph = self.graph.copy()
+        print_graph.remove_node('LinesUpperLevelIndex')
+        print_graph.remove_node('LinesLowerLevelIndex')
+        for node in print_graph:
+            print_graph.node[str(node)]['label'] = node
 
-        for node in self.graph:
-            self.graph.node[str(node)]['label'] = node
-
-        nx.write_dot(self.graph, fname)
+        nx.write_dot(print_graph, fname)
 
     def write_to_tex(self, fname_graph, fname_formulae):
         try:
