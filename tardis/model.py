@@ -22,12 +22,6 @@ c = constants.c.cgs.value
 h = constants.h.cgs.value
 kb = constants.k_B.cgs.value
 
-w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
-
-t_rad_estimator_constant = (np.pi**4 / (15 * 24 * scipy.special.zeta(5, 1))) * h / kb
-
-
-
 
 class Radial1DModel(object):
     """
@@ -205,38 +199,6 @@ class Radial1DModel(object):
         else:
             raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
-
-
-
-    def calculate_updated_radiationfield(self, nubar_estimator, j_estimator):
-        """
-        Calculate an updated radiation field from the :math:`\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
-        calculated in the montecarlo simulation. The details of the calculation can be found in the documentation.
-
-        Parameters
-        ----------
-
-        nubar_estimator : ~np.ndarray (float)
-
-        j_estimator : ~np.ndarray (float)
-
-        Returns
-        -------
-
-        updated_t_rads : ~np.ndarray (float)
-
-        updated_ws : ~np.ndarray (float)
-
-        """
-
-
-        updated_t_rads = t_rad_estimator_constant * nubar_estimator / j_estimator
-        updated_ws = j_estimator / (
-            4 * constants.sigma_sb.cgs.value * updated_t_rads ** 4 * self.time_of_simulation.value
-            * self.tardis_config.structure.volumes.value)
-
-        return updated_t_rads * u.K, updated_ws
-
     def update_plasmas(self, initialize_nlte=False):
 
         self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
@@ -252,7 +214,8 @@ class Radial1DModel(object):
         Updating radiation field
         """
         convergence_section = self.tardis_config.montecarlo.convergence_strategy
-        updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
+        updated_t_rads, updated_ws = (
+            self.runner.calculate_radiationfield_properties())
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
         old_t_inner = self.t_inner
