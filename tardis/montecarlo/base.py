@@ -37,28 +37,28 @@ class MontecarloRunner(object):
     def packet_luminosity(self):
         return self.packet_energy / self.time_of_simulation
 
-    @lazyproperty
+    @property
     def emitted_packet_mask(self):
         return self.packet_energy >=0
 
-    @lazyproperty
+    @property
     def emitted_packet_nu(self):
         return self.packet_nu[self.emitted_packet_mask]
 
-    @lazyproperty
+    @property
     def reabsorbed_packet_nu(self):
         return self.packet_nu[~self.emitted_packet_mask]
 
-    @lazyproperty
+    @property
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
 
 
-    @lazyproperty
+    @property
     def emitted_packet_luminosity(self):
         return self.packet_luminosity[self.emitted_packet_mask]
 
-    @lazyproperty
+    @property
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
 
