@@ -68,6 +68,10 @@ typedef struct StorageModel
   double *l_pop;
   double *l_pop_r;
   ContinuumProcessesStatus cont_status;
+  double *virt_packet_nus;
+  double *virt_packet_energies;
+  int64_t virt_packet_count;
+  int64_t virt_array_size;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H
