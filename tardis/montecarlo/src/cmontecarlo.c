@@ -479,21 +479,24 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 	      if ((virt_packet.nu < storage->spectrum_end_nu) &&
 		  (virt_packet.nu > storage->spectrum_start_nu))
 		{
-		  if (storage->virt_packet_count >= storage->virt_array_size)
-		    {
-		      storage->virt_array_size *= 2;
-		      storage->virt_packet_nus = realloc(storage->virt_packet_nus, sizeof(double) * storage->virt_array_size);
-		      storage->virt_packet_energies = realloc(storage->virt_packet_energies, sizeof(double) * storage->virt_array_size);
-		    }
-		  storage->virt_packet_nus[storage->virt_packet_count] = virt_packet.nu;
-		  storage->virt_packet_energies[storage->virt_packet_count] = virt_packet.energy * weight;
-		  storage->virt_packet_count += 1;
-		  virt_id_nu =
-		    floor ((virt_packet.nu -
-			    storage->spectrum_start_nu) /
-			   storage->spectrum_delta_nu);
-		  storage->spectrum_virt_nu[virt_id_nu] +=
-		    virt_packet.energy * weight;
+#pragma omp critical
+		  {
+		    if (storage->virt_packet_count >= storage->virt_array_size)
+		      {
+			storage->virt_array_size *= 2;
+			storage->virt_packet_nus = realloc(storage->virt_packet_nus, sizeof(double) * storage->virt_array_size);
+			storage->virt_packet_energies = realloc(storage->virt_packet_energies, sizeof(double) * storage->virt_array_size);
+		      }
+		    storage->virt_packet_nus[storage->virt_packet_count] = virt_packet.nu;
+		    storage->virt_packet_energies[storage->virt_packet_count] = virt_packet.energy * weight;
+		    storage->virt_packet_count += 1;
+		    virt_id_nu =
+		      floor ((virt_packet.nu -
+			      storage->spectrum_start_nu) /
+			     storage->spectrum_delta_nu);
+		    storage->spectrum_virt_nu[virt_id_nu] +=
+		      virt_packet.energy * weight;
+		  }
 		}
 	    }
 	}
@@ -858,6 +861,10 @@ void
 montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
 {
   int64_t packet_index;
+  storage->virt_packet_nus = (double *)malloc(sizeof(double) * storage->no_of_packets);
+  storage->virt_packet_energies = (double *)malloc(sizeof(double) * storage->no_of_packets);
+  storage->virt_packet_count = 0;
+  storage->virt_array_size = storage->no_of_packets;
 #ifdef WITHOPENMP
   fprintf(stderr, "Running with OpenMP - %d threads", nthreads);
   omp_set_dynamic(0);
@@ -870,10 +877,6 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   fprintf(stderr, "Running without OpenMP");
   initialize_random_kit(seed);
 #endif
-  storage->virt_packet_nus = (double *)malloc(sizeof(double) * storage->no_of_packets);
-  storage->virt_packet_energies = (double *)malloc(sizeof(double) * storage->no_of_packets);
-  storage->virt_packet_count = 0;
-  storage->virt_array_size = storage->no_of_packets;
   for (packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
     {
       int reabsorbed = 0;
