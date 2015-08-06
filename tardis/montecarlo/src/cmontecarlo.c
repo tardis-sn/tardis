@@ -479,8 +479,10 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 	      if ((virt_packet.nu < storage->spectrum_end_nu) &&
 		  (virt_packet.nu > storage->spectrum_start_nu))
 		{
+#ifdef WITHOPENMP
 #pragma omp critical
 		  {
+#endif
 		    if (storage->virt_packet_count >= storage->virt_array_size)
 		      {
 			storage->virt_array_size *= 2;
@@ -496,7 +498,9 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 			     storage->spectrum_delta_nu);
 		    storage->spectrum_virt_nu[virt_id_nu] +=
 		      virt_packet.energy * weight;
+#ifdef WITHOPENMP
 		  }
+#endif
 		}
 	    }
 	}
