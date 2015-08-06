@@ -23,9 +23,9 @@ class PhiGeneral(ProcessingPlasmaProperty):
     """
     outputs = ('general_phi',)
     latex_name = ('\\Phi_{\\textrm{LTE}}',)
-    latex_formula = ('\\frac{2Z_{i,j+1}}{Z_{i,j}}\\left(\
-                     \\frac{2\\pi m_{e}/\\beta_{\\textrm{rad}}}{h^2}\
-                     \\right)^{3/2}e^{\\frac{-\\chi_{i,j}}{kT_{\
+    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
+                     \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{rad}}}{h^2}\
+                     \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
                      \\textrm{rad}}}}',)
 
     def calculate(self, g_electron, beta_rad, partition_function,
@@ -51,7 +51,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
     outputs = ('phi',)
     latex_name = ('\\Phi',)
     latex_formula = ('W(\\delta\\zeta_{i,j}+W(1-\\zeta_{i,j}))\\left(\
-                     \\frac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
+                     \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
                      \\right)^{1/2}',)
 
     def calculate(self, general_phi, t_rad, w, zeta_data, t_electron, delta):
@@ -146,10 +146,6 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     """
     outputs = ('ion_number_density', 'electron_densities')
     latex_name = ('N_{i,j}','n_{e}',)
-    latex_formula = ('N_{i,0}=\\frac{N_{i}}{1+\\frac{1}{n_{e}}\\sum_{j=1}\
-                     \\prod_{l=0}^{l=j}\\Phi_{i,l}};~~~N_{i,j}(j>0)=\\frac{\
-                     N_{i,0}}{n_{e}}\\prod_{l=0}^{l=j}\\Phi_{i,l}',
-                     '\\sum_{i}\\sum_{j}N_{i,j}\\times j',)
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
         super(IonNumberDensity, self).__init__(plasma_parent)
