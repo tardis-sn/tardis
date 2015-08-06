@@ -1,3 +1,6 @@
+#ifdef WITHOPENMP
+#include <omp.h>
+#endif
 #include "cmontecarlo.h"
 
 rk_state mt_state;
@@ -126,6 +129,56 @@ rpacket_doppler_factor (rpacket_t * packet, storage_model_t * storage)
     storage->inverse_time_explosion * INVERSE_C;
 }
 
+/* Methods for calculating continuum opacities */
+
+INLINE double
+bf_cross_section(storage_model_t * storage, int64_t continuum_id, double comov_nu)
+{
+  /* Temporary hardcoded values */
+  double chi_bf_partial = 0.25e-15;
+  double cont_chi_bf[] = {chi_bf_partial, 0.0, 2.0 * chi_bf_partial, 0.3 * chi_bf_partial, 2.0 * chi_bf_partial};
+  /* End of temporary hardcoded values */
+
+  double sigma_bf = cont_chi_bf[continuum_id]; //storage->bf_cross_sections[continuum_id]
+  return sigma_bf * pow((storage->continuum_list_nu[continuum_id] / comov_nu), 3);
+}
+
+INLINE
+void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
+{
+  double bf_helper = 0;
+  double comov_nu, doppler_factor;
+  double T;
+  double boltzmann_factor;
+  int64_t shell_id;
+  int64_t current_continuum_id;
+  int64_t i;
+  int64_t no_of_continuum_edges = storage->no_of_edges;
+
+  doppler_factor = rpacket_doppler_factor (packet, storage);
+  comov_nu = rpacket_get_nu (packet) * doppler_factor;
+
+  line_search(storage->continuum_list_nu, comov_nu, no_of_continuum_edges, &current_continuum_id);
+  rpacket_set_current_continuum_id(packet, current_continuum_id);
+
+  shell_id = rpacket_get_current_shell_id(packet);
+  T = storage->t_electrons[shell_id];
+  boltzmann_factor = exp(-(H * comov_nu) / KB / T);
+
+  for(i = current_continuum_id; i < no_of_continuum_edges; i++)
+  {
+    // get the levelpopulation for the level ijk in the current shell:
+    double l_pop = storage->l_pop[shell_id * no_of_continuum_edges + i];
+    // get the levelpopulation ratio \frac{n_{0,j+1,k}}{n_{i,j,k}} \frac{n_{i,j,k}}{n_{0,j+1,k}}^{*}:
+    double l_pop_r = storage->l_pop_r[shell_id * no_of_continuum_edges + i];
+    bf_helper += l_pop * bf_cross_section(storage, i, comov_nu) * (1 - l_pop_r * boltzmann_factor);
+
+    storage->chi_bf_tmp_partial[i] = bf_helper;
+  }
+
+  rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
+}
+
 INLINE double
 compute_distance2boundary (rpacket_t * packet, storage_model_t * storage)
 {
@@ -136,7 +189,6 @@ compute_distance2boundary (rpacket_t * packet, storage_model_t * storage)
   double d_outer =
     sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
   double d_inner;
-  double result;
   if (rpacket_get_recently_crossed_boundary (packet) == 1)
     {
       rpacket_set_next_shell_id (packet, 1);
@@ -222,7 +274,7 @@ compute_distance2line (rpacket_t * packet, storage_model_t * storage,
 	  fprintf (stderr, "mu = %f\n", mu);
 	  fprintf (stderr, "nu = %f\n", nu);
 	  fprintf (stderr, "doppler_factor = %f\n", doppler_factor);
-	  fprintf (stderr, "cur_zone_id = %d\n", cur_zone_id);
+	  fprintf (stderr, "cur_zone_id = %lld\n", cur_zone_id);
 	  ret_val = TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
 	}
       else
@@ -233,18 +285,54 @@ compute_distance2line (rpacket_t * packet, storage_model_t * storage,
   return ret_val;
 }
 
-INLINE double
-compute_distance2electron (rpacket_t * packet, storage_model_t * storage)
+INLINE void
+compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 {
-  if (rpacket_get_virtual_packet (packet) > 0)
+  double chi_boundfree, chi_freefree, chi_electron, chi_continuum, d_continuum;
+
+  if (storage->cont_status == CONTINUUM_ON)
+  {
+    calculate_chi_bf(packet, storage);
+    chi_boundfree = rpacket_get_chi_boundfree(packet);
+    rpacket_set_chi_freefree(packet, 0.0);
+    chi_freefree = rpacket_get_chi_freefree(packet);
+    chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson *
+       rpacket_doppler_factor (packet, storage);
+    chi_continuum = chi_boundfree + chi_freefree + chi_electron;
+    d_continuum = rpacket_get_tau_event(packet) / chi_continuum;
+  }
+  else
+  {
+    chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
+    chi_continuum = chi_electron;
+    d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
+      storage->inverse_sigma_thomson * rpacket_get_tau_event (packet);
+  }
+
+  if (packet->virtual_packet > 0)
     {
-      return MISS_DISTANCE;
-    }
-  double inverse_ne =
-    storage->
-    inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
-    storage->inverse_sigma_thomson;
-  return rpacket_get_tau_event (packet) * inverse_ne;
+	  //Set all continuum distances to MISS_DISTANCE in case of an virtual_packet
+	  rpacket_set_d_continuum(packet, MISS_DISTANCE);
+	  rpacket_set_chi_boundfree(packet, 0.0);
+	  rpacket_set_chi_electron(packet, chi_electron);
+      rpacket_set_chi_freefree(packet, 0.0);
+      rpacket_set_chi_continuum(packet, chi_continuum);
+	}
+	else
+	{
+
+//        fprintf(stderr, "--------\n");
+//        fprintf(stderr, "nu = %e \n", rpacket_get_nu(packet));
+//        fprintf(stderr, "chi_electron = %e\n", chi_electron);
+//        fprintf(stderr, "chi_boundfree = %e\n", calculate_chi_bf(packet, storage));
+//        fprintf(stderr, "chi_line = %e \n", rpacket_get_tau_event(packet) / rpacket_get_d_line(packet));
+//        fprintf(stderr, "--------\n");
+
+	  rpacket_set_chi_freefree(packet, chi_freefree);
+	  rpacket_set_chi_electron(packet, chi_electron);
+	  rpacket_set_chi_continuum(packet, chi_continuum);
+	  rpacket_set_d_continuum(packet, d_continuum);
+	}
 }
 
 INLINE int64_t
@@ -292,8 +380,14 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 	{
 	  comov_energy = rpacket_get_energy (packet) * doppler_factor;
 	  comov_nu = rpacket_get_nu (packet) * doppler_factor;
+#ifdef WITHOPENMP
+#pragma omp atomic
+#endif
 	  storage->js[rpacket_get_current_shell_id (packet)] +=
 	    comov_energy * distance;
+#ifdef WITHOPENMP
+#pragma omp atomic
+#endif
 	  storage->nubars[rpacket_get_current_shell_id (packet)] +=
 	    comov_energy * distance * comov_nu;
 	}
@@ -314,6 +408,9 @@ increment_j_blue_estimator (rpacket_t * packet, storage_model_t * storage,
   doppler_factor = 1.0 - mu_interaction * r_interaction *
     storage->inverse_time_explosion * INVERSE_C;
   comov_energy = rpacket_get_energy (packet) * doppler_factor;
+#ifdef WITHOPENMP
+#pragma omp atomic
+#endif
   storage->line_lists_j_blues[j_blue_idx] +=
     comov_energy / rpacket_get_nu (packet);
 }
@@ -337,63 +434,64 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
   else
     {
       if ((rpacket_get_nu (packet) > storage->spectrum_virt_start_nu) && (rpacket_get_nu(packet) < storage->spectrum_virt_end_nu))
-    {
-      for (i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
 	{
-	  memcpy ((void *) &virt_packet, (void *) packet, sizeof (rpacket_t));
-	  if (virt_packet.r > storage->r_inner[0])
+	  for (i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
 	    {
-	      mu_min =
-		-1.0 * sqrt (1.0 -
-			     (storage->r_inner[0] / virt_packet.r) *
-			     (storage->r_inner[0] / virt_packet.r));
-	    }
-	  else
-	    {
-	      mu_min = 0.0;
-	    }
-	  mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
-	  virt_packet.mu = mu_min + (i + rk_double (&mt_state)) * mu_bin;
-	  switch (virtual_mode)
-	    {
-	    case -2:
-	      weight = 1.0 / rpacket_get_virtual_packet_flag (packet);
-	      break;
-	    case -1:
-	      weight =
-		2.0 * virt_packet.mu /
-		rpacket_get_virtual_packet_flag (packet);
-	      break;
-	    case 1:
-	      weight =
-		(1.0 -
-		 mu_min) / 2.0 / rpacket_get_virtual_packet_flag (packet);
-	      break;
-	    default:
-	      fprintf (stderr, "Something has gone horribly wrong!\n");
-	    }
-	  doppler_factor_ratio =
-	    rpacket_doppler_factor (packet, storage) /
-	    rpacket_doppler_factor (&virt_packet, storage);
-	  virt_packet.energy =
-	    rpacket_get_energy (packet) * doppler_factor_ratio;
-	  virt_packet.nu = rpacket_get_nu (packet) * doppler_factor_ratio;
-	  reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1);
-	  if ((virt_packet.nu < storage->spectrum_end_nu) &&
-	      (virt_packet.nu > storage->spectrum_start_nu))
-	    {
-	      virt_id_nu =
-		floor ((virt_packet.nu -
-			storage->spectrum_start_nu) /
-		       storage->spectrum_delta_nu);
-	      storage->spectrum_virt_nu[virt_id_nu] +=
-		virt_packet.energy * weight;
+	      memcpy ((void *) &virt_packet, (void *) packet, sizeof (rpacket_t));
+	      if (virt_packet.r > storage->r_inner[0])
+		{
+		  mu_min =
+		    -1.0 * sqrt (1.0 -
+				 (storage->r_inner[0] / virt_packet.r) *
+				 (storage->r_inner[0] / virt_packet.r));
+		}
+	      else
+		{
+		  mu_min = 0.0;
+		}
+	      mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
+	      virt_packet.mu = mu_min + (i + rk_double (&mt_state)) * mu_bin;
+	      switch (virtual_mode)
+		{
+		case -2:
+		  weight = 1.0 / rpacket_get_virtual_packet_flag (packet);
+		  break;
+		case -1:
+		  weight =
+		    2.0 * virt_packet.mu /
+		    rpacket_get_virtual_packet_flag (packet);
+		  break;
+		case 1:
+		  weight =
+		    (1.0 -
+		     mu_min) / 2.0 / rpacket_get_virtual_packet_flag (packet);
+		  break;
+		default:
+		  fprintf (stderr, "Something has gone horribly wrong!\n");
+		}
+	      doppler_factor_ratio =
+		rpacket_doppler_factor (packet, storage) /
+		rpacket_doppler_factor (&virt_packet, storage);
+	      virt_packet.energy =
+		rpacket_get_energy (packet) * doppler_factor_ratio;
+	      virt_packet.nu = rpacket_get_nu (packet) * doppler_factor_ratio;
+	      reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1);
+	      if ((virt_packet.nu < storage->spectrum_end_nu) &&
+		  (virt_packet.nu > storage->spectrum_start_nu))
+		{
+		  virt_id_nu =
+		    floor ((virt_packet.nu -
+			    storage->spectrum_start_nu) /
+			   storage->spectrum_delta_nu);
+		  storage->spectrum_virt_nu[virt_id_nu] +=
+		    virt_packet.energy * weight;
+		}
 	    }
 	}
-    }
-  else{
-    return 1;
-  }
+      else
+	{
+	  return 1;
+	}
     }
   return reabsorbed;
 }
@@ -406,9 +504,7 @@ move_packet_across_shell_boundary (rpacket_t * packet,
   move_packet (packet, storage, distance);
   if (rpacket_get_virtual_packet (packet) > 0)
     {
-      double delta_tau_event = distance *
-	storage->electron_densities[rpacket_get_current_shell_id (packet)] *
-	storage->sigma_thomson;
+      double delta_tau_event = rpacket_get_chi_continuum(packet) * distance;
       rpacket_set_tau_event (packet,
 			     rpacket_get_tau_event (packet) +
 			     delta_tau_event);
@@ -469,12 +565,61 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   rpacket_reset_tau_event (packet);
   rpacket_set_recently_crossed_boundary (packet, 0);
-  storage->last_interaction_type[storage->current_packet_id] = 1;
+  storage->last_interaction_type[rpacket_get_id (packet)] = 1;
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
       montecarlo_one_packet (storage, packet, 1);
     }
 }
+
+void
+montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance)
+{
+  /* current position in list of continuum edges -> indicates which bound-free processes are possible */
+  int64_t current_continuum_id = rpacket_get_current_continuum_id(packet);
+  int64_t ccontinuum; /* continuum_id of the continuum in which bf-absorption occurs */
+
+  double zrand, zrand_x_chibf, chi_bf, nu;
+  // Determine in which continuum the bf-absorption occurs
+  nu = rpacket_get_nu(packet);
+  chi_bf = rpacket_get_chi_boundfree(packet);
+  // get new zrand
+  zrand = (rk_double(&mt_state));
+  zrand_x_chibf = zrand * chi_bf;
+
+  ccontinuum = current_continuum_id;
+  while (storage->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf)
+  {
+    ccontinuum++;
+  }
+//  Alternative way to choose a continuum for bf-absorption:
+//  error =
+//  binary_search(storage->chi_bf_tmp_partial, zrand_x_chibf, current_continuum_id,no_of_continuum_edges-1,&ccontinuum);
+//  if (error == TARDIS_ERROR_BOUNDS_ERROR) // x_insert < x[imin] -> set index equal to imin
+//   {
+//      ccontinuum = current_continuum_id;
+//   }
+
+  zrand = (rk_double(&mt_state));
+  if (zrand < storage->continuum_list_nu[ccontinuum] / nu)
+  {
+	// go to ionization energy
+    rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
+  }
+  else
+  {
+    //go to the thermal pool
+    //create_kpacket(packet);
+    rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
+  }
+}
+
+void
+montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage, double distance)
+{
+  rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
+}
+
 
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
@@ -485,7 +630,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
   double old_doppler_factor = 0.0;
   double inverse_doppler_factor = 0.0;
   double tau_line = 0.0;
-  double tau_electron = 0.0;
+  double tau_continuum = 0.0;
   double tau_combined = 0.0;
   bool virtual_close_line = false;
   int64_t j_blue_idx = -1;
@@ -500,11 +645,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     storage->line_lists_tau_sobolevs[rpacket_get_current_shell_id (packet) *
 				     storage->line_lists_tau_sobolevs_nd +
 				     rpacket_get_next_line_id (packet)];
-  tau_electron =
-    storage->sigma_thomson *
-    storage->electron_densities[rpacket_get_current_shell_id (packet)] *
-    distance;
-  tau_combined = tau_line + tau_electron;
+  tau_continuum = rpacket_get_chi_continuum(packet) * distance;
+  tau_combined = tau_line + tau_continuum;
   rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
   if (rpacket_get_next_line_id (packet) == storage->no_of_lines)
     {
@@ -522,11 +664,11 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
       comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
-      storage->last_line_interaction_in_id[storage->current_packet_id] =
+      storage->last_line_interaction_in_id[rpacket_get_id (packet)] =
 	rpacket_get_next_line_id (packet) - 1;
-      storage->last_line_interaction_shell_id[storage->current_packet_id] =
+      storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =
 	rpacket_get_current_shell_id (packet);
-      storage->last_interaction_type[storage->current_packet_id] = 2;
+      storage->last_interaction_type[rpacket_get_id (packet)] = 2;
       if (storage->line_interaction_id == 0)
 	{
 	  emission_line_id = rpacket_get_next_line_id (packet) - 1;
@@ -535,7 +677,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 	{
 	  emission_line_id = macro_atom (packet, storage);
 	}
-      storage->last_line_interaction_out_id[storage->current_packet_id] =
+      storage->last_line_interaction_out_id[rpacket_get_id (packet)] =
 	emission_line_id;
       rpacket_set_nu (packet,
 		      storage->line_list_nu[emission_line_id] *
@@ -594,8 +736,7 @@ montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
       double d_line;
       compute_distance2line (packet, storage, &d_line);
       rpacket_set_d_line (packet, d_line);
-      rpacket_set_d_electron (packet,
-			      compute_distance2electron (packet, storage));
+      compute_distance2continuum (packet, storage);
     }
 }
 
@@ -603,28 +744,61 @@ INLINE montecarlo_event_handler_t
 get_event_handler (rpacket_t * packet, storage_model_t * storage,
 		   double *distance)
 {
-  double d_boundary, d_electron, d_line;
+  double d_boundary, d_continuum, d_line;
   montecarlo_compute_distances (packet, storage);
   d_boundary = rpacket_get_d_boundary (packet);
-  d_electron = rpacket_get_d_electron (packet);
+  d_continuum = rpacket_get_d_continuum (packet);
   d_line = rpacket_get_d_line (packet);
   montecarlo_event_handler_t handler;
-  if (d_line <= d_boundary && d_line <= d_electron)
+  if (d_line <= d_boundary && d_line <= d_continuum)
     {
       *distance = d_line;
       handler = &montecarlo_line_scatter;
     }
-  else if (d_boundary <= d_electron)
+  else if (d_boundary <= d_continuum)
     {
       *distance = d_boundary;
       handler = &move_packet_across_shell_boundary;
     }
   else
     {
-      *distance = d_electron;
-      handler = &montecarlo_thomson_scatter;
+      *distance = d_continuum;
+      handler = montecarlo_continuum_event_handler(packet, storage);
     }
   return handler;
+}
+
+INLINE montecarlo_event_handler_t
+montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage)
+{
+  if (storage->cont_status == CONTINUUM_OFF)
+    {
+      return &montecarlo_thomson_scatter;
+    }
+  else
+    {
+  double zrand, normaliz_cont_th, normaliz_cont_bf, normaliz_cont_ff;
+  zrand = (rk_double(&mt_state));
+  normaliz_cont_th = rpacket_get_chi_electron(packet)/rpacket_get_chi_continuum(packet);
+  normaliz_cont_bf = rpacket_get_chi_boundfree(packet)/rpacket_get_chi_continuum(packet);
+  normaliz_cont_ff = rpacket_get_chi_freefree(packet)/rpacket_get_chi_continuum(packet);
+
+  if (zrand < normaliz_cont_th)
+    {
+	  //Return the electron scatter event function
+	  return &montecarlo_thomson_scatter;
+    }
+  else if (zrand < (normaliz_cont_th + normaliz_cont_bf))
+    {
+	  //Return the bound-free scatter event function
+	  return &montecarlo_bound_free_scatter;
+	}
+  else
+    {
+	  //Return the free-free scatter event function
+	  return &montecarlo_free_free_scatter;
+	}
+    }
 }
 
 int64_t
@@ -669,4 +843,46 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
     }
   return rpacket_get_status (packet) ==
     TARDIS_PACKET_STATUS_REABSORBED ? 1 : 0;
+}
+
+void
+montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
+{
+  int64_t packet_index;
+#ifdef WITHOPENMP
+  fprintf(stderr, "Running with OpenMP - %d threads", nthreads);
+  omp_set_dynamic(0);
+  omp_set_num_threads(nthreads);
+#pragma omp parallel
+  {
+    initialize_random_kit(seed + omp_get_thread_num());
+#pragma omp for
+#else
+  fprintf(stderr, "Running without OpenMP");
+  initialize_random_kit(seed);
+#endif
+  for (packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
+    {
+      int reabsorbed = 0;
+      rpacket_t packet;
+      rpacket_set_id(&packet, packet_index);
+      rpacket_init(&packet, storage, packet_index, virtual_packet_flag);
+      if (virtual_packet_flag > 0)
+	{
+	  reabsorbed = montecarlo_one_packet(storage, &packet, -1);
+	}
+      reabsorbed = montecarlo_one_packet(storage, &packet, 0);
+      storage->output_nus[packet_index] = rpacket_get_nu(&packet);
+      if (reabsorbed == 1)
+	{
+	  storage->output_energies[packet_index] = -rpacket_get_energy(&packet);
+	}
+      else
+	{
+	  storage->output_energies[packet_index] = rpacket_get_energy(&packet);
+	}
+    }
+#ifdef WITHOPENMP
+  }
+#endif
 }

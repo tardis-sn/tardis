@@ -215,3 +215,10 @@ test_rpacket_get_status(void){
 	}
 	return true;
 }
+
+bool
+test_rpacket_get_id(void){
+	rpacket_t * rp = (rpacket_t *) malloc(sizeof(rpacket_t));
+	rpacket_set_id(rp, 2);
+	return rpacket_get_id(rp) == 2;
+}
