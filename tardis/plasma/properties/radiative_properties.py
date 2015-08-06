@@ -39,7 +39,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         return self._g_upper
 
     def calculate(self, g, level_number_density, lines_lower_level_index,
-        lines_upper_level_index, metastability):
+        lines_upper_level_index, metastability, nlte_species, lines):
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise').copy('F')
         n_upper = level_number_density.values.take(lines_upper_level_index,
@@ -55,6 +55,14 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             = 0.0
         stimulated_emission_factor[meta_stable_upper &
                                    (stimulated_emission_factor < 0)] = 0.0
+        if nlte_species:
+            nlte_lines_mask = \
+                np.zeros(stimulated_emission_factor.shape[0]).astype(bool)
+            for species in nlte_species:
+                nlte_lines_mask |= (lines.atomic_number == species[0]) & \
+                                   (lines.ion_number == species[1])
+            stimulated_emission_factor[(stimulated_emission_factor < 0) &
+                nlte_lines_mask[np.newaxis].T] = 0.0
         return stimulated_emission_factor
 
 class TauSobolev(ProcessingPlasmaProperty):
@@ -79,13 +87,6 @@ class TauSobolev(ProcessingPlasmaProperty):
         wavelength = wavelength_cm.values[np.newaxis].T
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise').copy('F')
-#To be added for NLTE.
-        #if self.nlte_config is not None and self.nlte_config.species != []:
-        #    nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
-        #    for species in self.nlte_config.species:
-        #        nlte_lines_mask |= (self.atom_data.lines.atomic_number == species[0]) & \
-        #                           (self.atom_data.lines.ion_number == species[1])
-        #    self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask[np.newaxis].T] = 0.0
         tau_sobolevs = (self.sobolev_coefficient * f_lu * wavelength *
                         time_explosion * n_lower * stimulated_emission_factor)
         return pd.DataFrame(tau_sobolevs, index=lines.index,
