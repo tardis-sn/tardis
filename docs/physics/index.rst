@@ -10,4 +10,4 @@ gradually expanded
 
     physical_quantities
     montecarlo
-    plasma
+    plasma/index

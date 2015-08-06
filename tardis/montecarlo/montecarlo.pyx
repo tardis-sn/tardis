@@ -17,29 +17,9 @@ np.import_array()
 ctypedef np.int64_t int_type_t
 
 cdef extern from "src/cmontecarlo.h":
-    ctypedef enum rpacket_status_t:
-        TARDIS_PACKET_STATUS_IN_PROCESS = 0
-        TARDIS_PACKET_STATUS_EMITTED = 1
-        TARDIS_PACKET_STATUS_REABSORBED = 2
-
-    ctypedef struct rpacket_t:
-        double nu
-        double mu
-        double energy
-        double r
-        double tau_event
-        double nu_line
-        int_type_t current_shell_id
-        int_type_t next_line_id
-        int_type_t last_line
-        int_type_t close_line
-        int_type_t recently_crossed_boundary
-        int_type_t virtual_packet_flag
-        int_type_t virtual_packet
-        double d_line
-        double d_electron
-        double d_boundary
-        rpacket_status_t next_shell_id
+    ctypedef enum ContinuumProcessesStatus:
+        CONTINUUM_OFF = 0
+        CONTINUUM_ON = 1
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -62,10 +42,12 @@ cdef extern from "src/cmontecarlo.h":
         double *inverse_electron_densities
         double *line_list_nu
         double *line_lists_tau_sobolevs
+        double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
         int_type_t line_lists_j_blues_nd
         int_type_t no_of_lines
+        int_type_t no_of_edges
         int_type_t line_interaction_id
         double *transition_probabilities
         int_type_t transition_probabilities_nd
@@ -86,17 +68,15 @@ cdef extern from "src/cmontecarlo.h":
         double inverse_sigma_thomson
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
-        int_type_t current_packet_id
+        double *chi_bf_tmp_partial
+        double *t_electrons
+        double *l_pop
+        double *l_pop_r
+        ContinuumProcessesStatus cont_status
 
-    int_type_t montecarlo_one_packet(storage_model_t *storage, rpacket_t *packet, int_type_t virtual_mode)
-    int rpacket_init(rpacket_t *packet, storage_model_t *storage, int packet_index, int virtual_packet_flag)
-    double rpacket_get_nu(rpacket_t *packet)
-    double rpacket_get_energy(rpacket_t *packet)
-    void initialize_random_kit(unsigned long seed)
+    void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
-
-
-def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
+def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4):
     """
     Parameters
     ----------
@@ -125,8 +105,6 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
                     int_type_t do_scatter
     """
     cdef storage_model_t storage
-    cdef rpacket_t packet
-    initialize_random_kit(model.tardis_config.montecarlo.seed)
     cdef np.ndarray[double, ndim=1] packet_nus = model.packet_src.packet_nus
     storage.packet_nus = <double*> packet_nus.data
     cdef np.ndarray[double, ndim=1] packet_mus = model.packet_src.packet_mus
@@ -152,6 +130,23 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.electron_densities = <double*> electron_densities.data
     cdef np.ndarray[double, ndim=1] inverse_electron_densities = 1.0 / electron_densities
     storage.inverse_electron_densities = <double*> inverse_electron_densities.data
+    # Switch for continuum processes
+    storage.cont_status = CONTINUUM_OFF
+    # Continuum data
+    cdef np.ndarray[double, ndim=1] continuum_list_nu
+    cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
+    cdef np.ndarray[double, ndim=1] l_pop
+    cdef np.ndarray[double, ndim=1] l_pop_r
+    if storage.cont_status == CONTINUUM_ON:
+        continuum_list_nu = np.array([9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # sorted list of threshold frequencies
+        storage.continuum_list_nu = <double*> continuum_list_nu.data
+        storage.no_of_edges = continuum_list_nu.size
+        chi_bf_tmp_partial = np.zeros(continuum_list_nu.size)
+        storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
+        l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
+        storage.l_pop = <double*> l_pop.data
+        l_pop_r = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
+        storage.l_pop_r = <double*> l_pop_r.data
     # Line lists
     cdef np.ndarray[double, ndim=1] line_list_nu = model.atom_data.lines.nu.values
     storage.line_list_nu = <double*> line_list_nu.data
@@ -220,20 +215,12 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0):
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
-    storage.current_packet_id = -1
+    # Data for continuum implementation
+    cdef np.ndarray[double, ndim=1] t_electrons = model.plasma_array.t_electrons
+    storage.t_electrons = <double*> t_electrons.data
     ######## Setting up the output ########
     #cdef np.ndarray[double, ndim=1] output_nus = np.zeros(storage.no_of_packets, dtype=np.float64)
     #cdef np.ndarray[double, ndim=1] output_energies = np.zeros(storage.no_of_packets, dtype=np.float64)
-    cdef int_type_t reabsorbed = 0
-    for packet_index in range(storage.no_of_packets):
-        storage.current_packet_id = packet_index
-        rpacket_init(&packet, &storage, packet_index, virtual_packet_flag)
-        if (virtual_packet_flag > 0):
-            #this is a run for which we want the virtual packet spectrum. So first thing we need to do is spawn virtual packets to track the input packet
-            reabsorbed = montecarlo_one_packet(&storage, &packet, -1)
-        #Now can do the propagation of the real packet
-        reabsorbed = montecarlo_one_packet(&storage, &packet, 0)
-        storage.output_nus[packet_index] = rpacket_get_nu(&packet)
-        storage.output_energies[packet_index] = -rpacket_get_energy(&packet) if reabsorbed == 1 else rpacket_get_energy(&packet)
+    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, model.tardis_config.montecarlo.seed)
     return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id
 
