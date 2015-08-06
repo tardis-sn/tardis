@@ -60,6 +60,10 @@ def j_blues(lines):
 def link_t_rad_t_electron():
     return 0.9
 
+@pytest.fixture
+def nlte_species():
+    return None
+
 # GENERAL PROPERTIES
 
 @pytest.fixture
@@ -239,10 +243,12 @@ def level_number_density(level_boltzmann_factor_lte, ion_number_density,
 
 @pytest.fixture
 def stimulated_emission_factor(g, level_number_density,
-        lines_lower_level_index, lines_upper_level_index, metastability):
+        lines_lower_level_index, lines_upper_level_index, metastability,
+        nlte_species, lines):
     factor_module = StimulatedEmissionFactor(None)
     return factor_module.calculate(g, level_number_density,
-        lines_lower_level_index, lines_upper_level_index, metastability)
+        lines_lower_level_index, lines_upper_level_index, metastability,
+        nlte_species, lines)
 
 @pytest.fixture
 def tau_sobolev(lines, level_number_density, lines_lower_level_index,
