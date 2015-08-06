@@ -13,7 +13,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     """
     outputs = ('level_number_density',)
     latex_name = ('N_{i,j,k}',)
-    latex_formula = ('N_{i,j}\\frac{bf_{i,j,k}}{Z_{i,j}}',)
+    latex_formula = ('N_{i,j}\\dfrac{bf_{i,j,k}}{Z_{i,j}}',)
 
     def calculate(self, level_boltzmann_factor, ion_number_density,
         levels, partition_function):
