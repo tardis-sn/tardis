@@ -194,6 +194,15 @@ class BasePlasma(object):
         print_graph.remove_node('LinesLowerLevelIndex')
         for node in print_graph:
             print_graph.node[str(node)]['label'] = node
+            if hasattr(self.plasma_properties_dict[node],
+                'latex_formula'):
+                formulae = self.plasma_properties_dict[node].latex_formula
+                for output in range(0, len(formulae)):
+                    formula = formulae[output]
+                    label = formula.replace('\\', '\\\\')
+                    print_graph.node[str(node)]['label']+='\\n$'
+                    print_graph.node[str(node)]['label']+=label
+                    print_graph.node[str(node)]['label']+='$'
 
         nx.write_dot(print_graph, fname)
 
@@ -218,23 +227,6 @@ class BasePlasma(object):
 
         for line in fileinput.input(fname_graph, inplace = 1):
             print line.replace('\enlargethispage{100cm}', ''),
-
-        formulae = open(fname_formulae, 'w')
-        print>>formulae, '\\documentclass{minimal}', '\n',\
-            '\usepackage{amsmath}', '\n', '\\begin{document}', '\n'
-        for key in self.outputs_dict.keys():
-            output_number = self.outputs_dict[key].outputs.index(key)
-            try:
-                label = self.outputs_dict[key].latex_name[output_number]
-            except:
-                label = key.replace('_', '-')
-            if hasattr(self.outputs_dict[key], 'latex_formula'):
-                print>>formulae, '$' + label + '$' + '\\['
-                print>>formulae, self.outputs_dict[key].latex_formula[
-                    output_number]
-                print>>formulae, '\\]' + '\n'
-        print>>formulae, '\\end{document}'
-        formulae.close()
 
 class StandardPlasma(BasePlasma):
 
