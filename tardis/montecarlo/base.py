@@ -88,9 +88,9 @@ class MontecarloRunner(object):
         Returns
         -------
 
-        updated_t_rads : ~np.ndarray (float)
+        t_rad : ~astropy.units.Quantity (float)
 
-        updated_ws : ~np.ndarray (float)
+        w : ~numpy.ndarray (float)
 
         """
 
