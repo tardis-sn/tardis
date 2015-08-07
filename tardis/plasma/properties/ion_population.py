@@ -54,7 +54,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
                      \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
                      \\right)^{1/2}',)
 
-    def calculate(self, general_phi, t_rad, w, zeta_data, t_electron, delta):
+    def calculate(self, general_phi, t_rad, w, zeta_data, t_electrons, delta):
         try:
             zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[
                 general_phi.index].values)(t_rad)
@@ -66,7 +66,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
                 zeta_data.columns.values.min(), zeta_data.columns.values.max(),
                 t_rad))
         phis = general_phi * delta * w * (zeta + w * (1 - zeta)) * \
-               (t_electron/t_rad) ** .5
+               (t_electrons/t_rad) ** .5
         return phis
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
@@ -100,7 +100,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         self.departure_coefficient = departure_coefficient
         self.chi_0_species = chi_0_species
 
-    def calculate(self, w, ionization_data, beta_rad, t_electron, t_rad,
+    def calculate(self, w, ionization_data, beta_rad, t_electrons, t_rad,
         beta_electron, delta_input):
         if delta_input is None:
             if self.departure_coefficient is None:
@@ -113,7 +113,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
                 beta_rad)))
             less_than_chi_0 = (
                 ionization_data.ionization_energy < chi_0).values
-            factor_a = (t_electron / (departure_coefficient * w * t_rad))
+            factor_a = (t_electrons / (departure_coefficient * w * t_rad))
             radiation_field_correction[~less_than_chi_0] = factor_a * \
                 np.exp(np.outer(ionization_data.ionization_energy.values[
                 ~less_than_chi_0], beta_rad - beta_electron))

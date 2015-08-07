@@ -46,7 +46,7 @@ class LegacyPlasmaArray(BasePlasma):
 
     def update_radiationfield(self, t_rad, ws, j_blues, nlte_excitation_config,
         t_electrons=None, n_e_convergence_threshold=0.05,
-        initialize_nlte=False):
+        initialize_nlte_excitation=False):
         if nlte_excitation_config.species:
             self.store_previous_properties()
         self.update(t_rad=t_rad, w=ws, j_blues=j_blues)

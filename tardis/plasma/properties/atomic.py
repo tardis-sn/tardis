@@ -231,4 +231,4 @@ class NLTEExcitationData(ProcessingPlasmaProperty):
         if getattr(self, self.outputs[0]) is not None:
             return (getattr(self, self.outputs[0]),)
         else:
-            return atomic_data.nlte_data
+            return atomic_data.nlte_excitation_data

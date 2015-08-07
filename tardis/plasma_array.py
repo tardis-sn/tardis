@@ -72,7 +72,7 @@ class BasePlasmaArray(object):
     t_electron : `~float`, optional
         electron temperature in K (the default is `None` and implies to set it to 0.9 * t_rad)
 
-    nlte_species : `~list`-like, optional
+    nlte_excitation_species : `~list`-like, optional
         what species to use for NLTE calculations (e.g. [(20,1), (14, 1)] for Ca II and Si II; default is [])
 
     nlte_options={} : `dict`-like, optional
@@ -93,7 +93,7 @@ class BasePlasmaArray(object):
 
     @classmethod
     def from_abundance(cls, abundance_dict, density, atom_data, time_explosion,
-                       nlte_config=None, ionization_mode='lte',
+                       nlte_excitation_config=None, ionization_mode='lte',
                        excitation_mode='lte'):
         """
         Initializing the abundances from the a dictionary like {'Si':0.5, 'Fe':0.5} and a density.
@@ -125,14 +125,14 @@ class BasePlasmaArray(object):
         number_densities = abundances * density.to('g/cm^3').value
 
         number_densities = number_densities.div(atom_data.atom_data.mass.ix[number_densities.index], axis=0)
-        if nlte_config is not None:
-            nlte_species = nlte_config.species
+        if nlte_excitation_config is not None:
+            nlte_excitation_species = nlte_excitation_config.species
         else:
-            nlte_species = []
-        atom_data.prepare_atom_data(number_densities.index.values, nlte_species=nlte_species)
+            nlte_excitation_species = []
+        atom_data.prepare_atom_data(number_densities.index.values, nlte_excitation_species=nlte_excitation_species)
 
         return cls(number_densities, atom_data, time_explosion.to('s').value,
-                   nlte_config=nlte_config, ionization_mode=ionization_mode,
+                   nlte_excitation_config=nlte_excitation_config, ionization_mode=ionization_mode,
                    excitation_mode=excitation_mode)
 
     @classmethod
@@ -140,12 +140,12 @@ class BasePlasmaArray(object):
         raise NotImplementedError()
 
 
-    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_config=None,
+    def __init__(self, number_densities, atom_data, time_explosion, delta_treatment=None, nlte_excitation_config=None,
                  ionization_mode='lte', excitation_mode='lte'):
         self.number_densities = number_densities
         self.atom_data = atom_data
         self.time_explosion = time_explosion
-        self.nlte_config = nlte_config
+        self.nlte_excitation_config = nlte_excitation_config
         self.delta_treatment = delta_treatment
         self.electron_densities = self.number_densities.sum(axis=0)
 
@@ -256,7 +256,7 @@ class BasePlasmaArray(object):
         self.calculate_level_populations(initialize_nlte=initialize_nlte, excitation_mode=self.excitation_mode)
         self.tau_sobolevs = self.calculate_tau_sobolev()
 
-        if self.nlte_config is not None and self.nlte_config.species:
+        if self.nlte_excitation_config is not None and self.nlte_excitation_config.species:
             self.calculate_nlte_level_populations()
 
 
@@ -302,8 +302,8 @@ class BasePlasmaArray(object):
             partition_functions_non_meta = self.ws * level_population_proportionalities[~self.atom_data.levels.metastable].groupby(
                 level=['atomic_number', 'ion_number']).sum()
         partition_functions.ix[partition_functions_non_meta.index] += partition_functions_non_meta
-        if self.nlte_config is not None and self.nlte_config.species != [] and not initialize_nlte:
-            for species in self.nlte_config.species:
+        if self.nlte_excitation_config is not None and self.nlte_excitation_config.species != [] and not initialize_nlte:
+            for species in self.nlte_excitation_config.species:
                 partition_functions.ix[species] = self.atom_data.levels.g.ix[species].ix[0] * \
                                                        (self.level_populations.ix[species] /
                                                         self.level_populations.ix[species].ix[0]).sum()
@@ -529,7 +529,7 @@ class BasePlasmaArray(object):
         if initialize_nlte:
             self.level_populations.update(level_populations)
         else:
-            self.level_populations.update(level_populations[~self.atom_data.nlte_data.nlte_levels_mask])
+            self.level_populations.update(level_populations[~self.atom_data.nlte_excitation_data.nlte_levels_mask])
 
 
     def calculate_nlte_level_populations(self):
@@ -545,7 +545,7 @@ class BasePlasmaArray(object):
                                           self.beta_sobolevs.ravel(order='F'))
         self.beta_sobolevs_precalculated = True
 
-        if self.nlte_config.get('coronal_approximation', False):
+        if self.nlte_excitation_config.get('coronal_approximation', False):
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
             j_blues = np.zeros_like(self.j_blues)
             logger.info('using coronal approximation = setting beta_sobolevs to 1 AND j_blues to 0')
@@ -553,22 +553,22 @@ class BasePlasmaArray(object):
             beta_sobolevs = self.beta_sobolevs
             j_blues = self.j_blues.values
 
-        if self.nlte_config.get('classical_nebular', False):
+        if self.nlte_excitation_config.get('classical_nebular', False):
             logger.info('using Classical Nebular = setting beta_sobolevs to 1')
             beta_sobolevs = np.ones_like(self.beta_sobolevs)
 
-        for species in self.nlte_config.species:
+        for species in self.nlte_excitation_config.species:
             logger.info('Calculating rates for species %s', species)
             number_of_levels = self.atom_data.levels.energy.ix[species].count()
 
             level_populations = self.level_populations.ix[species].values
-            lnl = self.atom_data.nlte_data.lines_level_number_lower[species]
-            lnu = self.atom_data.nlte_data.lines_level_number_upper[species]
+            lnl = self.atom_data.nlte_excitation_data.lines_level_number_lower[species]
+            lnu = self.atom_data.nlte_excitation_data.lines_level_number_upper[species]
 
-            lines_index = self.atom_data.nlte_data.lines_idx[species]
-            A_uls = self.atom_data.nlte_data.A_uls[species]
-            B_uls = self.atom_data.nlte_data.B_uls[species]
-            B_lus = self.atom_data.nlte_data.B_lus[species]
+            lines_index = self.atom_data.nlte_excitation_data.lines_idx[species]
+            A_uls = self.atom_data.nlte_excitation_data.A_uls[species]
+            B_uls = self.atom_data.nlte_excitation_data.B_uls[species]
+            B_lus = self.atom_data.nlte_excitation_data.B_lus[species]
 
             r_lu_index = lnu * number_of_levels + lnl
             r_ul_index = lnl * number_of_levels + lnu
@@ -582,7 +582,7 @@ class BasePlasmaArray(object):
             r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2, len(self.t_rads)))
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * j_blues[lines_index] * beta_sobolevs[lines_index]
 
-            collision_matrix = self.atom_data.nlte_data.get_collision_matrix(species, self.t_electrons) * \
+            collision_matrix = self.atom_data.nlte_excitation_data.get_collision_matrix(species, self.t_electrons) * \
                                self.electron_densities.values
 
 
@@ -640,9 +640,9 @@ class BasePlasmaArray(object):
         self.stimulated_emission_factor[np.isneginf(self.stimulated_emission_factor)] = 0.0
         self.stimulated_emission_factor[meta_stable_upper[np.newaxis].T & (self.stimulated_emission_factor < 0)] = 0.0
 
-        if self.nlte_config is not None and self.nlte_config.species != []:
+        if self.nlte_excitation_config is not None and self.nlte_excitation_config.species != []:
             nlte_lines_mask = np.zeros(self.stimulated_emission_factor.shape[0]).astype(bool)
-            for species in self.nlte_config.species:
+            for species in self.nlte_excitation_config.species:
                 nlte_lines_mask |= (self.atom_data.lines.atomic_number == species[0]) & \
                                    (self.atom_data.lines.ion_number == species[1])
             self.stimulated_emission_factor[(self.stimulated_emission_factor < 0) & nlte_lines_mask[np.newaxis].T] = 0.0

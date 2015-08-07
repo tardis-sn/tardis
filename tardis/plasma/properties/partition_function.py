@@ -81,7 +81,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             self.calculate = self._calculate_general
         self._update_inputs()
 
-    def _main_nlte_calculation(self, nlte_species, atomic_data, nlte_data,
+    def _main_nlte_calculation(self, nlte_excitation_species, atomic_data, nlte_excitation_data,
         t_electrons, j_blues, beta_sobolevs, general_level_boltzmann_factor,
         previous_electron_densities):
         for species in nlte_excitation_species:
@@ -113,7 +113,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     collision_matrix = r_ul_matrix.copy()
                     collision_matrix.fill(0.0)
                 else:
-                    collision_matrix = nlte_data.get_collision_matrix(species,
+                    collision_matrix = nlte_excitation_data.get_collision_matrix(species,
                         t_electrons) * previous_electron_densities.values
             else:
                 collision_matrix = r_ul_matrix.copy()
@@ -132,7 +132,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         return general_level_boltzmann_factor
 
     def _calculate_classical_nebular(self, t_electrons, lines, atomic_data,
-        nlte_data, general_level_boltzmann_factor, nlte_species, j_blues,
+        nlte_excitation_data, general_level_boltzmann_factor, nlte_excitation_species, j_blues,
         previous_beta_sobolevs, lte_j_blues, previous_electron_densities):
         beta_sobolevs = np.ones((len(lines), len(t_electrons)))
         if len(j_blues)==0:
@@ -141,24 +141,24 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             j_blues = pd.DataFrame(j_blues, index=lines.index, columns =
                 range(len(t_electrons)))
         general_level_boltzmann_factor = self._main_nlte_calculation(
-            nlte_species, atomic_data, nlte_data, t_electrons, j_blues,
+            nlte_excitation_species, atomic_data, nlte_excitation_data, t_electrons, j_blues,
             beta_sobolevs, general_level_boltzmann_factor,
             previous_electron_densities)
         return general_level_boltzmann_factor
 
     def _calculate_coronal_approximation(self, t_electrons, lines, atomic_data,
-        nlte_data, general_level_boltzmann_factor, nlte_species,
+        nlte_excitation_data, general_level_boltzmann_factor, nlte_excitation_species,
         previous_electron_densities):
         beta_sobolevs = np.ones((len(lines), len(t_electrons)))
         j_blues = np.zeros((len(lines), len(t_electrons)))
         general_level_boltzmann_factor = self._main_nlte_calculation(
-            nlte_species, atomic_data, nlte_data, t_electrons, j_blues,
+            nlte_excitation_species, atomic_data, nlte_excitation_data, t_electrons, j_blues,
             beta_sobolevs, general_level_boltzmann_factor,
             previous_electron_densities)
         return general_level_boltzmann_factor
 
-    def _calculate_general(self, t_electrons, lines, atomic_data, nlte_data,
-        general_level_boltzmann_factor, nlte_species, j_blues,
+    def _calculate_general(self, t_electrons, lines, atomic_data, nlte_excitation_data,
+        general_level_boltzmann_factor, nlte_excitation_species, j_blues,
         previous_beta_sobolevs, lte_j_blues, previous_electron_densities):
         if previous_beta_sobolevs is None:
             beta_sobolevs = np.ones((len(lines), len(t_electrons)))
@@ -170,7 +170,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             j_blues = pd.DataFrame(j_blues, index=lines.index, columns =
                 range(len(t_electrons)))
         general_level_boltzmann_factor = self._main_nlte_calculation(
-            nlte_species, atomic_data, nlte_data, t_electrons, j_blues,
+            nlte_excitation_species, atomic_data, nlte_excitation_data, t_electrons, j_blues,
             beta_sobolevs, general_level_boltzmann_factor,
             previous_electron_densities)
         return general_level_boltzmann_factor

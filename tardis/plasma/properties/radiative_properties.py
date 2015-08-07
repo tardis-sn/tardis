@@ -39,7 +39,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         return self._g_upper
 
     def calculate(self, g, level_number_density, lines_lower_level_index,
-        lines_upper_level_index, metastability, nlte_species, lines):
+        lines_upper_level_index, metastability, nlte_excitation_species, lines):
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise').copy('F')
         n_upper = level_number_density.values.take(lines_upper_level_index,
@@ -55,10 +55,10 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             = 0.0
         stimulated_emission_factor[meta_stable_upper &
                                    (stimulated_emission_factor < 0)] = 0.0
-        if nlte_species:
+        if nlte_excitation_species:
             nlte_lines_mask = \
                 np.zeros(stimulated_emission_factor.shape[0]).astype(bool)
-            for species in nlte_species:
+            for species in nlte_excitation_species:
                 nlte_lines_mask |= (lines.atomic_number == species[0]) & \
                                    (lines.ion_number == species[1])
             stimulated_emission_factor[(stimulated_emission_factor < 0) &

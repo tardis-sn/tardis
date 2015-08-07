@@ -76,7 +76,7 @@ cdef extern from "src/cmontecarlo.h":
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
-def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4):
+def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=1):
     """
     Parameters
     ----------

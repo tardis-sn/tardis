@@ -57,7 +57,7 @@ class TestNLTELTEApproximation(object):
         self.plasma.ws=np.array([1.0])
         self.plasma.electron_densities=pd.Series([1.e9])
         self.plasma.ion_populations = ion_populations
-        self.plasma.calculate_nlte_excitation_level_populations()
+        self.plasma.calculate_nlte_level_populations()
 
     def test_He_ltelevelpops(self, ion_number):
         lte_pops = calculate_lte_level_populations(self.atom_data, ion_number,
@@ -90,11 +90,11 @@ class TestNLTE(object):
         self.plasma.ws=np.array([0.5])
         self.plasma.electron_densities=pd.Series([1.e9])
         self.plasma.ion_populations = ion_populations
-        self.plasma.calculate_nlte_excitation_level_populations()
+        self.plasma.calculate_nlte_level_populations()
 
     def test_He_dilutelevelpops(self, dummy):
         ref_pops = pd.read_hdf(os.path.join(data_path,
-                                            'He_nlte_excitation_pops.h5'), 'He_level_pops')
+                                            'He_nlte_pops.h5'), 'He_level_pops')
         np.testing.assert_allclose(self.plasma.level_populations.values, ref_pops.values)
 
     def test_He_dilutelevelpops_isnotLTE(self, ion_number):
