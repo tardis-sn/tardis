@@ -243,7 +243,7 @@ class ConfigEditor(QtGui.QWidget):
                        'line_interaction_type':[True, None],
                        'w_epsilon':[False, 1e-10],
                        'delta_treatment':[False, None],
-                       'nlte':{ 'species':[False, []],
+                       'nlte_excitation':{ 'species':[False, []],
                                 'coronal_approximation':[False, False],
                                 'classical_nebular':[False, False]
                               }

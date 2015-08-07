@@ -8,8 +8,8 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactorLTE,
     PhiGeneral, PhiSahaNebular, LevelBoltzmannFactorDiluteLTE, DilutionFactor,
     ZetaData, ElectronTemperature, LinkTRadTElectron, BetaElectron,
     RadiationFieldCorrection, RadiationFieldCorrectionInput,
-    LevelBoltzmannFactorNoNLTE, LevelBoltzmannFactorNLTE, NLTEData,
-    NLTESpecies, PreviousBetaSobolevs, LTEJBlues,
+    LevelBoltzmannFactorNoNLTE, LevelBoltzmannFactorNLTE, NLTEExcitationData,
+    NLTEExcitationSpecies, PreviousBetaSobolevs, LTEJBlues,
     PreviousElectronDensities)
 
 class PlasmaPropertyCollection(list):
@@ -17,7 +17,7 @@ class PlasmaPropertyCollection(list):
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
     TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
-    RadiationFieldCorrectionInput, NLTESpecies, PreviousBetaSobolevs,
+    RadiationFieldCorrectionInput, NLTEExcitationSpecies, PreviousBetaSobolevs,
     PreviousElectronDensities])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, LevelPopulation, PartitionFunction,
@@ -34,4 +34,5 @@ dilute_lte_excitation_properties = PlasmaPropertyCollection([
     LevelBoltzmannFactorDiluteLTE])
 non_nlte_properties = PlasmaPropertyCollection([LevelBoltzmannFactorNoNLTE])
 nlte_properties = PlasmaPropertyCollection([
-    LevelBoltzmannFactorNLTE, NLTEData, NLTESpecies, LTEJBlues])
+    LevelBoltzmannFactorNLTE, NLTEExcitationData, NLTEExcitationSpecies,
+    LTEJBlues])

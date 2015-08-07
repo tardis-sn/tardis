@@ -10,7 +10,7 @@ from tardis.plasma.exceptions import IncompleteAtomicData
 logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData']
+           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEExcitationData']
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     __metaclass__ = ABCMeta
@@ -173,8 +173,8 @@ class ZetaData(BaseAtomicDataProperty):
     def _set_index(self, zeta_data, atomic_data):
         return zeta_data.set_index(['atomic_number', 'ion_number'])
 
-class NLTEData(ProcessingPlasmaProperty):
-    outputs = ('nlte_data',)
+class NLTEExcitationData(ProcessingPlasmaProperty):
+    outputs = ('nlte_excitation_data',)
 
     def calculate(self, atomic_data):
         if getattr(self, self.outputs[0]) is not None:

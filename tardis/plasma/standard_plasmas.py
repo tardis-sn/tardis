@@ -44,15 +44,15 @@ class LegacyPlasmaArray(BasePlasma):
     def initial_w(self, number_densities):
         return np.ones(len(number_densities.columns)) * 0.5
 
-    def update_radiationfield(self, t_rad, ws, j_blues, nlte_config,
+    def update_radiationfield(self, t_rad, ws, j_blues, nlte_excitation_config,
         t_electrons=None, n_e_convergence_threshold=0.05,
         initialize_nlte=False):
-        if nlte_config.species:
+        if nlte_excitation_config.species:
             self.store_previous_properties()
         self.update(t_rad=t_rad, w=ws, j_blues=j_blues)
 
     def __init__(self, number_densities, atomic_data, time_explosion,
-        t_rad=None, delta_treatment=None, nlte_config=None,
+        t_rad=None, delta_treatment=None, nlte_excitation_config=None,
         ionization_mode='lte', excitation_mode='lte',
         line_interaction_type='scatter', link_t_rad_t_electron=0.9):
 
@@ -74,7 +74,7 @@ class LegacyPlasmaArray(BasePlasma):
             raise NotImplementedError('Sorry ' + ionization_mode +
                 ' not implemented yet.')
 
-        if nlte_config.species:
+        if nlte_excitation_config.species:
             plasma_modules += nlte_properties
         else:
             plasma_modules += non_nlte_properties
@@ -94,12 +94,13 @@ class LegacyPlasmaArray(BasePlasma):
             len(number_densities.columns)))
         initial_electron_densities = number_densities.sum(axis=0)
 
-        self.nlte_config = nlte_config
+        self.nlte_excitation_config = nlte_excitation_config
 
         super(LegacyPlasmaArray, self).__init__(plasma_properties=plasma_modules,
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
             j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment, nlte_species=nlte_config.species,
+            delta_input=delta_treatment,
+            nlte_excitation_species=nlte_excitation_config.species,
             previous_electron_densities=initial_electron_densities,
             previous_beta_sobolevs=initial_beta_sobolevs)

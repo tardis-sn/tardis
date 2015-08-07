@@ -40,14 +40,14 @@ class TestNLTELTEApproximation(object):
                                         dict(ion_number = 1)]}
 
     def setup(self):
-        self.nlte_species=[(2,0),(2,1)]
-        self.nlte_config = ConfigurationNameSpace({'species':
-                                                             self.nlte_species})
+        self.nlte_excitation_species=[(2,0),(2,1)]
+        self.nlte_excitation_config = ConfigurationNameSpace({'species':
+                                                             self.nlte_excitation_species})
         self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
 
         self.plasma = plasma_array.BasePlasmaArray.from_abundance(
             {'He':1.0}, 1e-15 * u.Unit('g/cm3'), self.atom_data, 10 * u.day,
-            nlte_config=self.nlte_config)
+            nlte_excitation_config=self.nlte_excitation_config)
         self.plasma.j_blues = pd.DataFrame(intensity_black_body(
             self.atom_data.lines.nu.values[np.newaxis].T, np.array([10000.])))
         self.plasma.tau_sobolevs = pd.DataFrame(np.zeros_like(
@@ -57,7 +57,7 @@ class TestNLTELTEApproximation(object):
         self.plasma.ws=np.array([1.0])
         self.plasma.electron_densities=pd.Series([1.e9])
         self.plasma.ion_populations = ion_populations
-        self.plasma.calculate_nlte_level_populations()
+        self.plasma.calculate_nlte_excitation_level_populations()
 
     def test_He_ltelevelpops(self, ion_number):
         lte_pops = calculate_lte_level_populations(self.atom_data, ion_number,
@@ -77,12 +77,12 @@ class TestNLTE(object):
                                                     dict(ion_number = 1)]}
 
     def setup(self):
-        self.nlte_species=[(2,0),(2,1)]
-        self.nlte_config = ConfigurationNameSpace({'species':self.nlte_species})
+        self.nlte_excitation_species=[(2,0),(2,1)]
+        self.nlte_excitation_config = ConfigurationNameSpace({'species':self.nlte_excitation_species})
         self.atom_data = atomic.AtomData.from_hdf5(helium_test_db)
         self.plasma = plasma_array.BasePlasmaArray.from_abundance(
             {'He':1.0}, 1e-15*u.Unit('g/cm3'), self.atom_data, 10 * u.day,
-            nlte_config=self.nlte_config)
+            nlte_excitation_config=self.nlte_excitation_config)
         self.plasma.j_blues = 0.5 * pd.DataFrame(intensity_black_body(self.atom_data.lines.nu.values[np.newaxis].T, np.array([10000.])))
         self.plasma.tau_sobolevs = pd.DataFrame(np.zeros_like(self.plasma.j_blues))
         self.plasma.t_rads=np.array([10000.])
@@ -90,11 +90,11 @@ class TestNLTE(object):
         self.plasma.ws=np.array([0.5])
         self.plasma.electron_densities=pd.Series([1.e9])
         self.plasma.ion_populations = ion_populations
-        self.plasma.calculate_nlte_level_populations()
+        self.plasma.calculate_nlte_excitation_level_populations()
 
     def test_He_dilutelevelpops(self, dummy):
         ref_pops = pd.read_hdf(os.path.join(data_path,
-                                            'He_nlte_pops.h5'), 'He_level_pops')
+                                            'He_nlte_excitation_pops.h5'), 'He_level_pops')
         np.testing.assert_allclose(self.plasma.level_populations.values, ref_pops.values)
 
     def test_He_dilutelevelpops_isnotLTE(self, ion_number):
