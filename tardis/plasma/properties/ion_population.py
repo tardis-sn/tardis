@@ -13,15 +13,23 @@ __all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
            'IonNumberDensity', 'PhiGeneral']
 
 class PhiGeneral(ProcessingPlasmaProperty):
-
+    """
+    Outputs:
+    general_phi : Pandas DataFrame
+        Used as basis for PhiSahaLTE and PhiSahaNebular. Identical output to
+        PhiSahaLTE. Separate property required as PhiSahaNebular is based
+        on PhiSahaLTE, but the code cannot deal with the inclusion of two
+        properties that generate a property called 'phi'.
+    """
     outputs = ('general_phi',)
+    latex_name = ('\\Phi_{\\textrm{LTE}}',)
+    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
+                     \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{rad}}}{h^2}\
+                     \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
+                     \\textrm{rad}}}}',)
 
-    latex_formula = (r'$\Phi_{i,j} = \frac{N_{i, j+1} n_e}{N_{i, j}} \\'
-                     r' \Phi_{i, j} = g_e \times \frac{Z_{i, j+1}}{Z_{i, j}} '
-                     r'e^{-\chi_{j\rightarrow j+1}/k_\textrm{B}T}$')
-
-    @staticmethod
-    def calculate(g_electron, beta_rad, partition_function, ionization_data):
+    def calculate(self, g_electron, beta_rad, partition_function,
+        ionization_data):
         def calculate_phis(group):
             return group[1:] / group[:-1].values
 
@@ -35,37 +43,18 @@ class PhiGeneral(ProcessingPlasmaProperty):
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
-    Calculating the ionization equilibrium using the Saha equation, where i is atomic number,
-    j is the ion_number, :math:`n_e` is the electron density, :math:`Z_{i, j}` are the partition functions
-    and :math:`\chi` is the ionization energy. For the `NebularPlasma` we first calculate the
-    ionization balance assuming LTE conditions (:math:`\\Phi_{i, j}(\\textrm{LTE})`) and use factors to more accurately
-    describe the plasma. The two important factors are :math:`\\zeta` - a correction factor to take into account
-    ionizations from excited states. The second factor is :math:`\\delta` , adjusting the ionization balance for the fact that
-    there's more line blanketing in the blue.
-
-    The :math:`\\zeta` factor for different temperatures is read in to the `~tardis.atomic.NebularAtomData` and then
-    interpolated for the current temperature.
-
-    The :math:`\\delta` factor is calculated with :meth:`calculate_radiation_field_correction`.
-
-    Finally the ionization balance is adjusted (as equation 14 in :cite:`1993A&A...279..447M`):
-
-    .. math::
-
-
-        \\Phi_{i,j} =& \\frac{N_{i, j+1} n_e}{N_{i, j}} \\\\
-
-        \\Phi_{i, j} =& W \\times[\\delta \\zeta + W ( 1 - \\zeta)] \\left(\\frac{T_\\textrm{e}}{T_\\textrm{R}}\\right)^{1/2}
-        \\Phi_{i, j}(\\textrm{LTE})
-
+    Outputs:
+    phi_saha_nebular: Pandas DataFrame
+        The ionization equilibrium as calculated using a modified version of
+        the Saha equation that accounts for dilution of the radiation field.
     """
-
     outputs = ('phi',)
+    latex_name = ('\\Phi',)
+    latex_formula = ('W(\\delta\\zeta_{i,j}+W(1-\\zeta_{i,j}))\\left(\
+                     \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
+                     \\right)^{1/2}',)
 
-    @staticmethod
-    def calculate(general_phi, t_rad, w, zeta_data, t_electron, delta):
-        logger.debug('Calculating Saha using Nebular approximation')
-
+    def calculate(self, general_phi, t_rad, w, zeta_data, t_electron, delta):
         try:
             zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[
                 general_phi.index].values)(t_rad)
@@ -81,59 +70,29 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         return phis
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
-
+    """
+    Outputs:
+    phi_saha_lte: Pandas DataFrame
+        The ionization equilibrium as calculated using the Saha equation.
+    """
     outputs = ('phi',)
+    latex_name = ('\\Phi',)
+    latex_formula = ('\\Phi_{\\textrm{LTE}}',)
 
-    @staticmethod
-    def calculate(general_phi):
+    def calculate(self, general_phi):
         return general_phi
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
-
+    """
+    Outputs:
+    delta: Pandas DataFrame
+        Calculates the radiation field correction (see Mazzali & Lucy, 1993) if
+        not given as input in the config. file. The default chi_0_species is
+        Ca II, which is good for type Ia supernovae. For type II supernovae,
+        (1, 1) should be used.
+    """
     outputs = ('delta',)
-    """
-    Calculating radiation field correction factors according to Mazzali & Lucy 1993 (:cite:`1993A&A...279..447M`; henceforth ML93)
-
-
-    In ML93 the radiation field correction factor is denoted as :math:`\\delta` and is calculated in Formula 15 & 20
-
-    The radiation correction factor changes according to a ionization energy threshold :math:`\\chi_\\textrm{T}`
-    and the species ionization threshold (from the ground state) :math:`\\chi_0`.
-
-    For :math:`\\chi_\\textrm{T} \\ge \\chi_0`
-
-    .. math::
-        \\delta = \\frac{T_\\textrm{e}}{b_1 W T_\\textrm{R}} \\exp(\\frac{\\chi_\\textrm{T}}{k T_\\textrm{R}} -
-        \\frac{\\chi_0}{k T_\\textrm{e}})
-
-    For :math:`\\chi_\\textrm{T} < \\chi_0`
-
-    .. math::self.beta_rads * chi_0
-        \\delta = 1 - \\exp(\\frac{\\chi_\\textrm{T}}{k T_\\textrm{R}} - \\frac{\\chi_0}{k T_\\textrm{R}}) + \\frac{T_\\textrm{e}}{b_1 W T_\\textrm{R}} \\exp(\\frac{\\chi_\\textrm{T}}{k T_\\textrm{R}} -
-        \\frac{\\chi_0}{k T_\\textrm{e}}),
-
-    where :math:`T_\\textrm{R}` is the radiation field Temperature, :math:`T_\\textrm{e}` is the electron temperature and W is the
-    dilution factor.
-
-    Parameters
-    ----------
-    phi_table : `~astropy.table.Table`
-        a table containing the field 'atomic_number', 'ion_number', 'phi'
-
-    departure_coefficient : `~float` or `~None`, optional
-        departure coefficient (:math:`b_1` in ML93) For the default (`None`) it is set to 1/W.
-
-    chi_0_species : `~tuple`, optional
-        This describes which ionization energy to use for the threshold. Default is Calcium II
-        (1044 Angstrom; useful for Type Ia)
-        For Type II supernovae use Lyman break (912 Angstrom) or (1,1) as the tuple
-
-    Returns
-    -------
-
-    This function adds a field 'delta' to the phi table given to the function
-
-    """
+    latex_name = ('\\delta',)
 
     def __init__(self, plasma_parent, departure_coefficient=None,
         chi_0_species=(20,2)):
@@ -142,8 +101,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         self.chi_0_species = chi_0_species
 
     def calculate(self, w, ionization_data, beta_rad, t_electron, t_rad,
-        beta_electron, levels, delta_input):
-        # factor delta ML 1993
+        beta_electron, delta_input):
         if delta_input is None:
             if self.departure_coefficient is None:
                 departure_coefficient = 1. / w
@@ -174,25 +132,20 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 
 class IonNumberDensity(ProcessingPlasmaProperty):
     """
-    Calculate the ionization balance
-
-    .. math::
-        N(X) = N_1 + N_2 + N_3 + \\dots
-        N(X) = (N_2/N_1) \\times N_1 + (N3/N2) \\times (N_2/N_1) \\times N_1 + \\dots
-        N(X) = N_1(1 + N_2/N_1 + (N_3/N_2) \\times (N_2/N_1) + \\dots
-        N(X) = N_1(1+ \\Phi_{i,j}/N_e + \\Phi_{i, j}/N_e \\times \\Phi_{i, j+1}/N_e + \\dots)
-
+    Outputs:
+    ion_number_density: Pandas DataFrame
+    electron_densities: Numpy Array
+        Convergence process to find the correct solution. A trial value for
+        the electron density is initiated in a particular zone. The ion
+        number densities are then calculated using the Saha equation. The
+        electron density is then re-calculated by using the ion number
+        densities to sum over the number of free electrons. If the two values
+        for the electron densities are not similar to within the threshold
+        value, a new guess for the value of the electron density is chosen
+        and the process is repeated.
     """
-
-    latex_formula = (r'$N(X) = N_1 + N_2 + N_3 + \dots \\ '
-                     r'N(X) = (N_2/N_1) \times N_1 + (N3/N2) '
-                     r'\times (N_2/N_1) \times N_1 + \dots \\'
-                     r'N(X) = N_1(1 + N_2/N_1 + (N_3/N_2) \times (N_2/N_1) '
-                     r'+ \dots \\'
-                     r'N(X) = N_1(1+ \Phi_{i,j}/N_e + \Phi_{i, j}/N_e '
-                     r'\times \Phi_{i, j+1}/N_e + \dots)$')
-
     outputs = ('ion_number_density', 'electron_densities')
+    latex_name = ('N_{i,j}','n_{e}',)
 
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
         super(IonNumberDensity, self).__init__(plasma_parent)

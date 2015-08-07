@@ -269,6 +269,12 @@ model:
 
 
 montecarlo:
+    nthreads:
+        property_type: int
+        default: 1
+        mandatory: False
+        help: The number of OpenMP threads.
+
     seed:
         property_type: int
         default: 23111963

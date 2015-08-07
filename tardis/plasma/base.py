@@ -4,6 +4,7 @@ import networkx as nx
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 
 import tempfile
+import fileinput
 
 
 logger = logging.getLogger(__name__)
@@ -16,8 +17,8 @@ class BasePlasma(object):
         self.input_properties = []
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        **kwargs)
-        
         self._build_graph()
+#        self.write_to_tex('Plasma_Graph', 'Plasma_Formulae')
         self.update(**kwargs)
 
     def __getattr__(self, item):
@@ -58,7 +59,6 @@ class BasePlasma(object):
         """
 
         self.graph = nx.DiGraph()
-
         ## Adding all nodes
         self.graph.add_nodes_from([(plasma_property.name, {})
                                    for plasma_property
@@ -79,8 +79,15 @@ class BasePlasma(object):
                                               '{1} which has not been added'
                                               ' to this plasma'.format(
                         plasma_property.name, input))
+                try:
+                    position = self.outputs_dict[input].outputs.index(input)
+                    label = self.outputs_dict[input].latex_name[position]
+                    label = '$' + label + '$'
+                    label = label.replace('\\', '\\\\')
+                except:
+                    label = input.replace('_', '-')
                 self.graph.add_edge(self.outputs_dict[input].name,
-                plasma_property.name, label=input)
+                    plasma_property.name, label = label)
 
     def _init_properties(self, plasma_properties, **kwargs):
         """
@@ -175,22 +182,31 @@ class BasePlasma(object):
         return descendants_ob
 
     def write_to_dot(self, fname, latex_label=True):
-        self._update_module_type_str()
+#        self._update_module_type_str()
 
         try:
             import pygraphviz
         except ImportError:
             raise ImportError('pygraphviz is needed for method '
                               '\'write_to_dot\'')
+        print_graph = self.graph.copy()
+        print_graph.remove_node('LinesUpperLevelIndex')
+        print_graph.remove_node('LinesLowerLevelIndex')
+        for node in print_graph:
+            print_graph.node[str(node)]['label'] = node
+            if hasattr(self.plasma_properties_dict[node],
+                'latex_formula'):
+                formulae = self.plasma_properties_dict[node].latex_formula
+                for output in range(0, len(formulae)):
+                    formula = formulae[output]
+                    label = formula.replace('\\', '\\\\')
+                    print_graph.node[str(node)]['label']+='\\n$'
+                    print_graph.node[str(node)]['label']+=label
+                    print_graph.node[str(node)]['label']+='$'
 
-        for node in self.graph:
-            self.graph.node[node]['label'] = self.module_dict[node].get_latex_label()
-            self.graph.node[node]['color'] = 'red'
-            self.graph.node[node]['shape'] = 'box '
+        nx.write_dot(print_graph, fname)
 
-        nx.write_dot(self.graph, fname)
-
-    def write_to_tex(self, fname):
+    def write_to_tex(self, fname_graph, fname_formulae):
         try:
             import dot2tex
         except ImportError:
@@ -202,9 +218,15 @@ class BasePlasma(object):
 
         dot_string = open(temp_fname).read()
 
-        open(fname, 'w').write(dot2tex.dot2tex(dot_string, texmode='raw'))
+        open(fname_graph, 'w').write(dot2tex.dot2tex(dot_string,
+            texmode='raw'))
 
+        for line in fileinput.input(fname_graph, inplace = 1):
+            print line.replace('\documentclass{article}',
+                '\documentclass[class=minimal,border=20pt]{standalone}'),
 
+        for line in fileinput.input(fname_graph, inplace = 1):
+            print line.replace('\enlargethispage{100cm}', ''),
 
 class StandardPlasma(BasePlasma):
 
