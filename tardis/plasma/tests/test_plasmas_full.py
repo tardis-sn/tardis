@@ -24,7 +24,7 @@ class TestPlasmas():
                                                          "exist".format(
             self.atom_data_filename))
         self.config_yaml = yaml.load(open(
-            'tardis/plasma/tests/test_plasmas_full.yml'))
+            'tardis/plasma/tests/plasma_test_config_lte.yml'))
         self.config_yaml['atom_data'] = self.atom_data_filename
         self.lte_model = run_tardis(self.config_yaml)
 
