@@ -18,6 +18,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         stimulated_emission_factor : Numpy Array [len(lines), len(t_rad)]
     """
     outputs = ('stimulated_emission_factor',)
+    latex_formula = ('1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}',)
 
     def __init__(self, plasma_parent):
         super(StimulatedEmissionFactor, self).__init__(plasma_parent)
@@ -73,6 +74,8 @@ class TauSobolev(ProcessingPlasmaProperty):
     """
     outputs = ('tau_sobolevs',)
     latex_name = ('\\tau_{\\textrm{sobolev}}',)
+    latex_formula = ('\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}\
+        n_{lower} \\Big(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\Big)',)
 
     def __init__(self, plasma_parent):
         super(TauSobolev, self).__init__(plasma_parent)
@@ -152,6 +155,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
 
 class LTEJBlues(ProcessingPlasmaProperty):
     outputs = ('lte_j_blues',)
+    latex_name = ('J^{b}_{lu(LTE)}')
 
     @staticmethod
     def calculate(lines, nu, beta_rad):
