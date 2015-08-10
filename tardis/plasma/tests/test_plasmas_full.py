@@ -30,7 +30,7 @@ class TestPlasmas():
 
     def test_lte_plasma(self):
         old_plasma_t_rads = \
-            np.loadtxt(data_path('plasma_comparison_lte_trads.txt'),
+            np.loadtxt(data_path('plasma_comparison_lte_trads.dat'),
                 unpack=True)
 
         old_plasma_t_rads = old_plasma_t_rads * u.Unit('K')
