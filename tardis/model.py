@@ -9,9 +9,11 @@ import pandas as pd
 from astropy import constants, units as u
 import scipy.special
 
+from util import intensity_black_body
 from tardis import packet_source, plasma_array
 from tardis.montecarlo import montecarlo
-from util import intensity_black_body
+from tardis.montecarlo.base import MontecarloRunner
+
 
 
 logger = logging.getLogger(__name__)
@@ -19,12 +21,6 @@ logger = logging.getLogger(__name__)
 c = constants.c.cgs.value
 h = constants.h.cgs.value
 kb = constants.k_B.cgs.value
-
-w_estimator_constant = (c ** 2 / (2 * h)) * (15 / np.pi ** 4) * (h / kb) ** 4 / (4 * np.pi)
-
-t_rad_estimator_constant = (np.pi**4 / (15 * 24 * scipy.special.zeta(5, 1))) * h / kb
-
-
 
 
 class Radial1DModel(object):
@@ -139,6 +135,7 @@ class Radial1DModel(object):
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_reabsorbed = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+        self.runner = MontecarloRunner()
 
 
 
@@ -202,38 +199,6 @@ class Radial1DModel(object):
         else:
             raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
-
-
-
-    def calculate_updated_radiationfield(self, nubar_estimator, j_estimator):
-        """
-        Calculate an updated radiation field from the :math:`\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
-        calculated in the montecarlo simulation. The details of the calculation can be found in the documentation.
-
-        Parameters
-        ----------
-
-        nubar_estimator : ~np.ndarray (float)
-
-        j_estimator : ~np.ndarray (float)
-
-        Returns
-        -------
-
-        updated_t_rads : ~np.ndarray (float)
-
-        updated_ws : ~np.ndarray (float)
-
-        """
-
-
-        updated_t_rads = t_rad_estimator_constant * nubar_estimator / j_estimator
-        updated_ws = j_estimator / (
-            4 * constants.sigma_sb.cgs.value * updated_t_rads ** 4 * self.time_of_simulation.value
-            * self.tardis_config.structure.volumes.value)
-
-        return updated_t_rads * u.K, updated_ws
-
     def update_plasmas(self, initialize_nlte=False):
 
         self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
@@ -249,7 +214,8 @@ class Radial1DModel(object):
         Updating radiation field
         """
         convergence_section = self.tardis_config.montecarlo.convergence_strategy
-        updated_t_rads, updated_ws = self.calculate_updated_radiationfield(self.nubar_estimators, self.j_estimators)
+        updated_t_rads, updated_ws = (
+            self.runner.calculate_radiationfield_properties())
         old_t_rads = self.t_rads.copy()
         old_ws = self.ws.copy()
         old_t_inner = self.t_inner
@@ -352,29 +318,35 @@ class Radial1DModel(object):
 
         self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
         self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)
-        
-        montecarlo_nu, montecarlo_energies, self.j_estimators, self.nubar_estimators, \
-        last_line_interaction_in_id, last_line_interaction_out_id, \
-        self.last_interaction_type, self.last_line_interaction_shell_id = \
-            montecarlo.montecarlo_radial1d(self,
-                                                     virtual_packet_flag=no_of_virtual_packets, nthreads=self.tardis_config.montecarlo.nthreads)
+
+        self.runner.run(self, no_of_virtual_packets=no_of_virtual_packets,
+                        nthreads=self.tardis_config.montecarlo.nthreads) #self = model
+
+
+        (montecarlo_nu, montecarlo_energies, self.j_estimators,
+         self.nubar_estimators, last_line_interaction_in_id,
+         last_line_interaction_out_id, self.last_interaction_type,
+         self.last_line_interaction_shell_id) = self.runner.legacy_return()
 
         if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        self.montecarlo_nu = montecarlo_nu * u.Hz
-        self.montecarlo_luminosity = montecarlo_energies *  1 * u.erg / self.time_of_simulation
+        self.montecarlo_nu = self.runner.packet_nu
+        self.montecarlo_luminosity = self.runner.packet_luminosity
 
 
-        montecarlo_reabsorbed_luminosity = -np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value < 0],
-                                         weights=self.montecarlo_luminosity.value[self.montecarlo_luminosity.value < 0],
-                                         bins=self.tardis_config.spectrum.frequency.value)[0] \
-                                      * self.montecarlo_luminosity.unit
 
-        montecarlo_emitted_luminosity = np.histogram(self.montecarlo_nu.value[self.montecarlo_luminosity.value >= 0],
-                                         weights=self.montecarlo_luminosity.value[self.montecarlo_luminosity.value >= 0],
-                                         bins=self.tardis_config.spectrum.frequency.value)[0] \
-                                   * self.montecarlo_luminosity.unit
+        montecarlo_reabsorbed_luminosity = np.histogram(
+            self.runner.reabsorbed_packet_nu,
+            weights=self.runner.reabsorbed_packet_luminosity,
+            bins=self.tardis_config.spectrum.frequency.value)[0] * u.erg / u.s
+
+
+
+        montecarlo_emitted_luminosity = np.histogram(
+            self.runner.emitted_packet_nu,
+            weights=self.runner.emitted_packet_luminosity,
+            bins=self.tardis_config.spectrum.frequency.value)[0] * u.erg / u.s
 
 
 
