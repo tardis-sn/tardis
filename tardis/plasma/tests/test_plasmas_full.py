@@ -27,6 +27,10 @@ class TestPlasmas():
             'tardis/plasma/tests/data/plasma_test_config_lte.yml'))
         self.config_yaml['atom_data'] = self.atom_data_filename
         self.lte_model = run_tardis(self.config_yaml)
+        self.config_yaml = yaml.load(open(
+            'tardis/plasma/tests/data/plasma_test_config_nlte.yml'))
+        self.config_yaml['atom_data'] = self.atom_data_filename
+        self.nlte_model = run_tardis(self.config_yaml)
 
     def test_lte_plasma(self):
         old_plasma_t_rads = \
@@ -34,4 +38,12 @@ class TestPlasmas():
                 unpack=True)
         new_plasma_t_rads = self.lte_model.t_rads / u.Unit('K')
         np.testing.assert_allclose(
-            self.lte_model.t_rads, old_plasma_t_rads, atol=100)
+            new_plasma_t_rads, old_plasma_t_rads, atol=100)
+
+    def test_nlte_plasma(self):
+        old_plasma_t_rads = \
+            np.loadtxt(data_path('plasma_comparison_nlte_trads.dat'),
+                unpack=True)
+        new_plasma_t_rads = self.nlte_model.t_rads / u.Unit('K')
+        np.testing.assert_allclose(
+            new_plasma_t_rads, old_plasma_t_rads, atol=100)
