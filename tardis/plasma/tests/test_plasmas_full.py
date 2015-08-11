@@ -32,8 +32,6 @@ class TestPlasmas():
         old_plasma_t_rads = \
             np.loadtxt(data_path('plasma_comparison_lte_trads.dat'),
                 unpack=True)
-
-        old_plasma_t_rads = old_plasma_t_rads * u.Unit('K')
-
+        new_plasma_t_rads = self.lte_model.t_rads / u.Unit('K')
         np.testing.assert_allclose(
-            self.lte_model.t_rads, old_plasma_t_rads, atol=50 * u.Unit('K'))
+            self.lte_model.t_rads, old_plasma_t_rads, atol=100)
