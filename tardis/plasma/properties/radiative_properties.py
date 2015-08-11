@@ -164,5 +164,5 @@ class LTEJBlues(ProcessingPlasmaProperty):
         exponential = (np.exp(h * df) - 1)**(-1)
         remainder = (2 * (h * nu.values ** 3) /
             (c ** 2))
-        j_blues = exponential.multiply(remainder, axis=0)
+        j_blues = exponential.mul(remainder, axis=0)
         return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)
