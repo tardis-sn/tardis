@@ -6,6 +6,11 @@ python:
 virtualenv:
   system_site_packages: true
 
+cache:
+  apt: true
+
+sudo: false
+
 env:
     global:
         - COMPILER=gcc
@@ -38,6 +43,10 @@ matrix:
         - python: "2.7"
           env: SETUP_CMD='test --coverage'
 
+addons:
+  apt:
+    packages:
+    - clang
 
 
 
@@ -51,7 +60,6 @@ before_install:
     - export PATH=/home/travis/miniconda/bin:$PATH
     - conda update --yes conda
 
-    - if [[ $COMPILER == 'clang' ]]; then sudo apt-get install -qq clang; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then wget $ATOM_DATA_URL; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
