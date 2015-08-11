@@ -358,20 +358,12 @@ class AtomData(object):
     def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
                  collision_data=None, synpp_refs=None, ion_cx_data=None):
 
-        if levels_data is not None:
-            self.has_levels = True
-        else:
-            self.has_levels = False
-
-        if lines_data is not None:
-            self.has_lines = True
-        else:
-            self.has_lines = False
 
         if macro_atom_data is not None:
             self.has_macro_atom = True
             self.macro_atom_data_all = DataFrame(macro_atom_data[0].__array__())
             self.macro_atom_references_all = DataFrame(macro_atom_data[1].__array__())
+
         else:
             self.has_macro_atom = False
 
@@ -439,7 +431,7 @@ class AtomData(object):
 
 
 
-        self.ion_cx_data = ion_cx_data
+
 
 
 
