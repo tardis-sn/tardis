@@ -87,14 +87,14 @@ def number_density(atomic_mass, abundance, density):
     return number_density_module.calculate(atomic_mass, abundance, density)
 
 @pytest.fixture
-def t_electron(t_rad, link_t_rad_t_electron):
+def t_electrons(t_rad, link_t_rad_t_electron):
     electron_temperature_module = ElectronTemperature(None)
     return electron_temperature_module.calculate(t_rad, link_t_rad_t_electron)
 
 @pytest.fixture
-def beta_electron(t_electron):
+def beta_electron(t_electrons):
     beta_electron_module = BetaElectron(None)
-    return beta_electron_module.calculate(t_electron)
+    return beta_electron_module.calculate(t_electrons)
 
 # ATOMIC PROPERTIES
 
@@ -199,11 +199,11 @@ def phi_saha_lte(general_phi):
     return phi_module.calculate(general_phi)
 
 @pytest.fixture
-def phi_saha_nebular(w, ionization_data, beta_rad, t_electron, t_rad,
+def phi_saha_nebular(w, ionization_data, beta_rad, t_electrons, t_rad,
         beta_electron, delta, general_phi, zeta_data):
     phi_saha_nebular_module = PhiSahaNebular(None)
     return phi_saha_nebular_module.calculate(general_phi, t_rad, w, zeta_data,
-                                             t_electron, delta)
+                                             t_electrons, delta)
 
 @pytest.fixture
 def ion_number_density(phi_saha_lte, partition_function, number_density):
@@ -222,12 +222,12 @@ def electron_densities(phi_saha_lte, partition_function, number_density):
     return electron_densities
 
 @pytest.fixture
-def delta(w, ionization_data, beta_rad, t_electron, t_rad, beta_electron,
+def delta(w, ionization_data, beta_rad, t_electrons, t_rad, beta_electron,
           levels):
     delta_input = None
     delta_module = RadiationFieldCorrection(None)
     delta_module.chi_0_species = (2, 2)
-    return delta_module.calculate(w, ionization_data, beta_rad, t_electron,
+    return delta_module.calculate(w, ionization_data, beta_rad, t_electrons,
         t_rad, beta_electron, delta_input)
 
 # LEVEL POPULATION PROPERTIES
