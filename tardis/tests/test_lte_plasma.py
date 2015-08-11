@@ -1,4 +1,4 @@
-from tardis import atomic
+from tardis import plasma_array as plasma, atomic
 from astropy import constants
 import numpy as np
 import pytest
@@ -8,7 +8,7 @@ atom_data.prepare_atom_data(selected_atomic_numbers=[14])
 
 pytestmark = pytest.mark.skipif(True, reason='to be implemented')
 
-@pytest.mark.xskip
+
 class TestNormalLTEPlasma:
 
     compare_part_func = np.array([11.406201367482032, 5.866632552894803, 1.0044215520812598, 2.0002017142942163,
