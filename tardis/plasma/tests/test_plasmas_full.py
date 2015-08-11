@@ -46,4 +46,4 @@ class TestPlasmas():
                 unpack=True)
         new_plasma_t_rads = self.nlte_model.t_rads / u.Unit('K')
         np.testing.assert_allclose(
-            new_plasma_t_rads, old_plasma_t_rads, atol=100)
+            new_plasma_t_rads, old_plasma_t_rads, atol=150)
