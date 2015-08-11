@@ -1,13 +1,13 @@
 from astropy import constants as const, units as u
 import os
 import tardis
-from tardis import plasma_array, atomic
+from tardis import atomic
 import pytest
 #from numpy.testing import assert_allclose
 data_path = os.path.join(tardis.__path__[0], 'tests', 'data')
 helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
 
-
+'''
 class TestNebularPlasma(object):
 
     def setup(self):
@@ -22,3 +22,4 @@ class TestNebularPlasma(object):
 
         assert str(excinfo.value).startswith('t_rads outside of zeta '
                                                 'factor interpolation')
+'''

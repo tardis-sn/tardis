@@ -10,9 +10,10 @@ from astropy import constants, units as u
 import scipy.special
 
 from util import intensity_black_body
-from tardis import packet_source, plasma_array
+from tardis import packet_source
 from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
+from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 
 
 
@@ -121,16 +122,14 @@ class Radial1DModel(object):
         self.ws = (0.5 * (1 - np.sqrt(1 -
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
 
-
-        self.plasma_array = plasma_array.BasePlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
+        self.plasma_array = LegacyPlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
                                                          tardis_config.supernova.time_explosion.to('s').value,
                                                          nlte_config=tardis_config.plasma.nlte,
                                                          delta_treatment=tardis_config.plasma.delta_treatment,
                                                          ionization_mode=tardis_config.plasma.ionization,
-                                                         excitation_mode=tardis_config.plasma.excitation)
-
-
-
+                                                         excitation_mode=tardis_config.plasma.excitation,
+                                                         line_interaction_type=tardis_config.plasma.line_interaction_type,
+                                                         link_t_rad_t_electron=0.9)
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
@@ -177,7 +176,7 @@ class Radial1DModel(object):
         radiative_rates_type = self.tardis_config.plasma.radiative_rates_type
         w_epsilon = self.tardis_config.plasma.w_epsilon
 
-        if radiative_rates_type == 'lte':
+        if radiative_rates_type == 'blackbody':
             logger.info('Calculating J_blues for radiative_rates_type=lte')
             j_blues = intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
             self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
@@ -201,12 +200,11 @@ class Radial1DModel(object):
 
     def update_plasmas(self, initialize_nlte=False):
 
-        self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, j_blues=self.j_blues,
-                                        initialize_nlte=initialize_nlte)
-
+        self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, self.j_blues,
+            self.tardis_config.plasma.nlte, initialize_nlte=initialize_nlte, n_e_convergence_threshold=0.05)
 
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
-            self.transition_probabilities = self.plasma_array.calculate_transition_probabilities()
+            self.transition_probabilities = self.plasma_array.transition_probabilities
 
 
     def update_radiationfield(self, log_sampling=5):
@@ -284,7 +282,6 @@ class Radial1DModel(object):
                     emitted_luminosity.value, absorbed_luminosity.value,
                     self.tardis_config.supernova.luminosity_requested.value)
         logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
-
 
         return t_inner_new
 
