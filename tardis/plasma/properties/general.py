@@ -88,5 +88,5 @@ class BetaElectron(ProcessingPlasmaProperty):
         super(BetaElectron, self).__init__(plasma_parent)
         self.k_B_cgs = const.k_B.cgs.value
 
-    def calculate(self, t_electron):
-        return 1 / (self.k_B_cgs * t_electron)
+    def calculate(self, t_electrons):
+        return 1 / (self.k_B_cgs * t_electrons)
