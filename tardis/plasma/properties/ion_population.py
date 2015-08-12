@@ -65,7 +65,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
                              '- requested {2}'.format(
                 zeta_data.columns.values.min(), zeta_data.columns.values.max(),
                 t_rad))
-        phis = general_phi * delta * w * (zeta + w * (1 - zeta)) * \
+        phis = general_phi * w * ((zeta * delta) + w * (1 - zeta)) * \
                (t_electrons/t_rad) ** .5
         return phis
 

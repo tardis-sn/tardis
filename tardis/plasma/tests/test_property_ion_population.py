@@ -24,4 +24,4 @@ def test_radiation_field_correction(delta):
     assert np.allclose(delta.ix[2].ix[2], 0.000807200897)
 
 def test_phi_saha_nebular(phi_saha_nebular):
-    assert np.allclose(phi_saha_nebular.ix[2].ix[1], 54784028.964375)
+    assert np.allclose(phi_saha_nebular.ix[2].ix[1], 4.496818e+08)
