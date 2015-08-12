@@ -75,7 +75,7 @@ class LegacyPlasmaArray(BasePlasma):
             raise NotImplementedError('Sorry ' + ionization_mode +
                 ' not implemented yet.')
 
-        if nlte_config is not None:
+        if nlte_config is not None and nlte_config.species:
             plasma_modules += nlte_properties
         else:
             plasma_modules += non_nlte_properties
