@@ -8,6 +8,7 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
     nlte_properties)
+from tardis.io.util import parse_abundance_dict_to_dataframe
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +48,7 @@ class LegacyPlasmaArray(BasePlasma):
     def update_radiationfield(self, t_rad, ws, j_blues, nlte_config,
         t_electrons=None, n_e_convergence_threshold=0.05,
         initialize_nlte=False):
-        if nlte_config.species:
+        if nlte_config is not None and nlte_config.species:
             self.store_previous_properties()
         self.update(t_rad=t_rad, w=ws, j_blues=j_blues)
 
@@ -74,7 +75,7 @@ class LegacyPlasmaArray(BasePlasma):
             raise NotImplementedError('Sorry ' + ionization_mode +
                 ' not implemented yet.')
 
-        if nlte_config.species:
+        if nlte_config is not None and nlte_config.species:
             plasma_modules += nlte_properties
         else:
             plasma_modules += non_nlte_properties
@@ -90,16 +91,23 @@ class LegacyPlasmaArray(BasePlasma):
         abundance, density = self.from_number_densities(number_densities,
             atomic_data)
 
-        initial_beta_sobolevs = np.ones((len(atomic_data.lines),
-            len(number_densities.columns)))
+        try:
+            initial_beta_sobolevs = np.ones((len(atomic_data.lines),
+                len(number_densities.columns)))
+        except:
+            initial_beta_sobolevs = np.ones((len(atomic_data._lines),
+                len(number_densities.columns)))
         initial_electron_densities = number_densities.sum(axis=0)
 
-        self.nlte_config = nlte_config
+        if nlte_config is not None and nlte_config.species:
+            nlte_species = nlte_config.species
+        else:
+            nlte_species = None
 
         super(LegacyPlasmaArray, self).__init__(plasma_properties=plasma_modules,
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
             j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment, nlte_species=nlte_config.species,
+            delta_input=delta_treatment, nlte_species=nlte_species,
             previous_electron_densities=initial_electron_densities,
             previous_beta_sobolevs=initial_beta_sobolevs)

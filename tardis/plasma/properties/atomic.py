@@ -10,7 +10,7 @@ from tardis.plasma.exceptions import IncompleteAtomicData
 logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData']
+           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData', 'Chi0']
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     __metaclass__ = ABCMeta
@@ -232,3 +232,9 @@ class NLTEData(ProcessingPlasmaProperty):
             return (getattr(self, self.outputs[0]),)
         else:
             return atomic_data.nlte_data
+
+class Chi0(ProcessingPlasmaProperty):
+    outputs = ('chi_0',)
+
+    def calculate(self, atomic_data):
+        return atomic_data.ionization_data.ionization_energy.ix[20].ix[2]

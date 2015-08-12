@@ -94,21 +94,17 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
     outputs = ('delta',)
     latex_name = ('\\delta',)
 
-    def __init__(self, plasma_parent, departure_coefficient=None,
-        chi_0_species=(20,2)):
+    def __init__(self, plasma_parent, departure_coefficient=None):
         super(RadiationFieldCorrection, self).__init__(plasma_parent)
         self.departure_coefficient = departure_coefficient
-        self.chi_0_species = chi_0_species
 
     def calculate(self, w, ionization_data, beta_rad, t_electrons, t_rad,
-        beta_electron, delta_input):
+        beta_electron, delta_input, chi_0):
         if delta_input is None:
             if self.departure_coefficient is None:
                 departure_coefficient = 1. / w
             else:
                 departure_coefficient = self.departure_coefficient
-            chi_0_species=self.chi_0_species
-            chi_0 = ionization_data.ionization_energy.ix[chi_0_species]
             radiation_field_correction = -np.ones((len(ionization_data), len(
                 beta_rad)))
             less_than_chi_0 = (
