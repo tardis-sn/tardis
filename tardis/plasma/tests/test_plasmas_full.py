@@ -53,5 +53,13 @@ class TestPlasmas():
             np.loadtxt(data_path('plasma_comparison_nlte_trads.dat'),
                 unpack=True)
         new_plasma_t_rads = self.nlte_model.t_rads / u.Unit('K')
+        old_plasma_levels = \
+            np.loadtxt(data_path('plasma_comparison_nlte_levels.dat'),
+                unpack=True)
+        new_plasma_levels = \
+            self.lte_model.plasma_array.get_value(
+            'level_number_density').ix[2].ix[1][10].values
         np.testing.assert_allclose(
             new_plasma_t_rads, old_plasma_t_rads, atol=150)
+        np.testing.assert_allclose(
+            new_plasma_levels, old_plasma_levels, rtol=0.05)
