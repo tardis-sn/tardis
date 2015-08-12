@@ -14,7 +14,8 @@ from tardis.plasma.properties.general import (BetaRadiation, GElectron,
 from tardis.plasma.properties.partition_function import (
     LevelBoltzmannFactorLTE, PartitionFunction, LevelBoltzmannFactorDiluteLTE)
 from tardis.plasma.properties.atomic import (Levels, Lines, AtomicMass,
-    IonizationData, LinesUpperLevelIndex, LinesLowerLevelIndex, ZetaData)
+    IonizationData, LinesUpperLevelIndex, LinesLowerLevelIndex, ZetaData,
+    Chi0)
 from tardis.plasma.properties.level_population import LevelNumberDensity
 from tardis.plasma.properties.radiative_properties import (TauSobolev,
     StimulatedEmissionFactor, BetaSobolev, TransitionProbabilities)
@@ -165,6 +166,11 @@ def lines_lower_level_index(lines, levels):
     lower_level_index_module = LinesLowerLevelIndex(None)
     return lower_level_index_module.calculate(levels, lines)
 
+@pytest.fixture
+def chi_0(atomic_data):
+    chi_0_module = Chi0(None)
+    return chi_0_module.calculate(atomic_data)
+
 # PARTITION FUNCTION PROPERTIES
 
 @pytest.fixture
@@ -223,12 +229,12 @@ def electron_densities(phi_saha_lte, partition_function, number_density):
 
 @pytest.fixture
 def delta(w, ionization_data, beta_rad, t_electrons, t_rad, beta_electron,
-          levels):
+          levels, chi_0):
     delta_input = None
     delta_module = RadiationFieldCorrection(None)
     delta_module.chi_0_species = (2, 2)
     return delta_module.calculate(w, ionization_data, beta_rad, t_electrons,
-        t_rad, beta_electron, delta_input)
+        t_rad, beta_electron, delta_input, chi_0)
 
 # LEVEL POPULATION PROPERTIES
 
