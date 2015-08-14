@@ -1000,18 +1000,18 @@ class Container(DefaultParser):
                         container_default_dict[nitem],
                         container_dict[nitem], nitem, self.__container_path + [nitem])
             if self.__has_additional_items:
-                for aitem in additional_items:
+                for item in additional_items:
                     try:
-                        if aitem in container_dict:
-                            self.__default_container[aitem], self.__config_container[aitem] = \
-                                self.parse_container_items(container_default_dict[aitem],
-                                                           container_dict[aitem], aitem,
-                                                       self.__container_path + [aitem])
+                        if item in container_dict:
+                            self.__default_container[item], self.__config_container[item] = \
+                                self.parse_container_items(container_default_dict[item],
+                                                           container_dict[item], item,
+                                                       self.__container_path + [item])
                         else:
-                            self.__default_container[aitem], self.__config_container[aitem] = \
-                                self.parse_container_items(container_default_dict[aitem],
-                                                           None, aitem,
-                                                           self.__container_path + [aitem])
+                            self.__default_container[item], self.__config_container[item] = \
+                                self.parse_container_items(container_default_dict[item],
+                                                           None, item,
+                                                           self.__container_path + [item])
 
                     except KeyError:
                         pass
