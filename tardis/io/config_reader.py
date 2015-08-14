@@ -973,6 +973,11 @@ class Configuration(ConfigurationNameSpace):
             logger.warn('Disabling electron scattering - this is not physical')
             validated_config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm ** 2)
 
+        if plasma_section['helium_treatment'] == 'recomb-nlte':
+            validated_config_dict['plasma']['helium_treatment'] == 'recomb-nlte'
+        else:
+            validated_config_dict['plasma']['helium_treatment'] == 'dilute-lte'
+
 
 
 
