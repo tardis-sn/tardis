@@ -148,6 +148,12 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         super(IonNumberDensity, self).__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
 
+    def update_helium_nlte(self, ion_number_density, number_density):
+        ion_number_density.ix[2].ix[0] = 0.0
+        ion_number_density.ix[2].ix[2] = 0.0
+        ion_number_density.ix[2].ix[1].update(number_density.ix[2])
+        return ion_number_density
+
     def calculate_with_n_electron(self, phi, partition_function,
                                   number_density, n_electron):
         ion_populations = pd.DataFrame(data=0.0,
@@ -173,6 +179,12 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         while True:
             ion_number_density = self.calculate_with_n_electron(
                 phi, partition_function, number_density, n_electron)
+            if hasattr(self.plasma_parent, 'plasma_properties_dict'):
+                if 'HeliumNLTE' in \
+                    self.plasma_parent.plasma_properties_dict.keys():
+                    ion_number_density = \
+                        self.update_helium_nlte(ion_number_density,
+                        number_density)
             ion_numbers = ion_number_density.index.get_level_values(1).values
             ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
             new_n_electron = (ion_number_density.values * ion_numbers).sum(
