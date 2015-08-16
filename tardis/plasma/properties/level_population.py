@@ -40,7 +40,9 @@ class LevelNumberDensityHeNLTE(ProcessingPlasmaProperty):
             levels.droplevel(2)].values
         level_population_fraction = level_boltzmann_factor /\
             partition_function_broadcast
-        level_population_fraction.ix[2].update(helium_population)
         ion_number_density_broadcast = ion_number_density.ix[
             level_population_fraction.index.droplevel(2)].values
-        return level_population_fraction * ion_number_density_broadcast
+        level_number_density = \
+            level_population_fraction * ion_number_density_broadcast
+        level_number_density.ix[2].update(helium_population)
+        return level_number_density

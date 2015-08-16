@@ -58,7 +58,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             ((delta * zeta) + w * (1 - zeta))
         helium_population.ix[0].ix[0].update(he_three_population)
         unnormalised = helium_population.sum()
-        normalised = helium_population.mul(1.0 / unnormalised)
+        normalised = helium_population.mul(number_density.ix[2] / unnormalised)
         helium_population.update(normalised)
         return helium_population
 
