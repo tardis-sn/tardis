@@ -7,18 +7,7 @@ import pytest
 
 import tardis
 from tardis.atomic import AtomData
-from tardis.plasma.properties.ion_population import (PhiGeneral,
-    PhiSahaLTE, IonNumberDensity, PhiSahaNebular, RadiationFieldCorrection)
-from tardis.plasma.properties.general import (BetaRadiation, GElectron,
-    NumberDensity, ElectronTemperature, BetaElectron, SelectedAtoms)
-from tardis.plasma.properties.partition_function import (
-    LevelBoltzmannFactorLTE, PartitionFunction, LevelBoltzmannFactorDiluteLTE)
-from tardis.plasma.properties.atomic import (Levels, Lines, AtomicMass,
-    IonizationData, LinesUpperLevelIndex, LinesLowerLevelIndex, ZetaData,
-    Chi0)
-from tardis.plasma.properties.level_population import LevelNumberDensity
-from tardis.plasma.properties.radiative_properties import (TauSobolev,
-    StimulatedEmissionFactor, BetaSobolev, TransitionProbabilities)
+from tardis.plasma.properties import *
 
 # INPUTS
 
@@ -194,22 +183,17 @@ def partition_function(level_boltzmann_factor_lte):
 # ION POPULATION PROPERTIES
 
 @pytest.fixture
-def general_phi(g_electron, beta_rad, partition_function, ionization_data):
-    phi_general_module = PhiGeneral(None)
-    return phi_general_module.calculate(g_electron, beta_rad,
+def phi_saha_lte(g_electron, beta_rad, partition_function, ionization_data):
+    phi_saha_lte_module = PhiSahaLTE(None)
+    return phi_saha_lte_module.calculate(g_electron, beta_rad,
                                         partition_function, ionization_data)
 
 @pytest.fixture
-def phi_saha_lte(general_phi):
-    phi_module = PhiSahaLTE(None)
-    return phi_module.calculate(general_phi)
-
-@pytest.fixture
-def phi_saha_nebular(w, ionization_data, beta_rad, t_electrons, t_rad,
-        beta_electron, delta, general_phi, zeta_data):
+def phi_saha_nebular(t_rad, w, zeta_data, t_electrons, delta,
+            g_electron, beta_rad, partition_function, ionization_data):
     phi_saha_nebular_module = PhiSahaNebular(None)
-    return phi_saha_nebular_module.calculate(general_phi, t_rad, w, zeta_data,
-                                             t_electrons, delta)
+    return phi_saha_nebular_module.calculate(t_rad, w, zeta_data, t_electrons,
+        delta, g_electron, beta_rad, partition_function, ionization_data)
 
 @pytest.fixture
 def ion_number_density(phi_saha_lte, partition_function, number_density):
