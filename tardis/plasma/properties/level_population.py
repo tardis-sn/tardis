@@ -20,6 +20,10 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
 
     def __init__(self, plasma_parent, helium_treatment='dilute-lte'):
         super(LevelNumberDensity, self).__init__(plasma_parent)
+        if hasattr(self.plasma_parent, 'plasma_properties_dict'):
+            if 'HeliumNLTE' in \
+                self.plasma_parent.plasma_properties_dict.keys():
+                    helium_treatment=='recomb-nlte'
         if helium_treatment=='recomb-nlte':
             self.calculate = self._calculate_helium_recomb_nlte
         elif helium_treatment=='dilute-lte':
