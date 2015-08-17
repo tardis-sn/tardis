@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-from copy import deepcopy
 from scipy import interpolate
 
 from tardis.plasma.properties.base import (BasePlasmaProperty,
@@ -29,7 +28,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
     def calculate(self, level_boltzmann_factor, electron_densities,
         ionization_data, beta_rad, g, g_electron, w, t_rad, t_electrons,
         delta, zeta_data, number_density):
-        helium_population = deepcopy(level_boltzmann_factor.ix[2])
+        helium_population = level_boltzmann_factor.ix[2].copy()
         # He I excited states
         he_one_population = level_boltzmann_factor.ix[2].ix[0] * \
             electron_densities * np.exp(
