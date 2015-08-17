@@ -1,7 +1,7 @@
 #include "rpacket.h"
 #include "storage.h"
 
-rk_state mt_state;
+extern rk_state mt_state;
 
 tardis_error_t
 rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
