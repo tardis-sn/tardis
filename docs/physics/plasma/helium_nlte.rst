@@ -3,7 +3,7 @@ Helium NLTE
 
 The `helium_treatment` setting in the Tardis config. file will accept one of three options:
  * `none`: The default setting. Populate helium in the same way as the other elements.
- * `recomb-nlte`: Treats helium in NLTE using the analytical approximation outlined in an upcoming paper.
+ * `recomb-nlte`: Treats helium in NLTE using the analytical approximation outlined in an upcoming paper. 
  * `numerical-nlte`: To be implemented. Will allow the use of a separate module (not distributed with Tardis) to perform helium NLTE calculations numerically.
 
 `recomb-NLTE` (Paper version)
@@ -22,7 +22,7 @@ Symbols/Indexing:
     n_{2,0,0} = 0
 
 .. math::
-    n_{2,0,k}~(k\geq1) = n_{2,1,0}\times n_{e}\times\frac{1}{W}\times\frac{g_{2,0,k}}{2g_{2,1,0}}\times\left(\frac{h^{2}}{2\pi m_{e}kT_{r}}\right)^{3/2}\times\exp{\left(\frac{\chi_{2,1}-\epsilon_{2,0,k}}{kT_{r}}}\right)
+    n_{2,0,k}~(k\geq1) = n_{2,1,0}\times n_{e}\times\frac{1}{W}\times\frac{g_{2,0,k}}{2g_{2,1,0}}\times\left(\frac{h^{2}}{2\pi m_{e}kT_{r}}\right)^{3/2}\times\exp{\left(\frac{\chi_{2,1}-\epsilon_{2,0,k}}{kT_{r}}}\right)\times\left(\frac{T_{r}}{T_{e}}\right)^{1/2}
 
 (Note: An extra factor of :math:`\frac{1}{W}` is included for the metastable states of He I.)
 
@@ -38,7 +38,8 @@ Symbols/Indexing:
 `recomb-NLTE` (Code version)
 -----------------------------
 
-In the Tardis plasma, some of these equations are re-written slightly to make use of existing property methods, often using the relation:
+In the Tardis plasma, some of these equations are re-written slightly to make use of existing property methods (e.g. `PhiSahaLTE`, `PhiSahaNebular`) often using the relation:
 
 .. math::
     \frac{N_{i,j}}{Z_{i,j}} = \frac{n_{i,j,k}}{g_{i,j,k}}
+
