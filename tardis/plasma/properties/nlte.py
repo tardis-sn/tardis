@@ -64,7 +64,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         phis = (1 / PhiSahaLTE.calculate(g_electron, beta_rad,
             partition_function, ionization_data)) * electron_densities * \
             (1.0/g.ix[2].ix[1].ix[0]) * (1/w) * (t_rad/t_electron)**(0.5)
-        return level_boltzmann_factor.ix[2].ix[0].multiply(
+        return level_boltzmann_factor.ix[2].ix[0].mul(
             pd.DataFrame(phis.ix[2].ix[1].values)[0].transpose())
 
     def calculate_helium_three(self, t_rad, w, zeta_data, t_electrons, delta,
