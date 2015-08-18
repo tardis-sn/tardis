@@ -131,13 +131,6 @@ plasma:
             mandatory: False
             help: sets all beta_sobolevs to 1
 
-    helium_treatment:
-        property_type: string
-        mandatory: False
-        default: dilute-lte
-        allowed_value: dilute-lte recomb-nlte
-        help: dilute-lte to treat He as the other elements. recomb-nlte to treat with NLTE approximation.
-
 
 model:
     structure:
