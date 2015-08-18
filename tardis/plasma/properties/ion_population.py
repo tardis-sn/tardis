@@ -53,11 +53,12 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
                      \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
                      \\right)^{1/2}',)
 
-    def calculate(self, t_rad, w, zeta_data, t_electrons, delta,
+    @staticmethod
+    def calculate(t_rad, w, zeta_data, t_electrons, delta,
             g_electron, beta_rad, partition_function, ionization_data):
         phi_lte = PhiSahaLTE.calculate(g_electron, beta_rad,
             partition_function, ionization_data)
-        zeta = self.get_zeta_values(zeta_data, phi_lte, t_rad)
+        zeta = PhiSahaNebular.get_zeta_values(zeta_data, phi_lte, t_rad)
         phis = phi_lte * w * ((zeta * delta) + w * (1 - zeta)) * \
                (t_electrons/t_rad) ** .5
         return phis
