@@ -58,16 +58,9 @@ class HeliumNLTE(ProcessingPlasmaProperty):
     def calculate_helium_one(self, g_electron, beta_rad, partition_function,
             ionization_data, level_boltzmann_factor, electron_densities, g,
             w, t_rad, t_electron):
-        partition_function_index = pd.MultiIndex.from_tuples([(2,0), (2,1)],
-            names=['atomic_number', 'ion_number'])
-        ionization_data_index = pd.MultiIndex.from_tuples([(2,1)],
-            names=['atomic_number', 'ion_number'])
-        partition_function = pd.DataFrame(
-            partition_function.ix[2].ix[0:1].values,
-            index=partition_function_index, columns=partition_function.columns)
-        ionization_data = pd.DataFrame(
-            ionization_data.ix[2].ix[1]['ionization_energy'],
-            index=ionization_data_index, columns=['ionization_energy'])
+        (partition_function_index, ionization_data_index, partition_function,
+            ionization_data) = self.filter_with_helium_index(2, 1,
+            partition_function, ionization_data)
         phis = (1 / PhiSahaLTE.calculate(g_electron, beta_rad,
             partition_function, ionization_data)) * electron_densities * \
             (1.0/g.ix[2].ix[1].ix[0]) * (1/w) * (t_rad/t_electron)**(0.5)
@@ -77,16 +70,9 @@ class HeliumNLTE(ProcessingPlasmaProperty):
     def calculate_helium_three(self, t_rad, w, zeta_data, t_electrons, delta,
         g_electron, beta_rad, partition_function, ionization_data,
         electron_densities):
-        partition_function_index = pd.MultiIndex.from_tuples([(2,1), (2,2)],
-            names=['atomic_number', 'ion_number'])
-        ionization_data_index = pd.MultiIndex.from_tuples([(2,2)],
-            names=['atomic_number', 'ion_number'])
-        partition_function = pd.DataFrame(
-            partition_function.ix[2].ix[1:2].values,
-            index=partition_function_index, columns=partition_function.columns)
-        ionization_data = pd.DataFrame(
-            ionization_data.ix[2].ix[2]['ionization_energy'],
-            index=ionization_data_index, columns=['ionization_energy'])
+        (partition_function_index, ionization_data_index, partition_function,
+            ionization_data) = self.filter_with_helium_index(2, 2,
+            partition_function, ionization_data)
         zeta_data = pd.DataFrame(zeta_data.ix[2].ix[2].values,
             columns=ionization_data_index, index=zeta_data.columns).transpose()
         delta = pd.DataFrame(delta.ix[2].ix[2].values,
@@ -98,3 +84,22 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             partition_function.ix[2].ix[2]) * (1 /
             electron_densities)).ix[2].ix[2]
 
+    @staticmethod
+    def filter_with_helium_index(atomic_number, ion_number, partition_function,
+        ionization_data):
+        partition_function_index = pd.MultiIndex.from_tuples([(atomic_number,
+            ion_number-1), (atomic_number, ion_number)],
+            names=['atomic_number', 'ion_number'])
+        ionization_data_index = pd.MultiIndex.from_tuples([(atomic_number,
+            ion_number)],
+            names=['atomic_number', 'ion_number'])
+        partition_function = pd.DataFrame(
+            partition_function.ix[atomic_number].ix[
+            ion_number-1:ion_number].values,
+            index=partition_function_index, columns=partition_function.columns)
+        ionization_data = pd.DataFrame(
+            ionization_data.ix[atomic_number].ix[ion_number][
+            'ionization_energy'], index=ionization_data_index,
+            columns=['ionization_energy'])
+        return partition_function_index, ionization_data_index,\
+               partition_function, ionization_data
