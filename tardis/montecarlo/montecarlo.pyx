@@ -28,6 +28,7 @@ cdef extern from "src/cmontecarlo.h":
         double *packet_energies
         double *output_nus
         double *output_energies
+        double *last_interaction_in_nu
         int_type_t *last_line_interaction_in_id
         int_type_t *last_line_interaction_out_id
         int_type_t *last_line_interaction_shell_id
@@ -202,10 +203,12 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_shell_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] last_interaction_type = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
+    cdef np.ndarray[double, ndim=1] last_interaction_in_nu = -1 * np.ones(storage.no_of_packets, dtype=np.float64)
     storage.last_line_interaction_in_id = <int_type_t*> last_line_interaction_in_id.data
     storage.last_line_interaction_out_id = <int_type_t*> last_line_interaction_out_id.data
     storage.last_line_interaction_shell_id = <int_type_t*> last_line_interaction_shell_id.data
     storage.last_interaction_type = <int_type_t*> last_interaction_type.data
+    storage.last_interaction_in_nu = <double*> last_interaction_in_nu.data
     cdef np.ndarray[double, ndim=1] js = np.zeros(storage.no_of_shells, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] nubars = np.zeros(storage.no_of_shells, dtype=np.float64)
     storage.js = <double*> js.data
@@ -244,6 +247,7 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     runner.last_line_interaction_out_id = last_line_interaction_out_id
     runner.last_interaction_type = last_interaction_type
     runner.last_line_interaction_shell_id = last_line_interaction_shell_id
+    runner.last_interaction_in_nu = last_interaction_in_nu
     runner.virt_packet_nus = virt_packet_nus
     runner.virt_packet_energies = virt_packet_energies
     
