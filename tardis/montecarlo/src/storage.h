@@ -71,6 +71,7 @@ typedef struct StorageModel
   ContinuumProcessesStatus cont_status;
   double *virt_packet_nus;
   double *virt_packet_energies;
+  double *virt_last_interaction_in_nu;
   int64_t *virt_last_interaction_type;
   int64_t *virt_last_line_interaction_in_id;
   int64_t *virt_last_line_interaction_out_id;

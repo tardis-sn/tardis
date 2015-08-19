@@ -77,6 +77,7 @@ cdef extern from "src/cmontecarlo.h":
         ContinuumProcessesStatus cont_status
         double *virt_packet_nus
         double *virt_packet_energies
+        double *virt_last_interaction_in_nu
         int_type_t *virt_last_interaction_type
         int_type_t *virt_last_line_interaction_in_id
         int_type_t *virt_last_line_interaction_out_id
@@ -237,6 +238,7 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] virt_last_interaction_in_nu = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[int_type_t, ndim=1] virt_last_interaction_type = np.zeros(storage.virt_packet_count, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] virt_last_line_interaction_in_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] virt_last_line_interaction_out_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
@@ -244,11 +246,13 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     for i in range(storage.virt_packet_count):
         virt_packet_nus[i] = storage.virt_packet_nus[i]
         virt_packet_energies[i] = storage.virt_packet_energies[i]
+        virt_last_interaction_in_nu[i] = storage.virt_last_interaction_in_nu[i]
         virt_last_interaction_type[i] = storage.virt_last_interaction_type[i]
         virt_last_line_interaction_in_id[i] = storage.virt_last_line_interaction_in_id[i]
         virt_last_line_interaction_out_id[i] = storage.virt_last_line_interaction_out_id[i]
     free(<void *>storage.virt_packet_nus)
     free(<void *>storage.virt_packet_energies)
+    free(<void *>storage.virt_last_interaction_in_nu)
     free(<void *>storage.virt_last_interaction_type)
     free(<void *>storage.virt_last_line_interaction_in_id)
     free(<void *>storage.virt_last_line_interaction_out_id)
@@ -263,6 +267,7 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     runner.last_interaction_in_nu = last_interaction_in_nu
     runner.virt_packet_nus = virt_packet_nus
     runner.virt_packet_energies = virt_packet_energies
+    runner.virt_last_interaction_in_nu = virt_last_interaction_in_nu
     runner.virt_last_interaction_type = virt_last_interaction_type
     runner.virt_last_line_interaction_in_id = virt_last_line_interaction_in_id
     runner.virt_last_line_interaction_out_id = virt_last_line_interaction_out_id
