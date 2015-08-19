@@ -687,6 +687,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
       comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
+      storage->last_interaction_in_nu[rpacket_get_id (packet)] =
+  rpacket_get_nu (packet);
       storage->last_line_interaction_in_id[rpacket_get_id (packet)] =
 	rpacket_get_next_line_id (packet) - 1;
       storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =

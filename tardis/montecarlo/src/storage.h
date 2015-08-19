@@ -21,6 +21,7 @@ typedef struct StorageModel
   double *packet_energies;
   double *output_nus;
   double *output_energies;
+  double *last_interaction_in_nu;
   int64_t *last_line_interaction_in_id;
   int64_t *last_line_interaction_out_id;
   int64_t *last_line_interaction_shell_id;
