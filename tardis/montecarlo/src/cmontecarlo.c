@@ -488,9 +488,12 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 			storage->virt_array_size *= 2;
 			storage->virt_packet_nus = realloc(storage->virt_packet_nus, sizeof(double) * storage->virt_array_size);
 			storage->virt_packet_energies = realloc(storage->virt_packet_energies, sizeof(double) * storage->virt_array_size);
+      storage->virt_last_interaction_type = realloc(storage->virt_last_interaction_type, sizeof(int64_t) * storage->virt_array_size);
 		      }
 		    storage->virt_packet_nus[storage->virt_packet_count] = virt_packet.nu;
 		    storage->virt_packet_energies[storage->virt_packet_count] = virt_packet.energy * weight;
+        storage->virt_last_interaction_type[storage->virt_packet_count] = storage->last_interaction_type[rpacket_get_id (packet)];
+
 		    storage->virt_packet_count += 1;
 		    virt_id_nu =
 		      floor ((virt_packet.nu -
@@ -867,6 +870,7 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   int64_t packet_index;
   storage->virt_packet_nus = (double *)malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_energies = (double *)malloc(sizeof(double) * storage->no_of_packets);
+  storage->virt_last_interaction_type = (int64_t *)malloc(sizeof(int64_t) * storage->no_of_packets);
   storage->virt_packet_count = 0;
   storage->virt_array_size = storage->no_of_packets;
 #ifdef WITHOPENMP
