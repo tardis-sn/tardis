@@ -8,3 +8,4 @@ Overview of plasma calculations
     nebular_plasma
     macroatom
     nlte
+    helium_nlte
