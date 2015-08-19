@@ -976,6 +976,7 @@ class Configuration(ConfigurationNameSpace):
 
 
 
+
         ##### NLTE subsection of Plasma start
         nlte_validated_config_dict = {}
         nlte_species = []
