@@ -15,3 +15,4 @@ class PreviousElectronDensities(PreviousIterationProperty):
 
 class PreviousBetaSobolevs(PreviousIterationProperty):
     outputs = ('previous_beta_sobolevs',)
+

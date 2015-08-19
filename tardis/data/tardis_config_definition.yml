@@ -132,7 +132,6 @@ plasma:
             help: sets all beta_sobolevs to 1
 
 
-
 model:
     structure:
         property_type : container-property

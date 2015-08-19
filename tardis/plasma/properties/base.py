@@ -94,3 +94,9 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
     def calculate(self, *args, **kwargs):
         raise NotImplementedError('This method needs to be implemented by '
                                   'processing plasma modules')
+
+class HiddenPlasmaProperty(ProcessingPlasmaProperty):
+    __metaclass__ = ABCMeta
+
+    def __init__(self, plasma_parent):
+        super(HiddenPlasmaProperty, self).__init__(plasma_parent)
