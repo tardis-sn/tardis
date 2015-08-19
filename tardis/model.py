@@ -422,9 +422,9 @@ class Radial1DModel(object):
             configuration_dict_path = os.path.join(path, 'configuration')
             pd.Series(configuration_dict).to_hdf(hdf_store, configuration_dict_path)
 
-        include_from_plasma_ = {'level_populations': None, 'ion_populations': None, 'tau_sobolevs': None,
+        include_from_plasma_ = {'level_number_density': None, 'ion_number_density': None, 'tau_sobolevs': None,
                                 'electron_densities': None,
-                                't_rads': None, 'ws': None}
+                                't_rad': None, 'w': None}
         include_from_model_in_hdf5 = {'plasma_array': include_from_plasma_, 'j_blues': None,
                                       'last_line_interaction_in_id': None,
                                       'last_line_interaction_out_id': None,
