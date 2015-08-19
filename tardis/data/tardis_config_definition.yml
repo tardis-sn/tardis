@@ -138,7 +138,6 @@ plasma:
         allowed_value: none recomb-nlte
         help: none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.
 
-
 model:
     structure:
         property_type : container-property
