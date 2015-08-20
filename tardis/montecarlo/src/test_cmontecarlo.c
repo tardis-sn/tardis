@@ -243,12 +243,12 @@ test_montecarlo_thomson_scatter(){
 	return true;
 }
 
-//bool
-void
+bool
 test_move_packet_across_shell_boundary(){
 	double DISTANCE = 0.95e13;
 // MR: wrong: move_packet_across_shell_boundary() returns void
- move_packet_across_shell_boundary(rp, sm, DISTANCE);
+        move_packet_across_shell_boundary(rp, sm, DISTANCE);
+        return true;
 }
 
 
