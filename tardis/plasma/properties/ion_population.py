@@ -2,10 +2,15 @@ import logging
 
 import numpy as np
 import pandas as pd
+import numexpr as ne
+
 from scipy import interpolate
+
+
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaIonizationError
+
 
 logger = logging.getLogger(__name__)
 
@@ -140,24 +145,43 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
         super(IonNumberDensity, self).__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
+        self.block_ids = None
 
+
+    @profile
     def calculate_with_n_electron(self, phi, partition_function,
                                   number_density, n_electron):
-        ion_populations = pd.DataFrame(data=0.0,
-            index=partition_function.index.copy(),
-            columns=partition_function.columns.copy(), dtype=np.float64)
+        if self.block_ids is None:
+            self.block_ids = self._calculate_block_ids(phi)
 
-        for atomic_number, groups in phi.groupby(level='atomic_number'):
-            current_phis = (groups / n_electron).replace(np.nan, 0.0).values
-            phis_product = np.cumproduct(current_phis, axis=0)
-            neutral_atom_density = (number_density.ix[atomic_number] /
+        ion_populations = np.empty_like(partition_function.values)
+
+        phi_electron = np.nan_to_num(phi.values / n_electron.values)
+
+        for i, start_id in enumerate(self.block_ids[:-1]):
+            end_id = self.block_ids[i + 1]
+            current_phis = phi_electron[start_id:end_id]
+            phis_product = np.cumprod(current_phis, 0)
+            current_number_density = number_density.values[i]
+
+            tmp_ion_populations = np.empty((current_phis.shape[0] + 1,
+                                            current_phis.shape[1]))
+            tmp_ion_populations[0] = (number_density.values[i] /
                                     (1 + np.sum(phis_product, axis=0)))
-            ion_populations.ix[atomic_number, 0] = (
-                neutral_atom_density.values)
-            ion_populations.ix[atomic_number].values[1:] = (
-                neutral_atom_density.values * phis_product)
-            ion_populations[ion_populations < self.ion_zero_threshold] = 0.0
-        return ion_populations
+            tmp_ion_populations[1:] = tmp_ion_populations[0] * phis_product
+
+            ion_populations[start_id + i:end_id + 1 + i] = tmp_ion_populations
+
+        ion_populations[ion_populations < self.ion_zero_threshold] = 0.0
+
+        return pd.DataFrame(data = ion_populations,
+                            index=partition_function.index)
+
+    @staticmethod
+    def _calculate_block_ids(phi):
+        block_start_id = np.where(np.diff(
+            phi.index.get_level_values(0)) != 0.0)[0] + 1
+        return np.hstack(([0], block_start_id, [len(phi)]))
 
     def calculate(self, phi, partition_function, number_density):
         n_e_convergence_threshold = 0.05

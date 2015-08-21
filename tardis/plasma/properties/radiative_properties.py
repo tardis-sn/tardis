@@ -153,6 +153,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 columns=tau_sobolevs.columns)
         return transition_probabilities
 
+
 class LTEJBlues(ProcessingPlasmaProperty):
     outputs = ('lte_j_blues',)
     latex_name = ('J^{b}_{lu(LTE)}')
