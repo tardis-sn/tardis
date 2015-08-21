@@ -23,7 +23,7 @@ initialize_random_kit (unsigned long seed)
  */
 static tardis_error_t
 reverse_binary_search (const double *x, double x_insert,
-		       int64_t imin, int64_t imax, int64_t * result)
+                       int64_t imin, int64_t imax, int64_t * result)
 {
   /*
      Have in mind that *x points to a reverse sorted array.
@@ -384,7 +384,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
   double doppler_factor_ratio;
   double weight;
   int64_t virt_id_nu;
-  int64_t reabsorbed;
+  int64_t reabsorbed=-1;
   if (virtual_mode == 0)
     {
       reabsorbed = montecarlo_one_packet_loop (storage, packet, 0);
@@ -396,7 +396,6 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 	  for (i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
 	    {
               virt_packet = *packet;
-//	      memcpy ((void *) &virt_packet, (void *) packet, sizeof (rpacket_t));
 	      if (rpacket_get_r(&virt_packet) > storage->r_inner[0])
 		{
 		  mu_min =
@@ -428,6 +427,8 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		default:
 		  fprintf (stderr, "Something has gone horribly wrong!\n");
                   // FIXME MR: we need to somehow signal an error here
+                  // I'm adding an exit() here to inform the compiler about the impossible path
+                  exit(1);
 		}
 	      doppler_factor_ratio =
 		rpacket_doppler_factor (packet, storage) /
@@ -711,6 +712,7 @@ montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
 			      compute_distance2boundary (packet, storage));
       double d_line;
       compute_distance2line (packet, storage, &d_line);
+      // FIXME MR: return status of compute_distance2line() is ignored
       rpacket_set_d_line (packet, d_line);
       compute_distance2continuum (packet, storage);
     }
