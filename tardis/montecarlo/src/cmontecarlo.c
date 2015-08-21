@@ -295,20 +295,20 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
     chi_boundfree = rpacket_get_chi_boundfree(packet);
     rpacket_set_chi_freefree(packet, 0.0);
     chi_freefree = rpacket_get_chi_freefree(packet);
-    chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson *
+    chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson *
        rpacket_doppler_factor (packet, storage);
     chi_continuum = chi_boundfree + chi_freefree + chi_electron;
     d_continuum = rpacket_get_tau_event(packet) / chi_continuum;
   }
   else
   {
-    chi_electron = storage->electron_densities[packet->current_shell_id] * storage->sigma_thomson;
+    chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson;
     chi_continuum = chi_electron;
     d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
       storage->inverse_sigma_thomson * rpacket_get_tau_event (packet);
   }
 
-  if (packet->virtual_packet > 0)
+  if (rpacket_get_virtual_packet(packet) > 0)
     {
 	  //Set all continuum distances to MISS_DISTANCE in case of an virtual_packet
 	  rpacket_set_d_continuum(packet, MISS_DISTANCE);
@@ -437,19 +437,19 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 	  for (i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
 	    {
 	      memcpy ((void *) &virt_packet, (void *) packet, sizeof (rpacket_t));
-	      if (virt_packet.r > storage->r_inner[0])
+	      if (rpacket_get_r(&virt_packet) > storage->r_inner[0])
 		{
 		  mu_min =
 		    -1.0 * sqrt (1.0 -
-				 (storage->r_inner[0] / virt_packet.r) *
-				 (storage->r_inner[0] / virt_packet.r));
+				 (storage->r_inner[0] / rpacket_get_r(&virt_packet)) *
+				 (storage->r_inner[0] / rpacket_get_r(&virt_packet)));
 		}
 	      else
 		{
 		  mu_min = 0.0;
 		}
 	      mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
-	      virt_packet.mu = mu_min + (i + rk_double (&mt_state)) * mu_bin;
+	      rpacket_set_mu(&virt_packet,mu_min + (i + rk_double (&mt_state)) * mu_bin);
 	      switch (virtual_mode)
 		{
 		case -2:
@@ -457,7 +457,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		  break;
 		case -1:
 		  weight =
-		    2.0 * virt_packet.mu /
+		    2.0 * rpacket_get_mu(&virt_packet) /
 		    rpacket_get_virtual_packet_flag (packet);
 		  break;
 		case 1:
@@ -471,12 +471,12 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 	      doppler_factor_ratio =
 		rpacket_doppler_factor (packet, storage) /
 		rpacket_doppler_factor (&virt_packet, storage);
-	      virt_packet.energy =
-		rpacket_get_energy (packet) * doppler_factor_ratio;
-	      virt_packet.nu = rpacket_get_nu (packet) * doppler_factor_ratio;
+	      rpacket_set_energy(&virt_packet,
+		rpacket_get_energy (packet) * doppler_factor_ratio);
+	      rpacket_set_nu(&virt_packet,rpacket_get_nu (packet) * doppler_factor_ratio);
 	      reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1);
-	      if ((virt_packet.nu < storage->spectrum_end_nu) &&
-		  (virt_packet.nu > storage->spectrum_start_nu))
+	      if ((rpacket_get_nu(&virt_packet) < storage->spectrum_end_nu) &&
+		  (rpacket_get_nu(&virt_packet) > storage->spectrum_start_nu))
 		{
 #ifdef WITHOPENMP
 #pragma omp critical
@@ -492,20 +492,19 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
       storage->virt_last_line_interaction_in_id = realloc(storage->virt_last_line_interaction_in_id, sizeof(int64_t) * storage->virt_array_size);
       storage->virt_last_line_interaction_out_id = realloc(storage->virt_last_line_interaction_out_id, sizeof(int64_t) * storage->virt_array_size);
 		      }
-		    storage->virt_packet_nus[storage->virt_packet_count] = virt_packet.nu;
-		    storage->virt_packet_energies[storage->virt_packet_count] = virt_packet.energy * weight;
+		    storage->virt_packet_nus[storage->virt_packet_count] = rpacket_get_nu(&virt_packet);
+		    storage->virt_packet_energies[storage->virt_packet_count] = rpacket_get_energy(&virt_packet) * weight;
         storage->virt_last_interaction_in_nu[storage->virt_packet_count] = storage->last_interaction_in_nu[rpacket_get_id (packet)];
         storage->virt_last_interaction_type[storage->virt_packet_count] = storage->last_interaction_type[rpacket_get_id (packet)];
         storage->virt_last_line_interaction_in_id[storage->virt_packet_count] = storage->last_line_interaction_in_id[rpacket_get_id (packet)];
         storage->virt_last_line_interaction_out_id[storage->virt_packet_count] = storage->last_line_interaction_out_id[rpacket_get_id (packet)];
-
 		    storage->virt_packet_count += 1;
 		    virt_id_nu =
-		      floor ((virt_packet.nu -
+		      floor ((rpacket_get_nu(&virt_packet) -
 			      storage->spectrum_start_nu) /
 			     storage->spectrum_delta_nu);
 		    storage->spectrum_virt_nu[virt_id_nu] +=
-		      virt_packet.energy * weight;
+		      rpacket_get_energy(&virt_packet) * weight;
 #ifdef WITHOPENMP
 		  }
 #endif
