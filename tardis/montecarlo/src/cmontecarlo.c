@@ -1,3 +1,4 @@
+#include <inttypes.h>
 #ifdef WITHOPENMP
 #include <omp.h>
 #endif
@@ -5,14 +6,13 @@
 
 rk_state mt_state;
 
-void
+static void
 initialize_random_kit (unsigned long seed)
 {
   rk_seed (seed, &mt_state);
 }
 
-INLINE tardis_error_t
-line_search (double *nu, double nu_insert, int64_t number_of_lines,
+tardis_error_t line_search (double *nu, double nu_insert, int64_t number_of_lines,
 	     int64_t * result)
 {
   tardis_error_t ret_val = TARDIS_ERROR_OK;
@@ -35,7 +35,7 @@ line_search (double *nu, double nu_insert, int64_t number_of_lines,
   return ret_val;
 }
 
-inline tardis_error_t
+tardis_error_t
 reverse_binary_search (double *x, double x_insert,
 		       int64_t imin, int64_t imax, int64_t * result)
 {
@@ -76,7 +76,7 @@ reverse_binary_search (double *x, double x_insert,
   return ret_val;
 }
 
-inline tardis_error_t
+tardis_error_t
 binary_search (double *x, double x_insert, int64_t imin,
 	       int64_t imax, int64_t * result)
 {
@@ -121,7 +121,7 @@ binary_search (double *x, double x_insert, int64_t imin,
   return ret_val;
 }
 
-INLINE double
+double
 rpacket_doppler_factor (rpacket_t * packet, storage_model_t * storage)
 {
   return 1.0 -
@@ -131,7 +131,7 @@ rpacket_doppler_factor (rpacket_t * packet, storage_model_t * storage)
 
 /* Methods for calculating continuum opacities */
 
-INLINE double
+double
 bf_cross_section(storage_model_t * storage, int64_t continuum_id, double comov_nu)
 {
   /* Temporary hardcoded values */
@@ -143,7 +143,6 @@ bf_cross_section(storage_model_t * storage, int64_t continuum_id, double comov_n
   return sigma_bf * pow((storage->continuum_list_nu[continuum_id] / comov_nu), 3);
 }
 
-INLINE
 void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 {
   double bf_helper = 0;
@@ -179,7 +178,7 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
 }
 
-INLINE double
+double
 compute_distance2boundary (rpacket_t * packet, storage_model_t * storage)
 {
   double r = rpacket_get_r (packet);
@@ -219,7 +218,7 @@ compute_distance2boundary (rpacket_t * packet, storage_model_t * storage)
     }
 }
 
-INLINE tardis_error_t
+tardis_error_t
 compute_distance2line (rpacket_t * packet, storage_model_t * storage,
 		       double *result)
 {
@@ -274,7 +273,7 @@ compute_distance2line (rpacket_t * packet, storage_model_t * storage,
 	  fprintf (stderr, "mu = %f\n", mu);
 	  fprintf (stderr, "nu = %f\n", nu);
 	  fprintf (stderr, "doppler_factor = %f\n", doppler_factor);
-	  fprintf (stderr, "cur_zone_id = %lld\n", cur_zone_id);
+	  fprintf (stderr, "cur_zone_id = %" PRIi64 "\n", cur_zone_id);
 	  ret_val = TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
 	}
       else
@@ -285,7 +284,7 @@ compute_distance2line (rpacket_t * packet, storage_model_t * storage,
   return ret_val;
 }
 
-INLINE void
+void
 compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 {
   double chi_boundfree, chi_freefree, chi_electron, chi_continuum, d_continuum;
@@ -335,7 +334,7 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 	}
 }
 
-INLINE int64_t
+int64_t
 macro_atom (rpacket_t * packet, storage_model_t * storage)
 {
   int emit = 0, i = 0;
@@ -362,7 +361,7 @@ macro_atom (rpacket_t * packet, storage_model_t * storage)
   return storage->transition_line_id[i];
 }
 
-INLINE double
+double
 move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 {
   double new_r, doppler_factor, comov_energy, comov_nu;
@@ -395,7 +394,7 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
   return doppler_factor;
 }
 
-INLINE void
+void
 increment_j_blue_estimator (rpacket_t * packet, storage_model_t * storage,
 			    double d_line, int64_t j_blue_idx)
 {
@@ -745,7 +744,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     }
 }
 
-INLINE void
+static void
 montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
 {
   // Check if the last line was the same nu as the current line.
@@ -767,7 +766,7 @@ montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
     }
 }
 
-INLINE montecarlo_event_handler_t
+static montecarlo_event_handler_t
 get_event_handler (rpacket_t * packet, storage_model_t * storage,
 		   double *distance)
 {
@@ -795,7 +794,7 @@ get_event_handler (rpacket_t * packet, storage_model_t * storage,
   return handler;
 }
 
-INLINE montecarlo_event_handler_t
+montecarlo_event_handler_t
 montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage)
 {
   if (storage->cont_status == CONTINUUM_OFF)

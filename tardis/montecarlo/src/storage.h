@@ -8,12 +8,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#ifdef __clang__
-#define INLINE extern inline
-#else
-#define INLINE inline
-#endif
-
 typedef struct StorageModel
 {
   double *packet_nus;

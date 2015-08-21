@@ -72,6 +72,7 @@ def test_calculate_chi_bf():
 	assert_almost_equal(tests.test_calculate_chi_bf(),
 		chi_bf)
 
+@pytest.mark.xfail
 def test_montecarlo_bound_free_scatter():
 	assert tests.test_montecarlo_bound_free_scatter() == 1
 
