@@ -37,7 +37,7 @@ int64_t test_montecarlo_free_free_scatter(void);
 void
 init_rpacket(void){
 	rp = (rpacket_t *) malloc(sizeof(rpacket_t));
-	
+
 	double MU = 0.3;
 	double R = 7.5e14;
 	double ENERGY = 0.9;
@@ -93,7 +93,7 @@ init_storage_model(void){
 	sm->no_of_lines = 2;
 
 	/* LINE_LIST_NU = { 1.26318289e+16,  1.26318289e+16,
-						1.23357675e+16,  1.23357675e+16, 
+						1.23357675e+16,  1.23357675e+16,
 						1.16961598e+16 };
 	*/
 	sm->line_list_nu = (double *) malloc(sizeof(double)*5);
@@ -171,7 +171,9 @@ init_storage_model(void){
 	sm->t_electrons[0] = 2;
 	sm->t_electrons[1] = 2;
 
+// MR: these memsets are wrong: memset() operates on raw bytes!
 	sm->l_pop = (double *) malloc(sizeof(double )*20000);
+// MR: the sizeof() argument looks suspicious!
 	memset(sm->l_pop, 2, sizeof(sm->l_pop));
 
 	sm->l_pop_r = (double *) malloc(sizeof(double )* 20000);
@@ -244,7 +246,9 @@ test_montecarlo_thomson_scatter(){
 bool
 test_move_packet_across_shell_boundary(){
 	double DISTANCE = 0.95e13;
-	return move_packet_across_shell_boundary(rp, sm, DISTANCE);
+// MR: wrong: move_packet_across_shell_boundary() returns void
+        move_packet_across_shell_boundary(rp, sm, DISTANCE);
+        return true;
 }
 
 
@@ -261,7 +265,7 @@ test_montecarlo_one_packet_loop(){
 bool
 test_macro_atom(){
 	macro_atom(rp, sm);
-	return true;	
+	return true;
 }
 
 double
@@ -274,7 +278,7 @@ bool
 test_montecarlo_bound_free_scatter(){
 	double DISTANCE = 1e13;
 	montecarlo_bound_free_scatter(rp, sm, DISTANCE);
-	return rpacket_get_status(rp);
+	return (rpacket_get_status(rp)!=0);
 }
 
 double
