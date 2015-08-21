@@ -122,7 +122,7 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 
   int64_t shell_id = rpacket_get_current_shell_id(packet);
   double T = storage->t_electrons[shell_id];
-  double boltzmann_factor = exp(-(H * comov_nu) / KB / T);
+  double boltzmann_factor = exp(-(H * comov_nu) / (KB*T));
 
   double bf_helper = 0;
   for(int64_t i = current_continuum_id; i < no_of_continuum_edges; i++)
@@ -133,6 +133,7 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
     double l_pop_r = storage->l_pop_r[shell_id * no_of_continuum_edges + i];
     bf_helper += l_pop * bf_cross_section(storage, i, comov_nu) * (1 - l_pop_r * boltzmann_factor);
 
+// FIXME MR: Is this thread-safe? It doesn't look like it to me ...
     storage->chi_bf_tmp_partial[i] = bf_helper;
   }
 
@@ -656,8 +657,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 	  bool virtual_close_line = false;
 	  if (!rpacket_get_last_line (packet) &&
 	      fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
-		    rpacket_get_nu_line (packet)) /
-	      rpacket_get_nu_line (packet) < 1e-7)
+		    rpacket_get_nu_line (packet)) <
+	      (rpacket_get_nu_line (packet)* 1e-7))
 	    {
 	      virtual_close_line = true;
 	    }
@@ -676,8 +677,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     }
   if (!rpacket_get_last_line (packet) &&
       fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
-	    rpacket_get_nu_line (packet)) / rpacket_get_nu_line (packet) <
-      1e-7)
+	    rpacket_get_nu_line (packet)) < (rpacket_get_nu_line (packet)*
+      1e-7))
     {
       rpacket_set_close_line (packet, true);
     }
