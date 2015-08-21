@@ -77,7 +77,7 @@ cdef extern from "src/cmontecarlo.h":
         ContinuumProcessesStatus cont_status
         double *virt_packet_nus
         double *virt_packet_energies
-        double *virt_last_interaction_in_nu
+        double *virt_packet_last_interaction_in_nu
         int_type_t *virt_packet_last_interaction_type
         int_type_t *virt_packet_last_line_interaction_in_id
         int_type_t *virt_packet_last_line_interaction_out_id
