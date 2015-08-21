@@ -147,8 +147,6 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
 
-
-    @profile
     def calculate_with_n_electron(self, phi, partition_function,
                                   number_density, n_electron):
         if self.block_ids is None:
