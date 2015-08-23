@@ -15,7 +15,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     latex_name = ('N_{i,j,k}',)
     latex_formula = ('N_{i,j}\\dfrac{bf_{i,j,k}}{Z_{i,j}}',)
 
-    def calculate():
+    def calculate(self):
         pass
 
     def __init__(self, plasma_parent, helium_treatment='dilute-lte'):
@@ -23,8 +23,8 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
         if hasattr(self.plasma_parent, 'plasma_properties_dict'):
             if 'HeliumNLTE' in \
                 self.plasma_parent.plasma_properties_dict.keys():
-                    helium_treatment=='recomb-nlte'
-        if helium_treatment=='recomb-nlte' or 'numerical-nlte':
+                    helium_treatment='recomb-nlte'
+        if helium_treatment=='recomb-nlte':
             self.calculate = self._calculate_helium_nlte
         elif helium_treatment=='dilute-lte':
             self.calculate = self._calculate_dilute_lte
