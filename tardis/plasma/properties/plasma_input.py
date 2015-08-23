@@ -4,7 +4,7 @@ from tardis.plasma.properties.base import BasePlasmaProperty
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
            'TimeExplosion', 'JBlues', 'LinkTRadTElectron', 'NLTEExcitationSpecies',
-           'RadiationFieldCorrectionInput']
+           'NLTEIonizationSpecies', 'RadiationFieldCorrectionInput']
 
 class Input(BasePlasmaProperty):
 
@@ -86,3 +86,6 @@ class LinkTRadTElectron(StaticInput):
 
 class NLTEExcitationSpecies(StaticInput):
     outputs = ('nlte_excitation_species',)
+
+class NLTEIonizationSpecies(StaticInput):
+    outputs = ('nlte_ionization_species',)

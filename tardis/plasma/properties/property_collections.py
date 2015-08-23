@@ -10,15 +10,16 @@ from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactorLTE,
     RadiationFieldCorrection, RadiationFieldCorrectionInput,
     LevelBoltzmannFactorNoNLTE, LevelBoltzmannFactorNLTE, NLTEExcitationData,
     NLTEExcitationSpecies, PreviousBetaSobolevs, LTEJBlues,
-    PreviousElectronDensities, Chi0, HeliumNLTE)
+    PreviousElectronDensities, Chi0, HeliumNLTE, NLTEIonizationData,
+    PhiSahaNLTE, PhiSahaNoNLTE, NLTEIonizationSpecies)
 
 class PlasmaPropertyCollection(list):
     pass
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
     TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
-    RadiationFieldCorrectionInput, NLTEExcitationSpecies, PreviousBetaSobolevs,
-    PreviousElectronDensities])
+    RadiationFieldCorrectionInput, NLTEExcitationSpecies,
+    NLTEIonizationSpecies, PreviousBetaSobolevs, PreviousElectronDensities])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
@@ -39,3 +40,6 @@ nlte_properties = PlasmaPropertyCollection([
 helium_nlte_properties = PlasmaPropertyCollection([HeliumNLTE,
     RadiationFieldCorrection, ZetaData,
     BetaElectron, Chi0])
+nlte_ionization_properties = PlasmaPropertyCollection([NLTEIonizationData,
+    PhiSahaNLTE])
+non_nlte_ionization_properties = PlasmaPropertyCollection([PhiSahaNoNLTE])

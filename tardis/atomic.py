@@ -444,7 +444,7 @@ class AtomData(object):
 
 
     def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
-                          nlte_excitation_species=[]):
+                          nlte_excitation_species=[], nlte_ionization_species=[]):
         """
         Prepares the atom data to set the lines, levels and if requested macro atom data.
         This function mainly cuts the `levels` and `lines` by discarding any data that is not needed (any data
@@ -467,6 +467,7 @@ class AtomData(object):
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_excitation_species = nlte_excitation_species
+        self.nlte_ionization_species = nlte_ionization_species
         self._levels = self._levels.reset_index()
         self.levels = self._levels.copy()
 
@@ -555,7 +556,8 @@ class AtomData(object):
                 self.macro_atom_data['destination_level_idx'] = (np.ones(len(self.macro_atom_data)) * -1).astype(
                     np.int64)
 
-        self.nlte_excitation_data = NLTEData(self, nlte_excitation_species)
+        self.nlte_excitation_data = NLTEExcitationData(self, nlte_excitation_species)
+        self.nlte_ionization_data = NLTEIonizationData(self, nlte_ionization_species)
 
 
     def __repr__(self):
@@ -563,14 +565,14 @@ class AtomData(object):
                (self.uuid1, self.md5, self.lines.atomic_number.count(), self.levels.energy.count())
 
 
-class NLTEData(object):
+class NLTEExcitationData(object):
     def __init__(self, atom_data, nlte_excitation_species):
         self.atom_data = atom_data
         self.lines = atom_data.lines.reset_index()
         self.nlte_excitation_species = nlte_excitation_species
 
         if nlte_excitation_species:
-            logger.info('Preparing the NLTE data')
+            logger.info('Preparing the NLTE excitation data')
             self._init_indices()
             self._create_nlte_excitation_mask()
             if atom_data.has_collision_data:
@@ -646,4 +648,9 @@ class NLTEData(object):
                                            t_electrons.reshape((1, 1, t_electrons.shape[0]))) * \
                       self.g_ratio_matrices[species].reshape((no_of_levels, no_of_levels, 1))
         return c_ul_matrix + c_lu_matrix.transpose(1, 0, 2)
+
+
+class NLTEIonizationData(object):
+    def __init__(self, atom_data, nlte_ionization_species):
+        pass
 

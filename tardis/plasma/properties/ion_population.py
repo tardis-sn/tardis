@@ -9,8 +9,8 @@ from tardis.plasma.exceptions import PlasmaIonizationError
 
 logger = logging.getLogger(__name__)
 
-__all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
-           'IonNumberDensity']
+__all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'PhiSahaNLTE', 'PhiSahaNoNLTE',
+           'RadiationFieldCorrection', 'IonNumberDensity']
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
     """
@@ -21,7 +21,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
         on PhiSahaLTE, but the code cannot deal with the inclusion of two
         properties that generate a property called 'phi'.
     """
-    outputs = ('phi',)
+    outputs = ('general_phi',)
     latex_name = ('\\Phi',)
     latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
                      \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{rad}}}{h^2}\
@@ -47,7 +47,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
         The ionization equilibrium as calculated using a modified version of
         the Saha equation that accounts for dilution of the radiation field.
     """
-    outputs = ('phi',)
+    outputs = ('general_phi',)
     latex_name = ('\\Phi',)
     latex_formula = ('W(\\delta\\zeta_{i,j}+W(1-\\zeta_{i,j}))\\left(\
                      \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
@@ -76,6 +76,16 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
                 zeta_data.columns.values.min(), zeta_data.columns.values.max(),
                 t_rad))
         return zeta
+
+class PhiSahaNLTE(ProcessingPlasmaProperty):
+    outputs = ('phi',)
+    def calculate(self, general_phi):
+        pass
+
+class PhiSahaNoNLTE(ProcessingPlasmaProperty):
+    outputs = ('phi',)
+    def calculate(self, general_phi):
+        return general_phi
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """

@@ -7,7 +7,8 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
-    nlte_properties, helium_nlte_properties)
+    nlte_properties, helium_nlte_properties, nlte_ionization_properties,
+    non_nlte_ionization_properties)
 from tardis.io.util import parse_abundance_dict_to_dataframe
 
 logger = logging.getLogger(__name__)
@@ -24,8 +25,9 @@ class LTEPlasma(BasePlasma):
             t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,
             density=density, time_explosion=time_explosion, j_blues=j_blues,
 	        w=None, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment, nlte_species=None,
-            previous_beta_sobolevs=None, previous_electron_densities=None)
+            delta_input=delta_treatment, nlte_excitation_species=None,
+            nlte_ionization_species=None, previous_beta_sobolevs=None,
+            previous_electron_densities=None)
 
 class LegacyPlasmaArray(BasePlasma):
 
@@ -55,9 +57,9 @@ class LegacyPlasmaArray(BasePlasma):
 
     def __init__(self, number_densities, atomic_data, time_explosion,
         t_rad=None, delta_treatment=None, nlte_excitation_config=None,
-        ionization_mode='lte', excitation_mode='lte',
-        line_interaction_type='scatter', link_t_rad_t_electron=0.9,
-        helium_treatment='lte'):
+        nlte_ionization_config=None, ionization_mode='lte',
+        excitation_mode='lte', line_interaction_type='scatter',
+        link_t_rad_t_electron=0.9, helium_treatment='lte'):
 
         plasma_modules = basic_inputs + basic_properties
 
@@ -85,6 +87,14 @@ class LegacyPlasmaArray(BasePlasma):
             plasma_modules += non_nlte_properties
             nlte_excitation_species = None
 
+        if (nlte_ionization_config is not None and
+            nlte_ionization_config.species):
+            plasma_modules += nlte_ionization_properties
+            nlte_ionization_species = nlte_excitation_config.species
+        else:
+            plasma_modules += non_nlte_ionization_properties
+            nlte_ionization_species = None
+
         if line_interaction_type in ('downbranch', 'macroatom'):
             plasma_modules += macro_atom_properties
 
@@ -106,6 +116,8 @@ class LegacyPlasmaArray(BasePlasma):
 
         self.nlte_excitation_config = nlte_excitation_config
 
+        self.nlte_ionization_config = nlte_ionization_config
+
         if helium_treatment=='recomb-nlte':
             plasma_modules += helium_nlte_properties
 
@@ -115,5 +127,6 @@ class LegacyPlasmaArray(BasePlasma):
             j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
             delta_input=delta_treatment,
             nlte_excitation_species=nlte_excitation_species,
+            nlte_ionization_species=nlte_ionization_species,
             previous_electron_densities=initial_electron_densities,
             previous_beta_sobolevs=initial_beta_sobolevs)

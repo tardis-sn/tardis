@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
            'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEExcitationData',
-           'Chi0']
+           'NLTEIonizationData', 'Chi0']
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     __metaclass__ = ABCMeta
@@ -233,6 +233,15 @@ class NLTEExcitationData(ProcessingPlasmaProperty):
             return (getattr(self, self.outputs[0]),)
         else:
             return atomic_data.nlte_excitation_data
+
+class NLTEIonizationData(ProcessingPlasmaProperty):
+    outputs = ('nlte_ionization_data',)
+
+    def calculate(self, atomic_data):
+        if getattr(self, self.outputs[0]) is not None:
+            return (getattr(self, self.outputs[0]),)
+        else:
+            return atomic_data.nlte_ionization_data
 
 class Chi0(ProcessingPlasmaProperty):
     outputs = ('chi_0',)
