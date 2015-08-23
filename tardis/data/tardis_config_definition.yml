@@ -140,6 +140,13 @@ plasma:
                 Elements for which NLTE ionisation is to be used to calculate their states
                 ['Si', 'Ca', etc.]
 
+    helium_treatment:
+        property_type: string
+        mandatory: False
+        default: none
+        allowed_value: none recomb-nlte
+        help: none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.
+
 model:
     structure:
         property_type : container-property

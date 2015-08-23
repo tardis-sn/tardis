@@ -8,12 +8,6 @@
 #include <stdlib.h>
 #include <math.h>
 
-#ifdef __clang__
-#define INLINE extern inline
-#else
-#define INLINE inline
-#endif
-
 typedef struct StorageModel
 {
   double *packet_nus;
@@ -21,6 +15,7 @@ typedef struct StorageModel
   double *packet_energies;
   double *output_nus;
   double *output_energies;
+  double *last_interaction_in_nu;
   int64_t *last_line_interaction_in_id;
   int64_t *last_line_interaction_out_id;
   int64_t *last_line_interaction_shell_id;
@@ -68,6 +63,14 @@ typedef struct StorageModel
   double *l_pop;
   double *l_pop_r;
   ContinuumProcessesStatus cont_status;
+  double *virt_packet_nus;
+  double *virt_packet_energies;
+  double *virt_packet_last_interaction_in_nu;
+  int64_t *virt_packet_last_interaction_type;
+  int64_t *virt_packet_last_line_interaction_in_id;
+  int64_t *virt_packet_last_line_interaction_out_id;
+  int64_t virt_packet_count;
+  int64_t virt_array_size;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

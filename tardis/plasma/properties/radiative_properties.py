@@ -18,6 +18,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         stimulated_emission_factor : Numpy Array [len(lines), len(t_rad)]
     """
     outputs = ('stimulated_emission_factor',)
+    latex_formula = ('1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}',)
 
     def __init__(self, plasma_parent):
         super(StimulatedEmissionFactor, self).__init__(plasma_parent)
@@ -73,6 +74,8 @@ class TauSobolev(ProcessingPlasmaProperty):
     """
     outputs = ('tau_sobolevs',)
     latex_name = ('\\tau_{\\textrm{sobolev}}',)
+    latex_formula = ('\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}\
+        n_{lower} \\Big(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\Big)',)
 
     def __init__(self, plasma_parent):
         super(TauSobolev, self).__init__(plasma_parent)
@@ -152,6 +155,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
 
 class LTEJBlues(ProcessingPlasmaProperty):
     outputs = ('lte_j_blues',)
+    latex_name = ('J^{b}_{lu(LTE)}')
 
     @staticmethod
     def calculate(lines, nu, beta_rad):
@@ -160,9 +164,9 @@ class LTEJBlues(ProcessingPlasmaProperty):
         h = const.h.cgs.value
         c = const.c.cgs.value
         df = pd.DataFrame(1, index=nu.index, columns=beta_rad.index)
-        df = df.multiply(nu, axis='index') * beta_rad
+        df = df.mul(nu, axis='index') * beta_rad
         exponential = (np.exp(h * df) - 1)**(-1)
         remainder = (2 * (h * nu.values ** 3) /
             (c ** 2))
-        j_blues = exponential.multiply(remainder, axis=0)
+        j_blues = exponential.mul(remainder, axis=0)
         return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)

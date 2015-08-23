@@ -22,7 +22,8 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     latex_formula = ('g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
         \\textrm{B}}T_{\\textrm{rad}}}}',)
 
-    def calculate(self, excitation_energy, g, beta_rad, levels):
+    @staticmethod
+    def calculate(excitation_energy, g, beta_rad, levels):
         exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
         level_boltzmann_factor_array = (g.values[np.newaxis].T *
                                         exponential)
@@ -44,13 +45,8 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
 
     def calculate(self, levels, g, excitation_energy, beta_rad, w,
         metastability):
-        exponential = np.exp(np.outer(excitation_energy.values, -beta_rad))
-        level_boltzmann_factor_array = (g.values[np.newaxis].T *
-                                        exponential)
-        level_boltzmann_factor = pd.DataFrame(level_boltzmann_factor_array,
-                                              index=levels,
-                                              columns=np.arange(len(beta_rad)),
-                                              dtype=np.float64)
+        level_boltzmann_factor = LevelBoltzmannFactorLTE.calculate(
+            excitation_energy, g, beta_rad, levels)
         level_boltzmann_factor[~metastability] *= w
         return level_boltzmann_factor
 

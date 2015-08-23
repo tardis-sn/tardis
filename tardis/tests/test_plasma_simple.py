@@ -1,24 +1,37 @@
 from astropy import constants as const, units as u
 import os
+import pandas as pd
 import tardis
-from tardis import plasma_array, atomic
+from tardis import atomic
 import pytest
+from tardis.plasma.standard_plasmas import LegacyPlasmaArray
+from tardis.io.util import parse_abundance_dict_to_dataframe
 #from numpy.testing import assert_allclose
 data_path = os.path.join(tardis.__path__[0], 'tests', 'data')
 helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
-
 
 class TestNebularPlasma(object):
 
     def setup(self):
         atom_data = atomic.AtomData.from_hdf5(helium_test_db)
-        self.plasma = plasma_array.BasePlasmaArray.from_abundance(
-            {'He':1.0}, 1e-15*u.Unit('g/cm3'), atom_data, 10 * u.day,
-            ionization_mode='nebular', excitation_mode='dilute-lte')
+        density = 1e-15 * u.Unit('g/cm3')
+        abundance = parse_abundance_dict_to_dataframe({'He':1.0})
+        abundance = pd.DataFrame({0:abundance})
+        number_densities = abundance * density.to('g/cm^3').value
+        number_densities = number_densities.div(
+            atom_data.atom_data.mass.ix[number_densities.index], axis=0)
+        self.plasma = LegacyPlasmaArray(number_densities,
+            atomic_data=atom_data, time_explosion=10 * u.day,
+            ionization_mode='nebular')
+
+#        self.plasma = plasma_array.BasePlasmaArray.from_abundance(
+#            {'He':1.0}, 1e-15*u.Unit('g/cm3'), atom_data, 10 * u.day,
+#            ionization_mode='nebular', excitation_mode='dilute-lte')
 
     def test_high_temperature(self):
         with pytest.raises(ValueError) as excinfo:
-            self.plasma.update_radiationfield([100000.], [1.])
+            self.plasma.update_radiationfield(t_rad=[100000.],
+                ws=[0.5], j_blues=None, nlte_excitation_config=None)
 
         assert str(excinfo.value).startswith('t_rads outside of zeta '
                                                 'factor interpolation')

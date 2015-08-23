@@ -10,9 +10,9 @@ from tardis.plasma.exceptions import PlasmaIonizationError
 logger = logging.getLogger(__name__)
 
 __all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
-           'IonNumberDensity', 'PhiGeneral']
+           'IonNumberDensity']
 
-class PhiGeneral(ProcessingPlasmaProperty):
+class PhiSahaLTE(ProcessingPlasmaProperty):
     """
     Outputs:
     general_phi : Pandas DataFrame
@@ -21,18 +21,17 @@ class PhiGeneral(ProcessingPlasmaProperty):
         on PhiSahaLTE, but the code cannot deal with the inclusion of two
         properties that generate a property called 'phi'.
     """
-    outputs = ('general_phi',)
-    latex_name = ('\\Phi_{\\textrm{LTE}}',)
+    outputs = ('phi',)
+    latex_name = ('\\Phi',)
     latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
                      \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{rad}}}{h^2}\
                      \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
                      \\textrm{rad}}}}',)
 
-    def calculate(self, g_electron, beta_rad, partition_function,
-        ionization_data):
+    @staticmethod
+    def calculate(g_electron, beta_rad, partition_function, ionization_data):
         def calculate_phis(group):
             return group[1:] / group[:-1].values
-
         phis = partition_function.groupby(level='atomic_number').apply(
             calculate_phis)
         phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
@@ -54,7 +53,18 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
                      \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
                      \\right)^{1/2}',)
 
-    def calculate(self, general_phi, t_rad, w, zeta_data, t_electrons, delta):
+    @staticmethod
+    def calculate(t_rad, w, zeta_data, t_electrons, delta,
+            g_electron, beta_rad, partition_function, ionization_data):
+        phi_lte = PhiSahaLTE.calculate(g_electron, beta_rad,
+            partition_function, ionization_data)
+        zeta = PhiSahaNebular.get_zeta_values(zeta_data, phi_lte, t_rad)
+        phis = phi_lte * w * ((zeta * delta) + w * (1 - zeta)) * \
+               (t_electrons/t_rad) ** .5
+        return phis
+
+    @staticmethod
+    def get_zeta_values(zeta_data, general_phi, t_rad):
         try:
             zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[
                 general_phi.index].values)(t_rad)
@@ -65,22 +75,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
                              '- requested {2}'.format(
                 zeta_data.columns.values.min(), zeta_data.columns.values.max(),
                 t_rad))
-        phis = general_phi * delta * w * (zeta + w * (1 - zeta)) * \
-               (t_electrons/t_rad) ** .5
-        return phis
-
-class PhiSahaLTE(ProcessingPlasmaProperty):
-    """
-    Outputs:
-    phi_saha_lte: Pandas DataFrame
-        The ionization equilibrium as calculated using the Saha equation.
-    """
-    outputs = ('phi',)
-    latex_name = ('\\Phi',)
-    latex_formula = ('\\Phi_{\\textrm{LTE}}',)
-
-    def calculate(self, general_phi):
-        return general_phi
+        return zeta
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """
@@ -94,21 +89,17 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
     outputs = ('delta',)
     latex_name = ('\\delta',)
 
-    def __init__(self, plasma_parent, departure_coefficient=None,
-        chi_0_species=(20,2)):
+    def __init__(self, plasma_parent, departure_coefficient=None):
         super(RadiationFieldCorrection, self).__init__(plasma_parent)
         self.departure_coefficient = departure_coefficient
-        self.chi_0_species = chi_0_species
 
     def calculate(self, w, ionization_data, beta_rad, t_electrons, t_rad,
-        beta_electron, delta_input):
+        beta_electron, delta_input, chi_0):
         if delta_input is None:
             if self.departure_coefficient is None:
                 departure_coefficient = 1. / w
             else:
                 departure_coefficient = self.departure_coefficient
-            chi_0_species=self.chi_0_species
-            chi_0 = ionization_data.ionization_energy.ix[chi_0_species]
             radiation_field_correction = -np.ones((len(ionization_data), len(
                 beta_rad)))
             less_than_chi_0 = (
@@ -151,6 +142,12 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         super(IonNumberDensity, self).__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
 
+    def update_helium_nlte(self, ion_number_density, number_density):
+        ion_number_density.ix[2].ix[0] = 0.0
+        ion_number_density.ix[2].ix[2] = 0.0
+        ion_number_density.ix[2].ix[1].update(number_density.ix[2])
+        return ion_number_density
+
     def calculate_with_n_electron(self, phi, partition_function,
                                   number_density, n_electron):
         ion_populations = pd.DataFrame(data=0.0,
@@ -176,6 +173,12 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         while True:
             ion_number_density = self.calculate_with_n_electron(
                 phi, partition_function, number_density, n_electron)
+            if hasattr(self.plasma_parent, 'plasma_properties_dict'):
+                if 'HeliumNLTE' in \
+                    self.plasma_parent.plasma_properties_dict.keys():
+                    ion_number_density = \
+                        self.update_helium_nlte(ion_number_density,
+                        number_density)
             ion_numbers = ion_number_density.index.get_level_values(1).values
             ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
             new_n_electron = (ion_number_density.values * ion_numbers).sum(

@@ -2,6 +2,7 @@ import logging
 
 import networkx as nx
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
+from tardis.plasma.properties.base import HiddenPlasmaProperty
 
 import tempfile
 import fileinput
@@ -18,7 +19,7 @@ class BasePlasma(object):
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        **kwargs)
         self._build_graph()
-#        self.write_to_tex('Plasma_Graph', 'Plasma_Formulae')
+        self.write_to_tex('Plasma_Graph', 'Plasma_Formulae')
         self.update(**kwargs)
 
     def __getattr__(self, item):
@@ -186,12 +187,12 @@ class BasePlasma(object):
 
         try:
             import pygraphviz
-        except ImportError:
-            raise ImportError('pygraphviz is needed for method '
-                              '\'write_to_dot\'')
+        except:
+            logger.warn('pygraphviz missing. Plasma graph will not be '
+                        'generated.')
+            return
         print_graph = self.graph.copy()
-        print_graph.remove_node('LinesUpperLevelIndex')
-        print_graph.remove_node('LinesLowerLevelIndex')
+        print_graph = self.remove_hidden_properties(print_graph)
         for node in print_graph:
             print_graph.node[str(node)]['label'] = node
             if hasattr(self.plasma_properties_dict[node],
@@ -209,8 +210,10 @@ class BasePlasma(object):
     def write_to_tex(self, fname_graph, fname_formulae):
         try:
             import dot2tex
-        except ImportError:
-            raise ImportError('dot2tex is needed for method\'write_to_tex\'')
+        except:
+            logger.warn('dot2tex missing. Plasma graph will not be '
+                        'generated.')
+            return
 
         temp_fname = tempfile.NamedTemporaryFile().name
 
@@ -227,6 +230,31 @@ class BasePlasma(object):
 
         for line in fileinput.input(fname_graph, inplace = 1):
             print line.replace('\enlargethispage{100cm}', ''),
+
+    def remove_hidden_properties(self, print_graph):
+        for item in self.plasma_properties_dict.values():
+            module = self.plasma_properties_dict[item.name].__class__
+            if (issubclass(module, HiddenPlasmaProperty)):
+                output = module.outputs[0]
+                inputs = self.plasma_properties_dict[item.name].inputs
+                for value in self.plasma_properties_dict.keys():
+                    if output in getattr(self.plasma_properties_dict[value],
+                        'inputs', []):
+                        for input in self.plasma_properties_dict[
+                            item.name].inputs:
+                            try:
+                                position = self.outputs_dict[
+                                    input].outputs.index(input)
+                                label = self.outputs_dict[
+                                    input].latex_name[position]
+                                label = '$' + label + '$'
+                                label = label.replace('\\', '\\\\')
+                            except:
+                                label = input.replace('_', '-')
+                            self.graph.add_edge(self.outputs_dict[input].name,
+                                value, label = label)
+                print_graph.remove_node(str(item.name))
+        return print_graph
 
 class StandardPlasma(BasePlasma):
 
