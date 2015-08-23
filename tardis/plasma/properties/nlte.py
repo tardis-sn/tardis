@@ -123,43 +123,45 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
         heating_rate_data = np.loadtxt(
             self.plasma_parent.heating_rate_data_file, unpack=True)
         #Outputting data required by SH module
-        for zone in range(0, len(electron_densities)):
-            output_file = open('He_NLTE_Files/shellconditions_%d.txt' %zone,
-                'w')
-            print>>output_file, ion_number_density.ix[2].sum()[zone]
-            print>>output_file, electron_densities[zone]
-            print>>output_file, t_electrons[zone]
-            print>>output_file, heating_rate_data[zone]
-            print>>output_file, w[zone]
-            print>>output_file, self.plasma_parent.time_explosion
-            print>>output_file, t_rad[zone]
-            print>>output_file, self.plasma_parent.v_inner[zone]
-            print>>output_file, self.plasma_parent.v_outer[zone]
-            output_file.close()
+        for zone, _ in enumerate(electron_densities):
+            with open('He_NLTE_Files/shellconditions_%d.txt' %zone, 'w') as \
+                    output_file:
+                print>>output_file, ion_number_density.ix[2].sum()[zone]
+                print>>output_file, electron_densities[zone]
+                print>>output_file, t_electrons[zone]
+                print>>output_file, heating_rate_data[zone]
+                print>>output_file, w[zone]
+                print>>output_file, self.plasma_parent.time_explosion
+                print>>output_file, t_rad[zone]
+                print>>output_file, self.plasma_parent.v_inner[zone]
+                print>>output_file, self.plasma_parent.v_outer[zone]
 
-            output_file = open('He_NLTE_Files/abundances_%d.txt' %zone, 'w')
-            for element in range(1,31):
-                try:
-                    number_density = ion_number_density[zone].ix[element].sum()
-                except:
-                    number_density = 0.0
-                print>>output_file, number_density
-            output_file.close()
+        for zone, _ in enumerate(electron_densities):
+            with open('He_NLTE_Files/abundances_%d.txt' %zone, 'w') as \
+                    output_file:
+                for element in range(1,31):
+                    try:
+                        number_density = ion_number_density[zone].ix[
+                            element].sum()
+                    except:
+                        number_density = 0.0
+                    print>>output_file, number_density
 
             helium_lines = lines[lines['atomic_number']==2]
             helium_lines = helium_lines[helium_lines['ion_number']==0]
-            output_file = open('He_NLTE_Files/discradfield_%d.txt' %zone, 'w')
-            j_blues = pd.DataFrame(j_blues, index=lines.index)
-            helium_j_blues = j_blues[zone].ix[helium_lines.index]
-            for value in helium_lines.index:
-                if (helium_lines.level_number_lower.ix[value]<35):
-                    print>>output_file, \
-                        int(helium_lines.level_number_lower.ix[value]+1), \
-                        int(helium_lines.level_number_upper.ix[value]+1), \
-                        j_blues[zone].ix[value]
-            output_file.close()
+        for zone, _ in enumerate(electron_densities):
+            with open('He_NLTE_Files/discradfield_%d.txt' %zone, 'w') as \
+                    output_file:
+                j_blues = pd.DataFrame(j_blues, index=lines.index)
+                helium_j_blues = j_blues[zone].ix[helium_lines.index]
+                for value in helium_lines.index:
+                    if (helium_lines.level_number_lower.ix[value]<35):
+                        print>>output_file, \
+                            int(helium_lines.level_number_lower.ix[value]+1), \
+                            int(helium_lines.level_number_upper.ix[value]+1), \
+                            j_blues[zone].ix[value]
         #Running numerical simulations
-        for zone in range(0, len(electron_densities)):
+        for zone, _ in enumerate(electron_densities):
             os.rename('He_NLTE_Files/abundances_%d.txt' %zone,
                       'He_NLTE_Files/abundances_current.txt')
             os.rename('He_NLTE_Files/shellconditions_%d.txt' %zone,
@@ -176,14 +178,15 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
             os.rename('debug_occs.dat', 'He_NLTE_Files/occs_%d.txt' %zone)
         #Reading in populations from files
         helium_population = level_boltzmann_factor.ix[2].copy()
-        for zone in range(0, len(electron_densities)):
-            read_file = open('He_NLTE_Files/occs_%d.txt' %zone, 'r')
-            for level in range(0, 35):
-                level_population = read_file.readline()
-                level_population = float(level_population)
-                helium_population[zone].ix[0][level] = level_population
-            helium_population[zone].ix[1].ix[0] = float(read_file.readline())
-            read_file.close()
+        for zone, _ in enumerate(electron_densities):
+            with open('He_NLTE_Files/discradfield_%d.txt' %zone, 'r') as \
+                    read_file:
+                for level in range(0, 35):
+                    level_population = read_file.readline()
+                    level_population = float(level_population)
+                    helium_population[zone].ix[0][level] = level_population
+                helium_population[zone].ix[1].ix[0] = float(
+                    read_file.readline())
         #Performing He LTE level populations (upper two energy levels,
         #He II excited states, He III)
         he_one_population = HeliumNLTE.calculate_helium_one(g_electron,
