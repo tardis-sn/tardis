@@ -266,7 +266,11 @@ static inline void rpacket_set_id (rpacket_t * packet, int id)
 
 static inline void rpacket_reset_tau_event (rpacket_t * packet)
 {
-  rpacket_set_tau_event (packet, -log (rk_double (&mt_state)));
+#ifdef WITHOPENMP
+  rpacket_set_tau_event (packet, -log (rk_double (&mt_state[omp_get_thread_num()])));
+#else
+  rpacket_set_tau_event (packet, -log (rk_double (&mt_state[0])));
+#endif
 }
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,

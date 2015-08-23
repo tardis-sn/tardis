@@ -4,12 +4,12 @@
 #endif
 #include "cmontecarlo.h"
 
-rk_state mt_state;
+rk_state *mt_state;
 
 static void
-initialize_random_kit (unsigned long seed)
+initialize_random_kit (unsigned long seed, int thread)
 {
-  rk_seed (seed, &mt_state);
+  rk_seed (seed, &mt_state[thread]);
 }
 
 /** Look for a place to insert a value in an inversely sorted float array.
@@ -304,7 +304,11 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage)
     storage->line2macro_level_upper[rpacket_get_next_line_id (packet) - 1];
   while (emit != -1)
     {
-      double event_random = rk_double (&mt_state);
+#ifdef WITHOPENMP
+      double event_random = rk_double (&mt_state[omp_get_thread_num()]);
+#else
+      double event_random = rk_double (&mt_state[0]);
+#endif
       i = storage->macro_block_references[activate_level] - 1;
       double p = 0.0;
       do
@@ -408,7 +412,11 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		  mu_min = 0.0;
 		}
 	      mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
-	      rpacket_set_mu(&virt_packet,mu_min + (i + rk_double (&mt_state)) * mu_bin);
+#ifdef WITHOPENMP
+	      rpacket_set_mu(&virt_packet,mu_min + (i + rk_double (&mt_state[omp_get_thread_num()])) * mu_bin);
+#else
+	      rpacket_set_mu(&virt_packet,mu_min + (i + rk_double (&mt_state[0])) * mu_bin);
+#endif
 	      switch (virtual_mode)
 		{
 		case -2:
@@ -513,8 +521,13 @@ move_packet_across_shell_boundary (rpacket_t * packet,
     {
       rpacket_set_status (packet, TARDIS_PACKET_STATUS_EMITTED);
     }
+#ifdef WITHOPENMP
   else if ((storage->reflective_inner_boundary == 0) ||
-	   (rk_double (&mt_state) > storage->inner_boundary_albedo))
+	   (rk_double (&mt_state[omp_get_thread_num()]) > storage->inner_boundary_albedo))
+#else
+  else if ((storage->reflective_inner_boundary == 0) ||
+	   (rk_double (&mt_state[0]) > storage->inner_boundary_albedo))
+#endif
     {
       rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
     }
@@ -523,7 +536,11 @@ move_packet_across_shell_boundary (rpacket_t * packet,
       double doppler_factor = rpacket_doppler_factor (packet, storage);
       double comov_nu = rpacket_get_nu (packet) * doppler_factor;
       double comov_energy = rpacket_get_energy (packet) * doppler_factor;
-      rpacket_set_mu (packet, rk_double (&mt_state));
+#ifdef WITHOPENMP
+      rpacket_set_mu (packet, rk_double (&mt_state[omp_get_thread_num()]));
+#else
+      rpacket_set_mu (packet, rk_double (&mt_state[0]));
+#endif
       double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
       rpacket_set_nu (packet, comov_nu * inverse_doppler_factor);
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
@@ -542,7 +559,11 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   double doppler_factor = move_packet (packet, storage, distance);
   double comov_nu = rpacket_get_nu (packet) * doppler_factor;
   double comov_energy = rpacket_get_energy (packet) * doppler_factor;
-  rpacket_set_mu (packet, 2.0 * rk_double (&mt_state) - 1.0);
+#ifdef WITHOPENMP
+  rpacket_set_mu (packet, 2.0 * rk_double (&mt_state[omp_get_thread_num()]) - 1.0);
+#else
+  rpacket_set_mu (packet, 2.0 * rk_double (&mt_state[0]) - 1.0);
+#endif
   double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
   rpacket_set_nu (packet, comov_nu * inverse_doppler_factor);
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
@@ -565,7 +586,11 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   double nu = rpacket_get_nu(packet);
   double chi_bf = rpacket_get_chi_boundfree(packet);
   // get new zrand
-  double zrand = rk_double(&mt_state);
+#ifdef WITHOPENMP
+  double zrand = rk_double(&mt_state[omp_get_thread_num()]);
+#else
+  double zrand = rk_double(&mt_state[0]);
+#endif
   double zrand_x_chibf = zrand * chi_bf;
 
   int64_t ccontinuum = current_continuum_id; /* continuum_id of the continuum in which bf-absorption occurs */
@@ -582,7 +607,11 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
 //      ccontinuum = current_continuum_id;
 //   }
 
-  zrand = rk_double(&mt_state);
+#ifdef WITHOPENMP
+  zrand = rk_double(&mt_state[omp_get_thread_num()]);
+#else
+  zrand = rk_double(&mt_state[0]);
+#endif
   if (zrand < storage->continuum_list_nu[ccontinuum] / nu)
   {
 	// go to ionization energy
@@ -634,7 +663,11 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
   else if (rpacket_get_tau_event (packet) < tau_combined)
     {
       double old_doppler_factor = move_packet (packet, storage, distance);
-      rpacket_set_mu (packet, 2.0 * rk_double (&mt_state) - 1.0);
+#ifdef WITHOPENMP
+      rpacket_set_mu (packet, 2.0 * rk_double (&mt_state[omp_get_thread_num()]) - 1.0);
+#else
+      rpacket_set_mu (packet, 2.0 * rk_double (&mt_state[0]) - 1.0);
+#endif
       double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
       double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
@@ -754,7 +787,11 @@ montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage
     }
   else
     {
-  double zrand = (rk_double(&mt_state));
+#ifdef WITHOPENMP
+      double zrand = (rk_double(&mt_state[omp_get_thread_num()]));
+#else
+      double zrand = (rk_double(&mt_state[0]));
+#endif
   double normaliz_cont_th = rpacket_get_chi_electron(packet)/rpacket_get_chi_continuum(packet);
   double normaliz_cont_bf = rpacket_get_chi_boundfree(packet)/rpacket_get_chi_continuum(packet);
 
@@ -835,13 +872,15 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   fprintf(stderr, "Running with OpenMP - %d threads\n", nthreads);
   omp_set_dynamic(0);
   omp_set_num_threads(nthreads);
+  mt_state = (rk_state *)malloc(sizeof(rk_state) * nthreads);
 #pragma omp parallel
   {
-    initialize_random_kit(seed + omp_get_thread_num());
+    initialize_random_kit(seed + omp_get_thread_num(), omp_get_thread_num());
 #pragma omp for
 #else
   fprintf(stderr, "Running without OpenMP\n");
-  initialize_random_kit(seed);
+  mt_state = (rk_state *)malloc(sizeof(rk_state));
+  initialize_random_kit(seed, 0);
 #endif
   for (int64_t packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
     {
@@ -867,4 +906,5 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #ifdef WITHOPENMP
   }
 #endif
+  free(mt_state);
 }
