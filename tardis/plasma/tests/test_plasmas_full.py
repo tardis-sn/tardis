@@ -49,7 +49,7 @@ class TestPlasmas():
             new_plasma_levels, old_plasma_levels, rtol=0.05)
 
 #Important. Test has stopped working. Fix soon. 
-@pytest.mark.xfail
+    @pytest.mark.xfail
     def test_nlte_plasma(self):
         old_plasma_t_rads = \
             np.loadtxt(data_path('plasma_comparison_nlte_trads.dat'),
