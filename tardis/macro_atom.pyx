@@ -70,4 +70,4 @@ def normalize_transition_probabilities(double [:, :] p_transition,
                 if norm_factor[k] == 0.0:
                     continue
 
-                p_transition[j,k] /= norm_factor[k]
+                p_transition[j, k] /= norm_factor[k]

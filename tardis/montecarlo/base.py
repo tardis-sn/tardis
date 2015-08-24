@@ -20,6 +20,31 @@ class MontecarloRunner(object):
                                 (const.h / const.k_B)).cgs.value
 
 
+    def _initialize_montecarlo_arrays(self, model):
+        no_of_packets = model.packet_nus.size
+        no_of_shells = model.structure.no_of_shells
+        self._packet_nu = np.zeros(no_of_packets, dtype=np.float64)
+        self._packet_energy = np.zeros(no_of_packets, dtype=np.float64)
+        self._last_line_interaction_in_id = -1 * np.ones(no_of_packets, dtype=np.int64)
+        self.last_line_interaction_out_id = -1 * np.ones(no_of_packets, dtype=np.int64)
+        self.last_line_interaction_shell_id = -1 * np.ones(no_of_packets, dtype=np.int64)
+        self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
+        self.last_interaction_in_nu = np.emptuy
+        #Estimators
+        self.js = np.zeros(no_of_shells, dtype=np.float64)
+        self.nubars = np.zeros(no_of_shells, dtype=np.float64)
+
+
+
+        runner.virt_packet_nus = virt_packet_nus
+        runner.virt_packet_energies = virt_packet_energies
+        runner.virt_packet_last_interaction_in_nu = virt_packet_last_interaction_in_nu
+        runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
+        runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
+        runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
+
+
+
     def run(self, model, no_of_virtual_packets, nthreads=1):
         self.time_of_simulation = model.time_of_simulation
         self.volume = model.tardis_config.structure.volumes
