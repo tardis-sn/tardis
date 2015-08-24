@@ -92,6 +92,7 @@ cdef extern from "src/cmontecarlo.h":
 
 cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
+    #cdef np.ndarray[double, ndim=1] packet_nus = model.packet_src.packet_nus
     storage.no_of_packets = model.packet_src.packet_nus.size
     storage.packet_nus = <double*> PyArray_DATA(model.packet_src.packet_nus)
     storage.packet_mus = <double*> PyArray_DATA(model.packet_src.packet_mus)
@@ -100,18 +101,22 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     # Setup of structure
     structure = model.tardis_config.structure
     storage.no_of_shells = structure.no_of_shells
-    storage.r_inner = <double*> PyArray_DATA(structure.r_inner.to('cm').value)
-    storage.r_outer = <double*> PyArray_DATA(structure.r_outer.to('cm').value)
-    storage.v_inner = <double*> PyArray_DATA(structure.v_inner.to('cm/s').value)
+    cdef np.ndarray[double, ndim=1] r_inner = structure.r_inner.to('cm').value
+    storage.r_inner = <double*> r_inner.data
 
+    cdef np.ndarray[double, ndim=1] r_outer = structure.r_outer.to('cm').value
+    storage.r_outer = <double*> r_outer.data
+    cdef np.ndarray[double, ndim=1] v_inner = structure.v_inner.to('cm/s').value
+    storage.v_inner = <double*> v_inner.data
     # Setup the rest
+    # times
     storage.time_explosion = model.tardis_config.supernova.time_explosion.to('s').value
     storage.inverse_time_explosion = 1.0 / storage.time_explosion
-
     #electron density
-    storage.electron_densities = <double*> PyArray_DATA(model.plasma_array.electron_densities.values)
-    storage.inverse_electron_densities = <double*> PyArray_DATA(1.0 / model.plasma_array.electron_densities.values)
-
+    cdef np.ndarray[double, ndim=1] electron_densities = model.plasma_array.electron_densities.values
+    storage.electron_densities = <double*> electron_densities.data
+    cdef np.ndarray[double, ndim=1] inverse_electron_densities = 1.0 / electron_densities
+    storage.inverse_electron_densities = <double*> inverse_electron_densities.data
     # Switch for continuum processes
     storage.cont_status = CONTINUUM_OFF
     # Continuum data
@@ -119,6 +124,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
     cdef np.ndarray[double, ndim=1] l_pop
     cdef np.ndarray[double, ndim=1] l_pop_r
+
     if storage.cont_status == CONTINUUM_ON:
         continuum_list_nu = np.array([9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # sorted list of threshold frequencies
         storage.continuum_list_nu = <double*> continuum_list_nu.data
