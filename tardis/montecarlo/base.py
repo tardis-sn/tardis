@@ -23,17 +23,17 @@ class MontecarloRunner(object):
     def _initialize_montecarlo_arrays(self, model):
         no_of_packets = model.packet_src.packet_nus.size
         no_of_shells = model.tardis_config.structure.no_of_shells
-        self._packet_nu = np.zeros(no_of_packets, dtype=np.float64)
-        self._packet_energy = np.zeros(no_of_packets, dtype=np.float64)
+        self._packet_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
+        self._packet_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
         self.last_line_interaction_in_id = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.last_line_interaction_out_id = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.last_line_interaction_shell_id = -1 * np.ones(no_of_packets, dtype=np.int64)
-        self.last_line_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
+        self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
 
         #Estimators
-        self.js = np.zeros(no_of_shells, dtype=np.float64)
-        self.nubars = np.zeros(no_of_shells, dtype=np.float64)
+        self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
+        self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
 
     def run(self, model, no_of_virtual_packets, nthreads=1):
         self.time_of_simulation = model.time_of_simulation
