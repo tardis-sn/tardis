@@ -6,7 +6,7 @@ Equation to solve (He used as example - 3 ionisation states):
 
 .. math::
     \left( \begin{array}{cccc}
-    -r_{12} & r_{12} & 0 & \\
+    -r_{12} & r_{21} & 0 & \\
     r_{12} & -(r_{21}+r_{23}) & r_{32} \\
     0 & r_{23} & -r_{32} \end{array} \right)
     \left( \begin{array}{c}
