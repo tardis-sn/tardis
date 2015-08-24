@@ -21,6 +21,15 @@ class MontecarloRunner(object):
 
 
     def _initialize_montecarlo_arrays(self, model):
+        """
+        Initialize the output arrays of the montecarlo simulation.
+
+        Parameters
+        ----------
+
+        model: ~Radial1DModel
+        """
+
         no_of_packets = model.packet_src.packet_nus.size
         no_of_shells = model.tardis_config.structure.no_of_shells
         self._packet_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
@@ -34,11 +43,29 @@ class MontecarloRunner(object):
         #Estimators
         self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
+        self.j_blue_estimator = np.zeros_like(
+            model.plasma_array.tau_sobolevs.values)
+
+
+    def _initialize_geometry_arrays(self, structure):
+        """
+        Generate the cgs like geometry arrays for the montecarlo part
+
+        Parameters
+        ----------
+
+        structure: ~ConfigurationNameSpace
+        """
+        self.r_inner_cgs = structure.r_inner.to('cm').value
+        self.r_outer_cgs = structure.r_outer.to('cm').value
+        self.v_inner_cgs = structure.v_inner.to('cm/s').value
 
     def run(self, model, no_of_virtual_packets, nthreads=1):
         self.time_of_simulation = model.time_of_simulation
         self.volume = model.tardis_config.structure.volumes
         self._initialize_montecarlo_arrays(model)
+        self._initialize_geometry_arrays(model.tardis_config.structure)
+        #1/0
         montecarlo.montecarlo_radial1d(
             model, self, virtual_packet_flag=no_of_virtual_packets,
             nthreads=nthreads)
@@ -50,6 +77,11 @@ class MontecarloRunner(object):
                 self.last_line_interaction_out_id,
                 self.last_interaction_type,
                 self.last_line_interaction_shell_id)
+
+    def get_line_interaction_id(self, line_interaction_type):
+        return ['scatter', 'downbranch', 'macroatom'].index(
+            line_interaction_type)
+
 
     @property
     def packet_nu(self):

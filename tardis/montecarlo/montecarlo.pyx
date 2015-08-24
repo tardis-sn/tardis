@@ -91,32 +91,36 @@ cdef extern from "src/cmontecarlo.h":
 
 
 cdef initialize_storage_model(model, runner, storage_model_t *storage):
+    """
+    Initializing the storage struct.
 
-    #cdef np.ndarray[double, ndim=1] packet_nus = model.packet_src.packet_nus
+    """
+
     storage.no_of_packets = model.packet_src.packet_nus.size
     storage.packet_nus = <double*> PyArray_DATA(model.packet_src.packet_nus)
     storage.packet_mus = <double*> PyArray_DATA(model.packet_src.packet_mus)
-    storage.packet_energies = <double*> PyArray_DATA(model.packet_src.packet_energies)
+    storage.packet_energies = <double*> PyArray_DATA(
+        model.packet_src.packet_energies)
 
     # Setup of structure
     structure = model.tardis_config.structure
     storage.no_of_shells = structure.no_of_shells
-    cdef np.ndarray[double, ndim=1] r_inner = structure.r_inner.to('cm').value
-    storage.r_inner = <double*> r_inner.data
 
-    cdef np.ndarray[double, ndim=1] r_outer = structure.r_outer.to('cm').value
-    storage.r_outer = <double*> r_outer.data
-    cdef np.ndarray[double, ndim=1] v_inner = structure.v_inner.to('cm/s').value
-    storage.v_inner = <double*> v_inner.data
+
+    storage.r_inner = <double*> PyArray_DATA(runner.r_inner_cgs)
+    storage.r_outer = <double*> PyArray_DATA(runner.r_outer_cgs)
+    storage.v_inner = <double*> PyArray_DATA(runner.v_inner_cgs)
+
     # Setup the rest
     # times
-    storage.time_explosion = model.tardis_config.supernova.time_explosion.to('s').value
+    storage.time_explosion = model.tardis_config.supernova.time_explosion.to(
+        's').value
     storage.inverse_time_explosion = 1.0 / storage.time_explosion
     #electron density
-    cdef np.ndarray[double, ndim=1] electron_densities = model.plasma_array.electron_densities.values
-    storage.electron_densities = <double*> electron_densities.data
-    cdef np.ndarray[double, ndim=1] inverse_electron_densities = 1.0 / electron_densities
-    storage.inverse_electron_densities = <double*> inverse_electron_densities.data
+    storage.electron_densities = <double*> PyArray_DATA(
+        model.plasma_array.electron_densities.values)
+    storage.inverse_electron_densities = <double*> PyArray_DATA(
+        1.0 / model.plasma_array.electron_densities.values)
     # Switch for continuum processes
     storage.cont_status = CONTINUUM_OFF
     # Continuum data
@@ -137,56 +141,44 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         storage.l_pop_r = <double*> l_pop_r.data
 
     # Line lists
-    cdef np.ndarray[double, ndim=1] line_list_nu = model.atom_data.lines.nu.values
-    storage.line_list_nu = <double*> line_list_nu.data
-    storage.no_of_lines = line_list_nu.size
-    cdef np.ndarray[double, ndim=2] line_lists_tau_sobolevs = model.plasma_array.tau_sobolevs.values.transpose()
-    storage.line_lists_tau_sobolevs = <double*> line_lists_tau_sobolevs.data
-    storage.line_lists_tau_sobolevs_nd = line_lists_tau_sobolevs.shape[1]
-    cdef np.ndarray[double, ndim=2] line_lists_j_blues = model.j_blue_estimators
-    storage.line_lists_j_blues = <double*> line_lists_j_blues.data
-    storage.line_lists_j_blues_nd = line_lists_j_blues.shape[1]
-    line_interaction_type = model.tardis_config.plasma.line_interaction_type
+    storage.no_of_lines = model.atom_data.lines.nu.values.size
+    storage.line_list_nu = <double*> PyArray_DATA(model.atom_data.lines.nu.values)
+    storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
+        model.plasma_array.tau_sobolevs.values)
+    storage.line_lists_j_blues = <double*> PyArray_DATA(runner.j_blue_estimator)
 
-    if line_interaction_type == 'scatter':
-        storage.line_interaction_id = 0
-    elif line_interaction_type == 'downbranch':
-        storage.line_interaction_id = 1
-    elif line_interaction_type == 'macroatom':
-        storage.line_interaction_id = 2
-    else:
-        storage.line_interaction_id = -99
+    storage.line_interaction_id = runner.get_line_interaction_id(
+        model.tardis_config.plasma.line_interaction_type)
+
     # macro atom & downbranch
-    cdef np.ndarray[double, ndim=2] transition_probabilities
-    cdef np.ndarray[int_type_t, ndim=1] line2macro_level_upper
-    cdef np.ndarray[int_type_t, ndim=1] macro_block_references
-    cdef np.ndarray[int_type_t, ndim=1] transition_type
-    cdef np.ndarray[int_type_t, ndim=1] destination_level_id
-    cdef np.ndarray[int_type_t, ndim=1] transition_line_id
     if storage.line_interaction_id >= 1:
-        transition_probabilities = model.transition_probabilities.values.transpose()
-        storage.transition_probabilities_nd = transition_probabilities.shape[1]
-        storage.transition_probabilities = <double*> transition_probabilities.data
-        line2macro_level_upper = model.atom_data.lines_upper2macro_reference_idx
-        storage.line2macro_level_upper = <int_type_t*> line2macro_level_upper.data
-        macro_block_references = model.atom_data.macro_atom_references['block_references'].values
-        storage.macro_block_references = <int_type_t*> macro_block_references.data
-        transition_type = model.atom_data.macro_atom_data['transition_type'].values
-        storage.transition_type = <int_type_t*> transition_type.data
+        storage.transition_probabilities = <double*> PyArray_DATA(model.transition_probabilities.values)
+        storage.line2macro_level_upper = <int_type_t*> PyArray_DATA(
+            model.atom_data.lines_upper2macro_reference_idx)
+        storage.macro_block_references = <int_type_t*> PyArray_DATA(
+            model.atom_data.macro_atom_references['block_references'].values)
+        storage.transition_type = <int_type_t*> PyArray_DATA(
+            model.atom_data.macro_atom_data['transition_type'].values)
+
         # Destination level is not needed and/or generated for downbranch
-        destination_level_id = model.atom_data.macro_atom_data['destination_level_idx'].values
-        storage.destination_level_id = <int_type_t*> destination_level_id.data
-        transition_line_id = model.atom_data.macro_atom_data['lines_idx'].values
-        storage.transition_line_id = <int_type_t*> transition_line_id.data
+        storage.destination_level_id = <int_type_t*> PyArray_DATA(
+            model.atom_data.macro_atom_data['destination_level_idx'].values)
+        storage.transition_line_id = <int_type_t*> PyArray_DATA(
+            model.atom_data.macro_atom_data['lines_idx'].values)
 
     storage.output_nus = <double*> PyArray_DATA(runner._packet_nu)
     storage.output_energies = <double*> PyArray_DATA(runner._packet_energy)
 
-    storage.last_line_interaction_in_id = <int_type_t*> PyArray_DATA(runner.last_line_interaction_in_id)
-    storage.last_line_interaction_out_id = <int_type_t*> PyArray_DATA(runner.last_line_interaction_out_id)
-    storage.last_line_interaction_shell_id = <int_type_t*> PyArray_DATA(runner.last_line_interaction_shell_id)
-    storage.last_interaction_type = <int_type_t*> PyArray_DATA(runner.last_interaction_type)
-    storage.last_interaction_in_nu = <double*> PyArray_DATA(runner.last_interaction_in_nu)
+    storage.last_line_interaction_in_id = <int_type_t*> PyArray_DATA(
+        runner.last_line_interaction_in_id)
+    storage.last_line_interaction_out_id = <int_type_t*> PyArray_DATA(
+        runner.last_line_interaction_out_id)
+    storage.last_line_interaction_shell_id = <int_type_t*> PyArray_DATA(
+        runner.last_line_interaction_shell_id)
+    storage.last_interaction_type = <int_type_t*> PyArray_DATA(
+        runner.last_interaction_type)
+    storage.last_interaction_in_nu = <double*> PyArray_DATA(
+        runner.last_interaction_in_nu)
 
     storage.js = <double*> PyArray_DATA(runner.j_estimator)
     storage.nubars = <double*> PyArray_DATA(runner.nu_bar_estimator)
@@ -239,7 +231,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     cdef storage_model_t storage
 
     initialize_storage_model(model, runner, &storage)
-
 
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
                          model.tardis_config.montecarlo.seed)
