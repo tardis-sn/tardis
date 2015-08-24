@@ -14,6 +14,13 @@
 #define INLINE inline
 #endif
 
+typedef struct photo_xsect_1level
+{
+  double * nu;
+  double * x_sect;
+  int64_t no_of_points;
+} photo_xsect_1level;
+
 typedef struct StorageModel
 {
   double *packet_nus;
@@ -79,6 +86,7 @@ typedef struct StorageModel
   int64_t no_of_ions;
   ContinuumProcessesStatus cont_status;
   FreeFreeStatus ff_status;
+  photo_xsect_1level **photo_xsect;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

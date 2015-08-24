@@ -134,13 +134,27 @@ rpacket_doppler_factor (rpacket_t * packet, storage_model_t * storage)
 INLINE double
 bf_cross_section(storage_model_t * storage, int64_t continuum_id, double comov_nu)
 {
-  /* Temporary hardcoded values */
-  double chi_bf_partial = 10 * 0.25e-15;
-  double cont_chi_bf[] = {chi_bf_partial, 0.0, 2.0 * chi_bf_partial, 0.3 * chi_bf_partial, 2.0 * chi_bf_partial};
-  /* End of temporary hardcoded values */
-  double sigma_bf = 0.5 * chi_bf_partial;
-  //double sigma_bf = cont_chi_bf[continuum_id];
-  return sigma_bf * pow((storage->continuum_list_nu[continuum_id] / comov_nu), 3);
+  int64_t result;
+  tardis_error_t error = binary_search (storage->photo_xsect[continuum_id]->nu, comov_nu, 0,
+	       storage->photo_xsect[continuum_id]->no_of_points - 1, &result);
+  if (error == TARDIS_ERROR_BOUNDS_ERROR)
+    {
+      fprintf (stderr, "Bf-xsect for comov_nu = %e not in table (nu_table: %e to  %e Hz)\n",
+       comov_nu, storage->photo_xsect[continuum_id]->nu[0],
+        storage->photo_xsect[continuum_id]->nu[storage->photo_xsect[continuum_id]->no_of_points - 1]);
+      return 0.0;
+    }
+  else
+    {
+      double bf_xsect = storage->photo_xsect[continuum_id]->x_sect[result-1]
+        + (comov_nu - storage->photo_xsect[continuum_id]->nu[result-1])
+        / (storage->photo_xsect[continuum_id]->nu[result] - storage->photo_xsect[continuum_id]->nu[result-1])
+        * (storage->photo_xsect[continuum_id]->x_sect[result] - storage->photo_xsect[continuum_id]->x_sect[result-1]);
+      fprintf (stderr, "comov_nu = %e Hz, nu_table =  %e Hz, x_sect = %e cm^-2, x_sect_interp = %e cm^-2\n",
+       comov_nu, storage->photo_xsect[continuum_id]->nu[result],
+        storage->photo_xsect[continuum_id]->x_sect[result], bf_xsect);
+      return bf_xsect;
+    }
 }
 
 INLINE
