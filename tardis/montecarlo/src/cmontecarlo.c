@@ -299,7 +299,7 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 int64_t
 macro_atom (const rpacket_t * packet, const storage_model_t * storage)
 {
-  int emit = 0, i = 0;
+  int emit = 0, i = 0, probability_idx = -1;
   int activate_level =
     storage->line2macro_level_upper[rpacket_get_next_line_id (packet) - 1];
   while (emit != -1)
@@ -309,11 +309,14 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage)
       double p = 0.0;
       do
 	{
-	  p +=
-	    storage->
-	    transition_probabilities[rpacket_get_current_shell_id (packet) *
-				     storage->transition_probabilities_nd +
-				     (++i)];
+
+	  probability_idx = ((++i) * storage->no_of_shells +
+	  rpacket_get_current_shell_id (packet));
+	  p += storage->transition_probabilities[probability_idx];
+
+	  //fprintf(stderr, "p%2.5f i %d shells %d shell_id %d\n", p, i, storage->no_of_shells, rpacket_get_current_shell_id (packet));
+	  //exit(10);
+
 	}
       while (p <= event_random);
       emit = storage->transition_type[i];
@@ -607,21 +610,18 @@ void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 			 double distance)
 {
-  int64_t j_blue_idx = -1;
+  int64_t line2d_idx = rpacket_get_next_line_id (packet)
+  * storage->no_of_shells + rpacket_get_current_shell_id (packet);
   if (rpacket_get_virtual_packet (packet) == 0)
     {
-      j_blue_idx =
-	rpacket_get_current_shell_id (packet) *
-	storage->line_lists_j_blues_nd + rpacket_get_next_line_id (packet);
-      increment_j_blue_estimator (packet, storage, distance, j_blue_idx);
+      increment_j_blue_estimator (packet, storage, distance, line2d_idx);
     }
   double tau_line =
-    storage->line_lists_tau_sobolevs[rpacket_get_current_shell_id (packet) *
-				     storage->line_lists_tau_sobolevs_nd +
-				     rpacket_get_next_line_id (packet)];
+    storage->line_lists_tau_sobolevs[line2d_idx];
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
   rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
+
   if (rpacket_get_next_line_id (packet) == storage->no_of_lines)
     {
       rpacket_set_last_line (packet, true);
