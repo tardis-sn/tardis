@@ -92,10 +92,10 @@ cdef extern from "src/cmontecarlo.h":
 
 cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
-    storage.no_of_packets = model.packet_nus.size
-    storage.packet_nus = <double*> PyArray_DATA(model.packet_nus)
-    storage.packet_mus = <double*> PyArray_DATA(model.packet_mus)
-    storage.packet_energies = <double*> PyArray_DATA(model.packet_energies)
+    storage.no_of_packets = model.packet_src.packet_nus.size
+    storage.packet_nus = <double*> PyArray_DATA(model.packet_src.packet_nus)
+    storage.packet_mus = <double*> PyArray_DATA(model.packet_src.packet_mus)
+    storage.packet_energies = <double*> PyArray_DATA(model.packet_src.packet_energies)
 
     # Setup of structure
     structure = model.tardis_config.structure
@@ -174,20 +174,15 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.output_nus = <double*> PyArray_DATA(runner._packet_nu)
     storage.output_energies = <double*> PyArray_DATA(runner._packet_energy)
 
-    cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_in_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
-    cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
-    cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_shell_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
-    cdef np.ndarray[int_type_t, ndim=1] last_interaction_type = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
-    cdef np.ndarray[double, ndim=1] last_interaction_in_nu = -1 * np.ones(storage.no_of_packets, dtype=np.float64)
-    storage.last_line_interaction_in_id = <int_type_t*> last_line_interaction_in_id.data
-    storage.last_line_interaction_out_id = <int_type_t*> last_line_interaction_out_id.data
-    storage.last_line_interaction_shell_id = <int_type_t*> last_line_interaction_shell_id.data
-    storage.last_interaction_type = <int_type_t*> last_interaction_type.data
-    storage.last_interaction_in_nu = <double*> last_interaction_in_nu.data
-    cdef np.ndarray[double, ndim=1] js = np.zeros(storage.no_of_shells, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] nubars = np.zeros(storage.no_of_shells, dtype=np.float64)
-    storage.js = <double*> js.data
-    storage.nubars = <double*> nubars.data
+    storage.last_line_interaction_in_id = <int_type_t*> PyArray_DATA(runner.last_line_interaction_in_id)
+    storage.last_line_interaction_out_id = <int_type_t*> PyArray_DATA(runner.last_line_interaction_out_id)
+    storage.last_line_interaction_shell_id = <int_type_t*> PyArray_DATA(runner.last_line_interaction_shell_id)
+    storage.last_interaction_type = <int_type_t*> PyArray_DATA(runner.last_line_interaction_type)
+    storage.last_interaction_in_nu = <double*> PyArray_DATA(runner.last_interaction_in_nu)
+
+    storage.js = <double*> PyArray_DATA(runner.js)
+    storage.nubars = <double*> PyArray_DATA(runner.nubars)
+
     storage.spectrum_start_nu = model.tardis_config.spectrum.frequency.value.min()
     storage.spectrum_end_nu = model.tardis_config.spectrum.frequency.value.max()
     storage.spectrum_virt_start_nu = model.tardis_config.montecarlo.virtual_spectrum_range.end.to('Hz', units.spectral()).value
