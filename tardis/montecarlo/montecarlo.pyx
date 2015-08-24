@@ -12,6 +12,10 @@ cimport numpy as np
 from astropy import constants
 from astropy import units
 
+from libc.stdlib cimport malloc, free
+
+import matplotlib.pyplot as plt
+
 np.import_array()
 
 ctypedef np.int64_t int_type_t
@@ -24,6 +28,11 @@ cdef extern from "src/cmontecarlo.h":
     ctypedef enum FreeFreeStatus:
         FREE_FREE_OFF = 0
         FREE_FREE_ON = 1
+
+    ctypedef struct photo_xsect_1level:
+        double *nu
+        double *x_sect
+        int_type_t no_of_points
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -89,6 +98,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t no_of_ions
         ContinuumProcessesStatus cont_status
         FreeFreeStatus ff_status
+        photo_xsect_1level ** photo_xsect
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -150,6 +160,26 @@ def montecarlo_radial1d(model, int_type_t virtual_packet_flag=0, int nthreads=4)
     storage.cont_status = CONTINUUM_OFF
     # Continuum data
     # bf-data
+
+    # Photoionization cross-sections for Hydrogen
+    phot_table_e_unprep, phot_table_xsect_unprep = np.loadtxt(
+        '/Users/cvogl/workspace/excercises/x_sections/H_atom_stuart/h20_phot.py', usecols=(1, 2), unpack=True)
+    phot_table_e_split = np.split(phot_table_e_unprep, np.where(phot_table_e_unprep == 1.0)[0][1:])
+    phot_table_e = [np.delete(b, 0, axis=0) for b in phot_table_e_split]
+    phot_table_xsect_split = np.split(phot_table_xsect_unprep, np.where(phot_table_xsect_unprep == 1.0)[0][1:])
+    phot_table_xsect = [np.delete(b, 0, axis=0) for b in phot_table_xsect_split]
+    phot_table_nu = [energy * (units.eV).to(units.Hz, equivalencies=units.spectral()) for energy in phot_table_e]
+    
+    cdef photo_xsect_1level ** photo_xsect = <photo_xsect_1level **> malloc(
+        len(phot_table_xsect) * sizeof(photo_xsect_1level *))
+    for i in range(len(phot_table_xsect)):
+        photo_xsect[i] = <photo_xsect_1level *> malloc(sizeof(photo_xsect_1level))
+        photo_xsect[i].no_of_points = len(phot_table_xsect[i])
+        photo_xsect[i].nu = <double *> (<np.ndarray[double, ndim =1]> (phot_table_nu[i])).data
+        photo_xsect[i].x_sect = <double *> (<np.ndarray[double, ndim =1]> (phot_table_xsect[i])).data
+
+    storage.photo_xsect = photo_xsect
+
     cdef np.ndarray[double, ndim=1] continuum_list_nu
     cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
     cdef np.ndarray[double, ndim=1] l_pop
