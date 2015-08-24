@@ -6,9 +6,9 @@ Equation to solve (He used as example - 3 ionisation states):
 
 .. math::
     \left( \begin{array}{cccc}
-    0 & r_{12} & 0 & \\
-    r_{21} & 0 & r_{23} \\
-    0 & r_{32} & 0 \end{array} \right)
+    -r_{12} & r_{12} & 0 & \\
+    r_{12} & -(r_{21}+r_{23}) & r_{32} \\
+    0 & r_{23} & -r_{32} \end{array} \right)
     \left( \begin{array}{c}
     N_{1} \\
     N_{2} \\
@@ -25,17 +25,17 @@ Three types of transition are currently considered, where `i` is the lower ioniz
 Spontaneous Recombination:
 
 .. math::
-    \alpha_{i}^{sp.} = 4\pi\Phi_{ik}\int_{\nu_{i}}^{\infty}\frac{a_{ik(\nu)}}{h\nu}\frac{2h\nu^{3}}{c^2}\exp(-\frac{h\nu}{kT_{r}})
+    \alpha_{i}^{sp.} = 4\pi\Phi_{ik}\int_{\nu_{i}}^{\infty}\frac{a_{ik(\nu)}}{h\nu}\frac{2h\nu^{3}}{c^2}\exp(-\frac{h\nu}{kT_{e}})
 
 Stimulated Recombination:
 
 .. math::
-    \alpha_{i}^{st.} = 4\pi\Phi_{ik}\int_{\nu_{i}}^{\infty}\frac{a_{ik(\nu)}}{h\nu}J_{\nu}\exp(-\frac{h\nu}{kT_{r}})
+    \alpha_{i}^{st.} = 4\pi\Phi_{ik}\int_{\nu_{i}}^{\infty}\frac{a_{ik(\nu)}}{h\nu}J_{\nu}\exp(-\frac{h\nu}{kT_{e}})
 
 Photoionization:
 
 .. math::
-    \gamma_{i} = 4\pi\int_{\nu_{i}}^{\infty}\frac{a_{ik(\nu)}}{h\nu}J_{\nu}\exp(-\frac{h\nu}{kT_{r}})
+    \gamma_{i} = 4\pi\int_{\nu_{i}}^{\infty}\frac{a_{ik(\nu)}}{h\nu}J_{\nu}\exp(-\frac{h\nu}{kT_{e}})
 
 :math:`\Phi_{ik}` is the ion population ratio in LTE:
 
