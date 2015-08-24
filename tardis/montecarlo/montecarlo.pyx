@@ -173,7 +173,7 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     else:
         storage.line_interaction_id = -99
     # macro atom & downbranch
-    cdef np.ndarray[double, ndim=2] transition_probabilities
+    cdef double [:, :] transition_probabilities
     cdef np.ndarray[int_type_t, ndim=1] line2macro_level_upper
     cdef np.ndarray[int_type_t, ndim=1] macro_block_references
     cdef np.ndarray[int_type_t, ndim=1] transition_type

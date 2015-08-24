@@ -160,7 +160,6 @@ class IonNumberDensity(ProcessingPlasmaProperty):
             end_id = self.block_ids[i + 1]
             current_phis = phi_electron[start_id:end_id]
             phis_product = np.cumprod(current_phis, 0)
-            current_number_density = number_density.values[i]
 
             tmp_ion_populations = np.empty((current_phis.shape[0] + 1,
                                             current_phis.shape[1]))
