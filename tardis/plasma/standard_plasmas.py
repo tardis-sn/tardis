@@ -24,8 +24,7 @@ class LTEPlasma(BasePlasma):
             t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,
             density=density, time_explosion=time_explosion, j_blues=j_blues,
 	        w=None, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment, nlte_species=None,
-            previous_beta_sobolevs=None, previous_electron_densities=None)
+            delta_input=delta_treatment, nlte_species=None)
 
 class LegacyPlasmaArray(BasePlasma):
 
@@ -112,6 +111,4 @@ class LegacyPlasmaArray(BasePlasma):
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
             j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment, nlte_species=nlte_species,
-            previous_electron_densities=initial_electron_densities,
-            previous_beta_sobolevs=initial_beta_sobolevs)
+            delta_input=delta_treatment, nlte_species=nlte_species)
