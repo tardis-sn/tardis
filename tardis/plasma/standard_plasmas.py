@@ -90,7 +90,7 @@ class LegacyPlasmaArray(BasePlasma):
         if (nlte_ionization_config is not None and
             nlte_ionization_config.species):
             plasma_modules += nlte_ionization_properties
-            nlte_ionization_species = nlte_excitation_config.species
+            nlte_ionization_species = nlte_ionization_config.species
         else:
             plasma_modules += non_nlte_ionization_properties
             nlte_ionization_species = None

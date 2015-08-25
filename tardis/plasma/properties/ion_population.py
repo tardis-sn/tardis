@@ -3,6 +3,9 @@ import logging
 import numpy as np
 import pandas as pd
 from scipy import interpolate
+from astropy import constants, units
+import math
+from scipy.integrate import trapz
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaIonizationError
@@ -79,8 +82,98 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
 class PhiSahaNLTE(ProcessingPlasmaProperty):
     outputs = ('phi',)
-    def calculate(self, general_phi):
-        pass
+    def calculate(self, general_phi, g_electron, beta_rad, partition_function,
+        ionization_data, nlte_ionization_species, beta_electron, t_rad,
+        previous_electron_densities):
+        for species in nlte_ionization_species:
+            number_of_ions = species+1
+            partition_function_species, ionization_data_species = \
+                self.filter_phi_input_data(species, partition_function,
+                    ionization_data)
+            phi_lte = PhiSahaLTE.calculate(g_electron, beta_rad,
+                partition_function_species, ionization_data_species)
+            r_lu_matrix = np.zeros((species+1, species+1, len(beta_rad)))
+            r_lu_matrix_reshaped = r_lu_matrix.reshape(((species+1)**2,
+                len(beta_rad)))
+            r_ul_matrix = np.zeros((species+1, species+1, len(beta_rad)))
+            r_ul_matrix_reshaped = r_ul_matrix.reshape(((species+1)**2,
+                len(beta_rad)))
+            for ion in range(0, species):
+                ionization_energy = ionization_data.ix[species].ix[
+                    ion+1].ionization_energy * units.erg
+                ionization_nu = ionization_energy / constants.h.cgs
+                alpha_st, alpha_sp = self.calculate_rate_upper_lower(phi_lte,
+                    ionization_nu, species, ion, beta_electron, t_rad)
+                gamma = alpha_sp / phi_lte.ix[species].ix[ion+1]
+                lower_index = (number_of_ions + 1) * ion
+                upper_index = lower_index + number_of_ions
+                r_lu_matrix_reshaped[lower_index] = -gamma
+                r_lu_matrix_reshaped[upper_index] = gamma
+                r_ul_matrix_reshaped[lower_index+1] = (alpha_st + alpha_sp) * \
+                    previous_electron_densities
+                r_ul_matrix_reshaped[upper_index+1] = -(alpha_st + alpha_sp) *\
+                    previous_electron_densities
+            rates_matrix = r_lu_matrix + r_ul_matrix
+            rates_matrix[0, :, :] = 1.0
+            x = np.zeros(rates_matrix.shape[0])
+            x[0] = 1.0
+            for i in xrange(len(beta_rad)):
+                phi = \
+                    np.linalg.solve(rates_matrix[:, :, i], x)
+                general_phi[i].ix[species] = \
+                    (phi[1:] / phi[:-1])
+        print general_phi.ix[species]
+        return general_phi
+
+    @staticmethod
+    def calculate_rate_upper_lower(phi_lte, ionization_nu, species, ion,
+        beta_electron, t_rad):
+#Assuming for now that a_{ik} = (v_{i}/v)^3
+        sp_coefficient = 8 * np.pi * phi_lte.ix[species].ix[ion+1] * (
+            constants.c.cgs.value)**(-2.0) * (ionization_nu)**(3.0)
+        x_interval = 9*ionization_nu.value
+        x_values = np.arange(ionization_nu.value, 10*ionization_nu.value, (
+            x_interval/1000.0))
+        exponential_coefficient = -constants.h.cgs.value * beta_electron
+        alpha_sp_dataframe = pd.DataFrame(1.0, index=range(len(
+            exponential_coefficient)),
+            columns=range(len(x_values)))
+        y_values_sp = (np.exp(alpha_sp_dataframe.mul(exponential_coefficient,
+            axis=0).mul(x_values, axis=1))).mul(1/x_values, axis=1)
+        alpha_sp = trapz(y_values_sp, x_values) * sp_coefficient
+        alpha_st_dataframe = pd.DataFrame(1.0, index=range(len(
+            exponential_coefficient)),
+            columns=range(len(x_values)))
+        st_coefficient = 4 * np.pi * phi_lte.ix[species].ix[ion+1] * (
+            1 / constants.h.cgs.value) * (ionization_nu)**(3.0)
+        J_nu_dataframe = pd.DataFrame(1.0, index=range(len(
+            exponential_coefficient)), columns=range(len(x_values)))
+        J_nu = (J_nu_dataframe * 2.0 * constants.h.cgs.value * \
+            constants.c.cgs.value**(-2.0)).mul(x_values**(3.0), axis=1).mul((
+            1 / np.exp(exponential_coefficient * t_rad) - 1.0), axis=0)
+        y_values_st = (np.exp(alpha_st_dataframe.mul(exponential_coefficient,
+            axis=0).mul(x_values, axis=1))).mul(x_values**-4.0, axis=1).mul(
+            J_nu, axis=1)
+        alpha_st = trapz(y_values_st, x_values) * st_coefficient
+        return alpha_st, alpha_sp
+
+    @staticmethod
+    def filter_phi_input_data(atomic_number, partition_function,
+        ionization_data):
+        index_tuples = []
+        for ion in range(atomic_number+1):
+            index_tuples.append((atomic_number, ion))
+        partition_function_index = pd.MultiIndex.from_tuples(index_tuples,
+            names=['atomic_number', 'ion_number'])
+        ionization_data_index = pd.MultiIndex.from_tuples(index_tuples[1:],
+            names=['atomic_number', 'ion_number'])
+        partition_function = pd.DataFrame(
+            partition_function.ix[atomic_number].values,
+            index=partition_function_index, columns=partition_function.columns)
+        ionization_data = pd.DataFrame(
+            ionization_data.ix[atomic_number].values,
+            index=ionization_data_index, columns=['ionization_energy'])
+        return partition_function, ionization_data
 
 class PhiSahaNoNLTE(ProcessingPlasmaProperty):
     outputs = ('phi',)

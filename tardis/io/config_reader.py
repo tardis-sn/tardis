@@ -15,7 +15,7 @@ from tardis.io.model_reader import read_density_file, \
 from tardis.io.config_validator import ConfigurationValidator
 from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, \
-    element_symbol2atomic_number
+    element_symbol2atomic_number, MalformedElementSymbolError
 
 import copy
 
@@ -1020,7 +1020,11 @@ class Configuration(ConfigurationNameSpace):
 
         nlte_ionization_species_list = nlte_ionization_section.pop('species')
         for species_string in nlte_ionization_species_list:
-            nlte_ionization_species.append(species_string_to_tuple(species_string))
+            try:
+                nlte_ionization_species.append(element_symbol2atomic_number(
+                    species_string))
+            except:
+                raise MalformedElementSymbolError(species_string)
 
         nlte_ionization_validated_config_dict['species'] = nlte_ionization_species
         nlte_ionization_validated_config_dict['species_string'] = nlte_ionization_species_list

@@ -41,5 +41,5 @@ helium_nlte_properties = PlasmaPropertyCollection([HeliumNLTE,
     RadiationFieldCorrection, ZetaData,
     BetaElectron, Chi0])
 nlte_ionization_properties = PlasmaPropertyCollection([NLTEIonizationData,
-    PhiSahaNLTE])
+    PhiSahaNLTE, PreviousElectronDensities])
 non_nlte_ionization_properties = PlasmaPropertyCollection([PhiSahaNoNLTE])
