@@ -129,7 +129,7 @@ class Radial1DModel(object):
                                                          ionization_mode=tardis_config.plasma.ionization,
                                                          excitation_mode=tardis_config.plasma.excitation,
                                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
-                                                         link_t_rad_t_electron=0.9)
+                                                         link_t_rad_t_electron=0.9, helium_treatment=tardis_config.plasma.helium_treatment)
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
@@ -313,7 +313,6 @@ class Radial1DModel(object):
             or np.any(np.isneginf(self.plasma_array.tau_sobolevs.values)):
             raise ValueError('Some tau_sobolevs are nan, inf, -inf in tau_sobolevs. Something went wrong!')
 
-        self.j_blue_estimators = np.zeros((len(self.t_rads), len(self.atom_data.lines)))
         self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)
 
         self.runner.run(self, no_of_virtual_packets=no_of_virtual_packets,

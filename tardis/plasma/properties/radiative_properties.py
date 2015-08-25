@@ -43,9 +43,9 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     def calculate(self, g, level_number_density, lines_lower_level_index,
         lines_upper_level_index, metastability, nlte_species, lines):
         n_lower = level_number_density.values.take(lines_lower_level_index,
-            axis=0, mode='raise').copy('F')
+            axis=0, mode='raise')
         n_upper = level_number_density.values.take(lines_upper_level_index,
-            axis=0, mode='raise').copy('F')
+            axis=0, mode='raise')
         meta_stable_upper = metastability.values.take(
             lines_upper_level_index, axis=0, mode='raise')[np.newaxis].T
         g_lower = self.get_g_lower(g, lines_lower_level_index)
@@ -90,7 +90,7 @@ class TauSobolev(ProcessingPlasmaProperty):
         f_lu = f_lu.values[np.newaxis].T
         wavelength = wavelength_cm.values[np.newaxis].T
         n_lower = level_number_density.values.take(lines_lower_level_index,
-            axis=0, mode='raise').copy('F')
+            axis=0, mode='raise')
         tau_sobolevs = (self.sobolev_coefficient * f_lu * wavelength *
                         time_explosion * n_lower * stimulated_emission_factor)
         return pd.DataFrame(tau_sobolevs, index=lines.index,
@@ -110,8 +110,8 @@ class BetaSobolev(ProcessingPlasmaProperty):
         else:
             beta_sobolev = self.beta_sobolev
         macro_atom.calculate_beta_sobolev(
-            tau_sobolevs.values.ravel(order='F'),
-            beta_sobolev.ravel(order='F'))
+            tau_sobolevs.values.ravel(),
+            beta_sobolev.ravel())
         return beta_sobolev
 
 class TransitionProbabilities(ProcessingPlasmaProperty):
