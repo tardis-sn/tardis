@@ -17,6 +17,13 @@ logger = logging.getLogger(__name__)
 __all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
            'IonNumberDensity']
 
+
+def calculate_block_ids_from_dataframe(dataframe):
+        block_start_id = np.where(np.diff(
+            dataframe.index.get_level_values(0)) != 0.0)[0] + 1
+        return np.hstack(([0], block_start_id, [len(dataframe)]))
+
+
 class PhiSahaLTE(ProcessingPlasmaProperty):
     """
     Outputs:
@@ -33,17 +40,45 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
                      \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
                      \\textrm{rad}}}}',)
 
+    broadcast_ionization_energy = None
+    initialize_arrays = True
+    def _initialize(self, partition_function):
+
+        self.phis = np.empty(
+            (partition_function.shape[0] -
+             partition_function.index.get_level_values(0).unique().size,
+            partition_function.shape[1]))
+        self.block_ids = calculate_block_ids_from_dataframe(partition_function)
+        self.initialize_arrays = False
+
+    def calculate(self, g_electron, beta_rad, partition_function, ionization_data):
+        if self.initialize_arrays:
+            self._initialize(partition_function)
+
+        for i, start_id in enumerate(self.block_ids[:-1]):
+            end_id = self.block_ids[i + 1]
+            current_block = partition_function.values[start_id:end_id]
+            phis = current_block[1:] / current_block[:-1]
+            self.phis[start_id - i:end_id - i - 1] = phis
+
+
+
+        if self.broadcast_ionization_energy is None:
+            broadcast_ionization_energy = (
+                ionization_data.ionization_energy.ix[
+                    partition_function.index].dropna())
+            self.phi_index = broadcast_ionization_energy.index
+            self.broadcast_ionization_energy = broadcast_ionization_energy.values
+        phi_coefficient = (2 * g_electron * np.exp(
+            np.outer(self.broadcast_ionization_energy, -beta_rad)))
+
+        return pd.DataFrame(self.phis * phi_coefficient, index=self.phi_index)
+
     @staticmethod
-    def calculate(g_electron, beta_rad, partition_function, ionization_data):
-        def calculate_phis(group):
-            return group[1:] / group[:-1].values
-        phis = partition_function.groupby(level='atomic_number').apply(
-            calculate_phis)
-        phis = pd.DataFrame(phis.values, index=phis.index.droplevel(0))
-        phi_coefficient = (2 * g_electron * np.exp(np.outer(
-            ionization_data.ionization_energy.ix[phis.index].values,
-            -beta_rad)))
-        return phis * phi_coefficient
+    def _calculate_block_ids(partition_function):
+        partition_function.index.get_level_values(0).unique()
+
+
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
@@ -182,31 +217,9 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                             index=partition_function.index)
 
 
-    def _old_calculate_with_n_electron(self, phi, partition_function,
-                                  number_density, n_electron):
-        ion_populations = pd.DataFrame(data=0.0,
-            index=partition_function.index.copy(),
-            columns=partition_function.columns.copy(), dtype=np.float64)
-
-        for atomic_number, groups in phi.groupby(level='atomic_number'):
-            current_phis = (groups / n_electron).replace(np.nan, 0.0).values
-            phis_product = np.cumproduct(current_phis, axis=0)
-            neutral_atom_density = (number_density.ix[atomic_number] /
-                                    (1 + np.sum(phis_product, axis=0)))
-            ion_populations.ix[atomic_number, 0] = (
-                neutral_atom_density.values)
-            ion_populations.ix[atomic_number].values[1:] = (
-                neutral_atom_density.values * phis_product)
-            ion_populations[ion_populations < self.ion_zero_threshold] = 0.0
-        return ion_populations
-
-
-
     @staticmethod
     def _calculate_block_ids(phi):
-        block_start_id = np.where(np.diff(
-            phi.index.get_level_values(0)) != 0.0)[0] + 1
-        return np.hstack(([0], block_start_id, [len(phi)]))
+        return calculate_block_ids_from_dataframe(phi)
 
     def calculate(self, phi, partition_function, number_density):
         n_e_convergence_threshold = 0.05
