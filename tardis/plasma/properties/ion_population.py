@@ -181,6 +181,27 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         return pd.DataFrame(data = ion_populations,
                             index=partition_function.index)
 
+
+    def _old_calculate_with_n_electron(self, phi, partition_function,
+                                  number_density, n_electron):
+        ion_populations = pd.DataFrame(data=0.0,
+            index=partition_function.index.copy(),
+            columns=partition_function.columns.copy(), dtype=np.float64)
+
+        for atomic_number, groups in phi.groupby(level='atomic_number'):
+            current_phis = (groups / n_electron).replace(np.nan, 0.0).values
+            phis_product = np.cumproduct(current_phis, axis=0)
+            neutral_atom_density = (number_density.ix[atomic_number] /
+                                    (1 + np.sum(phis_product, axis=0)))
+            ion_populations.ix[atomic_number, 0] = (
+                neutral_atom_density.values)
+            ion_populations.ix[atomic_number].values[1:] = (
+                neutral_atom_density.values * phis_product)
+            ion_populations[ion_populations < self.ion_zero_threshold] = 0.0
+        return ion_populations
+
+
+
     @staticmethod
     def _calculate_block_ids(phi):
         block_start_id = np.where(np.diff(
@@ -191,6 +212,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         n_e_convergence_threshold = 0.05
         n_electron = number_density.sum(axis=0)
         n_electron_iterations = 0
+
         while True:
             ion_number_density = self.calculate_with_n_electron(
                 phi, partition_function, number_density, n_electron)

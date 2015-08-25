@@ -8,10 +8,40 @@ from astropy import units as u, constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
 
+from numba import jit, void, int64, float64
+
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
     'TransitionProbabilities', 'LTEJBlues']
+
+
+@jit('void(f8[:], f8[:, :], f8[:, :], f8[:,:], i8[:], i8[:], i8[:], f8[:,:])', nopython=True, nogil=True)
+def optimized_calculate_transition_probabilities(transition_probability_coef, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, block_references, transition_probabilities):
+    norm_factor = np.empty(beta_sobolev.shape[1])
+    for i in range(transition_probabilities.shape[0]):
+        line_idx = lines_idx[i]
+        for j in range(transition_probabilities.shape[1]):
+            transition_probabilities[i][j] = (transition_probability_coef[i] * beta_sobolev[line_idx][j])
+        if transition_type[i] == 1:
+            for j in range(transition_probabilities.shape[1]):
+                transition_probabilities[i][j] *= stimulated_emission_factor[line_idx][j] * j_blues[line_idx][j]
+
+    for i in range(block_references.shape[0] - 1):
+        norm_factor[:] = 0.0
+        for j in range(block_references[i], block_references[i + 1]):
+            for k in range(transition_probabilities.shape[1]):
+                norm_factor[k] += transition_probabilities[j, k]
+            for k in range(transition_probabilities.shape[1]):
+                if norm_factor[k] != 0.0:
+                    norm_factor[k] = 1 / norm_factor[k]
+                else:
+                    norm_factor[k] = 1.0
+        for j in range(block_references[i], block_references[i + 1]):
+            for k in range(0, transition_probabilities.shape[1]):
+                transition_probabilities[j, k] *= norm_factor[k]
+
+
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
@@ -124,30 +154,52 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
     def __init__(self, plasma_parent):
         super(TransitionProbabilities, self).__init__(plasma_parent)
 
-        self.transition_filters_initialized = False
+        self.initialize = True
 
-    #@profile
+
+
     def calculate(self, atomic_data, beta_sobolev, j_blues,
         stimulated_emission_factor, tau_sobolevs):
+
+        #I wonder why?
         if len(j_blues) == 0:
             return None
 
         macro_atom_data = self._get_macro_atom_data(atomic_data)
 
-        if not self.transition_filters_initialized:
+        if self.initialize:
             self.initialize_macro_atom_transition_type_filters(atomic_data,
                                                                macro_atom_data)
-            self.transition_filters_initialized = True
+            self.transition_probability_coef = (
+                self._get_transition_probability_coefs(macro_atom_data))
+            self.initialize = False
 
-        transition_probabilities = self.prepare_transition_probabilities(
-            macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
-
-        self._normalize_transition_probabilities(transition_probabilities)
-        transition_probabilities = pd.DataFrame(
-            transition_probabilities.copy('F'),
+        transition_probabilities = self._calculate_transition_probability(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
+        transition_probabilities = pd.DataFrame(transition_probabilities,
             index=macro_atom_data.transition_line_id,
             columns=tau_sobolevs.columns)
+
         return transition_probabilities
+
+    def _calculate_transition_probability(self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor):
+        transition_probabilities = np.empty((self.transition_probability_coef.shape[0], beta_sobolev.shape[1]))
+        #trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
+
+        transition_type = macro_atom_data.transition_type.values
+        lines_idx = macro_atom_data.lines_idx.values
+        tpos = macro_atom_data.transition_probability.values
+        #optimized_calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, self.block_references, transition_probabilities)
+        macro_atom.calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, self.block_references, transition_probabilities)
+
+        return transition_probabilities
+
+
+    def calculate_transition_probabilities(self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor):
+        transition_probabilities = self.prepare_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
+        return transition_probabilities
+
+
+
 
 
     def initialize_macro_atom_transition_type_filters(self, atomic_data,
@@ -161,18 +213,19 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             atomic_data.macro_atom_references.block_references,
             len(macro_atom_data)))
 
-    #@profile
+    @staticmethod
+    def _get_transition_probability_coefs(macro_atom_data):
+        return macro_atom_data.transition_probability.values[np.newaxis].T
+
     def prepare_transition_probabilities(self, macro_atom_data, beta_sobolev,
                                          j_blues, stimulated_emission_factor):
 
-        transition_coef = (
-            macro_atom_data.transition_probability.values[np.newaxis].T)
 
         current_beta_sobolev = beta_sobolev.take(
             macro_atom_data.lines_idx.values, axis=0, mode='raise')
 
-        transition_probabilities = ne.evaluate('transition_coef * '
-                                               'current_beta_sobolev')
+
+        transition_probabilities = self.transition_probability_coef * current_beta_sobolev
 
 
         j_blues = j_blues.take(self.transition_up_line_filter, axis=0,
@@ -181,8 +234,8 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
         macro_stimulated_emission = stimulated_emission_factor.take(
             self.transition_up_line_filter, axis=0, mode='raise')
 
-        transition_probabilities[self.transition_up_filter] *= ne.evaluate(
-            'j_blues * macro_stimulated_emission')
+        transition_probabilities[self.transition_up_filter] *= (j_blues * macro_stimulated_emission)
+        macro_atom.norm
 
         return transition_probabilities
 
