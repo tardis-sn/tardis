@@ -69,7 +69,7 @@ typedef struct RPacket
   double chi_bf; /**< Opacity due to bound-free processes */
 } rpacket_t;
 
-static inline double rpacket_get_nu (rpacket_t * packet)
+static inline double rpacket_get_nu (const rpacket_t * packet)
 {
   return packet->nu;
 }
@@ -79,7 +79,7 @@ static inline void rpacket_set_nu (rpacket_t * packet, double nu)
   packet->nu = nu;
 }
 
-static inline double rpacket_get_mu (rpacket_t * packet)
+static inline double rpacket_get_mu (const rpacket_t * packet)
 {
   return packet->mu;
 }
@@ -89,7 +89,7 @@ static inline void rpacket_set_mu (rpacket_t * packet, double mu)
   packet->mu = mu;
 }
 
-static inline double rpacket_get_energy (rpacket_t * packet)
+static inline double rpacket_get_energy (const rpacket_t * packet)
 {
   return packet->energy;
 }
@@ -99,7 +99,7 @@ static inline void rpacket_set_energy (rpacket_t * packet, double energy)
   packet->energy = energy;
 }
 
-static inline double rpacket_get_r (rpacket_t * packet)
+static inline double rpacket_get_r (const rpacket_t * packet)
 {
   return packet->r;
 }
@@ -109,7 +109,7 @@ static inline void rpacket_set_r (rpacket_t * packet, double r)
   packet->r = r;
 }
 
-static inline double rpacket_get_tau_event (rpacket_t * packet)
+static inline double rpacket_get_tau_event (const rpacket_t * packet)
 {
   return packet->tau_event;
 }
@@ -119,7 +119,7 @@ static inline void rpacket_set_tau_event (rpacket_t * packet, double tau_event)
   packet->tau_event = tau_event;
 }
 
-static inline double rpacket_get_nu_line (rpacket_t * packet)
+static inline double rpacket_get_nu_line (const rpacket_t * packet)
 {
   return packet->nu_line;
 }
@@ -129,7 +129,7 @@ static inline void rpacket_set_nu_line (rpacket_t * packet, double nu_line)
   packet->nu_line = nu_line;
 }
 
-static inline unsigned int rpacket_get_current_shell_id (rpacket_t * packet)
+static inline unsigned int rpacket_get_current_shell_id (const rpacket_t * packet)
 {
   return packet->current_shell_id;
 }
@@ -140,7 +140,7 @@ static inline void rpacket_set_current_shell_id (rpacket_t * packet,
   packet->current_shell_id = current_shell_id;
 }
 
-static inline unsigned int rpacket_get_next_line_id (rpacket_t * packet)
+static inline unsigned int rpacket_get_next_line_id (const rpacket_t * packet)
 {
   return packet->next_line_id;
 }
@@ -151,7 +151,7 @@ static inline void rpacket_set_next_line_id (rpacket_t * packet,
   packet->next_line_id = next_line_id;
 }
 
-static inline bool rpacket_get_last_line (rpacket_t * packet)
+static inline bool rpacket_get_last_line (const rpacket_t * packet)
 {
   return packet->last_line;
 }
@@ -161,7 +161,7 @@ static inline void rpacket_set_last_line (rpacket_t * packet, bool last_line)
   packet->last_line = last_line;
 }
 
-static inline bool rpacket_get_close_line (rpacket_t * packet)
+static inline bool rpacket_get_close_line (const rpacket_t * packet)
 {
   return packet->close_line;
 }
@@ -171,7 +171,7 @@ static inline void rpacket_set_close_line (rpacket_t * packet, bool close_line)
   packet->close_line = close_line;
 }
 
-static inline int rpacket_get_recently_crossed_boundary (rpacket_t * packet)
+static inline int rpacket_get_recently_crossed_boundary (const rpacket_t * packet)
 {
   return packet->recently_crossed_boundary;
 }
@@ -182,7 +182,7 @@ static inline void rpacket_set_recently_crossed_boundary (rpacket_t * packet,
   packet->recently_crossed_boundary = recently_crossed_boundary;
 }
 
-static inline int rpacket_get_virtual_packet_flag (rpacket_t * packet)
+static inline int rpacket_get_virtual_packet_flag (const rpacket_t * packet)
 {
   return packet->virtual_packet_flag;
 }
@@ -193,7 +193,7 @@ static inline void rpacket_set_virtual_packet_flag (rpacket_t * packet,
   packet->virtual_packet_flag = virtual_packet_flag;
 }
 
-static inline int rpacket_get_virtual_packet (rpacket_t * packet)
+static inline int rpacket_get_virtual_packet (const rpacket_t * packet)
 {
   return packet->virtual_packet;
 }
@@ -204,7 +204,7 @@ static inline void rpacket_set_virtual_packet (rpacket_t * packet,
   packet->virtual_packet = virtual_packet;
 }
 
-static inline double rpacket_get_d_boundary (rpacket_t * packet)
+static inline double rpacket_get_d_boundary (const rpacket_t * packet)
 {
   return packet->d_boundary;
 }
@@ -214,7 +214,7 @@ static inline void rpacket_set_d_boundary (rpacket_t * packet, double d_boundary
   packet->d_boundary = d_boundary;
 }
 
-static inline double rpacket_get_d_electron (rpacket_t * packet)
+static inline double rpacket_get_d_electron (const rpacket_t * packet)
 {
   return packet->d_electron;
 }
@@ -224,7 +224,7 @@ static inline void rpacket_set_d_electron (rpacket_t * packet, double d_electron
   packet->d_electron = d_electron;
 }
 
-static inline double rpacket_get_d_line (rpacket_t * packet)
+static inline double rpacket_get_d_line (const rpacket_t * packet)
 {
   return packet->d_line;
 }
@@ -234,7 +234,7 @@ static inline void rpacket_set_d_line (rpacket_t * packet, double d_line)
   packet->d_line = d_line;
 }
 
-static inline int rpacket_get_next_shell_id (rpacket_t * packet)
+static inline int rpacket_get_next_shell_id (const rpacket_t * packet)
 {
   return packet->next_shell_id;
 }
@@ -244,7 +244,7 @@ static inline void rpacket_set_next_shell_id (rpacket_t * packet, int next_shell
   packet->next_shell_id = next_shell_id;
 }
 
-static inline rpacket_status_t rpacket_get_status (rpacket_t * packet)
+static inline rpacket_status_t rpacket_get_status (const rpacket_t * packet)
 {
   return packet->status;
 }
@@ -254,7 +254,7 @@ static inline void rpacket_set_status (rpacket_t * packet, rpacket_status_t stat
   packet->status = status;
 }
 
-static inline int rpacket_get_id (rpacket_t * packet)
+static inline int rpacket_get_id (const rpacket_t * packet)
 {
   return packet->id;
 }
@@ -279,7 +279,7 @@ static inline void rpacket_set_d_continuum (rpacket_t * packet, double d_continu
   packet->d_cont = d_continuum;
 }
 
-static inline double rpacket_get_d_continuum (rpacket_t * packet)
+static inline double rpacket_get_d_continuum (const rpacket_t * packet)
 {
   return packet->d_cont;
 }
@@ -289,7 +289,7 @@ static inline void rpacket_set_chi_electron (rpacket_t * packet, double chi_elec
   packet->chi_th = chi_electron;
 }
 
-static inline double rpacket_get_chi_electron (rpacket_t * packet)
+static inline double rpacket_get_chi_electron (const rpacket_t * packet)
 {
   return packet->chi_th;
 }
@@ -299,7 +299,7 @@ static inline void rpacket_set_chi_continuum (rpacket_t * packet, double chi_con
   packet->chi_cont = chi_continuum;
 }
 
-static inline double rpacket_get_chi_continuum (rpacket_t * packet)
+static inline double rpacket_get_chi_continuum (const rpacket_t * packet)
 {
   return packet->chi_cont;
 }
@@ -309,7 +309,7 @@ static inline void rpacket_set_chi_freefree (rpacket_t * packet, double chi_free
   packet->chi_ff = chi_freefree;
 }
 
-static inline double rpacket_get_chi_freefree (rpacket_t * packet)
+static inline double rpacket_get_chi_freefree (const rpacket_t * packet)
 {
   return packet->chi_ff;
 }
@@ -319,12 +319,12 @@ static inline void rpacket_set_chi_boundfree (rpacket_t * packet, double chi_bou
   packet->chi_bf = chi_boundfree;
 }
 
-static inline double rpacket_get_chi_boundfree (rpacket_t * packet)
+static inline double rpacket_get_chi_boundfree (const rpacket_t * packet)
 {
   return packet->chi_bf;
 }
 
-static inline unsigned int rpacket_get_current_continuum_id (rpacket_t * packet)
+static inline unsigned int rpacket_get_current_continuum_id (const rpacket_t * packet)
 {
   return packet->current_continuum_id;
 }

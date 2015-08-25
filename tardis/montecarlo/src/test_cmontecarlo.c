@@ -22,6 +22,7 @@ double test_compute_distance2line(void);
 double test_compute_distance2continuum(void);
 double test_rpacket_doppler_factor(void);
 double test_move_packet(void);
+bool test_move_packet_across_shell_boundary(void);
 int64_t test_montecarlo_one_packet(void);
 int64_t test_montecarlo_one_packet_loop(void);
 bool test_montecarlo_line_scatter(void);
@@ -171,58 +172,61 @@ init_storage_model(void){
 	sm->t_electrons[0] = 2;
 	sm->t_electrons[1] = 2;
 
-// MR: these memsets are wrong: memset() operates on raw bytes!
 	sm->l_pop = (double *) malloc(sizeof(double )*20000);
-// MR: the sizeof() argument looks suspicious!
-	memset(sm->l_pop, 2, sizeof(sm->l_pop));
+        for (size_t i=0; i<20000; ++i)
+          sm->l_pop[i]=2;
 
 	sm->l_pop_r = (double *) malloc(sizeof(double )* 20000);
-	memset(sm->l_pop_r, 3, sizeof(double)*20000);
+        for (size_t i=0; i<20000; ++i)
+          sm->l_pop_r[i]=3;
 
 	sm->continuum_list_nu = (double *) malloc(sizeof(double )* 20000);
-	memset(sm->continuum_list_nu, 1e13, sizeof(double)*20000);
+        for (size_t i=0; i<20000; ++i)
+          sm->continuum_list_nu[i]=1e13;
 
 	sm->no_of_edges = 100;
 
 	sm->chi_bf_tmp_partial = (double *) malloc(sizeof(double )* 20000);
-	memset(sm->chi_bf_tmp_partial, 160, sizeof(double)*20000);
+        for (size_t i=0; i<20000; ++i)
+          sm->chi_bf_tmp_partial[i]=160;
 
 }
 
 double
-test_compute_distance2boundary(){
+test_compute_distance2boundary(void){
 	double D_BOUNDARY = compute_distance2boundary(rp, sm);
 	rpacket_set_d_boundary(rp, D_BOUNDARY);
 	return D_BOUNDARY;
 }
 
 double
-test_compute_distance2line(){
+test_compute_distance2line(void){
 	double *D_LINE = (double *) malloc(sizeof(double));
+        // FIXME MR: return status of compute_distance2line() is ignored
 	compute_distance2line(rp, sm, D_LINE);
 	rpacket_set_d_line(rp, *D_LINE);
 	return *D_LINE;
 }
 
 double
-test_compute_distance2continuum(){
+test_compute_distance2continuum(void){
 	compute_distance2continuum(rp, sm);
 	return rp->d_cont;
 }
 
 double
-test_rpacket_doppler_factor(){
+test_rpacket_doppler_factor(void){
 	return rpacket_doppler_factor(rp, sm);
 }
 
 double
-test_move_packet(){
+test_move_packet(void){
 	double DISTANCE = 1e13;
 	return move_packet(rp, sm, DISTANCE);
 }
 
 double
-test_increment_j_blue_estimator(){
+test_increment_j_blue_estimator(void){
 	int64_t j_blue_idx = 0;
 	double d_line = rpacket_get_d_line(rp);
 	increment_j_blue_estimator(rp, sm, d_line, j_blue_idx);
@@ -230,21 +234,21 @@ test_increment_j_blue_estimator(){
 }
 
 bool
-test_montecarlo_line_scatter(){
+test_montecarlo_line_scatter(void){
 	double DISTANCE = 1e13;
 	montecarlo_line_scatter(rp, sm, DISTANCE);
 	return true;
 }
 
 bool
-test_montecarlo_thomson_scatter(){
+test_montecarlo_thomson_scatter(void){
 	double DISTANCE = 1e13;
 	montecarlo_thomson_scatter(rp, sm, DISTANCE);
 	return true;
 }
 
 bool
-test_move_packet_across_shell_boundary(){
+test_move_packet_across_shell_boundary(void){
 	double DISTANCE = 0.95e13;
 // MR: wrong: move_packet_across_shell_boundary() returns void
         move_packet_across_shell_boundary(rp, sm, DISTANCE);
@@ -253,42 +257,42 @@ test_move_packet_across_shell_boundary(){
 
 
 int64_t
-test_montecarlo_one_packet(){
+test_montecarlo_one_packet(void){
 	return montecarlo_one_packet(sm, rp, 1);
 }
 
 int64_t
-test_montecarlo_one_packet_loop(){
+test_montecarlo_one_packet_loop(void){
 	return montecarlo_one_packet_loop(sm, rp, 1);
 }
 
 bool
-test_macro_atom(){
+test_macro_atom(void){
 	macro_atom(rp, sm);
 	return true;
 }
 
 double
-test_calculate_chi_bf(){
+test_calculate_chi_bf(void){
 	calculate_chi_bf(rp, sm);
 	return rpacket_doppler_factor (rp, sm);
 }
 
 bool
-test_montecarlo_bound_free_scatter(){
+test_montecarlo_bound_free_scatter(void){
 	double DISTANCE = 1e13;
 	montecarlo_bound_free_scatter(rp, sm, DISTANCE);
 	return (rpacket_get_status(rp)!=0);
 }
 
 double
-test_bf_cross_section(){
+test_bf_cross_section(void){
 	double CONV_MU = 0.4;
 	return bf_cross_section(sm, 1, CONV_MU);
 }
 
 int64_t
-test_montecarlo_free_free_scatter(){
+test_montecarlo_free_free_scatter(void){
 	double DISTANCE = 1e13;
 	montecarlo_free_free_scatter(rp, sm, DISTANCE);
 	return rpacket_get_status(rp);
