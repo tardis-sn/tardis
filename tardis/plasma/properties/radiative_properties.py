@@ -8,8 +8,6 @@ from astropy import units as u, constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
 
-from numba import jit, void, int64, float64
-
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
