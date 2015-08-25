@@ -84,7 +84,7 @@ class PhiSahaNLTE(ProcessingPlasmaProperty):
     outputs = ('phi',)
     def calculate(self, general_phi, g_electron, beta_rad, partition_function,
         ionization_data, nlte_ionization_species, beta_electron, t_rad,
-        previous_electron_densities):
+        previous_electron_densities, w):
         for species in nlte_ionization_species:
             number_of_ions = species+1
             partition_function_species, ionization_data_species = \
@@ -103,7 +103,7 @@ class PhiSahaNLTE(ProcessingPlasmaProperty):
                     ion+1].ionization_energy * units.erg
                 ionization_nu = ionization_energy / constants.h.cgs
                 alpha_st, alpha_sp = self.calculate_rate_upper_lower(phi_lte,
-                    ionization_nu, species, ion, beta_electron, t_rad)
+                    ionization_nu, species, ion, beta_electron, t_rad, w)
                 gamma = alpha_sp / phi_lte.ix[species].ix[ion+1]
                 lower_index = (number_of_ions + 1) * ion
                 upper_index = lower_index + number_of_ions
@@ -122,12 +122,11 @@ class PhiSahaNLTE(ProcessingPlasmaProperty):
                     np.linalg.solve(rates_matrix[:, :, i], x)
                 general_phi[i].ix[species] = \
                     (phi[1:] / phi[:-1])
-        print general_phi.ix[species]
         return general_phi
 
     @staticmethod
     def calculate_rate_upper_lower(phi_lte, ionization_nu, species, ion,
-        beta_electron, t_rad):
+        beta_electron, t_rad, w):
 #Assuming for now that a_{ik} = (v_{i}/v)^3
         sp_coefficient = 8 * np.pi * phi_lte.ix[species].ix[ion+1] * (
             constants.c.cgs.value)**(-2.0) * (ionization_nu)**(3.0)
@@ -150,7 +149,7 @@ class PhiSahaNLTE(ProcessingPlasmaProperty):
             exponential_coefficient)), columns=range(len(x_values)))
         J_nu = (J_nu_dataframe * 2.0 * constants.h.cgs.value * \
             constants.c.cgs.value**(-2.0)).mul(x_values**(3.0), axis=1).mul((
-            1 / np.exp(exponential_coefficient * t_rad) - 1.0), axis=0)
+            w / np.exp(exponential_coefficient * t_rad) - 1.0), axis=0)
         y_values_st = (np.exp(alpha_st_dataframe.mul(exponential_coefficient,
             axis=0).mul(x_values, axis=1))).mul(x_values**-4.0, axis=1).mul(
             J_nu, axis=1)
