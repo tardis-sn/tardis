@@ -5,11 +5,16 @@ from scipy import interpolate
 from tardis.plasma.properties.base import (BasePlasmaProperty,
                                            ProcessingPlasmaProperty)
 from tardis.plasma.properties import PhiSahaNebular, PhiSahaLTE
+from tardis.plasma.properties import NumberDensity
 
 __all__ = ['PreviousElectronDensities', 'PreviousBetaSobolevs',
            'HeliumNLTE']
 
 class PreviousIterationProperty(BasePlasmaProperty):
+
+    def _set_initial_value(self, value):
+        self.set_value(value)
+
     def _set_output_value(self, output, value):
         setattr(self, output, value)
 
@@ -20,8 +25,21 @@ class PreviousIterationProperty(BasePlasmaProperty):
 class PreviousElectronDensities(PreviousIterationProperty):
     outputs = ('previous_electron_densities',)
 
+    def set_initial_value(self, kwargs):
+        initial_value = np.ones(len(kwargs['abundance'].columns))*1000000.0
+        self._set_initial_value(initial_value)
+
 class PreviousBetaSobolevs(PreviousIterationProperty):
     outputs = ('previous_beta_sobolevs',)
+
+    def set_initial_value(self, kwargs):
+        try:
+            lines = len(kwargs['atomic_data'].lines)
+        except:
+            lines = len(kwargs['atomic_data']._lines)
+        initial_value = np.ones((lines,
+            len(kwargs['abundance'].columns)))
+        self._set_initial_value(initial_value)
 
 class HeliumNLTE(ProcessingPlasmaProperty):
     outputs = ('helium_population',)
