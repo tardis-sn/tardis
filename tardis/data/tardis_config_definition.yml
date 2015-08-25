@@ -135,8 +135,14 @@ plasma:
         property_type: string
         mandatory: False
         default: none
-        allowed_value: none recomb-nlte
+        allowed_value: none recomb-nlte numerical-nlte
         help: none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.
+
+    heating_rate_data_file:
+        property_type: string
+        mandatory: False
+        default: none
+        help: Path to file containing heating rate/light curve data.
 
 model:
     structure:
