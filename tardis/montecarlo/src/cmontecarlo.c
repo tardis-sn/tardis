@@ -380,13 +380,6 @@ int64_t
 montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		       int64_t virtual_mode)
 {
-  int64_t i;
-  rpacket_t virt_packet;
-  double mu_bin;
-  double mu_min;
-  double doppler_factor_ratio;
-  double weight;
-  int64_t virt_id_nu;
   int64_t reabsorbed=-1;
   if (virtual_mode == 0)
     {
@@ -396,9 +389,11 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
     {
       if ((rpacket_get_nu (packet) > storage->spectrum_virt_start_nu) && (rpacket_get_nu(packet) < storage->spectrum_virt_end_nu))
 	{
-	  for (i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
+	  for (int64_t i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
 	    {
-              virt_packet = *packet;
+              double weight;
+              rpacket_t virt_packet = *packet;
+              double mu_min;
 	      if (rpacket_get_r(&virt_packet) > storage->r_inner[0])
 		{
 		  mu_min =
@@ -410,7 +405,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		{
 		  mu_min = 0.0;
 		}
-	      mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
+	      double mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
 	      rpacket_set_mu(&virt_packet,mu_min + (i + rk_double (&mt_state)) * mu_bin);
 	      switch (virtual_mode)
 		{
@@ -433,7 +428,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                   // I'm adding an exit() here to inform the compiler about the impossible path
                   exit(1);
 		}
-	      doppler_factor_ratio =
+	      double doppler_factor_ratio =
 		rpacket_doppler_factor (packet, storage) /
 		rpacket_doppler_factor (&virt_packet, storage);
 	      rpacket_set_energy(&virt_packet,
@@ -464,7 +459,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
         storage->virt_packet_last_line_interaction_in_id[storage->virt_packet_count] = storage->last_line_interaction_in_id[rpacket_get_id (packet)];
         storage->virt_packet_last_line_interaction_out_id[storage->virt_packet_count] = storage->last_line_interaction_out_id[rpacket_get_id (packet)];
 		    storage->virt_packet_count += 1;
-		    virt_id_nu =
+		    int64_t virt_id_nu =
 		      floor ((rpacket_get_nu(&virt_packet) -
 			      storage->spectrum_start_nu) /
 			     storage->spectrum_delta_nu);
