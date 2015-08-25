@@ -48,7 +48,8 @@ class NumberDensity(ProcessingPlasmaProperty):
     outputs = ('number_density',)
     latex_name = ('N_{i}',)
 
-    def calculate(self, atomic_mass, abundance, density):
+    @staticmethod
+    def calculate(atomic_mass, abundance, density):
         number_densities = (abundance * density)
         return number_densities.div(atomic_mass.ix[abundance.index], axis=0)
 

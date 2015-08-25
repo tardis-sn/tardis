@@ -1,16 +1,4 @@
-from tardis.plasma.properties import (BetaRadiation, LevelBoltzmannFactorLTE,
-    Levels, Lines, AtomicMass, PartitionFunction,
-    LevelNumberDensity, PhiSahaLTE, GElectron,
-    IonizationData, NumberDensity, IonNumberDensity, LinesLowerLevelIndex,
-    LinesUpperLevelIndex, TauSobolev, TRadiative, AtomicData, Abundance,
-    Density, TimeExplosion, BetaSobolev, JBlues,
-    TransitionProbabilities, StimulatedEmissionFactor, SelectedAtoms,
-    PhiSahaNebular, LevelBoltzmannFactorDiluteLTE, DilutionFactor,
-    ZetaData, ElectronTemperature, LinkTRadTElectron, BetaElectron,
-    RadiationFieldCorrection, RadiationFieldCorrectionInput,
-    LevelBoltzmannFactorNoNLTE, LevelBoltzmannFactorNLTE, NLTEData,
-    NLTESpecies, PreviousBetaSobolevs, LTEJBlues,
-    PreviousElectronDensities, Chi0, HeliumNLTE)
+from tardis.plasma.properties import *
 
 class PlasmaPropertyCollection(list):
     pass

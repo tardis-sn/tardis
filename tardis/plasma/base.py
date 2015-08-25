@@ -108,7 +108,12 @@ class BasePlasma(object):
         self.outputs_dict = {}
         for plasma_property in plasma_properties:
 
-            if hasattr(plasma_property, 'set_value'):
+            if hasattr(plasma_property, 'set_initial_value'):
+                #duck-typing for PreviousIterationProperty
+                current_property_object = plasma_property()
+                current_property_object.set_initial_value(kwargs)
+
+            elif hasattr(plasma_property, 'set_value'):
                 #duck-typing for PlasmaInputProperty
                 #that means if it is an input property from model
                 if not set(kwargs.keys()).issuperset(plasma_property.outputs):
