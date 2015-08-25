@@ -13,6 +13,9 @@ ctypedef np.int64_t int_type_t
 
 from astropy import constants
 
+from cython.parallel import prange
+
+
 cdef extern from "math.h":
     double exp(double)
 
