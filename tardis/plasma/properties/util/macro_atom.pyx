@@ -91,9 +91,8 @@ def calculate_transition_probabilities(
         for k in range(transition_probabilities.shape[1]):
             if norm_factor[k] != 0.0:
                 norm_factor[k] = 1 / norm_factor[k]
+            else:
+                norm_factor[k] = 1.0
         for j in range(block_references[i], block_references[i + 1]):
             for k in range(0, transition_probabilities.shape[1]):
-                if norm_factor[k] == 0.0:
-                    continue
-
                 transition_probabilities[j, k] *= norm_factor[k]
