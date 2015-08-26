@@ -15,8 +15,6 @@ double R_INNER_VALUE =  6.2e11; /* 12,000xTIME_EXPLOSION ~  622080000000.0 */
 double R_OUTER_VALUE =  7.8e12; /* 15,000xTIME_EXPLOSION ~ 7776600000000.0 */
 double SIGMA_THOMSON = 6.652486e-25;
 
-void init_rpacket(void);
-void init_storage_model(void);
 double test_compute_distance2boundary(void);
 double test_compute_distance2line(void);
 double test_compute_distance2continuum(void);
@@ -28,17 +26,14 @@ int64_t test_montecarlo_one_packet_loop(void);
 bool test_montecarlo_line_scatter(void);
 double test_increment_j_blue_estimator(void);
 bool test_montecarlo_thomson_scatter(void);
-bool test_macro_atom(void);
+//bool test_macro_atom(void);
 double test_calculate_chi_bf(void);
 bool test_montecarlo_bound_free_scatter(void);
 double test_bf_cross_section(void);
 int64_t test_montecarlo_free_free_scatter(void);
 
 /* initialise RPacket */
-void
-init_rpacket(void){
-	rp = (rpacket_t *) malloc(sizeof(rpacket_t));
-
+static void init_rpacket(rpacket_t *rp){
 	double MU = 0.3;
 	double R = 7.5e14;
 	double ENERGY = 0.9;
@@ -73,9 +68,7 @@ init_rpacket(void){
 }
 
 /* initialise storage model */
-void
-init_storage_model(void){
-	sm = (storage_model_t *) malloc(sizeof(storage_model_t));
+static void init_storage_model(storage_model_t *sm){
 	int NUMBER_OF_SHELLS = 2;
 
 	sm->time_explosion = TIME_EXPLOSION;
@@ -191,109 +184,256 @@ init_storage_model(void){
           sm->chi_bf_tmp_partial[i]=160;
 
 }
+static void dealloc_storage_model(storage_model_t *sm){
+        free(sm->r_outer);
+        free(sm->r_inner);
+        free(sm->line_list_nu);
+        free(sm->inverse_electron_densities);
+        free(sm->electron_densities);
+        free(sm->js);
+        free(sm->nubars);
+        free(sm->last_line_interaction_in_id);
+        free(sm->last_line_interaction_shell_id);
+        free(sm->last_interaction_type);
+        free(sm->line_lists_j_blues);
+        free(sm->line_lists_tau_sobolevs);
+        free(sm->line2macro_level_upper);
+        free(sm->spectrum_virt_nu);
+        free(sm->t_electrons);
+        free(sm->l_pop);
+        free(sm->l_pop_r);
+        free(sm->continuum_list_nu);
+        free(sm->chi_bf_tmp_partial);
+}
 
-double
-test_compute_distance2boundary(void){
-	double D_BOUNDARY = compute_distance2boundary(rp, sm);
-	rpacket_set_d_boundary(rp, D_BOUNDARY);
-	return D_BOUNDARY;
+static void irandom(rk_state *mt_state)
+{
+memset(mt_state,0,sizeof(rk_state));
 }
 
 double
+test_compute_distance2boundary(void){
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        double D_BOUNDARY = compute_distance2boundary(&rp, &sm);
+	rpacket_set_d_boundary(&rp, D_BOUNDARY);
+        dealloc_storage_model(&sm);
+	return D_BOUNDARY;
+}
+double
 test_compute_distance2line(void){
-	double *D_LINE = (double *) malloc(sizeof(double));
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+	double D_LINE;
         // FIXME MR: return status of compute_distance2line() is ignored
-	compute_distance2line(rp, sm, D_LINE);
-	rpacket_set_d_line(rp, *D_LINE);
-	return *D_LINE;
+	compute_distance2line(&rp, &sm, &D_LINE);
+	rpacket_set_d_line(&rp, D_LINE);
+        dealloc_storage_model(&sm);
+	return D_LINE;
 }
 
 double
 test_compute_distance2continuum(void){
-	compute_distance2continuum(rp, sm);
-	return rp->d_cont;
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+	compute_distance2continuum(&rp, &sm);
+        dealloc_storage_model(&sm);
+	return rp.d_cont;
 }
 
 double
 test_rpacket_doppler_factor(void){
-	return rpacket_doppler_factor(rp, sm);
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+	double res= rpacket_doppler_factor(&rp, &sm);
+        dealloc_storage_model(&sm);
+        return res;
 }
 
 double
 test_move_packet(void){
 	double DISTANCE = 1e13;
-	return move_packet(rp, sm, DISTANCE);
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+	double res = move_packet(&rp, &sm, DISTANCE);
+        dealloc_storage_model(&sm);
+        return res;
 }
 
 double
 test_increment_j_blue_estimator(void){
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
 	int64_t j_blue_idx = 0;
-	double d_line = rpacket_get_d_line(rp);
-	increment_j_blue_estimator(rp, sm, d_line, j_blue_idx);
-	return sm->line_lists_j_blues[j_blue_idx];
+        double D_BOUNDARY = compute_distance2boundary(&rp, &sm);
+        rpacket_set_d_boundary(&rp, D_BOUNDARY);
+        double D_LINE;
+        // FIXME MR: return status of compute_distance2line() is ignored
+        compute_distance2line(&rp, &sm, &D_LINE);
+        rpacket_set_d_line(&rp, D_LINE);
+        move_packet(&rp, &sm, 1e13);
+	double d_line = rpacket_get_d_line(&rp);
+	increment_j_blue_estimator(&rp, &sm, d_line, j_blue_idx);
+	double res = sm.line_lists_j_blues[j_blue_idx];
+        dealloc_storage_model(&sm);
+        return res;
 }
 
 bool
 test_montecarlo_line_scatter(void){
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        rk_state mt_state;
+        irandom(&mt_state);
 	double DISTANCE = 1e13;
-	montecarlo_line_scatter(rp, sm, DISTANCE);
+	montecarlo_line_scatter(&rp, &sm, DISTANCE, &mt_state);
+        dealloc_storage_model(&sm);
 	return true;
 }
 
 bool
 test_montecarlo_thomson_scatter(void){
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        rk_state mt_state;
+        irandom(&mt_state);
 	double DISTANCE = 1e13;
-	montecarlo_thomson_scatter(rp, sm, DISTANCE);
+	montecarlo_thomson_scatter(&rp, &sm, DISTANCE, &mt_state);
+        dealloc_storage_model(&sm);
 	return true;
 }
 
 bool
 test_move_packet_across_shell_boundary(void){
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        rk_state mt_state;
+        irandom(&mt_state);
 	double DISTANCE = 0.95e13;
 // MR: wrong: move_packet_across_shell_boundary() returns void
-        move_packet_across_shell_boundary(rp, sm, DISTANCE);
+        move_packet_across_shell_boundary(&rp, &sm, DISTANCE, &mt_state);
+        dealloc_storage_model(&sm);
         return true;
 }
 
 
 int64_t
 test_montecarlo_one_packet(void){
-	return montecarlo_one_packet(sm, rp, 1);
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        rk_state mt_state;
+        irandom(&mt_state);
+        int64_t res = montecarlo_one_packet(&sm, &rp, 1, &mt_state);
+        dealloc_storage_model(&sm);
+	return res;
 }
 
 int64_t
 test_montecarlo_one_packet_loop(void){
-	return montecarlo_one_packet_loop(sm, rp, 1);
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        rk_state mt_state;
+        irandom(&mt_state);
+	int64_t res= montecarlo_one_packet_loop(&sm, &rp, 1, &mt_state);
+        dealloc_storage_model(&sm);
+        return res;
 }
 
-bool
-test_macro_atom(void){
-	macro_atom(rp, sm);
-	return true;
-}
+//bool
+//test_macro_atom(void){
+//	macro_atom(rp, sm);
+//	return true;
+//}
 
 double
 test_calculate_chi_bf(void){
-	calculate_chi_bf(rp, sm);
-	return rpacket_doppler_factor (rp, sm);
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        rk_state mt_state;
+        irandom(&mt_state);
+        int64_t j_blue_idx = 0;
+        double D_BOUNDARY = compute_distance2boundary(&rp, &sm);
+        rpacket_set_d_boundary(&rp, D_BOUNDARY);
+        double D_LINE;
+        // FIXME MR: return status of compute_distance2line() is ignored
+        compute_distance2line(&rp, &sm, &D_LINE);
+        rpacket_set_d_line(&rp, D_LINE);
+        move_packet(&rp, &sm, 1e13);
+        double d_line = rpacket_get_d_line(&rp);
+        increment_j_blue_estimator(&rp, &sm, d_line, j_blue_idx);
+        double DISTANCE = 1e13;
+        montecarlo_line_scatter(&rp, &sm, DISTANCE, &mt_state);
+        DISTANCE = 0.95e13;
+// MR: wrong: move_packet_across_shell_boundary() returns void
+        move_packet_across_shell_boundary(&rp, &sm, DISTANCE, &mt_state);
+        montecarlo_one_packet(&sm, &rp, 1, &mt_state);
+        montecarlo_one_packet_loop(&sm, &rp, 1, &mt_state);
+        DISTANCE = 1e13;
+        montecarlo_thomson_scatter(&rp, &sm, DISTANCE, &mt_state);
+        calculate_chi_bf(&rp, &sm);
+	double res = rpacket_doppler_factor (&rp, &sm);
+        dealloc_storage_model(&sm);
+        return res;
 }
 
 bool
 test_montecarlo_bound_free_scatter(void){
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        rk_state mt_state;
+        irandom(&mt_state);
 	double DISTANCE = 1e13;
-	montecarlo_bound_free_scatter(rp, sm, DISTANCE);
-	return (rpacket_get_status(rp)!=0);
+	montecarlo_bound_free_scatter(&rp, &sm, DISTANCE, &mt_state);
+        dealloc_storage_model(&sm);
+	return (rpacket_get_status(&rp)!=0);
 }
 
 double
 test_bf_cross_section(void){
+        storage_model_t sm;
+        init_storage_model(&sm);
 	double CONV_MU = 0.4;
-	return bf_cross_section(sm, 1, CONV_MU);
+	double res = bf_cross_section(&sm, 1, CONV_MU);
+        dealloc_storage_model(&sm);
+        return res;
 }
 
 int64_t
 test_montecarlo_free_free_scatter(void){
+        rpacket_t rp;
+        storage_model_t sm;
+        init_rpacket(&rp);
+        init_storage_model(&sm);
+        rk_state mt_state;
+        irandom(&mt_state);
 	double DISTANCE = 1e13;
-	montecarlo_free_free_scatter(rp, sm, DISTANCE);
-	return rpacket_get_status(rp);
+	montecarlo_free_free_scatter(&rp, &sm, DISTANCE,&mt_state);
+        dealloc_storage_model(&sm);
+	return rpacket_get_status(&rp);
 }
