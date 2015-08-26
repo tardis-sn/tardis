@@ -18,7 +18,8 @@ else:
 def get_extensions():
     sources = ['tardis/montecarlo/montecarlo.pyx']
     sources += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src', '*.c'))]
+        os.path.join(os.path.dirname(__file__), 'src', '*.c'))
+                if not os.path.basename(fname).startswith('test')]
     sources += [os.path.relpath(fname) for fname in glob(
         os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.c'))]
 
