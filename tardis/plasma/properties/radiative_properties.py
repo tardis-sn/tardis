@@ -68,16 +68,24 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             self._g_upper = g_upper[np.newaxis].T
         return self._g_upper
 
+    def get_metastable_upper(self, metastability, lines_upper_level_index):
+        if getattr(self, '_meta_stable_upper', None) is None:
+            self._meta_stable_upper = metastability.values[
+                lines_upper_level_index][np.newaxis].T
+        return self._meta_stable_upper
+
+
     def calculate(self, g, level_number_density, lines_lower_level_index,
         lines_upper_level_index, metastability, nlte_species, lines):
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise')
         n_upper = level_number_density.values.take(lines_upper_level_index,
             axis=0, mode='raise')
-        meta_stable_upper = metastability.values.take(
-            lines_upper_level_index, axis=0, mode='raise')[np.newaxis].T
         g_lower = self.get_g_lower(g, lines_lower_level_index)
         g_upper = self.get_g_upper(g, lines_upper_level_index)
+        meta_stable_upper = self.get_metastable_upper(metastability,
+                                                      lines_upper_level_index)
+
         stimulated_emission_factor = ne.evaluate('1 - ((g_lower * n_upper) / '
                                                  '(g_upper * n_lower))')
         stimulated_emission_factor[n_lower == 0.0] = 0.0
