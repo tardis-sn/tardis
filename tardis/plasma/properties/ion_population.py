@@ -103,8 +103,7 @@ class PhiSahaNLTE(ProcessingPlasmaProperty):
                     ion+1].ionization_energy * units.erg
                 ionization_nu = ionization_energy / constants.h.cgs
                 alpha_st, alpha_sp = self.calculate_rate_upper_lower(phi_lte,
-                    ionization_nu, species, ion, beta_electron, t_rad, w,
-                    beta_rad)
+                    ionization_nu, species, ion, beta_electron, t_rad, w)
                 gamma = alpha_sp / phi_lte.ix[species].ix[ion+1]
                 lower_index = (number_of_ions + 1) * ion
                 upper_index = lower_index + number_of_ions
@@ -127,7 +126,7 @@ class PhiSahaNLTE(ProcessingPlasmaProperty):
 
     @staticmethod
     def calculate_rate_upper_lower(phi_lte, ionization_nu, species, ion,
-        beta_electron, t_rad, w, beta_rad):
+        beta_electron, t_rad, w):
 #Assuming for now that a_{ik} = (v_{i}/v)^3
         sp_coefficient = 8 * np.pi * phi_lte.ix[species].ix[ion+1] * (
             constants.c.cgs.value)**(-2.0) * (ionization_nu)**(3.0)
@@ -146,32 +145,16 @@ class PhiSahaNLTE(ProcessingPlasmaProperty):
             columns=range(len(x_values)))
         st_coefficient = 4 * np.pi * phi_lte.ix[species].ix[ion+1] * (
             1 / constants.h.cgs.value) * (ionization_nu)**(3.0)
-        J_nu = PhiSahaNLTE.get_J_nu_values(x_values, beta_rad, w)
+        J_nu_dataframe = pd.DataFrame(1.0, index=range(len(
+            exponential_coefficient)), columns=range(len(x_values)))
+        J_nu = (J_nu_dataframe * 2.0 * constants.h.cgs.value * \
+            constants.c.cgs.value**(-2.0)).mul(x_values**(3.0), axis=1).mul((
+            w / np.exp(exponential_coefficient * t_rad) - 1.0), axis=0)
         y_values_st = (np.exp(alpha_st_dataframe.mul(exponential_coefficient,
             axis=0).mul(x_values, axis=1))).mul(x_values**-4.0, axis=1).mul(
-            J_nu)
+            J_nu, axis=1)
         alpha_st = trapz(y_values_st, x_values) * st_coefficient
         return alpha_st, alpha_sp
-
-    @staticmethod
-    def get_J_nu_values(x_values, beta_rad, w):
-        exponential_coefficient_j_nu = -constants.h.cgs.value * beta_rad
-        J_nu = pd.DataFrame(1.0, index=range(len(
-            exponential_coefficient_j_nu)), columns=range(len(x_values)))
-        for nu_index in range(len(x_values)):
-            nu = x_values[nu_index]
-            nu_interval = 9*nu
-            nu_values = np.arange(nu, 10*nu, (nu_interval/1000.0))
-            J_nu_dataframe = pd.DataFrame(1.0, index=range(len(
-                exponential_coefficient_j_nu)), columns=range(len(nu_values)))
-            J_nu_exponential = J_nu_dataframe.mul(nu_values, axis=1).mul(
-                exponential_coefficient_j_nu, axis=0)
-            J_nu_exp_term = 1 / (J_nu_exponential - 1.0)
-            J_nu_values = (J_nu_exp_term * 2.0 * constants.h.cgs.value *
-                constants.c.cgs.value**(-2.0)).mul(nu_values**(3.0),
-                axis=1).mul(w, axis=0)
-            J_nu[nu_index] = trapz(J_nu_values, nu_values)
-        return J_nu
 
     @staticmethod
     def filter_phi_input_data(atomic_number, partition_function,
