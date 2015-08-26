@@ -41,38 +41,33 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
                      \\textrm{rad}}}}',)
 
     broadcast_ionization_energy = None
-    initialize_arrays = True
-    def _initialize(self, partition_function):
 
-        self.phis = np.empty(
+    @staticmethod
+    def calculate(g_electron, beta_rad, partition_function, ionization_data):
+
+        phis = np.empty(
             (partition_function.shape[0] -
              partition_function.index.get_level_values(0).unique().size,
             partition_function.shape[1]))
-        self.block_ids = calculate_block_ids_from_dataframe(partition_function)
-        self.initialize_arrays = False
 
-    def calculate(self, g_electron, beta_rad, partition_function, ionization_data):
-        if self.initialize_arrays:
-            self._initialize(partition_function)
+        block_ids = calculate_block_ids_from_dataframe(partition_function)
 
-        for i, start_id in enumerate(self.block_ids[:-1]):
-            end_id = self.block_ids[i + 1]
+        for i, start_id in enumerate(block_ids[:-1]):
+            end_id = block_ids[i + 1]
             current_block = partition_function.values[start_id:end_id]
-            phis = current_block[1:] / current_block[:-1]
-            self.phis[start_id - i:end_id - i - 1] = phis
+            current_phis = current_block[1:] / current_block[:-1]
+            phis[start_id - i:end_id - i - 1] = phis
 
+        broadcast_ionization_energy = (
+            ionization_data.ionization_energy.ix[
+                partition_function.index].dropna())
+        phi_index = broadcast_ionization_energy.index
+        broadcast_ionization_energy = broadcast_ionization_energy.values
 
-
-        if self.broadcast_ionization_energy is None:
-            broadcast_ionization_energy = (
-                ionization_data.ionization_energy.ix[
-                    partition_function.index].dropna())
-            self.phi_index = broadcast_ionization_energy.index
-            self.broadcast_ionization_energy = broadcast_ionization_energy.values
         phi_coefficient = (2 * g_electron * np.exp(
-            np.outer(self.broadcast_ionization_energy, -beta_rad)))
+            np.outer(broadcast_ionization_energy, -beta_rad)))
 
-        return pd.DataFrame(self.phis * phi_coefficient, index=self.phi_index)
+        return pd.DataFrame(phis * phi_coefficient, index=phi_index)
 
     @staticmethod
     def _calculate_block_ids(partition_function):
@@ -92,10 +87,10 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
     latex_formula = ('W(\\delta\\zeta_{i,j}+W(1-\\zeta_{i,j}))\\left(\
                      \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
                      \\right)^{1/2}',)
-
-    def calculate(self, t_rad, w, zeta_data, t_electrons, delta,
+    @staticmethod
+    def calculate(t_rad, w, zeta_data, t_electrons, delta,
             g_electron, beta_rad, partition_function, ionization_data):
-        phi_lte = PhiSahaLTE.calculate(self, g_electron, beta_rad,
+        phi_lte = PhiSahaLTE.calculate(g_electron, beta_rad,
             partition_function, ionization_data)
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, phi_lte, t_rad)
         phis = phi_lte * w * ((zeta * delta) + w * (1 - zeta)) * \
