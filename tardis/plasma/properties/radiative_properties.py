@@ -174,7 +174,6 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
 
 
         transition_probabilities = self._calculate_transition_probability(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
-        1/0
         transition_probabilities = pd.DataFrame(transition_probabilities,
             index=macro_atom_data.transition_line_id,
             columns=tau_sobolevs.columns)
