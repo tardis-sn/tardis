@@ -14,7 +14,7 @@ __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
     'TransitionProbabilities', 'LTEJBlues']
 
 
-@jit('void(f8[:], f8[:, :], f8[:, :], f8[:,:], i8[:], i8[:], i8[:], f8[:,:])', nopython=True, nogil=True)
+#@jit('void(f8[:], f8[:, :], f8[:, :], f8[:,:], i8[:], i8[:], i8[:], f8[:,:])', nopython=True, nogil=True)
 def optimized_calculate_transition_probabilities(transition_probability_coef, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, block_references, transition_probabilities):
     norm_factor = np.empty(beta_sobolev.shape[1])
     for i in range(transition_probabilities.shape[0]):
