@@ -134,7 +134,7 @@ class Radial1DModel(object):
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_reabsorbed = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
-        self.runner = MontecarloRunner()
+        self.runner = MontecarloRunner(self.tardis_config.montecarlo.seed)
 
 
 

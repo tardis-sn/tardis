@@ -33,12 +33,46 @@ class BlackBodySimpleSource(object):
         self.l_array = np.cumsum(np.arange(2, l_samples, dtype=np.float64)**-4)
         self.l_coef = np.pi**4 / 90.0
 
-    def create_packets(self, T, no_of_packets):
+    def create_packet_nus(self, T, no_of_packets):
+        """
+        Creating <no_of_packets> packets with a blackbody distribution
+        of temperature <T>
+
+        Parameters
+        ----------
+        T : ~float
+            temperature
+        no_of_packets: ~int
+
+        Returns
+        -------
+
+            : ~numpy.ndarray
+            array of frequencies
+        """
 
         xis = np.random.random((5, no_of_packets))
         l = self.l_array.searchsorted(xis[0]*self.l_coef - 1.) + 1.
-        if np.any(l > self.l_samples-10): 1/0
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
 
         return x * (const.k_B.cgs.value * T) / const.h.cgs.value
+
+    def create_packet_mus(self, no_of_packets):
+        """
+        Create
+        :param no_of_packets:
+        :return:
+        """
+        return np.sqrt(np.random.random(no_of_packets))
+
+    def create_packet_energies(self, no_of_packets):
+        return np.ones(no_of_packets) / no_of_packets
+
+
+    def create_packets(self, T, no_of_packets):
+        nus = self.create_packet_nus(T, no_of_packets)
+        mus = self.create_packet_mus(no_of_packets)
+        energies = self.create_packet_energies(no_of_packets)
+
+        return nus, mus, energies
