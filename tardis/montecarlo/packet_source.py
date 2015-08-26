@@ -27,7 +27,7 @@ class BlackBodySimpleSource(object):
     where :math:`x=h\\nu/kT`
 
     """
-    def __init__(self, seed, l_samples=100000):
+    def __init__(self, seed, l_samples=10000000):
         np.random.seed=seed
         self.l_samples = l_samples
         self.l_array = np.cumsum(np.arange(1, l_samples)**-4)
