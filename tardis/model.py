@@ -417,14 +417,18 @@ class Radial1DModel(object):
                 luminosity_density_virtual.to_hdf(hdf_store, os.path.join(path, key))
 
         def _save_configuration_dict(key, path, hdf_store):
-            configuration_dict = dict(t_inner=self.t_inner.value)
+            configuration_dict = dict(t_inner=self.t_inner.value,time_of_simulation=self.time_of_simulation)
             configuration_dict_path = os.path.join(path, 'configuration')
             pd.Series(configuration_dict).to_hdf(hdf_store, configuration_dict_path)
 
         include_from_plasma_ = {'level_number_density': None, 'ion_number_density': None, 'tau_sobolevs': None,
                                 'electron_densities': None,
                                 't_rad': None, 'w': None}
+        include_from_runner_ = {'virt_packet_last_interaction_type': None, 'virt_packet_last_line_interaction_in_id': None,
+                                'virt_packet_last_line_interaction_out_id': None, 'virt_packet_last_interaction_in_nu': None,
+                                'virt_packet_nus': None, 'virt_packet_energies': None}
         include_from_model_in_hdf5 = {'plasma_array': include_from_plasma_, 'j_blues': None,
+                                      'runner': include_from_runner_,
                                       'last_line_interaction_in_id': None,
                                       'last_line_interaction_out_id': None,
                                       'last_line_interaction_shell_id': None, 'montecarlo_nu': None,
