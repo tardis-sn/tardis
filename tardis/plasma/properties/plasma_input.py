@@ -3,8 +3,8 @@ import pandas as pd
 from tardis.plasma.properties.base import BasePlasmaProperty
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlues', 'LinkTRadTElectron', 'NLTESpecies',
-           'RadiationFieldCorrectionInput']
+           'TimeExplosion', 'JBlues', 'LinkTRadTElectron', 'NLTEExcitationSpecies',
+           'NLTEIonizationSpecies', 'RadiationFieldCorrectionInput']
 
 class Input(BasePlasmaProperty):
 
@@ -84,5 +84,8 @@ class LinkTRadTElectron(StaticInput):
     outputs = ('link_t_rad_t_electron',)
     latex_name = ('T_{\\textrm{electron}}/T_{\\textrm{rad}}',)
 
-class NLTESpecies(StaticInput):
-    outputs = ('nlte_species',)
+class NLTEExcitationSpecies(StaticInput):
+    outputs = ('nlte_excitation_species',)
+
+class NLTEIonizationSpecies(StaticInput):
+    outputs = ('nlte_ionization_species',)

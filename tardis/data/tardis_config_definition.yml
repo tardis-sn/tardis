@@ -110,13 +110,13 @@ plasma:
             this configuration item. if set to None (default), normal delta
             treatment (as described in Mazzali & Lucy 1993) will be applied
 
-    nlte:
+    nlte_excitation:
         species:
             property_type: list
             mandatory: False
             default: []
             help: >
-                Species that are requested to be NLTE treated in the format 
+                Species for which NLTE excitation is to be used to calculate their states
                 ['Si 2', 'Ca 1', etc.]
 
         coronal_approximation:
@@ -131,7 +131,21 @@ plasma:
             mandatory: False
             help: sets all beta_sobolevs to 1
 
+    nlte_ionization:
+        species:
+            property_type: list
+            mandatory: False
+            default: []
+            help: >
+                Elements for which NLTE ionisation is to be used to calculate their states
+                ['Si', 'Ca', etc.]
 
+    helium_treatment:
+        property_type: string
+        mandatory: False
+        default: none
+        allowed_value: none recomb-nlte
+        help: none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.
 
 model:
     structure:

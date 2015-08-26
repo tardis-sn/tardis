@@ -218,7 +218,7 @@ class ConfigEditor(QtGui.QWidget):
                        'line_interaction_type':[True, None],
                        'w_epsilon':[False, 1e-10],
                        'delta_treatment':[False, None],
-                       'nlte':{ 'species':[False, []],
+                       'nlte_excitation':{ 'species':[False, []],
                                 'coronal_approximation':[False, False],
                                 'classical_nebular':[False, False]
                               }
@@ -750,7 +750,7 @@ class ShellInfo(QtGui.QDialog):
         """Called when a header in the first column is clicked to show 
         ion populations."""
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
-        self.table2_data = self.parent.model.plasma_array.ion_populations[
+        self.table2_data = self.parent.model.plasma_array.ion_number_density[
             self.shell_index].ix[self.current_atom_index]
         self.ionsdata = self.createTable([['Ion: '], 
             ['Count (Z = %d)' % self.current_atom_index]], 
@@ -776,7 +776,7 @@ class ShellInfo(QtGui.QDialog):
     def on_ion_header_double_clicked(self, index):
         """Called on double click of ion headers to show level populations."""
         self.current_ion_index = self.table2_data.index.values.tolist()[index]
-        self.table3_data = self.parent.model.plasma_array.level_populations[
+        self.table3_data = self.parent.model.plasma_array.level_number_density[
             self.shell_index].ix[self.current_atom_index, self.current_ion_index]
         self.levelsdata = self.createTable([['Level: '], 
             ['Count (Ion %d)' % self.current_ion_index]], 
@@ -795,8 +795,8 @@ class ShellInfo(QtGui.QDialog):
 
     def update_tables(self):
         """Update table data for shell info viewer."""
-        self.table1_data = self.parent.model.plasma_array[
-            self.shell_index].number_densities
+        self.table1_data = self.parent.model.plasma_array.number_density[
+            self.shell_index]
         self.atomsdata.index_info=self.table1_data.index.values.tolist()
         self.atomsdata.arraydata = []
         self.atomsdata.add_data(self.table1_data.values.tolist())

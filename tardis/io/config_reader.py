@@ -15,7 +15,7 @@ from tardis.io.model_reader import read_density_file, \
 from tardis.io.config_validator import ConfigurationValidator
 from tardis import atomic
 from tardis.util import species_string_to_tuple, parse_quantity, \
-    element_symbol2atomic_number
+    element_symbol2atomic_number, MalformedElementSymbolError
 
 import copy
 
@@ -973,39 +973,67 @@ class Configuration(ConfigurationNameSpace):
             logger.warn('Disabling electron scattering - this is not physical')
             validated_config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm ** 2)
 
+        if plasma_section['helium_treatment'] == 'recomb-nlte':
+            validated_config_dict['plasma']['helium_treatment'] == 'recomb-nlte'
+        else:
+            validated_config_dict['plasma']['helium_treatment'] == 'dilute-lte'
 
 
 
-        ##### NLTE subsection of Plasma start
-        nlte_validated_config_dict = {}
-        nlte_species = []
-        nlte_section = plasma_section['nlte']
 
-        nlte_species_list = nlte_section.pop('species')
-        for species_string in nlte_species_list:
-            nlte_species.append(species_string_to_tuple(species_string))
 
-        nlte_validated_config_dict['species'] = nlte_species
-        nlte_validated_config_dict['species_string'] = nlte_species_list
-        nlte_validated_config_dict.update(nlte_section)
+        ##### NLTE excitation subsection of Plasma start
+        nlte_excitation_validated_config_dict = {}
+        nlte_excitation_species = []
+        nlte_excitation_section = plasma_section['nlte_excitation']
 
-        if 'coronal_approximation' not in nlte_section:
+        nlte_excitation_species_list = nlte_excitation_section.pop('species')
+        for species_string in nlte_excitation_species_list:
+            nlte_excitation_species.append(species_string_to_tuple(species_string))
+
+        nlte_excitation_validated_config_dict['species'] = nlte_excitation_species
+        nlte_excitation_validated_config_dict['species_string'] = nlte_excitation_species_list
+        nlte_excitation_validated_config_dict.update(nlte_excitation_section)
+
+        if 'coronal_approximation' not in nlte_excitation_section:
             logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
-            nlte_validated_config_dict['coronal_approximation'] = False
+            nlte_excitation_validated_config_dict['coronal_approximation'] = False
 
-        if 'classical_nebular' not in nlte_section:
+        if 'classical_nebular' not in nlte_excitation_section:
             logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
-            nlte_validated_config_dict['classical_nebular'] = False
+            nlte_excitation_validated_config_dict['classical_nebular'] = False
 
 
-        elif nlte_section:  #checks that the dictionary is not empty
+        elif nlte_excitation_section:  #checks that the dictionary is not empty
             logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
-                        pp.pformat(nlte_section))
+                        pp.pformat(nlte_excitation_section))
 
-        if not nlte_validated_config_dict:
-            nlte_validated_config_dict['species'] = []
+        if not nlte_excitation_validated_config_dict:
+            nlte_excitation_validated_config_dict['species'] = []
 
-        plasma_section['nlte'] = nlte_validated_config_dict
+        plasma_section['nlte_excitation'] = nlte_excitation_validated_config_dict
+
+        ##### NLTE ionisation subsection of Plasma start
+        nlte_ionization_validated_config_dict = {}
+        nlte_ionization_species = []
+        nlte_ionization_section = plasma_section['nlte_ionization']
+
+        nlte_ionization_species_list = nlte_ionization_section.pop('species')
+        for species_string in nlte_ionization_species_list:
+            try:
+                nlte_ionization_species.append(element_symbol2atomic_number(
+                    species_string))
+            except:
+                raise MalformedElementSymbolError(species_string)
+
+        nlte_ionization_validated_config_dict['species'] = nlte_ionization_species
+        nlte_ionization_validated_config_dict['species_string'] = nlte_ionization_species_list
+        nlte_ionization_validated_config_dict.update(nlte_ionization_section)
+
+        if not nlte_ionization_validated_config_dict:
+            nlte_ionization_validated_config_dict['species'] = []
+
+        plasma_section['nlte_ionization'] = nlte_ionization_validated_config_dict
 
         #^^^^^^^^^^^^^^ End of Plasma Section
 

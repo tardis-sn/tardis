@@ -28,6 +28,7 @@ cdef extern from "src/cmontecarlo.h":
         double *packet_energies
         double *output_nus
         double *output_energies
+        double *last_interaction_in_nu
         int_type_t *last_line_interaction_in_id
         int_type_t *last_line_interaction_out_id
         int_type_t *last_line_interaction_shell_id
@@ -76,6 +77,10 @@ cdef extern from "src/cmontecarlo.h":
         ContinuumProcessesStatus cont_status
         double *virt_packet_nus
         double *virt_packet_energies
+        double *virt_packet_last_interaction_in_nu
+        int_type_t *virt_packet_last_interaction_type
+        int_type_t *virt_packet_last_line_interaction_in_id
+        int_type_t *virt_packet_last_line_interaction_out_id
         int_type_t virt_packet_count
         int_type_t virt_array_size
 
@@ -202,10 +207,12 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_out_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] last_line_interaction_shell_id = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] last_interaction_type = -1 * np.ones(storage.no_of_packets, dtype=np.int64)
+    cdef np.ndarray[double, ndim=1] last_interaction_in_nu = -1 * np.ones(storage.no_of_packets, dtype=np.float64)
     storage.last_line_interaction_in_id = <int_type_t*> last_line_interaction_in_id.data
     storage.last_line_interaction_out_id = <int_type_t*> last_line_interaction_out_id.data
     storage.last_line_interaction_shell_id = <int_type_t*> last_line_interaction_shell_id.data
     storage.last_interaction_type = <int_type_t*> last_interaction_type.data
+    storage.last_interaction_in_nu = <double*> last_interaction_in_nu.data
     cdef np.ndarray[double, ndim=1] js = np.zeros(storage.no_of_shells, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] nubars = np.zeros(storage.no_of_shells, dtype=np.float64)
     storage.js = <double*> js.data
@@ -231,11 +238,24 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
+    cdef np.ndarray[double, ndim=1] virt_packet_last_interaction_in_nu = np.zeros(storage.virt_packet_count, dtype=np.float64)
+    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_interaction_type = np.zeros(storage.virt_packet_count, dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_in_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_out_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
+
     for i in range(storage.virt_packet_count):
         virt_packet_nus[i] = storage.virt_packet_nus[i]
         virt_packet_energies[i] = storage.virt_packet_energies[i]
+        virt_packet_last_interaction_in_nu[i] = storage.virt_packet_last_interaction_in_nu[i]
+        virt_packet_last_interaction_type[i] = storage.virt_packet_last_interaction_type[i]
+        virt_packet_last_line_interaction_in_id[i] = storage.virt_packet_last_line_interaction_in_id[i]
+        virt_packet_last_line_interaction_out_id[i] = storage.virt_packet_last_line_interaction_out_id[i]
     free(<void *>storage.virt_packet_nus)
     free(<void *>storage.virt_packet_energies)
+    free(<void *>storage.virt_packet_last_interaction_in_nu)
+    free(<void *>storage.virt_packet_last_interaction_type)
+    free(<void *>storage.virt_packet_last_line_interaction_in_id)
+    free(<void *>storage.virt_packet_last_line_interaction_out_id)
     runner._packet_nu = output_nus
     runner._packet_energy = output_energies
     runner.j_estimator = js
@@ -244,8 +264,13 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     runner.last_line_interaction_out_id = last_line_interaction_out_id
     runner.last_interaction_type = last_interaction_type
     runner.last_line_interaction_shell_id = last_line_interaction_shell_id
+    runner.last_interaction_in_nu = last_interaction_in_nu
     runner.virt_packet_nus = virt_packet_nus
     runner.virt_packet_energies = virt_packet_energies
+    runner.virt_packet_last_interaction_in_nu = virt_packet_last_interaction_in_nu
+    runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
+    runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
+    runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
     
     #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies
 

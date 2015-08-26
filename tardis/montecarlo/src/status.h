@@ -1,12 +1,6 @@
 #ifndef TARDIS_STATUS_H
 #define TARDIS_STATUS_H
 
-#ifdef __clang__
-#define INLINE extern inline
-#else
-#define INLINE inline
-#endif
-
 typedef enum
 {
   TARDIS_ERROR_OK = 0,

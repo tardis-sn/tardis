@@ -19,14 +19,14 @@ def run_radial1d(radial1d_model, history_fname=None):
 
     start_time = time.time()
     initialize_j_blues = True
-    initialize_nlte = True
+    initialize_nlte_excitation = True
     update_radiation_field = False
     while radial1d_model.iterations_remaining > 1:
         logger.info('Remaining run %d', radial1d_model.iterations_remaining)
-        radial1d_model.simulate(update_radiation_field=update_radiation_field, enable_virtual=False, initialize_nlte=initialize_nlte,
+        radial1d_model.simulate(update_radiation_field=update_radiation_field, enable_virtual=False, initialize_nlte_excitation=initialize_nlte_excitation,
                                 initialize_j_blues=initialize_j_blues)
         initialize_j_blues=False
-        initialize_nlte=False
+        initialize_nlte_excitation=False
         update_radiation_field = True
 
         if history_fname:
@@ -37,7 +37,7 @@ def run_radial1d(radial1d_model, history_fname=None):
     if radial1d_model.tardis_config.montecarlo.last_no_of_packets is not None:
         radial1d_model.current_no_of_packets = radial1d_model.tardis_config.montecarlo.last_no_of_packets
 
-    radial1d_model.simulate(enable_virtual=True, update_radiation_field=update_radiation_field, initialize_nlte=initialize_nlte,
+    radial1d_model.simulate(enable_virtual=True, update_radiation_field=update_radiation_field, initialize_nlte_excitation=initialize_nlte_excitation,
                             initialize_j_blues=initialize_j_blues)
 
     if history_fname:

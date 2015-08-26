@@ -85,7 +85,8 @@ class Radial1DModel(object):
         selected_atomic_numbers = self.tardis_config.abundances.index
         self.atom_data.prepare_atom_data(selected_atomic_numbers,
                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
-                                         nlte_species=tardis_config.plasma.nlte.species)
+                                         nlte_excitation_species=tardis_config.plasma.nlte_excitation.species,
+                                         nlte_ionization_species=tardis_config.plasma.nlte_ionization.species)
 
         if tardis_config.plasma.ionization == 'nebular':
             if not self.atom_data.has_zeta_data:
@@ -124,12 +125,13 @@ class Radial1DModel(object):
 
         self.plasma_array = LegacyPlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
                                                          tardis_config.supernova.time_explosion.to('s').value,
-                                                         nlte_config=tardis_config.plasma.nlte,
+                                                         nlte_excitation_config=tardis_config.plasma.nlte_excitation,
+                                                         nlte_ionization_config=tardis_config.plasma.nlte_ionization,
                                                          delta_treatment=tardis_config.plasma.delta_treatment,
                                                          ionization_mode=tardis_config.plasma.ionization,
                                                          excitation_mode=tardis_config.plasma.excitation,
                                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
-                                                         link_t_rad_t_electron=0.9)
+                                                         link_t_rad_t_electron=0.9, helium_treatment=tardis_config.plasma.helium_treatment)
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
@@ -151,7 +153,8 @@ class Radial1DModel(object):
             #final preparation for atom_data object - currently building data
             self.atom_data.prepare_atom_data(self.tardis_config.number_densities.columns,
                                              line_interaction_type=self.line_interaction_type, max_ion_number=None,
-                                             nlte_species=self.tardis_config.plasma.nlte.species)
+                                             nlte_excitation_species=self.tardis_config.plasma.nlte_excitation.species,
+                                             nlte_ionization_species=self.tardis_config.plasma.nlte_ionization.species)
         else:
             raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
 
@@ -198,10 +201,10 @@ class Radial1DModel(object):
         else:
             raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
-    def update_plasmas(self, initialize_nlte=False):
-
+    def update_plasmas(self, initialize_nlte_excitation=False, initialize_nlte_ionization=False):
         self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, self.j_blues,
-            self.tardis_config.plasma.nlte, initialize_nlte=initialize_nlte, n_e_convergence_threshold=0.05)
+            self.tardis_config.plasma.nlte_excitation, initialize_nlte_excitation=initialize_nlte_excitation,
+                n_e_convergence_threshold=0.05)
 
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.transition_probabilities
@@ -287,7 +290,7 @@ class Radial1DModel(object):
 
 
     def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False,
-                 initialize_nlte=False):
+                 initialize_nlte_excitation=False, initialize_nlte_ionization=False):
         """
         Run a simulation
         """
@@ -298,7 +301,8 @@ class Radial1DModel(object):
             t_inner_new = self.t_inner
 
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
-        self.update_plasmas(initialize_nlte=initialize_nlte)
+        self.update_plasmas(initialize_nlte_excitation=initialize_nlte_excitation,
+                            initialize_nlte_ionization=initialize_nlte_ionization)
 
 
         self.t_inner = t_inner_new
@@ -422,9 +426,9 @@ class Radial1DModel(object):
             configuration_dict_path = os.path.join(path, 'configuration')
             pd.Series(configuration_dict).to_hdf(hdf_store, configuration_dict_path)
 
-        include_from_plasma_ = {'level_populations': None, 'ion_populations': None, 'tau_sobolevs': None,
+        include_from_plasma_ = {'level_number_density': None, 'ion_number_density': None, 'tau_sobolevs': None,
                                 'electron_densities': None,
-                                't_rads': None, 'ws': None}
+                                't_rad': None, 'w': None}
         include_from_model_in_hdf5 = {'plasma_array': include_from_plasma_, 'j_blues': None,
                                       'last_line_interaction_in_id': None,
                                       'last_line_interaction_out_id': None,

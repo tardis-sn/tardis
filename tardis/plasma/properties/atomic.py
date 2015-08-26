@@ -4,13 +4,15 @@ import pandas as pd
 from collections import Counter as counter
 import logging
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
+    HiddenPlasmaProperty)
 from tardis.plasma.exceptions import IncompleteAtomicData
 
 logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData']
+           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEExcitationData',
+           'NLTEIonizationData', 'Chi0']
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     __metaclass__ = ABCMeta
@@ -88,7 +90,7 @@ class Lines(BaseAtomicDataProperty):
         lines = reindexed.dropna(subset=['atomic_number'])
         return lines, lines['nu'], lines['f_lu'], lines['wavelength_cm']
 
-class LinesLowerLevelIndex(ProcessingPlasmaProperty):
+class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
     Outputs:
     lines_lower_level_index : One-dimensional Numpy Array
@@ -96,7 +98,6 @@ class LinesLowerLevelIndex(ProcessingPlasmaProperty):
         Usage: levels.ix[lines_lower_level_index]
     """
     outputs = ('lines_lower_level_index',)
-
     def calculate(self, levels, lines):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
                                  index=levels)
@@ -105,7 +106,7 @@ class LinesLowerLevelIndex(ProcessingPlasmaProperty):
              'level_number_lower']).index
         return np.array(levels_index.ix[lines_index])
 
-class LinesUpperLevelIndex(ProcessingPlasmaProperty):
+class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
     Outputs:
     lines_upper_level_index : One-dimensional Numpy Array
@@ -224,11 +225,26 @@ class ZetaData(BaseAtomicDataProperty):
     def _set_index(self, zeta_data):
         return zeta_data.set_index(['atomic_number', 'ion_number'])
 
-class NLTEData(ProcessingPlasmaProperty):
-    outputs = ('nlte_data',)
+class NLTEExcitationData(ProcessingPlasmaProperty):
+    outputs = ('nlte_excitation_data',)
 
     def calculate(self, atomic_data):
         if getattr(self, self.outputs[0]) is not None:
             return (getattr(self, self.outputs[0]),)
         else:
-            return atomic_data.nlte_data
+            return atomic_data.nlte_excitation_data
+
+class NLTEIonizationData(ProcessingPlasmaProperty):
+    outputs = ('nlte_ionization_data',)
+
+    def calculate(self, atomic_data):
+        if getattr(self, self.outputs[0]) is not None:
+            return (getattr(self, self.outputs[0]),)
+        else:
+            return atomic_data.nlte_ionization_data
+
+class Chi0(ProcessingPlasmaProperty):
+    outputs = ('chi_0',)
+
+    def calculate(self, atomic_data):
+        return atomic_data.ionization_data.ionization_energy.ix[20].ix[2]

@@ -359,7 +359,6 @@ def species_string_to_tuple(species_string):
 
     return atomic_number, ion_number - 1
 
-
 def parse_quantity(quantity_string):
 
     if not isinstance(quantity_string, basestring):
