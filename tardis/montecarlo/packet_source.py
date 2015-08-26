@@ -27,16 +27,16 @@ class BlackBodySimpleSource(object):
     where :math:`x=h\\nu/kT`
 
     """
-    def __init__(self, seed, l_samples=10000000):
+    def __init__(self, seed, l_samples=1000):
         np.random.seed=seed
         self.l_samples = l_samples
-        self.l_array = np.cumsum(np.arange(1, l_samples)**-4)
+        self.l_array = np.cumsum(np.arange(2, l_samples, dtype=np.float64)**-4)
         self.l_coef = np.pi**4 / 90.0
 
     def create_packets(self, T, no_of_packets):
 
         xis = np.random.random((5, no_of_packets))
-        l = self.l_array.searchsorted(xis[0]*self.l_coef) + 1.
+        l = self.l_array.searchsorted(xis[0]*self.l_coef - 1.) + 1.
         if np.any(l > self.l_samples-10): 1/0
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
