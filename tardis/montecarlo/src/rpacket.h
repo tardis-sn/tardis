@@ -264,9 +264,9 @@ static inline void rpacket_set_id (rpacket_t * packet, int id)
   packet->id = id;
 }
 
-static inline void rpacket_reset_tau_event (rpacket_t * packet)
+static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_state)
 {
-  rpacket_set_tau_event (packet, -log (rk_double (&mt_state)));
+  rpacket_set_tau_event (packet, -log (rk_double (mt_state)));
 }
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
