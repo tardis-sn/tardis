@@ -327,7 +327,7 @@ class Radial1DModel(object):
         if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        self.montecarlo_nu = self.runner.packet_nu
+        self.montecarlo_nu = self.runner.output_nu
         self.montecarlo_luminosity = self.runner.packet_luminosity
 
 

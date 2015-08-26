@@ -96,10 +96,10 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
     """
 
-    storage.no_of_packets = model.packet_src.packet_nus.size
-    storage.packet_nus = <double*> PyArray_DATA(runner.input_nus)
-    storage.packet_mus = <double*> PyArray_DATA(runner.input_mus)
-    storage.packet_energies = <double*> PyArray_DATA(runner.input_energies)
+    storage.no_of_packets = runner.input_nu.size
+    storage.packet_nus = <double*> PyArray_DATA(runner.input_nu)
+    storage.packet_mus = <double*> PyArray_DATA(runner.input_mu)
+    storage.packet_energies = <double*> PyArray_DATA(runner.input_energy)
 
     # Setup of structure
     structure = model.tardis_config.structure
@@ -165,8 +165,8 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         storage.transition_line_id = <int_type_t*> PyArray_DATA(
             model.atom_data.macro_atom_data['lines_idx'].values)
 
-    storage.output_nus = <double*> PyArray_DATA(runner._packet_nu)
-    storage.output_energies = <double*> PyArray_DATA(runner._packet_energy)
+    storage.output_nus = <double*> PyArray_DATA(runner._output_nu)
+    storage.output_energies = <double*> PyArray_DATA(runner._output_energy)
 
     storage.last_line_interaction_in_id = <int_type_t*> PyArray_DATA(
         runner.last_line_interaction_in_id)

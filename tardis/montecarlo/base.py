@@ -38,8 +38,8 @@ class MontecarloRunner(object):
 
         no_of_packets = model.packet_src.packet_nus.size
         no_of_shells = model.tardis_config.structure.no_of_shells
-        self._packet_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
-        self._packet_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
+        self._output_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
+        self._output_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
         self.last_line_interaction_in_id = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.last_line_interaction_out_id = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.last_line_interaction_shell_id = -1 * np.ones(no_of_packets, dtype=np.int64)
@@ -68,9 +68,9 @@ class MontecarloRunner(object):
 
     def _initialize_packets(self, T, no_of_packets):
         nus, mus, energies = self.packet_source.create_packets(T, no_of_packets)
-        self.input_nus = nus
-        self.input_mus = mus
-        self.input_energies = energies
+        self.input_nu = nus
+        self.input_mu = mus
+        self.input_energy = energies
 
 
     def run(self, model, no_of_virtual_packets, nthreads=1):
@@ -97,7 +97,7 @@ class MontecarloRunner(object):
             nthreads=nthreads)
 
     def legacy_return(self):
-        return (self.packet_nu, self.packet_energy,
+        return (self.output_nu, self.output_energy,
                 self.j_estimator, self.nu_bar_estimator,
                 self.last_line_interaction_in_id,
                 self.last_line_interaction_out_id,
@@ -110,28 +110,28 @@ class MontecarloRunner(object):
 
 
     @property
-    def packet_nu(self):
-        return u.Quantity(self._packet_nu, u.Hz)
+    def output_nu(self):
+        return u.Quantity(self._output_nu, u.Hz)
 
     @property
-    def packet_energy(self):
-        return u.Quantity(self._packet_energy, u.erg)
+    def output_energy(self):
+        return u.Quantity(self._output_energy, u.erg)
 
     @property
     def packet_luminosity(self):
-        return self.packet_energy / self.time_of_simulation
+        return self.output_energy / self.time_of_simulation
 
     @property
     def emitted_packet_mask(self):
-        return self.packet_energy >=0
+        return self.output_energy >=0
 
     @property
     def emitted_packet_nu(self):
-        return self.packet_nu[self.emitted_packet_mask]
+        return self.output_nu[self.emitted_packet_mask]
 
     @property
     def reabsorbed_packet_nu(self):
-        return self.packet_nu[~self.emitted_packet_mask]
+        return self.output_nu[~self.emitted_packet_mask]
 
     @property
     def reabsorbed_packet_luminosity(self):
