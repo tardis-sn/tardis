@@ -12,6 +12,6 @@
 tardis_error_t line_search (const double *nu, double nu_insert,
        int64_t number_of_lines, int64_t * result);
 
-extern rk_state mt_state;
+extern rk_state *mt_state;
 
 #endif
