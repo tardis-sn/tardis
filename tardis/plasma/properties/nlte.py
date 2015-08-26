@@ -79,7 +79,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         (partition_function_index, ionization_data_index, partition_function,
             ionization_data) = self.filter_with_helium_index(2, 1,
             partition_function, ionization_data)
-        phis = (1 / PhiSahaLTE.calculate(g_electron, beta_rad,
+        phis = (1 / PhiSahaLTE.calculate(self, g_electron, beta_rad,
             partition_function, ionization_data)) * electron_densities * \
             (1.0/g.ix[2,1,0]) * (1/w) * (t_rad/t_electron)**(0.5)
         return level_boltzmann_factor.ix[2].ix[0].mul(
