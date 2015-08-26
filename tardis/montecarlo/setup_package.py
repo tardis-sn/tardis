@@ -21,11 +21,16 @@ def get_extensions():
         os.path.join(os.path.dirname(__file__), 'src', '*.c'))]
     sources += [os.path.relpath(fname) for fname in glob(
         os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.c'))]
+    deps = [os.path.relpath(fname) for fname in glob(
+        os.path.join(os.path.dirname(__file__), 'src', '*.h'))]
+    deps += [os.path.relpath(fname) for fname in glob(
+        os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.h'))]
 
     return [Extension('tardis.montecarlo.montecarlo', sources,
                       include_dirs=['tardis/montecarlo/src',
                                     'tardis/montecarlo/src/randomkit',
                                     np.get_include()],
+                      depends=deps,
                       extra_compile_args=compile_args,
                       extra_link_args=link_args,
                       define_macros=define_macros)]
