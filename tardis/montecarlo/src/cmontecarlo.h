@@ -14,7 +14,9 @@
 
 typedef void (*montecarlo_event_handler_t) (rpacket_t * packet,
 					    storage_model_t * storage,
-					    double distance);
+					    double distance, rk_state *mt_state);
+
+void initialize_random_kit (unsigned long seed);
 
 double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *storage);
 
@@ -49,7 +51,7 @@ tardis_error_t compute_distance2line (const rpacket_t * packet,
  */
 void compute_distance2continuum (rpacket_t * packet, storage_model_t * storage);
 
-int64_t macro_atom (const rpacket_t * packet, const storage_model_t * storage);
+int64_t macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
 double move_packet (rpacket_t * packet, storage_model_t * storage,
 			   double distance);
@@ -59,11 +61,11 @@ void increment_j_blue_estimator (const rpacket_t * packet,
 					double d_line, int64_t j_blue_idx);
 
 int64_t montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
-			       int64_t virtual_mode);
+			       int64_t virtual_mode, rk_state *mt_state);
 
 int64_t montecarlo_one_packet_loop (storage_model_t * storage,
 				    rpacket_t * packet,
-				    int64_t virtual_packet);
+				    int64_t virtual_packet, rk_state *mt_state);
 
 void montecarlo_main_loop(storage_model_t * storage,
 			  int64_t virtual_packet_flag,
@@ -72,11 +74,11 @@ void montecarlo_main_loop(storage_model_t * storage,
 
 /* New handlers for continuum implementation */
 
-montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage);
+montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state);
 
-void montecarlo_free_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance);
+void montecarlo_free_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance, rk_state *mt_state);
 
-void montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance);
+void montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance, rk_state *mt_state);
 
 double
 bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double comov_nu);
@@ -85,14 +87,14 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage);
 
 void
 move_packet_across_shell_boundary (rpacket_t * packet,
-                                   storage_model_t * storage, double distance);
+                                   storage_model_t * storage, double distance, rk_state *mt_state);
 
 void
 montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
-                            double distance);
+                            double distance, rk_state *mt_state);
 
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
-                         double distance);
+                         double distance, rk_state *mt_state);
 
 #endif // TARDIS_CMONTECARLO_H

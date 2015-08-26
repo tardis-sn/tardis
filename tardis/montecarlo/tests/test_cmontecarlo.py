@@ -14,9 +14,6 @@ test_path = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 
 tests = CDLL(test_path)
 
-#tests.init_rpacket()
-#tests.init_storage_model()
-
 def test_compute_distance2boundary():
 	distance_to_boundary = 259376919351035.88
 	tests.test_compute_distance2boundary.restype = c_double
