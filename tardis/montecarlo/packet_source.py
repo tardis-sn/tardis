@@ -30,7 +30,7 @@ class BlackBodySimpleSource(object):
     def __init__(self, seed, l_samples=1000):
         np.random.seed=seed
         self.l_samples = l_samples
-        self.l_array = np.cumsum(np.arange(2, l_samples, dtype=np.float64)**-4)
+        self.l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64)**-4)
         self.l_coef = np.pi**4 / 90.0
 
     def create_packet_nus(self, T, no_of_packets):
@@ -52,7 +52,7 @@ class BlackBodySimpleSource(object):
         """
 
         xis = np.random.random((5, no_of_packets))
-        l = self.l_array.searchsorted(xis[0]*self.l_coef - 1.) + 1.
+        l = self.l_array.searchsorted(xis[0]*self.l_coef) + 1.
         xis_prod = np.prod(xis[1:], 0)
         x = ne.evaluate('-log(xis_prod)/l')
 
