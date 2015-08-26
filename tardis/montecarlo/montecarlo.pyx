@@ -97,10 +97,9 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     """
 
     storage.no_of_packets = model.packet_src.packet_nus.size
-    storage.packet_nus = <double*> PyArray_DATA(model.packet_src.packet_nus)
-    storage.packet_mus = <double*> PyArray_DATA(model.packet_src.packet_mus)
-    storage.packet_energies = <double*> PyArray_DATA(
-        model.packet_src.packet_energies)
+    storage.packet_nus = <double*> PyArray_DATA(runner.input_nus)
+    storage.packet_mus = <double*> PyArray_DATA(runner.input_mus)
+    storage.packet_energies = <double*> PyArray_DATA(runner.input_energies)
 
     # Setup of structure
     structure = model.tardis_config.structure

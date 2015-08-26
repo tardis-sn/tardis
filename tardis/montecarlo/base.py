@@ -2,7 +2,8 @@ from astropy import units as u, constants as const
 
 from scipy.special import zeta
 
-from tardis.montecarlo import montecarlo
+from tardis.montecarlo import montecarlo, packet_source
+
 
 import numpy as np
 
@@ -18,6 +19,11 @@ class MontecarloRunner(object):
 
     t_rad_estimator_constant = ((np.pi**4 / (15 * 24 * zeta(5, 1))) *
                                 (const.h / const.k_B)).cgs.value
+
+
+    def __init__(self, seed):
+        self.packet_source = packet_source.BlackBodySimpleSource(seed)
+
 
 
     def _initialize_montecarlo_arrays(self, model):
@@ -60,12 +66,32 @@ class MontecarloRunner(object):
         self.r_outer_cgs = structure.r_outer.to('cm').value
         self.v_inner_cgs = structure.v_inner.to('cm/s').value
 
+    def _initialize_packets(self, T, no_of_packets):
+        nus, mus, energies = self.packet_source.create_packets(T, no_of_packets)
+        self.input_nus = nus
+        self.input_mus = mus
+        self.input_energies = energies
+
+
     def run(self, model, no_of_virtual_packets, nthreads=1):
+        """
+        Running the TARDIS simulation
+
+        Parameters
+        ----------
+
+        :param model:
+        :param no_of_virtual_packets:
+        :param nthreads:
+        :return:
+        """
         self.time_of_simulation = model.time_of_simulation
         self.volume = model.tardis_config.structure.volumes
         self._initialize_montecarlo_arrays(model)
         self._initialize_geometry_arrays(model.tardis_config.structure)
-        #1/0
+
+        self._initialize_packets(model.t_inner.value,
+                                 model.current_no_of_packets)
         montecarlo.montecarlo_radial1d(
             model, self, virtual_packet_flag=no_of_virtual_packets,
             nthreads=nthreads)
