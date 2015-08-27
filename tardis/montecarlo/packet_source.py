@@ -28,7 +28,7 @@ class BlackBodySimpleSource(object):
 
     """
     def __init__(self, seed, l_samples=1000):
-        np.random.seed=seed
+        np.random.seed(seed)
         self.l_samples = l_samples
         self.l_array = np.cumsum(np.arange(1, l_samples, dtype=np.float64)**-4)
         self.l_coef = np.pi**4 / 90.0
