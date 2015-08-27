@@ -10,12 +10,9 @@ from astropy import constants, units as u
 import scipy.special
 
 from util import intensity_black_body
-from tardis import packet_source
 from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
-
-
 
 logger = logging.getLogger(__name__)
 
@@ -91,10 +88,6 @@ class Radial1DModel(object):
             if not self.atom_data.has_zeta_data:
                 raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma ionization")
 
-        self.packet_src = packet_source.SimplePacketSource.from_wavelength(tardis_config.montecarlo.black_body_sampling.start,
-                                                                           tardis_config.montecarlo.black_body_sampling.end,
-                                                                           blackbody_sampling=tardis_config.montecarlo.black_body_sampling.samples,
-                                                                           seed=self.tardis_config.montecarlo.seed)
         self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
 
         self.t_inner = tardis_config.plasma.t_inner
@@ -300,10 +293,7 @@ class Radial1DModel(object):
         self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
         self.update_plasmas(initialize_nlte=initialize_nlte)
 
-
         self.t_inner = t_inner_new
-
-        self.packet_src.create_packets(self.current_no_of_packets, self.t_inner.value)
 
         if enable_virtual:
             no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
