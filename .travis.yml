@@ -16,7 +16,7 @@ env:
         - COMPILER=gcc
         - CYTHON_VERSION=0.21
         - NUMPY_VERSION=1.8
-        - PANDAS_VERSION=0.12
+        - PANDAS_VERSION=0.16
         - ASTROPY_VERSION=0.4.4
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
@@ -26,7 +26,7 @@ env:
 matrix:
     include:
         - python: "2.7"
-          env: PANDAS_VERSION=0.12
+          env: PANDAS_VERSION=0.16
 
         - python: "2.7"
           env: PANDAS_VERSION=latest
