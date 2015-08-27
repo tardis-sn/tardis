@@ -36,7 +36,7 @@ class MontecarloRunner(object):
         model: ~Radial1DModel
         """
 
-        no_of_packets = model.packet_src.packet_nus.size
+        no_of_packets = model.current_no_of_packets
         no_of_shells = model.tardis_config.structure.no_of_shells
         self._output_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
         self._output_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
