@@ -38,10 +38,11 @@ class TestSimpleRun():
 
 
     def test_spectrum(self):
-        luminosity_density = \
-            np.loadtxt(data_path('simple_test_spectrum.dat'), unpack=True)
+        luminosity_density = np.load(
+            data_path('simple_test_luminosity_density_lambda.npy'))
 
-        luminosity_density = luminosity_density * u.Unit('erg / (Angstrom s)')
+        luminosity_density = luminosity_density * u.Unit(
+            'erg / (Angstrom s)')
 
         np.testing.assert_allclose(
             self.model.spectrum.luminosity_density_lambda,luminosity_density)
