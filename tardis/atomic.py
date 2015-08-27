@@ -16,6 +16,9 @@ from pandas import DataFrame
 
 import pandas as pd
 
+import warnings
+warnings.filterwarnings('error')
+
 
 
 logger = logging.getLogger(__name__)
@@ -527,14 +530,18 @@ class AtomData(object):
                                                                             np.cumsum(self.macro_atom_references[
                                                                                           'count_down'].values[:-1])))
             elif line_interaction_type == 'macroatom':
-                self.macro_atom_references['block_references'] = np.hstack((0,
-                                                                            np.cumsum(self.macro_atom_references[
-                                                                                          'count_total'].values[:-1])))
+                block_references = np.hstack((0, np.cumsum(
+                    self.macro_atom_references['count_total'].values[:-1])))
+
+                self.macro_atom_references.loc[:, 'block_references'] = (
+                    block_references)
 
             self.macro_atom_references.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
-            self.macro_atom_references['references_idx'] = np.arange(len(self.macro_atom_references))
+            self.macro_atom_references.loc[:, 'references_idx'] = np.arange(
+                len(self.macro_atom_references))
 
-            self.macro_atom_data['lines_idx'] = self.lines_index.ix[self.macro_atom_data['transition_line_id']].values
+            self.macro_atom_data.loc[:, 'lines_idx'] = self.lines_index.ix[
+                self.macro_atom_data['transition_line_id']].values
 
             tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays(
                 [self.lines['atomic_number'], self.lines['ion_number'],
@@ -549,11 +556,14 @@ class AtomData(object):
                                                                              'destination_level_number']])
 
             if line_interaction_type == 'macroatom':
-                self.macro_atom_data['destination_level_idx'] = self.macro_atom_references['references_idx'].ix[
-                    tmp_macro_destination_level_idx].values.astype(np.int64)
+                self.macro_atom_data.loc[:, 'destination_level_idx'] = (
+                    self.macro_atom_references['references_idx'].ix[
+                        tmp_macro_destination_level_idx].values.astype(
+                        np.int64))
+
             elif line_interaction_type == 'downbranch':
-                self.macro_atom_data['destination_level_idx'] = (np.ones(len(self.macro_atom_data)) * -1).astype(
-                    np.int64)
+                self.macro_atom_data.loc[:, 'destination_level_idx'] = (
+                    np.ones(len(self.macro_atom_data)) * -1).astype(np.int64)
 
         self.nlte_data = NLTEData(self, nlte_species)
 
