@@ -15,7 +15,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     latex_name = ('N_{i,j,k}',)
     latex_formula = ('N_{i,j}\\dfrac{bf_{i,j,k}}{Z_{i,j}}',)
 
-    def calculate():
+    def calculate(self):
         pass
 
     def __init__(self, plasma_parent, helium_treatment='dilute-lte'):
@@ -23,9 +23,9 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
         if hasattr(self.plasma_parent, 'plasma_properties_dict'):
             if 'HeliumNLTE' in \
                 self.plasma_parent.plasma_properties_dict.keys():
-                    helium_treatment=='recomb-nlte'
+                    helium_treatment='recomb-nlte'
         if helium_treatment=='recomb-nlte':
-            self.calculate = self._calculate_helium_recomb_nlte
+            self.calculate = self._calculate_helium_nlte
         elif helium_treatment=='dilute-lte':
             self.calculate = self._calculate_dilute_lte
         self._update_inputs()
@@ -40,9 +40,11 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
             level_population_fraction.index.droplevel(2)].values
         return level_population_fraction * ion_number_density_broadcast
 
-    def _calculate_helium_recomb_nlte(self, level_boltzmann_factor,
+    def _calculate_helium_nlte(self, level_boltzmann_factor,
         ion_number_density, levels, partition_function, helium_population):
         level_number_density = self._calculate_dilute_lte(
             level_boltzmann_factor, ion_number_density, levels,
             partition_function)
-        level_number_density.ix[2].update(helium_population)
+        if helium_population is not None:
+            level_number_density.ix[2].update(helium_population)
+        return level_number_density
