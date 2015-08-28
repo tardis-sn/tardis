@@ -553,12 +553,16 @@ class AtomData(object):
                                                                              'destination_level_number']])
 
             if line_interaction_type == 'macroatom':
+                #Sets all 
                 self.macro_atom_data.loc[:, 'destination_level_idx'] = (
                     self.macro_atom_references['references_idx'].ix[
                         tmp_macro_destination_level_idx].values.astype(
                         np.int64))
 
+
             elif line_interaction_type == 'downbranch':
+                # Sets all the destination levels to -1 to indicate that they
+                # are not used in downbranch calculations
                 self.macro_atom_data.loc[:, 'destination_level_idx'] = (
                     np.ones(len(self.macro_atom_data)) * -1).astype(np.int64)
 
