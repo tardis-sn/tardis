@@ -463,7 +463,6 @@ class AtomData(object):
             maximum ion number to be included in the calculation
 
         """
-
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_species = nlte_species
@@ -529,16 +528,22 @@ class AtomData(object):
             elif line_interaction_type == 'macroatom':
                 block_references = np.hstack((0, np.cumsum(
                     self.macro_atom_references['count_total'].values[:-1])))
-
-                self.macro_atom_references.loc[:, 'block_references'] = (
-                    block_references)
+                self.macro_atom_references.insert(len(
+                    self.macro_atom_references.columns), 'block_references',
+                    pd.Series(block_references,
+                    index=self.macro_atom_references.index))
 
             self.macro_atom_references.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
-            self.macro_atom_references.loc[:, 'references_idx'] = np.arange(
-                len(self.macro_atom_references))
+            self.macro_atom_references.insert(len(
+                    self.macro_atom_references.columns), 'references_idx',
+                    pd.Series(np.arange(len(self.macro_atom_references)),
+                    index=self.macro_atom_references.index))
 
-            self.macro_atom_data.loc[:, 'lines_idx'] = self.lines_index.ix[
-                self.macro_atom_data['transition_line_id']].values
+            self.macro_atom_data.insert(len(
+                self.macro_atom_data.columns), 'lines_idx',
+                pd.Series(self.lines_index.ix[self.macro_atom_data[
+                'transition_line_id']].values,
+                index=self.macro_atom_data.index))
 
             tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays(
                 [self.lines['atomic_number'], self.lines['ion_number'],
@@ -553,12 +558,13 @@ class AtomData(object):
                                                                              'destination_level_number']])
 
             if line_interaction_type == 'macroatom':
-                #Sets all 
-                self.macro_atom_data.loc[:, 'destination_level_idx'] = (
-                    self.macro_atom_references['references_idx'].ix[
-                        tmp_macro_destination_level_idx].values.astype(
-                        np.int64))
+                #Sets all
 
+                self.macro_atom_data.insert(len(
+                    self.macro_atom_data.columns), 'destination_level_idx',
+                    pd.Series(self.macro_atom_references['references_idx'].ix[
+                    tmp_macro_destination_level_idx].values.astype(
+                        np.int64), index=self.macro_atom_data.index))
 
             elif line_interaction_type == 'downbranch':
                 # Sets all the destination levels to -1 to indicate that they
