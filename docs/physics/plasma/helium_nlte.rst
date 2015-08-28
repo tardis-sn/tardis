@@ -6,8 +6,11 @@ The `helium_treatment` setting in the Tardis config. file will accept one of thr
  * `recomb-nlte`: Treats helium in NLTE using the analytical approximation outlined in an upcoming paper. 
  * `numerical-nlte`: To be implemented. Will allow the use of a separate module (not distributed with Tardis) to perform helium NLTE calculations numerically.
 
-`recomb-NLTE` (Paper version)
------------------------------
+Recombination He NLTE
+----------------------
+
+Paper version:
+
 This section will summarise the equations used in the calculation of the helium state for the `recomb-NLTE` approximation in Tardis. A full physical justification for these equations will be provided in an upcoming paper. All of the level populations are given as a function of the He II ground state population (:math:`n_{2,1,0}`), and the values are then normalised using the helium number density to give the correct level number densities.
 
 Symbols/Indexing:
@@ -35,11 +38,19 @@ Symbols/Indexing:
 .. math::
     n_{2,2,0} = \frac{n_{2,1,0}}{n_{e}}\times[W(\delta_{2,2}\times\zeta_{2,2}+W(1-\zeta_{2,2})]\left(\frac{T_{e}}{T_{r}}\right)^{1/2}\times\frac{2g_{2,2,0}}{g_{2,1,0}}\times\left(\frac{2\pi m_{e}kT_{r}}{h^{2}}\right)^{3/2}\times\exp{\left(-\frac{\chi_{2,1}}{kT_{r}}\right)}
 
-`recomb-NLTE` (Code version)
------------------------------
+Code Version:
 
 In the Tardis plasma, some of these equations are re-written slightly to make use of existing property methods (e.g. `PhiSahaLTE`, `PhiSahaNebular`) often using the relation:
 
 .. math::
     \frac{N_{i,j}}{Z_{i,j}} = \frac{n_{i,j,k}}{g_{i,j,k}}
+
+Numerical He NLTE
+------------------
+
+Another `helium_treatment` option offered by Tardis is `numerical-nlte`. The use of this plasma property requires an additional code that is the property of Stephan Hachinger (see arXiv:1201.1506) and is not distributed with Tardis. Tardis also requires a specific atomic datafile to use this module. This plasma option is included so that people who have access to and permission to use the necessary module may use it. Otherwise, the `recomb-NLTE` option provides a very accurate alternative approximation. 
+
+
+
+
 
