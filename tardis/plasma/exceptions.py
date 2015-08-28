@@ -23,3 +23,6 @@ class PlasmaIonizationError(PlasmaException):
 
 class PlasmaConfigContradiction(PlasmaException):
     pass
+
+class PlasmaConfigError(PlasmaException):
+    pass
