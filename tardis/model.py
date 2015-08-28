@@ -122,6 +122,8 @@ class Radial1DModel(object):
         self.ws = (0.5 * (1 - np.sqrt(1 -
                     (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
 
+        heating_rate_data_file = getattr(tardis_config.plasma, 'heating_rate_data_file', None)
+
         self.plasma_array = LegacyPlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
                                                          tardis_config.supernova.time_explosion.to('s').value,
                                                          nlte_config=tardis_config.plasma.nlte,
@@ -129,7 +131,11 @@ class Radial1DModel(object):
                                                          ionization_mode=tardis_config.plasma.ionization,
                                                          excitation_mode=tardis_config.plasma.excitation,
                                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
-                                                         link_t_rad_t_electron=0.9, helium_treatment=tardis_config.plasma.helium_treatment)
+                                                         link_t_rad_t_electron=0.9,
+                                                         helium_treatment=tardis_config.plasma.helium_treatment,
+                                                         heating_rate_data_file=heating_rate_data_file,
+                                                         v_inner=tardis_config.structure.v_inner,
+                                                         v_outer=tardis_config.structure.v_outer)
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
