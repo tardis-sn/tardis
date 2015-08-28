@@ -26,3 +26,5 @@ nlte_properties = PlasmaPropertyCollection([
 helium_nlte_properties = PlasmaPropertyCollection([HeliumNLTE,
     RadiationFieldCorrection, ZetaData,
     BetaElectron, Chi0])
+helium_numerical_nlte_properties = PlasmaPropertyCollection([
+    HeliumNumericalNLTE])
