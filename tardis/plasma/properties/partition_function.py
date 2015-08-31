@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
-from tardis.plasma.exceptions import PlasmaConfigContradiction
+from tardis.plasma.exceptions import PlasmaConfigError
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         elif coronal_approximation == True and classical_nebular == False:
             self.calculate = self._calculate_coronal_approximation
         elif coronal_approximation == True and classical_nebular == True:
-            raise PlasmaConfigContradiction
+            raise PlasmaConfigError('Both coronal approximation and classical'
+                                    'nebular specified in the config.')
         else:
             self.calculate = self._calculate_general
         self._update_inputs()
@@ -129,7 +130,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
     def _calculate_classical_nebular(self, t_electrons, lines, atomic_data,
         nlte_data, general_level_boltzmann_factor, nlte_species, j_blues,
-        previous_beta_sobolevs, lte_j_blues, previous_electron_densities):
+        previous_beta_sobolev, lte_j_blues, previous_electron_densities):
         beta_sobolevs = np.ones((len(lines), len(t_electrons)))
         if len(j_blues)==0:
             j_blues = lte_j_blues
@@ -155,11 +156,11 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
     def _calculate_general(self, t_electrons, lines, atomic_data, nlte_data,
         general_level_boltzmann_factor, nlte_species, j_blues,
-        previous_beta_sobolevs, lte_j_blues, previous_electron_densities):
-        if previous_beta_sobolevs is None:
+        previous_beta_sobolev, lte_j_blues, previous_electron_densities):
+        if previous_beta_sobolev is None:
             beta_sobolevs = np.ones((len(lines), len(t_electrons)))
         else:
-            beta_sobolevs = previous_beta_sobolevs
+            beta_sobolevs = previous_beta_sobolev
         if len(j_blues)==0:
             j_blues = lte_j_blues
         else:

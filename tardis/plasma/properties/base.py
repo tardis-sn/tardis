@@ -1,5 +1,12 @@
-from abc import ABCMeta, abstractmethod, abstractproperty
 import logging
+
+from abc import ABCMeta, abstractmethod, abstractproperty
+import numpy as np
+import pandas as pd
+
+__all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
+           'HiddenPlasmaProperty', 'Input', 'ArrayInput', 'DataFrameInput',
+           'ProcessingPlasmaProperty', 'PreviousIterationProperty']
 
 logger = logging.getLogger(__name__)
 
@@ -42,7 +49,6 @@ class BasePlasmaProperty(object):
         else:
             complete_name = latex_name
 
-
         latex_label = latex_template.format(name=complete_name,
                                      formula=getattr(self,
                                                      'latex_formula', '--'),
@@ -80,7 +86,6 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
 
         :return:
         """
-
         if len(self.outputs) == 1:
             setattr(self, self.outputs[0], self.calculate(
                 *self._get_input_values()))
@@ -88,7 +93,6 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
             new_values = self.calculate(*self._get_input_values())
             for i, output in enumerate(self.outputs):
                 setattr(self, output, new_values[i])
-
 
     @abstractmethod
     def calculate(self, *args, **kwargs):
@@ -100,3 +104,66 @@ class HiddenPlasmaProperty(ProcessingPlasmaProperty):
 
     def __init__(self, plasma_parent):
         super(HiddenPlasmaProperty, self).__init__(plasma_parent)
+
+class BaseAtomicDataProperty(ProcessingPlasmaProperty):
+    __metaclass__ = ABCMeta
+
+    inputs = ['atomic_data', 'selected_atoms']
+
+    def __init__(self, plasma_parent):
+
+        super(BaseAtomicDataProperty, self).__init__(plasma_parent)
+        self.value = None
+
+    @abstractmethod
+    def _set_index(self, raw_atomic_property):
+        raise NotImplementedError('Needs to be implemented in subclasses')
+
+    @abstractmethod
+    def _filter_atomic_property(self, raw_atomic_property):
+        raise NotImplementedError('Needs to be implemented in subclasses')
+
+    def calculate(self, atomic_data, selected_atoms):
+
+        if getattr(self, self.outputs[0]) is not None:
+            return getattr(self, self.outputs[0])
+        else:
+# Atomic Data Issue: Some atomic property names in the h5 files are preceded
+# by an underscore, e.g. _levels, _lines.
+            try:
+                raw_atomic_property = getattr(atomic_data, '_'
+                                              + self.outputs[0])
+            except AttributeError:
+                raw_atomic_property = getattr(atomic_data, self.outputs[0])
+            finally:
+                return self._set_index(self._filter_atomic_property(
+                    raw_atomic_property, selected_atoms))
+
+class Input(BasePlasmaProperty):
+
+    def _set_output_value(self, output, value):
+        setattr(self, output, value)
+
+    def set_value(self, value):
+        assert len(self.outputs) == 1
+        self._set_output_value(self.outputs[0], value)
+
+class ArrayInput(Input):
+    def _set_output_value(self, output, value):
+        setattr(self, output, np.array(value, copy=False))
+
+class DataFrameInput(Input):
+    def _set_output_value(self, output, value):
+        setattr(self, output, np.array(pd.DataFrame(value), copy=False))
+
+class PreviousIterationProperty(BasePlasmaProperty):
+
+    def _set_initial_value(self, value):
+        self.set_value(value)
+
+    def _set_output_value(self, output, value):
+        setattr(self, output, value)
+
+    def set_value(self, value):
+        assert len(self.outputs) == 1
+        self._set_output_value(self.outputs[0], value)
