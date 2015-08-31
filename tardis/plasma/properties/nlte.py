@@ -1,29 +1,17 @@
-import numpy as np
-import pandas as pd
 import logging
 import os
 
-from tardis.plasma.properties.base import (BasePlasmaProperty,
+import numpy as np
+import pandas as pd
+
+from tardis.plasma.properties.base import (PreviousIterationProperty,
                                            ProcessingPlasmaProperty)
 from tardis.plasma.properties import PhiSahaNebular, PhiSahaLTE
-from tardis.plasma.properties import NumberDensity
 
-__all__ = ['PreviousElectronDensities', 'PreviousBetaSobolevs',
+__all__ = ['PreviousElectronDensities', 'PreviousBetaSobolev',
            'HeliumNLTE', 'HeliumNumericalNLTE']
 
 logger = logging.getLogger(__name__)
-
-class PreviousIterationProperty(BasePlasmaProperty):
-
-    def _set_initial_value(self, value):
-        self.set_value(value)
-
-    def _set_output_value(self, output, value):
-        setattr(self, output, value)
-
-    def set_value(self, value):
-        assert len(self.outputs) == 1
-        self._set_output_value(self.outputs[0], value)
 
 class PreviousElectronDensities(PreviousIterationProperty):
     outputs = ('previous_electron_densities',)
@@ -32,8 +20,8 @@ class PreviousElectronDensities(PreviousIterationProperty):
         initial_value = np.ones(len(kwargs['abundance'].columns))*1000000.0
         self._set_initial_value(initial_value)
 
-class PreviousBetaSobolevs(PreviousIterationProperty):
-    outputs = ('previous_beta_sobolevs',)
+class PreviousBetaSobolev(PreviousIterationProperty):
+    outputs = ('previous_beta_sobolev',)
 
     def set_initial_value(self, kwargs):
         try:
