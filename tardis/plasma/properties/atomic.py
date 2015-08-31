@@ -1,51 +1,17 @@
-from abc import ABCMeta, abstractmethod
+import logging
+
 import numpy as np
 import pandas as pd
 from collections import Counter as counter
-import logging
 
 from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
-    HiddenPlasmaProperty)
+    HiddenPlasmaProperty, BaseAtomicDataProperty)
 from tardis.plasma.exceptions import IncompleteAtomicData
 
 logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
            'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData', 'Chi0']
-
-class BaseAtomicDataProperty(ProcessingPlasmaProperty):
-    __metaclass__ = ABCMeta
-
-    inputs = ['atomic_data', 'selected_atoms']
-
-    def __init__(self, plasma_parent):
-
-        super(BaseAtomicDataProperty, self).__init__(plasma_parent)
-        self.value = None
-
-    @abstractmethod
-    def _set_index(self, raw_atomic_property):
-        raise NotImplementedError('Needs to be implemented in subclasses')
-
-    @abstractmethod
-    def _filter_atomic_property(self, raw_atomic_property):
-        raise NotImplementedError('Needs to be implemented in subclasses')
-
-    def calculate(self, atomic_data, selected_atoms):
-
-        if getattr(self, self.outputs[0]) is not None:
-            return getattr(self, self.outputs[0])
-        else:
-# Atomic Data Issue: Some atomic property names in the h5 files are preceded
-# by an underscore, e.g. _levels, _lines.
-            try:
-                raw_atomic_property = getattr(atomic_data, '_'
-                                              + self.outputs[0])
-            except AttributeError:
-                raw_atomic_property = getattr(atomic_data, self.outputs[0])
-            finally:
-                return self._set_index(self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms))
 
 class Levels(BaseAtomicDataProperty):
     """
