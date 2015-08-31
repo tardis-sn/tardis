@@ -1,33 +1,10 @@
 import numpy as np
 import pandas as pd
-from tardis.plasma.properties.base import BasePlasmaProperty
+from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
            'TimeExplosion', 'JBlues', 'LinkTRadTElectron', 'NLTESpecies',
            'RadiationFieldCorrectionInput']
-
-class Input(BasePlasmaProperty):
-
-    def _set_output_value(self, output, value):
-        setattr(self, output, value)
-
-    def set_value(self, value):
-        assert len(self.outputs) == 1
-        self._set_output_value(self.outputs[0], value)
-
-class StaticInput(Input):
-    pass
-
-class DynamicInput(Input):
-    pass
-
-class ArrayInput(DynamicInput):
-    def _set_output_value(self, output, value):
-        setattr(self, output, np.array(value, copy=False))
-
-class DataFrameInput(DynamicInput):
-    def _set_output_value(self, output, value):
-        setattr(self, output, np.array(pd.DataFrame(value), copy=False))
 
 class TRadiative(ArrayInput):
     """
@@ -47,13 +24,13 @@ class DilutionFactor(ArrayInput):
     outputs = ('w',)
     latex_name = ('W',)
 
-class AtomicData(StaticInput):
+class AtomicData(Input):
     outputs = ('atomic_data',)
 
-class Abundance(DynamicInput):
+class Abundance(Input):
     outputs = ('abundance',)
 
-class RadiationFieldCorrectionInput(StaticInput):
+class RadiationFieldCorrectionInput(Input):
     """
     Outputs:
     delta_input : Numpy Array
@@ -67,7 +44,7 @@ class Density(ArrayInput):
     outputs = ('density',)
     latex_name = ('\\rho',)
 
-class TimeExplosion(DynamicInput):
+class TimeExplosion(Input):
     outputs = ('time_explosion',)
     latex_name = ('t_{\\textrm{exp}}',)
 
@@ -80,9 +57,9 @@ class JBlues(DataFrameInput):
     outputs = ('j_blues',)
     latex_name = ('J_{lu}^{b}',)
 
-class LinkTRadTElectron(StaticInput):
+class LinkTRadTElectron(Input):
     outputs = ('link_t_rad_t_electron',)
     latex_name = ('T_{\\textrm{electron}}/T_{\\textrm{rad}}',)
 
-class NLTESpecies(StaticInput):
+class NLTESpecies(Input):
     outputs = ('nlte_species',)

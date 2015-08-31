@@ -21,8 +21,5 @@ class NotInitializedModule(PlasmaException):
 class PlasmaIonizationError(PlasmaException):
     pass
 
-class PlasmaConfigContradiction(PlasmaException):
-    pass
-
 class PlasmaConfigError(PlasmaException):
     pass

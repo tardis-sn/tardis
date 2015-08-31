@@ -1,17 +1,16 @@
 import logging
-
-import networkx as nx
-from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
-from tardis.plasma.properties.base import HiddenPlasmaProperty
-
 import tempfile
 import fileinput
 
+import networkx as nx
+
+from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
+from tardis.plasma.properties.base import *
 
 logger = logging.getLogger(__name__)
 
-
 class BasePlasma(object):
+
     outputs_dict = {}
     def __init__(self, plasma_properties, **kwargs):
         self.outputs_dict = {}
@@ -19,7 +18,7 @@ class BasePlasma(object):
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        **kwargs)
         self._build_graph()
-#        self.write_to_tex('Plasma_Graph', 'Plasma_Formulae')
+#        self.write_to_tex('Plasma_Graph')
         self.update(**kwargs)
 
     def __getattr__(self, item):
@@ -41,7 +40,6 @@ class BasePlasma(object):
         attrs += [item for item in self.__class__.__dict__
                  if not item.startswith('_')]
         attrs += self.module_dict.keys()
-
         return attrs
 
     @property
@@ -105,17 +103,17 @@ class BasePlasma(object):
 
         """
         plasma_property_objects = []
+        self.previous_iteration_properties = []
         self.outputs_dict = {}
         for plasma_property in plasma_properties:
 
-            if hasattr(plasma_property, 'set_initial_value'):
-                #duck-typing for PreviousIterationProperty
+            if issubclass(plasma_property, PreviousIterationProperty):
                 current_property_object = plasma_property()
                 current_property_object.set_initial_value(kwargs)
+                self.previous_iteration_properties.append(
+                    current_property_object)
 
-            elif hasattr(plasma_property, 'set_value'):
-                #duck-typing for PlasmaInputProperty
-                #that means if it is an input property from model
+            elif issubclass(plasma_property, Input):
                 if not set(kwargs.keys()).issuperset(plasma_property.outputs):
                     missing_input_values = (set(plasma_property.outputs) -
                     set(kwargs.keys()))
@@ -133,10 +131,10 @@ class BasePlasma(object):
         return plasma_property_objects
 
     def store_previous_properties(self):
-        self.outputs_dict['previous_electron_densities'].set_value(
-            self.get_value('electron_densities'))
-        self.outputs_dict['previous_beta_sobolevs'].set_value(
-            self.get_value('beta_sobolev'))
+        for property in self.previous_iteration_properties:
+            base_property = property.outputs[0][9:]
+            self.outputs_dict[property.outputs[0]].set_value(
+                self.get_value(base_property))
 
     def update(self, **kwargs):
         for key in kwargs:
@@ -212,7 +210,7 @@ class BasePlasma(object):
 
         nx.write_dot(print_graph, fname)
 
-    def write_to_tex(self, fname_graph, fname_formulae):
+    def write_to_tex(self, fname_graph):
         try:
             import dot2tex
         except:
@@ -241,7 +239,6 @@ class BasePlasma(object):
             module = self.plasma_properties_dict[item.name].__class__
             if (issubclass(module, HiddenPlasmaProperty)):
                 output = module.outputs[0]
-                inputs = self.plasma_properties_dict[item.name].inputs
                 for value in self.plasma_properties_dict.keys():
                     if output in getattr(self.plasma_properties_dict[value],
                         'inputs', []):
@@ -266,8 +263,5 @@ class StandardPlasma(BasePlasma):
     def __init__(self, number_densities, atom_data, time_explosion,
                  delta_treatment=None, nlte_config=None, ionization_mode='lte',
                  excitation_mode='lte', w=None,
-                 link_t_rad_t_electron=0.9, nlte_species=None,
-                 previous_beta_sobolevs=None,
-                 previous_electron_densities=None):
-
+                 link_t_rad_t_electron=0.9, nlte_species=None):
         pass

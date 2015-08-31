@@ -5,7 +5,7 @@ class PlasmaPropertyCollection(list):
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
     TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
-    RadiationFieldCorrectionInput, NLTESpecies, PreviousBetaSobolevs,
+    RadiationFieldCorrectionInput, NLTESpecies, PreviousBetaSobolev,
     PreviousElectronDensities])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, PartitionFunction,
