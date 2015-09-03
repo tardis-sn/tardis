@@ -46,7 +46,7 @@ class TestPlasmas():
         np.testing.assert_allclose(
             new_plasma_t_rads, old_plasma_t_rads, atol=100)
         np.testing.assert_allclose(
-            new_plasma_levels, old_plasma_levels, rtol=0.05)
+            new_plasma_levels, old_plasma_levels, rtol=0.1)
 
     def test_nlte_plasma(self):
         old_plasma_t_rads = \
@@ -62,4 +62,4 @@ class TestPlasmas():
         np.testing.assert_allclose(
             new_plasma_t_rads, old_plasma_t_rads, atol=150)
         np.testing.assert_allclose(
-            new_plasma_levels, old_plasma_levels, rtol=0.05)
+            new_plasma_levels, old_plasma_levels, rtol=0.1)
