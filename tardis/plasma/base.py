@@ -19,7 +19,7 @@ class BasePlasma(object):
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        **kwargs)
         self._build_graph()
-#        self.write_to_tex('Plasma_Graph', 'Plasma_Formulae')
+        self.write_to_tex('Plasma_Graph', 'Plasma_Formulae')
         self.update(**kwargs)
 
     def __getattr__(self, item):
