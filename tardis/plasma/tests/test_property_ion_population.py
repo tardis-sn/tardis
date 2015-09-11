@@ -20,7 +20,6 @@ def test_electron_densities(electron_densities):
     assert np.allclose(electron_densities, 1.181197e+09)
 
 def test_radiation_field_correction(delta):
-    print delta.ix[2].ix[2]
     assert np.allclose(delta.ix[2].ix[2], 0.000807200897)
 
 def test_phi_saha_nebular(phi_saha_nebular):

@@ -7,6 +7,7 @@ import pytest
 
 import tardis
 from tardis.atomic import AtomData
+from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.plasma.properties import *
 
 # INPUTS
@@ -49,10 +50,6 @@ def j_blues(lines):
 @pytest.fixture
 def link_t_rad_t_electron():
     return 0.9
-
-@pytest.fixture
-def nlte_species():
-    return None
 
 # GENERAL PROPERTIES
 
@@ -213,12 +210,10 @@ def electron_densities(phi_saha_lte, partition_function, number_density):
 
 @pytest.fixture
 def delta(w, ionization_data, beta_rad, t_electrons, t_rad, beta_electron,
-          levels, chi_0):
-    delta_input = None
-    delta_module = RadiationFieldCorrection(None)
-    delta_module.chi_0_species = (2, 2)
+          levels):
+    delta_module = RadiationFieldCorrection(chi_0_species=(2,2))
     return delta_module.calculate(w, ionization_data, beta_rad, t_electrons,
-        t_rad, beta_electron, delta_input, chi_0)
+        t_rad, beta_electron)
 
 # LEVEL POPULATION PROPERTIES
 
@@ -234,11 +229,11 @@ def level_number_density(level_boltzmann_factor_lte, ion_number_density,
 @pytest.fixture
 def stimulated_emission_factor(g, level_number_density,
         lines_lower_level_index, lines_upper_level_index, metastability,
-        nlte_species, lines):
-    factor_module = StimulatedEmissionFactor(None)
+        lines):
+    factor_module = StimulatedEmissionFactor(nlte_species=None)
     return factor_module.calculate(g, level_number_density,
         lines_lower_level_index, lines_upper_level_index, metastability,
-        nlte_species, lines)
+        lines)
 
 @pytest.fixture
 def tau_sobolev(lines, level_number_density, lines_lower_level_index,

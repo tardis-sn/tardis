@@ -3,8 +3,7 @@ import pandas as pd
 from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlues', 'LinkTRadTElectron', 'NLTESpecies',
-           'RadiationFieldCorrectionInput']
+           'TimeExplosion', 'JBlues', 'LinkTRadTElectron']
 
 class TRadiative(ArrayInput):
     """
@@ -30,16 +29,6 @@ class AtomicData(Input):
 class Abundance(Input):
     outputs = ('abundance',)
 
-class RadiationFieldCorrectionInput(Input):
-    """
-    Outputs:
-    delta_input : Numpy Array
-        Used to adjust the ionisation balance to account for greater line
-        blanketing in the blue.
-    """
-    outputs = ('delta_input',)
-    latex_name = ('\\delta_{\\textrm{input}}',)
-
 class Density(ArrayInput):
     outputs = ('density',)
     latex_name = ('\\rho',)
@@ -60,6 +49,3 @@ class JBlues(DataFrameInput):
 class LinkTRadTElectron(Input):
     outputs = ('link_t_rad_t_electron',)
     latex_name = ('T_{\\textrm{electron}}/T_{\\textrm{rad}}',)
-
-class NLTESpecies(Input):
-    outputs = ('nlte_species',)

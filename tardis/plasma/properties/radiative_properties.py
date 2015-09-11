@@ -20,10 +20,14 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     outputs = ('stimulated_emission_factor',)
     latex_formula = ('1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}',)
 
-    def __init__(self, plasma_parent):
+    def __init__(self, plasma_parent=None, nlte_species=None):
         super(StimulatedEmissionFactor, self).__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
+        try:
+            self.nlte_species = self.plasma_parent.nlte_species
+        except:
+            self.nlte_species = nlte_species
 
     def get_g_lower(self, g, lines_lower_level_index):
         if self._g_lower is None:
@@ -40,7 +44,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         return self._g_upper
 
     def calculate(self, g, level_number_density, lines_lower_level_index,
-        lines_upper_level_index, metastability, nlte_species, lines):
+        lines_upper_level_index, metastability, lines):
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise')
         n_upper = level_number_density.values.take(lines_upper_level_index,
@@ -56,10 +60,10 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
             = 0.0
         stimulated_emission_factor[meta_stable_upper &
                                    (stimulated_emission_factor < 0)] = 0.0
-        if nlte_species:
+        if self.nlte_species:
             nlte_lines_mask = \
                 np.zeros(stimulated_emission_factor.shape[0]).astype(bool)
-            for species in nlte_species:
+            for species in self.nlte_species:
                 nlte_lines_mask |= (lines.atomic_number == species[0]) & \
                                    (lines.ion_number == species[1])
             stimulated_emission_factor[(stimulated_emission_factor < 0) &

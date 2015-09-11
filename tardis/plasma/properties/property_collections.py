@@ -4,9 +4,7 @@ class PlasmaPropertyCollection(list):
     pass
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
-    TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
-    RadiationFieldCorrectionInput, NLTESpecies, PreviousBetaSobolev,
-    PreviousElectronDensities])
+    TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
@@ -22,7 +20,8 @@ dilute_lte_excitation_properties = PlasmaPropertyCollection([
     LevelBoltzmannFactorDiluteLTE])
 non_nlte_properties = PlasmaPropertyCollection([LevelBoltzmannFactorNoNLTE])
 nlte_properties = PlasmaPropertyCollection([
-    LevelBoltzmannFactorNLTE, NLTEData, NLTESpecies, LTEJBlues])
+    LevelBoltzmannFactorNLTE, NLTEData, LTEJBlues, PreviousElectronDensities,
+    PreviousBetaSobolev, BetaSobolev])
 helium_nlte_properties = PlasmaPropertyCollection([HeliumNLTE,
     RadiationFieldCorrection, ZetaData,
     BetaElectron, Chi0])
