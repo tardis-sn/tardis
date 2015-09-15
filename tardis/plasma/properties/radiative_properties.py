@@ -13,34 +13,6 @@ logger = logging.getLogger(__name__)
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
     'TransitionProbabilities', 'LTEJBlues']
 
-
-#@jit('void(f8[:], f8[:, :], f8[:, :], f8[:,:], i8[:], i8[:], i8[:], f8[:,:])', nopython=True, nogil=True)
-def optimized_calculate_transition_probabilities(transition_probability_coef, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, block_references, transition_probabilities):
-    norm_factor = np.empty(beta_sobolev.shape[1])
-    for i in range(transition_probabilities.shape[0]):
-        line_idx = lines_idx[i]
-        for j in range(transition_probabilities.shape[1]):
-            transition_probabilities[i][j] = (transition_probability_coef[i] * beta_sobolev[line_idx][j])
-        if transition_type[i] == 1:
-            for j in range(transition_probabilities.shape[1]):
-                transition_probabilities[i][j] *= stimulated_emission_factor[line_idx][j] * j_blues[line_idx][j]
-
-    for i in range(block_references.shape[0] - 1):
-        norm_factor[:] = 0.0
-        for j in range(block_references[i], block_references[i + 1]):
-            for k in range(transition_probabilities.shape[1]):
-                norm_factor[k] += transition_probabilities[j, k]
-            for k in range(transition_probabilities.shape[1]):
-                if norm_factor[k] != 0.0:
-                    norm_factor[k] = 1 / norm_factor[k]
-                else:
-                    norm_factor[k] = 1.0
-        for j in range(block_references[i], block_references[i + 1]):
-            for k in range(0, transition_probabilities.shape[1]):
-                transition_probabilities[j, k] *= norm_factor[k]
-
-
-
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
     Outputs:
