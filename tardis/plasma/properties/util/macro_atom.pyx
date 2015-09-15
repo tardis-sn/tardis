@@ -13,8 +13,6 @@ ctypedef np.int64_t int_type_t
 
 from astropy import constants
 
-from cython.parallel import prange
-
 
 cdef extern from "math.h":
     double exp(double)
@@ -41,26 +39,6 @@ def calculate_beta_sobolev(np.ndarray[double, ndim=1] tau_sobolevs, np.ndarray[d
         else:
             beta_sobolev = (1 - exp(-tau_sobolev)) / tau_sobolev
         beta_sobolevs[i] = beta_sobolev
-
-def normalize_transition_probabilities(double [:, ::1] p_transition,
-                                       int_type_t [:] reference_levels):
-    cdef int i, j, k
-    cdef np.ndarray[double, ndim=1] norm_factor = np.zeros(p_transition.shape[1])
-    cdef int start_id = 0
-    cdef  end_id = 0
-
-    for i in range(len(reference_levels) - 1):
-        norm_factor[:] = 0.0
-        for j in range(reference_levels[i], reference_levels[i + 1]):
-            for k in range(p_transition.shape[1]):
-                norm_factor[k] += p_transition[j, k]
-        for j in range(reference_levels[i], reference_levels[i + 1]):
-            for k in range(0, p_transition.shape[1]):
-                if norm_factor[k] == 0.0:
-                    continue
-
-                p_transition[j, k] /= norm_factor[k]
-
 
 def calculate_transition_probabilities(
         double [:] transition_probability_coef,
