@@ -35,3 +35,6 @@ def get_extensions():
                       extra_compile_args=compile_args,
                       extra_link_args=link_args,
                       define_macros=define_macros)]
+
+def get_package_data():
+    return {'tardis.montecarlo.tests':['data/*.npy']}

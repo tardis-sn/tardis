@@ -1,4 +1,5 @@
 import logging
+
 import pandas as pd
 import numpy as np
 
@@ -7,8 +8,9 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
-    nlte_properties, helium_nlte_properties)
-from tardis.io.util import parse_abundance_dict_to_dataframe
+    nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties)
+from tardis.plasma.exceptions import PlasmaConfigError
+from tardis.plasma.properties import LevelBoltzmannFactorNLTE
 
 logger = logging.getLogger(__name__)
 
@@ -55,7 +57,8 @@ class LegacyPlasmaArray(BasePlasma):
         t_rad=None, delta_treatment=None, nlte_config=None,
         ionization_mode='lte', excitation_mode='lte',
         line_interaction_type='scatter', link_t_rad_t_electron=0.9,
-        helium_treatment='lte'):
+        helium_treatment='none', heating_rate_data_file=None,
+        v_inner=None, v_outer=None):
 
         plasma_modules = basic_inputs + basic_properties
 
@@ -77,6 +80,17 @@ class LegacyPlasmaArray(BasePlasma):
 
         if nlte_config is not None and nlte_config.species:
             plasma_modules += nlte_properties
+            if nlte_config.classical_nebular==True and \
+                nlte_config.coronal_approximation==False:
+                LevelBoltzmannFactorNLTE(self, classical_nebular=True)
+            elif nlte_config.coronal_approximation==True and \
+                nlte_config.classical_nebular==False:
+                LevelBoltzmannFactorNLTE(self, coronal_approximation=True)
+            elif nlte_config.coronal_approximation==True and \
+                nlte_config.classical_nebular==True:
+                raise PlasmaConfigError('Both coronal approximation and '
+                                        'classical nebular specified in the '
+                                        'config.')
         else:
             plasma_modules += non_nlte_properties
 
@@ -91,14 +105,6 @@ class LegacyPlasmaArray(BasePlasma):
         abundance, density = self.from_number_densities(number_densities,
             atomic_data)
 
-        try:
-            initial_beta_sobolevs = np.ones((len(atomic_data.lines),
-                len(number_densities.columns)))
-        except:
-            initial_beta_sobolevs = np.ones((len(atomic_data._lines),
-                len(number_densities.columns)))
-        initial_electron_densities = number_densities.sum(axis=0)
-
         if nlte_config is not None and nlte_config.species:
             nlte_species = nlte_config.species
         else:
@@ -107,8 +113,18 @@ class LegacyPlasmaArray(BasePlasma):
         if helium_treatment=='recomb-nlte':
             plasma_modules += helium_nlte_properties
 
-        super(LegacyPlasmaArray, self).__init__(plasma_properties=plasma_modules,
-            t_rad=t_rad, abundance=abundance, density=density,
+        if helium_treatment=='numerical-nlte':
+            plasma_modules += helium_numerical_nlte_properties
+            if heating_rate_data_file is None:
+                raise PlasmaConfigError('Heating rate data file not specified')
+            else:
+                self.heating_rate_data_file = heating_rate_data_file
+                self.v_inner = v_inner
+                self.v_outer = v_outer
+
+        super(LegacyPlasmaArray, self).__init__(
+            plasma_properties=plasma_modules, t_rad=t_rad,
+            abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
             j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
             delta_input=delta_treatment, nlte_species=nlte_species)

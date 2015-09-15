@@ -463,7 +463,6 @@ class AtomData(object):
             maximum ion number to be included in the calculation
 
         """
-
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_species = nlte_species
@@ -536,9 +535,9 @@ class AtomData(object):
 
             self.macro_atom_references.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
             self.macro_atom_references.insert(len(
-                self.macro_atom_references.columns), 'references_idx',
-                pd.Series(np.arange(len(self.macro_atom_references)),
-                index=self.macro_atom_references.index))
+                    self.macro_atom_references.columns), 'references_idx',
+                    pd.Series(np.arange(len(self.macro_atom_references)),
+                    index=self.macro_atom_references.index))
 
             self.macro_atom_data.insert(len(
                 self.macro_atom_data.columns), 'lines_idx',
@@ -559,12 +558,17 @@ class AtomData(object):
                                                                              'destination_level_number']])
 
             if line_interaction_type == 'macroatom':
+                #Sets all
+
                 self.macro_atom_data.insert(len(
                     self.macro_atom_data.columns), 'destination_level_idx',
                     pd.Series(self.macro_atom_references['references_idx'].ix[
                     tmp_macro_destination_level_idx].values.astype(
                         np.int64), index=self.macro_atom_data.index))
+
             elif line_interaction_type == 'downbranch':
+                # Sets all the destination levels to -1 to indicate that they
+                # are not used in downbranch calculations
                 self.macro_atom_data.loc[:, 'destination_level_idx'] = (
                     np.ones(len(self.macro_atom_data)) * -1).astype(np.int64)
 
