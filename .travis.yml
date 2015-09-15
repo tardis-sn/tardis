@@ -26,7 +26,7 @@ env:
 matrix:
     include:
         - python: "2.7"
-          env: PANDAS_VERSION=0.12
+          env: PANDAS_VERSION=0.16
 
         - python: "2.7"
           env: PANDAS_VERSION=latest
