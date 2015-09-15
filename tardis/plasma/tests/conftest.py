@@ -211,7 +211,7 @@ def electron_densities(phi_saha_lte, partition_function, number_density):
 @pytest.fixture
 def delta(w, ionization_data, beta_rad, t_electrons, t_rad, beta_electron,
           levels):
-    delta_module = RadiationFieldCorrection(chi_0_species=(2,2))
+    delta_module = RadiationFieldCorrection(chi_0_species=(2,1))
     return delta_module.calculate(w, ionization_data, beta_rad, t_electrons,
         t_rad, beta_electron)
 
