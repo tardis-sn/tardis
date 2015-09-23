@@ -14,6 +14,7 @@ from tardis import packet_source
 from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
+from tardis.bound_free.base import TransitionProbabilitiesContinuum
 
 
 
@@ -212,6 +213,16 @@ class Radial1DModel(object):
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.transition_probabilities
 
+        # import pdb; pdb.set_trace()
+        # TODO: Replace level population by LTE level population
+        if True:
+            self.transition_probabilities_continuum = \
+                TransitionProbabilitiesContinuum(
+                    t_rads=self.plasma_array.plasma_properties[0].t_rad,
+                    macro_atom_continuum_data=self.atom_data.continuum_data.macro_atom_data,
+                    photoionization_data=self.atom_data.continuum_data.photoionization_data,
+                    continuum_references=self.atom_data.continuum_data.continuum_references,
+                    lte_level_population=self.plasma_array.plasma_properties[29].level_number_density)
 
     def update_radiationfield(self, log_sampling=5):
         """

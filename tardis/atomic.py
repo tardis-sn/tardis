@@ -16,6 +16,8 @@ from pandas import DataFrame
 
 import pandas as pd
 
+from tardis.bound_free.base import ContinuumData
+from tardis.bound_free.base import TransitionProbabilitiesContinuum
 
 
 logger = logging.getLogger(__name__)
@@ -574,6 +576,7 @@ class AtomData(object):
 
         self.nlte_data = NLTEData(self, nlte_species)
 
+        self.continuum_data = ContinuumData(self)
 
     def __repr__(self):
         return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
