@@ -97,4 +97,19 @@ void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                          double distance, rk_state *mt_state);
 
+/* Other new stuff */
+
+inline void macro_atom_new (rpacket_t * packet, storage_model_t * storage, next_interaction2process * macro_atom_deactivation_type,
+ int activation2level_or_cont);
+
+void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype);
+
+inline void line_emission(rpacket_t * packet, storage_model_t * storage);
+
+double sample_nu_free_bound(rpacket_t * packet, storage_model_t * storage, int64_t continuum_id);
+
+inline void bf_emission(rpacket_t * packet, storage_model_t * storage);
+
+inline void test_for_close_line(rpacket_t * packet, storage_model_t * storage);
+
 #endif // TARDIS_CMONTECARLO_H

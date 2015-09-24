@@ -4,6 +4,8 @@
 # cython: cdivision=True
 
 
+import logging
+import time
 
 import numpy as np
 cimport numpy as np
@@ -11,6 +13,10 @@ from numpy cimport PyArray_DATA
 from astropy import constants
 from astropy import units
 from libc.stdlib cimport free
+
+from libc.stdlib cimport malloc, free
+
+import matplotlib.pyplot as plt
 
 np.import_array()
 
@@ -22,6 +28,15 @@ cdef extern from "src/cmontecarlo.h":
     ctypedef enum ContinuumProcessesStatus:
         CONTINUUM_OFF = 0
         CONTINUUM_ON = 1
+
+    ctypedef enum FreeFreeStatus:
+        FREE_FREE_OFF = 0
+        FREE_FREE_ON = 1
+
+    ctypedef struct photo_xsect_1level:
+        double *nu
+        double *x_sect
+        int_type_t no_of_points
 
     ctypedef struct storage_model_t:
         double *packet_nus
@@ -59,6 +74,14 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *transition_type
         int_type_t *destination_level_id
         int_type_t *transition_line_id
+        double *transition_probabilities_continuum
+        int_type_t transition_probabilities_nd_continuum
+        int_type_t *cont_edge2macro_continuum  # continuum equivalent to line2macro_level_upper
+        int_type_t *macro_block_references_continuum
+        int_type_t *transition_type_continuum
+        int_type_t *destination_level_id_continuum
+        int_type_t *transition_continuum_id  # connects index i in transition_probabilities_nd_continuum to continuum_id
+        # of emission
         double *js
         double *nubars
         double spectrum_virt_start_nu
@@ -75,6 +98,9 @@ cdef extern from "src/cmontecarlo.h":
         double *t_electrons
         double *l_pop
         double *l_pop_r
+        int_type_t *ion_charge
+        double *ion_population
+        int_type_t no_of_ions
         ContinuumProcessesStatus cont_status
         double *virt_packet_nus
         double *virt_packet_energies
@@ -84,6 +110,8 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *virt_packet_last_line_interaction_out_id
         int_type_t virt_packet_count
         int_type_t virt_array_size
+        FreeFreeStatus ff_status
+        photo_xsect_1level ** photo_xsect
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -124,21 +152,102 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     # Switch for continuum processes
     storage.cont_status = CONTINUUM_OFF
     # Continuum data
+    # bf-data
+
+    # Photoionization cross-sections for Hydrogen
+    phot_table_e_unprep, phot_table_xsect_unprep = np.loadtxt(
+        '/Users/cvogl/workspace/excercises/x_sections/H_atom_stuart/h20_phot.py', usecols=(1, 2), unpack=True)
+    phot_table_e_split = np.split(phot_table_e_unprep, np.where(phot_table_e_unprep == 1.0)[0][1:])
+    phot_table_e = [np.delete(b, 0, axis=0) for b in phot_table_e_split]
+    phot_table_xsect_split = np.split(phot_table_xsect_unprep, np.where(phot_table_xsect_unprep == 1.0)[0][1:])
+    phot_table_xsect = [np.delete(b, 0, axis=0) for b in phot_table_xsect_split]
+    phot_table_nu = [energy * (units.eV).to(units.Hz, equivalencies=units.spectral()) for energy in phot_table_e]
+    
+    cdef photo_xsect_1level ** photo_xsect = <photo_xsect_1level **> malloc(
+        len(phot_table_xsect) * sizeof(photo_xsect_1level *))
+    for i in range(len(phot_table_xsect)):
+        photo_xsect[i] = <photo_xsect_1level *> malloc(sizeof(photo_xsect_1level))
+        photo_xsect[i].no_of_points = len(phot_table_xsect[i])
+        photo_xsect[i].nu = <double *> (<np.ndarray[double, ndim =1]> (phot_table_nu[i])).data
+        photo_xsect[i].x_sect = <double *> (<np.ndarray[double, ndim =1]> (phot_table_xsect[i])).data
+
+    storage.photo_xsect = photo_xsect
+
     cdef np.ndarray[double, ndim=1] continuum_list_nu
     cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
     cdef np.ndarray[double, ndim=1] l_pop
     cdef np.ndarray[double, ndim=1] l_pop_r
+    cdef np.ndarray[double, ndim=1] transition_probabilities_continuum
+    cdef np.ndarray[int_type_t, ndim=1] cont_edge2macro_continuum
+    cdef np.ndarray[int_type_t, ndim=1] macro_block_references_continuum
+    cdef np.ndarray[int_type_t, ndim=1] transition_type_continuum
+    cdef np.ndarray[int_type_t, ndim=1] destination_level_id_continuum
+    cdef np.ndarray[int_type_t, ndim=1] transition_continuum_id
 
     if storage.cont_status == CONTINUUM_ON:
-        continuum_list_nu = np.array([9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # sorted list of threshold frequencies
+        I_H = 13.5984 * units.eV.to(units.erg)
+        #I_HeI = 24.5874 * units.eV.to(units.erg)
+        #I_HeII = 54.417760 * units.eV.to(units.erg)
+        energy_list_nu_H = I_H - model.atom_data.levels.ix[(1, 0)].energy.values
+        cont_list_nu_H = (units.erg).to(units.Hz, equivalencies=units.spectral()) * energy_list_nu_H
+        continuum_list_nu = cont_list_nu_H
+        #cont_list_nu_HeI = I_HeI - model.atom_data.levels.ix[(2, 0)].energy.values
+        #cont_list_nu_HeII = I_HeII - model.atom_data.levels.ix[(2, 1)].energy.values
+        #continuum_list_nu = np.concatenate((cont_list_nu_H, cont_list_nu_HeI, cont_list_nu_HeII))
+        #sorting_order = np.argsort(continuum_list_nu)[::-1]
+        #continuum_list_nu = continuum_list_nu[sorting_order]
+        #l_pop = np.zeros(0)
+        #for i in range(0, storage.no_of_shells):
+        #    l_pop_H = model.plasma_array.level_populations[0].ix[(1, 0)].values
+        #    l_pop_HeI = model.plasma_array.level_populations[0].ix[(2, 0)].values
+        #    l_pop_HeII = model.plasma_array.level_populations[0].ix[(2, 1)].values
+        #    l_pop_shell = np.concatenate((l_pop_H, l_pop_HeI, l_pop_HeII))
+        #    l_pop_shell = l_pop_shell[sorting_order]
+        #    l_pop = np.append(l_pop, l_pop_shell)
+        # Prepare continuum data for macro_atom_new
+        edge2cont_HI = np.zeros(len(cont_list_nu_H), dtype=np.int64)
+        cont_edge2macro_continuum = edge2cont_HI
+        macro_block_references_continuum = np.zeros(1, dtype=np.int64)
+        transition_probabilities_HI_cont = np.ones(2 * len(cont_list_nu_H) * storage.no_of_shells, dtype=np.float64)
+        transition_probabilities_continuum = transition_probabilities_HI_cont
+        transition_type_continuum = np.ones(2 * len(cont_list_nu_H), dtype=np.int64) * (-3)
+        destination_level_id_continuum = np.ones(2 * len(cont_list_nu_H), dtype=np.int64) * 15
+        transition_continuum_id = np.ones(2 * len(cont_list_nu_H), dtype=np.int64) * 10  # not needed atm
+
+        #edge2cont_HeI = np.ones(len(cont_list_nu_HeI), dtype = np.int64)
+        #edge2cont_HeII = np.ones(len(cont_list_nu_HeII), dtype = np.int64) * 2
+        #cont_edge2macro_continuum = np.concatenate((edge2cont_HI, edge2cont_HeI, edge2cont_HeII))
+        #cont_edge2macro_continuum = cont_edge2macro_continuum[sorting_order]
+
+        storage.transition_probabilities_continuum = <double*> transition_probabilities_continuum.data
+        storage.transition_probabilities_nd_continuum = 2 * len(cont_list_nu_H)
+        storage.cont_edge2macro_continuum = <int_type_t*> cont_edge2macro_continuum.data
+        storage.macro_block_references_continuum = <int_type_t*> macro_block_references_continuum.data
+        storage.transition_type_continuum = <int_type_t*> transition_type_continuum.data
+        storage.destination_level_id_continuum = <int_type_t*> destination_level_id_continuum.data
+        storage.transition_continuum_id = <int_type_t*> transition_continuum_id.data
+
+        l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
+
         storage.continuum_list_nu = <double*> continuum_list_nu.data
         storage.no_of_edges = continuum_list_nu.size
         chi_bf_tmp_partial = np.zeros(continuum_list_nu.size)
         storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
-        l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
         storage.l_pop = <double*> l_pop.data
         l_pop_r = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
         storage.l_pop_r = <double*> l_pop_r.data
+
+    # Switch for ff processes
+    storage.ff_status = FREE_FREE_OFF
+    # ff-data
+    cdef np.ndarray[int_type_t, ndim=1] ion_charge
+    cdef np.ndarray[double, ndim=2] ion_population
+    if storage.ff_status == FREE_FREE_ON:
+        ion_charge = model.plasma_array.ion_populations[0].index.get_level_values(1).values
+        storage.ion_charge = <int_type_t*> ion_charge.data
+        ion_population = model.plasma_array.ion_populations.values.transpose()
+        storage.ion_population = <double *> ion_population.data
+        storage.no_of_ions = ion_population.shape[1]
 
     # Line lists
     storage.no_of_lines = model.atom_data.lines.nu.values.size

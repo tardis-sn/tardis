@@ -8,6 +8,13 @@
 #include <stdlib.h>
 #include <math.h>
 
+typedef struct photo_xsect_1level
+{
+  double * nu;
+  double * x_sect;
+  int64_t no_of_points;
+} photo_xsect_1level;
+
 typedef struct StorageModel
 {
   double *packet_nus;
@@ -45,6 +52,13 @@ typedef struct StorageModel
   int64_t *transition_type;
   int64_t *destination_level_id;
   int64_t *transition_line_id;
+  double *transition_probabilities_continuum;
+  int64_t transition_probabilities_nd_continuum;
+  int64_t *cont_edge2macro_continuum;
+  int64_t *macro_block_references_continuum;
+  int64_t *transition_type_continuum;
+  int64_t *destination_level_id_continuum;
+  int64_t *transition_continuum_id;
   double *js;
   double *nubars;
   double spectrum_start_nu;
@@ -62,7 +76,12 @@ typedef struct StorageModel
   double *t_electrons;
   double *l_pop;
   double *l_pop_r;
+  int64_t *ion_charge;
+  double *ion_population;
+  int64_t no_of_ions;
   ContinuumProcessesStatus cont_status;
+  FreeFreeStatus ff_status;
+  photo_xsect_1level **photo_xsect;
   double *virt_packet_nus;
   double *virt_packet_energies;
   double *virt_packet_last_interaction_in_nu;
