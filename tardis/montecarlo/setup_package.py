@@ -18,7 +18,8 @@ else:
 def get_extensions():
     sources = ['tardis/montecarlo/montecarlo.pyx']
     sources += [os.path.relpath(fname) for fname in glob(
-        os.path.join(os.path.dirname(__file__), 'src', '*.c'))]
+        os.path.join(os.path.dirname(__file__), 'src', '*.c'))
+                if not os.path.basename(fname).startswith('test')]
     sources += [os.path.relpath(fname) for fname in glob(
         os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.c'))]
     deps = [os.path.relpath(fname) for fname in glob(
@@ -34,3 +35,6 @@ def get_extensions():
                       extra_compile_args=compile_args,
                       extra_link_args=link_args,
                       define_macros=define_macros)]
+
+def get_package_data():
+    return {'tardis.montecarlo.tests':['data/*.npy']}
