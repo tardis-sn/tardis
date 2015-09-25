@@ -1,4 +1,5 @@
 import logging
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -99,16 +100,20 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
     @staticmethod
     def get_zeta_values(zeta_data, general_phi, t_rad):
-        try:
-            zeta = interpolate.interp1d(zeta_data.columns.values, zeta_data.ix[
-                general_phi.index].values)(t_rad)
-            zeta = zeta.astype(float)
-        except ValueError:
-            raise ValueError('t_rads outside of zeta factor interpolation'
-                             ' zeta_min={0:.2f} zeta_max={1:.2f} '
-                             '- requested {2}'.format(
+        zeta_t_rad = zeta_data.columns.values.astype(np.float64)
+        zeta_values = zeta_data.ix[general_phi.index].values.astype(np.float64)
+        zeta = interpolate.interp1d(zeta_t_rad, zeta_values, bounds_error=False,
+                                    fill_value=np.nan)(t_rad)
+        zeta = zeta.astype(float)
+
+        if np.any(np.isnan(zeta)):
+            warnings.warn('t_rads outside of zeta factor interpolation'
+                                 ' zeta_min={0:.2f} zeta_max={1:.2f} '
+                                 '- replacing with 1s'.format(
                 zeta_data.columns.values.min(), zeta_data.columns.values.max(),
                 t_rad))
+            zeta[np.isnan(zeta)] = 1.0
+
         return zeta
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
