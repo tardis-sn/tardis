@@ -153,6 +153,8 @@ class ZetaData(BaseAtomicDataProperty):
     outputs = ('zeta_data',)
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
+        for temperature in range(42000, 82000, 2000):
+            zeta_data[temperature] = zeta_data[40000]
         zeta_data['atomic_number'] = zeta_data.index.labels[0] + 1
         zeta_data['ion_number'] = zeta_data.index.labels[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
@@ -166,11 +168,14 @@ class ZetaData(BaseAtomicDataProperty):
 # This currently replaces missing zeta data with 1, which is necessary with
 # the present atomic data. Will replace with the error above when I have
 # complete atomic data.
-            logger.warn('Zeta_data missing - replaced with 1s')
+            missing_ions = []
             updated_index = []
             for atom in selected_atoms:
                 for ion in range(1, atom + 2):
+                    if (atom, ion) not in zeta_data.index:
+                        missing_ions.append((atom,ion))
                     updated_index.append([atom, ion])
+            logger.warn('Zeta_data missing - replaced with 1s. Missing ions: {}'.format(missing_ions))
             updated_index = np.array(updated_index)
             updated_dataframe = pd.DataFrame(index=pd.MultiIndex.from_arrays(
                 updated_index.transpose().astype(int)),
