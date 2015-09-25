@@ -1,4 +1,6 @@
 import logging
+import pandas as pd
+import numpy as np
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
@@ -34,18 +36,32 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
             self.calculate = self._calculate_dilute_lte
         self._update_inputs()
 
+        self.initialize_indices = True
+
+
+    def _initialize_indices(self, levels, partition_function):
+        indexer = pd.Series(np.arange(partition_function.shape[0]),
+                            index=partition_function.index)
+        self._ion2level_idx = indexer.ix[levels.droplevel(2)].values
+
     def _calculate_dilute_lte(self, level_boltzmann_factor, ion_number_density,
         levels, partition_function):
         """
         Reduces non-metastable level populations by a factor of W compared to LTE in the case of dilute-lte excitation.
         """
-        partition_function_broadcast = partition_function.ix[
-            levels.droplevel(2)].values
-        level_population_fraction = level_boltzmann_factor /\
-            partition_function_broadcast
-        ion_number_density_broadcast = ion_number_density.ix[
-            level_population_fraction.index.droplevel(2)].values
-        return level_population_fraction * ion_number_density_broadcast
+        if self.initialize_indices:
+            self._initialize_indices(levels, partition_function)
+            self.initialize_indices = False
+        partition_function_broadcast = partition_function.values[
+            self._ion2level_idx]
+        level_population_fraction = (level_boltzmann_factor.values
+                                     / partition_function_broadcast)
+        ion_number_density_broadcast = ion_number_density.values[
+            self._ion2level_idx]
+        level_number_density = (level_population_fraction *
+                                ion_number_density_broadcast)
+        return pd.DataFrame(level_number_density,
+                            index=level_boltzmann_factor.index)
 
     def _calculate_helium_nlte(self, level_boltzmann_factor,
         ion_number_density, levels, partition_function, helium_population):

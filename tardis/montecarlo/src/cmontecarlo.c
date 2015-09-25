@@ -305,10 +305,6 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state 
 	  probability_idx = ((++i) * storage->no_of_shells +
 	  rpacket_get_current_shell_id (packet));
 	  p += storage->transition_probabilities[probability_idx];
-
-	  //fprintf(stderr, "p%2.5f i %d shells %d shell_id %d\n", p, i, storage->no_of_shells, rpacket_get_current_shell_id (packet));
-	  //exit(10);
-
 	}
       while (p <= event_random);
       emit = storage->transition_type[i];
