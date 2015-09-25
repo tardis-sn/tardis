@@ -4,6 +4,7 @@ import pandas as pd
 import tardis
 from tardis import atomic
 import pytest
+import warnings
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.util import parse_abundance_dict_to_dataframe
 #from numpy.testing import assert_allclose
@@ -29,9 +30,8 @@ class TestNebularPlasma(object):
 #            ionization_mode='nebular', excitation_mode='dilute-lte')
 
     def test_high_temperature(self):
-        with pytest.raises(ValueError) as excinfo:
+        with warnings.catch_warnings(record=True) as w:
             self.plasma.update_radiationfield(t_rad=[100000.],
                 ws=[0.5], j_blues=None, nlte_config=None)
-
-        assert str(excinfo.value).startswith('t_rads outside of zeta '
-                                                'factor interpolation')
+        assert str(w[0].message).startswith('t_rads outside of zeta factor'
+                                               ' interpolation')
