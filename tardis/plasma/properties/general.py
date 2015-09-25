@@ -12,8 +12,8 @@ __all__ = ['BetaRadiation', 'GElectron', 'NumberDensity', 'SelectedAtoms',
 
 class BetaRadiation(ProcessingPlasmaProperty):
     """
-    Outputs:
-    beta_rad : Numpy Array
+    Attributes:
+    beta_rad : Numpy Array, dtype float
     """
     outputs = ('beta_rad',)
     latex_name = ('\\beta_{\\textrm{rad}}',)
@@ -28,8 +28,8 @@ class BetaRadiation(ProcessingPlasmaProperty):
 
 class GElectron(ProcessingPlasmaProperty):
     """
-    Outputs:
-    g_electron : Numpy Array
+    Attributes
+    g_electron : Numpy Array, dtype float
     """
     outputs = ('g_electron',)
     latex_name = ('g_{\\textrm{electron}}',)
@@ -42,8 +42,9 @@ class GElectron(ProcessingPlasmaProperty):
 
 class NumberDensity(ProcessingPlasmaProperty):
     """
-    Outputs:
-    number_density : Pandas DataFrame
+    Attributes:
+    number_density : Pandas DataFrame, dtype float
+                     Indexed by atomic number, columns corresponding to zones
     """
     outputs = ('number_density',)
     latex_name = ('N_{i}',)
@@ -55,9 +56,9 @@ class NumberDensity(ProcessingPlasmaProperty):
 
 class SelectedAtoms(ProcessingPlasmaProperty):
     """
-    Outputs:
-    selected_atoms : Numpy Array
-        Elements required for particular simulation
+    Attributes:
+    selected_atoms : Numpy Array, dtype int
+                     Atomic numbers of elements required for particular simulation
     """
     outputs = ('selected_atoms',)
 
@@ -66,8 +67,8 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 
 class ElectronTemperature(ProcessingPlasmaProperty):
     """
-    Outputs:
-    t_electron : Numpy Array
+    Attributes:
+    t_electron : Numpy Array, dtype float
     """
     outputs = ('t_electrons',)
     latex_name = ('T_{\\textrm{electron}}',)
@@ -78,8 +79,8 @@ class ElectronTemperature(ProcessingPlasmaProperty):
 
 class BetaElectron(ProcessingPlasmaProperty):
     """
-    Outputs:
-    beta_electron : Numpy Array
+    Attributes:
+    beta_electron : Numpy Array, dtype float
     """
     outputs = ('beta_electron',)
     latex_name = ('\\beta_{\\textrm{electron}}',)
