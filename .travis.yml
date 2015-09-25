@@ -70,7 +70,6 @@ install:
    - if [[ $NUMPY_VERSION == 'latest' ]]; then conda install --yes  numpy; else conda install --yes "numpy==$NUMPY_VERSION"; fi
    - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
    - if [[ $ASTROPY_VERSION == 'development' ]]; then pip install git+https://github.com/astropy/astropy; else conda install --yes "astropy=$ASTROPY_VERSION"; fi
-   - conda install --yes pytest
 
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
