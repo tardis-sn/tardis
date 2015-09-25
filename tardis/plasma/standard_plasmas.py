@@ -106,9 +106,9 @@ class LegacyPlasmaArray(BasePlasma):
             atomic_data)
 
         if nlte_config is not None and nlte_config.species:
-            nlte_species = nlte_config.species
+            self.nlte_species = nlte_config.species
         else:
-            nlte_species = None
+            self.nlte_species = None
 
         if helium_treatment=='recomb-nlte':
             plasma_modules += helium_nlte_properties
@@ -122,9 +122,10 @@ class LegacyPlasmaArray(BasePlasma):
                 self.v_inner = v_inner
                 self.v_outer = v_outer
 
+        self.delta_treatment = delta_treatment
+
         super(LegacyPlasmaArray, self).__init__(
             plasma_properties=plasma_modules, t_rad=t_rad,
             abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
-            j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment, nlte_species=nlte_species)
+            j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron)
