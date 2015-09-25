@@ -9,9 +9,11 @@ from ._astropy_init import *
 
 from tardis.base import run_tardis
 
+logging.captureWarnings(True)
 logger = logging.getLogger('tardis')
 logger.setLevel(logging.INFO)
 console_handler = logging.StreamHandler()
 console_formatter = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
 console_handler.setFormatter(console_formatter)
 logger.addHandler(console_handler)
+logging.getLogger('py.warnings').addHandler(console_handler)
