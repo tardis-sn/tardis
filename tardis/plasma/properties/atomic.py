@@ -11,7 +11,7 @@ from tardis.plasma.exceptions import IncompleteAtomicData
 logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData', 'Chi0']
+           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData']
 
 class Levels(BaseAtomicDataProperty):
     """

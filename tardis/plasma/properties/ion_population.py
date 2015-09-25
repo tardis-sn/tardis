@@ -135,16 +135,18 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 class IonNumberDensity(ProcessingPlasmaProperty):
     """
     Attributes:
-    ion_number_density : Pandas DataFrame
-    electron_densities : Numpy Array
-        Convergence process to find the correct solution. A trial value for
-        the electron density is initiated in a particular zone. The ion
-        number densities are then calculated using the Saha equation. The
-        electron density is then re-calculated by using the ion number
-        densities to sum over the number of free electrons. If the two values
-        for the electron densities are not similar to within the threshold
-        value, a new guess for the value of the electron density is chosen
-        and the process is repeated.
+    ion_number_density : Pandas DataFrame, dtype float
+                         Index atom number, ion number. Columns zones.
+    electron_densities : Numpy Array, dtype float
+
+    Convergence process to find the correct solution. A trial value for
+    the electron density is initiated in a particular zone. The ion
+    number densities are then calculated using the Saha equation. The
+    electron density is then re-calculated by using the ion number
+    densities to sum over the number of free electrons. If the two values
+    for the electron densities are not similar to within the threshold
+    value, a new guess for the value of the electron density is chosen
+    and the process is repeated.
     """
     outputs = ('ion_number_density', 'electron_densities')
     latex_name = ('N_{i,j}','n_{e}',)
