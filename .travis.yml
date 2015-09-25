@@ -72,6 +72,7 @@ install:
    - if [[ $ASTROPY_VERSION == 'development' ]]; then pip install git+https://github.com/astropy/astropy; else conda install --yes "astropy=$ASTROPY_VERSION"; fi
 
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
+   - if [[ $SETUP_CMD == 'test --coverage' ]]; then conda install --yes coverage=3.7; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
 
 script:
