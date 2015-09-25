@@ -153,8 +153,6 @@ class ZetaData(BaseAtomicDataProperty):
     outputs = ('zeta_data',)
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
-        for temperature in range(42000, 82000, 2000):
-            zeta_data[temperature] = zeta_data[40000]
         zeta_data['atomic_number'] = zeta_data.index.labels[0] + 1
         zeta_data['ion_number'] = zeta_data.index.labels[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
