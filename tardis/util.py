@@ -1,6 +1,7 @@
 # Utilities for TARDIS
 
-from astropy import units as u, constants, units
+from astropy import units as u, constants
+import numexpr as ne
 import numpy as np
 import os
 import yaml
@@ -246,9 +247,10 @@ def intensity_black_body(nu, T):
 
     """
     beta_rad = 1 / (k_B_cgs * T)
-
-    return (2 * (h_cgs * nu ** 3) / (c_cgs ** 2)) / (
-        np.exp(h_cgs * nu * beta_rad) - 1)
+    coefficient = 2 * h_cgs / c_cgs ** 2
+    intensity = ne.evaluate('coefficient * nu**3 / '
+                            '(exp(h_cgs * nu * beta_rad) -1 )')
+    return intensity
 
 def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     r"""Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
