@@ -123,13 +123,32 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
     outputs = ('delta',)
     latex_name = ('\\delta',)
 
-    def __init__(self, plasma_parent, departure_coefficient=None):
+    def __init__(self, plasma_parent=None, departure_coefficient=None,
+        chi_0_species=(20,2), delta_treatment=None):
         super(RadiationFieldCorrection, self).__init__(plasma_parent)
         self.departure_coefficient = departure_coefficient
+        try:
+            self.delta_treatment = self.plasma_parent.delta_treatment
+        except:
+            self.delta_treatment = delta_treatment
+
+        self.chi_0_species = chi_0_species
+
+
+    def _set_chi_0(self, ionization_data):
+        if self.chi_0_species == (20, 2):
+            self.chi_0 = 1.9020591570241798e-11
+        else:
+            self.chi_0 = ionization_data.ionization_energy.ix[self.chi_0_species]
+
 
     def calculate(self, w, ionization_data, beta_rad, t_electrons, t_rad,
-        beta_electron, delta_input, chi_0):
-        if delta_input is None:
+        beta_electron):
+
+        if getattr(self, 'chi_0', None) is None:
+            self._set_chi_0(ionization_data)
+
+        if self.delta_treatment is None:
             if self.departure_coefficient is None:
                 departure_coefficient = 1. / w
             else:
@@ -137,20 +156,20 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
             radiation_field_correction = -np.ones((len(ionization_data), len(
                 beta_rad)))
             less_than_chi_0 = (
-                ionization_data.ionization_energy < chi_0).values
+                ionization_data.ionization_energy < self.chi_0).values
             factor_a = (t_electrons / (departure_coefficient * w * t_rad))
             radiation_field_correction[~less_than_chi_0] = factor_a * \
                 np.exp(np.outer(ionization_data.ionization_energy.values[
                 ~less_than_chi_0], beta_rad - beta_electron))
             radiation_field_correction[less_than_chi_0] = 1 - np.exp(np.outer(
                 ionization_data.ionization_energy.values[less_than_chi_0],
-                beta_rad) - beta_rad * chi_0)
+                beta_rad) - beta_rad * self.chi_0)
             radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
                 np.outer(ionization_data.ionization_energy.values[
-                less_than_chi_0],beta_rad) - chi_0 * beta_electron)
+                less_than_chi_0],beta_rad) - self.chi_0 * beta_electron)
         else:
             radiation_field_correction = np.ones((len(ionization_data),
-                len(beta_rad))) * delta_input
+                len(beta_rad))) * self.plasma_parent.delta_treatment
         delta = pd.DataFrame(radiation_field_correction,
             columns=np.arange(len(t_rad)), index=ionization_data.index)
         return delta
