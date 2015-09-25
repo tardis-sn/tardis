@@ -166,11 +166,14 @@ class ZetaData(BaseAtomicDataProperty):
 # This currently replaces missing zeta data with 1, which is necessary with
 # the present atomic data. Will replace with the error above when I have
 # complete atomic data.
-            logger.warn('Zeta_data missing - replaced with 1s')
+            missing_ions = []
             updated_index = []
             for atom in selected_atoms:
                 for ion in range(1, atom + 2):
+                    if (atom, ion) not in zeta_data.index:
+                        missing_ions.append((atom,ion))
                     updated_index.append([atom, ion])
+            logger.warn('Zeta_data missing - replaced with 1s. Missing ions: {}'.format(missing_ions))
             updated_index = np.array(updated_index)
             updated_dataframe = pd.DataFrame(index=pd.MultiIndex.from_arrays(
                 updated_index.transpose().astype(int)),
