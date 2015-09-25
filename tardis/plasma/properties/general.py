@@ -12,7 +12,8 @@ __all__ = ['BetaRadiation', 'GElectron', 'NumberDensity', 'SelectedAtoms',
 
 class BetaRadiation(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     beta_rad : Numpy Array, dtype float
     """
     outputs = ('beta_rad',)
@@ -29,6 +30,7 @@ class BetaRadiation(ProcessingPlasmaProperty):
 class GElectron(ProcessingPlasmaProperty):
     """
     Attributes
+    ----------
     g_electron : Numpy Array, dtype float
     """
     outputs = ('g_electron',)
@@ -42,7 +44,8 @@ class GElectron(ProcessingPlasmaProperty):
 
 class NumberDensity(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     number_density : Pandas DataFrame, dtype float
                      Indexed by atomic number, columns corresponding to zones
     """
@@ -56,7 +59,8 @@ class NumberDensity(ProcessingPlasmaProperty):
 
 class SelectedAtoms(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     selected_atoms : Numpy Array, dtype int
                      Atomic numbers of elements required for particular simulation
     """
@@ -67,7 +71,8 @@ class SelectedAtoms(ProcessingPlasmaProperty):
 
 class ElectronTemperature(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     t_electron : Numpy Array, dtype float
     """
     outputs = ('t_electrons',)
@@ -79,7 +84,8 @@ class ElectronTemperature(ProcessingPlasmaProperty):
 
 class BetaElectron(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     beta_electron : Numpy Array, dtype float
     """
     outputs = ('beta_electron',)

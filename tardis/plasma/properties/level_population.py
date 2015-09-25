@@ -8,8 +8,9 @@ __all__ = ['LevelNumberDensity']
 
 class LevelNumberDensity(ProcessingPlasmaProperty):
     """
-    Outputs:
-    level_number_density : Pandas DataFrame
+    Attributes:
+    level_number_density : Pandas DataFrame, dtype float
+                           Index atom number, ion number, level number. Columns are zones.
     """
     outputs = ('level_number_density',)
     latex_name = ('N_{i,j,k}',)
@@ -19,6 +20,9 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
         pass
 
     def __init__(self, plasma_parent, helium_treatment='dilute-lte'):
+        """
+        Calculates the level populations with the Boltzmann equation in LTE.
+        """
         super(LevelNumberDensity, self).__init__(plasma_parent)
         if hasattr(self.plasma_parent, 'plasma_properties_dict'):
             if 'HeliumNLTE' in \
@@ -32,6 +36,9 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
 
     def _calculate_dilute_lte(self, level_boltzmann_factor, ion_number_density,
         levels, partition_function):
+        """
+        Reduces non-metastable level populations by a factor of W compared to LTE in the case of dilute-lte excitation.
+        """
         partition_function_broadcast = partition_function.ix[
             levels.droplevel(2)].values
         level_population_fraction = level_boltzmann_factor /\
@@ -42,6 +49,10 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
 
     def _calculate_helium_nlte(self, level_boltzmann_factor,
         ion_number_density, levels, partition_function, helium_population):
+        """
+        If one of the two helium NLTE methods is used, this updates the helium level populations to the appropriate
+        values.
+        """
         level_number_density = self._calculate_dilute_lte(
             level_boltzmann_factor, ion_number_density, levels,
             partition_function)
