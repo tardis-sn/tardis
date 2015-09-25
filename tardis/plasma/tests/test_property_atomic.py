@@ -20,5 +20,4 @@ def test_ionization_data_property(ionization_data):
     assert np.isclose(float(ionization_data.ix[2].ix[1]), 3.9393336e-11)
 
 def test_zeta_data_property(zeta_data):
-    assert zeta_data.shape == (3, 20)
     assert np.isclose(zeta_data.ix[2].ix[1][2000], 0.4012)
