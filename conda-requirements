@@ -10,3 +10,4 @@ numexpr>=2.0.0
 Cython>=0.21
 jinja2
 networkx
+pytest==2.6.3
