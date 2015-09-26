@@ -14,8 +14,13 @@ __all__ = ['LevelBoltzmannFactorLTE', 'LevelBoltzmannFactorDiluteLTE',
 
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     """
-    Outputs:
-        level_boltzmann_factor : Pandas DataFrame
+    Attributes
+    ----------
+    general_level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Level population proportionality values. Indexed
+                             by atomic number, ion number, level number.
+                             Columns corresponding to zones. Does not consider
+                             NLTE.
     """
     outputs = ('general_level_boltzmann_factor',)
     latex_name = ('bf_{i,j,k}',)
@@ -35,8 +40,15 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
 
 class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     """
-    Outputs:
-        level_boltzmann_factor : Pandas DataFrame
+    Attributes
+    ----------
+    general_level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Level population proportionality values. Indexed
+                             by atomic number, ion number, level number.
+                             Columns corresponding to zones. Dilute radiation
+                             field means non-metastable level values are
+                             multiplied by an additional factor W. Does not
+                             consider NLTE.
     """
     outputs = ('general_level_boltzmann_factor',)
     latex_name = ('bf_{i,j,k}',)
@@ -51,7 +63,13 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
         return level_boltzmann_factor
 
 class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
-
+    """
+    Attributes
+    ----------
+    level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Returns general_level_boltzmann_factor as this
+                             property is included if NLTE is not used.
+    """
     outputs = ('level_boltzmann_factor',)
 
     @staticmethod
@@ -59,6 +77,13 @@ class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
         return general_level_boltzmann_factor
 
 class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Returns general_level_boltzmann_factor but
+                             updated for those species treated in NLTE.
+    """
     outputs = ('level_boltzmann_factor',)
 
     def calculate(self):
@@ -66,6 +91,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
     def __init__(self, plasma_parent, classical_nebular=False,
         coronal_approximation=False):
+        """
+        Selects appropriate 'calculate' function based on NLTE config
+        options selected.
+        """
         super(LevelBoltzmannFactorNLTE, self).__init__(plasma_parent)
         if classical_nebular == True and coronal_approximation == False:
             self.calculate = self._calculate_classical_nebular
@@ -81,6 +110,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _main_nlte_calculation(self, atomic_data, nlte_data,
         t_electrons, j_blues, beta_sobolevs, general_level_boltzmann_factor,
         previous_electron_densities):
+        """
+        The core of the NLTE calculation, used with all possible config.
+        options.
+        """
         for species in self.plasma_parent.nlte_species:
             j_blues = j_blues.values
             logger.info('Calculating rates for species %s', species)
@@ -130,7 +163,11 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
     def _calculate_classical_nebular(self, t_electrons, lines, atomic_data,
         nlte_data, general_level_boltzmann_factor, j_blues,
-        previous_beta_sobolev, lte_j_blues, previous_electron_densities):
+        lte_j_blues, previous_electron_densities):
+        """
+        Performs NLTE calculations using the classical nebular treatment.
+        All beta sobolev values taken as 1.
+        """
         beta_sobolevs = np.ones((len(lines), len(t_electrons)))
         if len(j_blues)==0:
             j_blues = lte_j_blues
@@ -146,6 +183,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _calculate_coronal_approximation(self, t_electrons, lines, atomic_data,
         nlte_data, general_level_boltzmann_factor,
         previous_electron_densities):
+        """
+        Performs NLTE calculations using the coronal approximation.
+        All beta sobolev values taken as 1 and j_blues taken as 0.
+        """
         beta_sobolevs = np.ones((len(lines), len(t_electrons)))
         j_blues = np.zeros((len(lines), len(t_electrons)))
         general_level_boltzmann_factor = self._main_nlte_calculation(
@@ -157,6 +198,9 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def _calculate_general(self, t_electrons, lines, atomic_data, nlte_data,
         general_level_boltzmann_factor, j_blues,
         previous_beta_sobolev, lte_j_blues, previous_electron_densities):
+        """
+        Full NLTE calculation without approximations.
+        """
         if previous_beta_sobolev is None:
             beta_sobolevs = np.ones((len(lines), len(t_electrons)))
         else:
@@ -174,8 +218,11 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
 class PartitionFunction(ProcessingPlasmaProperty):
     """
-    Outputs:
-        partition_function : Pandas DataFrame
+    Attributes
+    ----------
+    partition_function : Pandas DataFrame, dtype float
+                         Indexed by atomic number, ion number.
+                         Columns are zones.
     """
     outputs = ('partition_function',)
     latex_name = ('Z_{i,j}',)

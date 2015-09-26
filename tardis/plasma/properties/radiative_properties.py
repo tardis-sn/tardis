@@ -15,8 +15,10 @@ __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
-    Outputs:
-        stimulated_emission_factor : Numpy Array [len(lines), len(t_rad)]
+    Attributes
+    ----------
+    stimulated_emission_factor : Numpy Array, dtype float
+                                 Indexed by lines, columns as zones.
     """
     outputs = ('stimulated_emission_factor',)
     latex_formula = ('1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}',)
@@ -50,7 +52,6 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
                 lines_upper_level_index][np.newaxis].T
         return self._meta_stable_upper
 
-
     def calculate(self, g, level_number_density, lines_lower_level_index,
         lines_upper_level_index, metastability, lines):
         n_lower = level_number_density.values.take(lines_lower_level_index,
@@ -81,9 +82,11 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
 
 class TauSobolev(ProcessingPlasmaProperty):
     """
-    Outputs:
-        tau_sobolev : Pandas DataFrame
-        Sobolev optical depth for each line.
+    Attributes
+    ----------
+    tau_sobolev : Pandas DataFrame, dtype float
+                  Sobolev optical depth for each line. Indexed by line.
+                  Columns as zones.
     """
     outputs = ('tau_sobolevs',)
     latex_name = ('\\tau_{\\textrm{sobolev}}',)
@@ -110,8 +113,9 @@ class TauSobolev(ProcessingPlasmaProperty):
 
 class BetaSobolev(ProcessingPlasmaProperty):
     """
-    Outputs:
-        beta_sobolev : Numpy Array
+    Attributes
+    ----------
+    beta_sobolev : Numpy Array, dtype float
     """
     outputs = ('beta_sobolev',)
     latex_name = ('\\beta_{\\textrm{sobolev}}',)
@@ -128,62 +132,51 @@ class BetaSobolev(ProcessingPlasmaProperty):
 
 class TransitionProbabilities(ProcessingPlasmaProperty):
     """
-    Outputs:
-        transition_probabilities : Pandas DataFrame
+    Attributes
+    ----------
+    transition_probabilities : Pandas DataFrame, dtype float
     """
     outputs = ('transition_probabilities',)
 
     def __init__(self, plasma_parent):
         super(TransitionProbabilities, self).__init__(plasma_parent)
-
         self.initialize = True
-
-
 
     def calculate(self, atomic_data, beta_sobolev, j_blues,
         stimulated_emission_factor, tau_sobolevs):
-
         #I wonder why?
+        # Not sure who wrote this but the answer is that when the plasma is
+        # first initialised (before the first iteration, without temperature
+        # values etc.) there are no j_blues values so this just prevents
+        # an error. Aoife.
         if len(j_blues) == 0:
             return None
-
         macro_atom_data = self._get_macro_atom_data(atomic_data)
-
         if self.initialize:
             self.initialize_macro_atom_transition_type_filters(atomic_data,
                                                                macro_atom_data)
             self.transition_probability_coef = (
                 self._get_transition_probability_coefs(macro_atom_data))
             self.initialize = False
-
-
         transition_probabilities = self._calculate_transition_probability(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
         transition_probabilities = pd.DataFrame(transition_probabilities,
             index=macro_atom_data.transition_line_id,
             columns=tau_sobolevs.columns)
-
         return transition_probabilities
 
     def _calculate_transition_probability(self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor):
         transition_probabilities = np.empty((self.transition_probability_coef.shape[0], beta_sobolev.shape[1]))
         #trans_old = self.calculate_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
-
         transition_type = macro_atom_data.transition_type.values
         lines_idx = macro_atom_data.lines_idx.values
         tpos = macro_atom_data.transition_probability.values
         #optimized_calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, self.block_references, transition_probabilities)
         macro_atom.calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, self.block_references, transition_probabilities)
-
         return transition_probabilities
-
 
     def calculate_transition_probabilities(self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor):
         transition_probabilities = self.prepare_transition_probabilities(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
         return transition_probabilities
-
-
-
-
 
     def initialize_macro_atom_transition_type_filters(self, atomic_data,
                                                       macro_atom_data):
@@ -191,7 +184,6 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                                      == 1)
         self.transition_up_line_filter = macro_atom_data.lines_idx.values[
             self.transition_up_filter]
-
         self.block_references = np.hstack((
             atomic_data.macro_atom_references.block_references,
             len(macro_atom_data)))
@@ -202,24 +194,14 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
 
     def prepare_transition_probabilities(self, macro_atom_data, beta_sobolev,
                                          j_blues, stimulated_emission_factor):
-
-
         current_beta_sobolev = beta_sobolev.take(
             macro_atom_data.lines_idx.values, axis=0, mode='raise')
-
-
         transition_probabilities = self.transition_probability_coef * current_beta_sobolev
-
-
         j_blues = j_blues.take(self.transition_up_line_filter, axis=0,
                                mode='raise')
-
         macro_stimulated_emission = stimulated_emission_factor.take(
             self.transition_up_line_filter, axis=0, mode='raise')
-
         transition_probabilities[self.transition_up_filter] *= (j_blues * macro_stimulated_emission)
-
-
         return transition_probabilities
 
     def _normalize_transition_probabilities(self, transition_probabilities):
@@ -227,7 +209,6 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             transition_probabilities, self.block_references)
 
     def _new_normalize_transition_probabilities(self, transition_probabilites):
-
         for i, start_id in enumerate(self.block_references[:-1]):
             end_id = self.block_references[i + 1]
             block = transition_probabilites[start_id:end_id]
@@ -244,6 +225,12 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
 
 
 class LTEJBlues(ProcessingPlasmaProperty):
+    '''
+    Attributes
+    ----------
+    lte_j_blues : Pandas DataFrame, dtype float
+                  J_blue values as calculated in LTE.
+    '''
     outputs = ('lte_j_blues',)
     latex_name = ('J^{b}_{lu(LTE)}')
 
