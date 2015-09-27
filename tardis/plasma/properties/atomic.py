@@ -11,13 +11,20 @@ from tardis.plasma.exceptions import IncompleteAtomicData
 logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData', 'Chi0']
+           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData']
 
 class Levels(BaseAtomicDataProperty):
     """
-    Outputs:
-    levels : Pandas DataFrame
-        Levels data needed for particular simulation
+    Attributes
+    ----------
+    levels : Pandas MultiIndex (atomic_number, ion_number, level_number)
+             Index of filtered atomic data. Index used for all other attribute dataframes for this class
+    excitation_energy : Pandas DataFrame (index=levels), dtype float
+             Excitation energies of atomic levels
+    metastability : Pandas DataFrame (index=levels), dtype bool
+             Records whether atomic levels are metastable
+    g : Pandas DataFrame (index=levels), dtype float
+             Statistical weights of atomic levels
     """
     outputs = ('levels', 'excitation_energy', 'metastability', 'g')
     latex_name = ('\\textrm{levels}', '\\epsilon_{\\textrm{k}}', '\\textrm{metastability}',
@@ -34,10 +41,20 @@ class Levels(BaseAtomicDataProperty):
 
 class Lines(BaseAtomicDataProperty):
     """
-    Outputs:
-    lines : Pandas DataFrame
-        Lines data needed for particular simulation
+    Attributes
+    ----------
+    lines : Pandas DataFrame (wavelength, atomic_number, ion_number, f_ul, f_lu, level_number_lower,
+                              level_number_upper, nu, B_lu, B_ul, A_ul, wavelength)
+            All atomic lines data. Index = line_id.
+    nu : Pandas DataFrame (index=line_id), dtype float
+            Line frequency data
+    f_lu : Pandas DataFrame (index=line_id), dtype float
+            Transition probability data
+    wavelength_cm: Pandas DataFrame (index=line_id), dtype float
+            Line wavelengths in cm
     """
+# Would like for lines to just be the line_id values, but this is necessary because of the filtering
+# error noted below.
     outputs = ('lines', 'nu', 'f_lu', 'wavelength_cm')
 
     def _filter_atomic_property(self, lines, selected_atoms):
@@ -57,10 +74,9 @@ class Lines(BaseAtomicDataProperty):
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
-    Outputs:
-    lines_lower_level_index : One-dimensional Numpy Array
+    Attributes:
+    lines_lower_level_index : One-dimensional Numpy Array, dtype int
         Levels data for lower levels of particular lines
-        Usage: levels.ix[lines_lower_level_index]
     """
     outputs = ('lines_lower_level_index',)
     def calculate(self, levels, lines):
@@ -73,10 +89,9 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
 
 class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
-    Outputs:
-    lines_upper_level_index : One-dimensional Numpy Array
+    Attributes:
+    lines_upper_level_index : One-dimensional Numpy Array, dtype int
         Levels data for upper levels of particular lines
-        Usage: levels.ix[lines_upper_level_index]
     """
     outputs = ('lines_upper_level_index',)
 
@@ -103,9 +118,9 @@ class IonCXData(BaseAtomicDataProperty):
 
 class AtomicMass(ProcessingPlasmaProperty):
     """
-    Outputs:
+    Attributes:
     atomic_mass : Pandas Series
-        Atomic masses of the elements used, indexed by atomic number
+        Atomic masses of the elements used. Indexed by atomic number.
     """
     outputs = ('atomic_mass',)
 
@@ -117,9 +132,9 @@ class AtomicMass(ProcessingPlasmaProperty):
 
 class IonizationData(BaseAtomicDataProperty):
     """
-    Outputs:
+    Attributes:
     ionization_data : Pandas DataFrame
-        Ionization energies of the elements used
+        Ionization energies. Indexed by atomic number, ion number.
     """
     outputs = ('ionization_data',)
 
@@ -143,10 +158,10 @@ class IonizationData(BaseAtomicDataProperty):
 
 class ZetaData(BaseAtomicDataProperty):
     """
-    Outputs:
-    zeta_data : Pandas DataFrame
-        Zeta data for the elements used
-        Required for the nebular ionization scheme.
+    Attributes:
+    zeta_data : Pandas DataFrame, dtype float
+        Zeta data for the elements used. Indexed by atomic number, ion number.
+        Columns are temperature values up to 40,000 K in iterations of 2,000 K.
         The zeta value represents the fraction of recombination events
         from the ionized state that go directly to the ground state.
     """
@@ -194,6 +209,11 @@ class ZetaData(BaseAtomicDataProperty):
         return zeta_data.set_index(['atomic_number', 'ion_number'])
 
 class NLTEData(ProcessingPlasmaProperty):
+    """
+    Attributes:
+    nlte_data :
+#Finish later (need atomic dataset with NLTE data).
+    """
     outputs = ('nlte_data',)
 
     def calculate(self, atomic_data):
@@ -201,9 +221,3 @@ class NLTEData(ProcessingPlasmaProperty):
             return (getattr(self, self.outputs[0]),)
         else:
             return atomic_data.nlte_data
-
-class Chi0(ProcessingPlasmaProperty):
-    outputs = ('chi_0',)
-
-    def calculate(self, atomic_data):
-        return atomic_data.ionization_data.ionization_energy.ix[20].ix[2]
