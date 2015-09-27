@@ -14,6 +14,11 @@ __all__ = ['PreviousElectronDensities', 'PreviousBetaSobolev',
 logger = logging.getLogger(__name__)
 
 class PreviousElectronDensities(PreviousIterationProperty):
+    """
+    Attributes
+    ----------
+    previous_electron_densities : The values for the electron densities converged upon in the previous iteration.
+    """
     outputs = ('previous_electron_densities',)
 
     def set_initial_value(self, kwargs):
@@ -21,6 +26,11 @@ class PreviousElectronDensities(PreviousIterationProperty):
         self._set_initial_value(initial_value)
 
 class PreviousBetaSobolev(PreviousIterationProperty):
+    """
+    Attributes
+    ----------
+    previous_beta_sobolev : The beta sobolev values converged upon in the previous iteration.
+    """
     outputs = ('previous_beta_sobolev',)
 
     def set_initial_value(self, kwargs):
@@ -38,6 +48,9 @@ class HeliumNLTE(ProcessingPlasmaProperty):
     def calculate(self, level_boltzmann_factor, electron_densities,
         ionization_data, beta_rad, g, g_electron, w, t_rad, t_electrons,
         delta, zeta_data, number_density, partition_function):
+        """
+        Updates all of the helium level populations according to the helium NLTE recomb approximation.
+        """
         helium_population = level_boltzmann_factor.ix[2].copy()
         # He I excited states
         he_one_population = self.calculate_helium_one(g_electron, beta_rad,
@@ -68,6 +81,9 @@ class HeliumNLTE(ProcessingPlasmaProperty):
     def calculate_helium_one(g_electron, beta_rad, partition_function,
             ionization_data, level_boltzmann_factor, electron_densities, g,
             w, t_rad, t_electron):
+        """
+        Calculates the He I level population values, in equilibrium with the He II ground state.
+        """
         (partition_function_index, ionization_data_index, partition_function,
             ionization_data) = HeliumNLTE.filter_with_helium_index(2, 1,
             partition_function, ionization_data)
@@ -81,6 +97,9 @@ class HeliumNLTE(ProcessingPlasmaProperty):
     def calculate_helium_three(t_rad, w, zeta_data, t_electrons, delta,
         g_electron, beta_rad, partition_function, ionization_data,
         electron_densities):
+        """
+        Calculates the He III level population values.
+        """
         (partition_function_index, ionization_data_index, partition_function,
             ionization_data) = HeliumNLTE.filter_with_helium_index(2, 2,
             partition_function, ionization_data)
@@ -98,6 +117,10 @@ class HeliumNLTE(ProcessingPlasmaProperty):
     @staticmethod
     def filter_with_helium_index(atomic_number, ion_number, partition_function,
         ionization_data):
+        """
+        Used to generate the indices for when the helium level population dataframes are being constructed.
+        Important for allowing straightforward merging of the new values with the rest.
+        """
         partition_function_index = pd.MultiIndex.from_tuples([(atomic_number,
             ion_number-1), (atomic_number, ion_number)],
             names=['atomic_number', 'ion_number'])
@@ -116,12 +139,12 @@ class HeliumNLTE(ProcessingPlasmaProperty):
                partition_function, ionization_data
 
 class HeliumNumericalNLTE(ProcessingPlasmaProperty):
-    outputs = ('helium_population',)
     '''
     IMPORTANT: This particular property requires a specific numerical NLTE
     solver and a specific atomic dataset (neither of which are distributed
     with Tardis) to work.
     '''
+    outputs = ('helium_population',)
     def calculate(self, ion_number_density, electron_densities, t_electrons, w,
         lines, j_blues, levels, level_boltzmann_factor, t_rad,
         zeta_data, g_electron, delta, partition_function, ionization_data,

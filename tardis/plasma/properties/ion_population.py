@@ -27,12 +27,9 @@ def calculate_block_ids_from_dataframe(dataframe):
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
     """
-    Outputs:
-    general_phi : Pandas DataFrame
-        Used as basis for PhiSahaLTE and PhiSahaNebular. Identical output to
-        PhiSahaLTE. Separate property required as PhiSahaNebular is based
-        on PhiSahaLTE, but the code cannot deal with the inclusion of two
-        properties that generate a property called 'phi'.
+    Attributes:
+    phi : Pandas DataFrame, dtype float
+          Used for LTE ionization. Indexed by atomic number, ion number. Columns are zones.
     """
     outputs = ('phi',)
     latex_name = ('\\Phi',)
@@ -78,10 +75,9 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
-    Outputs:
-    phi_saha_nebular: Pandas DataFrame
-        The ionization equilibrium as calculated using a modified version of
-        the Saha equation that accounts for dilution of the radiation field.
+    Attributes:
+    phi : Pandas DataFrame, dtype float
+          Used for nebular ionization. Indexed by atomic number, ion number. Columns are zones.
     """
     outputs = ('phi',)
     latex_name = ('\\Phi',)
@@ -118,12 +114,12 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """
-    Outputs:
-    delta: Pandas DataFrame
-        Calculates the radiation field correction (see Mazzali & Lucy, 1993) if
-        not given as input in the config. file. The default chi_0_species is
-        Ca II, which is good for type Ia supernovae. For type II supernovae,
-        (1, 1) should be used.
+    Attributes:
+    delta : Pandas DataFrame, dtype float
+            Calculates the radiation field correction (see Mazzali & Lucy, 1993) if
+            not given as input in the config. file. The default chi_0_species is
+            Ca II, which is good for type Ia supernovae. For type II supernovae,
+            (1, 1) should be used. Indexed by atomic number, ion number. The columns are zones.
     """
     outputs = ('delta',)
     latex_name = ('\\delta',)
@@ -139,20 +135,16 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 
         self.chi_0_species = chi_0_species
 
-
     def _set_chi_0(self, ionization_data):
         if self.chi_0_species == (20, 2):
             self.chi_0 = 1.9020591570241798e-11
         else:
             self.chi_0 = ionization_data.ionization_energy.ix[self.chi_0_species]
 
-
     def calculate(self, w, ionization_data, beta_rad, t_electrons, t_rad,
         beta_electron):
-
         if getattr(self, 'chi_0', None) is None:
             self._set_chi_0(ionization_data)
-
         if self.delta_treatment is None:
             if self.departure_coefficient is None:
                 departure_coefficient = 1. / w
@@ -181,17 +173,19 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 
 class IonNumberDensity(ProcessingPlasmaProperty):
     """
-    Outputs:
-    ion_number_density: Pandas DataFrame
-    electron_densities: Numpy Array
-        Convergence process to find the correct solution. A trial value for
-        the electron density is initiated in a particular zone. The ion
-        number densities are then calculated using the Saha equation. The
-        electron density is then re-calculated by using the ion number
-        densities to sum over the number of free electrons. If the two values
-        for the electron densities are not similar to within the threshold
-        value, a new guess for the value of the electron density is chosen
-        and the process is repeated.
+    Attributes:
+    ion_number_density : Pandas DataFrame, dtype float
+                         Index atom number, ion number. Columns zones.
+    electron_densities : Numpy Array, dtype float
+
+    Convergence process to find the correct solution. A trial value for
+    the electron density is initiated in a particular zone. The ion
+    number densities are then calculated using the Saha equation. The
+    electron density is then re-calculated by using the ion number
+    densities to sum over the number of free electrons. If the two values
+    for the electron densities are not similar to within the threshold
+    value, a new guess for the value of the electron density is chosen
+    and the process is repeated.
     """
     outputs = ('ion_number_density', 'electron_densities')
     latex_name = ('N_{i,j}','n_{e}',)
