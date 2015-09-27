@@ -89,15 +89,15 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
             g_electron, beta_rad, partition_function, ionization_data):
         phi_lte = PhiSahaLTE.calculate(g_electron, beta_rad,
             partition_function, ionization_data)
-        zeta = PhiSahaNebular.get_zeta_values(zeta_data, phi_lte, t_rad)
+        zeta = PhiSahaNebular.get_zeta_values(zeta_data, phi_lte.index, t_rad)
         phis = phi_lte * w * ((zeta * delta) + w * (1 - zeta)) * \
                (t_electrons/t_rad) ** .5
         return phis
 
     @staticmethod
-    def get_zeta_values(zeta_data, general_phi, t_rad):
+    def get_zeta_values(zeta_data, ion_index, t_rad):
         zeta_t_rad = zeta_data.columns.values.astype(np.float64)
-        zeta_values = zeta_data.ix[general_phi.index].values.astype(np.float64)
+        zeta_values = zeta_data.ix[ion_index].values.astype(np.float64)
         zeta = interpolate.interp1d(zeta_t_rad, zeta_values, bounds_error=False,
                                     fill_value=np.nan)(t_rad)
         zeta = zeta.astype(float)
