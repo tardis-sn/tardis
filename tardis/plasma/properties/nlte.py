@@ -54,89 +54,52 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         helium_population = level_boltzmann_factor.ix[2].copy()
         # He I excited states
         he_one_population = self.calculate_helium_one(g_electron, beta_rad,
-            partition_function, ionization_data, level_boltzmann_factor,
-            electron_densities, g, w, t_rad, t_electrons)
+            ionization_data, level_boltzmann_factor, electron_densities, g, w)
         helium_population.ix[0].update(he_one_population)
         #He I metastable states
-        helium_population.ix[0].ix[1] *= (1 / w)
-        helium_population.ix[0].ix[2] *= (1 / w)
+        helium_population.ix[0,1] *= (1 / w)
+        helium_population.ix[0,2] *= (1 / w)
         #He I ground state
-        helium_population.ix[0].ix[0] = 0.0
+        helium_population.ix[0,0] = 0.0
         #He II excited states
         he_two_population = level_boltzmann_factor.ix[2,1].mul(
             (g.ix[2,1].ix[0]**(-1)))
         helium_population.ix[1].update(he_two_population)
         #He II ground state
-        helium_population.ix[1].ix[0] = 1.0
+        helium_population.ix[1,0] = 1.0
         #He III states
-        helium_population.ix[2].ix[0] = self.calculate_helium_three(t_rad, w,
+        helium_population.ix[2,0] = self.calculate_helium_three(t_rad, w,
             zeta_data, t_electrons, delta, g_electron, beta_rad,
-            partition_function, ionization_data, electron_densities)
+            ionization_data, electron_densities, g)
         unnormalised = helium_population.sum()
         normalised = helium_population.mul(number_density.ix[2] / unnormalised)
         helium_population.update(normalised)
         return helium_population
 
     @staticmethod
-    def calculate_helium_one(g_electron, beta_rad, partition_function,
-            ionization_data, level_boltzmann_factor, electron_densities, g,
-            w, t_rad, t_electron):
+    def calculate_helium_one(g_electron, beta_rad, ionization_data,
+        level_boltzmann_factor, electron_densities, g, w):
         """
         Calculates the He I level population values, in equilibrium with the He II ground state.
         """
-        (partition_function_index, ionization_data_index, partition_function,
-            ionization_data) = HeliumNLTE.filter_with_helium_index(2, 1,
-            partition_function, ionization_data)
-        phis = (1 / PhiSahaLTE.calculate(g_electron, beta_rad,
-            partition_function, ionization_data)) * electron_densities * \
-            (1.0/g.ix[2,1,0]) * (1/w) * (t_rad/t_electron)**(0.5)
-        return level_boltzmann_factor.ix[2].ix[0].mul(
-            pd.DataFrame(phis.ix[2].ix[1].values)[0].transpose())
+        return level_boltzmann_factor.ix[2,0].mul(
+            g.ix[2,0], axis=0) * (1./(2*g.ix[2,1,0])) * \
+            (1/g_electron) * (1/(w**2)) * np.exp(
+            ionization_data.ionization_energy.ix[2,1] * beta_rad) * \
+            electron_densities
 
     @staticmethod
     def calculate_helium_three(t_rad, w, zeta_data, t_electrons, delta,
-        g_electron, beta_rad, partition_function, ionization_data,
-        electron_densities):
+        g_electron, beta_rad, ionization_data, electron_densities, g):
         """
         Calculates the He III level population values.
         """
-        (partition_function_index, ionization_data_index, partition_function,
-            ionization_data) = HeliumNLTE.filter_with_helium_index(2, 2,
-            partition_function, ionization_data)
-        zeta_data = pd.DataFrame(zeta_data.ix[2].ix[2].values,
-            columns=ionization_data_index, index=zeta_data.columns).transpose()
-        delta = pd.DataFrame(delta.ix[2].ix[2].values,
-            columns=ionization_data_index, index=delta.columns).transpose()
-        phis = PhiSahaNebular.calculate(t_rad, w,
-            zeta_data, t_electrons, delta, g_electron,
-            beta_rad, partition_function, ionization_data)
-        return (phis * (partition_function.ix[2].ix[1] /
-            partition_function.ix[2].ix[2]) * (1 /
-            electron_densities)).ix[2].ix[2]
-
-    @staticmethod
-    def filter_with_helium_index(atomic_number, ion_number, partition_function,
-        ionization_data):
-        """
-        Used to generate the indices for when the helium level population dataframes are being constructed.
-        Important for allowing straightforward merging of the new values with the rest.
-        """
-        partition_function_index = pd.MultiIndex.from_tuples([(atomic_number,
-            ion_number-1), (atomic_number, ion_number)],
-            names=['atomic_number', 'ion_number'])
-        ionization_data_index = pd.MultiIndex.from_tuples([(atomic_number,
-            ion_number)],
-            names=['atomic_number', 'ion_number'])
-        partition_function = pd.DataFrame(
-            partition_function.ix[atomic_number].ix[
-            ion_number-1:ion_number].values,
-            index=partition_function_index, columns=partition_function.columns)
-        ionization_data = pd.DataFrame(
-            ionization_data.ix[atomic_number].ix[ion_number][
-            'ionization_energy'], index=ionization_data_index,
-            columns=['ionization_energy'])
-        return partition_function_index, ionization_data_index,\
-               partition_function, ionization_data
+        zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
+        he_three_population = (2 / electron_densities) * \
+            (float(g.ix[2,2,0])/g.ix[2,1,0]) * g_electron * \
+            np.exp(-ionization_data.ionization_energy.ix[2,2] * beta_rad) \
+            * w * (delta.ix[2,2] * zeta + w * (1. - zeta)) * \
+            (t_electrons / t_rad) ** 0.5
 
 class HeliumNumericalNLTE(ProcessingPlasmaProperty):
     '''
