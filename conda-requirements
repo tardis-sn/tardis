@@ -1,10 +1,10 @@
 numpy>=1.4.0
 scipy>=0.10
-pandas>=0.12
+pandas>=0.16
 pytables
 h5py>=2.0
 matplotlib>=1.1
-astropy>=0.4
+astropy>=1.0
 PyYAML>=3.0
 numexpr>=2.0.0
 Cython>=0.21
