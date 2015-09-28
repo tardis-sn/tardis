@@ -57,18 +57,18 @@ class HeliumNLTE(ProcessingPlasmaProperty):
             ionization_data, level_boltzmann_factor, electron_densities, g, w)
         helium_population.ix[0].update(he_one_population)
         #He I metastable states
-        helium_population.ix[0].ix[1] *= (1 / w)
-        helium_population.ix[0].ix[2] *= (1 / w)
+        helium_population.ix[0,1] *= (1 / w)
+        helium_population.ix[0,2] *= (1 / w)
         #He I ground state
-        helium_population.ix[0].ix[0] = 0.0
+        helium_population.ix[0,0] = 0.0
         #He II excited states
         he_two_population = level_boltzmann_factor.ix[2,1].mul(
             (g.ix[2,1].ix[0]**(-1)))
         helium_population.ix[1].update(he_two_population)
         #He II ground state
-        helium_population.ix[1].ix[0] = 1.0
+        helium_population.ix[1,0] = 1.0
         #He III states
-        helium_population.ix[2].ix[0] = self.calculate_helium_three(t_rad, w,
+        helium_population.ix[2,0] = self.calculate_helium_three(t_rad, w,
             zeta_data, t_electrons, delta, g_electron, beta_rad,
             ionization_data, electron_densities, g)
         unnormalised = helium_population.sum()
@@ -82,10 +82,10 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         """
         Calculates the He I level population values, in equilibrium with the He II ground state.
         """
-        return level_boltzmann_factor.ix[2].ix[0].mul(
-            g.ix[2].ix[0], axis=0) * (1./(2*g.ix[2].ix[1].ix[0])) * \
+        return level_boltzmann_factor.ix[2,0].mul(
+            g.ix[2,0], axis=0) * (1./(2*g.ix[2,1,0])) * \
             (1/g_electron) * (1/(w**2)) * np.exp(
-            ionization_data.ionization_energy.ix[2].ix[1] * beta_rad) * \
+            ionization_data.ionization_energy.ix[2,1] * beta_rad) * \
             electron_densities
 
     @staticmethod
@@ -96,9 +96,9 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         """
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
         he_three_population = (2 / electron_densities) * \
-            (float(g.ix[2].ix[2].ix[0])/g.ix[2].ix[1].ix[0]) * g_electron * \
-            np.exp(-ionization_data.ionization_energy.ix[2].ix[2] * beta_rad) \
-            * w * (delta.ix[2].ix[2] * zeta + w * (1. - zeta)) * \
+            (float(g.ix[2,2,0])/g.ix[2,1,0]) * g_electron * \
+            np.exp(-ionization_data.ionization_energy.ix[2,2] * beta_rad) \
+            * w * (delta.ix[2,2] * zeta + w * (1. - zeta)) * \
             (t_electrons / t_rad) ** 0.5
 
 class HeliumNumericalNLTE(ProcessingPlasmaProperty):
