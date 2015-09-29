@@ -21,11 +21,11 @@ TARDIS has the following requirements:
 
 - `Scipy <http://www.scipy.org/>`_ 0.10 or later
 
-- `Astropy <http://www.astropy.org/>`_ 0.4 or later
+- `Astropy <http://www.astropy.org/>`_ 1.0 or later
 
 - `h5py <http://www.h5py.org/>`_ 2.0.0 or later
 
-- `pandas <http://pandas.pydata.org/>`_ 0.12.0 or later
+- `pandas <http://pandas.pydata.org/>`_ 0.16.1 or later
 
 - `pyyaml <http://pyyaml.org/>`_ 3.0 or later
 
