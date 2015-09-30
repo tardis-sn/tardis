@@ -99,17 +99,17 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 
 /* Other new stuff */
 
-inline void macro_atom_new (rpacket_t * packet, storage_model_t * storage, next_interaction2process * macro_atom_deactivation_type,
- int activation2level_or_cont);
+void macro_atom_new (rpacket_t * packet, const storage_model_t * storage, next_interaction2process * macro_atom_deactivation_type,
+ int activation2level_or_cont, rk_state *mt_state);
 
-void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype);
+void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype, rk_state *mt_state);
 
-inline void line_emission(rpacket_t * packet, storage_model_t * storage);
+void line_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state);
 
-double sample_nu_free_bound(rpacket_t * packet, storage_model_t * storage, int64_t continuum_id);
+double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage, int64_t continuum_id, rk_state *mt_state);
 
-inline void bf_emission(rpacket_t * packet, storage_model_t * storage);
+void bf_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state);
 
-inline void test_for_close_line(rpacket_t * packet, storage_model_t * storage);
+void test_for_close_line(rpacket_t * packet, const storage_model_t * storage);
 
 #endif // TARDIS_CMONTECARLO_H

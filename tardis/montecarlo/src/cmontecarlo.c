@@ -4,6 +4,12 @@
 #endif
 #include "cmontecarlo.h"
 
+
+// Temporary stuff to determine Balmer decrements
+int balmer_lines_idx[] = {28, 29, 30, 31, 32, 33, 34, 35, 36, 37};
+int balmer_emissivities[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+int no_of_decrements = 10;
+
 /** Look for a place to insert a value in an inversely sorted float array.
  *
  * @param x an inversely (largest to lowest) sorted float array
@@ -77,6 +83,53 @@ line_search (const double *nu, double nu_insert, int64_t number_of_lines,
   return ret_val;
 }
 
+static tardis_error_t
+binary_search (double *x, double x_insert, int64_t imin,
+	       int64_t imax, int64_t * result)
+{
+  /*
+     Have in mind that *x points to a sorted array.
+     Like [1,2,3,4,5,...]
+   */
+  int imid;
+  tardis_error_t ret_val = TARDIS_ERROR_OK;
+  if (x_insert < x[imin] || x_insert > x[imax])
+    {
+      ret_val = TARDIS_ERROR_BOUNDS_ERROR;
+    }
+  else
+    {
+      while (imax >= imin)
+	{
+	  imid = (imin + imax) / 2;
+	  if (x[imid] == x_insert)
+	    {
+	      *result = imid;
+	      break;
+	    }
+	  else if (x[imid] < x_insert)
+	    {
+	      imin = imid + 1;
+	    }
+	  else
+	    {
+	      imax = imid - 1;
+	    }
+	}
+      if (imax - imid == 2 && x_insert < x[imin + 1])
+	{
+	  *result = imin;
+	}
+      else
+	{
+	  *result = imin;
+	}
+    }
+  return ret_val;
+}
+
+
+
 double
 rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *storage)
 {
@@ -95,9 +148,9 @@ bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double c
 	       storage->photo_xsect[continuum_id]->no_of_points - 1, &result);
   if (error == TARDIS_ERROR_BOUNDS_ERROR)
     {
-      fprintf (stderr, "Bf-xsect for comov_nu = %e not in table (nu_table: %e to  %e Hz)\n",
-       comov_nu, storage->photo_xsect[continuum_id]->nu[0],
-        storage->photo_xsect[continuum_id]->nu[storage->photo_xsect[continuum_id]->no_of_points - 1]);
+      //fprintf (stderr, "Bf-xsect for comov_nu = %e not in table (nu_table: %e to  %e Hz)\n",
+      // comov_nu, storage->photo_xsect[continuum_id]->nu[0],
+      //  storage->photo_xsect[continuum_id]->nu[storage->photo_xsect[continuum_id]->no_of_points - 1]);
       return 0.0;
     }
   else
@@ -106,12 +159,20 @@ bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double c
         + (comov_nu - storage->photo_xsect[continuum_id]->nu[result-1])
         / (storage->photo_xsect[continuum_id]->nu[result] - storage->photo_xsect[continuum_id]->nu[result-1])
         * (storage->photo_xsect[continuum_id]->x_sect[result] - storage->photo_xsect[continuum_id]->x_sect[result-1]);
-      fprintf (stderr, "comov_nu = %e Hz, nu_table =  %e Hz, x_sect = %e cm^-2, x_sect_interp = %e cm^-2\n",
-       comov_nu, storage->photo_xsect[continuum_id]->nu[result],
-        storage->photo_xsect[continuum_id]->x_sect[result], bf_xsect);
+      //fprintf (stderr, "comov_nu = %e Hz, nu_table =  %e Hz, x_sect = %e cm^-2, x_sect_interp = %e cm^-2\n",
+      // comov_nu, storage->photo_xsect[continuum_id]->nu[result],
+      //  storage->photo_xsect[continuum_id]->x_sect[result], bf_xsect);
       return bf_xsect;
     }
 }
+
+#if 0
+double
+bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double comov_nu)
+{
+  return 6.3039999e-18;
+}
+#endif
 
 void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 {
@@ -128,13 +189,24 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   double boltzmann_factor = exp(-(H * comov_nu) / (KB*T));
 
   double bf_helper = 0;
+  double bf_x_sect;
   for(int64_t i = current_continuum_id; i < no_of_continuum_edges; i++)
   {
     // get the levelpopulation for the level ijk in the current shell:
     double l_pop = storage->l_pop[shell_id * no_of_continuum_edges + i];
     // get the levelpopulation ratio \frac{n_{0,j+1,k}}{n_{i,j,k}} \frac{n_{i,j,k}}{n_{0,j+1,k}}^{*}:
     double l_pop_r = storage->l_pop_r[shell_id * no_of_continuum_edges + i];
-    bf_helper += l_pop * bf_cross_section(storage, i, comov_nu) * (1 - l_pop_r * boltzmann_factor);
+    bf_x_sect = bf_cross_section(storage, i, comov_nu);
+    //if (bf_x_sect == 0.0)
+    //  {
+    //    fprintf(stderr, "Out of bounds.");
+    //    for (int64_t j = i; j < no_of_continuum_edges; j++)
+    //      {
+    //        storage->chi_bf_tmp_partial[j] = bf_helper;
+    //      }
+    //    break;
+    //  }
+    bf_helper += l_pop * bf_x_sect * (1 - l_pop_r * boltzmann_factor);
 
 // FIXME MR: Is this thread-safe? It doesn't look like it to me ...
     storage->chi_bf_tmp_partial[i] = bf_helper;
@@ -296,8 +368,12 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
   {
     chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson;
     chi_continuum = chi_electron;
-    d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
-      storage->inverse_sigma_thomson * rpacket_get_tau_event (packet);
+    // FIXME: Why are the inverse_electron_densities vanishing?
+    //d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
+    //  storage->inverse_sigma_thomson * rpacket_get_tau_event (packet);
+    d_continuum = rpacket_get_tau_event(packet) / chi_electron;
+    //fprintf(stderr, "calculate d_c =%.2e with inv_ne = %.2e and inv_st=%.2e\n", d_continuum,
+    //storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)],storage->inverse_sigma_thomson);
   }
 
   if (rpacket_get_virtual_packet(packet) > 0)
@@ -357,7 +433,7 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state 
 
 double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage, int64_t continuum_id,
 rk_state *mt_state)
-{   
+{
     double th_frequency = storage->continuum_list_nu[continuum_id];
 	int64_t shell_id = rpacket_get_current_shell_id(packet);
 	double T = storage->t_electrons[shell_id];
@@ -376,7 +452,7 @@ double sample_nu_free_free(rpacket_t * packet, storage_model_t * storage, rk_sta
 #endif
 
 void
-macro_atom_new (rpacket_t * packet, storage_model_t * storage, next_interaction2process * macro_atom_deactivation_type,
+macro_atom_new (rpacket_t * packet, const storage_model_t * storage, next_interaction2process * macro_atom_deactivation_type,
 int activation2level_or_cont, rk_state *mt_state)
 {
   int level_or_cont = activation2level_or_cont;
@@ -390,10 +466,15 @@ int activation2level_or_cont, rk_state *mt_state)
     case 0:
       activate_level =
       storage->line2macro_level_upper[rpacket_get_next_line_id (packet) - 1];
+      //fprintf(stderr, "activate_level = %d", activate_level);
       break;
 
      // Macro-atom is activated to a continuum level.
     case 1:
+      //for(int k = 0; k<20;k++)
+      //  {
+      //    fprintf(stderr, "cont_edge2macro_continuum = %d \n", storage->cont_edge2macro_continuum[k]);
+      //  }
       activate_level =
       storage->cont_edge2macro_continuum[rpacket_get_current_continuum_id(packet)];
       //fprintf(stderr, "cc_id = %d ", rpacket_get_current_continuum_id(packet));
@@ -413,12 +494,13 @@ int activation2level_or_cont, rk_state *mt_state)
       double p = 0.0;
       if (level_or_cont == 0) // Macro-atom is in a normal level.
         {
+          int probability_idx = -1;
           i = storage->macro_block_references[activate_level] - 1;
           do
 	        {
-	          p += storage->transition_probabilities[rpacket_get_current_shell_id (packet) *
-				     storage->transition_probabilities_nd +
-				     (++i)];
+	          probability_idx = ((++i) * storage->no_of_shells +
+	          rpacket_get_current_shell_id (packet));
+	          p += storage->transition_probabilities[probability_idx];
 	        }
           while ((p <= event_random));
           emit = storage->transition_type[i];
@@ -432,12 +514,14 @@ int activation2level_or_cont, rk_state *mt_state)
       else  // Macro-atom is in a continuum level.
         {
           j = storage->macro_block_references_continuum[activate_level] - 1;
-          fprintf(stderr, " j1 = %d ", j);
+          fprintf(stderr, "activate_level= %d; j1 = %d\n", activate_level, j);
+          //fprintf(stderr, " event_random = %.5e \n", event_random);
           do
 	        {
 	          p += storage->transition_probabilities_continuum[rpacket_get_current_shell_id (packet) *
 				     storage->transition_probabilities_nd_continuum +
 				     (++j)];
+			  //fprintf(stderr, " p = %.5e, shell = %d, j=%d \n", p, rpacket_get_current_shell_id (packet), j);
 	        }
           while ((p <= event_random));
           fprintf(stderr, " j2 = %d", j);
@@ -453,6 +537,17 @@ int activation2level_or_cont, rk_state *mt_state)
     // radiative deactivation from a level within the macro ion (not a continuum level)
     case -1:
       emission_line_id  = storage->transition_line_id[i];
+      fprintf(stderr,"emission_line_id = %d\n", emission_line_id);
+      // Update Balmer decrements
+      for (int k=0; k < no_of_decrements; k++)
+        {
+          if (emission_line_id == balmer_lines_idx[k])
+          {
+            balmer_emissivities[k]++;
+            fprintf(stderr, "balmer %d = %d\n", k, balmer_emissivities[k]);
+            break;
+          }
+        }
       storage->last_line_interaction_out_id[rpacket_get_id (packet)] = emission_line_id;
       * macro_atom_deactivation_type = BB_EMISSION;
       break;
@@ -472,7 +567,7 @@ int activation2level_or_cont, rk_state *mt_state)
       break;
 
     default:
-      fprintf(stderr, "This process for macro-atom deactivation should not exist!\n");
+      fprintf(stderr, "This process for macro-atom deactivation should not exist! (emit = %d)\n", emit);
     }
 }
 
@@ -547,12 +642,20 @@ void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype
     case EXCITATION_ENERGY:
       // Activate macro-atom to a normal level (not continuum)
       //fprintf(stderr, "r --> A");
+      //for(int k = 0; k<20;k++)
+      //  {
+      //    fprintf(stderr, "e-packet EX: cont_edge2macro_continuum = %d \n", storage->cont_edge2macro_continuum[k]);
+      //  }
       macro_atom_new(packet, storage, &next_process, 0, mt_state);
       break;
 
     case IONIZATION_ENERGY:
       // Activate macro-atom to a continuum level
       //fprintf(stderr, "r --> A* ");
+      //for(int k = 0; k<20;k++)
+      //  {
+      //    fprintf(stderr, "e-packet: cont_edge2macro_continuum = %d \n", storage->cont_edge2macro_continuum[k]);
+      //  }
       macro_atom_new(packet, storage, &next_process, 1, mt_state);
       break;
 
@@ -870,10 +973,15 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   storage->last_interaction_type[rpacket_get_id (packet)] = 3; // last interaction was a bf-absorption
 
+//for(int k = 0; k<20;k++)
+//        {
+//          fprintf(stderr, "bf_scatter: cont_edge2macro_continuum = %d \n", storage->cont_edge2macro_continuum[k]);
+//        }
+
   // Convert the rpacket to thermal or ionization energy
   zrand = (rk_double(mt_state));
   (zrand < storage->continuum_list_nu[ccontinuum] / (nu * rpacket_doppler_factor (packet, storage))) ?
-    e_packet(packet, storage, IONIZATION_ENERGY): e_packet(packet, storage, THERMAL_ENERGY, mt_state);
+    e_packet(packet, storage, IONIZATION_ENERGY, mt_state): e_packet(packet, storage, THERMAL_ENERGY, mt_state);
 }
 
 void
@@ -893,7 +1001,7 @@ montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage, doub
   e_packet(packet, storage, THERMAL_ENERGY, mt_state);
 }
 
-void test_for_close_line(rpacket_t * packet, storage_model_t * storage)
+void test_for_close_line(rpacket_t * packet, const storage_model_t * storage)
 {
   if (!rpacket_get_last_line (packet) &&
       fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
@@ -907,7 +1015,7 @@ void test_for_close_line(rpacket_t * packet, storage_model_t * storage)
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 			 double distance, rk_state *mt_state)
-{  
+{
   int64_t line2d_idx = rpacket_get_next_line_id (packet)
   * storage->no_of_shells + rpacket_get_current_shell_id (packet);
   if (rpacket_get_virtual_packet (packet) == 0)
@@ -996,6 +1104,7 @@ get_event_handler (rpacket_t * packet, storage_model_t * storage,
   double d_boundary = rpacket_get_d_boundary (packet);
   double d_continuum = rpacket_get_d_continuum (packet);
   double d_line = rpacket_get_d_line (packet);
+  //fprintf(stderr, "d_l=%.2e, d_b=%.2e, d_c=%.2e \n", d_line, d_boundary, d_continuum);
   montecarlo_event_handler_t handler;
   if (d_line <= d_boundary && d_line <= d_continuum)
     {
@@ -1027,7 +1136,7 @@ montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage
   double zrand = (rk_double(mt_state));
   double normaliz_cont_th = rpacket_get_chi_electron(packet)/rpacket_get_chi_continuum(packet);
   double normaliz_cont_bf = rpacket_get_chi_boundfree(packet)/rpacket_get_chi_continuum(packet);
-  normaliz_cont_ff = rpacket_get_chi_freefree(packet)/rpacket_get_chi_continuum(packet);
+  double normaliz_cont_ff = rpacket_get_chi_freefree(packet)/rpacket_get_chi_continuum(packet);
 
   if (zrand < normaliz_cont_th)
     {
@@ -1094,6 +1203,7 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
 void
 montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
 {
+  fprintf(stderr, "Main loop");
   storage->virt_packet_nus = (double *)malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_energies = (double *)malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_last_interaction_in_nu = (double *)malloc(sizeof(double) * storage->no_of_packets);

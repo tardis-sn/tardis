@@ -80,8 +80,6 @@ typedef struct StorageModel
   double *ion_population;
   int64_t no_of_ions;
   ContinuumProcessesStatus cont_status;
-  FreeFreeStatus ff_status;
-  photo_xsect_1level **photo_xsect;
   double *virt_packet_nus;
   double *virt_packet_energies;
   double *virt_packet_last_interaction_in_nu;
@@ -90,6 +88,8 @@ typedef struct StorageModel
   int64_t *virt_packet_last_line_interaction_out_id;
   int64_t virt_packet_count;
   int64_t virt_array_size;
+  FreeFreeStatus ff_status;
+  photo_xsect_1level **photo_xsect;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

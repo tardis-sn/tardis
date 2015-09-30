@@ -213,7 +213,6 @@ class Radial1DModel(object):
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.transition_probabilities
 
-        # import pdb; pdb.set_trace()
         # TODO: Replace level population by LTE level population
         if True:
             self.transition_probabilities_continuum = \
@@ -223,6 +222,8 @@ class Radial1DModel(object):
                     photoionization_data=self.atom_data.continuum_data.photoionization_data,
                     continuum_references=self.atom_data.continuum_data.continuum_references,
                     lte_level_population=self.plasma_array.plasma_properties[29].level_number_density)
+
+            self.atom_data.continuum_data.set_level_number_density(self.plasma_array.level_number_density)
 
     def update_radiationfield(self, log_sampling=5):
         """

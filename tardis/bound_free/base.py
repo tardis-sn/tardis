@@ -23,6 +23,9 @@ class BaseContinuumData(object):
         self.continuum_data = self._create_continuum_data_from_levels()
         self.macro_atom_data = self._create_macro_atom_data()
         self.photoionization_data = PhotoionizationData.from_hdf5(fname=photo_dat_fname, atom_data=self)
+        self.multi_index_nu_sorted = self.continuum_data.sort('nu', ascending=False).set_index(
+            ['atomic_number', 'ion_number', 'level_number_lower']).index.values
+        self.level_number_density = None
 
     def _create_continuum_data_from_levels(self):
         logger.info('Generating Continuum data from levels data.')
@@ -92,7 +95,7 @@ class BaseContinuumData(object):
         macro_atom_continuum_data.insert(4, 'transition_probability', pd.Series(target_level_energy,
                                                                                 index=macro_atom_continuum_data.index))
         tmp = macro_atom_continuum_data.copy()
-        tmp['transition_type'] = -1
+        tmp['transition_type'] = -3
         tmp['transition_probability'] = tmp.nu * units.Unit('Hz').to('eV', equivalencies=units.spectral())
         macro_atom_continuum_data = pd.concat([macro_atom_continuum_data, tmp])
         macro_atom_continuum_data.sort(['atomic_number', 'ion_number'], ascending=[1, 1])
@@ -150,16 +153,20 @@ class ReturnMCDataMixin(object):
         return self.continuum_data.sort('nu', ascending=False).continuum_references_idx.values
 
     def get_phot_table_xsect(self, index_nu_sorted):
-        # TODO: Find a more elegant solution
-        multi_index = self.continuum_data.sort('nu', ascending=False).set_index(
-            ['atomic_number', 'ion_number', 'level_number_lower']).index.values[index_nu_sorted]
+        # multi_index = self.continuum_data.sort('nu', ascending=False).set_index(
+        #    ['atomic_number', 'ion_number', 'level_number_lower']).index.values[index_nu_sorted]
+        multi_index = self.multi_index_nu_sorted[index_nu_sorted]
         return self.photoionization_data.loc[multi_index, 'x_sect'].values
 
     def get_phot_table_nu(self, index_nu_sorted):
-        # TODO: Find a more elegant solution
-        multi_index = self.continuum_data.sort('nu', ascending=False).set_index(
-            ['atomic_number', 'ion_number', 'level_number_lower']).index.values[index_nu_sorted]
+        # multi_index = self.continuum_data.sort('nu', ascending=False).set_index(
+        #    ['atomic_number', 'ion_number', 'level_number_lower']).index.values[index_nu_sorted]
+        multi_index = self.multi_index_nu_sorted[index_nu_sorted]
         return self.photoionization_data.loc[multi_index, 'nu'].values
+
+    def set_level_number_density(self, level_number_density):
+        # ? Copy needed
+        self.level_number_density = level_number_density.copy().loc[self.multi_index_nu_sorted].values.transpose()
 
 
 class ContinuumData(BaseContinuumData, ReturnMCDataMixin):
@@ -178,10 +185,10 @@ class TransitionProbabilitiesContinuum(object):
         self.no_of_shells = len(t_rads)
         self.macro_atom_continuum_data = macro_atom_continuum_data
         self.block_references = np.hstack(
-            (continuum_references.block_references, len(self.macro_atom_continuum_data) - 1))
-        self.photoionization_data = photoionization_data
+            (continuum_references.block_references, len(self.macro_atom_continuum_data)))
+        self.photoionization_data = photoionization_data.copy()
         self.lte_level_population = lte_level_population
-        self.transition_probabilities = self.calculate()
+        self.data = self.calculate()
 
     # TODO: maybe resort transition probabilities by value so that less summations are needed in the macro atom
     def calculate(self):
@@ -195,9 +202,8 @@ class TransitionProbabilitiesContinuum(object):
                                         self.macro_atom_continuum_data.level_lower_idx.values)
         transition_probabilities.insert(1, 'continuum_edge_idx',
                                         self.macro_atom_continuum_data.continuum_edge_idx.values)
-        import pdb;
-
-        pdb.set_trace()
+        transition_probabilities.insert(2, 'transition_type',
+                                        self.macro_atom_continuum_data.transition_type.values)
         return transition_probabilities
 
     @staticmethod
@@ -208,11 +214,12 @@ class TransitionProbabilitiesContinuum(object):
     def _calculate_one_shell(self, t_rad, lte_levelpop_one_shell):
         transition_probability_row = self.macro_atom_continuum_data['transition_probability'].values
         tmp = np.zeros(len(self.macro_atom_continuum_data['transition_probability'].values))
-        for i, row in self.macro_atom_continuum_data.iterrows():
+        # TODO: ATM each rate is calculated twice; reset_index earlier
+        for i, row in self.macro_atom_continuum_data.reset_index().iterrows():
             level_ijk = tuple(map(int, (row['atomic_number'], row['ion_number'], row['level_number_lower'])))
             nu = self.photoionization_data.loc[level_ijk, 'nu'].values
             x_sect = self.photoionization_data.loc[level_ijk, 'x_sect'].values
             tmp[i] = self._calculate_one_probability(nu, x_sect, t_rad) * lte_levelpop_one_shell.loc[level_ijk]
         # TODO: change this in the preparation of the continuum data
-        transition_probability_row *= tmp * units.eV.to(units.erg)
+        transition_probability_row *= tmp * units.eV.to(units.erg) * 1e-10
         return transition_probability_row
