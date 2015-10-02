@@ -360,7 +360,6 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
   {
     chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson;
     chi_continuum = chi_electron;
-    // FIXME: Why are the inverse_electron_densities vanishing?
     d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
       storage->inverse_sigma_thomson * rpacket_get_tau_event (packet);
     //d_continuum = rpacket_get_tau_event(packet) / chi_electron;

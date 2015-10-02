@@ -111,15 +111,6 @@ cdef extern from "src/cmontecarlo.h":
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
 
-#cdef class ContDataInterface:
-#
-#    cdef np.ndarray[double, ndim=2] transition_probabilities_continuum
-#
-#    def __init__(self, model):
-#        self.transition_probabilities_continuum = \
-#            model.transition_probabilities_continuum.data.ix[:, 3:].values.transpose()
-
-
 def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
                         int nthreads=4):
     """
@@ -180,7 +171,7 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         1.0 / model.plasma_array.electron_densities.values)
 
     # Switch for continuum processes
-    storage.cont_status = CONTINUUM_ON
+    storage.cont_status = CONTINUUM_OFF
     # Continuum data
 
     # Recombination Test
