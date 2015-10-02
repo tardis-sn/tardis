@@ -111,13 +111,47 @@ cdef extern from "src/cmontecarlo.h":
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
 
+#cdef class ContDataInterface:
+#
+#    cdef np.ndarray[double, ndim=2] transition_probabilities_continuum
+#
+#    def __init__(self, model):
+#        self.transition_probabilities_continuum = \
+#            model.transition_probabilities_continuum.data.ix[:, 3:].values.transpose()
 
 
-cdef initialize_storage_model(model, runner, storage_model_t *storage):
+def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
+                        int nthreads=4):
     """
-    Initializing the storage struct.
+    Parameters
+    ----------
+    model : `tardis.model_radial_oned.ModelRadial1D`
+        complete model
+    param photon_packets : PacketSource object
+        photon packets
 
+    Returns
+    -------
+    output_nus : `numpy.ndarray`
+    output_energies : `numpy.ndarray`
+
+    TODO
+                    np.ndarray[double, ndim=1] line_list_nu,
+                    np.ndarray[double, ndim=2] tau_lines,
+                    np.ndarray[double, ndim=1] ne,
+                    double packet_energy,
+                    np.ndarray[double, ndim=2] p_transition,
+                    np.ndarray[int_type_t, ndim=1] type_transition,
+                    np.ndarray[int_type_t, ndim=1] target_level_id,
+                    np.ndarray[int_type_t, ndim=1] target_line_id,
+                    np.ndarray[int_type_t, ndim=1] unroll_reference,
+                    np.ndarray[int_type_t, ndim=1] line2level,
+                    int_type_t log_packets,
+                    int_type_t do_scatter
     """
+
+    # Setting up the storage struct
+    cdef storage_model_t storage
 
     storage.no_of_packets = model.packet_src.packet_nus.size
     storage.packet_nus = <double*> PyArray_DATA(model.packet_src.packet_nus)
@@ -144,6 +178,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         model.plasma_array.electron_densities.values)
     storage.inverse_electron_densities = <double*> PyArray_DATA(
         1.0 / model.plasma_array.electron_densities.values)
+
     # Switch for continuum processes
     storage.cont_status = CONTINUUM_ON
     # Continuum data
@@ -151,8 +186,6 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     # Recombination Test
     #print 'Balmer line_idx:', model.atom_data.lines.query('level_number_lower ==1 &'
     #                                                      'level_number_upper < 12').index.values
-
-
 
     # Switch for ff processes
     storage.ff_status = FREE_FREE_OFF
@@ -169,6 +202,9 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     # Line lists
     storage.no_of_lines = model.atom_data.lines.nu.values.size
     storage.line_list_nu = <double*> PyArray_DATA(model.atom_data.lines.nu.values)
+    #for i in [27,28, 29, 30, 31, 32, 33, 34, 35, 36]:
+    #    print 'Balmer: ', storage.line_list_nu[i]
+    #import sys; sys.exit()
     storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
         model.plasma_array.tau_sobolevs.values)
     storage.line_lists_j_blues = <double*> PyArray_DATA(runner.j_blue_estimator)
@@ -228,25 +264,25 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
     cdef np.ndarray[double, ndim=2] l_pop
     cdef np.ndarray[double, ndim=1] l_pop_r
-    cdef np.ndarray[double, ndim=2] transition_probabilities_continuum
     cdef np.ndarray[int_type_t, ndim=1] cont_edge2macro_continuum
     cdef np.ndarray[int_type_t, ndim=1] macro_block_references_continuum
     cdef np.ndarray[int_type_t, ndim=1] transition_type_continuum
     cdef np.ndarray[int_type_t, ndim=1] destination_level_id_continuum
     cdef np.ndarray[int_type_t, ndim=1] transition_continuum_id
+    cdef np.ndarray[double, ndim=2] transition_probabilities_continuum
+
     # Temporary
-    #cdef photo_xsect_1level ** photo_xsect = <photo_xsect_1level **> malloc(
-    #    20 * sizeof(photo_xsect_1level *))
+    cdef photo_xsect_1level ** photo_xsect = <photo_xsect_1level **> malloc(
+        20 * sizeof(photo_xsect_1level *))
 
-
-    #if storage.cont_status == CONTINUUM_ON:
-    #    for i in range(20):
-    #        photo_xsect[i] = <photo_xsect_1level *> malloc(sizeof(photo_xsect_1level))
-    #        phot_table_xsect = model.atom_data.continuum_data.get_phot_table_xsect(i)
-    #        phot_table_nu = model.atom_data.continuum_data.get_phot_table_nu(i)
-    #        photo_xsect[i].no_of_points = len(phot_table_xsect)
-    #        photo_xsect[i].nu = <double *> (<np.ndarray[double, ndim =1]> (phot_table_nu)).data
-    #        photo_xsect[i].x_sect = <double *> (<np.ndarray[double, ndim =1]> (phot_table_xsect)).data
+    if storage.cont_status == CONTINUUM_ON:
+        for i in range(20):
+            photo_xsect[i] = <photo_xsect_1level *> malloc(sizeof(photo_xsect_1level))
+            phot_table_xsect = model.atom_data.continuum_data.get_phot_table_xsect(i)
+            phot_table_nu = model.atom_data.continuum_data.get_phot_table_nu(i)
+            photo_xsect[i].no_of_points = len(phot_table_xsect)
+            photo_xsect[i].nu = <double *> (<np.ndarray[double, ndim =1]> (phot_table_nu)).data
+            photo_xsect[i].x_sect = <double *> (<np.ndarray[double, ndim =1]> (phot_table_xsect)).data
 
     if storage.cont_status == CONTINUUM_ON:
         continuum_list_nu = model.atom_data.continuum_data.continuum_edges_list
@@ -254,7 +290,6 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         transition_probabilities_nd_continuum = len(model.transition_probabilities_continuum.data)
         macro_block_references_continuum = model.atom_data.continuum_data.continuum_references[
             'block_references'].values
-        #print model.atom_data.continuum_data.cont_edge2macro_continuum, type(model.atom_data.continuum_data.cont_edge2macro_continuum)
         cont_edge2macro_continuum = model.atom_data.continuum_data.cont_edge2macro_continuum
         destination_level_id_continuum = model.transition_probabilities_continuum.data['destination_level_idx'].values
         transition_type_continuum = model.transition_probabilities_continuum.data['transition_type'].values
@@ -265,76 +300,22 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
         storage.l_pop = <double*> l_pop.data
         storage.transition_probabilities_continuum = <double*> transition_probabilities_continuum.data
-        for i in range(20):
-            print 'Here 1:', storage.transition_probabilities_continuum[i]
+        #storage.transition_probabilities_continuum = <double*> PyArray_DATA(model.transition_probabilities_continuum.data.ix[:, 3:].values)
         storage.continuum_list_nu = <double*> continuum_list_nu.data
-        for i in range(20):
-            print 'Here 2:', storage.transition_probabilities_continuum[i]
         storage.destination_level_id_continuum = <int_type_t*> destination_level_id_continuum.data
-        for i in range(20):
-            print 'Here 3:', storage.transition_probabilities_continuum[i]
         storage.transition_type_continuum = <int_type_t*> transition_type_continuum.data
-        for i in range(20):
-            print 'Here 3:', storage.transition_probabilities_continuum[i]
         storage.transition_continuum_id = <int_type_t*> transition_continuum_id.data
-        for i in range(20):
-            print 'Here 4:', storage.transition_probabilities_continuum[i]
         storage.macro_block_references_continuum = <int_type_t*> macro_block_references_continuum.data
-        for i in range(20):
-            print 'Here 5:', storage.transition_probabilities_continuum[i]
         storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
         storage.l_pop_r = <double*> l_pop_r.data
-        for i in range(20):
-            print 'Here 6:', storage.transition_probabilities_continuum[i]
         storage.cont_edge2macro_continuum = <int_type_t*> cont_edge2macro_continuum.data
-        for i in range(20):
-            print 'Here 7:', storage.transition_probabilities_continuum[i]
-
         storage.transition_probabilities_nd_continuum = transition_probabilities_nd_continuum
-        for i in range(20):
-            print 'Here 8:', storage.transition_probabilities_continuum[i]
         storage.no_of_edges = continuum_list_nu.size
-        for i in range(20):
-            print 'Here 9:', storage.transition_probabilities_continuum[i]
-        #storage.photo_xsect = photo_xsect
-        for i in range(20):
-            print 'Here 10:', storage.transition_probabilities_continuum[i]
+        storage.photo_xsect = photo_xsect
 
-def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
-                        int nthreads=4):
-    """
-    Parameters
-    ----------
-    model : `tardis.model_radial_oned.ModelRadial1D`
-        complete model
-    param photon_packets : PacketSource object
-        photon packets
-
-    Returns
-    -------
-    output_nus : `numpy.ndarray`
-    output_energies : `numpy.ndarray`
-
-    TODO
-                    np.ndarray[double, ndim=1] line_list_nu,
-                    np.ndarray[double, ndim=2] tau_lines,
-                    np.ndarray[double, ndim=1] ne,
-                    double packet_energy,
-                    np.ndarray[double, ndim=2] p_transition,
-                    np.ndarray[int_type_t, ndim=1] type_transition,
-                    np.ndarray[int_type_t, ndim=1] target_level_id,
-                    np.ndarray[int_type_t, ndim=1] target_line_id,
-                    np.ndarray[int_type_t, ndim=1] unroll_reference,
-                    np.ndarray[int_type_t, ndim=1] line2level,
-                    int_type_t log_packets,
-                    int_type_t do_scatter
-    """
-
-    cdef storage_model_t storage
-
-    initialize_storage_model(model, runner, &storage)
-    for i in range(20):
-        print 'initialized:', storage.transition_probabilities_continuum[i]
+    #initialize_storage_model(model, runner, &storage)
+    #for i in range(20):
+    #    print 'initialized:', storage.transition_probabilities_continuum[i]
 
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
                          model.tardis_config.montecarlo.seed)
@@ -362,7 +343,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     #for i in range(storage.no_of_edges):
     #    free(<photo_xsect_1level *> storage.photo_xsect[i])
-    #    print 'Free'
 
     runner.virt_packet_nus = virt_packet_nus
     runner.virt_packet_energies = virt_packet_energies

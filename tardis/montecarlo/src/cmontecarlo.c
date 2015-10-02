@@ -6,7 +6,7 @@
 
 
 // Temporary stuff to determine Balmer decrements
-int balmer_lines_idx[] = {28, 29, 30, 31, 32, 33, 34, 35, 36, 37};
+int balmer_lines_idx[] = {27,28, 29, 30, 31, 32, 33, 34, 35, 36};
 int balmer_emissivities[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 int no_of_decrements = 10;
 
@@ -139,7 +139,6 @@ rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *storage)
 }
 
 /* Methods for calculating continuum opacities */
-
 double
 bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double comov_nu)
 {
@@ -166,13 +165,6 @@ bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double c
     }
 }
 
-#if 0
-double
-bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double comov_nu)
-{
-  return 6.3039999e-18;
-}
-#endif
 
 void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 {
@@ -369,9 +361,9 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
     chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson;
     chi_continuum = chi_electron;
     // FIXME: Why are the inverse_electron_densities vanishing?
-    //d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
-    //  storage->inverse_sigma_thomson * rpacket_get_tau_event (packet);
-    d_continuum = rpacket_get_tau_event(packet) / chi_electron;
+    d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
+      storage->inverse_sigma_thomson * rpacket_get_tau_event (packet);
+    //d_continuum = rpacket_get_tau_event(packet) / chi_electron;
     //fprintf(stderr, "calculate d_c =%.2e with inv_ne = %.2e and inv_st=%.2e\n", d_continuum,
     //storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)],storage->inverse_sigma_thomson);
   }
@@ -514,7 +506,7 @@ int activation2level_or_cont, rk_state *mt_state)
       else  // Macro-atom is in a continuum level.
         {
           j = storage->macro_block_references_continuum[activate_level] - 1;
-          fprintf(stderr, "activate_level= %d; j1 = %d\n", activate_level, j);
+          //fprintf(stderr, "activate_level= %d; j1 = %d\n", activate_level, j);
           //fprintf(stderr, " event_random = %.5e \n", event_random);
           do
 	        {
@@ -524,7 +516,6 @@ int activation2level_or_cont, rk_state *mt_state)
 			  //fprintf(stderr, " p = %.5e, shell = %d, j=%d \n", p, rpacket_get_current_shell_id (packet), j);
 	        }
           while ((p <= event_random));
-          fprintf(stderr, " j2 = %d", j);
           emit = storage->transition_type_continuum[j];
           activate_level = storage->destination_level_id_continuum[j];
           level_or_cont = 0; // set macro-atom to normal level
@@ -537,14 +528,13 @@ int activation2level_or_cont, rk_state *mt_state)
     // radiative deactivation from a level within the macro ion (not a continuum level)
     case -1:
       emission_line_id  = storage->transition_line_id[i];
-      fprintf(stderr,"emission_line_id = %d\n", emission_line_id);
       // Update Balmer decrements
       for (int k=0; k < no_of_decrements; k++)
         {
           if (emission_line_id == balmer_lines_idx[k])
           {
             balmer_emissivities[k]++;
-            fprintf(stderr, "balmer %d = %d\n", k, balmer_emissivities[k]);
+            //fprintf(stderr, "balmer %d = %d\n", k, balmer_emissivities[k]);
             break;
           }
         }
@@ -1251,4 +1241,8 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #ifdef WITHOPENMP
   }
 #endif
+for (int k = 0; k < no_of_decrements; k++)
+    {
+    fprintf(stderr, "balmer %d = %d\n", k, balmer_emissivities[k]);
+    }
 }

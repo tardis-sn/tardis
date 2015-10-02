@@ -143,6 +143,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 macro_atom_transition_up_filter, axis=0, mode='raise')
             transition_probabilities[transition_up_filter] *= j_blues * \
                 macro_stimulated_emission
+            # transition_probabilities[transition_up_filter] *=0
             block_references = np.hstack((
                 atomic_data.macro_atom_references.block_references,
                 len(macro_atom_data)))
