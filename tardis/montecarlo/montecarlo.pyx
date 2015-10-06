@@ -118,8 +118,11 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     #electron density
     storage.electron_densities = <double*> PyArray_DATA(
         model.plasma_array.electron_densities.values)
-    storage.inverse_electron_densities = <double*> PyArray_DATA(
+
+    runner.inverse_electron_densities = (
         1.0 / model.plasma_array.electron_densities.values)
+    storage.inverse_electron_densities = <double*> PyArray_DATA(
+        runner.inverse_electron_densities)
     # Switch for continuum processes
     storage.cont_status = CONTINUUM_OFF
     # Continuum data
