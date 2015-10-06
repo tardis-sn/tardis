@@ -466,7 +466,7 @@ class AtomData(object):
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_species = nlte_species
-        self._levels = self._levels.reset_index()
+        self._levels = self._levels.reset_index(drop=True)
         self.levels = self._levels.copy()
 
         self.levels = self.levels[self.levels['atomic_number'].isin(self.selected_atomic_numbers)]
@@ -583,7 +583,7 @@ class AtomData(object):
 class NLTEData(object):
     def __init__(self, atom_data, nlte_species):
         self.atom_data = atom_data
-        self.lines = atom_data.lines.reset_index()
+        self.lines = atom_data.lines.reset_index(drop=True)
         self.nlte_species = nlte_species
 
         if nlte_species:
