@@ -15,6 +15,7 @@ from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.bound_free.base import TransitionProbabilitiesContinuum
+from tardis.bound_free.photoionization_rates import PhotoIonizationRates
 
 
 
@@ -213,20 +214,12 @@ class Radial1DModel(object):
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.transition_probabilities
 
-            # import pdb; pdb.set_trace()
-            #self.transition_probabilities.insert(0, 'atomic_number',
-            #                            self.atom_data.macro_atom_data.atomic_number.values)
-            #self.transition_probabilities.insert(1, 'ion_number',
-            #                            self.atom_data.macro_atom_data.atomic_number.values)
-            #self.transition_probabilities.insert(2, 'source_level_number',
-            #                                     self.atom_data.macro_atom_data.source_level_number.values)
-            #self.transition_probabilities = \
-            #    self.transition_probabilities.groupby(['atomic_number','ion_number',
-            #            'source_level_number']).apply(lambda x: x.sort([1],ascending = False))
 
-
-        # TODO: Replace level population by LTE level population
         try:
+            # test = PhotoIonizationRates(photoionization_data=self.atom_data.continuum_data.photoionization_data,
+            #            t_rads=self.t_rads, ws=self.ws, electron_densities=self.plasma_array.electron_densities)
+
+            # TODO: Replace level population by LTE level population
             self.transition_probabilities_continuum = \
                 TransitionProbabilitiesContinuum(
                     t_rads=self.plasma_array.plasma_properties[0].t_rad,

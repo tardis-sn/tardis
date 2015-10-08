@@ -579,7 +579,6 @@ class AtomData(object):
 
         try:
             self.continuum_data = ContinuumData(self)
-
         except IncompletePhotoionizationDataError:
             pass
 

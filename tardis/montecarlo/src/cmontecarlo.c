@@ -6,9 +6,9 @@
 
 
 // Temporary stuff to determine Balmer decrements
-int balmer_lines_idx[] = {27,28, 29, 30, 31, 32, 33, 34, 35, 36};
-int balmer_emissivities[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-int no_of_decrements = 10;
+//int balmer_lines_idx[] = {27,28, 29, 30, 31, 32, 33, 34, 35, 36, 18}; // Last entry is Lymann alpha
+//int balmer_emissivities[] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+//int no_of_decrements = 11;
 
 /** Look for a place to insert a value in an inversely sorted float array.
  *
@@ -462,10 +462,6 @@ int activation2level_or_cont, rk_state *mt_state)
 
      // Macro-atom is activated to a continuum level.
     case 1:
-      //for(int k = 0; k<20;k++)
-      //  {
-      //    fprintf(stderr, "cont_edge2macro_continuum = %d \n", storage->cont_edge2macro_continuum[k]);
-      //  }
       activate_level =
       storage->cont_edge2macro_continuum[rpacket_get_current_continuum_id(packet)];
       //fprintf(stderr, "cc_id = %d ", rpacket_get_current_continuum_id(packet));
@@ -528,15 +524,18 @@ int activation2level_or_cont, rk_state *mt_state)
     case -1:
       emission_line_id  = storage->transition_line_id[i];
       // Update Balmer decrements
-      for (int k=0; k < no_of_decrements; k++)
-        {
-          if (emission_line_id == balmer_lines_idx[k])
-          {
-            balmer_emissivities[k]++;
-            //fprintf(stderr, "balmer %d = %d\n", k, balmer_emissivities[k]);
-            break;
-          }
-        }
+      //if (activation2level_or_cont == 1)
+      //  {
+      //    for (int k=0; k < no_of_decrements; k++)
+      //      {
+      //        if (emission_line_id == balmer_lines_idx[k])
+      //          {
+      //            balmer_emissivities[k]++;
+      //            //fprintf(stderr, "balmer %d = %d\n", k, balmer_emissivities[k]);
+      //            break;
+      //          }
+      //      }
+      //   }
       storage->last_line_interaction_out_id[rpacket_get_id (packet)] = emission_line_id;
       * macro_atom_deactivation_type = BB_EMISSION;
       break;
@@ -1240,8 +1239,9 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #ifdef WITHOPENMP
   }
 #endif
-for (int k = 0; k < no_of_decrements; k++)
-    {
-    fprintf(stderr, "balmer %d = %d\n", k, balmer_emissivities[k]);
-    }
+//for (int k = 0; k < no_of_decrements; k++)
+//  {
+//    fprintf(stderr, "balmer %d = %d\n", k, balmer_emissivities[k]);
+//    fprintf(stderr, "nu %d = %e\n", k, storage->line_list_nu[balmer_lines_idx[k]]);
+//  }
 }

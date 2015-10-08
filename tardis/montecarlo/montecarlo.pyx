@@ -175,7 +175,7 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     # Continuum data
 
     # Recombination Test
-    #print 'Balmer line_idx:', model.atom_data.lines.query('level_number_lower ==1 &'
+    # print 'Balmer line_idx:', model.atom_data.lines.query('level_number_lower ==1 &'
     #                                                      'level_number_upper < 12').index.values
 
     # Switch for ff processes
@@ -291,7 +291,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
         storage.l_pop = <double*> l_pop.data
         storage.transition_probabilities_continuum = <double*> transition_probabilities_continuum.data
-        #storage.transition_probabilities_continuum = <double*> PyArray_DATA(model.transition_probabilities_continuum.data.ix[:, 3:].values)
         storage.continuum_list_nu = <double*> continuum_list_nu.data
         storage.destination_level_id_continuum = <int_type_t*> destination_level_id_continuum.data
         storage.transition_type_continuum = <int_type_t*> transition_type_continuum.data
@@ -303,10 +302,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         storage.transition_probabilities_nd_continuum = transition_probabilities_nd_continuum
         storage.no_of_edges = continuum_list_nu.size
         storage.photo_xsect = photo_xsect
-
-    #initialize_storage_model(model, runner, &storage)
-    #for i in range(20):
-    #    print 'initialized:', storage.transition_probabilities_continuum[i]
 
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
                          model.tardis_config.montecarlo.seed)
@@ -332,8 +327,9 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     free(<void *>storage.virt_packet_last_line_interaction_in_id)
     free(<void *>storage.virt_packet_last_line_interaction_out_id)
 
-    #for i in range(storage.no_of_edges):
-    #    free(<photo_xsect_1level *> storage.photo_xsect[i])
+    for i in range(storage.no_of_edges):
+        free(<photo_xsect_1level *> storage.photo_xsect[i])
+        print 'Free'
 
     runner.virt_packet_nus = virt_packet_nus
     runner.virt_packet_energies = virt_packet_energies
