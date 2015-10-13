@@ -608,7 +608,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     storage->line_lists_tau_sobolevs[line2d_idx];
     if(f>f_0)
       {
-        tau_line = 0.9*tau_line;
+        tau_line = 0.1*tau_line;
       }
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
