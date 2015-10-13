@@ -603,18 +603,9 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
   double f = rk_double(mt_state); // Generates a random number to determine clumpiness.
   double f_0 = 0.4; // True "clumping" factor.
 
-  if(f<=f_0)
-    {
-      double tau_line =
-        storage->line_lists_tau_sobolevs[line2d_idx];
-    }
-    else
-    {
-      double tau_line =
-        storage->line_lists_tau_sobolevs[line2d_idx];
-      tau_line = 0.9 * tau_line;
-    }
 
+  double tau_line =
+    storage->line_lists_tau_sobolevs[line2d_idx];
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
 
