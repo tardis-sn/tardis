@@ -603,6 +603,17 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     storage->line_lists_tau_sobolevs[line2d_idx];
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
+  double f = rk_double(mt_state);
+  double f_0 = 0.4;
+
+  if (f<=f_0)
+    {
+      printf("Packet is inside bubble.");
+    }
+  else
+    {
+      printf("Packet is outside bubble.");
+    }
   rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
 
   if (rpacket_get_next_line_id (packet) == storage->no_of_lines)
