@@ -15,7 +15,8 @@ from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.bound_free.base import TransitionProbabilitiesContinuum
-from tardis.bound_free.photoionization_rates import PhotoIonizationRates
+from tardis.bound_free.rates import IonizationRates
+from tardis.bound_free.rates import CollisionalRates
 
 
 
@@ -87,7 +88,8 @@ class Radial1DModel(object):
         selected_atomic_numbers = self.tardis_config.abundances.index
         self.atom_data.prepare_atom_data(selected_atomic_numbers,
                                          line_interaction_type=tardis_config.plasma.line_interaction_type,
-                                         nlte_species=tardis_config.plasma.nlte.species)
+                                         nlte_species=tardis_config.plasma.nlte.species,
+                                         continuum_treatment=tardis_config.plasma['continuum_treatment'])
 
         if tardis_config.plasma.ionization == 'nebular':
             if not self.atom_data.has_zeta_data:
@@ -214,12 +216,16 @@ class Radial1DModel(object):
         if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
             self.transition_probabilities = self.plasma_array.transition_probabilities
 
-
-        try:
+        if self.tardis_config.plasma['continuum_treatment'] == True:
             # test = PhotoIonizationRates(photoionization_data=self.atom_data.continuum_data.photoionization_data,
             #            t_rads=self.t_rads, ws=self.ws, electron_densities=self.plasma_array.electron_densities)
 
-            # TODO: Replace level population by LTE level population
+            # TODO: Replace level population with LTE level population
+            # test = CollisionalRates(lines=self.atom_data.lines, t_electrons=0.9*self.t_rads,
+            #                        electron_densities=self.plasma_array.electron_densities,
+            #                        lte_level_pop=self.plasma_array.level_number_density)
+
+            # TODO: Replace level population with LTE level population
             self.transition_probabilities_continuum = \
                 TransitionProbabilitiesContinuum(
                     t_rads=self.plasma_array.plasma_properties[0].t_rad,
@@ -229,9 +235,6 @@ class Radial1DModel(object):
                     lte_level_population=self.plasma_array.plasma_properties[29].level_number_density)
 
             self.atom_data.continuum_data.set_level_number_density(self.plasma_array.level_number_density)
-
-        except:
-            pass
 
     def update_radiationfield(self, log_sampling=5):
         """

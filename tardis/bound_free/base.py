@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 
 class BaseContinuumData(object):
     def __init__(self, atom_data, photo_dat_fname=None):
+        # TODO: remove unnecessary attributes
         self.atom_data = atom_data
         self.levels = atom_data.levels.reset_index()
         self.levels = self.levels.query('atomic_number != ion_number')
@@ -23,6 +24,7 @@ class BaseContinuumData(object):
         self.continuum_data = self._create_continuum_data_from_levels()
         self.macro_atom_data = self._create_macro_atom_data()
         self.photoionization_data = PhotoionizationData.from_hdf5(fname=photo_dat_fname, atom_data=self)
+        self.no_levels_with_photdata = len(np.unique(self.photoionization_data.index.values))
         self.multi_index_nu_sorted = self.continuum_data.sort('nu', ascending=False).set_index(
             ['atomic_number', 'ion_number', 'level_number_lower']).index.values
         self.level_number_density = None
@@ -195,7 +197,7 @@ class TransitionProbabilitiesContinuum(object):
         transition_probabilities = np.zeros((len(self.t_rads), len(self.macro_atom_continuum_data)))
         for i, t_rad in enumerate(self.t_rads):
             transition_probabilities[i] = self._calculate_one_shell(t_rad, self.lte_level_population.loc[:, i])
-        transition_probabilities = transition_probabilities.T.reshape(transition_probabilities.shape[::-1])
+        transition_probabilities = transition_probabilities.T
         macro_atom.normalize_transition_probabilities(transition_probabilities, self.block_references)
         transition_probabilities = pd.DataFrame(transition_probabilities)
         transition_probabilities.insert(0, 'destination_level_idx',
@@ -212,7 +214,7 @@ class TransitionProbabilitiesContinuum(object):
         return simps(integrand, nu)
 
     def _calculate_one_shell(self, t_rad, lte_levelpop_one_shell):
-        transition_probability_row = self.macro_atom_continuum_data['transition_probability'].values
+        transition_probability_row = self.macro_atom_continuum_data['transition_probability'].values.copy()
         tmp = np.zeros(len(self.macro_atom_continuum_data['transition_probability'].values))
         # TODO: ATM each rate is calculated twice; reset_index earlier
         for i, row in self.macro_atom_continuum_data.reset_index().iterrows():

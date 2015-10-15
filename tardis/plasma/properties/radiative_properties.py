@@ -133,11 +133,6 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 macro_atom_data.transition_probability.values[np.newaxis].T *
                 beta_sobolev.take(macro_atom_data.lines_idx.values.astype(int),
                     axis=0, mode='raise'))
-            # Set beta sobolev to one for recombination cascade test problem
-            # transition_probabilities = (
-            #    macro_atom_data.transition_probability.values[np.newaxis].T *
-            #    np.ones(beta_sobolev.take(macro_atom_data.lines_idx.values.astype(int),
-            #        axis=0, mode='raise').shape))
             transition_up_filter = \
                 (macro_atom_data.transition_type == 1).values
             macro_atom_transition_up_filter = \
@@ -148,16 +143,11 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 macro_atom_transition_up_filter, axis=0, mode='raise')
             transition_probabilities[transition_up_filter] *= j_blues * \
                 macro_stimulated_emission
-            #transition_probabilities[transition_up_filter] *=0
             block_references = np.hstack((
                 atomic_data.macro_atom_references.block_references,
                 len(macro_atom_data)))
-            #norm_factor = \
             macro_atom.normalize_transition_probabilities(
                 transition_probabilities, block_references)
-            # transition_probabilities = (pd.DataFrame(transition_probabilities,
-            #    index=macro_atom_data.transition_line_id,
-            #    columns=tau_sobolevs.columns), pd.DataFrame(norm_factor))
             transition_probabilities = pd.DataFrame(transition_probabilities,
                 index=macro_atom_data.transition_line_id,
                 columns=tau_sobolevs.columns)

@@ -53,7 +53,8 @@ def calculate_beta_sobolev(np.ndarray[double, ndim=1] tau_sobolevs, np.ndarray[d
             beta_sobolev = (1 - exp(-tau_sobolev)) / tau_sobolev
         beta_sobolevs[i] = beta_sobolev
 
-def normalize_transition_probabilities(double [:, ::1] p_transition,
+# Warning: This is the old version.
+def normalize_transition_probabilities(double [:, :] p_transition,
                                        int_type_t [:] reference_levels):
     cdef int i, j, k
     cdef np.ndarray[double, ndim=1] norm_factor = np.zeros(p_transition.shape[1])
@@ -70,4 +71,4 @@ def normalize_transition_probabilities(double [:, ::1] p_transition,
                 if norm_factor[k] == 0.0:
                     continue
 
-                p_transition[j, k] /= norm_factor[k]
+                p_transition[j,k] /= norm_factor[k]

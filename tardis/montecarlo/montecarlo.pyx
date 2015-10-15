@@ -171,12 +171,11 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         1.0 / model.plasma_array.electron_densities.values)
 
     # Switch for continuum processes
-    storage.cont_status = CONTINUUM_OFF
+    if model.tardis_config.plasma['continuum_treatment'] == True:
+        storage.cont_status = CONTINUUM_ON
+    else:
+        storage.cont_status = CONTINUUM_OFF
     # Continuum data
-
-    # Recombination Test
-    # print 'Balmer line_idx:', model.atom_data.lines.query('level_number_lower ==1 &'
-    #                                                      'level_number_upper < 12').index.values
 
     # Switch for ff processes
     storage.ff_status = FREE_FREE_OFF
@@ -193,9 +192,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     # Line lists
     storage.no_of_lines = model.atom_data.lines.nu.values.size
     storage.line_list_nu = <double*> PyArray_DATA(model.atom_data.lines.nu.values)
-    #for i in [27,28, 29, 30, 31, 32, 33, 34, 35, 36]:
-    #    print 'Balmer: ', storage.line_list_nu[i]
-    #import sys; sys.exit()
     storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
         model.plasma_array.tau_sobolevs.values)
     storage.line_lists_j_blues = <double*> PyArray_DATA(runner.j_blue_estimator)
@@ -262,12 +258,14 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     cdef np.ndarray[int_type_t, ndim=1] transition_continuum_id
     cdef np.ndarray[double, ndim=2] transition_probabilities_continuum
 
+    # kind of redundant atm
+    cdef int no_levels_with_photdata = model.atom_data.continuum_data.no_levels_with_photdata
     # Temporary
     cdef photo_xsect_1level ** photo_xsect = <photo_xsect_1level **> malloc(
-        20 * sizeof(photo_xsect_1level *))
+        no_levels_with_photdata * sizeof(photo_xsect_1level *))
 
     if storage.cont_status == CONTINUUM_ON:
-        for i in range(20):
+        for i in range(no_levels_with_photdata):
             photo_xsect[i] = <photo_xsect_1level *> malloc(sizeof(photo_xsect_1level))
             phot_table_xsect = model.atom_data.continuum_data.get_phot_table_xsect(i)
             phot_table_nu = model.atom_data.continuum_data.get_phot_table_nu(i)
@@ -327,9 +325,10 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     free(<void *>storage.virt_packet_last_line_interaction_in_id)
     free(<void *>storage.virt_packet_last_line_interaction_out_id)
 
-    for i in range(storage.no_of_edges):
-        free(<photo_xsect_1level *> storage.photo_xsect[i])
-        print 'Free'
+    # Necessary?
+    if storage.cont_status == CONTINUUM_ON:
+        for i in range(storage.no_of_edges):
+            free(<photo_xsect_1level *> storage.photo_xsect[i])
 
     runner.virt_packet_nus = virt_packet_nus
     runner.virt_packet_energies = virt_packet_energies

@@ -8,11 +8,12 @@ import pandas as pd
 from scipy.integrate import simps
 from tardis import macro_atom
 from tardis.util import intensity_black_body
+from scipy.special import expn
 
 logger = logging.getLogger(__name__)
 
 
-class PhotoIonizationRates(object):
+class IonizationRates(object):
     def __init__(self, photoionization_data, ws, t_rads, electron_densities):
         self.photoionization_data = photoionization_data.copy()
         self.ws = ws
@@ -26,8 +27,6 @@ class PhotoIonizationRates(object):
         corrected_photoion_coeff = j_nus.multiply(4. * np.pi * self.photoionization_data['x_sect'] /
                                                   self.photoionization_data['nu'] / const.h.cgs.value, axis=0)
         corrected_photoion_coeff.insert(0, 'nu', self.photoionization_data['nu'])
-        # corrected_photoion_coeff = corrected_photoion_coeff.reset_index()\
-        #    .groupby(('atomic_number','ion_number','level_number'))
         corrected_photoion_coeff = corrected_photoion_coeff.groupby(level=[0, 1, 2])
         tmp = {}
         for i in range(len(self.t_rads)):
@@ -69,3 +68,48 @@ class PhotoIonizationRates(object):
         # TODO: multiply with energy difference
         c_einstein = (4. * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)).value
         return self.corrected_photoionization_coefficient / c_einstein
+
+
+class CollisionalRates(object):
+    def __init__(self, lines, t_electrons, electron_densities, lte_level_pop, mode='Van Regemorter'):
+        # TODO: t_electrons and n_e should not be attributes
+        self.t_electrons = t_electrons
+        self.n_e = electron_densities
+        self.mode = mode
+        if mode == 'Van Regemorter':
+            self.coll_excitation_coeff = self.calculate_coll_excitation_coeff_regemorter(lines=lines)
+        else:
+            raise NotImplementedError
+
+        self.coll_deexcitation_coeff = self.calculate_coll_dexcitation_coeff(
+            coll_excitation_coeff=self.coll_excitation_coeff, lte_level_pop=lte_level_pop, lines=lines)
+
+    def calculate_coll_excitation_coeff_regemorter(self, lines):
+        c_0 = 5.465e-11
+        I_H = 13.598433770784 * units.eV.to(units.erg)
+        coll_excitation_coeff = pd.DataFrame(14.5 * c_0 * lines.f_lu *
+                                             (I_H / (const.h.cgs.value * lines.nu)) ** 2)
+        coll_excitation_coeff = coll_excitation_coeff.dot(pd.DataFrame(np.sqrt(self.t_electrons.value) *
+                                                                       self.n_e.values).T)
+        u0 = lines.nu.values[np.newaxis].T / self.t_electrons.value * (const.h.cgs.value / const.k_B.cgs.value)
+        # mask_ions = lines.ion_number.values > 0
+        #mask_ions = np.expand_dims(mask_ions, axis = 1) * np.ones(u0.shape[1], dtype=bool)
+        #mask_neutral = np.logical_not(mask_ions)
+        # TODO: gbar is 0.7 for transitions within a principle quantum number and is also different for neutral atoms
+        # Cloudy uses a value of gbar = h * nu / (k_B * T_e)/10 for neutral atoms
+        gamma = 0.276 * np.exp(u0) * expn(1, u0)
+        #gamma[np.logical_and(gamma < 0.2, mask_ions)] = 0.2
+        gamma[gamma < 0.2] = 0.2
+        factor = pd.DataFrame(u0 * np.exp(-u0) * gamma)
+        coll_excitation_coeff.multiply(factor, axis=0)
+        return coll_excitation_coeff
+
+    def calculate_coll_dexcitation_coeff(self, coll_excitation_coeff, lte_level_pop, lines):
+        level_lower_index = pd.MultiIndex.from_arrays([lines['atomic_number'], lines['ion_number'],
+                                                       lines['level_number_lower']])
+        level_upper_index = pd.MultiIndex.from_arrays([lines['atomic_number'], lines['ion_number'],
+                                                       lines['level_number_upper']])
+        level_pop_lower = lte_level_pop.loc[level_lower_index]
+        level_pop_upper = lte_level_pop.loc[level_upper_index]
+        return coll_excitation_coeff * (level_pop_lower / level_pop_upper)
+
