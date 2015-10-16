@@ -601,9 +601,13 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     }
 
   double random_clump = rk_double(mt_state); // Generates a random number to determine clumpiness.
-  double f = 0.4; // True "clumping" factor.
-  double R = 50.0; // Ratio of cloud density to intercloud density.
+  double f_0 = 0.4; // True "clumping" factor.
+  double R = 50.0; // Ratio of cloud density to intercloud density
+  double v_inner = storage_>v_inner;
+  double v_initial = 1.10000000e+09;
+  double k = -2.0;
 
+  double f = f_0*pow((v_inner/v_initial),k);
 
   double tau_line =
     storage->line_lists_tau_sobolevs[line2d_idx];
