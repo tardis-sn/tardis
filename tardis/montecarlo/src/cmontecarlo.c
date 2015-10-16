@@ -601,7 +601,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     }
 
   double random_clump = rk_double(mt_state); // Generates a random number to determine clumpiness.
-  double f = 1.0; // True "clumping" factor.
+  double f = 0.4; // True "clumping" factor.
   double R = 50.0; // Ratio of cloud density to intercloud density.
 
 
