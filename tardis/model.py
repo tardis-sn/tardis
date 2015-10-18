@@ -133,7 +133,6 @@ class Radial1DModel(object):
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_reabsorbed = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
-        self.runner = MontecarloRunner(self.tardis_config.montecarlo.seed)
 
 
 
@@ -283,91 +282,6 @@ class Radial1DModel(object):
         logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
 
         return t_inner_new
-
-
-    def simulate(self, update_radiation_field=True, enable_virtual=False, initialize_j_blues=False,
-                 initialize_nlte=False):
-        """
-        Run a simulation
-        """
-
-        if update_radiation_field:
-            t_inner_new = self.update_radiationfield()
-        else:
-            t_inner_new = self.t_inner
-
-        self.calculate_j_blues(init_detailed_j_blues=initialize_j_blues)
-        self.update_plasmas(initialize_nlte=initialize_nlte)
-
-        self.t_inner = t_inner_new
-
-        if enable_virtual:
-            no_of_virtual_packets = self.tardis_config.montecarlo.no_of_virtual_packets
-        else:
-            no_of_virtual_packets = 0
-        if np.any(np.isnan(self.plasma_array.tau_sobolevs.values)) or np.any(np.isinf(self.plasma_array.tau_sobolevs.values)) \
-            or np.any(np.isneginf(self.plasma_array.tau_sobolevs.values)):
-            raise ValueError('Some tau_sobolevs are nan, inf, -inf in tau_sobolevs. Something went wrong!')
-
-        self.montecarlo_virtual_luminosity = np.zeros_like(self.spectrum.frequency.value)
-
-        self.runner.run(self, no_of_virtual_packets=no_of_virtual_packets,
-                        nthreads=self.tardis_config.montecarlo.nthreads) #self = model
-
-
-        (montecarlo_nu, montecarlo_energies, self.j_estimators,
-         self.nubar_estimators, last_line_interaction_in_id,
-         last_line_interaction_out_id, self.last_interaction_type,
-         self.last_line_interaction_shell_id) = self.runner.legacy_return()
-
-        if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
-            logger.critical("No r-packet escaped through the outer boundary.")
-
-        self.montecarlo_nu = self.runner.output_nu
-        self.montecarlo_luminosity = self.runner.packet_luminosity
-
-
-
-        montecarlo_reabsorbed_luminosity = np.histogram(
-            self.runner.reabsorbed_packet_nu,
-            weights=self.runner.reabsorbed_packet_luminosity,
-            bins=self.tardis_config.spectrum.frequency.value)[0] * u.erg / u.s
-
-
-
-        montecarlo_emitted_luminosity = np.histogram(
-            self.runner.emitted_packet_nu,
-            weights=self.runner.emitted_packet_luminosity,
-            bins=self.tardis_config.spectrum.frequency.value)[0] * u.erg / u.s
-
-
-
-        self.spectrum.update_luminosity(montecarlo_emitted_luminosity)
-        self.spectrum_reabsorbed.update_luminosity(montecarlo_reabsorbed_luminosity)
-
-
-        if no_of_virtual_packets > 0:
-            self.montecarlo_virtual_luminosity = self.montecarlo_virtual_luminosity \
-                                                 * 1 * u.erg / self.time_of_simulation
-            self.spectrum_virtual.update_luminosity(self.montecarlo_virtual_luminosity)
-
-
-
-        self.last_line_interaction_in_id = self.atom_data.lines_index.index.values[last_line_interaction_in_id]
-        self.last_line_interaction_in_id = self.last_line_interaction_in_id[last_line_interaction_in_id != -1]
-        self.last_line_interaction_out_id = self.atom_data.lines_index.index.values[last_line_interaction_out_id]
-        self.last_line_interaction_out_id = self.last_line_interaction_out_id[last_line_interaction_out_id != -1]
-        self.last_line_interaction_angstrom = self.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
-                                                                                                       u.spectral())
-
-
-        self.iterations_executed += 1
-        self.iterations_remaining -= 1
-
-        if self.gui is not None:
-            self.gui.update_data(self)
-            self.gui.show()
-
 
 
     def save_spectra(self, fname):
