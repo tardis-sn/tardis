@@ -19,7 +19,7 @@ TARDIS has the following requirements:
 
 - `Numpy <http://www.numpy.org/>`_ 1.9 or later
 
-- `Scipy <http://www.scipy.org/>`_ 0.10 or later
+- `Scipy <http://www.scipy.org/>`_ 0.16 or later
 
 - `Astropy <http://www.astropy.org/>`_ 1.0 or later
 
