@@ -17,7 +17,7 @@ TARDIS has the following requirements:
 
 - `Python <http://www.python.org/>`_ 2.7
 
-- `Numpy <http://www.numpy.org/>`_ 1.7 or later
+- `Numpy <http://www.numpy.org/>`_ 1.9 or later
 
 - `Scipy <http://www.scipy.org/>`_ 0.10 or later
 
