@@ -23,12 +23,6 @@ env:
 matrix:
     include:
         - python: "2.7"
-          env: PANDAS_VERSION=0.16
-
-#        - python: "2.7"
-#          env: ASTROPY_VERSION=development
-
-        - python: "2.7"
           env: COMPILER=gcc SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
 
         - python: "2.7"
