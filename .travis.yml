@@ -14,10 +14,7 @@ sudo: false
 env:
     global:
         - COMPILER=gcc
-        - CYTHON_VERSION=0.21
-        - NUMPY_VERSION=1.8
         - PANDAS_VERSION=0.16
-        - ASTROPY_VERSION=0.4.4
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
         - TEST_MODE='normal'
@@ -67,10 +64,7 @@ before_install:
 install:
    - conda create --yes -n tardis-travis --file conda-requirements pip python=$TRAVIS_PYTHON_VERSION
    - source activate tardis-travis
-   - if [[ $NUMPY_VERSION == 'latest' ]]; then conda install --yes  numpy; else conda install --yes "numpy==$NUMPY_VERSION"; fi
    - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
-   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip install git+https://github.com/astropy/astropy; else conda install --yes "astropy=$ASTROPY_VERSION"; fi
-
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then conda install --yes coverage=3.7; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
