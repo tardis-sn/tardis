@@ -73,7 +73,7 @@ class MontecarloRunner(object):
         self.input_energy = energies
 
 
-    def run(self, model, no_of_virtual_packets, nthreads=1):
+    def run(self, model, no_of_packets, no_of_virtual_packets, nthreads=1):
         """
         Running the TARDIS simulation
 
@@ -91,7 +91,8 @@ class MontecarloRunner(object):
         self._initialize_geometry_arrays(model.tardis_config.structure)
 
         self._initialize_packets(model.t_inner.value,
-                                 model.current_no_of_packets)
+                                 no_of_packets)
+
         montecarlo.montecarlo_radial1d(
             model, self, virtual_packet_flag=no_of_virtual_packets,
             nthreads=nthreads)
