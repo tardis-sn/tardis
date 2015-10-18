@@ -6,7 +6,7 @@ h5py==2.5
 matplotlib==1.4
 astropy==1.0.4
 PyYAML==3.11
-numexpr==2.4
+numexpr==2.4.4
 Cython==0.21
 jinja2
 networkx==1.10
