@@ -25,9 +25,6 @@ matrix:
         - python: "2.7"
           env: PANDAS_VERSION=0.16
 
-        - python: "2.7"
-          env: PANDAS_VERSION=latest
-
 #        - python: "2.7"
 #          env: ASTROPY_VERSION=development
 
@@ -64,7 +61,6 @@ before_install:
 install:
    - conda create --yes -n tardis-travis --file conda-requirements pip python=$TRAVIS_PYTHON_VERSION
    - source activate tardis-travis
-   - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then conda install --yes coverage=3.7; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
