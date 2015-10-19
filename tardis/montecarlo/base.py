@@ -1,11 +1,14 @@
+import logging
+
 from astropy import units as u, constants as const
 
 from scipy.special import zeta
 
 from tardis.montecarlo import montecarlo, packet_source
 
-
 import numpy as np
+
+logger = logging.getLevelName(__name__)
 
 class MontecarloRunner(object):
     """
@@ -163,6 +166,18 @@ class MontecarloRunner(object):
             luminosity_wavelength_filter].sum()
 
         return emitted_luminosity
+
+    def calculate_reabsorbed_luminosity(self, luminosity_nu_start,
+                                     luminosity_nu_end):
+
+        luminosity_wavelength_filter = (
+            (self.reabsorbed_packet_nu > luminosity_nu_start) &
+            (self.reabsorbed_packet_nu < luminosity_nu_end))
+
+        reabsorbed_luminosity = self.reabsorbed_packet_luminosity[
+            luminosity_wavelength_filter].sum()
+
+        return reabsorbed_luminosity
 
 
     def calculate_radiationfield_properties(self):
