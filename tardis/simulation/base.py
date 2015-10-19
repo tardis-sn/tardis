@@ -55,8 +55,8 @@ class Simulation(object):
         if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-    def estimate_new_t_inner(self, input_t_inner, luminosity_requested,
-                             t_inner_update_exponent=0.5):
+    def estimate_t_inner(self, input_t_inner, luminosity_requested,
+                         t_inner_update_exponent=0.5):
         emitted_luminosity = self.runner.calculate_emitted_luminosity(
             self.tardis_config.supernova.luminosity_nu_start,
             self.tardis_config.supernova.luminosity_nu_end)
@@ -66,14 +66,16 @@ class Simulation(object):
 
         return input_t_inner * luminosity_ratios ** t_inner_update_exponent
 
-    def get_convergence_status(self, t_rad, w, t_inner, new_t_rad, new_w,
-                               new_t_inner):
+    def get_convergence_status(self, t_rad, w, t_inner, estimated_t_rad, estimated_w,
+                               estimated_t_inner):
         convergence_section = self.tardis_config.montecarlo.convergence_strategy
         no_of_shells = self.tardis_config.structure.no_of_shells
 
-        convergence_t_rad = (abs(t_rad - new_t_rad) / new_t_rad).value
-        convergence_w = (abs(w - new_w) / new_w)
-        convergence_t_inner = (abs(t_inner - new_t_inner) / new_t_inner).value
+        convergence_t_rad = (abs(t_rad - estimated_t_rad) /
+                             estimated_t_rad).value
+        convergence_w = (abs(w - estimated_w) / estimated_w)
+        convergence_t_inner = (abs(t_inner - estimated_t_inner) /
+                               estimated_t_inner).value
 
         if convergence_section.type == 'specific':
             fraction_t_rad_converged = (
@@ -104,8 +106,37 @@ class Simulation(object):
             return False
 
 
+    @staticmethod
+    def slow_converge(value, estimated_value, damping_factor):
+        return value + damping_factor * (estimated_value - value)
 
 
+    def calculate_next_plasma_state(self, t_rad, w, t_inner,
+                                    estimated_w, estimated_t_rad,
+                                    estimated_t_inner):
+
+        convergence_strategy = (
+            self.tardis_config.montecarlo.convergence_strategy)
+
+        if (convergence_strategy.type == 'damped'
+            or convergence_strategy.type == 'specific'):
+
+
+            next_t_rad = self.slow_converge(
+                t_rad, estimated_t_rad,
+                convergence_strategy.t_rad.damping_constant)
+            next_w = self.slow_converge(
+                w, estimated_w, convergence_strategy.w.damping_constant)
+            next_t_inner = self.slow_converge(
+                t_inner, estimated_t_inner,
+                convergence_strategy.t_inner.damping_constant)
+
+            return next_t_rad, next_w, next_t_inner
+
+        else:
+            raise ValueError('Convergence strategy type is '
+                             'neither damped nor specific '
+                             '- input is {0}'.format(convergence_strategy.type))
 
     def legacy_run_simulation(self, model):
         start_time = time.time()
@@ -118,13 +149,47 @@ class Simulation(object):
             self.run_single_montecarlo(
                 model, self.tardis_config.montecarlo.no_of_packets)
             iterations_executed += 1
+            iterations_remaining -= 1
 
-            new_t_rad, new_w = self.runner.calculate_radiationfield_properties()
-            new_t_inner = self.estimate_new_t_inner()
+            estimated_t_rad, estimated_w = self.runner.calculate_radiationfield_properties()
+            estimated_t_inner = self.estimate_t_inner(
+                model.t_inner,
+                self.tardis_config.supernova.luminosity_requested)
 
             converged = self.get_convergence_status(
-                model.t_rads, model.ws, model.t_inner, new_t_rad, new_w,
-                new_t_inner)
+                model.t_rads, model.ws, model.t_inner, estimated_t_rad, estimated_w,
+                estimated_t_inner)
+
+            next_t_rad, next_w, next_t_inner = self.calculate_next_plasma_state(
+                model.t_rads, model.ws, model.t_inner,
+                estimated_w, estimated_t_rad, estimated_t_inner)
+
+
+            model.t_rads = next_t_rad
+            model.ws = next_w
+            model.t_inner = next_t_inner
+
+            model.calculate_j_blues(init_detailed_j_blues=False)
+            model.update_plasmas(initialize_nlte=False)
+
+
+            # if switching into the hold iterations mode or out back to the normal one
+            # if it is in either of these modes already it will just stay there
+            if converged and not self.converged:
+                self.converged = True
+                iterations_remaining = (
+                    convergence_section.global_convergence_parameters.
+                        hold_iterations)
+            elif not converged and self.converged:
+                self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
+                self.converged = False
+            else:
+                # either it is converged and the status of the simulation is
+                # converged OR it is not converged and the status of the
+                # simulation is not converged - Do nothing.
+                pass
+
+
 
             if converged:
                 convergence_section = (

@@ -156,10 +156,8 @@ class MontecarloRunner(object):
                                      luminosity_nu_end):
 
         luminosity_wavelength_filter = (
-            (self.emitted_packet_nu >
-             self.tardis_config.supernova.luminosity_nu_start) &
-            (self.emitted_packet_nu <
-             self.tardis_config.supernova.luminosity_nu_end))
+            (self.emitted_packet_nu > luminosity_nu_start) &
+            (self.emitted_packet_nu < luminosity_nu_end))
 
         emitted_luminosity = self.emitted_packet_luminosity[
             luminosity_wavelength_filter].sum()
