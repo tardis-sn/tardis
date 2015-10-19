@@ -4,8 +4,13 @@ import os
 import itertools
 
 from pandas import HDFStore
+import pandas as pd
 
 import numpy as np
+
+from astropy import units as u
+
+from collections import OrderedDict
 
 from tardis.model import Radial1DModel
 from tardis.montecarlo.base import MontecarloRunner
@@ -55,13 +60,24 @@ class Simulation(object):
         if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-    def estimate_t_inner(self, input_t_inner, luminosity_requested,
-                         t_inner_update_exponent=0.5):
-        emitted_luminosity = self.runner.calculate_emitted_luminosity(
+
+
+    def calculate_emitted_luminosity(self):
+        return self.runner.calculate_emitted_luminosity(
             self.tardis_config.supernova.luminosity_nu_start,
             self.tardis_config.supernova.luminosity_nu_end)
 
-        luminosity_ratios =(
+    def calculate_reabsorbed_luminosity(self):
+        return self.runner.calculate_reabsorbed_luminosity(
+            self.tardis_config.supernova.luminosity_nu_start,
+            self.tardis_config.supernova.luminosity_nu_end)
+
+
+    def estimate_t_inner(self, input_t_inner, luminosity_requested,
+                         t_inner_update_exponent=-0.5):
+        emitted_luminosity = self.calculate_emitted_luminosity()
+
+        luminosity_ratios = (
             (emitted_luminosity / luminosity_requested).to(1).value)
 
         return input_t_inner * luminosity_ratios ** t_inner_update_exponent
@@ -106,8 +122,58 @@ class Simulation(object):
             return False
 
 
+    def log_run_results(self, emitted_luminosity, absorbed_luminosity):
+            logger.info("Luminosity emitted = {0:.5e} "
+                    "Luminosity absorbed = {1:.5e} "
+                    "Luminosity requested = {2:.5e}".format(
+                emitted_luminosity, absorbed_luminosity,
+                self.tardis_config.supernova.luminosity_requested))
+
+
+    def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
+                         next_t_inner, log_sampling=5):
+        """
+        Logging the change of the plasma state
+
+        Parameters
+        ----------
+        t_rad: ~astropy.units.Quanity
+            current t_rad
+        w: ~astropy.units.Quanity
+            current w
+        next_t_rad: ~astropy.units.Quanity
+            next t_rad
+        next_w: ~astropy.units.Quanity
+            next_w
+        log_sampling
+
+        Returns
+        -------
+
+        """
+
+        plasma_state_log = pd.DataFrame(index=np.arange(len(t_rad)),
+                                           columns=['t_rad', 'next_t_rad',
+                                                    'w', 'next_w'])
+        plasma_state_log['t_rad'] = t_rad
+        plasma_state_log['next_t_rad'] = next_t_rad
+        plasma_state_log['w'] = w
+        plasma_state_log['next_w'] = next_w
+
+        plasma_state_log.index.name = 'Shell'
+
+        plasma_state_log = str(plasma_state_log[::log_sampling])
+
+        plasma_state_log = ''.join(['\t%s\n' % item for item in
+                                    plasma_state_log.split('\n')])
+
+        logger.info('Plasma stratification:\n%s\n', plasma_state_log)
+        logger.info('t_inner {0:.3f} -- next t_inner {1:.3f}'.format(
+            t_inner, next_t_inner))
+
+
     @staticmethod
-    def slow_converge(value, estimated_value, damping_factor):
+    def damped_converge(value, estimated_value, damping_factor):
         return value + damping_factor * (estimated_value - value)
 
 
@@ -121,13 +187,12 @@ class Simulation(object):
         if (convergence_strategy.type == 'damped'
             or convergence_strategy.type == 'specific'):
 
-
-            next_t_rad = self.slow_converge(
+            next_t_rad = self.damped_converge(
                 t_rad, estimated_t_rad,
                 convergence_strategy.t_rad.damping_constant)
-            next_w = self.slow_converge(
+            next_w = self.damped_converge(
                 w, estimated_w, convergence_strategy.w.damping_constant)
-            next_t_inner = self.slow_converge(
+            next_t_inner = self.damped_converge(
                 t_inner, estimated_t_inner,
                 convergence_strategy.t_inner.damping_constant)
 
@@ -148,23 +213,27 @@ class Simulation(object):
             logger.info('Remaining run %d', iterations_remaining)
             self.run_single_montecarlo(
                 model, self.tardis_config.montecarlo.no_of_packets)
+            self.log_run_results(self.calculate_emitted_luminosity(),
+                                 self.calculate_reabsorbed_luminosity())
             iterations_executed += 1
             iterations_remaining -= 1
 
-            estimated_t_rad, estimated_w = self.runner.calculate_radiationfield_properties()
+            estimated_t_rad, estimated_w = (
+                self.runner.calculate_radiationfield_properties())
             estimated_t_inner = self.estimate_t_inner(
                 model.t_inner,
                 self.tardis_config.supernova.luminosity_requested)
 
             converged = self.get_convergence_status(
-                model.t_rads, model.ws, model.t_inner, estimated_t_rad, estimated_w,
-                estimated_t_inner)
+                model.t_rads, model.ws, model.t_inner, estimated_t_rad,
+                estimated_w, estimated_t_inner)
 
             next_t_rad, next_w, next_t_inner = self.calculate_next_plasma_state(
                 model.t_rads, model.ws, model.t_inner,
                 estimated_w, estimated_t_rad, estimated_t_inner)
 
-
+            self.log_plasma_state(model.t_rads, model.ws, model.t_inner,
+                                  next_t_rad, next_w, next_t_inner)
             model.t_rads = next_t_rad
             model.ws = next_w
             model.t_inner = next_t_inner
@@ -179,7 +248,7 @@ class Simulation(object):
                 self.converged = True
                 iterations_remaining = (
                     convergence_section.global_convergence_parameters.
-                        hold_iterations)
+                        hold_iterations_wrong)
             elif not converged and self.converged:
                 self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
                 self.converged = False
@@ -189,17 +258,12 @@ class Simulation(object):
                 # simulation is not converged - Do nothing.
                 pass
 
-
-
             if converged:
                 convergence_section = (
                     self.tardis_config.montecarlo.convergence_strategy)
                 iterations_remaining = (
                     convergence_section.global_convergence_parameters.
                         hold_iterations)
-
-
-
 
         #Finished second to last loop running one more time
         logger.info('Doing last run')
@@ -213,112 +277,41 @@ class Simulation(object):
 
         self.run_single_montecarlo(model, no_of_packets, no_of_virtual_packets)
 
+        self.legacy_update_spectrum(model, no_of_virtual_packets)
+
         logger.info("Finished in {0:d} iterations and took {1:.2f} s".format(
             iterations_executed, time.time()-start_time))
 
-    def update_radiationfield(self, log_sampling=5):
-        """
-        Updating radiation field
-        """
-        convergence_section = self.tardis_config.montecarlo.convergence_strategy
-        updated_t_rads, updated_ws = (
-            self.runner.calculate_radiationfield_properties())
-        old_t_rads = self.t_rads.copy()
-        old_ws = self.ws.copy()
-        old_t_inner = self.t_inner
-        luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
-                            (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
-        emitted_filter = self.montecarlo_luminosity.value >= 0
-        emitted_luminosity = np.sum(self.montecarlo_luminosity.value[emitted_filter & luminosity_wavelength_filter]) \
-                             * self.montecarlo_luminosity.unit
 
-        absorbed_luminosity = -np.sum(self.montecarlo_luminosity.value[~emitted_filter & luminosity_wavelength_filter]) \
-                              * self.montecarlo_luminosity.unit
-        updated_t_inner = self.t_inner \
-                          * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value \
-                            ** convergence_section.t_inner_update_exponent
+    def legacy_update_spectrum(self, model, no_of_virtual_packets):
+        montecarlo_reabsorbed_luminosity = np.histogram(
+            self.runner.reabsorbed_packet_nu,
+            weights=self.runner.reabsorbed_packet_luminosity,
+            bins=self.tardis_config.spectrum.frequency.value)[0] * u.erg / u.s
 
-        if convergence_section.type == 'damped' or convergence_section.type == 'specific':
-            self.t_rads += convergence_section.t_rad.damping_constant * (updated_t_rads - self.t_rads)
-            self.ws += convergence_section.w.damping_constant * (updated_ws - self.ws)
-            if self.t_inner_update.next():
-                t_inner_new = self.t_inner + convergence_section.t_inner.damping_constant * (updated_t_inner - self.t_inner)
-            else:
-                t_inner_new = self.t_inner
+        montecarlo_emitted_luminosity = np.histogram(
+            self.runner.emitted_packet_nu,
+            weights=self.runner.emitted_packet_luminosity,
+            bins=self.tardis_config.spectrum.frequency.value)[0] * u.erg / u.s
 
+        model.spectrum.update_luminosity(montecarlo_emitted_luminosity)
+        model.spectrum_reabsorbed.update_luminosity(montecarlo_reabsorbed_luminosity)
 
-        if convergence_section.type == 'specific':
+        if no_of_virtual_packets > 0:
+            model.montecarlo_virtual_luminosity = (
+                self.runner.legacy_montecarlo_virtual_luminosity *
+                1 * u.erg / model.time_of_simulation)[:-1]
+            model.spectrum_virtual.update_luminosity(
+                model.montecarlo_virtual_luminosity)
 
-            if t_rad_converged and t_inner_converged and w_converged:
-                if not self.converged:
-                    self.converged = True
-
-
-            else:
-                if self.converged:
-                    self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
-                    self.converged = False
-
-        self.temperature_logging = pd.DataFrame(
-            {'t_rads': old_t_rads.value, 'updated_t_rads': updated_t_rads.value,
-             'converged_t_rads': convergence_t_rads, 'new_trads': self.t_rads.value, 'ws': old_ws,
-             'updated_ws': updated_ws, 'converged_ws': convergence_ws,
-             'new_ws': self.ws})
-
-        self.temperature_logging.index.name = 'Shell'
-
-        temperature_logging = str(self.temperature_logging[::log_sampling])
-
-        temperature_logging = ''.join(['\t%s\n' % item for item in temperature_logging.split('\n')])
-
-        logger.info('Plasma stratification:\n%s\n', temperature_logging)
-        logger.info("Luminosity emitted = %.5e Luminosity absorbed = %.5e Luminosity requested = %.5e",
-                    emitted_luminosity.value, absorbed_luminosity.value,
-                    self.tardis_config.supernova.luminosity_requested.value)
-        logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
-
-        return t_inner_new
 
 
 def run_radial1d(radial1d_model, history_fname=None):
-    if history_fname:
-        if os.path.exists(history_fname):
-            logger.warn('History file %s exists - it will be overwritten', history_fname)
-            os.system('rm %s' % history_fname)
-        history_buffer = HDFStore(history_fname)
-        radial1d_model.atom_data.lines.to_hdf(history_buffer, 'atom_data/lines')
-        radial1d_model.atom_data.levels.to_hdf(history_buffer, 'atom_data/levels')
+    if history_fname is not None:
+        raise ValueError('This functionality is currently not supported')
 
-
-    start_time = time.time()
-    initialize_j_blues = True
-    initialize_nlte = True
-    update_radiation_field = False
-    while radial1d_model.iterations_remaining > 1:
-        logger.info('Remaining run %d', radial1d_model.iterations_remaining)
-        radial1d_model.simulate(update_radiation_field=update_radiation_field, enable_virtual=False, initialize_nlte=initialize_nlte,
-                                initialize_j_blues=initialize_j_blues)
-        initialize_j_blues=False
-        initialize_nlte=False
-        update_radiation_field = True
-
-        if history_fname:
-            radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed, close_h5=False)
-
-    #Finished second to last loop running one more time
-    logger.info('Doing last run')
-    if radial1d_model.tardis_config.montecarlo.last_no_of_packets is not None:
-        radial1d_model.current_no_of_packets = radial1d_model.tardis_config.montecarlo.last_no_of_packets
-
-    radial1d_model.simulate(enable_virtual=True, update_radiation_field=update_radiation_field, initialize_nlte=initialize_nlte,
-                            initialize_j_blues=initialize_j_blues)
-
-    if history_fname:
-        radial1d_model.to_hdf5(history_buffer, path='model%03d' % radial1d_model.iterations_executed)
-
-
-
-    logger.info("Finished in %d iterations and took %.2f s", radial1d_model.iterations_executed, time.time()-start_time)
+    simulation = Simulation(radial1d_model.tardis_config)
+    simulation.legacy_run_simulation(radial1d_model)
 
 
 

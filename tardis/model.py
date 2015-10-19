@@ -76,37 +76,26 @@ class Radial1DModel(object):
     def __init__(self, tardis_config):
         #final preparation for configuration object
         self.tardis_config = tardis_config
-        self.converged = False
+
         self.atom_data = tardis_config.atom_data
         selected_atomic_numbers = self.tardis_config.abundances.index
-        self.atom_data.prepare_atom_data(selected_atomic_numbers,
-                                         line_interaction_type=tardis_config.plasma.line_interaction_type,
-                                         nlte_species=tardis_config.plasma.nlte.species)
+
+        self.atom_data.prepare_atom_data(
+            selected_atomic_numbers,
+            line_interaction_type=tardis_config.plasma.line_interaction_type,
+            nlte_species=tardis_config.plasma.nlte.species)
 
         if tardis_config.plasma.ionization == 'nebular':
             if not self.atom_data.has_zeta_data:
-                raise ValueError("Requiring Recombination coefficients Zeta for 'nebular' plasma ionization")
-
-        self.current_no_of_packets = tardis_config.montecarlo.no_of_packets
+                raise ValueError("Requiring Recombination coefficients Zeta "
+                                 "for 'nebular' plasma ionization")
 
         self.t_inner = tardis_config.plasma.t_inner
         self.t_rads = tardis_config.plasma.t_rads
 
-        self.iterations_max_requested = tardis_config.montecarlo.iterations
-        self.iterations_remaining = self.iterations_max_requested
-        self.iterations_executed = 0
-
-        if tardis_config.montecarlo.convergence_strategy.type == 'specific':
-            self.global_convergence_parameters = (tardis_config.montecarlo.
-                                                  convergence_strategy.
-                                                  deepcopy())
-
-        self.t_rads = tardis_config.plasma.t_rads
-
         self.ws = self.calculate_geometric_w(
-            tardis_config.structure.r_inner[0],
-            tardis_config.structure.r_middle)
-
+            tardis_config.structure.r_middle,
+            tardis_config.structure.r_inner[0])
 
         heating_rate_data_file = getattr(
             tardis_config.plasma, 'heating_rate_data_file', None)
@@ -125,9 +114,12 @@ class Radial1DModel(object):
             v_inner=tardis_config.structure.v_inner,
             v_outer=tardis_config.structure.v_outer)
 
-        self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
-        self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
-        self.spectrum_reabsorbed = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+        self.spectrum = TARDISSpectrum(
+            tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+        self.spectrum_virtual = TARDISSpectrum(
+            tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+        self.spectrum_reabsorbed = TARDISSpectrum(
+            tardis_config.spectrum.frequency, tardis_config.supernova.distance)
 
         self.calculate_j_blues(init_detailed_j_blues=True)
         self.update_plasmas(initialize_nlte=True)
@@ -143,11 +135,14 @@ class Radial1DModel(object):
             self._line_interaction_type = value
             self.tardis_config.plasma.line_interaction_type = value
             #final preparation for atom_data object - currently building data
-            self.atom_data.prepare_atom_data(self.tardis_config.number_densities.columns,
-                                             line_interaction_type=self.line_interaction_type, max_ion_number=None,
-                                             nlte_species=self.tardis_config.plasma.nlte.species)
+            self.atom_data.prepare_atom_data(
+                self.tardis_config.number_densities.columns,
+                line_interaction_type=self.line_interaction_type,
+                max_ion_number=None,
+                nlte_species=self.tardis_config.plasma.nlte.species)
         else:
-            raise ValueError('line_interaction_type can only be "scatter", "downbranch", or "macroatom"')
+            raise ValueError('line_interaction_type can only be '
+                             '"scatter", "downbranch", or "macroatom"')
 
 
 
@@ -158,11 +153,16 @@ class Radial1DModel(object):
     @t_inner.setter
     def t_inner(self, value):
         self._t_inner = value
-        self.luminosity_inner = (4 * np.pi * constants.sigma_sb.cgs * self.tardis_config.structure.r_inner[0] ** 2 * \
-                                self.t_inner ** 4).to('erg/s')
+        self.luminosity_inner = (
+            4 * np.pi * constants.sigma_sb.cgs *
+            self.tardis_config.structure.r_inner[0] ** 2
+            * self.t_inner ** 4).to('erg/s')
+
         self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
-        self.j_blues_norm_factor = constants.c.cgs *  self.tardis_config.supernova.time_explosion / \
-                       (4 * np.pi * self.time_of_simulation * self.tardis_config.structure.volumes)
+        self.j_blues_norm_factor = (
+            constants.c.cgs * self.tardis_config.supernova.time_explosion /
+            (4 * np.pi * self.time_of_simulation *
+             self.tardis_config.structure.volumes))
 
 
     @staticmethod
@@ -178,112 +178,47 @@ class Radial1DModel(object):
         if radiative_rates_type == 'blackbody':
             logger.info('Calculating J_blues for radiative_rates_type=lte')
             j_blues = intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
-            self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
+            self.j_blues = pd.DataFrame(
+                j_blues, index=self.atom_data.lines.index,
+                columns=np.arange(len(self.t_rads)))
+
         elif radiative_rates_type == 'dilute-blackbody' or init_detailed_j_blues:
             logger.info('Calculating J_blues for radiative_rates_type=dilute-blackbody')
             j_blues = self.ws * intensity_black_body(nus[np.newaxis].T, self.t_rads.value)
-            self.j_blues = pd.DataFrame(j_blues, index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
+            self.j_blues = pd.DataFrame(
+                j_blues, index=self.atom_data.lines.index,
+                columns=np.arange(len(self.t_rads)))
 
         elif radiative_rates_type == 'detailed':
             logger.info('Calculating J_blues for radiate_rates_type=detailed')
 
-            self.j_blues = pd.DataFrame(self.j_blue_estimators.transpose() * self.j_blues_norm_factor.value,
-                                        index=self.atom_data.lines.index, columns=np.arange(len(self.t_rads)))
+            self.j_blues = pd.DataFrame(
+                self.j_blue_estimators.transpose() *
+                self.j_blues_norm_factor.value,
+                index=self.atom_data.lines.index,
+                columns=np.arange(len(self.t_rads)))
+
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
-                self.j_blues[i][zero_j_blues] = w_epsilon * intensity_black_body(
-                    self.atom_data.lines.nu.values[zero_j_blues], self.t_rads.value[i])
+                self.j_blues[i][zero_j_blues] = (
+                    w_epsilon * intensity_black_body(
+                        self.atom_data.lines.nu.values[zero_j_blues],
+                        self.t_rads.value[i]))
 
         else:
             raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
     def update_plasmas(self, initialize_nlte=False):
 
-        self.plasma_array.update_radiationfield(self.t_rads.value, self.ws, self.j_blues,
-            self.tardis_config.plasma.nlte, initialize_nlte=initialize_nlte, n_e_convergence_threshold=0.05)
+        self.plasma_array.update_radiationfield(
+            self.t_rads.value, self.ws, self.j_blues,
+            self.tardis_config.plasma.nlte, initialize_nlte=initialize_nlte,
+            n_e_convergence_threshold=0.05)
 
-        if self.tardis_config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
-            self.transition_probabilities = self.plasma_array.transition_probabilities
-
-
-    def update_radiationfield(self, log_sampling=5):
-        """
-        Updating radiation field
-        """
-        convergence_section = self.tardis_config.montecarlo.convergence_strategy
-        updated_t_rads, updated_ws = (
-            self.runner.calculate_radiationfield_properties())
-        old_t_rads = self.t_rads.copy()
-        old_ws = self.ws.copy()
-        old_t_inner = self.t_inner
-        luminosity_wavelength_filter = (self.montecarlo_nu > self.tardis_config.supernova.luminosity_nu_start) & \
-                            (self.montecarlo_nu < self.tardis_config.supernova.luminosity_nu_end)
-        emitted_filter = self.montecarlo_luminosity.value >= 0
-        emitted_luminosity = np.sum(self.montecarlo_luminosity.value[emitted_filter & luminosity_wavelength_filter]) \
-                             * self.montecarlo_luminosity.unit
-
-        absorbed_luminosity = -np.sum(self.montecarlo_luminosity.value[~emitted_filter & luminosity_wavelength_filter]) \
-                              * self.montecarlo_luminosity.unit
-        updated_t_inner = self.t_inner \
-                          * (emitted_luminosity / self.tardis_config.supernova.luminosity_requested).to(1).value \
-                            ** convergence_section.t_inner_update_exponent
-
-        #updated_t_inner = np.max([np.min([updated_t_inner, 30000]), 3000])
-
-        convergence_t_rads = (abs(old_t_rads - updated_t_rads) / updated_t_rads).value
-        convergence_ws = (abs(old_ws - updated_ws) / updated_ws)
-        convergence_t_inner = (abs(old_t_inner - updated_t_inner) / updated_t_inner).value
-
-
-        if convergence_section.type == 'damped' or convergence_section.type == 'specific':
-            self.t_rads += convergence_section.t_rad.damping_constant * (updated_t_rads - self.t_rads)
-            self.ws += convergence_section.w.damping_constant * (updated_ws - self.ws)
-            if self.t_inner_update.next():
-                t_inner_new = self.t_inner + convergence_section.t_inner.damping_constant * (updated_t_inner - self.t_inner)
-            else:
-                t_inner_new = self.t_inner
-
-
-        if convergence_section.type == 'specific':
-
-            t_rad_converged = (float(np.sum(convergence_t_rads < convergence_section.t_rad['threshold'])) \
-                               / self.tardis_config.structure.no_of_shells) >= convergence_section.t_rad['fraction']
-
-            w_converged = (float(np.sum(convergence_t_rads < convergence_section.w['threshold'])) \
-                           / self.tardis_config.structure.no_of_shells) >= convergence_section.w['fraction']
-
-            t_inner_converged = convergence_t_inner < convergence_section.t_inner['threshold']
-
-            if t_rad_converged and t_inner_converged and w_converged:
-                if not self.converged:
-                    self.converged = True
-                    self.iterations_remaining = self.global_convergence_parameters['hold_iterations']
-
-            else:
-                if self.converged:
-                    self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
-                    self.converged = False
-
-        self.temperature_logging = pd.DataFrame(
-            {'t_rads': old_t_rads.value, 'updated_t_rads': updated_t_rads.value,
-             'converged_t_rads': convergence_t_rads, 'new_trads': self.t_rads.value, 'ws': old_ws,
-             'updated_ws': updated_ws, 'converged_ws': convergence_ws,
-             'new_ws': self.ws})
-
-        self.temperature_logging.index.name = 'Shell'
-
-        temperature_logging = str(self.temperature_logging[::log_sampling])
-
-        temperature_logging = ''.join(['\t%s\n' % item for item in temperature_logging.split('\n')])
-
-        logger.info('Plasma stratification:\n%s\n', temperature_logging)
-        logger.info("Luminosity emitted = %.5e Luminosity absorbed = %.5e Luminosity requested = %.5e",
-                    emitted_luminosity.value, absorbed_luminosity.value,
-                    self.tardis_config.supernova.luminosity_requested.value)
-        logger.info('Calculating new t_inner = %.3f', updated_t_inner.value)
-
-        return t_inner_new
-
+        if self.tardis_config.plasma.line_interaction_type in ('downbranch',
+                                                               'macroatom'):
+            self.transition_probabilities = (
+                self.plasma_array.transition_probabilities)
 
     def save_spectra(self, fname):
         self.spectrum.to_ascii(fname)
@@ -449,7 +384,6 @@ class TARDISSpectrum(object):
 
             self._flux_lambda = self.f_nu_to_f_lambda(self.flux_nu.value) * u.Unit('erg / (s Angstrom cm^2)')
 
-
     def f_nu_to_f_lambda(self, f_nu):
         return f_nu * self.frequency.value**2 / constants.c.cgs.value / 1e8
 
@@ -459,8 +393,6 @@ class TARDISSpectrum(object):
             ax.plot(self.wavelength.value, self.flux_lambda.value)
             ax.set_xlabel('Wavelength [%s]' % self.wavelength.unit._repr_latex_())
             ax.set_ylabel('Flux [%s]' % self.flux_lambda.unit._repr_latex_())
-
-
 
     def to_ascii(self, fname, mode='luminosity_density'):
         if mode == 'luminosity_density':
