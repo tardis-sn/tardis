@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 from tardis.io import config_reader
 
-from tardis import simulation, model
+from tardis import model
+from tardis.simulation.base import run_radial1d
 import numpy as np
 
 import logging
@@ -67,7 +68,7 @@ if args.profile:
     cProfile.runctx('simulation.run_radial1d(radial1d_mdl)', locals(),
                     globals(), filename=args.profiler_log_file)
 else:
-    simulation.run_radial1d(radial1d_mdl)
+    run_radial1d(radial1d_mdl)
 
 
 if not np.all(radial1d_mdl.spectrum_virtual.luminosity_density_lambda.value
