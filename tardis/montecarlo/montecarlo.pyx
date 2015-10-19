@@ -156,7 +156,8 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
     # macro atom & downbranch
     if storage.line_interaction_id >= 1:
-        storage.transition_probabilities = <double*> PyArray_DATA(model.transition_probabilities.values)
+        storage.transition_probabilities = <double*> PyArray_DATA(
+            model.plasma_array.transition_probabilities.values)
         storage.line2macro_level_upper = <int_type_t*> PyArray_DATA(
             model.atom_data.lines_upper2macro_reference_idx)
         storage.macro_block_references = <int_type_t*> PyArray_DATA(
@@ -192,9 +193,12 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.spectrum_virt_start_nu = model.tardis_config.montecarlo.virtual_spectrum_range.end.to('Hz', units.spectral()).value
     storage.spectrum_virt_end_nu = model.tardis_config.montecarlo.virtual_spectrum_range.start.to('Hz', units.spectral()).value
     storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - model.tardis_config.spectrum.frequency.value[0]
-    cdef np.ndarray[double, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
-    storage.spectrum_virt_nu = <double*> spectrum_virt_nu.data
-    storage.sigma_thomson = model.tardis_config.montecarlo.sigma_thomson.to('1/cm^2').value
+
+    storage.spectrum_virt_nu = <double*> PyArray_DATA(
+        runner.legacy_montecarlo_virtual_luminosity)
+
+    storage.sigma_thomson = (
+        model.tardis_config.montecarlo.sigma_thomson.cgs.value)
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo

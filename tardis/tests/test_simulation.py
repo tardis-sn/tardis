@@ -7,14 +7,17 @@ from astropy import units as u
 import os
 
 
-from tardis.base import run_tardis
+from tardis.simulation.base import Simulation
+from tardis.model import Radial1DModel
+
+from tardis.io.config_reader import Configuration
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
 
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
-class TestSimpleRun():
+class TestSimulation():
     """
     Very simple run
     """
@@ -32,7 +35,11 @@ class TestSimpleRun():
             'tardis/io/tests/data/tardis_configv1_verysimple.yml'))
         self.config_yaml['atom_data'] = self.atom_data_filename
 
-        self.model = run_tardis(self.config_yaml)
+        tardis_config = Configuration.from_config_dict(self.config_yaml)
+        self.model = Radial1DModel(tardis_config)
+        self.simulation = Simulation(tardis_config)
+
+        self.simulation.run_single_montecarlo(self.model, 40000)
 
 
     def test_spectrum(self):

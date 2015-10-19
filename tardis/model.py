@@ -76,7 +76,6 @@ class Radial1DModel(object):
     def __init__(self, tardis_config):
         #final preparation for configuration object
         self.tardis_config = tardis_config
-        self.gui = None
         self.converged = False
         self.atom_data = tardis_config.atom_data
         selected_atomic_numbers = self.tardis_config.abundances.index
@@ -97,44 +96,41 @@ class Radial1DModel(object):
         self.iterations_remaining = self.iterations_max_requested
         self.iterations_executed = 0
 
-
         if tardis_config.montecarlo.convergence_strategy.type == 'specific':
             self.global_convergence_parameters = (tardis_config.montecarlo.
                                                   convergence_strategy.
                                                   deepcopy())
 
         self.t_rads = tardis_config.plasma.t_rads
-        t_inner_lock_cycle = [False] * (tardis_config.montecarlo.
-                                        convergence_strategy.
-                                        lock_t_inner_cycles)
-        t_inner_lock_cycle[0] = True
-        self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
+
+        self.ws = self.calculate_geometric_w(
+            tardis_config.structure.r_inner[0],
+            tardis_config.structure.r_middle)
 
 
+        heating_rate_data_file = getattr(
+            tardis_config.plasma, 'heating_rate_data_file', None)
 
-        self.ws = (0.5 * (1 - np.sqrt(1 -
-                    (tardis_config.structure.r_inner[0] ** 2 / tardis_config.structure.r_middle ** 2).to(1).value)))
-
-        heating_rate_data_file = getattr(tardis_config.plasma, 'heating_rate_data_file', None)
-
-        self.plasma_array = LegacyPlasmaArray(tardis_config.number_densities, tardis_config.atom_data,
-                                                         tardis_config.supernova.time_explosion.to('s').value,
-                                                         nlte_config=tardis_config.plasma.nlte,
-                                                         delta_treatment=tardis_config.plasma.delta_treatment,
-                                                         ionization_mode=tardis_config.plasma.ionization,
-                                                         excitation_mode=tardis_config.plasma.excitation,
-                                                         line_interaction_type=tardis_config.plasma.line_interaction_type,
-                                                         link_t_rad_t_electron=0.9,
-                                                         helium_treatment=tardis_config.plasma.helium_treatment,
-                                                         heating_rate_data_file=heating_rate_data_file,
-                                                         v_inner=tardis_config.structure.v_inner,
-                                                         v_outer=tardis_config.structure.v_outer)
+        self.plasma_array = LegacyPlasmaArray(
+            tardis_config.number_densities, tardis_config.atom_data,
+            tardis_config.supernova.time_explosion.to('s').value,
+            nlte_config=tardis_config.plasma.nlte,
+            delta_treatment=tardis_config.plasma.delta_treatment,
+            ionization_mode=tardis_config.plasma.ionization,
+            excitation_mode=tardis_config.plasma.excitation,
+            line_interaction_type=tardis_config.plasma.line_interaction_type,
+            link_t_rad_t_electron=0.9,
+            helium_treatment=tardis_config.plasma.helium_treatment,
+            heating_rate_data_file=heating_rate_data_file,
+            v_inner=tardis_config.structure.v_inner,
+            v_outer=tardis_config.structure.v_outer)
 
         self.spectrum = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_virtual = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
         self.spectrum_reabsorbed = TARDISSpectrum(tardis_config.spectrum.frequency, tardis_config.supernova.distance)
 
-
+        self.calculate_j_blues(init_detailed_j_blues=True)
+        self.update_plasmas(initialize_nlte=True)
 
 
     @property
@@ -167,6 +163,11 @@ class Radial1DModel(object):
         self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
         self.j_blues_norm_factor = constants.c.cgs *  self.tardis_config.supernova.time_explosion / \
                        (4 * np.pi * self.time_of_simulation * self.tardis_config.structure.volumes)
+
+
+    @staticmethod
+    def calculate_geometric_w(r, r_inner):
+        return 0.5 * (1 - np.sqrt(1 - (r_inner ** 2 / r ** 2).to(1).value))
 
 
     def calculate_j_blues(self, init_detailed_j_blues=False):
