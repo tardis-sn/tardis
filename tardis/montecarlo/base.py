@@ -21,12 +21,12 @@ class MontecarloRunner(object):
                                 (const.h / const.k_B)).cgs.value
 
 
-    def __init__(self, seed):
+    def __init__(self, seed, spectrum_frequency):
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
+        self.spectrum_frequency = spectrum_frequency
 
 
-
-    def _initialize_montecarlo_arrays(self, model):
+    def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
         """
         Initialize the output arrays of the montecarlo simulation.
 
@@ -36,21 +36,10 @@ class MontecarloRunner(object):
         model: ~Radial1DModel
         """
 
-        no_of_packets = model.current_no_of_packets
-        no_of_shells = model.tardis_config.structure.no_of_shells
-        self._output_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
-        self._output_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
-        self.last_line_interaction_in_id = -1 * np.ones(no_of_packets, dtype=np.int64)
-        self.last_line_interaction_out_id = -1 * np.ones(no_of_packets, dtype=np.int64)
-        self.last_line_interaction_shell_id = -1 * np.ones(no_of_packets, dtype=np.int64)
-        self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
-        self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
-
         #Estimators
         self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
-        self.j_blue_estimator = np.zeros_like(
-            model.plasma_array.tau_sobolevs.values)
+        self.j_blue_estimator = np.zeros(tau_sobolev_shape)
 
 
     def _initialize_geometry_arrays(self, structure):
@@ -66,14 +55,29 @@ class MontecarloRunner(object):
         self.r_outer_cgs = structure.r_outer.to('cm').value
         self.v_inner_cgs = structure.v_inner.to('cm/s').value
 
-    def _initialize_packets(self, T, no_of_packets):
+    def _initialize_packets(self, T, no_of_packets, no_of_virtual_packets=None):
         nus, mus, energies = self.packet_source.create_packets(T, no_of_packets)
         self.input_nu = nus
         self.input_mu = mus
         self.input_energy = energies
 
+        self._output_nu = np.ones(no_of_packets, dtype=np.float64) * -99.0
+        self._output_energy = np.ones(no_of_packets, dtype=np.float64) * -99.0
 
-    def run(self, model, no_of_packets, no_of_virtual_packets, nthreads=1):
+        self.last_line_interaction_in_id = -1 * np.ones(
+            no_of_packets, dtype=np.int64)
+        self.last_line_interaction_out_id = -1 * np.ones(
+            no_of_packets, dtype=np.int64)
+        self.last_line_interaction_shell_id = -1 * np.ones(
+            no_of_packets, dtype=np.int64)
+        self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
+        self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
+
+
+        self.legacy_montecarlo_virtual_luminosity = np.zeros_like(
+            self.spectrum_frequency.value)
+
+    def run(self, model, no_of_packets, no_of_virtual_packets=0, nthreads=1):
         """
         Running the TARDIS simulation
 
@@ -87,7 +91,8 @@ class MontecarloRunner(object):
         """
         self.time_of_simulation = model.time_of_simulation
         self.volume = model.tardis_config.structure.volumes
-        self._initialize_montecarlo_arrays(model)
+        self._initialize_estimator_arrays(self.volume.shape[0],
+                                          model.plasma_array.tau_sobolevs.shape)
         self._initialize_geometry_arrays(model.tardis_config.structure)
 
         self._initialize_packets(model.t_inner.value,
@@ -147,6 +152,21 @@ class MontecarloRunner(object):
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
 
+    def calculate_emitted_luminosity(self, luminosity_nu_start,
+                                     luminosity_nu_end):
+
+        luminosity_wavelength_filter = (
+            (self.emitted_packet_nu >
+             self.tardis_config.supernova.luminosity_nu_start) &
+            (self.emitted_packet_nu <
+             self.tardis_config.supernova.luminosity_nu_end))
+
+        emitted_luminosity = self.emitted_packet_luminosity[
+            luminosity_wavelength_filter].sum()
+
+        return emitted_luminosity
+
+
     def calculate_radiationfield_properties(self):
         """
         Calculate an updated radiation field from the :math:`\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
@@ -176,3 +196,9 @@ class MontecarloRunner(object):
                                 * self.volume.value)
 
         return t_rad * u.K, w
+
+    def calculate_f_nu(self, frequency):
+        pass
+
+    def calculate_f_lambda(self, wavelength):
+        pass
