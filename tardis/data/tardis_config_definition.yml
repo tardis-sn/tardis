@@ -39,19 +39,19 @@ supernova:
 
 clumping:
     filling_factor:
-        property_type: float
+        property_type: quantity
         mandatory: False
         default: None
         help: volume filling factor to determine clumping
 
     power_law_k:
-        property_type: float
+        property_type: quantity
         mandatory: False
         default: None
         help: power law constant used to calculate volume filling factor
 
     density_ratio:
-        property_type: float
+        property_type: quantity
         mandatory: False
         default: None
         help: density ratio between cloud density and inter-cloud density
