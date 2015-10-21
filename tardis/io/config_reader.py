@@ -517,6 +517,44 @@ def parse_supernova_section(supernova_dict):
 
     return config_dict
 
+def parse_clumping_section(clumping_dict):
+    """
+    Parse the clumping section
+
+    Parameters
+    ----------
+
+    clumping_dict: dict
+        YAML parsed clumping dict
+
+    Returns
+    ----------
+
+    clumping_config_dict: dict
+
+    """
+
+    clumping_config_dict = {}
+
+    if 'filling_factor' in clumping_dict:
+        clumping_config_dict['filling_factor'] = parse_quantity(clumping_dict['filling_factor'])
+    else:
+        clumping_config_dict['filling_factor'] = 1.0
+
+    if 'power_law_k' in clumping_dict:
+        clumping_config_dict['power_law_k'] = parse_quantity(clumping_dict['power_law_k'])
+    else:
+        clumping_config_dict['power_law_k'] = 0.0
+
+    if 'filling_factor' in clumping_dict:
+        clumping_config_dict['density_ratio'] = parse_quantity(clumping_dict['density_ratio'])
+    else:
+        clumping_config_dict['density_ratio'] = 1.0
+
+    printf("Parse successful./n")
+
+    return clumping_config_dict
+
 
 def parse_spectrum_list2dict(spectrum_list):
     """
@@ -664,7 +702,7 @@ class ConfigurationNameSpace(dict):
 
         return cls(ConfigurationValidator(config_definition,
                                        config_dict).get_config())
-    
+
     marker = object()
     def __init__(self, value=None):
         if value is None:
@@ -809,7 +847,7 @@ class Configuration(ConfigurationNameSpace):
             in the `data` directory that ships with TARDIS
 
         validate: ~bool
-            Turn validation on or off. 
+            Turn validation on or off.
 
 
         Returns
@@ -1075,10 +1113,3 @@ class Configuration(ConfigurationNameSpace):
                                                               axis=0)
         else:
             logger.critical('atom_data is None, only sensible for testing the parser')
-
-
-
-
-
-
-

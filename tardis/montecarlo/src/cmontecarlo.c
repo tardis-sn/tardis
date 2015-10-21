@@ -607,7 +607,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
   double v_initial = 1.10000000e+09;
   double k = -2.0;
 
-  double f = f_0*pow((v_in/v_initial),k);
+  double f = f_0*pow((v_in/v_initial),k); // Calculate volume filling factor as a function of ejecta velocity.
 
   double tau_line =
     storage->line_lists_tau_sobolevs[line2d_idx];
