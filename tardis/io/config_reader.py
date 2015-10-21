@@ -546,7 +546,7 @@ def parse_clumping_section(clumping_dict):
     else:
         clumping_config_dict['power_law_k'] = 0.0
 
-    if 'filling_factor' in clumping_dict:
+    if 'density_ratio' in clumping_dict:
         clumping_config_dict['density_ratio'] = parse_quantity(clumping_dict['density_ratio'])
     else:
         clumping_config_dict['density_ratio'] = 1.0
