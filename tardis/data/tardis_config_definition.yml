@@ -41,19 +41,19 @@ clumping:
     filling_factor:
         property_type: float
         mandatory: False
-        default: 1.0
+        default: None
         help: volume filling factor to determine clumping
 
     power_law_k:
         property_type: float
         mandatory: False
-        default: 0.0
+        default: None
         help: power law constant used to calculate volume filling factor
 
     density_ratio:
         property_type: float
         mandatory: False
-        default: 1.0
+        default: None
         help: density ratio between cloud density and inter-cloud density
 
 atom_data:
