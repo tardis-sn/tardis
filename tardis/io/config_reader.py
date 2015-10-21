@@ -1100,6 +1100,8 @@ class Configuration(ConfigurationNameSpace):
         validated_config_dict['spectrum'] = parse_spectrum_list2dict(
             validated_config_dict['spectrum'])
 
+        validated_config_dict['clumping'] = parse_clumping_section(validated_config_dict['clumping'])
+
         return cls(validated_config_dict, atom_data)
 
 
