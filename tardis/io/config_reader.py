@@ -537,21 +537,20 @@ def parse_clumping_section(clumping_dict):
     clumping_config_dict = {}
 
     if 'filling_factor' in clumping_dict:
-        clumping_config_dict['filling_factor'] = parse_quantity(clumping_dict['filling_factor'])
+        clumping_config_dict['filling_factor'] = clumping_dict['filling_factor']
     else:
         clumping_config_dict['filling_factor'] = 1.0
 
     if 'power_law_k' in clumping_dict:
-        clumping_config_dict['power_law_k'] = parse_quantity(clumping_dict['power_law_k'])
+        clumping_config_dict['power_law_k'] = clumping_dict['power_law_k']
     else:
         clumping_config_dict['power_law_k'] = 0.0
 
     if 'density_ratio' in clumping_dict:
-        clumping_config_dict['density_ratio'] = parse_quantity(clumping_dict['density_ratio'])
+        clumping_config_dict['density_ratio'] = clumping_dict['density_ratio']
     else:
         clumping_config_dict['density_ratio'] = 1.0
 
-    printf("Parse successful./n")
 
     return clumping_config_dict
 
