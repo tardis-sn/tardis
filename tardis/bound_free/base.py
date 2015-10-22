@@ -9,6 +9,7 @@ from tardis.bound_free.exceptions import IncompletePhotoionizationDataError
 from scipy.integrate import simps
 from tardis import macro_atom
 
+
 default_photoionization_h5_path = os.path.join(os.path.dirname(__file__), 'data', 'my_phot_data.h5')
 
 logger = logging.getLogger(__name__)
@@ -43,7 +44,6 @@ class BaseContinuumData(object):
         tmp_level_lower_idx = pd.MultiIndex.from_arrays(
             [continuum_data['atomic_number'], continuum_data['ion_number'],
              continuum_data['level_number_lower']])
-
         continuum_data.insert(len(continuum_data.columns), 'level_lower_idx',
                               pd.Series(self.atom_data.macro_atom_references['references_idx'].ix[
                                   tmp_level_lower_idx].values.astype(
@@ -191,6 +191,7 @@ class TransitionProbabilitiesContinuum(object):
         self.photoionization_data = photoionization_data.copy()
         self.lte_level_population = lte_level_population
         self.data = self.calculate()
+        # TODO: Use the new, faster method
 
     # TODO: maybe resort transition probabilities by value so that less summations are needed in the macro atom
     def calculate(self):
@@ -211,7 +212,7 @@ class TransitionProbabilitiesContinuum(object):
     @staticmethod
     def _calculate_one_probability(nu, x_sect, t_rad):
         integrand = (nu ** 2) * x_sect * np.exp(-const.h.cgs.value * nu / (const.k_B.cgs.value * t_rad))
-        return simps(integrand, nu)
+        return simps(integrand, nu, even='first')
 
     def _calculate_one_shell(self, t_rad, lte_levelpop_one_shell):
         transition_probability_row = self.macro_atom_continuum_data['transition_probability'].values.copy()
@@ -225,3 +226,31 @@ class TransitionProbabilitiesContinuum(object):
         # TODO: change this in the preparation of the continuum data
         transition_probability_row *= tmp * units.eV.to(units.erg) * 1e-10
         return transition_probability_row
+
+    def _calculate(self):
+        # Alternative, faster method to calculate recombination transition probabilities
+        trans_prob = pd.DataFrame((self.photoionization_data['x_sect'] * (self.photoionization_data['nu']) ** 2)).values
+        # TODO: In the future, we should check if the photoionization_data and the macro_atom_continuum_data have the
+        # same structure (maybe do this in the preparation of the continuum_data)
+        boltzmann_factor = np.exp(-self.photoionization_data.nu.values[np.newaxis].T / \
+                                  self.t_rads * (const.h.cgs.value / const.k_B.cgs.value))
+        trans_prob = pd.DataFrame(boltzmann_factor * trans_prob, index=self.photoionization_data.index)
+        trans_prob.insert(0, 'nu', self.photoionization_data['nu'])
+        trans_prob = trans_prob.groupby(level=[0, 1, 2])
+        tmp = {}
+        for i in range(len(self.t_rads)):
+            tmp[i] = trans_prob.apply(lambda sub: simps(sub[i], sub['nu'], even='first'))
+        trans_prob = pd.DataFrame(tmp)
+        trans_prob = trans_prob.multiply(self.lte_level_population.loc[trans_prob.index.values], axis=0)
+        trans_prob = pd.concat([trans_prob, trans_prob])
+        trans_prob = trans_prob.multiply(self.macro_atom_continuum_data.transition_probability.values
+                                         * units.eV.to(units.erg) * 1e-10, axis=0)
+        # WARNING: Not sure if this is safe under all circumstances
+        macro_atom.normalize_transition_probabilities(trans_prob.values, self.block_references)
+        trans_prob.insert(0, 'destination_level_idx',
+                          self.macro_atom_continuum_data.level_lower_idx.values)
+        trans_prob.insert(1, 'continuum_edge_idx',
+                          self.macro_atom_continuum_data.continuum_edge_idx.values)
+        trans_prob.insert(2, 'transition_type',
+                          self.macro_atom_continuum_data.transition_type.values)
+        return trans_prob

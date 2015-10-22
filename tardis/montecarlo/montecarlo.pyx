@@ -258,9 +258,8 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     cdef np.ndarray[int_type_t, ndim=1] transition_continuum_id
     cdef np.ndarray[double, ndim=2] transition_probabilities_continuum
 
-    # kind of redundant atm
-    cdef int no_levels_with_photdata = model.atom_data.continuum_data.no_levels_with_photdata
-    # Temporary
+    # TODO
+    cdef int no_levels_with_photdata = 20  # model.atom_data.continuum_data.no_levels_with_photdata
     cdef photo_xsect_1level ** photo_xsect = <photo_xsect_1level **> malloc(
         no_levels_with_photdata * sizeof(photo_xsect_1level *))
 

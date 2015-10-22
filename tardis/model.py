@@ -17,7 +17,7 @@ from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.bound_free.base import TransitionProbabilitiesContinuum
 from tardis.bound_free.rates import IonizationRates
 from tardis.bound_free.rates import CollisionalRates
-
+from tardis.bound_free.rates import TransitionProbabilitiesCombined
 
 
 logger = logging.getLogger(__name__)
@@ -217,13 +217,21 @@ class Radial1DModel(object):
             self.transition_probabilities = self.plasma_array.transition_probabilities
 
         if self.tardis_config.plasma['continuum_treatment'] == True:
-            # test = PhotoIonizationRates(photoionization_data=self.atom_data.continuum_data.photoionization_data,
+            # self.photoionization_rates = PhotoIonizationRates(
+            # photoionization_data=self.atom_data.continuum_data.photoionization_data,
             #            t_rads=self.t_rads, ws=self.ws, electron_densities=self.plasma_array.electron_densities)
 
             # TODO: Replace level population with LTE level population
-            # test = CollisionalRates(lines=self.atom_data.lines, t_electrons=0.9*self.t_rads,
-            #                        electron_densities=self.plasma_array.electron_densities,
-            #                        lte_level_pop=self.plasma_array.level_number_density)
+            self.collisional_rates = CollisionalRates(lines=self.atom_data.lines, t_electrons=0.9 * self.t_rads,
+                                                      electron_densities=self.plasma_array.electron_densities,
+                                                      macro_atom_references=self.atom_data.macro_atom_references,
+                                                      lte_level_pop=self.plasma_array.level_number_density,
+                                                      levels=self.atom_data.levels)
+
+            # self.transition_probabilities_combined = TransitionProbabilitiesCombined(macro_atom_data=self.atom_data.macro_atom_data,
+            #                                        macro_atom_references=self.atom_data.macro_atom_references,
+            #                                        radiative_prob=self.transition_probabilities,
+            #                                        coll_excitation_prob=self.collisional_rates.transition_prob_int_up)
 
             # TODO: Replace level population with LTE level population
             self.transition_probabilities_continuum = \
