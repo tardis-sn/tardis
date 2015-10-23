@@ -121,7 +121,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.electron_densities = <double*> PyArray_DATA(
         model.plasma_array.electron_densities.values)
 
-    storage.power_law_k = <double*> model.tardis_config.clumping.power_law_k
+    storage.power_law_k = model.tardis_config.clumping.power_law_k
 
     runner.inverse_electron_densities = (
         1.0 / model.plasma_array.electron_densities.values)
