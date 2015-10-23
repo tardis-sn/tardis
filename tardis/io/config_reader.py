@@ -551,8 +551,6 @@ def parse_clumping_section(clumping_dict):
     else:
         clumping_config_dict['density_ratio'] = 1.0
 
-        print "Parse was successful, filling factor is: %d" % clumping_config_dict['filling_factor']
-
 
     return clumping_config_dict
 
