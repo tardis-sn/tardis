@@ -102,7 +102,6 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.packet_mus = <double*> PyArray_DATA(runner.input_mu)
     storage.packet_energies = <double*> PyArray_DATA(runner.input_energy)
 
-    storage.power_law_k = model.tardis_config.clumping.power_law_k
 
     # Setup of structure
     structure = model.tardis_config.structure
@@ -121,6 +120,8 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     #electron density
     storage.electron_densities = <double*> PyArray_DATA(
         model.plasma_array.electron_densities.values)
+
+    storage.power_law_k = <double*> model.tardis_config.clumping.power_law_k
 
     runner.inverse_electron_densities = (
         1.0 / model.plasma_array.electron_densities.values)
