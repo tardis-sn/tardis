@@ -30,7 +30,7 @@ double cloud_tau(storage_model_t *storage, double tau_line, double f)
 
   tau_line = tau_line*(1/(f+((1-f)*1/R)));
 
-  return tau_line
+  return tau_line;
 }
 
 double intercloud_tau(storage_model_t *storage, double tau_line, double f)
@@ -39,7 +39,7 @@ double intercloud_tau(storage_model_t *storage, double tau_line, double f)
 
   tau_line = tau_line*(1/((f*R)+(1-f))); // Intercloud optical depth
 
-  return tau_line
+  return tau_line;
 }
 
 #endif // CLUMPING.H
