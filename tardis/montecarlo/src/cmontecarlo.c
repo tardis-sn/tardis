@@ -601,22 +601,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       increment_j_blue_estimator (packet, storage, distance, line2d_idx);
     }
 
-  double random_clump = rk_double(mt_state); // Generates a random number to determine clumpiness.
-  double v_in = storage->v_inner[rpacket_get_current_shell_id (packet)];
-
-  double f = calc_f(storage, v_in); // Calculate volume filling factor as a function of ejecta velocity.
-
-  double tau_line =
-    storage->line_lists_tau_sobolevs[line2d_idx];
-    if(random_clump<f)
-      {
-        tau_line = cloud_tau(storage, tau_line, f); // Cloud optical depth
-      }
-    else
-      {
-        tau_line = intercloud_tau(storage, tau_line, f); // Intercloud optical depth
-      }
-
+  double tau_line = calc_tau(storage, packet);
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
 
