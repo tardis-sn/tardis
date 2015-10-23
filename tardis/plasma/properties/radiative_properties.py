@@ -7,6 +7,7 @@ from astropy import units as u, constants as const
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
+from tardis import model
 
 logger = logging.getLogger(__name__)
 
