@@ -72,6 +72,8 @@ typedef struct StorageModel
   int64_t virt_packet_count;
   int64_t virt_array_size;
   double power_law_k;
+  double density_ratio
+  double filling_factor
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

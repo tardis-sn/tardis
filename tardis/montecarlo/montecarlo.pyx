@@ -85,6 +85,8 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t virt_packet_count
         int_type_t virt_array_size
         double power_law_k
+        double density_ratio
+        double filling factor
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -122,6 +124,8 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         model.plasma_array.electron_densities.values)
 
     storage.power_law_k = model.tardis_config.clumping.power_law_k
+    storage.density_ratio = model.tardis_config.clumping.density_ratio
+    storage.filling_factor = model.tardis_config.clumping.filling_factor
 
     runner.inverse_electron_densities = (
         1.0 / model.plasma_array.electron_densities.values)
