@@ -13,6 +13,11 @@
 #include "cmontecarlo.h"
 #include "cmontecarlo1.h"
 
+double calc_f(storage_model_t, rpacket_t);
+double cloud_tau(storage_model_t, double, double);
+double intercloud_tau(storage_model_t, double, double);
+double calc_tau(storage_model_t, int64_t, rk_state );
+
 double calc_f(storage_model_t * storage, rpacket_t * packet) // Calcuates value for the filling factor f from velocity
 {
   double f_0 = storage->filling_factor; // Initial filling factor.
@@ -44,7 +49,7 @@ double intercloud_tau(storage_model_t *storage, double tau_line, double f) // Ca
   return tau_line;
 }
 
-double calc_tau(storage_model_t *storage, rpacket_t *packet, int64_t line2d_idx, *mt_state)
+double calc_tau(storage_model_t *storage, int64_t line2d_idx, rk_state *mt_state)
 {
   double random_clump = rk_double(mt_state); // Generates a random number to determine if photon is in cloud.
 
