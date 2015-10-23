@@ -8,7 +8,6 @@ from astropy import units as u, constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
 
-from tardis.io import config_reader
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +108,7 @@ class TauSobolev(ProcessingPlasmaProperty):
         n_lower = level_number_density.values.take(lines_lower_level_index,
             axis=0, mode='raise')
         tau_sobolevs = (self.sobolev_coefficient * f_lu * wavelength *
-                        time_explosion * n_lower * stimulated_emission_factor)*validated_config_dict['filling_factor']
+                        time_explosion * n_lower * stimulated_emission_factor)
         return pd.DataFrame(tau_sobolevs, index=lines.index,
             columns=np.array(level_number_density.columns))
 
