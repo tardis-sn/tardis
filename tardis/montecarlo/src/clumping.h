@@ -13,16 +13,11 @@
 #include "cmontecarlo.h"
 #include "cmontecarlo1.h"
 
-double calc_f(storage_model_t*, rpacket_t);
-double cloud_tau(storage_model_t*, double, double);
-double intercloud_tau(storage_model_t*, double, double);
-double calc_tau(storage_model_t*, int64_t, rk_state );
-
 double calc_f(storage_model_t * storage, rpacket_t * packet) // Calcuates value for the filling factor f from velocity
 {
   double f_0 = storage->filling_factor; // Initial filling factor.
   double R = storage->density_ratio; // Ratio of cloud density to intercloud density
-  double v_initial = velocity_0; // Initial velocity
+  double v_initial = 1.10000000e+09; // Initial velocity
   double k = storage->power_law_k; // Constant for power law calculation
   double v_in = storage->v_inner[rpacket_get_current_shell_id (packet)];
 
