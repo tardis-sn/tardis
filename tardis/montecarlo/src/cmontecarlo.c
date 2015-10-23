@@ -605,7 +605,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
   double R = 50.0; // Ratio of cloud density to intercloud density
   double v_in = storage->v_inner[rpacket_get_current_shell_id (packet)];
   double v_initial = 1.10000000e+09;
-  double k = -2.0;
+  double k = stroage->power_law_k;
 
   double f = f_0*pow((v_in/v_initial),k); // Calculate volume filling factor as a function of ejecta velocity.
 
