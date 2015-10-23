@@ -44,7 +44,7 @@ double intercloud_tau(storage_model_t *storage, double tau_line, double f) // Ca
   return tau_line;
 }
 
-double calc_tau(storage_model_t *storage, rpacket_t *packet, int64_t line2d_idx, rk_state *mt_state)
+double calc_tau(storage_model_t *storage, rpacket_t *packet, int64_t line2d_idx, *mt_state)
 {
   double random_clump = rk_double(mt_state); // Generates a random number to determine if photon is in cloud.
 
