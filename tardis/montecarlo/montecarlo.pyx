@@ -84,6 +84,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *virt_packet_last_line_interaction_out_id
         int_type_t virt_packet_count
         int_type_t virt_array_size
+        double *power_law_k
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -100,6 +101,8 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.packet_nus = <double*> PyArray_DATA(runner.input_nu)
     storage.packet_mus = <double*> PyArray_DATA(runner.input_mu)
     storage.packet_energies = <double*> PyArray_DATA(runner.input_energy)
+
+    storage.power_law_k = model.tardis_config.clumping.power_law_k
 
     # Setup of structure
     structure = model.tardis_config.structure
@@ -263,7 +266,5 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
     runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
     runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
-    
+
     #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies
-
-
