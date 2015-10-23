@@ -44,9 +44,10 @@ double intercloud_tau(storage_model_t *storage, double tau_line, double f) // Ca
   return tau_line;
 }
 
-double calc_tau(storage_model_t *storage, int64_t line2d_idx, rk_state *mt_state)
+double calc_tau(storage_model_t *storage, rpacket_t *packet, int64_t line2d_idx, rk_state *mt_state)
 {
   double random_clump = rk_double(mt_state); // Generates a random number to determine if photon is in cloud.
+  double v_in = storage->v_inner[rpacket_get_current_shell_id (packet)];
 
   double f = calc_f(storage, v_in); // Calculate volume filling factor as a function of ejecta velocity.
 

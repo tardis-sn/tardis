@@ -601,7 +601,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       increment_j_blue_estimator (packet, storage, distance, line2d_idx);
     }
 
-  double tau_line = calc_tau(storage, line2d_idx, mt_state);
+  double tau_line = calc_tau(storage, packet, line2d_idx, mt_state);
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
 
