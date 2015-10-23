@@ -48,18 +48,18 @@ double calc_tau(storage_model_t *storage, int64_t line2d_idx, rk_state *mt_state
 {
   double random_clump = rk_double(mt_state); // Generates a random number to determine if photon is in cloud.
 
-  double f = calc_f(*storage, v_in); // Calculate volume filling factor as a function of ejecta velocity.
+  double f = calc_f(storage, v_in); // Calculate volume filling factor as a function of ejecta velocity.
 
   double tau_line =
     storage->line_lists_tau_sobolevs[line2d_idx];
 
     if(random_clump<f)
       {
-        tau_line = cloud_tau(*storage, tau_line, f); // Cloud optical depth
+        tau_line = cloud_tau(storage, tau_line, f); // Cloud optical depth
       }
     else
       {
-        tau_line = intercloud_tau(*storage, tau_line, f); // Intercloud optical depth
+        tau_line = intercloud_tau(storage, tau_line, f); // Intercloud optical depth
       }
 
   return tau_line;
