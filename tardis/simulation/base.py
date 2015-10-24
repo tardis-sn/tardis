@@ -10,9 +10,6 @@ import numpy as np
 
 from astropy import units as u
 
-from collections import OrderedDict
-
-from tardis.model import Radial1DModel
 from tardis.montecarlo.base import MontecarloRunner
 
 # Adding logging support
@@ -145,7 +142,8 @@ class Simulation(object):
             next t_rad
         next_w: ~astropy.units.Quanity
             next_w
-        log_sampling
+        log_sampling: ~int
+            the n-th shells to be plotted
 
         Returns
         -------
