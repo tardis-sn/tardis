@@ -17,7 +17,7 @@ double calc_f(storage_model_t * storage, rpacket_t * packet) // Calcuates value 
 {
   double f_0 = storage->filling_factor; // Initial filling factor.
   double R = storage->density_ratio; // Ratio of cloud density to intercloud density
-  double v_initial = 1.10000000e+09; // Initial velocity
+  double v_initial = storage->v_inner[0]; // Initial velocity
   double k = storage->power_law_k; // Constant for power law calculation
   double v_in = storage->v_inner[rpacket_get_current_shell_id (packet)];
 
