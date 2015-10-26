@@ -602,7 +602,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     }
 
   double f_0 = storage->filling_factor;
-  double tau_line
+  double tau_line;
 
   if (f_0 == 1.0) {
     tau_line = storage->line_lists_tau_sobolevs[line2d_idx];
