@@ -27,7 +27,7 @@ def test_quantity_linspace():
     quantity_linspace = config_reader.quantity_linspace(**quantity_linspace_dict)
     assert_almost_equal(quantity_linspace[0].value, 1.1e4)
     assert_almost_equal(quantity_linspace[-1].to('cm/h').value, 2e4)
-    assert len(quantity_linspace) == 1001
+    assert len(quantity_linspace) == 1000
 
 
 def test_spectrum_list2_dict():
