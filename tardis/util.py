@@ -434,4 +434,4 @@ def quantity_linspace(start, stop, num, **kwargs):
         raise ValueError('Both start and stop need to be quantities with a '
                          'unit attribute')
 
-    return np.linspace(start.value, stop.value, num, **kwargs) * start.unit
+    return np.linspace(start.value, stop.to(start.unit).value, num, **kwargs) * start.unit
