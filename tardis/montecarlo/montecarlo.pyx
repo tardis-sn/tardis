@@ -245,7 +245,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_in_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_out_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
     if LOG_VPACKETS != 0:
-        print "NOVPACKETS!"
         for i in range(storage.virt_packet_count):
             virt_packet_nus[i] = storage.virt_packet_nus[i]
             virt_packet_energies[i] = storage.virt_packet_energies[i]
