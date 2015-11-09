@@ -62,6 +62,12 @@ add_command_option('build', 'with-openmp', 'compile TARDIS without OpenMP',
                    is_bool=True)
 add_command_option('develop', 'with-openmp', 'compile TARDIS without OpenMP',
                    is_bool=True)
+add_command_option('install', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
+                   is_bool=True)
+add_command_option('build', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
+                   is_bool=True)
+add_command_option('develop', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
+                   is_bool=True)
 
 # Adjust the compiler in case the default on this platform is to use a
 # broken one.
