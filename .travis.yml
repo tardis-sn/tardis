@@ -46,8 +46,8 @@ before_install:
     - chmod +x miniconda.sh
     - ./miniconda.sh -b
     - export PATH=/home/travis/miniconda/bin:$PATH
+    - hash -r
     - conda update --yes conda
-
     - if [[ $TEST_MODE == 'spectrum' ]]; then wget $ATOM_DATA_URL; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
