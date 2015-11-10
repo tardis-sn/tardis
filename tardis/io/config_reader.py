@@ -932,6 +932,7 @@ class Configuration(ConfigurationNameSpace):
                                        plasma_section['initial_t_rad']
         else:
             plasma_section['t_rads'] = None
+
         if plasma_section['disable_electron_scattering'] is False:
             logger.debug("Electron scattering switched on")
             validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
