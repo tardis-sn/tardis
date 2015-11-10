@@ -16,7 +16,7 @@ def data_path(fname):
 
 @pytest.fixture()
 def plasma_compare_data_fname():
-    return data_path('plasma_comparison_data.h5')
+    return data_path('plasma_test_data.h5')
 
 @pytest.fixture()
 def plasma_compare_data(plasma_compare_data_fname):
@@ -56,7 +56,7 @@ class TestPlasmas():
         np.testing.assert_allclose(
             new_plasma_levels, old_plasma_levels, rtol=0.1)
 
-    def test_nlte_plasma(self):
+    def test_nlte_plasma(self, plasma_compare_data):
         old_plasma_t_rads = plasma_compare_data['test_nlte1/t_rad']
         old_plasma_levels = plasma_compare_data['test_nlte1/levels']
         new_plasma_t_rads = self.nlte_model.t_rads / u.Unit('K')
