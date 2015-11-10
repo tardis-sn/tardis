@@ -5,11 +5,22 @@ import tardis
 import numpy.testing as nptesting
 from astropy import units as u
 import os
+import h5py
+
+
 
 from tardis.base import run_tardis
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'plasma', 'tests', 'data', fname)
+
+@pytest.fixture()
+def plasma_compare_data_fname():
+    return data_path('plasma_comparison_data.h5')
+
+@pytest.fixture()
+def plasma_compare_data(plasma_compare_data_fname):
+    return h5py.File(plasma_compare_data_fname, 'r')
 
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
@@ -32,10 +43,8 @@ class TestPlasmas():
         self.config_yaml['atom_data'] = self.atom_data_filename
         self.nlte_model = run_tardis(self.config_yaml)
 
-    def test_lte_plasma(self):
-        old_plasma_t_rads = \
-            np.loadtxt(data_path('plasma_comparison_lte_trads.dat'),
-                unpack=True)
+    def test_lte_plasma(self, plasma_compare_data):
+        old_plasma_t_rads = plasma_compare_data['test']
         new_plasma_t_rads = self.lte_model.t_rads / u.Unit('K')
         old_plasma_levels = \
             np.loadtxt(data_path('plasma_comparison_lte_levels.dat'),
