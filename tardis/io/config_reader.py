@@ -927,8 +927,11 @@ class Configuration(ConfigurationNameSpace):
         else:
             plasma_section['t_inner'] = plasma_section['initial_t_inner']
 
-        plasma_section['t_rads'] = np.ones(no_of_shells) * \
-                                   plasma_section['initial_t_rad']
+        if plasma_section['initial_t_rad'] > 0 * u.K:
+            plasma_section['t_rads'] = np.ones(no_of_shells) * \
+                                       plasma_section['initial_t_rad']
+        else:
+            plasma_section['t_rads'] = None
         if plasma_section['disable_electron_scattering'] is False:
             logger.debug("Electron scattering switched on")
             validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
