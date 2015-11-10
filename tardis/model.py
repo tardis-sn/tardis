@@ -2,16 +2,13 @@
 
 import logging
 import os
-import itertools
 
 import numpy as np
 import pandas as pd
 from astropy import constants, units as u
-import scipy.special
 
 from util import intensity_black_body
-from tardis.montecarlo import montecarlo
-from tardis.montecarlo.base import MontecarloRunner
+
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 
 logger = logging.getLogger(__name__)
