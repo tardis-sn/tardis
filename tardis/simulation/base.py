@@ -1,9 +1,7 @@
 import logging
 import time
-import os
 import itertools
 
-from pandas import HDFStore
 import pandas as pd
 
 import numpy as np
@@ -34,14 +32,18 @@ class Simulation(object):
     def run_single_montecarlo(self, model, no_of_packets,
                               no_of_virtual_packets=0):
         """
-
+        Will do a single TARDIS iteration with the given model
         Parameters
         ----------
-        no_of_packets
-        no_of_virtual_packets
+        model: ~tardis.model.Radial1DModel
+        no_of_packet: ~int
+        no_of_virtual_packets: ~int
+            default is 0 and switches of the virtual packet mode. Recommended
+            is 3.
 
         Returns
         -------
+            : None
 
         """
         self.runner.run(model, no_of_packets,
@@ -60,6 +62,12 @@ class Simulation(object):
 
 
     def calculate_emitted_luminosity(self):
+        """
+
+        Returns
+        -------
+
+        """
         return self.runner.calculate_emitted_luminosity(
             self.tardis_config.supernova.luminosity_nu_start,
             self.tardis_config.supernova.luminosity_nu_end)
