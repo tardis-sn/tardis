@@ -91,11 +91,17 @@ class Radial1DModel(object):
                                  "for 'nebular' plasma ionization")
 
         self.t_inner = tardis_config.plasma.t_inner
-        self.t_rads = tardis_config.plasma.t_rads
+
 
         self.ws = self.calculate_geometric_w(
             tardis_config.structure.r_middle,
             tardis_config.structure.r_inner[0])
+
+        if tardis_config.plasma.t_rads is None:
+            self.t_rads = self._init_t_rad(
+                self.t_inner, tardis_config.structure.v_inner[0], self.v_middle)
+        else:
+            self.t_rads = tardis_config.plasma.t_rads
 
         heating_rate_data_file = getattr(
             tardis_config.plasma, 'heating_rate_data_file', None)
@@ -150,6 +156,11 @@ class Radial1DModel(object):
     def t_inner(self):
         return self._t_inner
 
+    @property
+    def v_middle(self):
+        structure = self.tardis_config.structure
+        return 0.5 * (structure.v_inner + structure.v_outer)
+
     @t_inner.setter
     def t_inner(self, value):
         self._t_inner = value
@@ -168,6 +179,12 @@ class Radial1DModel(object):
     @staticmethod
     def calculate_geometric_w(r, r_inner):
         return 0.5 * (1 - np.sqrt(1 - (r_inner ** 2 / r ** 2).to(1).value))
+
+    @staticmethod
+    def _init_t_rad(t_inner, v_boundary, v_middle):
+        lambda_wien_inner = constants.b_wien / t_inner
+        return constants.b_wien / (
+            lambda_wien_inner * (1 + (v_middle - v_boundary) / constants.c))
 
 
     def calculate_j_blues(self, init_detailed_j_blues=False):
