@@ -44,11 +44,10 @@ class TestPlasmas():
         self.nlte_model = run_tardis(self.config_yaml)
 
     def test_lte_plasma(self, plasma_compare_data):
-        old_plasma_t_rads = plasma_compare_data['test']
+        old_plasma_t_rads = plasma_compare_data['test_lte1/t_rad']
+        old_plasma_levels = plasma_compare_data['test_lte1/levels']
+
         new_plasma_t_rads = self.lte_model.t_rads / u.Unit('K')
-        old_plasma_levels = \
-            np.loadtxt(data_path('plasma_comparison_lte_levels.dat'),
-                unpack=True)
         new_plasma_levels = \
             self.lte_model.plasma_array.get_value(
             'level_number_density').ix[8].ix[1][10].values
@@ -58,13 +57,9 @@ class TestPlasmas():
             new_plasma_levels, old_plasma_levels, rtol=0.1)
 
     def test_nlte_plasma(self):
-        old_plasma_t_rads = \
-            np.loadtxt(data_path('plasma_comparison_nlte_trads.dat'),
-                unpack=True)
+        old_plasma_t_rads = plasma_compare_data['test_nlte1/t_rad']
+        old_plasma_levels = plasma_compare_data['test_nlte1/levels']
         new_plasma_t_rads = self.nlte_model.t_rads / u.Unit('K')
-        old_plasma_levels = \
-            np.loadtxt(data_path('plasma_comparison_nlte_levels.dat'),
-                unpack=True)
         new_plasma_levels = \
             self.nlte_model.plasma_array.get_value(
             'level_number_density').ix[2].ix[1][10].values
