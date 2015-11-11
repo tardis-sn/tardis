@@ -10,6 +10,8 @@ __all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
 
 logger = logging.getLogger(__name__)
 
+import os
+
 class BasePlasmaProperty(object):
     """
     Attributes
@@ -58,9 +60,49 @@ class BasePlasmaProperty(object):
                                                          ''))
         return latex_label.replace('\\', r'\\')
 
-    def to_hdf(self, hdf_store):
-        pass
+    def _get_output_to_hdf(self, output):
+        """
+        Convert output into a pandas DataFrame to enable storing in an HDFStore
 
+        Parameters
+        ----------
+        output: ~str
+            output string name
+
+        Returns
+        -------
+            : ~pandas.DataFrame
+
+        """
+
+        output_value = getattr(self, output)
+
+        if np.isscalar(output_value):
+            output_value = [output_value]
+
+        return pd.DataFrame(output_value)
+
+    def to_hdf(self, hdf_store, path):
+        """
+        Stores plugin value to an HDFStore
+
+        Parameters
+        ----------
+        hdf_store: ~pandas.HDFStore object
+            an open pandas datastore
+
+        path: ~str
+            path to store the modules data under
+            - will be joined to <path>/output_name
+
+        Returns
+        -------
+            : None
+
+        """
+        for output in self.outputs:
+            hdf_store[os.path.join(path, output)] = self._get_output_to_hdf(
+                output)
 
 
 class ProcessingPlasmaProperty(BasePlasmaProperty):
