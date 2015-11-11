@@ -39,7 +39,7 @@ class BasePlasma(object):
                  if not item.startswith('_')]
         attrs += [item for item in self.__class__.__dict__
                  if not item.startswith('_')]
-        attrs += self.module_dict.keys()
+        attrs += self.outputs_dict.keys()
         return attrs
 
     @property

@@ -58,6 +58,11 @@ class BasePlasmaProperty(object):
                                                          ''))
         return latex_label.replace('\\', r'\\')
 
+    def to_hdf(self, hdf_store):
+        pass
+
+
+
 class ProcessingPlasmaProperty(BasePlasmaProperty):
     """
     Attributes
