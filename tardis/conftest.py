@@ -143,6 +143,10 @@ def pytest_report_header(config):
 
 
 import os
+import tardis
+import yaml
+
+from tardis.io.config_reader import Configuration
 
 @pytest.fixture
 def atomic_data_fname():
@@ -165,9 +169,19 @@ def kurucz_atomic_data(atomic_data_fname):
         return atomic_data
 
 @pytest.fixture
-def included_he_atomic_data():
+def test_data_path():
+    return os.path.join(tardis.__path__[0], 'tests', 'data')
+
+@pytest.fixture
+def included_he_atomic_data(test_data_path):
     import os, tardis
-    atomic_db_fname = os.path.join(tardis.__path__[0], 'tests', 'data',
-                                   'chianti_he_db.h5')
+    atomic_db_fname = os.path.join(test_data_path, 'chianti_he_db.h5')
     return AtomData.from_hdf5(atomic_db_fname)
+
+@pytest.fixture
+def tardis_config_verysimple():
+    return yaml.load(
+        open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
+
+
 
