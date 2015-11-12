@@ -38,6 +38,12 @@ supernova:
         help: start of the integral needed for getting the luminosity right
 
 clumping:
+    clumping_status:
+        property_type: int
+        mandatory: True
+        default: 0
+        help: integer that determines if clumping is on or off
+
     filling_factor:
         property_type: float
         mandatory: False

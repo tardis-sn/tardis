@@ -87,6 +87,7 @@ cdef extern from "src/cmontecarlo.h":
         double power_law_k
         double density_ratio
         double filling_factor
+        int_type_t clumping_status
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 

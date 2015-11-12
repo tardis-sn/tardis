@@ -74,6 +74,7 @@ typedef struct StorageModel
   double power_law_k;
   double density_ratio;
   double filling_factor;
+  int64_t clumping_status;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

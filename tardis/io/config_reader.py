@@ -536,6 +536,11 @@ def parse_clumping_section(clumping_dict):
 
     clumping_config_dict = {}
 
+    if 'clumping_status' in clumping_dict:
+        clumping_config_dict['clumping_status'] = clumping_dict['clumping_status']
+    else:
+        clumping_config_dict['clumping_status'] = 0
+
     if 'filling_factor' in clumping_dict:
         clumping_config_dict['filling_factor'] = clumping_dict['filling_factor']
     else:

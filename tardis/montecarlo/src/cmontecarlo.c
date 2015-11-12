@@ -601,10 +601,10 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       increment_j_blue_estimator (packet, storage, distance, line2d_idx);
     }
 
-  double f_0 = storage->filling_factor;
+  double clumping_status= storage->clumping_status;
   double tau_line;
 
-  if (f_0 == 1.0) {
+  if (clumping_status == 0) {
     tau_line = storage->line_lists_tau_sobolevs[line2d_idx];
   } else{
     tau_line = calc_tau(storage, packet, line2d_idx, mt_state);

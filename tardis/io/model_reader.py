@@ -42,7 +42,7 @@ def read_density_file(density_filename, density_filetype, time_explosion, v_inne
         raise ConfigurationError('v_inner_boundary > v_outer_boundary '
                                  '({0:s} > {1:s}). unphysical!'.format(
             v_inner_boundary, v_outer_boundary))
-    
+
     if (not np.isclose(v_inner_boundary, 0.0 * u.km / u.s,
                        atol=1e-8 * u.km / u.s)
         and v_inner_boundary > v_inner[0]):
@@ -65,7 +65,7 @@ def read_density_file(density_filename, density_filetype, time_explosion, v_inne
         v_outer_boundary = v_outer[-1]
         logger.warning("v_outer_boundary requested too large for readin file. Boundary shifted to match file.")
 
-        
+
     v_inner = v_inner[inner_boundary_index:outer_boundary_index]
     v_inner[0] = v_inner_boundary
 
@@ -104,7 +104,7 @@ def read_abundances_file(abundance_filename, abundance_filetype, inner_boundary_
 
     index, abundances = file_parsers[abundance_filetype](abundance_filename)
     if outer_boundary_index is not None:
-        outer_boundary_index_m1 = outer_boundary_index - 1 
+        outer_boundary_index_m1 = outer_boundary_index - 1
     else:
         outer_boundary_index_m1 = None
     index = index[inner_boundary_index:outer_boundary_index]
@@ -255,5 +255,3 @@ def calculate_density_after_time(densities, time_0, time_explosion):
     """
 
     return densities * (time_explosion / time_0) ** -3
-
-
