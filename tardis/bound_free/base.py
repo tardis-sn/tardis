@@ -9,7 +9,6 @@ from tardis.bound_free.exceptions import IncompletePhotoionizationDataError
 from scipy.integrate import simps
 from tardis import macro_atom
 
-
 default_photoionization_h5_path = os.path.join(os.path.dirname(__file__), 'data', 'my_phot_data.h5')
 
 logger = logging.getLogger(__name__)
@@ -19,8 +18,7 @@ class BaseContinuumData(object):
     def __init__(self, atom_data, photo_dat_fname=None):
         # TODO: remove unnecessary attributes
         self.atom_data = atom_data
-        self.levels = atom_data.levels.reset_index()
-        self.levels = self.levels.query('atomic_number != ion_number')
+        self.levels = self._prepare_levels()
         self.continuum_references = self._create_continuum_references()
         self.continuum_data = self._create_continuum_data_from_levels()
         self.macro_atom_data = self._create_macro_atom_data()
@@ -29,6 +27,7 @@ class BaseContinuumData(object):
         self.multi_index_nu_sorted = self.continuum_data.sort('nu', ascending=False).set_index(
             ['atomic_number', 'ion_number', 'level_number_lower']).index.values
         self.level_number_density = None
+        self._set_montecarlo_data()
 
     def _create_continuum_data_from_levels(self):
         logger.info('Generating Continuum data from levels data.')
@@ -64,8 +63,6 @@ class BaseContinuumData(object):
 
         continuum_data.drop(['energy', 'g', 'metastable'], axis=1, inplace=True)
 
-        # continuum_data.reset_index(inplace = True)
-        # continuum_data.sort('nu', ascending = False, inplace = True)
         return continuum_data
 
     def _create_continuum_references(self):
@@ -103,6 +100,10 @@ class BaseContinuumData(object):
         macro_atom_continuum_data.sort(['atomic_number', 'ion_number'], ascending=[1, 1])
         return macro_atom_continuum_data
 
+    def _prepare_levels(self):
+        levels = self.atom_data.levels.reset_index()
+        return levels.query('atomic_number != ion_number')
+
 
 class PhotoionizationData(object):
     @classmethod
@@ -138,40 +139,48 @@ class PhotoionizationData(object):
                                                      list_data_mismatch=True)
 
 
-class ReturnMCDataMixin(object):
-    @property
-    def continuum_edges_list(self):
-        """
-        :return: Array of continuum edge frequencies sorted in decreasing order. Needed for cmontecarlo.
-        """
-        return self.continuum_data.sort('nu', ascending=False).nu.values
+class MCDataMixin(object):
+    # @property
+    #def continuum_edges_list(self):
+    #    """
+    #    :return: Array of continuum edge frequencies sorted in decreasing order. Needed for cmontecarlo.
+    #    """
+    #    return self.continuum_data.sort('nu', ascending=False).nu.values
 
-    @property
-    def cont_edge2macro_continuum(self):
-        """
-        :return: Array of continuum_references_idx. Needed for cmontecarlo, to know which macro_atom_continuum
-            level corresponds to a certain continuum_edge.
-        """
-        return self.continuum_data.sort('nu', ascending=False).continuum_references_idx.values
+    def _set_montecarlo_data(self):
+        nu_sorted_continuum_data = self.continuum_data.sort('nu', ascending=False)
+        self.continuum_edges_list = nu_sorted_continuum_data['nu'].values
+        self.cont_edge2macro_continuum = nu_sorted_continuum_data['continuum_references_idx'].values
+
+    # @property
+    #def cont_edge2macro_continuum(self):
+    #    """
+    #    :return: Array of continuum_references_idx. Needed for cmontecarlo, to know which macro_atom_continuum
+    #        level corresponds to a certain continuum_edge.
+    #    """
+    #    return self.continuum_data.sort('nu', ascending=False).continuum_references_idx.values
 
     def get_phot_table_xsect(self, index_nu_sorted):
-        # multi_index = self.continuum_data.sort('nu', ascending=False).set_index(
-        #    ['atomic_number', 'ion_number', 'level_number_lower']).index.values[index_nu_sorted]
         multi_index = self.multi_index_nu_sorted[index_nu_sorted]
         return self.photoionization_data.loc[multi_index, 'x_sect'].values
 
     def get_phot_table_nu(self, index_nu_sorted):
-        # multi_index = self.continuum_data.sort('nu', ascending=False).set_index(
-        #    ['atomic_number', 'ion_number', 'level_number_lower']).index.values[index_nu_sorted]
         multi_index = self.multi_index_nu_sorted[index_nu_sorted]
         return self.photoionization_data.loc[multi_index, 'nu'].values
 
     def set_level_number_density(self, level_number_density):
-        # ? Copy needed
-        self.level_number_density = level_number_density.copy().loc[self.multi_index_nu_sorted].values.transpose()
+        level_number_density_tmp = level_number_density.loc[self.multi_index_nu_sorted].values.transpose()
+        self.level_number_density = np.ascontiguousarray(level_number_density_tmp)
+
+    def set_level_number_density_ratio(self, level_number_density, lte_level_number_density):
+        level_number_density_tmp = level_number_density.loc[self.multi_index_nu_sorted]
+        lte_level_number_density_tmp = lte_level_number_density.loc[self.multi_index_nu_sorted]
+        level_number_density_ratio = lte_level_number_density_tmp.divide(level_number_density_tmp)
+        level_number_density_ratio = level_number_density_ratio.values.transpose()
+        self.level_number_density_ratio = np.ascontiguousarray(level_number_density_ratio)
 
 
-class ContinuumData(BaseContinuumData, ReturnMCDataMixin):
+class ContinuumData(BaseContinuumData, MCDataMixin):
     pass
 
 
@@ -181,19 +190,26 @@ class TransitionProbabilitiesContinuum(object):
         transition_probabilities : Pandas DataFrame
     """
 
-    def __init__(self, t_rads, macro_atom_continuum_data,
-                 photoionization_data, continuum_references, lte_level_population):
-        self.t_rads = t_rads
-        self.no_of_shells = len(t_rads)
+    def __init__(self, macro_atom_continuum_data,
+                 photoionization_data, continuum_references, plasma_array, continuum_data):
+        self.t_rads = plasma_array.t_rad
+        self.no_of_shells = len(self.t_rads)
         self.macro_atom_continuum_data = macro_atom_continuum_data
+        self.continuum_data = continuum_data
         self.block_references = np.hstack(
             (continuum_references.block_references, len(self.macro_atom_continuum_data)))
         self.photoionization_data = photoionization_data.copy()
-        self.lte_level_population = lte_level_population
-        self.data = self.calculate()
-        # TODO: Use the new, faster method
+        # TODO: get LTE level number density
+        self.lte_level_population = plasma_array.level_number_density
+        self.ion_number_density = plasma_array.ion_number_density
+        self.electron_densities = plasma_array.electron_densities
+        self.nu_i = self.photoionization_data.groupby(level=[0, 1, 2]).first().nu.values
+        self.sp_recombination_coeff = self._calculate_sp_recombination_coeff()
+        self.sp_recombination_coeff_E = self._calculate_sp_recombination_coeff(modified=True)
+        self.data = self._calculate_transition_probabilities()
+        self.fb_cooling_rate = self._calculate_fb_cooling_rate()
+        self._set_montecarlo_data()
 
-    # TODO: maybe resort transition probabilities by value so that less summations are needed in the macro atom
     def calculate(self):
         transition_probabilities = np.zeros((len(self.t_rads), len(self.macro_atom_continuum_data)))
         for i, t_rad in enumerate(self.t_rads):
@@ -227,24 +243,42 @@ class TransitionProbabilitiesContinuum(object):
         transition_probability_row *= tmp * units.eV.to(units.erg) * 1e-10
         return transition_probability_row
 
-    def _calculate(self):
+    def _calculate_sp_recombination_coeff(self, modified=False):
         # Alternative, faster method to calculate recombination transition probabilities
-        trans_prob = pd.DataFrame((self.photoionization_data['x_sect'] * (self.photoionization_data['nu']) ** 2)).values
-        # TODO: In the future, we should check if the photoionization_data and the macro_atom_continuum_data have the
-        # same structure (maybe do this in the preparation of the continuum_data)
+        if modified == False:
+            recomb_coeff = (8 * np.pi * self.photoionization_data['x_sect']
+                            * (self.photoionization_data['nu']) ** 2 / (const.c.cgs.value) ** 2).values
+        else:
+            recomb_coeff = (8 * np.pi * self.photoionization_data['x_sect']
+                            * (self.photoionization_data['nu']) ** 3 / (const.c.cgs.value) ** 2).values
+
+        recomb_coeff = recomb_coeff[:, np.newaxis]
         boltzmann_factor = np.exp(-self.photoionization_data.nu.values[np.newaxis].T / \
                                   self.t_rads * (const.h.cgs.value / const.k_B.cgs.value))
-        trans_prob = pd.DataFrame(boltzmann_factor * trans_prob, index=self.photoionization_data.index)
-        trans_prob.insert(0, 'nu', self.photoionization_data['nu'])
-        trans_prob = trans_prob.groupby(level=[0, 1, 2])
+        recomb_coeff = pd.DataFrame(boltzmann_factor * recomb_coeff, index=self.photoionization_data.index)
+        recomb_coeff = recomb_coeff.divide(self.electron_densities, axis=1)
+        recomb_coeff.insert(0, 'nu', self.photoionization_data['nu'])
+        recomb_coeff = recomb_coeff.groupby(level=[0, 1, 2])
         tmp = {}
         for i in range(len(self.t_rads)):
-            tmp[i] = trans_prob.apply(lambda sub: simps(sub[i], sub['nu'], even='first'))
-        trans_prob = pd.DataFrame(tmp)
-        trans_prob = trans_prob.multiply(self.lte_level_population.loc[trans_prob.index.values], axis=0)
-        trans_prob = pd.concat([trans_prob, trans_prob])
+            tmp[i] = recomb_coeff.apply(lambda sub: simps(sub[i], sub['nu'], even='first'))
+            if modified == True:
+                tmp[i] /= self.nu_i
+
+        recomb_coeff = pd.DataFrame(tmp)
+        recomb_coeff = recomb_coeff.multiply(self.lte_level_population.loc[recomb_coeff.index.values], axis=0)
+        ion_number_density = self._get_ion_number_density(recomb_coeff.index)
+        # TODO: check calculation
+        recomb_coeff = recomb_coeff.divide(ion_number_density.values)
+        return recomb_coeff
+
+    def _calculate_transition_probabilities(self):
+        trans_prob = pd.concat([self.sp_recombination_coeff, self.sp_recombination_coeff])
+        # WARNING: in the test case the trans_prob were multiplied by 1e-10
+        # TODO: In the future, we should check if the photoionization_data and the macro_atom_continuum_data have the
+        # same structure (maybe do this in the preparation of the continuum_data)
         trans_prob = trans_prob.multiply(self.macro_atom_continuum_data.transition_probability.values
-                                         * units.eV.to(units.erg) * 1e-10, axis=0)
+                                         * units.eV.to(units.erg), axis=0)
         # WARNING: Not sure if this is safe under all circumstances
         macro_atom.normalize_transition_probabilities(trans_prob.values, self.block_references)
         trans_prob.insert(0, 'destination_level_idx',
@@ -254,3 +288,29 @@ class TransitionProbabilitiesContinuum(object):
         trans_prob.insert(2, 'transition_type',
                           self.macro_atom_continuum_data.transition_type.values)
         return trans_prob
+
+    def _get_continuum_edge_idx(self, multi_index):
+        return self.continuum_data.set_index(['atomic_number', 'ion_number',
+                                              'level_number_lower']).loc[multi_index, 'continuum_edge_idx']
+
+    def _get_ion_number_density(self, multi_index_full):
+        atomic_number = multi_index_full.get_level_values(0)
+        ion_number = multi_index_full.get_level_values(1) + 1
+        ion_number_index = pd.MultiIndex.from_arrays([atomic_number, ion_number])
+        return self.ion_number_density.loc[ion_number_index]
+
+
+    def _calculate_fb_cooling_rate(self):
+        fb_cooling_rate = (self.sp_recombination_coeff_E - self.sp_recombination_coeff)
+        fb_cooling_rate = fb_cooling_rate.multiply(const.h.cgs.value * self.nu_i, axis=0)
+        fb_cooling_rate = fb_cooling_rate.multiply(self.electron_densities, axis=1)
+        ion_number_density = self._get_ion_number_density(fb_cooling_rate.index)
+        fb_cooling_rate = fb_cooling_rate.multiply(ion_number_density.values)
+        continuum_edge_idx = self._get_continuum_edge_idx(fb_cooling_rate.index)
+        fb_cooling_rate.set_index(continuum_edge_idx, inplace=True)
+        return fb_cooling_rate
+
+    def _set_montecarlo_data(self):
+        transition_probabilities_continuum = self.data.ix[:, 3:].values.transpose()
+        self.data_array = np.ascontiguousarray(transition_probabilities_continuum)
+        self.data_array_nd = self.data_array.shape[1]
