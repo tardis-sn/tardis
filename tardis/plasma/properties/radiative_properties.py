@@ -146,8 +146,8 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             block_references = np.hstack((
                 atomic_data.macro_atom_references.block_references,
                 len(macro_atom_data)))
-            macro_atom.normalize_transition_probabilities(
-                transition_probabilities, block_references)
+            # macro_atom.normalize_transition_probabilities(
+            #    transition_probabilities, block_references)
             transition_probabilities = pd.DataFrame(transition_probabilities,
                 index=macro_atom_data.transition_line_id,
                 columns=tau_sobolevs.columns)
