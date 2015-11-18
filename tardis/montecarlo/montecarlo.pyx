@@ -107,6 +107,19 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t virt_array_size
         FreeFreeStatus ff_status
         photo_xsect_1level ** photo_xsect
+        double *fb_cooling_prob
+        double *ff_cooling_prob
+        double *coll_exc_cooling_prob
+        double *coll_ion_cooling_prob
+        double *fb_cooling_prob_individual
+        double *coll_exc_cooling_prob_individual
+        double *coll_ion_cooling_prob_individual
+        int_type_t *fb_cooling_references
+        int_type_t *coll_ion_cooling_references
+        int_type_t *coll_exc_cooling_references
+        int_type_t fb_cooling_prob_nd
+        int_type_t coll_ion_cooling_prob_nd
+        int_type_t coll_exc_cooling_prob_nd
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -180,14 +193,14 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     # Switch for ff processes
     storage.ff_status = FREE_FREE_OFF
     # ff-data
-    cdef np.ndarray[int_type_t, ndim=1] ion_charge
-    cdef np.ndarray[double, ndim=2] ion_population
-    if storage.ff_status == FREE_FREE_ON:
-        ion_charge = model.plasma_array.ion_populations[0].index.get_level_values(1).values
-        storage.ion_charge = <int_type_t*> ion_charge.data
-        ion_population = model.plasma_array.ion_populations.values.transpose()
-        storage.ion_population = <double *> ion_population.data
-        storage.no_of_ions = ion_population.shape[1]
+    #cdef np.ndarray[int_type_t, ndim=1] ion_charge
+    #cdef np.ndarray[double, ndim=2] ion_population
+    #if storage.ff_status == FREE_FREE_ON:
+    #    ion_charge = model.plasma_array.ion_populations[0].index.get_level_values(1).values
+    #    storage.ion_charge = <int_type_t*> ion_charge.data
+    #    ion_population = model.plasma_array.ion_populations.values.transpose()
+    #    storage.ion_population = <double *> ion_population.data
+    #    storage.no_of_ions = ion_population.shape[1]
 
     # Line lists
     storage.no_of_lines = model.atom_data.lines.nu.values.size
@@ -201,19 +214,32 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     # macro atom & downbranch
     if storage.line_interaction_id >= 1:
-        storage.transition_probabilities = <double*> PyArray_DATA(model.transition_probabilities.values)
         storage.line2macro_level_upper = <int_type_t*> PyArray_DATA(
             model.atom_data.lines_upper2macro_reference_idx)
-        storage.macro_block_references = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_references['block_references'].values)
-        storage.transition_type = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['transition_type'].values)
 
-        # Destination level is not needed and/or generated for downbranch
-        storage.destination_level_id = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['destination_level_idx'].values)
-        storage.transition_line_id = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['lines_idx'].values)
+        if model.tardis_config.plasma['continuum_treatment'] == False:
+            storage.transition_probabilities = <double*> PyArray_DATA(model.transition_probabilities.values)
+            storage.macro_block_references = <int_type_t*> PyArray_DATA(
+                model.atom_data.macro_atom_references['block_references'].values)
+            storage.transition_type = <int_type_t*> PyArray_DATA(
+                model.atom_data.macro_atom_data['transition_type'].values)
+
+            # Destination level is not needed and/or generated for downbranch
+            storage.destination_level_id = <int_type_t*> PyArray_DATA(
+                model.atom_data.macro_atom_data['destination_level_idx'].values)
+            storage.transition_line_id = <int_type_t*> PyArray_DATA(
+                model.atom_data.macro_atom_data['lines_idx'].values)
+        else:
+            storage.transition_probabilities = <double*> PyArray_DATA(
+                model.transition_probabilities_combined.transition_probabilities_array)
+            storage.macro_block_references = <int_type_t*> PyArray_DATA(
+                model.transition_probabilities_combined.block_references)
+            storage.destination_level_id = <int_type_t*> PyArray_DATA(
+                model.transition_probabilities_combined.destination_level_id)
+            storage.transition_type = <int_type_t*> PyArray_DATA(
+                model.transition_probabilities_combined.transition_type)
+            storage.transition_line_id = <int_type_t*> PyArray_DATA(
+                model.transition_probabilities_combined.transition_line_id)
 
     storage.output_nus = <double*> PyArray_DATA(runner._packet_nu)
     storage.output_energies = <double*> PyArray_DATA(runner._packet_energy)
@@ -243,62 +269,78 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
+
     # Data for continuum implementation
-    cdef np.ndarray[double, ndim=1] t_electrons = model.plasma_array.t_electrons
-    storage.t_electrons = <double*> t_electrons.data
-
-    cdef np.ndarray[double, ndim=1] continuum_list_nu
     cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
-    cdef np.ndarray[double, ndim=2] l_pop
-    cdef np.ndarray[double, ndim=1] l_pop_r
-    cdef np.ndarray[int_type_t, ndim=1] cont_edge2macro_continuum
-    cdef np.ndarray[int_type_t, ndim=1] macro_block_references_continuum
-    cdef np.ndarray[int_type_t, ndim=1] transition_type_continuum
-    cdef np.ndarray[int_type_t, ndim=1] destination_level_id_continuum
-    cdef np.ndarray[int_type_t, ndim=1] transition_continuum_id
-    cdef np.ndarray[double, ndim=2] transition_probabilities_continuum
+    cdef np.ndarray[double, ndim=1] t_electrons = model.plasma_array.t_electrons
 
-    # TODO
-    cdef int no_levels_with_photdata = 20  # model.atom_data.continuum_data.no_levels_with_photdata
-    cdef photo_xsect_1level ** photo_xsect = <photo_xsect_1level **> malloc(
-        no_levels_with_photdata * sizeof(photo_xsect_1level *))
+    #cdef int no_levels_with_photdata
+    cdef photo_xsect_1level ** photo_xsect
 
     if storage.cont_status == CONTINUUM_ON:
+        # Photoionization data
+        no_levels_with_photdata = model.atom_data.continuum_data.no_levels_with_photdata  # this is redundant atm,
+        #                                                                    since it is equal to the number of levels
+        photo_xsect = <photo_xsect_1level **> malloc(no_levels_with_photdata * sizeof(photo_xsect_1level *))
+
         for i in range(no_levels_with_photdata):
             photo_xsect[i] = <photo_xsect_1level *> malloc(sizeof(photo_xsect_1level))
             phot_table_xsect = model.atom_data.continuum_data.get_phot_table_xsect(i)
-            phot_table_nu = model.atom_data.continuum_data.get_phot_table_nu(i)
             photo_xsect[i].no_of_points = len(phot_table_xsect)
-            photo_xsect[i].nu = <double *> (<np.ndarray[double, ndim =1]> (phot_table_nu)).data
-            photo_xsect[i].x_sect = <double *> (<np.ndarray[double, ndim =1]> (phot_table_xsect)).data
+            photo_xsect[i].x_sect = <double*> PyArray_DATA(phot_table_xsect)
+            photo_xsect[i].nu = <double*> PyArray_DATA(model.atom_data.continuum_data.get_phot_table_nu(i))
 
-    if storage.cont_status == CONTINUUM_ON:
-        continuum_list_nu = model.atom_data.continuum_data.continuum_edges_list
-        transition_probabilities_continuum = model.transition_probabilities_continuum.data.ix[:, 3:].values.transpose()
-        transition_probabilities_nd_continuum = len(model.transition_probabilities_continuum.data)
-        macro_block_references_continuum = model.atom_data.continuum_data.continuum_references[
-            'block_references'].values
-        cont_edge2macro_continuum = model.atom_data.continuum_data.cont_edge2macro_continuum
-        destination_level_id_continuum = model.transition_probabilities_continuum.data['destination_level_idx'].values
-        transition_type_continuum = model.transition_probabilities_continuum.data['transition_type'].values
-        transition_continuum_id = model.transition_probabilities_continuum.data['continuum_edge_idx'].values
-        l_pop = model.atom_data.continuum_data.level_number_density
-        chi_bf_tmp_partial = np.zeros(continuum_list_nu.size)
-        l_pop_r = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
-
-        storage.l_pop = <double*> l_pop.data
-        storage.transition_probabilities_continuum = <double*> transition_probabilities_continuum.data
-        storage.continuum_list_nu = <double*> continuum_list_nu.data
-        storage.destination_level_id_continuum = <int_type_t*> destination_level_id_continuum.data
-        storage.transition_type_continuum = <int_type_t*> transition_type_continuum.data
-        storage.transition_continuum_id = <int_type_t*> transition_continuum_id.data
-        storage.macro_block_references_continuum = <int_type_t*> macro_block_references_continuum.data
-        storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
-        storage.l_pop_r = <double*> l_pop_r.data
-        storage.cont_edge2macro_continuum = <int_type_t*> cont_edge2macro_continuum.data
-        storage.transition_probabilities_nd_continuum = transition_probabilities_nd_continuum
-        storage.no_of_edges = continuum_list_nu.size
         storage.photo_xsect = photo_xsect
+
+        # Plasma quantities
+        storage.t_electrons = <double*> t_electrons.data
+
+        # Bound-free data
+        storage.l_pop = <double*> PyArray_DATA(model.atom_data.continuum_data.level_number_density)
+        storage.l_pop_r = <double*> PyArray_DATA(model.atom_data.continuum_data.level_number_density_ratio)
+        storage.continuum_list_nu = <double*> PyArray_DATA(model.atom_data.continuum_data.continuum_edges_list)
+        storage.no_of_edges = model.atom_data.continuum_data.continuum_edges_list.size
+        storage.cont_edge2macro_continuum = <int_type_t*> PyArray_DATA(
+            model.atom_data.continuum_data.cont_edge2macro_continuum)
+        # TODO
+        chi_bf_tmp_partial = np.zeros(model.atom_data.continuum_data.continuum_edges_list.size)
+        storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
+
+        # Macro atom continuum data
+        storage.transition_probabilities_nd_continuum = model.transition_probabilities_continuum.data_array_nd
+        storage.transition_probabilities_continuum = <double *> PyArray_DATA(
+            model.transition_probabilities_continuum.data_array)
+        storage.macro_block_references_continuum = <int_type_t*> PyArray_DATA(
+            model.atom_data.continuum_data.continuum_references['block_references'].values)
+        storage.transition_type_continuum = <int_type_t*> PyArray_DATA(
+            model.transition_probabilities_continuum.data['transition_type'].values)
+        storage.transition_continuum_id = <int_type_t*> PyArray_DATA(
+            model.transition_probabilities_continuum.data['continuum_edge_idx'].values)
+        storage.destination_level_id_continuum = <int_type_t*> PyArray_DATA(
+            model.transition_probabilities_continuum.data['destination_level_idx'].values)
+
+        # Cooling data
+        storage.fb_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.fb_cooling_prob)
+        storage.ff_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.ff_cooling_prob)
+        storage.coll_ion_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.coll_ion_cooling_prob)
+        storage.coll_exc_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.coll_exc_cooling_prob)
+
+        storage.fb_cooling_prob_individual = <double*> PyArray_DATA(model.cooling_rates.fb_cooling_prob_array)
+        storage.coll_exc_cooling_prob_individual = <double*> PyArray_DATA(
+            model.cooling_rates.coll_exc_cooling_prob_array)
+        storage.coll_ion_cooling_prob_individual = <double*> PyArray_DATA(
+            model.cooling_rates.coll_ion_cooling_prob_array)
+
+        storage.coll_ion_cooling_references = <int_type_t*> PyArray_DATA(
+            model.cooling_rates.coll_ion_cooling_prob_individual.index.values)
+        storage.coll_exc_cooling_references = <int_type_t*> PyArray_DATA(
+            model.cooling_rates.coll_exc_cooling_prob_individual.index.values)
+        storage.fb_cooling_references = <int_type_t*> PyArray_DATA(
+            model.cooling_rates.fb_cooling_prob_individual.index.values)
+
+        storage.fb_cooling_prob_nd = model.cooling_rates.fb_cooling_prob_nd
+        storage.coll_exc_cooling_prob_nd = model.cooling_rates.coll_exc_cooling_prob_nd
+        storage.coll_ion_cooling_prob_nd = model.cooling_rates.coll_ion_cooling_prob_nd
 
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
                          model.tardis_config.montecarlo.seed)
