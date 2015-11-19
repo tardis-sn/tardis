@@ -7,18 +7,19 @@ import itertools
 import numpy as np
 import pandas as pd
 from astropy import constants, units as u
-import scipy.special
 
 from util import intensity_black_body
 from tardis import packet_source
 from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
-from tardis.bound_free.base import TransitionProbabilitiesContinuum
-from tardis.bound_free.rates import IonizationRates, CollisionalRates, TransitionProbabilitiesCombined, CoolingRates
+from tardis.continuum.probabilities import TransitionProbabilitiesCombined
+from tardis.continuum.cooling import CoolingRates
+from tardis.continuum.bound_free import IonizationRates, RadiativeRecombination
+from tardis.continuum.collisions import CollisionalExcitation
 from tardis import macro_atom
 
-from tardis.bound_free.input_data import ContinuumInputData
+from tardis.continuum.input_data import ContinuumInputData
 
 
 logger = logging.getLogger(__name__)
@@ -220,32 +221,25 @@ class Radial1DModel(object):
                 macro_atom.normalize_transition_probabilities(self.transition_probabilities.values,
                                                               self.atom_data.macro_atom_references[
                                                                   'block_references'].values)
-                # macro_atom.normalize_transition_probabilities(self.transition_probabilities.values,
-                #                       self.atom_data.macro_atom_references['block_references'].values)
 
         if self.tardis_config.plasma['continuum_treatment'] == True:
             self.continuum_input_data \
                 = ContinuumInputData(plasma_array=self.plasma_array, atom_data=self.atom_data, ws=self.ws)
 
-            self.ionization_rates = IonizationRates(
-                photoionization_data=self.atom_data.continuum_data.photoionization_data,
-                t_rads=self.t_rads, ws=self.ws, electron_densities=self.plasma_array.electron_densities,
-                level_pop=self.plasma_array.level_number_density,
-                continuum_data=self.atom_data.continuum_data)
+            import ipdb;
+
+            ipdb.set_trace()
+
+            self.ionization_rates = IonizationRates(self.continuum_input_data)
 
             # TODO: Replace level population with LTE level population
-            self.collisional_rates = CollisionalRates(lines=self.atom_data.lines, t_electrons=0.9 * self.t_rads,
-                                                      electron_densities=self.plasma_array.electron_densities,
-                                                      macro_atom_references=self.atom_data.macro_atom_references,
-                                                      lte_level_pop=self.plasma_array.level_number_density,
-                                                      levels=self.atom_data.levels)
+            self.collisional_rates = CollisionalExcitation(self.continuum_input_data)
 
             # TODO: Replace level population with LTE level population
             self.transition_probabilities_continuum = \
-                TransitionProbabilitiesContinuum(
-                    plasma_array=self.plasma_array,
+                RadiativeRecombination(
+                    input_data=self.continuum_input_data,
                     macro_atom_continuum_data=self.atom_data.continuum_data.macro_atom_data,
-                    photoionization_data=self.atom_data.continuum_data.photoionization_data,
                     continuum_references=self.atom_data.continuum_data.continuum_references,
                     continuum_data=self.atom_data.continuum_data.continuum_data)
 
@@ -253,12 +247,10 @@ class Radial1DModel(object):
                 CoolingRates(coll_excitation_cooling_rate=self.collisional_rates.excitation_cooling_rate,
                              coll_ionization_cooling_rate=self.ionization_rates.coll_ionization_cooling_rate,
                              fb_cooling_rate=self.transition_probabilities_continuum.fb_cooling_rate,
-                             plasma_array=self.plasma_array)
+                             input_data=self.continuum_input_data)
 
             self.transition_probabilities_combined = \
-                TransitionProbabilitiesCombined(macro_atom_data=self.atom_data.macro_atom_data,
-                                                macro_atom_references=self.atom_data.macro_atom_references,
-                                                continuum_data=self.atom_data.continuum_data,
+                TransitionProbabilitiesCombined(input_data=self.continuum_input_data,
                                                 radiative_prob=self.transition_probabilities,
                                                 coll_int_jump_up_prob=self.collisional_rates.transition_prob_int_up,
                                                 coll_int_jump_down_prob=self.collisional_rates.transition_prob_int_down,
