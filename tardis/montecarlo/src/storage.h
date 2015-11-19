@@ -90,6 +90,19 @@ typedef struct StorageModel
   int64_t virt_array_size;
   FreeFreeStatus ff_status;
   photo_xsect_1level **photo_xsect;
+  double *fb_cooling_prob;
+  double *ff_cooling_prob;
+  double *coll_exc_cooling_prob;
+  double *coll_ion_cooling_prob;
+  double *fb_cooling_prob_individual;
+  double *coll_exc_cooling_prob_individual;
+  double *coll_ion_cooling_prob_individual;
+  int64_t *fb_cooling_references;
+  int64_t *coll_ion_cooling_references;
+  int64_t *coll_exc_cooling_references;
+  int64_t fb_cooling_prob_nd;
+  int64_t coll_ion_cooling_prob_nd;
+  int64_t coll_exc_cooling_prob_nd;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H
