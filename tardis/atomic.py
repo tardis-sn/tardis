@@ -16,9 +16,7 @@ from pandas import DataFrame
 
 import pandas as pd
 
-from tardis.bound_free.base import ContinuumData
-from tardis.bound_free.base import TransitionProbabilitiesContinuum
-from tardis.bound_free.exceptions import IncompletePhotoionizationDataError
+from tardis.continuum.base import ContinuumData
 
 
 logger = logging.getLogger(__name__)
