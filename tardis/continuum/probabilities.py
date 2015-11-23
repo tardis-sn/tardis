@@ -50,9 +50,6 @@ class TransitionProbabilitiesCombined(ContinuumProcess):
         return ion_prob_prep
 
     def _get_source_level_idx(self):
-        import ipdb;
-
-        ipdb.set_trace()
         macro_atom_data = self.macro_atom_data
         source_level_index = pd.MultiIndex.from_arrays([macro_atom_data['atomic_number'], macro_atom_data['ion_number'],
                                                         macro_atom_data['source_level_number']])
@@ -72,7 +69,7 @@ class TransitionProbabilitiesCombined(ContinuumProcess):
     def _combine_transition_probabilities(self, *args):
         combined_probabilities = pd.concat(args)
         combined_probabilities.sortlevel(sort_remaining=False, inplace=True)
-        self.block_references = self._get_new_block_references(combined_probabilities)
+        self.block_references = self._get_block_references(combined_probabilities)
         macro_atom.normalize_transition_probabilities(combined_probabilities.ix[:, 2:].values, self.block_references)
         self.combined_transition_probabilities = combined_probabilities
         self.destination_level_id = combined_probabilities.index.get_level_values(1).values
@@ -81,11 +78,6 @@ class TransitionProbabilitiesCombined(ContinuumProcess):
             self.combined_transition_probabilities.ix[:, 2:].values)
         self.transition_type = self.combined_transition_probabilities['transition_type'].values.astype(np.int64)
         self.transition_line_id = self.combined_transition_probabilities['lines_idx'].values.astype(np.int64)
-
-    def _get_new_block_references(self, combined_probabilities):
-        block_references = combined_probabilities[0].groupby(level=0).count().cumsum().values
-        block_references = np.hstack([[0], block_references])
-        return block_references
 
     def _get_ion_prob_index(self, level_lower_index):
         source_level_idx = self._get_level_idx(level_lower_index)

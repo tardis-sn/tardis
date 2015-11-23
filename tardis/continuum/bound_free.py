@@ -85,23 +85,19 @@ class IonizationRates(ContinuumProcess):
     def transition_probabilities2cont(self):
         trans_prob2cont = \
             self.corrected_photoionization_coefficient.add(self.collisional_ionization_coefficient) / self.c_einstein
-        # TODO check that this is safe under all circumstances
-        trans_prob2cont = trans_prob2cont.multiply(self.nu_i, axis=0) * const.h.cgs.value * units.erg.to(units.eV)
+        # trans_prob2cont = trans_prob2cont.multiply(self.nu_i, axis=0) * const.h.cgs.value * units.erg.to(units.eV)
+        source_level_energy = self._get_level_energy(trans_prob2cont.index) * units.erg.to(units.eV)
+        trans_prob2cont = trans_prob2cont.multiply(source_level_energy, axis=0)
         return trans_prob2cont
 
 
 class RadiativeRecombination(ContinuumProcess):
-    def __init__(self, input_data, macro_atom_continuum_data, continuum_references, continuum_data):
+    def __init__(self, input_data):
         super(RadiativeRecombination, self).__init__(input_data)
 
-        self.macro_atom_continuum_data = macro_atom_continuum_data
-        self.continuum_data = continuum_data
-        self.block_references = np.hstack(
-            (continuum_references.block_references, len(self.macro_atom_continuum_data)))
-        # TODO: get LTE level number density
+        self.block_references = None
         self.sp_recombination_coeff = self._calculate_sp_recombination_coeff()
-        self.sp_recombination_coeff_E = self._calculate_sp_recombination_coeff(modified=True)
-        self.data = self._calculate_transition_probabilities()
+        self.transition_probabilities = self._calculate_transition_probabilities()
         self.fb_cooling_rate = self._calculate_fb_cooling_rate()
         self._set_montecarlo_data()
 
@@ -128,29 +124,38 @@ class RadiativeRecombination(ContinuumProcess):
         recomb_coeff = pd.DataFrame(tmp)
         recomb_coeff = recomb_coeff.multiply(self._get_lte_level_pop(recomb_coeff.index))
         ion_number_density = self._get_ion_number_density(recomb_coeff.index)
-        # TODO: check calculation
         recomb_coeff = recomb_coeff.divide(ion_number_density.values)
         return recomb_coeff
 
     def _calculate_transition_probabilities(self):
-        trans_prob = pd.concat([self.sp_recombination_coeff, self.sp_recombination_coeff])
-        # TODO: In the future, we should check if the photoionization_data and the macro_atom_continuum_data have the
-        # same structure (maybe do this in the preparation of the continuum_data)
-        trans_prob = trans_prob.multiply(self.macro_atom_continuum_data.transition_probability.values
-                                         * units.eV.to(units.erg), axis=0)
-        # WARNING: Not sure if this is safe under all circumstances
-        macro_atom.normalize_transition_probabilities(trans_prob.values, self.block_references)
-        trans_prob.insert(0, 'destination_level_idx',
-                          self.macro_atom_continuum_data.level_lower_idx.values)
-        trans_prob.insert(1, 'continuum_edge_idx',
-                          self.macro_atom_continuum_data.continuum_edge_idx.values)
-        trans_prob.insert(2, 'transition_type',
-                          self.macro_atom_continuum_data.transition_type.values)
+        internal_jump_prob = self._calculate_internal_jump_probabilities()
+        deactivation_prob = self._calculate_deactivation_probabilities()
+        trans_prob = pd.concat([internal_jump_prob, deactivation_prob])
+
+        block_references = self._get_block_references(trans_prob)
+        self.block_references = block_references
+        trans_prob = self._normalize_transition_probabilities(trans_prob, no_ref_columns=3)
         return trans_prob
 
-    def _get_continuum_edge_idx(self, multi_index):
-        return self.continuum_data.set_index(['atomic_number', 'ion_number',
-                                              'level_number_lower']).loc[multi_index, 'continuum_edge_idx']
+    def _calculate_internal_jump_probabilities(self):
+        target_level_energy = self._get_level_energy(self.sp_recombination_coeff.index)
+        trans_prob = self.sp_recombination_coeff.multiply(target_level_energy, axis=0)
+
+        destination_level_idx = self._get_level_idx(trans_prob.index)
+        trans_prob.insert(0, 'destination_level_idx', destination_level_idx)
+        trans_prob.insert(1, 'continuum_edge_idx', - 1 * np.ones(trans_prob.shape[0], dtype=np.int64))
+        trans_prob.insert(2, 'transition_type', np.zeros(trans_prob.shape[0], dtype=np.int64))
+        return trans_prob
+
+    def _calculate_deactivation_probabilities(self):
+        energy_difference = self.nu_i * const.h.cgs.value
+        trans_prob = self.sp_recombination_coeff.multiply(energy_difference, axis=0)
+
+        continuum_edge_idx = self._get_continuum_edge_idx(trans_prob.index)
+        trans_prob.insert(0, 'destination_level_idx', - 1 * np.ones(trans_prob.shape[0], dtype=np.int64))
+        trans_prob.insert(1, 'continuum_edge_idx', continuum_edge_idx)
+        trans_prob.insert(2, 'transition_type', -3 * np.ones(trans_prob.shape[0], dtype=np.int64))
+        return trans_prob
 
     def _get_ion_number_density(self, multi_index_full):
         atomic_number = multi_index_full.get_level_values(0)
@@ -159,6 +164,7 @@ class RadiativeRecombination(ContinuumProcess):
         return self.ion_number_density.loc[ion_number_index]
 
     def _calculate_fb_cooling_rate(self):
+        self.sp_recombination_coeff_E = self._calculate_sp_recombination_coeff(modified=True)
         fb_cooling_rate = (self.sp_recombination_coeff_E - self.sp_recombination_coeff)
         fb_cooling_rate = fb_cooling_rate.multiply(const.h.cgs.value * self.nu_i, axis=0)
         fb_cooling_rate = fb_cooling_rate.multiply(self.electron_densities, axis=1)
@@ -169,8 +175,30 @@ class RadiativeRecombination(ContinuumProcess):
         return fb_cooling_rate
 
     def _set_montecarlo_data(self):
-        transition_probabilities_continuum = self.data.ix[:, 3:].values.transpose()
-        self.data_array = np.ascontiguousarray(transition_probabilities_continuum)
+        self.data_array = self._get_contiguous_array(self.transition_probabilities.ix[:, 3:])
         self.data_array_nd = self.data_array.shape[1]
 
+    # To be depreciated
+    @property
+    def data(self):
+        return self.transition_probabilities
 
+    def _calculate_transition_probabilities(self):
+        import ipdb;
+
+        ipdb.set_trace()
+        trans_prob = pd.concat([self.sp_recombination_coeff, self.sp_recombination_coeff])
+        # TODO: In the future, we should check if the photoionization_data and the macro_atom_continuum_data have the
+        # same structure (maybe do this in the preparation of the continuum_data)
+        trans_prob = trans_prob.multiply(self.input.macro_atom_continuum_data.transition_probability.values
+                                         * units.eV.to(units.erg), axis=0)
+        # WARNING: Not sure if this is safe under all circumstances
+        block_references = self._get_block_references(trans_prob)
+        macro_atom.normalize_transition_probabilities(trans_prob.values, block_references)
+        trans_prob.insert(0, 'destination_level_idx',
+                          self.input.macro_atom_continuum_data.level_lower_idx.values)
+        trans_prob.insert(1, 'continuum_edge_idx',
+                          self.input.macro_atom_continuum_data.continuum_edge_idx.values)
+        trans_prob.insert(2, 'transition_type',
+                          self.input.macro_atom_continuum_data.transition_type.values)
+        return trans_prob

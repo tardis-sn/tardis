@@ -238,10 +238,7 @@ class Radial1DModel(object):
             # TODO: Replace level population with LTE level population
             self.transition_probabilities_continuum = \
                 RadiativeRecombination(
-                    input_data=self.continuum_input_data,
-                    macro_atom_continuum_data=self.atom_data.continuum_data.macro_atom_data,
-                    continuum_references=self.atom_data.continuum_data.continuum_references,
-                    continuum_data=self.atom_data.continuum_data.continuum_data)
+                    input_data=self.continuum_input_data)
 
             self.cooling_rates = \
                 CoolingRates(coll_excitation_cooling_rate=self.collisional_rates.excitation_cooling_rate,

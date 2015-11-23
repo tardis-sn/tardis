@@ -35,6 +35,7 @@ class ContinuumInputData(object):
 
         #
         self.continuum_references = atom_data.continuum_data.continuum_references
+        self.continuum_data = atom_data.continuum_data.continuum_data
 
         ##
         self.ion_charges = self._get_ion_charges()

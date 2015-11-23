@@ -128,6 +128,26 @@ class ContinuumProcess(object):
         ion_number = multi_index_full.get_level_values(1)
         return pd.MultiIndex.from_arrays([atomic_number, ion_number])
 
+    def _get_continuum_edge_idx(self, multi_index):
+        return self.input.continuum_data.set_index(['atomic_number', 'ion_number',
+                                                    'level_number_lower']).loc[multi_index, 'continuum_edge_idx']
+
+    def _get_block_references(self, probabilities):
+        block_references = probabilities[0].groupby(level=0).count().cumsum().values
+        block_references = np.hstack([[0], block_references])
+        return block_references
+
+    def _normalize_transition_probabilities(self, dataframe, no_ref_columns=0):
+        normalization_fct = lambda x: (x / x.sum())
+        normalized_dataframe = dataframe.ix[:, no_ref_columns:].groupby(level=0).transform(normalization_fct)
+        normalized_dataframe = pd.concat([dataframe.ix[:, :no_ref_columns], normalized_dataframe], axis=1,
+                                         join_axes=[normalized_dataframe.index])
+        return normalized_dataframe
+
+    # Data preparation
+    def _get_contiguous_array(self, dataframe):
+        return np.ascontiguousarray(dataframe.values.transpose())
+
     @property
     def electron_densities(self):
         return self.input.electron_densities

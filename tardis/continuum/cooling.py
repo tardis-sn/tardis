@@ -48,9 +48,6 @@ class CoolingRates(ContinuumProcess):
         self.coll_exc_cooling_prob_array = self._get_contiguous_array(self.coll_exc_cooling_prob_individual)
         self.coll_ion_cooling_prob_array = self._get_contiguous_array(self.coll_ion_cooling_prob_individual)
 
-    def _get_contiguous_array(self, dataframe):
-        return np.ascontiguousarray(dataframe.values.transpose())
-
     @property
     def fb_cooling_prob_nd(self):
         return self.fb_cooling_prob_array.shape[1]
