@@ -10,12 +10,12 @@ import pandas as pd
 import yaml
 
 import tardis
-from tardis.io.model_reader import read_density_file, \
-    calculate_density_after_time, read_abundances_file
+from tardis.io.model_reader import (
+    read_density_file, calculate_density_after_time, read_abundances_file)
 from tardis.io.config_validator import ConfigurationValidator
 from tardis import atomic
-from tardis.util import species_string_to_tuple, parse_quantity, \
-    element_symbol2atomic_number
+from tardis.util import (species_string_to_tuple, parse_quantity,
+                         element_symbol2atomic_number, quantity_linspace)
 
 import copy
 
@@ -42,43 +42,6 @@ inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
 
 class ConfigurationError(ValueError):
     pass
-
-
-def parse_quantity_linspace(quantity_linspace_dictionary, add_one=True):
-    """
-    parse a dictionary of the following kind
-    {'start': 5000 km/s,
-     'stop': 10000 km/s,
-     'num': 1000}
-
-    Parameters
-    ----------
-
-    quantity_linspace_dictionary: ~dict
-
-    add_one: boolean, default: True
-
-    Returns
-    -------
-
-    ~np.array
-
-    """
-
-    start = parse_quantity(quantity_linspace_dictionary['start'])
-    stop = parse_quantity(quantity_linspace_dictionary['stop'])
-
-    try:
-        stop = stop.to(start.unit)
-    except u.UnitsError:
-        raise ConfigurationError('"start" and "stop" keyword must be compatible quantities')
-
-    num = quantity_linspace_dictionary['num']
-    if add_one:
-        num += 1
-
-    return np.linspace(start.value, stop.value, num=num) * start.unit
-
 
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     spectral_bin_boundary_1 = parse_quantity(spectral_bin_boundary_1).to('Angstrom', u.spectral())
@@ -282,7 +245,8 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
         if split_shells > 1:
             logger.info('Increasing the number of shells by a factor of %s' % split_shells)
             no_of_shells = len(v_inner)
-            velocities = np.linspace(v_inner[0], v_outer[-1], no_of_shells * split_shells + 1)
+            velocities = quantity_linspace(
+                v_inner[0], v_outer[-1], no_of_shells * split_shells + 1)
             v_inner = velocities[:-1]
             v_outer = velocities[1:]
             old_mean_densities = mean_densities
@@ -575,7 +539,7 @@ def parse_spectrum_list2dict(spectrum_list):
     spectrum_config_dict['end'] = spectrum_list[1]
     spectrum_config_dict['bins'] = spectrum_list[2]
 
-    spectrum_frequency = np.linspace(
+    spectrum_frequency = quantity_linspace(
         spectrum_config_dict['end'].to('Hz', u.spectral()),
         spectrum_config_dict['start'].to('Hz', u.spectral()),
         num=spectrum_config_dict['bins'] + 1)
@@ -921,7 +885,7 @@ class Configuration(ConfigurationNameSpace):
         if structure_section['type'] == 'specific':
             start, stop, num = model_section['structure']['velocity']
             num += 1
-            velocities = np.linspace(start, stop, num)
+            velocities = quantity_linspace(start, stop, num)
 
             v_inner, v_outer = velocities[:-1], velocities[1:]
             mean_densities = parse_density_section(
@@ -940,7 +904,6 @@ class Configuration(ConfigurationNameSpace):
         r_outer = validated_config_dict['supernova']['time_explosion'] * v_outer
         r_middle = 0.5 * (r_inner + r_outer)
 
-        structure_validated_config_dict = {}
         structure_section['v_inner'] = v_inner.cgs
         structure_section['v_outer'] = v_outer.cgs
         structure_section['mean_densities'] = mean_densities.cgs
@@ -1006,8 +969,12 @@ class Configuration(ConfigurationNameSpace):
         else:
             plasma_section['t_inner'] = plasma_section['initial_t_inner']
 
-        plasma_section['t_rads'] = np.ones(no_of_shells) * \
-                                   plasma_section['initial_t_rad']
+        if plasma_section['initial_t_rad'] > 0 * u.K:
+            plasma_section['t_rads'] = np.ones(no_of_shells) * \
+                                       plasma_section['initial_t_rad']
+        else:
+            plasma_section['t_rads'] = None
+
         if plasma_section['disable_electron_scattering'] is False:
             logger.debug("Electron scattering switched on")
             validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)

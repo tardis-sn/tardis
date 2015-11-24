@@ -413,3 +413,25 @@ def reformat_element_symbol(element_string):
     return element_string[0].upper() + element_string[1:].lower()
 
 
+def quantity_linspace(start, stop, num, **kwargs):
+    """
+    Calculate the linspace for a quantity start and stop.
+    Other than that essentially the same input parameters as linspace
+
+    Parameters
+    ----------
+    start: ~astropy.Quantity
+    stop: ~astropy.Quantity
+    num: ~int
+
+    Returns
+    -------
+        : ~astropy.Quantity
+
+
+    """
+    if not (hasattr(start, 'unit') and hasattr(stop, 'unit')):
+        raise ValueError('Both start and stop need to be quantities with a '
+                         'unit attribute')
+
+    return np.linspace(start.value, stop.to(start.unit).value, num, **kwargs) * start.unit

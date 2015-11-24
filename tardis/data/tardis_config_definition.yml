@@ -80,9 +80,17 @@ plasma:
     initial_t_rad:
         property_type: quantity
         mandatory: False
+<<<<<<< HEAD
         default: 10000 K
         help: initial radiative temperature in all cells (if set
 
+=======
+        default: -1 K
+        help: >
+          initial radiative temperature in all cells. If set to -1 K will result
+          in automtatic calculation of the initial temperatures
+        
+>>>>>>> tardis-sn/master
     disable_electron_scattering:
         property_type: bool
         mandatory: False

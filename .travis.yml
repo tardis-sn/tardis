@@ -14,10 +14,7 @@ sudo: false
 env:
     global:
         - COMPILER=gcc
-        - CYTHON_VERSION=0.21
-        - NUMPY_VERSION=1.8
         - PANDAS_VERSION=0.16
-        - ASTROPY_VERSION=0.4.4
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
         - TEST_MODE='normal'
@@ -25,15 +22,6 @@ env:
 
 matrix:
     include:
-        - python: "2.7"
-          env: PANDAS_VERSION=0.16
-
-        - python: "2.7"
-          env: PANDAS_VERSION=latest
-
-#        - python: "2.7"
-#          env: ASTROPY_VERSION=development
-
         - python: "2.7"
           env: COMPILER=gcc SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
 
@@ -56,10 +44,10 @@ before_install:
     - export PYTHONIOENCODING=UTF8
     - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
     - chmod +x miniconda.sh
-    - ./miniconda.sh -b
-    - export PATH=/home/travis/miniconda/bin:$PATH
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH=$HOME/miniconda/bin:$PATH
+    - hash -r
     - conda update --yes conda
-
     - if [[ $TEST_MODE == 'spectrum' ]]; then wget $ATOM_DATA_URL; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
@@ -67,10 +55,6 @@ before_install:
 install:
    - conda create --yes -n tardis-travis --file conda-requirements pip python=$TRAVIS_PYTHON_VERSION
    - source activate tardis-travis
-   - if [[ $NUMPY_VERSION == 'latest' ]]; then conda install --yes  numpy; else conda install --yes "numpy==$NUMPY_VERSION"; fi
-   - if [[ $PANDAS_VERSION == 'latest' ]]; then conda install --yes pandas; else conda install --yes "pandas=$PANDAS_VERSION"; fi
-   - if [[ $ASTROPY_VERSION == 'development' ]]; then pip install git+https://github.com/astropy/astropy; else conda install --yes "astropy=$ASTROPY_VERSION"; fi
-
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then conda install --yes coverage=3.7; fi
    - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi

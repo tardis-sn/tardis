@@ -23,11 +23,11 @@ def test_config_namespace_attribute_test():
         assert namespace.param2 == 1
 
 def test_quantity_linspace():
-    quantity_linspace_dict = dict(start='1.1e4 km/s', stop='2e4 cm/h', num=1000)
-    quantity_linspace = config_reader.parse_quantity_linspace(quantity_linspace_dict)
+    quantity_linspace_dict = dict(start=1.1e4 * u.Unit('km/s'), stop=2e4 * u.Unit('cm/h'), num=1000)
+    quantity_linspace = config_reader.quantity_linspace(**quantity_linspace_dict)
     assert_almost_equal(quantity_linspace[0].value, 1.1e4)
     assert_almost_equal(quantity_linspace[-1].to('cm/h').value, 2e4)
-    assert len(quantity_linspace) == 1001
+    assert len(quantity_linspace) == 1000
 
 
 def test_spectrum_list2_dict():

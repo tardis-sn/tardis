@@ -12,6 +12,12 @@
 #include "status.h"
 #include "cmontecarlo1.h"
 
+#ifdef WITH_VPACKET_LOGGING
+#define LOG_VPACKETS 1
+#else
+#define LOG_VPACKETS 0
+#endif
+
 typedef void (*montecarlo_event_handler_t) (rpacket_t * packet,
 					    storage_model_t * storage,
 					    double distance, rk_state *mt_state);
