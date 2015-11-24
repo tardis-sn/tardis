@@ -23,8 +23,6 @@ cdef extern from "src/cmontecarlo.h":
         CONTINUUM_OFF = 0
         CONTINUUM_ON = 1
 
-    cdef int LOG_VPACKETS
-
     ctypedef struct storage_model_t:
         double *packet_nus
         double *packet_mus
@@ -165,8 +163,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
     # macro atom & downbranch
     if storage.line_interaction_id >= 1:
-        storage.transition_probabilities = <double*> PyArray_DATA(
-            model.plasma_array.transition_probabilities.values)
+        storage.transition_probabilities = <double*> PyArray_DATA(model.transition_probabilities.values)
         storage.line2macro_level_upper = <int_type_t*> PyArray_DATA(
             model.atom_data.lines_upper2macro_reference_idx)
         storage.macro_block_references = <int_type_t*> PyArray_DATA(
@@ -202,12 +199,9 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.spectrum_virt_start_nu = model.tardis_config.montecarlo.virtual_spectrum_range.end.to('Hz', units.spectral()).value
     storage.spectrum_virt_end_nu = model.tardis_config.montecarlo.virtual_spectrum_range.start.to('Hz', units.spectral()).value
     storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - model.tardis_config.spectrum.frequency.value[0]
-
-    storage.spectrum_virt_nu = <double*> PyArray_DATA(
-        runner.legacy_montecarlo_virtual_luminosity)
-
-    storage.sigma_thomson = (
-        model.tardis_config.montecarlo.sigma_thomson.cgs.value)
+    cdef np.ndarray[double, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
+    storage.spectrum_virt_nu = <double*> spectrum_virt_nu.data
+    storage.sigma_thomson = model.tardis_config.montecarlo.sigma_thomson.to('1/cm^2').value
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
@@ -251,13 +245,13 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
                          model.tardis_config.montecarlo.seed)
+
     cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_last_interaction_in_nu = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_interaction_type = np.zeros(storage.virt_packet_count, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_in_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_out_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
-<<<<<<< HEAD
 
     for i in range(storage.virt_packet_count):
         virt_packet_nus[i] = storage.virt_packet_nus[i]
@@ -278,36 +272,5 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
     runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
     runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
-=======
-    if LOG_VPACKETS != 0:
-        for i in range(storage.virt_packet_count):
-            virt_packet_nus[i] = storage.virt_packet_nus[i]
-            virt_packet_energies[i] = storage.virt_packet_energies[i]
-            virt_packet_last_interaction_in_nu[i] = storage.virt_packet_last_interaction_in_nu[i]
-            virt_packet_last_interaction_type[i] = storage.virt_packet_last_interaction_type[i]
-            virt_packet_last_line_interaction_in_id[i] = storage.virt_packet_last_line_interaction_in_id[i]
-            virt_packet_last_line_interaction_out_id[i] = storage.virt_packet_last_line_interaction_out_id[i]
-        free(<void *>storage.virt_packet_nus)
-        free(<void *>storage.virt_packet_energies)
-        free(<void *>storage.virt_packet_last_interaction_in_nu)
-        free(<void *>storage.virt_packet_last_interaction_type)
-        free(<void *>storage.virt_packet_last_line_interaction_in_id)
-        free(<void *>storage.virt_packet_last_line_interaction_out_id)
-        runner.virt_packet_nus = virt_packet_nus
-        runner.virt_packet_energies = virt_packet_energies
-        runner.virt_packet_last_interaction_in_nu = virt_packet_last_interaction_in_nu
-        runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
-        runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
-        runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
-    else:
-        runner.virt_packet_nus = None
-        runner.virt_packet_energies = None
-        runner.virt_packet_last_interaction_in_nu = None
-        runner.virt_packet_last_interaction_type = None
-        runner.virt_packet_last_line_interaction_in_id = None
-        runner.virt_packet_last_line_interaction_out_id = None
-    #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies
-
->>>>>>> tardis-sn/master
 
     #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies

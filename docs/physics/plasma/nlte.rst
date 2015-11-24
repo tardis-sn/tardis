@@ -10,12 +10,12 @@ There are two rates to consider from a given level.
 
 .. math::
 
-    r_{\textrm{upper}\rightarrow\textrm{lower}} &= \underbrace{A_{ul} n_u}_\textrm{spontaneous emission}
+    R_{\textrm{upper}\rightarrow\textrm{lower}} &= \underbrace{A_{ul} n_u}_\textrm{spontaneous emission}
             + \underbrace{B_{ul} n_u \bar{J}_\nu}_\textrm{stimulated emission} +
             \underbrace{C_{ul} n_u n_e}_\textrm{collisional deexcitation}\\
             &= n_u \underbrace{(A_{ul} + B_{ul}\bar{J}_\nu + C_{ul} n_e)}_{r_{ul}} \\
 
-    r_{\textrm{lower}\rightarrow\textrm{upper}} &= \underbrace{B_{lu} n_l \bar{J}_\nu}_\textrm{stimulated absorption} +
+    R_{\textrm{lower}\rightarrow\textrm{upper}} &= \underbrace{B_{lu} n_l \bar{J}_\nu}_\textrm{stimulated absorption} +
                 \underbrace{C_{lu}\,n_l\,n_e}_\textrm{collisional excitation}\\
                 &= n_l \underbrace{(B_{lu}\bar{J}_\nu + C_{ul}n_e)}_{r_{lu}},
 
@@ -27,8 +27,8 @@ Next, we calculate the rate of change of a level by adding up all outgoing and a
 
 .. math::
 
-    \frac{dn_j}{dt} = \underbrace{\sum_{i \ne j} r_{ij}}_\textrm{incoming rate} -
-                        \underbrace{\sum_{i \ne j} r_{ji}}_\textrm{outgoing rate}
+    \frac{dn_j}{dt} = \underbrace{\sum_{i \ne j} R_{ij}}_\textrm{incoming rate} -
+                        \underbrace{\sum_{i \ne j} R_{ji}}_\textrm{outgoing rate}
 
 In a statistical equilibrium all incoming rates and outgoing rates add up to 0 (:math:`\frac{dn_j}{dt}=0`). We use this to
 calculate the level populations using the rate coefficients (:math:`r_ij, r_ji`).
@@ -38,9 +38,9 @@ calculate the level populations using the rate coefficients (:math:`r_ij, r_ji`)
 
     \left(
     \begin{matrix}
-    -(\cal{r}_{12} + \dots + \cal{r}_{1j}) & \dots & \cal{r}_{j1}\\
+    -(\cal{R}_{12} + \dots + \cal{R}_{1j}) & \dots & \cal{R}_{j1}\\
     \vdots & \ddots & \vdots \\
-    \cal{r}_{1j} & \dots & - (\cal{r} _{j1} + \dots + \cal{r} _{j, j-1}) \\
+    \cal{R}_{1j} & \dots & - (\cal{R} _{j1} + \dots + \cal{R} _{j, j-1}) \\
     \end{matrix}
     \right)
     %
@@ -71,7 +71,7 @@ with the additional constrained that all the level number populations need to ad
     \begin{matrix}
     1 & 1 & \dots \\
     \vdots & \ddots & \vdots \\
-    \cal{r}_{1j} & \dots & - (\cal{r} _{j1} + \dots + \cal{r} _{j, j-1}) \\
+    \cal{R}_{1j} & \dots & - (\cal{R} _{j1} + \dots + \cal{R} _{j, j-1}) \\
     \end{matrix}
     \right)
     %

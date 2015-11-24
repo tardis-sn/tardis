@@ -15,8 +15,7 @@ class ConfigurationError(Exception):
     pass
 
 
-def read_density_file(density_filename, density_filetype, time_explosion,
-                      v_inner_boundary=0.0, v_outer_boundary=np.inf):
+def read_density_file(density_filename, density_filetype, time_explosion, v_inner_boundary=0.0, v_outer_boundary=np.inf):
     """
     read different density file formats
 
@@ -76,11 +75,9 @@ def read_density_file(density_filename, density_filetype, time_explosion,
     mean_densities = mean_densities[inner_boundary_index:outer_boundary_index]
 
 
-    return (v_inner, v_outer, mean_densities,
-            inner_boundary_index, outer_boundary_index)
+    return v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index
 
-def read_abundances_file(abundance_filename, abundance_filetype,
-                         inner_boundary_index=None, outer_boundary_index=None):
+def read_abundances_file(abundance_filename, abundance_filetype, inner_boundary_index=None, outer_boundary_index=None):
     """
     read different density file formats
 
