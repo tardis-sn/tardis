@@ -25,6 +25,7 @@ typedef struct StorageModel
   double *r_inner;
   double *r_outer;
   double *v_inner;
+  double *v_reciprocal;
   double time_explosion;
   double inverse_time_explosion;
   double *electron_densities;
