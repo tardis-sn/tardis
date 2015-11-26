@@ -8,6 +8,7 @@ from astropy import units as u, constants as const
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
 
+
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
@@ -108,13 +109,6 @@ class TauSobolev(ProcessingPlasmaProperty):
             axis=0, mode='raise')
         tau_sobolevs = (self.sobolev_coefficient * f_lu * wavelength *
                         time_explosion * n_lower * stimulated_emission_factor)
-
-        if (np.any(np.isnan(tau_sobolevs)) or
-                np.any(np.isinf(np.abs(tau_sobolevs)))):
-            raise ValueError(
-                'Some tau_sobolevs are nan, inf, -inf in tau_sobolevs.'
-                ' Something went wrong!')
-
         return pd.DataFrame(tau_sobolevs, index=lines.index,
             columns=np.array(level_number_density.columns))
 

@@ -10,12 +10,12 @@ import pandas as pd
 import yaml
 
 import tardis
-from tardis.io.model_reader import (
-    read_density_file, calculate_density_after_time, read_abundances_file)
+from tardis.io.model_reader import read_density_file, \
+    calculate_density_after_time, read_abundances_file
 from tardis.io.config_validator import ConfigurationValidator
 from tardis import atomic
-from tardis.util import (species_string_to_tuple, parse_quantity,
-                         element_symbol2atomic_number, quantity_linspace)
+from tardis.util import species_string_to_tuple, parse_quantity, \
+    element_symbol2atomic_number
 
 import copy
 
@@ -42,6 +42,43 @@ inv_mn52_efolding_time = 1 / (0.0211395 * u.day)
 
 class ConfigurationError(ValueError):
     pass
+
+
+def parse_quantity_linspace(quantity_linspace_dictionary, add_one=True):
+    """
+    parse a dictionary of the following kind
+    {'start': 5000 km/s,
+     'stop': 10000 km/s,
+     'num': 1000}
+
+    Parameters
+    ----------
+
+    quantity_linspace_dictionary: ~dict
+
+    add_one: boolean, default: True
+
+    Returns
+    -------
+
+    ~np.array
+
+    """
+
+    start = parse_quantity(quantity_linspace_dictionary['start'])
+    stop = parse_quantity(quantity_linspace_dictionary['stop'])
+
+    try:
+        stop = stop.to(start.unit)
+    except u.UnitsError:
+        raise ConfigurationError('"start" and "stop" keyword must be compatible quantities')
+
+    num = quantity_linspace_dictionary['num']
+    if add_one:
+        num += 1
+
+    return np.linspace(start.value, stop.value, num=num) * start.unit
+
 
 def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     spectral_bin_boundary_1 = parse_quantity(spectral_bin_boundary_1).to('Angstrom', u.spectral())
@@ -245,8 +282,7 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
         if split_shells > 1:
             logger.info('Increasing the number of shells by a factor of %s' % split_shells)
             no_of_shells = len(v_inner)
-            velocities = quantity_linspace(
-                v_inner[0], v_outer[-1], no_of_shells * split_shells + 1)
+            velocities = np.linspace(v_inner[0], v_outer[-1], no_of_shells * split_shells + 1)
             v_inner = velocities[:-1]
             v_outer = velocities[1:]
             old_mean_densities = mean_densities
@@ -481,6 +517,48 @@ def parse_supernova_section(supernova_dict):
 
     return config_dict
 
+def parse_clumping_section(clumping_dict):
+    """
+    Parse the clumping section
+
+    Parameters
+    ----------
+
+    clumping_dict: dict
+        YAML parsed clumping dict
+
+    Returns
+    ----------
+
+    clumping_config_dict: dict
+
+    """
+
+    clumping_config_dict = {}
+
+    if 'clumping_status' in clumping_dict:
+        clumping_config_dict['clumping_status'] = clumping_dict['clumping_status']
+    else:
+        clumping_config_dict['clumping_status'] = 0
+
+    if 'filling_factor' in clumping_dict:
+        clumping_config_dict['filling_factor'] = clumping_dict['filling_factor']
+    else:
+        clumping_config_dict['filling_factor'] = 1.0
+
+    if 'power_law_k' in clumping_dict:
+        clumping_config_dict['power_law_k'] = clumping_dict['power_law_k']
+    else:
+        clumping_config_dict['power_law_k'] = 0.0
+
+    if 'density_ratio' in clumping_dict:
+        clumping_config_dict['density_ratio'] = clumping_dict['density_ratio']
+    else:
+        clumping_config_dict['density_ratio'] = 1.0
+
+
+    return clumping_config_dict
+
 
 def parse_spectrum_list2dict(spectrum_list):
     """
@@ -497,7 +575,7 @@ def parse_spectrum_list2dict(spectrum_list):
     spectrum_config_dict['end'] = spectrum_list[1]
     spectrum_config_dict['bins'] = spectrum_list[2]
 
-    spectrum_frequency = quantity_linspace(
+    spectrum_frequency = np.linspace(
         spectrum_config_dict['end'].to('Hz', u.spectral()),
         spectrum_config_dict['start'].to('Hz', u.spectral()),
         num=spectrum_config_dict['bins'] + 1)
@@ -628,7 +706,7 @@ class ConfigurationNameSpace(dict):
 
         return cls(ConfigurationValidator(config_definition,
                                        config_dict).get_config())
-    
+
     marker = object()
     def __init__(self, value=None):
         if value is None:
@@ -773,7 +851,7 @@ class Configuration(ConfigurationNameSpace):
             in the `data` directory that ships with TARDIS
 
         validate: ~bool
-            Turn validation on or off. 
+            Turn validation on or off.
 
 
         Returns
@@ -843,7 +921,7 @@ class Configuration(ConfigurationNameSpace):
         if structure_section['type'] == 'specific':
             start, stop, num = model_section['structure']['velocity']
             num += 1
-            velocities = quantity_linspace(start, stop, num)
+            velocities = np.linspace(start, stop, num)
 
             v_inner, v_outer = velocities[:-1], velocities[1:]
             mean_densities = parse_density_section(
@@ -862,6 +940,7 @@ class Configuration(ConfigurationNameSpace):
         r_outer = validated_config_dict['supernova']['time_explosion'] * v_outer
         r_middle = 0.5 * (r_inner + r_outer)
 
+        structure_validated_config_dict = {}
         structure_section['v_inner'] = v_inner.cgs
         structure_section['v_outer'] = v_outer.cgs
         structure_section['mean_densities'] = mean_densities.cgs
@@ -927,12 +1006,8 @@ class Configuration(ConfigurationNameSpace):
         else:
             plasma_section['t_inner'] = plasma_section['initial_t_inner']
 
-        if plasma_section['initial_t_rad'] > 0 * u.K:
-            plasma_section['t_rads'] = np.ones(no_of_shells) * \
-                                       plasma_section['initial_t_rad']
-        else:
-            plasma_section['t_rads'] = None
-
+        plasma_section['t_rads'] = np.ones(no_of_shells) * \
+                                   plasma_section['initial_t_rad']
         if plasma_section['disable_electron_scattering'] is False:
             logger.debug("Electron scattering switched on")
             validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
@@ -1029,6 +1104,8 @@ class Configuration(ConfigurationNameSpace):
         validated_config_dict['spectrum'] = parse_spectrum_list2dict(
             validated_config_dict['spectrum'])
 
+        validated_config_dict['clumping'] = parse_clumping_section(validated_config_dict['clumping'])
+
         return cls(validated_config_dict, atom_data)
 
 
@@ -1042,10 +1119,3 @@ class Configuration(ConfigurationNameSpace):
                                                               axis=0)
         else:
             logger.critical('atom_data is None, only sensible for testing the parser')
-
-
-
-
-
-
-

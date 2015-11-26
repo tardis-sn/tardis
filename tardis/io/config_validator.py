@@ -1417,5 +1417,3 @@ class ConfigurationValidator(object):
 
     def __repr__(self):
         return str(pprint.pformat(self.get_config()))
-        
-

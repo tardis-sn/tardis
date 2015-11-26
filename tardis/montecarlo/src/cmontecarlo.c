@@ -3,6 +3,7 @@
 #include <omp.h>
 #endif
 #include "cmontecarlo.h"
+#include "clumping.h"
 
 /** Look for a place to insert a value in an inversely sorted float array.
  *
@@ -423,14 +424,13 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		rpacket_get_energy (packet) * doppler_factor_ratio);
 	      rpacket_set_nu(&virt_packet,rpacket_get_nu (packet) * doppler_factor_ratio);
 	      reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1, mt_state);
-#ifdef WITH_VPACKET_LOGGING
 	      if ((rpacket_get_nu(&virt_packet) < storage->spectrum_end_nu) &&
 		  (rpacket_get_nu(&virt_packet) > storage->spectrum_start_nu))
 		{
 #ifdef WITHOPENMP
 #pragma omp critical
 		  {
-#endif // WITHOPENMP
+#endif
 		    if (storage->virt_packet_count >= storage->virt_array_size)
 		      {
 			storage->virt_array_size *= 2;
@@ -456,9 +456,8 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		      rpacket_get_energy(&virt_packet) * weight;
 #ifdef WITHOPENMP
 		  }
-#endif // WITHOPENMP
+#endif
 		}
-#endif // WITH_VPACKET_LOGGING
 	    }
 	}
       else
@@ -601,10 +600,19 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     {
       increment_j_blue_estimator (packet, storage, distance, line2d_idx);
     }
-  double tau_line =
-    storage->line_lists_tau_sobolevs[line2d_idx];
+
+  double clumping_status= storage->clumping_status;
+  double tau_line;
+
+  if (clumping_status == 0) {
+    tau_line = storage->line_lists_tau_sobolevs[line2d_idx];
+  } else{
+    tau_line = calc_tau(storage, packet, line2d_idx, mt_state);
+  }
+
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
+
   rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
 
   if (rpacket_get_next_line_id (packet) == storage->no_of_lines)
@@ -808,16 +816,14 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
 void
 montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
 {
-  storage->virt_packet_count = 0;
-#ifdef WITH_VPACKET_LOGGING
   storage->virt_packet_nus = (double *)malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_energies = (double *)malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_last_interaction_in_nu = (double *)malloc(sizeof(double) * storage->no_of_packets);
   storage->virt_packet_last_interaction_type = (int64_t *)malloc(sizeof(int64_t) * storage->no_of_packets);
   storage->virt_packet_last_line_interaction_in_id = (int64_t *)malloc(sizeof(int64_t) * storage->no_of_packets);
   storage->virt_packet_last_line_interaction_out_id = (int64_t *)malloc(sizeof(int64_t) * storage->no_of_packets);
+  storage->virt_packet_count = 0;
   storage->virt_array_size = storage->no_of_packets;
-#endif // WITH_VPACKET_LOGGING
 #ifdef WITHOPENMP
   fprintf(stderr, "Running with OpenMP - %d threads\n", nthreads);
   omp_set_dynamic(0);

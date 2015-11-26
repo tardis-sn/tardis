@@ -20,7 +20,7 @@ In this file:
 
 - (the second line in our example is a comment)
 
-- the remaining lines (ten in our example) give an indexed table of points that specify mass density (g / cm^3) as a function of velocity (km /s). 
+- the remaining lines (ten in our example) give an indexed table of points that specify mass density (g / cm^3) as a function of velocity (km /s).
 
 TARDIS will use this table of density versus velocity to specify the density distribution in the ejecta.
 For the calculation, TARDIS will use the reference time given in the file to scale the mass densities to whatever
@@ -72,7 +72,7 @@ TARDIS does not currently include any elements heavier that Z=30.
 The mass fractions specified will be adopted directly in the TARDIS calculations - so if your model is
 e.g. based on an explosion simulation you may need to calculate the state of any radioactive decay chains at the correct epoch.
 
-The example file shown here has three simple layers: 
+The example file shown here has three simple layers:
 
 - an innermost region (indices 0 to 2) that is composed of Si (Z=14), S (Z=16), Ar (Z=18), Ca (Z=20), Fe (Z=26), Co (Z=27) and Ni (Z=28)
 
@@ -106,4 +106,3 @@ you can use them in TARDIS by putting the following lines in the model section o
     The specifications for the velocities of the inner and outer boundary values can be neglected
     (in which case TARDIS will default to using the full velocity range specified in the density.txt file).
     Values for the boundary velocities that lie outside the range covered by density.txt will not be accepted.
-

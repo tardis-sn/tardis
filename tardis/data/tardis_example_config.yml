@@ -13,7 +13,12 @@ supernova:
 
 #time since explosion
 
-
+#clumping within supernova ejecta - three float variables
+clumping:
+  clumping_status: 1
+  filling_factor: 0.4
+  power_law_k:-2.0
+  density ratio: 50.0
 
 atom_data: atom_data.h5
 
