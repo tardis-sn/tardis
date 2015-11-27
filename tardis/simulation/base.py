@@ -284,6 +284,7 @@ class Simulation(object):
         self.run_single_montecarlo(model, no_of_packets, no_of_virtual_packets)
 
         self.legacy_update_spectrum(model, no_of_virtual_packets)
+        self.legacy_set_final_model_properties(model)
 
         logger.info("Finished in {0:d} iterations and took {1:.2f} s".format(
             iterations_executed, time.time()-start_time))
@@ -310,6 +311,24 @@ class Simulation(object):
             model.spectrum_virtual.update_luminosity(
                 model.montecarlo_virtual_luminosity)
 
+    def legacy_set_final_model_properties(self, model):
+        """Sets additional model properties to be compatible with old model design
+
+        The runner object is given to the model and other packet diagnostics are set.
+
+        Parameters
+        ----------
+        model: ~tardis.model.Radial1DModel
+
+        Returns
+        -------
+            : None
+
+        """
+
+        #pass the runner to the model
+        model.runner = self.runner
+        #TODO: pass packet diagnostic arrays
 
 
 def run_radial1d(radial1d_model, history_fname=None):
