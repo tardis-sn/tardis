@@ -215,6 +215,7 @@ class Simulation(object):
         iterations_remaining = self.tardis_config.montecarlo.iterations
         iterations_max_requested = self.tardis_config.montecarlo.iterations
         iterations_executed = 0
+        converged = False
 
         while iterations_remaining > 1:
             logger.info('Remaining run %d', iterations_remaining)
