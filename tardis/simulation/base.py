@@ -213,6 +213,7 @@ class Simulation(object):
         start_time = time.time()
 
         iterations_remaining = self.tardis_config.montecarlo.iterations
+        iterations_max_requested = self.tardis_config.montecarlo.iterations
         iterations_executed = 0
 
         while iterations_remaining > 1:
@@ -256,6 +257,7 @@ class Simulation(object):
                     convergence_section.global_convergence_parameters.
                         hold_iterations_wrong)
             elif not converged and self.converged:
+                # UMN Warning: the following two iterations attributes of the Simulation object don't exist
                 self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
                 self.converged = False
             else:
@@ -285,6 +287,14 @@ class Simulation(object):
 
         self.legacy_update_spectrum(model, no_of_virtual_packets)
         self.legacy_set_final_model_properties(model)
+
+        #the following instructions, passing down information to the model are
+        #required for the gui
+        model.no_of_packets = no_of_packets
+        model.no_of_virtual_packets = no_of_virtual_packets
+        model.converged = converged
+        model.iterations_executed = iterations_executed
+        model.iterations_max_requested = iterations_max_requested
 
         logger.info("Finished in {0:d} iterations and took {1:.2f} s".format(
             iterations_executed, time.time()-start_time))
@@ -344,6 +354,8 @@ class Simulation(object):
         model.last_line_interaction_out_id = model.last_line_interaction_out_id[last_line_interaction_out_id != -1]
         model.last_line_interaction_angstrom = model.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
                                                                                                        u.spectral())
+        # required for gui
+        model.current_no_of_packets = model.tardis_config.montecarlo.no_of_packets
 
 def run_radial1d(radial1d_model, history_fname=None):
     if history_fname is not None:
