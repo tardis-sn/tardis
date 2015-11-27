@@ -329,7 +329,21 @@ class Simulation(object):
         #pass the runner to the model
         model.runner = self.runner
         #TODO: pass packet diagnostic arrays
+        (montecarlo_nu, montecarlo_energies, model.j_estimators,
+                model.nubar_estimators, last_line_interaction_in_id,
+                last_line_interaction_out_id, model.last_interaction_type,
+                model.last_line_interaction_shell_id) = model.runner.legacy_return()
 
+        model.montecarlo_nu = self.runner.output_nu
+        model.montecarlo_luminosity = self.runner.packet_luminosity
+
+
+        model.last_line_interaction_in_id = model.atom_data.lines_index.index.values[last_line_interaction_in_id]
+        model.last_line_interaction_in_id = model.last_line_interaction_in_id[last_line_interaction_in_id != -1]
+        model.last_line_interaction_out_id = model.atom_data.lines_index.index.values[last_line_interaction_out_id]
+        model.last_line_interaction_out_id = model.last_line_interaction_out_id[last_line_interaction_out_id != -1]
+        model.last_line_interaction_angstrom = model.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
+                                                                                                       u.spectral())
 
 def run_radial1d(radial1d_model, history_fname=None):
     if history_fname is not None:
