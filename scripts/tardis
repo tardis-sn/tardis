@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+from tardis.io import config_reader
+
+from tardis import simulation, model
+import numpy as np
+
+import logging
+import argparse
+
+
+
+tardis_description =\
+"""
+TARDIS Supernova Montecarlo Radiative transfer code
+
+"""
+
+parser = argparse.ArgumentParser(description=tardis_description)
+argparse.ArgumentParser()
+parser.add_argument('config_fname', help='path to the configuration yaml file')
+parser.add_argument('spectrum_fname', help=
+'path where to write the output spectrum to. If a virtual spectrum is '
+'requested, only the virtual spectrum will be written')
+
+
+parser.add_argument('--log_file', default=None, help="Name of the log file "
+                                                     "(not implemented yet)")
+
+parser.add_argument('--packet_log_file', default=None, help=
+"Name of the packet log file. Packet logging needs to be switched on before "
+"compiling.")
+
+parser.add_argument('--profile', action='store_true', help=
+'run tardis in profiling mode and output results to a specified log file')
+parser.add_argument('--profiler_log_file', default='profiler.log', help=
+'name of the profiler output file')
+
+args = parser.parse_args()
+
+packet_logging_fname = 'tardis_packets.log'
+
+if args.log_file:
+    logger = logging.getLogger('tardis')
+    logger.setLevel(logging.DEBUG)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_formatter = logging.Formatter(
+        '%(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+
+if args.packet_log_file:
+    logger = logging.getLogger('tardis_packet_logger')
+    logger.setLevel(logging.DEBUG)
+    packet_logging_handler = logging.FileHandler(packet_logging_fname, mode='w')
+    packet_logging_handler.setLevel(logging.DEBUG)
+    packet_logging_formatter = logging.Formatter(
+        '%(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(packet_logging_formatter)
+    logger.addHandler(packet_logging_handler)
+
+tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
+radial1d_mdl = model.Radial1DModel(tardis_config)
+
+if args.profile:
+    import cProfile
+    cProfile.runctx('simulation.run_radial1d(radial1d_mdl)', locals(),
+                    globals(), filename=args.profiler_log_file)
+else:
+    simulation.run_radial1d(radial1d_mdl)
+
+
+if not np.all(radial1d_mdl.spectrum_virtual.luminosity_density_lambda.value
+        == 0.0):
+    radial1d_mdl.spectrum_virtual.to_ascii(args.spectrum_fname)
+else:
+    radial1d_mdl.spectrum.to_ascii(args.spectrum_fname)
