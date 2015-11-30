@@ -1,6 +1,7 @@
 # Utilities for TARDIS
 
 from astropy import units as u, constants
+from colorlogs import log
 import numexpr as ne
 import numpy as np
 import os
