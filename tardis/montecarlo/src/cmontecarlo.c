@@ -424,9 +424,6 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 	      rpacket_set_nu(&virt_packet,rpacket_get_nu (packet) * doppler_factor_ratio);
 	      reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1, mt_state);
 #ifdef WITH_VPACKET_LOGGING
-	      if ((rpacket_get_nu(&virt_packet) < storage->spectrum_end_nu) &&
-		  (rpacket_get_nu(&virt_packet) > storage->spectrum_start_nu))
-		{
 #ifdef WITHOPENMP
 #pragma omp critical
 		  {
@@ -448,17 +445,27 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
         storage->virt_packet_last_line_interaction_in_id[storage->virt_packet_count] = storage->last_line_interaction_in_id[rpacket_get_id (packet)];
         storage->virt_packet_last_line_interaction_out_id[storage->virt_packet_count] = storage->last_line_interaction_out_id[rpacket_get_id (packet)];
 		    storage->virt_packet_count += 1;
-		    int64_t virt_id_nu =
-		      floor ((rpacket_get_nu(&virt_packet) -
-			      storage->spectrum_start_nu) /
-			     storage->spectrum_delta_nu);
-		    storage->spectrum_virt_nu[virt_id_nu] +=
-		      rpacket_get_energy(&virt_packet) * weight;
 #ifdef WITHOPENMP
 		  }
 #endif // WITHOPENMP
-		}
 #endif // WITH_VPACKET_LOGGING
+      if ((rpacket_get_nu(&virt_packet) < storage->spectrum_end_nu) &&
+          (rpacket_get_nu(&virt_packet) > storage->spectrum_start_nu))
+      {
+#ifdef WITHOPENMP
+#pragma omp critical
+		  {
+#endif // WITHOPENMP
+        int64_t virt_id_nu =
+          floor ((rpacket_get_nu(&virt_packet) -
+                storage->spectrum_start_nu) /
+              storage->spectrum_delta_nu);
+        storage->spectrum_virt_nu[virt_id_nu] +=
+          rpacket_get_energy(&virt_packet) * weight;
+#ifdef WITHOPENMP
+		  }
+#endif // WITHOPENMP
+      }
 	    }
 	}
       else
