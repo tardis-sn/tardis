@@ -40,7 +40,8 @@ def test_simple_ascii_abundance_reader():
     (0.0 * u.km/u.s, np.inf * u.km/u.s, np.nan, np.nan, None, None),
     (500 * u.km/u.s, 6000 * u.km/u.s, np.nan, 6000 * u.km/u.s, None, 16),
     (1300 * u.km/u.s, 6000 * u.km/u.s, 1300 * u.km/u.s, 6000 * u.km/u.s, 0, 16),
-    (1600 * u.km/u.s, 6000 * u.km/u.s, 1600 * u.km/u.s, 6000 * u.km/u.s, 1, 16)
+    (1600 * u.km/u.s, 6000 * u.km/u.s, 1600 * u.km/u.s, 6000 * u.km/u.s, 1, 16),
+    (1889.063 * u.km/u.s, np.inf * u.km/u.s, 1889.063 * u.km/u.s, np.nan, 2, None)
 ])
 def test_ascii_reader_density_boundaries(v_inner_boundary, v_outer_boundary, actual_v_inner, actual_v_outer,
                                          inner_index, outer_index):
