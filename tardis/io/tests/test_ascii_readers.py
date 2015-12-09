@@ -55,6 +55,6 @@ def test_ascii_reader_density_boundaries(v_inner_boundary, v_outer_boundary, act
                             actual_v_inner.to(v_inner[0].unit).value)
 
     if not np.isnan(actual_v_outer):
-        npt.assert_allclose(v_outer[-1],
+        npt.assert_allclose(v_outer[-1].value,
                             actual_v_outer.to(v_outer[-1].unit).value)
 
