@@ -51,7 +51,12 @@ def read_density_file(density_filename, density_filetype, time_explosion,
         if v_inner_boundary > v_outer[-1]:
             raise ConfigurationError('Inner boundary selected outside of model')
 
-        inner_boundary_index = v_inner.searchsorted(v_inner_boundary, side="right")
+        inner_boundary_index = v_inner.searchsorted(v_inner_boundary) - 1
+        # check for zero volume cell
+        if np.isclose(v_inner_boundary, v_inner[inner_boundary_index + 1],
+                      atol=1e-8 * u.km / u.s) and (v_inner_boundary <=
+                                                   v_inner[inner_boundary_index + 1]):
+            inner_boundary_index += 1
 
     else:
         inner_boundary_index = None
