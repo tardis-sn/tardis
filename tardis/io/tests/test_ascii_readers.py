@@ -59,3 +59,9 @@ def test_ascii_reader_density_boundaries(v_inner_boundary, v_outer_boundary, act
         npt.assert_allclose(v_outer[-1].value,
                             actual_v_outer.to(v_outer[-1].unit).value)
 
+def test_ascii_reader_invalid_volumes():
+
+    with pytest.raises(io.model_reader.ConfigurationError):
+        v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index = \
+            io.read_density_file(data_path('invalid_artis_model.dat'), 'artis', 19 *
+                                 u.day, 0.0 * u.km/u.s, np.inf * u.km/u.s)
