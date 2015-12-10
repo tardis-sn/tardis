@@ -40,7 +40,8 @@ def test_simple_ascii_abundance_reader():
     (0.0 * u.km/u.s, np.inf * u.km/u.s, np.nan, np.nan, None, None),
     (500 * u.km/u.s, 6000 * u.km/u.s, np.nan, 6000 * u.km/u.s, None, 16),
     (1300 * u.km/u.s, 6000 * u.km/u.s, 1300 * u.km/u.s, 6000 * u.km/u.s, 0, 16),
-    (1600 * u.km/u.s, 6000 * u.km/u.s, 1600 * u.km/u.s, 6000 * u.km/u.s, 1, 16)
+    (1600 * u.km/u.s, 6000 * u.km/u.s, 1600 * u.km/u.s, 6000 * u.km/u.s, 1, 16),
+    (1889.063 * u.km/u.s, np.inf * u.km/u.s, 1889.063 * u.km/u.s, np.nan, 2, None)
 ])
 def test_ascii_reader_density_boundaries(v_inner_boundary, v_outer_boundary, actual_v_inner, actual_v_outer,
                                          inner_index, outer_index):
@@ -55,6 +56,12 @@ def test_ascii_reader_density_boundaries(v_inner_boundary, v_outer_boundary, act
                             actual_v_inner.to(v_inner[0].unit).value)
 
     if not np.isnan(actual_v_outer):
-        npt.assert_allclose(v_outer[-1],
+        npt.assert_allclose(v_outer[-1].value,
                             actual_v_outer.to(v_outer[-1].unit).value)
 
+def test_ascii_reader_invalid_volumes():
+
+    with pytest.raises(io.model_reader.ConfigurationError):
+        v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index = \
+            io.read_density_file(data_path('invalid_artis_model.dat'), 'artis', 19 *
+                                 u.day, 0.0 * u.km/u.s, np.inf * u.km/u.s)

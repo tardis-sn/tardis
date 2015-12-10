@@ -43,7 +43,7 @@ def read_density_file(density_filename, density_filetype, time_explosion,
         raise ConfigurationError('v_inner_boundary > v_outer_boundary '
                                  '({0:s} > {1:s}). unphysical!'.format(
             v_inner_boundary, v_outer_boundary))
-    
+
     if (not np.isclose(v_inner_boundary, 0.0 * u.km / u.s,
                        atol=1e-8 * u.km / u.s)
         and v_inner_boundary > v_inner[0]):
@@ -52,6 +52,11 @@ def read_density_file(density_filename, density_filetype, time_explosion,
             raise ConfigurationError('Inner boundary selected outside of model')
 
         inner_boundary_index = v_inner.searchsorted(v_inner_boundary) - 1
+        # check for zero volume of designated first cell
+        if np.isclose(v_inner_boundary, v_inner[inner_boundary_index + 1],
+                      atol=1e-8 * u.km / u.s) and (v_inner_boundary <=
+                                                   v_inner[inner_boundary_index + 1]):
+            inner_boundary_index += 1
 
     else:
         inner_boundary_index = None
@@ -66,7 +71,7 @@ def read_density_file(density_filename, density_filetype, time_explosion,
         v_outer_boundary = v_outer[-1]
         logger.warning("v_outer_boundary requested too large for readin file. Boundary shifted to match file.")
 
-        
+
     v_inner = v_inner[inner_boundary_index:outer_boundary_index]
     v_inner[0] = v_inner_boundary
 
@@ -75,6 +80,16 @@ def read_density_file(density_filename, density_filetype, time_explosion,
 
     mean_densities = mean_densities[inner_boundary_index:outer_boundary_index]
 
+    invalid_volume_mask = (v_outer - v_inner) <= 0
+    if invalid_volume_mask.sum() > 0:
+        message = "\n".join(["cell {0:d}: v_inner {1:s}, v_outer "
+                             "{2:s}".format(i, v_inner_i, v_outer_i) for i,
+                             v_inner_i, v_outer_i in
+                             zip(np.arange(len(v_outer))[invalid_volume_mask],
+                                 v_inner[invalid_volume_mask],
+                                 v_outer[invalid_volume_mask])])
+        raise ConfigurationError("Invalid volume of following cell(s):\n"
+                                 "{:s}".format(message))
 
     return (v_inner, v_outer, mean_densities,
             inner_boundary_index, outer_boundary_index)
@@ -107,7 +122,7 @@ def read_abundances_file(abundance_filename, abundance_filetype,
 
     index, abundances = file_parsers[abundance_filetype](abundance_filename)
     if outer_boundary_index is not None:
-        outer_boundary_index_m1 = outer_boundary_index - 1 
+        outer_boundary_index_m1 = outer_boundary_index - 1
     else:
         outer_boundary_index_m1 = None
     index = index[inner_boundary_index:outer_boundary_index]
