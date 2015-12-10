@@ -1,132 +1,68 @@
 import numpy as np
-import logging
-import os
-from pandas import DataFrame
-from astropy import units
-from astropy import constants as const
 import pandas as pd
-from tardis.continuum.exceptions import IncompletePhotoionizationDataError
-
-default_photoionization_h5_path = os.path.join(os.path.dirname(__file__), 'data', 'my_phot_data.h5')
-
-logger = logging.getLogger(__name__)
+from astropy import constants as const
+from astropy import units as units
 
 
-class BaseContinuumData(object):
-    def __init__(self, atom_data, photo_dat_fname=None):
-        # TODO: remove unnecessary attributes
-        self.atom_data = atom_data
-        self.levels = self._prepare_levels()
-        self.continuum_references = self._create_continuum_references()
-        self.continuum_data = self._create_continuum_data_from_levels()
-        self.macro_atom_data = self._create_macro_atom_data()
-        self.photoionization_data = PhotoionizationData.from_hdf5(fname=photo_dat_fname, atom_data=self)
-        self.no_levels_with_photdata = len(np.unique(self.photoionization_data.index.values))
-        self.multi_index_nu_sorted = self.continuum_data.sort('nu', ascending=False).set_index(
-            ['atomic_number', 'ion_number', 'level_number_lower']).index.values
-        self.level_number_density = None
-        self._set_montecarlo_data()
+def data_type_selection(data_getter):
+    def wrapped_data_getter(*args, **kwargs):
+        output = data_getter(*args)
+        if not kwargs or kwargs['dtype'] == 'array':
+            return output.values
+        elif kwargs['dtype'] == 'dataframe':
+            return output
+        else:
+            raise AttributeError
 
-    def _create_continuum_data_from_levels(self):
-        logger.info('Generating Continuum data from levels data.')
-        continuum_data = self.levels.copy(deep=True)
-        continuum_data.rename(columns={'level_number': 'level_number_lower', 'index': 'level_lower_index'},
-                              inplace=True)
-        ionization_data_index = pd.MultiIndex.from_arrays([continuum_data['atomic_number'],
-                                                           continuum_data['ion_number'] + 1])
-        continuum_data['nu'] = (self.atom_data.ionization_data.ix[ionization_data_index].values.flatten()
-                                - continuum_data['energy'].values) * \
-                               units.Unit('erg').to('Hz', equivalencies=units.spectral())
-
-        tmp_level_lower_idx = pd.MultiIndex.from_arrays(
-            [continuum_data['atomic_number'], continuum_data['ion_number'],
-             continuum_data['level_number_lower']])
-        continuum_data.insert(len(continuum_data.columns), 'level_lower_idx',
-                              pd.Series(self.atom_data.macro_atom_references['references_idx'].ix[
-                                  tmp_level_lower_idx].values.astype(
-                                  np.int64), index=continuum_data.index))
-
-        tmp_references_idx_index = pd.MultiIndex.from_arrays([continuum_data['atomic_number'],
-                                                              continuum_data['ion_number']])
-
-        continuum_data.insert(len(continuum_data.columns), 'continuum_references_idx',
-                              pd.Series(self.continuum_references['references_idx'].ix[
-                                  tmp_references_idx_index].values.astype(
-                                  np.int64), index=continuum_data.index))
-
-        # TODO: this is problematic if there are very close continuum edges
-        continuum_data.insert(len(continuum_data.columns), 'continuum_edge_idx',
-                              np.arange(len(continuum_data.nu))
-                              [(continuum_data.nu.argsort()[::-1]).argsort().values])
-
-        continuum_data.drop(['energy', 'g', 'metastable'], axis=1, inplace=True)
-
-        return continuum_data
-
-    def _create_continuum_references(self):
-        continuum_references = pd.DataFrame({'counts_total':
-                                                 self.levels.reset_index(drop=True).groupby(
-                                                     ['atomic_number', 'ion_number']).count().ix[:, 0]})
-        continuum_references['counts_total'] *= 2
-        block_references = np.hstack((0, np.cumsum(continuum_references['counts_total'].values[:-1])))
-        continuum_references.insert(len(continuum_references.columns), 'block_references',
-                                    pd.Series(block_references, index=continuum_references.index))
-
-        continuum_references.insert(len(continuum_references.columns), 'references_idx',
-                                    pd.Series(np.arange(len(continuum_references)),
-                                              index=continuum_references.index))
-        return continuum_references
-
-    def _create_macro_atom_data(self):
-        macro_atom_continuum_data = self.continuum_data.copy()
-        macro_atom_continuum_data.insert(3, 'transition_type',
-                                         pd.Series(np.zeros(len(macro_atom_continuum_data), dtype=int),
-                                                   index=macro_atom_continuum_data.index))
-        target_level_index = pd.MultiIndex.from_arrays([macro_atom_continuum_data['atomic_number'],
-                                                        macro_atom_continuum_data['ion_number'],
-                                                        macro_atom_continuum_data['level_lower_index']])
-        target_level_energy = (self.levels.set_index(['atomic_number', 'ion_number', 'level_number']
-        ).loc[target_level_index, 'energy'] *
-                               units.Unit('erg').to('eV', equivalencies=units.spectral())).values
-
-        macro_atom_continuum_data.insert(4, 'transition_probability', pd.Series(target_level_energy,
-                                                                                index=macro_atom_continuum_data.index))
-        tmp = macro_atom_continuum_data.copy()
-        tmp['transition_type'] = -3
-        tmp['transition_probability'] = tmp.nu * units.Unit('Hz').to('eV', equivalencies=units.spectral())
-        macro_atom_continuum_data = pd.concat([macro_atom_continuum_data, tmp])
-        macro_atom_continuum_data.sort(['atomic_number', 'ion_number'], ascending=[1, 1])
-        return macro_atom_continuum_data
-
-    def _prepare_levels(self):
-        levels = self.atom_data.levels.reset_index()
-        return levels.query('atomic_number != ion_number')
+    return wrapped_data_getter
 
 
 class ContinuumProcess(object):
     def __init__(self, input_data):
         self.input = input_data
 
+    @data_type_selection
     def _get_level_energy(self, multi_index):
-        return (self.input.levels.loc[multi_index, 'energy']).values
+        return self.input.levels.loc[multi_index, 'energy']
 
+    @data_type_selection
     def _get_lte_level_pop(self, multi_index):
-        return (self.input.lte_level_pop.loc[multi_index]).values
+        return self.input.lte_level_pop.loc[multi_index]
 
+    @data_type_selection
     def _get_level_pop(self, multi_index):
-        return (self.input.level_pop.loc[multi_index]).values
+        return self.input.level_pop.loc[multi_index]
 
     def _get_level_idx(self, multi_index):
         return self.input.macro_atom_references.loc[multi_index, 'references_idx'].values
 
     def _get_continuum_idx(self, multi_index_full):
-        ion_number_index = self._get_ion_number_index(multi_index_full)
+        ion_number_index = self._get_ion_multi_index(multi_index_full, next_higher=False)
         return self.input.continuum_references.loc[ion_number_index, 'references_idx'].values
 
-    def _get_ion_number_index(self, multi_index_full):
+    @staticmethod
+    def _get_ion_multi_index(multi_index_full, next_higher=True):
         atomic_number = multi_index_full.get_level_values(0)
         ion_number = multi_index_full.get_level_values(1)
+        if next_higher is True:
+            ion_number += 1
         return pd.MultiIndex.from_arrays([atomic_number, ion_number])
+
+    @data_type_selection
+    def _get_ion_number_density(self, multi_index_full):
+        ion_number_index = self._get_ion_multi_index(multi_index_full)
+        return self.ion_number_density.loc[ion_number_index]
+
+    @data_type_selection
+    def _get_lte_ion_number_density(self, multi_index_full):
+        ion_number_index = self._get_ion_multi_index(multi_index_full)
+        # WARNING: In the future we have to return the lte ion number density
+        return self.ion_number_density.loc[ion_number_index]
+
+    @data_type_selection
+    def _get_ionization_energy(self, multi_index_full):
+        ion_number_index = self._get_ion_multi_index(multi_index_full)
+        return self.input.ionization_energies.loc[ion_number_index, 'ionization_energy']
 
     def _get_continuum_edge_idx(self, multi_index):
         return self.input.continuum_data.set_index(['atomic_number', 'ion_number',
@@ -137,16 +73,32 @@ class ContinuumProcess(object):
         block_references = np.hstack([[0], block_references])
         return block_references
 
-    def _normalize_transition_probabilities(self, dataframe, no_ref_columns=0):
+    @staticmethod
+    def _normalize_transition_probabilities(dataframe, no_ref_columns=0):
         normalization_fct = lambda x: (x / x.sum())
         normalized_dataframe = dataframe.ix[:, no_ref_columns:].groupby(level=0).transform(normalization_fct)
         normalized_dataframe = pd.concat([dataframe.ix[:, :no_ref_columns], normalized_dataframe], axis=1,
                                          join_axes=[normalized_dataframe.index])
+        normalized_dataframe = normalized_dataframe.fillna(0.0)
         return normalized_dataframe
 
-    # Data preparation
-    def _get_contiguous_array(self, dataframe):
-        return np.ascontiguousarray(dataframe.values.transpose())
+    def _get_level_multi_index(self, level_idx):
+        tmp = self.input.macro_atom_references_by_idx.iloc[level_idx]
+        level_multi_index = pd.MultiIndex.from_arrays([tmp['atomic_number'].values, tmp['ion_number'].values,
+                                                       tmp['source_level_number'].values])
+        return level_multi_index
+
+    def _set_ionization_rates_index(self, probabilities):
+        # WARNING: destination level id is continuum id; the value itself is not unique
+        multi_index = self._get_ion_prob_index(probabilities.index)
+        probabilities.set_index(multi_index, inplace=True)
+
+    def _get_ion_prob_index(self, level_lower_index):
+        source_level_idx = self._get_level_idx(level_lower_index)
+        destination_level_idx = self._get_continuum_idx(level_lower_index)
+        tmp_multi_index = pd.MultiIndex.from_arrays([source_level_idx, destination_level_idx],
+                                                    names=['source_level_idx', 'destination_level_idx'])
+        return tmp_multi_index
 
     @property
     def electron_densities(self):
@@ -177,16 +129,12 @@ class ContinuumProcess(object):
         return (self.input.macro_atom_data.transition_type == 0).values
 
     @property
+    def transition_deactivation_filter(self):
+        return (self.input.macro_atom_data.transition_type == -1).values
+
+    @property
     def macro_atom_data(self):
         return self.input.macro_atom_data
-
-    @property
-    def c_einstein(self):
-        return self.input.c_einstein
-
-    @property
-    def c0_reg(self):
-        return self.input.c_0_regemorter
 
     @property
     def nu_i(self):
@@ -200,66 +148,92 @@ class ContinuumProcess(object):
     def no_of_shells(self):
         return len(self.input.t_rads)
 
+    # Helper functions for physical calculations
+    def _calculate_u0s(self, nu):
+        u0s = nu[np.newaxis].T / self.t_electrons * (const.h.cgs.value / const.k_B.cgs.value)
+        return u0s
 
-class PhotoionizationData(object):
+    # Data preparation
+    def _get_contiguous_array(self, dataframe):
+        return np.ascontiguousarray(dataframe.values.transpose())
+
+    @staticmethod
+    def ones(dataframe, dtype=np.int64):
+        return np.ones(dataframe.shape[0], dtype)
+
+
+class TransitionProbabilitiesMixin(object):
+    @property
+    def internal_jump_probabilities(self):
+        level_lower_energy = self.level_lower_energy * units.erg.to(units.eV)
+        return self.rate_coefficient.multiply(level_lower_energy, axis=0)  # / cconst.c_einstein
+
+    @property
+    def deactivation_probabilities(self):
+        energy_difference = (self.level_upper_energy - self.level_lower_energy) * units.erg.to(units.eV)
+        return self.rate_coefficient.multiply(energy_difference, axis=0)  # / cconst.c_einstein
+
+
+class PhysicalContinuumProcess(ContinuumProcess, TransitionProbabilitiesMixin):
+    name = None
+    cooling = True
+    macro_atom_transitions = None
+
+    def __init__(self, input_data, **kwargs):
+        super(PhysicalContinuumProcess, self).__init__(input_data)
+        self.rate_coefficient = self._calculate_rate_coefficient(**kwargs)
+        if self.cooling is True:
+            self.cooling_rate = self._calculate_cooling_rate(**kwargs)
+
+    def _calculate_rate_coefficient(self, **kwargs):
+        return None
+
+    def _calculate_cooling_rate(self, **kwargs):
+        raise NotImplementedError
+
+
+class BoundFreeEnergyMixIn(object):
+    @property
+    def level_lower_energy(self):
+        return self._get_level_energy(self.rate_coefficient.index)
+
+    @property
+    def level_upper_energy(self):
+        return self._get_ionization_energy(self.rate_coefficient.index)
+
+
+class InverseProcess(ContinuumProcess, TransitionProbabilitiesMixin):
+    name = None
+    name_of_inverse_process = None
+    cooling = False
+    macro_atom_transitions = None
+
+    def __init__(self, input_data, rate_coefficient, inverse_process):
+        self.input = input_data
+        self.rate_coefficient = rate_coefficient
+        self.inverse_process = inverse_process
+
     @classmethod
-    def from_hdf5(cls, fname, atom_data):
-        if fname is None:
-            fname = default_photoionization_h5_path
-        photoionization_data = cls.read_photoionization_data(fname)
-        cls.has_needed_photoionization_data(atom_data=atom_data, photoionization_data_all=photoionization_data)
-        return photoionization_data
+    def from_inverse_process(cls, inverse_process):
+        rate_coefficient = cls._calculate_inverse_rate(inverse_process)
+        return cls(inverse_process.input, rate_coefficient, inverse_process)
 
-    @staticmethod
-    def read_photoionization_data(fname):
-        try:
-            with pd.HDFStore(fname, 'r') as phot_data:
-                photoionization_x_sections = phot_data['photoionization_data']
-                return photoionization_x_sections
-        except IOError, err:
-            print(err.errno)
-            print(err)
-            raise IOError('Cannot import. Error opening the file to read photoionization cross-sections')
+    @classmethod
+    def _calculate_inverse_rate(cls, inverse_process):
+        raise NotImplementedError
 
-    @staticmethod
-    def has_needed_photoionization_data(atom_data, photoionization_data_all):
-        # TODO: Instead of testing for the existence of photoionization data for all selected levels, generate
-        # continuum data only for levels with photoionization data
-        level_indices_all = np.unique(atom_data.continuum_data.set_index(
-            ['atomic_number', 'ion_number', 'level_number_lower']).index.values)
-        levels_with_photdata_indices = np.unique(photoionization_data_all.index.values)
-        mask = np.in1d(level_indices_all, levels_with_photdata_indices)
-        if not np.all(mask):
-            raise IncompletePhotoionizationDataError(needed_data=level_indices_all[np.logical_not(mask)],
-                                                     provided_data=levels_with_photdata_indices,
-                                                     list_data_mismatch=True)
+    @property
+    def level_lower_energy(self):
+        return self.inverse_process.level_lower_energy
 
+    @property
+    def level_upper_energy(self):
+        return self.inverse_process.level_upper_energy
 
-class MCDataMixin(object):
-    def _set_montecarlo_data(self):
-        nu_sorted_continuum_data = self.continuum_data.sort('nu', ascending=False)
-        self.continuum_edges_list = nu_sorted_continuum_data['nu'].values
-        self.cont_edge2macro_continuum = nu_sorted_continuum_data['continuum_references_idx'].values
+        # @property
+        # def transition_probabilities_int_down(self):
+        #    return self.rate_coefficient.multiply(self.inverse_process.energy_lower, axis=0) / self.c_einstein
 
-    def get_phot_table_xsect(self, index_nu_sorted):
-        multi_index = self.multi_index_nu_sorted[index_nu_sorted]
-        return self.photoionization_data.loc[multi_index, 'x_sect'].values
-
-    def get_phot_table_nu(self, index_nu_sorted):
-        multi_index = self.multi_index_nu_sorted[index_nu_sorted]
-        return self.photoionization_data.loc[multi_index, 'nu'].values
-
-    def set_level_number_density(self, level_number_density):
-        level_number_density_tmp = level_number_density.loc[self.multi_index_nu_sorted].values.transpose()
-        self.level_number_density = np.ascontiguousarray(level_number_density_tmp)
-
-    def set_level_number_density_ratio(self, level_number_density, lte_level_number_density):
-        level_number_density_tmp = level_number_density.loc[self.multi_index_nu_sorted]
-        lte_level_number_density_tmp = lte_level_number_density.loc[self.multi_index_nu_sorted]
-        level_number_density_ratio = lte_level_number_density_tmp.divide(level_number_density_tmp)
-        level_number_density_ratio = level_number_density_ratio.values.transpose()
-        self.level_number_density_ratio = np.ascontiguousarray(level_number_density_ratio)
-
-
-class ContinuumData(BaseContinuumData, MCDataMixin):
-    pass
+        #@property
+        #def transition_probabilities_deactivation(self):
+        #    return self.rate_coefficient.multiply(self.inverse_process.energy_difference, axis=0) / self.c_einstein
