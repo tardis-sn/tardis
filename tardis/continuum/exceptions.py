@@ -24,3 +24,9 @@ class IncompletePhotoionizationDataError(BoundFreeException):
         print 'Needed photoionization data for levels (i,j,k):'
         pprint.pprint(self.needed_photoion_data)
         np.set_printoptions(**opt)
+
+
+class InvalidContinuumProcessError(ValueError):
+    def __init__(self, process_name):
+        message = 'The requested process "{}" is not a valid continuum process.'.format(process_name)
+        super(InvalidContinuumProcessError, self).__init__(message)
