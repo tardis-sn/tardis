@@ -1,15 +1,8 @@
-from astropy import constants as const
-from astropy import units as units
-import numpy as np
+import pandas as pd
 
 
 class ContinuumInputData(object):
-    c_einstein = (4. * (np.pi * const.e.esu) ** 2 / (const.c.cgs * const.m_e.cgs)).value
-    C0_ff = 1.426e-27  # in cgs units (see Osterbrock 1974)
-    c_0_regemorter = 5.465e-11
-    I_H = 13.598433770784 * units.eV.to(units.erg)
-
-    def __init__(self, atom_data, plasma_array, ws):
+    def __init__(self, atom_data, plasma_array, ws, radiative_transition_probabilities):
         # Plasma quantities
         self.electron_densities = plasma_array.electron_densities.values
         self.t_electrons = plasma_array.t_electrons
@@ -26,18 +19,23 @@ class ContinuumInputData(object):
         # Atom data
         self.lines = atom_data.lines
         self.levels = atom_data.levels
+        self.ionization_energies = atom_data.ionization_data
         self.photoionization_data = atom_data.continuum_data.photoionization_data
 
         #
         self.macro_atom_references = atom_data.macro_atom_references
+        self.macro_atom_references_by_idx = atom_data.macro_atom_references.reset_index().set_index('references_idx')
         self.macro_atom_data = atom_data.macro_atom_data
         self.macro_atom_continuum_data = atom_data.continuum_data.macro_atom_data
+        self.radiative_transition_probabilities = radiative_transition_probabilities
+        self.radiative_transition_probabilities_prep = self._prepare_radiative_probabilities(
+            radiative_transition_probabilities)
 
         #
         self.continuum_references = atom_data.continuum_data.continuum_references
         self.continuum_data = atom_data.continuum_data.continuum_data
 
-        ##
+        #
         self.ion_charges = self._get_ion_charges()
 
         # Computed quantities
@@ -49,3 +47,20 @@ class ContinuumInputData(object):
 
     def _get_ion_charges(self):
         return self.ion_number_density.index.get_level_values(1).values
+
+    def _prepare_radiative_probabilities(self, radiative_prob):
+        source_level_idx = self._get_source_level_idx()
+        destination_level_idx = self.macro_atom_data.destination_level_idx.values
+        new_index = pd.MultiIndex.from_arrays([source_level_idx, destination_level_idx],
+                                              names=['source_level_idx', 'destination_level_idx'])
+        radiative_prob_prep = radiative_prob.set_index(new_index)
+        return radiative_prob_prep
+
+    def _get_source_level_idx(self):
+        macro_atom_data = self.macro_atom_data
+        source_level_index = pd.MultiIndex.from_arrays([macro_atom_data['atomic_number'], macro_atom_data['ion_number'],
+                                                        macro_atom_data['source_level_number']])
+        return self._get_level_idx(source_level_index)
+
+    def _get_level_idx(self, multi_index):
+        return self.macro_atom_references.loc[multi_index, 'references_idx'].values
