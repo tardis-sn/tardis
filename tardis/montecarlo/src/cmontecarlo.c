@@ -168,7 +168,14 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 
   int64_t no_of_continuum_edges = storage->no_of_edges;
   int64_t current_continuum_id;
-  line_search(storage->continuum_list_nu, comov_nu, no_of_continuum_edges, &current_continuum_id);
+  tardis_error_t ret_val =
+    line_search(storage->continuum_list_nu, comov_nu, no_of_continuum_edges, &current_continuum_id);
+
+  if (ret_val != TARDIS_ERROR_OK)
+    {
+      fprintf(stderr, "Search for continuum id in calculate_chi_bf failed\n.");
+      exit(1);
+    }
   rpacket_set_current_continuum_id(packet, current_continuum_id);
 
   int64_t shell_id = rpacket_get_current_shell_id(packet);
@@ -188,7 +195,6 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
       {
         for (int64_t j = i; j < no_of_continuum_edges; j++)
           {
-            //fprintf(stderr, "j: %d\n", j);
             storage->chi_bf_tmp_partial[j] = bf_helper;
           }
         break;
@@ -196,7 +202,12 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
     bf_helper += l_pop * bf_x_sect * (1.0 - l_pop_r * boltzmann_factor);
 
 // FIXME MR: Is this thread-safe? It doesn't look like it to me ...
+    //#ifdef WITHOPENMP
+    //fprintf(stderr, "OpenMP is at the moment not supported for bound-free calculations.");
+    //exit(1);
+    //#endif
     storage->chi_bf_tmp_partial[i] = bf_helper;
+    //packet->chi_bf_tmp_partial[i] = bf_helper;
   }
 
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
@@ -452,8 +463,6 @@ int64_t *cooling_references, int64_t no_of_individual_processes)
 void
 k_packet(rpacket_t * packet, const storage_model_t * storage, next_interaction2process * next_process, rk_state *mt_state)
 {
-  //fprintf(stderr,"Created k_packet \n");
-  //fprintf(stderr,"Next process: %d\n", *next_process);
   int64_t shell_id = rpacket_get_current_shell_id(packet);
   double zrand = (rk_double(mt_state));
   if (zrand < storage->fb_cooling_prob[shell_id])
@@ -476,7 +485,6 @@ k_packet(rpacket_t * packet, const storage_model_t * storage, next_interaction2p
   switch(* next_process)
     {
       case FF_EMISSION:
-        //fprintf(stderr, "k -ff-> r\n");
         // No need to select an individual process.
         break;
 
@@ -485,7 +493,6 @@ k_packet(rpacket_t * packet, const storage_model_t * storage, next_interaction2p
           int64_t continuum_id = sample_cooling_processes(packet, mt_state, storage->fb_cooling_prob_individual,
             storage->fb_cooling_references, storage->fb_cooling_prob_nd);
           rpacket_set_current_continuum_id(packet, continuum_id);
-          //fprintf(stderr, "k -bf-> r: cc_id = %d\n", continuum_id);
         }
         break;
 
@@ -494,7 +501,6 @@ k_packet(rpacket_t * packet, const storage_model_t * storage, next_interaction2p
           int64_t activate_level = sample_cooling_processes(packet, mt_state, storage->coll_ion_cooling_prob_individual,
             storage->coll_ion_cooling_references, storage->coll_ion_cooling_prob_nd);
           rpacket_set_macro_atom_activation_level(packet, activate_level);
-          //fprintf(stderr, "k --> Ac*: activate_level = %d\n", activate_level);
         }
         break;
 
@@ -503,12 +509,12 @@ k_packet(rpacket_t * packet, const storage_model_t * storage, next_interaction2p
           int64_t activate_level = sample_cooling_processes(packet, mt_state, storage->coll_exc_cooling_prob_individual,
             storage->coll_exc_cooling_references, storage->coll_exc_cooling_prob_nd);
           rpacket_set_macro_atom_activation_level(packet, activate_level);
-          //fprintf(stderr, "k --> A*: activate_level = %d\n", activate_level);
         }
         break;
 
       default:
         fprintf(stderr, "This process for k-packet destruction should not exist! (next_process = %d)\n", * next_process);
+        exit(1);
     }
 }
 
@@ -588,6 +594,7 @@ int activation2level_or_cont, rk_state *mt_state)
 
     default:
       fprintf(stderr, "This process for macro-atom deactivation should not exist! (emit = %d)\n", emit);
+      exit(1);
     }
 }
 
@@ -639,9 +646,13 @@ void bf_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_sta
   // Have to find current position in line list
   //bool close_line;
   int64_t current_line_id;
-  line_search (storage->line_list_nu, nu_comov,
-		    storage->no_of_lines,
-		    &current_line_id);
+  tardis_error_t ret_val = line_search (storage->line_list_nu, nu_comov, storage->no_of_lines, &current_line_id);
+  if (ret_val != TARDIS_ERROR_OK)
+   {
+     fprintf(stderr, "Line search failed in bf_emission.\n");
+     exit(1);
+   }
+
   bool last_line = (current_line_id == storage->no_of_lines);
   rpacket_set_next_line_id (packet, current_line_id);
   rpacket_set_last_line (packet, last_line);
@@ -666,9 +677,14 @@ void ff_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_sta
   // Have to find current position in line list
   //bool close_line;
   int64_t current_line_id;
-  line_search (storage->line_list_nu, nu_comov,
+  tardis_error_t ret_val = line_search (storage->line_list_nu, nu_comov,
 		    storage->no_of_lines,
 		    &current_line_id);
+  if (ret_val != TARDIS_ERROR_OK)
+    {
+      fprintf(stderr, "Line search failed in ff_emission handler.\n");
+      exit(1);
+    }
   bool last_line = (current_line_id == storage->no_of_lines);
   rpacket_set_next_line_id (packet, current_line_id);
   rpacket_set_last_line (packet, last_line);
@@ -872,7 +888,9 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 #endif
 		    if (storage->virt_packet_count >= storage->virt_array_size)
 		      {
+		      fprintf(stderr, "Extending virtual array!\n");
 			storage->virt_array_size *= 2;
+			//storage->virt_array_size *= 10;
 			storage->virt_packet_nus = realloc(storage->virt_packet_nus, sizeof(double) * storage->virt_array_size);
 			storage->virt_packet_energies = realloc(storage->virt_packet_energies, sizeof(double) * storage->virt_array_size);
 			storage->virt_packet_last_interaction_in_nu = realloc(storage->virt_packet_last_interaction_in_nu, sizeof(double) * storage->virt_array_size);
@@ -974,7 +992,7 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   rpacket_reset_tau_event (packet, mt_state);
   rpacket_set_recently_crossed_boundary (packet, 0);
-  storage->last_interaction_type[rpacket_get_id (packet)] = 1;
+  //storage->last_interaction_type[rpacket_get_id (packet)] = 1;
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
       montecarlo_one_packet (storage, packet, 1, mt_state);
@@ -997,6 +1015,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   int64_t ccontinuum = current_continuum_id; /* continuum_id of the continuum in which bf-absorption occurs */
 
   while ((ccontinuum < storage->no_of_edges - 1) && (storage->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf))
+  //while ((ccontinuum < storage->no_of_edges - 1) && (packet->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf))
   {
     ccontinuum++;
   }
@@ -1266,6 +1285,8 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   {
     rk_state mt_state;
     rk_seed (seed + omp_get_thread_num(), &mt_state);
+    //double *chi_bf_tmp_partial = calloc(storage->no_of_edges, sizeof(double));
+    //fprintf(stderr, "bt_tmp: %p", (void *) chi_bf_tmp_partial);
 
 #pragma omp for
 #else
@@ -1278,6 +1299,8 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
       int reabsorbed = 0;
       rpacket_t packet;
       rpacket_set_id(&packet, packet_index);
+      //rpacket_init(&packet, storage, packet_index, virtual_packet_flag, chi_bf_tmp_partial);
+      //fprintf(stderr,"Init packet at %p", (void *) chi_bf_tmp_partial);
       rpacket_init(&packet, storage, packet_index, virtual_packet_flag);
       if (virtual_packet_flag > 0)
 	{
