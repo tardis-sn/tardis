@@ -18,6 +18,9 @@ else:
 if get_distutils_option('with_vpacket_logging', ['build', 'install', 'develop']) is not None:
     define_macros.append(('WITH_VPACKET_LOGGING', None))
 
+if get_distutils_option('with_continuum_interactions', ['build', 'install', 'develop']) is not None:
+    define_macros.append(('WITH_CONTINUUM', None))
+
 def get_extensions():
     sources = ['tardis/montecarlo/montecarlo.pyx']
     sources += [os.path.relpath(fname) for fname in glob(
