@@ -230,16 +230,26 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
             storage.transition_line_id = <int_type_t*> PyArray_DATA(
                 model.atom_data.macro_atom_data['lines_idx'].values)
         else:
+            # storage.transition_probabilities = <double*> PyArray_DATA(
+            #    model.transition_probabilities_combined.data_array)
+            #storage.macro_block_references = <int_type_t*> PyArray_DATA(
+            #    model.transition_probabilities_combined.block_references)
+            #storage.destination_level_id = <int_type_t*> PyArray_DATA(
+            #    model.transition_probabilities_combined.destination_level_id)
+            #storage.transition_type = <int_type_t*> PyArray_DATA(
+            #    model.transition_probabilities_combined.transition_type)
+            #storage.transition_line_id = <int_type_t*> PyArray_DATA(
+            #    model.transition_probabilities_combined.transition_line_id)
             storage.transition_probabilities = <double*> PyArray_DATA(
-                model.transition_probabilities_combined.transition_probabilities_array)
+                model.base_continuum.transition_probabilities.data_array)
             storage.macro_block_references = <int_type_t*> PyArray_DATA(
-                model.transition_probabilities_combined.block_references)
+                model.base_continuum.transition_probabilities.block_references)
             storage.destination_level_id = <int_type_t*> PyArray_DATA(
-                model.transition_probabilities_combined.destination_level_id)
+                model.base_continuum.transition_probabilities.destination_level_id)
             storage.transition_type = <int_type_t*> PyArray_DATA(
-                model.transition_probabilities_combined.transition_type)
+                model.base_continuum.transition_probabilities.transition_type)
             storage.transition_line_id = <int_type_t*> PyArray_DATA(
-                model.transition_probabilities_combined.transition_line_id)
+                model.base_continuum.transition_probabilities.transition_line_id)
 
     storage.output_nus = <double*> PyArray_DATA(runner._packet_nu)
     storage.output_energies = <double*> PyArray_DATA(runner._packet_energy)
@@ -307,40 +317,80 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
 
         # Macro atom continuum data
-        storage.transition_probabilities_nd_continuum = model.transition_probabilities_continuum.data_array_nd
+        # storage.transition_probabilities_nd_continuum = model.transition_probabilities_continuum.data_array_nd
+        # storage.transition_probabilities_continuum = <double *> PyArray_DATA(
+        # model.transition_probabilities_continuum.data_array)
+        # storage.macro_block_references_continuum = <int_type_t*> PyArray_DATA(
+        #     model.transition_probabilities_continuum.block_references)
+        # storage.transition_type_continuum = <int_type_t*> PyArray_DATA(
+        #     model.transition_probabilities_continuum.dataframe['transition_type'].values)
+        # storage.transition_continuum_id = <int_type_t*> PyArray_DATA(
+        #     model.transition_probabilities_continuum.dataframe['continuum_edge_idx'].values)
+        # storage.destination_level_id_continuum = <int_type_t*> PyArray_DATA(
+        #     model.transition_probabilities_continuum.dataframe['destination_level_idx'].values)
+
+        transition_probabilities_continuum = model.base_continuum.recombination_transition_probabilities
+        storage.transition_probabilities_nd_continuum = transition_probabilities_continuum.data_array_nd
         storage.transition_probabilities_continuum = <double *> PyArray_DATA(
-            model.transition_probabilities_continuum.data_array)
+            transition_probabilities_continuum.data_array)
         storage.macro_block_references_continuum = <int_type_t*> PyArray_DATA(
-            model.atom_data.continuum_data.continuum_references['block_references'].values)
+            transition_probabilities_continuum.block_references)
         storage.transition_type_continuum = <int_type_t*> PyArray_DATA(
-            model.transition_probabilities_continuum.data['transition_type'].values)
+            transition_probabilities_continuum.dataframe['transition_type'].values)
         storage.transition_continuum_id = <int_type_t*> PyArray_DATA(
-            model.transition_probabilities_continuum.data['continuum_edge_idx'].values)
+            transition_probabilities_continuum.dataframe['continuum_edge_idx'].values)
         storage.destination_level_id_continuum = <int_type_t*> PyArray_DATA(
-            model.transition_probabilities_continuum.data['destination_level_idx'].values)
+            transition_probabilities_continuum.dataframe['destination_level_idx'].values)
 
         # Cooling data
-        storage.fb_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.fb_cooling_prob)
-        storage.ff_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.ff_cooling_prob)
-        storage.coll_ion_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.coll_ion_cooling_prob)
-        storage.coll_exc_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.coll_exc_cooling_prob)
+        # storage.fb_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.fb_cooling_prob)
+        #storage.ff_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.ff_cooling_prob)
+        #storage.coll_ion_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.coll_ion_cooling_prob)
+        #storage.coll_exc_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.coll_exc_cooling_prob)
 
-        storage.fb_cooling_prob_individual = <double*> PyArray_DATA(model.cooling_rates.fb_cooling_prob_array)
-        storage.coll_exc_cooling_prob_individual = <double*> PyArray_DATA(
-            model.cooling_rates.coll_exc_cooling_prob_array)
-        storage.coll_ion_cooling_prob_individual = <double*> PyArray_DATA(
-            model.cooling_rates.coll_ion_cooling_prob_array)
+        # storage.fb_cooling_prob_individual = <double*> PyArray_DATA(model.cooling_rates.fb_cooling_prob_array)
+        #storage.coll_exc_cooling_prob_individual = <double*> PyArray_DATA(
+        #    model.cooling_rates.coll_exc_cooling_prob_array)
+        #storage.coll_ion_cooling_prob_individual = <double*> PyArray_DATA(
+        #    model.cooling_rates.coll_ion_cooling_prob_array)
 
-        storage.coll_ion_cooling_references = <int_type_t*> PyArray_DATA(
-            model.cooling_rates.coll_ion_cooling_prob_individual.index.values)
-        storage.coll_exc_cooling_references = <int_type_t*> PyArray_DATA(
-            model.cooling_rates.coll_exc_cooling_prob_individual.index.values)
-        storage.fb_cooling_references = <int_type_t*> PyArray_DATA(
-            model.cooling_rates.fb_cooling_prob_individual.index.values)
+        # storage.coll_ion_cooling_references = <int_type_t*> PyArray_DATA(
+        #    model.cooling_rates.coll_ion_cooling_prob_individual.index.values)
+        #storage.coll_exc_cooling_references = <int_type_t*> PyArray_DATA(
+        #    model.cooling_rates.coll_exc_cooling_prob_individual.index.values)
+        #storage.fb_cooling_references = <int_type_t*> PyArray_DATA(
+        #    model.cooling_rates.fb_cooling_prob_individual.index.values)
 
-        storage.fb_cooling_prob_nd = model.cooling_rates.fb_cooling_prob_nd
-        storage.coll_exc_cooling_prob_nd = model.cooling_rates.coll_exc_cooling_prob_nd
-        storage.coll_ion_cooling_prob_nd = model.cooling_rates.coll_ion_cooling_prob_nd
+        # storage.fb_cooling_prob_nd = model.cooling_rates.fb_cooling_prob_nd
+        #storage.coll_exc_cooling_prob_nd = model.cooling_rates.coll_exc_cooling_prob_nd
+        #storage.coll_ion_cooling_prob_nd = model.cooling_rates.coll_ion_cooling_prob_nd
+
+        cooling_rates = model.base_continuum.cooling_rates
+
+        for process_name in cooling_rates.cooling_processes:
+            if process_name == 'free_free':
+                storage.ff_cooling_prob = <double*> PyArray_DATA(cooling_rates.free_free_probability)
+            else:
+                cooling_data = getattr(cooling_rates, process_name)
+                cooling_prob = <double*> PyArray_DATA(cooling_data.cooling_probability)
+                cooling_prob_individual = <double *> PyArray_DATA(cooling_data.probabilities_array)
+                references = <int_type_t*> PyArray_DATA(cooling_data.references)
+                prob_array_nd = cooling_data.prob_array_nd
+                if process_name == 'collisional_excitation':
+                    storage.coll_exc_cooling_prob = cooling_prob
+                    storage.coll_exc_cooling_prob_individual = cooling_prob_individual
+                    storage.coll_exc_cooling_references = references
+                    storage.coll_exc_cooling_prob_nd = prob_array_nd
+                elif process_name == 'radiative_recombination':
+                    storage.fb_cooling_prob = cooling_prob
+                    storage.fb_cooling_prob_individual = cooling_prob_individual
+                    storage.fb_cooling_references = references
+                    storage.fb_cooling_prob_nd = prob_array_nd
+                elif process_name == 'collisional_ionization':
+                    storage.coll_ion_cooling_prob = cooling_prob
+                    storage.coll_ion_cooling_prob_individual = cooling_prob_individual
+                    storage.coll_ion_cooling_references = references
+                    storage.coll_ion_cooling_prob_nd = prob_array_nd
 
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
                          model.tardis_config.montecarlo.seed)
