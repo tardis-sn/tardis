@@ -16,7 +16,7 @@ from pandas import DataFrame
 
 import pandas as pd
 
-from tardis.continuum.base import ContinuumData
+from tardis.continuum.base_continuum_data import ContinuumData
 
 
 logger = logging.getLogger(__name__)
