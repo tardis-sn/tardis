@@ -5,17 +5,13 @@
 
 
 
-import numpy as np
 cimport numpy as np
 from numpy cimport PyArray_DATA
-from astropy import constants
 from astropy import units
 
 from libc.stdlib cimport malloc, free
 
 np.import_array()
-
-
 
 ctypedef np.int64_t int_type_t
 
@@ -121,7 +117,8 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t coll_ion_cooling_prob_nd
         int_type_t coll_exc_cooling_prob_nd
 
-    void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
+    void montecarlo_main_loop(storage_model_t *storage, int_type_t virtual_packet_flag, int nthreads,
+                              unsigned long seed)
 
 
 def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
@@ -166,7 +163,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     # Setup of structure
     structure = model.tardis_config.structure
     storage.no_of_shells = structure.no_of_shells
-
 
     storage.r_inner = <double*> PyArray_DATA(runner.r_inner_cgs)
     storage.r_outer = <double*> PyArray_DATA(runner.r_outer_cgs)
@@ -230,16 +226,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
             storage.transition_line_id = <int_type_t*> PyArray_DATA(
                 model.atom_data.macro_atom_data['lines_idx'].values)
         else:
-            # storage.transition_probabilities = <double*> PyArray_DATA(
-            #    model.transition_probabilities_combined.data_array)
-            #storage.macro_block_references = <int_type_t*> PyArray_DATA(
-            #    model.transition_probabilities_combined.block_references)
-            #storage.destination_level_id = <int_type_t*> PyArray_DATA(
-            #    model.transition_probabilities_combined.destination_level_id)
-            #storage.transition_type = <int_type_t*> PyArray_DATA(
-            #    model.transition_probabilities_combined.transition_type)
-            #storage.transition_line_id = <int_type_t*> PyArray_DATA(
-            #    model.transition_probabilities_combined.transition_line_id)
             storage.transition_probabilities = <double*> PyArray_DATA(
                 model.base_continuum.transition_probabilities.data_array)
             storage.macro_block_references = <int_type_t*> PyArray_DATA(
@@ -270,9 +256,12 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     storage.spectrum_start_nu = model.tardis_config.spectrum.frequency.value.min()
     storage.spectrum_end_nu = model.tardis_config.spectrum.frequency.value.max()
-    storage.spectrum_virt_start_nu = model.tardis_config.montecarlo.virtual_spectrum_range.end.to('Hz', units.spectral()).value
-    storage.spectrum_virt_end_nu = model.tardis_config.montecarlo.virtual_spectrum_range.start.to('Hz', units.spectral()).value
-    storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - model.tardis_config.spectrum.frequency.value[0]
+    storage.spectrum_virt_start_nu = model.tardis_config.montecarlo.virtual_spectrum_range.end.to('Hz',
+                                                                                                  units.spectral()).value
+    storage.spectrum_virt_end_nu = model.tardis_config.montecarlo.virtual_spectrum_range.start.to('Hz',
+                                                                                                  units.spectral()).value
+    storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - \
+                                model.tardis_config.spectrum.frequency.value[0]
     cdef np.ndarray[double, ndim=1] spectrum_virt_nu = model.montecarlo_virtual_luminosity
     storage.spectrum_virt_nu = <double*> spectrum_virt_nu.data
     storage.sigma_thomson = model.tardis_config.montecarlo.sigma_thomson.to('1/cm^2').value
@@ -316,19 +305,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         chi_bf_tmp_partial = np.zeros(model.atom_data.continuum_data.continuum_edges_list.size)
         storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
 
-        # Macro atom continuum data
-        # storage.transition_probabilities_nd_continuum = model.transition_probabilities_continuum.data_array_nd
-        # storage.transition_probabilities_continuum = <double *> PyArray_DATA(
-        # model.transition_probabilities_continuum.data_array)
-        # storage.macro_block_references_continuum = <int_type_t*> PyArray_DATA(
-        #     model.transition_probabilities_continuum.block_references)
-        # storage.transition_type_continuum = <int_type_t*> PyArray_DATA(
-        #     model.transition_probabilities_continuum.dataframe['transition_type'].values)
-        # storage.transition_continuum_id = <int_type_t*> PyArray_DATA(
-        #     model.transition_probabilities_continuum.dataframe['continuum_edge_idx'].values)
-        # storage.destination_level_id_continuum = <int_type_t*> PyArray_DATA(
-        #     model.transition_probabilities_continuum.dataframe['destination_level_idx'].values)
-
         transition_probabilities_continuum = model.base_continuum.recombination_transition_probabilities
         storage.transition_probabilities_nd_continuum = transition_probabilities_continuum.data_array_nd
         storage.transition_probabilities_continuum = <double *> PyArray_DATA(
@@ -341,29 +317,6 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
             transition_probabilities_continuum.dataframe['continuum_edge_idx'].values)
         storage.destination_level_id_continuum = <int_type_t*> PyArray_DATA(
             transition_probabilities_continuum.dataframe['destination_level_idx'].values)
-
-        # Cooling data
-        # storage.fb_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.fb_cooling_prob)
-        #storage.ff_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.ff_cooling_prob)
-        #storage.coll_ion_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.coll_ion_cooling_prob)
-        #storage.coll_exc_cooling_prob = <double*> PyArray_DATA(model.cooling_rates.coll_exc_cooling_prob)
-
-        # storage.fb_cooling_prob_individual = <double*> PyArray_DATA(model.cooling_rates.fb_cooling_prob_array)
-        #storage.coll_exc_cooling_prob_individual = <double*> PyArray_DATA(
-        #    model.cooling_rates.coll_exc_cooling_prob_array)
-        #storage.coll_ion_cooling_prob_individual = <double*> PyArray_DATA(
-        #    model.cooling_rates.coll_ion_cooling_prob_array)
-
-        # storage.coll_ion_cooling_references = <int_type_t*> PyArray_DATA(
-        #    model.cooling_rates.coll_ion_cooling_prob_individual.index.values)
-        #storage.coll_exc_cooling_references = <int_type_t*> PyArray_DATA(
-        #    model.cooling_rates.coll_exc_cooling_prob_individual.index.values)
-        #storage.fb_cooling_references = <int_type_t*> PyArray_DATA(
-        #    model.cooling_rates.fb_cooling_prob_individual.index.values)
-
-        # storage.fb_cooling_prob_nd = model.cooling_rates.fb_cooling_prob_nd
-        #storage.coll_exc_cooling_prob_nd = model.cooling_rates.coll_exc_cooling_prob_nd
-        #storage.coll_ion_cooling_prob_nd = model.cooling_rates.coll_ion_cooling_prob_nd
 
         cooling_rates = model.base_continuum.cooling_rates
 
@@ -397,10 +350,14 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] virt_packet_last_interaction_in_nu = np.zeros(storage.virt_packet_count, dtype=np.float64)
-    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_interaction_type = np.zeros(storage.virt_packet_count, dtype=np.int64)
-    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_in_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
-    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_out_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
+    cdef np.ndarray[double, ndim=1] virt_packet_last_interaction_in_nu = np.zeros(storage.virt_packet_count,
+                                                                                  dtype=np.float64)
+    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_interaction_type = np.zeros(storage.virt_packet_count,
+                                                                                     dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_in_id = np.zeros(storage.virt_packet_count,
+                                                                                           dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_out_id = np.zeros(storage.virt_packet_count,
+                                                                                            dtype=np.int64)
 
     for i in range(storage.virt_packet_count):
         virt_packet_nus[i] = storage.virt_packet_nus[i]
@@ -409,12 +366,12 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         virt_packet_last_interaction_type[i] = storage.virt_packet_last_interaction_type[i]
         virt_packet_last_line_interaction_in_id[i] = storage.virt_packet_last_line_interaction_in_id[i]
         virt_packet_last_line_interaction_out_id[i] = storage.virt_packet_last_line_interaction_out_id[i]
-    free(<void *>storage.virt_packet_nus)
-    free(<void *>storage.virt_packet_energies)
-    free(<void *>storage.virt_packet_last_interaction_in_nu)
-    free(<void *>storage.virt_packet_last_interaction_type)
-    free(<void *>storage.virt_packet_last_line_interaction_in_id)
-    free(<void *>storage.virt_packet_last_line_interaction_out_id)
+    free(<void *> storage.virt_packet_nus)
+    free(<void *> storage.virt_packet_energies)
+    free(<void *> storage.virt_packet_last_interaction_in_nu)
+    free(<void *> storage.virt_packet_last_interaction_type)
+    free(<void *> storage.virt_packet_last_line_interaction_in_id)
+    free(<void *> storage.virt_packet_last_line_interaction_out_id)
 
     # Necessary?
     if storage.cont_status == CONTINUUM_ON:
@@ -427,7 +384,7 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
     runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
     runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
-    
+
     #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies
 
 
