@@ -16,6 +16,7 @@ from pandas import DataFrame
 
 import pandas as pd
 
+from tardis.continuum.base_continuum_data import ContinuumData
 
 
 logger = logging.getLogger(__name__)
@@ -444,7 +445,7 @@ class AtomData(object):
 
 
     def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
-                          nlte_species=[]):
+                          nlte_species=[], continuum_treatment=False):
         """
         Prepares the atom data to set the lines, levels and if requested macro atom data.
         This function mainly cuts the `levels` and `lines` by discarding any data that is not needed (any data
@@ -574,6 +575,8 @@ class AtomData(object):
 
         self.nlte_data = NLTEData(self, nlte_species)
 
+        if continuum_treatment == True:
+            self.continuum_data = ContinuumData(self)
 
     def __repr__(self):
         return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \

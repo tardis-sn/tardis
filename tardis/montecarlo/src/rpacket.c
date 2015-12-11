@@ -4,6 +4,8 @@
 tardis_error_t
 rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
 	      int virtual_packet_flag)
+//rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
+//	      int virtual_packet_flag, double * chi_bf_tmp_partial)
 {
   int64_t current_line_id;
   tardis_error_t ret_val = TARDIS_ERROR_OK;
@@ -39,5 +41,6 @@ rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
   rpacket_set_close_line (packet, false);
   rpacket_set_recently_crossed_boundary (packet, true);
   rpacket_set_virtual_packet_flag (packet, virtual_packet_flag);
+  //packet->chi_bf_tmp_partial = chi_bf_tmp_partial;
   return ret_val;
 }

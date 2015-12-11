@@ -146,6 +146,15 @@ plasma:
         default: none
         help: Path to file containing heating rate/light curve data.
 
+    continuum_treatment:
+        property_type: bool
+        mandatory: False
+        default: False
+        help: >
+                Enables bound-free processes as well as the calculation of various rates (collisional, ...)
+                WARNING: Under development!
+
+
 model:
     structure:
         property_type : container-property

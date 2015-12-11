@@ -56,8 +56,8 @@ typedef struct RPacket
   int64_t current_continuum_id; /* Packet can interact with bf-continua with an index equal or bigger than this */
   int64_t virtual_packet_flag;
   int64_t virtual_packet;
-  double d_line; /**< Distance to electron event. */
-  double d_electron; /**< Distance to line event. */
+  double d_line; /**< Distance to line event. */
+  double d_electron; /**< Distance to electron scattering event. */
   double d_boundary; /**< Distance to shell boundary. */
   double d_cont; /**< Distance to continuum event */
   int64_t next_shell_id; /**< ID of the next shell packet visits. */
@@ -67,6 +67,8 @@ typedef struct RPacket
   double chi_cont; /**< Opacity due to continuum processes */
   double chi_ff; /**< Opacity due to free-free processes */
   double chi_bf; /**< Opacity due to bound-free processes */
+  //double *chi_bf_tmp_partial;
+  int64_t macro_atom_activation_level;
 } rpacket_t;
 
 static inline double rpacket_get_nu (const rpacket_t * packet)
@@ -269,6 +271,9 @@ static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_sta
   rpacket_set_tau_event (packet, -log (rk_double (mt_state)));
 }
 
+//tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
+//           int packet_index, int virtual_packet_flag, double * chi_bf_tmp_partial);
+
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
            int packet_index, int virtual_packet_flag);
 
@@ -332,6 +337,16 @@ static inline unsigned int rpacket_get_current_continuum_id (const rpacket_t * p
 static inline void rpacket_set_current_continuum_id (rpacket_t * packet, unsigned int current_continuum_id)
 {
   packet->current_continuum_id = current_continuum_id;
+}
+
+static inline void rpacket_set_macro_atom_activation_level (rpacket_t * packet, unsigned int activation_level)
+{
+  packet->macro_atom_activation_level = activation_level;
+}
+
+static inline unsigned int rpacket_get_macro_atom_activation_level (const rpacket_t * packet)
+{
+  return packet->macro_atom_activation_level;
 }
 
 #endif // TARDIS_RPACKET_H

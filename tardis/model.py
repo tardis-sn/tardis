@@ -10,6 +10,8 @@ from astropy import constants, units as u
 from util import intensity_black_body
 
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
+from tardis.continuum.base_continuum import BaseContinuum
+from tardis import macro_atom
 
 logger = logging.getLogger(__name__)
 
@@ -231,8 +233,17 @@ class Radial1DModel(object):
 
         if self.tardis_config.plasma.line_interaction_type in ('downbranch',
                                                                'macroatom'):
-            self.transition_probabilities = (
-                self.plasma_array.transition_probabilities)
+            self.transition_probabilities = (self.plasma_array.transition_probabilities)
+            
+        if self.tardis_config.plasma['continuum_treatment'] == True:
+            self.base_continuum = BaseContinuum(plasma_array=self.plasma_array, atom_data=self.atom_data, ws=self.ws,
+                                                radiative_transition_probabilities=self.transition_probabilities)
+
+            self.atom_data.continuum_data.set_level_number_density(self.plasma_array.level_number_density)
+            
+            self.atom_data.continuum_data.set_level_number_density_ratio(
+                level_number_density=self.plasma_array.level_number_density,
+                lte_level_number_density=self.plasma_array.level_number_density)
 
     def save_spectra(self, fname):
         self.spectrum.to_ascii(fname)

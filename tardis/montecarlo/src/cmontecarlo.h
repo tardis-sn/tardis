@@ -34,7 +34,7 @@ double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *st
  * @return distance to shell boundary
  */
 double compute_distance2boundary (rpacket_t * packet,
-					 const storage_model_t * storage);
+                            const storage_model_t * storage);
 
 /** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
  *
@@ -101,6 +101,32 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
-                         double distance, rk_state *mt_state);
+                            double distance, rk_state *mt_state);
+
+/* Other new stuff */
+
+void macro_atom_new (rpacket_t * packet, const storage_model_t * storage, next_interaction2process *
+						    macro_atom_deactivation_type, int activation2level_or_cont, rk_state *mt_state);
+
+void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype, rk_state *mt_state);
+
+void line_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state);
+
+double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage,
+						    int64_t continuum_id, rk_state *mt_state);
+
+double sample_nu_free_free(const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
+
+void bf_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state);
+
+void ff_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state);
+
+void test_for_close_line(rpacket_t * packet, const storage_model_t * storage);
+
+void k_packet(rpacket_t * packet, const storage_model_t * storage,
+						    next_interaction2process * next_process, rk_state *mt_state);
+
+int64_t sample_cooling_processes(rpacket_t * packet, rk_state *mt_state, double *individual_cooling_probabilities,
+						    int64_t *cooling_references, int64_t no_of_individual_processes);
 
 #endif // TARDIS_CMONTECARLO_H
