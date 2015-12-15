@@ -82,7 +82,8 @@ class Radial1DModel(object):
         self.atom_data.prepare_atom_data(
             selected_atomic_numbers,
             line_interaction_type=tardis_config.plasma.line_interaction_type,
-            nlte_species=tardis_config.plasma.nlte.species)
+            nlte_species=tardis_config.plasma.nlte.species,
+            continuum_treatment=tardis_config.plasma['continuum_treatment'])
 
         if tardis_config.plasma.ionization == 'nebular':
             if not self.atom_data.has_zeta_data:
@@ -144,7 +145,8 @@ class Radial1DModel(object):
                 self.tardis_config.number_densities.columns,
                 line_interaction_type=self.line_interaction_type,
                 max_ion_number=None,
-                nlte_species=self.tardis_config.plasma.nlte.species)
+                nlte_species=self.tardis_config.plasma.nlte.species,
+                continuum_treatment=self.tardis_config.plasma['continuum_treatment'])
         else:
             raise ValueError('line_interaction_type can only be '
                              '"scatter", "downbranch", or "macroatom"')
@@ -234,13 +236,13 @@ class Radial1DModel(object):
         if self.tardis_config.plasma.line_interaction_type in ('downbranch',
                                                                'macroatom'):
             self.transition_probabilities = (self.plasma_array.transition_probabilities)
-            
+
         if self.tardis_config.plasma['continuum_treatment'] == True:
             self.base_continuum = BaseContinuum(plasma_array=self.plasma_array, atom_data=self.atom_data, ws=self.ws,
                                                 radiative_transition_probabilities=self.transition_probabilities)
 
             self.atom_data.continuum_data.set_level_number_density(self.plasma_array.level_number_density)
-            
+
             self.atom_data.continuum_data.set_level_number_density_ratio(
                 level_number_density=self.plasma_array.level_number_density,
                 lte_level_number_density=self.plasma_array.level_number_density)
