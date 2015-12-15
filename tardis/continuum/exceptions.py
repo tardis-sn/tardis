@@ -1,12 +1,13 @@
 import pprint
+
 import numpy as np
 
 
-class BoundFreeException(Exception):
+class ContinuumException(Exception):
     pass
 
 
-class IncompletePhotoionizationDataError(BoundFreeException):
+class IncompletePhotoionizationDataError(ContinuumException):
     def __init__(self, message=None, needed_data=None, provided_data=None, list_data_mismatch=False):
         if message == None:
             message = 'Not all needed photoionization data was provided.'
@@ -30,3 +31,9 @@ class InvalidContinuumProcessError(ValueError):
     def __init__(self, process_name):
         message = 'The requested process "{}" is not a valid continuum process.'.format(process_name)
         super(InvalidContinuumProcessError, self).__init__(message)
+
+
+class ContinuumBuildError(ContinuumException):
+    def __init__(self):
+        message = 'Use of continuum treatment requires building with flag: "with_continuum_interactions".'
+        super(ContinuumBuildError, self).__init__(message)
