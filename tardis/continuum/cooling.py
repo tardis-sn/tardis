@@ -4,6 +4,7 @@ from collections import namedtuple
 
 CoolingData = namedtuple('CoolingData', ['cooling_probability', 'probabilities_array', 'prob_array_nd', 'references'])
 
+
 class CoolingRates(ContinuumProcess):
     def __init__(self, input_data, **kwargs):
         super(CoolingRates, self).__init__(input_data)

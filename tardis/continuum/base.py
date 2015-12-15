@@ -229,11 +229,3 @@ class InverseProcess(ContinuumProcess, TransitionProbabilitiesMixin):
     @property
     def level_upper_energy(self):
         return self.inverse_process.level_upper_energy
-
-        # @property
-        # def transition_probabilities_int_down(self):
-        #    return self.rate_coefficient.multiply(self.inverse_process.energy_lower, axis=0) / self.c_einstein
-
-        #@property
-        #def transition_probabilities_deactivation(self):
-        #    return self.rate_coefficient.multiply(self.inverse_process.energy_difference, axis=0) / self.c_einstein
