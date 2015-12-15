@@ -2,6 +2,7 @@
 from setuptools import Extension
 from astropy_helpers.setup_helpers import get_distutils_option
 import numpy as np
+from Cython.Build import cythonize
 
 def get_package_data():
     return {'tardis.plasma.tests':['data/*.dat', 'data/*.yml', 'data/*.h5']}
@@ -18,8 +19,10 @@ else:
 
 def get_extensions():
     sources = ['tardis/plasma/properties/util/macro_atom.pyx']
-    return [Extension('tardis.plasma.properties.util.macro_atom', sources,
-                      include_dirs=[np.get_include()],
-                      extra_compile_args=compile_args,
-                      extra_link_args=link_args)]
+    return cythonize(
+            Extension('tardis.plasma.properties.util.macro_atom', sources,
+                include_dirs=[np.get_include()],
+                extra_compile_args=compile_args,
+                extra_link_args=link_args)
+            )
 
