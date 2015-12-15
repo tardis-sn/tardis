@@ -32,8 +32,8 @@ typedef enum
   BB_EMISSION = -1,
   BF_EMISSION = -2,
   FF_EMISSION = -3,
-  COLL_EXCITATION = 0,
-  COLL_IONIZATION = 1,
+  EXCITATION = 0,
+  IONIZATION = 1,
   KPACKET_CREATION = 2
 } next_interaction2process;
 

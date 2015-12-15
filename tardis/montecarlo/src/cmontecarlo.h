@@ -91,6 +91,8 @@ bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double c
 
 void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage);
 
+void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage);
+
 void
 move_packet_across_shell_boundary (rpacket_t * packet,
                                    storage_model_t * storage, double distance, rk_state *mt_state);
@@ -102,8 +104,6 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                             double distance, rk_state *mt_state);
-
-/* Other new stuff */
 
 void macro_atom_new (rpacket_t * packet, const storage_model_t * storage, next_interaction2process *
 						    macro_atom_deactivation_type, int activation2level_or_cont, rk_state *mt_state);

@@ -197,7 +197,7 @@ gaunt_factor_ff (int64_t ion_id, const storage_model_t * storage)
 {
   return 1.0;
 }
-#endif WITH_CONTINUUM
+#endif //WITH_CONTINUUM
 
 void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage)
 {
@@ -618,12 +618,7 @@ void bf_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_sta
   // Have to find current position in line list
   //bool close_line;
   int64_t current_line_id;
-  tardis_error_t ret_val = line_search (storage->line_list_nu, nu_comov, storage->no_of_lines, &current_line_id);
-  if (ret_val != TARDIS_ERROR_OK)
-   {
-     fprintf(stderr, "Line search failed in bf_emission.\n");
-     exit(1);
-   }
+  line_search (storage->line_list_nu, nu_comov, storage->no_of_lines, &current_line_id);
 
   bool last_line = (current_line_id == storage->no_of_lines);
   rpacket_set_next_line_id (packet, current_line_id);
@@ -648,14 +643,8 @@ void ff_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_sta
   // Have to find current position in line list
   //bool close_line;
   int64_t current_line_id;
-  tardis_error_t ret_val = line_search (storage->line_list_nu, nu_comov,
-		    storage->no_of_lines,
-		    &current_line_id);
-  if (ret_val != TARDIS_ERROR_OK)
-    {
-      fprintf(stderr, "Line search failed in ff_emission handler.\n");
-      exit(1);
-    }
+  line_search (storage->line_list_nu, nu_comov, storage->no_of_lines, &current_line_id);
+
   bool last_line = (current_line_id == storage->no_of_lines);
   rpacket_set_next_line_id (packet, current_line_id);
   rpacket_set_last_line (packet, last_line);
@@ -670,21 +659,7 @@ void ff_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_sta
 
 void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype, rk_state *mt_state)
 {
-  next_interaction2process next_process = -1;
-  switch(etype)
-  {
-    case EXCITATION_ENERGY:
-      macro_atom_new(packet, storage, &next_process, 0, mt_state);
-      break;
-
-    case IONIZATION_ENERGY:
-      macro_atom_new(packet, storage, &next_process, 2, mt_state);
-      break;
-
-    case THERMAL_ENERGY:
-      k_packet(packet, storage, &next_process, mt_state);
-      break;
-  }
+  next_interaction2process next_process = etype;
 
   // Process the e-packet until either bb-, bf- or ff-emission occurs
   while (next_process >= 0)
@@ -695,13 +670,17 @@ void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype
           k_packet(packet, storage, &next_process, mt_state);
           break;
 
-        case COLL_EXCITATION:
+        case EXCITATION:
           macro_atom_new(packet, storage, &next_process, 0, mt_state);
           break;
 
-        case COLL_IONIZATION:
+        case IONIZATION:
           macro_atom_new(packet, storage, &next_process, 2, mt_state);
           break;
+
+        default:
+          fprintf (stderr, "Something has gone horribly wrong!\n");
+          exit(1);
       }
     }
   // Handle the emission process
@@ -721,6 +700,7 @@ void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype
 
      default:
        fprintf(stderr, "No emission process was selected.\n");
+       exit(1);
    }
 }
 
