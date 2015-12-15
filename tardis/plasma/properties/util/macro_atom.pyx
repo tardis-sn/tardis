@@ -52,6 +52,10 @@ def calculate_transition_probabilities(
     cdef int i, j, k, line_idx
     cdef np.ndarray[double, ndim=1] norm_factor = np.zeros(transition_probabilities.shape[1])
 
+    IF WITH_CONTINUUM:
+        print '\nWARNING: Normalization of transition probabilities disabled for continuum calculations.\n' + \
+              'If not running with continuum, please rebuild.'
+
     for i in range(transition_probabilities.shape[0]):
         line_idx = lines_idx[i]
         for j in range(transition_probabilities.shape[1]):
@@ -59,18 +63,18 @@ def calculate_transition_probabilities(
         if transition_type[i] == 1:
             for j in range(transition_probabilities.shape[1]):
                 transition_probabilities[i, j] *= stimulated_emission_factor[line_idx, j] * j_blues[line_idx, j]
-
-    for i in range(block_references.shape[0] - 1):
-        for k in range(transition_probabilities.shape[1]):
-            norm_factor[k] = 0.0
-        for j in range(block_references[i], block_references[i + 1]):
+    IF not WITH_CONTINUUM:
+        for i in range(block_references.shape[0] - 1):
             for k in range(transition_probabilities.shape[1]):
-                norm_factor[k] += transition_probabilities[j, k]
-        for k in range(transition_probabilities.shape[1]):
-            if norm_factor[k] != 0.0:
-                norm_factor[k] = 1 / norm_factor[k]
-            else:
-                norm_factor[k] = 1.0
-        for j in range(block_references[i], block_references[i + 1]):
-            for k in range(0, transition_probabilities.shape[1]):
-                transition_probabilities[j, k] *= norm_factor[k]
+                norm_factor[k] = 0.0
+            for j in range(block_references[i], block_references[i + 1]):
+                for k in range(transition_probabilities.shape[1]):
+                    norm_factor[k] += transition_probabilities[j, k]
+            for k in range(transition_probabilities.shape[1]):
+                if norm_factor[k] != 0.0:
+                    norm_factor[k] = 1 / norm_factor[k]
+                else:
+                    norm_factor[k] = 1.0
+            for j in range(block_references[i], block_references[i + 1]):
+                for k in range(0, transition_probabilities.shape[1]):
+                    transition_probabilities[j, k] *= norm_factor[k]
