@@ -442,22 +442,22 @@ k_packet(rpacket_t * packet, const storage_model_t * storage, next_interaction2p
 {
   int64_t shell_id = rpacket_get_current_shell_id(packet);
   double zrand = (rk_double(mt_state));
-  if (zrand < storage->fb_cooling_prob[shell_id])
+  double cooling_prob = 0.0;
+  if (zrand < (cooling_prob += storage->fb_cooling_prob[shell_id]))
     {
       * next_process = BF_EMISSION;
     }
-  else if (zrand < (storage->ff_cooling_prob[shell_id] + storage->fb_cooling_prob[shell_id]))
+  else if (zrand < (cooling_prob += storage->ff_cooling_prob[shell_id]))
     {
       * next_process = FF_EMISSION;
     }
-  else if (zrand < (storage->ff_cooling_prob[shell_id] + storage->fb_cooling_prob[shell_id] +
-    storage->coll_exc_cooling_prob[shell_id]))
+  else if (zrand < (cooling_prob += storage->coll_exc_cooling_prob[shell_id]))
     {
-      * next_process = COLL_EXCITATION;
+      * next_process = EXCITATION;
     }
   else
     {
-      * next_process = COLL_IONIZATION;
+      * next_process = IONIZATION;
     }
   switch(* next_process)
     {
@@ -473,7 +473,7 @@ k_packet(rpacket_t * packet, const storage_model_t * storage, next_interaction2p
         }
         break;
 
-      case COLL_IONIZATION:
+      case IONIZATION:
         {
           int64_t activate_level = sample_cooling_processes(packet, mt_state, storage->coll_ion_cooling_prob_individual,
             storage->coll_ion_cooling_references, storage->coll_ion_cooling_prob_nd);
@@ -481,7 +481,7 @@ k_packet(rpacket_t * packet, const storage_model_t * storage, next_interaction2p
         }
         break;
 
-      case COLL_EXCITATION:
+      case EXCITATION:
         {
           int64_t activate_level = sample_cooling_processes(packet, mt_state, storage->coll_exc_cooling_prob_individual,
             storage->coll_exc_cooling_references, storage->coll_exc_cooling_prob_nd);
