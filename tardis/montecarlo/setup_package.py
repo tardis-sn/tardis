@@ -3,6 +3,7 @@ from setuptools import Extension
 import numpy as np
 import os
 from astropy_helpers.setup_helpers import get_distutils_option
+from Cython.Build import cythonize
 
 from glob import glob
 
@@ -30,14 +31,16 @@ def get_extensions():
     deps += [os.path.relpath(fname) for fname in glob(
         os.path.join(os.path.dirname(__file__), 'src/randomkit', '*.h'))]
 
-    return [Extension('tardis.montecarlo.montecarlo', sources,
-                      include_dirs=['tardis/montecarlo/src',
-                                    'tardis/montecarlo/src/randomkit',
-                                    np.get_include()],
-                      depends=deps,
-                      extra_compile_args=compile_args,
-                      extra_link_args=link_args,
-                      define_macros=define_macros)]
+    return cythonize(
+        Extension('tardis.montecarlo.montecarlo', sources,
+            include_dirs=['tardis/montecarlo/src',
+                'tardis/montecarlo/src/randomkit',
+                np.get_include()],
+            depends=deps,
+            extra_compile_args=compile_args,
+            extra_link_args=link_args,
+            define_macros=define_macros)
+        )
 
 def get_package_data():
     return {'tardis.montecarlo.tests':['data/*.npy']}
