@@ -77,7 +77,6 @@ line_search (const double *nu, double nu_insert, int64_t number_of_lines,
   return ret_val;
 }
 
-#ifdef WITH_CONTINUUM
 static tardis_error_t
 binary_search (double *x, double x_insert, int64_t imin,
 	       int64_t imax, int64_t * result)
@@ -122,7 +121,6 @@ binary_search (double *x, double x_insert, int64_t imin,
     }
   return ret_val;
 }
-#endif
 
 
 double
@@ -181,18 +179,13 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
       {
         for (int64_t j = i; j < no_of_continuum_edges; j++)
           {
-            storage->chi_bf_tmp_partial[j] = bf_helper;
+            packet->chi_bf_tmp_partial[j] = bf_helper;
           }
         break;
       }
     bf_helper += l_pop * bf_x_sect * (1.0 - l_pop_r * boltzmann_factor);
 
-// FIXME MR: Is this thread-safe? It doesn't look like it to me ...
-    #ifdef WITHOPENMP
-    fprintf(stderr, "OpenMP is at the moment not supported for bound-free calculations.");
-    exit(1);
-    #endif
-    storage->chi_bf_tmp_partial[i] = bf_helper;
+    packet->chi_bf_tmp_partial[i] = bf_helper;
   }
 
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
@@ -204,6 +197,7 @@ gaunt_factor_ff (int64_t ion_id, const storage_model_t * storage)
 {
   return 1.0;
 }
+#endif WITH_CONTINUUM
 
 void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage)
 {
@@ -220,13 +214,13 @@ void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage)
   double chi_ff_helper = 0.;
   for (i = 0; i < storage->no_of_ions; i++)
     {
-      chi_ff_helper += storage->ion_population[shell_id * storage->no_of_ions + i] * gaunt_factor_ff(i, storage) *
-       pow(storage->ion_charge[i], 2);
+      //chi_ff_helper += storage->ion_population[shell_id * storage->no_of_ions + i] * gaunt_factor_ff(i, storage) *
+      // pow(storage->ion_charge[i], 2);
+      chi_ff_helper += storage->ion_population[shell_id * storage->no_of_ions + i] * pow(storage->ion_charge[i], 2);
     }
   chi_ff *= chi_ff_helper;
   rpacket_set_chi_freefree(packet, chi_ff * doppler_factor);
 }
-#endif WITH_CONTINUUM
 
 double
 compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
@@ -408,7 +402,6 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state 
   return storage->transition_line_id[i];
 }
 
-#ifdef WITH_CONTINUUM
 double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage, int64_t continuum_id,
 rk_state *mt_state)
 {
@@ -506,7 +499,6 @@ void
 macro_atom_new (rpacket_t * packet, const storage_model_t * storage, next_interaction2process * macro_atom_deactivation_type,
 int activation2level_or_cont, rk_state *mt_state)
 {
-  //fprintf(stderr, "activate A \n");
   int emit = activation2level_or_cont;
   int i = 0;
   int64_t activate_level = rpacket_get_macro_atom_activation_level(packet);
@@ -573,7 +565,6 @@ int activation2level_or_cont, rk_state *mt_state)
     // collisional deactivation from level or continuum
     case -2:
       * macro_atom_deactivation_type = KPACKET_CREATION;
-      //fprintf(stderr, "A --> k\n");
       break;
 
     default:
@@ -594,9 +585,6 @@ void line_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_s
   rpacket_set_next_line_id (packet, emission_line_id + 1);
   rpacket_reset_tau_event (packet, mt_state);
   rpacket_set_recently_crossed_boundary (packet, 0);
-
-  // for debug
-  //fprintf(stderr, "-bb %d-> r\n", emission_line_id);
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
 	{
@@ -651,7 +639,6 @@ void bf_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_sta
 
 void ff_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state)
 {
-  //fprintf(stderr, "FF-emission \n");
   double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
   double nu_comov = sample_nu_free_free(packet, storage, mt_state);
   rpacket_set_nu (packet, nu_comov * inverse_doppler_factor);
@@ -687,27 +674,14 @@ void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype
   switch(etype)
   {
     case EXCITATION_ENERGY:
-      // Activate macro-atom to a normal level (not continuum)
-      //fprintf(stderr, "r --> A");
-      //for(int k = 0; k<20;k++)
-      //  {
-      //    fprintf(stderr, "e-packet EX: cont_edge2macro_continuum = %d \n", storage->cont_edge2macro_continuum[k]);
-      //  }
       macro_atom_new(packet, storage, &next_process, 0, mt_state);
       break;
 
     case IONIZATION_ENERGY:
-      // Activate macro-atom to a continuum level
-      //fprintf(stderr, "r --> A* ");
-      //for(int k = 0; k<20;k++)
-      //  {
-      //    fprintf(stderr, "e-packet: cont_edge2macro_continuum = %d \n", storage->cont_edge2macro_continuum[k]);
-      //  }
       macro_atom_new(packet, storage, &next_process, 2, mt_state);
       break;
 
     case THERMAL_ENERGY:
-      //fprintf(stderr, "r --> k \n");
       k_packet(packet, storage, &next_process, mt_state);
       break;
   }
@@ -718,7 +692,6 @@ void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype
       switch(next_process)
       {
         case KPACKET_CREATION:
-          //fprintf(stderr, " Created a kpacket.\n");
           k_packet(packet, storage, &next_process, mt_state);
           break;
 
@@ -739,20 +712,17 @@ void e_packet(rpacket_t * packet, storage_model_t * storage, e_packet_type etype
        break;
 
      case BF_EMISSION:
-       //fprintf(stderr, "-bf-> r\n");
        bf_emission(packet, storage, mt_state);
        break;
 
      case FF_EMISSION:
        ff_emission(packet, storage, mt_state);
-       //fprintf(stderr, " Free-free emissions are not implemented yet.\n");
        break;
 
      default:
        fprintf(stderr, "No emission process was selected.\n");
    }
 }
-#endif //WITH_CONTINUUM
 
 double
 move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
@@ -991,7 +961,6 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
     }
 }
 
-#ifdef WITH_CONTINUUM
 void
 montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance, rk_state *mt_state)
 {
@@ -1007,7 +976,8 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
 
   int64_t ccontinuum = current_continuum_id; /* continuum_id of the continuum in which bf-absorption occurs */
 
-  while ((ccontinuum < storage->no_of_edges - 1) && (storage->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf))
+  //while ((ccontinuum < storage->no_of_edges - 1) && (storage->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf))
+  while ((ccontinuum < storage->no_of_edges - 1) && (packet->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf))
   {
     ccontinuum++;
   }
@@ -1039,6 +1009,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
     e_packet(packet, storage, IONIZATION_ENERGY, mt_state): e_packet(packet, storage, THERMAL_ENERGY, mt_state);
 }
 
+
 void
 montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage, double distance, rk_state *mt_state)
 {
@@ -1067,6 +1038,7 @@ void test_for_close_line(rpacket_t * packet, const storage_model_t * storage)
     }
 }
 
+#ifdef WITH_CONTINUUM
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 			 double distance, rk_state *mt_state)
@@ -1370,19 +1342,31 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   {
     rk_state mt_state;
     rk_seed (seed + omp_get_thread_num(), &mt_state);
+    #ifdef WITH_CONTINUUM
+    double *chi_bf_tmp_partial = calloc(storage->no_of_edges, sizeof(double));
+    #endif //WITH_CONTINUUM
 
 #pragma omp for
 #else
   fprintf(stderr, "Running without OpenMP\n");
   rk_state mt_state;
   rk_seed (seed, &mt_state);
+  #ifdef WITH_CONTINUUM
+    double *chi_bf_tmp_partial = calloc(storage->no_of_edges, sizeof(double));
+  #endif //WITH_CONTINUUM
+
 #endif
   for (int64_t packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
     {
       int reabsorbed = 0;
       rpacket_t packet;
       rpacket_set_id(&packet, packet_index);
+      #ifdef WITH_CONTINUUM
+      rpacket_init(&packet, storage, packet_index, virtual_packet_flag, chi_bf_tmp_partial);
+      #endif //WITH_CONTINUUM
+      #ifndef WITH_CONTINUUM
       rpacket_init(&packet, storage, packet_index, virtual_packet_flag);
+      #endif //ifndef WITH_CONTINUUM
       if (virtual_packet_flag > 0)
 	{
 	  reabsorbed = montecarlo_one_packet(storage, &packet, -1, &mt_state);
