@@ -140,8 +140,26 @@ class RadiativeDeexcitation(PhysicalContinuumProcess):
 class FreeFree(PhysicalContinuumProcess):
     name = 'free_free'
 
+    def __init__(self, input_data, **kwargs):
+        super(FreeFree, self).__init__(input_data, **kwargs)
+        self.chi_ff_factor = self._calculate_chi_ff_factor()
+
     def _calculate_cooling_rate(self, **kwargs):
         # TODO: value for Gaunt factor (Lucy: = 1; Osterbrock recommendation for nebular conditions: = 1.3 )
         factor = self.ion_number_density.mul(np.square(self.input.ion_charges), axis=0).sum().values
         cooling_rate = cconst.C0_ff * self.electron_densities * np.sqrt(self.t_electrons) * factor
         return cooling_rate
+
+    def _calculate_chi_ff_factor(self):
+        ionic_charge_squared = np.square(self._get_ionic_charge())
+        ff_gaunt_factor = self._get_ff_gaunt_factor(self.ion_number_density.index)
+        chi_ff_helper = 3.69255e8 * self.electron_densities / np.sqrt(self.t_electrons)
+        chi_ff_factor = self.ion_number_density.multiply(ionic_charge_squared * ff_gaunt_factor, axis=0).sum().values
+        chi_ff_factor *= chi_ff_helper
+        return chi_ff_factor
+
+    def _get_ionic_charge(self):
+        return self.ion_number_density.index.get_level_values(1).values
+
+    def _get_ff_gaunt_factor(self, ion_index):
+        return np.ones(ion_index.values.shape[0])

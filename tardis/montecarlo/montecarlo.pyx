@@ -12,6 +12,8 @@ from astropy import constants
 from astropy import units
 from libc.stdlib cimport free
 
+from tardis.continuum.exceptions import ContinuumBuildError
+
 from libc.stdlib cimport malloc, free
 
 np.import_array()
@@ -92,7 +94,6 @@ cdef extern from "src/cmontecarlo.h":
         double inverse_sigma_thomson
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
-        double *chi_bf_tmp_partial
         double *t_electrons
         double *l_pop
         double *l_pop_r
@@ -110,6 +111,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t virt_array_size
         FreeFreeStatus ff_status
         photo_xsect_1level ** photo_xsect
+        double *chi_ff_factor
         double *fb_cooling_prob
         double *ff_cooling_prob
         double *coll_exc_cooling_prob
@@ -162,24 +164,17 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         1.0 / model.plasma_array.electron_densities.values)
     storage.inverse_electron_densities = <double*> PyArray_DATA(
         runner.inverse_electron_densities)
+
     # Switch for continuum processes
     if model.tardis_config.plasma['continuum_treatment'] == True:
-        storage.cont_status = CONTINUUM_ON
+        if WITH_CONTINUUM:
+            storage.cont_status = CONTINUUM_ON
+            storage.ff_status = FREE_FREE_ON
+        else:
+            raise ContinuumBuildError
     else:
         storage.cont_status = CONTINUUM_OFF
-    # Continuum data
-
-    # Switch for ff processes
-    storage.ff_status = FREE_FREE_OFF
-    # ff-data
-    #cdef np.ndarray[int_type_t, ndim=1] ion_charge
-    #cdef np.ndarray[double, ndim=2] ion_population
-    #if storage.ff_status == FREE_FREE_ON:
-    #    ion_charge = model.plasma_array.ion_populations[0].index.get_level_values(1).values
-    #    storage.ion_charge = <int_type_t*> ion_charge.data
-    #    ion_population = model.plasma_array.ion_populations.values.transpose()
-    #    storage.ion_population = <double *> ion_population.data
-    #    storage.no_of_ions = ion_population.shape[1]
+        storage.ff_status = FREE_FREE_OFF
 
     # Line lists
     storage.no_of_lines = model.atom_data.lines.nu.values.size
@@ -254,7 +249,6 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
 
     # Data for continuum implementation
-    cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
     storage.t_electrons = <double*> PyArray_DATA(model.plasma_array.t_electrons)
 
     #cdef int no_levels_with_photdata
@@ -262,10 +256,8 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
     if storage.cont_status == CONTINUUM_ON:
         # Photoionization data
-        no_levels_with_photdata = model.atom_data.continuum_data.no_levels_with_photdata  # this is redundant atm,
-        #                                                                    since it is equal to the number of levels
+        no_levels_with_photdata = model.atom_data.continuum_data.no_levels_with_photdata
         photo_xsect = <photo_xsect_1level **> malloc(no_levels_with_photdata * sizeof(photo_xsect_1level *))
-
         for i in range(no_levels_with_photdata):
             photo_xsect[i] = <photo_xsect_1level *> malloc(sizeof(photo_xsect_1level))
             phot_table_xsect = model.atom_data.continuum_data.get_phot_table_xsect(i)
@@ -275,6 +267,8 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
         storage.photo_xsect = photo_xsect
 
+        storage.chi_ff_factor = <double *> PyArray_DATA(model.base_continuum.free_free.chi_ff_factor)
+
         # Bound-free data
         storage.l_pop = <double*> PyArray_DATA(model.atom_data.continuum_data.level_number_density)
         storage.l_pop_r = <double*> PyArray_DATA(model.atom_data.continuum_data.level_number_density_ratio)
@@ -282,9 +276,6 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         storage.no_of_edges = model.atom_data.continuum_data.continuum_edges_list.size
         storage.cont_edge2macro_continuum = <int_type_t*> PyArray_DATA(
             model.atom_data.continuum_data.cont_edge2macro_continuum)
-        # TODO
-        chi_bf_tmp_partial = np.zeros(model.atom_data.continuum_data.continuum_edges_list.size)
-        storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
 
         transition_probabilities_continuum = model.base_continuum.recombination_transition_probabilities
         storage.transition_probabilities_nd_continuum = transition_probabilities_continuum.data_array_nd
@@ -324,7 +315,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
                     storage.coll_ion_cooling_prob = cooling_prob
                     storage.coll_ion_cooling_prob_individual = cooling_prob_individual
                     storage.coll_ion_cooling_references = references
-                    storage.coll_ion_cooling_prob_nd = prob_array_nd    
+                    storage.coll_ion_cooling_prob_nd = prob_array_nd
 
 def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
                         int nthreads=4):
@@ -401,4 +392,4 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     # Necessary?
     if storage.cont_status == CONTINUUM_ON:
         for i in range(storage.no_of_edges):
-            free(<photo_xsect_1level *> storage.photo_xsect[i])
+            free(<void *> storage.photo_xsect[i])

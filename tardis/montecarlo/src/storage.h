@@ -90,6 +90,7 @@ typedef struct StorageModel
   int64_t virt_array_size;
   FreeFreeStatus ff_status;
   photo_xsect_1level **photo_xsect;
+  double *chi_ff_factor;
   double *fb_cooling_prob;
   double *ff_cooling_prob;
   double *coll_exc_cooling_prob;
