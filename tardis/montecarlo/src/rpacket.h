@@ -54,7 +54,7 @@ typedef struct RPacket
    * internal float.
    */
   int64_t current_continuum_id; /* Packet can interact with bf-continua with an index equal or bigger than this */
-  int64_t virtual_packet_flag;
+  int64_t virtual_packet_count;
   int64_t virtual_packet;
   double d_line; /**< Distance to electron event. */
   double d_electron; /**< Distance to line event. */
@@ -182,15 +182,15 @@ static inline void rpacket_set_recently_crossed_boundary (rpacket_t * packet,
   packet->recently_crossed_boundary = recently_crossed_boundary;
 }
 
-static inline int rpacket_get_virtual_packet_flag (const rpacket_t * packet)
+static inline int rpacket_get_virtual_packet_count (const rpacket_t * packet)
 {
-  return packet->virtual_packet_flag;
+  return packet->virtual_packet_count;
 }
 
-static inline void rpacket_set_virtual_packet_flag (rpacket_t * packet,
-               int virtual_packet_flag)
+static inline void rpacket_set_virtual_packet_count (rpacket_t * packet,
+               int virtual_packet_count)
 {
-  packet->virtual_packet_flag = virtual_packet_flag;
+  packet->virtual_packet_count = virtual_packet_count;
 }
 
 static inline int rpacket_get_virtual_packet (const rpacket_t * packet)
@@ -270,7 +270,7 @@ static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_sta
 }
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
-           int packet_index, int virtual_packet_flag);
+           int packet_index, int virtual_packet_count);
 
 /* New getter and setter methods for continuum implementation */
 

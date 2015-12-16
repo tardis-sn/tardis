@@ -60,7 +60,7 @@ static void init_rpacket(rpacket_t *rp){
 	rpacket_set_tau_event(rp, TAU_EVENT);
 	rpacket_set_virtual_packet(rp, 0);
 	rpacket_set_energy(rp, ENERGY);
-	rpacket_set_virtual_packet_flag(rp, true);
+	rpacket_set_virtual_packet_count(rp, true);
 	rpacket_set_status(rp, TARDIS_PACKET_STATUS_IN_PROCESS);
 	rpacket_set_id(rp, 0);
 

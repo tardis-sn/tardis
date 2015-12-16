@@ -377,7 +377,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
     {
       if ((rpacket_get_nu (packet) > storage->spectrum_virt_start_nu) && (rpacket_get_nu(packet) < storage->spectrum_virt_end_nu))
 	{
-	  for (int64_t i = 0; i < rpacket_get_virtual_packet_flag (packet); i++)
+	  for (int64_t i = 0; i < rpacket_get_virtual_packet_count (packet); i++)
 	    {
               double weight;
               rpacket_t virt_packet = *packet;
@@ -393,22 +393,22 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		{
 		  mu_min = 0.0;
 		}
-	      double mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag (packet);
+	      double mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_count (packet);
 	      rpacket_set_mu(&virt_packet,mu_min + (i + rk_double (mt_state)) * mu_bin);
 	      switch (virtual_mode)
 		{
 		case -2:
-		  weight = 1.0 / rpacket_get_virtual_packet_flag (packet);
+		  weight = 1.0 / rpacket_get_virtual_packet_count (packet);
 		  break;
 		case -1:
 		  weight =
 		    2.0 * rpacket_get_mu(&virt_packet) /
-		    rpacket_get_virtual_packet_flag (packet);
+		    rpacket_get_virtual_packet_count (packet);
 		  break;
 		case 1:
 		  weight =
 		    (1.0 -
-		     mu_min) / 2.0 / rpacket_get_virtual_packet_flag (packet);
+		     mu_min) / 2.0 / rpacket_get_virtual_packet_count (packet);
 		  break;
 		default:
 		  fprintf (stderr, "Something has gone horribly wrong!\n");
@@ -523,7 +523,7 @@ move_packet_across_shell_boundary (rpacket_t * packet,
       rpacket_set_nu (packet, comov_nu * inverse_doppler_factor);
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
       rpacket_set_recently_crossed_boundary (packet, 1);
-      if (rpacket_get_virtual_packet_flag (packet) > 0)
+      if (rpacket_get_virtual_packet_count (packet) > 0)
 	{
 	  montecarlo_one_packet (storage, packet, -2, mt_state);
 	}
@@ -544,7 +544,7 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   rpacket_reset_tau_event (packet, mt_state);
   rpacket_set_recently_crossed_boundary (packet, 0);
   storage->last_interaction_type[rpacket_get_id (packet)] = 1;
-  if (rpacket_get_virtual_packet_flag (packet) > 0)
+  if (rpacket_get_virtual_packet_count (packet) > 0)
     {
       montecarlo_one_packet (storage, packet, 1, mt_state);
     }
@@ -655,7 +655,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       rpacket_set_next_line_id (packet, emission_line_id + 1);
       rpacket_reset_tau_event (packet, mt_state);
       rpacket_set_recently_crossed_boundary (packet, 0);
-      if (rpacket_get_virtual_packet_flag (packet) > 0)
+      if (rpacket_get_virtual_packet_count (packet) > 0)
 	{
 	  bool virtual_close_line = false;
 	  if (!rpacket_get_last_line (packet) &&
@@ -813,7 +813,7 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
 }
 
 void
-montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
+montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_count, int nthreads, unsigned long seed)
 {
   storage->virt_packet_count = 0;
 #ifdef WITH_VPACKET_LOGGING
@@ -845,8 +845,8 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
       int reabsorbed = 0;
       rpacket_t packet;
       rpacket_set_id(&packet, packet_index);
-      rpacket_init(&packet, storage, packet_index, virtual_packet_flag);
-      if (virtual_packet_flag > 0)
+      rpacket_init(&packet, storage, packet_index, virtual_packet_count);
+      if (virtual_packet_count > 0)
 	{
 	  reabsorbed = montecarlo_one_packet(storage, &packet, -1, &mt_state);
 	}

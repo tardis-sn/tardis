@@ -22,7 +22,7 @@ bool test_rpacket_get_current_shell_id(unsigned int);
 bool test_rpacket_get_next_line_id(unsigned int);
 
 bool test_rpacket_get_recently_crossed_boundary(int);
-bool test_rpacket_get_virtual_packet_flag(int);
+bool test_rpacket_get_virtual_packet_count(int);
 bool test_rpacket_get_virtual_packet(int);
 bool test_rpacket_get_next_shell_id(int);
 
@@ -109,10 +109,10 @@ test_rpacket_get_recently_crossed_boundary(int value){
 }
 
 bool
-test_rpacket_get_virtual_packet_flag(int value){
+test_rpacket_get_virtual_packet_count(int value){
 	rpacket_t rp;
-	rpacket_set_virtual_packet_flag(&rp, value);
-	return value==rpacket_get_virtual_packet_flag(&rp);
+	rpacket_set_virtual_packet_count(&rp, value);
+	return value==rpacket_get_virtual_packet_count(&rp);
 }
 
 bool
