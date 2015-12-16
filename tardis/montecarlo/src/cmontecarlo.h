@@ -135,4 +135,8 @@ void k_packet(rpacket_t * packet, const storage_model_t * storage,
 int64_t sample_cooling_processes(rpacket_t * packet, rk_state *mt_state, double *individual_cooling_probabilities,
 						    int64_t *cooling_references, int64_t no_of_individual_processes);
 
+void
+increment_photo_ion_estimator (const rpacket_t * packet, storage_model_t * storage, double distance,
+                            double comov_nu, double comov_energy);
+
 #endif // TARDIS_CMONTECARLO_H

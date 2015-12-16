@@ -247,6 +247,10 @@ class Simulation(object):
             model.t_inner = next_t_inner
 
             model.calculate_j_blues(init_detailed_j_blues=False)
+            import ipdb;
+
+            ipdb.set_trace()
+            model.photo_ion_estimator = self.runner.photo_ion_estimator
             model.update_plasmas(initialize_nlte=False)
 
 

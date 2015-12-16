@@ -23,7 +23,7 @@ class BaseContinuumData(object):
         self.photoionization_data = PhotoionizationData.from_hdf5(fname=photo_dat_fname, atom_data=self)
         self.no_levels_with_photdata = len(np.unique(self.photoionization_data.index.values))
         self.multi_index_nu_sorted = self.continuum_data.sort('nu', ascending=False).set_index(
-            ['atomic_number', 'ion_number', 'level_number_lower']).index.values
+            ['atomic_number', 'ion_number', 'level_number_lower']).index
         self.level_number_density = None
         self._set_montecarlo_data()
 
@@ -111,11 +111,11 @@ class MCDataMixin(object):
         self.cont_edge2macro_continuum = nu_sorted_continuum_data['continuum_references_idx'].values
 
     def get_phot_table_xsect(self, index_nu_sorted):
-        multi_index = self.multi_index_nu_sorted[index_nu_sorted]
+        multi_index = self.multi_index_nu_sorted.values[index_nu_sorted]
         return self.photoionization_data.loc[multi_index, 'x_sect'].values
 
     def get_phot_table_nu(self, index_nu_sorted):
-        multi_index = self.multi_index_nu_sorted[index_nu_sorted]
+        multi_index = self.multi_index_nu_sorted.values[index_nu_sorted]
         return self.photoionization_data.loc[multi_index, 'nu'].values
 
     def set_level_number_density(self, level_number_density):
