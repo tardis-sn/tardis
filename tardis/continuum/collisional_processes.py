@@ -116,7 +116,6 @@ class CollisionalIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
 
     def __init__(self, input_data):
         super(CollisionalIonization, self).__init__(input_data)
-        # self._set_ionization_rates_index(self.rate_coefficient)
 
     def _calculate_rate_coefficient(self):
         collion_coeff = self.photoionization_data.groupby(level=[0, 1, 2]).first()

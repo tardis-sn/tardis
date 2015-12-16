@@ -938,7 +938,6 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
 
   int64_t ccontinuum = current_continuum_id; /* continuum_id of the continuum in which bf-absorption occurs */
 
-  //while ((ccontinuum < storage->no_of_edges - 1) && (storage->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf))
   while ((ccontinuum < storage->no_of_edges - 1) && (packet->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf))
   {
     ccontinuum++;
@@ -971,7 +970,6 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
     e_packet(packet, storage, IONIZATION_ENERGY, mt_state): e_packet(packet, storage, THERMAL_ENERGY, mt_state);
 }
 
-
 void
 montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage, double distance, rk_state *mt_state)
 {
@@ -998,71 +996,6 @@ void test_for_close_line(rpacket_t * packet, const storage_model_t * storage)
       rpacket_set_close_line (packet, true);
     }
 }
-
-#ifdef WITH_CONTINUUM
-void
-montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
-			 double distance, rk_state *mt_state)
-{
-  int64_t line2d_idx = rpacket_get_next_line_id (packet)
-  * storage->no_of_shells + rpacket_get_current_shell_id (packet);
-  if (rpacket_get_virtual_packet (packet) == 0)
-    {
-      increment_j_blue_estimator (packet, storage, distance, line2d_idx);
-    }
-  double tau_line =
-    storage->line_lists_tau_sobolevs[line2d_idx];
-  double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
-  double tau_combined = tau_line + tau_continuum;
-  rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
-
-  if (rpacket_get_next_line_id (packet) == storage->no_of_lines)
-    {
-      rpacket_set_last_line (packet, true);
-    }
-  if (rpacket_get_virtual_packet (packet) > 0)
-    {
-      rpacket_set_tau_event (packet,
-			     rpacket_get_tau_event (packet) + tau_line);
-	  test_for_close_line(packet, storage);
-    }
-  else if (rpacket_get_tau_event (packet) < tau_combined)
-    {
-      double old_doppler_factor = move_packet (packet, storage, distance);
-      rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
-      double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
-      double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
-      rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
-      storage->last_interaction_in_nu[rpacket_get_id (packet)] =
-  rpacket_get_nu (packet);
-      storage->last_line_interaction_in_id[rpacket_get_id (packet)] =
-	rpacket_get_next_line_id (packet) - 1;
-      storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =
-	rpacket_get_current_shell_id (packet);
-      storage->last_interaction_type[rpacket_get_id (packet)] = 2;
-      int64_t emission_line_id = 0;
-      if (storage->line_interaction_id == 0)
-	{
-	  emission_line_id = rpacket_get_next_line_id (packet) - 1;
-	  storage->last_line_interaction_out_id[rpacket_get_id (packet)] =
-	    emission_line_id;
-	  line_emission(packet, storage, mt_state);
-	}
-      else if (storage->line_interaction_id >= 1)
-	{
-	  rpacket_set_macro_atom_activation_level(packet,
-	    storage->line2macro_level_upper[rpacket_get_next_line_id (packet) - 1]);
-	  e_packet (packet, storage, EXCITATION_ENERGY, mt_state);
-	}
-	}
-  else
-    {
-      rpacket_set_tau_event (packet,
-			     rpacket_get_tau_event (packet) - tau_line);
-	  test_for_close_line(packet, storage);
-    }
-}
-#endif //WITH_CONTINUUM
 
 #ifndef WITH_CONTINUUM
 void
@@ -1151,6 +1084,69 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       1e-7))
     {
       rpacket_set_close_line (packet, true);
+    }
+}
+#else
+void
+montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
+			 double distance, rk_state *mt_state)
+{
+  int64_t line2d_idx = rpacket_get_next_line_id (packet)
+  * storage->no_of_shells + rpacket_get_current_shell_id (packet);
+  if (rpacket_get_virtual_packet (packet) == 0)
+    {
+      increment_j_blue_estimator (packet, storage, distance, line2d_idx);
+    }
+  double tau_line =
+    storage->line_lists_tau_sobolevs[line2d_idx];
+  double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
+  double tau_combined = tau_line + tau_continuum;
+  rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
+
+  if (rpacket_get_next_line_id (packet) == storage->no_of_lines)
+    {
+      rpacket_set_last_line (packet, true);
+    }
+  if (rpacket_get_virtual_packet (packet) > 0)
+    {
+      rpacket_set_tau_event (packet,
+			     rpacket_get_tau_event (packet) + tau_line);
+	  test_for_close_line(packet, storage);
+    }
+  else if (rpacket_get_tau_event (packet) < tau_combined)
+    {
+      double old_doppler_factor = move_packet (packet, storage, distance);
+      rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
+      double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+      double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
+      rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
+      storage->last_interaction_in_nu[rpacket_get_id (packet)] =
+  rpacket_get_nu (packet);
+      storage->last_line_interaction_in_id[rpacket_get_id (packet)] =
+	rpacket_get_next_line_id (packet) - 1;
+      storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =
+	rpacket_get_current_shell_id (packet);
+      storage->last_interaction_type[rpacket_get_id (packet)] = 2;
+      int64_t emission_line_id = 0;
+      if (storage->line_interaction_id == 0)
+	{
+	  emission_line_id = rpacket_get_next_line_id (packet) - 1;
+	  storage->last_line_interaction_out_id[rpacket_get_id (packet)] =
+	    emission_line_id;
+	  line_emission(packet, storage, mt_state);
+	}
+      else if (storage->line_interaction_id >= 1)
+	{
+	  rpacket_set_macro_atom_activation_level(packet,
+	    storage->line2macro_level_upper[rpacket_get_next_line_id (packet) - 1]);
+	  e_packet (packet, storage, EXCITATION_ENERGY, mt_state);
+	}
+	}
+  else
+    {
+      rpacket_set_tau_event (packet,
+			     rpacket_get_tau_event (packet) - tau_line);
+	  test_for_close_line(packet, storage);
     }
 }
 #endif // ifndef WITH_CONTINUUM

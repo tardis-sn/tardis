@@ -11,7 +11,6 @@ from util import intensity_black_body
 
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.continuum.base_continuum import BaseContinuum
-from tardis import macro_atom
 
 logger = logging.getLogger(__name__)
 
