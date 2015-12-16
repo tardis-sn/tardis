@@ -167,14 +167,13 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   double boltzmann_factor = exp(-(H * comov_nu) / (KB*T));
 
   double bf_helper = 0.0;
-  double bf_x_sect;
   for(int64_t i = current_continuum_id; i < no_of_continuum_edges; i++)
   {
     // get the levelpopulation for the level ijk in the current shell:
     double l_pop = storage->l_pop[shell_id * no_of_continuum_edges + i];
     // get the levelpopulation ratio \frac{n_{0,j+1,k}}{n_{i,j,k}} \frac{n_{i,j,k}}{n_{0,j+1,k}}^{*}:
     double l_pop_r = storage->l_pop_r[shell_id * no_of_continuum_edges + i];
-    bf_x_sect = bf_cross_section(storage, i, comov_nu);
+    double bf_x_sect = bf_cross_section(storage, i, comov_nu);
     if (bf_x_sect == 0.0)
       {
         for (int64_t j = i; j < no_of_continuum_edges; j++)
@@ -191,14 +190,6 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
 }
 
-#ifdef WITH_CONTINUUM
-double
-gaunt_factor_ff (int64_t ion_id, const storage_model_t * storage)
-{
-  return 1.0;
-}
-#endif //WITH_CONTINUUM
-
 void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage)
 {
   double doppler_factor = rpacket_doppler_factor (packet, storage);
@@ -206,19 +197,10 @@ void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage)
   int64_t shell_id = rpacket_get_current_shell_id(packet);
   double T = storage->t_electrons[shell_id];
   double boltzmann_factor = exp(-(H * comov_nu) / KB / T);
+  double chi_ff_factor = storage->chi_ff_factor[shell_id];
 
-  double chi_ff = 3.69255e8 * (1 - boltzmann_factor) * storage->electron_densities[shell_id]
-   * pow(T, -0.5) * pow(comov_nu, -3);
+  double chi_ff = chi_ff_factor * (1 - boltzmann_factor) * pow(comov_nu, -3);
 
-  int i;
-  double chi_ff_helper = 0.;
-  for (i = 0; i < storage->no_of_ions; i++)
-    {
-      //chi_ff_helper += storage->ion_population[shell_id * storage->no_of_ions + i] * gaunt_factor_ff(i, storage) *
-      // pow(storage->ion_charge[i], 2);
-      chi_ff_helper += storage->ion_population[shell_id * storage->no_of_ions + i] * pow(storage->ion_charge[i], 2);
-    }
-  chi_ff *= chi_ff_helper;
   rpacket_set_chi_freefree(packet, chi_ff * doppler_factor);
 }
 
@@ -1003,7 +985,6 @@ montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage, doub
   storage->last_interaction_type[rpacket_get_id (packet)] = 4; // last interaction was a ff-absorption
 
   // Create a kpacket
-  //fprintf (stderr, "r -ff-> k");
   e_packet(packet, storage, THERMAL_ENERGY, mt_state);
 }
 
@@ -1174,7 +1155,6 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 }
 #endif // ifndef WITH_CONTINUUM
 
-
 static void
 montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
 {
@@ -1237,7 +1217,6 @@ montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage
   double zrand = (rk_double(mt_state));
   double normaliz_cont_th = rpacket_get_chi_electron(packet)/rpacket_get_chi_continuum(packet);
   double normaliz_cont_bf = rpacket_get_chi_boundfree(packet)/rpacket_get_chi_continuum(packet);
-  double normaliz_cont_ff = rpacket_get_chi_freefree(packet)/rpacket_get_chi_continuum(packet);
 
   if (zrand < normaliz_cont_th)
     {
@@ -1315,16 +1294,24 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   storage->virt_array_size = storage->no_of_packets;
 #endif // WITH_VPACKET_LOGGING
 #ifdef WITHOPENMP
-  fprintf(stderr, "Running with OpenMP - %d threads\n", nthreads);
   omp_set_dynamic(0);
   omp_set_num_threads(nthreads);
 #pragma omp parallel
   {
     rk_state mt_state;
     rk_seed (seed + omp_get_thread_num(), &mt_state);
+    #pragma omp master
+      {
+        fprintf(stderr, "Running with OpenMP - %d threads\n", omp_get_num_threads());
+      }
     #ifdef WITH_CONTINUUM
     double *chi_bf_tmp_partial = calloc(storage->no_of_edges, sizeof(double));
-    #endif //WITH_CONTINUUM
+    if (chi_bf_tmp_partial == NULL)
+      {
+        fprintf(stderr, "Out of memory\n.");
+        exit(1);
+      }
+    #endif // WITH_CONTINUUM
 
 #pragma omp for
 #else
@@ -1333,9 +1320,14 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   rk_seed (seed, &mt_state);
   #ifdef WITH_CONTINUUM
     double *chi_bf_tmp_partial = calloc(storage->no_of_edges, sizeof(double));
-  #endif //WITH_CONTINUUM
+    if (chi_bf_tmp_partial == NULL)
+      {
+        fprintf(stderr, "Out of memory\n.");
+        exit(1);
+      }
+  #endif // WITH_CONTINUUM
 
-#endif
+#endif // WITH_OPENMP
   for (int64_t packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
     {
       int reabsorbed = 0;
@@ -1343,10 +1335,9 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
       rpacket_set_id(&packet, packet_index);
       #ifdef WITH_CONTINUUM
       rpacket_init(&packet, storage, packet_index, virtual_packet_flag, chi_bf_tmp_partial);
-      #endif //WITH_CONTINUUM
-      #ifndef WITH_CONTINUUM
+      #else
       rpacket_init(&packet, storage, packet_index, virtual_packet_flag);
-      #endif //ifndef WITH_CONTINUUM
+      #endif // WITH_CONTINUUM
       if (virtual_packet_flag > 0)
 	{
 	  reabsorbed = montecarlo_one_packet(storage, &packet, -1, &mt_state);
@@ -1362,6 +1353,9 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 	  storage->output_energies[packet_index] = rpacket_get_energy(&packet);
 	}
     }
+  #ifdef WITH_CONTINUUM
+  free(chi_bf_tmp_partial);
+  #endif // WITH_CONTINUUM
 #ifdef WITHOPENMP
   }
 #endif
