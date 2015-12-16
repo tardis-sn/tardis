@@ -148,6 +148,10 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
     def __init__(self, plasma_parent):
         super(TransitionProbabilities, self).__init__(plasma_parent)
         self.initialize = True
+        try:
+            self.continuum_treatment = plasma_parent.continuum_treatment
+        except:
+            self.continuum_treatment = False
 
     def calculate(self, atomic_data, beta_sobolev, j_blues,
         stimulated_emission_factor, tau_sobolevs):
@@ -181,7 +185,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
         #optimized_calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, self.block_references, transition_probabilities)
         macro_atom.calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor,
                                                       transition_type, lines_idx, self.block_references,
-                                                      transition_probabilities)
+                                                      transition_probabilities, self.continuum_treatment)
         return transition_probabilities
 
     def calculate_transition_probabilities(self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor):

@@ -17,7 +17,6 @@ from astropy import constants
 cdef extern from "math.h":
     double exp(double)
 
-
 cdef double h_cgs = constants.h.cgs.value
 cdef double c = constants.c.cgs.value
 cdef double kb = constants.k_B.cgs.value
@@ -47,14 +46,10 @@ def calculate_transition_probabilities(
         int_type_t [:] transition_type,
         int_type_t [:] lines_idx,
         int_type_t [:] block_references,
-        double [:, ::1] transition_probabilities):
+        double [:, ::1] transition_probabilities, continuum_treatment):
 
     cdef int i, j, k, line_idx
     cdef np.ndarray[double, ndim=1] norm_factor = np.zeros(transition_probabilities.shape[1])
-
-    IF WITH_CONTINUUM:
-        print '\nWARNING: Normalization of transition probabilities disabled for continuum calculations.\n' + \
-              'If not running with continuum, please rebuild.'
 
     for i in range(transition_probabilities.shape[0]):
         line_idx = lines_idx[i]
@@ -63,7 +58,8 @@ def calculate_transition_probabilities(
         if transition_type[i] == 1:
             for j in range(transition_probabilities.shape[1]):
                 transition_probabilities[i, j] *= stimulated_emission_factor[line_idx, j] * j_blues[line_idx, j]
-    IF not WITH_CONTINUUM:
+
+    if continuum_treatment == False:
         for i in range(block_references.shape[0] - 1):
             for k in range(transition_probabilities.shape[1]):
                 norm_factor[k] = 0.0

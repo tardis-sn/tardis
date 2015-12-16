@@ -18,6 +18,12 @@
 #define LOG_VPACKETS 0
 #endif
 
+#ifdef WITH_CONTINUUM
+#define COMPILED_WITH_CONTINUUM 1
+#else
+#define COMPILED_WITH_CONTINUUM 0
+#endif
+
 typedef void (*montecarlo_event_handler_t) (rpacket_t * packet,
 					    storage_model_t * storage,
 					    double distance, rk_state *mt_state);

@@ -58,7 +58,7 @@ class LegacyPlasmaArray(BasePlasma):
         ionization_mode='lte', excitation_mode='lte',
         line_interaction_type='scatter', link_t_rad_t_electron=0.9,
         helium_treatment='none', heating_rate_data_file=None,
-        v_inner=None, v_outer=None):
+        v_inner=None, v_outer=None, continuum_treatment=False):
 
         plasma_modules = basic_inputs + basic_properties
 
@@ -123,6 +123,8 @@ class LegacyPlasmaArray(BasePlasma):
                 self.v_outer = v_outer
 
         self.delta_treatment = delta_treatment
+
+        self.continuum_treatment = continuum_treatment
 
         super(LegacyPlasmaArray, self).__init__(
             plasma_properties=plasma_modules, t_rad=t_rad,

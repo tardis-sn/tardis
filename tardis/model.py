@@ -117,7 +117,8 @@ class Radial1DModel(object):
             helium_treatment=tardis_config.plasma.helium_treatment,
             heating_rate_data_file=heating_rate_data_file,
             v_inner=tardis_config.structure.v_inner,
-            v_outer=tardis_config.structure.v_outer)
+            v_outer=tardis_config.structure.v_outer,
+            continuum_treatment=self.tardis_config.plasma['continuum_treatment'])
 
         self.spectrum = TARDISSpectrum(
             tardis_config.spectrum.frequency, tardis_config.supernova.distance)

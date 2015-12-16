@@ -2,8 +2,6 @@ import pandas as pd
 import numpy as np
 
 from tardis.continuum.base import ContinuumProcess
-from tardis import macro_atom
-
 
 class BaseTransitionProbabilities(ContinuumProcess):
     def __init__(self, input_data, **kwargs):

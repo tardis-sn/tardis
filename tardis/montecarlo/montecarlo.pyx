@@ -29,6 +29,8 @@ cdef extern from "src/cmontecarlo.h":
 
     cdef int LOG_VPACKETS
 
+    cdef int COMPILED_WITH_CONTINUUM
+
     ctypedef enum FreeFreeStatus:
         FREE_FREE_OFF = 0
         FREE_FREE_ON = 1
@@ -167,7 +169,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
     # Switch for continuum processes
     if model.tardis_config.plasma['continuum_treatment'] == True:
-        if WITH_CONTINUUM:
+        if COMPILED_WITH_CONTINUUM:
             storage.cont_status = CONTINUUM_ON
             storage.ff_status = FREE_FREE_ON
         else:
