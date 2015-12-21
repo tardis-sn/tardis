@@ -14,6 +14,26 @@ logger = logging.getLogger(__name__)
 
 
 class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
+    """
+    Represents the process of radiative ionization.
+
+    Attributes
+    ----------
+    input: `tardis.continuum.input_data.ContinuumInputData`-object
+        The common input data object.
+    rate_coefficient: pd.DataFrame
+        Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
+        per unit volume of the transition.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    macro_atom_transitions: str
+        The type of transitions in the macro atom.
+    """
     name = 'radiative_ionization'
     cooling = False
     macro_atom_transitions = 'continuum'
@@ -22,7 +42,24 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         super(RadiativeIonization, self).__init__(input_data)
 
     def _calculate_rate_coefficient(self):
-        # Corrected photoionization coefficient
+        """
+        Calculates the rate coefficient for photoionization based on a dilute-blackbody radiation-field model.
+        Stimulated recombinations are treated as negative photoionizations.
+
+        Returns
+        -------
+        corrected_photoion_coeff: pd.DataFrame
+
+        Notes
+        -----
+        .. math::
+
+            \tilde \gamma_i = 4 \pi \int_{\nu_i}^{\infty} \! \frac{\tilde a_{i \kappa}}{h \nu} J_{\nu}
+             \, \mathrm{d}\nu \\
+            \tilde a_{i\kappa}(\nu)= a_{i\kappa}(\nu)\left(1-\frac{n_{\kappa} n_i^*}{n_i n_{\kappa}^*}
+            \operatorname{e}^{-h\nu/kT} \right)
+
+        """
         j_nus = self._calculate_j_nus()
         stimulated_emission_correction = self._calculate_stimulated_emission_correction()
         corrected_photoion_coeff = j_nus.multiply(4. * np.pi * self.photoionization_data['x_sect'] /
@@ -31,7 +68,7 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         corrected_photoion_coeff.insert(0, 'nu', self.photoionization_data['nu'])
         corrected_photoion_coeff = corrected_photoion_coeff.groupby(level=[0, 1, 2])
         tmp = {}
-        for i in range(len(self.t_rads)):
+        for i in range(self.no_of_shells):
             tmp[i] = corrected_photoion_coeff.apply(lambda sub: simps(sub[i], sub['nu'], even='first'))
         corrected_photoion_coeff = pd.DataFrame(tmp)
         return corrected_photoion_coeff
@@ -39,7 +76,7 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
     def _calculate_j_nus(self):
         nus = self.photoionization_data['nu'].values
         j_nus = self.ws * intensity_black_body(nus[np.newaxis].T, self.t_rads)
-        return pd.DataFrame(j_nus, index=self.photoionization_data.index, columns=np.arange(len(self.t_rads)))
+        return pd.DataFrame(j_nus, index=self.photoionization_data.index, columns=np.arange(self.no_of_shells))
 
     def _calculate_boltzmann_factor(self, nu):
         u0s = self._calculate_u0s(nu)
@@ -66,6 +103,26 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
 
 
 class RadiativeRecombination(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
+    """
+    Represents the process of radiative recombination.
+
+    Attributes
+    ----------
+    input: `tardis.continuum.input_data.ContinuumInputData`-object
+        The common input data object.
+    rate_coefficient: pd.DataFrame
+        Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
+        per unit volume of the transition.
+    cooling_rate: pd.DataFrame
+        The rate per unit volume at which heat is radiated by spontaneous f-b transitions.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    """
     name = 'radiative_recombination'
 
     def __init__(self, input_data):
@@ -83,7 +140,21 @@ class RadiativeRecombination(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         return fb_cooling_rate
 
     def _calculate_rate_coefficient(self, modified=False):
-        # Spontaneous recombination coefficient
+        """
+        Calculates the rate coefficient for spontaneous recombination.
+
+        Parameters
+        ----------
+        modified: bool, optional
+            Switches between calculation of normal rate coefficient and a modified version, which
+             is needed for calculating cooling rates.
+
+        Returns
+        -------
+        recomb_coeff: pd.DataFrame
+            The rate coefficient for spontaneous recombination.
+
+        """
         if modified == False:
             recomb_coeff = (8 * np.pi * self.photoionization_data['x_sect']
                             * (self.photoionization_data['nu']) ** 2 / (const.c.cgs.value) ** 2).values
@@ -93,7 +164,7 @@ class RadiativeRecombination(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
 
         recomb_coeff = recomb_coeff[:, np.newaxis]
         boltzmann_factor = np.exp(-self.photoionization_data.nu.values[np.newaxis].T / \
-                                  self.t_rads * (const.h.cgs.value / const.k_B.cgs.value))
+                                  self.t_electrons * (const.h.cgs.value / const.k_B.cgs.value))
         recomb_coeff = pd.DataFrame(boltzmann_factor * recomb_coeff, index=self.photoionization_data.index)
         recomb_coeff = recomb_coeff.divide(self.electron_densities, axis=1)
         recomb_coeff.insert(0, 'nu', self.photoionization_data['nu'])
@@ -138,6 +209,25 @@ class RadiativeDeexcitation(PhysicalContinuumProcess):
 
 
 class FreeFree(PhysicalContinuumProcess):
+    """
+    Represents free-free transitions.
+
+    Attributes
+    ----------
+    input: `tardis.continuum.input_data.ContinuumInputData`-object
+        The common input data object.
+    cooling_rate: np.ndarray
+        The rate per unit volume at which heat is converted into radiant energy by ff-emissions.
+    chi_ff_factor: np.ndarray
+        Used in the calculation of free-free opacities in the montecarlo run.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    """
     name = 'free_free'
 
     def __init__(self, input_data, **kwargs):
