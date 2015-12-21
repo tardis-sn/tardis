@@ -220,5 +220,6 @@ class MontecarloRunner(object):
         if model.tardis_config.plasma['continuum_treatment'] == True:
             photo_ion_shape = model.base_continuum.radiative_ionization.rate_coefficient.shape
             self.photo_ion_estimator = np.zeros(photo_ion_shape, dtype=np.float64)
+            self.stim_recomb_estimator = np.zeros(photo_ion_shape, dtype=np.float64)
         else:
             pass

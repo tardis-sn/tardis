@@ -251,6 +251,7 @@ class Simulation(object):
 
             ipdb.set_trace()
             model.photo_ion_estimator = self.runner.photo_ion_estimator
+            model.stim_recomb_estimator = self.runner.stim_recomb_estimator
             model.update_plasmas(initialize_nlte=False)
 
 

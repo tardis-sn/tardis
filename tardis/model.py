@@ -251,6 +251,10 @@ class Radial1DModel(object):
                                               self.photo_ion_estimator_norm_factor.value,
                                               index=index,
                                               columns=np.arange(len(self.t_rads)))
+                photo_ion_rate_corrected = pd.DataFrame((self.photo_ion_estimator - self.stim_recomb_estimator) *
+                                                        self.photo_ion_estimator_norm_factor.value,
+                                                        index=index,
+                                                        columns=np.arange(len(self.t_rads)))
 
             self.base_continuum = BaseContinuum(plasma_array=self.plasma_array, atom_data=self.atom_data, ws=self.ws,
                                                 radiative_transition_probabilities=self.transition_probabilities)

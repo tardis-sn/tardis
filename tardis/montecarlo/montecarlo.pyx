@@ -127,6 +127,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t coll_ion_cooling_prob_nd
         int_type_t coll_exc_cooling_prob_nd
         double *photo_ion_estimator
+        double *stim_recomb_estimator
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -273,6 +274,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
         # Estimators
         storage.photo_ion_estimator = <double*> PyArray_DATA(runner.photo_ion_estimator)
+        storage.stim_recomb_estimator = <double*> PyArray_DATA(runner.stim_recomb_estimator)
 
         # Bound-free data
         storage.l_pop = <double*> PyArray_DATA(model.atom_data.continuum_data.level_number_density)
