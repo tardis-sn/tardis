@@ -18,6 +18,14 @@ def data_type_selection(data_getter):
 
 
 class ContinuumProcess(object):
+    """
+        Base class for all continuum calculations. Defines a common interface for accessing the input data
+        (~ `tardis.continuum.input_data.ContinuumInputData`-object) and provides some common utility functions.
+
+        Attributes
+        ----------
+        input: `tardis.continuum.input_data.ContinuumInputData`-object
+    """
     def __init__(self, input_data):
         self.input = input_data
 
@@ -175,6 +183,28 @@ class TransitionProbabilitiesMixin(object):
 
 
 class PhysicalContinuumProcess(ContinuumProcess, TransitionProbabilitiesMixin):
+    """
+    Parent class for individual physical continuum processes (such as collisional ionization or excitation).
+
+    Attributes
+    ----------
+    input: `tardis.continuum.input_data.ContinuumInputData`-object
+    rate_coefficient: pd.DataFrame
+        Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
+        per unit volume of the transition.
+    cooling_rate: pd.DataFrame, optional
+        The rate per unit volume at which the process converts thermal energy into excitation, ionizaton or
+        radiant energy.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    macro_atom_transitions: str
+        The type of transitions in the macro atom.
+    """
     name = None
     cooling = True
     macro_atom_transitions = None
@@ -203,6 +233,33 @@ class BoundFreeEnergyMixIn(object):
 
 
 class InverseProcess(ContinuumProcess, TransitionProbabilitiesMixin):
+    """
+    Parent class for inverse continuum processes (such as collisional recombination or deexcitation).
+
+    Inverse processes are instantiated from an instance of a subclass of PhysicalContinuumProcess. The rate coefficient
+    is obtained by detailed balancing.
+
+    Attributes
+    ----------
+    input: `tardis.continuum.input_data.ContinuumInputData`-object
+    rate_coefficient: pd.DataFrame
+        Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
+        per unit volume of the transition.
+    cooling_rate: pd.DataFrame, optional
+        The rate per unit volume at which the process converts either thermal, excitation or ionization energy into
+        radiant energy.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    name_of_inverse_process: str
+        The class attribute name of the corresponding inverse process.
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    macro_atom_transitions: str
+        The type of transitions in the macro atom.
+    """
     name = None
     name_of_inverse_process = None
     cooling = False

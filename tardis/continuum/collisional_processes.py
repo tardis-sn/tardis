@@ -8,6 +8,28 @@ from tardis.continuum.constants import continuum_constants as cconst
 
 
 class CollisionalExcitation(PhysicalContinuumProcess):
+    """
+    Represents the process of collisional excitation.
+
+    Attributes
+    ----------
+    input: `tardis.continuum.input_data.ContinuumInputData`-object
+        The common input data object.
+    rate_coefficient: pd.DataFrame
+        Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
+        per unit volume of the transition.
+    cooling_rate: pd.DataFrame
+        The rate per unit volume at which heat is converted into excitation energy by collisions.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    macro_atom_transitions: str
+        The type of transitions in the macro atom.
+    """
     name = 'collisional_excitation'
     macro_atom_transitions = 'up'
 
@@ -101,6 +123,20 @@ class CollisionalRecombination(InverseProcess):
 
     @classmethod
     def _calculate_inverse_rate(cls, inverse_process):
+        """
+        Obtains the rate coefficient for collisional recombination by detailed balancing of the collisional ionization
+        rates.
+
+        Parameters
+        ----------
+        inverse_process: `tardis.continuum.collisional_processes.CollisionalIonization`-object
+            Object representing the inverse process.
+
+        Returns
+        -------
+        recomb_coeff: pd.DataFrame
+            The rate coefficient for spontaneous recombination.
+        """
         level_lower_index = inverse_process.rate_coefficient.index
         lte_level_pop_lower = inverse_process._get_lte_level_pop(level_lower_index)
         lte_pop_continuum = inverse_process._get_ion_number_density(level_lower_index)
@@ -111,6 +147,28 @@ class CollisionalRecombination(InverseProcess):
 
 
 class CollisionalIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
+    """
+    Represents the process of collisional ionization.
+
+    Attributes
+    ----------
+    input: `tardis.continuum.input_data.ContinuumInputData`-object
+        The common input data object.
+    rate_coefficient: pd.DataFrame
+        Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
+        per unit volume of the transition.
+    cooling_rate: pd.DataFrame
+        The rate per unit volume at which heat is converted into ionization energy by collisions.
+
+    Class Attributes
+    ----------------
+    name: str
+        The name used in setattr(object, name, value).
+    cooling: bool
+        True if the physical process contributes to the cooling of the plasma. Enables calculation of cooling_rate.
+    macro_atom_transitions: str
+        The type of transitions in the macro atom.
+    """
     name = 'collisional_ionization'
     macro_atom_transitions = 'continuum'
 

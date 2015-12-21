@@ -41,7 +41,6 @@ class ContinuumInputData(object):
         # Computed quantities
         self.nu_i = self._get_nu_i()
 
-
     def _get_nu_i(self):
         return self.photoionization_data.groupby(level=[0, 1, 2]).first().nu.values
 
