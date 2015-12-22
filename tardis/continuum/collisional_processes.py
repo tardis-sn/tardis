@@ -110,6 +110,20 @@ class CollisionalDeexcitation(InverseProcess):
 
     @classmethod
     def _calculate_inverse_rate(cls, inverse_process):
+        """
+        Obtains the rate coefficient for collisional deexcitation by detailed balancing of the collisional excitation
+        rates.
+
+        Parameters
+        ----------
+        inverse_process: `tardis.continuum.collisional_processes.CollisionalExcitation`-object
+            Object representing the inverse process.
+
+        Returns
+        -------
+        recomb_coeff: pd.DataFrame
+            The rate coefficient for deexcitations by thermal electrons.
+        """
         rate_coefficient = inverse_process.rate_coefficient.swaplevel(0, 1, axis=0)
         rate_coefficient.index.names = inverse_process.rate_coefficient.index.names[:]
         lte_level_pop_lower = inverse_process._get_lte_level_pop(inverse_process.level_lower_index)
@@ -135,7 +149,7 @@ class CollisionalRecombination(InverseProcess):
         Returns
         -------
         recomb_coeff: pd.DataFrame
-            The rate coefficient for spontaneous recombination.
+            The rate coefficient for collisional recombination.
         """
         level_lower_index = inverse_process.rate_coefficient.index
         lte_level_pop_lower = inverse_process._get_lte_level_pop(level_lower_index)
@@ -176,6 +190,16 @@ class CollisionalIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         super(CollisionalIonization, self).__init__(input_data)
 
     def _calculate_rate_coefficient(self):
+        """
+        Calculates the rate coefficient for ionization by thermal electrons using the Seaton
+        approximation (Equation 5-79 of Mihalas 1978).
+
+        Returns
+        -------
+        recomb_coeff: pd.DataFrame
+            The rate coefficient for collisional ionization.
+
+        """
         collion_coeff = self.photoionization_data.groupby(level=[0, 1, 2]).first()
         factor = self._calculate_factor(collion_coeff['nu'].values, index=collion_coeff.index)
         collion_coeff = 1.55e13 * collion_coeff['x_sect']

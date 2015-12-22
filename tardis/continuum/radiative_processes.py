@@ -57,7 +57,7 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
             \tilde \gamma_i = 4 \pi \int_{\nu_i}^{\infty} \! \frac{\tilde a_{i \kappa}}{h \nu} J_{\nu}
              \, \mathrm{d}\nu \\
             \tilde a_{i\kappa}(\nu)= a_{i\kappa}(\nu)\left(1-\frac{n_{\kappa} n_i^*}{n_i n_{\kappa}^*}
-            \operatorname{e}^{-h\nu/kT} \right)
+            e^{-h\nu/kT} \right)
 
         """
         j_nus = self._calculate_j_nus()
@@ -114,7 +114,7 @@ class RadiativeRecombination(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         Multiplying the rate coefficient with the number densities of the interacting particles gives the rate
         per unit volume of the transition.
     cooling_rate: pd.DataFrame
-        The rate per unit volume at which heat is radiated by spontaneous f-b transitions.
+        The rate per unit volume at which heat is radiated by spontaneous free-bound transitions.
 
     Class Attributes
     ----------------

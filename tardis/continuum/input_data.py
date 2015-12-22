@@ -2,6 +2,9 @@ import pandas as pd
 
 
 class ContinuumInputData(object):
+    """
+    The common input data object for all continuum calculations.
+    """
     def __init__(self, atom_data, plasma_array, ws, radiative_transition_probabilities):
         # Plasma quantities
         self.electron_densities = plasma_array.electron_densities.values

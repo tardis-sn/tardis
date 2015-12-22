@@ -108,6 +108,10 @@ class ContinuumProcess(object):
                                                     names=['source_level_idx', 'destination_level_idx'])
         return tmp_multi_index
 
+    @data_type_selection
+    def _get_xsect_i(self):
+        return self.photoionization_data.groupby(level=[0, 1, 2]).first()['x_sect']
+
     @property
     def electron_densities(self):
         return self.input.electron_densities
