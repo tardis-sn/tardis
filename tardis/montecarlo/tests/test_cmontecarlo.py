@@ -1,16 +1,28 @@
 import os
 import random
-from ctypes import CDLL, c_double
+from ctypes import *
+
+class Packet(Structure):
+    _fields_ = [
+            ('mu', c_double),
+            ('r', c_double),
+            ('energy', c_double),
+            ('nu', c_double),
+            ('nu_line', c_double),
+            ('tau_event', c_double),
+            ('next_line_id', c_int),
+            ('current_shell_id', c_int),
+            ]
 
 import pytest
 import numpy as np
 from numpy.testing import assert_almost_equal
 
-pytestmark = pytest.mark.skipif(True, reason='problem with the files')
+#pytestmark = pytest.mark.skipif(True, reason='problem with the files')
 
 from tardis import __path__ as path
 
-test_path = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
+test_path = os.path.join(path[0], 'montecarlo', 'test_montecarlo.so')
 
 tests = CDLL(test_path)
 

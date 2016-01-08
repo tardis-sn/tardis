@@ -7,9 +7,9 @@ import numpy as np
 
 from tardis import __path__ as path
 
-test_path = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
+test_path = os.path.join(path[0], 'montecarlo', 'test_montecarlo.so')
 
-pytestmark = pytest.mark.skipif(True, reason='problem with the files')
+#pytestmark = pytest.mark.skipif(True, reason='problem with the files')
 
 tests = CDLL(test_path)
 
