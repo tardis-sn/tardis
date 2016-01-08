@@ -34,12 +34,12 @@ def get_extensions():
     #    os.path.join(os.path.dirname(__file__), 'src', '*.c'))
     #        if os.path.basename(fname).startswith('test')]
     test_sources = [
-            os.path.join(r,fname) for r,p,fnames in os.walk('.')
+            os.path.relpath(os.path.join(r,fname)) for r,p,fnames in os.walk(os.path.dirname(__file__))
             for fname in fnames
             if os.path.basename(fname).endswith('.c')
             ]
     test_deps = [
-            os.path.join(r,fname) for r,p,fnames in os.walk('.')
+            os.path.relpath(os.path.join(r,fname)) for r,p,fnames in os.walk(os.path.dirname(__file__))
             for fname in fnames
             if os.path.basename(fname).endswith('.h')
             ]
@@ -48,7 +48,7 @@ def get_extensions():
             Extension('tardis.montecarlo.montecarlo', sources,
                 include_dirs=['tardis/montecarlo/src',
                     'tardis/montecarlo/src/randomkit',
-                    np.get_include()],
+                    'numpy'],
                 depends=deps,
                 extra_compile_args=compile_args,
                 extra_link_args=link_args,
@@ -58,7 +58,7 @@ def get_extensions():
             Extension('tardis.montecarlo.test_montecarlo', test_sources,
                 include_dirs=['tardis/montecarlo/src',
                     'tardis/montecarlo/src/randomkit',
-                    np.get_include()],
+                    'numpy'],
                 depends=test_deps,
                 extra_compile_args=compile_args,
                 extra_link_args=link_args,

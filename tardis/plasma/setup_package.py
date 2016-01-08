@@ -19,7 +19,7 @@ else:
 def get_extensions():
     sources = ['tardis/plasma/properties/util/macro_atom.pyx']
     return [Extension('tardis.plasma.properties.util.macro_atom', sources,
-                      include_dirs=[np.get_include()],
+                      include_dirs=['numpy'],
                       extra_compile_args=compile_args,
                       extra_link_args=link_args)]
 
