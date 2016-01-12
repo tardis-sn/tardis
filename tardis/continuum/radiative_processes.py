@@ -27,7 +27,8 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         stimulated_emission_correction = self._calculate_stimulated_emission_correction()
         corrected_photoion_coeff = j_nus.multiply(4. * np.pi * self.photoionization_data['x_sect'] /
                                                   self.photoionization_data['nu'] / const.h.cgs.value, axis=0)
-        corrected_photoion_coeff = corrected_photoion_coeff.multiply(stimulated_emission_correction)
+        # TODO: Reactivate
+        # corrected_photoion_coeff = corrected_photoion_coeff.multiply(stimulated_emission_correction)
         corrected_photoion_coeff.insert(0, 'nu', self.photoionization_data['nu'])
         corrected_photoion_coeff = corrected_photoion_coeff.groupby(level=[0, 1, 2])
         tmp = {}
