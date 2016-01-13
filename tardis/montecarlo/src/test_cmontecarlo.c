@@ -148,13 +148,16 @@ static void init_storage_model(storage_model_t *sm){
 	sm->spectrum_start_nu = 1.e14;
 	sm->spectrum_delta_nu = 293796608840.0;
 	sm->spectrum_end_nu = 6.e15;
-
+/* FIXME: copy paste error below?
 	sm->spectrum_virt_start_nu = 1.e14;
 	sm->spectrum_virt_end_nu = 293796608840.0;
 	sm->spectrum_delta_nu = 6.e15;
+    */
 
-	sm->spectrum_virt_nu = (double *) malloc(sizeof(double )*20000);
-	memset(sm->spectrum_virt_nu, 0, sizeof(double)*20000);
+	sm->spectrum_virt_start_nu = 1.e14;
+	sm->spectrum_virt_end_nu = 6.e15;
+
+	sm->spectrum_virt_nu = (double *) calloc(20000,sizeof(double ));
 
 	/*
 	*  Initialising the below values to 0 untill
