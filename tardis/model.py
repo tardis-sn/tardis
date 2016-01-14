@@ -84,7 +84,7 @@ class Radial1DModel(object):
             nlte_species=tardis_config.plasma.nlte.species,
             continuum_treatment=tardis_config.plasma['continuum_treatment'])
 
-        self.photo_ion_estimator = None
+        self.continuum_estimators = {}
 
         if tardis_config.plasma.ionization == 'nebular':
             if not self.atom_data.has_zeta_data:
@@ -177,7 +177,7 @@ class Radial1DModel(object):
             constants.c.cgs * self.tardis_config.supernova.time_explosion /
             (4 * np.pi * self.time_of_simulation *
              self.tardis_config.structure.volumes))
-        self.photo_ion_estimator_norm_factor = \
+        self.continuum_estimators['normalization_factor'] = \
             1. / (self.time_of_simulation * self.tardis_config.structure.volumes * constants.h.cgs.value)
 
 
@@ -242,22 +242,9 @@ class Radial1DModel(object):
             self.transition_probabilities = (self.plasma_array.transition_probabilities)
 
         if self.tardis_config.plasma['continuum_treatment'] == True:
-            import ipdb;
-
-            ipdb.set_trace()
-            if self.photo_ion_estimator != None:
-                index = pd.MultiIndex.from_tuples(self.atom_data.continuum_data.multi_index_nu_sorted)
-                photo_ion_rate = pd.DataFrame(self.photo_ion_estimator *
-                                              self.photo_ion_estimator_norm_factor.value,
-                                              index=index,
-                                              columns=np.arange(len(self.t_rads)))
-                photo_ion_rate_corrected = pd.DataFrame((self.photo_ion_estimator - self.stim_recomb_estimator) *
-                                                        self.photo_ion_estimator_norm_factor.value,
-                                                        index=index,
-                                                        columns=np.arange(len(self.t_rads)))
-
             self.base_continuum = BaseContinuum(plasma_array=self.plasma_array, atom_data=self.atom_data, ws=self.ws,
-                                                radiative_transition_probabilities=self.transition_probabilities)
+                                                radiative_transition_probabilities=self.transition_probabilities,
+                                                estimators=self.continuum_estimators)
 
             self.atom_data.continuum_data.set_level_number_density(self.plasma_array.level_number_density)
 

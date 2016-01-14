@@ -17,10 +17,10 @@ class BaseContinuum(object):
     inverse_processes = [process.name for process in InverseProcess.__subclasses__()]
     process2inverse_process = {process.name_of_inverse_process: process for process in InverseProcess.__subclasses__()}
 
-    def __init__(self, atom_data, plasma_array, ws, radiative_transition_probabilities,
+    def __init__(self, atom_data, plasma_array, ws, radiative_transition_probabilities, estimators,
                  requested_processes=default_processes):
         self._validate_requested_processes(requested_processes)
-        self.input = ContinuumInputData(atom_data, plasma_array, ws, radiative_transition_probabilities)
+        self.input = ContinuumInputData(atom_data, plasma_array, ws, radiative_transition_probabilities, estimators)
         self._set_physical_processes(requested_processes)
         self._set_inverse_processes()
         self._set_cooling_rates()
