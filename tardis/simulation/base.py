@@ -248,8 +248,9 @@ class Simulation(object):
 
             model.calculate_j_blues(init_detailed_j_blues=False)
 
-            model.photo_ion_estimator = self.runner.photo_ion_estimator
-            model.stim_recomb_estimator = self.runner.stim_recomb_estimator
+            model.continuum_estimators['photo_ionization'] = self.runner.photo_ion_estimator
+            model.continuum_estimators['stim_recombination'] = self.runner.stim_recomb_estimator
+            model.continuum_estimators['statistics'] = self.runner.photo_ion_estimator_statistics
             model.update_plasmas(initialize_nlte=False)
 
 

@@ -221,5 +221,6 @@ class MontecarloRunner(object):
             photo_ion_shape = model.base_continuum.radiative_ionization.rate_coefficient.shape
             self.photo_ion_estimator = np.zeros(photo_ion_shape, dtype=np.float64)
             self.stim_recomb_estimator = np.zeros(photo_ion_shape, dtype=np.float64)
+            self.photo_ion_estimator_statistics = np.zeros(photo_ion_shape, dtype=np.int64)
         else:
             pass
