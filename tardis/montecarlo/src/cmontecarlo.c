@@ -721,6 +721,7 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
   return doppler_factor;
 }
 
+
 void
 increment_photo_ion_estimator (const rpacket_t * packet, storage_model_t * storage, double distance, double comov_nu,
    double comov_energy)
@@ -732,16 +733,29 @@ increment_photo_ion_estimator (const rpacket_t * packet, storage_model_t * stora
   double T = storage->t_electrons[shell_id];
   double boltzmann_factor = exp(-(H * comov_nu) / (KB*T));
 
-#ifdef WITHOPENMP
-#pragma omp atomic
-#endif
   for(int64_t i = current_continuum_id; i < no_of_continuum_edges; i++)
     {
       double bf_xsect = bf_cross_section(storage, i, comov_nu);
-      int64_t photo_ion_idx = current_continuum_id * storage->no_of_shells + shell_id;
+      int64_t photo_ion_idx = i * storage->no_of_shells + shell_id;
       double photo_ion_estimator_helper = comov_energy * distance * bf_xsect/ comov_nu;
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
       storage->photo_ion_estimator[photo_ion_idx] += photo_ion_estimator_helper;
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
       storage->stim_recomb_estimator[photo_ion_idx] += photo_ion_estimator_helper * boltzmann_factor;
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
+      if (photo_ion_estimator_helper != 0.0)
+        {
+        #ifdef WITHOPENMP
+        #pragma omp atomic
+        #endif
+        storage->photo_ion_estimator_statistics[photo_ion_idx] += 1;
+        }
     }
 }
 
