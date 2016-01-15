@@ -10,7 +10,7 @@ from tardis import macro_atom
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-    'TransitionProbabilities', 'LTEJBlues']
+    'TransitionProbabilities', 'LTEJBlues', 'JBlues']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
@@ -84,7 +84,7 @@ class TauSobolev(ProcessingPlasmaProperty):
                                     * u.cm * u.s / u.cm**3).to(1).value
 
     def calculate(self, lines, level_number_density, lines_lower_level_index,
-                  time_explosion, stimulated_emission_factor, j_blues,
+                  time_explosion, stimulated_emission_factor, j_blues_array,
                   f_lu, wavelength_cm):
         f_lu = f_lu.values[np.newaxis].T
         wavelength = wavelength_cm.values[np.newaxis].T
@@ -120,9 +120,9 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
     """
     outputs = ('transition_probabilities',)
 
-    def calculate(self, atomic_data, beta_sobolev, j_blues,
+    def calculate(self, atomic_data, beta_sobolev, j_blues_array,
         stimulated_emission_factor, tau_sobolevs):
-        if len(j_blues) == 0:
+        if len(j_blues_array) == 0:
             transition_probabilities = None
         else:
             try:
@@ -137,11 +137,11 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 (macro_atom_data.transition_type == 1).values
             macro_atom_transition_up_filter = \
                 macro_atom_data.lines_idx.values[transition_up_filter]
-            j_blues = j_blues.take(macro_atom_transition_up_filter,
+            j_blues_array = j_blues_array.take(macro_atom_transition_up_filter,
                 axis=0, mode='raise')
             macro_stimulated_emission = stimulated_emission_factor.take(
                 macro_atom_transition_up_filter, axis=0, mode='raise')
-            transition_probabilities[transition_up_filter] *= j_blues * \
+            transition_probabilities[transition_up_filter] *= j_blues_array * \
                 macro_stimulated_emission
             block_references = np.hstack((
                 atomic_data.macro_atom_references.block_references,
@@ -152,6 +152,13 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 index=macro_atom_data.transition_line_id,
                 columns=tau_sobolevs.columns)
         return transition_probabilities
+
+class JBlues(ProcessingPlasmaProperty):
+    outputs = ('j_blues',)
+    
+    @staticmethod
+    def calculate(lines, j_blues_array, beta_rad):
+        return pd.DataFrame(j_blues_array, index=lines.index)
 
 class LTEJBlues(ProcessingPlasmaProperty):
     outputs = ('lte_j_blues',)

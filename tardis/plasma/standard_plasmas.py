@@ -49,7 +49,7 @@ class LegacyPlasmaArray(BasePlasma):
         initialize_nlte=False):
         if nlte_config.species:
             self.store_previous_properties()
-        self.update(t_rad=t_rad, w=ws, j_blues=j_blues)
+        self.update(t_rad=t_rad, w=ws, j_blues_array=j_blues)
 
     def __init__(self, number_densities, atomic_data, time_explosion,
         t_rad=None, delta_treatment=None, nlte_config=None,
@@ -99,7 +99,7 @@ class LegacyPlasmaArray(BasePlasma):
         super(LegacyPlasmaArray, self).__init__(plasma_properties=plasma_modules,
             t_rad=t_rad, abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
-            j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
+            j_blues_array=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
             delta_input=delta_treatment, nlte_species=nlte_config.species,
             previous_electron_densities=initial_electron_densities,
             previous_beta_sobolevs=initial_beta_sobolevs)
