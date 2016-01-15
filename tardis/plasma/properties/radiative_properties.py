@@ -158,7 +158,11 @@ class JBlues(ProcessingPlasmaProperty):
     
     @staticmethod
     def calculate(lines, j_blues_array, beta_rad):
-        return pd.DataFrame(j_blues_array, index=lines.index)
+        if len(j_blues_array)==0:
+            j_blues = pd.DataFrame()
+        else:
+            j_blues = pd.DataFrame(j_blues_array, index=lines.index)
+        return j_blues
 
 class LTEJBlues(ProcessingPlasmaProperty):
     outputs = ('lte_j_blues',)
