@@ -3,7 +3,7 @@
 
 tardis_error_t
 rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
-	      int virtual_packet_flag)
+	      int virtual_packet_count)
 {
   int64_t current_line_id;
   tardis_error_t ret_val = TARDIS_ERROR_OK;
@@ -38,6 +38,6 @@ rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
   rpacket_set_last_line (packet, last_line);
   rpacket_set_close_line (packet, false);
   rpacket_set_recently_crossed_boundary (packet, true);
-  rpacket_set_virtual_packet_flag (packet, virtual_packet_flag);
+  rpacket_set_virtual_packet_count (packet, virtual_packet_count);
   return ret_val;
 }

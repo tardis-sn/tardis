@@ -101,8 +101,8 @@ def test_rpacket_get_recently_crossed_boundary(int_value):
     assert tests.test_rpacket_get_recently_crossed_boundary(int_value)
 
 
-def test_rpacket_get_virtual_packet_flag(int_value):
-    assert tests.test_rpacket_get_virtual_packet_flag(int_value)
+def test_rpacket_get_virtual_packet_count(int_value):
+    assert tests.test_rpacket_get_virtual_packet_count(int_value)
 
 
 def test_rpacket_get_virtual_packet(int_value):

@@ -102,7 +102,7 @@ class MontecarloRunner(object):
                                  no_of_packets)
 
         montecarlo.montecarlo_radial1d(
-            model, self, virtual_packet_flag=no_of_virtual_packets,
+            model, self, virtual_packet_count=no_of_virtual_packets,
             nthreads=nthreads)
 
     def legacy_return(self):

@@ -87,7 +87,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t virt_packet_count
         int_type_t virt_array_size
 
-    void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
+    void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_count, int nthreads, unsigned long seed)
 
 
 
@@ -206,7 +206,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     cdef np.ndarray[double, ndim=1] t_electrons = model.plasma_array.t_electrons
     storage.t_electrons = <double*> t_electrons.data
 
-def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
+def montecarlo_radial1d(model, runner, int_type_t virtual_packet_count=0,
                         int nthreads=4):
     """
     Parameters
@@ -240,7 +240,7 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     initialize_storage_model(model, runner, &storage)
 
-    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
+    montecarlo_main_loop(&storage, virtual_packet_count, nthreads,
                          model.tardis_config.montecarlo.seed)
     cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
