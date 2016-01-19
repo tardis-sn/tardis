@@ -41,7 +41,25 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
     def __init__(self, input_data):
         super(RadiativeIonization, self).__init__(input_data)
 
-    def _calculate_rate_coefficient(self):
+    def _calculate_rate_coefficient(self, **kwargs):
+        rate_coefficient_dilute_bb = self._calculate_rate_coefficient_dilute_blackbody()
+        if not self.has_estimators:
+            logger.info('Calculating photoionization rate from dilute-blackbody radiation field model')
+            rate_coefficient = rate_coefficient_dilute_bb
+        else:
+            logger.info('Calculating photoionization rate from MC estimators')
+            rate_coefficient = self._calculate_rate_coefficient_from_estimator()
+
+            no_of_bad_elements = self._check_for_low_statistics(self.estimators['statistics'])
+            if self.replace_values_with_low_statistics and (no_of_bad_elements != 0):
+                logger.info('Replacing {} photoionization rates with values based on the '
+                            'radiation field model'.format(no_of_bad_elements))
+
+                rate_coefficient = self._calculate_rate_coefficient_combination(
+                    rate_coefficient, rate_coefficient_dilute_bb)
+        return rate_coefficient
+
+    def _calculate_rate_coefficient_dilute_blackbody(self):
         """
         Calculates the rate coefficient for photoionization based on a dilute-blackbody radiation-field model.
         Stimulated recombinations are treated as negative photoionizations.
@@ -73,6 +91,20 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         corrected_photoion_coeff = pd.DataFrame(tmp)
         return corrected_photoion_coeff
 
+    def _calculate_rate_coefficient_from_estimator(self):
+        index = self._get_estimator_index()
+        lte_nonlte_level_pop_ratio = self._get_lte_nonlte_level_pop_ratio(index)
+        corrected_photoion_coeff = (self.photo_ion_estimator - lte_nonlte_level_pop_ratio * self.stim_recomb_estimator) \
+                                   * self.photo_ion_estimator_norm_factor
+        corrected_photoion_coeff = \
+            pd.DataFrame(corrected_photoion_coeff, index=index, columns=np.arange(self.no_of_shells))
+        return corrected_photoion_coeff
+
+    def _calculate_rate_coefficient_combination(self, rate_coeff_estimator, rate_coeff_dilute_bb, min_counts=100):
+        combined_rate_coeff = \
+            rate_coeff_estimator.where(self.estimators['statistics'] > min_counts, other=rate_coeff_dilute_bb)
+        return combined_rate_coeff
+
     def _calculate_j_nus(self):
         nus = self.photoionization_data['nu'].values
         j_nus = self.ws * intensity_black_body(nus[np.newaxis].T, self.t_rads)
@@ -81,6 +113,15 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
     def _calculate_boltzmann_factor(self, nu):
         u0s = self._calculate_u0s(nu)
         return np.exp(-u0s)
+
+    @staticmethod
+    def _check_for_low_statistics(estimator_statistics, count_threshold=100):
+        min_count = estimator_statistics.min()
+        no_of_bad_elements = (estimator_statistics < count_threshold).sum()
+        if no_of_bad_elements != 0:
+            logger.warning('{} MC estimators have been updated less than {} times, with a minimum of'
+                           ' {} updates'.format(no_of_bad_elements, count_threshold, min_count))
+        return no_of_bad_elements
 
     def _calculate_stimulated_emission_correction(self):
         nu = self.photoionization_data['nu'].values
@@ -96,6 +137,11 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
         continuum_pop_lte = self._get_lte_ion_number_density(index)
         ratio = (continuum_pop / continuum_pop_lte) * (level_pop_lte / level_pop)
         return ratio
+
+    def _get_estimator_index(self):
+        index = pd.MultiIndex.from_tuples(self.input.atom_data.continuum_data.multi_index_nu_sorted)
+        index.names = [u'atomic_number', u'ion_number', u'level_number']
+        return index
 
     @property
     def level_lower_energy(self):

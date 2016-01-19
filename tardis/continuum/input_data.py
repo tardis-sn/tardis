@@ -5,7 +5,7 @@ class ContinuumInputData(object):
     """
     The common input data object for all continuum calculations.
     """
-    def __init__(self, atom_data, plasma_array, ws, radiative_transition_probabilities):
+    def __init__(self, atom_data, plasma_array, ws, radiative_transition_probabilities, estimators):
         # Plasma quantities
         self.electron_densities = plasma_array.electron_densities.values
         self.t_electrons = plasma_array.t_electrons
@@ -18,8 +18,10 @@ class ContinuumInputData(object):
 
         # Radiation field
         self.ws = ws
+        self.estimators = estimators
 
         # Atom data
+        self.atom_data = atom_data
         self.lines = atom_data.lines
         self.levels = atom_data.levels
         self.ionization_energies = atom_data.ionization_data
@@ -43,6 +45,7 @@ class ContinuumInputData(object):
 
         # Computed quantities
         self.nu_i = self._get_nu_i()
+
 
     def _get_nu_i(self):
         return self.photoionization_data.groupby(level=[0, 1, 2]).first().nu.values

@@ -96,6 +96,7 @@ class MontecarloRunner(object):
         self.volume = model.tardis_config.structure.volumes
         self._initialize_estimator_arrays(self.volume.shape[0],
                                           model.plasma_array.tau_sobolevs.shape)
+        self._initialize_continuum_estimator_arrays(model)
         self._initialize_geometry_arrays(model.tardis_config.structure)
 
         self._initialize_packets(model.t_inner.value,
@@ -145,7 +146,6 @@ class MontecarloRunner(object):
     @property
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
-
 
     @property
     def emitted_packet_luminosity(self):
@@ -215,3 +215,12 @@ class MontecarloRunner(object):
 
     def calculate_f_lambda(self, wavelength):
         pass
+
+    def _initialize_continuum_estimator_arrays(self, model):
+        if model.tardis_config.plasma['continuum_treatment'] == True:
+            photo_ion_shape = model.base_continuum.radiative_ionization.rate_coefficient.shape
+            self.photo_ion_estimator = np.zeros(photo_ion_shape, dtype=np.float64)
+            self.stim_recomb_estimator = np.zeros(photo_ion_shape, dtype=np.float64)
+            self.photo_ion_estimator_statistics = np.zeros(photo_ion_shape, dtype=np.int64)
+        else:
+            pass

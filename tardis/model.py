@@ -84,6 +84,8 @@ class Radial1DModel(object):
             nlte_species=tardis_config.plasma.nlte.species,
             continuum_treatment=tardis_config.plasma['continuum_treatment'])
 
+        self.continuum_estimators = {}
+
         if tardis_config.plasma.ionization == 'nebular':
             if not self.atom_data.has_zeta_data:
                 raise ValueError("Requiring Recombination coefficients Zeta "
@@ -175,6 +177,8 @@ class Radial1DModel(object):
             constants.c.cgs * self.tardis_config.supernova.time_explosion /
             (4 * np.pi * self.time_of_simulation *
              self.tardis_config.structure.volumes))
+        self.continuum_estimators['normalization_factor'] = \
+            1. / (self.time_of_simulation * self.tardis_config.structure.volumes * constants.h.cgs.value)
 
 
     @staticmethod
@@ -239,7 +243,8 @@ class Radial1DModel(object):
 
         if self.tardis_config.plasma['continuum_treatment'] == True:
             self.base_continuum = BaseContinuum(plasma_array=self.plasma_array, atom_data=self.atom_data, ws=self.ws,
-                                                radiative_transition_probabilities=self.transition_probabilities)
+                                                radiative_transition_probabilities=self.transition_probabilities,
+                                                estimators=self.continuum_estimators)
 
             self.atom_data.continuum_data.set_level_number_density(self.plasma_array.level_number_density)
 

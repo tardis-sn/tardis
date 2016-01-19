@@ -104,6 +104,9 @@ typedef struct StorageModel
   int64_t fb_cooling_prob_nd;
   int64_t coll_ion_cooling_prob_nd;
   int64_t coll_exc_cooling_prob_nd;
+  double *photo_ion_estimator;
+  double *stim_recomb_estimator;
+  int64_t *photo_ion_estimator_statistics;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

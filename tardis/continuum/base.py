@@ -160,6 +160,33 @@ class ContinuumProcess(object):
     def no_of_shells(self):
         return len(self.input.t_rads)
 
+    @property
+    def estimators(self):
+        return self.input.estimators
+
+    @property
+    def photo_ion_estimator(self):
+        return self.input.estimators['photo_ionization']
+
+    @property
+    def stim_recomb_estimator(self):
+        return self.input.estimators['stim_recombination']
+
+    @property
+    def photo_ion_estimator_norm_factor(self):
+        return self.input.estimators['normalization_factor']
+
+    @property
+    def has_estimators(self):
+        if self.input.estimators.keys() != ['normalization_factor']:
+            return True
+        else:
+            return False
+
+    @property
+    def replace_values_with_low_statistics(self):
+        return True
+
     # Helper functions for physical calculations
     def _calculate_u0s(self, nu):
         u0s = nu[np.newaxis].T / self.t_electrons * (const.h.cgs.value / const.k_B.cgs.value)
@@ -178,12 +205,12 @@ class TransitionProbabilitiesMixin(object):
     @property
     def internal_jump_probabilities(self):
         level_lower_energy = self.level_lower_energy * units.erg.to(units.eV)
-        return self.rate_coefficient.multiply(level_lower_energy, axis=0)  # / cconst.c_einstein
+        return self.rate_coefficient.multiply(level_lower_energy, axis=0)
 
     @property
     def deactivation_probabilities(self):
         energy_difference = (self.level_upper_energy - self.level_lower_energy) * units.erg.to(units.eV)
-        return self.rate_coefficient.multiply(energy_difference, axis=0)  # / cconst.c_einstein
+        return self.rate_coefficient.multiply(energy_difference, axis=0)
 
 
 class PhysicalContinuumProcess(ContinuumProcess, TransitionProbabilitiesMixin):
