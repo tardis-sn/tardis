@@ -247,10 +247,8 @@ class Simulation(object):
             model.t_inner = next_t_inner
 
             model.calculate_j_blues(init_detailed_j_blues=False)
+            self.set_continuum_estimators(model)
 
-            model.continuum_estimators['photo_ionization'] = self.runner.photo_ion_estimator
-            model.continuum_estimators['stim_recombination'] = self.runner.stim_recomb_estimator
-            model.continuum_estimators['statistics'] = self.runner.photo_ion_estimator_statistics
             model.update_plasmas(initialize_nlte=False)
 
 
@@ -361,6 +359,12 @@ class Simulation(object):
                                                                                                        u.spectral())
         # required for gui
         model.current_no_of_packets = model.tardis_config.montecarlo.no_of_packets
+
+    def set_continuum_estimators(self, model):
+        if model.tardis_config.plasma['continuum_treatment'] == True:
+            model.continuum_estimators['photo_ionization'] = self.runner.photo_ion_estimator
+            model.continuum_estimators['stim_recombination'] = self.runner.stim_recomb_estimator
+            model.continuum_estimators['statistics'] = self.runner.photo_ion_estimator_statistics
 
 def run_radial1d(radial1d_model, history_fname=None):
     if history_fname is not None:

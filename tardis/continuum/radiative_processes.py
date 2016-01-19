@@ -31,7 +31,7 @@ class RadiativeIonization(PhysicalContinuumProcess, BoundFreeEnergyMixIn):
             rate_coefficient = self._calculate_rate_coefficient_from_estimator()
 
             no_of_bad_elements = self._check_for_low_statistics(self.estimators['statistics'])
-            if self.replace_values_with_low_statistics:
+            if self.replace_values_with_low_statistics and (no_of_bad_elements != 0):
                 logger.info('Replacing {} photoionization rates with values based on the '
                             'radiation field model'.format(no_of_bad_elements))
 
