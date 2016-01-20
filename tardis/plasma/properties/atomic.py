@@ -39,7 +39,7 @@ class Levels(BaseAtomicDataProperty):
         return (levels.index, levels['energy'], levels['metastable'],
             levels['g'])
 
-class Lines(BaseAtomicDataProperty):
+class Lines(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
@@ -56,21 +56,8 @@ class Lines(BaseAtomicDataProperty):
 # Would like for lines to just be the line_id values, but this is necessary because of the filtering
 # error noted below.
     outputs = ('lines', 'nu', 'f_lu', 'wavelength_cm')
-
-    def _filter_atomic_property(self, lines, selected_atoms):
-        return lines[lines.atomic_number.isin(selected_atoms)]
-
-    def _set_index(self, lines):
-# Filtering process re-arranges the index. This re-orders it.
-# It seems to be important that the lines stay indexed in the correct order
-# so that the tau_sobolevs values are in the right order for the montecarlo
-# code, or it returns the wrong answer.
-        try:
-            reindexed = lines.reindex(lines.index)
-        except:
-            reindexed = lines.reindex(lines.index)
-        lines = reindexed.dropna(subset=['atomic_number'])
-        return lines, lines['nu'], lines['f_lu'], lines['wavelength_cm']
+    def calculate(self, atomic_data):
+            return atomic_data.lines, atomic_data.lines.nu, atomic_data.lines.f_lu, atomic_data.lines.wavelength_cm
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
