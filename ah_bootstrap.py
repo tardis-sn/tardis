@@ -237,6 +237,7 @@ def _do_download(version='', find_links=None, index_url=None):
         # Distribution (such as options) before handling setup_requires, so it
         # is not straightfoward to programmatically augment the arguments which
         # are passed to easy_install
+
         class _Distribution(Distribution):
             def get_option_dict(self, command_name):
                 opts = Distribution.get_option_dict(self, command_name)
@@ -345,7 +346,6 @@ def _check_submodule(path):
             raise _AHBoostrapSystemExit(
                 'An unexpected error occurred when running the '
                 '`git submodule status` command:\n{0}'.format(str(e)))
-
 
     if p.returncode != 0 or stderr:
         # Unfortunately the return code alone cannot be relied on, as
@@ -488,6 +488,7 @@ _git_submodule_status_re = re.compile(
 _CFG_OPTIONS = [('auto_use', bool), ('path', str),
                 ('download_if_needed', bool), ('index_ur', str),
                 ('use_git', bool), ('auto_upgrade', bool)]
+
 
 def _main():
     if not os.path.exists('setup.cfg'):

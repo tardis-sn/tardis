@@ -37,7 +37,7 @@ URL = metadata.get('url', 'http://astropy.org')
 # Get the long description from the package's docstring
 #__import__(PACKAGENAME)
 #package = sys.modules[PACKAGENAME]
-LONG_DESCRIPTION = "" #package.__doc__
+LONG_DESCRIPTION = ""  # package.__doc__
 
 # Store the package name in a built-in variable so it's easy
 # to get from other parts of the setup infrastructure
@@ -62,11 +62,14 @@ add_command_option('build', 'with-openmp', 'compile TARDIS without OpenMP',
                    is_bool=True)
 add_command_option('develop', 'with-openmp', 'compile TARDIS without OpenMP',
                    is_bool=True)
-add_command_option('install', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
+add_command_option('install', 'with-vpacket-logging', 'compile TARDIS with' +
+                   'virtual packet logging',
                    is_bool=True)
-add_command_option('build', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
+add_command_option('build', 'with-vpacket-logging', +
+                   'compile TARDIS with virtual packet logging',
                    is_bool=True)
-add_command_option('develop', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
+add_command_option('develop', 'with-vpacket-logging', +
+                   'compile TARDIS with virtual packet logging',
                    is_bool=True)
 
 # Adjust the compiler in case the default on this platform is to use a
@@ -132,5 +135,4 @@ setup(name=PACKAGENAME + '-sn',
       use_2to3=True,
       entry_points=entry_points,
       **package_info
-)
-
+      )
