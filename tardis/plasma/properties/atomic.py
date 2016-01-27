@@ -54,6 +54,7 @@ class Lines(ProcessingPlasmaProperty):
             Line wavelengths in cm
     """
     outputs = ('lines', 'nu', 'f_lu', 'wavelength_cm')
+
     def calculate(self, atomic_data):
             return atomic_data.lines, atomic_data.lines.nu, atomic_data.lines.f_lu, atomic_data.lines.wavelength_cm
 
