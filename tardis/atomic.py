@@ -358,6 +358,8 @@ class AtomData(object):
     def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
                  collision_data=None, synpp_refs=None, ion_cx_data=None):
 
+        self.prepared = False
+
         if levels_data is not None:
             self.has_levels = True
         else:
@@ -462,6 +464,10 @@ class AtomData(object):
             maximum ion number to be included in the calculation
 
         """
+        if not self.prepared:
+            self.prepared = True
+        else:
+            raise "AtomData was already prepared"
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_species = nlte_species
