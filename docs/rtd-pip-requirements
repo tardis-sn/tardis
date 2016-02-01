@@ -1,6 +1,16 @@
-astropy
+### TARDIS requirements ###
+numpy==1.9
+astropy>=1.0.4
+cython>=0.23
+jinja2
+pytest>=2.6.3
+mock
+
+### TARDIS docs requirements ###
 numpydoc
 pybtex
 sphinx_bootstrap_theme
 sphinxcontrib-bibtex
 sphinxcontrib-tikz
+
+
