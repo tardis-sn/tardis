@@ -50,6 +50,10 @@ def test_atomic_reprepare():
     atom_data = atomic.AtomData.from_hdf5(atom_data_filename)
     atom_data.prepare_atom_data([14])
     assert len(atom_data.lines) > 0
+    # Fix for new behavior of prepare_atom_data
+    # Consider doing only one prepare_atom_data and check
+    # len(atom_data.lines) == N where N is known
+    atom_data = atomic.AtomData.from_hdf5(atom_data_filename)
     atom_data.prepare_atom_data([20])
     assert len(atom_data.lines) > 0
 
