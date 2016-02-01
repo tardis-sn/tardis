@@ -7,6 +7,7 @@ import pytest
 import warnings
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.io.util import parse_abundance_dict_to_dataframe
+import numpy as np
 #from numpy.testing import assert_allclose
 data_path = os.path.join(tardis.__path__[0], 'tests', 'data')
 helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
@@ -18,6 +19,7 @@ class TestNebularPlasma(object):
         density = 1e-15 * u.Unit('g/cm3')
         abundance = parse_abundance_dict_to_dataframe({'He':1.0})
         abundance = pd.DataFrame({0:abundance})
+        atom_data.prepare_atom_data([2])
         number_densities = abundance * density.to('g/cm^3').value
         number_densities = number_densities.div(
             atom_data.atom_data.mass.ix[number_densities.index], axis=0)
