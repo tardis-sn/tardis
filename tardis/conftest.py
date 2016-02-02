@@ -39,7 +39,7 @@ def pytest_report_header(config):
     s = "\n"
     if six.PY2:
         args = [x.decode('utf-8') for x in config.args]
-    elif six.PY3:
+    else:
         args = config.args
     s += "Running tests in {0}.\n\n".format(" ".join(args))
 
@@ -133,10 +133,10 @@ def pytest_report_header(config):
     if opts:
         s += "Using Astropy options: {0}.\n".format(" ".join(opts))
 
-    if six.PY3 and (config.getini('doctest_rst') or config.option.doctest_rst):
+    if not six.PY2 and (config.getini('doctest_rst') or config.option.doctest_rst):
         s += "Running doctests in .rst files is not supported on Python 3.x\n"
 
-    if not six.PY3:
+    if six.PY2:
         s = s.encode(stdoutencoding, 'replace')
 
     return s
@@ -182,6 +182,3 @@ def included_he_atomic_data(test_data_path):
 def tardis_config_verysimple():
     return yaml.load(
         open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
-
-
-
