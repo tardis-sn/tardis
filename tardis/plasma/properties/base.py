@@ -10,6 +10,7 @@ __all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
 
 logger = logging.getLogger(__name__)
 
+
 class BasePlasmaProperty(object):
     """
     Attributes
@@ -50,13 +51,17 @@ class BasePlasmaProperty(object):
         else:
             complete_name = latex_name
 
-        latex_label = latex_template.format(name=complete_name,
-                                     formula=getattr(self,
-                                                     'latex_formula', '--'),
-                                     description=getattr(self,
-                                                         'latex_description',
-                                                         ''))
+        latex_label = latex_template.format(
+                name=complete_name,
+                formula=getattr(
+                    self,
+                    'latex_formula', '--'),
+                description=getattr(
+                    self,
+                    'latex_description',
+                    ''))
         return latex_label.replace('\\', r'\\')
+
 
 class ProcessingPlasmaProperty(BasePlasmaProperty):
     """
@@ -79,8 +84,9 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
         """
         calculate_call_signature = self.calculate.func_code.co_varnames[
                                    :self.calculate.func_code.co_argcount]
-        self.inputs = [item for item in calculate_call_signature if
-                      item != 'self']
+        self.inputs = [
+                item for item in calculate_call_signature
+                if item != 'self']
 
     def _get_input_values(self):
         return (self.plasma_parent.get_value(item) for item in self.inputs)
@@ -105,6 +111,7 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
         raise NotImplementedError('This method needs to be implemented by '
                                   'processing plasma modules')
 
+
 class HiddenPlasmaProperty(ProcessingPlasmaProperty):
     """
     Used for plasma properties that should not be displayed in the final graph (e.g. lines_lower_level_index).
@@ -115,6 +122,7 @@ class HiddenPlasmaProperty(ProcessingPlasmaProperty):
 
     def __init__(self, plasma_parent):
         super(HiddenPlasmaProperty, self).__init__(plasma_parent)
+
 
 class BaseAtomicDataProperty(ProcessingPlasmaProperty):
     """
@@ -143,21 +151,17 @@ class BaseAtomicDataProperty(ProcessingPlasmaProperty):
         if getattr(self, self.outputs[0]) is not None:
             return getattr(self, self.outputs[0])
         else:
-# Atomic Data Issue: Some atomic property names in the h5 files are preceded
-# by an underscore, e.g. _levels, _lines.
-            try:
-                raw_atomic_property = getattr(atomic_data, '_'
-                                              + self.outputs[0])
-            except AttributeError:
-                raw_atomic_property = getattr(atomic_data, self.outputs[0])
-            finally:
-                return self._set_index(self._filter_atomic_property(
-                    raw_atomic_property, selected_atoms))
+            raw_atomic_property = getattr(atomic_data, self.outputs[0])
+            return self._set_index(
+                    self._filter_atomic_property(
+                        raw_atomic_property, selected_atoms)
+                    )
+
 
 class Input(BasePlasmaProperty):
     """
-    The plasma property class for properties that are input directly from model and not calculated within the plasma
-    module, e.g. t_rad.
+    The plasma property class for properties that are input directly from model
+    and not calculated within the plasma module, e.g. t_rad.
     """
     def _set_output_value(self, output, value):
         setattr(self, output, value)
@@ -166,13 +170,16 @@ class Input(BasePlasmaProperty):
         assert len(self.outputs) == 1
         self._set_output_value(self.outputs[0], value)
 
+
 class ArrayInput(Input):
     def _set_output_value(self, output, value):
         setattr(self, output, np.array(value, copy=False))
 
+
 class DataFrameInput(Input):
     def _set_output_value(self, output, value):
         setattr(self, output, np.array(pd.DataFrame(value), copy=False))
+
 
 class PreviousIterationProperty(BasePlasmaProperty):
     """
