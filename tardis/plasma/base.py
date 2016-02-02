@@ -3,6 +3,7 @@ import tempfile
 import fileinput
 
 import networkx as nx
+import pandas as pd
 
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from tardis.plasma.properties.base import *
@@ -39,7 +40,7 @@ class BasePlasma(object):
                  if not item.startswith('_')]
         attrs += [item for item in self.__class__.__dict__
                  if not item.startswith('_')]
-        attrs += self.module_dict.keys()
+        attrs += self.outputs_dict.keys()
         return attrs
 
     @property
@@ -258,6 +259,16 @@ class BasePlasma(object):
                 print_graph.remove_node(str(item.name))
         return print_graph
 
+    def to_hdf(self, path_or_buf, path='plasma'):
+
+        try:
+            hdf_store = pd.HDFStore(path_or_buf)
+        except TypeError:
+            hdf_store = path_or_buf
+
+        for property in self.plasma_properties:
+            property.to_hdf(hdf_store, path)
+        hdf_store.close()
 class StandardPlasma(BasePlasma):
 
     def __init__(self, number_densities, atom_data, time_explosion,
