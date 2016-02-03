@@ -31,11 +31,12 @@ class Levels(BaseAtomicDataProperty):
         'g')
 
     def _filter_atomic_property(self, levels, selected_atoms):
-        return levels[levels.atomic_number.isin(selected_atoms)]
+        return levels
+        # return levels[levels.atomic_number.isin(selected_atoms)]
 
     def _set_index(self, levels):
-        levels = levels.set_index(['atomic_number', 'ion_number',
-                                 'level_number'])
+        # levels = levels.set_index(['atomic_number', 'ion_number',
+        #                          'level_number'])
         return (levels.index, levels['energy'], levels['metastable'],
             levels['g'])
 
@@ -53,23 +54,15 @@ class Lines(BaseAtomicDataProperty):
     wavelength_cm: Pandas DataFrame (index=line_id), dtype float
             Line wavelengths in cm
     """
-# Would like for lines to just be the line_id values, but this is necessary because of the filtering
-# error noted below.
+# Would like for lines to just be the line_id values
     outputs = ('lines', 'nu', 'f_lu', 'wavelength_cm')
 
     def _filter_atomic_property(self, lines, selected_atoms):
-        return lines[lines.atomic_number.isin(selected_atoms)]
+        # return lines[lines.atomic_number.isin(selected_atoms)]
+        return lines
 
     def _set_index(self, lines):
-# Filtering process re-arranges the index. This re-orders it.
-# It seems to be important that the lines stay indexed in the correct order
-# so that the tau_sobolevs values are in the right order for the montecarlo
-# code, or it returns the wrong answer.
-        try:
-            reindexed = lines.reindex(lines.index)
-        except:
-            reindexed = lines.reindex(lines.index)
-        lines = reindexed.dropna(subset=['atomic_number'])
+        # lines = lines.set_index('line_id')
         return lines, lines['nu'], lines['f_lu'], lines['wavelength_cm']
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):

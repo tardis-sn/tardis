@@ -17,6 +17,9 @@ from pandas import DataFrame
 import pandas as pd
 
 
+class AtomDataNotPreparedError(Exception):
+    pass
+
 
 logger = logging.getLogger(__name__)
 
@@ -358,6 +361,8 @@ class AtomData(object):
     def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
                  collision_data=None, synpp_refs=None, ion_cx_data=None):
 
+        self.prepared = False
+
         if levels_data is not None:
             self.has_levels = True
         else:
@@ -419,13 +424,12 @@ class AtomData(object):
         self.ionization_data.ionization_energy = units.Unit('eV').to('erg',
                                                                      self.ionization_data.ionization_energy.values)
 
-        self._levels = DataFrame(levels_data.__array__())
-        self._levels.energy = units.Unit('eV').to('erg', self._levels.energy.values)
+        self.levels = DataFrame(levels_data.__array__())
+        self.levels.energy = units.Unit('eV').to('erg', self.levels.energy.values)
 
-        self._lines = DataFrame(lines_data.__array__())
-        self._lines.set_index('line_id', inplace=True)
-        self._lines['nu'] = units.Unit('angstrom').to('Hz', self._lines['wavelength'], units.spectral())
-        self._lines['wavelength_cm'] = units.Unit('angstrom').to('cm', self._lines['wavelength'])
+        self.lines = DataFrame(lines_data.__array__())
+        self.lines['nu'] = units.Unit('angstrom').to('Hz', self.lines['wavelength'], units.spectral())
+        self.lines['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines['wavelength'])
 
 
 
@@ -463,11 +467,14 @@ class AtomData(object):
             maximum ion number to be included in the calculation
 
         """
+        if not self.prepared:
+            self.prepared = True
+        else:
+            raise AtomDataNotPreparedError("AtomData was already prepared")
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_species = nlte_species
-        self._levels = self._levels.reset_index(drop=True)
-        self.levels = self._levels.copy()
+        self.levels = self.levels.reset_index(drop=True)
 
         self.levels = self.levels[self.levels['atomic_number'].isin(self.selected_atomic_numbers)]
 
@@ -479,15 +486,16 @@ class AtomData(object):
 
         self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
         #cutting levels_lines
-        self.lines = self._lines.copy()
         self.lines = self.lines[self.lines['atomic_number'].isin(self.selected_atomic_numbers)]
         if max_ion_number is not None:
             self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
 
-        self.lines.sort('wavelength', inplace=True)
+        # self.lines.sort(['wavelength', 'line_id'], inplace=True)
+        self.lines.sort(['wavelength'], inplace=True)
+        self.lines.set_index('line_id', inplace=True)
 
 
-    
+
         self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
 
         tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
@@ -593,7 +601,6 @@ class NLTEData(object):
             if atom_data.has_collision_data:
                 self._create_collision_coefficient_matrix()
         else:
-
             self._create_nlte_mask()
 
     def _init_indices(self):
