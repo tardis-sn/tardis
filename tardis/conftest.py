@@ -39,7 +39,7 @@ def pytest_report_header(config):
     s = "\n"
     if six.PY2:
         args = [x.decode('utf-8') for x in config.args]
-    elif six.PY3:
+    else:
         args = config.args
     s += "Running tests in {0}.\n\n".format(" ".join(args))
 
@@ -182,6 +182,3 @@ def included_he_atomic_data(test_data_path):
 def tardis_config_verysimple():
     return yaml.load(
         open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
-
-
-
