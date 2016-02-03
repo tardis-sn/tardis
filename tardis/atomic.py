@@ -17,6 +17,9 @@ from pandas import DataFrame
 import pandas as pd
 
 
+class AtomDataNotPreparedError(Exception):
+    pass
+
 
 logger = logging.getLogger(__name__)
 
@@ -467,7 +470,7 @@ class AtomData(object):
         if not self.prepared:
             self.prepared = True
         else:
-            raise "AtomData was already prepared"
+            raise AtomDataNotPreparedError("AtomData was already prepared")
         self.selected_atomic_numbers = selected_atomic_numbers
 
         self.nlte_species = nlte_species
