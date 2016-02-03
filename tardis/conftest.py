@@ -133,10 +133,10 @@ def pytest_report_header(config):
     if opts:
         s += "Using Astropy options: {0}.\n".format(" ".join(opts))
 
-    if not six.PY2 and (config.getini('doctest_rst') or config.option.doctest_rst):
+    if six.PY3 and (config.getini('doctest_rst') or config.option.doctest_rst):
         s += "Running doctests in .rst files is not supported on Python 3.x\n"
 
-    if six.PY2:
+    if not six.PY3:
         s = s.encode(stdoutencoding, 'replace')
 
     return s
