@@ -7,24 +7,12 @@ from tardis.model import Radial1DModel
 from tardis.simulation import Simulation
 
 
-''' I don't get the purpose of this test. It looks like it's trying to do unit
-tests for the Simulation module but what i see happening is a full tardis test
-with only one iteration. As a result these tests will always break if something
-in the Code changes.
-To fix this, the test should be written in a way that their behavoir is
-independent of other modules. If that cannot be achieved, move these tests to
-test_tardis_full.py
-'''
-
-
 @pytest.fixture
 def tardis_config(kurucz_atomic_data, tardis_config_verysimple):
     return config_reader.Configuration.from_config_dict(
         tardis_config_verysimple, atom_data=kurucz_atomic_data)
 
 
-# For independent behavior the model should be read from a file, not generated
-# at runtime
 @pytest.fixture()
 def raw_model(tardis_config):
     return Radial1DModel(tardis_config)
