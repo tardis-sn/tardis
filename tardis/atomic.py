@@ -1,20 +1,16 @@
 # atomic model
 
-#TODO revisit import statements and reorganize
-from scipy import interpolate
-import numpy as np
-import logging
 import os
-import h5py
+import logging
 import cPickle as pickle
-
-from astropy import table, units
-
 from collections import OrderedDict
 
-from pandas import DataFrame
-
+import h5py
+import numpy as np
 import pandas as pd
+from scipy import interpolate
+from astropy import table, units
+from pandas import DataFrame
 
 
 class AtomDataNotPreparedError(Exception):
