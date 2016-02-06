@@ -145,18 +145,41 @@ def pytest_report_header(config):
 import os
 import tardis
 import yaml
+import h5py
 
 from tardis.io.config_reader import Configuration
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def atomic_data_fname():
+    """The fixture provides the atomic dataset filename if it was passed as an argument."""
     atomic_data_fname = pytest.config.getvalue("atomic-dataset")
     if atomic_data_fname is None:
+        # if the name wasn't provided that the test requesting it would be skipped
         pytest.skip('--atomic_database was not specified')
     else:
-        return os.path.expandvars(os.path.expanduser(atomic_data_fname))
+        # check that the atomic dataset exists
+        atomic_data_fname = os.path.expandvars(os.path.expanduser(atomic_data_fname))
+        if not os.path.exists(atomic_data_fname):
+            raise AttributeError("{0} atomic datafiles does not seem to exist".format(atomic_data_fname))
+        return atomic_data_fname
+
+
+@pytest.fixture(scope="session")
+def lines_dataset(atomic_data_fname, request):
+    """ The fixture returns the dataset containing lines data from the provided dataset"""
+    h5_file = h5py.File(atomic_data_fname, 'r')
+    def fin():
+        h5_file.close()
+    request.addfinalizer(fin)
+    return h5_file['lines_data']
 
 from tardis.atomic import AtomData
+
+@pytest.fixture
+def atom_data_from_dataset(atomic_data_fname):
+    """The fixture returns the AtomData instance that contains atomic data from the provided dataset"""
+    atom_data = AtomData.from_hdf5(atomic_data_fname)
+    return atom_data
 
 @pytest.fixture
 def kurucz_atomic_data(atomic_data_fname):

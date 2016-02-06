@@ -38,22 +38,37 @@ def test_atomic_symbol():
 def test_atomic_symbol_reverse():
     assert atomic.symbol2atomic_number['Si'] == 14
 
-@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
-                    reason='--atomic_database was not specified')
-def test_atomic_reprepare():
-    atom_data_filename = os.path.expanduser(os.path.expandvars(
-        pytest.config.getvalue('atomic-dataset')))
-    assert os.path.exists(atom_data_filename), ("{0} atomic datafiles "
-                                                         "does not seem to "
-                                                         "exist".format(
-        atom_data_filename))
-    atom_data = atomic.AtomData.from_hdf5(atom_data_filename)
-    atom_data.prepare_atom_data([14])
-    assert len(atom_data.lines) > 0
-    # Fix for new behavior of prepare_atom_data
-    # Consider doing only one prepare_atom_data and check
-    # len(atom_data.lines) == N where N is known
-    atom_data = atomic.AtomData.from_hdf5(atom_data_filename)
-    atom_data.prepare_atom_data([20])
-    assert len(atom_data.lines) > 0
+
+@pytest.mark.parametrize("selected_atomic_numbers", [[14], [20], [14, 20]], ids=str)
+def test_prepare_atom_data_set_lines(selected_atomic_numbers, atom_data_from_dataset, lines_dataset):
+    """ Test that lines data is prepared in accordance with the selected atomic numbers
+        Uses fixtures:
+        --------
+        atom_data_from_dataset : '~tardis.atomic.AtomData' instance containing data from the provided atomic dataset
+        lines_dataset          :  HDF5 dataset "lines_data"
+
+    """
+    atom_data_from_dataset.prepare_atom_data(selected_atomic_numbers)
+    num_of_lines = 0
+    # Go through the dataset and count the number of lines that should be selected
+    for atom_num in lines_dataset['atomic_number']:
+        if atom_num in selected_atomic_numbers:
+            num_of_lines += 1
+
+    assert len(atom_data_from_dataset.lines) == num_of_lines
+
+
+@pytest.mark.parametrize("selected_atomic_numbers, max_ion_number", [
+                        ([14], 1),
+                        ([14, 20], 3),], ids=str)
+def test_prepare_atom_data_set_lines_w_max_ion_number(selected_atomic_numbers,
+                                                      max_ion_number, atom_data_from_dataset, lines_dataset):
+    """ Test that lines data is prepared in accordance with the selected atomic numbers and the maximum ion number."""
+    atom_data_from_dataset.prepare_atom_data(selected_atomic_numbers, max_ion_number=max_ion_number)
+    num_of_lines = 0
+    for atom_num, ion_num in lines_dataset['atomic_number', 'ion_number']:
+        if atom_num in selected_atomic_numbers and ion_num <= max_ion_number:
+            num_of_lines += 1
+
+    assert len(atom_data_from_dataset.lines) == num_of_lines
 
