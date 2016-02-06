@@ -39,7 +39,10 @@ def test_atomic_symbol_reverse():
     assert atomic.symbol2atomic_number['Si'] == 14
 
 
-@pytest.mark.parametrize("selected_atomic_numbers", [[14], [20], [14, 20]], ids=str)
+param_atom_num = [[14], [20], [14, 20]]
+
+@pytest.mark.parametrize("selected_atomic_numbers", param_atom_num,
+                         ids = ["atom_num: {}".format(_) for _ in param_atom_num])
 def test_prepare_atom_data_set_lines(selected_atomic_numbers, atom_data_from_dataset, lines_dataset):
     """ Test that lines data is prepared in accordance with the selected atomic numbers
         Uses fixtures:
@@ -57,10 +60,10 @@ def test_prepare_atom_data_set_lines(selected_atomic_numbers, atom_data_from_dat
 
     assert len(atom_data_from_dataset.lines) == num_of_lines
 
+param_atom_num_max_ion_num = [([14], 1), ([14, 20], 3)]
 
-@pytest.mark.parametrize("selected_atomic_numbers, max_ion_number", [
-                        ([14], 1),
-                        ([14, 20], 3),], ids=str)
+@pytest.mark.parametrize("selected_atomic_numbers, max_ion_number", param_atom_num_max_ion_num,
+                         ids = ["atom_num: {}, max_ion_num: {}".format(*_) for _ in param_atom_num_max_ion_num])
 def test_prepare_atom_data_set_lines_w_max_ion_number(selected_atomic_numbers,
                                                       max_ion_number, atom_data_from_dataset, lines_dataset):
     """ Test that lines data is prepared in accordance with the selected atomic numbers and the maximum ion number."""
