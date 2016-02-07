@@ -5,7 +5,7 @@ import pytest
 from tardis.io import config_reader
 from tardis.model import Radial1DModel
 from tardis.simulation import Simulation
-
+from astropy import units as u
 
 @pytest.fixture
 def tardis_config(kurucz_atomic_data, tardis_config_verysimple):
@@ -47,16 +47,16 @@ def test_plasma_estimates(simulation_one_loop, simulation_compare_data):
                         atol=0.0)
 
     npt.assert_allclose(
-            t_rad, simulation_compare_data['test1/t_rad'], atol=0.0)
+            t_rad, simulation_compare_data['test1/t_rad'] * u.Unit('K'), atol=0.0)
     npt.assert_allclose(w, simulation_compare_data['test1/w'], atol=0.0)
 
 
 def test_packet_output(simulation_one_loop, simulation_compare_data):
     npt.assert_allclose(
             simulation_one_loop.runner.output_nu,
-            simulation_compare_data['test1/output_nu'],
+            simulation_compare_data['test1/output_nu'] * u.Unit('Hz'),
             atol=0.0)
 
     npt.assert_allclose(simulation_one_loop.runner.output_energy,
-                        simulation_compare_data['test1/output_energy'],
+                        simulation_compare_data['test1/output_energy'] * u.Unit("erg"),
                         atol=0.0)
