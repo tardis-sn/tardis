@@ -9,13 +9,6 @@ def lines_dataset(atomic_data_fname):
     with h5py.File(atomic_data_fname, 'r') as h5_file:
         yield h5_file['lines_data']
 
-@pytest.fixture
-def atom_data_f_dataset_not_prepared(atomic_data_fname):
-    """The fixture returns the AtomData instance that contains atomic data from the provided dataset.
-       Does NOT call AtomData.prepare_atom_data method on the instance."""
-    atom_data = atomic.AtomData.from_hdf5(atomic_data_fname)
-    return atom_data
-
 def test_atomic_h5_readin():
     data = atomic.read_basic_atom_data(atomic.default_atom_h5_path)
     assert data['atomic_number'][13] == 14
@@ -56,15 +49,16 @@ param_atom_num = [[14], [20], [14, 20]]
 
 @pytest.mark.parametrize("selected_atomic_numbers", param_atom_num,
                          ids = ["atom_num: {}".format(_) for _ in param_atom_num])
-def test_prepare_atom_data_set_lines(selected_atomic_numbers, atom_data_f_dataset_not_prepared, lines_dataset):
+def test_prepare_atom_data_set_lines(selected_atomic_numbers, atomic_data_fname, lines_dataset):
     """ Test that lines data is prepared in accordance with the selected atomic numbers
         Uses fixtures:
         --------
-        atom_data_from_dataset : '~tardis.atomic.AtomData' instance containing data from the provided atomic dataset
-        lines_dataset          :  HDF5 dataset "lines_data"
+        from tardis/conftest.py
+            atomic_data_fname :  the filename of the provided atomic dataset
 
+        lines_dataset     :  HDF5 dataset "lines_data"
     """
-    atom_data = atom_data_f_dataset_not_prepared
+    atom_data = atomic.AtomData.from_hdf5(atomic_data_fname)
     atom_data.prepare_atom_data(selected_atomic_numbers)
     num_of_lines = 0
     # Go through the dataset and count the number of lines that should be selected
@@ -79,9 +73,9 @@ param_atom_num_max_ion_num = [([14], 1), ([14, 20], 3)]
 @pytest.mark.parametrize("selected_atomic_numbers, max_ion_number", param_atom_num_max_ion_num,
                          ids = ["atom_num: {}, max_ion_num: {}".format(*_) for _ in param_atom_num_max_ion_num])
 def test_prepare_atom_data_set_lines_w_max_ion_number(selected_atomic_numbers, max_ion_number,
-                                                      atom_data_f_dataset_not_prepared, lines_dataset):
+                                                      atomic_data_fname, lines_dataset):
     """ Test that lines data is prepared in accordance with the selected atomic numbers and the maximum ion number."""
-    atom_data = atom_data_f_dataset_not_prepared
+    atom_data = atomic.AtomData.from_hdf5(atomic_data_fname)
     atom_data.prepare_atom_data(selected_atomic_numbers, max_ion_number=max_ion_number)
     num_of_lines = 0
     for atom_num, ion_num in lines_dataset['atomic_number', 'ion_number']:
