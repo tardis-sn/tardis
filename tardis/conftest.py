@@ -164,14 +164,11 @@ def atomic_data_fname():
         return atomic_data_fname
 
 
-@pytest.fixture(scope="session")
-def lines_dataset(atomic_data_fname, request):
+@pytest.yield_fixture(scope="session")
+def lines_dataset(atomic_data_fname):
     """ The fixture returns the dataset containing lines data from the provided dataset"""
-    h5_file = h5py.File(atomic_data_fname, 'r')
-    def fin():
-        h5_file.close()
-    request.addfinalizer(fin)
-    return h5_file['lines_data']
+    with h5py.File(atomic_data_fname, 'r') as h5_file:
+        yield h5_file['lines_data']
 
 from tardis.atomic import AtomData
 
