@@ -145,9 +145,10 @@ def pytest_report_header(config):
 import os
 import tardis
 import yaml
-import h5py
 
 from tardis.io.config_reader import Configuration
+from tardis.atomic import AtomData
+
 
 @pytest.fixture(scope="session")
 def atomic_data_fname():
@@ -164,20 +165,6 @@ def atomic_data_fname():
         return atomic_data_fname
 
 
-@pytest.yield_fixture(scope="session")
-def lines_dataset(atomic_data_fname):
-    """ The fixture returns the dataset containing lines data from the provided dataset"""
-    with h5py.File(atomic_data_fname, 'r') as h5_file:
-        yield h5_file['lines_data']
-
-from tardis.atomic import AtomData
-
-@pytest.fixture
-def atom_data_from_dataset(atomic_data_fname):
-    """The fixture returns the AtomData instance that contains atomic data from the provided dataset"""
-    atom_data = AtomData.from_hdf5(atomic_data_fname)
-    return atom_data
-
 @pytest.fixture
 def kurucz_atomic_data(atomic_data_fname):
     atomic_data = AtomData.from_hdf5(atomic_data_fname)
@@ -188,15 +175,18 @@ def kurucz_atomic_data(atomic_data_fname):
     else:
         return atomic_data
 
+
 @pytest.fixture
 def test_data_path():
     return os.path.join(tardis.__path__[0], 'tests', 'data')
+
 
 @pytest.fixture
 def included_he_atomic_data(test_data_path):
     import os, tardis
     atomic_db_fname = os.path.join(test_data_path, 'chianti_he_db.h5')
     return AtomData.from_hdf5(atomic_db_fname)
+
 
 @pytest.fixture
 def tardis_config_verysimple():
