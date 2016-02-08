@@ -2,6 +2,7 @@
 #ifdef WITHOPENMP
 #include <omp.h>
 #endif
+#include "abbrev.h"
 #include "cmontecarlo.h"
 
 /** Look for a place to insert a value in an inversely sorted float array.
@@ -431,12 +432,12 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
 		    if (storage->virt_packet_count >= storage->virt_array_size)
 		      {
 			storage->virt_array_size *= 2;
-			storage->virt_packet_nus = realloc(storage->virt_packet_nus, sizeof(double) * storage->virt_array_size);
-			storage->virt_packet_energies = realloc(storage->virt_packet_energies, sizeof(double) * storage->virt_array_size);
-			storage->virt_packet_last_interaction_in_nu = realloc(storage->virt_packet_last_interaction_in_nu, sizeof(double) * storage->virt_array_size);
-      storage->virt_packet_last_interaction_type = realloc(storage->virt_packet_last_interaction_type, sizeof(int64_t) * storage->virt_array_size);
-      storage->virt_packet_last_line_interaction_in_id = realloc(storage->virt_packet_last_line_interaction_in_id, sizeof(int64_t) * storage->virt_array_size);
-      storage->virt_packet_last_line_interaction_out_id = realloc(storage->virt_packet_last_line_interaction_out_id, sizeof(int64_t) * storage->virt_array_size);
+			storage->virt_packet_nus = safe_realloc(storage->virt_packet_nus, sizeof(double) * storage->virt_array_size);
+			storage->virt_packet_energies = safe_realloc(storage->virt_packet_energies, sizeof(double) * storage->virt_array_size);
+			storage->virt_packet_last_interaction_in_nu = safe_realloc(storage->virt_packet_last_interaction_in_nu, sizeof(double) * storage->virt_array_size);
+      storage->virt_packet_last_interaction_type = safe_realloc(storage->virt_packet_last_interaction_type, sizeof(int64_t) * storage->virt_array_size);
+      storage->virt_packet_last_line_interaction_in_id = safe_realloc(storage->virt_packet_last_line_interaction_in_id, sizeof(int64_t) * storage->virt_array_size);
+      storage->virt_packet_last_line_interaction_out_id = safe_realloc(storage->virt_packet_last_line_interaction_out_id, sizeof(int64_t) * storage->virt_array_size);
 		      }
 		    storage->virt_packet_nus[storage->virt_packet_count] = rpacket_get_nu(&virt_packet);
 		    storage->virt_packet_energies[storage->virt_packet_count] = rpacket_get_energy(&virt_packet) * weight;
@@ -817,12 +818,12 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 {
   storage->virt_packet_count = 0;
 #ifdef WITH_VPACKET_LOGGING
-  storage->virt_packet_nus = (double *)malloc(sizeof(double) * storage->no_of_packets);
-  storage->virt_packet_energies = (double *)malloc(sizeof(double) * storage->no_of_packets);
-  storage->virt_packet_last_interaction_in_nu = (double *)malloc(sizeof(double) * storage->no_of_packets);
-  storage->virt_packet_last_interaction_type = (int64_t *)malloc(sizeof(int64_t) * storage->no_of_packets);
-  storage->virt_packet_last_line_interaction_in_id = (int64_t *)malloc(sizeof(int64_t) * storage->no_of_packets);
-  storage->virt_packet_last_line_interaction_out_id = (int64_t *)malloc(sizeof(int64_t) * storage->no_of_packets);
+  storage->virt_packet_nus = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
+  storage->virt_packet_energies = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
+  storage->virt_packet_last_interaction_in_nu = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
+  storage->virt_packet_last_interaction_type = (int64_t *)safe_malloc(sizeof(int64_t) * storage->no_of_packets);
+  storage->virt_packet_last_line_interaction_in_id = (int64_t *)safe_malloc(sizeof(int64_t) * storage->no_of_packets);
+  storage->virt_packet_last_line_interaction_out_id = (int64_t *)safe_malloc(sizeof(int64_t) * storage->no_of_packets);
   storage->virt_array_size = storage->no_of_packets;
 #endif // WITH_VPACKET_LOGGING
 #ifdef WITHOPENMP
