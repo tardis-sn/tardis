@@ -3,14 +3,12 @@
 
 #include <stdlib.h>
 
-#define FAIL() abort()
-
 /**
  * @brief safe malloc; checks for NULL and aborts if encountered
  */
 static inline void* safe_malloc(size_t size) {
   void *mem = malloc(size);
-  if (mem == NULL && size != 0) FAIL();
+  if (mem == NULL && size != 0) abort();
   return mem;
 }
 
@@ -19,7 +17,7 @@ static inline void* safe_malloc(size_t size) {
  */
 static inline void* safe_realloc(void *ptr, size_t size) {
   void *mem = realloc(ptr, size);
-  if (mem == NULL && size != 0) FAIL();
+  if (mem == NULL && size != 0) abort();
   return mem;
 }
 
