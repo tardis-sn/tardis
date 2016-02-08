@@ -52,7 +52,7 @@ available here :ref:`installation`.
 A file containing an example configuration file and an atomic database can be found in the section :ref:`running`
 
 If you're interested in contributing to the code, either contact us or you can contribute directly via github.
-We are using Astropy's excellent workflow - more details can be found at `<http://astropy.readthedocs.org/en/latest/development/workflow/index.html>`_.
+We are using Astropy's excellent workflow - more details can be found at `<http://astropy.readthedocs.org/en/latest/development/workflow/maintainer_workflow.html>`_.
 
 
 
