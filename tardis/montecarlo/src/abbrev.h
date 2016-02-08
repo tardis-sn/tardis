@@ -1,6 +1,8 @@
 #ifndef ABBREV_H
 #define ABBREV_H
 
+#include <stdlib.h>
+
 #define FAIL() abort()
 
 /**
