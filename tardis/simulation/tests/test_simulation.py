@@ -5,7 +5,8 @@ import pytest
 from tardis.io import config_reader
 from tardis.model import Radial1DModel
 from tardis.simulation import Simulation
-
+from astropy import units as u
+from astropy.tests.helper import assert_quantity_allclose
 
 @pytest.fixture
 def tardis_config(kurucz_atomic_data, tardis_config_verysimple):
@@ -46,17 +47,17 @@ def test_plasma_estimates(simulation_one_loop, simulation_compare_data):
                         simulation_compare_data['test1/j_estimators'],
                         atol=0.0)
 
-    npt.assert_allclose(
-            t_rad, simulation_compare_data['test1/t_rad'], atol=0.0)
+    assert_quantity_allclose(
+            t_rad, simulation_compare_data['test1/t_rad'] * u.Unit('K'), atol=0.0 * u.Unit('K'))
     npt.assert_allclose(w, simulation_compare_data['test1/w'], atol=0.0)
 
 
 def test_packet_output(simulation_one_loop, simulation_compare_data):
-    npt.assert_allclose(
+    assert_quantity_allclose(
             simulation_one_loop.runner.output_nu,
-            simulation_compare_data['test1/output_nu'],
-            atol=0.0)
+            simulation_compare_data['test1/output_nu'] * u.Unit('Hz'),
+            atol=0.0 * u.Unit('Hz'))
 
-    npt.assert_allclose(simulation_one_loop.runner.output_energy,
-                        simulation_compare_data['test1/output_energy'],
-                        atol=0.0)
+    assert_quantity_allclose(simulation_one_loop.runner.output_energy,
+                        simulation_compare_data['test1/output_energy'] * u.Unit('erg'),
+                        atol=0.0 * u.Unit('erg'))
