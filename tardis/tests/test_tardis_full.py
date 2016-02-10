@@ -14,10 +14,16 @@ from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 
 
+slow = pytest.mark.skipif(
+    not pytest.config.getoption("--runslow"),
+    reason="need --runslow option to run"
+)
+
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
 
+@slow
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
 class TestSimpleRun():
