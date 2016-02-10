@@ -152,9 +152,6 @@ import yaml
 from tardis.atomic import AtomData
 from tardis.io.config_reader import Configuration
 
-def slow():
-    return pytest.mark.skipif(not pytest.config.getoption("--runslow"),
-            reason="need --runslow option to run")
 
 @pytest.fixture
 def atomic_data_fname():
