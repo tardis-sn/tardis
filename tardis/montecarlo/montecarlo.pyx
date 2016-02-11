@@ -269,13 +269,11 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
         runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
         runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
-    else:
-        runner.virt_packet_nus = None
-        runner.virt_packet_energies = None
-        runner.virt_packet_last_interaction_in_nu = None
-        runner.virt_packet_last_interaction_type = None
-        runner.virt_packet_last_line_interaction_in_id = None
-        runner.virt_packet_last_line_interaction_out_id = None
     #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies
-
-
+    else:
+        runner.virt_packet_nus = np.zeros(0)
+        runner.virt_packet_energies = np.zeros(0)
+        runner.virt_packet_last_interaction_in_nu = np.zeros(0)
+        runner.virt_packet_last_interaction_type = np.zeros(0)
+        runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
+        runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
