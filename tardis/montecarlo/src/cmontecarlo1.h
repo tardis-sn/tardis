@@ -10,6 +10,6 @@
  * @return index of the next line ot the red. If the key value is redder than the reddest line returns number_of_lines.
  */
 tardis_error_t line_search (const double *nu, double nu_insert,
-       int64_t number_of_lines, int64_t * result);
+                            int64_t number_of_lines, int64_t * result);
 
 #endif
