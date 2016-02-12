@@ -245,6 +245,7 @@ class Simulation(object):
             model.t_rads = next_t_rad
             model.ws = next_w
             model.t_inner = next_t_inner
+            model.j_blue_estimators = self.runner.j_blue_estimator
 
             model.calculate_j_blues(init_detailed_j_blues=False)
             model.update_plasmas(initialize_nlte=False)

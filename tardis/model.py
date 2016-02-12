@@ -207,7 +207,7 @@ class Radial1DModel(object):
             logger.info('Calculating J_blues for radiate_rates_type=detailed')
 
             self.j_blues = pd.DataFrame(
-                self.j_blue_estimators.transpose() *
+                self.j_blue_estimators *
                 self.j_blues_norm_factor.value,
                 index=self.atom_data.lines.index,
                 columns=np.arange(len(self.t_rads)))
