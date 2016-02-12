@@ -78,10 +78,7 @@ class TestSimpleRun():
 
         """
 
-        if self.model.runner.virt_logging > 0:
-            virt_type = np.ndarray
-        else:
-            virt_type = type(None)
+        virt_type = np.ndarray
 
 
         props_required_by_modeltohdf5 = dict([
