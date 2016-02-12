@@ -216,7 +216,7 @@ class Radial1DModel(object):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = (
                     w_epsilon * intensity_black_body(
-                        self.atom_data.lines.nu.values[zero_j_blues],
+                        self.atom_data.lines.nu[zero_j_blues].values,
                         self.t_rads.value[i]))
 
         else:
