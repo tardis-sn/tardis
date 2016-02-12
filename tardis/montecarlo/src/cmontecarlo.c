@@ -858,7 +858,10 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
               finished_packets * omp_get_num_threads(),
               storage->no_of_packets);
 #else
-        fprintf(stderr, STATUS_FORMAT, finished_packets*100/storage->no_of_packets, finished_packets, storage->no_of_packets);
+        fprintf(stderr, STATUS_FORMAT,
+                finished_packets * 100 / storage->no_of_packets,
+                finished_packets,
+                storage->no_of_packets);
 #endif
       }
       int reabsorbed = 0;
