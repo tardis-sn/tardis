@@ -19,8 +19,8 @@
 #endif
 
 typedef void (*montecarlo_event_handler_t) (rpacket_t * packet,
-					    storage_model_t * storage,
-					    double distance, rk_state *mt_state);
+                                            storage_model_t * storage,
+                                            double distance, rk_state *mt_state);
 
 void initialize_random_kit (unsigned long seed);
 
@@ -34,7 +34,7 @@ double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *st
  * @return distance to shell boundary
  */
 double compute_distance2boundary (rpacket_t * packet,
-					 const storage_model_t * storage);
+                                  const storage_model_t * storage);
 
 /** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
  *
@@ -44,11 +44,11 @@ double compute_distance2boundary (rpacket_t * packet,
  * @return distance to the next spectral line
  */
 tardis_error_t compute_distance2line (const rpacket_t * packet,
-						    const storage_model_t * storage,
-						    double *result);
+                                      const storage_model_t * storage,
+                                      double *result);
 
 /** Calculate the distance to the next continuum event, which can be a Thomson scattering, bound-free absorption or
-    free-free transition.
+  free-free transition.
  *
  * @param packet rpacket structure with packet information
  * @param storage storage model data
@@ -60,23 +60,23 @@ void compute_distance2continuum (rpacket_t * packet, storage_model_t * storage);
 int64_t macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
 double move_packet (rpacket_t * packet, storage_model_t * storage,
-			   double distance);
+                    double distance);
 
 void increment_j_blue_estimator (const rpacket_t * packet,
-					storage_model_t * storage,
-					double d_line, int64_t j_blue_idx);
+                                 storage_model_t * storage,
+                                 double d_line, int64_t j_blue_idx);
 
 int64_t montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
-			       int64_t virtual_mode, rk_state *mt_state);
+                               int64_t virtual_mode, rk_state *mt_state);
 
 int64_t montecarlo_one_packet_loop (storage_model_t * storage,
-				    rpacket_t * packet,
-				    int64_t virtual_packet, rk_state *mt_state);
+                                    rpacket_t * packet,
+                                    int64_t virtual_packet, rk_state *mt_state);
 
 void montecarlo_main_loop(storage_model_t * storage,
-			  int64_t virtual_packet_flag,
-			  int nthreads,
-			  unsigned long seed);
+                          int64_t virtual_packet_flag,
+                          int nthreads,
+                          unsigned long seed);
 
 /* New handlers for continuum implementation */
 
