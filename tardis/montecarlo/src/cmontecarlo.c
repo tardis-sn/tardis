@@ -5,6 +5,8 @@
 #include "abbrev.h"
 #include "cmontecarlo.h"
 
+#define STATUS_FORMAT "\r\033[2K\t[%" PRId64 "%%] Packets(finished/total): %" PRId64 "/%" PRId64
+
 /** Look for a place to insert a value in an inversely sorted float array.
  *
  * @param x an inversely (largest to lowest) sorted float array
@@ -816,6 +818,7 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
 void
 montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
 {
+  int64_t finished_packets = 0;
   storage->virt_packet_count = 0;
 #ifdef WITH_VPACKET_LOGGING
   storage->virt_packet_nus = (double *)safe_malloc(sizeof(double) * storage->no_of_packets);
@@ -829,41 +832,56 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #ifdef WITHOPENMP
   omp_set_dynamic(0);
   omp_set_num_threads(nthreads);
-#pragma omp parallel
+
+#pragma omp parallel firstprivate(finished_packets)
   {
     rk_state mt_state;
     rk_seed (seed + omp_get_thread_num(), &mt_state);
 #pragma omp master
     fprintf(stderr, "Running with OpenMP - %d threads\n", omp_get_num_threads());
-
 #pragma omp for
 #else
-  fprintf(stderr, "Running without OpenMP\n");
-  rk_state mt_state;
-  rk_seed (seed, &mt_state);
+    rk_state mt_state;
+    rk_seed (seed, &mt_state);
+    fprintf(stderr, "Running without OpenMP\n");
 #endif
-  for (int64_t packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
+    for (int64_t packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
     {
+      ++finished_packets;
+      if ( finished_packets%100 == 0 ) {
+#ifdef WITHOPENMP
+        // WARNING: This only works with a static sheduler and gives an approximation of progress.
+        // The alternative would be to have a shared variable but that could potentially decrease performance when using many threads.
+        if (omp_get_thread_num() == 0 )
+          fprintf(stderr, STATUS_FORMAT,
+              finished_packets * omp_get_num_threads() * 100 / storage->no_of_packets,
+              finished_packets * omp_get_num_threads(),
+              storage->no_of_packets);
+#else
+        fprintf(stderr, STATUS_FORMAT, finished_packets*100/storage->no_of_packets, finished_packets, storage->no_of_packets);
+#endif
+      }
       int reabsorbed = 0;
       rpacket_t packet;
       rpacket_set_id(&packet, packet_index);
       rpacket_init(&packet, storage, packet_index, virtual_packet_flag);
       if (virtual_packet_flag > 0)
-	{
-	  reabsorbed = montecarlo_one_packet(storage, &packet, -1, &mt_state);
-	}
+      {
+        reabsorbed = montecarlo_one_packet(storage, &packet, -1, &mt_state);
+      }
       reabsorbed = montecarlo_one_packet(storage, &packet, 0, &mt_state);
       storage->output_nus[packet_index] = rpacket_get_nu(&packet);
       if (reabsorbed == 1)
-	{
-	  storage->output_energies[packet_index] = -rpacket_get_energy(&packet);
-	}
+      {
+        storage->output_energies[packet_index] = -rpacket_get_energy(&packet);
+      }
       else
-	{
-	  storage->output_energies[packet_index] = rpacket_get_energy(&packet);
-	}
+      {
+        storage->output_energies[packet_index] = rpacket_get_energy(&packet);
+      }
     }
 #ifdef WITHOPENMP
   }
 #endif
+  fprintf(stderr, STATUS_FORMAT "\n", 100l, storage->no_of_packets, storage->no_of_packets);
 }
