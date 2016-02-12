@@ -32,6 +32,10 @@ def pytest_addoption(parser):
     parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
                      help="filename for atomic dataset")
 
+    parser.addoption("--runslow", action="store_true",
+                     help="run slow tests")
+
+
 def pytest_report_header(config):
 
     stdoutencoding = getattr(sys.stdout, 'encoding') or 'ascii'
@@ -145,8 +149,9 @@ def pytest_report_header(config):
 import os
 import tardis
 import yaml
-
+from tardis.atomic import AtomData
 from tardis.io.config_reader import Configuration
+
 
 @pytest.fixture
 def atomic_data_fname():
@@ -155,8 +160,6 @@ def atomic_data_fname():
         pytest.skip('--atomic_database was not specified')
     else:
         return os.path.expandvars(os.path.expanduser(atomic_data_fname))
-
-from tardis.atomic import AtomData
 
 @pytest.fixture
 def kurucz_atomic_data(atomic_data_fname):
