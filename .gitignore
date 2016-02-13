@@ -16,6 +16,22 @@ __pycache__
 htmlcov
 .coverage
 
+# IDE Specific files
+### Pycharm IDE - Jetbrains
+.idea/*
+
+### PyDev IDE - Eclipse
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+local.properties
+.settings/
+.loadpath
+*.project
+*.pydevproject
+
 # Sphinx
 _build
 
