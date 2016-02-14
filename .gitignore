@@ -5,16 +5,19 @@
 *.so
 __pycache__
 
+
 # Ignore .c files by default to avoid including generated code. If you want to
 # add a non-generated .c extension, use `git add -f filename.c`.
 *.c
 !tardis/montecarlo/src/*.c
+
 
 # Other generated files
 */version.py
 */cython_version.py
 htmlcov
 .coverage
+
 
 # IDE Specific files
 ### Pycharm IDE - Jetbrains
@@ -31,8 +34,13 @@ local.properties
 *.project
 *.pydevproject
 
+### YouCompleteMe - VIM plugin
+.ycm_extra_conf.py
+
+
 # Sphinx
 _build
+
 
 # Packages/installer info
 *.egg
@@ -52,6 +60,7 @@ distribute-*.tar.gz
 # Other
 .*.swp
 *~
+
 
 # Mac OSX
 .DS_Store
