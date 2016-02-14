@@ -22,7 +22,6 @@ htmlcov
 
 ### PyDev IDE - Eclipse
 .metadata
-bin/
 tmp/
 *.tmp
 *.bak
