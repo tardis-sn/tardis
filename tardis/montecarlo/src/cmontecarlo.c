@@ -1,11 +1,13 @@
+#define _POSIX_C_SOURCE 1
+
 #include <inttypes.h>
 #ifdef WITHOPENMP
 #include <omp.h>
 #endif
 #include "abbrev.h"
 #include "cmontecarlo.h"
+#include "io.h"
 
-#define STATUS_FORMAT "\r\033[2K\t[%" PRId64 "%%] Packets(finished/total): %" PRId64 "/%" PRId64
 
 /** Look for a place to insert a value in an inversely sorted float array.
  *
@@ -853,15 +855,9 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
         // WARNING: This only works with a static sheduler and gives an approximation of progress.
         // The alternative would be to have a shared variable but that could potentially decrease performance when using many threads.
         if (omp_get_thread_num() == 0 )
-          fprintf(stderr, STATUS_FORMAT,
-              finished_packets * omp_get_num_threads() * 100 / storage->no_of_packets,
-              finished_packets * omp_get_num_threads(),
-              storage->no_of_packets);
+          print_progress(finished_packets * omp_get_num_threads(), storage->no_of_packets);
 #else
-        fprintf(stderr, STATUS_FORMAT,
-                finished_packets * 100 / storage->no_of_packets,
-                finished_packets,
-                storage->no_of_packets);
+        print_progress(finished_packets, storage->no_of_packets);
 #endif
       }
       int reabsorbed = 0;
@@ -886,5 +882,6 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #ifdef WITHOPENMP
   }
 #endif
-  fprintf(stderr, STATUS_FORMAT "\n", 100l, storage->no_of_packets, storage->no_of_packets);
+  print_progress(storage->no_of_packets, storage->no_of_packets);
+  fprintf(stderr,"\n");
 }
