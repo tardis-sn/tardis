@@ -44,6 +44,13 @@ class TestSimpleRun():
 
         self.simulation.legacy_run_simulation(self.model)
 
+    def test_j_blue_estimators(self):
+        j_blue_estimator = np.load(
+            data_path('simple_test_j_blue_estimator.npy'))
+
+        np.testing.assert_allclose(self.model.runner.j_blue_estimator,
+                                   j_blue_estimator)
+
     def test_spectrum(self):
         luminosity_density = np.load(
             data_path('simple_test_luminosity_density_lambda.npy'))
