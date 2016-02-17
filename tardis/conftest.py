@@ -147,16 +147,23 @@ import tardis
 import yaml
 
 from tardis.io.config_reader import Configuration
+from tardis.atomic import AtomData
 
-@pytest.fixture
+
+@pytest.fixture(scope="session")
 def atomic_data_fname():
+    """The fixture provides the atomic dataset filename if it was passed as an argument."""
     atomic_data_fname = pytest.config.getvalue("atomic-dataset")
     if atomic_data_fname is None:
+        # if the name wasn't provided that the test requesting it would be skipped
         pytest.skip('--atomic_database was not specified')
     else:
-        return os.path.expandvars(os.path.expanduser(atomic_data_fname))
+        # check that the atomic dataset exists
+        atomic_data_fname = os.path.expandvars(os.path.expanduser(atomic_data_fname))
+        if not os.path.exists(atomic_data_fname):
+            raise AttributeError("{0} atomic datafiles does not seem to exist".format(atomic_data_fname))
+        return atomic_data_fname
 
-from tardis.atomic import AtomData
 
 @pytest.fixture
 def kurucz_atomic_data(atomic_data_fname):
@@ -168,15 +175,18 @@ def kurucz_atomic_data(atomic_data_fname):
     else:
         return atomic_data
 
+
 @pytest.fixture
 def test_data_path():
     return os.path.join(tardis.__path__[0], 'tests', 'data')
+
 
 @pytest.fixture
 def included_he_atomic_data(test_data_path):
     import os, tardis
     atomic_db_fname = os.path.join(test_data_path, 'chianti_he_db.h5')
     return AtomData.from_hdf5(atomic_db_fname)
+
 
 @pytest.fixture
 def tardis_config_verysimple():
