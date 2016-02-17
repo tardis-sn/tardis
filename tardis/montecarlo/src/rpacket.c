@@ -3,7 +3,7 @@
 
 tardis_error_t
 rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
-	      int virtual_packet_flag)
+              int virtual_packet_flag)
 {
   int64_t current_line_id;
   tardis_error_t ret_val = TARDIS_ERROR_OK;
@@ -15,16 +15,16 @@ rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
   double current_r = storage->r_inner[0];
   current_nu =
     current_nu / (1 -
-		  (current_mu * current_r * storage->inverse_time_explosion *
-		   INVERSE_C));
+                  (current_mu * current_r * storage->inverse_time_explosion *
+                   INVERSE_C));
   current_energy =
     current_energy / (1 -
-		      (current_mu * current_r *
-		       storage->inverse_time_explosion * INVERSE_C));
+                      (current_mu * current_r *
+                       storage->inverse_time_explosion * INVERSE_C));
   if ((ret_val =
        line_search (storage->line_list_nu, comov_current_nu,
-		    storage->no_of_lines,
-		    &current_line_id)) != TARDIS_ERROR_OK)
+                    storage->no_of_lines,
+                    &current_line_id)) != TARDIS_ERROR_OK)
     {
       return ret_val;
     }
