@@ -135,7 +135,7 @@ static inline unsigned int rpacket_get_current_shell_id (const rpacket_t * packe
 }
 
 static inline void rpacket_set_current_shell_id (rpacket_t * packet,
-            unsigned int current_shell_id)
+                                                 unsigned int current_shell_id)
 {
   packet->current_shell_id = current_shell_id;
 }
@@ -146,7 +146,7 @@ static inline unsigned int rpacket_get_next_line_id (const rpacket_t * packet)
 }
 
 static inline void rpacket_set_next_line_id (rpacket_t * packet,
-              unsigned int next_line_id)
+                                             unsigned int next_line_id)
 {
   packet->next_line_id = next_line_id;
 }
@@ -177,7 +177,7 @@ static inline int rpacket_get_recently_crossed_boundary (const rpacket_t * packe
 }
 
 static inline void rpacket_set_recently_crossed_boundary (rpacket_t * packet,
-               int recently_crossed_boundary)
+                                                          int recently_crossed_boundary)
 {
   packet->recently_crossed_boundary = recently_crossed_boundary;
 }
@@ -188,7 +188,7 @@ static inline int rpacket_get_virtual_packet_flag (const rpacket_t * packet)
 }
 
 static inline void rpacket_set_virtual_packet_flag (rpacket_t * packet,
-               int virtual_packet_flag)
+                                                    int virtual_packet_flag)
 {
   packet->virtual_packet_flag = virtual_packet_flag;
 }
@@ -199,7 +199,7 @@ static inline int rpacket_get_virtual_packet (const rpacket_t * packet)
 }
 
 static inline void rpacket_set_virtual_packet (rpacket_t * packet,
-          int virtual_packet)
+                                               int virtual_packet)
 {
   packet->virtual_packet = virtual_packet;
 }
@@ -270,7 +270,7 @@ static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_sta
 }
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
-           int packet_index, int virtual_packet_flag);
+                             int packet_index, int virtual_packet_flag);
 
 /* New getter and setter methods for continuum implementation */
 
