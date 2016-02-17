@@ -208,9 +208,9 @@ class Radial1DModel(object):
 
             self.j_blues = pd.DataFrame(
                 self.j_blue_estimators *
-                self.j_blues_norm_factor.value,
-                index=self.atom_data.lines.index,
-                columns=np.arange(len(self.t_rads)))
+                    self.j_blues_norm_factor.value,
+                    index=self.atom_data.lines.index,
+                    columns=np.arange(len(self.t_rads)))
 
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
