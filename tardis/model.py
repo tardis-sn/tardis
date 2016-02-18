@@ -207,16 +207,16 @@ class Radial1DModel(object):
             logger.info('Calculating J_blues for radiate_rates_type=detailed')
 
             self.j_blues = pd.DataFrame(
-                self.j_blue_estimators.transpose() *
-                self.j_blues_norm_factor.value,
-                index=self.atom_data.lines.index,
-                columns=np.arange(len(self.t_rads)))
+                self.j_blue_estimators *
+                    self.j_blues_norm_factor.value,
+                    index=self.atom_data.lines.index,
+                    columns=np.arange(len(self.t_rads)))
 
             for i in xrange(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = (
                     w_epsilon * intensity_black_body(
-                        self.atom_data.lines.nu.values[zero_j_blues],
+                        self.atom_data.lines.nu[zero_j_blues].values,
                         self.t_rads.value[i]))
 
         else:
