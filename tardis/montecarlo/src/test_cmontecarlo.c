@@ -97,6 +97,14 @@ static void init_storage_model(storage_model_t *sm){
 	sm->line_list_nu[3] = 1.23357675e+16;
 	sm->line_list_nu[4] = 1.16961598e+16;
 
+    sm->line_list_packet_counter = (int64_t *) malloc(sizeof(int64_t)*5);
+    sm->line_list_packet_counter[0] = 0;
+    sm->line_list_packet_counter[1] = 0;
+    sm->line_list_packet_counter[2] = 0;
+    sm->line_list_packet_counter[3] = 0;
+    sm->line_list_packet_counter[4] = 0;
+
+
 	/* INVERSE_ELECTRON_DENSITIES = {} */
 	sm->inverse_electron_densities = (double *) malloc(sizeof(double)*NUMBER_OF_SHELLS);
 	sm->inverse_electron_densities[0] = 1e-9;
@@ -290,6 +298,7 @@ test_increment_j_blue_estimator(void){
 	double d_line = rpacket_get_d_line(&rp);
 	increment_j_blue_estimator(&rp, &sm, d_line, j_blue_idx);
 	double res = sm.line_lists_j_blues[j_blue_idx];
+        fprintf(stdout, "%d\n", sm.line_list_packet_counter[0]);
         dealloc_storage_model(&sm);
         return res;
 }
