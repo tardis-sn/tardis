@@ -539,7 +539,8 @@ void
 montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
                             double distance, rk_state *mt_state)
 {
-  double doppler_factor = move_packet (packet, storage, distance);
+  move_packet (packet, storage, distance);
+  double doppler_factor = rpacket_doppler_factor (packet, storage);
   double comov_nu = rpacket_get_nu (packet) * doppler_factor;
   double comov_energy = rpacket_get_energy (packet) * doppler_factor;
   rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
@@ -630,7 +631,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     }
   else if (rpacket_get_tau_event (packet) < tau_combined)
     {
-      double old_doppler_factor = move_packet (packet, storage, distance);
+      move_packet (packet, storage, distance);
+      double old_doppler_factor = rpacket_doppler_factor (packet, storage);
       rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
       double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
       double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
