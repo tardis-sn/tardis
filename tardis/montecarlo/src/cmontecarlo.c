@@ -318,7 +318,7 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state 
   return storage->transition_line_id[i];
 }
 
-double
+void
 move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 {
   double doppler_factor = rpacket_doppler_factor (packet, storage);
@@ -347,7 +347,6 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
             comov_energy * distance * comov_nu;
         }
     }
-  return doppler_factor;
 }
 
 void
