@@ -18,6 +18,9 @@
  *
  * @return index of the next boundary to the left
  */
+
+long int global_count = 0;
+
 static tardis_error_t
 reverse_binary_search (const double *x, double x_insert,
                        int64_t imin, int64_t imax, int64_t * result)
@@ -623,6 +626,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     {
       rpacket_set_last_line (packet, true);
     }
+
+
   if (rpacket_get_virtual_packet (packet) > 0)
     {
       rpacket_set_tau_event (packet,
@@ -660,6 +665,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       rpacket_set_next_line_id (packet, emission_line_id + 1);
       rpacket_reset_tau_event (packet, mt_state);
       rpacket_set_recently_crossed_boundary (packet, 0);
+
       if (rpacket_get_virtual_packet_flag (packet) > 0)
         {
           bool virtual_close_line = false;
@@ -689,8 +695,15 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                                              1e-7))
     {
       rpacket_set_close_line (packet, true);
+      //Resonance Packet Counter increment
+      storage->line_list_packet_counter[rpacket_get_next_line_id(packet)] += 1;
+      global_count += 1;
+
+/*      if (global_count%100000 == 0)
+        fprintf(stderr, "\nGlobal count : %ld\n", global_count);
+*/    //Uncomment to see periodic printing of global resonance count
     }
-}
+} 
 
 static void
 montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)

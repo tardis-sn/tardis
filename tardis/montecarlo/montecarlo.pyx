@@ -45,7 +45,8 @@ cdef extern from "src/cmontecarlo.h":
         double inverse_time_explosion
         double *electron_densities
         double *inverse_electron_densities
-        double *line_list_nu
+        double *line_list_nu        
+        int_type_t *line_list_packet_counter
         double *line_lists_tau_sobolevs
         double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
@@ -145,6 +146,9 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         storage.l_pop_r = <double*> l_pop_r.data
 
     # Line lists
+    storage.line_list_packet_counter = <int_type_t*> PyArray_DATA(
+       np.zeros(model.atom_data.lines.nu.values.size, dtype=np.int64))
+    #storage.line_list_packet_counter = np.zeros(model.atom_data.lines.nu.values.size, dtype=np.int64)
     storage.no_of_lines = model.atom_data.lines.nu.values.size
     storage.line_list_nu = <double*> PyArray_DATA(model.atom_data.lines.nu.values)
     storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
