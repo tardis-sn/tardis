@@ -59,7 +59,7 @@ void compute_distance2continuum (rpacket_t * packet, storage_model_t * storage);
 
 int64_t macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
-double move_packet (rpacket_t * packet, storage_model_t * storage,
+void move_packet (rpacket_t * packet, storage_model_t * storage,
                     double distance);
 
 void increment_j_blue_estimator (const rpacket_t * packet,
