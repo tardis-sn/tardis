@@ -19,7 +19,7 @@ double test_compute_distance2boundary(void);
 double test_compute_distance2line(void);
 double test_compute_distance2continuum(void);
 double test_rpacket_doppler_factor(void);
-double test_move_packet(void);
+//double test_move_packet(void);
 bool test_move_packet_across_shell_boundary(void);
 int64_t test_montecarlo_one_packet(void);
 int64_t test_montecarlo_one_packet_loop(void);
@@ -261,17 +261,17 @@ test_rpacket_doppler_factor(void){
         return res;
 }
 
-double
-test_move_packet(void){
-	double DISTANCE = 1e13;
-        rpacket_t rp;
-        storage_model_t sm;
-        init_rpacket(&rp);
-        init_storage_model(&sm);
-	double res = move_packet(&rp, &sm, DISTANCE);
-        dealloc_storage_model(&sm);
-        return res;
-}
+//double
+//test_move_packet(void){
+//	double DISTANCE = 1e13;
+//        rpacket_t rp;
+//        storage_model_t sm;
+//        init_rpacket(&rp);
+//        init_storage_model(&sm);
+//	double res = move_packet(&rp, &sm, DISTANCE);
+//        dealloc_storage_model(&sm);
+//        return res;
+//}
 
 double
 test_increment_j_blue_estimator(void){

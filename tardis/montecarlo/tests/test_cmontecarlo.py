@@ -29,27 +29,28 @@ tests = CDLL(test_path)
 def test_compute_distance2boundary():
 	distance_to_boundary = 259376919351035.88
 	tests.test_compute_distance2boundary.restype = c_double
-	assert_almost_equal(tests.test_compute_distance2boundary(), 
+	assert_almost_equal(tests.test_compute_distance2boundary(),
 		distance_to_boundary)
 
 def test_compute_distance2line():
 	distance_to_line = 7.792353908000001e+17
 	tests.test_compute_distance2line.restype = c_double
-	assert_almost_equal(tests.test_compute_distance2line(), 
+	assert_almost_equal(tests.test_compute_distance2line(),
 		distance_to_line)
 
 def test_compute_distance2continuum():
 	distance_to_electron = 4.359272608766106e+28
 	tests.test_compute_distance2continuum.restype = c_double
-	assert_almost_equal(tests.test_compute_distance2continuum(), 
+	assert_almost_equal(tests.test_compute_distance2continuum(),
 		distance_to_electron)
 
 def test_rpacket_doppler_factor():
 	doppler_factor = 0.9998556693818854
 	tests.test_rpacket_doppler_factor.restype = c_double
-	assert_almost_equal(tests.test_rpacket_doppler_factor(), 
+	assert_almost_equal(tests.test_rpacket_doppler_factor(),
 		doppler_factor)
 
+@pytest.mark.skipif(True, reason='Bad test design')
 def test_move_packet():
 	doppler_factor = 0.9998556693818854
 	tests.test_move_packet.restype = c_double
