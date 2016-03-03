@@ -628,7 +628,7 @@ class ConfigurationNameSpace(dict):
 
         return cls(ConfigurationValidator(config_definition,
                                        config_dict).get_config())
-    
+
     marker = object()
     def __init__(self, value=None):
         if value is None:
@@ -773,7 +773,7 @@ class Configuration(ConfigurationNameSpace):
             in the `data` directory that ships with TARDIS
 
         validate: ~bool
-            Turn validation on or off. 
+            Turn validation on or off.
 
 
         Returns
@@ -901,6 +901,15 @@ class Configuration(ConfigurationNameSpace):
 
         abundances = abundances.replace(np.nan, 0.0)
 
+        # Beryllium quickfix - see Issue #438
+        try:
+            is_be = abundances.ix[4] > 0.
+            if is_be.any():
+                logger.warning("Be present in model - setting to 0; see Issue #438")
+                abundances.ix[4] = np.zeros(len(abundances.ix[4]))
+        except KeyError:
+            pass
+
         abundances = abundances[abundances.sum(axis=1) > 0]
 
         norm_factor = abundances.sum(axis=0)
@@ -908,6 +917,7 @@ class Configuration(ConfigurationNameSpace):
         if np.any(np.abs(norm_factor - 1) > 1e-12):
             logger.warning("Abundances have not been normalized to 1. - normalizing")
             abundances /= norm_factor
+
 
         validated_config_dict['abundances'] = abundances
 
