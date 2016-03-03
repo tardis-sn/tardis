@@ -905,8 +905,8 @@ class Configuration(ConfigurationNameSpace):
         try:
             is_be = abundances.ix[4] > 0.
             if is_be.any():
-                logger.warning("Be present in model - setting to 0; see Issue #438")
-                abundances.ix[4] = np.zeros(len(abundances.ix[4]))
+                raise ConfigurationError("Beryllium (Be) is present in model. This is currently not "
+                                         "supported (see Issue #438) - aborting")
         except KeyError:
             pass
 
