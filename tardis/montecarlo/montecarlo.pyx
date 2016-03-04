@@ -47,6 +47,7 @@ cdef extern from "src/cmontecarlo.h":
         double *inverse_electron_densities
         double *line_list_nu
         double *line_lists_tau_sobolevs
+        int_type_t *line_list_resonance_counter
         double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
@@ -150,7 +151,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
         model.plasma_array.tau_sobolevs.values)
     storage.line_lists_j_blues = <double*> PyArray_DATA(runner.j_blue_estimator)
-
+    storage.line_list_resonance_counter = <int_type_t*> PyArray_DATA(np.zeros(storage.no_of_lines, dtype=np.int64))
     storage.line_interaction_id = runner.get_line_interaction_id(
         model.tardis_config.plasma.line_interaction_type)
 
