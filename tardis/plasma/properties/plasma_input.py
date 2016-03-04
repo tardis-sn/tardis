@@ -1,7 +1,8 @@
 from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
 
-__all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlues', 'LinkTRadTElectron']
+__all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance',
+           'Density', 'TimeExplosion', 'JBlues', 'LinkTRadTElectron']
+
 
 class TRadiative(ArrayInput):
     """
@@ -11,6 +12,7 @@ class TRadiative(ArrayInput):
     """
     outputs = ('t_rad',)
     latex_name = ('T_{\\textrm{rad}}',)
+
 
 class DilutionFactor(ArrayInput):
     """
@@ -23,6 +25,7 @@ class DilutionFactor(ArrayInput):
     outputs = ('w',)
     latex_name = ('W',)
 
+
 class AtomicData(Input):
     """
     Attributes
@@ -30,6 +33,7 @@ class AtomicData(Input):
     atomic_data : Object
     """
     outputs = ('atomic_data',)
+
 
 class Abundance(Input):
     """
@@ -39,6 +43,7 @@ class Abundance(Input):
                 Fractional abundance of elements
     """
     outputs = ('abundance',)
+
 
 class Density(ArrayInput):
     """
@@ -50,6 +55,7 @@ class Density(ArrayInput):
     outputs = ('density',)
     latex_name = ('\\rho',)
 
+
 class TimeExplosion(Input):
     """
     Attributes
@@ -60,6 +66,7 @@ class TimeExplosion(Input):
     outputs = ('time_explosion',)
     latex_name = ('t_{\\textrm{exp}}',)
 
+
 class JBlues(DataFrameInput):
     """
     Attributes
@@ -69,6 +76,7 @@ class JBlues(DataFrameInput):
     """
     outputs = ('j_blues',)
     latex_name = ('J_{lu}^{b}',)
+
 
 class LinkTRadTElectron(Input):
     """
