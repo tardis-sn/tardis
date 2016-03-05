@@ -5,6 +5,26 @@ from astropy import units as u
 from tardis import atomic
 from tardis.util import species_string_to_tuple, species_tuple_to_string, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
 
+from tardis.util import (MalformedSpeciesError, MalformedElementSymbolError)
+
+
+def test_malformed_species_error():
+    malformed_species_error = MalformedSpeciesError('He')
+    assert malformed_species_error.malformed_element_symbol == 'He'
+    assert str(malformed_species_error) == 'Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") - supplied He'
+
+
+def test_malformed_elements_symbol_error():
+    malformed_elements_symbol_error = MalformedElementSymbolError('Hx')
+    assert malformed_elements_symbol_error.malformed_element_symbol == 'Hx'
+    assert str(malformed_elements_symbol_error) == 'Expecting an atomic symbol (e.g. Fe) - supplied Hx'
+
+
+def test_malformed_quantity_error():
+    malformed_quantity_error = MalformedQuantityError('abcd')
+    assert malformed_quantity_error.malformed_quantity_string == 'abcd'
+
+
 def test_quantity_parser_normal():
     q1 = parse_quantity('5 km/s')
     assert q1.value == 5.
