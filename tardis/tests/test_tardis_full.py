@@ -17,7 +17,10 @@ from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
-@pytest.mark.slow
+
+slow = pytest.mark.skipif( not pytest.config.getoption('--slow') , reason= "needs --slow to run this")
+
+@slow
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
 class TestSimpleRun():
