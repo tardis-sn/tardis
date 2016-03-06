@@ -52,64 +52,52 @@ logger = logging.getLogger(__name__)
 
 synpp_default_yaml_fname = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
 
-def int_to_roman(input):
-   """
-   from http://code.activestate.com/recipes/81611-roman-numerals/
-   Convert an integer to Roman numerals.
 
-   Examples:
-   >>> int_to_roman(0)
-   Traceback (most recent call last):
-   ValueError: Argument must be between 1 and 3999
+def int_to_roman(int_input):
+    """
+    from http://code.activestate.com/recipes/81611-roman-numerals/
+    Convert an integer to Roman numerals.
 
-   >>> int_to_roman(-1)
-   Traceback (most recent call last):
-   ValueError: Argument must be between 1 and 3999
+    :param int_input: an integer between 1 and 3999
+    :returns result: roman equivalent string of passed :param{int_input}
 
-   >>> int_to_roman(1.5)
-   Traceback (most recent call last):
-   TypeError: expected integer, got <type 'float'>
+    Examples:
+    >>> int_to_roman(0)
+    Traceback (most recent call last):
+    ValueError: Argument must be between 1 and 3999
 
-   >>> for i in range(1, 21): print int_to_roman(i)
-   ...
-   I
-   II
-   III
-   IV
-   V
-   VI
-   VII
-   VIII
-   IX
-   X
-   XI
-   XII
-   XIII
-   XIV
-   XV
-   XVI
-   XVII
-   XVIII
-   XIX
-   XX
-   >>> print int_to_roman(2000)
-   MM
-   >>> print int_to_roman(1999)
-   MCMXCIX
-   """
-   input = int(input)
-   if type(input) != type(1):
-      raise TypeError, "expected integer, got %s" % type(input)
-   if not 0 < input < 4000:
-      raise ValueError, "Argument must be between 1 and 3999"
-   ints = (1000, 900,  500, 400, 100,  90, 50,  40, 10,  9,   5,  4,   1)
-   nums = ('M',  'CM', 'D', 'CD','C', 'XC','L','XL','X','IX','V','IV','I')
-   result = ""
-   for i in range(len(ints)):
-      count = int(input / ints[i])
-      result += nums[i] * count
-      input -= ints[i] * count
-   return result
+    >>> int_to_roman(-1)
+    Traceback (most recent call last):
+    ValueError: Argument must be between 1 and 3999
+
+    >>> int_to_roman(1.5)
+    Traceback (most recent call last):
+    TypeError: expected integer, got <type 'float'>
+
+    >>> for i in range(1, 21): print int_to_roman(i),
+    ...
+    I II III IV V VI VII VIII IX X XI XII XIII XIV XV XVI XVII XVIII XIX XX
+    >>> print int_to_roman(2000)
+    MM
+    >>> print int_to_roman(1999)
+    MCMXCIX
+    """
+    if not isinstance(int_input, int):
+        raise TypeError("Expected integer, got %s" % type(int_input))
+    if not 0 < int_input < 4000:
+        raise ValueError("Argument must be between 1 and 3999")
+
+    int_roman_tuples = [(1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'),
+                        (100 , 'C'), (90 , 'XC'), (50 , 'L'), (40 , 'XL'),
+                        (10  , 'X'), (9  , 'IX'), (5  , 'V'), (4  , 'IV'), (1, 'I')]
+
+    result = ''
+    for iterable, int_roman_tuple in enumerate(int_roman_tuples):
+        count = int(int_input / int_roman_tuple[0])
+        result += int_roman_tuple[1] * count
+        int_input -= int_roman_tuple[0] * count
+    return result
+
 
 def roman_to_int(input):
    """
