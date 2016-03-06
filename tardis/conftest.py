@@ -2,6 +2,9 @@ from astropy.tests.pytest_plugins import *
 
 
 def pytest_addoption(parser):
+    parser.addoption("--run-slow", action="store_true",
+                     help="include running slow tests during run")
+
     parser.addoption("--remote-data", action="store_true",
                      help="run tests with online data")
     parser.addoption("--open-files", action="store_true",
