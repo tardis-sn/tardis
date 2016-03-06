@@ -6,6 +6,7 @@ from tardis import atomic
 from tardis.util import species_string_to_tuple, species_tuple_to_string, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
 
 from tardis.util import (MalformedSpeciesError, MalformedElementSymbolError)
+from tardis.util import int_to_roman
 
 
 def test_malformed_species_error():
@@ -23,6 +24,17 @@ def test_malformed_elements_symbol_error():
 def test_malformed_quantity_error():
     malformed_quantity_error = MalformedQuantityError('abcd')
     assert malformed_quantity_error.malformed_quantity_string == 'abcd'
+    assert str(malformed_quantity_error) == 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied abcd'
+
+
+@pytest.mark.parametrize(['test_input', 'expected_result'], [(1, 'I'), (5, 'V'), (19, 'XIX'), (556, 'DLVI'),
+                                                             (1400, 'MCD'), (1999, 'MCMXCIX'), (3000, 'MMM')])
+def test_int_to_roman(test_input, expected_result):
+    assert int_to_roman(test_input) == expected_result
+
+    with pytest.raises(TypeError ): int_to_roman(1.5)
+    with pytest.raises(ValueError): int_to_roman(0)
+    with pytest.raises(ValueError): int_to_roman(4000)
 
 
 def test_quantity_parser_normal():
