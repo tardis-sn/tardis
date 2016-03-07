@@ -57,6 +57,17 @@ tardis_error_t compute_distance2line (const rpacket_t * packet,
  */
 void compute_distance2continuum (rpacket_t * packet, storage_model_t * storage);
 
+/** Insert a value in to an array of line frequencies
+ *
+ * @param nu array of line frequencies
+ * @param nu_insert value of nu key
+ * @param number_of_lines number of lines in the line list
+ *
+ * @return index of the next line ot the red. If the key value is redder than the reddest line returns number_of_lines.
+ */
+tardis_error_t line_search (const double *nu, double nu_insert,
+                            int64_t number_of_lines, int64_t * result);
+
 int64_t macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
 void move_packet (rpacket_t * packet, storage_model_t * storage,
@@ -102,5 +113,7 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                          double distance, rk_state *mt_state);
+                         
+
 
 #endif // TARDIS_CMONTECARLO_H
