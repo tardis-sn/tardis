@@ -92,10 +92,10 @@ def int_to_roman(int_input):
                         (10  , 'X'), (9  , 'IX'), (5  , 'V'), (4  , 'IV'), (1, 'I')]
 
     result = ''
-    for iterable, int_roman_tuple in enumerate(int_roman_tuples):
-        count = int(int_input / int_roman_tuple[0])
-        result += int_roman_tuple[1] * count
-        int_input -= int_roman_tuple[0] * count
+    for (integer, roman) in int_roman_tuples:
+        count = int(int_input / integer)
+        result += roman * count
+        int_input -= integer * count
     return result
 
 
