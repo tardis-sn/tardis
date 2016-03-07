@@ -4,10 +4,12 @@ import pytest
 from astropy import units as u
 import numpy as np
 from tardis import atomic
-from tardis.util import species_string_to_tuple, species_tuple_to_string, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
+from tardis.util import species_string_to_tuple, species_tuple_to_string
 
-from tardis.util import (MalformedSpeciesError, MalformedElementSymbolError)
-from tardis.util import (int_to_roman, quantity_linspace)
+from tardis.util import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError
+from tardis.util import (int_to_roman, parse_quantity,
+                         element_symbol2atomic_number, atomic_number2element_symbol,
+                         reformat_element_symbol, quantity_linspace)
 
 
 def test_malformed_species_error():
@@ -88,17 +90,25 @@ def test_element_symbol_reformatter(unformatted_element_string, formatted_elemen
     ('si 2', (14, 1)),
     ('si ix', (14, 8)),
 ])
-def test_species_string_to_species_tuple(species_string, species_tuple):
+def test_species_string_to_tuple(species_string, species_tuple):
     assert species_string_to_tuple(species_string) == species_tuple
 
+    with pytest.raises(MalformedSpeciesError):
+        species_string_to_tuple('II')
 
-@pytest.mark.parametrize("species_string, species_tuple", [
-    ('Si II', (14, 1)),
-    ('Si IV', (14, 3)),
-    ('Si IX', (14, 8)),
+    with pytest.raises(MalformedSpeciesError):
+        species_string_to_tuple('He Si')
+
+    with pytest.raises(ValueError):
+        species_string_to_tuple('He IX')
+
+
+@pytest.mark.parametrize(['species_tuple', 'roman_numerals', 'species_string'], [
+    ((14, 1), True, 'Si II'), ((14, 3), True, 'Si IV'), ((14, 8), True, 'Si IX'),
+    ((14, 1), False, 'Si 1'), ((14, 3), False, 'Si 3'), ((14, 8), False, 'Si 8'),
 ])
-def test_species_tuple_to_species_string(species_string, species_tuple):
-    assert species_tuple_to_string(species_tuple) == species_string
+def test_species_tuple_to_string(species_tuple, roman_numerals, species_string):
+    assert species_tuple_to_string(species_tuple, roman_numerals=roman_numerals) == species_string
 
 
 @pytest.mark.parametrize(['start', 'stop', 'num', 'expected'], [
