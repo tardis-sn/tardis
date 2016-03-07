@@ -99,62 +99,67 @@ def int_to_roman(int_input):
     return result
 
 
-def roman_to_int(input):
-   """
-   from http://code.activestate.com/recipes/81611-roman-numerals/
-   Convert a roman numeral to an integer.
+def roman_to_int(roman_input):
+    """
+    from http://code.activestate.com/recipes/81611-roman-numerals/
+    Convert a roman numeral to an integer.
 
-   >>> r = range(1, 4000)
-   >>> nums = [int_to_roman(i) for i in r]
-   >>> ints = [roman_to_int(n) for n in nums]
-   >>> print r == ints
-   1
+    :param roman_input: a valid roman numeral string
+    :returns sum: equivalent integer of passed :param{roman_input}
 
-   >>> roman_to_int('VVVIV')
-   Traceback (most recent call last):
-    ...
-   ValueError: input is not a valid roman numeral: VVVIV
-   >>> roman_to_int(1)
-   Traceback (most recent call last):
-    ...
-   TypeError: expected string, got <type 'int'>
-   >>> roman_to_int('a')
-   Traceback (most recent call last):
-    ...
-   ValueError: input is not a valid roman numeral: A
-   >>> roman_to_int('IL')
-   Traceback (most recent call last):
-    ...
-   ValueError: input is not a valid roman numeral: IL
-   """
-   if type(input) != type(""):
-      raise TypeError, "expected string, got %s" % type(input)
-   input = input.upper()
-   nums = ['M', 'D', 'C', 'L', 'X', 'V', 'I']
-   ints = [1000, 500, 100, 50,  10,  5,   1]
-   places = []
-   for c in input:
-      if not c in nums:
-         raise ValueError, "input is not a valid roman numeral: %s" % input
-   for i in range(len(input)):
-      c = input[i]
-      value = ints[nums.index(c)]
-      # If the next place holds a larger number, this value is negative.
-      try:
-         nextvalue = ints[nums.index(input[i +1])]
-         if nextvalue > value:
-            value *= -1
-      except IndexError:
-         # there is no next place.
-         pass
-      places.append(value)
-   sum = 0
-   for n in places: sum += n
-   # Easiest test for validity...
-   if int_to_roman(sum) == input:
-      return sum
-   else:
-      raise ValueError, 'input is not a valid roman numeral: %s' % input
+    >>> r = range(1, 4000)
+    >>> nums = [int_to_roman(i) for i in r]
+    >>> ints = [roman_to_int(n) for n in nums]
+    >>> print r == ints
+    1
+
+    >>> roman_to_int('VVVIV')
+    Traceback (most recent call last):
+     ...
+    ValueError: input is not a valid roman numeral: VVVIV
+    >>> roman_to_int(1)
+    Traceback (most recent call last):
+     ...
+    TypeError: expected string, got <type 'int'>
+    >>> roman_to_int('a')
+    Traceback (most recent call last):
+     ...
+    ValueError: input is not a valid roman numeral: A
+    >>> roman_to_int('IL')
+    Traceback (most recent call last):
+     ...
+    ValueError: input is not a valid roman numeral: IL
+    """
+    if not isinstance(roman_input, str):
+        raise TypeError("expected string, got %s" % type(roman_input))
+
+    roman_input = roman_input.upper()
+    nums = ['M', 'D', 'C', 'L', 'X', 'V', 'I']
+    ints = [1000, 500, 100, 50,  10,  5,   1]
+    places = []
+    for c in roman_input:
+        if not c in nums:
+            raise ValueError("input is not a valid roman numeral: %s" % roman_input)
+    for i in range(len(roman_input)):
+        c = roman_input[i]
+        value = ints[nums.index(c)]
+        # If the next place holds a larger number, this value is negative.
+        try:
+            nextvalue = ints[nums.index(roman_input[i +1])]
+            if nextvalue > value:
+                value *= -1
+        except IndexError:
+            # there is no next place.
+            pass
+        places.append(value)
+    result = 0
+    for n in places:
+        result += n
+    # Easiest test for validity...
+    if int_to_roman(result) == roman_input:
+        return result
+    else:
+        raise ValueError('input is not a valid roman numeral: %s' % roman_input)
 
 
 def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_unit=u.angstrom, flux_column=1,
