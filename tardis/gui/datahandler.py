@@ -6,6 +6,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pylab as plt
 
+plt.rcParams["text.usetex"] = True
 
 if os.environ.get('QT_API', None)=='pyqt':
     from PyQt4 import QtGui, QtCore
