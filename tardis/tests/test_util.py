@@ -4,8 +4,8 @@ from astropy import units as u
 from io import StringIO
 
 from tardis.util import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError
-from tardis.util import (int_to_roman, calculate_luminosity,
-                         intensity_black_body, savitzky_golay,
+from tardis.util import (int_to_roman, roman_to_int, create_synpp_yaml,
+                         calculate_luminosity, intensity_black_body, savitzky_golay,
                          species_tuple_to_string, species_string_to_tuple, parse_quantity,
                          element_symbol2atomic_number, atomic_number2element_symbol,
                          reformat_element_symbol, quantity_linspace)
@@ -49,6 +49,25 @@ def test_int_to_roman(test_input, expected_result):
 
     with pytest.raises(ValueError):
         int_to_roman(4000)
+
+
+@pytest.mark.parametrize(['test_input', 'expected_result'], [
+    ('I', 1),
+    ('V', 5),
+    ('XIX', 19),
+    ('DLVI', 556),
+    ('MCD', 1400),
+    ('MCMXCIX', 1999),
+    ('MMM', 3000)
+])
+def test_roman_to_int(test_input, expected_result):
+    assert roman_to_int(test_input) == expected_result
+
+    with pytest.raises(TypeError):
+        roman_to_int(1)
+
+    with pytest.raises(ValueError):
+        roman_to_int('IIV')
 
 
 @pytest.mark.parametrize(['string_io', 'distance', 'result'], [
