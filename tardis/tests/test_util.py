@@ -1,9 +1,10 @@
 import pytest
 import numpy as np
 from astropy import units as u
+from io import StringIO
 
 from tardis.util import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError
-from tardis.util import (int_to_roman,
+from tardis.util import (int_to_roman, calculate_luminosity, intensity_black_body,
                          species_tuple_to_string, species_string_to_tuple, parse_quantity,
                          element_symbol2atomic_number, atomic_number2element_symbol,
                          reformat_element_symbol, quantity_linspace)
@@ -47,6 +48,24 @@ def test_int_to_roman(test_input, expected_result):
 
     with pytest.raises(ValueError):
         int_to_roman(4000)
+
+
+@pytest.mark.parametrize(['string_io', 'distance', 'result'], [
+    (StringIO(u'4000 1e-21\n4500 3e-21\n5000 5e-21'), '100 km', (0.0037699111843077517, 4000.0, 5000.0)),
+    (StringIO(u'7600 2.4e-19\n7800 1.6e-19\n8100 9.1e-20'), '500 km', (2.439446695512474, 7600.0, 8100.0))
+])
+def test_calculate_luminosity(string_io, distance, result):
+    assert calculate_luminosity(string_io, distance) == result
+
+
+@pytest.mark.parametrize(['nu', 't', 'i'], [
+    (10**6, 1000, 3.072357852080765e-22),
+    (10**6, 300, 9.21707305730458e-23),
+    (10**8, 1000, 6.1562660718558254e-24),
+    (10**8, 300, 1.846869480674048e-24),
+])
+def test_intensity_black_body(nu, t, i):
+    assert float(intensity_black_body(nu, t)) == i
 
 
 @pytest.mark.parametrize(['species_tuple', 'roman_numerals', 'species_string'], [
