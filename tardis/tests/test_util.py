@@ -2,11 +2,12 @@
 
 import pytest
 from astropy import units as u
+import numpy as np
 from tardis import atomic
 from tardis.util import species_string_to_tuple, species_tuple_to_string, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
 
 from tardis.util import (MalformedSpeciesError, MalformedElementSymbolError)
-from tardis.util import int_to_roman
+from tardis.util import (int_to_roman, quantity_linspace)
 
 
 def test_malformed_species_error():
@@ -37,18 +38,23 @@ def test_int_to_roman(test_input, expected_result):
     with pytest.raises(ValueError): int_to_roman(4000)
 
 
-def test_quantity_parser_normal():
+def test_parse_quantity():
     q1 = parse_quantity('5 km/s')
     assert q1.value == 5.
     assert q1.unit == u.Unit('km/s')
 
-def test_quantity_parser_malformed_quantity1():
     with pytest.raises(MalformedQuantityError):
-        q1 = parse_quantity('abcd')
+        parse_quantity(5)
 
-def test_quantity_parser_malformed_quantity2():
     with pytest.raises(MalformedQuantityError):
-        q1 = parse_quantity('5 abcd')
+        parse_quantity('abcd')
+
+    with pytest.raises(MalformedQuantityError):
+        parse_quantity('a abcd')
+
+    with pytest.raises(MalformedQuantityError):
+        parse_quantity('5 abcd')
+
 
 def test_atomic_number2element_symbol():
     assert atomic_number2element_symbol(14) == 'Si'
@@ -61,6 +67,9 @@ def test_atomic_number2element_symbol():
 ])
 def test_element_symbol2atomic_number(element_symbol, atomic_number):
     assert element_symbol2atomic_number(element_symbol) == atomic_number
+
+    with pytest.raises(MalformedElementSymbolError):
+        element_symbol2atomic_number('Hx')
 
 
 @pytest.mark.parametrize("unformatted_element_string, formatted_element_string", [
@@ -90,3 +99,16 @@ def test_species_string_to_species_tuple(species_string, species_tuple):
 ])
 def test_species_tuple_to_species_string(species_string, species_tuple):
     assert species_tuple_to_string(species_tuple) == species_string
+
+
+@pytest.mark.parametrize(['start', 'stop', 'num', 'expected'], [
+    (u.Quantity(1, 'km/s'), u.Quantity(5, 'km/s'), 5, u.Quantity(np.array([1., 2., 3., 4., 5.]), 'km/s')),
+    (u.Quantity(0.5, 'eV'), u.Quantity(0.6, 'eV'), 3, u.Quantity(np.array([0.5, 0.55, 0.6]), 'eV'))
+])
+def test_quantity_linspace(start, stop, num, expected):
+    obtained = quantity_linspace(start, stop, num)
+    assert obtained.unit == expected.unit
+    assert obtained.value.all() == expected.value.all()
+
+    with pytest.raises(ValueError):
+        quantity_linspace(u.Quantity(0.5, 'eV'), '0.6 eV', 3)
