@@ -137,67 +137,62 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
 }
 
-double
+void
 compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
 {
   double r = rpacket_get_r (packet);
   double mu = rpacket_get_mu (packet);
   double r_outer = storage->r_outer[rpacket_get_current_shell_id (packet)];
   double r_inner = storage->r_inner[rpacket_get_current_shell_id (packet)];
-  double d_outer =
-    sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
-  double d_inner;
+  double check, distance;
   if (rpacket_get_recently_crossed_boundary (packet) == 1)
     {
       rpacket_set_next_shell_id (packet, 1);
-      return d_outer;
+      distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
+    }
+  else if (mu > 0.0)
+    { // direction outward
+      rpacket_set_next_shell_id (packet, 1);
+      distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
     }
   else
-    {
-      double check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
-      if (check < 0.0)
-        {
-          rpacket_set_next_shell_id (packet, 1);
-          return d_outer;
+    { // going inward
+      if ( (check = r_inner * r_inner + (r * r * (mu * mu - 1.0)) )>= 0.0)
+        { // hit inner boundary
+          rpacket_set_next_shell_id (packet, -1);
+          distance = - r * mu - sqrt (check);
         }
       else
-        {
-          d_inner = mu < 0.0 ? -r * mu - sqrt (check) : MISS_DISTANCE;
+        { // miss inner boundary
+          rpacket_set_next_shell_id (packet, 1);
+          distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
         }
     }
-  if (d_inner < d_outer)
-    {
-      rpacket_set_next_shell_id (packet, -1);
-      return d_inner;
-    }
-  else
-    {
-      rpacket_set_next_shell_id (packet, 1);
-      return d_outer;
-    }
+  rpacket_set_d_boundary (packet, distance);
 }
 
 tardis_error_t
-compute_distance2line (const rpacket_t * packet, const storage_model_t * storage,
-                       double *result)
+compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
 {
-  tardis_error_t ret_val = TARDIS_ERROR_OK;
-  if (rpacket_get_last_line (packet))
-    {
-      *result = MISS_DISTANCE;
-    }
-  else
+  if (!rpacket_get_last_line (packet))
     {
       double r = rpacket_get_r (packet);
       double mu = rpacket_get_mu (packet);
       double nu = rpacket_get_nu (packet);
       double nu_line = rpacket_get_nu_line (packet);
+      double distance, nu_diff;
       double t_exp = storage->time_explosion;
       double inverse_t_exp = storage->inverse_time_explosion;
       int64_t cur_zone_id = rpacket_get_current_shell_id (packet);
       double doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
       double comov_nu = nu * doppler_factor;
-      if (comov_nu < nu_line)
+      if ( (nu_diff = comov_nu - nu_line) >= 0)
+        {
+          distance = (nu_diff / nu) * C * t_exp;
+          rpacket_set_d_line (packet, distance);
+          return TARDIS_ERROR_OK;
+        }
+      else
         {
           if (rpacket_get_next_line_id (packet) == storage->no_of_lines - 1)
             {
@@ -232,14 +227,14 @@ compute_distance2line (const rpacket_t * packet, const storage_model_t * storage
           fprintf (stderr, "nu = %f\n", nu);
           fprintf (stderr, "doppler_factor = %f\n", doppler_factor);
           fprintf (stderr, "cur_zone_id = %" PRIi64 "\n", cur_zone_id);
-          ret_val = TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
-        }
-      else
-        {
-          *result = ((comov_nu - nu_line) / nu) * C * t_exp;
+          return TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
         }
     }
-  return ret_val;
+  else
+    {
+      rpacket_set_d_line (packet, MISS_DISTANCE);
+      return TARDIS_ERROR_OK;
+    }
 }
 
 void
@@ -712,12 +707,9 @@ montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
     }
   else
     {
-      rpacket_set_d_boundary (packet,
-                              compute_distance2boundary (packet, storage));
-      double d_line;
-      compute_distance2line (packet, storage, &d_line);
+      compute_distance2boundary(packet, storage);
+      compute_distance2line (packet, storage);
       // FIXME MR: return status of compute_distance2line() is ignored
-      rpacket_set_d_line (packet, d_line);
       compute_distance2continuum (packet, storage);
     }
 }

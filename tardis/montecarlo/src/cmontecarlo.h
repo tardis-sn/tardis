@@ -33,7 +33,7 @@ double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *st
  *
  * @return distance to shell boundary
  */
-double compute_distance2boundary (rpacket_t * packet,
+void compute_distance2boundary (rpacket_t * packet,
                                   const storage_model_t * storage);
 
 /** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
@@ -43,9 +43,8 @@ double compute_distance2boundary (rpacket_t * packet,
  *
  * @return distance to the next spectral line
  */
-tardis_error_t compute_distance2line (const rpacket_t * packet,
-                                      const storage_model_t * storage,
-                                      double *result);
+tardis_error_t compute_distance2line (rpacket_t * packet,
+                                      const storage_model_t * storage);
 
 /** Calculate the distance to the next continuum event, which can be a Thomson scattering, bound-free absorption or
   free-free transition.
