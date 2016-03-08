@@ -104,6 +104,11 @@ class MontecarloRunner(object):
         montecarlo.montecarlo_radial1d(
             model, self, virtual_packet_flag=no_of_virtual_packets,
             nthreads=nthreads)
+        # Workaround so that j_blue_estimator is in the right ordering
+        # They are written as an array of dimension (no_of_shells, no_of_lines)
+        # but python expects (no_of_lines, no_of_shells)
+        self.j_blue_estimator = self.j_blue_estimator.flatten().reshape(
+                self.j_blue_estimator.shape, order='F')
 
     def legacy_return(self):
         return (self.output_nu, self.output_energy,
