@@ -1,6 +1,6 @@
-numpy==1.9
-scipy==0.16
-pandas==0.16
+numpy==1.10.0
+scipy==0.17.0
+pandas==0.16.2
 pytables==3.2
 h5py==2.5
 matplotlib==1.4
@@ -11,3 +11,4 @@ Cython==0.21
 jinja2
 networkx==1.10
 pytest==2.6.3
+
