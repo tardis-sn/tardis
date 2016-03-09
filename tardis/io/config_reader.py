@@ -2,6 +2,7 @@
 
 import logging
 import os
+import re
 import pprint
 
 from astropy import constants, units as u
@@ -728,15 +729,86 @@ class ConfigurationNameSpace(dict):
         return ConfigurationNameSpace(copy.deepcopy(dict(self)))
 
 
+class YAMLLoader(yaml.Loader):
+    """
+    A custom YAML loader containing all the constructors required
+    to properly parse the tardis configuration.
+    """
+    @classmethod
+    def add_implicit_resolver(cls, tag, regexp, first=None):
+        """
+        Parameters
+        ----------
+
+        tag:
+            The YAML tag to implicitly apply to any YAML scalar that matches `regexp`
+
+        regexp:
+            The regular expression to match YAML scalars against `tag`
+
+
+        Notes
+        -----
+
+        This classmethod is a monkey-patch for a copy() related bug
+        in the original class method which affects this yaml.Loader subclass.
+
+        This class method is to be removed when this bug gets fixed upstream.
+
+        https://bitbucket.org/xi/pyyaml/issues/57/add_implicit_resolver-on-a-subclass-may
+        """
+        if 'yaml_implicit_resolvers' not in cls.__dict__:
+            yaml_implicit_resolvers = {}
+            for k, v in cls.yaml_implicit_resolvers.items():
+                yaml_implicit_resolvers[k] = copy.copy(v)
+            cls.yaml_implicit_resolvers = yaml_implicit_resolvers
+        if first is None:
+            first = [None]
+        for ch in first:
+            cls.yaml_implicit_resolvers.setdefault(ch, []).append((tag, regexp))
+
+    def construct_quantity(self, node):
+        """
+        A constructor for converting quantity-like YAML strings to
+        `astropy.units.Quantity` objects.
+
+        Parameters
+        ----------
+
+        node:
+            The YAML node to be constructed
+
+        Returns
+        -------
+
+        `astropy.units.Quantity`
+
+        """
+        data = self.construct_scalar(node)
+        value_str, unit_str = data.split(None, 1)
+        value = float(value_str)
+        if unit_str.strip() == 'log_lsun':
+            value = 10 ** (value + np.log10(constants.L_sun.cgs.value))
+            unit_str = 'erg/s'
+        return value * u.Unit(unit_str)
+
+
+YAMLLoader.add_constructor('!quantity', YAMLLoader.construct_quantity)
+# This regex matches anything that is a number (scientific notation supported) followed by whitespace
+# and any other characters (which should be a unit).
+pattern = re.compile(r'^-?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?\s+.+$')
+YAMLLoader.add_implicit_resolver('!quantity', pattern)
+
+
 class Configuration(ConfigurationNameSpace):
     """
     Tardis configuration class
     """
 
     @classmethod
-    def from_yaml(cls, fname, test_parser=False):
+    def from_yaml(cls, fname, test_parser=False, loader=YAMLLoader):
         try:
-            yaml_dict = yaml.load(open(fname))
+            yaml_dict = yaml.load(open(fname), Loader=loader)
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e
