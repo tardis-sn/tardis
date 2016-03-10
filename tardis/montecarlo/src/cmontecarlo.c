@@ -147,6 +147,10 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
   double d_outer =
     sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
   double d_inner;
+  double discriminant = r_outer * r_outer + ((mu * mu - 1.0) * r * r);
+  if (discriminant <= 0){
+    fprintf(stderr, "Potentially dangerous packet misplacement detected\n");
+  }
   if (rpacket_get_recently_crossed_boundary (packet) == 1)
     {
       rpacket_set_next_shell_id (packet, 1);
