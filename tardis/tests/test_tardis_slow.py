@@ -34,7 +34,7 @@ def setup(request):
     -------
 
     """
-    atom_data_filename = os.path.expanduser(os.path.expandvars(
+    atom_data_filenameg = os.path.expanduser(os.path.expandvars(
             pytest.config.getvalue('atomic-dataset')))
     assert os.path.exists(atom_data_filename), ("{0} atomic datafiles"
                                                          " does not seem to "
@@ -44,7 +44,7 @@ def setup(request):
     model.simulation.legacy_run_simulation(setup.model)
 
     return model
-
+@slow
 def test_spectrum(setup):
     if setup.path == path_abn:
         luminosity_density = np.load(data_path("abn_tom_test_luminosity_density_lambda.npy"))
@@ -58,7 +58,7 @@ def test_spectrum(setup):
 
     np.testing.assert_allclose(
         setup.model.spectrum.luminosity_density_lambda,luminosity_density)
-
+@slow
 def test_virtual_spectrum(setup):
     if setup.path == path_abn:
         virtual_luminosity_density = np.load(
@@ -72,7 +72,7 @@ def test_virtual_spectrum(setup):
     np.testing.assert_allclose(
             setup.model.spectrum_virtual.luminosity_density_lambda,
             virtual_luminosity_density)
-
+@slow
 def test_j_blue_estimators(setup):
 
     if setup.path == path_abn:
@@ -84,6 +84,7 @@ def test_j_blue_estimators(setup):
     if j_blue_estimator == None:
         raise Exception('J_blue file not found')
     np.testing.assert_allclose(setup.model.runner.j_blue_estimator, j_blue_estimator)
+@slow
 def test_runner_properties(setup):
     """Tests whether a number of runner attributes exist and also verifies
     their types
@@ -111,7 +112,7 @@ def test_runner_properties(setup):
 
         assert type(getattr(setup.model.runner, prop)) == prop_type, ("wrong type of attribute '{}': expected {}, found {}".format(prop, prop_type, type(getattr(setup.model.runner, prop))))
 
-
+@slow
 def test_legacy_model_properties(setup):
     """Tests whether a number of model attributes exist and also verifies
     their types
