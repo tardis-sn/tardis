@@ -6,8 +6,8 @@ from astropy import units as u
 import os
 
 
-# @pytest.mark.skipif(not pytest.config.getoption("--run-slow"),
-#                     reason='this is a slow test, add --run-slow to run')
+@pytest.mark.skipif(not pytest.config.getoption("--run-slow"),
+                    reason='this is a slow test, add --run-slow to run')
 class TestW7:
     """
     Integration test for a run with the Stratified W7 setup.
@@ -38,3 +38,24 @@ class TestW7:
         np.testing.assert_allclose(
                 self.expected_w7_ndarrays['j_blue_estimators'],
                 self.obtained_w7_radial1d_model.j_blue_estimators)
+
+    def test_last_line_interactions(self):
+        np.testing.assert_allclose(
+                self.expected_w7_ndarrays['last_line_interaction_in_id'],
+                self.obtained_w7_radial1d_model.last_line_interaction_in_id)
+        np.testing.assert_allclose(
+                self.expected_w7_ndarrays['last_line_interaction_out_id'],
+                self.obtained_w7_radial1d_model.last_line_interaction_out_id)
+        np.testing.assert_allclose(
+                self.expected_w7_ndarrays['last_line_interaction_shell_id'],
+                self.obtained_w7_radial1d_model.last_line_interaction_shell_id)
+
+    def test_nubar_estimators(self):
+        np.testing.assert_allclose(
+                self.expected_w7_ndarrays['nubar_estimators'],
+                self.obtained_w7_radial1d_model.nubar_estimators)
+
+    def test_ws(self):
+        np.testing.assert_allclose(
+                self.expected_w7_ndarrays['ws'],
+                self.obtained_w7_radial1d_model.ws)
