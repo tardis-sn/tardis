@@ -80,10 +80,10 @@ class TestW7:
                 self.expected_w7_ndarrays['j_blue_estimators'],
                 self.obtained_w7_radial1d_model.j_blue_estimators)
 
-        self.expected_w7_astropy_quantities['j_blues_norm_factor'] *= u.Unit('1 / (cm2 s)')
-        np.testing.assert_allclose(
-                self.expected_w7_astropy_quantities['j_blues_norm_factor'],
-                self.obtained_w7_radial1d_model.j_blues_norm_factor)
+        j_blues_norm_factor = self.expected_w7_astropy_quantities['j_blues_norm_factor']
+        j_blues_norm_factor = j_blues_norm_factor * u.Unit('1 / (cm2 s)')
+        np.testing.assert_allclose(j_blues_norm_factor,
+                                   self.obtained_w7_radial1d_model.j_blues_norm_factor)
 
     def test_last_line_interactions(self):
         np.testing.assert_allclose(
@@ -96,10 +96,10 @@ class TestW7:
                 self.expected_w7_ndarrays['last_line_interaction_shell_id'],
                 self.obtained_w7_radial1d_model.last_line_interaction_shell_id)
 
-        self.expected_w7_astropy_quantities['last_line_interaction_angstrom'] *= u.Unit('Angstrom')
-        np.testing.assert_allclose(
-                self.expected_w7_astropy_quantities['last_line_interaction_angstrom'],
-                self.obtained_w7_radial1d_model.last_line_interaction_angstrom)
+        last_line_interaction_angstrom = self.expected_w7_astropy_quantities['last_line_interaction_angstrom']
+        last_line_interaction_angstrom = last_line_interaction_angstrom * u.Unit('Angstrom')
+        np.testing.assert_allclose(last_line_interaction_angstrom,
+                                   self.obtained_w7_radial1d_model.last_line_interaction_angstrom)
 
     def test_nubar_estimators(self):
         np.testing.assert_allclose(
@@ -112,31 +112,32 @@ class TestW7:
                 self.obtained_w7_radial1d_model.ws)
 
     def test_spectrum(self):
-        self.expected_w7_astropy_quantities['luminosity_inner'] *= u.Unit('erg / s')
-        np.testing.assert_allclose(
-                self.expected_w7_astropy_quantities['luminosity_inner'],
-                self.obtained_w7_radial1d_model.luminosity_inner)
+        luminosity_inner = self.expected_w7_astropy_quantities['luminosity_inner']
+        luminosity_inner = luminosity_inner * u.Unit('erg / s')
+        np.testing.assert_allclose(luminosity_inner,
+                                   self.obtained_w7_radial1d_model.luminosity_inner)
 
     def test_montecarlo_properties(self):
-        self.expected_w7_astropy_quantities['montecarlo_luminosity'] *= u.Unit('erg / s')
-        self.expected_w7_astropy_quantities['montecarlo_virtual_luminosity'] *= u.Unit('erg / s')
-        self.expected_w7_astropy_quantities['montecarlo_nu'] *= u.Unit('Hz')
+        montecarlo_luminosity = self.expected_w7_astropy_quantities['montecarlo_luminosity']
+        montecarlo_luminosity = montecarlo_luminosity * u.Unit('erg / s')
 
-        np.testing.assert_allclose(
-                self.expected_w7_astropy_quantities['montecarlo_luminosity'],
-                self.obtained_w7_radial1d_model.montecarlo_luminosity)
+        montecarlo_virtual_luminosity = self.expected_w7_astropy_quantities['montecarlo_virtual_luminosity']
+        montecarlo_virtual_luminosity = montecarlo_virtual_luminosity * u.Unit('erg / s')
 
-        np.testing.assert_allclose(
-                self.expected_w7_astropy_quantities['montecarlo_virtual_luminosity'],
-                self.obtained_w7_radial1d_model.montecarlo_virtual_luminosity)
+        montecarlo_nu = self.expected_w7_astropy_quantities['montecarlo_nu']
+        montecarlo_nu = montecarlo_nu * u.Unit('Hz')
 
-        np.testing.assert_allclose(
-                self.expected_w7_astropy_quantities['montecarlo_nu'],
-                self.obtained_w7_radial1d_model.montecarlo_nu)
+        np.testing.assert_allclose(montecarlo_luminosity,
+                                   self.obtained_w7_radial1d_model.montecarlo_luminosity)
+
+        np.testing.assert_allclose(montecarlo_virtual_luminosity,
+                                   self.obtained_w7_radial1d_model.montecarlo_virtual_luminosity)
+
+        np.testing.assert_allclose(montecarlo_nu,
+                                   self.obtained_w7_radial1d_model.montecarlo_nu)
 
     def test_shell_temperature(self):
-        self.expected_w7_astropy_quantities['t_rads'] *= u.Unit('K')
+        t_rads = self.expected_w7_astropy_quantities['t_rads']
+        t_rads =t_rads * u.Unit('K')
 
-        np.testing.assert_allclose(
-                self.expected_w7_astropy_quantities['t_rads'],
-                self.obtained_w7_radial1d_model.t_rads)
+        np.testing.assert_allclose(t_rads, self.obtained_w7_radial1d_model.t_rads)
