@@ -21,7 +21,6 @@ bool test_rpacket_get_d_line(double);
 bool test_rpacket_get_current_shell_id(unsigned int);
 bool test_rpacket_get_next_line_id(unsigned int);
 
-bool test_rpacket_get_recently_crossed_boundary(int);
 bool test_rpacket_get_virtual_packet_flag(int);
 bool test_rpacket_get_virtual_packet(int);
 bool test_rpacket_get_next_shell_id(int);
@@ -99,13 +98,6 @@ test_rpacket_get_close_line(void){
 	rpacket_t rp;
 	rpacket_set_last_line(&rp, true);
 	return rpacket_get_last_line(&rp);
-}
-
-bool
-test_rpacket_get_recently_crossed_boundary(int value){
-	rpacket_t rp;
-	rpacket_set_recently_crossed_boundary(&rp, value);
-	return value==rpacket_get_recently_crossed_boundary(&rp);
 }
 
 bool

@@ -43,12 +43,6 @@ typedef struct RPacket
    */
   int64_t close_line;
   /**
-   * @brief The packet has recently crossed the boundary and is now sitting on the boundary.
-   * To avoid numerical errors, make sure that d_inner is not calculated. The value is -1
-   * if the packed moved inwards, 1 if the packet moved outwards and 0 otherwise.
-   */
-  int64_t recently_crossed_boundary;
-  /**
    * @brief packet is a virtual packet and will ignore any d_line or d_electron checks.
    * It now whenever a d_line is calculated only adds the tau_line to an
    * internal float.
@@ -169,17 +163,6 @@ static inline bool rpacket_get_close_line (const rpacket_t * packet)
 static inline void rpacket_set_close_line (rpacket_t * packet, bool close_line)
 {
   packet->close_line = close_line;
-}
-
-static inline int rpacket_get_recently_crossed_boundary (const rpacket_t * packet)
-{
-  return packet->recently_crossed_boundary;
-}
-
-static inline void rpacket_set_recently_crossed_boundary (rpacket_t * packet,
-                                                          int recently_crossed_boundary)
-{
-  packet->recently_crossed_boundary = recently_crossed_boundary;
 }
 
 static inline int rpacket_get_virtual_packet_flag (const rpacket_t * packet)

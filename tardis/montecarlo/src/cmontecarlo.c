@@ -145,12 +145,7 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
   double r_outer = storage->r_outer[rpacket_get_current_shell_id (packet)];
   double r_inner = storage->r_inner[rpacket_get_current_shell_id (packet)];
   double check, distance;
-  if (rpacket_get_recently_crossed_boundary (packet) == 1)
-    {
-      rpacket_set_next_shell_id (packet, 1);
-      distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
-    }
-  else if (mu > 0.0)
+  if (mu > 0.0)
     { // direction outward
       rpacket_set_next_shell_id (packet, 1);
       distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
@@ -502,9 +497,6 @@ move_packet_across_shell_boundary (rpacket_t * packet,
       rpacket_set_current_shell_id (packet,
                                     rpacket_get_current_shell_id (packet) +
                                     rpacket_get_next_shell_id (packet));
-      rpacket_set_recently_crossed_boundary (packet,
-                                             rpacket_get_next_shell_id
-                                             (packet));
     }
   else if (rpacket_get_next_shell_id (packet) == 1)
     {
@@ -524,7 +516,6 @@ move_packet_across_shell_boundary (rpacket_t * packet,
       double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
       rpacket_set_nu (packet, comov_nu * inverse_doppler_factor);
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
-      rpacket_set_recently_crossed_boundary (packet, 1);
       if (rpacket_get_virtual_packet_flag (packet) > 0)
         {
           montecarlo_one_packet (storage, packet, -2, mt_state);
@@ -545,7 +536,6 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   rpacket_set_nu (packet, comov_nu * inverse_doppler_factor);
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   rpacket_reset_tau_event (packet, mt_state);
-  rpacket_set_recently_crossed_boundary (packet, 0);
   storage->last_interaction_type[rpacket_get_id (packet)] = 1;
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
@@ -660,7 +650,6 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       rpacket_set_nu_line (packet, storage->line_list_nu[emission_line_id]);
       rpacket_set_next_line_id (packet, emission_line_id + 1);
       rpacket_reset_tau_event (packet, mt_state);
-      rpacket_set_recently_crossed_boundary (packet, 0);
       if (rpacket_get_virtual_packet_flag (packet) > 0)
         {
           bool virtual_close_line = false;

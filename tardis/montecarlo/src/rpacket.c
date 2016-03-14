@@ -37,7 +37,6 @@ rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
   rpacket_set_next_line_id (packet, current_line_id);
   rpacket_set_last_line (packet, last_line);
   rpacket_set_close_line (packet, false);
-  rpacket_set_recently_crossed_boundary (packet, true);
   rpacket_set_virtual_packet_flag (packet, virtual_packet_flag);
   return ret_val;
 }
