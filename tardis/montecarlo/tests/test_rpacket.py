@@ -97,10 +97,6 @@ def test_rpacket_get_next_line_id(unsigned_int_value):
 
 # Testing functions with Integer valued parameters
 
-def test_rpacket_get_recently_crossed_boundary(int_value):
-    assert tests.test_rpacket_get_recently_crossed_boundary(int_value)
-
-
 def test_rpacket_get_virtual_packet_flag(int_value):
     assert tests.test_rpacket_get_virtual_packet_flag(int_value)
 
@@ -117,8 +113,10 @@ def test_rpacket_get_next_shell_id(int_value):
 def test_rpacket_get_last_line():
     assert tests.test_rpacket_get_last_line()
 
+
 def test_rpacket_get_close_line():
     assert tests.test_rpacket_get_close_line()
+
 
 def test_rpacket_get_status():
     assert tests.test_rpacket_get_status()
