@@ -121,8 +121,7 @@ class MontecarloRunner(object):
         """
             path_or_buf may include path like "model/plasma/levelpopulation/hdf_file.h5"
         """
-        filename = path_or_buf[(path_or_buf.rfind('/')+1):]
-        path = path_or_buf[:-(len(filename))]
+        path, filename = os.path.split(path_or_buf)
         
         if not os.path.exists(path):
             try:
@@ -132,8 +131,10 @@ class MontecarloRunner(object):
  
         try:
             hdf = pd.HDFStore(filename)
-        except TypeError:
-            hdf = filename
+        except:
+            if not isinstance(hdf,pd.HDFStore):
+                raise TypeError
+                hdf = filename
         
         hdf.close()
 
