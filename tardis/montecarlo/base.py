@@ -136,6 +136,9 @@ class MontecarloRunner(object):
                 raise TypeError
                 hdf = filename
         
+        for item in self.legacy_return:
+            item.to_hdf(hdf, path)
+        
         hdf.close()
 
     @property
