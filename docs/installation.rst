@@ -59,7 +59,11 @@ Anaconda on your machine. The next step is to create an environment for tardis
 that contains all of the necessary packages (this ensures that TARDIS
 requirements won't clash with any other python installs on disc::
 
-    conda create -n tardis --file https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-requirements python=2 pip
+    conda create -n tardis --file https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-requirements python=2
+
+This command fails on some systems. If that is the case, you can download the file manually from the official repository or, if you have a local copy of the tardis repository, use the local file. The command in that case would be::
+
+    conda create -n tardis --file conda-requirements python=2
 
 Then to activate this environment simply do::
 
