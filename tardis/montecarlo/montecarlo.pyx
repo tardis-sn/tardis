@@ -39,6 +39,7 @@ cdef extern from "src/cmontecarlo.h":
         double *r_inner
         double *r_outer
         double *v_inner
+        double *v_reciprocal
         double time_explosion
         double inverse_time_explosion
         double *electron_densities
@@ -87,6 +88,7 @@ cdef extern from "src/cmontecarlo.h":
         double power_law_k
         double density_ratio
         double filling_factor
+        int_type_t clumping_status
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -113,6 +115,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.r_inner = <double*> PyArray_DATA(runner.r_inner_cgs)
     storage.r_outer = <double*> PyArray_DATA(runner.r_outer_cgs)
     storage.v_inner = <double*> PyArray_DATA(runner.v_inner_cgs)
+    storage.v_reciprocal = 1 / <double*> PyArray_DATA(runner.v_inner_cgs)
 
     # Setup the rest
     # times
