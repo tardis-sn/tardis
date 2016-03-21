@@ -15,19 +15,8 @@ Requirements
 
 TARDIS has the following requirements:
 
-- `Python <http://www.python.org/>`_ 2.7
-
-- `Numpy <http://www.numpy.org/>`_ 1.9 or later
-
-- `Scipy <http://www.scipy.org/>`_ 0.16 or later
-
-- `Astropy <http://www.astropy.org/>`_ 1.0 or later
-
-- `h5py <http://www.h5py.org/>`_ 2.0.0 or later
-
-- `pandas <http://pandas.pydata.org/>`_ 0.16.1 or later
-
-- `pyyaml <http://pyyaml.org/>`_ 3.0 or later
+.. include:: ../conda-requirements
+    :literal:
 
 Most of these requirements are easy to install using package managers like
 OS X's macports or linux package managers or using the Anaconda python
