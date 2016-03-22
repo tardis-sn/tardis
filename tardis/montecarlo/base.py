@@ -43,6 +43,9 @@ class MontecarloRunner(object):
         self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.j_blue_estimator = np.zeros(tau_sobolev_shape)
+        #Counters
+        self.line_list_resonance_counter = np.zeros(tau_sobolev_shape[0], dtype=np.int64)
+        self.cell_list_resonance_counter = np.zeros(tau_sobolev_shape)
 
 
     def _initialize_geometry_arrays(self, structure):

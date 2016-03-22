@@ -370,10 +370,10 @@ increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
     storage->line_list_resonance_counter[rpacket_get_next_line_id(packet)]++;
     storage->cell_list_resonance_counter[j_blue_idx]++;
     // if(storage->line_list_resonance_counter[rpacket_get_next_line_id(packet)] % 500 ==   0 )
-    //     fprintf(stderr, "%" PRIi64 ": %" PRIi64 "\n", rpacket_get_next_line_id(packet), storage->line_list_resonance_counter[rpacket_get_next_line_id(packet)]);
+        // fprintf(stderr, "%" PRIi64 ": %" PRIi64 "\n", rpacket_get_next_line_id(packet), storage->line_list_resonance_counter[rpacket_get_next_line_id(packet)]);
     count++;
-    if(count%100000==0)
-      fprintf(stderr, "%lld\n", count);
+    if(count%10000000==0)
+      fprintf(stderr, "\n%lld\n", count);
 }
 
 int64_t
