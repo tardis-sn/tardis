@@ -4,6 +4,10 @@ from numpy import testing
 from tardis import atomic
 
 
+chianti_he_db_h5_path = os.path.join(
+    os.path.dirname(os.path.realpath(__file__)), 'data', 'chianti_he_db.h5')
+
+
 def test_data_path():
     data_path = atomic.data_path('test')
     assert data_path.split('/')[-3:] == ['tardis', 'data', 'test']
@@ -36,13 +40,36 @@ def test_read_levels_data():
 def test_read_lines_data():
     data = atomic.read_lines_data(atomic.default_atom_h5_path)
     assert data['line_id'][0] == 8
-    assert data['atomic_numer'][0] == 14
+    assert data['atomic_number'][0] == 14
     assert data['ion_number'][0] == 5
     testing.assert_almost_equal(data['wavelength'][0], 66.772, decimal=4)
     testing.assert_almost_equal(data['f_ul'][0], 0.02703, decimal=4)
     testing.assert_almost_equal(data['f_lu'][0], 0.04054, decimal=4)
-    assert data['level_number_lower'] == 0.0
-    assert data['level_number_upper'] == 36.0
+    assert data['level_number_lower'][0] == 0.0
+    assert data['level_number_upper'][0] == 36.0
+
+
+def test_read_synpp_refs():
+    data = atomic.read_synpp_refs(chianti_he_db_h5_path)
+    assert data['atomic_number'][0] == 1
+    assert data['ion_number'][0] == 0
+    testing.assert_almost_equal(data['wavelength'][0], 6562.7973633, decimal=4)
+    assert data['line_id'][0] == 564995
+
+
+def test_read_zeta_data():
+    data = atomic.read_zeta_data(chianti_he_db_h5_path)
+    testing.assert_almost_equal(data[2000][1][1], 0.339, decimal=4)
+    testing.assert_almost_equal(data[2000][1][2], 0.000, decimal=4)
+
+    with pytest.raises(ValueError):
+        atomic.read_zeta_data(None)
+
+    with pytest.raises(IOError):
+        atomic.read_zeta_data('fakepath')
+
+    with pytest.raises(ValueError):
+        atomic.read_zeta_data(atomic.default_atom_h5_path)
 
 
 def test_atom_levels():
