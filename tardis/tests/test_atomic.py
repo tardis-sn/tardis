@@ -1,7 +1,13 @@
-from tardis import atomic
-from numpy import testing
-import pytest
 import os
+import pytest
+from numpy import testing
+from tardis import atomic
+
+
+def test_data_path():
+    data_path = atomic.data_path('test')
+    assert data_path.split('/')[-3:] == ['tardis', 'data', 'test']
+
 
 def test_atomic_h5_readin():
     data = atomic.read_basic_atom_data(atomic.default_atom_h5_path)
