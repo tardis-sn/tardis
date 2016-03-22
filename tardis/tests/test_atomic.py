@@ -9,28 +9,40 @@ def test_data_path():
     assert data_path.split('/')[-3:] == ['tardis', 'data', 'test']
 
 
-def test_atomic_h5_readin():
+def test_read_basic_atom_data():
     data = atomic.read_basic_atom_data(atomic.default_atom_h5_path)
     assert data['atomic_number'][13] == 14
     assert data['symbol'][13] == "Si"
-    si_mass = data['mass'][13]
-    testing.assert_almost_equal(si_mass, 28.085, decimal=4)
-    pass
+    testing.assert_almost_equal(data['mass'][13], 28.085, decimal=4)
 
-def test_ionization_h5_readin():
+
+def test_read_ionization_data():
     data = atomic.read_ionization_data(atomic.default_atom_h5_path)
-    hi_ionization = data['ionization_energy'][0]
-    testing.assert_almost_equal(hi_ionization, 13.59844, decimal=4)
+    assert data['atomic_number'][0] == 1
+    assert data['ion_number'][0] == 1
+    testing.assert_almost_equal(data['ionization_energy'][0], 13.59844, decimal=4)
 
-def test_levels_h5_readin():
+
+def test_read_levels_data():
     data = atomic.read_levels_data(atomic.default_atom_h5_path)
     assert data['atomic_number'][4] == 14
     assert data['ion_number'][4] == 0
     assert data['level_number'][4] == 4
-    si_energy = data['energy'][4]
-    testing.assert_almost_equal(si_energy, 1.90865, decimal=4)
+    testing.assert_almost_equal(data['energy'][4], 1.90865, decimal=4)
     assert data['g'][4] == 1
     assert data['metastable'][4] == False
+
+
+def test_read_lines_data():
+    data = atomic.read_lines_data(atomic.default_atom_h5_path)
+    assert data['line_id'][0] == 8
+    assert data['atomic_numer'][0] == 14
+    assert data['ion_number'][0] == 5
+    testing.assert_almost_equal(data['wavelength'][0], 66.772, decimal=4)
+    testing.assert_almost_equal(data['f_ul'][0], 0.02703, decimal=4)
+    testing.assert_almost_equal(data['f_lu'][0], 0.04054, decimal=4)
+    assert data['level_number_lower'] == 0.0
+    assert data['level_number_upper'] == 36.0
 
 
 def test_atom_levels():
