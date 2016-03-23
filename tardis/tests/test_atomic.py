@@ -93,6 +93,30 @@ def test_read_collision_data():
         atomic.read_zeta_data(atomic.default_atom_h5_path)
 
 
+def test_read_macro_atom_data():
+    data = atomic.read_macro_atom_data(chianti_he_db_h5_path)
+    assert data[0]['atomic_number'][0] == 2
+    assert data[0]['ion_number'][0] == 0
+    assert data[0]['source_level_number'][0] == 0.0
+    assert data[0]['destination_level_number'][0] == 48.0
+    assert data[0]['transition_type'][0] == 1
+    assert data[0]['transition_probability'][0] == 0.0
+    assert data[0]['transition_line_id'][0] == 564957
+
+    assert data[1]['count_down'][0] == 0
+    assert data[1]['count_up'][0] == 7
+    assert data[1]['count_total'][0] == 7
+
+    with pytest.raises(ValueError):
+        atomic.read_macro_atom_data(None)
+
+    with pytest.raises(IOError):
+        atomic.read_macro_atom_data('fakepath')
+
+    with pytest.raises(ValueError):
+        atomic.read_macro_atom_data(atomic.default_atom_h5_path)
+
+
 def test_atom_levels():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     with pytest.raises(Exception):
