@@ -72,6 +72,27 @@ def test_read_zeta_data():
         atomic.read_zeta_data(atomic.default_atom_h5_path)
 
 
+def test_read_collision_data():
+    data = atomic.read_collision_data(chianti_he_db_h5_path)
+    assert data[0]['atomic_number'][0] == 2
+    assert data[0]['ion_number'][0] == 0
+    assert data[0]['level_number_upper'][0] == 18
+    assert data[0]['level_number_lower'][0] == 2
+    assert data[0]['g_ratio'][0] == 1.0
+    testing.assert_almost_equal(data[0]['delta_e'][0], 35484.251143, decimal=4)
+    assert data[1][0] == 2000.0
+    assert data[1][1] == 4000.0
+
+    with pytest.raises(ValueError):
+        atomic.read_zeta_data(None)
+
+    with pytest.raises(IOError):
+        atomic.read_zeta_data('fakepath')
+
+    with pytest.raises(ValueError):
+        atomic.read_zeta_data(atomic.default_atom_h5_path)
+
+
 def test_atom_levels():
     atom_data = atomic.AtomData.from_hdf5(atomic.default_atom_h5_path)
     with pytest.raises(Exception):
