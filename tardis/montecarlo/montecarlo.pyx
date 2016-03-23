@@ -47,6 +47,8 @@ cdef extern from "src/cmontecarlo.h":
         double *inverse_electron_densities
         double *line_list_nu
         double *line_lists_tau_sobolevs
+        int_type_t *line_list_resonance_counter
+        int_type_t *cell_list_resonance_counter
         double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
@@ -150,7 +152,8 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
         model.plasma_array.tau_sobolevs.values)
     storage.line_lists_j_blues = <double*> PyArray_DATA(runner.j_blue_estimator)
-
+    storage.line_list_resonance_counter = <int_type_t*> PyArray_DATA(runner.line_list_resonance_counter)
+    storage.cell_list_resonance_counter = <int_type_t*> PyArray_DATA(runner.cell_list_resonance_counter)
     storage.line_interaction_id = runner.get_line_interaction_id(
         model.tardis_config.plasma.line_interaction_type)
 
@@ -248,7 +251,19 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
     cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_interaction_type = np.zeros(storage.virt_packet_count, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_in_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
     cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_out_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=1] line_counter = np.zeros(runner.line_list_resonance_counter.shape, dtype=np.int64)
+    cdef np.ndarray[int_type_t, ndim=2] cell_counter = np.zeros(runner.cell_list_resonance_counter.shape, dtype=np.int64)
+
+
     runner.virt_logging = LOG_VPACKETS
+
+    for i in range(storage.no_of_lines):
+        line_counter[i] = storage.line_list_resonance_counter[i]
+    runner.line_list_resonance_counter = line_counter
+    for i in range(runner.cell_list_resonance_counter.size):
+        cell_counter[i/storage.no_of_shells][i%storage.no_of_shells] = storage.cell_list_resonance_counter[i]
+    runner.cell_list_resonance_counter = cell_counter
+
     if LOG_VPACKETS != 0:
         for i in range(storage.virt_packet_count):
             virt_packet_nus[i] = storage.virt_packet_nus[i]

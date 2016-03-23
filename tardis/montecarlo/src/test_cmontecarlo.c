@@ -79,13 +79,21 @@ static void init_storage_model(storage_model_t *sm){
 	sm->r_outer = (double *) malloc(sizeof(double)*NUMBER_OF_SHELLS);
 	sm->r_outer[0] = 8.64e14;
 	sm->r_outer[1] = 1.0368e15;
+    sm->r_inner = (double *) malloc(sizeof(double)*NUMBER_OF_SHELLS);
+    /* R_INNER = {6.912e14, 8.64e14} */
+    sm->r_inner[0] = 6.912e14;
+    sm->r_inner[1] = 8.64e14;
+    sm->no_of_lines = 2;
 
-	/* R_INNER = {6.912e14, 8.64e14} */
-	sm->r_inner = (double *) malloc(sizeof(double)*NUMBER_OF_SHELLS);
-	sm->r_inner[0] = 6.912e14;
-	sm->r_inner[1] = 8.64e14;
-	sm->no_of_lines = 2;
+    sm->line_list_resonance_counter = (int64_t *) malloc(sizeof(int64_t)*2);
+    sm->line_list_resonance_counter[0] = 0;
+    sm->line_list_resonance_counter[1] = 0;
 
+    sm->cell_list_resonance_counter = (int64_t *) malloc(sizeof(int64_t)*4);
+    sm->cell_list_resonance_counter[0] = 0;
+    sm->cell_list_resonance_counter[1] = 0;
+    sm->cell_list_resonance_counter[2] = 0;
+    sm->cell_list_resonance_counter[3] = 0;
 	/* LINE_LIST_NU = { 1.26318289e+16,  1.26318289e+16,
 						1.23357675e+16,  1.23357675e+16,
 						1.16961598e+16 };

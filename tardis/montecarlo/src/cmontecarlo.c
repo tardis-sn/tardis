@@ -7,8 +7,8 @@
 #include "abbrev.h"
 #include "cmontecarlo.h"
 #include "io.h"
-
-
+#include  <float.h>
+int count=0;
 /** Look for a place to insert a value in an inversely sorted float array.
  *
  * @param x an inversely (largest to lowest) sorted float array
@@ -356,16 +356,24 @@ increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
   double r = rpacket_get_r (packet);
   double r_interaction =
     sqrt (r * r + d_line * d_line +
-          2.0 * r * d_line * rpacket_get_mu (packet));
-  double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
+          2.0 * r * d_line * rpacket_get_mu (packet)); // resultant magnitude
+  double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction; //cosine or resultant angle
   double doppler_factor = 1.0 - mu_interaction * r_interaction *
-    storage->inverse_time_explosion * INVERSE_C;
-  double comov_energy = rpacket_get_energy (packet) * doppler_factor;
+    storage->inverse_time_explosion * INVERSE_C;// 1-cos(theta)*(r/t)/c == 1 - mu*v/c
+  double comov_energy = rpacket_get_energy (packet) * doppler_factor; // actual photon energy with redshifting accounted for == Packet's initial rest energy
+  // Ei*(mu*v/c)
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
   storage->line_lists_j_blues[j_blue_idx] +=
-    comov_energy / rpacket_get_nu (packet);
+    comov_energy / rpacket_get_nu (packet);// Ei*(mu*v/c) / nu
+    storage->line_list_resonance_counter[rpacket_get_next_line_id(packet)]++;
+    storage->cell_list_resonance_counter[j_blue_idx]++;
+    // if(storage->line_list_resonance_counter[rpacket_get_next_line_id(packet)] % 500 ==   0 )
+        // fprintf(stderr, "%" PRIi64 ": %" PRIi64 "\n", rpacket_get_next_line_id(packet), storage->line_list_resonance_counter[rpacket_get_next_line_id(packet)]);
+    count++;
+    if(count%10000000==0)
+      fprintf(stderr, "\n%lld\n", count);
 }
 
 int64_t
@@ -609,6 +617,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 {
   int64_t line2d_idx = rpacket_get_next_line_id (packet)
     * storage->no_of_shells + rpacket_get_current_shell_id (packet);
+
   if (rpacket_get_virtual_packet (packet) == 0)
     {
       increment_j_blue_estimator (packet, storage, distance, line2d_idx);
