@@ -332,7 +332,7 @@ class AtomData(object):
         else:
             synpp_refs = None
 
-        if 'ion_cx_data' in h5_datasets and 'ion_cx_data' in h5_datasets:
+        if 'ionization_cx_threshold' in h5_datasets and 'ionization_cx_support' in h5_datasets:
             ion_cx_data = read_ion_cx_data(fname)
         else:
             ion_cx_data = None
