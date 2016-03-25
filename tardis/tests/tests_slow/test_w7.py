@@ -39,7 +39,7 @@ class TestW7(SlowTest):
         super(TestW7, self).test_ws()
 
     def test_spectrum(self):
-        super(TestW7, self).test_ws()
+        super(TestW7, self).test_spectrum()
 
     def test_montecarlo_properties(self):
         super(TestW7, self).test_montecarlo_properties()
