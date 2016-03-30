@@ -1,12 +1,9 @@
 #ifndef TARDIS_STORAGE_H
 #define TARDIS_STORAGE_H
 
-#include <stdio.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+
+#include "status.h"
 
 typedef struct StorageModel
 {
