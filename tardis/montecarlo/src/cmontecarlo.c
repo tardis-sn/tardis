@@ -1,12 +1,16 @@
-#define _POSIX_C_SOURCE 1
 
 #include <inttypes.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
 #ifdef WITHOPENMP
 #include <omp.h>
 #endif
-#include "abbrev.h"
-#include "cmontecarlo.h"
 #include "io.h"
+#include "abbrev.h"
+#include "status.h"
+#include "rpacket.h"
+#include "cmontecarlo.h"
 
 
 /** Look for a place to insert a value in an inversely sorted float array.
@@ -18,7 +22,7 @@
  *
  * @return index of the next boundary to the left
  */
-static tardis_error_t
+tardis_error_t
 reverse_binary_search (const double *x, double x_insert,
                        int64_t imin, int64_t imax, int64_t * result)
 {
@@ -59,6 +63,14 @@ reverse_binary_search (const double *x, double x_insert,
   return ret_val;
 }
 
+/** Insert a value in to an array of line frequencies
+ *
+ * @param nu array of line frequencies
+ * @param nu_insert value of nu key
+ * @param number_of_lines number of lines in the line list
+ *
+ * @return index of the next line ot the red. If the key value is redder than the reddest line returns number_of_lines.
+ */
 tardis_error_t
 line_search (const double *nu, double nu_insert, int64_t number_of_lines,
              int64_t * result)

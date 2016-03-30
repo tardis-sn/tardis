@@ -1,16 +1,11 @@
 #ifndef TARDIS_CMONTECARLO_H
 #define TARDIS_CMONTECARLO_H
 
-#include <stdio.h>
-#include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
 #include "randomkit/randomkit.h"
 #include "rpacket.h"
 #include "status.h"
-#include "cmontecarlo1.h"
+#include "storage.h"
 
 #ifdef WITH_VPACKET_LOGGING
 #define LOG_VPACKETS 1
@@ -18,11 +13,18 @@
 #define LOG_VPACKETS 0
 #endif
 
-typedef void (*montecarlo_event_handler_t) (rpacket_t * packet,
-                                            storage_model_t * storage,
+typedef void (*montecarlo_event_handler_t) (rpacket_t *packet,
+                                            storage_model_t *storage,
                                             double distance, rk_state *mt_state);
 
 void initialize_random_kit (unsigned long seed);
+
+tardis_error_t line_search (const double *nu, double nu_insert,
+                            int64_t number_of_lines, int64_t * result);
+
+tardis_error_t
+reverse_binary_search (const double *x, double x_insert,
+                       int64_t imin, int64_t imax, int64_t * result);
 
 double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *storage);
 
@@ -55,7 +57,7 @@ tardis_error_t compute_distance2line (const rpacket_t * packet,
  *
  * sets distance to the next continuum event (in centimeters) in packet rpacket structure
  */
-void compute_distance2continuum (rpacket_t * packet, storage_model_t * storage);
+void compute_distance2continuum (rpacket_t *packet, storage_model_t *storage);
 
 int64_t macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
