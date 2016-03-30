@@ -1,6 +1,8 @@
+#define _POSIX_C_SOURCE 1
+
+#include <unistd.h>
 #include <inttypes.h>
 #include <stdio.h>
-#include <unistd.h>
 
 #define STATUS_FORMAT "\r\033[2K\t[%" PRId64 "%%] Packets(finished/total): %" PRId64 "/%" PRId64
 

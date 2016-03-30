@@ -1,16 +1,12 @@
 #ifndef TARDIS_RPACKET_H
 #define TARDIS_RPACKET_H
 
-#include <stdio.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
 #include "randomkit/randomkit.h"
 #include "status.h"
 #include "storage.h"
-#include "cmontecarlo1.h"
 
 #define MISS_DISTANCE 1e99
 #define C 29979245800.0

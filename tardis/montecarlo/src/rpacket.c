@@ -1,5 +1,10 @@
+#include <stdbool.h>
+#include <stdint.h>
 #include "rpacket.h"
 #include "storage.h"
+
+extern tardis_error_t line_search (const double *nu, double nu_insert,
+                            int64_t number_of_lines, int64_t * result);
 
 tardis_error_t
 rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
