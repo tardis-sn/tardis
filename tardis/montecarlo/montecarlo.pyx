@@ -147,17 +147,28 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     # Line lists
     storage.no_of_lines = model.atom_data.lines.nu.values.size
     storage.line_list_nu = <double*> PyArray_DATA(model.atom_data.lines.nu.values)
+    runner.line_lists_tau_sobolevs = (
+            model.plasma_array.tau_sobolevs.values.flatten(order='F')
+            )
     storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
-        model.plasma_array.tau_sobolevs.values)
-    storage.line_lists_j_blues = <double*> PyArray_DATA(runner.j_blue_estimator)
+            runner.line_lists_tau_sobolevs
+            )
+    storage.line_lists_j_blues = <double*> PyArray_DATA(
+            runner.j_blue_estimator)
 
     storage.line_interaction_id = runner.get_line_interaction_id(
         model.tardis_config.plasma.line_interaction_type)
 
     # macro atom & downbranch
     if storage.line_interaction_id >= 1:
+        runner.transition_probabilities = (
+                model.plasma_array.transition_probabilities.values.flatten(order='F')
+        )
         storage.transition_probabilities = <double*> PyArray_DATA(
-            model.plasma_array.transition_probabilities.values)
+                runner.transition_probabilities
+                )
+        storage.transition_probabilities_nd = (
+        model.plasma_array.transition_probabilities.values.shape[0])
         storage.line2macro_level_upper = <int_type_t*> PyArray_DATA(
             model.atom_data.lines_upper2macro_reference_idx)
         storage.macro_block_references = <int_type_t*> PyArray_DATA(
