@@ -220,10 +220,10 @@ test_compute_distance2boundary(void){
         storage_model_t sm;
         init_rpacket(&rp);
         init_storage_model(&sm);
-        double D_BOUNDARY = compute_distance2boundary(&rp, &sm);
-	rpacket_set_d_boundary(&rp, D_BOUNDARY);
+        compute_distance2boundary(&rp, &sm);
+        double D_BOUNDARY = rpacket_get_d_boundary(&rp);
         dealloc_storage_model(&sm);
-	return D_BOUNDARY;
+        return D_BOUNDARY;
 }
 double
 test_compute_distance2line(void){
@@ -231,12 +231,11 @@ test_compute_distance2line(void){
         storage_model_t sm;
         init_rpacket(&rp);
         init_storage_model(&sm);
-	double D_LINE;
         // FIXME MR: return status of compute_distance2line() is ignored
-	compute_distance2line(&rp, &sm, &D_LINE);
-	rpacket_set_d_line(&rp, D_LINE);
+        compute_distance2line(&rp, &sm);
+        double D_LINE = rpacket_get_d_line(&rp);
         dealloc_storage_model(&sm);
-	return D_LINE;
+        return D_LINE;
 }
 
 double
@@ -279,17 +278,12 @@ test_increment_j_blue_estimator(void){
         storage_model_t sm;
         init_rpacket(&rp);
         init_storage_model(&sm);
-	int64_t j_blue_idx = 0;
-        double D_BOUNDARY = compute_distance2boundary(&rp, &sm);
-        rpacket_set_d_boundary(&rp, D_BOUNDARY);
-        double D_LINE;
-        // FIXME MR: return status of compute_distance2line() is ignored
-        compute_distance2line(&rp, &sm, &D_LINE);
-        rpacket_set_d_line(&rp, D_LINE);
+        int64_t j_blue_idx = 0;
+        compute_distance2line(&rp, &sm);
         move_packet(&rp, &sm, 1e13);
-	double d_line = rpacket_get_d_line(&rp);
-	increment_j_blue_estimator(&rp, &sm, d_line, j_blue_idx);
-	double res = sm.line_lists_j_blues[j_blue_idx];
+        double d_line = rpacket_get_d_line(&rp);
+        increment_j_blue_estimator(&rp, &sm, d_line, j_blue_idx);
+        double res = sm.line_lists_j_blues[j_blue_idx];
         dealloc_storage_model(&sm);
         return res;
 }
@@ -379,12 +373,7 @@ test_calculate_chi_bf(void){
         rk_state mt_state;
         irandom(&mt_state);
         int64_t j_blue_idx = 0;
-        double D_BOUNDARY = compute_distance2boundary(&rp, &sm);
-        rpacket_set_d_boundary(&rp, D_BOUNDARY);
-        double D_LINE;
-        // FIXME MR: return status of compute_distance2line() is ignored
-        compute_distance2line(&rp, &sm, &D_LINE);
-        rpacket_set_d_line(&rp, D_LINE);
+        compute_distance2line(&rp, &sm);
         move_packet(&rp, &sm, 1e13);
         double d_line = rpacket_get_d_line(&rp);
         increment_j_blue_estimator(&rp, &sm, d_line, j_blue_idx);

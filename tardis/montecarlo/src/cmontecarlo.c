@@ -149,67 +149,62 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
 }
 
-double
+void
 compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
 {
   double r = rpacket_get_r (packet);
   double mu = rpacket_get_mu (packet);
   double r_outer = storage->r_outer[rpacket_get_current_shell_id (packet)];
   double r_inner = storage->r_inner[rpacket_get_current_shell_id (packet)];
-  double d_outer =
-    sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
-  double d_inner;
+  double check, distance;
   if (rpacket_get_recently_crossed_boundary (packet) == 1)
     {
       rpacket_set_next_shell_id (packet, 1);
-      return d_outer;
+      distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
+    }
+  else if (mu > 0.0)
+    { // direction outward
+      rpacket_set_next_shell_id (packet, 1);
+      distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
     }
   else
-    {
-      double check = r_inner * r_inner + (r * r * (mu * mu - 1.0));
-      if (check < 0.0)
-        {
-          rpacket_set_next_shell_id (packet, 1);
-          return d_outer;
+    { // going inward
+      if ( (check = r_inner * r_inner + (r * r * (mu * mu - 1.0)) )>= 0.0)
+        { // hit inner boundary
+          rpacket_set_next_shell_id (packet, -1);
+          distance = - r * mu - sqrt (check);
         }
       else
-        {
-          d_inner = mu < 0.0 ? -r * mu - sqrt (check) : MISS_DISTANCE;
+        { // miss inner boundary
+          rpacket_set_next_shell_id (packet, 1);
+          distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
         }
     }
-  if (d_inner < d_outer)
-    {
-      rpacket_set_next_shell_id (packet, -1);
-      return d_inner;
-    }
-  else
-    {
-      rpacket_set_next_shell_id (packet, 1);
-      return d_outer;
-    }
+  rpacket_set_d_boundary (packet, distance);
 }
 
 tardis_error_t
-compute_distance2line (const rpacket_t * packet, const storage_model_t * storage,
-                       double *result)
+compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
 {
-  tardis_error_t ret_val = TARDIS_ERROR_OK;
-  if (rpacket_get_last_line (packet))
-    {
-      *result = MISS_DISTANCE;
-    }
-  else
+  if (!rpacket_get_last_line (packet))
     {
       double r = rpacket_get_r (packet);
       double mu = rpacket_get_mu (packet);
       double nu = rpacket_get_nu (packet);
       double nu_line = rpacket_get_nu_line (packet);
+      double distance, nu_diff;
       double t_exp = storage->time_explosion;
       double inverse_t_exp = storage->inverse_time_explosion;
       int64_t cur_zone_id = rpacket_get_current_shell_id (packet);
       double doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
       double comov_nu = nu * doppler_factor;
-      if (comov_nu < nu_line)
+      if ( (nu_diff = comov_nu - nu_line) >= 0)
+        {
+          distance = (nu_diff / nu) * C * t_exp;
+          rpacket_set_d_line (packet, distance);
+          return TARDIS_ERROR_OK;
+        }
+      else
         {
           if (rpacket_get_next_line_id (packet) == storage->no_of_lines - 1)
             {
@@ -244,14 +239,14 @@ compute_distance2line (const rpacket_t * packet, const storage_model_t * storage
           fprintf (stderr, "nu = %f\n", nu);
           fprintf (stderr, "doppler_factor = %f\n", doppler_factor);
           fprintf (stderr, "cur_zone_id = %" PRIi64 "\n", cur_zone_id);
-          ret_val = TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
-        }
-      else
-        {
-          *result = ((comov_nu - nu_line) / nu) * C * t_exp;
+          return TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
         }
     }
-  return ret_val;
+  else
+    {
+      rpacket_set_d_line (packet, MISS_DISTANCE);
+      return TARDIS_ERROR_OK;
+    }
 }
 
 void
@@ -308,20 +303,20 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 int64_t
 macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state)
 {
-  int emit = 0, i = 0, probability_idx = -1;
-  int activate_level =
-    storage->line2macro_level_upper[rpacket_get_next_line_id (packet) - 1];
+  int emit = 0, i = 0, offset = -1;
+  uint64_t activate_level =
+    storage->line2macro_level_upper[rpacket_get_next_line_id (packet)];
   while (emit != -1)
     {
       double event_random = rk_double (mt_state);
       i = storage->macro_block_references[activate_level] - 1;
       double p = 0.0;
+      offset = storage->transition_probabilities_nd *
+                             rpacket_get_current_shell_id (packet);
       do
         {
-
-          probability_idx = ((++i) * storage->no_of_shells +
-                             rpacket_get_current_shell_id (packet));
-          p += storage->transition_probabilities[probability_idx];
+          ++i;
+          p += storage->transition_probabilities[offset + i];
         }
       while (p <= event_random);
       emit = storage->transition_type[i];
@@ -365,19 +360,22 @@ void
 increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
                             double d_line, int64_t j_blue_idx)
 {
-  double r = rpacket_get_r (packet);
-  double r_interaction =
-    sqrt (r * r + d_line * d_line +
-          2.0 * r * d_line * rpacket_get_mu (packet));
-  double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
-  double doppler_factor = 1.0 - mu_interaction * r_interaction *
-    storage->inverse_time_explosion * INVERSE_C;
-  double comov_energy = rpacket_get_energy (packet) * doppler_factor;
+  if (storage->line_lists_j_blues != NULL)
+    {
+      double r = rpacket_get_r (packet);
+      double r_interaction =
+        sqrt (r * r + d_line * d_line +
+              2.0 * r * d_line * rpacket_get_mu (packet));
+      double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
+      double doppler_factor = 1.0 - mu_interaction * r_interaction *
+        storage->inverse_time_explosion * INVERSE_C;
+      double comov_energy = rpacket_get_energy (packet) * doppler_factor;
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
-  storage->line_lists_j_blues[j_blue_idx] +=
-    comov_energy / rpacket_get_nu (packet);
+      storage->line_lists_j_blues[j_blue_idx] +=
+        comov_energy / rpacket_get_nu (packet);
+    }
 }
 
 int64_t
@@ -619,8 +617,9 @@ void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                          double distance, rk_state *mt_state)
 {
-  int64_t line2d_idx = rpacket_get_next_line_id (packet)
-    * storage->no_of_shells + rpacket_get_current_shell_id (packet);
+  uint64_t next_line_id = rpacket_get_next_line_id (packet);
+  uint64_t line2d_idx = next_line_id +
+    storage->no_of_lines * rpacket_get_current_shell_id (packet);
   if (rpacket_get_virtual_packet (packet) == 0)
     {
       increment_j_blue_estimator (packet, storage, distance, line2d_idx);
@@ -629,9 +628,9 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     storage->line_lists_tau_sobolevs[line2d_idx];
   double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
   double tau_combined = tau_line + tau_continuum;
-  rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
+  //rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
 
-  if (rpacket_get_next_line_id (packet) == storage->no_of_lines)
+  if (next_line_id + 1 == storage->no_of_lines)
     {
       rpacket_set_last_line (packet, true);
     }
@@ -639,6 +638,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     {
       rpacket_set_tau_event (packet,
                              rpacket_get_tau_event (packet) + tau_line);
+      rpacket_set_next_line_id (packet, next_line_id + 1);
     }
   else if (rpacket_get_tau_event (packet) < tau_combined)
     {
@@ -651,14 +651,14 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       storage->last_interaction_in_nu[rpacket_get_id (packet)] =
         rpacket_get_nu (packet);
       storage->last_line_interaction_in_id[rpacket_get_id (packet)] =
-        rpacket_get_next_line_id (packet) - 1;
+        next_line_id;
       storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =
         rpacket_get_current_shell_id (packet);
       storage->last_interaction_type[rpacket_get_id (packet)] = 2;
       int64_t emission_line_id = 0;
       if (storage->line_interaction_id == 0)
         {
-          emission_line_id = rpacket_get_next_line_id (packet) - 1;
+          emission_line_id = next_line_id;
         }
       else if (storage->line_interaction_id >= 1)
         {
@@ -695,6 +695,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     {
       rpacket_set_tau_event (packet,
                              rpacket_get_tau_event (packet) - tau_line);
+      rpacket_set_next_line_id (packet, next_line_id + 1);
     }
   if (!rpacket_get_last_line (packet) &&
       fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
@@ -718,12 +719,9 @@ montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
     }
   else
     {
-      rpacket_set_d_boundary (packet,
-                              compute_distance2boundary (packet, storage));
-      double d_line;
-      compute_distance2line (packet, storage, &d_line);
+      compute_distance2boundary(packet, storage);
+      compute_distance2line (packet, storage);
       // FIXME MR: return status of compute_distance2line() is ignored
-      rpacket_set_d_line (packet, d_line);
       compute_distance2continuum (packet, storage);
     }
 }

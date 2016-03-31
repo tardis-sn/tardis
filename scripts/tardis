@@ -36,6 +36,8 @@ parser.add_argument('--profile', action='store_true', help=
 parser.add_argument('--profiler_log_file', default='profiler.log', help=
 'name of the profiler output file')
 
+parser.add_argument('--gdb', action='store_true', help='print pid and pause')
+
 args = parser.parse_args()
 
 packet_logging_fname = 'tardis_packets.log'
@@ -63,9 +65,11 @@ if args.packet_log_file:
 tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
 radial1d_mdl = model.Radial1DModel(tardis_config)
 
+if args.gdb:
+    import os; print(os.getpid()); raw_input() # Workaround to attach gdb
 if args.profile:
     import cProfile
-    cProfile.runctx('simulation.run_radial1d(radial1d_mdl)', locals(),
+    cProfile.runctx('run_radial1d(radial1d_mdl)', locals(),
                     globals(), filename=args.profiler_log_file)
 else:
     run_radial1d(radial1d_mdl)
