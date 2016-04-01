@@ -50,8 +50,6 @@ static void init_rpacket(rpacket_t *rp){
 	rpacket_set_nu(rp, NU);
 	rpacket_set_r(rp, R);
 	rpacket_set_last_line(rp, false);
-	rpacket_set_recently_crossed_boundary(rp, 1);
-
 	rpacket_set_close_line(rp, false);
 	rpacket_set_nu_line(rp, NU_LINE);
 
