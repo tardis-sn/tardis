@@ -1,6 +1,6 @@
 import os
 import pytest
-from ctypes import CDLL, c_int64, c_double, c_ulong
+from ctypes import CDLL, byref, c_int64, c_double, c_ulong
 from numpy.testing import assert_almost_equal
 
 from tardis import __path__ as path
@@ -106,11 +106,24 @@ def mt_state():
     return RKState(**mt_state_default)
 
 
-def test_compute_distance2boundary():
-    distance_to_boundary = 259376919351035.88
-    cmontecarlo_tests.test_compute_distance2boundary.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_compute_distance2boundary(),
-                        distance_to_boundary)
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    [({'mu': 0.3, 'r': 7.5e14},
+      {'d_boundary': 259376919351035.88}),
+
+     ({'mu': -.3, 'r': 7.5e13},
+      {'d_boundary': -664987228972291.5}),
+
+     ({'mu': -.3, 'r': 7.5e14},
+      {'d_boundary': 709376919351035.9})]
+)
+def test_compute_distance2boundary(packet_params, expected_params, packet, model):
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.compute_distance2boundary(byref(packet), byref(model))
+
+    assert_almost_equal(packet.d_boundary, expected_params['d_boundary'])
 
 
 def test_compute_distance2line():
