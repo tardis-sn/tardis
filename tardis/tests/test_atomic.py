@@ -4,8 +4,15 @@ from numpy import testing
 from tardis import atomic
 
 
-chianti_he_db_h5_path = os.path.join(
-    os.path.dirname(os.path.realpath(__file__)), 'data', 'chianti_he_db.h5')
+@pytest.fixture(scope="module")
+def default_atom_h5_path():
+    return atomic.default_atom_h5_path
+
+
+@pytest.fixture(scope="module")
+def chianti_he_db_h5_path():
+    return os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), 'data', 'chianti_he_db.h5')
 
 
 def test_data_path():
@@ -13,22 +20,22 @@ def test_data_path():
     assert data_path.split('/')[-3:] == ['tardis', 'data', 'test']
 
 
-def test_read_basic_atom_data():
-    data = atomic.read_basic_atom_data(atomic.default_atom_h5_path)
+def test_read_basic_atom_data(default_atom_h5_path):
+    data = atomic.read_basic_atom_data(default_atom_h5_path)
     assert data['atomic_number'][13] == 14
     assert data['symbol'][13] == "Si"
     testing.assert_almost_equal(data['mass'][13], 28.085, decimal=4)
 
 
-def test_read_ionization_data():
-    data = atomic.read_ionization_data(atomic.default_atom_h5_path)
+def test_read_ionization_data(default_atom_h5_path):
+    data = atomic.read_ionization_data(default_atom_h5_path)
     assert data['atomic_number'][0] == 1
     assert data['ion_number'][0] == 1
     testing.assert_almost_equal(data['ionization_energy'][0], 13.59844, decimal=4)
 
 
-def test_read_levels_data():
-    data = atomic.read_levels_data(atomic.default_atom_h5_path)
+def test_read_levels_data(default_atom_h5_path):
+    data = atomic.read_levels_data(default_atom_h5_path)
     assert data['atomic_number'][4] == 14
     assert data['ion_number'][4] == 0
     assert data['level_number'][4] == 4
@@ -37,8 +44,8 @@ def test_read_levels_data():
     assert data['metastable'][4] == False
 
 
-def test_read_lines_data():
-    data = atomic.read_lines_data(atomic.default_atom_h5_path)
+def test_read_lines_data(default_atom_h5_path):
+    data = atomic.read_lines_data(default_atom_h5_path)
     assert data['line_id'][0] == 8
     assert data['atomic_number'][0] == 14
     assert data['ion_number'][0] == 5
@@ -49,7 +56,7 @@ def test_read_lines_data():
     assert data['level_number_upper'][0] == 36.0
 
 
-def test_read_synpp_refs():
+def test_read_synpp_refs(chianti_he_db_h5_path):
     data = atomic.read_synpp_refs(chianti_he_db_h5_path)
     assert data['atomic_number'][0] == 1
     assert data['ion_number'][0] == 0
@@ -57,7 +64,7 @@ def test_read_synpp_refs():
     assert data['line_id'][0] == 564995
 
 
-def test_read_zeta_data():
+def test_read_zeta_data(default_atom_h5_path, chianti_he_db_h5_path):
     data = atomic.read_zeta_data(chianti_he_db_h5_path)
     testing.assert_almost_equal(data[2000][1][1], 0.339, decimal=4)
     testing.assert_almost_equal(data[2000][1][2], 0.000, decimal=4)
@@ -69,10 +76,10 @@ def test_read_zeta_data():
         atomic.read_zeta_data('fakepath')
 
     with pytest.raises(ValueError):
-        atomic.read_zeta_data(atomic.default_atom_h5_path)
+        atomic.read_zeta_data(default_atom_h5_path)
 
 
-def test_read_collision_data():
+def test_read_collision_data(default_atom_h5_path, chianti_he_db_h5_path):
     data = atomic.read_collision_data(chianti_he_db_h5_path)
     assert data[0]['atomic_number'][0] == 2
     assert data[0]['ion_number'][0] == 0
@@ -90,10 +97,10 @@ def test_read_collision_data():
         atomic.read_zeta_data('fakepath')
 
     with pytest.raises(ValueError):
-        atomic.read_zeta_data(atomic.default_atom_h5_path)
+        atomic.read_zeta_data(default_atom_h5_path)
 
 
-def test_read_macro_atom_data():
+def test_read_macro_atom_data(default_atom_h5_path, chianti_he_db_h5_path):
     data = atomic.read_macro_atom_data(chianti_he_db_h5_path)
     assert data[0]['atomic_number'][0] == 2
     assert data[0]['ion_number'][0] == 0
@@ -114,7 +121,7 @@ def test_read_macro_atom_data():
         atomic.read_macro_atom_data('fakepath')
 
     with pytest.raises(ValueError):
-        atomic.read_macro_atom_data(atomic.default_atom_h5_path)
+        atomic.read_macro_atom_data(default_atom_h5_path)
 
 
 def test_atom_levels():
