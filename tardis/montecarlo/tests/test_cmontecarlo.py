@@ -1,6 +1,6 @@
 import os
 import pytest
-from ctypes import CDLL, byref, c_int64, c_double, c_ulong
+from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong
 from numpy.testing import assert_almost_equal
 
 from tardis import __path__ as path
@@ -126,18 +126,52 @@ def test_compute_distance2boundary(packet_params, expected_params, packet, model
     assert_almost_equal(packet.d_boundary, expected_params['d_boundary'])
 
 
-def test_compute_distance2line():
-    distance_to_line = 7.792353908000001e+17
-    cmontecarlo_tests.test_compute_distance2line.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_compute_distance2line(),
-                        distance_to_line)
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    [({'nu_line': 0.1, 'next_line_id': 0, 'last_line': 1},
+      {'tardis_error': 0, 'd_line': 1e+99}),
+
+     ({'nu_line': 0.2, 'next_line_id': 1, 'last_line': 0},
+      {'tardis_error': 0, 'd_line': 7.792353908000001e+17}),
+
+     ({'nu_line': 0.5, 'next_line_id': 1, 'last_line': 0},
+      {'tardis_error': 2, 'd_line': 0.0}),
+
+     ({'nu_line': 0.6, 'next_line_id': 0, 'last_line': 0},
+      {'tardis_error': 2, 'd_line': 0.0})]
+)
+def test_compute_distance2line(packet_params, expected_params, packet, model):
+    packet.nu_line = packet_params['nu_line']
+    packet.next_line_id = packet_params['next_line_id']
+    packet.last_line = packet_params['last_line']
+
+    packet.d_line = 0.0
+    cmontecarlo_methods.compute_distance2line.restype = c_uint
+    obtained_tardis_error = cmontecarlo_methods.compute_distance2line(byref(packet), byref(model))
+
+    assert_almost_equal(packet.d_line, expected_params['d_line'])
+    assert obtained_tardis_error == expected_params['tardis_error']
 
 
-def test_compute_distance2continuum():
-    distance_to_electron = 4.359272608766106e+28
-    cmontecarlo_tests.test_compute_distance2continuum.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_compute_distance2continuum(),
-                        distance_to_electron)
+@pytest.mark.parametrize(
+    ['packet_params', 'model_params', 'expected_params'],
+    [({'virtual_packet': 0},
+      {'cont_status': 0},
+      {'chi_cont': 6.652486e-16, 'd_cont': 4.359272608766106e+28}),
+
+     ({'virtual_packet': 1},
+      {'cont_status': 0},
+      {'chi_cont': 6.652486e-16, 'd_cont': 1e+99})]
+)
+def test_compute_distance2continuum(packet_params, model_params,
+                                    expected_params, packet, model):
+    packet.virtual_packet = packet_params['virtual_packet']
+    model.cont_status = model_params['cont_status']
+
+    cmontecarlo_methods.compute_distance2continuum(byref(packet), byref(model))
+
+    assert_almost_equal(packet.chi_cont, expected_params['chi_cont'])
+    assert_almost_equal(packet.d_cont, expected_params['d_cont'])
 
 
 def test_rpacket_doppler_factor():
