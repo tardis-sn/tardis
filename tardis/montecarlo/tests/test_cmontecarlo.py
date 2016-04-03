@@ -107,6 +107,25 @@ def mt_state():
 
 
 @pytest.mark.parametrize(
+    ['packet_params', 'model_params', 'expected'],
+    [({'mu': 0.3, 'r': 7.5e14}, {'inverse_time_explosion': 1 / 5.2e7},
+      0.9998556693818854),
+
+     ({'mu': -.3, 'r': 8.1e14}, {'inverse_time_explosion': 1 / 2.6e7},
+      1.0003117541351274)]
+)
+def test_rpacket_doppler_factor(packet_params, model_params, expected, packet, model):
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+    model.inverse_time_explosion = model_params['inverse_time_explosion']
+
+    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
+    obtained = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+
+    assert_almost_equal(obtained, expected)
+
+
+@pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'mu': 0.3, 'r': 7.5e14},
       {'d_boundary': 259376919351035.88}),
@@ -172,13 +191,6 @@ def test_compute_distance2continuum(packet_params, model_params,
 
     assert_almost_equal(packet.chi_cont, expected_params['chi_cont'])
     assert_almost_equal(packet.d_cont, expected_params['d_cont'])
-
-
-def test_rpacket_doppler_factor():
-    doppler_factor = 0.9998556693818854
-    cmontecarlo_tests.test_rpacket_doppler_factor.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_rpacket_doppler_factor(),
-                        doppler_factor)
 
 
 @pytest.mark.skipif(True, reason='Bad test design')
