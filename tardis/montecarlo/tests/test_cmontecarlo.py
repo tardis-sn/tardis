@@ -201,11 +201,24 @@ def test_move_packet():
                         doppler_factor)
 
 
-def test_increment_j_blue_estimator():
-    j_blue = 1.1249855669381885
-    cmontecarlo_tests.test_increment_j_blue_estimator.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_increment_j_blue_estimator(),
-                        j_blue)
+@pytest.mark.parametrize(
+    ['packet_params', 'j_blue_idx', 'expected'],
+    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
+     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
+     ({'nu': 0.5, 'mu': 0.5, 'r': 7.9e14}, 1, 0.719988453650551),
+     ({'nu': 0.6, 'mu': -.5, 'r': 8.1e14}, 1, 0.499990378058792)]
+)
+def test_increment_j_blue_estimator(packet_params, j_blue_idx, expected, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.compute_distance2line(byref(packet), byref(model))
+    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(1.e13))
+    cmontecarlo_methods.increment_j_blue_estimator(byref(packet), byref(model),
+                                 c_double(packet.d_line), c_int64(j_blue_idx))
+
+    assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
 
 
 def test_montecarlo_line_scatter():
