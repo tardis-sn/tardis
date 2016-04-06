@@ -221,8 +221,29 @@ def test_increment_j_blue_estimator(packet_params, j_blue_idx, expected, packet,
     assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
 
 
-def test_montecarlo_line_scatter():
-    assert cmontecarlo_tests.test_montecarlo_line_scatter()
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    # TODO: Add scientifically sound test cases.
+    [({'virtual_packet': 1, 'tau_event': 2.9e13, 'last_line': 0},
+      {'tau_event': 2.9e13, 'next_line_id': 2}),
+
+     ({'virtual_packet': 0, 'tau_event': 2.9e13, 'last_line': 0},
+      {'tau_event': 2.9e13, 'next_line_id': 2}),
+
+     ({'virtual_packet': 0, 'tau_event': 2.9e13, 'last_line': 0},
+      {'tau_event': 2.9e13, 'next_line_id': 2}),
+     ]
+)
+def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, mt_state):
+    packet.virtual_packet = packet_params['virtual_packet']
+    packet.tau_event = packet_params['tau_event']
+    packet.last_line = packet_params['last_line']
+
+    cmontecarlo_methods.montecarlo_line_scatter(byref(packet), byref(model),
+                                          c_double(1.e13), byref(mt_state))
+
+    assert_almost_equal(packet.tau_event, expected_params['tau_event'])
+    assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
 
 def test_move_packet_across_shell_boundary():
