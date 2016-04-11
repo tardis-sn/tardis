@@ -833,7 +833,10 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #endif // WITH_VPACKET_LOGGING
 #ifdef WITHOPENMP
   omp_set_dynamic(0);
-  omp_set_num_threads(nthreads);
+  if (nthreads > 0)
+    {
+      omp_set_num_threads(nthreads);
+    }
 
 #pragma omp parallel firstprivate(finished_packets)
     {
