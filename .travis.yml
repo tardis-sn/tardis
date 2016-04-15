@@ -45,10 +45,6 @@ matrix:
             - TEST_MODE='spectrum'
             - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
 
-        - os: osx
-          language: generic
-          env: COMPILER=clang SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
-
 
         - python: 2.7
           env: SETUP_CMD='test --coverage'
@@ -75,11 +71,8 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
 
 install:
-   - conda create --yes -n tardis-travis --file conda-requirements pip python=$TRAVIS_PYTHON_VERSION
-   - source activate tardis-travis
-   - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q coveralls; fi
-   - if [[ $SETUP_CMD == 'test --coverage' ]]; then conda install --yes coverage=3.7; fi
-   - if [[ $SETUP_CMD == 'test --coverage' ]]; then pip install -q pytest-cov; fi
+   - conda env create -f tardis_ci/tardis_ci_env27.yml
+   - source activate tardis-ci
 
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
