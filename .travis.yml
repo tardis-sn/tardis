@@ -1,3 +1,5 @@
+os:
+  - linux
 language: python
 
 python:
@@ -19,16 +21,36 @@ env:
         - SETUP_CMD='test'
         - TEST_MODE='normal'
         - ATOM_DATA_URL='http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
+        - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
 
 matrix:
     include:
-        - python: "2.7"
-          env: COMPILER=gcc SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
+        - python: 2.7
+          env:
+            - COMPILER=gcc
+            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
+            - TEST_MODE='spectrum'
 
-        - python: "2.7"
+        - python: 2.7
+          env:
+            - COMPILER=clang
+            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
+            - TEST_MODE='spectrum'
+
+        - os: osx
+          language: generic
+          env:
+            - COMPILER=clang
+            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
+            - TEST_MODE='spectrum'
+            - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
+
+        - os: osx
+          language: generic
           env: COMPILER=clang SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"' TEST_MODE='spectrum'
 
-        - python: "2.7"
+
+        - python: 2.7
           env: SETUP_CMD='test --coverage'
 
 addons:
@@ -42,7 +64,7 @@ addons:
 before_install:
     # We do this to make sure we get the dependencies so pip works below
     - export PYTHONIOENCODING=UTF8
-    - wget http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh -O miniconda.sh
+    - wget $MINICONDA_URL -O miniconda.sh
     - chmod +x miniconda.sh
     - bash miniconda.sh -b -p $HOME/miniconda
     - export PATH=$HOME/miniconda/bin:$PATH
