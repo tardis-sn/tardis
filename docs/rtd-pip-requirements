@@ -1,4 +1,5 @@
 ### TARDIS requirements ###
+python==2
 numpy==1.9
 astropy>=1.0.4
 cython>=0.23
