@@ -17,6 +17,9 @@ TARDIS
 .. image:: https://zenodo.org/badge/5756/tardis-sn/tardis.svg   
   :target: http://dx.doi.org/10.5281/zenodo.17630
 
+.. image:: https://readthedocs.org/projects/tardis/badge/?version=latest
+  :target: http://tardis.readthedocs.org/en/latest/?badge=latest
+  :alt: Documentation Status
 
 TARDIS is a tool that creates synthetic observations (spectra) for exploding stars (supernovae).
 
