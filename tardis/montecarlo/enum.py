@@ -2,8 +2,12 @@ from ctypes import c_int
 
 
 class EnumerationType(type(c_int)):
+    """
+    From http://code.activestate.com/recipes/576415-ctype-enumeration-class
+    Metaclass for CEnumeration class.
+    """
     def __new__(metacls, name, bases, dictionary):
-        if not "_members_" in dictionary:
+        if "_members_" not in dictionary:
             _members_ = {}
             for key, value in dictionary.items():
                 if not key.startswith("_"):
@@ -25,20 +29,22 @@ class EnumerationType(type(c_int)):
 
 
 class CEnumeration(c_int):
+    """
+    From http://code.activestate.com/recipes/576415-ctype-enumeration-class
+    Python implementation about `enum` datatype of C.
+    """
     __metaclass__ = EnumerationType
     _members_ = {}
 
     def __eq__(self, other):
         if isinstance(other, int):
             return self.value == other
-
         return type(self) == type(other) and self.value == other.value
 
     def __repr__(self):
-        value = self.value
         return "<%s.%s: %d>" % (self.__class__.__name__,
-                                self._reverse_map_.get(value, '(unknown)'),
-                                value)
+                                self._reverse_map_.get(self.value, '(unknown)'),
+                                self.value)
 
 
 class TardisError(CEnumeration):
