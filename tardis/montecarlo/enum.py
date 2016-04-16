@@ -20,6 +20,9 @@ class EnumerationType(type(c_int)):
             globals()[key] = value
         return cls
 
+    def __repr__(self):
+        return "<Enumeration %s>" % self.__name__
+
 
 class CEnumeration(c_int):
     __metaclass__ = EnumerationType
@@ -30,3 +33,9 @@ class CEnumeration(c_int):
             return self.value == other
 
         return type(self) == type(other) and self.value == other.value
+
+    def __repr__(self):
+        value = self.value
+        return "<%s.%s: %d>" % (self.__class__.__name__,
+                                self._reverse_map_.get(value, '(unknown)'),
+                                value)
