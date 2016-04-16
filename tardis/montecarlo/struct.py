@@ -1,5 +1,5 @@
 from ctypes import Structure, POINTER, c_int, c_int64, c_double, c_ulong
-from enum import ContinuumProcessesStatus
+from enum import RPacketStatus, ContinuumProcessesStatus
 
 
 class RPacket(Structure):
@@ -22,7 +22,7 @@ class RPacket(Structure):
         ('d_boundary', c_double),
         ('d_cont', c_double),
         ('next_shell_id', c_int64),
-        ('status', c_int),
+        ('status', RPacketStatus),
         ('id', c_int64),
         ('chi_th', c_double),
         ('chi_cont', c_double),
