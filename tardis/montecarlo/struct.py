@@ -1,4 +1,5 @@
 from ctypes import Structure, POINTER, c_int, c_int64, c_double, c_ulong
+from enum import ContinuumProcessesStatus
 
 
 class RPacket(Structure):
@@ -84,7 +85,7 @@ class StorageModel(Structure):
         ('t_electrons', POINTER(c_double)),
         ('l_pop', POINTER(c_double)),
         ('l_pop_r', POINTER(c_double)),
-        ('cont_status', c_int),
+        ('cont_status', ContinuumProcessesStatus),
         ('virt_packet_nus', POINTER(c_double)),
         ('virt_packet_energies', POINTER(c_double)),
         ('virt_packet_last_interaction_in_nu', POINTER(c_double)),

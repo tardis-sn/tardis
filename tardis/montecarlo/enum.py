@@ -11,10 +11,10 @@ class EnumerationType(type(c_int)):
 
             dictionary["_members_"] = _members_
         else:
-            _members_ = dict["_members_"]
+            _members_ = dictionary["_members_"]
 
         dictionary["_reverse_map_"] = {value: key for key, value in _members_.items()}
-        cls = type(c_int).__new__(metacls, name, bases, dict)
+        cls = type(c_int).__new__(metacls, name, bases, dictionary)
 
         for key, value in cls._members_.items():
             globals()[key] = value
@@ -39,3 +39,8 @@ class CEnumeration(c_int):
         return "<%s.%s: %d>" % (self.__class__.__name__,
                                 self._reverse_map_.get(value, '(unknown)'),
                                 value)
+
+
+class ContinuumProcessesStatus(CEnumeration):
+    OFF = 0
+    ON = 1
