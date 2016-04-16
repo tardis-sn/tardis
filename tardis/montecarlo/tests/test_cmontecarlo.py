@@ -50,6 +50,7 @@ from numpy.testing import assert_almost_equal
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import RPacket, StorageModel, RKState
+from tardis.montecarlo.enum import ContinuumProcessesStatus
 
 # Wrap the shared object containing tests for C methods, written in C.
 # TODO: Shift all tests here in Python and completely remove this test design.
@@ -140,6 +141,7 @@ def model():
 
         l_pop=(c_double * 20000)(*([2.0] * 20000)),
         l_pop_r=(c_double * 20000)(*([3.0] * 20000)),
+        cont_status=ContinuumProcessesStatus.OFF
     )
 
 
@@ -226,19 +228,15 @@ def test_compute_distance2line(packet_params, expected_params, packet, model):
 
 
 @pytest.mark.parametrize(
-    ['packet_params', 'model_params', 'expected_params'],
+    ['packet_params', 'expected_params'],
     [({'virtual_packet': 0},
-      {'cont_status': 0},
-      {'chi_cont': 6.652486e-16, 'd_cont': 4.359272608766106e+28}),
+     {'chi_cont': 6.652486e-16, 'd_cont': 4.359272608766106e+28}),
 
      ({'virtual_packet': 1},
-      {'cont_status': 0},
       {'chi_cont': 6.652486e-16, 'd_cont': 1e+99})]
 )
-def test_compute_distance2continuum(packet_params, model_params,
-                                    expected_params, packet, model):
+def test_compute_distance2continuum(packet_params, expected_params, packet, model):
     packet.virtual_packet = packet_params['virtual_packet']
-    model.cont_status = model_params['cont_status']
 
     cmontecarlo_methods.compute_distance2continuum(byref(packet), byref(model))
 
