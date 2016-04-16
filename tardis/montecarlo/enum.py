@@ -41,6 +41,18 @@ class CEnumeration(c_int):
                                 value)
 
 
+class TardisError(CEnumeration):
+    OK = 0
+    BOUNDS_ERROR = 1
+    COMOV_NU_LESS_THAN_NU_LINE = 2
+
+
+class RPacketStatus(CEnumeration):
+    IN_PROCESS = 0
+    EMITTED = 1
+    REABSORBED = 2
+
+
 class ContinuumProcessesStatus(CEnumeration):
     OFF = 0
     ON = 1
