@@ -4,11 +4,12 @@ class PlasmaPropertyCollection(list):
     pass
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
-    TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron])
+    TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
+    HeliumTreatment])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
-    LinesUpperLevelIndex, TauSobolev, LevelNumberDensity, IonNumberDensity,
+    LinesUpperLevelIndex, TauSobolev, IonNumberDensity,
     StimulatedEmissionFactor, SelectedAtoms, ElectronTemperature])
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
 lte_excitation_properties = PlasmaPropertyCollection([LevelBoltzmannFactorLTE])
@@ -24,6 +25,7 @@ nlte_properties = PlasmaPropertyCollection([
     PreviousBetaSobolev, BetaSobolev])
 helium_nlte_properties = PlasmaPropertyCollection([HeliumNLTE,
     RadiationFieldCorrection, ZetaData,
-    BetaElectron])
+    BetaElectron, LevelNumberDensityHeNLTE])
+helium_lte_properties = PlasmaPropertyCollection([LevelNumberDensity])
 helium_numerical_nlte_properties = PlasmaPropertyCollection([
     HeliumNumericalNLTE])
