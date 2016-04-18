@@ -7,8 +7,6 @@ import numexpr as ne
 
 from scipy import interpolate
 
-
-
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaIonizationError
 
@@ -195,11 +193,59 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
 
-    def update_helium_nlte(self, ion_number_density, number_density):
-        ion_number_density.ix[2].ix[0] = 0.0
-        ion_number_density.ix[2].ix[2] = 0.0
-        ion_number_density.ix[2].ix[1].update(number_density.ix[2])
-        return ion_number_density
+    def calculate_he(self, level_boltzmann_factor, electron_densities,
+        ionization_data, beta_rad, g, g_electron, w, t_rad, t_electrons,
+        delta, zeta_data, number_density, partition_function):
+        """
+        Updates all of the helium level populations according to the helium NLTE recomb approximation.
+        """
+        helium_population = level_boltzmann_factor.ix[2].copy()
+        # He I excited states
+        he_one_population = self.calculate_helium_one(g_electron, beta_rad,
+            ionization_data, level_boltzmann_factor, electron_densities, g, w)
+        helium_population.ix[0].update(he_one_population)
+        #He I metastable states
+        helium_population.ix[0,1] *= (1 / w)
+        helium_population.ix[0,2] *= (1 / w)
+        #He I ground state
+        helium_population.ix[0,0] = 0.0
+        #He II excited states
+        he_two_population = level_boltzmann_factor.ix[2,1].mul(
+            (g.ix[2,1].ix[0]**(-1)))
+        helium_population.ix[1].update(he_two_population)
+        #He II ground state
+        helium_population.ix[1,0] = 1.0
+        #He III states
+        helium_population.ix[2,0] = self.calculate_helium_three(t_rad, w,
+            zeta_data, t_electrons, delta, g_electron, beta_rad,
+            ionization_data, electron_densities, g)
+        unnormalised = helium_population.sum()
+        normalised = helium_population.mul(number_density.ix[2] / unnormalised)
+        helium_population.update(normalised)
+        return helium_population
+
+    def calculate_helium_one(self, g_electron, beta_rad, ionization_data,
+        level_boltzmann_factor, electron_densities, g, w):
+        """
+        Calculates the He I level population values, in equilibrium with the He II ground state.
+        """
+        return level_boltzmann_factor.ix[2,0] * (1./(2*g.ix[2,1,0])) * \
+            (1/g_electron) * (1/(w)) * np.exp(
+            ionization_data.ionization_energy.ix[2,1] * beta_rad) * \
+            electron_densities
+
+    def calculate_helium_three(self, t_rad, w, zeta_data, t_electrons, delta,
+        g_electron, beta_rad, ionization_data, electron_densities, g):
+        """
+        Calculates the He III level population values.
+        """
+        zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
+        he_three_population = (2 / electron_densities) * \
+            (float(g.ix[2,2,0])/g.ix[2,1,0]) * g_electron * \
+            np.exp(-ionization_data.ionization_energy.ix[2,2] * beta_rad) \
+            * w * (delta.ix[2,2] * zeta + w * (1. - zeta)) * \
+            (t_electrons / t_rad) ** 0.5
+        return he_three_population
 
     def calculate_with_n_electron(self, phi, partition_function,
                                   number_density, n_electron):
@@ -233,7 +279,8 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     def _calculate_block_ids(phi):
         return calculate_block_ids_from_dataframe(phi)
 
-    def calculate(self, phi, partition_function, number_density):
+    def calculate(self, phi, partition_function, number_density, level_boltzmann_factor, ionization_data,
+                  beta_rad, g, g_electron, w, t_rad, t_electrons, delta, zeta_data):
         n_e_convergence_threshold = 0.05
         n_electron = number_density.sum(axis=0)
         n_electron_iterations = 0
@@ -244,9 +291,13 @@ class IonNumberDensity(ProcessingPlasmaProperty):
             if hasattr(self.plasma_parent, 'plasma_properties_dict'):
                 if 'HeliumNLTE' in \
                     self.plasma_parent.plasma_properties_dict.keys():
-                    ion_number_density = \
-                        self.update_helium_nlte(ion_number_density,
-                        number_density)
+                    helium_population = self.calculate_he(
+                        level_boltzmann_factor, n_electron,
+                        ionization_data, beta_rad, g, g_electron, w, t_rad, t_electrons,
+                        delta, zeta_data, number_density, partition_function)
+                    ion_number_density.ix[2].ix[0].update(helium_population.ix[0].sum())
+                    ion_number_density.ix[2].ix[1].update(helium_population.ix[1].sum())
+                    ion_number_density.ix[2].ix[2].update(helium_population.ix[2].sum())
             ion_numbers = ion_number_density.index.get_level_values(1).values
             ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
             new_n_electron = (ion_number_density.values * ion_numbers).sum(
