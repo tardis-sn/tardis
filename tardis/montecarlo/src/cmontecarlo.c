@@ -843,26 +843,18 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
       rk_state mt_state;
       rk_seed (seed + omp_get_thread_num(), &mt_state);
 #pragma omp master
-      fprintf(stderr, "Running with OpenMP - %d threads\n", omp_get_num_threads());
+      {
+        fprintf(stderr, "Running with OpenMP - %d threads\n", omp_get_num_threads());
+        print_progress(0, storage->no_of_packets);
+      }
 #pragma omp for
 #else
       rk_state mt_state;
       rk_seed (seed, &mt_state);
       fprintf(stderr, "Running without OpenMP\n");
 #endif
-      for (int64_t packet_index = 0; packet_index < storage->no_of_packets; packet_index++)
+      for (int64_t packet_index = 0; packet_index < storage->no_of_packets; ++packet_index)
         {
-          ++finished_packets;
-          if ( finished_packets%100 == 0 ) {
-#ifdef WITHOPENMP
-              // WARNING: This only works with a static sheduler and gives an approximation of progress.
-              // The alternative would be to have a shared variable but that could potentially decrease performance when using many threads.
-              if (omp_get_thread_num() == 0 )
-                print_progress(finished_packets * omp_get_num_threads(), storage->no_of_packets);
-#else
-              print_progress(finished_packets, storage->no_of_packets);
-#endif
-          }
           int reabsorbed = 0;
           rpacket_t packet;
           rpacket_set_id(&packet, packet_index);
@@ -880,6 +872,17 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
           else
             {
               storage->output_energies[packet_index] = rpacket_get_energy(&packet);
+            }
+          if ( ++finished_packets%100 == 0 )
+            {
+#ifdef WITHOPENMP
+              // WARNING: This only works with a static sheduler and gives an approximation of progress.
+              // The alternative would be to have a shared variable but that could potentially decrease performance when using many threads.
+              if (omp_get_thread_num() == 0 )
+                print_progress(finished_packets * omp_get_num_threads(), storage->no_of_packets);
+#else
+              print_progress(finished_packets, storage->no_of_packets);
+#endif
             }
         }
 #ifdef WITHOPENMP
