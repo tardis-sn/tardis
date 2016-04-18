@@ -745,11 +745,15 @@ class Configuration(ConfigurationNameSpace):
         if tardis_config_version != 'v1.0':
             raise ConfigurationError('Currently only tardis_config_version v1.0 supported')
 
-        return cls.from_config_dict(yaml_dict, test_parser=test_parser)
+        config_dirname = os.path.dirname(fname)
+        
+        return cls.from_config_dict(yaml_dict, test_parser=test_parser,
+                                    config_dirname=config_dirname)
 
     @classmethod
     def from_config_dict(cls, config_dict, atom_data=None, test_parser=False,
-                         config_definition_file=None, validate=True):
+                         config_definition_file=None, validate=True,
+                         config_dirname=''):
         """
         Validating and subsequently parsing a config file.
 
@@ -797,7 +801,11 @@ class Configuration(ConfigurationNameSpace):
         if test_parser:
             atom_data = None
         elif 'atom_data' in validated_config_dict.keys():
-            atom_data_fname = validated_config_dict['atom_data']
+            if os.path.isabs(validated_config_dict['atom_data']):
+                atom_data_fname = validated_config_dict['atom_data']
+            else:
+                atom_data_fname = os.path.join(config_dirname,
+                                               validated_config_dict['atom_data'])
             validated_config_dict['atom_data_fname'] = atom_data_fname
         else:
             raise ConfigurationError('No atom_data key found in config or command line')
@@ -851,9 +859,15 @@ class Configuration(ConfigurationNameSpace):
                 validated_config_dict['supernova']['time_explosion']).cgs
 
         elif structure_section['type'] == 'file':
+            if os.path.isabs(structure_section['filename']):
+                structure_fname = structure_section['filename']
+            else:
+                structure_fname = os.path.join(config_dirname,
+                                               structure_section['filename'])
+                
             v_inner, v_outer, mean_densities, inner_boundary_index, \
             outer_boundary_index = read_density_file(
-                structure_section['filename'], structure_section['filetype'],
+                structure_fname, structure_section['filetype'],
                 validated_config_dict['supernova']['time_explosion'],
                 structure_section['v_inner_boundary'],
                 structure_section['v_outer_boundary'])
@@ -893,7 +907,14 @@ class Configuration(ConfigurationNameSpace):
                 abundances.ix[z] = float(abundances_section[element_symbol_string])
 
         elif abundances_section['type'] == 'file':
-            index, abundances = read_abundances_file(abundances_section['filename'], abundances_section['filetype'],
+            if os.path.isabs(abundances_section['filename']):
+                abundances_fname = abundances_section['filename']
+            else:
+                abundances_fname = os.path.join(config_dirname,
+                                                abundances_section['filename'])
+
+            index, abundances = read_abundances_file(abundances_fname,
+                                                     abundances_section['filetype'],
                                                      inner_boundary_index, outer_boundary_index)
             if len(index) != no_of_shells:
                 raise ConfigurationError('The abundance file specified has not the same number of cells'
