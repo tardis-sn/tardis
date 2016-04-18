@@ -50,6 +50,7 @@ from numpy.testing import assert_almost_equal
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import RPacket, StorageModel, RKState
+from tardis.montecarlo.enum import TardisError, RPacketStatus, ContinuumProcessesStatus
 
 # Wrap the shared object containing tests for C methods, written in C.
 # TODO: Shift all tests here in Python and completely remove this test design.
@@ -78,7 +79,7 @@ def packet():
         current_continuum_id=1,
         virtual_packet_flag=1,
         virtual_packet=0,
-        status=0,
+        status=RPacketStatus.IN_PROCESS,
         id=0
     )
 
@@ -140,6 +141,7 @@ def model():
 
         l_pop=(c_double * 20000)(*([2.0] * 20000)),
         l_pop_r=(c_double * 20000)(*([3.0] * 20000)),
+        cont_status=ContinuumProcessesStatus.OFF
     )
 
 
@@ -201,16 +203,16 @@ def test_compute_distance2boundary(packet_params, expected_params, packet, model
 @pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'nu_line': 0.1, 'next_line_id': 0, 'last_line': 1},
-      {'tardis_error': 0, 'd_line': 1e+99}),
+      {'tardis_error': TardisError.OK, 'd_line': 1e+99}),
 
      ({'nu_line': 0.2, 'next_line_id': 1, 'last_line': 0},
-      {'tardis_error': 0, 'd_line': 7.792353908000001e+17}),
+      {'tardis_error': TardisError.OK, 'd_line': 7.792353908000001e+17}),
 
      ({'nu_line': 0.5, 'next_line_id': 1, 'last_line': 0},
-      {'tardis_error': 2, 'd_line': 0.0}),
+      {'tardis_error': TardisError.COMOV_NU_LESS_THAN_NU_LINE, 'd_line': 0.0}),
 
      ({'nu_line': 0.6, 'next_line_id': 0, 'last_line': 0},
-      {'tardis_error': 2, 'd_line': 0.0})]
+      {'tardis_error': TardisError.COMOV_NU_LESS_THAN_NU_LINE, 'd_line': 0.0})]
 )
 def test_compute_distance2line(packet_params, expected_params, packet, model):
     packet.nu_line = packet_params['nu_line']
@@ -226,19 +228,15 @@ def test_compute_distance2line(packet_params, expected_params, packet, model):
 
 
 @pytest.mark.parametrize(
-    ['packet_params', 'model_params', 'expected_params'],
+    ['packet_params', 'expected_params'],
     [({'virtual_packet': 0},
-      {'cont_status': 0},
-      {'chi_cont': 6.652486e-16, 'd_cont': 4.359272608766106e+28}),
+     {'chi_cont': 6.652486e-16, 'd_cont': 4.359272608766106e+28}),
 
      ({'virtual_packet': 1},
-      {'cont_status': 0},
       {'chi_cont': 6.652486e-16, 'd_cont': 1e+99})]
 )
-def test_compute_distance2continuum(packet_params, model_params,
-                                    expected_params, packet, model):
+def test_compute_distance2continuum(packet_params, expected_params, packet, model):
     packet.virtual_packet = packet_params['virtual_packet']
-    model.cont_status = model_params['cont_status']
 
     cmontecarlo_methods.compute_distance2continuum(byref(packet), byref(model))
 
