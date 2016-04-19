@@ -195,19 +195,31 @@ def phi_saha_nebular(t_rad, w, zeta_data, t_electrons, delta,
         delta, g_electron, beta_rad, partition_function, ionization_data)
 
 @pytest.fixture
-def ion_number_density(phi_saha_lte, partition_function, number_density):
+def ion_number_density(phi_saha_lte, partition_function, number_density,
+		       level_boltzmann_factor_dilute_lte, ionization_data,
+		       beta_rad, g, g_electron, w, t_rad, t_electrons, delta,
+		       zeta_data):
     ion_number_density_module = IonNumberDensity(None)
     ion_number_density, electron_densities = \
         ion_number_density_module.calculate(phi_saha_lte, partition_function,
-                                            number_density)
+                       number_density,
+		       level_boltzmann_factor_dilute_lte, ionization_data,
+		       beta_rad, g, g_electron, w, t_rad, t_electrons, delta,
+		       zeta_data)
     return ion_number_density
 
 @pytest.fixture
-def electron_densities(phi_saha_lte, partition_function, number_density):
+def electron_densities(phi_saha_lte, partition_function, number_density,
+		       level_boltzmann_factor_dilute_lte, ionization_data,
+		       beta_rad, g, g_electron, w, t_rad, t_electrons, delta,
+		       zeta_data):
     electron_density_module = IonNumberDensity(None)
     ion_number_density, electron_densities = \
         electron_density_module.calculate(phi_saha_lte, partition_function,
-                                          number_density)
+                       number_density,
+		       level_boltzmann_factor_dilute_lte, ionization_data,
+		       beta_rad, g, g_electron, w, t_rad, t_electrons, delta,
+		       zeta_data)
     return electron_densities
 
 @pytest.fixture
