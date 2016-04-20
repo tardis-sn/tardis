@@ -189,6 +189,27 @@ def test_rpacket_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
 
 
 @pytest.mark.parametrize(
+    ['packet_params', 'expected'],
+    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 2.5010827921809502e+26),
+     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 3.123611229395459e+25)]
+)
+def test_bf_cross_section(packet_params, expected, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
+    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    comov_nu = packet.nu * doppler_factor
+
+    cmontecarlo_methods.bf_cross_section.restype = c_double
+    obtained = cmontecarlo_methods.bf_cross_section(byref(model), c_int64(0),
+                                                    c_double(comov_nu))
+
+    assert_almost_equal(obtained, expected)
+
+
+@pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'mu': 0.3, 'r': 7.5e14},
       {'d_boundary': 259376919351035.88}),
@@ -340,11 +361,3 @@ def test_calculate_chi_bf():
 @pytest.mark.xfail
 def test_montecarlo_bound_free_scatter():
     assert cmontecarlo_tests.test_montecarlo_bound_free_scatter() == 1
-
-
-@pytest.mark.xfail
-def test_bf_cross_section():
-    bf_cross_section = 0.0
-    cmontecarlo_tests.test_bf_cross_section.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_bf_cross_section(),
-                        bf_cross_section)
