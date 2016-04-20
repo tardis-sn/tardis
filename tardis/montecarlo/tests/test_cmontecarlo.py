@@ -46,7 +46,7 @@ Please follow this design procedure while adding a new test:
 import os
 import pytest
 from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_equal, assert_almost_equal
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import (
@@ -298,6 +298,13 @@ def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, 
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
 
+def test_montecarlo_free_free_scatter(packet, model, mt_state):
+    cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
+                                                     c_double(1.e13), byref(mt_state))
+
+    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
+
+
 # TODO: redesign subsequent tests according to tests written above.
 @pytest.mark.skipif(True, reason='Bad test design')
 def test_move_packet():
@@ -341,7 +348,3 @@ def test_bf_cross_section():
     cmontecarlo_tests.test_bf_cross_section.restype = c_double
     assert_almost_equal(cmontecarlo_tests.test_bf_cross_section(),
                         bf_cross_section)
-
-
-def test_montecarlo_free_free_scatter():
-    assert cmontecarlo_tests.test_montecarlo_free_free_scatter() == 2
