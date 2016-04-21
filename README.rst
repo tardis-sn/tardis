@@ -21,6 +21,9 @@ TARDIS
   :target: http://tardis.readthedocs.org/en/latest/?badge=latest
   :alt: Documentation Status
 
+.. image:: https://badges.gitter.im/Join%20Chat.svg
+  :target: https://gitter.im/tardis-sn/tardis
+
 TARDIS is a tool that creates synthetic observations (spectra) for exploding stars (supernovae).
 
 Documentation can be found at http://tardis.readthedocs.org.
