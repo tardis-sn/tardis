@@ -1,0 +1,28 @@
+name: tardis-ci
+dependencies:
+- python=2.7
+- numpy=1.10.0
+- scipy=0.17.0
+- pandas=0.16.2
+- pytables=3.2.2
+- h5py=2.5
+- matplotlib=1.4.3
+- astropy=1.0.5
+- PyYAML=3.11
+- numexpr=2.4.4
+- Cython=0.21
+- networkx=1.10
+- pytest=2.6.3
+# RTD requirements
+- sphinx=1.4.1
+- nbconvert=4.2.0
+- numpydoc=0.5
+- docutils
+- pip:
+  - nbsphinx==0.2.6
+  - sphinx_bootstrap_theme
+  - sphinxcontrib-bibtex
+  - sphinxcontrib-tikz
+
+
+
