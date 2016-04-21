@@ -1,8 +1,8 @@
 .. _running:
 
-**************
-Running TARDIS
-**************
+****************
+Quickstart Guide
+****************
 
 To run TARDIS requires two files. The atomic database (for more info refer to :ref:`atomic-data-download`) and a
 configuration file (more info at :ref:`config-file`).
@@ -21,7 +21,6 @@ and run TARDIS with:
     tardis tardis_example.yml output_spectrum.dat
 
 
-
 Then plot the output_spectrum.dat with your favourite plotting program. Here's an example how to do this with python.
 (The only thing you need to install is ipython and matplotlib - in addition to TARDIS's requirements)
 
@@ -31,14 +30,11 @@ Then plot the output_spectrum.dat with your favourite plotting program. Here's a
     >>> tardis_spec = loadtxt('output_spectrum.dat')
     >>> plot(tardis_spec[:,0], tardis_spec[:,1])
 
-
 More atomic datasets can be downloaded from :ref:`atomic-data-download`.
 
 
-
-
-Running TARDIS interactively
-============================
+Running TARDIS interactively (recommended)
+==========================================
 
 To get more information from each run of TARDIS one can run it interactively and
 have full access to the model properties
