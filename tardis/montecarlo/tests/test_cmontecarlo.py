@@ -364,6 +364,13 @@ def test_move_packet(packet_params, expected_params, packet, model):
     assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
 
 
+def test_montecarlo_bound_free_scatter(packet, model, mt_state):
+    cmontecarlo_methods.montecarlo_bound_free_scatter(byref(packet), byref(model),
+                                                     c_double(1.e13), byref(mt_state))
+
+    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
+
+
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
     cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
                                                      c_double(1.e13), byref(mt_state))
@@ -386,8 +393,3 @@ def test_montecarlo_one_packet_loop():
 
 def test_montecarlo_thomson_scatter():
     assert cmontecarlo_tests.test_montecarlo_thomson_scatter()
-
-
-@pytest.mark.xfail
-def test_montecarlo_bound_free_scatter():
-    assert cmontecarlo_tests.test_montecarlo_bound_free_scatter() == 1
