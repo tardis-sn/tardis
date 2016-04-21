@@ -319,6 +319,31 @@ def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, 
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
 
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
+      {'mu': 0.3120599529139568, 'r': 753060422542573.9,
+       'j': 8998701024436.969, 'nubar': 3598960894542.354}),
+
+     ({'nu': 0.6, 'mu': -.5, 'energy': 0.5, 'r': 8.1e14},
+      {'mu': -.4906548373534084, 'r': 805046582503149.2,
+       'j': 5001298975563.031, 'nubar': 3001558973156.1387})]
+)
+def test_move_packet(packet_params, expected_params, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.energy = packet_params['energy']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(1.e13))
+
+    assert_almost_equal(packet.mu, expected_params['mu'])
+    assert_almost_equal(packet.r, expected_params['r'])
+
+    assert_almost_equal(model.js[packet.current_shell_id], expected_params['j'])
+    assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
+
+
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
     cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
                                                      c_double(1.e13), byref(mt_state))
@@ -327,14 +352,6 @@ def test_montecarlo_free_free_scatter(packet, model, mt_state):
 
 
 # TODO: redesign subsequent tests according to tests written above.
-@pytest.mark.skipif(True, reason='Bad test design')
-def test_move_packet():
-    doppler_factor = 0.9998556693818854
-    cmontecarlo_tests.test_move_packet.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_move_packet(),
-                        doppler_factor)
-
-
 def test_move_packet_across_shell_boundary():
     assert cmontecarlo_tests.test_move_packet_across_shell_boundary()
 
