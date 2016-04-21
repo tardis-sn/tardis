@@ -2,7 +2,7 @@ formats:
   - none
 
 conda:
-  file: docs/rtd_conda_env.yml
+  file: tardis_ci/tardis_rtd_env27.yml
 
 python:
    version: 2
