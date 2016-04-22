@@ -49,8 +49,17 @@ from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong
 from numpy.testing import assert_almost_equal
 
 from tardis import __path__ as path
-from tardis.montecarlo.struct import RPacket, StorageModel, RKState
-from tardis.montecarlo.enum import TardisError, RPacketStatus, ContinuumProcessesStatus
+from tardis.montecarlo.struct import (
+    RPacket, StorageModel, RKState,
+    TARDIS_ERROR_OK,
+    TARDIS_ERROR_BOUNDS_ERROR,
+    TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE,
+    TARDIS_PACKET_STATUS_IN_PROCESS,
+    TARDIS_PACKET_STATUS_EMITTED,
+    TARDIS_PACKET_STATUS_REABSORBED,
+    CONTINUUM_OFF,
+    CONTINUUM_ON
+)
 
 # Wrap the shared object containing tests for C methods, written in C.
 # TODO: Shift all tests here in Python and completely remove this test design.
@@ -79,7 +88,7 @@ def packet():
         current_continuum_id=1,
         virtual_packet_flag=1,
         virtual_packet=0,
-        status=RPacketStatus.IN_PROCESS,
+        status=TARDIS_PACKET_STATUS_IN_PROCESS,
         id=0
     )
 
@@ -141,7 +150,7 @@ def model():
 
         l_pop=(c_double * 20000)(*([2.0] * 20000)),
         l_pop_r=(c_double * 20000)(*([3.0] * 20000)),
-        cont_status=ContinuumProcessesStatus.OFF
+        cont_status=CONTINUUM_OFF
     )
 
 
@@ -203,16 +212,16 @@ def test_compute_distance2boundary(packet_params, expected_params, packet, model
 @pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'nu_line': 0.1, 'next_line_id': 0, 'last_line': 1},
-      {'tardis_error': TardisError.OK, 'd_line': 1e+99}),
+      {'tardis_error': TARDIS_ERROR_OK, 'd_line': 1e+99}),
 
      ({'nu_line': 0.2, 'next_line_id': 1, 'last_line': 0},
-      {'tardis_error': TardisError.OK, 'd_line': 7.792353908000001e+17}),
+      {'tardis_error': TARDIS_ERROR_OK, 'd_line': 7.792353908000001e+17}),
 
      ({'nu_line': 0.5, 'next_line_id': 1, 'last_line': 0},
-      {'tardis_error': TardisError.COMOV_NU_LESS_THAN_NU_LINE, 'd_line': 0.0}),
+      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE, 'd_line': 0.0}),
 
      ({'nu_line': 0.6, 'next_line_id': 0, 'last_line': 0},
-      {'tardis_error': TardisError.COMOV_NU_LESS_THAN_NU_LINE, 'd_line': 0.0})]
+      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE, 'd_line': 0.0})]
 )
 def test_compute_distance2line(packet_params, expected_params, packet, model):
     packet.nu_line = packet_params['nu_line']

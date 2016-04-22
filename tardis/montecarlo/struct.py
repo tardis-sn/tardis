@@ -1,5 +1,8 @@
 from ctypes import Structure, POINTER, c_int, c_int64, c_double, c_ulong
-from enum import RPacketStatus, ContinuumProcessesStatus
+
+c_tardis_error_t = c_int
+c_rpacket_status_t = c_int
+c_cont_status_t = c_int
 
 
 class RPacket(Structure):
@@ -22,7 +25,7 @@ class RPacket(Structure):
         ('d_boundary', c_double),
         ('d_cont', c_double),
         ('next_shell_id', c_int64),
-        ('status', RPacketStatus),
+        ('status', c_rpacket_status_t),
         ('id', c_int64),
         ('chi_th', c_double),
         ('chi_cont', c_double),
@@ -85,7 +88,7 @@ class StorageModel(Structure):
         ('t_electrons', POINTER(c_double)),
         ('l_pop', POINTER(c_double)),
         ('l_pop_r', POINTER(c_double)),
-        ('cont_status', ContinuumProcessesStatus),
+        ('cont_status', c_cont_status_t),
         ('virt_packet_nus', POINTER(c_double)),
         ('virt_packet_energies', POINTER(c_double)),
         ('virt_packet_last_interaction_in_nu', POINTER(c_double)),
@@ -104,3 +107,17 @@ class RKState(Structure):
         ('has_gauss', c_int),
         ('gauss', c_double)
     ]
+
+# Variables corresponding to `tardis_error_t` enum.
+TARDIS_ERROR_OK = 0
+TARDIS_ERROR_BOUNDS_ERROR = 1
+TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE = 2
+
+# Variables corresponding to `rpacket_status_t` enum.
+TARDIS_PACKET_STATUS_IN_PROCESS = 0
+TARDIS_PACKET_STATUS_EMITTED = 1
+TARDIS_PACKET_STATUS_REABSORBED = 2
+
+# Variables corresponding to `ContinuumProcessesStatus` enum.
+CONTINUUM_OFF = 0
+CONTINUUM_ON = 1
