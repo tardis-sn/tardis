@@ -1,0 +1,136 @@
+$schema: "http://json-schema.org/draft-04/schema#"
+
+type: object
+properties:
+  convergence_strategy:
+    oneOf:
+      - $ref: "#/definitions/convergence_strategy/damped"
+      - $ref: "#/definitions/convergence_strategy/specific"
+
+definitions:
+  generic:
+    damping_constant:
+      type: number
+      default: 0.5
+      description: damping constant
+    threshold:
+      type: number
+      description: >
+        specifies the threshold that is taken as convergence 
+        (i.e. 0.05 means that the value does not change more than 5%)
+
+  
+  convergence_strategy:
+    title: Definitions for the possible types of convergence_strategy 
+    damped:
+      type: object
+      properties:
+        type:
+          enum:
+            - damped
+        damping_constant:
+          $ref: "#/definitions/generic/damping_constant"
+        t_inner:
+          type: object
+          properties:
+            damping_constant:
+              $ref: "#/definitions/generic/damping_constant"
+            threshold:
+              $ref: "#/definitions/generic/threshold"
+        t_rad:
+          type: object
+          properties:
+            damping_constant:
+              $ref: "#/definitions/generic/damping_constant"
+            threshold:
+              $ref: "#/definitions/generic/threshold"
+          required:
+            - threshold
+        w:
+          type: object
+          properties:
+            damping_constant:
+              $ref: "#/definitions/generic/damping_constant"
+            threshold:
+              $ref: "#/definitions/generic/threshold"
+          required:
+            - threshold
+        lock_t_inner_cycles:
+          type: integer
+          default: 1
+          description: >
+            The number of cycles to lock the update of the inner boundary temperature.
+            This process helps with convergence. The default is to switch it off (1 cycle)
+        t_inner_update_exponent:
+          type: number
+          default: -0.5
+          description: L=4*pi*r**2*T^y
+      required:
+        - type
+
+    specific:
+      type: object
+      properties:
+        type:
+          enum:
+            - specific
+        # Required
+        threshold:
+          $ref: "#/definitions/generic/threshold"
+        fraction:
+          type: number
+          default: 0.8
+          description: >
+            the fraction of shells that have to converge to the given 
+            convergence threshold. For example, 0.8 means that 80% of shells
+            have to converge to the threshold that convergence is established
+        hold_iterations:
+          type: integer
+          default: 3
+          description: >
+            the number of iterations that the convergence criteria need to be
+            fulfilled before TARDIS accepts the simulation as converged
+        
+        # Optional
+        t_inner:
+          type: object
+          properties:
+            damping_constant:
+              $ref: "#/definitions/generic/damping_constant"
+            threshold:
+              $ref: "#/definitions/generic/threshold"
+        t_rad:
+          type: object
+          properties:
+            damping_constant:
+              $ref: "#/definitions/generic/damping_constant"
+            threshold:
+              $ref: "#/definitions/generic/threshold"
+          required:
+            - threshold
+        w:
+          type: object
+          properties:
+            damping_constant:
+              $ref: "#/definitions/generic/damping_constant"
+            threshold:
+              $ref: "#/definitions/generic/threshold"
+          required:
+            - threshold
+        lock_t_inner_cycles:
+          type: integer
+          default: 1
+          description: >
+            The number of cycles to lock the update of the inner boundary temperature.
+            This process helps with convergence. The default is to switch it off (1 cycle)
+        damping_constant:
+          $ref: "#/definitions/generic/damping_constant"
+        t_inner_update_exponent:
+          type: number
+          default: -0.5
+          description: L=4*pi*r**2*T^y
+      required:
+        - type
+        - threshold
+        - fraction
+        - hold_iterations
