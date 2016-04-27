@@ -7,6 +7,8 @@ TARDIS
 TARDIS is a Monte Carlo radiative-transfer spectral synthesis code for 1D models of supernova ejecta. It is designed for
 rapid spectral modelling of supernovae. The code is described in this documentation and Kerzendorf & Sim 2014.
 
+
+
 .. note::
     This documentation is currently under construction and does not describe all of the modes of operations available for TARDIS.
 
@@ -56,19 +58,32 @@ We are using Astropy's excellent workflow - more details can be found at `<http:
 
 
 
-
 .. warning::
     Currently TARDIS only works on 64-bit python installations. We're working on making it work on 32-bit python
     distributions.
 
 
+News
+====
+
+SOCIS 2016
+----------
+
+.. image:: http://sophia.estec.esa.int/socis2015/sites/default/files/images/esalogo.png
+  :target: http://sophia.estec.esa.int/socis/
+
+TARDIS is part of ESA's Summer of Code in Space 2016 program! If you are
+interested in participating, please check our dedicated `webpage
+<http://opensupernova.org/socis2016/doku.php>`_
+
+GSOC 2016
+---------
+
+.. image:: https://developers.google.com/open-source/gsoc/resources/downloads/GSoC-logo-horizontal.svg
+  :target: https://summerofcode.withgoogle.com/organizations/4793296782098432/
+  :width: 458 px
+
+TARDIS has been selected as a mentoring organisation for the Google Summer of Code 2016 program!
 
 ..    configuration
 ..    gui
-
-
-
-
-
-
-
