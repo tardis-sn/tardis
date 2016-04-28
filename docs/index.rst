@@ -31,7 +31,7 @@ Using Tardis
 
 * :doc:`Installation <installation>`
 * :doc:`Quickstart guide <running>`
-* Examples
+* :doc:`Examples <examples/examples>`
 * :doc:`Credit & Publication Policies <credits>`
 
 ======================
