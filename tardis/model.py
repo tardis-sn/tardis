@@ -10,6 +10,7 @@ from astropy import constants, units as u
 from util import intensity_black_body
 
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
+from colorlogs import log 
 
 logger = logging.getLogger(__name__)
 
