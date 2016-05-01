@@ -89,7 +89,8 @@ def packet():
         virtual_packet_flag=1,
         virtual_packet=0,
         status=TARDIS_PACKET_STATUS_IN_PROCESS,
-        id=0
+        id=0,
+        chi_cont=6.652486e-16
     )
 
 
