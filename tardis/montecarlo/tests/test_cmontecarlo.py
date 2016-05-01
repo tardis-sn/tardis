@@ -189,6 +189,31 @@ def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
 
 
 @pytest.mark.parametrize(
+    ['nu', 'nu_insert', 'number_of_lines', 'expected_params'],
+    [([0.5, 0.4, 0.3, 0.1], 0.2, 4,
+      {'result': 3, 'ret_val': TARDIS_ERROR_OK}),
+
+     ([0.5, 0.4, 0.3, 0.2], 0.1, 4,
+      {'result': 4, 'ret_val': TARDIS_ERROR_OK}),
+
+     ([0.4, 0.3, 0.2, 0.1], 0.5, 4,
+      {'result': 0, 'ret_val': TARDIS_ERROR_OK})]
+)
+def test_line_search(nu, nu_insert, number_of_lines, expected_params):
+    nu = (c_double * number_of_lines)(*nu)
+    nu_insert = c_double(nu_insert)
+    number_of_lines = c_int64(number_of_lines)
+    obtained_result = c_int64(0)
+
+    cmontecarlo_methods.line_search.restype = c_uint
+    obtained_tardis_error = cmontecarlo_methods.line_search(
+                        byref(nu), nu_insert, number_of_lines, byref(obtained_result))
+
+    assert obtained_result.value == expected_params['result']
+    assert obtained_tardis_error == expected_params['ret_val']
+
+
+@pytest.mark.parametrize(
     ['mu', 'r', 'inv_t_exp', 'expected'],
     [(0.3, 7.5e14, 1 / 5.2e7, 0.9998556693818854),
      (-.3, 8.1e14, 1 / 2.6e7, 1.0003117541351274)]
