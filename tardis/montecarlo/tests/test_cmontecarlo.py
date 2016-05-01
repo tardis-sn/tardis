@@ -412,6 +412,28 @@ def test_move_packet(packet_params, expected_params, packet, model):
     assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
 
 
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
+      {'nu': 0.39974659819356556, 'energy': 0.8994298459355226}),
+
+     ({'nu': 0.6, 'mu': -.5, 'energy': 0.5, 'r': 8.1e14},
+      {'nu': 0.5998422620533325, 'energy': 0.4998685517111104})]
+)
+def test_montecarlo_thomson_scatter(packet_params, expected_params, packet,
+                                   model, mt_state):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.energy = packet_params['energy']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.montecarlo_thomson_scatter(byref(packet), byref(model),
+                                                   c_double(1.e13), byref(mt_state))
+
+    assert_almost_equal(packet.nu, expected_params['nu'])
+    assert_almost_equal(packet.energy, expected_params['energy'])
+
+
 def test_montecarlo_bound_free_scatter(packet, model, mt_state):
     cmontecarlo_methods.montecarlo_bound_free_scatter(byref(packet), byref(model),
                                                      c_double(1.e13), byref(mt_state))
