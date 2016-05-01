@@ -88,6 +88,7 @@ def packet():
         current_continuum_id=1,
         virtual_packet_flag=1,
         virtual_packet=0,
+        next_shell_id=1,
         status=TARDIS_PACKET_STATUS_IN_PROCESS,
         id=0,
         chi_cont=6.652486e-16
@@ -415,6 +416,34 @@ def test_move_packet(packet_params, expected_params, packet, model):
 
 @pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
+    [({'virtual_packet': 0, 'current_shell_id': 0, 'next_shell_id': 1},
+      {'status': TARDIS_PACKET_STATUS_IN_PROCESS, 'current_shell_id': 1}),
+
+     ({'virtual_packet': 1, 'current_shell_id': 1, 'next_shell_id': 1},
+      {'status': TARDIS_PACKET_STATUS_EMITTED, 'current_shell_id': 1,
+       'tau_event': 29000000000000.008}),
+
+     ({'virtual_packet': 1, 'current_shell_id': 0, 'next_shell_id': -1},
+      {'status': TARDIS_PACKET_STATUS_REABSORBED, 'current_shell_id': 0,
+       'tau_event': 29000000000000.008})]
+)
+def test_move_packet_across_shell_boundary(packet_params, expected_params,
+                                           packet, model, mt_state):
+    packet.virtual_packet = packet_params['virtual_packet']
+    packet.current_shell_id = packet_params['current_shell_id']
+    packet.next_shell_id = packet_params['next_shell_id']
+
+    cmontecarlo_methods.move_packet_across_shell_boundary(byref(packet), byref(model),
+                                                          c_double(1.e13), byref(mt_state))
+
+    if packet_params['virtual_packet'] == 1:
+        assert_almost_equal(packet.tau_event, expected_params['tau_event'])
+    assert packet.status == expected_params['status']
+    assert packet.current_shell_id == expected_params['current_shell_id']
+
+
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
     [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
       {'nu': 0.39974659819356556, 'energy': 0.8994298459355226}),
 
@@ -447,16 +476,3 @@ def test_montecarlo_free_free_scatter(packet, model, mt_state):
                                                      c_double(1.e13), byref(mt_state))
 
     assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
-
-
-# TODO: redesign subsequent tests according to tests written above.
-def test_move_packet_across_shell_boundary():
-    assert cmontecarlo_tests.test_move_packet_across_shell_boundary()
-
-
-def test_montecarlo_one_packet():
-    assert cmontecarlo_tests.test_montecarlo_one_packet()
-
-
-def test_montecarlo_one_packet_loop():
-    assert cmontecarlo_tests.test_montecarlo_one_packet_loop() == 0
