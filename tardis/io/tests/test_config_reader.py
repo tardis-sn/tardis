@@ -358,6 +358,25 @@ def test_ascii_reader_exponential_law():
         assert_almost_equal(structure['mean_densities'][i].value,mdens)
         assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
 
+class TestAbsoluteRelativeConfigFilePaths:
+    def setup(self):
+        self.original_cwd = os.getcwd()
+        self.config_filename = 'tardis_configv1_ascii_density_abund.yml'
+
+    def test_relative_config_path_same_dir(self):
+        os.chdir(data_path(''))
+        config = config_reader.Configuration.from_yaml(self.config_filename, test_parser=True)
+        os.chdir(self.original_cwd)
+
+    def test_relative_config_path_parent_dir(self):
+        os.chdir(os.path.join(data_path(''), os.path.pardir))
+        config_path = os.path.relpath(data_path(self.config_filename))
+        config = config_reader.Configuration.from_yaml(config_path, test_parser=True)
+        os.chdir(self.original_cwd)
+
+    def test_absolute_config_path(self):
+        config = config_reader.Configuration.from_yaml(os.path.abspath(data_path(self.config_filename)),
+                                                       test_parser=True)
 
 
 #write tests for inner and outer boundary indices
