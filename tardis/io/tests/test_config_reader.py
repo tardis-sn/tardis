@@ -1,6 +1,7 @@
 # tests for the config reader module
 from tardis.io import config_reader
 from astropy import units as u
+from contextlib import contextmanager
 import os
 import pytest
 import yaml
@@ -11,7 +12,20 @@ from tardis.util import parse_quantity
 
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
-    return os.path.join(data_dir, 'data', filename)
+    return os.path.abspath(os.path.join(data_dir, 'data', filename))
+
+@contextmanager
+def change_cwd(directory):
+    # Function taken from:
+    # https://github.com/django/django/blob/18d962f2e6cc8829d60d6f6dfb3ee3855fa5362e/tests/test_runner/test_discover_runner.py
+    current_dir = os.path.abspath(os.path.dirname(__file__))
+    new_dir = os.path.join(current_dir, directory)
+    old_cwd = os.getcwd()
+    os.chdir(new_dir)
+    try:
+        yield
+    finally:
+        os.chdir(old_cwd)
 
 def test_config_namespace_attribute_test():
     namespace = config_reader.ConfigurationNameSpace({'param1':1})
@@ -358,6 +372,22 @@ def test_ascii_reader_exponential_law():
         assert_almost_equal(structure['mean_densities'][i].value,mdens)
         assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
 
+class TestAbsoluteRelativeConfigFilePaths:
+    def setup(self):
+        self.config_filename = 'tardis_configv1_ascii_density_abund.yml'
+
+    def test_relative_config_path_same_dir(self):
+        with change_cwd(data_path('')):
+            config = config_reader.Configuration.from_yaml(self.config_filename, test_parser=True)
+
+    def test_relative_config_path_parent_dir(self):
+        config_path = os.path.relpath(data_path(self.config_filename), data_path(os.path.pardir))
+        with change_cwd(data_path(os.path.pardir)):
+            config = config_reader.Configuration.from_yaml(config_path, test_parser=True)
+
+    def test_absolute_config_path(self):
+        config = config_reader.Configuration.from_yaml(os.path.abspath(data_path(self.config_filename)),
+                                                       test_parser=True)
 
 
 #write tests for inner and outer boundary indices
