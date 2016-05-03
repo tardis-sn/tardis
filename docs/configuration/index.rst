@@ -18,6 +18,12 @@ Configuration Details
 * :doc:`Validation Process <config_validator>`
 * :doc:`Example Configuration with Default Values <configuration>`
 
+
+.. warning::
+    We are currently in the process of overhauling the configuration system.
+    See `TEP 006 <https://github.com/tardis-sn/tep/blob/master/TEP006_configuration_tags.rst>`_
+    and stay tuned!
+
 ..
   Most of the configuration for TARDIS uses the YAML format. If a YAML file is
   handed to TARDIS it is first checked using a configuration validator to
