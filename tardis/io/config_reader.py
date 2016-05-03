@@ -23,7 +23,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
 
-data_dir = os.path.join(tardis.__path__[0], 'data')
+data_dir = os.path.abspath(os.path.join(tardis.__path__[0], 'data'))
 
 default_config_definition_file = os.path.join(data_dir,
                                               'tardis_config_definition.yml')
