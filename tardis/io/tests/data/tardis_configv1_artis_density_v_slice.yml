@@ -9,7 +9,7 @@ atom_data: kurucz_atom_pure_simple.h5
 model:
     structure:
         type: file
-        filename: tardis/io/tests/data/artis_model.dat
+        filename: artis_model.dat
         filetype: artis
         v_inner_boundary: 9000 km/s
         v_outer_boundary: 20000 km/s
