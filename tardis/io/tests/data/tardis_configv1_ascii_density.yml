@@ -9,7 +9,7 @@ atom_data: kurucz_atom_pure_simple.h5
 model:
     structure:
         type: file
-        filename: tardis/io/tests/data/tardis_simple_ascii_density_test.dat
+        filename: tardis_simple_ascii_density_test.dat
         filetype: simple_ascii
 
     abundances:
