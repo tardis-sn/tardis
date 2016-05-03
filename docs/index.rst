@@ -30,9 +30,9 @@ Using Tardis
 ============
 
 * :doc:`Installation <installation>`
-* :doc:`Quickstart guide <running>`
-* :doc:`Model Configuration <examples/modelconfig>`
-* Advanced Configuration
+* :doc:`Quickstart Guide <running>`
+* :doc:`Ejecta Model Setup <examples/modelconfig>`
+* :doc:`TARDIS Configuration <configuration/index>`
 * :doc:`Examples <examples/examples>`
 * :doc:`Credit & Publication Policies <credits>`
 
@@ -40,12 +40,12 @@ Using Tardis
 Looking under the hood
 ======================
 
-* Physics behind Tardis
-* Monte Carlo primer
+* Physics behind TARDIS
+* Monte Carlo Primer
 
 =================
 Developing Tardis
 =================
 
-* Reporting issues
+* Reporting Issues
 * Contributing
