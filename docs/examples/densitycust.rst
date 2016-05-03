@@ -52,11 +52,11 @@ The values in the example here define a density profile that is dropping off wit
 TARDIS input file
 =================
 
-If you create a correctly formatted density profile file (called
-"density.dat"), you can use them in TARDIS by putting the following lines in
+If you create a correctly formatted density profile file (called "density.dat"
+in this example), you can use it in TARDIS by putting the following lines in
 the model section of the yaml file:
 
-.. literalinclude:: tardis_configv1_ascii_density_cust_example.yml
+.. literalinclude:: tardis_configv1_density_cust_example.yml
     :language: yaml
 
 .. note::

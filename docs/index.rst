@@ -31,6 +31,8 @@ Using Tardis
 
 * :doc:`Installation <installation>`
 * :doc:`Quickstart guide <running>`
+* :doc:`Model Configuration <examples/modelconfig>`
+* Advanced Configuration
 * :doc:`Examples <examples/examples>`
 * :doc:`Credit & Publication Policies <credits>`
 
