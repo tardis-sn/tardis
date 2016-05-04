@@ -427,9 +427,39 @@ def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, 
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
 
+
+"""
+Difficult Tests:
+----------------
+The tests written further are more complex than previous tests. They require
+proper design procedure. They are not taken up yet and intended to be
+completed together in future.
+"""
+
+
+@pytest.mark.skipif(True, reason="Yet to be written.")
+def test_montecarlo_one_packet(packet, model, mt_state):
+    pass
+
+
+@pytest.mark.skipif(True, reason="Yet to be written.")
+def test_montecarlo_one_packet_loop(packet, model, mt_state):
+    pass
+
+
+@pytest.mark.skipif(True, reason="Yet to be written.")
+def test_montecarlo_main_loop(packet, model, mt_state):
+    pass
+
+
+@pytest.mark.skipif(True, reason="Yet to be written.")
+def test_montecarlo_event_handler(packet, model, mt_state):
+    pass
+
+
 """
 Not Yet Relevant Tests:
-----------------
+-----------------------
 The tests written further (till next block comment is encountered) are for the
 methods related to Continuum interactions. These are not required to be tested
 on current master and can be skipped for now.
@@ -504,4 +534,3 @@ def test_montecarlo_bound_free_scatter(packet, model, mt_state):
                                                      c_double(1.e13), byref(mt_state))
 
     assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
-
