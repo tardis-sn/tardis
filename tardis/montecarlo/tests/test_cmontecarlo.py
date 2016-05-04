@@ -61,11 +61,6 @@ from tardis.montecarlo.struct import (
     CONTINUUM_ON
 )
 
-# Wrap the shared object containing tests for C methods, written in C.
-# TODO: Shift all tests here in Python and completely remove this test design.
-test_path = os.path.join(path[0], 'montecarlo', 'test_montecarlo.so')
-cmontecarlo_tests = CDLL(test_path)
-
 # Wrap the shared object containing C methods, which are tested here.
 cmontecarlo_filepath = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 cmontecarlo_methods = CDLL(cmontecarlo_filepath)
@@ -167,6 +162,15 @@ def mt_state():
     )
 
 
+"""
+Important Tests:
+----------------
+The tests written further (till next block comment is encountered) have been
+categorized as important tests, these tests correspond to methods which are
+relatively old and stable code.
+"""
+
+
 @pytest.mark.parametrize(
     ['x', 'x_insert', 'imin', 'imax', 'expected_params'],
     [([5.0, 4.0, 3.0, 1.0], 2.0, 0, 3,
@@ -239,47 +243,6 @@ def test_rpacket_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
 
 
 @pytest.mark.parametrize(
-    ['packet_params', 'expected'],
-    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 2.5010827921809502e+26),
-     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 3.123611229395459e+25)]
-)
-def test_bf_cross_section(packet_params, expected, packet, model):
-    packet.nu = packet_params['nu']
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
-
-    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
-    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
-    comov_nu = packet.nu * doppler_factor
-
-    cmontecarlo_methods.bf_cross_section.restype = c_double
-    obtained = cmontecarlo_methods.bf_cross_section(byref(model), c_int64(0),
-                                                    c_double(comov_nu))
-
-    assert_almost_equal(obtained, expected)
-
-
-# TODO: fix underlying method and update expected values in testcases.
-# For loop is not being executed in original method, and hence bf_helper
-# always remains zero. Reason for for loop not executed:
-#         "current_continuum_id = no_of_continuum edges"
-@pytest.mark.parametrize(
-    ['packet_params', 'expected'],
-    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0.0),
-     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0.0)]
-)
-@pytest.mark.skipif(True, reason="Thread unsafe operations in method.")
-def test_calculate_chi_bf(packet_params, expected, packet, model):
-    packet.nu = packet_params['nu']
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
-
-    cmontecarlo_methods.calculate_chi_bf(byref(packet), byref(model))
-
-    assert_almost_equal(packet.chi_bf, expected)
-
-
-@pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'mu': 0.3, 'r': 7.5e14},
       {'d_boundary': 259376919351035.88}),
@@ -345,51 +308,6 @@ def test_compute_distance2continuum(packet_params, expected_params, packet, mode
 
 
 @pytest.mark.parametrize(
-    ['packet_params', 'j_blue_idx', 'expected'],
-    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
-     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
-     ({'nu': 0.5, 'mu': 0.5, 'r': 7.9e14}, 1, 0.719988453650551),
-     ({'nu': 0.6, 'mu': -.5, 'r': 8.1e14}, 1, 0.499990378058792)]
-)
-def test_increment_j_blue_estimator(packet_params, j_blue_idx, expected, packet, model):
-    packet.nu = packet_params['nu']
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
-
-    cmontecarlo_methods.compute_distance2line(byref(packet), byref(model))
-    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(1.e13))
-    cmontecarlo_methods.increment_j_blue_estimator(byref(packet), byref(model),
-                                 c_double(packet.d_line), c_int64(j_blue_idx))
-
-    assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
-
-
-@pytest.mark.parametrize(
-    ['packet_params', 'expected_params'],
-    # TODO: Add scientifically sound test cases.
-    [({'virtual_packet': 1, 'tau_event': 2.9e13, 'last_line': 0},
-      {'tau_event': 2.9e13, 'next_line_id': 2}),
-
-     ({'virtual_packet': 0, 'tau_event': 2.9e13, 'last_line': 0},
-      {'tau_event': 2.9e13, 'next_line_id': 2}),
-
-     ({'virtual_packet': 0, 'tau_event': 2.9e13, 'last_line': 0},
-      {'tau_event': 2.9e13, 'next_line_id': 2}),
-     ]
-)
-def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, mt_state):
-    packet.virtual_packet = packet_params['virtual_packet']
-    packet.tau_event = packet_params['tau_event']
-    packet.last_line = packet_params['last_line']
-
-    cmontecarlo_methods.montecarlo_line_scatter(byref(packet), byref(model),
-                                          c_double(1.e13), byref(mt_state))
-
-    assert_almost_equal(packet.tau_event, expected_params['tau_event'])
-    assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
-
-
-@pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
       {'mu': 0.3120599529139568, 'r': 753060422542573.9,
@@ -412,6 +330,26 @@ def test_move_packet(packet_params, expected_params, packet, model):
 
     assert_almost_equal(model.js[packet.current_shell_id], expected_params['j'])
     assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
+
+
+@pytest.mark.parametrize(
+    ['packet_params', 'j_blue_idx', 'expected'],
+    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
+     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
+     ({'nu': 0.5, 'mu': 0.5, 'r': 7.9e14}, 1, 0.719988453650551),
+     ({'nu': 0.6, 'mu': -.5, 'r': 8.1e14}, 1, 0.499990378058792)]
+)
+def test_increment_j_blue_estimator(packet_params, j_blue_idx, expected, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.compute_distance2line(byref(packet), byref(model))
+    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(1.e13))
+    cmontecarlo_methods.increment_j_blue_estimator(byref(packet), byref(model),
+                                 c_double(packet.d_line), c_int64(j_blue_idx))
+
+    assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
 
 
 @pytest.mark.parametrize(
@@ -464,27 +402,83 @@ def test_montecarlo_thomson_scatter(packet_params, expected_params, packet,
     assert_almost_equal(packet.energy, expected_params['energy'])
 
 
-def test_montecarlo_bound_free_scatter(packet, model, mt_state):
-    cmontecarlo_methods.montecarlo_bound_free_scatter(byref(packet), byref(model),
-                                                     c_double(1.e13), byref(mt_state))
-
-    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
-
-
-def test_montecarlo_free_free_scatter(packet, model, mt_state):
-    cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
-                                                     c_double(1.e13), byref(mt_state))
-
-    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
-
-
-# TODO: C method returns a pointer to method, find a way to assert pointers.
-@pytest.mark.skipif(True, reason="Design procedure unclear.")
 @pytest.mark.parametrize(
-    ['packet_params', 'continuum_status', 'expected'],
-    [({'chi_cont': 6.652486e-16, 'chi_th': 4.421893e-16}, CONTINUUM_ON,
-      None)]
+    ['packet_params', 'expected_params'],
+    # TODO: Add scientifically sound test cases.
+    [({'virtual_packet': 1, 'tau_event': 2.9e13, 'last_line': 0},
+      {'tau_event': 2.9e13, 'next_line_id': 2}),
+
+     ({'virtual_packet': 0, 'tau_event': 2.9e13, 'last_line': 0},
+      {'tau_event': 2.9e13, 'next_line_id': 2}),
+
+     ({'virtual_packet': 0, 'tau_event': 2.9e13, 'last_line': 0},
+      {'tau_event': 2.9e13, 'next_line_id': 2}),
+     ]
 )
+def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, mt_state):
+    packet.virtual_packet = packet_params['virtual_packet']
+    packet.tau_event = packet_params['tau_event']
+    packet.last_line = packet_params['last_line']
+
+    cmontecarlo_methods.montecarlo_line_scatter(byref(packet), byref(model),
+                                          c_double(1.e13), byref(mt_state))
+
+    assert_almost_equal(packet.tau_event, expected_params['tau_event'])
+    assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
+
+
+"""
+Not Yet Relevant Tests:
+----------------
+The tests written further (till next block comment is encountered) are for the
+methods related to Continuum interactions. These are not required to be tested
+on current master and can be skipped for now.
+"""
+
+
+@pytest.mark.skipif(True, reason="Not yet relevant")
+@pytest.mark.parametrize(
+    ['packet_params', 'expected'],
+    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 2.5010827921809502e+26),
+     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 3.123611229395459e+25)]
+)
+def test_bf_cross_section(packet_params, expected, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
+    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    comov_nu = packet.nu * doppler_factor
+
+    cmontecarlo_methods.bf_cross_section.restype = c_double
+    obtained = cmontecarlo_methods.bf_cross_section(byref(model), c_int64(0),
+                                                    c_double(comov_nu))
+
+    assert_almost_equal(obtained, expected)
+
+
+# TODO: fix underlying method and update expected values in testcases.
+# For loop is not being executed in original method, and hence bf_helper
+# always remains zero. Reason for for loop not executed:
+#         "current_continuum_id = no_of_continuum edges"
+@pytest.mark.skipif(True, reason="Not yet relevant")
+@pytest.mark.parametrize(
+    ['packet_params', 'expected'],
+    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0.0),
+     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0.0)]
+)
+def test_calculate_chi_bf(packet_params, expected, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.calculate_chi_bf(byref(packet), byref(model))
+
+    assert_almost_equal(packet.chi_bf, expected)
+
+
+@pytest.mark.skipif(True, reason="Not yet relevant")
 def test_montecarlo_continuum_event_handler(packet_params, continuum_status, expected,
                                             packet, model, mt_state):
     packet.chi_cont = packet_params['chi_cont']
@@ -494,3 +488,20 @@ def test_montecarlo_continuum_event_handler(packet_params, continuum_status, exp
 
     obtained = cmontecarlo_methods.montecarlo_continuum_event_handler(byref(packet),
                                                       byref(model), byref(mt_state))
+
+
+@pytest.mark.skipif(True, reason="Not yet relevant")
+def test_montecarlo_free_free_scatter(packet, model, mt_state):
+    cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
+                                                     c_double(1.e13), byref(mt_state))
+
+    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
+
+
+@pytest.mark.skipif(True, reason="Not yet relevant")
+def test_montecarlo_bound_free_scatter(packet, model, mt_state):
+    cmontecarlo_methods.montecarlo_bound_free_scatter(byref(packet), byref(model),
+                                                     c_double(1.e13), byref(mt_state))
+
+    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
+
