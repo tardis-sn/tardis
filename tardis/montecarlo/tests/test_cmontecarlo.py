@@ -45,7 +45,7 @@ Please follow this design procedure while adding a new test:
 
 import os
 import pytest
-from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong
+from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, POINTER
 from numpy.testing import assert_equal, assert_almost_equal
 
 from tardis import __path__ as path
@@ -476,3 +476,21 @@ def test_montecarlo_free_free_scatter(packet, model, mt_state):
                                                      c_double(1.e13), byref(mt_state))
 
     assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
+
+
+# TODO: C method returns a pointer to method, find a way to assert pointers.
+@pytest.mark.skipif(True, reason="Design procedure unclear.")
+@pytest.mark.parametrize(
+    ['packet_params', 'continuum_status', 'expected'],
+    [({'chi_cont': 6.652486e-16, 'chi_th': 4.421893e-16}, CONTINUUM_ON,
+      None)]
+)
+def test_montecarlo_continuum_event_handler(packet_params, continuum_status, expected,
+                                            packet, model, mt_state):
+    packet.chi_cont = packet_params['chi_cont']
+    packet.chi_th = packet_params['chi_th']
+    packet.chi_bf = packet.chi_cont - packet.chi_th
+    model.cont_status = continuum_status
+
+    obtained = cmontecarlo_methods.montecarlo_continuum_event_handler(byref(packet),
+                                                      byref(model), byref(mt_state))
