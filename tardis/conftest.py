@@ -32,6 +32,10 @@ def pytest_addoption(parser):
     parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
                      help="filename for atomic dataset")
 
+    parser.addoption("--with-slow", action="store_true",
+                     help="include running slow tests during run")
+
+
 def pytest_report_header(config):
 
     stdoutencoding = getattr(sys.stdout, 'encoding') or 'ascii'
