@@ -1,5 +1,28 @@
 $schema: "http://json-schema.org/draft-04/schema#"
 
+# A quantity_range_sampled property expressed in JSON Schema
+# Property: black_body_sampling, transcoded from tardis_config_definition.yml
+# Requires adding the quantity type to the jsonschema.Draft4Validator
+# and the custom tardis_config.YAMLLoader
+type: object
+properties:
+  black_body_sampling:
+    type: object
+    properties:
+      start:
+        type: quantity
+        default: 50 angstrom
+      stop:
+        type: quantity
+        default: 200000 angstrom
+      num:
+        type: integer
+        default: 1000000
+    description: "Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)"
+
+
+# A container property expressed in JSON Schema
+# Property: convergence_strategy, transcoded from tardis_config_definition.yml
 type: object
 properties:
   convergence_strategy:
