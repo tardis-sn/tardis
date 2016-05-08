@@ -11,18 +11,16 @@ from tardis.io.config_reader import Configuration
 
 
 def data_path(fname):
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), fname)
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7", fname)
 
 
-@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
-                    reason='--atomic_database was not specified')
-@pytest.mark.skipif(not pytest.config.getvalue("with-slow"),
+@pytest.mark.skipif(not pytest.config.getoption("--with-slow"),
                     reason="slow tests can only be run using --with-slow")
-class SlowTestW7(object):
+class TestW7(object):
     """
     Slow integration test for Stratified W7 setup.
 
-    Assumed two compressed binaries (.npz) are placed in this directory:
+    Assumed two compressed binaries (.npz) are placed in `w7` directory:
 
     * baseline_ndarrays.npz              | * baseline_quantities.npz
     Contents (all (.npy)):               | Contents (all (.npy)):
@@ -49,16 +47,7 @@ class SlowTestW7(object):
         self.abundances = data_path("abundancies_w7.dat")
         self.densities = data_path("densities_w7.dat")
 
-        # First we check whether all files exist at desired paths.
-        assert os.path.exists(self.config_file), \
-            '%s does not exist' % self.config_file
-
-        assert os.path.exists(self.abundances), \
-            '%s does not exist' % self.abundances
-
-        assert os.path.exists(self.densities), \
-            '%s does not exist' % self.densities
-
+        # First we check whether atom data file exists at desired path.
         assert os.path.exists('/tmp/kurucz_cd23_chianti_H_He.h5'), \
             'kurucz_cd23_chianti_H_He.h5 atom data file does not exist'
 
