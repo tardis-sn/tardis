@@ -73,3 +73,83 @@ class TestW7(object):
         # dictionaries of numpy.ndarrays for performing assertions.
         self.expected_ndarrays = np.load(data_path("baseline_ndarrays.npz"))
         self.expected_quantities = np.load(data_path("baseline_quantities.npz"))
+
+    def test_j_estimators(self):
+        assert_allclose(
+                self.expected_ndarrays['j_estimators'],
+                self.obtained_radial1d_model.j_estimators)
+
+    def test_j_blue_estimators(self):
+        assert_allclose(
+                self.expected_ndarrays['j_blue_estimators'],
+                self.obtained_radial1d_model.j_blue_estimators)
+
+        j_blues_norm_factor = self.expected_quantities['j_blues_norm_factor']
+        j_blues_norm_factor = j_blues_norm_factor * u.Unit('1 / (cm2 s)')
+
+        assert_allclose(
+                j_blues_norm_factor,
+                self.obtained_radial1d_model.j_blues_norm_factor)
+
+    def test_last_line_interactions(self):
+        assert_allclose(
+                self.expected_ndarrays['last_line_interaction_in_id'],
+                self.obtained_radial1d_model.last_line_interaction_in_id)
+
+        assert_allclose(
+                self.expected_ndarrays['last_line_interaction_out_id'],
+                self.obtained_radial1d_model.last_line_interaction_out_id)
+
+        assert_allclose(
+                self.expected_ndarrays['last_line_interaction_shell_id'],
+                self.obtained_radial1d_model.last_line_interaction_shell_id)
+
+        last_line_interaction_angstrom = self.expected_quantities['last_line_interaction_angstrom']
+        last_line_interaction_angstrom = last_line_interaction_angstrom * u.Unit('Angstrom')
+
+        assert_allclose(
+                last_line_interaction_angstrom,
+                self.obtained_radial1d_model.last_line_interaction_angstrom)
+
+    def test_nubar_estimators(self):
+        assert_allclose(
+                self.expected_ndarrays['nubar_estimators'],
+                self.obtained_radial1d_model.nubar_estimators)
+
+    def test_ws(self):
+        assert_allclose(
+                self.expected_ndarrays['ws'],
+                self.obtained_radial1d_model.ws)
+
+    def test_spectrum(self):
+        luminosity_inner = self.expected_quantities['luminosity_inner']
+        luminosity_inner = luminosity_inner * u.Unit('erg / s')
+
+        assert_allclose(
+                luminosity_inner,
+                self.obtained_radial1d_model.luminosity_inner)
+
+    def test_montecarlo_properties(self):
+        montecarlo_luminosity = self.expected_quantities['montecarlo_luminosity']
+        montecarlo_luminosity = montecarlo_luminosity * u.Unit('erg / s')
+
+        montecarlo_virtual_luminosity = self.expected_quantities['montecarlo_virtual_luminosity']
+        montecarlo_virtual_luminosity = montecarlo_virtual_luminosity * u.Unit('erg / s')
+
+        montecarlo_nu = self.expected_quantities['montecarlo_nu']
+        montecarlo_nu = montecarlo_nu * u.Unit('Hz')
+
+        assert_allclose(
+                montecarlo_luminosity,
+                self.obtained_radial1d_model.montecarlo_luminosity)
+
+        assert_allclose(
+                montecarlo_virtual_luminosity,
+                self.obtained_radial1d_model.montecarlo_virtual_luminosity)
+
+        assert_allclose(montecarlo_nu, self.obtained_radial1d_model.montecarlo_nu)
+
+    def test_shell_temperature(self):
+        t_rads = self.expected_quantities['t_rads']
+        t_rads = t_rads * u.Unit('K')
+        assert_allclose(t_rads, self.obtained_radial1d_model.t_rads)
