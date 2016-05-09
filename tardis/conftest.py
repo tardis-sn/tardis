@@ -32,7 +32,7 @@ def pytest_addoption(parser):
     parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
                      help="filename for atomic dataset")
 
-    parser.addoption("--with-slow", action="store_true",
+    parser.addoption("--slow", action="store_true",
                      help="include running slow tests during run")
 
 
