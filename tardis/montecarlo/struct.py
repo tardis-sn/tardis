@@ -99,15 +99,6 @@ class StorageModel(Structure):
         ('virt_array_size', c_int64)
     ]
 
-
-class RKState(Structure):
-    _fields_ = [
-        ('key', POINTER(c_ulong)),
-        ('pos', c_int),
-        ('has_gauss', c_int),
-        ('gauss', c_double)
-    ]
-
 # Variables corresponding to `tardis_error_t` enum.
 TARDIS_ERROR_OK = 0
 TARDIS_ERROR_BOUNDS_ERROR = 1
@@ -121,3 +112,15 @@ TARDIS_PACKET_STATUS_REABSORBED = 2
 # Variables corresponding to `ContinuumProcessesStatus` enum.
 CONTINUUM_OFF = 0
 CONTINUUM_ON = 1
+
+# `rk_state` specific macros.
+RK_STATE_LEN = 624
+
+
+class RKState(Structure):
+    _fields_ = [
+        ('key', c_ulong * RK_STATE_LEN),
+        ('pos', c_int),
+        ('has_gauss', c_int),
+        ('gauss', c_double)
+    ]

@@ -45,8 +45,8 @@ Please follow this design procedure while adding a new test:
 
 import os
 import pytest
-from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong
-from numpy.testing import assert_almost_equal
+from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, POINTER
+from numpy.testing import assert_equal, assert_almost_equal
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import (
@@ -60,11 +60,6 @@ from tardis.montecarlo.struct import (
     CONTINUUM_OFF,
     CONTINUUM_ON
 )
-
-# Wrap the shared object containing tests for C methods, written in C.
-# TODO: Shift all tests here in Python and completely remove this test design.
-test_path = os.path.join(path[0], 'montecarlo', 'test_montecarlo.so')
-cmontecarlo_tests = CDLL(test_path)
 
 # Wrap the shared object containing C methods, which are tested here.
 cmontecarlo_filepath = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
@@ -88,8 +83,10 @@ def packet():
         current_continuum_id=1,
         virtual_packet_flag=1,
         virtual_packet=0,
+        next_shell_id=1,
         status=TARDIS_PACKET_STATUS_IN_PROCESS,
-        id=0
+        id=0,
+        chi_cont=6.652486e-16
     )
 
 
@@ -163,6 +160,63 @@ def mt_state():
         has_gauss=0,
         gauss=0.0
     )
+
+
+"""
+Important Tests:
+----------------
+The tests written further (till next block comment is encountered) have been
+categorized as important tests, these tests correspond to methods which are
+relatively old and stable code.
+"""
+
+
+@pytest.mark.parametrize(
+    ['x', 'x_insert', 'imin', 'imax', 'expected_params'],
+    [([5.0, 4.0, 3.0, 1.0], 2.0, 0, 3,
+      {'result': 2, 'ret_val': TARDIS_ERROR_OK}),
+
+     ([5.0, 4.0, 3.0, 2.0], 0.0, 0, 3,
+      {'result': 0, 'ret_val': TARDIS_ERROR_BOUNDS_ERROR})]
+)
+def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
+    x = (c_double * (imax - imin + 1))(*x)
+    x_insert = c_double(x_insert)
+    imin = c_int64(imin)
+    imax = c_int64(imax)
+    obtained_result = c_int64(0)
+
+    cmontecarlo_methods.reverse_binary_search.restype = c_uint
+    obtained_tardis_error = cmontecarlo_methods.reverse_binary_search(
+                        byref(x), x_insert, imin, imax, byref(obtained_result))
+
+    assert obtained_result.value == expected_params['result']
+    assert obtained_tardis_error == expected_params['ret_val']
+
+
+@pytest.mark.parametrize(
+    ['nu', 'nu_insert', 'number_of_lines', 'expected_params'],
+    [([0.5, 0.4, 0.3, 0.1], 0.2, 4,
+      {'result': 3, 'ret_val': TARDIS_ERROR_OK}),
+
+     ([0.5, 0.4, 0.3, 0.2], 0.1, 4,
+      {'result': 4, 'ret_val': TARDIS_ERROR_OK}),
+
+     ([0.4, 0.3, 0.2, 0.1], 0.5, 4,
+      {'result': 0, 'ret_val': TARDIS_ERROR_OK})]
+)
+def test_line_search(nu, nu_insert, number_of_lines, expected_params):
+    nu = (c_double * number_of_lines)(*nu)
+    nu_insert = c_double(nu_insert)
+    number_of_lines = c_int64(number_of_lines)
+    obtained_result = c_int64(0)
+
+    cmontecarlo_methods.line_search.restype = c_uint
+    obtained_tardis_error = cmontecarlo_methods.line_search(
+                        byref(nu), nu_insert, number_of_lines, byref(obtained_result))
+
+    assert obtained_result.value == expected_params['result']
+    assert obtained_tardis_error == expected_params['ret_val']
 
 
 @pytest.mark.parametrize(
@@ -254,6 +308,31 @@ def test_compute_distance2continuum(packet_params, expected_params, packet, mode
 
 
 @pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
+      {'mu': 0.3120599529139568, 'r': 753060422542573.9,
+       'j': 8998701024436.969, 'nubar': 3598960894542.354}),
+
+     ({'nu': 0.6, 'mu': -.5, 'energy': 0.5, 'r': 8.1e14},
+      {'mu': -.4906548373534084, 'r': 805046582503149.2,
+       'j': 5001298975563.031, 'nubar': 3001558973156.1387})]
+)
+def test_move_packet(packet_params, expected_params, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.energy = packet_params['energy']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(1.e13))
+
+    assert_almost_equal(packet.mu, expected_params['mu'])
+    assert_almost_equal(packet.r, expected_params['r'])
+
+    assert_almost_equal(model.js[packet.current_shell_id], expected_params['j'])
+    assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
+
+
+@pytest.mark.parametrize(
     ['packet_params', 'j_blue_idx', 'expected'],
     [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
      ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
@@ -271,6 +350,56 @@ def test_increment_j_blue_estimator(packet_params, j_blue_idx, expected, packet,
                                  c_double(packet.d_line), c_int64(j_blue_idx))
 
     assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
+
+
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    [({'virtual_packet': 0, 'current_shell_id': 0, 'next_shell_id': 1},
+      {'status': TARDIS_PACKET_STATUS_IN_PROCESS, 'current_shell_id': 1}),
+
+     ({'virtual_packet': 1, 'current_shell_id': 1, 'next_shell_id': 1},
+      {'status': TARDIS_PACKET_STATUS_EMITTED, 'current_shell_id': 1,
+       'tau_event': 29000000000000.008}),
+
+     ({'virtual_packet': 1, 'current_shell_id': 0, 'next_shell_id': -1},
+      {'status': TARDIS_PACKET_STATUS_REABSORBED, 'current_shell_id': 0,
+       'tau_event': 29000000000000.008})]
+)
+def test_move_packet_across_shell_boundary(packet_params, expected_params,
+                                           packet, model, mt_state):
+    packet.virtual_packet = packet_params['virtual_packet']
+    packet.current_shell_id = packet_params['current_shell_id']
+    packet.next_shell_id = packet_params['next_shell_id']
+
+    cmontecarlo_methods.move_packet_across_shell_boundary(byref(packet), byref(model),
+                                                          c_double(1.e13), byref(mt_state))
+
+    if packet_params['virtual_packet'] == 1:
+        assert_almost_equal(packet.tau_event, expected_params['tau_event'])
+    assert packet.status == expected_params['status']
+    assert packet.current_shell_id == expected_params['current_shell_id']
+
+
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
+      {'nu': 0.39974659819356556, 'energy': 0.8994298459355226}),
+
+     ({'nu': 0.6, 'mu': -.5, 'energy': 0.5, 'r': 8.1e14},
+      {'nu': 0.5998422620533325, 'energy': 0.4998685517111104})]
+)
+def test_montecarlo_thomson_scatter(packet_params, expected_params, packet,
+                                   model, mt_state):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.energy = packet_params['energy']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.montecarlo_thomson_scatter(byref(packet), byref(model),
+                                                   c_double(1.e13), byref(mt_state))
+
+    assert_almost_equal(packet.nu, expected_params['nu'])
+    assert_almost_equal(packet.energy, expected_params['energy'])
 
 
 @pytest.mark.parametrize(
@@ -298,50 +427,110 @@ def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, 
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
 
-# TODO: redesign subsequent tests according to tests written above.
-@pytest.mark.skipif(True, reason='Bad test design')
-def test_move_packet():
-    doppler_factor = 0.9998556693818854
-    cmontecarlo_tests.test_move_packet.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_move_packet(),
-                        doppler_factor)
+
+"""
+Difficult Tests:
+----------------
+The tests written further are more complex than previous tests. They require
+proper design procedure. They are not taken up yet and intended to be
+completed together in future.
+"""
 
 
-def test_move_packet_across_shell_boundary():
-    assert cmontecarlo_tests.test_move_packet_across_shell_boundary()
+@pytest.mark.skipif(True, reason="Yet to be written.")
+def test_montecarlo_one_packet(packet, model, mt_state):
+    pass
 
 
-def test_montecarlo_one_packet():
-    assert cmontecarlo_tests.test_montecarlo_one_packet()
+@pytest.mark.skipif(True, reason="Yet to be written.")
+def test_montecarlo_one_packet_loop(packet, model, mt_state):
+    pass
 
 
-def test_montecarlo_one_packet_loop():
-    assert cmontecarlo_tests.test_montecarlo_one_packet_loop() == 0
+@pytest.mark.skipif(True, reason="Yet to be written.")
+def test_montecarlo_main_loop(packet, model, mt_state):
+    pass
 
 
-def test_montecarlo_thomson_scatter():
-    assert cmontecarlo_tests.test_montecarlo_thomson_scatter()
+@pytest.mark.skipif(True, reason="Yet to be written.")
+def test_montecarlo_event_handler(packet, model, mt_state):
+    pass
 
 
-def test_calculate_chi_bf():
-    chi_bf = 1.0006697327643788
-    cmontecarlo_tests.test_calculate_chi_bf.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_calculate_chi_bf(),
-                        chi_bf)
+"""
+Not Yet Relevant Tests:
+-----------------------
+The tests written further (till next block comment is encountered) are for the
+methods related to Continuum interactions. These are not required to be tested
+on current master and can be skipped for now.
+"""
 
 
-@pytest.mark.xfail
-def test_montecarlo_bound_free_scatter():
-    assert cmontecarlo_tests.test_montecarlo_bound_free_scatter() == 1
+@pytest.mark.skipif(True, reason="Not yet relevant")
+@pytest.mark.parametrize(
+    ['packet_params', 'expected'],
+    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 2.5010827921809502e+26),
+     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 3.123611229395459e+25)]
+)
+def test_bf_cross_section(packet_params, expected, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
+    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    comov_nu = packet.nu * doppler_factor
+
+    cmontecarlo_methods.bf_cross_section.restype = c_double
+    obtained = cmontecarlo_methods.bf_cross_section(byref(model), c_int64(0),
+                                                    c_double(comov_nu))
+
+    assert_almost_equal(obtained, expected)
 
 
-@pytest.mark.xfail
-def test_bf_cross_section():
-    bf_cross_section = 0.0
-    cmontecarlo_tests.test_bf_cross_section.restype = c_double
-    assert_almost_equal(cmontecarlo_tests.test_bf_cross_section(),
-                        bf_cross_section)
+# TODO: fix underlying method and update expected values in testcases.
+# For loop is not being executed in original method, and hence bf_helper
+# always remains zero. Reason for for loop not executed:
+#         "current_continuum_id = no_of_continuum edges"
+@pytest.mark.skipif(True, reason="Not yet relevant")
+@pytest.mark.parametrize(
+    ['packet_params', 'expected'],
+    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0.0),
+     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0.0)]
+)
+def test_calculate_chi_bf(packet_params, expected, packet, model):
+    packet.nu = packet_params['nu']
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.calculate_chi_bf(byref(packet), byref(model))
+
+    assert_almost_equal(packet.chi_bf, expected)
 
 
-def test_montecarlo_free_free_scatter():
-    assert cmontecarlo_tests.test_montecarlo_free_free_scatter() == 2
+@pytest.mark.skipif(True, reason="Not yet relevant")
+def test_montecarlo_continuum_event_handler(packet_params, continuum_status, expected,
+                                            packet, model, mt_state):
+    packet.chi_cont = packet_params['chi_cont']
+    packet.chi_th = packet_params['chi_th']
+    packet.chi_bf = packet.chi_cont - packet.chi_th
+    model.cont_status = continuum_status
+
+    obtained = cmontecarlo_methods.montecarlo_continuum_event_handler(byref(packet),
+                                                      byref(model), byref(mt_state))
+
+
+@pytest.mark.skipif(True, reason="Not yet relevant")
+def test_montecarlo_free_free_scatter(packet, model, mt_state):
+    cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
+                                                     c_double(1.e13), byref(mt_state))
+
+    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
+
+
+@pytest.mark.skipif(True, reason="Not yet relevant")
+def test_montecarlo_bound_free_scatter(packet, model, mt_state):
+    cmontecarlo_methods.montecarlo_bound_free_scatter(byref(packet), byref(model),
+                                                     c_double(1.e13), byref(mt_state))
+
+    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
