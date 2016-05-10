@@ -18,6 +18,8 @@ def data_path(fname):
                     reason="slow tests can only be run using --slow")
 @pytest.mark.skipif(not pytest.config.getvalue("baseline-data"),
                     reason="--baseline-data was not specified")
+@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
+                    reason="--atomic-dataset was not specified")
 class TestW7:
     """
     Slow integration test for Stratified W7 setup.
@@ -35,8 +37,6 @@ class TestW7:
         * last_line_interaction_shell_id |     * montecarlo_nu
         * nubar_estimators               |     * last_line_interaction_angstrom
         * ws                             |     * j_blues_norm_factor
-
-    Also assumed `kurucz_cd23_chianti_H_He.h5` file exists in `tmp` directory.
     """
 
     @classmethod
@@ -51,15 +51,17 @@ class TestW7:
         self.densities = data_path("densities_w7.dat")
 
         # First we check whether atom data file exists at desired path.
-        assert os.path.exists('/tmp/kurucz_cd23_chianti_H_He.h5'), \
-            'kurucz_cd23_chianti_H_He.h5 atom data file does not exist'
+        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
+                                    pytest.config.getvalue('atomic-dataset')))
+        assert os.path.exists(self.atom_data_filename), \
+            "%s atom data file does not exist" % self.atom_data_filename
 
         # The available config file doesn't have file paths of atom data file,
         # densities and abundances profile files as desired. We form dictionary
         # from the config file and override those parameters by putting file
         # paths of these three files at proper places.
         config_yaml = yaml.load(open(self.config_file))
-        config_yaml['atom_data'] = '/tmp/kurucz_cd23_chianti_H_He.h5'
+        config_yaml['atom_data'] = self.atom_data_filename
         config_yaml['model']['abundances']['filename'] = self.abundances
         config_yaml['model']['structure']['filename'] = self.densities
 
