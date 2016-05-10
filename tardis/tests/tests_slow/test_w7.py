@@ -14,15 +14,18 @@ def data_path(fname):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7", fname)
 
 
-@pytest.mark.skipif(not pytest.config.getoption("--with-slow"),
-                    reason="slow tests can only be run using --with-slow")
-class TestW7(object):
+@pytest.mark.skipif(not pytest.config.getoption("--slow"),
+                    reason="slow tests can only be run using --slow")
+@pytest.mark.skipif(not pytest.config.getvalue("baseline-data"),
+                    reason="--baseline-data was not specified")
+class TestW7:
     """
     Slow integration test for Stratified W7 setup.
 
-    Assumed two compressed binaries (.npz) are placed in `w7` directory:
+    Assumed two compressed binaries (.npz) are placed in `baseline/w7`
+    directory, whose path is provided by command line argument:
 
-    * baseline_ndarrays.npz              | * baseline_quantities.npz
+    * ndarrays.npz                       | * quantities.npz
     Contents (all (.npy)):               | Contents (all (.npy)):
         * last_interaction_type          |     * t_rads
         * last_line_interaction_out_id   |     * luminosity_inner
@@ -71,8 +74,13 @@ class TestW7(object):
         # The baseline data against which assertions are to be made is ingested
         # from already available compressed binaries (.npz). These will return
         # dictionaries of numpy.ndarrays for performing assertions.
-        self.expected_ndarrays = np.load(data_path("baseline_ndarrays.npz"))
-        self.expected_quantities = np.load(data_path("baseline_quantities.npz"))
+        self.baseline_data_dir = os.path.join(os.path.expanduser(
+                os.path.expandvars(pytest.config.getvalue('baseline-data'))), "w7")
+
+        self.expected_ndarrays = np.load(os.path.join(self.baseline_data_dir,
+                                                      "ndarrays.npz"))
+        self.expected_quantities = np.load(os.path.join(self.baseline_data_dir,
+                                                        "quantities.npz"))
 
     def test_j_estimators(self):
         assert_allclose(
