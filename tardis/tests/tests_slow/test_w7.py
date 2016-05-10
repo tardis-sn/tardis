@@ -20,7 +20,7 @@ def data_path(fname):
                     reason="--baseline-data was not specified")
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason="--atomic-dataset was not specified")
-class TestW7:
+class TestW7(object):
     """
     Slow integration test for Stratified W7 setup.
 
@@ -54,7 +54,7 @@ class TestW7:
         self.atom_data_filename = os.path.expanduser(os.path.expandvars(
                                     pytest.config.getvalue('atomic-dataset')))
         assert os.path.exists(self.atom_data_filename), \
-            "%s atom data file does not exist" % self.atom_data_filename
+            "{0} atom data file does not exist".format(self.atom_data_filename)
 
         # The available config file doesn't have file paths of atom data file,
         # densities and abundances profile files as desired. We form dictionary
