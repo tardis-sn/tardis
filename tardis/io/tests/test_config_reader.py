@@ -1,5 +1,5 @@
 # tests for the config reader module
-from tardis.io import config_reader
+from tardis.io import config_reader, util
 from astropy import units as u
 import os
 import pytest
@@ -366,6 +366,16 @@ def test_absolute_relative_config_paths(monkeypatch, cwd):
                                                        test_parser=True)
     config_abs = config_reader.Configuration.from_yaml(os.path.abspath(data_path(filename)),
                                                        test_parser=True)
+
+def test_custom_yaml_loader():
+    filename = 'tardis_configv1_density_exponential_test.yml'
+    default_conf = config_reader.Configuration.from_yaml(data_path(filename), test_parser=True,
+                                                         loader=yaml.Loader)
+    custom_conf = config_reader.Configuration.from_yaml(data_path(filename), test_parser=True,
+                                                        loader=config_reader.YAMLLoader)
+    assert len(default_conf) == len(custom_conf)
+    assert set(default_conf.keys()) == set(custom_conf.keys())
+    assert util.check_equality(default_conf, custom_conf)
 
 
 #write tests for inner and outer boundary indices
