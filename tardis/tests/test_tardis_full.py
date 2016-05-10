@@ -20,6 +20,8 @@ def data_path(fname):
 
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
+@pytest.mark.skipif(not pytest.config.getoption("--run-slow"),
+                    reason='this is a slow test, add --run-slow to run')
 class TestSimpleRun():
     """
     Very simple run
