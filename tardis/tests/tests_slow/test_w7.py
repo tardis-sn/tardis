@@ -71,7 +71,7 @@ class TestW7:
         # We now do a run with prepared config and get radial1d model.
         self.obtained_radial1d_model = Radial1DModel(tardis_config)
         simulation = Simulation(tardis_config)
-        simulation.legacy_run_simulation(self.obtained_w7_radial1d_model)
+        simulation.legacy_run_simulation(self.obtained_radial1d_model)
 
         # The baseline data against which assertions are to be made is ingested
         # from already available compressed binaries (.npz). These will return
