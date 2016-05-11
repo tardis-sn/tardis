@@ -1,5 +1,6 @@
 import os
 import yaml
+import h5py
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -55,6 +56,15 @@ class TestW7(object):
                                     pytest.config.getvalue('atomic-dataset')))
         assert os.path.exists(self.atom_data_filename), \
             "{0} atom data file does not exist".format(self.atom_data_filename)
+
+        # We now check that the baseline data was obtained using the same
+        # atomic dataset as the one used in current test run.
+        # TODO: This is a quick workaround, generalize it.
+
+        kurucz_data_file_uuid = "5ca3035ca8b311e3bb684437e69d75d7"
+        with h5py.File(self.atom_data_filename, 'r') as baseline_atom_data_file:
+            baseline_data_file_uuid = baseline_atom_data_file.attrs['uuid1']
+        assert baseline_data_file_uuid == kurucz_data_file_uuid
 
         # The available config file doesn't have file paths of atom data file,
         # densities and abundances profile files as desired. We form dictionary
