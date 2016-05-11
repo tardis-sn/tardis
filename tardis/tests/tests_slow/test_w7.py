@@ -17,15 +17,15 @@ def data_path(fname):
 
 @pytest.mark.skipif(not pytest.config.getoption("--slow"),
                     reason="slow tests can only be run using --slow")
-@pytest.mark.skipif(not pytest.config.getvalue("baseline-data"),
-                    reason="--baseline-data was not specified")
+@pytest.mark.skipif(not pytest.config.getvalue("slow-test-data"),
+                    reason="--slow-test-data was not specified")
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason="--atomic-dataset was not specified")
 class TestW7(object):
     """
     Slow integration test for Stratified W7 setup.
 
-    Assumed two compressed binaries (.npz) are placed in `baseline/w7`
+    Assumed two compressed binaries (.npz) are placed in `slow-test-data/w7`
     directory, whose path is provided by command line argument:
 
     * ndarrays.npz                       | * quantities.npz
@@ -57,14 +57,14 @@ class TestW7(object):
         assert os.path.exists(self.atom_data_filename), \
             "{0} atom data file does not exist".format(self.atom_data_filename)
 
-        # We now check that the baseline data was obtained using the same
-        # atomic dataset as the one used in current test run.
+        # We now check that the baseline data for slow tests was obtained using
+        # the same atomic dataset as the one used in current test run.
         # TODO: This is a quick workaround, generalize it.
 
         kurucz_data_file_uuid = "5ca3035ca8b311e3bb684437e69d75d7"
-        with h5py.File(self.atom_data_filename, 'r') as baseline_atom_data_file:
-            baseline_data_file_uuid = baseline_atom_data_file.attrs['uuid1']
-        assert baseline_data_file_uuid == kurucz_data_file_uuid
+        with h5py.File(self.atom_data_filename, 'r') as slow_test_atom_data_file:
+            slow_test_data_file_uuid = slow_test_atom_data_file.attrs['uuid1']
+        assert slow_test_atom_data_file == kurucz_data_file_uuid
 
         # The available config file doesn't have file paths of atom data file,
         # densities and abundances profile files as desired. We form dictionary
@@ -86,12 +86,12 @@ class TestW7(object):
         # The baseline data against which assertions are to be made is ingested
         # from already available compressed binaries (.npz). These will return
         # dictionaries of numpy.ndarrays for performing assertions.
-        self.baseline_data_dir = os.path.join(os.path.expanduser(
-                os.path.expandvars(pytest.config.getvalue('baseline-data'))), "w7")
+        self.slow_test_data_dir = os.path.join(os.path.expanduser(
+                os.path.expandvars(pytest.config.getvalue('slow-test-data'))), "w7")
 
-        self.expected_ndarrays = np.load(os.path.join(self.baseline_data_dir,
+        self.expected_ndarrays = np.load(os.path.join(self.slow_test_data_dir,
                                                       "ndarrays.npz"))
-        self.expected_quantities = np.load(os.path.join(self.baseline_data_dir,
+        self.expected_quantities = np.load(os.path.join(self.slow_test_data_dir,
                                                         "quantities.npz"))
 
     def test_j_estimators(self):
