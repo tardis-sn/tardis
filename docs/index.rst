@@ -25,6 +25,10 @@ for 1D models of supernova ejecta. It is designed for rapid spectral modelling
 of supernovae. If you use this code for any publications or presentations please
 acknowledge it by citing `Kerzendorf & Sim 2014 <http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_.
 
+.. note::
+    This documentation is still under construction! 
+    
+
 ============
 Using Tardis
 ============
@@ -49,3 +53,16 @@ Developing Tardis
 
 * Reporting Issues
 * Contributing
+
+==========
+References
+==========
+
+* :doc:`TARDIS Papers and useful references <references>`
+
+====
+News
+====
+
+.. include:: news.rst
+
