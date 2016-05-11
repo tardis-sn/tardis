@@ -57,15 +57,6 @@ class TestW7(object):
         assert os.path.exists(self.atom_data_filename), \
             "{0} atom data file does not exist".format(self.atom_data_filename)
 
-        # We now check that the baseline data for slow tests was obtained using
-        # the same atomic dataset as the one used in current test run.
-        # TODO: This is a quick workaround, generalize it.
-
-        kurucz_data_file_uuid = "5ca3035ca8b311e3bb684437e69d75d7"
-        with h5py.File(self.atom_data_filename, 'r') as slow_test_atom_data_file:
-            slow_test_data_file_uuid = slow_test_atom_data_file.attrs['uuid1']
-        assert slow_test_atom_data_file == kurucz_data_file_uuid
-
         # The available config file doesn't have file paths of atom data file,
         # densities and abundances profile files as desired. We form dictionary
         # from the config file and override those parameters by putting file
@@ -77,6 +68,12 @@ class TestW7(object):
 
         # The config hence obtained will be having appropriate file paths.
         tardis_config = Configuration.from_config_dict(config_yaml)
+
+        # We now check that the baseline data for slow tests was obtained using
+        # the same atomic dataset as the one used in current test run.
+        with h5py.File(self.atom_data_filename, 'r') as slow_test_atom_data_file:
+            slow_test_data_file_uuid1 = slow_test_atom_data_file.attrs['uuid1']
+        assert slow_test_data_file_uuid1 == tardis_config.atom_data.uuid1
 
         # We now do a run with prepared config and get radial1d model.
         self.obtained_radial1d_model = Radial1DModel(tardis_config)
