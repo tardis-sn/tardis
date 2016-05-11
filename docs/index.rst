@@ -51,8 +51,8 @@ Looking under the hood
 Developing Tardis
 =================
 
-* Reporting Issues
-* Contributing
+* :doc:`Reporting Issues <issues>`
+* :doc:`How to contribute <workflow/development_workflow>`
 
 ==========
 References
