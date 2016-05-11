@@ -51,8 +51,17 @@ Core Team
 
  * Wolfgang Kerzendorf
  * Stuart Sim
- * Michael Klauser
+ * Christian Vogl
+ * Stefan Lietzau
+ * Aoife Boyle
+ * Vytautas Jancauskas
+ * Ulrich Noebauer
  * Markus Kromer
+
+Former Members
+--------------
+
+ * Michael Klauser
 
 Contributers
 ------------
