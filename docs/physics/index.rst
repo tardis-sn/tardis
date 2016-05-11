@@ -1,13 +1,11 @@
-************************************************
-What is TARDIS actually doing (Physics section)?
-************************************************
+************************************
+Behind the scenes: Physics of TARDIS
+************************************
 
-This section describes some of the Physics going on in TARDIS and will be
-gradually expanded
+This part of the documentation is dedicated to providing some physical and
+astrophysical background for TARDIS. If you do not find the information you are
+looking for, consult the official TARDIS publications and the references therein.
 
-.. toctree::
-    :maxdepth: 1
-
-    physical_quantities
-    montecarlo
-    plasma/index
+* :doc:`Brief Overview of Spectral Synthesis in SNe Ia ejecta <spectralsynthesis>`
+* :doc:`Outline of the TARDIS simulation Procedure <tardisprocedure>`
+* :doc:`Plasma State Calculation <plasma/index>`
