@@ -358,22 +358,16 @@ def test_ascii_reader_exponential_law():
         assert_almost_equal(structure['mean_densities'][i].value,mdens)
         assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
 
-class TestAbsoluteRelativeConfigFilePaths:
-    def setup(self):
-        self.config_filename = 'tardis_configv1_ascii_density_abund.yml'
+@pytest.mark.parametrize("path", [os.path.curdir, os.path.pardir, os.path.abspath(data_path(''))])
+def test_absolute_relative_config_paths(monkeypatch, path):
+    filename = 'tardis_configv1_ascii_density_abund.yml'
+    if os.path.isabs(path):
+        filepath = os.path.join(path, filename)
+    else:
+        monkeypatch.chdir(data_path(path))
+        filepath = os.path.relpath(data_path(filename))
 
-    def test_relative_config_path_same_dir(self, monkeypatch):
-        monkeypatch.chdir(data_path(''))
-        config = config_reader.Configuration.from_yaml(self.config_filename, test_parser=True)
-
-    def test_relative_config_path_parent_dir(self, monkeypatch):
-        config_path = os.path.relpath(data_path(self.config_filename), data_path(os.path.pardir))
-        monkeypatch.chdir(data_path(os.path.pardir))
-        config = config_reader.Configuration.from_yaml(config_path, test_parser=True)
-
-    def test_absolute_config_path(self):
-        config = config_reader.Configuration.from_yaml(os.path.abspath(data_path(self.config_filename)),
-                                                       test_parser=True)
+    config = config_reader.Configuration.from_yaml(filepath, test_parser=True)
 
 
 #write tests for inner and outer boundary indices
