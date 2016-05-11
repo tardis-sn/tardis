@@ -6,6 +6,7 @@ import pytest
 from numpy.testing import assert_allclose
 from astropy import units as u
 
+from tardis.atomic import AtomData
 from tardis.simulation.base import Simulation
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
@@ -58,22 +59,25 @@ class TestW7(object):
             "{0} atom data file does not exist".format(self.atom_data_filename)
 
         # The available config file doesn't have file paths of atom data file,
-        # densities and abundances profile files as desired. We form dictionary
-        # from the config file and override those parameters by putting file
-        # paths of these three files at proper places.
+        # densities and abundances profile files as desired. We load the atom
+        # data seperately and provide it to tardis_config later. For rest of
+        # the two, we form dictionary from the config file and override those
+        # parameters by putting file paths of these two files at proper places.
         config_yaml = yaml.load(open(self.config_file))
-        config_yaml['atom_data'] = self.atom_data_filename
         config_yaml['model']['abundances']['filename'] = self.abundances
         config_yaml['model']['structure']['filename'] = self.densities
 
-        # The config hence obtained will be having appropriate file paths.
-        tardis_config = Configuration.from_config_dict(config_yaml)
+        # Load atom data file separately, pass it for forming tardis config.
+        self.atom_data = AtomData.from_hdf5(self.atom_data_filename)
 
-        # We now check that the baseline data for slow tests was obtained using
-        # the same atomic dataset as the one used in current test run.
-        with h5py.File(self.atom_data_filename, 'r') as slow_test_atom_data_file:
-            slow_test_data_file_uuid1 = slow_test_atom_data_file.attrs['uuid1']
-        assert slow_test_data_file_uuid1 == tardis_config.atom_data.uuid1
+        # Check whether the atom data file in current run and the atom data
+        # file used in obtaining the baseline data for slow tests are same.
+        # TODO: hard coded UUID for kurucz atom data file, generalize it later.
+        kurucz_data_file_uuid1 = "5ca3035ca8b311e3bb684437e69d75d7"
+        assert self.atom_data.uuid1 == kurucz_data_file_uuid1
+
+        # The config hence obtained will be having appropriate file paths.
+        tardis_config = Configuration.from_config_dict(config_yaml, self.atom_data)
 
         # We now do a run with prepared config and get radial1d model.
         self.obtained_radial1d_model = Radial1DModel(tardis_config)
