@@ -35,6 +35,9 @@ def pytest_addoption(parser):
     parser.addoption("--slow", action="store_true",
                      help="include running slow tests during run")
 
+    parser.addoption("--slow-test-data", dest="slow-test-data",
+                     help="path to directory having baseline data for slow tests")
+
 
 def pytest_report_header(config):
 
