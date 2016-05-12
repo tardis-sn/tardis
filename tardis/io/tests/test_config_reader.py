@@ -358,16 +358,14 @@ def test_ascii_reader_exponential_law():
         assert_almost_equal(structure['mean_densities'][i].value,mdens)
         assert structure['mean_densities'][i].unit ==  u.Unit(expected_unit)
 
-@pytest.mark.parametrize("path", [os.path.curdir, os.path.pardir, os.path.abspath(data_path(''))])
-def test_absolute_relative_config_paths(monkeypatch, path):
+@pytest.mark.parametrize("cwd", [os.path.curdir, os.path.pardir])
+def test_absolute_relative_config_paths(monkeypatch, cwd):
     filename = 'tardis_configv1_ascii_density_abund.yml'
-    if os.path.isabs(path):
-        filepath = os.path.join(path, filename)
-    else:
-        monkeypatch.chdir(data_path(path))
-        filepath = os.path.relpath(data_path(filename))
-
-    config = config_reader.Configuration.from_yaml(filepath, test_parser=True)
+    monkeypatch.chdir(data_path(cwd))
+    config_rel = config_reader.Configuration.from_yaml(os.path.relpath(data_path(filename)),
+                                                       test_parser=True)
+    config_abs = config_reader.Configuration.from_yaml(os.path.abspath(data_path(filename)),
+                                                       test_parser=True)
 
 
 #write tests for inner and outer boundary indices
