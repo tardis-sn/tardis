@@ -176,6 +176,15 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
         }
     }
   rpacket_set_d_boundary (packet, distance);
+  if (isnan(distance))
+    {
+      fprintf (stderr, "ERROR: distance is NaN!\n");
+      fprintf (stderr, "r = %f\n", r);
+      fprintf (stderr, "mu = %f\n", mu);
+      fprintf (stderr, "r_inner %f\n", r_inner);
+      fprintf (stderr, "r_outer = %f\n", r_outer);
+      fprintf (stderr, "shell_id = %" PRIu64 "\n", rpacket_get_current_shell_id (packet));
+    }
 }
 
 tardis_error_t
