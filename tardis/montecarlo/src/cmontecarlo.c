@@ -149,7 +149,7 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
 }
 
-void
+tardis_error_t
 compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
 {
   double r = rpacket_get_r (packet);
@@ -176,7 +176,11 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
         }
     }
   rpacket_set_d_boundary (packet, distance);
-  if (isnan(distance))
+  if (!isnan(distance))
+    {
+      return TARDIS_ERROR_OK;
+    }
+  else
     {
       fprintf (stderr, "ERROR: distance is NaN!\n");
       fprintf (stderr, "r = %f\n", r);
@@ -184,6 +188,7 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
       fprintf (stderr, "r_inner %f\n", r_inner);
       fprintf (stderr, "r_outer = %f\n", r_outer);
       fprintf (stderr, "shell_id = %" PRIu64 "\n", rpacket_get_current_shell_id (packet));
+      return TARDIS_ERROR_DISTANCE_NAN;
     }
 }
 
