@@ -26,7 +26,7 @@ class TestW7(object):
     """
     Slow integration test for Stratified W7 setup.
 
-    Assumed two compressed binaries (.npz) are placed in `slow-test-data/w7`
+    Assumed three compressed binaries (.npz) are placed in `slow-test-data/w7`
     directory, whose path is provided by command line argument:
 
     * ndarrays.npz                       | * quantities.npz
@@ -39,6 +39,8 @@ class TestW7(object):
         * last_line_interaction_shell_id |     * montecarlo_nu
         * nubar_estimators               |     * last_line_interaction_angstrom
         * ws                             |     * j_blues_norm_factor
+
+    Description of spectrum.npz is given in corresponding test method below.
     """
 
     @classmethod
@@ -94,6 +96,8 @@ class TestW7(object):
                                                       "ndarrays.npz"))
         self.expected_quantities = np.load(os.path.join(self.slow_test_data_dir,
                                                         "quantities.npz"))
+        self.expected_spectrum = np.load(os.path.join(self.slow_test_data_dir,
+                                                      "spectrum.npz"))
 
     def test_j_estimators(self):
         assert_allclose(
@@ -142,13 +146,28 @@ class TestW7(object):
                 self.expected_ndarrays['ws'],
                 self.obtained_radial1d_model.ws)
 
-    def test_spectrum(self):
+    def test_luminosity_inner(self):
         luminosity_inner = self.expected_quantities['luminosity_inner']
         luminosity_inner = luminosity_inner * u.Unit('erg / s')
 
         assert_allclose(
                 luminosity_inner,
                 self.obtained_radial1d_model.luminosity_inner)
+
+    def test_spectrum(self):
+        """
+        Assertions for spectrum are being made by using baseline data from a
+        compressed binary named `spectrum.npz`, which is kept in the same
+        directory as the above mentioned two binaries.
+
+        * spectrum.npz
+        Contents (all (.npy)):
+            * luminosity_density_nu
+            * delta_frequency
+            * wavelength
+            * luminosity_density_lambda
+        """
+        pass
 
     def test_montecarlo_properties(self):
         montecarlo_luminosity = self.expected_quantities['montecarlo_luminosity']
