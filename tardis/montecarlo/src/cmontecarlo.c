@@ -157,7 +157,7 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
   double r_outer = storage->r_outer[rpacket_get_current_shell_id (packet)];
   double r_inner = storage->r_inner[rpacket_get_current_shell_id (packet)];
   double check, distance;
-  if (mu > 0.0)
+  if (mu >= 0.0)
     { // direction outward
       rpacket_set_next_shell_id (packet, 1);
       distance = sqrt (r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu);
@@ -335,12 +335,37 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state 
   return storage->transition_line_id[i];
 }
 
+
+void
+increment_estimators (const rpacket_t *packet, storage_model_t *storage,
+        double distance, uint64_t shell_id)
+{
+  if (rpacket_get_virtual_packet (packet) <= 0)
+    {
+        double doppler_factor = rpacket_doppler_factor (packet, storage);
+        double comov_energy = rpacket_get_energy (packet) * doppler_factor;
+        double comov_nu = rpacket_get_nu (packet) * doppler_factor;
+#ifdef WITHOPENMP
+#pragma omp atomic
+#endif
+        storage->js[shell_id] +=
+            comov_energy * distance;
+#ifdef WITHOPENMP
+#pragma omp atomic
+#endif
+        storage->nubars[shell_id] +=
+            comov_energy * distance * comov_nu;
+    }
+}
+
+
 void
 move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 {
-  double doppler_factor = rpacket_doppler_factor (packet, storage);
   if (distance > 0.0)
     {
+      increment_estimators (packet, storage, distance,
+              rpacket_get_current_shell_id (packet));
       double r = rpacket_get_r (packet);
       double new_r =
         sqrt (r * r + distance * distance +
@@ -348,23 +373,9 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
       rpacket_set_mu (packet,
                       (rpacket_get_mu (packet) * r + distance) / new_r);
       rpacket_set_r (packet, new_r);
-      if (rpacket_get_virtual_packet (packet) <= 0)
-        {
-          double comov_energy = rpacket_get_energy (packet) * doppler_factor;
-          double comov_nu = rpacket_get_nu (packet) * doppler_factor;
-#ifdef WITHOPENMP
-#pragma omp atomic
-#endif
-          storage->js[rpacket_get_current_shell_id (packet)] +=
-            comov_energy * distance;
-#ifdef WITHOPENMP
-#pragma omp atomic
-#endif
-          storage->nubars[rpacket_get_current_shell_id (packet)] +=
-            comov_energy * distance * comov_nu;
-        }
     }
 }
+
 
 void
 increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
@@ -504,7 +515,23 @@ void
 move_packet_across_shell_boundary (rpacket_t * packet,
                                    storage_model_t * storage, double distance, rk_state *mt_state)
 {
-  move_packet (packet, storage, distance);
+  // move the packet
+  uint64_t cur_shell = rpacket_get_current_shell_id (packet);
+  uint64_t next_shell = cur_shell + rpacket_get_next_shell_id (packet);
+  double new_r = rpacket_get_next_shell_id (packet) > 0 ?
+      storage->r_outer[cur_shell] :
+      storage->r_inner[cur_shell];
+  distance = rpacket_get_d_boundary (packet);
+  // increment estimators
+  increment_estimators (packet, storage, distance,
+          cur_shell);
+  rpacket_set_mu (packet,
+          (rpacket_get_mu (packet) * rpacket_get_r (packet) + distance) / new_r);
+  rpacket_set_r (packet, new_r);
+
+  // done moving packet
+
+  // reset tau event
   if (rpacket_get_virtual_packet (packet) > 0)
     {
       double delta_tau_event = rpacket_get_chi_continuum(packet) * distance;
@@ -516,26 +543,28 @@ move_packet_across_shell_boundary (rpacket_t * packet,
     {
       rpacket_reset_tau_event (packet, mt_state);
     }
-  if ((rpacket_get_current_shell_id (packet) < storage->no_of_shells - 1
-       && rpacket_get_next_shell_id (packet) == 1)
-      || (rpacket_get_current_shell_id (packet) > 0
-          && rpacket_get_next_shell_id (packet) == -1))
+
+  // next_shell is an unsigned integer, this will underflow if cur_shell = 0
+  // this is exactly what we want
+  if (next_shell < storage->no_of_shells)
     {
-      rpacket_set_current_shell_id (packet,
-                                    rpacket_get_current_shell_id (packet) +
-                                    rpacket_get_next_shell_id (packet));
+      // Packet is moved into it's next shell
+      rpacket_set_current_shell_id (packet, next_shell);
     }
   else if (rpacket_get_next_shell_id (packet) == 1)
     {
+      // Packet leaves outermost shell and is emitted
       rpacket_set_status (packet, TARDIS_PACKET_STATUS_EMITTED);
     }
   else if ((storage->reflective_inner_boundary == 0) ||
            (rk_double (mt_state) > storage->inner_boundary_albedo))
     {
+      // Reabsorb the packet
       rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
     }
   else
     {
+      // Reflect at inner boundary
       double doppler_factor = rpacket_doppler_factor (packet, storage);
       double comov_nu = rpacket_get_nu (packet) * doppler_factor;
       double comov_energy = rpacket_get_energy (packet) * doppler_factor;

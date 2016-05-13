@@ -378,11 +378,11 @@ def test_increment_j_blue_estimator(distance, j_blue_idx, packet, model):
 
      ({'virtual_packet': 1, 'current_shell_id': 1, 'next_shell_id': 1},
       {'status': TARDIS_PACKET_STATUS_EMITTED, 'current_shell_id': 1,
-       'tau_event': 29000000000000.008}),
+       'tau_event': 29000000000000.0}),
 
      ({'virtual_packet': 1, 'current_shell_id': 0, 'next_shell_id': -1},
       {'status': TARDIS_PACKET_STATUS_REABSORBED, 'current_shell_id': 0,
-       'tau_event': 29000000000000.008})]
+       'tau_event': 29000000000000.0})]
 )
 def test_move_packet_across_shell_boundary(packet_params, expected_params,
                                            packet, model, mt_state):
