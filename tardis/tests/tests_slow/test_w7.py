@@ -167,7 +167,33 @@ class TestW7(object):
             * wavelength
             * luminosity_density_lambda
         """
-        pass
+        luminosity_density_nu = self.expected_spectrum['luminosity_density_nu']
+        luminosity_density_nu = luminosity_density_nu * u.Unit('erg')
+
+        delta_frequency = self.expected_spectrum['delta_frequency']
+        delta_frequency = delta_frequency * u.Unit('Hz')
+
+        wavelength = self.expected_spectrum['wavelength']
+        wavelength = wavelength * u.Unit('Angstrom')
+
+        luminosity_density_lambda = self.expected_spectrum['luminosity_density_lambda']
+        luminosity_density_lambda = luminosity_density_lambda * u.Unit('erg / (Angstrom s)')
+
+        assert_allclose(
+                luminosity_density_nu,
+                self.obtained_radial1d_model.spectrum.luminosity_density_nu)
+
+        assert_allclose(
+                delta_frequency,
+                self.obtained_radial1d_model.spectrum.delta_frequency)
+
+        assert_allclose(
+                wavelength,
+                self.obtained_radial1d_model.spectrum.wavelength)
+
+        assert_allclose(
+                luminosity_density_lambda,
+                self.obtained_radial1d_model.spectrum.luminosity_density_lambda)
 
     def test_montecarlo_properties(self):
         montecarlo_luminosity = self.expected_quantities['montecarlo_luminosity']
