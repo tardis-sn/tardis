@@ -44,8 +44,10 @@ Please follow this design procedure while adding a new test:
 """
 
 import os
+import numpy as np
 import pytest
-from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, POINTER
+from astropy import constants
+from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong
 from numpy.testing import assert_equal, assert_almost_equal
 
 from tardis import __path__ as path
@@ -64,6 +66,14 @@ from tardis.montecarlo.struct import (
 # Wrap the shared object containing C methods, which are tested here.
 cmontecarlo_filepath = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 cmontecarlo_methods = CDLL(cmontecarlo_filepath)
+
+# Constant for machine precision
+EPS = np.finfo(np.float64).eps
+# Constants to pertubate by machine precision
+EPSP = 1 + EPS
+EPSM = 1 - EPS
+
+INVERSE_C = 1/constants.c.cgs.value
 
 
 @pytest.fixture(scope="function")
@@ -272,10 +282,10 @@ def test_compute_distance2boundary(packet_params, expected_params, packet, model
       {'tardis_error': TARDIS_ERROR_OK, 'd_line': 7.792353908000001e+17}),
 
      ({'nu_line': 0.5, 'next_line_id': 1, 'last_line': 0},
-      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE, 'd_line': 0.0}),
+      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE, 'd_line': np.nan}),
 
      ({'nu_line': 0.6, 'next_line_id': 0, 'last_line': 0},
-      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE, 'd_line': 0.0})]
+      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE, 'd_line': np.nan})]
 )
 def test_compute_distance2line(packet_params, expected_params, packet, model):
     packet.nu_line = packet_params['nu_line']
@@ -332,24 +342,33 @@ def test_move_packet(packet_params, expected_params, packet, model):
     assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
 
 
+# This function can be parametrized using hypothesis now
+# It should be easy to add new parameters with random values
 @pytest.mark.parametrize(
-    ['packet_params', 'j_blue_idx', 'expected'],
-    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
-     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
-     ({'nu': 0.5, 'mu': 0.5, 'r': 7.9e14}, 1, 0.719988453650551),
-     ({'nu': 0.6, 'mu': -.5, 'r': 8.1e14}, 1, 0.499990378058792)]
+    ['distance', 'j_blue_idx'],
+    [(1e13, 0),
+     (2e13, 0),
+     (5e13, 1),
+     (1e14, 1)]
 )
-def test_increment_j_blue_estimator(packet_params, j_blue_idx, expected, packet, model):
-    packet.nu = packet_params['nu']
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
+def test_increment_j_blue_estimator(distance, j_blue_idx, packet, model):
+    r_interaction = np.sqrt(
+            packet.r**2 + distance**2 +
+            2.0 * packet.r * distance * packet.mu)
+    mu_interaction = (packet.mu * packet.r + distance) / r_interaction
+    doppler_factor = (
+            1.0 - mu_interaction * r_interaction *
+            model.inverse_time_explosion * INVERSE_C)
+    comov_energy = packet.energy * doppler_factor
 
-    cmontecarlo_methods.compute_distance2line(byref(packet), byref(model))
-    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(1.e13))
-    cmontecarlo_methods.increment_j_blue_estimator(byref(packet), byref(model),
-                                 c_double(packet.d_line), c_int64(j_blue_idx))
+    model.line_lists_j_blues[j_blue_idx] = 0
+    cmontecarlo_methods.increment_j_blue_estimator(
+            byref(packet), byref(model),
+            c_double(distance), c_int64(j_blue_idx))
 
-    assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
+    assert_almost_equal(
+            model.line_lists_j_blues[j_blue_idx],
+            comov_energy / packet.nu)
 
 
 @pytest.mark.parametrize(

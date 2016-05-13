@@ -248,6 +248,7 @@ compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
           fprintf (stderr, "nu = %f\n", nu);
           fprintf (stderr, "doppler_factor = %f\n", doppler_factor);
           fprintf (stderr, "cur_zone_id = %" PRIi64 "\n", cur_zone_id);
+          rpacket_set_d_line (packet, NAN);
           return TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
         }
     }
