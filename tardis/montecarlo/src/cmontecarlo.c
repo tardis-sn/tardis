@@ -373,6 +373,17 @@ increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
     }
 }
 
+void
+increment_iteract_estimator (const rpacket_t * packet, storage_model_t * storage,
+                             double d_line, int64_t line_idx)
+{
+  if (storage->line_lists_interact != NULL)
+    {
+    storage->line_lists_interact[line_idx] += 1;
+    }
+}
+
+
 int64_t
 montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                        int64_t virtual_mode, rk_state *mt_state)
@@ -613,6 +624,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
   if (rpacket_get_virtual_packet (packet) == 0)
     {
       increment_j_blue_estimator (packet, storage, distance, line2d_idx);
+      increment_iteract_estimator (packet, storage, distance, line2d_idx);
     }
   double tau_line =
     storage->line_lists_tau_sobolevs[line2d_idx];

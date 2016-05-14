@@ -46,6 +46,7 @@ class MontecarloRunner(object):
         self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.j_blue_estimator = np.zeros(tau_sobolev_shape)
+        self.interact_estimator = np.zeros(tau_sobolev_shape)
 
 
     def _initialize_geometry_arrays(self, structure):
@@ -134,6 +135,8 @@ class MontecarloRunner(object):
         # but python expects (no_of_lines, no_of_shells)
         self.j_blue_estimator = self.j_blue_estimator.flatten().reshape(
                 self.j_blue_estimator.shape, order='F')
+        self.interact_estimator = self.interact_estimator.flatten().reshape(
+                self.interact_estimator.shape, order='F')
 
     def legacy_return(self):
         return (self.output_nu, self.output_energy,
