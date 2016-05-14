@@ -50,6 +50,7 @@ cdef extern from "src/cmontecarlo.h":
         double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
+        double *line_lists_interact
         int_type_t line_lists_j_blues_nd
         int_type_t no_of_lines
         int_type_t no_of_edges
@@ -155,6 +156,9 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
             )
     storage.line_lists_j_blues = <double*> PyArray_DATA(
             runner.j_blue_estimator)
+
+    storage.line_lists_interact = <double*> PyArray_DATA(
+            runner.interact_estimator)
 
     storage.line_interaction_id = runner.get_line_interaction_id(
         model.tardis_config.plasma.line_interaction_type)
