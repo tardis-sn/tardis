@@ -1,159 +1,495 @@
-$schema: "http://json-schema.org/draft-04/schema#"
-
-# A quantity_range_sampled property expressed in JSON Schema
-# Property: black_body_sampling, transcoded from tardis_config_definition.yml
-# Requires adding the quantity type to the jsonschema.Draft4Validator
-# and the custom tardis_config.YAMLLoader
+$schema: http://json-schema.org/draft-04/schema#
 type: object
 properties:
-  black_body_sampling:
+  tardis_config_version:
+    type: string
+    description: Version of the configuration file
+  supernova:
+    type: object
+    properties:
+      luminosity_requested:
+        type: quantity
+        default: 1 solLum
+        description: requested output luminosity for simulation
+      time_explosion:
+        type: quantity
+        description: time since explosion
+      distance:
+        type: quantity
+        description: distance to supernova
+      luminosity_wavelength_start:
+        type: quantity
+        default: 0 angstrom
+        description: start of the integral needed for getting the luminosity right
+      luminosity_wavelength_end:
+        type: quantity
+        default: inf angstrom
+        description: start of the integral needed for getting the luminosity right
+    required:
+    - luminosity_requested
+    - time_explosion
+  atom_data:
+    type: string
+    description: path or filename to the Atomic Data HDF5 file
+  plasma:
+    type: object
+    properties:
+      initial_t_inner:
+        type: quantity
+        default: -1 K
+        description: initial temperature of the inner boundary black body. If set
+          to -1 K  will result in automatic calculation of boundary
+      initial_t_rad:
+        type: quantity
+        default: -1 K
+        description: initial radiative temperature in all cells. If set to -1 K will
+          result in automtatic calculation of the initial temperatures
+      disable_electron_scattering:
+        type: boolean
+        default: false
+        description: disable electron scattering process in montecarlo part - non-physical
+          only for tests
+      ionization:
+        type: string
+        enum:
+        - nebular
+        - lte
+        description: ionization treatment mode
+      excitation:
+        type: string
+        enum:
+        - lte
+        - dilute-lte
+        description: excitation treatment mode
+      radiative_rates_type:
+        type: string
+        enum:
+        - dilute-blackbody
+        - detailed
+        - blackbody
+        description: radiative rates treatment mode
+      line_interaction_type:
+        type: string
+        enum:
+        - scatter
+        - downbranch
+        - macroatom
+        description: line interaction mode
+      w_epsilon:
+        type: number
+        default: 1e-10
+        description: w to use when j_blues get numerically 0. - avoids numerical complications
+      delta_treatment:
+        type: number
+        description: In the saha calculation set delta equals to the number given
+          in this configuration item. if set to None (default), normal delta treatment
+          (as described in Mazzali & Lucy 1993) will be applied
+      nlte:
+        type: object
+        properties:
+          species:
+            type: array
+            default: []
+            description: Species that are requested to be NLTE treated in the format  ['Si
+              2', 'Ca 1', etc.]
+          coronal_approximation:
+            type: boolean
+            default: false
+            description: set all jblues=0.0
+          classical_nebular:
+            type: boolean
+            default: false
+            description: sets all beta_sobolevs to 1
+      helium_treatment:
+        type: string
+        default: none
+        enum:
+        - none
+        - recomb-nlte
+        - numerical-nlte
+        description: none to treat He as the other elements. recomb-nlte to treat
+          with NLTE approximation.
+      heating_rate_data_file:
+        type: string
+        default: none
+        description: Path to file containing heating rate/light curve data.
+    required:
+    - ionization
+    - excitation
+    - radiative_rates_type
+    - line_interaction_type
+  model:
+    type: object
+    properties:
+      structure:
+        oneOf:
+        - $ref: '#/definitions/structure/file'
+        - $ref: '#/definitions/structure/specific'
+      abundances:
+        oneOf:
+        - $ref: '#/definitions/abundances/file'
+        - $ref: '#/definitions/abundances/uniform'
+  montecarlo:
+    type: object
+    properties:
+      nthreads:
+        type: integer
+        default: 1
+        description: The number of OpenMP threads.
+      seed:
+        type: integer
+        default: 23111963
+        description: Seed for the random number generator
+      no_of_packets:
+        type: integer
+        description: Seed for the random number generator
+      iterations:
+        type: integer
+        description: Number of maximum iterations
+      black_body_sampling:
+        type: object
+        properties:
+          start:
+            type: quantity
+            default: 50 angstrom
+          stop:
+            type: quantity
+            default: 200000 angstrom
+          num:
+            type: integer
+            default: 1000000
+        description: Sampling of the black-body for energy packet creation (giving
+          maximum and minimum packet frequency)
+      last_no_of_packets:
+        type: integer
+        default: -1
+        description: This can set the number of packets for the last run. If set negative
+          it will remain the same as all other runs.
+      no_of_virtual_packets:
+        type: integer
+        default: 0
+        description: Setting the number of virtual packets for the last iteration.
+      virtual_spectrum_range:
+        type: object
+        properties:
+          start:
+            type: quantity
+            default: 50 angstrom
+          stop:
+            type: quantity
+            default: 250000 angstrom
+          num:
+            type: integer
+            default: 1000000
+        description: Limits of virtual packet spectrum (giving maximum and minimum
+          packet frequency)
+      enable_reflective_inner_boundary:
+        type: boolean
+        default: false
+        description: experimental feature to enable a reflective boundary.
+      inner_boundary_albedo:
+        type: number
+        default: 0.0
+        description: albedo of the reflective boundary
+      convergence_strategy:
+        oneOf:
+        - $ref: '#/definitions/convergence_strategy/damped'
+        - $ref: '#/definitions/convergence_strategy/specific'
+    required:
+    - no_of_packets
+    - iterations
+  spectrum:
     type: object
     properties:
       start:
         type: quantity
-        default: 50 angstrom
       stop:
         type: quantity
-        default: 200000 angstrom
       num:
         type: integer
-        default: 1000000
-    description: "Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)"
-
-
-# A container property expressed in JSON Schema
-# Property: convergence_strategy, transcoded from tardis_config_definition.yml
-type: object
-properties:
-  convergence_strategy:
-    oneOf:
-      - $ref: "#/definitions/convergence_strategy/damped"
-      - $ref: "#/definitions/convergence_strategy/specific"
-
+    description: Final spectrum sampling
+required:
+- tardis_config_version
+- atom_data
+- spectrum
 definitions:
-  generic:
-    damping_constant:
-      type: number
-      default: 0.5
-      description: damping constant
-    threshold:
-      type: number
-      description: >
-        specifies the threshold that is taken as convergence 
-        (i.e. 0.05 means that the value does not change more than 5%)
-
-  
-  convergence_strategy:
-    title: Definitions for the possible types of convergence_strategy 
-    damped:
+  structure:
+    file:
       type: object
       properties:
         type:
           enum:
-            - damped
-        damping_constant:
-          $ref: "#/definitions/generic/damping_constant"
-        t_inner:
-          type: object
-          properties:
-            damping_constant:
-              $ref: "#/definitions/generic/damping_constant"
-            threshold:
-              $ref: "#/definitions/generic/threshold"
-        t_rad:
-          type: object
-          properties:
-            damping_constant:
-              $ref: "#/definitions/generic/damping_constant"
-            threshold:
-              $ref: "#/definitions/generic/threshold"
-          required:
-            - threshold
-        w:
-          type: object
-          properties:
-            damping_constant:
-              $ref: "#/definitions/generic/damping_constant"
-            threshold:
-              $ref: "#/definitions/generic/threshold"
-          required:
-            - threshold
-        lock_t_inner_cycles:
-          type: integer
-          default: 1
-          description: >
-            The number of cycles to lock the update of the inner boundary temperature.
-            This process helps with convergence. The default is to switch it off (1 cycle)
-        t_inner_update_exponent:
-          type: number
-          default: -0.5
-          description: L=4*pi*r**2*T^y
+          - file
+        filename:
+          type: string
+          description: file name (with path) to structure model
+        filetype:
+          type: string
+          enum:
+          - simple_ascii
+          - artis
+          description: file type
+        v_inner_boundary:
+          type: quantity
+          default: 0 km/s
+          description: location of the inner boundary chosen from the model
+        v_outer_boundary:
+          type: quantity
+          default: inf km/s
+          description: location of the inner boundary chosen from the model
       required:
-        - type
-
+      - filename
+      - filetype
     specific:
       type: object
       properties:
         type:
           enum:
-            - specific
-        # Required
-        threshold:
-          $ref: "#/definitions/generic/threshold"
-        fraction:
+          - specific
+        velocity:
+          type: object
+          properties:
+            start:
+              type: quantity
+            stop:
+              type: quantity
+            num:
+              type: integer
+          description: description of the boundaries of the shells
+        density:
+          oneOf:
+          - $ref: '#/definitions/density/branch85_w7'
+          - $ref: '#/definitions/density/exponential'
+          - $ref: '#/definitions/density/power_law'
+          - $ref: '#/definitions/density/uniform'
+      required:
+      - velocity
+      - density
+  density:
+    branch85_w7:
+      type: object
+      properties:
+        type:
+          enum:
+          - branch85_w7
+        w7_time_0:
+          type: quantity
+          default: 0.000231481 day
+          description: This needs no change - DO NOT TOUCH
+        w7_rho_0:
+          type: quantity
+          default: 3e29 g/cm^3
+          description: This needs no change - DO NOT TOUCH
+        w7_v_0:
+          type: quantity
+          default: 1 km/s
+          description: This needs no change - DO NOT TOUCH
+    exponential:
+      type: object
+      properties:
+        type:
+          enum:
+          - exponential
+        time_0:
+          type: quantity
+          description: Time at which the pure model densities are right
+        rho_0:
+          type: quantity
+          description: density at time_0
+        v_0:
+          type: quantity
+          description: at what velocity the density rho_0 applies
+      required:
+      - time_0
+      - rho_0
+      - v_0
+    power_law:
+      type: object
+      properties:
+        type:
+          enum:
+          - power_law
+        time_0:
+          type: quantity
+          description: Time at which the pure model densities are right
+        rho_0:
+          type: quantity
+          description: density at time_0
+        v_0:
+          type: quantity
+          description: at what velocity the density rho_0 applies
+        exponent:
           type: number
-          default: 0.8
-          description: >
-            the fraction of shells that have to converge to the given 
-            convergence threshold. For example, 0.8 means that 80% of shells
-            have to converge to the threshold that convergence is established
-        hold_iterations:
-          type: integer
-          default: 3
-          description: >
-            the number of iterations that the convergence criteria need to be
-            fulfilled before TARDIS accepts the simulation as converged
-        
-        # Optional
+          description: exponent for exponential density profile
+      required:
+      - time_0
+      - rho_0
+      - v_0
+      - exponent
+    uniform:
+      type: object
+      properties:
+        type:
+          enum:
+          - uniform
+        value:
+          type: quantity
+          description: value for uniform density
+      required:
+      - value
+  abundances:
+    file:
+      type: object
+      properties:
+        type:
+          enum:
+          - file
+        filetype:
+          type: string
+          description: type of abundance file to read in
+        filename:
+          type: string
+          description: filename
+      required:
+      - filetype
+      - filename
+    uniform:
+      type: object
+      properties:
+        type:
+          enum:
+          - uniform
+  convergence_strategy:
+    damped:
+      type: object
+      properties:
+        type:
+          enum:
+          - damped
+        damping_constant:
+          type: number
+          default: 0.5
+          description: damping constant
         t_inner:
           type: object
           properties:
             damping_constant:
-              $ref: "#/definitions/generic/damping_constant"
+              type: number
+              default: 0.5
+              description: damping constant
             threshold:
-              $ref: "#/definitions/generic/threshold"
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
         t_rad:
           type: object
           properties:
             damping_constant:
-              $ref: "#/definitions/generic/damping_constant"
+              type: number
+              default: 0.5
+              description: damping constant
             threshold:
-              $ref: "#/definitions/generic/threshold"
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
           required:
-            - threshold
+          - threshold
         w:
           type: object
           properties:
             damping_constant:
-              $ref: "#/definitions/generic/damping_constant"
+              type: number
+              default: 0.5
+              description: damping constant
             threshold:
-              $ref: "#/definitions/generic/threshold"
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
           required:
-            - threshold
+          - threshold
         lock_t_inner_cycles:
           type: integer
           default: 1
-          description: >
-            The number of cycles to lock the update of the inner boundary temperature.
-            This process helps with convergence. The default is to switch it off (1 cycle)
+          description: The number of cycles to lock the update of the inner boundary
+            temperature. This process helps with convergence. The default is to switch
+            it off (1 cycle)
+        t_inner_update_exponent:
+          type: number
+          default: -0.5
+          description: L=4*pi*r**2*T^y
+    specific:
+      type: object
+      properties:
+        type:
+          enum:
+          - specific
+        threshold:
+          type: number
+          description: specifies the threshold that is taken as convergence  (i.e.
+            0.05 means that the value does not change more than 5%)
+        fraction:
+          type: number
+          default: 0.8
+          description: the fraction of shells that have to converge to the given  convergence
+            threshold. For example, 0.8 means that 80% of shells have to converge
+            to the threshold that convergence is established
+        hold_iterations:
+          type: integer
+          default: 3
+          description: the number of iterations that the convergence criteria need
+            to be fulfilled before TARDIS accepts the simulation as converged
+        t_inner:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+        t_rad:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+          required:
+          - threshold
+        w:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+          required:
+          - threshold
+        lock_t_inner_cycles:
+          type: integer
+          default: 1
+          description: The number of cycles to lock the update of the inner boundary
+            temperature. This process helps with convergence. The default is to switch
+            it off (1 cycle)
         damping_constant:
-          $ref: "#/definitions/generic/damping_constant"
+          type: number
+          default: 0.5
+          description: damping constant
         t_inner_update_exponent:
           type: number
           default: -0.5
           description: L=4*pi*r**2*T^y
       required:
-        - type
-        - threshold
-        - fraction
-        - hold_iterations
+      - threshold
+      - fraction
+      - hold_iterations
