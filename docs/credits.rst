@@ -63,7 +63,7 @@ Former Members
 
  * Michael Klauser
 
-Contributers
+Contributors
 ------------
 
  * Maryam Patel (documentation, test environment)
