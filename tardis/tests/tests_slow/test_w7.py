@@ -3,6 +3,7 @@ import yaml
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
+from astropy.tests.helper import assert_quantity_allclose
 from astropy import units as u
 
 from tardis.atomic import AtomData
@@ -47,9 +48,36 @@ def baseline(request):
             os.path.expandvars(request.config.getvalue('slow-test-data'))),
             "w7")
 
-    ndarrays = np.load(os.path.join(slow_test_data_dir, "ndarrays.npz"))
-    quantities = np.load(os.path.join(slow_test_data_dir, "quantities.npz"))
-    spectrum = np.load(os.path.join(slow_test_data_dir, "spectrum.npz"))
+    ndarrays = dict(np.load(os.path.join(slow_test_data_dir, "ndarrays.npz")))
+    quantities = dict(np.load(os.path.join(slow_test_data_dir, "quantities.npz")))
+    spectrum = dict(np.load(os.path.join(slow_test_data_dir, "spectrum.npz")))
+
+    # Associate CGS units to ndarrays of baseline quantities.
+    quantities['j_blues_norm_factor'] = \
+        quantities['j_blues_norm_factor'] * u.Unit('1 / (cm2 s)')
+
+    quantities['last_line_interaction_angstrom'] = \
+        quantities['last_line_interaction_angstrom'] * u.Unit('Angstrom')
+
+    quantities['luminosity_inner'] = \
+        quantities['luminosity_inner'] * u.Unit('erg / s')
+
+    quantities['montecarlo_luminosity'] = \
+        quantities['montecarlo_luminosity'] * u.Unit('erg / s')
+
+    quantities['montecarlo_virtual_luminosity'] = \
+        quantities['montecarlo_virtual_luminosity'] * u.Unit('erg / s')
+
+    quantities['montecarlo_nu'] = quantities['montecarlo_nu'] * u.Unit('Hz')
+    quantities['t_rads'] = quantities['t_rads'] * u.Unit('K')
+
+    # Associate CGS units to ndarrays of baseline quantities (spectrum).
+    spectrum['luminosity_density_nu'] = spectrum['luminosity_density_nu'] * u.Unit('erg')
+    spectrum['delta_frequency'] = spectrum['delta_frequency'] * u.Unit('Hz')
+    spectrum['wavelength'] = spectrum['wavelength'] * u.Unit('Angstrom')
+
+    spectrum['luminosity_density_lambda'] = \
+            spectrum['luminosity_density_lambda'] * u.Unit('erg / (Angstrom s)')
 
     return dict(ndarrays.items() + quantities.items() + spectrum.items())
 
@@ -121,11 +149,8 @@ class TestW7(object):
                 self.baseline['j_blue_estimators'],
                 self.obtained_radial1d_model.j_blue_estimators)
 
-        j_blues_norm_factor = self.baseline['j_blues_norm_factor']
-        j_blues_norm_factor = j_blues_norm_factor * u.Unit('1 / (cm2 s)')
-
-        assert_allclose(
-                j_blues_norm_factor,
+        assert_quantity_allclose(
+                self.baseline['j_blues_norm_factor'],
                 self.obtained_radial1d_model.j_blues_norm_factor)
 
     def test_last_line_interactions(self):
@@ -141,11 +166,8 @@ class TestW7(object):
                 self.baseline['last_line_interaction_shell_id'],
                 self.obtained_radial1d_model.last_line_interaction_shell_id)
 
-        last_line_interaction_angstrom = self.baseline['last_line_interaction_angstrom']
-        last_line_interaction_angstrom = last_line_interaction_angstrom * u.Unit('Angstrom')
-
-        assert_allclose(
-                last_line_interaction_angstrom,
+        assert_quantity_allclose(
+                self.baseline['last_line_interaction_angstrom'],
                 self.obtained_radial1d_model.last_line_interaction_angstrom)
 
     def test_nubar_estimators(self):
@@ -159,63 +181,41 @@ class TestW7(object):
                 self.obtained_radial1d_model.ws)
 
     def test_luminosity_inner(self):
-        luminosity_inner = self.baseline['luminosity_inner']
-        luminosity_inner = luminosity_inner * u.Unit('erg / s')
-
-        assert_allclose(
-                luminosity_inner,
+        assert_quantity_allclose(
+                self.baseline['luminosity_inner'],
                 self.obtained_radial1d_model.luminosity_inner)
 
     def test_spectrum(self):
-        luminosity_density_nu = self.baseline['luminosity_density_nu']
-        luminosity_density_nu = luminosity_density_nu * u.Unit('erg')
-
-        delta_frequency = self.baseline['delta_frequency']
-        delta_frequency = delta_frequency * u.Unit('Hz')
-
-        wavelength = self.baseline['wavelength']
-        wavelength = wavelength * u.Unit('Angstrom')
-
-        luminosity_density_lambda = self.baseline['luminosity_density_lambda']
-        luminosity_density_lambda = luminosity_density_lambda * u.Unit('erg / (Angstrom s)')
-
-        assert_allclose(
-                luminosity_density_nu,
+        assert_quantity_allclose(
+                self.baseline['luminosity_density_nu'],
                 self.obtained_radial1d_model.spectrum.luminosity_density_nu)
 
-        assert_allclose(
-                delta_frequency,
+        assert_quantity_allclose(
+                self.baseline['delta_frequency'],
                 self.obtained_radial1d_model.spectrum.delta_frequency)
 
-        assert_allclose(
-                wavelength,
+        assert_quantity_allclose(
+                self.baseline['wavelength'],
                 self.obtained_radial1d_model.spectrum.wavelength)
 
-        assert_allclose(
-                luminosity_density_lambda,
+        assert_quantity_allclose(
+                self.baseline['luminosity_density_lambda'],
                 self.obtained_radial1d_model.spectrum.luminosity_density_lambda)
 
     def test_montecarlo_properties(self):
-        montecarlo_luminosity = self.baseline['montecarlo_luminosity']
-        montecarlo_luminosity = montecarlo_luminosity * u.Unit('erg / s')
-
-        montecarlo_virtual_luminosity = self.baseline['montecarlo_virtual_luminosity']
-        montecarlo_virtual_luminosity = montecarlo_virtual_luminosity * u.Unit('erg / s')
-
-        montecarlo_nu = self.baseline['montecarlo_nu']
-        montecarlo_nu = montecarlo_nu * u.Unit('Hz')
-
-        assert_allclose(
-                montecarlo_luminosity,
+        assert_quantity_allclose(
+                self.baseline['montecarlo_luminosity'],
                 self.obtained_radial1d_model.montecarlo_luminosity)
 
-        assert_allclose(
-                montecarlo_virtual_luminosity,
+        assert_quantity_allclose(
+                self.baseline['montecarlo_virtual_luminosity'],
                 self.obtained_radial1d_model.montecarlo_virtual_luminosity)
 
-        assert_allclose(montecarlo_nu, self.obtained_radial1d_model.montecarlo_nu)
+        assert_quantity_allclose(
+                self.baseline['montecarlo_nu'],
+                self.obtained_radial1d_model.montecarlo_nu)
 
     def test_shell_temperature(self):
-        t_rads = self.baseline['t_rads']
-        t_rads = t_rads * u.Unit('K')
-        assert_allclose(t_rads, self.obtained_radial1d_model.t_rads)
+        assert_quantity_allclose(
+                self.baseline['t_rads'],
+                self.obtained_radial1d_model.t_rads)
