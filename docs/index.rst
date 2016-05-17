@@ -45,7 +45,7 @@ Looking under the hood
 ======================
 
 * :doc:`Physics behind TARDIS <physics/index>`
-* :doc:`Monte Carlo Primer <physics/montecarlo>`
+* :doc:`Monte Carlo Primer <montecarlo/index>`
 
 =================
 Developing Tardis
