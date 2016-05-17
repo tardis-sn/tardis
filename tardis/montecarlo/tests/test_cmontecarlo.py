@@ -104,7 +104,9 @@ def packet():
 
 @pytest.fixture(scope="function")
 def model():
-    """Fixture to return `StorageModel` object with default params initialized."""
+    """
+    Fixture to return `StorageModel` object with default params initialized.
+    """
     return StorageModel(
         last_line_interaction_in_id=(c_int64 * 2)(*([0] * 2)),
         last_line_interaction_shell_id=(c_int64 * 2)(*([0] * 2)),
@@ -121,9 +123,10 @@ def model():
         electron_densities=(c_double * 2)(*[1.0e9] * 2),
         inverse_electron_densities=(c_double * 2)(*[1.0e-9] * 2),
 
-        line_list_nu=(c_double * 5)(*[1.26318289e+16, 1.26318289e+16,
-                                         1.23357675e+16, 1.23357675e+16,
-                                         1.16961598e+16]),
+        line_list_nu=(c_double * 5)(*[
+            1.26318289e+16, 1.26318289e+16,
+            1.23357675e+16, 1.23357675e+16,
+            1.16961598e+16]),
 
         continuum_list_nu=(c_double * 20000)(*([1.e13] * 20000)),
 
@@ -200,7 +203,7 @@ def test_reverse_binary_search(x, x_insert, imin, imax, expected_params):
 
     cmontecarlo_methods.reverse_binary_search.restype = c_uint
     obtained_tardis_error = cmontecarlo_methods.reverse_binary_search(
-                        byref(x), x_insert, imin, imax, byref(obtained_result))
+            byref(x), x_insert, imin, imax, byref(obtained_result))
 
     assert obtained_result.value == expected_params['result']
     assert obtained_tardis_error == expected_params['ret_val']
@@ -225,7 +228,7 @@ def test_line_search(nu, nu_insert, number_of_lines, expected_params):
 
     cmontecarlo_methods.line_search.restype = c_uint
     obtained_tardis_error = cmontecarlo_methods.line_search(
-                        byref(nu), nu_insert, number_of_lines, byref(obtained_result))
+            byref(nu), nu_insert, number_of_lines, byref(obtained_result))
 
     assert obtained_result.value == expected_params['result']
     assert obtained_tardis_error == expected_params['ret_val']
@@ -248,7 +251,8 @@ def test_rpacket_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
     # Set `restype` attribute if returned quantity is used
     cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
     # Call the C method (make sure to pass quantities as `ctypes` data types)
-    obtained = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    obtained = cmontecarlo_methods.rpacket_doppler_factor(
+            byref(packet), byref(model))
 
     # Perform required assertions
     assert_almost_equal(obtained, expected)
@@ -269,7 +273,8 @@ def test_distance2rinner(r, mu, packet, model):
     r_inner = model.r_inner[packet.current_shell_id]
     distance = -r * mu - np.sqrt(r_inner * r_inner + (r * r * (mu * mu - 1.0)))
 
-    cmontecarlo_methods.compute_distance2boundary(byref(packet), byref(model))
+    cmontecarlo_methods.compute_distance2boundary(
+            byref(packet), byref(model))
 
     assert_almost_equal(packet.d_boundary, distance)
 
@@ -290,7 +295,8 @@ def test_distance2router(r, mu, packet, model):
     packet.mu = mu
     r_outer = model.r_outer[packet.current_shell_id]
     distance = -r * mu + np.sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r))
-    cmontecarlo_methods.compute_distance2boundary(byref(packet), byref(model))
+    cmontecarlo_methods.compute_distance2boundary(
+            byref(packet), byref(model))
 
     assert_almost_equal(packet.d_boundary, distance)
 
@@ -305,10 +311,12 @@ def test_distance2router(r, mu, packet, model):
       {'tardis_error': TARDIS_ERROR_OK, 'd_line': 7.792353908000001e+17}),
 
      ({'nu_line': 0.5, 'next_line_id': 1, 'last_line': 0},
-      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE, 'd_line': np.nan}),
+      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE,
+          'd_line': np.nan}),
 
      ({'nu_line': 0.6, 'next_line_id': 0, 'last_line': 0},
-      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE, 'd_line': np.nan})]
+      {'tardis_error': TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE,
+          'd_line': np.nan})]
 )
 def test_compute_distance2line(packet_params, expected_params, packet, model):
     packet.nu_line = packet_params['nu_line']
@@ -317,24 +325,26 @@ def test_compute_distance2line(packet_params, expected_params, packet, model):
 
     packet.d_line = 0.0
     cmontecarlo_methods.compute_distance2line.restype = c_uint
-    obtained_tardis_error = cmontecarlo_methods.compute_distance2line(byref(packet), byref(model))
+    obtained_tardis_error = cmontecarlo_methods.compute_distance2line(
+            byref(packet), byref(model))
 
     assert_almost_equal(packet.d_line, expected_params['d_line'])
     assert obtained_tardis_error == expected_params['tardis_error']
 
 
 @pytest.mark.parametrize(
-    ['packet_params', 'expected_params'],
-    [({'virtual_packet': 0},
+    ['virtual', 'expected_params'],
+    [(0,
      {'chi_cont': 6.652486e-16, 'd_cont': 4.359272608766106e+28}),
 
-     ({'virtual_packet': 1},
+     (1,
       {'chi_cont': 6.652486e-16, 'd_cont': 1e+99})]
 )
-def test_compute_distance2continuum(packet_params, expected_params, packet, model):
-    packet.virtual_packet = packet_params['virtual_packet']
+def test_compute_distance2continuum(virtual, expected_params, packet, model):
+    packet.virtual_packet = virtual
 
-    cmontecarlo_methods.compute_distance2continuum(byref(packet), byref(model))
+    cmontecarlo_methods.compute_distance2continuum(
+            byref(packet), byref(model))
 
     assert_almost_equal(packet.chi_cont, expected_params['chi_cont'])
     assert_almost_equal(packet.d_cont, expected_params['d_cont'])
@@ -356,13 +366,18 @@ def test_move_packet(packet_params, expected_params, packet, model):
     packet.energy = packet_params['energy']
     packet.r = packet_params['r']
 
-    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(1.e13))
+    cmontecarlo_methods.move_packet(
+            byref(packet), byref(model), c_double(1.e13))
 
     assert_almost_equal(packet.mu, expected_params['mu'])
     assert_almost_equal(packet.r, expected_params['r'])
 
-    assert_almost_equal(model.js[packet.current_shell_id], expected_params['j'])
-    assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
+    assert_almost_equal(
+            model.js[packet.current_shell_id],
+            expected_params['j'])
+    assert_almost_equal(
+            model.nubars[packet.current_shell_id],
+            expected_params['nubar'])
 
 
 # This function can be parametrized using hypothesis now
@@ -413,8 +428,8 @@ def test_move_packet_across_shell_boundary(packet_params, expected_params,
     packet.current_shell_id = packet_params['current_shell_id']
     packet.next_shell_id = packet_params['next_shell_id']
 
-    cmontecarlo_methods.move_packet_across_shell_boundary(byref(packet), byref(model),
-                                                          c_double(1.e13), byref(mt_state))
+    cmontecarlo_methods.move_packet_across_shell_boundary(
+            byref(packet), byref(model), c_double(1.e13), byref(mt_state))
 
     if packet_params['virtual_packet'] == 1:
         assert_almost_equal(packet.tau_event, expected_params['tau_event'])
@@ -430,15 +445,15 @@ def test_move_packet_across_shell_boundary(packet_params, expected_params,
      ({'nu': 0.6, 'mu': -.5, 'energy': 0.5, 'r': 8.1e14},
       {'nu': 0.5998422620533325, 'energy': 0.4998685517111104})]
 )
-def test_montecarlo_thomson_scatter(packet_params, expected_params, packet,
-                                   model, mt_state):
+def test_montecarlo_thomson_scatter(
+        packet_params, expected_params, packet, model, mt_state):
     packet.nu = packet_params['nu']
     packet.mu = packet_params['mu']
     packet.energy = packet_params['energy']
     packet.r = packet_params['r']
 
-    cmontecarlo_methods.montecarlo_thomson_scatter(byref(packet), byref(model),
-                                                   c_double(1.e13), byref(mt_state))
+    cmontecarlo_methods.montecarlo_thomson_scatter(
+            byref(packet), byref(model), c_double(1.e13), byref(mt_state))
 
     assert_almost_equal(packet.nu, expected_params['nu'])
     assert_almost_equal(packet.energy, expected_params['energy'])
@@ -457,17 +472,17 @@ def test_montecarlo_thomson_scatter(packet_params, expected_params, packet,
       {'tau_event': 2.9e13, 'next_line_id': 2}),
      ]
 )
-def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, mt_state):
+def test_montecarlo_line_scatter(
+        packet_params, expected_params, packet, model, mt_state):
     packet.virtual_packet = packet_params['virtual_packet']
     packet.tau_event = packet_params['tau_event']
     packet.last_line = packet_params['last_line']
 
-    cmontecarlo_methods.montecarlo_line_scatter(byref(packet), byref(model),
-                                          c_double(1.e13), byref(mt_state))
+    cmontecarlo_methods.montecarlo_line_scatter(
+            byref(packet), byref(model), c_double(1.e13), byref(mt_state))
 
     assert_almost_equal(packet.tau_event, expected_params['tau_event'])
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
-
 
 
 """
@@ -520,12 +535,13 @@ def test_bf_cross_section(packet_params, expected, packet, model):
     packet.r = packet_params['r']
 
     cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
-    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(
+            byref(packet), byref(model))
     comov_nu = packet.nu * doppler_factor
 
     cmontecarlo_methods.bf_cross_section.restype = c_double
-    obtained = cmontecarlo_methods.bf_cross_section(byref(model), c_int64(0),
-                                                    c_double(comov_nu))
+    obtained = cmontecarlo_methods.bf_cross_section(
+            byref(model), c_int64(0), c_double(comov_nu))
 
     assert_almost_equal(obtained, expected)
 
@@ -551,28 +567,28 @@ def test_calculate_chi_bf(packet_params, expected, packet, model):
 
 
 @pytest.mark.skipif(True, reason="Not yet relevant")
-def test_montecarlo_continuum_event_handler(packet_params, continuum_status, expected,
-                                            packet, model, mt_state):
+def test_montecarlo_continuum_event_handler(
+        packet_params, continuum_status, expected, packet, model, mt_state):
     packet.chi_cont = packet_params['chi_cont']
     packet.chi_th = packet_params['chi_th']
     packet.chi_bf = packet.chi_cont - packet.chi_th
     model.cont_status = continuum_status
 
-    obtained = cmontecarlo_methods.montecarlo_continuum_event_handler(byref(packet),
-                                                      byref(model), byref(mt_state))
+    cmontecarlo_methods.montecarlo_continuum_event_handler(
+            byref(packet), byref(model), byref(mt_state))
 
 
 @pytest.mark.skipif(True, reason="Not yet relevant")
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
-    cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
-                                                     c_double(1.e13), byref(mt_state))
+    cmontecarlo_methods.montecarlo_free_free_scatter(
+            byref(packet), byref(model), c_double(1.e13), byref(mt_state))
 
     assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
 
 
 @pytest.mark.skipif(True, reason="Not yet relevant")
 def test_montecarlo_bound_free_scatter(packet, model, mt_state):
-    cmontecarlo_methods.montecarlo_bound_free_scatter(byref(packet), byref(model),
-                                                     c_double(1.e13), byref(mt_state))
+    cmontecarlo_methods.montecarlo_bound_free_scatter(
+            byref(packet), byref(model), c_double(1.e13), byref(mt_state))
 
     assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
