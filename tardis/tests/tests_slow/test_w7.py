@@ -1,6 +1,5 @@
 import os
 import yaml
-import h5py
 import numpy as np
 import pytest
 from numpy.testing import assert_allclose
@@ -16,15 +15,12 @@ def data_path(fname):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7", fname)
 
 
-@pytest.mark.skipif(not pytest.config.getoption("--slow"),
-                    reason="slow tests can only be run using --slow")
-@pytest.mark.skipif(not pytest.config.getvalue("slow-test-data"),
-                    reason="--slow-test-data was not specified")
-@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
-                    reason="--atomic-dataset was not specified")
-class TestW7(object):
+@pytest.fixture(scope="module")
+def baseline(request):
     """
-    Slow integration test for Stratified W7 setup.
+    Fixture to ingest baseline data for slow test from already available
+    compressed binaries (.npz). All data is collected in one dict and
+    returned away.
 
     Assumed three compressed binaries (.npz) are placed in `slow-test-data/w7`
     directory, whose path is provided by command line argument:
@@ -40,12 +36,38 @@ class TestW7(object):
         * nubar_estimators               |     * last_line_interaction_angstrom
         * ws                             |     * j_blues_norm_factor
 
-    Description of spectrum.npz is given in corresponding test method below.
+    * spectrum.npz
+    Contents (all (.npy)):
+        * luminosity_density_nu          | * wavelength
+        * delta_frequency                | * luminosity_density_lambda
+    """
+
+    # TODO: make this fixture ingest data from an HDF5 file.
+    slow_test_data_dir = os.path.join(os.path.expanduser(
+            os.path.expandvars(request.config.getvalue('slow-test-data'))),
+            "w7")
+
+    ndarrays = np.load(os.path.join(slow_test_data_dir, "ndarrays.npz"))
+    quantities = np.load(os.path.join(slow_test_data_dir, "quantities.npz"))
+    spectrum = np.load(os.path.join(slow_test_data_dir, "spectrum.npz"))
+
+    return dict(ndarrays.items() + quantities.items() + spectrum.items())
+
+
+@pytest.mark.skipif(not pytest.config.getoption("--slow"),
+                    reason="slow tests can only be run using --slow")
+@pytest.mark.skipif(not pytest.config.getvalue("slow-test-data"),
+                    reason="--slow-test-data was not specified")
+@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
+                    reason="--atomic-dataset was not specified")
+class TestW7(object):
+    """
+    Slow integration test for Stratified W7 setup.
     """
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self):
+    def setup(self, baseline):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -86,30 +108,20 @@ class TestW7(object):
         simulation = Simulation(tardis_config)
         simulation.legacy_run_simulation(self.obtained_radial1d_model)
 
-        # The baseline data against which assertions are to be made is ingested
-        # from already available compressed binaries (.npz). These will return
-        # dictionaries of numpy.ndarrays for performing assertions.
-        self.slow_test_data_dir = os.path.join(os.path.expanduser(
-                os.path.expandvars(pytest.config.getvalue('slow-test-data'))), "w7")
-
-        self.expected_ndarrays = np.load(os.path.join(self.slow_test_data_dir,
-                                                      "ndarrays.npz"))
-        self.expected_quantities = np.load(os.path.join(self.slow_test_data_dir,
-                                                        "quantities.npz"))
-        self.expected_spectrum = np.load(os.path.join(self.slow_test_data_dir,
-                                                      "spectrum.npz"))
+        # Get the baseline data through the fixture.
+        self.baseline = baseline
 
     def test_j_estimators(self):
         assert_allclose(
-                self.expected_ndarrays['j_estimators'],
+                self.baseline['j_estimators'],
                 self.obtained_radial1d_model.j_estimators)
 
     def test_j_blue_estimators(self):
         assert_allclose(
-                self.expected_ndarrays['j_blue_estimators'],
+                self.baseline['j_blue_estimators'],
                 self.obtained_radial1d_model.j_blue_estimators)
 
-        j_blues_norm_factor = self.expected_quantities['j_blues_norm_factor']
+        j_blues_norm_factor = self.baseline['j_blues_norm_factor']
         j_blues_norm_factor = j_blues_norm_factor * u.Unit('1 / (cm2 s)')
 
         assert_allclose(
@@ -118,18 +130,18 @@ class TestW7(object):
 
     def test_last_line_interactions(self):
         assert_allclose(
-                self.expected_ndarrays['last_line_interaction_in_id'],
+                self.baseline['last_line_interaction_in_id'],
                 self.obtained_radial1d_model.last_line_interaction_in_id)
 
         assert_allclose(
-                self.expected_ndarrays['last_line_interaction_out_id'],
+                self.baseline['last_line_interaction_out_id'],
                 self.obtained_radial1d_model.last_line_interaction_out_id)
 
         assert_allclose(
-                self.expected_ndarrays['last_line_interaction_shell_id'],
+                self.baseline['last_line_interaction_shell_id'],
                 self.obtained_radial1d_model.last_line_interaction_shell_id)
 
-        last_line_interaction_angstrom = self.expected_quantities['last_line_interaction_angstrom']
+        last_line_interaction_angstrom = self.baseline['last_line_interaction_angstrom']
         last_line_interaction_angstrom = last_line_interaction_angstrom * u.Unit('Angstrom')
 
         assert_allclose(
@@ -138,16 +150,16 @@ class TestW7(object):
 
     def test_nubar_estimators(self):
         assert_allclose(
-                self.expected_ndarrays['nubar_estimators'],
+                self.baseline['nubar_estimators'],
                 self.obtained_radial1d_model.nubar_estimators)
 
     def test_ws(self):
         assert_allclose(
-                self.expected_ndarrays['ws'],
+                self.baseline['ws'],
                 self.obtained_radial1d_model.ws)
 
     def test_luminosity_inner(self):
-        luminosity_inner = self.expected_quantities['luminosity_inner']
+        luminosity_inner = self.baseline['luminosity_inner']
         luminosity_inner = luminosity_inner * u.Unit('erg / s')
 
         assert_allclose(
@@ -155,28 +167,16 @@ class TestW7(object):
                 self.obtained_radial1d_model.luminosity_inner)
 
     def test_spectrum(self):
-        """
-        Assertions for spectrum are being made by using baseline data from a
-        compressed binary named `spectrum.npz`, which is kept in the same
-        directory as the above mentioned two binaries.
-
-        * spectrum.npz
-        Contents (all (.npy)):
-            * luminosity_density_nu
-            * delta_frequency
-            * wavelength
-            * luminosity_density_lambda
-        """
-        luminosity_density_nu = self.expected_spectrum['luminosity_density_nu']
+        luminosity_density_nu = self.baseline['luminosity_density_nu']
         luminosity_density_nu = luminosity_density_nu * u.Unit('erg')
 
-        delta_frequency = self.expected_spectrum['delta_frequency']
+        delta_frequency = self.baseline['delta_frequency']
         delta_frequency = delta_frequency * u.Unit('Hz')
 
-        wavelength = self.expected_spectrum['wavelength']
+        wavelength = self.baseline['wavelength']
         wavelength = wavelength * u.Unit('Angstrom')
 
-        luminosity_density_lambda = self.expected_spectrum['luminosity_density_lambda']
+        luminosity_density_lambda = self.baseline['luminosity_density_lambda']
         luminosity_density_lambda = luminosity_density_lambda * u.Unit('erg / (Angstrom s)')
 
         assert_allclose(
@@ -196,13 +196,13 @@ class TestW7(object):
                 self.obtained_radial1d_model.spectrum.luminosity_density_lambda)
 
     def test_montecarlo_properties(self):
-        montecarlo_luminosity = self.expected_quantities['montecarlo_luminosity']
+        montecarlo_luminosity = self.baseline['montecarlo_luminosity']
         montecarlo_luminosity = montecarlo_luminosity * u.Unit('erg / s')
 
-        montecarlo_virtual_luminosity = self.expected_quantities['montecarlo_virtual_luminosity']
+        montecarlo_virtual_luminosity = self.baseline['montecarlo_virtual_luminosity']
         montecarlo_virtual_luminosity = montecarlo_virtual_luminosity * u.Unit('erg / s')
 
-        montecarlo_nu = self.expected_quantities['montecarlo_nu']
+        montecarlo_nu = self.baseline['montecarlo_nu']
         montecarlo_nu = montecarlo_nu * u.Unit('Hz')
 
         assert_allclose(
@@ -216,6 +216,6 @@ class TestW7(object):
         assert_allclose(montecarlo_nu, self.obtained_radial1d_model.montecarlo_nu)
 
     def test_shell_temperature(self):
-        t_rads = self.expected_quantities['t_rads']
+        t_rads = self.baseline['t_rads']
         t_rads = t_rads * u.Unit('K')
         assert_allclose(t_rads, self.obtained_radial1d_model.t_rads)
