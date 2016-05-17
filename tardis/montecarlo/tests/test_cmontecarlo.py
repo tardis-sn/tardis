@@ -60,7 +60,7 @@ from tardis.montecarlo.struct import (
     TARDIS_PACKET_STATUS_EMITTED,
     TARDIS_PACKET_STATUS_REABSORBED,
     CONTINUUM_OFF,
-    CONTINUUM_ON
+    # CONTINUUM_ON # We don't test this case yet
 )
 
 # Wrap the shared object containing C methods, which are tested here.
@@ -74,6 +74,8 @@ EPSP = 1 + EPS
 EPSM = 1 - EPS
 
 INVERSE_C = 1/constants.c.cgs.value
+
+RADIUS = (6.912e14, 8.64e14, 1.0368e15)
 
 
 @pytest.fixture(scope="function")
@@ -110,8 +112,8 @@ def model():
 
         no_of_shells=2,
 
-        r_inner=(c_double * 2)(*[6.912e14, 8.64e14]),
-        r_outer=(c_double * 2)(*[8.64e14, 1.0368e15]),
+        r_inner=(c_double * 2)(*RADIUS[:-1]),
+        r_outer=(c_double * 2)(*RADIUS[1:]),
 
         time_explosion=5.2e7,
         inverse_time_explosion=1 / 5.2e7,
@@ -253,23 +255,44 @@ def test_rpacket_doppler_factor(mu, r, inv_t_exp, expected, packet, model):
 
 
 @pytest.mark.parametrize(
-    ['packet_params', 'expected_params'],
-    [({'mu': 0.3, 'r': 7.5e14},
-      {'d_boundary': 259376919351035.88}),
-
-     ({'mu': -.3, 'r': 7.5e13},
-      {'d_boundary': -664987228972291.5}),
-
-     ({'mu': -.3, 'r': 7.5e14},
-      {'d_boundary': 709376919351035.9})]
-)
-def test_compute_distance2boundary(packet_params, expected_params, packet, model):
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
+        ['r', 'mu'],
+        [
+            (RADIUS[0], -1),
+            (RADIUS[0], -EPS),
+            (RADIUS[1], -np.sqrt(1-RADIUS[0]**2/RADIUS[1]**2)),
+            (RADIUS[1], -1),
+            (RADIUS[1] * EPSP, -1),
+            ])
+def test_distance2rinner(r, mu, packet, model):
+    packet.r = r
+    packet.mu = mu
+    r_inner = model.r_inner[packet.current_shell_id]
+    distance = -r * mu - np.sqrt(r_inner * r_inner + (r * r * (mu * mu - 1.0)))
 
     cmontecarlo_methods.compute_distance2boundary(byref(packet), byref(model))
 
-    assert_almost_equal(packet.d_boundary, expected_params['d_boundary'])
+    assert_almost_equal(packet.d_boundary, distance)
+
+
+@pytest.mark.parametrize(
+        ['r', 'mu'],
+        [
+            (RADIUS[1], -np.sqrt(1-RADIUS[0]**2/RADIUS[1]**2) * EPSM),
+            (RADIUS[1], -EPS),  # on outer boundary, slightly facing inwards
+            (RADIUS[0], 0),
+            (RADIUS[0], 1),
+            (RADIUS[0] * EPSM, 1),  # Inwards of inner shell
+            (RADIUS[1], 0),  # This should produce distance 0
+            (RADIUS[1] * EPSP, 0),  # This produces a NaN in both python and c
+            ])
+def test_distance2router(r, mu, packet, model):
+    packet.r = r
+    packet.mu = mu
+    r_outer = model.r_outer[packet.current_shell_id]
+    distance = -r * mu + np.sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r))
+    cmontecarlo_methods.compute_distance2boundary(byref(packet), byref(model))
+
+    assert_almost_equal(packet.d_boundary, distance)
 
 
 # TODO: split this into two tests - one to assert errors and other for d_line
