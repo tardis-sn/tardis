@@ -19,7 +19,7 @@ example below).
 
 .. note::
 
-   In this mode, the velocity grid has to be explicitly to be explicitly defined in the yml file (see example below)
+   In this mode, the velocity grid has to be explicitly defined in the yml file (see example below)
 
 
 TARDIS input file example
