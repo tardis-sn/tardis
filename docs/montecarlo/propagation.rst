@@ -119,17 +119,118 @@ physical interaction occurs, is non-trivial as soon as frequency-dependent
 processes are considered. Currently, TARDIS incorporates the electron
 scatterings and interactions with atomic line transitions. These two
 interactions mechanisms constitute the main sources of opacity in Type Ia
-supernovae. Since the main focus of TARDIS is to calculate optical spectra,
+supernovae.
+
+Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
-Thomson scatterings.
+Thomson scatterings. In this case, the electron scattering process is frequency
+independent. It's opacity only depends on the number density of free electrons
+:math:`n_e`
 
+.. math::
 
-- optical depth summation
+    \chi_{\mathrm{T}} = \sigma_{\mathrm{T}} n_e.
 
-- Thomson scattering
+The Thomson cross section :math:`\sigma_{\mathrm{T}}`, which is a constant,
+appears here. As a consequence to the frequency independence, a Monte Carlo
+packet accumulates optical depth along a path of length :math:`l` due to
+Thomson scattering according to
 
-- Resonant Line Interaction
+.. math::
 
+    \Delta \tau = \sigma_{\mathrm{T}} l.
+
+The situation is complicated by the inclusion of frequency dependent
+bound-bound interactions, i.e. interactions with atomic line transitions.
+Photons and thus Monte Carlo packets can only interact with a line transition
+if their frequency in the co-moving frame (see :doc:`Reference Frames
+<../physics/referenceframes>`) corresponds to the energy difference between the
+atomic levels linked by the transition, i.e. if it comes into resonance. As a
+photon/packet propagates through the homologously expanding ejecta, its
+co-moving frame frequency is continuously red-shifted. Thus, during its
+propagation through the SN ejecta, a photon/packet may come into resonance with
+many line transitions. This and the fact that line transitions have a finite
+width given by the line profile function (in the case at hand, this width is
+mainly given by thermal broadening) would render the determination of the line
+optical depth accumulated along the photon/packet trajectory a complicated
+task.  Fortunately, the typical conditions in supernova ejecta warrant the use
+of the so-called Sobolev approximation (see :doc:`Sobolev Approximation
+<../physics/sobolev>`). Roughly speaking, this approximation replaces the line
+profile function with a :math:`\delta` distribution around the natural line
+frequency. Thus, photons/packets may only interact with a line transition if
+their co-moving frame frequency exactly equals the natural frequency of the
+line. The location at which this occurs is referred to as the resonance or
+Sobolev point. This effectively reduces the line optical depth determination to
+a pure local problem.
+
+With these assumptions, the calculation of the optical depth a packet
+accumulates along its trajectory currently adopted in TARDIS proceeds according
+to the following scheme (which was originally introduced by :cite:`Mazzali1993`): 
+given the current lab-frame frequency of the packet, the distance to the next
+Sobolev point (i.e. to the next line resonance) is calculated
+
+Until this location, the packet continuously accumulates optical depth due to
+electron-scattering. At the Sobolev point, the accumulated optical depth is
+instantaneously incremented by the full line optical depth. Afterwards, the
+procedure is repeated, now with respect to next transition in the
+frequency-ordered list of all possible atomic line transitions. The point at
+which the accumulated optical depth surpasses the value determined in the
+random number experiment described above (determining the distance to the next
+physical interaction), determines the type of interaction the packet performs
+and at which location in the spatial mesh. The entire process is summarized in
+the sketch below (taken from :cite:`Noebauer2014`, adapted from
+:cite:`Mazzali1993`):
+
+.. image::
+    ../graphics/optical_depth_summation.png
+    :width: 400
+
+Three possible cases are highlighted. In the first case, the drawn optical
+depth value is reached on one of the path segments between successive Sobolev
+points, while the packet accumulates electron scattering optical depth. Thus,
+the packet performs a Thomson scattering. In the second case, the accumulated
+optical depth is reached during the instantaneous increment by the line optical
+depth at one of the Sobolev points. As a consequence, the packet performs an
+interaction with the corresponding atomic line transition. Finally, if the
+packet reaches the shell boundary before the optical depth value necessary for
+a physical interaction is achieved, a numerical event grid cell cross event is
+reached (see above).
+
+To conclude the description of the physical interaction mechanism, some details
+about the changes to the packet properties in case of interactions are
+provided. If the packet experiences a Thomson scattering, a new propagation
+direction is assigned. Since this process is isotropic, the new direction is
+sampled according to
+
+.. math::
+
+    \mu_f = 2 z - 1.
+
+In addition, energy conservation has in the local co-moving frame has to be
+obeyed. Thus, the packets energy and frequency in the lab-frame suffer from the
+relativistic Doppler shift
+
+.. math::
+
+    \varepsilon_f & = \varepsilon_i \frac{1 - \beta \mu_i}{1 - \beta \mu_f} \\
+    \nu_f & = \nu_i \frac{1 - \beta \mu_i}{1 - \beta \mu_f}
+
+Here, the subscripts highlight the packet properties before (:math:`i` for
+initial) and after (:math:`f` for final) the scattering. Also, the common
+parameter of special relativity, :math:`\beta = v / c`, is used.
+
+Line interactions proceed in a similar fashion. Since we assume that the
+re-emission process occurs isotropically as well, the same directional sampling
+as described above is used. Energy conservation again dictates how the packet
+energy after the line interaction event is determined. The important difference
+is the assignment of the post interaction frequency. This depends on the
+selected line interaction mode (see :doc:`Line Interaction Modes
+<lineinteraction>`).
+
+.. note::
+
+    Note that the inclusion of special relativistic effects in TARDIS is at
+    best to first order in :math:`\beta`. 
 
 Implementation: Main Propagation loop
 =====================================
