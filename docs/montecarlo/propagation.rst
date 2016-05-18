@@ -21,14 +21,15 @@ Monte Carlo packets is initialised at the lower boundary of the computational
 black-body in TARDIS, :math:`N` packets with energies
 
 .. math::
-    \varepsilon = \frac{4 R_{\mathrm{phot}}^2 \sigma_{\mathrm{R}} T_{\mathrm{phot}}^4}{N}
+    \varepsilon = \frac{4 \pi R_{\mathrm{phot}}^2 \sigma_{\mathrm{R}} T_{\mathrm{phot}}^4 \Delta t}{N}
 
 are initialised (the black body temperature :math:`T_{\mathrm{phot}}`, the
-photospheric radius :math:`R_{\mathrm{phot}}` and the Stefan-Boltzmann constant
-:math:`\sigma_{\mathrm{R}}` appear here). To commence the packet propagation,
-each packet is assigned a initial propagation direction (recall that :math:`\mu
-= \cos \theta` with `\theta` being the angle enclosed by the photon path and
-the radial direction)
+photospheric radius :math:`R_{\mathrm{phot}}`, the Stefan-Boltzmann constant
+:math:`\sigma_{\mathrm{R}}` and the physical duration of the simulation
+:math:`\Delta t` appear here). To commence the packet propagation, each packet
+is assigned a initial propagation direction (recall that :math:`\mu = \cos
+\theta` with :math:`\theta` being the angle enclosed by the photon path and the
+radial direction)
 
 .. math::
     \mu = \sqrt{z}
@@ -37,7 +38,7 @@ and an initial frequency :math:`\nu` in random number experiments, using a
 Random number generator which provides uniformly distributed numbers :math:`z`
 on the interval :math:`[0,1]`. The frequency assignment is more involved than
 selecting an initial propagation direction, since the Planck function has to be
-sampled. TARDIS used the technique described in :cite:`Carter1975` and
+sampled. TARDIS uses the technique described in :cite:`Carter1975` and
 summarized in :cite:`Bjorkmann1999` for this purpose.
 
 Propagation in a spherical domain
@@ -68,7 +69,7 @@ at
 .. math::
     r_f = \sqrt{r_i^2 + l^2 + 2 l r_i \mu_i}.
 
-Note that the propagation direction has also changed and now takes the value 
+Note that the propagation direction has also changed and now takes the value
 
 .. math::
     \mu_f = \frac{l + r_i \mu_i}{r_f}.
@@ -79,7 +80,8 @@ Numerical and Physical Events
 As a packet propagates through the computational domain, a number of events may
 trigger changes in the packet properties. Naturally, physical radiation-matter
 interactions are such events. These always occur after the packet has covered a
-distance corresponding to the optical depth
+distance corresponding to the optical depth (see :doc:`Random Sampling
+<randomsampling>`)
 
 .. math::
 
