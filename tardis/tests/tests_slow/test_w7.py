@@ -55,32 +55,35 @@ def baseline(request):
 
     # Associate CGS units to ndarrays of baseline quantities.
     quantities['j_blues_norm_factor'] = \
-        quantities['j_blues_norm_factor'] * u.Unit('1 / (cm2 s)')
+        u.Quantity(quantities['j_blues_norm_factor'], '1 / (cm2 s)')
 
     quantities['last_line_interaction_angstrom'] = \
-        quantities['last_line_interaction_angstrom'] * u.Unit('Angstrom')
+        u.Quantity(quantities['last_line_interaction_angstrom'], 'Angstrom')
 
     quantities['luminosity_inner'] = \
-        quantities['luminosity_inner'] * u.Unit('erg / s')
+        u.Quantity(quantities['luminosity_inner'], 'erg / s')
 
     quantities['montecarlo_luminosity'] = \
-        quantities['montecarlo_luminosity'] * u.Unit('erg / s')
+        u.Quantity(quantities['montecarlo_luminosity'], 'erg / s')
 
     quantities['montecarlo_virtual_luminosity'] = \
-        quantities['montecarlo_virtual_luminosity'] * u.Unit('erg / s')
+        u.Quantity(quantities['montecarlo_virtual_luminosity'], 'erg / s')
 
-    quantities['montecarlo_nu'] = quantities['montecarlo_nu'] * u.Unit('Hz')
-    quantities['t_rads'] = quantities['t_rads'] * u.Unit('K')
+    quantities['montecarlo_nu'] = u.Quantity(quantities['montecarlo_nu'], 'Hz')
+    quantities['t_rads'] = u.Quantity(quantities['t_rads'], 'K')
 
     # Associate CGS units to ndarrays of baseline quantities (spectrum).
-    spectrum['luminosity_density_nu'] = spectrum['luminosity_density_nu'] * u.Unit('erg')
-    spectrum['delta_frequency'] = spectrum['delta_frequency'] * u.Unit('Hz')
-    spectrum['wavelength'] = spectrum['wavelength'] * u.Unit('Angstrom')
+    spectrum['luminosity_density_nu'] = \
+        u.Quantity(spectrum['luminosity_density_nu'], 'erg')
+
+    spectrum['delta_frequency'] = u.Quantity(spectrum['delta_frequency'], 'Hz')
+    spectrum['wavelength'] = u.Quantity(spectrum['wavelength'], 'Angstrom')
 
     spectrum['luminosity_density_lambda'] = \
-            spectrum['luminosity_density_lambda'] * u.Unit('erg / (Angstrom s)')
+        u.Quantity(spectrum['luminosity_density_lambda'], 'erg / (Angstrom s)')
 
-    return dict(ndarrays.items() + quantities.items() + spectrum.items())
+    ndarrays.update(quantities, **spectrum)
+    return ndarrays
 
 
 @pytest.mark.skipif(not pytest.config.getoption("--slow"),
