@@ -12,9 +12,9 @@ from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
 
 
-@pytest.fixture
-def data_path(fname):
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7", fname)
+@pytest.fixture(scope="module")
+def data_path():
+    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7")
 
 
 @pytest.fixture(scope="module")
@@ -45,44 +45,37 @@ def baseline(request):
     """
 
     # TODO: make this fixture ingest data from an HDF5 file.
-    slow_test_data_dir = os.path.join(os.path.expanduser(
-            os.path.expandvars(request.config.getvalue('slow-test-data'))),
-            "w7")
+    datadir_path = os.path.join(os.path.expanduser(os.path.expandvars(
+            request.config.getvalue('slow-test-data'))), "w7")
 
-    ndarrays = dict(np.load(os.path.join(slow_test_data_dir, "ndarrays.npz")))
-    quantities = dict(np.load(os.path.join(slow_test_data_dir, "quantities.npz")))
-    spectrum = dict(np.load(os.path.join(slow_test_data_dir, "spectrum.npz")))
+    ndarrays = dict(np.load(os.path.join(datadir_path, "ndarrays.npz")))
+    quantities = dict(np.load(os.path.join(datadir_path, "quantities.npz")))
+    spectrum = dict(np.load(os.path.join(datadir_path, "spectrum.npz")))
 
     # Associate CGS units to ndarrays of baseline quantities.
-    quantities['j_blues_norm_factor'] = \
-        u.Quantity(quantities['j_blues_norm_factor'], '1 / (cm2 s)')
-
-    quantities['last_line_interaction_angstrom'] = \
-        u.Quantity(quantities['last_line_interaction_angstrom'], 'Angstrom')
-
-    quantities['luminosity_inner'] = \
-        u.Quantity(quantities['luminosity_inner'], 'erg / s')
-
-    quantities['montecarlo_luminosity'] = \
-        u.Quantity(quantities['montecarlo_luminosity'], 'erg / s')
-
-    quantities['montecarlo_virtual_luminosity'] = \
-        u.Quantity(quantities['montecarlo_virtual_luminosity'], 'erg / s')
-
-    quantities['montecarlo_nu'] = u.Quantity(quantities['montecarlo_nu'], 'Hz')
-    quantities['t_rads'] = u.Quantity(quantities['t_rads'], 'K')
-
-    # Associate CGS units to ndarrays of baseline quantities (spectrum).
-    spectrum['luminosity_density_nu'] = \
-        u.Quantity(spectrum['luminosity_density_nu'], 'erg')
-
-    spectrum['delta_frequency'] = u.Quantity(spectrum['delta_frequency'], 'Hz')
-    spectrum['wavelength'] = u.Quantity(spectrum['wavelength'], 'Angstrom')
-
-    spectrum['luminosity_density_lambda'] = \
-        u.Quantity(spectrum['luminosity_density_lambda'], 'erg / (Angstrom s)')
-
-    ndarrays.update(quantities, **spectrum)
+    ndarrays.update(
+        j_blues_norm_factor=
+            u.Quantity(quantities['j_blues_norm_factor'], '1 / (cm2 s)'),
+        last_line_interaction_angstrom=
+            u.Quantity(quantities['last_line_interaction_angstrom'], 'Angstrom'),
+        luminosity_inner=
+            u.Quantity(quantities['luminosity_inner'], 'erg / s'),
+        montecarlo_luminosity=
+            u.Quantity(quantities['montecarlo_luminosity'], 'erg / s'),
+        montecarlo_virtual_luminosity=
+            u.Quantity(quantities['montecarlo_virtual_luminosity'], 'erg / s'),
+        montecarlo_nu=
+            u.Quantity(quantities['montecarlo_nu'], 'Hz'),
+        t_rads=
+            u.Quantity(quantities['t_rads'], 'K'),
+        luminosity_density_nu=
+            u.Quantity(spectrum['luminosity_density_nu'], 'erg'),
+        delta_frequency=
+            u.Quantity(spectrum['delta_frequency'], 'Hz'),
+        wavelength=
+            u.Quantity(spectrum['wavelength'], 'Angstrom'),
+        luminosity_density_lambda=
+            u.Quantity(spectrum['luminosity_density_lambda'], 'erg / (Angstrom s)'))
     return ndarrays
 
 
@@ -99,14 +92,14 @@ class TestW7(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, baseline):
+    def setup(self, baseline, data_path):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
-        self.config_file = data_path("config_w7.yml")
-        self.abundances = data_path("abundancies_w7.dat")
-        self.densities = data_path("densities_w7.dat")
+        self.config_file = os.path.join(data_path, "config_w7.yml")
+        self.abundances = os.path.join(data_path, "abundancies_w7.dat")
+        self.densities = os.path.join(data_path, "densities_w7.dat")
 
         # First we check whether atom data file exists at desired path.
         self.atom_data_filename = os.path.expanduser(os.path.expandvars(
