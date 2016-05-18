@@ -12,6 +12,7 @@ from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
 
 
+@pytest.fixture
 def data_path(fname):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7", fname)
 
