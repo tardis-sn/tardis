@@ -252,4 +252,45 @@ radiation field emitted by the photosphere in the following way:
 
 The following flow chart summarizes this process again:
 
-*Coming Soon*
+
+.. graphviz::
+
+  digraph {
+    start[shape="box", style=rounded, label="Start"];
+    end[shape="box", style=rounded, label="End"];
+    allpacketsprocessed[shape="diamond", style="", label="All packets\nprocessed?"];
+    shortestdistance[shape="diamond", style="", label="Distance to next\nshell shortests?"];
+    outeredge[shape="diamond", style="", label="Escaping through\nsurface?"];
+    inneredge[shape="diamond", style="", label="Crossing into\nphotosphere?"];
+
+    nextpacket[shape="box", style="rounded", label="Select next\npacket"];
+    initpacket[shape="box", style="rounded", label="Initialize packet"];
+    calculatedistances[shape="box", style="rounded", label="Calculated distances:\nto next cell, to next interaction"];
+    crossintoshell[shape="box", style="rounded", label="Move packet into\nnext cell"];
+    terminate[shape="box", style="rounded", label="Terminate propagation,\ndiscard packet"];
+    interact[shape="box", style="rounded", label="Move packet to interaction location,\nperform interaction"];
+    spectralcontrib[shape="box", style="rounded", label="Determine contribution to spectrum"];
+
+    start -> allpacketsprocessed;
+    allpacketsprocessed -> nextpacket[label="no"];
+    allpacketsprocessed -> end[label="yes"];
+
+    nextpacket -> initpacket;
+    initpacket -> calculatedistances;
+    calculatedistances -> shortestdistance;
+    shortestdistance -> outeredge[label="yes"];
+    shortestdistance -> interact[label="no"];
+    interact -> calculatedistances;
+    crossintoshell -> calculatedistances;
+    outeredge -> spectralcontrib[label="yes"]
+    outeredge -> inneredge[label="no"]
+    inneredge -> terminate[label="yes"]
+    inneredge -> crossintoshell[label="no"];
+    spectralcontrib -> terminate;
+    terminate -> allpacketsprocessed;
+
+    allpacketsprocessed[label="All packets\nprocessed?"]
+    nextpacket[label="Select next packet\nfrom pool"]
+    shortestdistance[label="Distance to cell\nedge shortest?"]
+    
+  }
