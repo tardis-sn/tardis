@@ -7,14 +7,14 @@ photons when illustrating the basic idea behind Monte Carlo radiative transfer
 techniques, there are important numerical reasons for using a different
 discretization scheme. Instead of thinking in the photon picture, it brings
 significant advantages to follow the idea of :cite:`Abbott1985` and
-:cite:`Lucy1999` and consider parcel of radiant energy as the fundamental
+:cite:`Lucy1999` and consider parcels of radiant energy as the fundamental
 building blocks of the Monte Carlo calculation. These basic Monte Carlo quanta
-are commonly referred as "energy packets" or simply "packets".
+are commonly referred to as "energy packets" or simply "packets".
 
-During a Monte Carlo calculation, a large Number of packets, all with a certain
-energy $\varepsilon$ are created. In addition, each packet is associated with a
-frequency. These assignments are performed in a manner which ensures that the
-ensemble of packets represents the spectral energy distribution of the
+During a Monte Carlo calculation, a large number of packets, all with a certain
+energy :math:`\varepsilon` are created. In addition, each packet is associated
+with a frequency. These assignments are performed in a manner which ensures
+that the ensemble of packets represents the spectral energy distribution of the
 radiation field (see :doc:`Propagation <propagation>`).
 
 During the simulation, the energy of the packet remains constant in the local
@@ -26,10 +26,10 @@ which often causes confusion: even during radiation-matter interactions the
 packet energy is conserved in the co-moving frame (see :doc:`Propagation
 <propagation>`). However the frequency associated with a packet may chance
 (e.g. during non-resonant line interactions). As a consequence, packets may
-represent a varying number of real photons during its lifetime.
+represent a varying number of real photons during their lifetime.
 
 .. note::
     The indivisible energy packet scheme does not require that all packets have
-    the same energy. This is just a convienent and simple choice adopted in
+    the same energy. This is just a convenient and simple choice adopted in
     TARDIS.
 
