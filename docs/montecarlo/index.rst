@@ -14,3 +14,4 @@ can also be found in various papers by L. Lucy and in the main TARDIS publicatio
 * :doc:`Propagation of Monte Carlo quanta <propagation>`
 * :doc:`Reconstructing the Radiation Field - Volume-based Monte Carlo Estimators <estimators>`
 * :doc:`Spectrum calculation - Virtual Packet scheme <virtualpackets>`
+* :doc:`Random Sampling Basics <randomsampling>`
