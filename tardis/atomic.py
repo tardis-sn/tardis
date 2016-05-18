@@ -415,7 +415,12 @@ class AtomData(object):
 
         self.atom_data = DataFrame(atom_data.__array__())
         self.atom_data.set_index('atomic_number', inplace=True)
-        self.atom_data.mass = units.Quantity(self.atom_data.mass.values, 'u').cgs
+        # We have to use constants.u because astropy uses different values for the unit u and the constant.
+        # This is changed in later versions of astropy (the value of constants.u is used in all cases)
+        if units.u.cgs == constants.u.cgs:
+            self.atom_data.mass = units.Quantity(self.atom_data.mass.values, 'u').cgs
+        else:
+            self.atom_data.mass = constants.u.cgs * self.atom_data.mass.values
 
         self.ionization_data = DataFrame(ionization_data.__array__())
         self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
