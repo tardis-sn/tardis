@@ -2,7 +2,7 @@
 Line Interaction Treatments
 ***************************
 
-TARDIS currently different ways to handle line interactions, which may be
+TARDIS currently offers different ways to handle line interactions, which may be
 activated via the YAML configuration file. Independently of the chosen
 treatment, a number of steps are always carried out when a Monte Carlo packet
 performs a line interaction. Since TARDIS adopts the indivisible energy packet
