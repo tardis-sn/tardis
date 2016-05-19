@@ -331,6 +331,13 @@ class PropertyTypeFloat(PropertyTypeInt):
 
 class PropertyTypeQuantity(PropertyType):
     def check_type(self, value):
+        if hasattr(value, 'unit') and hasattr(value, 'value'):
+            if self._default is not None:
+                try:
+                    self._default.to(value.unit)
+                except ValueError:
+                    return False
+            return True
         try:
             quantity_split = value.strip().split()
             quantity_value = quantity_split[0]
@@ -353,15 +360,21 @@ class PropertyTypeQuantity(PropertyType):
             return False
 
     def to_type(self, value):
-        quantity_split = value.strip().split()
-        quantity_value = quantity_split[0]
-        quantity_unit = ' '.join(quantity_split[1:])
-        if quantity_unit.strip() == 'log_lsun':
-            quantity_value = 10 ** (float(quantity_value) +
-                                    np.log10(constants.L_sun.cgs.value))
-            quantity_unit = 'erg/s'
+        if hasattr(value, 'unit') and hasattr(value, 'value'):
+            return value
+        elif hasattr(value, 'split'):
+            quantity_split = value.strip().split()
+            quantity_value = quantity_split[0]
+            quantity_unit = ' '.join(quantity_split[1:])
+            if quantity_unit.strip() == 'log_lsun':
+                quantity_value = 10 ** (float(quantity_value) +
+                                        np.log10(constants.L_sun.cgs.value))
+                quantity_unit = 'erg/s'
 
-        return float(quantity_value) * units.Unit(quantity_unit)
+            return float(quantity_value) * units.Unit(quantity_unit)
+        else:
+            raise ConfigError
+
 
 
 class PropertyTypeQuantityRange(PropertyTypeQuantity):
@@ -369,9 +382,11 @@ class PropertyTypeQuantityRange(PropertyTypeQuantity):
     def _to_units(los):
         if len(los) > 2:
             loq = [(lambda x: (units.Quantity(float(x[0]), x[1])))(x.split())
+                   if not isinstance(x, units.Quantity) else x
                    for x in los[:-1]]
         else:
             loq = [(lambda x: (units.Quantity(float(x[0]), x[1])))(x.split())
+                   if not isinstance(x, units.Quantity) else x
                    for x in los]
         try:
             _ = reduce((lambda a, b: a.to(b.unit)), loq)
