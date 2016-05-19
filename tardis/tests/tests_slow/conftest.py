@@ -19,9 +19,9 @@ def data_path():
 
 
 @pytest.fixture(scope="session")
-def baseline(request, slow_tests_datadir):
+def reference(request, slow_tests_datadir):
     """
-    Fixture to ingest baseline data for slow test from already available
+    Fixture to ingest reference data for slow test from already available
     compressed binaries (.npz). All data is collected in one dict and
     returned away.
 
@@ -50,7 +50,7 @@ def baseline(request, slow_tests_datadir):
     quantities = dict(np.load(os.path.join(slow_tests_datadir, "quantities.npz")))
     spectrum = dict(np.load(os.path.join(slow_tests_datadir, "spectrum.npz")))
 
-    # Associate CGS units to ndarrays of baseline quantities.
+    # Associate CGS units to ndarrays of reference quantities.
     ndarrays.update(
         j_blues_norm_factor=
             u.Quantity(quantities['j_blues_norm_factor'], '1 / (cm2 s)'),
