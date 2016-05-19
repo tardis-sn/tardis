@@ -10,7 +10,7 @@ from tardis.atomic import AtomData
 from tardis.simulation.base import Simulation
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
-
+from tardis.tests.tests_slow import runslow
 
 @pytest.fixture(scope="module")
 def data_path():
@@ -79,12 +79,7 @@ def baseline(request):
     return ndarrays
 
 
-@pytest.mark.skipif(not pytest.config.getoption("--slow"),
-                    reason="slow tests can only be run using --slow")
-@pytest.mark.skipif(not pytest.config.getvalue("slow-test-data"),
-                    reason="--slow-test-data was not specified")
-@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
-                    reason="--atomic-dataset was not specified")
+@runslow
 class TestW7(object):
     """
     Slow integration test for Stratified W7 setup.
