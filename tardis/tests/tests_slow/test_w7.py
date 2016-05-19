@@ -10,7 +10,7 @@ from tardis.atomic import AtomData
 from tardis.simulation.base import Simulation
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
-from tardis.tests.tests_slow import runslow
+
 
 @pytest.fixture(scope="module")
 def data_path():
@@ -18,7 +18,7 @@ def data_path():
 
 
 @pytest.fixture(scope="module")
-def baseline(request):
+def baseline(request, slow_tests_datadir):
     """
     Fixture to ingest baseline data for slow test from already available
     compressed binaries (.npz). All data is collected in one dict and
@@ -45,12 +45,9 @@ def baseline(request):
     """
 
     # TODO: make this fixture ingest data from an HDF5 file.
-    datadir_path = os.path.join(os.path.expanduser(os.path.expandvars(
-            request.config.getvalue('slow-test-data'))), "w7")
-
-    ndarrays = dict(np.load(os.path.join(datadir_path, "ndarrays.npz")))
-    quantities = dict(np.load(os.path.join(datadir_path, "quantities.npz")))
-    spectrum = dict(np.load(os.path.join(datadir_path, "spectrum.npz")))
+    ndarrays = dict(np.load(os.path.join(slow_tests_datadir, "ndarrays.npz")))
+    quantities = dict(np.load(os.path.join(slow_tests_datadir, "quantities.npz")))
+    spectrum = dict(np.load(os.path.join(slow_tests_datadir, "spectrum.npz")))
 
     # Associate CGS units to ndarrays of baseline quantities.
     ndarrays.update(
@@ -79,7 +76,6 @@ def baseline(request):
     return ndarrays
 
 
-@runslow
 class TestW7(object):
     """
     Slow integration test for Stratified W7 setup.
@@ -87,7 +83,7 @@ class TestW7(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, baseline, data_path):
+    def setup(self, baseline, data_path, atomic_data_fname):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -95,12 +91,6 @@ class TestW7(object):
         self.config_file = os.path.join(data_path, "config_w7.yml")
         self.abundances = os.path.join(data_path, "abundancies_w7.dat")
         self.densities = os.path.join(data_path, "densities_w7.dat")
-
-        # First we check whether atom data file exists at desired path.
-        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
-                                    pytest.config.getvalue('atomic-dataset')))
-        assert os.path.exists(self.atom_data_filename), \
-            "{0} atom data file does not exist".format(self.atom_data_filename)
 
         # The available config file doesn't have file paths of atom data file,
         # densities and abundances profile files as desired. We load the atom
@@ -111,8 +101,12 @@ class TestW7(object):
         config_yaml['model']['abundances']['filename'] = self.abundances
         config_yaml['model']['structure']['filename'] = self.densities
 
+        # First we check whether atom data file exists at desired path.
+        assert os.path.exists(atomic_data_fname), (
+            "{0} atom data file does not exist".format(atomic_data_fname))
+
         # Load atom data file separately, pass it for forming tardis config.
-        self.atom_data = AtomData.from_hdf5(self.atom_data_filename)
+        self.atom_data = AtomData.from_hdf5(atomic_data_fname)
 
         # Check whether the atom data file in current run and the atom data
         # file used in obtaining the baseline data for slow tests are same.
