@@ -23,10 +23,11 @@ volume when performing the counting.
 
 The volume-based estimator approach addresses this weakness. It considers a
 certain time interval :math:`\Delta t` and accounts for all packets which at
-any point during the control interval resided in the control volume. Each packet
-then contributes to the total time and volume-averaged radiation field energy
-density according to its energy weighted by the time it spent in the control
-volume :math:`\delta t` relative to the control interval :math:`\Delta t`:
+any point during the control interval resided in the control volume. Each
+packet then contributes to the total time and volume-averaged radiation field
+energy density according to its energy weighted by the time it spent in the
+control volume :math:`\delta t` relative to the control interval :math:`\Delta
+t`:
 
 .. math::
 
@@ -39,13 +40,12 @@ segment lengths :math:`l_i`
 
     E = \frac{1}{c \Delta V \Delta t} \sum_i \varepsilon_i l_i
 
-
 by exploiting :math:`l_i = \delta t_i c`. Compared to the simple counting
 approach, the volume-based estimator will yield non-zero results as long as at
 least one packet passed through the control volume. Additionally, as one packet
 may generally contribute multiple times to the estimator (e.g. if it is
-deflected by a scattering), these estimators typically suffer from less
-Monte Carlo noise than simple counting reconstruction schemes.
+deflected by a scattering), these estimators typically suffer from less Monte
+Carlo noise than simple counting reconstruction schemes.
 
 Volume-based Estimators in TARDIS
 =================================
@@ -53,7 +53,7 @@ Volume-based Estimators in TARDIS
 Within TARDIS, volume-based estimators are used to reconstruct the mean
 intensity and the mean frequency of the radiation field (see also
 :cite:`Kerzendorf2014`). An estimator for the former is easily formulated by
-using the fundamental relation :math:`J = c/4\pi E` and the energy density
+using the fundamental relation :math:`J = \frac{c}{4\pi} E` and the energy density
 estimator derived above:
 
 .. math::
@@ -70,7 +70,7 @@ An intensity weighted estimate for the mean frequency is obtained from
 
     Compared to the estimtors derived in the previous section, the ones
     presented here involve a relativistic factor, :math:`D_{\mu} = (1 - \beta
-    \mu)`, which enures the correct frame transformation behaviour of the
+    \mu)`, which ensures the correct frame transformation behaviour of the
     estimators (to first order in :math:`v/c`).
 
 
@@ -103,10 +103,10 @@ the Macro Atom treatment and in the ionisation calculation.
 
 .. math::
 
-    J_{lu}^b = \frac{1}{4\pi \Delta V \Delta t} \sum_i \frac{\varepsilon_i}{\nu_i} D_{\mu}.
+    J_{lu}^b = \frac{1}{4\pi \Delta V \Delta t} \frac{t_{\mathrm{exp}}}{c} \sum_i \frac{\varepsilon_i}{\nu_{lu}} D_{\mu}.
     
 The summation here only involves packets which passed through the Sobolev point
-(see `Propagation <propagation>`) of the transition.  For a derivation of this
+(see :doc:`Propagation <propagation>`) of the transition.  For a derivation of this
 estimator, in particular, for a motivation of the expansion factor involving
 the time since explosion :math:`t_{\mathrm{exp}}`, we refer to
 :cite:`Lucy2003`, section 6.2.
