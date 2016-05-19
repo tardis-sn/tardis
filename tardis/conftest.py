@@ -176,14 +176,6 @@ def kurucz_atomic_data(atomic_data_fname):
 def test_data_path():
     return os.path.join(tardis.__path__[0], 'tests', 'data')
 
-@pytest.fixture(scope="session")
-def slow_tests_datadir():
-    slow_tests_datadir = pytest.config.getvalue("slow-test-data")
-    if slow_tests_datadir is None:
-        pytest.skip('--slow-test-data was not specified')
-    else:
-        return os.path.expandvars(os.path.expanduser(slow_tests_datadir))
-
 @pytest.fixture
 def included_he_atomic_data(test_data_path):
     import os, tardis
