@@ -805,21 +805,24 @@ class Configuration(ConfigurationNameSpace):
     """
 
     @classmethod
-    def from_yaml(cls, fname, test_parser=False, loader=YAMLLoader):
+    def from_yaml(cls, fname, *args, **kwargs):
         try:
-            yaml_dict = yaml.load(open(fname), Loader=loader)
+            yaml_dict = yaml.load(
+                    open(fname),
+                    Loader=kwargs.pop('loader', YAMLLoader))
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e
 
         tardis_config_version = yaml_dict.get('tardis_config_version', None)
         if tardis_config_version != 'v1.0':
-            raise ConfigurationError('Currently only tardis_config_version v1.0 supported')
+            raise ConfigurationError(
+                    'Currently only tardis_config_version v1.0 supported')
 
-        config_dirname = os.path.dirname(fname)
-        
-        return cls.from_config_dict(yaml_dict, test_parser=test_parser,
-                                    config_dirname=config_dirname)
+        kwargs['config_dirname'] = os.path.dirname(fname)
+
+        return cls.from_config_dict(
+            yaml_dict, *args, **kwargs)
 
     @classmethod
     def from_config_dict(cls, config_dict, atom_data=None, test_parser=False,
