@@ -94,7 +94,7 @@ Setting this lower limit avoids virtual packet trajectories intercepting the
 photosphere at :math:`R_{\mathrm{phot}}` (in which case the virtual packet
 could not contribute to the emergent spectrum and computational resources would
 have been wasted on this packet). The amount of radiation being backscattered
-towards the photosphere is accounted for my modifying the energy of the virtual
+towards the photosphere is accounted for by modifying the energy of the virtual
 packets
 
 .. math::
