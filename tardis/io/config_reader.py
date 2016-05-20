@@ -629,8 +629,7 @@ class ConfigurationNameSpace(dict):
 
         return cls(ConfigurationValidator(config_definition,
                                        config_dict).get_config())
-    
-    marker = object()
+
     def __init__(self, value=None):
         if value is None:
             pass
@@ -806,21 +805,24 @@ class Configuration(ConfigurationNameSpace):
     """
 
     @classmethod
-    def from_yaml(cls, fname, test_parser=False, loader=YAMLLoader):
+    def from_yaml(cls, fname, *args, **kwargs):
         try:
-            yaml_dict = yaml.load(open(fname), Loader=loader)
+            yaml_dict = yaml.load(
+                    open(fname),
+                    Loader=kwargs.pop('loader', YAMLLoader))
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e
 
         tardis_config_version = yaml_dict.get('tardis_config_version', None)
         if tardis_config_version != 'v1.0':
-            raise ConfigurationError('Currently only tardis_config_version v1.0 supported')
+            raise ConfigurationError(
+                    'Currently only tardis_config_version v1.0 supported')
 
-        config_dirname = os.path.dirname(fname)
-        
-        return cls.from_config_dict(yaml_dict, test_parser=test_parser,
-                                    config_dirname=config_dirname)
+        kwargs['config_dirname'] = os.path.dirname(fname)
+
+        return cls.from_config_dict(
+            yaml_dict, *args, **kwargs)
 
     @classmethod
     def from_config_dict(cls, config_dict, atom_data=None, test_parser=False,
@@ -849,7 +851,7 @@ class Configuration(ConfigurationNameSpace):
             in the `data` directory that ships with TARDIS
 
         validate: ~bool
-            Turn validation on or off. 
+            Turn validation on or off.
 
 
         Returns
@@ -936,7 +938,7 @@ class Configuration(ConfigurationNameSpace):
             else:
                 structure_fname = os.path.join(config_dirname,
                                                structure_section['filename'])
-                
+
             v_inner, v_outer, mean_densities, inner_boundary_index, \
             outer_boundary_index = read_density_file(
                 structure_fname, structure_section['filetype'],
