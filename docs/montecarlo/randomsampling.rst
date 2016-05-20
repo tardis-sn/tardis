@@ -10,7 +10,7 @@ direction is equally likely. During the Monte Carlo simulation, assignments
 according to these probabilities have to be frequently performed, for example
 when initializing Monte Carlo packets. For this purpose, so-called Random
 Number Generators are available. These produce (pseudo-) random numbers
-:math:`z` uniformly distribution on the interval :math:`[0,1]`. The challenge
+:math:`z` uniformly distributed on the interval :math:`[0,1]`. The challenge
 now lies in using these numbers to sample any physical process involved in the
 Radiative transfer calculation. From a probability theory point of view, this
 just implies finding mapping between the probability distribution governing the
