@@ -6,14 +6,14 @@ The main purpose of TARDIS is the generation of synthetic spectra. Currently,
 two methods are implemented to calculate the spectrum during the main Monte
 Carlo calculation. One follows the obvious approach of recording the properties
 of all escaping Monte Carlo packets and binning their contributions in
-frequency (or wavelength) space. This real packet spectrum will naturally
+frequency (or wavelength) space. This "real packet" spectrum will naturally
 suffer from Monte Carlo noise and if one tries to improve its signal-to-noise
-ratio, one immediately encounters a fundamental property of Monte Carlo
+ratio, one immediately encounters a fundamental characteristic of Monte Carlo
 approaches. Since Monte Carlo processes are typically governed by Poisson
 statistics, the level of stochastic fluctuations decreases only as :math:`\propto
 N^{-\frac{1}{2}}`, with :math:`N` denoting the number of Monte Carlo
-experiments. Thus, to decrease the noise by an order of magnitude 100 times
-more experiments have to be performed. In the case of the real packet spectrum
+experiments. Thus, to decrease the noise by an order of magnitude, 100 times
+more experiments have to be performed. In the case of the real packet spectrum,
 this translates into using 100 times more packets, which would increase the
 runtime by about the same factor.
 
@@ -26,15 +26,15 @@ It is difficult to avoid this fundamental behaviour of Monte Carlo techniques.
 However, sophisticated Monte Carlo techniques exist, which make better use of
 the computational resources. One such approach, which achieves a better noise
 behaviour for the same computational costs, is implemented in TARDIS. It relies
-on the concept of so-called virtual packets and goes back to the works by
-:cite:`Long2002` and :cite:`Sim2005`.
+on the concept of so-called "virtual packets" and goes back to the works by
+:cite:`Long2002` and :cite:`Sim2010`.
 
 Virtual Packets
 ===============
 
 The virtual packet scheme is best explained by first detailing how it works and
-then illustrating the physical reasoning for introducing this scheme.
-
+then illustrating the physical reasoning for introducing this scheme. More
+information about this scheme may be found in :cite:`Kerzendorf2014`.
 
 Virtual Packet Procedure
 ------------------------
@@ -52,7 +52,7 @@ optical depth. In particular, it contributes with the
 
 .. math::
 
-    \Delta L_{nu} = \varepsilon_{\nu} \exp(-\tau) \frac{1}{\Delta t \Delta \nu}
+    \Delta L_{\nu} = \varepsilon_{\nu} \exp(-\tau) \frac{1}{\Delta t \Delta \nu}
 
 to the emergent luminosity in the frequency interval :math:`[\nu, \nu + \Delta
 \nu]`. Here, :math:`\Delta t` denotes the physical duration of the simulation
@@ -72,7 +72,7 @@ ones. For example, whenever a real packet is emitted by the photosphere,
 :math:`N_v` virtual packets are spawned as well. The propagation direction of
 these virtual packets is assigned uniformly. However, since :math:`N_v` is
 typically small, an unequal sampling of the solid angle is avoided by selecting
-:math:`N_v` equal :math:`\mu` bins and sampling the direction uniformly from
+:math:`N_v` equal :math:`\mu` bins and sampling the direction uniformly within
 these bins. Since the emitted radiation field has a different angular
 dependence (represented by the non-uniform sampling rule for real packets,
 :math:`\mu = \sqrt{z}`), the energy of each virtual packet is weighted accordingly
@@ -81,14 +81,14 @@ dependence (represented by the non-uniform sampling rule for real packets,
 
     \varepsilon_v = \varepsilon \frac{2 \mu}{N_v}.
 
-Here, :math:`varepsilon` is the energy of the real packet that spawned the
+Here, :math:`\varepsilon` is the energy of the real packet that spawned the
 virtual ones. If virtual packets are generated during a real packet interaction
 at the location :math:`r`, their propagation direction is sampled uniformly
 from the interval :math:`[\mu_{\mathrm{min}}, 1]`. 
 
 .. math::
 
-    \mu_{\mathrm{min}} = - \sqrt{1 - \frac{R_{\mathrm{phot}}}{r}}
+    \mu_{\mathrm{min}} = - \sqrt{1 - \left(\frac{R_{\mathrm{phot}}}{r}\right)^2}
 
 Setting this lower limit avoids virtual packet trajectories intercepting the
 photosphere at :math:`R_{\mathrm{phot}}` (in which case the virtual packet
@@ -111,13 +111,15 @@ problem :
 
 .. math::
 
-    I(R, \mu, \nu) = I(R_{\mathrm{phot}}, \mu, \nu) \exp(-\tau) +
-    \int_0^{s_0} \eta(R - \mu s, \mu, \nu) \exp(-\tau) \mathrm{d}s
+    I(R, \mu, \nu) = I(R_{\mathrm{phot}}, \mu, \nu) \exp(-\tau(s_0)) +
+    \int_0^{s_0} \eta(R - \mu s, \mu, \nu) \exp(-\tau(s)) \mathrm{d}s
 
 This formulation of the formal solution is valid for the SN ejecta problem and
 involves the location of the photosphere, the radius of the ejecta surface
-:math:`R` and the packet trajectory :math:`s`. For more details see
-:doc:`Radiative Transfer Primer <../physics/radiativetransfer>`.
+:math:`R` and the packet trajectory :math:`s`. Here, the optical depth
+:math:`\tau(s)` measures the optical depth from :math:`s` to the ejecta surface
+For more details see :doc:`Radiative Transfer Primer
+<../physics/radiativetransfer>`.
 
 Essentially, the virtual packets solve this formal solution equation along a
 large number of directional rays. In particular, the virtual packets spawned at
@@ -128,7 +130,7 @@ packet interacts, account for the second part of the formal solution. In this
 interpretation, the purpose of the real packet population is simply to "sample"
 the emissivity of the medium.
 
-This outlined of the virtual packet scheme is concluded with a remark about its
+This outline of the virtual packet scheme is concluded with a remark about its
 benefits. The advantages of using a combination of real and virtual packets
 compared to calculation based purely on real packets lies in lower
 computational costs which are associated with solving the propagation of
