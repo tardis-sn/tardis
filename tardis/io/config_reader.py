@@ -629,8 +629,7 @@ class ConfigurationNameSpace(dict):
 
         return cls(ConfigurationValidator(config_definition,
                                        config_dict).get_config())
-    
-    marker = object()
+
     def __init__(self, value=None):
         if value is None:
             pass
@@ -849,7 +848,7 @@ class Configuration(ConfigurationNameSpace):
             in the `data` directory that ships with TARDIS
 
         validate: ~bool
-            Turn validation on or off. 
+            Turn validation on or off.
 
 
         Returns
@@ -936,7 +935,7 @@ class Configuration(ConfigurationNameSpace):
             else:
                 structure_fname = os.path.join(config_dirname,
                                                structure_section['filename'])
-                
+
             v_inner, v_outer, mean_densities, inner_boundary_index, \
             outer_boundary_index = read_density_file(
                 structure_fname, structure_section['filetype'],
