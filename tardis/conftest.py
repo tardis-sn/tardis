@@ -32,9 +32,6 @@ def pytest_addoption(parser):
     parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
                      help="filename for atomic dataset")
 
-    parser.addoption("--slow", action="store_true",
-                     help="include running slow tests during run")
-
     parser.addoption("--slow-test-data", dest="slow-test-data",
                      help="path to directory having baseline data for slow tests")
 
@@ -155,7 +152,7 @@ import yaml
 
 from tardis.io.config_reader import Configuration
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def atomic_data_fname():
     atomic_data_fname = pytest.config.getvalue("atomic-dataset")
     if atomic_data_fname is None:

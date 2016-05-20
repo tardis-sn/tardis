@@ -1,10 +1,8 @@
 import os
 import yaml
-import h5py
-import numpy as np
 import pytest
 from numpy.testing import assert_allclose
-from astropy import units as u
+from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.atomic import AtomData
 from tardis.simulation.base import Simulation
@@ -12,51 +10,21 @@ from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
 
 
-def data_path(fname):
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7", fname)
-
-
-@pytest.mark.skipif(not pytest.config.getoption("--slow"),
-                    reason="slow tests can only be run using --slow")
-@pytest.mark.skipif(not pytest.config.getvalue("slow-test-data"),
-                    reason="--slow-test-data was not specified")
-@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
-                    reason="--atomic-dataset was not specified")
 class TestW7(object):
     """
     Slow integration test for Stratified W7 setup.
-
-    Assumed two compressed binaries (.npz) are placed in `slow-test-data/w7`
-    directory, whose path is provided by command line argument:
-
-    * ndarrays.npz                       | * quantities.npz
-    Contents (all (.npy)):               | Contents (all (.npy)):
-        * last_interaction_type          |     * t_rads
-        * last_line_interaction_out_id   |     * luminosity_inner
-        * last_line_interaction_in_id    |     * montecarlo_luminosity
-        * j_estimators                   |     * montecarlo_virtual_luminousity
-        * j_blue_estimators              |     * time_of_simulation
-        * last_line_interaction_shell_id |     * montecarlo_nu
-        * nubar_estimators               |     * last_line_interaction_angstrom
-        * ws                             |     * j_blues_norm_factor
     """
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self):
+    def setup(self, reference, data_path, atomic_data_fname):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
-        self.config_file = data_path("config_w7.yml")
-        self.abundances = data_path("abundancies_w7.dat")
-        self.densities = data_path("densities_w7.dat")
-
-        # First we check whether atom data file exists at desired path.
-        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
-                                    pytest.config.getvalue('atomic-dataset')))
-        assert os.path.exists(self.atom_data_filename), \
-            "{0} atom data file does not exist".format(self.atom_data_filename)
+        self.config_file = os.path.join(data_path, "config_w7.yml")
+        self.abundances = os.path.join(data_path, "abundances_w7.dat")
+        self.densities = os.path.join(data_path, "densities_w7.dat")
 
         # The available config file doesn't have file paths of atom data file,
         # densities and abundances profile files as desired. We load the atom
@@ -68,15 +36,15 @@ class TestW7(object):
         config_yaml['model']['structure']['filename'] = self.densities
 
         # Load atom data file separately, pass it for forming tardis config.
-        self.atom_data = AtomData.from_hdf5(self.atom_data_filename)
+        self.atom_data = AtomData.from_hdf5(atomic_data_fname)
 
         # Check whether the atom data file in current run and the atom data
-        # file used in obtaining the baseline data for slow tests are same.
+        # file used in obtaining the reference data are same.
         # TODO: hard coded UUID for kurucz atom data file, generalize it later.
         kurucz_data_file_uuid1 = "5ca3035ca8b311e3bb684437e69d75d7"
         assert self.atom_data.uuid1 == kurucz_data_file_uuid1
 
-        # The config hence obtained will be having appropriate file paths.
+        # Create a Configuration through yaml file and atom data.
         tardis_config = Configuration.from_config_dict(config_yaml, self.atom_data)
 
         # We now do a run with prepared config and get radial1d model.
@@ -84,93 +52,86 @@ class TestW7(object):
         simulation = Simulation(tardis_config)
         simulation.legacy_run_simulation(self.obtained_radial1d_model)
 
-        # The baseline data against which assertions are to be made is ingested
-        # from already available compressed binaries (.npz). These will return
-        # dictionaries of numpy.ndarrays for performing assertions.
-        self.slow_test_data_dir = os.path.join(os.path.expanduser(
-                os.path.expandvars(pytest.config.getvalue('slow-test-data'))), "w7")
-
-        self.expected_ndarrays = np.load(os.path.join(self.slow_test_data_dir,
-                                                      "ndarrays.npz"))
-        self.expected_quantities = np.load(os.path.join(self.slow_test_data_dir,
-                                                        "quantities.npz"))
+        # Get the reference data through the fixture.
+        self.reference = reference
 
     def test_j_estimators(self):
         assert_allclose(
-                self.expected_ndarrays['j_estimators'],
+                self.reference['j_estimators'],
                 self.obtained_radial1d_model.j_estimators)
 
     def test_j_blue_estimators(self):
         assert_allclose(
-                self.expected_ndarrays['j_blue_estimators'],
+                self.reference['j_blue_estimators'],
                 self.obtained_radial1d_model.j_blue_estimators)
 
-        j_blues_norm_factor = self.expected_quantities['j_blues_norm_factor']
-        j_blues_norm_factor = j_blues_norm_factor * u.Unit('1 / (cm2 s)')
-
-        assert_allclose(
-                j_blues_norm_factor,
+        assert_quantity_allclose(
+                self.reference['j_blues_norm_factor'],
                 self.obtained_radial1d_model.j_blues_norm_factor)
 
     def test_last_line_interactions(self):
         assert_allclose(
-                self.expected_ndarrays['last_line_interaction_in_id'],
+                self.reference['last_line_interaction_in_id'],
                 self.obtained_radial1d_model.last_line_interaction_in_id)
 
         assert_allclose(
-                self.expected_ndarrays['last_line_interaction_out_id'],
+                self.reference['last_line_interaction_out_id'],
                 self.obtained_radial1d_model.last_line_interaction_out_id)
 
         assert_allclose(
-                self.expected_ndarrays['last_line_interaction_shell_id'],
+                self.reference['last_line_interaction_shell_id'],
                 self.obtained_radial1d_model.last_line_interaction_shell_id)
 
-        last_line_interaction_angstrom = self.expected_quantities['last_line_interaction_angstrom']
-        last_line_interaction_angstrom = last_line_interaction_angstrom * u.Unit('Angstrom')
-
-        assert_allclose(
-                last_line_interaction_angstrom,
+        assert_quantity_allclose(
+                self.reference['last_line_interaction_angstrom'],
                 self.obtained_radial1d_model.last_line_interaction_angstrom)
 
     def test_nubar_estimators(self):
         assert_allclose(
-                self.expected_ndarrays['nubar_estimators'],
+                self.reference['nubar_estimators'],
                 self.obtained_radial1d_model.nubar_estimators)
 
     def test_ws(self):
         assert_allclose(
-                self.expected_ndarrays['ws'],
+                self.reference['ws'],
                 self.obtained_radial1d_model.ws)
 
-    def test_spectrum(self):
-        luminosity_inner = self.expected_quantities['luminosity_inner']
-        luminosity_inner = luminosity_inner * u.Unit('erg / s')
-
-        assert_allclose(
-                luminosity_inner,
+    def test_luminosity_inner(self):
+        assert_quantity_allclose(
+                self.reference['luminosity_inner'],
                 self.obtained_radial1d_model.luminosity_inner)
 
+    def test_spectrum(self):
+        assert_quantity_allclose(
+                self.reference['luminosity_density_nu'],
+                self.obtained_radial1d_model.spectrum.luminosity_density_nu)
+
+        assert_quantity_allclose(
+                self.reference['delta_frequency'],
+                self.obtained_radial1d_model.spectrum.delta_frequency)
+
+        assert_quantity_allclose(
+                self.reference['wavelength'],
+                self.obtained_radial1d_model.spectrum.wavelength)
+
+        assert_quantity_allclose(
+                self.reference['luminosity_density_lambda'],
+                self.obtained_radial1d_model.spectrum.luminosity_density_lambda)
+
     def test_montecarlo_properties(self):
-        montecarlo_luminosity = self.expected_quantities['montecarlo_luminosity']
-        montecarlo_luminosity = montecarlo_luminosity * u.Unit('erg / s')
-
-        montecarlo_virtual_luminosity = self.expected_quantities['montecarlo_virtual_luminosity']
-        montecarlo_virtual_luminosity = montecarlo_virtual_luminosity * u.Unit('erg / s')
-
-        montecarlo_nu = self.expected_quantities['montecarlo_nu']
-        montecarlo_nu = montecarlo_nu * u.Unit('Hz')
-
-        assert_allclose(
-                montecarlo_luminosity,
+        assert_quantity_allclose(
+                self.reference['montecarlo_luminosity'],
                 self.obtained_radial1d_model.montecarlo_luminosity)
 
-        assert_allclose(
-                montecarlo_virtual_luminosity,
+        assert_quantity_allclose(
+                self.reference['montecarlo_virtual_luminosity'],
                 self.obtained_radial1d_model.montecarlo_virtual_luminosity)
 
-        assert_allclose(montecarlo_nu, self.obtained_radial1d_model.montecarlo_nu)
+        assert_quantity_allclose(
+                self.reference['montecarlo_nu'],
+                self.obtained_radial1d_model.montecarlo_nu)
 
     def test_shell_temperature(self):
-        t_rads = self.expected_quantities['t_rads']
-        t_rads = t_rads * u.Unit('K')
-        assert_allclose(t_rads, self.obtained_radial1d_model.t_rads)
+        assert_quantity_allclose(
+                self.reference['t_rads'],
+                self.obtained_radial1d_model.t_rads)
