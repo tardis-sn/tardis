@@ -1,0 +1,204 @@
+type: object
+properties:
+  nthreads:
+    type: integer
+    default: 1
+    description: The number of OpenMP threads.
+  seed:
+    type: integer
+    default: 23111963
+    description: Seed for the random number generator
+  no_of_packets:
+    type: integer
+    description: Seed for the random number generator
+  iterations:
+    type: integer
+    description: Number of maximum iterations
+  black_body_sampling:
+    type: object
+    properties:
+      start:
+        type: quantity
+        default: 50 angstrom
+      stop:
+        type: quantity
+        default: 200000 angstrom
+      num:
+        type: integer
+        default: 1000000
+    description: Sampling of the black-body for energy packet creation (giving
+      maximum and minimum packet frequency)
+  last_no_of_packets:
+    type: integer
+    default: -1
+    description: This can set the number of packets for the last run. If set negative
+      it will remain the same as all other runs.
+  no_of_virtual_packets:
+    type: integer
+    default: 0
+    description: Setting the number of virtual packets for the last iteration.
+  virtual_spectrum_range:
+    type: object
+    properties:
+      start:
+        type: quantity
+        default: 50 angstrom
+      stop:
+        type: quantity
+        default: 250000 angstrom
+      num:
+        type: integer
+        default: 1000000
+    description: Limits of virtual packet spectrum (giving maximum and minimum
+      packet frequency)
+  enable_reflective_inner_boundary:
+    type: boolean
+    default: false
+    description: experimental feature to enable a reflective boundary.
+  inner_boundary_albedo:
+    type: number
+    default: 0.0
+    description: albedo of the reflective boundary
+  convergence_strategy:
+    oneOf:
+    - $ref: '#/definitions/convergence_strategy/damped'
+    - $ref: '#/definitions/convergence_strategy/specific'
+required:
+- no_of_packets
+- iterations
+
+definitions:
+  convergence_strategy:
+    damped:
+      type: object
+      properties:
+        type:
+          enum:
+          - damped
+        damping_constant:
+          type: number
+          default: 0.5
+          description: damping constant
+        t_inner:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+        t_rad:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+          required:
+          - threshold
+        w:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+          required:
+          - threshold
+        lock_t_inner_cycles:
+          type: integer
+          default: 1
+          description: The number of cycles to lock the update of the inner boundary
+            temperature. This process helps with convergence. The default is to switch
+            it off (1 cycle)
+        t_inner_update_exponent:
+          type: number
+          default: -0.5
+          description: L=4*pi*r**2*T^y
+    specific:
+      type: object
+      properties:
+        type:
+          enum:
+          - specific
+        threshold:
+          type: number
+          description: specifies the threshold that is taken as convergence  (i.e.
+            0.05 means that the value does not change more than 5%)
+        fraction:
+          type: number
+          default: 0.8
+          description: the fraction of shells that have to converge to the given  convergence
+            threshold. For example, 0.8 means that 80% of shells have to converge
+            to the threshold that convergence is established
+        hold_iterations:
+          type: integer
+          default: 3
+          description: the number of iterations that the convergence criteria need
+            to be fulfilled before TARDIS accepts the simulation as converged
+        t_inner:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+        t_rad:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+          required:
+          - threshold
+        w:
+          type: object
+          properties:
+            damping_constant:
+              type: number
+              default: 0.5
+              description: damping constant
+            threshold:
+              type: number
+              description: specifies the threshold that is taken as convergence  (i.e.
+                0.05 means that the value does not change more than 5%)
+          required:
+          - threshold
+        lock_t_inner_cycles:
+          type: integer
+          default: 1
+          description: The number of cycles to lock the update of the inner boundary
+            temperature. This process helps with convergence. The default is to switch
+            it off (1 cycle)
+        damping_constant:
+          type: number
+          default: 0.5
+          description: damping constant
+        t_inner_update_exponent:
+          type: number
+          default: -0.5
+          description: L=4*pi*r**2*T^y
+      required:
+      - threshold
+      - fraction
+      - hold_iterations
