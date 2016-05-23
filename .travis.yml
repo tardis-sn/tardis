@@ -71,7 +71,7 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
 
 install:
-   - conda env create -f tardis_ci/tardis_ci_env27.yml
+   - conda env create -f tardis_env27.yml
    - source activate tardis-ci
 
 script:
