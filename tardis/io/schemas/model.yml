@@ -161,7 +161,7 @@ definitions:
       - filename
     uniform:
       type: object
-      additionalProperties: false
+      additionalProperties: true
       properties:
         type:
           enum:
