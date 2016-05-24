@@ -2,6 +2,7 @@ import os
 import numpy as np
 import pytest
 from astropy import units as u
+import tardis
 
 
 @pytest.fixture(scope="session")
@@ -16,6 +17,19 @@ def slow_tests_datadir():
 @pytest.fixture(scope="session")
 def data_path():
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7")
+
+
+@pytest.fixture(scope="session")
+def base_plot_dir():
+    githash_short = tardis.__githash__[0:7]
+    base_plot_dir = os.path.join("/tmp", "plots", githash_short)
+
+    # Remove plots generated from previous runs on same githash.
+    if os.path.exists(base_plot_dir):
+        os.rmdir(base_plot_dir)
+
+    os.makedirs(base_plot_dir)
+    return base_plot_dir
 
 
 @pytest.fixture(scope="session")
