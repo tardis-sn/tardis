@@ -1,6 +1,7 @@
 import os
 import yaml
 import pytest
+import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 
@@ -102,21 +103,55 @@ class TestW7(object):
                 self.obtained_radial1d_model.luminosity_inner)
 
     def test_spectrum(self):
-        assert_quantity_allclose(
+        try:
+            assert_quantity_allclose(
                 self.reference['luminosity_density_nu'],
                 self.obtained_radial1d_model.spectrum.luminosity_density_nu)
 
-        assert_quantity_allclose(
+            assert_quantity_allclose(
                 self.reference['delta_frequency'],
                 self.obtained_radial1d_model.spectrum.delta_frequency)
 
-        assert_quantity_allclose(
+            assert_quantity_allclose(
                 self.reference['wavelength'],
                 self.obtained_radial1d_model.spectrum.wavelength)
 
-        assert_quantity_allclose(
+            assert_quantity_allclose(
                 self.reference['luminosity_density_lambda'],
                 self.obtained_radial1d_model.spectrum.luminosity_density_lambda)
+
+            self.plot_spectrum(passed=True)
+        except Exception as e:
+            self.plot_spectrum(passed=False)
+            raise e
+
+    def plot_spectrum(self, passed):
+        plt.suptitle("Deviation in spectrum_quantities", fontweight="bold")
+
+        # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
+        # Axes of subplot are extracted, if we wish to make multiple plots
+        # for different spectrum quantities all in one figure.
+        ldl_ax = plt.subplot(111)
+        ldl_ax.set_title("Deviation in luminosity_density_lambda")
+        ldl_ax.set_xlabel("N-th packet")
+        ldl_ax.set_ylabel("Relative error (1 - obtained / baseline)")
+        deviation = 1 - (
+            self.obtained_radial1d_model.spectrum.luminosity_density_lambda.value /
+            self.reference['luminosity_density_lambda'].value)
+
+        if passed:
+            ldl_ax.text(0.8, 0.8, 'passed', transform=ldl_ax.transAxes,
+                          bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
+            ldl_ax.plot(deviation, "g+")
+        else:
+            ldl_ax.set_yscale("log")
+            ldl_ax.text(0.8, 0.8, 'failed', transform=ldl_ax.transAxes,
+                          bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+            ldl_ax.plot(deviation, "rx")
+
+        # Figure is saved in `tmp` directory right now, till a suitable way of
+        # saving them is decided.
+        plt.savefig(os.path.join("/tmp", "spectrum_plot.png"))
 
     def test_montecarlo_properties(self):
         assert_quantity_allclose(
