@@ -18,7 +18,8 @@ class TestW7(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, reference, data_path, atomic_data_fname):
+    def setup(self, request, reference, data_path, atomic_data_fname,
+              slow_tests_datadir, base_plot_dir):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -55,6 +56,12 @@ class TestW7(object):
 
         # Get the reference data through the fixture.
         self.reference = reference
+
+        # Form a base directory to save plots for `W7` setup.
+        # TODO: Rough prototyping, parametrize this as more setups are added.
+        self.name = "w7"
+        self.base_plot_dir = os.path.join(base_plot_dir, self.name)
+        os.makedirs(self.base_plot_dir)
 
     def test_j_estimators(self):
         assert_allclose(
@@ -152,7 +159,7 @@ class TestW7(object):
 
         # Figure is saved in `tmp` directory right now, till a suitable way of
         # saving them is decided.
-        plt.savefig(os.path.join(self.plot_savedir, "spectrum.png"))
+        plt.savefig(os.path.join(self.base_plot_dir, "spectrum.png"))
 
     def test_montecarlo_properties(self):
         assert_quantity_allclose(
