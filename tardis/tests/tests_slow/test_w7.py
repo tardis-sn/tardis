@@ -49,9 +49,9 @@ class TestW7(object):
         tardis_config = Configuration.from_config_dict(config_yaml, self.atom_data)
 
         # We now do a run with prepared config and get radial1d model.
-        self.obtained_radial1d_model = Radial1DModel(tardis_config)
+        self.result = Radial1DModel(tardis_config)
         simulation = Simulation(tardis_config)
-        simulation.legacy_run_simulation(self.obtained_radial1d_model)
+        simulation.legacy_run_simulation(self.result)
 
         # Get the reference data through the fixture.
         self.reference = reference
@@ -59,73 +59,73 @@ class TestW7(object):
     def test_j_estimators(self):
         assert_allclose(
                 self.reference['j_estimators'],
-                self.obtained_radial1d_model.j_estimators)
+                self.result.j_estimators)
 
     def test_j_blue_estimators(self):
         assert_allclose(
                 self.reference['j_blue_estimators'],
-                self.obtained_radial1d_model.j_blue_estimators)
+                self.result.j_blue_estimators)
 
         assert_quantity_allclose(
                 self.reference['j_blues_norm_factor'],
-                self.obtained_radial1d_model.j_blues_norm_factor)
+                self.result.j_blues_norm_factor)
 
     def test_last_line_interactions(self):
         assert_allclose(
                 self.reference['last_line_interaction_in_id'],
-                self.obtained_radial1d_model.last_line_interaction_in_id)
+                self.result.last_line_interaction_in_id)
 
         assert_allclose(
                 self.reference['last_line_interaction_out_id'],
-                self.obtained_radial1d_model.last_line_interaction_out_id)
+                self.result.last_line_interaction_out_id)
 
         assert_allclose(
                 self.reference['last_line_interaction_shell_id'],
-                self.obtained_radial1d_model.last_line_interaction_shell_id)
+                self.result.last_line_interaction_shell_id)
 
         assert_quantity_allclose(
                 self.reference['last_line_interaction_angstrom'],
-                self.obtained_radial1d_model.last_line_interaction_angstrom)
+                self.result.last_line_interaction_angstrom)
 
     def test_nubar_estimators(self):
         assert_allclose(
                 self.reference['nubar_estimators'],
-                self.obtained_radial1d_model.nubar_estimators)
+                self.result.nubar_estimators)
 
     def test_ws(self):
         assert_allclose(
                 self.reference['ws'],
-                self.obtained_radial1d_model.ws)
+                self.result.ws)
 
     def test_luminosity_inner(self):
         assert_quantity_allclose(
                 self.reference['luminosity_inner'],
-                self.obtained_radial1d_model.luminosity_inner)
+                self.result.luminosity_inner)
 
     def test_spectrum(self):
         try:
             assert_quantity_allclose(
                 self.reference['luminosity_density_nu'],
-                self.obtained_radial1d_model.spectrum.luminosity_density_nu)
+                self.result.spectrum.luminosity_density_nu)
 
             assert_quantity_allclose(
                 self.reference['delta_frequency'],
-                self.obtained_radial1d_model.spectrum.delta_frequency)
+                self.result.spectrum.delta_frequency)
 
             assert_quantity_allclose(
                 self.reference['wavelength'],
-                self.obtained_radial1d_model.spectrum.wavelength)
+                self.result.spectrum.wavelength)
 
             assert_quantity_allclose(
                 self.reference['luminosity_density_lambda'],
-                self.obtained_radial1d_model.spectrum.luminosity_density_lambda)
+                self.result.spectrum.luminosity_density_lambda)
 
-            self.plot_spectrum(passed=True)
+            self.plot_spectrum(has_passed=True)
         except Exception as e:
-            self.plot_spectrum(passed=False)
+            self.plot_spectrum(has_passed=False)
             raise e
 
-    def plot_spectrum(self, passed):
+    def plot_spectrum(self, has_passed):
         plt.suptitle("Deviation in spectrum_quantities", fontweight="bold")
 
         # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
@@ -133,40 +133,41 @@ class TestW7(object):
         # for different spectrum quantities all in one figure.
         ldl_ax = plt.subplot(111)
         ldl_ax.set_title("Deviation in luminosity_density_lambda")
-        ldl_ax.set_xlabel("N-th packet")
-        ldl_ax.set_ylabel("Relative error (1 - obtained / baseline)")
+        ldl_ax.set_xlabel("Wavelength")
+        ldl_ax.set_ylabel("Relative error (1 - result / reference)")
         deviation = 1 - (
-            self.obtained_radial1d_model.spectrum.luminosity_density_lambda.value /
+            self.result.spectrum.luminosity_density_lambda.value /
             self.reference['luminosity_density_lambda'].value)
 
-        if passed:
+        if has_passed:
             ldl_ax.text(0.8, 0.8, 'passed', transform=ldl_ax.transAxes,
-                          bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
-            ldl_ax.plot(deviation, "g+")
+                        bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
+            ldl_ax.plot(self.reference['wavelength'], deviation,
+                        color="green", marker=".")
         else:
-            ldl_ax.set_yscale("log")
             ldl_ax.text(0.8, 0.8, 'failed', transform=ldl_ax.transAxes,
-                          bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
-            ldl_ax.plot(deviation, "rx")
+                        bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+            ldl_ax.plot(self.reference['wavelength'], deviation,
+                        color="red", marker=".")
 
         # Figure is saved in `tmp` directory right now, till a suitable way of
         # saving them is decided.
-        plt.savefig(os.path.join("/tmp", "spectrum_plot.png"))
+        plt.savefig(os.path.join(self.plot_savedir, "spectrum.png"))
 
     def test_montecarlo_properties(self):
         assert_quantity_allclose(
                 self.reference['montecarlo_luminosity'],
-                self.obtained_radial1d_model.montecarlo_luminosity)
+                self.result.montecarlo_luminosity)
 
         assert_quantity_allclose(
                 self.reference['montecarlo_virtual_luminosity'],
-                self.obtained_radial1d_model.montecarlo_virtual_luminosity)
+                self.result.montecarlo_virtual_luminosity)
 
         assert_quantity_allclose(
                 self.reference['montecarlo_nu'],
-                self.obtained_radial1d_model.montecarlo_nu)
+                self.result.montecarlo_nu)
 
     def test_shell_temperature(self):
         assert_quantity_allclose(
                 self.reference['t_rads'],
-                self.obtained_radial1d_model.t_rads)
+                self.result.t_rads)
