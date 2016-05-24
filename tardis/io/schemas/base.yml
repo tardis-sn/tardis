@@ -1,20 +1,21 @@
 $schema: http://json-schema.org/draft-04/schema#
 type: object
+additionalProperties: false
 properties:
   tardis_config_version:
     type: string
     description: Version of the configuration file
   supernova:
-    $ref: 'supernova.yml'
+    $ref: supernova.yml
   atom_data:
     type: string
     description: path or filename to the Atomic Data HDF5 file
   plasma:
-    $ref: 'plasma.yml'
+    $ref: plasma.yml
   model:
-    $ref: 'model.yml'
+    $ref: model.yml
   montecarlo:
-    $ref: 'montecarlo.yml'
+    $ref: montecarlo.yml
   spectrum:
     type: object
     properties:
@@ -23,9 +24,9 @@ properties:
       stop:
         type: quantity
       num:
-        type: integer
+        type: number
+        multipleOf: 1.0
     description: Final spectrum sampling
-
 required:
 - tardis_config_version
 - atom_data

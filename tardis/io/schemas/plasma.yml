@@ -1,15 +1,16 @@
 type: object
+additionalProperties: false
 properties:
   initial_t_inner:
     type: quantity
     default: -1 K
-    description: initial temperature of the inner boundary black body. If set
-      to -1 K  will result in automatic calculation of boundary
+    description: initial temperature of the inner boundary black body. If set to -1
+      K  will result in automatic calculation of boundary
   initial_t_rad:
     type: quantity
     default: -1 K
-    description: initial radiative temperature in all cells. If set to -1 K will
-      result in automtatic calculation of the initial temperatures
+    description: initial radiative temperature in all cells. If set to -1 K will result
+      in automtatic calculation of the initial temperatures
   disable_electron_scattering:
     type: boolean
     default: false
@@ -47,11 +48,12 @@ properties:
     description: w to use when j_blues get numerically 0. - avoids numerical complications
   delta_treatment:
     type: number
-    description: In the saha calculation set delta equals to the number given
-      in this configuration item. if set to None (default), normal delta treatment
-      (as described in Mazzali & Lucy 1993) will be applied
+    description: In the saha calculation set delta equals to the number given in this
+      configuration item. if set to None (default), normal delta treatment (as described
+      in Mazzali & Lucy 1993) will be applied
   nlte:
     type: object
+    additionalProperties: false
     properties:
       species:
         type: array
@@ -73,8 +75,8 @@ properties:
     - none
     - recomb-nlte
     - numerical-nlte
-    description: none to treat He as the other elements. recomb-nlte to treat
-      with NLTE approximation.
+    description: none to treat He as the other elements. recomb-nlte to treat with
+      NLTE approximation.
   heating_rate_data_file:
     type: string
     default: none

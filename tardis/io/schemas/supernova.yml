@@ -1,4 +1,5 @@
 type: object
+additionalProperties: false
 properties:
   luminosity_requested:
     type: quantity
