@@ -8,6 +8,7 @@ import numpy as np
 
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from tardis.util import parse_quantity
+from tardis.io.util import YAMLLoader
 
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
@@ -372,7 +373,7 @@ def test_custom_yaml_loader():
     default_conf = config_reader.Configuration.from_yaml(data_path(filename), test_parser=True,
                                                          loader=yaml.Loader)
     custom_conf = config_reader.Configuration.from_yaml(data_path(filename), test_parser=True,
-                                                        loader=config_reader.YAMLLoader)
+                                                        loader=YAMLLoader)
     assert len(default_conf) == len(custom_conf)
     assert set(default_conf.keys()) == set(custom_conf.keys())
     assert util.check_equality(default_conf, custom_conf)
