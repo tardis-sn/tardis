@@ -46,22 +46,32 @@ assistance.
 TARDIS Team
 ===========
 
+Principle Investigator
+----------------------
+
+ * Wolfgang Kerzendorf
+
 Core Team
 ---------
 
- * Wolfgang Kerzendorf
- * Stuart Sim
- * Christian Vogl
- * Stefan Lietzau
  * Aoife Boyle
  * Vytautas Jancauskas
- * Ulrich Noebauer
- * Markus Kromer
-
-Former Members
---------------
-
  * Michael Klauser
+ * Markus Kromer
+ * Stefan Lietzau
+ * Ulrich Noebauer
+ * Stuart Sim
+ * Christian Vogl
+
+
+Current and Former GSoC and SOCIS Students
+------------------------------------------
+
+ * Aoife Boyle (GSoC 2015)
+ * Karan Desai (GSoC 2016)
+ * Vytautas Jancauskas (GSoC 2015)
+ * Mikhail Mishin (GSoC 2016)
+ * Fotis Tsamis (GSoC 2016)
 
 Contributors
 ------------
