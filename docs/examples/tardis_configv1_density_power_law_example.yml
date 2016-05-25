@@ -1,0 +1,17 @@
+model:
+    structure:
+        type: specific
+
+
+        velocity:
+            start : 1.1e4 km/s
+            stop : 20000 km/s
+            num: 20
+
+
+        density:
+            type : power_law
+            time_0: 2 day
+            rho_0: 1e-11 g/cm^3
+            v_0: 11000 km/s
+            exponent: -5

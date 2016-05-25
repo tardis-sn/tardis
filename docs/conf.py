@@ -8,7 +8,7 @@
 # Note that not all possible configuration values are present in this file.
 #
 # All configuration values have a default. Some values are defined in
-# the global Astropy configuration which is loaded here before anything else. 
+# the global Astropy configuration which is loaded here before anything else.
 # See astropy.sphinx.conf for which values are set there.
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -39,7 +39,8 @@ intersphinx_mapping = {
     'astropy': ('http://docs.astropy.org/en/stable/', None)
 }
 
-import sphinx_bootstrap_theme
+# import sphinx_bootstrap_theme
+import sphinx_rtd_theme
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -110,8 +111,8 @@ release = tardis.__version__
 # a list of builtin themes. To override the custom theme, set this to the
 # name of a builtin theme or the name of a custom theme in html_theme_path.
 #html_theme = None
-html_theme = 'bootstrap'
-html_theme_path = sphinx_bootstrap_theme.get_html_theme_path()
+html_theme = 'sphinx_rtd_theme'
+html_theme_path = sphinx_rtd_theme.get_html_theme_path()
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
