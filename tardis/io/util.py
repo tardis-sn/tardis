@@ -120,6 +120,8 @@ class YAMLLoader(yaml.Loader):
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
 YAMLLoader.add_implicit_resolver(u'!quantity',
                                  MockRegexPattern(quantity_from_str))
+YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
+                                 MockRegexPattern(float))
 
 
 def parse_abundance_dict_to_dataframe(abundance_dict):
