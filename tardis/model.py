@@ -372,7 +372,7 @@ class TARDISSpectrum(object):
 
     @property
     def frequency(self):
-        return self._frequency[:-1]
+        return (self._frequency[1:] + self._frequency[:-1]) / 2
 
 
     @property
