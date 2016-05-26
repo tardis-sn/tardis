@@ -3,10 +3,125 @@
 import pandas as pd
 import numpy as np
 import collections
+import yaml
+import copy
+from astropy import constants, units as u
 from tardis.util import element_symbol2atomic_number
 
 import logging
 logger = logging.getLogger(__name__)
+
+
+def quantity_from_str(text):
+    """
+    Convert a string to `astropy.units.Quantity`
+    Parameters
+    ----------
+    text:
+        The string to convert to `astropy.units.Quantity`
+    Returns
+    -------
+    `astropy.units.Quantity`
+    """
+    value_str, unit = text.split(None, 1)
+    value = float(value_str)
+    if unit.strip() == 'log_lsun':
+        value = 10 ** (value + np.log10(constants.L_sun.cgs.value))
+        unit = 'erg/s'
+    return u.Quantity(value, unit)
+
+
+class MockRegexPattern(object):
+    """
+    A mock class to be used in place of a compiled regular expression
+    when a type check is needed instead of a regex match.
+
+    Note: This is usually a lot slower than regex matching.
+    """
+    def __init__(self, target_type):
+        self.type = target_type
+
+    def match(self, text):
+        """
+
+        Parameters
+        ----------
+        text:
+            A string to be passed to `target_type` for conversion.
+        Returns
+        -------
+        `True` if `text` can be converted to `target_type`.
+        """
+        try:
+            self.type(text)
+        except ValueError:
+            return False
+        return True
+
+
+class YAMLLoader(yaml.Loader):
+    """
+    A custom YAML loader containing all the constructors required
+    to properly parse the tardis configuration.
+    """
+    @classmethod
+    def add_implicit_resolver(cls, tag, regexp, first=None):
+        """
+        Parameters
+        ----------
+
+        tag:
+            The YAML tag to implicitly apply to any YAML scalar that matches `regexp`
+
+        regexp:
+            The regular expression to match YAML scalars against `tag`
+
+
+        Notes
+        -----
+
+        This classmethod is a monkey-patch for a copy() related bug
+        in the original class method which affects this yaml.Loader subclass.
+
+        This class method is to be removed when this bug gets fixed upstream.
+
+        https://bitbucket.org/xi/pyyaml/issues/57/add_implicit_resolver-on-a-subclass-may
+        """
+        if 'yaml_implicit_resolvers' not in cls.__dict__:
+            yaml_implicit_resolvers = {}
+            for k, v in cls.yaml_implicit_resolvers.items():
+                yaml_implicit_resolvers[k] = copy.copy(v)
+            cls.yaml_implicit_resolvers = yaml_implicit_resolvers
+        if first is None:
+            first = [None]
+        for ch in first:
+            cls.yaml_implicit_resolvers.setdefault(ch, []).append((tag, regexp))
+
+    def construct_quantity(self, node):
+        """
+        A constructor for converting quantity-like YAML nodes to
+        `astropy.units.Quantity` objects.
+
+        Parameters
+        ----------
+
+        node:
+            The YAML node to be constructed
+
+        Returns
+        -------
+
+        `astropy.units.Quantity`
+
+        """
+        data = self.construct_scalar(node)
+        return quantity_from_str(data)
+
+YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
+YAMLLoader.add_implicit_resolver(u'!quantity',
+                                 MockRegexPattern(quantity_from_str))
+YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
+                                 MockRegexPattern(float))
 
 
 def parse_abundance_dict_to_dataframe(abundance_dict):
