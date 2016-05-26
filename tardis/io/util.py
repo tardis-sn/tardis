@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import collections
+from collections import OrderedDict
 import yaml
 import copy
 from astropy import constants, units as u
@@ -117,11 +118,16 @@ class YAMLLoader(yaml.Loader):
         data = self.construct_scalar(node)
         return quantity_from_str(data)
 
+    def mapping_constructor(self, node):
+        return OrderedDict(self.construct_pairs(node))
+
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
 YAMLLoader.add_implicit_resolver(u'!quantity',
                                  MockRegexPattern(quantity_from_str))
 YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
                                  MockRegexPattern(float))
+YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
+                           YAMLLoader.mapping_constructor)
 
 
 def parse_abundance_dict_to_dataframe(abundance_dict):
