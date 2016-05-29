@@ -1,4 +1,5 @@
 import os
+import tempfile
 import tardis
 from astropy.tests.pytest_plugins import *
 
@@ -47,8 +48,9 @@ def pytest_addoption(parser):
 
 
 def pytest_configure(config):
+    html_file = tempfile.NamedTemporaryFile(delete=False)
     # Html test report will be generated at this filepath by pytest-html plugin
-    config.option.htmlpath = "/tmp/{0}.html".format(tardis.__githash__)
+    config.option.htmlpath = html_file.name
 
 
 def pytest_unconfigure(config):
@@ -78,7 +80,7 @@ def pytest_unconfigure(config):
 
     # Remove the local report file. Keeping the report saved on local filesystem
     # is not desired, hence deleted.
-    os.remove(config.option.htmlpath)
+    os.unlink(config.option.htmlpath)
     print "Deleted html report previously existing at {0}".format(
         config.option.htmlpath
     )
@@ -224,7 +226,6 @@ def test_data_path():
 
 @pytest.fixture
 def included_he_atomic_data(test_data_path):
-    import os, tardis
     atomic_db_fname = os.path.join(test_data_path, 'chianti_he_db.h5')
     return AtomData.from_hdf5(atomic_db_fname)
 
