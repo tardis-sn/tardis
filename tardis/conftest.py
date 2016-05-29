@@ -1,9 +1,11 @@
+import os
 import tardis
 from astropy.tests.pytest_plugins import *
 
 # -------------------------------------------------------------------------
 # Initialization
 # -------------------------------------------------------------------------
+
 
 def pytest_addoption(parser):
     parser.addoption("--remote-data", action="store_true",
@@ -39,10 +41,47 @@ def pytest_addoption(parser):
     parser.addoption("--slow-test-data", dest="slow-test-data",
                      help="path to directory having baseline data for slow tests")
 
+    # Accept dokuwiki credentials through command line.
+    parser.addoption("--username", dest='username', help="Dokuwiki username")
+    parser.addoption("--password", dest='password',help="Dokuwiki password")
+
 
 def pytest_configure(config):
     # Html test report will be generated at this filepath by pytest-html plugin
     config.option.htmlpath = "/tmp/{0}.html".format(tardis.__githash__)
+
+
+def pytest_unconfigure(config):
+    # Html report created by pytest-html plugin is read here, uploaded to
+    # dokuwiki and finally deleted.
+    try:
+        import dokuwiki
+        doku_conn = dokuwiki.DokuWiki(
+            url="http://opensupernova.org/~karandesai96/integration2/",
+            user=config.getvalue("username"),
+            password=config.getvalue("password"))
+
+        githash = tardis.__githash__
+        report_content = open(config.option.htmlpath, 'rb').read()
+        report_content = report_content.replace("<!DOCTYPE html>", "")
+
+        report_content = (
+            "Test executed on commit "
+            "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{0}]]\n\n"
+            "{1}".format(githash, report_content)
+        )
+        # Upload report on dokuwiki. Temporary link due to prototyping purposes.
+        doku_conn.pages.append("reports:{0}".format(githash[:7]), report_content)
+        print "Uploaded report of {0} on Dokuwiki".format(githash[:7])
+    except:
+        print "Dokuwiki python bindings not found!"
+
+    # Remove the local report file. Keeping the report saved on local filesystem
+    # is not desired, hence deleted.
+    os.remove(config.option.htmlpath)
+    print "Deleted html report previously existing at {0}".format(
+        config.option.htmlpath
+    )
 
 
 def pytest_report_header(config):
@@ -155,8 +194,6 @@ def pytest_report_header(config):
     return s
 
 
-import os
-import tardis
 import yaml
 
 from tardis.io.config_reader import Configuration
