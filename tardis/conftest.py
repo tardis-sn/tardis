@@ -1,5 +1,9 @@
+import tardis
 from astropy.tests.pytest_plugins import *
 
+# -------------------------------------------------------------------------
+# Initialization
+# -------------------------------------------------------------------------
 
 def pytest_addoption(parser):
     parser.addoption("--remote-data", action="store_true",
@@ -34,6 +38,11 @@ def pytest_addoption(parser):
 
     parser.addoption("--slow-test-data", dest="slow-test-data",
                      help="path to directory having baseline data for slow tests")
+
+
+def pytest_configure(config):
+    # Html test report will be generated at this filepath by pytest-html plugin
+    config.option.htmlpath = "/tmp/{0}.html".format(tardis.__githash__)
 
 
 def pytest_report_header(config):
