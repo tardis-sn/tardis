@@ -1,4 +1,4 @@
-#functions that are important for the general usage of TARDIS
+# functions that are important for the general usage of TARDIS
 
 def run_tardis(config, atom_data=None):
     """
@@ -19,18 +19,8 @@ def run_tardis(config, atom_data=None):
         atomic data will be loaded according to keywords set in the configuration
         [default=None]
     """
-    import yaml
-
     from tardis.io import config_reader
     from tardis import model, simulation, atomic
-    import os
-
-    try:
-        config_dict = yaml.load(open(config))
-        config_dirname = os.path.dirname(config)
-    except TypeError:
-        config_dict = config
-        config_dirname = ''
 
     if atom_data is not None:
         try:
@@ -38,10 +28,14 @@ def run_tardis(config, atom_data=None):
         except TypeError:
             atom_data = atom_data
 
-    tardis_config = config_reader.Configuration.from_config_dict(
-        config_dict, atom_data=atom_data, config_dirname=config_dirname)
-    radial1d_mdl = model.Radial1DModel(tardis_config)
+    try:
+        tardis_config = config_reader.Configuration.from_yaml(
+            config, atom_data=atom_data)
+    except TypeError:
+        tardis_config = config_reader.Configuration.from_config_dict(
+            config, atom_data=atom_data)
 
+    radial1d_mdl = model.Radial1DModel(tardis_config)
     simulation.run_radial1d(radial1d_mdl)
 
     return radial1d_mdl
