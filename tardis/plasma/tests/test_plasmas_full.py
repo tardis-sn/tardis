@@ -1,15 +1,14 @@
 import pytest
 import numpy as np
-import yaml
 import tardis
 import numpy.testing as nptesting
 from astropy import units as u
 import os
 import h5py
 
-
-
 from tardis.base import run_tardis
+from tardis.io.util import yaml_load_config_file
+
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'plasma', 'tests', 'data', fname)
@@ -34,12 +33,12 @@ class TestPlasmas():
                                                          " does not seem to "
                                                          "exist".format(
             self.atom_data_filename))
-        self.config_yaml = yaml.load(open(
-            'tardis/plasma/tests/data/plasma_test_config_lte.yml'))
+        self.config_yaml = yaml_load_config_file(
+            'tardis/plasma/tests/data/plasma_test_config_lte.yml')
         self.config_yaml['atom_data'] = self.atom_data_filename
         self.lte_model = run_tardis(self.config_yaml)
-        self.config_yaml = yaml.load(open(
-            'tardis/plasma/tests/data/plasma_test_config_nlte.yml'))
+        self.config_yaml = yaml_load_config_file(
+            'tardis/plasma/tests/data/plasma_test_config_nlte.yml')
         self.config_yaml['atom_data'] = self.atom_data_filename
         self.nlte_model = run_tardis(self.config_yaml)
 
