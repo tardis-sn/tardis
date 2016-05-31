@@ -1,11 +1,11 @@
 import pytest
 import numpy as np
-import yaml
 import tardis
 import numpy.testing as nptesting
 from astropy import units as u
 import os
 
+from tardis.io.util import yaml_load_config_file
 from tardis.simulation.base import Simulation
 from tardis.model import Radial1DModel
 
@@ -34,8 +34,8 @@ class TestSimpleRun():
                                                          " does not seem to "
                                                          "exist".format(
             self.atom_data_filename))
-        self.config_yaml = yaml.load(open(
-            'tardis/io/tests/data/tardis_configv1_verysimple.yml'))
+        self.config_yaml = yaml_load_config_file(
+            'tardis/io/tests/data/tardis_configv1_verysimple.yml')
         self.config_yaml['atom_data'] = self.atom_data_filename
 
         tardis_config = Configuration.from_config_dict(self.config_yaml)

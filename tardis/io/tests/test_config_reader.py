@@ -7,8 +7,8 @@ import yaml
 import numpy as np
 
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
-from tardis.util import parse_quantity
-from tardis.io.util import YAMLLoader
+from tardis.io.util import YAMLLoader, yaml_load_config_file, quantity_from_str
+
 
 def data_path(filename):
     data_dir = os.path.dirname(__file__)
@@ -80,18 +80,17 @@ class TestParsePaper1Config:
         #general parsing of the paper config
         self.config = config_reader.Configuration.from_yaml(data_path('paper1_tardis_configv1.yml'),
                                                                   test_parser=True)
-        self.yaml_data = yaml.load(open(data_path('paper1_tardis_configv1.yml')))
-
-
+        self.yaml_data = yaml_load_config_file(
+            data_path('paper1_tardis_configv1.yml'))
 
     def test_abundances(self):
         oxygen_abundance = self.yaml_data['model']['abundances']['O']
         assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
 
     def test_velocities(self):
-        assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['start']).cgs.value,
+        assert_almost_equal(self.yaml_data['model']['structure']['velocity']['start'].cgs.value,
                             self.config.structure.v_inner[0].cgs.value)
-        assert_almost_equal(parse_quantity(self.yaml_data['model']['structure']['velocity']['stop']).cgs.value,
+        assert_almost_equal(self.yaml_data['model']['structure']['velocity']['stop'].cgs.value,
                     self.config.structure.v_outer[-1].cgs.value)
         assert len(self.config.structure.v_outer) == (self.yaml_data['model']['structure']['velocity']['num'])
 
@@ -118,9 +117,9 @@ class TestParsePaper1Config:
 
     def test_spectrum_section(self):
         assert_almost_equal(self.config['spectrum']['start'].value,
-                            parse_quantity(self.yaml_data['spectrum']['start']).value)
+                            self.yaml_data['spectrum']['start'].value)
         assert_almost_equal(self.config['spectrum']['end'].value,
-                            parse_quantity(self.yaml_data['spectrum']['stop']).value)
+                            self.yaml_data['spectrum']['stop'].value)
 
         assert self.config['spectrum']['bins'] == self.yaml_data['spectrum']['num']
 
@@ -132,7 +131,7 @@ class TestParsePaper1Config:
 
 
 def test_last_no_of_packets():
-    yaml_data = yaml.load(open(data_path('paper1_tardis_configv1.yml')))
+    yaml_data = yaml_load_config_file(data_path('paper1_tardis_configv1.yml'))
     del yaml_data['montecarlo']['last_no_of_packets']
     config = config_reader.Configuration.from_config_dict(yaml_data,
                                                           test_parser=True,
@@ -147,7 +146,7 @@ class TestParseConfigV1ASCIIDensity:
         filename = 'tardis_configv1_ascii_density.yml'
         self.config = config_reader.Configuration.from_yaml(data_path(filename),
                                                             test_parser=True)
-        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data = yaml_load_config_file(data_path(filename))
 
 
     def test_velocities(self):
@@ -166,7 +165,7 @@ class TestParseConfigV1ArtisDensity:
         filename = 'tardis_configv1_artis_density.yml'
         self.config = config_reader.Configuration.from_yaml(data_path(filename),
                                                             test_parser=True)
-        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data = yaml_load_config_file(data_path(filename))
 
 
     def test_velocities(self):
@@ -186,7 +185,7 @@ class TestParseConfigV1ArtisDensityAbundances:
         #general parsing of the paper config
         filename = 'tardis_configv1_artis_density.yml'
 
-        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data = yaml_load_config_file(data_path(filename))
         self.yaml_data['model']['abundances'] = {'type': 'file',
                                                  'filename': 'artis_abundances.dat',
                                                  'filetype': 'artis'}
@@ -210,7 +209,7 @@ class TestParseConfigV1ArtisDensityAbundancesVSlice:
         #general parsing of the paper config
         filename = 'tardis_configv1_artis_density_v_slice.yml'
 
-        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data = yaml_load_config_file(data_path(filename))
         self.yaml_data['model']['abundances'] = {'type': 'file',
                                                  'filename': 'artis_abundances.dat',
                                                  'filetype': 'artis'}
@@ -235,7 +234,7 @@ class TestParseConfigV1UniformDensity:
         #general parsing of the paper config
         filename = 'tardis_configv1_uniform_density.yml'
 
-        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data = yaml_load_config_file(data_path(filename))
 
         self.config = config_reader.Configuration.from_config_dict(self.yaml_data,
                                                                   test_parser=True,
@@ -251,8 +250,8 @@ class TestParseConfigTinner:
         #general parsing of the paper config
         filename = 'tardis_configv1_uniform_density.yml'
 
-        self.yaml_data = yaml.load(open(data_path(filename)))
-        self.yaml_data['plasma']['initial_t_inner'] = "2508 K"
+        self.yaml_data = yaml_load_config_file(data_path(filename))
+        self.yaml_data['plasma']['initial_t_inner'] = quantity_from_str("2508 K")
 
         self.config = config_reader.Configuration.from_config_dict(self.yaml_data,
                                                                   test_parser=True,
@@ -268,7 +267,7 @@ class TestParseConfigV1ArtisDensityAbundancesAllAscii:
         #general parsing of the paper config
         filename = 'tardis_configv1_ascii_density_abund.yml'
 
-        self.yaml_data = yaml.load(open(data_path(filename)))
+        self.yaml_data = yaml_load_config_file(data_path(filename))
         self.yaml_data['model']['structure']['filename'] = 'density.dat'
         self.yaml_data['model']['abundances']['filename'] = 'abund.dat'
 
@@ -309,8 +308,8 @@ class TestParseConfigV1ArtisDensityAbundancesAllAscii:
 
 
 def test_ascii_reader_power_law():
-    with open(data_path('tardis_configv1_density_power_law_test.yml')) as f:
-        yaml_data = yaml.load(f)
+    yaml_data = yaml_load_config_file(
+        data_path('tardis_configv1_density_power_law_test.yml'))
     #for later use
     density_data = yaml_data['model']['structure']['density']
     t_explosion = density_data['time_0']
@@ -337,8 +336,8 @@ def test_ascii_reader_power_law():
 
 
 def test_ascii_reader_exponential_law():
-    with open(data_path('tardis_configv1_density_exponential_test.yml')) as f:
-        yaml_data = yaml.load(f)
+    yaml_data = yaml_load_config_file(
+        data_path('tardis_configv1_density_exponential_test.yml'))
     #for later use
     density_data = yaml_data['model']['structure']['density']
     t_explosion = density_data['time_0']

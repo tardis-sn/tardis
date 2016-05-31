@@ -3,6 +3,7 @@ import tempfile
 import tardis
 from tardis.atomic import AtomData
 from tardis.io.config_reader import Configuration
+from tardis.io.util import yaml_load_config_file
 from astropy.tests.pytest_plugins import *
 
 # For specifying error while exception handling
@@ -240,8 +241,8 @@ def included_he_atomic_data(test_data_path):
 
 @pytest.fixture
 def tardis_config_verysimple():
-    return yaml.load(
-        open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
+    return yaml_load_config_file(
+        'tardis/io/tests/data/tardis_configv1_verysimple.yml')
 
 
 @pytest.fixture(scope="session")

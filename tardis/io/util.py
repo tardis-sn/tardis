@@ -129,6 +129,12 @@ YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
 YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
                            YAMLLoader.mapping_constructor)
 
+def yaml_load_file(filename, loader=yaml.Loader):
+    with open(filename) as stream:
+        return yaml.load(stream, loader)
+
+def yaml_load_config_file(filename):
+    return yaml_load_file(filename, YAMLLoader)
 
 def parse_abundance_dict_to_dataframe(abundance_dict):
     atomic_number_dict = dict([(element_symbol2atomic_number(symbol), abundance_dict[symbol])
