@@ -11,7 +11,7 @@ basic_properties = PlasmaPropertyCollection([BetaRadiation,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
     LinesUpperLevelIndex, TauSobolev, IonNumberDensity,
     StimulatedEmissionFactor, SelectedAtoms, ElectronTemperature,
-    RadiationFieldCorrection])
+    RadiationFieldCorrection, ZetaData])
 lte_ionization_properties = PlasmaPropertyCollection([PhiSahaLTE])
 lte_excitation_properties = PlasmaPropertyCollection([LevelBoltzmannFactorLTE])
 macro_atom_properties = PlasmaPropertyCollection([BetaSobolev,
