@@ -77,10 +77,9 @@ def pytest_unconfigure(config):
 
         try:
             doku_conn = dokuwiki.DokuWiki(
-                url="http://opensupernova.org/~karandesai96/integration2",
-                user=config.getvalue("username"),
-                password=config.getvalue("password")
-            )
+                url=integration_tests_config["dokuwiki"]["url"],
+                user=integration_tests_config["dokuwiki"]["username"],
+                password=integration_tests_config["dokuwiki"]["password"])
         except gaierror, dokuwiki.DokuWikiError:
             print "Dokuwiki connection not established, report upload failed!"
         else:
