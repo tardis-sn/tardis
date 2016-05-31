@@ -102,7 +102,8 @@ class LevelNumberDensityHeNLTE(ProcessingPlasmaProperty):
                             index=level_boltzmann_factor.index)
 
     def _calculate_helium_nlte(self, level_boltzmann_factor,
-        ion_number_density, levels, partition_function, helium_population):
+        ion_number_density, levels, partition_function,
+                               helium_population_updated):
         """
         If one of the two helium NLTE methods is used, this updates the helium level populations to the appropriate
         values.
@@ -110,6 +111,6 @@ class LevelNumberDensityHeNLTE(ProcessingPlasmaProperty):
         level_number_density = self._calculate_dilute_lte(
             level_boltzmann_factor, ion_number_density, levels,
             partition_function)
-        if helium_population is not None:
-            level_number_density.ix[2].update(helium_population)
+        if helium_population_updated is not None:
+            level_number_density.ix[2].update(helium_population_updated)
         return level_number_density
