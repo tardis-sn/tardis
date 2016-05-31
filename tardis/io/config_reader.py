@@ -7,13 +7,12 @@ import pprint
 from astropy import constants, units as u
 import numpy as np
 import pandas as pd
-import yaml
 
 import tardis
 from tardis.io.model_reader import (
     read_density_file, calculate_density_after_time, read_abundances_file)
 from tardis.io.config_validator import ConfigurationValidator
-from tardis.io.util import YAMLLoader
+from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis import atomic
 from tardis.util import (species_string_to_tuple, parse_quantity,
                          element_symbol2atomic_number, quantity_linspace)
@@ -593,7 +592,7 @@ class ConfigurationNameSpace(dict):
             filename or path
         """
         try:
-            yaml_dict = yaml.load(file(fname))
+            yaml_dict = yaml_load_file(fname)
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e
@@ -625,7 +624,7 @@ class ConfigurationNameSpace(dict):
         if config_definition_file is None:
             config_definition_file = default_config_definition_file
 
-        config_definition = yaml.load(open(config_definition_file))
+        config_definition = yaml_load_file(config_definition_file)
 
         return cls(ConfigurationValidator(config_definition,
                                        config_dict).get_config())
@@ -736,9 +735,8 @@ class Configuration(ConfigurationNameSpace):
     @classmethod
     def from_yaml(cls, fname, *args, **kwargs):
         try:
-            yaml_dict = yaml.load(
-                    open(fname),
-                    Loader=kwargs.pop('loader', YAMLLoader))
+            yaml_dict = yaml_load_file(fname,
+                                       loader=kwargs.pop('loader', YAMLLoader))
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e
@@ -793,7 +791,7 @@ class Configuration(ConfigurationNameSpace):
         if config_definition_file is None:
             config_definition_file = default_config_definition_file
 
-        config_definition = yaml.load(open(config_definition_file))
+        config_definition = yaml_load_file(config_definition_file)
         if validate:
             validated_config_dict = ConfigurationValidator(config_definition,
                                        config_dict).get_config()
