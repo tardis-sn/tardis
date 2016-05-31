@@ -169,7 +169,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
             columns=np.arange(len(t_rad)), index=ionization_data.index)
         return delta
 
-class IonNumberDensity(ProcessingPlasmaProperty):
+class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     """
     Attributes:
     ion_number_density : Pandas DataFrame, dtype float
@@ -298,6 +298,89 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     ion_number_density.ix[2].ix[0].update(helium_population.ix[0].sum())
                     ion_number_density.ix[2].ix[1].update(helium_population.ix[1].sum())
                     ion_number_density.ix[2].ix[2].update(helium_population.ix[2].sum())
+            ion_numbers = ion_number_density.index.get_level_values(1).values
+            ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
+            new_n_electron = (ion_number_density.values * ion_numbers).sum(
+                axis=0)
+            if np.any(np.isnan(new_n_electron)):
+                raise PlasmaIonizationError('n_electron just turned "nan" -'
+                                            ' aborting')
+            n_electron_iterations += 1
+            if n_electron_iterations > 100:
+                logger.warn('n_electron iterations above 100 ({0}) -'
+                            ' something is probably wrong'.format(
+                    n_electron_iterations))
+            if np.all(np.abs(new_n_electron - n_electron)
+                              / n_electron < n_e_convergence_threshold):
+                break
+            n_electron = 0.5 * (new_n_electron + n_electron)
+        return ion_number_density, n_electron
+
+
+class IonNumberDensity(ProcessingPlasmaProperty):
+    """
+    Attributes:
+    ion_number_density : Pandas DataFrame, dtype float
+                         Index atom number, ion number. Columns zones.
+    electron_densities : Numpy Array, dtype float
+
+    Convergence process to find the correct solution. A trial value for
+    the electron density is initiated in a particular zone. The ion
+    number densities are then calculated using the Saha equation. The
+    electron density is then re-calculated by using the ion number
+    densities to sum over the number of free electrons. If the two values
+    for the electron densities are not similar to within the threshold
+    value, a new guess for the value of the electron density is chosen
+    and the process is repeated.
+    """
+    outputs = ('ion_number_density', 'electron_densities')
+    latex_name = ('N_{i,j}','n_{e}',)
+
+    def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
+        super(IonNumberDensity, self).__init__(plasma_parent)
+        self.ion_zero_threshold = ion_zero_threshold
+        self.block_ids = None
+
+    def calculate_with_n_electron(self, phi, partition_function,
+                                  number_density, n_electron):
+        if self.block_ids is None:
+            self.block_ids = self._calculate_block_ids(phi)
+
+        ion_populations = np.empty_like(partition_function.values)
+
+        phi_electron = np.nan_to_num(phi.values / n_electron.values)
+
+        for i, start_id in enumerate(self.block_ids[:-1]):
+            end_id = self.block_ids[i + 1]
+            current_phis = phi_electron[start_id:end_id]
+            phis_product = np.cumprod(current_phis, 0)
+
+            tmp_ion_populations = np.empty((current_phis.shape[0] + 1,
+                                            current_phis.shape[1]))
+            tmp_ion_populations[0] = (number_density.values[i] /
+                                    (1 + np.sum(phis_product, axis=0)))
+            tmp_ion_populations[1:] = tmp_ion_populations[0] * phis_product
+
+            ion_populations[start_id + i:end_id + 1 + i] = tmp_ion_populations
+
+        ion_populations[ion_populations < self.ion_zero_threshold] = 0.0
+
+        return pd.DataFrame(data = ion_populations,
+                            index=partition_function.index)
+
+
+    @staticmethod
+    def _calculate_block_ids(phi):
+        return calculate_block_ids_from_dataframe(phi)
+
+    def calculate(self, phi, partition_function, number_density):
+        n_e_convergence_threshold = 0.05
+        n_electron = number_density.sum(axis=0)
+        n_electron_iterations = 0
+
+        while True:
+            ion_number_density = self.calculate_with_n_electron(
+                phi, partition_function, number_density, n_electron)
             ion_numbers = ion_number_density.index.get_level_values(1).values
             ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
             new_n_electron = (ion_number_density.values * ion_numbers).sum(
