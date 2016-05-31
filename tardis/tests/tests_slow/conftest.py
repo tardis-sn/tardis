@@ -6,12 +6,10 @@ import tardis
 
 
 @pytest.fixture(scope="session")
-def slow_tests_datadir():
-    slow_tests_datadir = pytest.config.getvalue("slow-test-data")
-    if slow_tests_datadir is None:
-        pytest.skip('--slow-test-data was not specified')
-    else:
-        return os.path.expandvars(os.path.expanduser(slow_tests_datadir))
+def reference_datadir(integration_tests_config):
+    return os.path.expandvars(
+        os.path.expanduser(integration_tests_config["reference"])
+    )
 
 
 @pytest.fixture(scope="session")
@@ -33,7 +31,7 @@ def base_plot_dir():
 
 
 @pytest.fixture(scope="session")
-def reference(request, slow_tests_datadir):
+def reference(request, reference_datadir):
     """
     Fixture to ingest reference data for slow test from already available
     compressed binaries (.npz). All data is collected in one dict and
@@ -60,9 +58,9 @@ def reference(request, slow_tests_datadir):
     """
 
     # TODO: make this fixture ingest data from an HDF5 file.
-    ndarrays = dict(np.load(os.path.join(slow_tests_datadir, "ndarrays.npz")))
-    quantities = dict(np.load(os.path.join(slow_tests_datadir, "quantities.npz")))
-    spectrum = dict(np.load(os.path.join(slow_tests_datadir, "spectrum.npz")))
+    ndarrays = dict(np.load(os.path.join(reference_datadir, "ndarrays.npz")))
+    quantities = dict(np.load(os.path.join(reference_datadir, "quantities.npz")))
+    spectrum = dict(np.load(os.path.join(reference_datadir, "spectrum.npz")))
 
     # Associate CGS units to ndarrays of reference quantities.
     ndarrays.update(
