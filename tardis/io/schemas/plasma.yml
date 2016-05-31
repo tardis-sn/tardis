@@ -53,6 +53,7 @@ properties:
       in Mazzali & Lucy 1993) will be applied
   nlte:
     type: object
+    default: {}
     additionalProperties: false
     properties:
       species:
