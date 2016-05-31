@@ -1,11 +1,11 @@
 import os
-import yaml
 import pytest
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.atomic import AtomData
+from tardis.io.util import yaml_load_config_file
 from tardis.simulation.base import Simulation
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
@@ -33,7 +33,7 @@ class TestW7(object):
         # data seperately and provide it to tardis_config later. For rest of
         # the two, we form dictionary from the config file and override those
         # parameters by putting file paths of these two files at proper places.
-        config_yaml = yaml.load(open(self.config_file))
+        config_yaml = yaml_load_config_file(self.config_file)
         config_yaml['model']['abundances']['filename'] = self.abundances
         config_yaml['model']['structure']['filename'] = self.densities
 

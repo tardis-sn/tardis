@@ -199,7 +199,8 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
 
     relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] > -50]
 
-    yaml_reference = yaml.load(file(synpp_default_yaml_fname))
+    with open(synpp_default_yaml_fname) as stream:
+        yaml_reference = yaml.load(stream)
 
     if lines_db is not None:
         yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'lines')
@@ -234,8 +235,8 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         yaml_setup['v_min'].append(yaml_reference['opacity']['v_ref'])
         yaml_setup['v_max'].append(yaml_reference['grid']['v_outer_max'])
         yaml_setup['aux'].append(1e200)
-
-    yaml.dump(yaml_reference, stream=file(fname, 'w'), explicit_start=True)
+    with open(fname, 'w') as f:
+        yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
 
 def intensity_black_body(nu, T):
