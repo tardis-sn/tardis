@@ -51,12 +51,8 @@ def pytest_addoption(parser):
     parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
                      help="filename for atomic dataset")
 
-    parser.addoption("--slow-test-data", dest="slow-test-data",
-                     help="path to directory having baseline data for slow tests")
-
-    # Accept dokuwiki credentials through command line.
-    parser.addoption("--username", dest='username', help="Dokuwiki username")
-    parser.addoption("--password", dest='password',help="Dokuwiki password")
+    parser.addoption("--integration-tests", dest="integration-tests",
+                     help="path to configuration file for integration tests")
 
 
 def pytest_configure(config):
@@ -247,3 +243,15 @@ def included_he_atomic_data(test_data_path):
 def tardis_config_verysimple():
     return yaml.load(
         open('tardis/io/tests/data/tardis_configv1_verysimple.yml'))
+
+
+@pytest.fixture(scope="session")
+def integration_tests_config(request):
+    integration_tests_configpath = request.config.getvalue("integration-tests")
+    if integration_tests_configpath is None:
+        pytest.skip('--integration-tests was not specified')
+    else:
+        integration_tests_configpath = os.path.expandvars(
+            os.path.expanduser(integration_tests_configpath)
+        )
+        return yaml.load(open(integration_tests_configpath))
