@@ -21,6 +21,7 @@ properties:
     description: Number of maximum iterations
   black_body_sampling:
     type: object
+    default: {}
     properties:
       start:
         type: quantity
@@ -47,6 +48,7 @@ properties:
     description: Setting the number of virtual packets for the last iteration.
   virtual_spectrum_range:
     type: object
+    default: {}
     properties:
       start:
         type: quantity
