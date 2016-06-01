@@ -223,15 +223,17 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
 
     def update_he_population(self, helium_population, n_electron,
                              number_density):
-        he_one_population = helium_population.ix[0].mul(n_electron)
-        he_three_population = helium_population.ix[2].mul(1./n_electron)
-        helium_population.ix[0].update(he_one_population)
-        helium_population.ix[2].update(he_three_population)
-        unnormalised = helium_population.sum()
-        normalised = helium_population.mul(number_density.ix[2] /
+        helium_population_updated = helium_population.copy()
+        he_one_population = helium_population_updated.ix[0].mul(n_electron)
+        he_three_population = helium_population_updated.ix[2].mul(
+            1./n_electron)
+        helium_population_updated.ix[0].update(he_one_population)
+        helium_population_updated.ix[2].update(he_three_population)
+        unnormalised = helium_population_updated.sum()
+        normalised = helium_population_updated.mul(number_density.ix[2] /
             unnormalised)
-        helium_population.update(normalised)
-        return helium_population
+        helium_population_updated.update(normalised)
+        return helium_population_updated
 
     @staticmethod
     def _calculate_block_ids(phi):
@@ -242,7 +244,6 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
         n_e_convergence_threshold = 0.05
         n_electron = number_density.sum(axis=0)
         n_electron_iterations = 0
-
         while True:
             ion_number_density = self.calculate_with_n_electron(
                 phi, partition_function, number_density, n_electron)
