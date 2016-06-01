@@ -487,7 +487,8 @@ def parse_spectrum_list2dict(spectrum_list):
     """
     Parse the spectrum list [start, stop, num] to a list
     """
-    if isinstance(spectrum_list, dict):
+    if 'start' in spectrum_list and 'stop' in spectrum_list \
+            and 'num' in spectrum_list:
         spectrum_list = [spectrum_list['start'], spectrum_list['stop'],
                          spectrum_list['num']]
     if spectrum_list[0].unit.physical_type != 'length' and \
