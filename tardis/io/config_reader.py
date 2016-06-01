@@ -1007,6 +1007,10 @@ class Configuration(ConfigurationNameSpace):
         ##### Monte Carlo Section
 
         montecarlo_section = validated_config_dict['montecarlo']
+        montecarlo_section['no_of_packets'] = \
+            int(montecarlo_section['no_of_packets'])
+        montecarlo_section['last_no_of_packets'] = \
+            int(montecarlo_section['last_no_of_packets'])
         if montecarlo_section['last_no_of_packets'] < 0:
             montecarlo_section['last_no_of_packets'] = \
                 montecarlo_section['no_of_packets']
