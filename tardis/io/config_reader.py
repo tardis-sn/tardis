@@ -27,7 +27,6 @@ data_dir = os.path.abspath(os.path.join(tardis.__path__[0], 'data'))
 
 default_config_definition_file = os.path.join(data_dir,
                                               'tardis_config_definition.yml')
-config_schema_file = os.path.join(config_validator.schema_dir, 'base.yml')
 #File parsers for different file formats:
 
 
@@ -625,8 +624,7 @@ class ConfigurationNameSpace(dict):
 
         """
 
-        return cls(config_validator.validate_dict(
-            config_dict, config_schema_file))
+        return cls(config_validator.validate_dict(config_dict))
 
     def __init__(self, value=None):
         if value is None:
@@ -792,8 +790,7 @@ class Configuration(ConfigurationNameSpace):
 
         config_definition = yaml_load_file(config_definition_file)
         if validate:
-            validated_config_dict = config_validator.validate_dict(config_dict,
-                                           config_schema_file)
+            validated_config_dict = config_validator.validate_dict(config_dict)
         else:
             validated_config_dict = config_dict
 

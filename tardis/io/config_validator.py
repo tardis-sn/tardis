@@ -7,6 +7,7 @@ from tardis.io.util import YAMLLoader
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 schema_dir = os.path.join(base_dir, 'schemas')
+config_schema_file = os.path.join(schema_dir, 'base.yml')
 
 
 def extend_with_default(validator_class):
@@ -57,7 +58,7 @@ def _yaml_handler(path):
         return yaml.load(f, Loader=YAMLLoader)
 
 
-def validate_dict(config_dict, schemapath,
+def validate_dict(config_dict, schemapath=config_schema_file,
                   validator=DefaultDraft4Validator):
     with open(schemapath) as f:
         schema = yaml.load(f, Loader=YAMLLoader)
@@ -72,7 +73,7 @@ def validate_dict(config_dict, schemapath,
     return validated_dict
 
 
-def validate_yaml(configpath, schemapath,
+def validate_yaml(configpath, schemapath=config_schema_file,
                   validator=DefaultDraft4Validator):
     with open(configpath) as f:
         config = yaml.load(f, Loader=YAMLLoader)
