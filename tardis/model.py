@@ -107,7 +107,7 @@ class Radial1DModel(object):
             tardis_config.number_densities, tardis_config.atom_data,
             tardis_config.supernova.time_explosion.to('s').value,
             nlte_config=tardis_config.plasma.nlte,
-            delta_treatment=tardis_config.plasma.delta_treatment,
+            delta_treatment=tardis_config.plasma.get('delta_treatment', None),
             ionization_mode=tardis_config.plasma.ionization,
             excitation_mode=tardis_config.plasma.excitation,
             line_interaction_type=tardis_config.plasma.line_interaction_type,
@@ -117,12 +117,13 @@ class Radial1DModel(object):
             v_inner=tardis_config.structure.v_inner,
             v_outer=tardis_config.structure.v_outer)
 
+        distance = tardis_config.supernova.get('distance', None)
         self.spectrum = TARDISSpectrum(
-            tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+            tardis_config.spectrum.frequency, distance)
         self.spectrum_virtual = TARDISSpectrum(
-            tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+            tardis_config.spectrum.frequency, distance)
         self.spectrum_reabsorbed = TARDISSpectrum(
-            tardis_config.spectrum.frequency, tardis_config.supernova.distance)
+            tardis_config.spectrum.frequency, distance)
 
         self.calculate_j_blues(init_detailed_j_blues=True)
         self.update_plasmas(initialize_nlte=True)

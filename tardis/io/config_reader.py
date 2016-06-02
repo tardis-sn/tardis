@@ -11,7 +11,7 @@ import pandas as pd
 import tardis
 from tardis.io.model_reader import (
     read_density_file, calculate_density_after_time, read_abundances_file)
-from tardis.io.config_validator import ConfigurationValidator
+from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis import atomic
 from tardis.util import (species_string_to_tuple, parse_quantity,
@@ -25,8 +25,6 @@ logger = logging.getLogger(__name__)
 
 data_dir = os.path.abspath(os.path.join(tardis.__path__[0], 'data'))
 
-default_config_definition_file = os.path.join(data_dir,
-                                              'tardis_config_definition.yml')
 #File parsers for different file formats:
 
 
@@ -486,7 +484,10 @@ def parse_spectrum_list2dict(spectrum_list):
     """
     Parse the spectrum list [start, stop, num] to a list
     """
-
+    if 'start' in spectrum_list and 'stop' in spectrum_list \
+            and 'num' in spectrum_list:
+        spectrum_list = [spectrum_list['start'], spectrum_list['stop'],
+                         spectrum_list['num']]
     if spectrum_list[0].unit.physical_type != 'length' and \
                     spectrum_list[1].unit.physical_type != 'length':
         raise ValueError('start and end of spectrum need to be a length')
@@ -601,7 +602,7 @@ class ConfigurationNameSpace(dict):
         return cls.from_config_dict(yaml_dict)
 
     @classmethod
-    def from_config_dict(cls, config_dict, config_definition_file=None):
+    def from_config_dict(cls, config_dict):
         """
         Validating a config file.
 
@@ -621,13 +622,7 @@ class ConfigurationNameSpace(dict):
 
         """
 
-        if config_definition_file is None:
-            config_definition_file = default_config_definition_file
-
-        config_definition = yaml_load_file(config_definition_file)
-
-        return cls(ConfigurationValidator(config_definition,
-                                       config_dict).get_config())
+        return cls(config_validator.validate_dict(config_dict))
 
     def __init__(self, value=None):
         if value is None:
@@ -753,7 +748,7 @@ class Configuration(ConfigurationNameSpace):
 
     @classmethod
     def from_config_dict(cls, config_dict, atom_data=None, test_parser=False,
-                         config_definition_file=None, validate=True,
+                         validate=True,
                          config_dirname=''):
         """
         Validating and subsequently parsing a config file.
@@ -773,10 +768,6 @@ class Configuration(ConfigurationNameSpace):
             switch on to ignore a working atom_data, mainly useful for
             testing this reader
 
-        config_definition_file: ~str
-            path to config definition file, if `None` will be set to the default
-            in the `data` directory that ships with TARDIS
-
         validate: ~bool
             Turn validation on or off.
 
@@ -788,13 +779,8 @@ class Configuration(ConfigurationNameSpace):
 
         """
 
-        if config_definition_file is None:
-            config_definition_file = default_config_definition_file
-
-        config_definition = yaml_load_file(config_definition_file)
         if validate:
-            validated_config_dict = ConfigurationValidator(config_definition,
-                                       config_dict).get_config()
+            validated_config_dict = config_validator.validate_dict(config_dict)
         else:
             validated_config_dict = config_dict
 
@@ -850,7 +836,9 @@ class Configuration(ConfigurationNameSpace):
         structure_section = model_section['structure']
 
         if structure_section['type'] == 'specific':
-            start, stop, num = model_section['structure']['velocity']
+            velocity = model_section['structure']['velocity']
+            start, stop, num = velocity['start'], velocity['stop'], \
+                               velocity['num']
             num += 1
             velocities = quantity_linspace(start, stop, num)
 
@@ -1007,43 +995,34 @@ class Configuration(ConfigurationNameSpace):
         ##### Monte Carlo Section
 
         montecarlo_section = validated_config_dict['montecarlo']
+        montecarlo_section['no_of_packets'] = \
+            int(montecarlo_section['no_of_packets'])
+        montecarlo_section['last_no_of_packets'] = \
+            int(montecarlo_section['last_no_of_packets'])
         if montecarlo_section['last_no_of_packets'] < 0:
             montecarlo_section['last_no_of_packets'] = \
                 montecarlo_section['no_of_packets']
 
-        default_convergence_section = {'type': 'damped',
-                                      'lock_t_inner_cycles': 1,
-                                      't_inner_update_exponent': -0.5,
-                                      'damping_constant': 0.5}
-
-
-
-        if montecarlo_section['convergence_strategy'] is None:
-            logger.warning('No convergence criteria selected - '
-                           'just damping by 0.5 for w, t_rad and t_inner')
-            montecarlo_section['convergence_strategy'] = (
-                parse_convergence_section(default_convergence_section))
-        else:
-            montecarlo_section['convergence_strategy'] = (
+        montecarlo_section['convergence_strategy'] = (
                 parse_convergence_section(
                     montecarlo_section['convergence_strategy']))
 
         black_body_section = montecarlo_section['black_body_sampling']
         montecarlo_section['black_body_sampling'] = {}
         montecarlo_section['black_body_sampling']['start'] = \
-            black_body_section[0]
+            black_body_section['start']
         montecarlo_section['black_body_sampling']['end'] = \
-            black_body_section[1]
+            black_body_section['stop']
         montecarlo_section['black_body_sampling']['samples'] = \
-            black_body_section[2]
+            black_body_section['num']
         virtual_spectrum_section = montecarlo_section['virtual_spectrum_range']
         montecarlo_section['virtual_spectrum_range'] = {}
         montecarlo_section['virtual_spectrum_range']['start'] = \
-            virtual_spectrum_section[0]
+            virtual_spectrum_section['start']
         montecarlo_section['virtual_spectrum_range']['end'] = \
-            virtual_spectrum_section[1]
+            virtual_spectrum_section['stop']
         montecarlo_section['virtual_spectrum_range']['samples'] = \
-            virtual_spectrum_section[2]
+            virtual_spectrum_section['num']
 
         ###### END of convergence section reading
 
