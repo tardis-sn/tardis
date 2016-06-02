@@ -25,8 +25,6 @@ logger = logging.getLogger(__name__)
 
 data_dir = os.path.abspath(os.path.join(tardis.__path__[0], 'data'))
 
-default_config_definition_file = os.path.join(data_dir,
-                                              'tardis_config_definition.yml')
 #File parsers for different file formats:
 
 
@@ -604,7 +602,7 @@ class ConfigurationNameSpace(dict):
         return cls.from_config_dict(yaml_dict)
 
     @classmethod
-    def from_config_dict(cls, config_dict, config_definition_file=None):
+    def from_config_dict(cls, config_dict):
         """
         Validating a config file.
 
@@ -750,7 +748,7 @@ class Configuration(ConfigurationNameSpace):
 
     @classmethod
     def from_config_dict(cls, config_dict, atom_data=None, test_parser=False,
-                         config_definition_file=None, validate=True,
+                         validate=True,
                          config_dirname=''):
         """
         Validating and subsequently parsing a config file.
@@ -770,10 +768,6 @@ class Configuration(ConfigurationNameSpace):
             switch on to ignore a working atom_data, mainly useful for
             testing this reader
 
-        config_definition_file: ~str
-            path to config definition file, if `None` will be set to the default
-            in the `data` directory that ships with TARDIS
-
         validate: ~bool
             Turn validation on or off.
 
@@ -785,10 +779,6 @@ class Configuration(ConfigurationNameSpace):
 
         """
 
-        if config_definition_file is None:
-            config_definition_file = default_config_definition_file
-
-        config_definition = yaml_load_file(config_definition_file)
         if validate:
             validated_config_dict = config_validator.validate_dict(config_dict)
         else:
