@@ -74,6 +74,8 @@ properties:
     oneOf:
     - $ref: '#/definitions/convergence_strategy/damped'
     - $ref: '#/definitions/convergence_strategy/specific'
+    default:
+      'type': 'damped'
 required:
 - no_of_packets
 - iterations

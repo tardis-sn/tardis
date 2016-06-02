@@ -1013,20 +1013,7 @@ class Configuration(ConfigurationNameSpace):
             montecarlo_section['last_no_of_packets'] = \
                 montecarlo_section['no_of_packets']
 
-        default_convergence_section = {'type': 'damped',
-                                      'lock_t_inner_cycles': 1,
-                                      't_inner_update_exponent': -0.5,
-                                      'damping_constant': 0.5}
-
-
-
-        if 'convergence_stragegy' not in montecarlo_section:
-            logger.warning('No convergence criteria selected - '
-                           'just damping by 0.5 for w, t_rad and t_inner')
-            montecarlo_section['convergence_strategy'] = (
-                parse_convergence_section(default_convergence_section))
-        else:
-            montecarlo_section['convergence_strategy'] = (
+        montecarlo_section['convergence_strategy'] = (
                 parse_convergence_section(
                     montecarlo_section['convergence_strategy']))
 
