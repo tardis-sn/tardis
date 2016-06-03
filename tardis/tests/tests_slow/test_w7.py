@@ -19,7 +19,7 @@ class TestW7(object):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(self, request, reference, data_path, atomic_data_fname,
-              reference_datadir, base_plot_dir):
+              reference_datadir):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -60,7 +60,7 @@ class TestW7(object):
         # Form a base directory to save plots for `W7` setup.
         # TODO: Rough prototyping, parametrize this as more setups are added.
         self.name = "w7"
-        self.base_plot_dir = os.path.join(base_plot_dir, self.name)
+        self.base_plot_dir = os.path.join(request.config.option.tempdir, self.name)
         os.makedirs(self.base_plot_dir)
 
     def test_j_estimators(self):

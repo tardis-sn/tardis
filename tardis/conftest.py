@@ -10,23 +10,11 @@ from astropy.tests.pytest_plugins import (
         )
 
 import yaml
-import tempfile
 import tardis
 import pytest
 from tardis.atomic import AtomData
 from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
-
-# For specifying error while exception handling
-from socket import gaierror
-
-try:
-    import dokuwiki
-except ImportError:
-    dokuwiki_available = False
-else:
-    dokuwiki_available = True
-
 
 ###
 # Astropy
@@ -86,45 +74,6 @@ def pytest_addoption(parser):
                      help="path to configuration file for integration tests")
 
 
-def pytest_configure(config):
-    _pytest_configure(config)
-    html_file = tempfile.NamedTemporaryFile(delete=False)
-    # Html test report will be generated at this filepath by pytest-html plugin
-    config.option.htmlpath = html_file.name
-
-
-def pytest_unconfigure(config):
-    _pytest_unconfigure()
-    # Html report created by pytest-html plugin is read here, uploaded to
-    # dokuwiki and finally deleted.
-    if dokuwiki_available:
-        githash = tardis.__githash__
-        report_content = open(config.option.htmlpath, 'rb').read()
-        report_content = report_content.replace("<!DOCTYPE html>", "")
-
-        report_content = (
-            "Test executed on commit "
-            "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{0}]]\n\n"
-            "{1}".format(githash, report_content)
-        )
-
-        try:
-            doku_conn = dokuwiki.DokuWiki(
-                url=integration_tests_config["dokuwiki"]["url"],
-                user=integration_tests_config["dokuwiki"]["username"],
-                password=integration_tests_config["dokuwiki"]["password"])
-        except gaierror, dokuwiki.DokuWikiError:
-            print "Dokuwiki connection not established, report upload failed!"
-        else:
-            # Upload report on dokuwiki. Temporary link due to prototyping purposes.
-            doku_conn.pages.append("reports:{0}".format(githash[:7]), report_content)
-            print "Uploaded report on Dokuwiki."
-
-    # Remove the local report file. Keeping the report saved on local filesystem
-    # is not desired, hence deleted.
-    os.unlink(config.option.htmlpath)
-    print "Deleted temporary file containing html report."
-
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
@@ -165,15 +114,3 @@ def included_he_atomic_data(test_data_path):
 def tardis_config_verysimple():
     return yaml_load_config_file(
         'tardis/io/tests/data/tardis_configv1_verysimple.yml')
-
-
-@pytest.fixture(scope="session")
-def integration_tests_config(request):
-    integration_tests_configpath = request.config.getvalue("integration-tests")
-    if integration_tests_configpath is None:
-        pytest.skip('--integration-tests was not specified')
-    else:
-        integration_tests_configpath = os.path.expandvars(
-            os.path.expanduser(integration_tests_configpath)
-        )
-        return yaml.load(open(integration_tests_configpath))
