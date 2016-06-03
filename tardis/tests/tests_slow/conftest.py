@@ -5,6 +5,7 @@ import yaml
 import numpy as np
 import pytest
 from astropy import units as u
+from astropy.tests.helper import remote_data
 import tardis
 
 # For specifying error while exception handling
@@ -28,6 +29,7 @@ def pytest_configure(config):
     config.option.htmlpath = html_file.name
 
 
+@remote_data
 def pytest_unconfigure(config):
     # Html report created by pytest-html plugin is read here, uploaded to
     # dokuwiki and finally deleted.
