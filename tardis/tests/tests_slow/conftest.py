@@ -1,4 +1,5 @@
 import os
+import shutil
 import tempfile
 import yaml
 import numpy as np
@@ -18,6 +19,10 @@ else:
 
 
 def pytest_configure(config):
+    # A common tempdir for storing plots / PDFs and other slow test related data
+    # generated during execution.
+    tempdir_session = tempfile.mkdtemp()
+    config.option.tempdir = tempdir_session
     html_file = tempfile.NamedTemporaryFile(delete=False)
     # Html test report will be generated at this filepath by pytest-html plugin
     config.option.htmlpath = html_file.name
@@ -58,6 +63,8 @@ def pytest_unconfigure(config):
     # is not desired, hence deleted.
     os.unlink(config.option.htmlpath)
     print "Deleted temporary file containing html report."
+    # Remove tempdir by recursive deletion
+    shutil.rmtree(config.option.tempdir)
 
 
 @pytest.fixture(scope="session")
@@ -82,19 +89,6 @@ def reference_datadir(integration_tests_config):
 @pytest.fixture(scope="session")
 def data_path():
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7")
-
-
-@pytest.fixture(scope="session")
-def base_plot_dir():
-    githash_short = tardis.__githash__[0:7]
-    base_plot_dir = os.path.join("/tmp", "plots", githash_short)
-
-    # Remove plots generated from previous runs on same githash.
-    if os.path.exists(base_plot_dir):
-        os.rmdir(base_plot_dir)
-
-    os.makedirs(base_plot_dir)
-    return base_plot_dir
 
 
 @pytest.fixture(scope="session")
