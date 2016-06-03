@@ -259,16 +259,43 @@ class BasePlasma(object):
                 print_graph.remove_node(str(item.name))
         return print_graph
 
-    def to_hdf(self, path_or_buf, path='plasma'):
+    def to_hdf(self, path_or_buf, path='plasma', collection=None):
+        """
+        Store the plasma to an HDF structure
 
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path:
+            Path inside the HDF store to store the plasma
+        collection:
+            `None` or a `PlasmaPropertyCollection` of which members are
+            the property types which will be stored. If `None` then
+            all types of properties will be stored.
+
+            This acts like a filter, for example if a value of
+            `property_collections.basic_inputs` is given, only
+            those input parameters will be stored to the HDF store.
+
+        Returns
+        -------
+
+        """
         try:
             hdf_store = pd.HDFStore(path_or_buf)
         except TypeError:
             hdf_store = path_or_buf
-
-        for property in self.plasma_properties:
-            property.to_hdf(hdf_store, path)
+        if collection:
+            properties = [prop for prop in self.plasma_properties if
+                          isinstance(prop, tuple(collection))]
+        else:
+            properties = self.plasma_properties
+        for prop in properties:
+            prop.to_hdf(hdf_store, path)
         hdf_store.close()
+
+
 class StandardPlasma(BasePlasma):
 
     def __init__(self, number_densities, atom_data, time_explosion,
