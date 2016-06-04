@@ -6,7 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 from astropy import constants, units as u
-from astropy.utils import deprecated
+from astropy.utils.decorators import deprecated
 
 from util import intensity_black_body
 
@@ -104,7 +104,7 @@ class Radial1DModel(object):
         heating_rate_data_file = getattr(
             tardis_config.plasma, 'heating_rate_data_file', None)
 
-        self.plasma_array = LegacyPlasmaArray(
+        self.plasma = LegacyPlasmaArray(
             tardis_config.number_densities, tardis_config.atom_data,
             tardis_config.supernova.time_explosion.to('s').value,
             nlte_config=tardis_config.plasma.nlte,
@@ -135,6 +135,15 @@ class Radial1DModel(object):
     @deprecated('v1.5', 'spectrum_reabsorbed will be removed model. Use model.runner.spectrum_reabsorbed instead.')
     def spectrum_reabsorbed(self):
         return self.runner.spectrum_reabsorbed
+
+    @property
+    @deprecated('v1.5', obj_type='attribute')
+    def plasma_array(self):
+        return self.plasma
+
+    @plasma_array.setter
+    def plasma_array(self, value):
+        self.plasma = value
 
     @property
     def line_interaction_type(self):
@@ -232,7 +241,7 @@ class Radial1DModel(object):
 
     def update_plasmas(self, initialize_nlte=False):
 
-        self.plasma_array.update_radiationfield(
+        self.plasma.update_radiationfield(
             self.t_rads.value, self.ws, self.j_blues,
             self.tardis_config.plasma.nlte, initialize_nlte=initialize_nlte,
             n_e_convergence_threshold=0.05)
@@ -240,4 +249,120 @@ class Radial1DModel(object):
         if self.tardis_config.plasma.line_interaction_type in ('downbranch',
                                                                'macroatom'):
             self.transition_probabilities = (
-                self.plasma_array.transition_probabilities)
+                self.plasma.transition_probabilities)
+
+    def save_spectra(self, fname):
+        self.spectrum.to_ascii(fname)
+        self.spectrum_virtual.to_ascii('virtual_' + fname)
+
+
+    def to_hdf5(self, buffer_or_fname, path='', close_h5=True):
+        """
+            This allows the model to be written to an HDF5 file for later analysis. Currently, the saved properties
+            are specified hard coded in include_from_model_in_hdf5. This is a dict where the key corresponds to the
+            name of the property and the value describes the type. If the value is None the property can be dumped
+            to hdf via its attribute to_hdf or by converting it to a pd.DataFrame. For more complex properties
+            which can not simply be dumped to an hdf file the dict can contain a function which is called with
+            the parameters key, path, and  hdf_store. This function then should dump the data to the given
+            hdf_store object. To dump  properties of sub-properties of  the model, you can use a dict as value.
+            This dict is then treated in the same way as described above.
+
+        Parameters
+        ----------
+
+        buffer_or_fname: buffer or ~str
+            buffer or filename for HDF5 file (see pandas.HDFStore for description)
+        path: ~str, optional
+            path in the HDF5 file
+        close_h5: ~bool
+            close the HDF5 file or not.
+        """
+
+
+        # Functions to save properties of the model without to_hdf attribute and no simple conversion to a pd.DataFrame.
+        #This functions are always called with the parameters key, path and,  hdf_store.
+        def _save_luminosity_density(key, path, hdf_store):
+
+            luminosity_density = pd.DataFrame.from_dict(dict(wave=self.spectrum.wavelength.value,
+                                                             flux=self.spectrum.luminosity_density_lambda.value))
+            luminosity_density.to_hdf(hdf_store, os.path.join(path, key))
+
+        def _save_spectrum_virtual(key, path, hdf_store):
+            if self.spectrum_virtual.luminosity_density_lambda is not None:
+                luminosity_density_virtual = pd.DataFrame.from_dict(dict(wave=self.spectrum_virtual.wavelength.value,
+                                                                         flux=self.spectrum_virtual.luminosity_density_lambda.value))
+                luminosity_density_virtual.to_hdf(hdf_store, os.path.join(path, key))
+
+        def _save_configuration_dict(key, path, hdf_store):
+            configuration_dict = dict(t_inner=self.t_inner.value,time_of_simulation=self.time_of_simulation)
+            configuration_dict_path = os.path.join(path, 'configuration')
+            pd.Series(configuration_dict).to_hdf(hdf_store, configuration_dict_path)
+
+        include_from_plasma_ = {'level_number_density': None, 'ion_number_density': None, 'tau_sobolevs': None,
+                                'electron_densities': None,
+                                't_rad': None, 'w': None}
+        include_from_runner_ = {'virt_packet_last_interaction_type': None, 'virt_packet_last_line_interaction_in_id': None,
+                                'virt_packet_last_line_interaction_out_id': None, 'virt_packet_last_interaction_in_nu': None,
+                                'virt_packet_nus': None, 'virt_packet_energies': None}
+        include_from_model_in_hdf5 = {'plasma_array': include_from_plasma_, 'j_blues': None,
+                                      'runner': include_from_runner_,
+                                      'last_line_interaction_in_id': None,
+                                      'last_line_interaction_out_id': None,
+                                      'last_line_interaction_shell_id': None, 'montecarlo_nu': None,
+                                      'luminosity_density': _save_luminosity_density,
+                                      'luminosity_density_virtual': _save_spectrum_virtual,
+                                      'configuration_dict': _save_configuration_dict,
+                                      'last_line_interaction_angstrom': None}
+
+        if isinstance(buffer_or_fname, basestring):
+            hdf_store = pd.HDFStore(buffer_or_fname)
+        elif isinstance(buffer_or_fname, pd.HDFStore):
+            hdf_store = buffer_or_fname
+        else:
+            raise IOError('Please specify either a filename or an HDFStore')
+        logger.info('Writing to path %s', path)
+
+        def _get_hdf5_path(path, property_name):
+            return os.path.join(path, property_name)
+
+        def _to_smallest_pandas(object):
+            try:
+                return pd.Series(object)
+            except Exception:
+                return pd.DataFrame(object)
+
+
+        def _save_model_property(object, property_name, path, hdf_store):
+            property_path = _get_hdf5_path(path, property_name)
+
+            try:
+                object.to_hdf(hdf_store, property_path)
+            except AttributeError:
+                _to_smallest_pandas(object).to_hdf(hdf_store, property_path)
+
+
+        for key in include_from_model_in_hdf5:
+            if include_from_model_in_hdf5[key] is None:
+                _save_model_property(getattr(self, key), key, path, hdf_store)
+            elif callable(include_from_model_in_hdf5[key]):
+                include_from_model_in_hdf5[key](key, path, hdf_store)
+            else:
+                try:
+                    for subkey in include_from_model_in_hdf5[key]:
+                        if include_from_model_in_hdf5[key][subkey] is None:
+                            _save_model_property(getattr(getattr(self, key), subkey), subkey, os.path.join(path, key),
+                                                 hdf_store)
+                        elif callable(include_from_model_in_hdf5[key][subkey]):
+                            include_from_model_in_hdf5[key][subkey](subkey, os.path.join(path, key), hdf_store)
+                        else:
+                            logger.critical('Can not save %s', str(os.path.join(path, key, subkey)))
+                except:
+                    logger.critical('An error occurred while dumping %s to HDF.', str(os.path.join(path, key)))
+
+
+        hdf_store.flush()
+        if close_h5:
+            hdf_store.close()
+        else:
+            return hdf_store
+
