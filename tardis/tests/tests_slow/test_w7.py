@@ -11,6 +11,8 @@ from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
 
 
+@pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
+                    reason="integration tests are not included in this run")
 class TestW7(object):
     """
     Slow integration test for Stratified W7 setup.

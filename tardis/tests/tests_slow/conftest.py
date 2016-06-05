@@ -20,6 +20,14 @@ else:
 
 
 def pytest_configure(config):
+    integration_tests_configpath = config.getvalue("integration-tests")
+    if integration_tests_configpath is not None:
+        integration_tests_configpath = os.path.expandvars(
+            os.path.expanduser(integration_tests_configpath)
+        )
+        config.option.integration_tests_config = yaml.load(
+            open(integration_tests_configpath))
+
     # A common tempdir for storing plots / PDFs and other slow test related data
     # generated during execution.
     tempdir_session = tempfile.mkdtemp()
@@ -47,13 +55,12 @@ def pytest_unconfigure(config):
         # These steps are already performed by `integration_tests_config` but
         # all the fixtures are teared down and no longer usable, when this
         # method is being called by pytest, hence they are called as functions.
-        integration_tests_configdict = integration_tests_config()
-
+        integration_tests_config = config.option.integration_tests_config
         try:
             doku_conn = dokuwiki.DokuWiki(
-                url=integration_tests_configdict["dokuwiki"]["url"],
-                user=integration_tests_configdict["dokuwiki"]["username"],
-                password=integration_tests_configdict["dokuwiki"]["password"])
+                url=integration_tests_config["dokuwiki"]["url"],
+                user=integration_tests_config["dokuwiki"]["username"],
+                password=integration_tests_config["dokuwiki"]["password"])
         except gaierror, dokuwiki.DokuWikiError:
             print "Dokuwiki connection not established, report upload failed!"
         else:
@@ -70,15 +77,8 @@ def pytest_unconfigure(config):
 
 
 @pytest.fixture(scope="session")
-def integration_tests_config():
-    integration_tests_configpath = pytest.config.getvalue("integration-tests")
-    if integration_tests_configpath is None:
-        pytest.skip('--integration-tests was not specified')
-    else:
-        integration_tests_configpath = os.path.expandvars(
-            os.path.expanduser(integration_tests_configpath)
-        )
-        return yaml.load(open(integration_tests_configpath))
+def integration_tests_config(request):
+    return request.config.option.integration_tests_config
 
 
 @pytest.fixture(scope="session")
