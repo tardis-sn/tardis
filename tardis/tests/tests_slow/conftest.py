@@ -31,11 +31,11 @@ def pytest_configure(config):
 
         dokufile = tempfile.NamedTemporaryFile(delete=False)
         # Report will be generated at this filepath by pytest-html plugin
-        config.option.dokupath = dokufile.name
+        config.option.dokufile = dokufile
 
         # prevent opening dokupath on slave nodes (xdist)
         if not hasattr(config, 'slaveinput'):
-            config.dokureport = DokuReport(config.option.dokupath)
+            config.dokureport = DokuReport(config.option.dokufile)
             config.pluginmanager.register(config.dokureport)
     # A common tempdir for storing plots / PDFs and other slow test related data
     # generated during execution.
@@ -51,7 +51,7 @@ def pytest_unconfigure(config):
         # dokuwiki and finally deleted.
         if dokuwiki_available:
             githash = tardis.__githash__
-            report_content = open(config.option.htmlpath, 'rb').read()
+            report_content = open(config.option.dokufile.name, 'rb').read()
             report_content = report_content.replace("<!DOCTYPE html>", "")
 
             report_content = (
@@ -79,7 +79,7 @@ def pytest_unconfigure(config):
 
     # Remove the local report file. Keeping the report saved on local filesystem
     # is not desired, hence deleted.
-    os.unlink(config.option.dokupath)
+    os.unlink(config.option.dokufile.name)
     print "Deleted temporary file containing html report."
     # Remove tempdir by recursive deletion
     shutil.rmtree(config.option.tempdir)
