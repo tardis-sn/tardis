@@ -14,6 +14,7 @@ dependencies:
 - Cython=0.21
 - networkx=1.10
 - pytest=2.9.1
+- pytest-html=1.8.0
 
 # RTD requirements
 - sphinx=1.4.1
