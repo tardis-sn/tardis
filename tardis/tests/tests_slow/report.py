@@ -3,15 +3,36 @@ import pkg_resources
 import os
 import time
 
+# For specifying error while exception handling
+from socket import gaierror
+
 from py.xml import html, raw
 from pytest_html.plugin import HTMLReport
+import tardis
+
+try:
+    import dokuwiki
+except ImportError:
+    dokuwiki = None
 
 
 class DokuReport(HTMLReport):
 
-    def __init__(self, logfile):
+    def __init__(self, logfile, dokuwiki_details):
         super(DokuReport, self).__init__(logfile.name)
         self.logfile = logfile
+
+        if dokuwiki is not None:
+            try:
+                self.doku_conn = dokuwiki.DokuWiki(
+                    url=dokuwiki_details["url"],
+                    user=dokuwiki_details["username"],
+                    password=dokuwiki_details["password"])
+            except gaierror, dokuwiki.DokuWikiError:
+                self.doku_conn = None
+                print "Dokuwiki connection could not be established!"
+        else:
+            self.doku_conn = None
 
     def _generate_report(self):
         suite_stop_time = time.time()
@@ -72,7 +93,12 @@ class DokuReport(HTMLReport):
 
         doc = html.html(head, body)
 
-        self.logfile.write('<!DOCTYPE html>')
+        self.logfile.write(
+            "Test executed on commit "
+            "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{0}]]\n\n".format(
+                tardis.__githash__
+            )
+        )
         unicode_doc = doc.unicode(indent=2)
 
         self.logfile.write(unicode_doc)
@@ -81,7 +107,10 @@ class DokuReport(HTMLReport):
         # Go back to the beginning to read everything
         self.logfile.seek(0)
 
-        # TODO: Add mechanism to upload report in dokuwiki.
+        if self.doku_conn is not None:
+            self.doku_conn.pages.set("reports:{0}".format(
+                    tardis.__githash__[:7]), self.logfile.read())
+            print "Uploaded report on Dokuwiki."
 
         self.logfile.close()
 
