@@ -33,8 +33,6 @@ def pytest_unconfigure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
     if integration_tests_configpath is not None:
         config.pluginmanager.unregister(config.dokureport)
-
-    print "Deleted temporary file containing html report."
     # Remove tempdir by recursive deletion
     shutil.rmtree(config.option.tempdir)
 
