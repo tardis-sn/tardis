@@ -48,7 +48,7 @@ class TestPlasmas():
 
         new_plasma_t_rads = self.lte_model.t_rads / u.Unit('K')
         new_plasma_levels = \
-            self.lte_model.plasma_array.get_value(
+            self.lte_model.plasma.get_value(
             'level_number_density').ix[8].ix[1][10].values
         np.testing.assert_allclose(
             new_plasma_t_rads, old_plasma_t_rads, atol=100)
@@ -60,7 +60,7 @@ class TestPlasmas():
         old_plasma_levels = plasma_compare_data['test_nlte1/levels']
         new_plasma_t_rads = self.nlte_model.t_rads / u.Unit('K')
         new_plasma_levels = \
-            self.nlte_model.plasma_array.get_value(
+            self.nlte_model.plasma.get_value(
             'level_number_density').ix[2].ix[1][10].values
         np.testing.assert_allclose(
             new_plasma_t_rads, old_plasma_t_rads, atol=150)
