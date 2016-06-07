@@ -27,7 +27,6 @@ References
 import datetime
 import pkg_resources
 import os
-import tempfile
 import time
 
 # For specifying error while exception handling
@@ -51,13 +50,10 @@ class DokuReport(HTMLReport):
         occurs in `pytest_configure`, where a dict containing url, username and
         password of dokuwiki is passed through `dokuwiki_details`.
         """
-        # A tempfile to log report before it is uploaded to dokuwiki.
-        logfile = tempfile.TemporaryFile()
-
-        # Base class accepts a file path to save the report, but we forcefully
-        # set `self.logfile` to be a file-object.
-        super(DokuReport, self).__init__(logfile.name)
-        self.logfile = logfile
+        # Base class accepts a file path to save the report, but we pass an
+        # empty string and then delete it anyhow.
+        super(DokuReport, self).__init__(" ")
+        del self.logfile
 
         if dokuwiki is not None:
             try:
@@ -135,43 +131,38 @@ class DokuReport(HTMLReport):
 
         doc = html.html(head, body)
 
-        self.logfile.write(
+        # A string which holds the complete report.
+        report_content = (
             "Test executed on commit "
             "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{0}]]\n\n".format(
                 tardis.__githash__
             )
         )
-        unicode_doc = doc.unicode(indent=2)
+        report_content += doc.unicode(indent=2)
+        return report_content
 
-        self.logfile.write(unicode_doc)
-
-    def _save_report(self):
+    def _save_report(self, report_content):
         """
         The method uploads the report and closes the temporary file. Temporary
         file is made using `tempfile` built-in module, it gets deleted upon
         closing.
         """
-        # Go back to the beginning to read everything
-        self.logfile.seek(0)
-
         if self.doku_conn is not None:
             try:
                 self.doku_conn.pages.set("reports:{0}".format(
-                    tardis.__githash__[:7]), self.logfile.read())
+                    tardis.__githash__[:7]), report_content)
             except gaierror:
                 self.is_report_uploaded = False
             else:
                 self.is_report_uploaded = True
-
-        self.logfile.close()
 
     def pytest_sessionfinish(self, session):
         """
         This hook function is called by pytest when whole test run is completed.
         It calls the two helper methods `_generate_report` and `_save_report`.
         """
-        self._generate_report()
-        self._save_report()
+        report_content = self._generate_report()
+        self._save_report(report_content)
 
     def pytest_terminal_summary(self, terminalreporter):
         """
