@@ -1,3 +1,29 @@
+"""
+A helper class which works as a plugin to generate the test report and upload it
+to the group server's dokuwiki. It inheirts from the class `HTMLReport` of
+the `pytest-html` plugin. The test report contains the following details:
+
+* The git commit hash on which test run was executed.
+* The time of generation of test report.
+* Number of passes, fails, errors, skips etc.
+* Tabular representation of each method - name, result, duration.
+* Embedded image of plot(s) and error log below a particular method (if any).
+
+As a subclass, this class serves as a plugin and hence, `pytest-html` has to be
+unregistered during the test run for tis plugin to function.
+
+When the integration tests are selected for a particular test run, this class
+is registered as a plugin in `pytest_configure` and subsequently unregistered in
+`pytest_unconfigure`. As a plugin, it implements several "hook" functions
+specified in pytest's official documentation.
+
+
+References
+==========
+1. "Writing Plugins" ( https://pytest.org/latest/writing_plugins.html )
+2. "Hookspec Source" ( https://pytest.org/latest/_modules/_pytest/hookspec.html )
+3. "pytest-html" ( https://www.github.com/davehunt/pytest-html )
+"""
 import datetime
 import pkg_resources
 import os
@@ -20,7 +46,16 @@ except ImportError:
 class DokuReport(HTMLReport):
 
     def __init__(self, dokuwiki_details):
+        """
+        Initialization of a DokuReport object and registration as a plugin
+        occurs in `pytest_configure`, where a dict containing url, username and
+        password of dokuwiki is passed through `dokuwiki_details`.
+        """
+        # A tempfile to log report before it is uploaded to dokuwiki.
         logfile = tempfile.TemporaryFile()
+
+        # Base class accepts a file path to save the report, but we forcefully
+        # set `self.logfile` to be a file-object.
         super(DokuReport, self).__init__(logfile.name)
         self.logfile = logfile
 
@@ -39,6 +74,9 @@ class DokuReport(HTMLReport):
         self.is_report_uploaded = False
 
     def _generate_report(self):
+        """
+        The method writes HTML report to a temporary logfile.
+        """
         suite_stop_time = time.time()
         suite_time_delta = suite_stop_time - self.suite_start_time
         numtests = self.passed + self.failed + self.xpassed + self.xfailed
@@ -108,6 +146,11 @@ class DokuReport(HTMLReport):
         self.logfile.write(unicode_doc)
 
     def _save_report(self):
+        """
+        The method uploads the report and closes the temporary file. Temporary
+        file is made using `tempfile` built-in module, it gets deleted upon
+        closing.
+        """
         # Go back to the beginning to read everything
         self.logfile.seek(0)
 
@@ -123,10 +166,19 @@ class DokuReport(HTMLReport):
         self.logfile.close()
 
     def pytest_sessionfinish(self, session):
+        """
+        This hook function is called by pytest when whole test run is completed.
+        It calls the two helper methods `_generate_report` and `_save_report`.
+        """
         self._generate_report()
         self._save_report()
 
     def pytest_terminal_summary(self, terminalreporter):
+        """
+        This hook is called by pytest after session ends, and it adds an extra
+        summary at the end. Here, the success / failure of upload of report
+        to dokuwiki is logged.
+        """
         if self.is_report_uploaded:
             terminalreporter.write_sep(
                 "-", "Successfully uploaded report to Dokuwiki")
