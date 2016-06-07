@@ -4,12 +4,9 @@
 
 from astropy.tests.pytest_plugins import *
 from astropy.tests.pytest_plugins import (
-        pytest_addoption as _pytest_add_option,
-        pytest_configure as _pytest_configure,
-        pytest_unconfigure as _pytest_unconfigure
-        )
+        pytest_addoption as _pytest_add_option
+    )
 
-import yaml
 import tardis
 import pytest
 from tardis.atomic import AtomData
