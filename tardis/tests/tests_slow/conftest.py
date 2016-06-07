@@ -5,7 +5,6 @@ import yaml
 import numpy as np
 import pytest
 from astropy import units as u
-from astropy.tests.helper import remote_data
 
 from tardis.tests.tests_slow.report import DokuReport
 
@@ -19,13 +18,9 @@ def pytest_configure(config):
         config.option.integration_tests_config = yaml.load(
             open(integration_tests_configpath))
 
-        dokufile = tempfile.NamedTemporaryFile(delete=False)
-        # Report will be generated at this filepath by pytest-html plugin
-        config.option.dokufile = dokufile
-
         # prevent opening dokupath on slave nodes (xdist)
         if not hasattr(config, 'slaveinput'):
-            config.dokureport = DokuReport(config.option.dokufile,
+            config.dokureport = DokuReport(
                 config.option.integration_tests_config['dokuwiki'])
             config.pluginmanager.register(config.dokureport)
     # A common tempdir for storing plots / PDFs and other slow test related data
@@ -34,15 +29,11 @@ def pytest_configure(config):
     config.option.tempdir = tempdir_session
 
 
-@remote_data
 def pytest_unconfigure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
     if integration_tests_configpath is not None:
         config.pluginmanager.unregister(config.dokureport)
 
-    # Remove the local report file. Keeping the report saved on local filesystem
-    # is not desired, hence deleted.
-    os.unlink(config.option.dokufile.name)
     print "Deleted temporary file containing html report."
     # Remove tempdir by recursive deletion
     shutil.rmtree(config.option.tempdir)
