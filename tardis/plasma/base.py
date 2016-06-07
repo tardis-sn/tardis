@@ -259,8 +259,7 @@ class BasePlasma(object):
                 print_graph.remove_node(str(item.name))
         return print_graph
 
-    def to_hdf(self, path_or_buf, property_type=BasePlasmaProperty,
-               close_hdf=True):
+    def to_hdf(self, path_or_buf, collection=None, close_hdf=True):
         """
         Store the plasma to an HDF structure
 
@@ -268,16 +267,19 @@ class BasePlasma(object):
         ----------
         path_or_buf:
             Path or buffer to the HDF store
-        property_type:
-            The class which properties should be an instance
-            of, in order to be stored. This acts like a filter,
-            for example if a value of `tardis.plasma.properties.base.Input`
-            is given, only Input parameters will be stored to
-            the HDF store.
+        collection:
+            `None` or a `PlasmaPropertyCollection` of which members are
+            the property types which will be stored. If `None` then
+            all types of properties will be stored.
+
+            This acts like a filter, for example if a value of
+            `property_collections.basic_inputs` is given, only
+            those input parameters will be stored to the HDF store.
         close_hdf : bool
             if  True close the HDFStore [default=True]
         Returns
         -------
+            : None
 
         """
         try:
