@@ -1,6 +1,7 @@
 import datetime
 import pkg_resources
 import os
+import tempfile
 import time
 
 # For specifying error while exception handling
@@ -18,7 +19,8 @@ except ImportError:
 
 class DokuReport(HTMLReport):
 
-    def __init__(self, logfile, dokuwiki_details):
+    def __init__(self, dokuwiki_details):
+        logfile = tempfile.TemporaryFile()
         super(DokuReport, self).__init__(logfile.name)
         self.logfile = logfile
 
@@ -109,7 +111,7 @@ class DokuReport(HTMLReport):
 
         if self.doku_conn is not None:
             self.doku_conn.pages.set("reports:{0}".format(
-                    tardis.__githash__[:7]), self.logfile.read())
+                tardis.__githash__[:7]), self.logfile.read())
             print "Uploaded report on Dokuwiki."
 
         self.logfile.close()
