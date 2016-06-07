@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 from astropy import constants, units as u
+from astropy.utils.decorators import deprecated
 
 from util import intensity_black_body
 
@@ -103,7 +104,7 @@ class Radial1DModel(object):
         heating_rate_data_file = getattr(
             tardis_config.plasma, 'heating_rate_data_file', None)
 
-        self.plasma_array = LegacyPlasmaArray(
+        self.plasma = LegacyPlasmaArray(
             tardis_config.number_densities, tardis_config.atom_data,
             tardis_config.supernova.time_explosion.to('s').value,
             nlte_config=tardis_config.plasma.nlte,
@@ -128,6 +129,15 @@ class Radial1DModel(object):
         self.calculate_j_blues(init_detailed_j_blues=True)
         self.update_plasmas(initialize_nlte=True)
 
+
+    @property
+    @deprecated('v1.5', obj_type='attribute')
+    def plasma_array(self):
+        return self.plasma
+
+    @plasma_array.setter
+    def plasma_array(self, value):
+        self.plasma = value
 
     @property
     def line_interaction_type(self):
@@ -225,7 +235,7 @@ class Radial1DModel(object):
 
     def update_plasmas(self, initialize_nlte=False):
 
-        self.plasma_array.update_radiationfield(
+        self.plasma.update_radiationfield(
             self.t_rads.value, self.ws, self.j_blues,
             self.tardis_config.plasma.nlte, initialize_nlte=initialize_nlte,
             n_e_convergence_threshold=0.05)
@@ -233,7 +243,7 @@ class Radial1DModel(object):
         if self.tardis_config.plasma.line_interaction_type in ('downbranch',
                                                                'macroatom'):
             self.transition_probabilities = (
-                self.plasma_array.transition_probabilities)
+                self.plasma.transition_probabilities)
 
     def save_spectra(self, fname):
         self.spectrum.to_ascii(fname)

@@ -259,7 +259,8 @@ class BasePlasma(object):
                 print_graph.remove_node(str(item.name))
         return print_graph
 
-    def to_hdf(self, path_or_buf, path='plasma', collection=None):
+    def to_hdf(self, path_or_buf, property_type=BasePlasmaProperty,
+               close_hdf=True):
         """
         Store the plasma to an HDF structure
 
@@ -267,17 +268,14 @@ class BasePlasma(object):
         ----------
         path_or_buf:
             Path or buffer to the HDF store
-        path:
-            Path inside the HDF store to store the plasma
-        collection:
-            `None` or a `PlasmaPropertyCollection` of which members are
-            the property types which will be stored. If `None` then
-            all types of properties will be stored.
-
-            This acts like a filter, for example if a value of
-            `property_collections.basic_inputs` is given, only
-            those input parameters will be stored to the HDF store.
-
+        property_type:
+            The class which properties should be an instance
+            of, in order to be stored. This acts like a filter,
+            for example if a value of `tardis.plasma.properties.base.Input`
+            is given, only Input parameters will be stored to
+            the HDF store.
+        close_hdf : bool
+            if  True close the HDFStore [default=True]
         Returns
         -------
 
@@ -292,14 +290,7 @@ class BasePlasma(object):
         else:
             properties = self.plasma_properties
         for prop in properties:
-            prop.to_hdf(hdf_store, path)
-        hdf_store.close()
+            prop.to_hdf(hdf_store, 'plasma')
 
-
-class StandardPlasma(BasePlasma):
-
-    def __init__(self, number_densities, atom_data, time_explosion,
-                 nlte_config=None, ionization_mode='lte',
-                 excitation_mode='lte', w=None,
-                 link_t_rad_t_electron=0.9):
-        pass
+        if close_hdf:
+            hdf_store.close()
