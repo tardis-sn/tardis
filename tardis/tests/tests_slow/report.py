@@ -32,9 +32,11 @@ class DokuReport(HTMLReport):
                     password=dokuwiki_details["password"])
             except gaierror, dokuwiki.DokuWikiError:
                 self.doku_conn = None
-                print "Dokuwiki connection could not be established!"
         else:
             self.doku_conn = None
+
+        # This variable will be set True when report gets uploaded on Dokuwiki.
+        self.is_report_uploaded = False
 
     def _generate_report(self):
         suite_stop_time = time.time()
@@ -110,12 +112,24 @@ class DokuReport(HTMLReport):
         self.logfile.seek(0)
 
         if self.doku_conn is not None:
-            self.doku_conn.pages.set("reports:{0}".format(
-                tardis.__githash__[:7]), self.logfile.read())
-            print "Uploaded report on Dokuwiki."
+            try:
+                self.doku_conn.pages.set("reports:{0}".format(
+                    tardis.__githash__[:7]), self.logfile.read())
+            except gaierror:
+                self.is_report_uploaded = False
+            else:
+                self.is_report_uploaded = True
 
         self.logfile.close()
 
     def pytest_sessionfinish(self, session):
         self._generate_report()
         self._save_report()
+
+    def pytest_terminal_summary(self, terminalreporter):
+        if self.is_report_uploaded:
+            terminalreporter.write_sep(
+                "-", "Successfully uploaded report to Dokuwiki")
+        else:
+            terminalreporter.write_sep(
+                "-", "Connection not established, upload failed.")
