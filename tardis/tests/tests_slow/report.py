@@ -55,15 +55,12 @@ class DokuReport(HTMLReport):
         super(DokuReport, self).__init__(" ")
         del self.logfile
 
-        if dokuwiki is not None:
-            try:
-                self.doku_conn = dokuwiki.DokuWiki(
-                    url=dokuwiki_details["url"],
-                    user=dokuwiki_details["username"],
-                    password=dokuwiki_details["password"])
-            except gaierror, dokuwiki.DokuWikiError:
-                self.doku_conn = None
-        else:
+        try:
+            self.doku_conn = dokuwiki.DokuWiki(
+                url=dokuwiki_details["url"],
+                user=dokuwiki_details["username"],
+                password=dokuwiki_details["password"])
+        except (TypeError, gaierror, dokuwiki.DokuWikiError):
             self.doku_conn = None
 
         # This variable will be set True when report gets uploaded on Dokuwiki.
@@ -147,14 +144,13 @@ class DokuReport(HTMLReport):
         file is made using `tempfile` built-in module, it gets deleted upon
         closing.
         """
-        if self.doku_conn is not None:
-            try:
-                self.doku_conn.pages.set("reports:{0}".format(
-                    tardis.__githash__[:7]), report_content)
-            except gaierror:
-                self.is_report_uploaded = False
-            else:
-                self.is_report_uploaded = True
+        try:
+            self.doku_conn.pages.set("reports:{0}".format(
+                tardis.__githash__[:7]), report_content)
+        except (gaierror, TypeError):
+            self.is_report_uploaded = False
+        else:
+            self.is_report_uploaded = True
 
     def pytest_sessionfinish(self, session):
         """
