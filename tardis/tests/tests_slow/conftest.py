@@ -18,6 +18,8 @@ def pytest_configure(config):
         config.option.integration_tests_config = yaml.load(
             open(integration_tests_configpath))
 
+        # Used by DokuReport class to show build environment details in report.
+        config._environment = []
         # prevent opening dokupath on slave nodes (xdist)
         if not hasattr(config, 'slaveinput'):
             config.dokureport = DokuReport(

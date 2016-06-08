@@ -63,7 +63,7 @@ class DokuReport(HTMLReport):
         except (TypeError, gaierror, dokuwiki.DokuWikiError):
             self.doku_conn = None
 
-    def _generate_report(self):
+    def _generate_report(self, session):
         """
         The method writes HTML report to a temporary logfile.
         """
@@ -120,6 +120,14 @@ class DokuReport(HTMLReport):
                 generated.strftime('%d-%b-%Y'),
                 generated.strftime('%H:%M:%S'))))
 
+        if session.config._environment:
+            environment = set(session.config._environment)
+            body.append(html.h2('Environment'))
+            body.append(html.table(
+                [html.tr(html.td(e[0]), html.td(e[1])) for e in sorted(
+                    environment, key=lambda e: e[0]) if e[1]],
+                id='environment'))
+
         body.extend(summary)
         body.extend(results)
 
@@ -152,7 +160,7 @@ class DokuReport(HTMLReport):
         This hook function is called by pytest when whole test run is completed.
         It calls the two helper methods `_generate_report` and `_save_report`.
         """
-        report_content = self._generate_report()
+        report_content = self._generate_report(session)
         self._save_report(report_content)
 
     def pytest_terminal_summary(self, terminalreporter):
