@@ -1,8 +1,86 @@
 import os
+import shutil
+import tempfile
+import yaml
 import numpy as np
 import pytest
 from astropy import units as u
+from astropy.tests.helper import remote_data
 import tardis
+
+# For specifying error while exception handling
+from socket import gaierror
+
+try:
+    import dokuwiki
+except ImportError:
+    dokuwiki_available = False
+else:
+    dokuwiki_available = True
+
+
+def pytest_configure(config):
+    integration_tests_configpath = config.getvalue("integration-tests")
+    if integration_tests_configpath is not None:
+        integration_tests_configpath = os.path.expandvars(
+            os.path.expanduser(integration_tests_configpath)
+        )
+        config.option.integration_tests_config = yaml.load(
+            open(integration_tests_configpath))
+
+    # A common tempdir for storing plots / PDFs and other slow test related data
+    # generated during execution.
+    tempdir_session = tempfile.mkdtemp()
+    config.option.tempdir = tempdir_session
+    html_file = tempfile.NamedTemporaryFile(delete=False)
+    # Html test report will be generated at this filepath by pytest-html plugin
+    config.option.htmlpath = html_file.name
+
+
+@remote_data
+def pytest_unconfigure(config):
+    integration_tests_configpath = config.getvalue("integration-tests")
+    if integration_tests_configpath is not None:
+        # Html report created by pytest-html plugin is read here, uploaded to
+        # dokuwiki and finally deleted.
+        if dokuwiki_available:
+            githash = tardis.__githash__
+            report_content = open(config.option.htmlpath, 'rb').read()
+            report_content = report_content.replace("<!DOCTYPE html>", "")
+
+            report_content = (
+                "Test executed on commit "
+                "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{0}]]\n\n"
+                "{1}".format(githash, report_content)
+            )
+
+            # These steps are already performed by `integration_tests_config` but
+            # all the fixtures are teared down and no longer usable, when this
+            # method is being called by pytest, hence they are called as functions.
+            integration_tests_config = config.option.integration_tests_config
+            try:
+                doku_conn = dokuwiki.DokuWiki(
+                    url=integration_tests_config["dokuwiki"]["url"],
+                    user=integration_tests_config["dokuwiki"]["username"],
+                    password=integration_tests_config["dokuwiki"]["password"])
+            except gaierror, dokuwiki.DokuWikiError:
+                print "Dokuwiki connection not established, report upload failed!"
+            else:
+                # Upload report on dokuwiki. Temporary link due to prototyping purposes.
+                doku_conn.pages.set("reports:{0}".format(githash[:7]), report_content)
+                print "Uploaded report on Dokuwiki."
+
+    # Remove the local report file. Keeping the report saved on local filesystem
+    # is not desired, hence deleted.
+    os.unlink(config.option.htmlpath)
+    print "Deleted temporary file containing html report."
+    # Remove tempdir by recursive deletion
+    shutil.rmtree(config.option.tempdir)
+
+
+@pytest.fixture(scope="session")
+def integration_tests_config(request):
+    return request.config.option.integration_tests_config
 
 
 @pytest.fixture(scope="session")
@@ -15,19 +93,6 @@ def reference_datadir(integration_tests_config):
 @pytest.fixture(scope="session")
 def data_path():
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7")
-
-
-@pytest.fixture(scope="session")
-def base_plot_dir():
-    githash_short = tardis.__githash__[0:7]
-    base_plot_dir = os.path.join("/tmp", "plots", githash_short)
-
-    # Remove plots generated from previous runs on same githash.
-    if os.path.exists(base_plot_dir):
-        os.rmdir(base_plot_dir)
-
-    os.makedirs(base_plot_dir)
-    return base_plot_dir
 
 
 @pytest.fixture(scope="session")
