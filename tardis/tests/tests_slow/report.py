@@ -63,9 +63,6 @@ class DokuReport(HTMLReport):
         except (TypeError, gaierror, dokuwiki.DokuWikiError):
             self.doku_conn = None
 
-        # This variable will be set True when report gets uploaded on Dokuwiki.
-        self.is_report_uploaded = False
-
     def _generate_report(self):
         """
         The method writes HTML report to a temporary logfile.
@@ -148,9 +145,7 @@ class DokuReport(HTMLReport):
             self.doku_conn.pages.set("reports:{0}".format(
                 tardis.__githash__[:7]), report_content)
         except (gaierror, TypeError):
-            self.is_report_uploaded = False
-        else:
-            self.is_report_uploaded = True
+            pass
 
     def pytest_sessionfinish(self, session):
         """
@@ -166,7 +161,13 @@ class DokuReport(HTMLReport):
         summary at the end. Here, the success / failure of upload of report
         to dokuwiki is logged.
         """
-        if self.is_report_uploaded:
+        try:
+            uploaded_report = self.doku_conn.pages.get(
+                "reports:{0}".format(tardis.__githash__[0:7]))
+        except (gaierror, TypeError):
+            uploaded_report = ""
+
+        if len(uploaded_report) > 0:
             terminalreporter.write_sep(
                 "-", "Successfully uploaded report to Dokuwiki")
         else:
