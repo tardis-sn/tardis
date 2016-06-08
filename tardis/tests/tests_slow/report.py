@@ -62,6 +62,9 @@ class DokuReport(HTMLReport):
                 password=dokuwiki_details["password"])
         except (TypeError, gaierror, dokuwiki.DokuWikiError):
             self.doku_conn = None
+            self.dokuwiki_url = ""
+        else:
+            self.dokuwiki_url = dokuwiki_details["url"]
 
     def _generate_report(self, session):
         """
@@ -178,6 +181,12 @@ class DokuReport(HTMLReport):
         if len(uploaded_report) > 0:
             terminalreporter.write_sep(
                 "-", "Successfully uploaded report to Dokuwiki")
+            terminalreporter.write_sep(
+                "-", "URL: {0}doku.php?id=reports:{1}".format(
+                    self.dokuwiki_url, tardis.__githash__[0:7]
+                )
+            )
+
         else:
             terminalreporter.write_sep(
                 "-", "Connection not established, upload failed.")
