@@ -1,3 +1,4 @@
+import os
 import logging
 import tempfile
 import fileinput
@@ -259,7 +260,7 @@ class BasePlasma(object):
                 print_graph.remove_node(str(item.name))
         return print_graph
 
-    def to_hdf(self, path_or_buf, collection=None, close_hdf=True):
+    def to_hdf(self, path_or_buf, path='', close_hdf=True, collection=None):
         """
         Store the plasma to an HDF structure
 
@@ -267,6 +268,10 @@ class BasePlasma(object):
         ----------
         path_or_buf:
             Path or buffer to the HDF store
+        path:
+            Path inside the HDF store to store the plasma
+        close_hdf : bool
+            if  True close the HDFStore [default=True]
         collection:
             `None` or a `PlasmaPropertyCollection` of which members are
             the property types which will be stored. If `None` then
@@ -275,8 +280,6 @@ class BasePlasma(object):
             This acts like a filter, for example if a value of
             `property_collections.basic_inputs` is given, only
             those input parameters will be stored to the HDF store.
-        close_hdf : bool
-            if  True close the HDFStore [default=True]
         Returns
         -------
             : None
@@ -292,7 +295,7 @@ class BasePlasma(object):
         else:
             properties = self.plasma_properties
         for prop in properties:
-            prop.to_hdf(hdf_store, 'plasma')
+            prop.to_hdf(hdf_store, os.path.join(path, 'plasma'))
 
         if close_hdf:
             hdf_store.close()
