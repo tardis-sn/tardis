@@ -255,7 +255,8 @@ class MontecarloRunner(object):
         except TypeError:
             hdf_store = path_or_buf
 
-        properties = ['output_nu', 'output_energy']
+        properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
+                      'j_estimator']
 
         for prop in properties:
             hdf_store[os.path.join(path, 'runner', prop)] = \
