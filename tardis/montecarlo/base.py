@@ -1,3 +1,4 @@
+import os
 import logging
 
 from astropy import units as u, constants as const
@@ -7,6 +8,7 @@ from scipy.special import zeta
 from tardis.montecarlo import montecarlo, packet_source
 
 import numpy as np
+import pandas as pd
 
 logger = logging.getLevelName(__name__)
 
@@ -220,3 +222,45 @@ class MontecarloRunner(object):
 
     def calculate_f_lambda(self, wavelength):
         pass
+
+    def property_to_hdf(self, property):
+        output_value = getattr(self, property)
+        if np.isscalar(property):
+            output_value = [property]
+
+        return pd.DataFrame(output_value)
+
+    def to_hdf(self, path_or_buf, path='', close_hdf=True):
+        """
+        Store the runner to an HDF structure.
+        Currently only output_nu and output_energy are stored.
+
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path:
+            Path inside the HDF store to store the plasma
+        close_hdf : bool
+            If  True close the HDFStore [default=True]
+        filter: ~Filter
+            Only properties returned by the filter will be stored
+        Returns
+        -------
+            : None
+
+        """
+        try:
+            hdf_store = pd.HDFStore(path_or_buf)
+        except TypeError:
+            hdf_store = path_or_buf
+
+        properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
+                      'j_estimator']
+
+        for prop in properties:
+            hdf_store[os.path.join(path, 'runner', prop)] = \
+                self.property_to_hdf(prop)
+
+        if close_hdf:
+            hdf_store.close()
