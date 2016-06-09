@@ -59,7 +59,7 @@ class TestSimpleRun():
             'erg / (Angstrom s)')
 
         np.testing.assert_allclose(
-            self.model.spectrum.luminosity_density_lambda,luminosity_density)
+            self.model.runner.spectrum.luminosity_density_lambda,luminosity_density)
 
     def test_virtual_spectrum(self):
         virtual_luminosity_density = np.load(
@@ -69,7 +69,7 @@ class TestSimpleRun():
             'erg / (Angstrom s)')
 
         np.testing.assert_allclose(
-            self.model.spectrum_virtual.luminosity_density_lambda,
+            self.model.runner.spectrum_virtual.luminosity_density_lambda,
             virtual_luminosity_density)
 
     def test_plasma_properties(self):

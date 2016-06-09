@@ -571,24 +571,24 @@ class ModelViewer(QtGui.QWidget):
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
         """Change the spectrum data to the virtual spectrum."""
-        if self.model.spectrum_virtual.luminosity_density_lambda is None:
+        if self.model.runner.spectrum_virtual.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
-                self.model.spectrum_virtual.wavelength)
+                self.model.runner.spectrum_virtual.wavelength)
         else:
             luminosity_density_lambda = \
-            self.model.spectrum_virtual.luminosity_density_lambda.value
+            self.model.runner.spectrum_virtual.luminosity_density_lambda.value
 
         self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
 
     def change_spectrum_to_spec_flux_angstrom(self):
         """Change spectrum data back from virtual spectrum. (See the 
             method above)."""
-        if self.model.spectrum.luminosity_density_lambda is None:
+        if self.model.runner.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
-                self.model.spectrum.wavelength)
+                self.model.runner.spectrum.wavelength)
         else:
             luminosity_density_lambda = \
-            self.model.spectrum.luminosity_density_lambda.value
+            self.model.runner.spectrum.luminosity_density_lambda.value
 
         self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
 
@@ -609,12 +609,12 @@ class ModelViewer(QtGui.QWidget):
         self.spectrum.ax.set_title('Spectrum')
         self.spectrum.ax.set_xlabel('Wavelength (A)')
         self.spectrum.ax.set_ylabel('Intensity')
-        wavelength = self.model.spectrum.wavelength.value
-        if self.model.spectrum.luminosity_density_lambda is None:
+        wavelength = self.model.runner.spectrum.wavelength.value
+        if self.model.runner.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(wavelength)
         else:
             luminosity_density_lambda =\
-             self.model.spectrum.luminosity_density_lambda.value
+             self.model.runner.spectrum.luminosity_density_lambda.value
 
         self.spectrum.dataplot = self.spectrum.ax.plot(wavelength, 
             luminosity_density_lambda, label='b')
