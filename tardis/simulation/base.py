@@ -21,13 +21,14 @@ class Simulation(object):
     def __init__(self, tardis_config):
         self.tardis_config = tardis_config
         self.runner = MontecarloRunner(self.tardis_config.montecarlo.seed,
-                                       tardis_config.spectrum.frequency)
+                                       tardis_config.spectrum.frequency,
+                                       tardis_config.supernova.get('distance',
+                                                                   None))
         t_inner_lock_cycle = [False] * (tardis_config.montecarlo.
                                         convergence_strategy.
                                         lock_t_inner_cycles)
         t_inner_lock_cycle[0] = True
         self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
-
 
     def run_single_montecarlo(self, model, no_of_packets,
                               no_of_virtual_packets=0):
@@ -287,7 +288,7 @@ class Simulation(object):
 
         self.run_single_montecarlo(model, no_of_packets, no_of_virtual_packets)
 
-        self.legacy_update_spectrum(model, no_of_virtual_packets)
+        self.runner.legacy_update_spectrum(no_of_virtual_packets)
         self.legacy_set_final_model_properties(model)
 
         #the following instructions, passing down information to the model are
@@ -300,28 +301,6 @@ class Simulation(object):
 
         logger.info("Finished in {0:d} iterations and took {1:.2f} s".format(
             iterations_executed, time.time()-start_time))
-
-
-    def legacy_update_spectrum(self, model, no_of_virtual_packets):
-        montecarlo_reabsorbed_luminosity = np.histogram(
-            self.runner.reabsorbed_packet_nu,
-            weights=self.runner.reabsorbed_packet_luminosity,
-            bins=self.tardis_config.spectrum.frequency.value)[0] * u.erg / u.s
-
-        montecarlo_emitted_luminosity = np.histogram(
-            self.runner.emitted_packet_nu,
-            weights=self.runner.emitted_packet_luminosity,
-            bins=self.tardis_config.spectrum.frequency.value)[0] * u.erg / u.s
-
-        model.spectrum.update_luminosity(montecarlo_emitted_luminosity)
-        model.spectrum_reabsorbed.update_luminosity(montecarlo_reabsorbed_luminosity)
-
-        if no_of_virtual_packets > 0:
-            model.montecarlo_virtual_luminosity = (
-                self.runner.legacy_montecarlo_virtual_luminosity *
-                1 * u.erg / model.time_of_simulation)[:-1]
-            model.spectrum_virtual.update_luminosity(
-                model.montecarlo_virtual_luminosity)
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
