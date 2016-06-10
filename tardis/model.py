@@ -6,6 +6,7 @@ import os
 import numpy as np
 import pandas as pd
 from astropy import constants, units as u
+from astropy.utils import deprecated
 
 from util import intensity_black_body
 
@@ -120,6 +121,20 @@ class Radial1DModel(object):
         self.calculate_j_blues(init_detailed_j_blues=True)
         self.update_plasmas(initialize_nlte=True)
 
+    @property
+    @deprecated('v1.5', 'spectrum will be removed from model. Use model.runner.spectrum instead.')
+    def spectrum(self):
+        return self.runner.spectrum
+
+    @property
+    @deprecated('v1.5', 'spectrum_virtual will be removed from model. Use model.runner.spectrum_virtual instead.')
+    def spectrum_virtual(self):
+        return self.runner.spectrum_virtual
+
+    @property
+    @deprecated('v1.5', 'spectrum_reabsorbed will be removed model. Use model.runner.spectrum_reabsorbed instead.')
+    def spectrum_reabsorbed(self):
+        return self.runner.spectrum_reabsorbed
 
     @property
     def line_interaction_type(self):
