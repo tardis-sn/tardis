@@ -224,6 +224,20 @@ class MontecarloRunner(object):
         pass
 
     def property_to_hdf(self, property):
+        """
+        Convert an attribute of MontecarloRunner to a pandas
+         DataFrame
+
+        Parameters
+        ----------
+        property: str
+            The MontecarloRunner property name to be converted.
+
+        Returns
+        -------
+            : pandas.DataFrame
+
+        """
         output_value = getattr(self, property)
         if np.isscalar(output_value):
             output_value = [output_value]
