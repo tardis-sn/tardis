@@ -3,7 +3,7 @@ import logging
 from astropy import units as u, constants as const
 
 from scipy.special import zeta
-from tardis.model import TARDISSpectrum
+from spectrum import TARDISSpectrum
 
 from tardis.montecarlo import montecarlo, packet_source
 
