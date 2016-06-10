@@ -24,7 +24,7 @@ class MontecarloRunner(object):
     t_rad_estimator_constant = ((np.pi**4 / (15 * 24 * zeta(5, 1))) *
                                 (const.h / const.k_B)).cgs.value
 
-    def __init__(self, seed, spectrum_frequency, distance):
+    def __init__(self, seed, spectrum_frequency, distance=None):
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
         self.spectrum_frequency = spectrum_frequency
         self.spectrum = TARDISSpectrum(spectrum_frequency, distance)
