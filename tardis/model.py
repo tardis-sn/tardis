@@ -131,7 +131,8 @@ class Radial1DModel(object):
 
 
     @property
-    @deprecated('v1.5', obj_type='attribute')
+    @deprecated('v1.5',
+                'plasma_array has been renamed to plasma and will be removed in the future. Please use model.plasma instead.')
     def plasma_array(self):
         return self.plasma
 
