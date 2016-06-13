@@ -137,13 +137,10 @@ class Radial1DModel(object):
         return self.runner.spectrum_reabsorbed
 
     @property
-    @deprecated('v1.5', obj_type='attribute')
+    @deprecated('v1.5',
+                'plasma_array has been renamed to plasma and will be removed in the future. Please use model.plasma instead.')
     def plasma_array(self):
         return self.plasma
-
-    @plasma_array.setter
-    def plasma_array(self, value):
-        self.plasma = value
 
     @property
     def line_interaction_type(self):
