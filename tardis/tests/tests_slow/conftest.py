@@ -48,23 +48,48 @@ def pytest_runtest_makereport(item, call):
     outcome = yield
     report = outcome.get_result()
 
-    dokuwiki_url = item.config.dokureport.dokuwiki_url
-    # TODO: remove hardcoded name w7 after fixture parametrization
-    plots = glob.glob(os.path.join(item.config.option.tempdir, "w7", "*.png"))
-    extra = getattr(report, "extra", [])
-
     if report.when == "call":
-        for plot in plots:
-            item.config.dokureport.doku_conn.medias.add("plots:{0}_{1}".format(
-                tardis.__githash__[0:7], plot.split("/")[-1]), plot
-            )
-            extra.append(extras.url(
-                "{0}lib/exe/fetch.php?media=plots:{1}_{2}".format(
-                    dokuwiki_url, tardis.__githash__[0:7], plot.split("/")[-1]
+        plot_obj = getattr(item, "plot_obj", None)
+        if plot_obj is not None:
+            report.extra = plot_obj.get_extras()
+
+
+@pytest.fixture(scope="function")
+def plot_object(request):
+    class PlotUploader(object):
+        def __init__(self):
+            self._plots = list()
+            self.plot_links = list()
+
+        def add(self):
+            # TODO: make this accept pyplot.figure later.
+            self._plots = glob.glob(os.path.join(
+                request.config.option.tempdir, "w7", "*.png"))
+
+        def upload(self):
+            dokuwiki_url = request.config.dokureport.dokuwiki_url
+            for plot in self._plots:
+                request.config.dokureport.doku_conn.medias.add("plots:{0}_{1}".format(
+                    tardis.__githash__[0:7], plot.split("/")[-1]), plot
                 )
-            ))
-            os.unlink(plot)
-        report.extra = extra
+                self.plot_links.append(extras.url(
+                    "{0}lib/exe/fetch.php?media=plots:{1}_{2}".format(
+                        dokuwiki_url, tardis.__githash__[0:7], plot.split("/")[-1]
+                    )
+                ))
+                os.unlink(plot)
+
+        def get_extras(self):
+            return self.plot_links
+    plot_obj = PlotUploader()
+    setattr(request.node, "plot_obj", plot_obj)
+
+    def fin():
+        # Adding plots in this manner is temporary.
+        plot_obj.add()
+        plot_obj.upload()
+    request.addfinalizer(fin)
+    return plot_obj
 
 
 @pytest.fixture(scope="session")
