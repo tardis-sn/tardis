@@ -1,12 +1,15 @@
 import os
+import glob
 import shutil
 import tempfile
 import yaml
 import numpy as np
 import pytest
+from pytest_html import extras
 from astropy import units as u
 
 from tardis.tests.tests_slow.report import DokuReport
+import tardis
 
 
 def pytest_configure(config):
@@ -37,6 +40,31 @@ def pytest_unconfigure(config):
         config.pluginmanager.unregister(config.dokureport)
     # Remove tempdir by recursive deletion
     shutil.rmtree(config.option.tempdir)
+
+
+@pytest.mark.hookwrapper
+def pytest_runtest_makereport(item, call):
+    # execute all other hooks to obtain the report object
+    outcome = yield
+    report = outcome.get_result()
+
+    dokuwiki_url = item.config.dokureport.dokuwiki_url
+    # TODO: remove hardcoded name w7 after fixture parametrization
+    plots = glob.glob(os.path.join(item.config.option.tempdir, "w7", "*.png"))
+    extra = getattr(report, "extra", [])
+
+    if report.when == "call":
+        for plot in plots:
+            item.config.dokureport.doku_conn.medias.add("plots:{0}_{1}".format(
+                tardis.__githash__[0:7], plot.split("/")[-1]), plot
+            )
+            extra.append(extras.url(
+                "{0}lib/exe/fetch.php?media=plots:{1}_{2}".format(
+                    dokuwiki_url, tardis.__githash__[0:7], plot.split("/")[-1]
+                )
+            ))
+            os.unlink(plot)
+        report.extra = extra
 
 
 @pytest.fixture(scope="session")
