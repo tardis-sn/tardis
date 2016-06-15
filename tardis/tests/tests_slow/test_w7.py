@@ -111,7 +111,7 @@ class TestW7(object):
                 self.reference['luminosity_inner'],
                 self.result.luminosity_inner)
 
-    def test_spectrum(self, plot_obj):
+    def test_spectrum(self, plot_object):
         try:
             assert_quantity_allclose(
                 self.reference['luminosity_density_nu'],
@@ -129,18 +129,20 @@ class TestW7(object):
                 self.reference['luminosity_density_lambda'],
                 self.result.runner.spectrum.luminosity_density_lambda)
 
-            self.plot_spectrum(has_passed=True)
+            plot = self.plot_spectrum(has_passed=True)
         except Exception as e:
-            self.plot_spectrum(has_passed=False)
+            plot = self.plot_spectrum(has_passed=False)
             raise e
+        plot_object.add(plot, "spectrum")
 
     def plot_spectrum(self, has_passed):
         plt.suptitle("Deviation in spectrum_quantities", fontweight="bold")
+        figure = plt.figure()
 
         # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
         # Axes of subplot are extracted, if we wish to make multiple plots
         # for different spectrum quantities all in one figure.
-        ldl_ax = plt.subplot(111)
+        ldl_ax = figure.add_subplot(111)
         ldl_ax.set_title("Deviation in luminosity_density_lambda")
         ldl_ax.set_xlabel("Wavelength")
         ldl_ax.set_ylabel("Relative error (1 - result / reference)")
@@ -159,9 +161,7 @@ class TestW7(object):
             ldl_ax.plot(self.reference['wavelength'], deviation,
                         color="red", marker=".")
 
-        # Figure is saved in `tmp` directory right now, till a suitable way of
-        # saving them is decided.
-        plt.savefig(os.path.join(self.base_plot_dir, "spectrum.png"))
+        return figure
 
     def test_montecarlo_properties(self):
         assert_quantity_allclose(
