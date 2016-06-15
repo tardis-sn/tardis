@@ -111,7 +111,7 @@ class TestW7(object):
                 self.reference['luminosity_inner'],
                 self.result.luminosity_inner)
 
-    def test_spectrum(self):
+    def test_spectrum(self, plot_obj):
         try:
             assert_quantity_allclose(
                 self.reference['luminosity_density_nu'],
