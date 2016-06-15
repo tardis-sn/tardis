@@ -61,23 +61,31 @@ def plot_object(request):
             self._plots = list()
             self.plot_links = list()
 
-        def add(self):
-            # TODO: make this accept pyplot.figure later.
-            self._plots = glob.glob(os.path.join(
-                request.config.option.tempdir, "w7", "*.png"))
+        def add(self, plot, name):
+            """
+            Accept a `matplotlib.pyplot.figure` and add it to self._plots.
+            """
+            self._plots.append((plot, name))
 
         def upload(self):
+            """
+            Upload the content in self._plots to dokuwiki.
+            """
             dokuwiki_url = request.config.dokureport.dokuwiki_url
-            for plot in self._plots:
-                request.config.dokureport.doku_conn.medias.add("plots:{0}_{1}".format(
-                    tardis.__githash__[0:7], plot.split("/")[-1]), plot
+            for plot, name in self._plots:
+                plot_file = tempfile.NamedTemporaryFile(suffix=".png")
+                plot.savefig(plot_file.name)
+
+                request.config.dokureport.doku_conn.medias.add(
+                    "plots:{0}_{1}.png".format(tardis.__githash__[0:7], name),
+                    plot_file.name
                 )
                 self.plot_links.append(extras.url(
-                    "{0}lib/exe/fetch.php?media=plots:{1}_{2}".format(
-                        dokuwiki_url, tardis.__githash__[0:7], plot.split("/")[-1]
-                    )
-                ))
-                os.unlink(plot)
+                    "{0}lib/exe/fetch.php?media=plots:{1}_{2}.png".format(
+                        dokuwiki_url, tardis.__githash__[0:7], name
+                    ), name)
+                )
+                plot_file.close()
 
         def get_extras(self):
             return self.plot_links
