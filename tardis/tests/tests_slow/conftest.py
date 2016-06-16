@@ -48,17 +48,15 @@ def pytest_runtest_makereport(item, call):
 
     if report.when == "call":
         if "plot_object" in item.fixturenames:
-            report.extra = item.funcargs["plot_object"].get_extras()
+            plot_obj = item.funcargs["plot_object"]
+            plot_obj.upload()
+            report.extra = plot_obj.get_extras()
 
 
 @pytest.fixture(scope="function")
 def plot_object(request):
-    plot_obj = PlotUploader()
+    plot_obj = PlotUploader(request)
     setattr(request.node, "plot_obj", plot_obj)
-
-    def fin():
-        plot_obj.upload(request)
-    request.addfinalizer(fin)
     return plot_obj
 
 
