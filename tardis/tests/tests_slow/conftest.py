@@ -47,9 +47,8 @@ def pytest_runtest_makereport(item, call):
     report = outcome.get_result()
 
     if report.when == "call":
-        plot_obj = getattr(item, "plot_obj", None)
-        if plot_obj is not None:
-            report.extra = plot_obj.get_extras()
+        if "plot_object" in item.fixturenames:
+            report.extra = item.funcargs["plot_object"].get_extras()
 
 
 @pytest.fixture(scope="function")
