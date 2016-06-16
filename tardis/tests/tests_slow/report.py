@@ -186,7 +186,6 @@ class DokuReport(HTMLReport):
                     self.dokuwiki_url, tardis.__githash__[0:7]
                 )
             )
-
         else:
             terminalreporter.write_sep(
                 "-", "Connection not established, upload failed.")

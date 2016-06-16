@@ -128,11 +128,12 @@ class TestW7(object):
             assert_quantity_allclose(
                 self.reference['luminosity_density_lambda'],
                 self.result.runner.spectrum.luminosity_density_lambda)
-
-            plot = self.plot_spectrum(has_passed=True)
         except Exception as e:
             plot = self.plot_spectrum(has_passed=False)
             raise e
+        else:
+            plot = self.plot_spectrum(has_passed=True)
+
         plot_object.add(plot, "spectrum")
 
     def plot_spectrum(self, has_passed):
@@ -176,7 +177,35 @@ class TestW7(object):
                 self.reference['montecarlo_nu'],
                 self.result.montecarlo_nu)
 
-    def test_shell_temperature(self):
-        assert_quantity_allclose(
+    def test_shell_temperature(self, plot_object):
+        try:
+            assert_quantity_allclose(
                 self.reference['t_rads'],
                 self.result.t_rads)
+        except Exception as e:
+            plot = self.plot_t_rads(has_passed=False)
+            raise e
+        else:
+            plot = self.plot_t_rads(has_passed=True)
+
+        plot_object.add(plot, "t_rads")
+
+    def plot_t_rads(self, has_passed):
+        plt.suptitle("Shell temperature for packets", fontweight="bold")
+        figure = plt.figure()
+
+        ax = figure.add_subplot(111)
+        ax.set_xlabel("Shell id")
+        ax.set_ylabel("t_rads")
+
+        if has_passed:
+            ax.text(0.8, 0.8, 'passed', transform=ax.transAxes,
+                    bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
+            ax.plot(self.result.t_rads, color="green", marker=".")
+        else:
+            ax.text(0.8, 0.8, 'failed', transform=ax.transAxes,
+                    bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+            ax.plot(self.result.t_rads, color="red", marker=".")
+        ax.axis([0, 28, 5000, 10000])
+
+        return figure
