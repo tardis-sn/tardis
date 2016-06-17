@@ -31,7 +31,7 @@ typedef struct StorageModel
   double *line_lists_tau_sobolevs;
   int64_t line_lists_tau_sobolevs_nd;
   double *line_lists_j_blues;
-  double *line_lists_interact;
+  double *line_lists_Edotlu;
   int64_t line_lists_j_blues_nd;
   int64_t no_of_lines;
   int64_t no_of_edges;

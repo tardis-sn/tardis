@@ -61,7 +61,7 @@ class StorageModel(Structure):
         ('line_lists_tau_sobolevs_nd', c_int64),
         ('line_lists_j_blues', POINTER(c_double)),
         ('line_lists_j_blues_nd', c_int64),
-        ('line_lists_interact', POINTER(c_double)),
+        ('line_lists_Edotlu', POINTER(c_double)),
         ('no_of_lines', c_int64),
         ('no_of_edges', c_int64),
         ('line_interaction_id', c_int64),
