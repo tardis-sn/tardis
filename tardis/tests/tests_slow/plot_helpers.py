@@ -28,7 +28,7 @@ class PlotUploader(object):
             if report.passed:
                 axes.text(0.8, 0.8, 'passed', transform=axes.transAxes,
                             bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
-            elif report.failed:
+            else:
                 axes.text(0.8, 0.8, 'failed', transform=axes.transAxes,
                             bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
 

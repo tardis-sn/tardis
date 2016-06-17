@@ -178,7 +178,19 @@ class TestW7(object):
         ax.set_xlabel("Shell id")
         ax.set_ylabel("t_rads")
 
-        ax.plot(self.result.t_rads, color="blue", marker=".")
+        result_line = ax.plot(self.result.t_rads, color="blue",
+                              marker=".", label="Result")
+        reference_line = ax.plot(self.reference['t_rads'], color="green",
+                                 marker=".", label="Reference")
         ax.axis([0, 28, 5000, 10000])
 
+        error_ax = ax.twinx()
+        error_line = error_ax.plot((1 - self.result.t_rads / self.reference['t_rads']),
+                                   color="red", marker=".", label="Rel. Error")
+        error_ax.set_ylabel("Relative error (1 - result / reference)")
+
+        lines = result_line + reference_line + error_line
+        labels = [l.get_label() for l in lines]
+
+        ax.legend(lines, labels, loc="lower left")
         return figure
