@@ -13,6 +13,10 @@
 #define LOG_VPACKETS 0
 #endif
 
+#define RESONANCE 0
+#define DOWNBRANCH 1
+#define MACROATOM 2
+
 typedef void (*montecarlo_event_handler_t) (rpacket_t *packet,
                                             storage_model_t *storage,
                                             double distance, rk_state *mt_state);
@@ -67,9 +71,9 @@ void increment_j_blue_estimator (const rpacket_t * packet,
                                  storage_model_t * storage,
                                  double d_line, int64_t j_blue_idx);
 
-void increment_interact_estimator (const rpacket_t * packet,
+void increment_Edotlu_estimator (const rpacket_t * packet,
                                  storage_model_t * storage,
-                                 double d_line, int64_t j_blue_idx);
+                                 int64_t j_blue_idx);
 
 int64_t montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                                int64_t virtual_mode, rk_state *mt_state);
