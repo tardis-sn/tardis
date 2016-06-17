@@ -17,12 +17,21 @@ class PlotUploader(object):
         """
         self._plots.append((plot, name))
 
-    def upload(self):
+    def upload(self, report):
         """
         Upload the content in self._plots to dokuwiki.
         """
         for plot, name in self._plots:
             plot_file = tempfile.NamedTemporaryFile(suffix=".png")
+            axes = plot.axes[0]
+
+            if report.passed:
+                axes.text(0.8, 0.8, 'passed', transform=axes.transAxes,
+                            bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
+            elif report.failed:
+                axes.text(0.8, 0.8, 'failed', transform=axes.transAxes,
+                            bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
+
             plot.savefig(plot_file.name)
 
             self.request.config.dokureport.doku_conn.medias.add(

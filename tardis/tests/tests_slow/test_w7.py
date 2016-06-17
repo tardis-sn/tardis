@@ -112,31 +112,25 @@ class TestW7(object):
                 self.result.luminosity_inner)
 
     def test_spectrum(self, plot_object):
-        try:
-            assert_quantity_allclose(
-                self.reference['luminosity_density_nu'],
-                self.result.runner.spectrum.luminosity_density_nu)
+        plot_object.add(self.plot_spectrum(), "spectrum")
 
-            assert_quantity_allclose(
-                self.reference['delta_frequency'],
-                self.result.runner.spectrum.delta_frequency)
+        assert_quantity_allclose(
+            self.reference['luminosity_density_nu'],
+            self.result.runner.spectrum.luminosity_density_nu)
 
-            assert_quantity_allclose(
-                self.reference['wavelength'],
-                self.result.runner.spectrum.wavelength)
+        assert_quantity_allclose(
+            self.reference['delta_frequency'],
+            self.result.runner.spectrum.delta_frequency)
 
-            assert_quantity_allclose(
-                self.reference['luminosity_density_lambda'],
-                self.result.runner.spectrum.luminosity_density_lambda)
-        except Exception as e:
-            plot = self.plot_spectrum(has_passed=False)
-            raise e
-        else:
-            plot = self.plot_spectrum(has_passed=True)
+        assert_quantity_allclose(
+            self.reference['wavelength'],
+            self.result.runner.spectrum.wavelength)
 
-        plot_object.add(plot, "spectrum")
+        assert_quantity_allclose(
+            self.reference['luminosity_density_lambda'],
+            self.result.runner.spectrum.luminosity_density_lambda)
 
-    def plot_spectrum(self, has_passed):
+    def plot_spectrum(self):
         plt.suptitle("Deviation in spectrum_quantities", fontweight="bold")
         figure = plt.figure()
 
@@ -151,16 +145,8 @@ class TestW7(object):
             self.result.runner.spectrum.luminosity_density_lambda.value /
             self.reference['luminosity_density_lambda'].value)
 
-        if has_passed:
-            ldl_ax.text(0.8, 0.8, 'passed', transform=ldl_ax.transAxes,
-                        bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
-            ldl_ax.plot(self.reference['wavelength'], deviation,
-                        color="green", marker=".")
-        else:
-            ldl_ax.text(0.8, 0.8, 'failed', transform=ldl_ax.transAxes,
-                        bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
-            ldl_ax.plot(self.reference['wavelength'], deviation,
-                        color="red", marker=".")
+        ldl_ax.plot(self.reference['wavelength'], deviation,
+                    color="blue", marker=".")
 
         return figure
 
@@ -178,19 +164,13 @@ class TestW7(object):
                 self.result.montecarlo_nu)
 
     def test_shell_temperature(self, plot_object):
-        try:
-            assert_quantity_allclose(
-                self.reference['t_rads'],
-                self.result.t_rads)
-        except Exception as e:
-            plot = self.plot_t_rads(has_passed=False)
-            raise e
-        else:
-            plot = self.plot_t_rads(has_passed=True)
+        plot_object.add(self.plot_t_rads(), "t_rads")
 
-        plot_object.add(plot, "t_rads")
+        assert_quantity_allclose(
+            self.reference['t_rads'],
+            self.result.t_rads)
 
-    def plot_t_rads(self, has_passed):
+    def plot_t_rads(self):
         plt.suptitle("Shell temperature for packets", fontweight="bold")
         figure = plt.figure()
 
@@ -198,14 +178,7 @@ class TestW7(object):
         ax.set_xlabel("Shell id")
         ax.set_ylabel("t_rads")
 
-        if has_passed:
-            ax.text(0.8, 0.8, 'passed', transform=ax.transAxes,
-                    bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
-            ax.plot(self.result.t_rads, color="green", marker=".")
-        else:
-            ax.text(0.8, 0.8, 'failed', transform=ax.transAxes,
-                    bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
-            ax.plot(self.result.t_rads, color="red", marker=".")
+        ax.plot(self.result.t_rads, color="blue", marker=".")
         ax.axis([0, 28, 5000, 10000])
 
         return figure

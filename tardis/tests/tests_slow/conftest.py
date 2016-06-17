@@ -45,11 +45,10 @@ def pytest_runtest_makereport(item, call):
     # execute all other hooks to obtain the report object
     outcome = yield
     report = outcome.get_result()
-
     if report.when == "call":
         if "plot_object" in item.fixturenames:
             plot_obj = item.funcargs["plot_object"]
-            plot_obj.upload()
+            plot_obj.upload(report)
             report.extra = plot_obj.get_extras()
 
 
