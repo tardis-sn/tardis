@@ -144,6 +144,11 @@ class DokuReport(HTMLReport):
             )
         )
         report_content += doc.unicode(indent=2)
+
+        # Quick hack for preventing log to be placed in narrow left out space
+        report_content = report_content.replace(
+            u'class="log"', u'class="log" style="clear: both"'
+        )
         return report_content
 
     def _save_report(self, report_content):
