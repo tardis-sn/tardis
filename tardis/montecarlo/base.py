@@ -160,7 +160,7 @@ class MontecarloRunner(object):
     @property
     def virtual_packet_nu(self):
         try:
-            return u.Quantity(self.virt_packet_nu, u.Hz)
+            return u.Quantity(self.virt_packet_nus, u.Hz)
         except AttributeError:
             warnings.warn("MontecarloRunner.virtual_packet_nu:"
                     "compile with --with-vpacket-logging"
@@ -170,7 +170,7 @@ class MontecarloRunner(object):
     @property
     def virtual_packet_energy(self):
         try:
-            return u.Quantity(self.virt_packet_energy, u.erg)
+            return u.Quantity(self.virt_packet_energies, u.erg)
         except AttributeError:
             warnings.warn("MontecarloRunner.virtual_packet_energy:"
                     "compile with --with-vpacket-logging"
@@ -180,7 +180,7 @@ class MontecarloRunner(object):
     @property
     def virtual_packet_luminosity(self):
         try:
-            return self.virtual_energy / self.time_of_simulation
+            return self.virtual_packet_energy / self.time_of_simulation
         except TypeError:
             warnings.warn("MontecarloRunner.virtual_packet_luminosity:"
                     "compile with --with-vpacket-logging"
