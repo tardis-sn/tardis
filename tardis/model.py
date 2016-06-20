@@ -90,6 +90,9 @@ class Radial1DModel(object):
 
         self.t_inner = tardis_config.plasma.t_inner
 
+        self.v_inner = tardis_config.structure.v_inner
+        self.v_outer = tardis_config.structure.v_outer
+        self.v_middle = 0.5 * (self.v_inner + self.v_outer)
 
         self.ws = self.calculate_geometric_w(
             tardis_config.structure.r_middle,
@@ -97,7 +100,7 @@ class Radial1DModel(object):
 
         if tardis_config.plasma.t_rads is None:
             self.t_rads = self._init_t_rad(
-                self.t_inner, tardis_config.structure.v_inner[0], self.v_middle)
+                self.t_inner, self.v_inner[0], self.v_middle)
         else:
             self.t_rads = tardis_config.plasma.t_rads
 
@@ -115,8 +118,8 @@ class Radial1DModel(object):
             link_t_rad_t_electron=0.9,
             helium_treatment=tardis_config.plasma.helium_treatment,
             heating_rate_data_file=heating_rate_data_file,
-            v_inner=tardis_config.structure.v_inner,
-            v_outer=tardis_config.structure.v_outer)
+            v_inner=self.v_inner,
+            v_outer=self.v_outer)
 
         distance = tardis_config.supernova.get('distance', None)
         self.spectrum = TARDISSpectrum(
@@ -164,11 +167,6 @@ class Radial1DModel(object):
     @property
     def t_inner(self):
         return self._t_inner
-
-    @property
-    def v_middle(self):
-        structure = self.tardis_config.structure
-        return 0.5 * (structure.v_inner + structure.v_outer)
 
     @t_inner.setter
     def t_inner(self, value):
