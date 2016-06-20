@@ -11,3 +11,4 @@ numexpr==2.4.4
 Cython==0.21
 networkx==1.10
 pytest==2.6.3
+pytest-html==1.8.1

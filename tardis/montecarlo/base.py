@@ -4,6 +4,7 @@ import warnings
 from astropy import units as u, constants as const
 
 from scipy.special import zeta
+from spectrum import TARDISSpectrum
 
 from tardis.montecarlo import montecarlo, packet_source
 
@@ -24,10 +25,12 @@ class MontecarloRunner(object):
     t_rad_estimator_constant = ((np.pi**4 / (15 * 24 * zeta(5, 1))) *
                                 (const.h / const.k_B)).cgs.value
 
-
-    def __init__(self, seed, spectrum_frequency):
+    def __init__(self, seed, spectrum_frequency, distance=None):
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
         self.spectrum_frequency = spectrum_frequency
+        self.spectrum = TARDISSpectrum(spectrum_frequency, distance)
+        self.spectrum_virtual = TARDISSpectrum(spectrum_frequency, distance)
+        self.spectrum_reabsorbed = TARDISSpectrum(spectrum_frequency, distance)
 
 
     def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
@@ -80,6 +83,28 @@ class MontecarloRunner(object):
 
         self.legacy_montecarlo_virtual_luminosity = np.zeros_like(
             self.spectrum_frequency.value)
+
+    def legacy_update_spectrum(self, no_of_virtual_packets):
+        montecarlo_reabsorbed_luminosity = np.histogram(
+            self.reabsorbed_packet_nu,
+            weights=self.reabsorbed_packet_luminosity,
+            bins=self.spectrum_frequency.value)[0] * u.erg / u.s
+
+        montecarlo_emitted_luminosity = np.histogram(
+            self.emitted_packet_nu,
+            weights=self.emitted_packet_luminosity,
+            bins=self.spectrum_frequency.value)[0] * u.erg / u.s
+
+        self.spectrum.update_luminosity(montecarlo_emitted_luminosity)
+        self.spectrum_reabsorbed.update_luminosity(
+            montecarlo_reabsorbed_luminosity)
+
+        if no_of_virtual_packets > 0:
+            self.montecarlo_virtual_luminosity = (
+                self.legacy_montecarlo_virtual_luminosity *
+                1 * u.erg / self.time_of_simulation)[:-1]
+            self.spectrum_virtual.update_luminosity(
+                self.montecarlo_virtual_luminosity)
 
     def run(self, model, no_of_packets, no_of_virtual_packets=0, nthreads=1):
         """
@@ -251,3 +276,7 @@ class MontecarloRunner(object):
 
     def calculate_f_lambda(self, wavelength):
         pass
+
+    def save_spectra(self, fname):
+        self.spectrum.to_ascii(fname)
+        self.spectrum_virtual.to_ascii('virtual_' + fname)

@@ -115,19 +115,19 @@ class TestW7(object):
         try:
             assert_quantity_allclose(
                 self.reference['luminosity_density_nu'],
-                self.result.spectrum.luminosity_density_nu)
+                self.result.runner.spectrum.luminosity_density_nu)
 
             assert_quantity_allclose(
                 self.reference['delta_frequency'],
-                self.result.spectrum.delta_frequency)
+                self.result.runner.spectrum.delta_frequency)
 
             assert_quantity_allclose(
                 self.reference['wavelength'],
-                self.result.spectrum.wavelength)
+                self.result.runner.spectrum.wavelength)
 
             assert_quantity_allclose(
                 self.reference['luminosity_density_lambda'],
-                self.result.spectrum.luminosity_density_lambda)
+                self.result.runner.spectrum.luminosity_density_lambda)
 
             self.plot_spectrum(has_passed=True)
         except Exception as e:
@@ -145,7 +145,7 @@ class TestW7(object):
         ldl_ax.set_xlabel("Wavelength")
         ldl_ax.set_ylabel("Relative error (1 - result / reference)")
         deviation = 1 - (
-            self.result.spectrum.luminosity_density_lambda.value /
+            self.result.runner.spectrum.luminosity_density_lambda.value /
             self.reference['luminosity_density_lambda'].value)
 
         if has_passed:
@@ -170,7 +170,7 @@ class TestW7(object):
 
         assert_quantity_allclose(
                 self.reference['montecarlo_virtual_luminosity'],
-                self.result.montecarlo_virtual_luminosity)
+                self.result.runner.montecarlo_virtual_luminosity)
 
         assert_quantity_allclose(
                 self.reference['montecarlo_nu'],
