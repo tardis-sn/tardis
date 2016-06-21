@@ -180,6 +180,9 @@ class Radial1DModel(object):
             (4 * np.pi * self.time_of_simulation *
              self.tardis_config.structure.volumes))
 
+        self.E_dot_lu_norm_factor = (1 / 
+            (self.time_of_simulation * self.tardis_config.structure.volumes))
+
 
     @staticmethod
     def calculate_geometric_w(r, r_inner):
