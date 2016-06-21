@@ -20,8 +20,7 @@ class TestW7(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path, atomic_data_fname,
-              reference_datadir):
+    def setup(self, request, reference, data_path, atomic_data_fname):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
