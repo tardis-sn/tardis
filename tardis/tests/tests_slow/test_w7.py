@@ -111,36 +111,33 @@ class TestW7(object):
                 self.reference['luminosity_inner'],
                 self.result.luminosity_inner)
 
-    def test_spectrum(self):
-        try:
-            assert_quantity_allclose(
-                self.reference['luminosity_density_nu'],
-                self.result.runner.spectrum.luminosity_density_nu)
+    def test_spectrum(self, plot_object):
+        plot_object.add(self.plot_spectrum(), "spectrum")
 
-            assert_quantity_allclose(
-                self.reference['delta_frequency'],
-                self.result.runner.spectrum.delta_frequency)
+        assert_quantity_allclose(
+            self.reference['luminosity_density_nu'],
+            self.result.runner.spectrum.luminosity_density_nu)
 
-            assert_quantity_allclose(
-                self.reference['wavelength'],
-                self.result.runner.spectrum.wavelength)
+        assert_quantity_allclose(
+            self.reference['delta_frequency'],
+            self.result.runner.spectrum.delta_frequency)
 
-            assert_quantity_allclose(
-                self.reference['luminosity_density_lambda'],
-                self.result.runner.spectrum.luminosity_density_lambda)
+        assert_quantity_allclose(
+            self.reference['wavelength'],
+            self.result.runner.spectrum.wavelength)
 
-            self.plot_spectrum(has_passed=True)
-        except Exception as e:
-            self.plot_spectrum(has_passed=False)
-            raise e
+        assert_quantity_allclose(
+            self.reference['luminosity_density_lambda'],
+            self.result.runner.spectrum.luminosity_density_lambda)
 
-    def plot_spectrum(self, has_passed):
+    def plot_spectrum(self):
         plt.suptitle("Deviation in spectrum_quantities", fontweight="bold")
+        figure = plt.figure()
 
         # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
         # Axes of subplot are extracted, if we wish to make multiple plots
         # for different spectrum quantities all in one figure.
-        ldl_ax = plt.subplot(111)
+        ldl_ax = figure.add_subplot(111)
         ldl_ax.set_title("Deviation in luminosity_density_lambda")
         ldl_ax.set_xlabel("Wavelength")
         ldl_ax.set_ylabel("Relative error (1 - result / reference)")
@@ -148,20 +145,10 @@ class TestW7(object):
             self.result.runner.spectrum.luminosity_density_lambda.value /
             self.reference['luminosity_density_lambda'].value)
 
-        if has_passed:
-            ldl_ax.text(0.8, 0.8, 'passed', transform=ldl_ax.transAxes,
-                        bbox={'facecolor': 'green', 'alpha': 0.5, 'pad': 10})
-            ldl_ax.plot(self.reference['wavelength'], deviation,
-                        color="green", marker=".")
-        else:
-            ldl_ax.text(0.8, 0.8, 'failed', transform=ldl_ax.transAxes,
-                        bbox={'facecolor': 'red', 'alpha': 0.5, 'pad': 10})
-            ldl_ax.plot(self.reference['wavelength'], deviation,
-                        color="red", marker=".")
+        ldl_ax.plot(self.reference['wavelength'], deviation,
+                    color="blue", marker=".")
 
-        # Figure is saved in `tmp` directory right now, till a suitable way of
-        # saving them is decided.
-        plt.savefig(os.path.join(self.base_plot_dir, "spectrum.png"))
+        return figure
 
     def test_montecarlo_properties(self):
         assert_quantity_allclose(
@@ -176,7 +163,34 @@ class TestW7(object):
                 self.reference['montecarlo_nu'],
                 self.result.montecarlo_nu)
 
-    def test_shell_temperature(self):
+    def test_shell_temperature(self, plot_object):
+        plot_object.add(self.plot_t_rads(), "t_rads")
+
         assert_quantity_allclose(
-                self.reference['t_rads'],
-                self.result.t_rads)
+            self.reference['t_rads'],
+            self.result.t_rads)
+
+    def plot_t_rads(self):
+        plt.suptitle("Shell temperature for packets", fontweight="bold")
+        figure = plt.figure()
+
+        ax = figure.add_subplot(111)
+        ax.set_xlabel("Shell id")
+        ax.set_ylabel("t_rads")
+
+        result_line = ax.plot(self.result.t_rads, color="blue",
+                              marker=".", label="Result")
+        reference_line = ax.plot(self.reference['t_rads'], color="green",
+                                 marker=".", label="Reference")
+        ax.axis([0, 28, 5000, 10000])
+
+        error_ax = ax.twinx()
+        error_line = error_ax.plot((1 - self.result.t_rads / self.reference['t_rads']),
+                                   color="red", marker=".", label="Rel. Error")
+        error_ax.set_ylabel("Relative error (1 - result / reference)")
+
+        lines = result_line + reference_line + error_line
+        labels = [l.get_label() for l in lines]
+
+        ax.legend(lines, labels, loc="lower left")
+        return figure
