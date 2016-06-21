@@ -8,6 +8,7 @@ from ._astropy_init import *
 # ----------------------------------------------------------------------------
 
 from tardis.base import run_tardis
+from tardis.io.util import yaml_load_config_file as yaml_load
 
 logging.captureWarnings(True)
 logger = logging.getLogger('tardis')
