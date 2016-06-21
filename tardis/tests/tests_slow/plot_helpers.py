@@ -15,21 +15,39 @@ thumbnail_html = """
 
 class PlotUploader(object):
     def __init__(self, request):
+        """A helper class to collect plots from integration tests and upload
+        them to DokuWiki.
+
+        Parameters
+        ----------
+        request : _pytest.python.RequestObject
+
+        """
         self.request = request
         self._plots = list()
         self.plot_html = list()
         self.dokuwiki_url = self.request.config.dokureport.dokuwiki_url
 
     def add(self, plot, name):
-        """
-        Accept a `matplotlib.pyplot.figure` and add it to self._plots.
+        """Accept a plot figure and add it to ``self._plots``.
+
+        Parameters
+        ----------
+        plot : matplotlib.pyplot.figure
+        name : str
+
         """
         self._plots.append((plot, name))
 
     def upload(self, report):
+        """Upload the content in self._plots to dokuwiki.
+
+        Parameters
+        ----------
+        report : _pytest.runner.TestReport
+
         """
-        Upload the content in self._plots to dokuwiki.
-        """
+
         for plot, name in self._plots:
             plot_file = tempfile.NamedTemporaryFile(suffix=".png")
             axes = plot.axes[0]
@@ -58,4 +76,11 @@ class PlotUploader(object):
             plot_file.close()
 
     def get_extras(self):
+        """Return ``self.plot_html`` which is further added into html report.
+
+        Returns
+        -------
+        list
+             List of strings containing raw html snippet to embed images.
+        """
         return self.plot_html
