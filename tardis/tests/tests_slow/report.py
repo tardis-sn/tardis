@@ -145,6 +145,11 @@ class DokuReport(HTMLReport):
             )
         )
         report_content += doc.unicode(indent=2)
+
+        # Quick hack for preventing log to be placed in narrow left out space
+        report_content = report_content.replace(
+            u'class="log"', u'class="log" style="clear: both"'
+        )
         return report_content
 
     def _save_report(self, report_content):
@@ -187,7 +192,6 @@ class DokuReport(HTMLReport):
                     self.dokuwiki_url, tardis.__githash__[0:7]
                 )
             )
-
         else:
             terminalreporter.write_sep(
                 "-", "Connection not established, upload failed.")
