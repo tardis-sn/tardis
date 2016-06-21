@@ -1,4 +1,5 @@
 import logging
+import warnings
 
 from astropy import units as u, constants as const
 
@@ -155,6 +156,36 @@ class MontecarloRunner(object):
     @property
     def output_energy(self):
         return u.Quantity(self._output_energy, u.erg)
+
+    @property
+    def virtual_packet_nu(self):
+        try:
+            return u.Quantity(self.virt_packet_nus, u.Hz)
+        except AttributeError:
+            warnings.warn("MontecarloRunner.virtual_packet_nu:"
+                    "compile with --with-vpacket-logging"
+                    "to access this property", UserWarning)
+            return None
+
+    @property
+    def virtual_packet_energy(self):
+        try:
+            return u.Quantity(self.virt_packet_energies, u.erg)
+        except AttributeError:
+            warnings.warn("MontecarloRunner.virtual_packet_energy:"
+                    "compile with --with-vpacket-logging"
+                    "to access this property", UserWarning)
+            return None
+
+    @property
+    def virtual_packet_luminosity(self):
+        try:
+            return self.virtual_packet_energy / self.time_of_simulation
+        except TypeError:
+            warnings.warn("MontecarloRunner.virtual_packet_luminosity:"
+                    "compile with --with-vpacket-logging"
+                    "to access this property", UserWarning)
+            return None
 
     @property
     def packet_luminosity(self):
