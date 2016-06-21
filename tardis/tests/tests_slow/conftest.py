@@ -54,9 +54,7 @@ def pytest_runtest_makereport(item, call):
 
 @pytest.fixture(scope="function")
 def plot_object(request):
-    plot_obj = PlotUploader(request)
-    setattr(request.node, "plot_obj", plot_obj)
-    return plot_obj
+    return PlotUploader(request)
 
 
 @pytest.fixture(scope="session")

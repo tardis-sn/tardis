@@ -4,6 +4,15 @@ from pytest_html import extras
 import tardis
 
 
+thumbnail_html = """
+<div class="image" style="float: left">
+    <a href="#">
+        <img src= "{dokuwiki_url}lib/exe/fetch.php?media=plots:{githash}_{name}.png" />
+    </a>
+</div>
+"""
+
+
 class PlotUploader(object):
     def __init__(self, request):
         self.request = request
@@ -39,15 +48,13 @@ class PlotUploader(object):
                 plot_file.name
             )
 
-            thumbnail_html = """
-            <div class="image" style="float: left">
-                <a href="#">
-                    <img src= "{0}lib/exe/fetch.php?media=plots:{1}_{2}.png" />
-                </a>
-            </div>
-            """.format(self.dokuwiki_url, tardis.__githash__[0:7], name)
-
-            self.plot_html.append(extras.html(thumbnail_html))
+            self.plot_html.append(extras.html(
+                thumbnail_html.format(
+                    dokuwiki_url=self.dokuwiki_url,
+                    githash=tardis.__githash__[0:7],
+                    name=name)
+                )
+            )
             plot_file.close()
 
     def get_extras(self):
