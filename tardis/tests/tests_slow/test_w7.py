@@ -48,12 +48,6 @@ class TestW7(object):
         # Get the reference data through the fixture.
         self.reference = reference
 
-        # Form a base directory to save plots for `W7` setup.
-        # TODO: Rough prototyping, parametrize this as more setups are added.
-        self.name = "w7"
-        self.base_plot_dir = os.path.join(request.config.option.tempdir, self.name)
-        os.makedirs(self.base_plot_dir)
-
     def test_j_estimators(self):
         assert_allclose(
                 self.reference['j_estimators'],
