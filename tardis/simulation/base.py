@@ -213,19 +213,22 @@ class Simulation(object):
     def legacy_run_simulation(self, model):
         start_time = time.time()
 
-        iterations_remaining = self.tardis_config.montecarlo.iterations
-        iterations_max_requested = self.tardis_config.montecarlo.iterations
-        iterations_executed = 0
+        self.iterations_remaining = self.tardis_config.montecarlo.iterations
+        self.iterations_max_requested = self.tardis_config.montecarlo.iterations
+        self.iterations_executed = 0
         converged = False
 
-        while iterations_remaining > 1:
-            logger.info('Remaining run %d', iterations_remaining)
+        convergence_section = (
+                    self.tardis_config.montecarlo.convergence_strategy)
+
+        while self.iterations_remaining > 1:
+            logger.info('Remaining run %d', self.iterations_remaining)
             self.run_single_montecarlo(
                 model, self.tardis_config.montecarlo.no_of_packets)
             self.log_run_results(self.calculate_emitted_luminosity(),
                                  self.calculate_reabsorbed_luminosity())
-            iterations_executed += 1
-            iterations_remaining -= 1
+            self.iterations_executed += 1
+            self.iterations_remaining -= 1
 
             estimated_t_rad, estimated_w = (
                 self.runner.calculate_radiationfield_properties())
@@ -256,9 +259,10 @@ class Simulation(object):
             # if it is in either of these modes already it will just stay there
             if converged and not self.converged:
                 self.converged = True
-                iterations_remaining = (
-                    convergence_section.global_convergence_parameters.
-                        hold_iterations_wrong)
+                # UMN - used to be 'hold_iterations_wrong' but this is
+                # currently not in the convergence_section namespace...
+                self.iterations_remaining = (
+                    convergence_section["hold_iterations"])
             elif not converged and self.converged:
                 # UMN Warning: the following two iterations attributes of the Simulation object don't exist
                 self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
@@ -270,11 +274,8 @@ class Simulation(object):
                 pass
 
             if converged:
-                convergence_section = (
-                    self.tardis_config.montecarlo.convergence_strategy)
-                iterations_remaining = (
-                    convergence_section.global_convergence_parameters.
-                        hold_iterations)
+                self.iterations_remaining = (
+                    convergence_section["hold_iterations"])
 
         #Finished second to last loop running one more time
         logger.info('Doing last run')
@@ -296,11 +297,11 @@ class Simulation(object):
         model.no_of_packets = no_of_packets
         model.no_of_virtual_packets = no_of_virtual_packets
         model.converged = converged
-        model.iterations_executed = iterations_executed
-        model.iterations_max_requested = iterations_max_requested
+        model.iterations_executed = self.iterations_executed
+        model.iterations_max_requested = self.iterations_max_requested
 
         logger.info("Finished in {0:d} iterations and took {1:.2f} s".format(
-            iterations_executed, time.time()-start_time))
+            self.iterations_executed, time.time()-start_time))
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
