@@ -1,11 +1,11 @@
 atom_data: kurucz_cd23_chianti_H_He.h5
 model:
   abundances:
-    filename: tardis_w7_13d_abundances.dat
+    filename: abundances.dat
     filetype: simple_ascii
     type: file
   structure:
-    filename: tardis_w7_13d_densities.dat
+    filename: densities.dat
     filetype: simple_ascii
     type: file
     v_inner_boundary: 12000.000 km/s
