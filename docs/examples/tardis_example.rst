@@ -2,7 +2,7 @@ tardis_example
 --------------
 
 The simple and fast TARDIS setup is provided by tardis_example archive which
-may be obtained from `<https://www.dropbox.com/s/svvyr5i7m8ouzdt/tardis_example.tar.gz>`_
+may be obtained from `<http://opensupernova.org/~ftsamis/tardis_example.tar.gz>`
 and which we suggest every new user of TARDIS to run
 first.
 
