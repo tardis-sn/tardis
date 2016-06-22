@@ -51,12 +51,8 @@ def plot_object(request):
 
 
 @pytest.fixture(scope="session")
-def integration_tests_config(request):
-    return request.config.option.integration_tests_config
-
-
-@pytest.fixture(scope="session")
-def reference_datadir(integration_tests_config):
+def reference_datadir(request):
+    integration_tests_config = request.config.option.integration_tests_config
     return os.path.expandvars(
         os.path.expanduser(integration_tests_config["reference"])
     )
