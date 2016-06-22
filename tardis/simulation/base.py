@@ -1,3 +1,4 @@
+import os
 import logging
 import time
 import itertools
@@ -9,6 +10,7 @@ import numpy as np
 from astropy import units as u
 
 from tardis.montecarlo.base import MontecarloRunner
+from tardis.plasma.properties.base import Input
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -209,13 +211,43 @@ class Simulation(object):
                              'neither damped nor specific '
                              '- input is {0}'.format(convergence_strategy.type))
 
-    def legacy_run_simulation(self, model):
+    def legacy_run_simulation(self, model, hdf_path_or_buf=None,
+                              hdf_mode='full', hdf_last_only=True):
+        """
+
+        Parameters
+        ----------
+        model : tardis.model.Radial1DModel
+        hdf_path_or_buf : str, optional
+            A path to store the data of each simulation iteration
+            (the default value is None, which means that nothing
+            will be stored).
+        hdf_mode : {'full', 'input'}, optional
+            If 'full' all plasma properties will be stored to HDF,
+            if 'input' only input plasma properties will be stored.
+        hdf_last_only: bool, optional
+            If True, only the last iteration of the simulation will
+            be stored to the HDFStore.
+
+        Returns
+        -------
+
+        """
         start_time = time.time()
 
         iterations_remaining = self.tardis_config.montecarlo.iterations
         iterations_max_requested = self.tardis_config.montecarlo.iterations
         iterations_executed = 0
         converged = False
+
+        if hdf_path_or_buf is not None:
+            if hdf_mode == 'full':
+                plasma_properties = None
+            elif hdf_mode == 'input':
+                plasma_properties = [Input]
+            else:
+                raise ValueError('hdf_mode must be "full" or "input"'
+                                 ', not "{}"'.format(type(hdf_mode)))
 
         while iterations_remaining > 1:
             logger.info('Remaining run %d', iterations_remaining)
@@ -249,6 +281,10 @@ class Simulation(object):
 
             model.calculate_j_blues(init_detailed_j_blues=False)
             model.update_plasmas(initialize_nlte=False)
+            if hdf_path_or_buf is not None and not hdf_last_only:
+                self.to_hdf(model, hdf_path_or_buf,
+                            'simulation{}'.format(iterations_executed),
+                            plasma_properties)
 
 
             # if switching into the hold iterations mode or out back to the normal one
@@ -300,6 +336,11 @@ class Simulation(object):
 
         logger.info("Finished in {0:d} iterations and took {1:.2f} s".format(
             iterations_executed, time.time()-start_time))
+
+        if hdf_path_or_buf is not None:
+            self.to_hdf(model, hdf_path_or_buf,
+                        'simulation{}'.format(iterations_executed),
+                        plasma_properties)
 
 
     def legacy_update_spectrum(self, model, no_of_virtual_packets):
@@ -359,12 +400,55 @@ class Simulation(object):
         # required for gui
         model.current_no_of_packets = model.tardis_config.montecarlo.no_of_packets
 
-def run_radial1d(radial1d_model, history_fname=None):
-    if history_fname is not None:
-        raise ValueError('This functionality is currently not supported')
+    def to_hdf(self, model, path_or_buf, path='', plasma_properties=None):
+        """
+        Store the simulation to an HDF structure.
+
+        Parameters
+        ----------
+        model : tardis.model.Radial1DModel
+        path_or_buf
+            Path or buffer to the HDF store
+        path : str
+            Path inside the HDF store to store the simulation
+        plasma_properties
+            `None` or a `PlasmaPropertyCollection` which will
+            be passed as the collection argument to the
+            plasma.to_hdf method.
+        Returns
+        -------
+        None
+        """
+        self.runner.to_hdf(path_or_buf, path, False)
+        model.to_hdf(path_or_buf, path, plasma_properties)
+
+
+def run_radial1d(radial1d_model, hdf_path_or_buf=None,
+                 hdf_mode='full', hdf_last_only=True):
+    """
+
+    Parameters
+    ----------
+    radial1d_model : tardis.model.Radial1DModel
+    hdf_path_or_buf : str, optional
+        A path to store the data of each simulation iteration
+        (the default value is None, which means that nothing
+        will be stored).
+    hdf_mode : {'full', 'input'}, optional
+        If 'full' all plasma properties will be stored to HDF,
+        if 'input' only input plasma properties will be stored.
+    hdf_last_only: bool, optional
+        If True, only the last iteration of the simulation will
+        be stored to the HDFStore.
+
+    Returns
+    -------
+
+    """
 
     simulation = Simulation(radial1d_model.tardis_config)
-    simulation.legacy_run_simulation(radial1d_model)
+    simulation.legacy_run_simulation(radial1d_model, hdf_path_or_buf,
+                                     hdf_mode, hdf_last_only)
 
 
 
