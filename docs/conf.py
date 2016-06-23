@@ -49,6 +49,7 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.graphviz',
     'numpydoc',
+    'nbsphinx',
 ]
 
 source_suffix = '.rst'
