@@ -247,7 +247,6 @@ class Simulation(object):
             model.ws = next_w
             model.t_inner = next_t_inner
             model.j_blue_estimators = self.runner.j_blue_estimator
-            model.Edotlu_estimators = self.runner.Edotlu_estimator
 
             model.calculate_j_blues(init_detailed_j_blues=False)
             model.update_plasmas(initialize_nlte=False)
@@ -291,6 +290,9 @@ class Simulation(object):
 
         self.runner.legacy_update_spectrum(no_of_virtual_packets)
         self.legacy_set_final_model_properties(model)
+
+        model.Edotlu_estimators = self.runner.Edotlu_estimator
+        model.postprocess()
 
         #the following instructions, passing down information to the model are
         #required for the gui
