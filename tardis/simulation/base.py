@@ -31,7 +31,7 @@ class Simulation(object):
         self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
 
     def run_single_montecarlo(self, model, no_of_packets,
-                              no_of_virtual_packets=0):
+                              no_of_virtual_packets=0,last_run=False):
         """
         Will do a single TARDIS iteration with the given model
         Parameters
@@ -49,7 +49,7 @@ class Simulation(object):
         """
         self.runner.run(model, no_of_packets,
                         no_of_virtual_packets=no_of_virtual_packets,
-                        nthreads=self.tardis_config.montecarlo.nthreads)
+                        nthreads=self.tardis_config.montecarlo.nthreads,last_run=last_run)
 
 
         (montecarlo_nu, montecarlo_energies, self.j_estimators,
@@ -286,13 +286,11 @@ class Simulation(object):
         no_of_virtual_packets = (
             self.tardis_config.montecarlo.no_of_virtual_packets)
 
-        self.run_single_montecarlo(model, no_of_packets, no_of_virtual_packets)
+        self.run_single_montecarlo(model, no_of_packets, no_of_virtual_packets, last_run=True)
 
         self.runner.legacy_update_spectrum(no_of_virtual_packets)
         self.legacy_set_final_model_properties(model)
-
         model.Edotlu_estimators = self.runner.Edotlu_estimator
-        model.postprocess()
 
         #the following instructions, passing down information to the model are
         #required for the gui

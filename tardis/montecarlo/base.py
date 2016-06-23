@@ -106,7 +106,7 @@ class MontecarloRunner(object):
             self.spectrum_virtual.update_luminosity(
                 self.montecarlo_virtual_luminosity)
 
-    def run(self, model, no_of_packets, no_of_virtual_packets=0, nthreads=1):
+    def run(self, model, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
         """
         Running the TARDIS simulation
 
@@ -129,7 +129,7 @@ class MontecarloRunner(object):
 
         montecarlo.montecarlo_radial1d(
             model, self, virtual_packet_flag=no_of_virtual_packets,
-            nthreads=nthreads)
+            nthreads=nthreads,last_run=last_run)
         # Workaround so that j_blue_estimator is in the right ordering
         # They are written as an array of dimension (no_of_shells, no_of_lines)
         # but python expects (no_of_lines, no_of_shells)

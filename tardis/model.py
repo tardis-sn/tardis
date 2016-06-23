@@ -119,6 +119,7 @@ class Radial1DModel(object):
             v_outer=tardis_config.structure.v_outer)
 
         self.calculate_j_blues(init_detailed_j_blues=True)
+        self.Edotlu = np.zeros(np.shape(self.j_blues.shape))
         self.update_plasmas(initialize_nlte=True)
 
     @property
@@ -242,11 +243,3 @@ class Radial1DModel(object):
                                                                'macroatom'):
             self.transition_probabilities = (
                 self.plasma_array.transition_probabilities)
-  
-    def postprocess(self):
-        self.Edotlu_norm_factor = (1 / 
-            (self.time_of_simulation * self.tardis_config.structure.volumes))
-        exptau = 1 - np.exp(- 
-                            self.runner.line_lists_tau_sobolevs.reshape(-1,
-                                self.tardis_config.structure["velocity"]["num"]) ) 
-        self.Edotlu = self.Edotlu_norm_factor*exptau*self.Edotlu_estimators
