@@ -31,7 +31,7 @@ class AtomicData(Input):
     """
     outputs = ('atomic_data',)
 
-    def to_hdf(self, hdf_store, path):
+    def to_hdf(self, path_or_buf, path):
         """
         Will not store anything to hdf as derivatives (lines, levels) are stored
 
