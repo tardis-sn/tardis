@@ -419,7 +419,7 @@ class Simulation(object):
         -------
         None
         """
-        self.runner.to_hdf(path_or_buf, path, False)
+        self.runner.to_hdf(path_or_buf, path)
         model.to_hdf(path_or_buf, path, plasma_properties)
 
 

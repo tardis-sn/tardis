@@ -6,6 +6,7 @@ from astropy import units as u, constants as const
 from scipy.special import zeta
 
 from tardis.montecarlo import montecarlo, packet_source
+from tardis.io.util import to_hdf
 
 import numpy as np
 import pandas as pd
@@ -223,58 +224,23 @@ class MontecarloRunner(object):
     def calculate_f_lambda(self, wavelength):
         pass
 
-    def property_to_hdf(self, property):
-        """
-        Convert an attribute of MontecarloRunner to a pandas
-         DataFrame
-
-        Parameters
-        ----------
-        property: str
-            The MontecarloRunner property name to be converted.
-
-        Returns
-        -------
-            : pandas.DataFrame
-
-        """
-        output_value = getattr(self, property)
-        if np.isscalar(output_value):
-            output_value = [output_value]
-
-        return pd.DataFrame(output_value)
-
-    def to_hdf(self, path_or_buf, path='', close_hdf=True):
+    def to_hdf(self, path_or_buf, path=''):
         """
         Store the runner to an HDF structure.
-        Currently only output_nu and output_energy are stored.
 
         Parameters
         ----------
         path_or_buf:
             Path or buffer to the HDF store
         path:
-            Path inside the HDF store to store the plasma
-        close_hdf : bool
-            If  True close the HDFStore [default=True]
-        filter: ~Filter
-            Only properties returned by the filter will be stored
+            Path inside the HDF store to store the runner
         Returns
         -------
             : None
 
         """
-        try:
-            hdf_store = pd.HDFStore(path_or_buf)
-        except TypeError:
-            hdf_store = path_or_buf
-
+        runner_path = os.path.join(path, 'runner')
         properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
                       'j_estimator']
-
-        for prop in properties:
-            hdf_store[os.path.join(path, 'runner', prop)] = \
-                self.property_to_hdf(prop)
-
-        if close_hdf:
-            hdf_store.close()
+        to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
+                                          in properties})
