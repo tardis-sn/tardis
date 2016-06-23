@@ -25,6 +25,9 @@ class TestW7(object):
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
+        # The last component in dirpath can be extracted as name of setup.
+        self.name = data_paths["config_dirpath"].split("/")[-1]
+
         self.config_file = os.path.join(data_paths["config_dirpath"], "config.yml")
 
         # Load atom data file separately, pass it for forming tardis config.
@@ -95,7 +98,7 @@ class TestW7(object):
                 self.result.luminosity_inner)
 
     def test_spectrum(self, plot_object):
-        plot_object.add(self.plot_spectrum(), "spectrum")
+        plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
 
         assert_quantity_allclose(
             self.reference['luminosity_density_nu'],
@@ -147,7 +150,7 @@ class TestW7(object):
                 self.result.montecarlo_nu)
 
     def test_shell_temperature(self, plot_object):
-        plot_object.add(self.plot_t_rads(), "t_rads")
+        plot_object.add(self.plot_t_rads(), "{0}_t_rads".format(self.name))
 
         assert_quantity_allclose(
             self.reference['t_rads'],
@@ -165,7 +168,6 @@ class TestW7(object):
                               marker=".", label="Result")
         reference_line = ax.plot(self.reference['t_rads'], color="green",
                                  marker=".", label="Reference")
-        ax.axis([0, 28, 5000, 10000])
 
         error_ax = ax.twinx()
         error_line = error_ax.plot((1 - self.result.t_rads / self.reference['t_rads']),

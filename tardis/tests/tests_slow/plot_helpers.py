@@ -7,7 +7,7 @@ import tardis
 thumbnail_html = """
 <div class="image" style="float: left">
     <a href="#">
-        <img src= "{dokuwiki_url}lib/exe/fetch.php?media=plots:{githash}_{name}.png" />
+        <img src= "{dokuwiki_url}lib/exe/fetch.php?media=reports:{githash}:{name}.png" />
     </a>
 </div>
 """
@@ -62,7 +62,7 @@ class PlotUploader(object):
             plot.savefig(plot_file.name)
 
             self.request.config.dokureport.doku_conn.medias.add(
-                "plots:{0}_{1}.png".format(tardis.__githash__[0:7], name),
+                "reports:{0}:{1}.png".format(tardis.__githash__[0:7], name),
                 plot_file.name
             )
 
