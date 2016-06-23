@@ -72,7 +72,7 @@ before_install:
 
 install:
    - conda env create -f tardis_env27.yml
-   - source activate tardis-ci
+   - source activate tardis
 
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
