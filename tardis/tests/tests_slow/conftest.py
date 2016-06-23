@@ -50,21 +50,22 @@ def plot_object(request):
     return PlotUploader(request)
 
 
-@pytest.fixture(scope="session")
-def reference_datadir(request):
+@pytest.fixture(scope="class", params=["w7", "at"])
+def data_paths(request):
     integration_tests_config = request.config.option.integration_tests_config
-    return os.path.expandvars(
-        os.path.expanduser(integration_tests_config["reference"])
-    )
+
+    return {
+        'config_dirpath': os.path.join(
+            os.path.dirname(os.path.realpath(__file__)), request.param
+        ),
+        'reference_dirpath': os.path.join(os.path.expandvars(
+            os.path.expanduser(integration_tests_config["reference"])), request.param
+        )
+    }
 
 
-@pytest.fixture(scope="session")
-def data_path():
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7")
-
-
-@pytest.fixture(scope="session")
-def reference(request, reference_datadir):
+@pytest.fixture(scope="class")
+def reference(data_paths):
     """
     Fixture to ingest reference data for slow test from already available
     compressed binaries (.npz). All data is collected in one dict and
@@ -89,11 +90,12 @@ def reference(request, reference_datadir):
         * luminosity_density_nu          | * wavelength
         * delta_frequency                | * luminosity_density_lambda
     """
+    reference_dirpath = data_paths['reference_dirpath']
 
     # TODO: make this fixture ingest data from an HDF5 file.
-    ndarrays = dict(np.load(os.path.join(reference_datadir, "ndarrays.npz")))
-    quantities = dict(np.load(os.path.join(reference_datadir, "quantities.npz")))
-    spectrum = dict(np.load(os.path.join(reference_datadir, "spectrum.npz")))
+    ndarrays = dict(np.load(os.path.join(reference_dirpath, "ndarrays.npz")))
+    quantities = dict(np.load(os.path.join(reference_dirpath, "quantities.npz")))
+    spectrum = dict(np.load(os.path.join(reference_dirpath, "spectrum.npz")))
 
     # Associate CGS units to ndarrays of reference quantities.
     ndarrays.update(
