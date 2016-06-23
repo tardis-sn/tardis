@@ -50,7 +50,16 @@ def plot_object(request):
     return PlotUploader(request)
 
 
-@pytest.fixture(scope="class", params=["w7", "at"])
+def setup_names():
+    slow_tests_dir = os.path.dirname(os.path.realpath(__file__))
+    names = list()
+    for child in os.listdir(slow_tests_dir):
+        if os.path.isdir(os.path.join(slow_tests_dir, child)):
+            names.append(child)
+    return names
+
+
+@pytest.fixture(scope="class", params=setup_names())
 def data_paths(request):
     integration_tests_config = request.config.option.integration_tests_config
 
