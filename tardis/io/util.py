@@ -1,5 +1,6 @@
 #Utility functions for the IO part of TARDIS
 
+import os
 import pandas as pd
 import numpy as np
 import collections
@@ -196,3 +197,60 @@ def check_equality(item1, item2):
         return False
     else:
         return True
+
+
+def to_hdf(path_or_buf, path, elements):
+    """
+    A function to uniformly store TARDIS data
+    to an HDF file.
+
+    Scalars will be stored in a Series under path/scalars
+    1D arrays will be stored under path/property_name as distinct Series
+    2D arrays will be stored under path/property_name as distinct DataFrames
+
+    Units will be stored as their SI value
+
+    Parameters
+    ----------
+    path_or_buf:
+        Path or buffer to the HDF store
+    path: str
+        Path inside the HDF store to store the `elements`
+    elements: dict
+        A dict of property names and their values to be
+        stored.
+
+    Returns
+    -------
+
+    """
+    scalars = {}
+    for key, value in elements.iteritems():
+        if hasattr(value, 'si'):
+            value = value.si.value
+        if np.isscalar(value):
+            scalars[key] = value
+        elif hasattr(value, 'shape'):
+            if value.ndim == 1:
+                # This try,except block is only for model.plasma.levels
+                try:
+                    pd.Series(value).to_hdf(path_or_buf,
+                                            os.path.join(path, key))
+                except NotImplementedError:
+                    pd.DataFrame(value).to_hdf(path_or_buf,
+                                               os.path.join(path, key))
+            else:
+                pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
+        else:
+            data = pd.DataFrame([value])
+            data.to_hdf(path_or_buf, os.path.join(path, key))
+
+    if scalars:
+        scalars_series = pd.Series(scalars)
+
+        # Unfortunately, with to_hdf we cannot append, so merge beforehand
+        scalars_path = os.path.join(path, 'scalars')
+        with pd.HDFStore(path_or_buf) as store:
+            if scalars_path in store:
+                scalars_series = store[scalars_path].append(scalars_series)
+        scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))

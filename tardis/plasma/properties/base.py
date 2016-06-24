@@ -4,6 +4,8 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import numpy as np
 import pandas as pd
 
+from tardis.io.util import to_hdf
+
 __all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
            'HiddenPlasmaProperty', 'Input', 'ArrayInput', 'DataFrameInput',
            'ProcessingPlasmaProperty', 'PreviousIterationProperty']
@@ -63,37 +65,14 @@ class BasePlasmaProperty(object):
                     ''))
         return latex_label.replace('\\', r'\\')
 
-    def _get_output_to_hdf(self, output):
-        """
-        Convert output into a pandas DataFrame to enable storing in an HDFStore
-
-        Parameters
-        ----------
-        output: ~str
-            output string name
-
-        Returns
-        -------
-            : ~pandas.DataFrame
-
-        """
-
-        output_value = getattr(self, output)
-
-        if np.isscalar(output_value):
-            output_value = [output_value]
-
-        return pd.DataFrame(output_value)
-
-    def to_hdf(self, hdf_store, path):
+    def to_hdf(self, path_or_buf, path):
         """
         Stores plugin value to an HDFStore
 
         Parameters
         ----------
-        hdf_store: ~pandas.HDFStore object
-            an open pandas datastore
-
+        path_or_buf:
+            Path or buffer to the HDF store
         path: ~str
             path to store the modules data under
             - will be joined to <path>/output_name
@@ -103,9 +82,8 @@ class BasePlasmaProperty(object):
             : None
 
         """
-        for output in self.outputs:
-            hdf_store[os.path.join(path, output)] = self._get_output_to_hdf(
-                output)
+        outputs = {name: getattr(self, name) for name in self.outputs}
+        to_hdf(path_or_buf, path, outputs)
 
 
 class ProcessingPlasmaProperty(BasePlasmaProperty):
