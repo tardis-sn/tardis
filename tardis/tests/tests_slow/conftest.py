@@ -7,6 +7,7 @@ import pytest
 from astropy import units as u
 
 from tardis.tests.tests_slow.report import DokuReport
+from tardis.tests.tests_slow.plot_helpers import PlotUploader
 
 
 def pytest_configure(config):
@@ -37,6 +38,23 @@ def pytest_unconfigure(config):
         config.pluginmanager.unregister(config.dokureport)
     # Remove tempdir by recursive deletion
     shutil.rmtree(config.option.tempdir)
+
+
+@pytest.mark.hookwrapper
+def pytest_runtest_makereport(item, call):
+    # execute all other hooks to obtain the report object
+    outcome = yield
+    report = outcome.get_result()
+    if report.when == "call":
+        if "plot_object" in item.fixturenames:
+            plot_obj = item.funcargs["plot_object"]
+            plot_obj.upload(report)
+            report.extra = plot_obj.get_extras()
+
+
+@pytest.fixture(scope="function")
+def plot_object(request):
+    return PlotUploader(request)
 
 
 @pytest.fixture(scope="session")
