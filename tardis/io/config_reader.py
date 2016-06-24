@@ -11,9 +11,8 @@ import pandas as pd
 import tardis
 from tardis.io.model_reader import (
     read_density_file, calculate_density_after_time, read_abundances_file)
-from tardis.io import config_validator
+from tardis.io import config_validator, atomic
 from tardis.io.util import YAMLLoader, yaml_load_file
-from tardis import atomic
 from tardis.util import (species_string_to_tuple, parse_quantity,
                          element_symbol2atomic_number, quantity_linspace)
 
