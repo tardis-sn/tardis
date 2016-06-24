@@ -8,7 +8,7 @@ import yaml
 import re
 
 import logging
-import atomic
+from tardis.io import atomic
 
 
 k_B_cgs = constants.k_B.cgs.value
