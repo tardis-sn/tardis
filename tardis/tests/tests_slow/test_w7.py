@@ -26,18 +26,7 @@ class TestW7(object):
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
-        self.config_file = os.path.join(data_path, "config_w7.yml")
-        self.abundances = os.path.join(data_path, "abundances_w7.dat")
-        self.densities = os.path.join(data_path, "densities_w7.dat")
-
-        # The available config file doesn't have file paths of atom data file,
-        # densities and abundances profile files as desired. We load the atom
-        # data seperately and provide it to tardis_config later. For rest of
-        # the two, we form dictionary from the config file and override those
-        # parameters by putting file paths of these two files at proper places.
-        config_yaml = yaml_load_config_file(self.config_file)
-        config_yaml['model']['abundances']['filename'] = self.abundances
-        config_yaml['model']['structure']['filename'] = self.densities
+        self.config_file = os.path.join(data_path, "config.yml")
 
         # Load atom data file separately, pass it for forming tardis config.
         self.atom_data = AtomData.from_hdf5(atomic_data_fname)
@@ -49,7 +38,8 @@ class TestW7(object):
         assert self.atom_data.uuid1 == kurucz_data_file_uuid1
 
         # Create a Configuration through yaml file and atom data.
-        tardis_config = Configuration.from_config_dict(config_yaml, self.atom_data)
+        tardis_config = Configuration.from_yaml(
+            self.config_file, atom_data=self.atom_data)
 
         # We now do a run with prepared config and get radial1d model.
         self.result = Radial1DModel(tardis_config)
