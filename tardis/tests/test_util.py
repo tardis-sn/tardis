@@ -2,7 +2,7 @@
 
 import pytest
 from astropy import units as u
-from tardis import atomic
+from tardis.io import atomic
 from tardis.util import species_string_to_tuple, species_tuple_to_string, parse_quantity, element_symbol2atomic_number, atomic_number2element_symbol, reformat_element_symbol, MalformedQuantityError
 
 def test_quantity_parser_normal():
