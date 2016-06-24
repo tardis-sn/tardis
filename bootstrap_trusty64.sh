@@ -12,5 +12,5 @@ conda create --yes -n tardis --file /vagrant/pip-requirements pip
 
 echo "export PATH=/home/vagrant/miniconda/bin:$PATH" >> .bashrc
 
-wget https://www.dropbox.com/s/svvyr5i7m8ouzdt/tardis_example.tar.gz
+wget http://opensupernova.org/~ftsamis/tardis_example.tar.gz
 tar zxvf tardis_example.tar.gz

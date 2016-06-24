@@ -9,7 +9,7 @@ import h5py
 import numpy as np
 import pandas as pd
 from scipy import interpolate
-from astropy import table, units
+from astropy import table, units, constants
 from pandas import DataFrame
 
 
@@ -415,19 +415,23 @@ class AtomData(object):
 
         self.atom_data = DataFrame(atom_data.__array__())
         self.atom_data.set_index('atomic_number', inplace=True)
-        self.atom_data.mass = units.Unit('u').to('g', self.atom_data.mass.values)
+        # We have to use constants.u because astropy uses different values for the unit u and the constant.
+        # This is changed in later versions of astropy (the value of constants.u is used in all cases)
+        if units.u.cgs == constants.u.cgs:
+            self.atom_data.mass = units.Quantity(self.atom_data.mass.values, 'u').cgs
+        else:
+            self.atom_data.mass = constants.u.cgs * self.atom_data.mass.values
 
         self.ionization_data = DataFrame(ionization_data.__array__())
         self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
-        self.ionization_data.ionization_energy = units.Unit('eV').to('erg',
-                                                                     self.ionization_data.ionization_energy.values)
+        self.ionization_data.ionization_energy = units.Quantity(self.ionization_data.ionization_energy.values, 'eV').cgs
 
         self.levels = DataFrame(levels_data.__array__())
-        self.levels.energy = units.Unit('eV').to('erg', self.levels.energy.values)
+        self.levels.energy = units.Quantity(self.levels.energy.values, 'eV').cgs
 
         self.lines = DataFrame(lines_data.__array__())
-        self.lines['nu'] = units.Unit('angstrom').to('Hz', self.lines['wavelength'], units.spectral())
-        self.lines['wavelength_cm'] = units.Unit('angstrom').to('cm', self.lines['wavelength'])
+        self.lines['nu'] = units.Quantity(self.lines['wavelength'], 'angstrom').to('Hz', units.spectral())
+        self.lines['wavelength_cm'] = units.Quantity(self.lines['wavelength'], 'angstrom').cgs
 
 
 

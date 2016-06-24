@@ -33,6 +33,7 @@ import time
 from socket import gaierror
 
 from py.xml import html, raw
+from pytest_html import __name__ as pytest_html_path
 from pytest_html.plugin import HTMLReport
 import tardis
 
@@ -76,7 +77,7 @@ class DokuReport(HTMLReport):
         generated = datetime.datetime.now()
 
         style_css = pkg_resources.resource_string(
-            __name__, os.path.join('resources', 'style.css'))
+            pytest_html_path, os.path.join('resources', 'style.css'))
 
         head = html.head(
             html.meta(charset='utf-8'),
@@ -115,7 +116,7 @@ class DokuReport(HTMLReport):
             id='results-table')]
 
         main_js = pkg_resources.resource_string(
-            __name__, os.path.join('resources', 'main.js'))
+            pytest_html_path, os.path.join('resources', 'main.js'))
 
         body = html.body(
             html.script(raw(main_js)),
@@ -144,6 +145,11 @@ class DokuReport(HTMLReport):
             )
         )
         report_content += doc.unicode(indent=2)
+
+        # Quick hack for preventing log to be placed in narrow left out space
+        report_content = report_content.replace(
+            u'class="log"', u'class="log" style="clear: both"'
+        )
         return report_content
 
     def _save_report(self, report_content):
@@ -186,7 +192,6 @@ class DokuReport(HTMLReport):
                     self.dokuwiki_url, tardis.__githash__[0:7]
                 )
             )
-
         else:
             terminalreporter.write_sep(
                 "-", "Connection not established, upload failed.")
