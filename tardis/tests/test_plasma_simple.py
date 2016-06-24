@@ -2,7 +2,7 @@ from astropy import constants as const, units as u
 import os
 import pandas as pd
 import tardis
-from tardis import atomic
+from tardis.io import atomic
 import warnings
 import pytest
 from tardis.io.util import parse_abundance_dict_to_dataframe
