@@ -35,7 +35,7 @@ double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *st
  *
  * @return distance to shell boundary
  */
-void compute_distance2boundary (rpacket_t * packet,
+tardis_error_t compute_distance2boundary (rpacket_t * packet,
                                   const storage_model_t * storage);
 
 /** Calculate the distance the packet has to travel until it redshifts to the first spectral line.
