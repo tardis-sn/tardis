@@ -1,7 +1,8 @@
 import os
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from tardis import atomic, plasma_array, util
+from tardis import plasma_array, util
+from tardis.io import atomic
 import numpy as np
 import pandas as pd
 from astropy import units as u

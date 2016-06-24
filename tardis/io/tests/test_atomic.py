@@ -1,7 +1,7 @@
 import os
 import pytest
 from numpy import testing
-from tardis import atomic
+from tardis.io import atomic
 
 
 @pytest.fixture(scope="module")
