@@ -1,25 +1,27 @@
-name: tardis-ci
+name: tardis
 dependencies:
 - python=2.7
-- numpy=1.10.0
+- numpy=1.10
 - scipy=0.17.0
 - pandas=0.16.2
 - pytables=3.2.2
 - h5py=2.5
 - matplotlib=1.4.3
-- astropy=1.0.5
+- astropy=1.1.2
 - PyYAML=3.11
-- jsonschema=2.5.1
 - numexpr=2.4.4
 - Cython=0.21
 - networkx=1.10
 - pytest=2.9.1
+- jsonschema=2.5.1
+
 
 # RTD requirements
 - sphinx=1.4.1
 - nbconvert=4.2.0
 - numpydoc=0.5
 - docutils
+- nbformat=4.0.1
 
 #Coverage requirements
 - coverage=3.7.1
@@ -27,12 +29,9 @@ dependencies:
 - docopt=0.6.2
 - pytest-cov=2.2.1
 - pip:
-  - nbsphinx==0.2.6
+  - nbsphinx
   - sphinx_bootstrap_theme
   - sphinxcontrib-bibtex
   - sphinxcontrib-tikz
   - coveralls
   - pytest-html==1.8.1
-
-
-
