@@ -2,6 +2,7 @@
 
 import os
 import logging
+import tardis
 import cPickle as pickle
 from collections import OrderedDict
 
@@ -21,8 +22,8 @@ logger = logging.getLogger(__name__)
 
 
 def data_path(fname):
-    return os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), 'data', fname)
+    tardis_dir = os.path.dirname(os.path.realpath(tardis.__file__))
+    return os.path.join(tardis_dir, 'data', fname)
 
 
 default_atom_h5_path = data_path('atom_data.h5')
