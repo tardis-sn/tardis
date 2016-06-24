@@ -8,6 +8,7 @@ import pandas as pd
 from astropy import constants, units as u
 from astropy.utils.decorators import deprecated
 
+from tardis.io.util import to_hdf
 from util import intensity_black_body
 
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
@@ -252,21 +253,14 @@ class Radial1DModel(object):
 
     def to_hdf(self, path_or_buf, path='', plasma_properties=None):
         """
-        Store the model and the runner to an HDF structure.
-        Properties that have 1D arrays as their values are stored
-        as columns of a pandas.DataFrame under `path`, called arrays.
-        Properties that have a scalar value are stored as labeled
-        elements in a pandas.Series under `path`, called scalars.
-
-        All Quantities will be stored as their SI values and without
-        their unit.
+        Store the model to an HDF structure.
 
         Parameters
         ----------
         path_or_buf
             Path or buffer to the HDF store
         path : str
-            Path inside the HDF store to store the plasma
+            Path inside the HDF store to store the model
         plasma_properties
             `None` or a `PlasmaPropertyCollection` which will
             be passed as the collection argument to the
@@ -277,33 +271,16 @@ class Radial1DModel(object):
         None
 
         """
-        scalars = {}
-        one_d_arrays = pd.DataFrame()
+        model_path = os.path.join(path, 'model')
         properties = ['t_inner', 'ws', 't_rads', 'v_inner', 'v_outer']
-        for p in properties:
-            output_value = getattr(self, p)
-            if hasattr(output_value, 'si'):
-                output_value = output_value.si.value
-            if np.isscalar(output_value):
-                scalars[p] = output_value
-            elif hasattr(output_value, 'shape') and output_value.ndim == 1:
-                one_d_arrays[p] = output_value
-            else:
-                data = pd.DataFrame(output_value)
-                data.to_hdf(path_or_buf, os.path.join(path, 'model', p))
-        pd.Series(scalars).to_hdf(path_or_buf, os.path.join(path,
-                                                            'model',
-                                                            'scalars'))
-        one_d_arrays.to_hdf(path_or_buf, os.path.join(path,
-                                                      'model',
-                                                      'arrays'))
+        to_hdf(path_or_buf, model_path, {name: getattr(self, name) for name
+                                         in properties})
 
-        self.plasma.to_hdf(path_or_buf, os.path.join(path, 'model'),
-                           False, plasma_properties)
+        self.plasma.to_hdf(path_or_buf, model_path, plasma_properties)
 
         metadata = pd.Series({'atom_data_uuid': self.atom_data.uuid1})
         metadata.to_hdf(path_or_buf,
-                                 os.path.join(path, 'model', 'metadata'))
+                                 os.path.join(model_path, 'metadata'))
 
 
 
