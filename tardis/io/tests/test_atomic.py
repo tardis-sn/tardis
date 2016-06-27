@@ -6,13 +6,12 @@ from tardis.io import atomic
 
 @pytest.fixture(scope="module")
 def default_atom_h5_path():
-    return atomic.default_atom_h5_path
+    return atomic.data_path('atom_data.h5')
 
 
 @pytest.fixture(scope="module")
 def chianti_he_db_h5_path():
-    return os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), 'data', 'chianti_he_db.h5')
+    return atomic.tests_data_path('chianti_he_db.h5')
 
 
 def test_data_path():

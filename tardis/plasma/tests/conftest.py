@@ -6,7 +6,7 @@ from astropy import units as u
 import pytest
 
 import tardis
-from tardis.atomic import AtomData
+from tardis.io.atomic import AtomData
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.plasma.properties import *
 

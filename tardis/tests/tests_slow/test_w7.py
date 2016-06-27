@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 
-from tardis.atomic import AtomData
+from tardis.io.atomic import AtomData
 from tardis.io.util import yaml_load_config_file
 from tardis.simulation.base import Simulation
 from tardis.model import Radial1DModel
