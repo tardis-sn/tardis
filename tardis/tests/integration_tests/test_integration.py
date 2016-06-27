@@ -8,7 +8,8 @@ from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.data import download_file
 
-from tardis.atomic import AtomData
+
+from tardis.io.atomic import AtomData
 from tardis.simulation.base import run_radial1d
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
