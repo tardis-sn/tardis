@@ -3,7 +3,7 @@
 ******************************
 Atomic Data Format Description
 ******************************
-.. currentmodule:: tardis.atomic
+.. currentmodule:: tardis.io.atomic
 
 
 The atomic data for tardis is stored in `hdf5 files <http://www.h5py.org/>`_. TARDIS ships with a
@@ -225,4 +225,4 @@ TO BE BETTER DOCUMENTED ...
 
 
 
-.. automodapi:: tardis.atomic
+.. automodapi:: tardis.io.atomic
