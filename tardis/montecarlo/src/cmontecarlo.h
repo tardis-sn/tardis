@@ -13,10 +13,6 @@
 #define LOG_VPACKETS 0
 #endif
 
-#define RESONANCE 0
-#define DOWNBRANCH 1
-#define MACROATOM 2
-
 typedef void (*montecarlo_event_handler_t) (rpacket_t *packet,
                                             storage_model_t *storage,
                                             double distance, rk_state *mt_state);
