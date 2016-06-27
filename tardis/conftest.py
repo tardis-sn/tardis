@@ -9,7 +9,7 @@ from astropy.tests.pytest_plugins import (
 
 import tardis
 import pytest
-from tardis.atomic import AtomData
+from tardis.io.atomic import AtomData
 from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
 
