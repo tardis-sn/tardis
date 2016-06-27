@@ -10,6 +10,13 @@ from tardis.tests.tests_slow.report import DokuReport
 from tardis.tests.tests_slow.plot_helpers import PlotUploader
 
 
+def pytest_addoption(parser):
+    parser.addoption("--integration-tests", dest="integration-tests",
+                     help="path to configuration file for integration tests")
+    parser.addoption("--generate-reference", action="store_true",
+                     help="execute integration test run to generate reference data")
+
+
 def pytest_configure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
     if integration_tests_configpath is not None:
@@ -70,10 +77,13 @@ def data_path(request):
 @pytest.fixture(scope="session")
 def gen_ref_dirpath(request):
     integration_tests_config = request.config.integration_tests_config
-    path = os.path.join(os.path.expandvars(os.path.expanduser(
-        integration_tests_config["generate_reference"])), tardis_githash
-    )
-    os.makedirs(os.path.join(path))
+    if request.config.getoption("--generate-reference"):
+        path = os.path.join(os.path.expandvars(os.path.expanduser(
+            integration_tests_config["generate_reference"])), tardis_githash
+        )
+        os.makedirs(os.path.join(path))
+    else:
+        path = None
     return path
 
 

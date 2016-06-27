@@ -19,7 +19,7 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, reference, data_path, atomic_data_fname):
+    def setup(self, reference, data_path, atomic_data_fname, gen_ref_dirpath):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -46,6 +46,13 @@ class TestIntegration(object):
         self.result = Radial1DModel(tardis_config)
         simulation = Simulation(tardis_config)
         simulation.legacy_run_simulation(self.result)
+
+        # Output the model to an HDF file and save it at specified path.
+        if gen_ref_dirpath:
+            self.result.to_hdf(
+                os.path.join(gen_ref_dirpath, "{0}.h5".format(self.name))
+            )
+            pytest.skip("Reference data saved at {0}".format(gen_ref_dirpath))
 
         # Get the reference data through the fixture.
         self.reference = reference
