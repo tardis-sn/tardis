@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 from astropy import units as u
 
+from tardis import __githash__ as tardis_githash
 from tardis.tests.tests_slow.report import DokuReport
 from tardis.tests.tests_slow.plot_helpers import PlotUploader
 
@@ -66,8 +67,18 @@ def data_path(request):
     }
 
 
+@pytest.fixture(scope="session")
+def gen_ref_dirpath(request):
+    integration_tests_config = request.config.integration_tests_config
+    path = os.path.join(os.path.expandvars(os.path.expanduser(
+        integration_tests_config["generate_reference"])), tardis_githash
+    )
+    os.makedirs(os.path.join(path))
+    return path
+
+
 @pytest.fixture(scope="class")
-def reference(data_path):
+def reference(request, data_path):
     """
     Fixture to ingest reference data for slow test from already available
     compressed binaries (.npz). All data is collected in one dict and
