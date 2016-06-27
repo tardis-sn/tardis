@@ -19,8 +19,8 @@ def run_tardis(config, atom_data=None):
         atomic data will be loaded according to keywords set in the configuration
         [default=None]
     """
-    from tardis.io import config_reader
-    from tardis import model, simulation, atomic
+    from tardis.io import config_reader, atomic
+    from tardis import model, simulation
 
     if atom_data is not None:
         try:
