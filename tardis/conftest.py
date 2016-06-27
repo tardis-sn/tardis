@@ -67,9 +67,6 @@ def pytest_addoption(parser):
     parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
                      help="filename for atomic dataset")
 
-    parser.addoption("--integration-tests", dest="integration-tests",
-                     help="path to configuration file for integration tests")
-
 
 # -------------------------------------------------------------------------
 # project specific fixtures
