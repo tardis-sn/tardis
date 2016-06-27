@@ -20,10 +20,13 @@ class AtomDataNotPreparedError(Exception):
 
 logger = logging.getLogger(__name__)
 
+tardis_dir = os.path.dirname(os.path.realpath(tardis.__file__))
 
 def data_path(fname):
-    tardis_dir = os.path.dirname(os.path.realpath(tardis.__file__))
     return os.path.join(tardis_dir, 'data', fname)
+
+def tests_data_path(fname):
+    return os.path.join(tardis_dir, 'tests', 'data', fname)
 
 
 default_atom_h5_path = data_path('atom_data.h5')
