@@ -176,11 +176,11 @@ class AtomData(object):
                             collision_data=(collisions_df, collisions_temperatures), synpp_refs=synpp_refs,
                             ion_cx_data=ion_cx_df)
 
-            atom_data.uuid1 = store.root._v_args.attrs['uuid1']
-            atom_data.md5 = store.root._v_args.attrs['md5']
+            atom_data.uuid1 = store.root._v_attrs['uuid1']
+            atom_data.md5 = store.root._v_attrs['md5']
 
             try:
-                atom_data.version = store.root._v_args.attrs['database_version']
+                atom_data.version = store.root._v_attrs['database_version']
             except KeyError:
                 atom_data.version = None
 
