@@ -233,6 +233,7 @@ class AtomData(object):
             self.levels["energy"] = units.Quantity(self.levels["energy"].values, 'eV').cgs
             self.has_levels = True
         else:
+            self.levels = None
             self.has_levels = False
 
         if lines_data is not None:
@@ -240,12 +241,15 @@ class AtomData(object):
             self.lines['wavelength_cm'] = units.Quantity(self.lines['wavelength'], 'angstrom').cgs
             self.has_lines = True
         else:
+            self.lines = None
             self.has_lines = False
 
         if macro_atom_data is not None:
             self.macro_atom_data_all, self.macro_atom_references_all = macro_atom_data
             self.has_macro_atom = True
         else:
+            self.macro_atom_data_all = None
+            self.macro_atom_references_all = None
             self.has_macro_atom = False
 
         # if ion_cx_data is not None:
@@ -269,6 +273,8 @@ class AtomData(object):
             self.collision_data, self.collision_data_temperatures = collision_data
             self.has_collision_data = True
         else:
+            self.collision_data = None
+            self.collision_data_temperatures = None
             self.has_collision_data = False
 
         # if synpp_refs is not None:
