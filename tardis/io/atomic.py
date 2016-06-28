@@ -54,21 +54,23 @@ class AtomData(object):
 
     levels_data: pandas.DataFrame
         A DataFrame containing the *levels data* with:
-            index: atomic_number, ion_number, level_number;
-            columns: level_id, energy[eV], g[1], metastable.
+            index: no index;
+            columns: atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
 
     lines_data: pandas.DataFrame
         A DataFrame containing the *lines data* with:
-            index: atomic_number, ion_number, level_number_lower, level_number_upper;
-            columns: wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
+            index: no index;
+            columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
+                wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
     macro_atom_data: (pandas.DataFrame, pandas.DataFrame)
         A tuple containing a DataFrame with the *macro atom data* with:
-            index: atomic_number, ion_number, source_level_number, destination_level_number;
-            columns: transition_line_id, transition_type, transition_probability;
+            index: no_index;
+            columns: atomic_number, ion_number, source_level_number, destination_level_number,
+                transition_line_id, transition_type, transition_probability;
         and a DataFrame with the *macro atom references* with:
-            index: atomic_number, ion_number, source_level_number;
-            columns: level_id, count_down, count_up, count_total.
+            index: no_index;
+            columns: atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
 
         Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
 
