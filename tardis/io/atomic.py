@@ -21,8 +21,10 @@ logger = logging.getLogger(__name__)
 
 tardis_dir = os.path.dirname(os.path.realpath(tardis.__file__))
 
+
 def data_path(fname):
     return os.path.join(tardis_dir, 'data', fname)
+
 
 def tests_data_path(fname):
     return os.path.join(tardis_dir, 'tests', 'data', fname)
@@ -30,53 +32,74 @@ def tests_data_path(fname):
 
 default_atom_h5_path = data_path('atom_data.h5')
 
+
 class AtomData(object):
     """
     Class for storing atomic data
 
-    AtomData
-    ---------
-
     Parameters
     ----------
+    atom_data: pandas.DataFrame
+        A DataFrame containing the *basic atomic data* with:
+            index: atomic_number;
+            columns: symbol, name, mass[u].
 
-    basic_atom_data : `~astropy.table.Table`
-        containing the basic atom data: z, symbol, and mass
+    ionization_data: pandas.DataFrame
+        A DataFrame containing the *ionization data* with:
+            index: atomic_number, ion_number;
+            columns: ionization_energy[eV].
 
-    ionization_data : ~astropy.table.Table
-        containing the ionization data: z, ion, and ionization energy
-        ::important to note here is that ion describes the final ion state
-            e.g. H I - H II is described with ion=2
+       It is important to note here is that `ion_number` describes the *final ion state*
+            e.g. H I - H II is described with ion=1
 
-    levels : ~astropy.table.Table
-        containing the levels data: z, ion, level_number, energy, g
+    levels_data: pandas.DataFrame
+        A DataFrame containing the *levels data* with:
+            index: atomic_number, ion_number, level_number;
+            columns: level_id, energy[eV], g[1], metastable.
 
-    lines : ~astropy.table.Table
-        containing the lines data: wavelength, z, ion, levels_number_lower,
-        levels_number_upper, f_lu, f_ul
+    lines_data: pandas.DataFrame
+        A DataFrame containing the *lines data* with:
+            index: atomic_number, ion_number, level_number_lower, level_number_upper;
+            columns: wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
-    macro_atom_data : tuple of ~astropy.table.Table
-        default ~None, a tuple of the macro-atom data and macro-atom references
+    macro_atom_data: (pandas.DataFrame, pandas.DataFrame)
+        A tuple containing a DataFrame with the *macro atom data* with:
+            index: atomic_number, ion_number, source_level_number, destination_level_number;
+            columns: transition_line_id, transition_type, transition_probability;
+        and a DataFrame with the *macro atom references* with:
+            index: atomic_number, ion_number, source_level_number;
+            columns: level_id, count_down, count_up, count_total.
 
-    zeta_data : ~dict of interpolation objects
-        default ~None
+        Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+
+    collision_data: (pandas.DataFrame, np.array)
+        A tuple containing a DataFrame with the *electron collisions data* with:
+            index: atomic_number, ion_number, level_number_lower, level_number_upper;
+            columns: e_col_id, delta_e, g_ratio, c_ul;
+        and an array with the collision temperatures.
+
+    zeta_data: ?
+    synpp_refs: ?
+    ion_cx_data: ?
+
+    Notes
+    ------
+    1. The units of some columns are given in the square brackets. They are **NOT** the parts of columns' names!
 
     """
 
     @classmethod
-    def from_hdf5(cls, fname=None):
+    def from_hdfstore(cls, fname=None):
         """
-        Function to read all the atom data from a special TARDIS HDF5 File.
+        Function to read all the atom data from the special Carsus HDFStore file.
 
         Parameters
         ----------
 
         fname: str, optional
-            the default for this is `None` and then it will use the very limited atomic_data shipped with TARDIS
-            For more complex atomic data please contact the authors.
-
-        use_macro_atom:
-            default `False`. Set to `True`, if you want to read in macro_atom_data
+            The path to the HDFStore file. If set to `None` the default file with limited atomic_data
+            shipped with TARDIS will be used. For more complex atomic data please contact the authors.
+            (default: None)
         """
 
         if fname is None:
@@ -238,7 +261,6 @@ class AtomData(object):
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
 
-
     def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
                           nlte_species=[]):
         """
@@ -373,7 +395,6 @@ class AtomData(object):
                     np.ones(len(self.macro_atom_data)) * -1).astype(np.int64)
 
         self.nlte_data = NLTEData(self, nlte_species)
-
 
     def __repr__(self):
         return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
