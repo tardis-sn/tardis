@@ -82,6 +82,26 @@ class AtomData(object):
     synpp_refs: ?
     ion_cx_data: ?
 
+    Attributes
+    -------------
+    prepared: bool
+    has_levels: bool
+    has_lines: bool
+    has_macro_atom: bool
+    atom_data: pandas.DataFrame
+    ionization_data: pandas.DataFrame
+    macro_atom_data_all: pandas.DataFrame
+    macro_atom_references_all: pandas.DataFrame
+    collision_data: pandas.DataFrame
+    collision_data_temperatures: numpy.array
+    symbol2atomic_number: OrderedDict
+    atomic_number2symbol OrderedDict
+
+    Methods
+    --------
+    from_hdfstore
+    prepare_atom_data
+
     Notes
     ------
     1. The units of some columns are given in the square brackets. They are **NOT** the parts of columns' names!
