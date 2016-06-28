@@ -6,8 +6,9 @@ import os
 import numpy as np
 import pandas as pd
 from astropy import constants, units as u
-from astropy.utils import deprecated
+from astropy.utils.decorators import deprecated
 
+from tardis.io.util import to_hdf
 from util import intensity_black_body
 
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
@@ -90,6 +91,9 @@ class Radial1DModel(object):
 
         self.t_inner = tardis_config.plasma.t_inner
 
+        self.v_inner = tardis_config.structure.v_inner
+        self.v_outer = tardis_config.structure.v_outer
+        self.v_middle = 0.5 * (self.v_inner + self.v_outer)
 
         self.ws = self.calculate_geometric_w(
             tardis_config.structure.r_middle,
@@ -97,14 +101,14 @@ class Radial1DModel(object):
 
         if tardis_config.plasma.t_rads is None:
             self.t_rads = self._init_t_rad(
-                self.t_inner, tardis_config.structure.v_inner[0], self.v_middle)
+                self.t_inner, self.v_inner[0], self.v_middle)
         else:
             self.t_rads = tardis_config.plasma.t_rads
 
         heating_rate_data_file = getattr(
             tardis_config.plasma, 'heating_rate_data_file', None)
 
-        self.plasma_array = LegacyPlasmaArray(
+        self.plasma = LegacyPlasmaArray(
             tardis_config.number_densities, tardis_config.atom_data,
             tardis_config.supernova.time_explosion.to('s').value,
             nlte_config=tardis_config.plasma.nlte,
@@ -115,8 +119,8 @@ class Radial1DModel(object):
             link_t_rad_t_electron=0.9,
             helium_treatment=tardis_config.plasma.helium_treatment,
             heating_rate_data_file=heating_rate_data_file,
-            v_inner=tardis_config.structure.v_inner,
-            v_outer=tardis_config.structure.v_outer)
+            v_inner=self.v_inner,
+            v_outer=self.v_outer)
 
         self.calculate_j_blues(init_detailed_j_blues=True)
         self.update_plasmas(initialize_nlte=True)
@@ -135,6 +139,12 @@ class Radial1DModel(object):
     @deprecated('v1.5', 'spectrum_reabsorbed will be removed model. Use model.runner.spectrum_reabsorbed instead.')
     def spectrum_reabsorbed(self):
         return self.runner.spectrum_reabsorbed
+
+    @property
+    @deprecated('v1.5',
+                'plasma_array has been renamed to plasma and will be removed in the future. Please use model.plasma instead.')
+    def plasma_array(self):
+        return self.plasma
 
     @property
     def line_interaction_type(self):
@@ -160,11 +170,6 @@ class Radial1DModel(object):
     @property
     def t_inner(self):
         return self._t_inner
-
-    @property
-    def v_middle(self):
-        structure = self.tardis_config.structure
-        return 0.5 * (structure.v_inner + structure.v_outer)
 
     @t_inner.setter
     def t_inner(self, value):
@@ -232,7 +237,7 @@ class Radial1DModel(object):
 
     def update_plasmas(self, initialize_nlte=False):
 
-        self.plasma_array.update_radiationfield(
+        self.plasma.update_radiationfield(
             self.t_rads.value, self.ws, self.j_blues,
             self.tardis_config.plasma.nlte, initialize_nlte=initialize_nlte,
             n_e_convergence_threshold=0.05)
@@ -240,4 +245,42 @@ class Radial1DModel(object):
         if self.tardis_config.plasma.line_interaction_type in ('downbranch',
                                                                'macroatom'):
             self.transition_probabilities = (
-                self.plasma_array.transition_probabilities)
+                self.plasma.transition_probabilities)
+
+    def save_spectra(self, fname):
+        self.spectrum.to_ascii(fname)
+        self.spectrum_virtual.to_ascii('virtual_' + fname)
+
+    def to_hdf(self, path_or_buf, path='', plasma_properties=None):
+        """
+        Store the model to an HDF structure.
+
+        Parameters
+        ----------
+        path_or_buf
+            Path or buffer to the HDF store
+        path : str
+            Path inside the HDF store to store the model
+        plasma_properties
+            `None` or a `PlasmaPropertyCollection` which will
+            be passed as the collection argument to the
+            plasma.to_hdf method.
+
+        Returns
+        -------
+        None
+
+        """
+        model_path = os.path.join(path, 'model')
+        properties = ['t_inner', 'ws', 't_rads', 'v_inner', 'v_outer']
+        to_hdf(path_or_buf, model_path, {name: getattr(self, name) for name
+                                         in properties})
+
+        self.plasma.to_hdf(path_or_buf, model_path, plasma_properties)
+
+        metadata = pd.Series({'atom_data_uuid': self.atom_data.uuid1})
+        metadata.to_hdf(path_or_buf,
+                                 os.path.join(model_path, 'metadata'))
+
+
+

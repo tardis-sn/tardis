@@ -192,7 +192,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     for key, value in radial1d_mdl.atom_data.synpp_refs.iterrows():
         try:
             radial1d_mdl.atom_data.synpp_refs['ref_log_tau'].ix[key] = np.log10(
-                radial1d_mdl.plasma_array.tau_sobolevs[0].ix[value['line_id']])
+                radial1d_mdl.plasma.tau_sobolevs[0].ix[value['line_id']])
         except KeyError:
             pass
 

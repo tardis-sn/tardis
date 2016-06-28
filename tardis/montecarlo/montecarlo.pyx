@@ -119,10 +119,10 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.inverse_time_explosion = 1.0 / storage.time_explosion
     #electron density
     storage.electron_densities = <double*> PyArray_DATA(
-        model.plasma_array.electron_densities.values)
+        model.plasma.electron_densities.values)
 
     runner.inverse_electron_densities = (
-        1.0 / model.plasma_array.electron_densities.values)
+        1.0 / model.plasma.electron_densities.values)
     storage.inverse_electron_densities = <double*> PyArray_DATA(
         runner.inverse_electron_densities)
     # Switch for continuum processes
@@ -148,7 +148,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.no_of_lines = model.atom_data.lines.nu.values.size
     storage.line_list_nu = <double*> PyArray_DATA(model.atom_data.lines.nu.values)
     runner.line_lists_tau_sobolevs = (
-            model.plasma_array.tau_sobolevs.values.flatten(order='F')
+            model.plasma.tau_sobolevs.values.flatten(order='F')
             )
     storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
             runner.line_lists_tau_sobolevs
@@ -162,13 +162,13 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     # macro atom & downbranch
     if storage.line_interaction_id >= 1:
         runner.transition_probabilities = (
-                model.plasma_array.transition_probabilities.values.flatten(order='F')
+                model.plasma.transition_probabilities.values.flatten(order='F')
         )
         storage.transition_probabilities = <double*> PyArray_DATA(
                 runner.transition_probabilities
                 )
         storage.transition_probabilities_nd = (
-        model.plasma_array.transition_probabilities.values.shape[0])
+        model.plasma.transition_probabilities.values.shape[0])
         storage.line2macro_level_upper = <int_type_t*> PyArray_DATA(
             model.atom_data.lines_upper2macro_reference_idx)
         storage.macro_block_references = <int_type_t*> PyArray_DATA(
@@ -214,7 +214,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
     # Data for continuum implementation
-    cdef np.ndarray[double, ndim=1] t_electrons = model.plasma_array.t_electrons
+    cdef np.ndarray[double, ndim=1] t_electrons = model.plasma.t_electrons
     storage.t_electrons = <double*> t_electrons.data
 
 def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,

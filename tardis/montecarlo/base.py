@@ -1,3 +1,4 @@
+import os
 import logging
 import warnings
 
@@ -7,8 +8,10 @@ from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
 from tardis.montecarlo import montecarlo, packet_source
+from tardis.io.util import to_hdf
 
 import numpy as np
+import pandas as pd
 
 logger = logging.getLevelName(__name__)
 
@@ -121,7 +124,7 @@ class MontecarloRunner(object):
         self.time_of_simulation = model.time_of_simulation
         self.volume = model.tardis_config.structure.volumes
         self._initialize_estimator_arrays(self.volume.shape[0],
-                                          model.plasma_array.tau_sobolevs.shape)
+                                          model.plasma.tau_sobolevs.shape)
         self._initialize_geometry_arrays(model.tardis_config.structure)
 
         self._initialize_packets(model.t_inner.value,
@@ -277,6 +280,23 @@ class MontecarloRunner(object):
     def calculate_f_lambda(self, wavelength):
         pass
 
-    def save_spectra(self, fname):
-        self.spectrum.to_ascii(fname)
-        self.spectrum_virtual.to_ascii('virtual_' + fname)
+    def to_hdf(self, path_or_buf, path=''):
+        """
+        Store the runner to an HDF structure.
+
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path:
+            Path inside the HDF store to store the runner
+        Returns
+        -------
+            : None
+
+        """
+        runner_path = os.path.join(path, 'runner')
+        properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
+                      'j_estimator']
+        to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
+                                          in properties})
