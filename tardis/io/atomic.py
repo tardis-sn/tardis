@@ -216,6 +216,7 @@ class AtomData(object):
             self.has_levels = False
 
         if lines_data is not None:
+            self.lines = lines_data
             self.lines['wavelength_cm'] = units.Quantity(self.lines['wavelength'], 'angstrom').cgs
             self.has_lines = True
         else:
