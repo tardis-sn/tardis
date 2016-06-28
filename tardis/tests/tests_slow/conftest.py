@@ -60,7 +60,7 @@ def setup_names():
 
 
 @pytest.fixture(scope="class", params=setup_names())
-def data_paths(request):
+def data_path(request):
     integration_tests_config = request.config.option.integration_tests_config
 
     return {
@@ -69,12 +69,13 @@ def data_paths(request):
         ),
         'reference_dirpath': os.path.join(os.path.expandvars(
             os.path.expanduser(integration_tests_config["reference"])), request.param
-        )
+        ),
+        'setup_name': request.param
     }
 
 
 @pytest.fixture(scope="class")
-def reference(data_paths):
+def reference(data_path):
     """
     Fixture to ingest reference data for slow test from already available
     compressed binaries (.npz). All data is collected in one dict and
@@ -99,7 +100,7 @@ def reference(data_paths):
         * luminosity_density_nu          | * wavelength
         * delta_frequency                | * luminosity_density_lambda
     """
-    reference_dirpath = data_paths['reference_dirpath']
+    reference_dirpath = data_path['reference_dirpath']
 
     # TODO: make this fixture ingest data from an HDF5 file.
     ndarrays = dict(np.load(os.path.join(reference_dirpath, "ndarrays.npz")))
