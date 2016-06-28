@@ -119,8 +119,7 @@ def model():
         line_lists_j_blues=(c_double * 2)(*([1.e-10] * 2)),
         line_lists_j_blues_nd=0,
 
-        line_lists_Edotlu=(c_double * 3)(1e-10,1e-10,1.0), # Init to an explicit array 
-        line_lists_Edotlu_nd=0,
+        line_lists_Edotlu=(c_double * 3)(*[0.0,0.0,1.0]), # Init to an explicit array 
 
         no_of_lines=2,
         no_of_edges=100,
@@ -443,6 +442,7 @@ These test check very simple pices of code still work.
 )
 def test_increment_Edotlu_estimator(packet_params, line_idx, expected, packet, model):
     packet.energy = packet_params['energy']
+
     cmontecarlo_methods.increment_Edotlu_estimator(byref(packet), byref(model), c_int64(line_idx))
 
     assert_almost_equal(model.line_lists_Edotlu[line_idx], expected)
