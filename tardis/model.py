@@ -123,6 +123,7 @@ class Radial1DModel(object):
             v_outer=self.v_outer)
 
         self.calculate_j_blues(init_detailed_j_blues=True)
+        self.Edotlu = np.zeros(np.shape(self.j_blues.shape))
         self.update_plasmas(initialize_nlte=True)
 
     @property
@@ -184,6 +185,7 @@ class Radial1DModel(object):
             constants.c.cgs * self.tardis_config.supernova.time_explosion /
             (4 * np.pi * self.time_of_simulation *
              self.tardis_config.structure.volumes))
+
 
 
     @staticmethod

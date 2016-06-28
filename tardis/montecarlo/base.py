@@ -50,6 +50,7 @@ class MontecarloRunner(object):
         self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.j_blue_estimator = np.zeros(tau_sobolev_shape)
+        self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
 
 
     def _initialize_geometry_arrays(self, structure):
@@ -109,7 +110,7 @@ class MontecarloRunner(object):
             self.spectrum_virtual.update_luminosity(
                 self.montecarlo_virtual_luminosity)
 
-    def run(self, model, no_of_packets, no_of_virtual_packets=0, nthreads=1):
+    def run(self, model, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
         """
         Running the TARDIS simulation
 
@@ -132,12 +133,14 @@ class MontecarloRunner(object):
 
         montecarlo.montecarlo_radial1d(
             model, self, virtual_packet_flag=no_of_virtual_packets,
-            nthreads=nthreads)
+            nthreads=nthreads,last_run=last_run)
         # Workaround so that j_blue_estimator is in the right ordering
         # They are written as an array of dimension (no_of_shells, no_of_lines)
         # but python expects (no_of_lines, no_of_shells)
         self.j_blue_estimator = self.j_blue_estimator.flatten().reshape(
                 self.j_blue_estimator.shape, order='F')
+        self.Edotlu_estimator = self.Edotlu_estimator.flatten().reshape(
+                self.Edotlu_estimator.shape, order='F')
 
     def legacy_return(self):
         return (self.output_nu, self.output_energy,

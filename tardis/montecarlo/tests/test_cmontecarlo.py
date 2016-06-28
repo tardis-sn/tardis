@@ -119,6 +119,8 @@ def model():
         line_lists_j_blues=(c_double * 2)(*([1.e-10] * 2)),
         line_lists_j_blues_nd=0,
 
+        line_lists_Edotlu=(c_double * 3)(*[0.0,0.0,1.0]), # Init to an explicit array 
+
         no_of_lines=2,
         no_of_edges=100,
 
@@ -426,7 +428,24 @@ def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, 
     assert_almost_equal(packet.tau_event, expected_params['tau_event'])
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
+"""
+Simple Tests:
+----------------
+These test check very simple pices of code still work.
+"""
 
+@pytest.mark.parametrize(
+    ['packet_params', 'line_idx', 'expected'],
+    [({'energy':0.0}, 0, 0),
+     ({'energy':1.0}, 1, 1),
+     ({'energy':0.5}, 2, 1.5)]
+)
+def test_increment_Edotlu_estimator(packet_params, line_idx, expected, packet, model):
+    packet.energy = packet_params['energy']
+
+    cmontecarlo_methods.increment_Edotlu_estimator(byref(packet), byref(model), c_int64(line_idx))
+
+    assert_almost_equal(model.line_lists_Edotlu[line_idx], expected)
 
 """
 Difficult Tests:
