@@ -19,15 +19,15 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, reference, data_paths, atomic_data_fname):
+    def setup(self, reference, data_path, atomic_data_fname):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
         # The last component in dirpath can be extracted as name of setup.
-        self.name = data_paths["config_dirpath"].split("/")[-1]
+        self.name = data_path['setup_name']
 
-        self.config_file = os.path.join(data_paths["config_dirpath"], "config.yml")
+        self.config_file = os.path.join(data_path['config_dirpath'], "config.yml")
 
         # Load atom data file separately, pass it for forming tardis config.
         self.atom_data = AtomData.from_hdf5(atomic_data_fname)
