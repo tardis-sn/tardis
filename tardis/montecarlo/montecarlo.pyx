@@ -50,6 +50,7 @@ cdef extern from "src/cmontecarlo.h":
         double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
+        double *line_lists_Edotlu
         int_type_t line_lists_j_blues_nd
         int_type_t no_of_lines
         int_type_t no_of_edges
@@ -156,6 +157,9 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.line_lists_j_blues = <double*> PyArray_DATA(
             runner.j_blue_estimator)
 
+    storage.line_lists_Edotlu = <double*> PyArray_DATA(
+            runner.Edotlu_estimator)
+
     storage.line_interaction_id = runner.get_line_interaction_id(
         model.tardis_config.plasma.line_interaction_type)
 
@@ -218,7 +222,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.t_electrons = <double*> t_electrons.data
 
 def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
-                        int nthreads=4):
+                        int nthreads=4,last_run=False):
     """
     Parameters
     ----------
@@ -288,3 +292,14 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_last_interaction_type = np.zeros(0)
         runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
         runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
+
+    if last_run:
+        postprocess(model,runner)
+
+def postprocess(model, runner):
+    Edotlu_norm_factor = (1 / 
+        (model.time_of_simulation * model.tardis_config.structure.volumes))
+    exptau = 1 - np.exp(- 
+                        runner.line_lists_tau_sobolevs.reshape(-1,
+                            model.tardis_config.structure["velocity"]["num"]) ) 
+    model.Edotlu = Edotlu_norm_factor*exptau*runner.Edotlu_estimator        
