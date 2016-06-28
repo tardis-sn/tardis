@@ -1,8 +1,10 @@
+import os
 import logging
 import tempfile
 import fileinput
 
 import networkx as nx
+import pandas as pd
 
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from tardis.plasma.properties.base import *
@@ -39,7 +41,7 @@ class BasePlasma(object):
                  if not item.startswith('_')]
         attrs += [item for item in self.__class__.__dict__
                  if not item.startswith('_')]
-        attrs += self.module_dict.keys()
+        attrs += self.outputs_dict.keys()
         return attrs
 
     @property
@@ -258,10 +260,33 @@ class BasePlasma(object):
                 print_graph.remove_node(str(item.name))
         return print_graph
 
-class StandardPlasma(BasePlasma):
+    def to_hdf(self, path_or_buf, path='', collection=None):
+        """
+        Store the plasma to an HDF structure
 
-    def __init__(self, number_densities, atom_data, time_explosion,
-                 nlte_config=None, ionization_mode='lte',
-                 excitation_mode='lte', w=None,
-                 link_t_rad_t_electron=0.9):
-        pass
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path:
+            Path inside the HDF store to store the plasma
+        collection:
+            `None` or a `PlasmaPropertyCollection` of which members are
+            the property types which will be stored. If `None` then
+            all types of properties will be stored.
+
+            This acts like a filter, for example if a value of
+            `property_collections.basic_inputs` is given, only
+            those input parameters will be stored to the HDF store.
+        Returns
+        -------
+            : None
+
+        """
+        if collection:
+            properties = [prop for prop in self.plasma_properties if
+                          isinstance(prop, tuple(collection))]
+        else:
+            properties = self.plasma_properties
+        for prop in properties:
+            prop.to_hdf(path_or_buf, os.path.join(path, 'plasma'))

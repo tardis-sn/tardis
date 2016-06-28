@@ -4,12 +4,15 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import numpy as np
 import pandas as pd
 
+from tardis.io.util import to_hdf
+
 __all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
            'HiddenPlasmaProperty', 'Input', 'ArrayInput', 'DataFrameInput',
            'ProcessingPlasmaProperty', 'PreviousIterationProperty']
 
 logger = logging.getLogger(__name__)
 
+import os
 
 class BasePlasmaProperty(object):
     """
@@ -61,6 +64,26 @@ class BasePlasmaProperty(object):
                     'latex_description',
                     ''))
         return latex_label.replace('\\', r'\\')
+
+    def to_hdf(self, path_or_buf, path):
+        """
+        Stores plugin value to an HDFStore
+
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path: ~str
+            path to store the modules data under
+            - will be joined to <path>/output_name
+
+        Returns
+        -------
+            : None
+
+        """
+        outputs = {name: getattr(self, name) for name in self.outputs}
+        to_hdf(path_or_buf, path, outputs)
 
 
 class ProcessingPlasmaProperty(BasePlasmaProperty):
