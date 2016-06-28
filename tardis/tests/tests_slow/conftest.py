@@ -1,5 +1,5 @@
+import glob
 import os
-import tempfile
 import yaml
 import numpy as np
 import pytest
@@ -50,27 +50,19 @@ def plot_object(request):
     return PlotUploader(request)
 
 
-def setup_names():
-    slow_tests_dir = os.path.dirname(os.path.realpath(__file__))
-    names = list()
-    for child in os.listdir(slow_tests_dir):
-        if os.path.isdir(os.path.join(slow_tests_dir, child)):
-            names.append(child)
-    return names
-
-
-@pytest.fixture(scope="class", params=setup_names())
+@pytest.fixture(scope="class", params=[
+    path for path in glob.glob(os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "*")) if os.path.isdir(path)
+])
 def data_path(request):
     integration_tests_config = request.config.option.integration_tests_config
-
+    setup_name = os.path.basename(request.param)
     return {
-        'config_dirpath': os.path.join(
-            os.path.dirname(os.path.realpath(__file__)), request.param
-        ),
+        'config_dirpath': request.param,
         'reference_dirpath': os.path.join(os.path.expandvars(
-            os.path.expanduser(integration_tests_config["reference"])), request.param
+            os.path.expanduser(integration_tests_config["reference"])), setup_name
         ),
-        'setup_name': request.param
+        'setup_name': setup_name
     }
 
 
