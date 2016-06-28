@@ -131,40 +131,40 @@ class AtomData(object):
         with pd.HDFStore(fname) as store:
 
             try:
-                basic_atom_df = store["basic_atom_df"]
+                basic_atom_data = store["basic_atom_df"]
             except KeyError:
                 print "Basic atom data is not available in this HDF5-data file."
-                basic_atom_df = None
+                basic_atom_data = None
 
             try:
-                ionization_df = store["ionization_df"]
+                ionization_data = store["ionization_df"]
             except KeyError:
                 print "Ionization data is not available in this HDF5-data file."
-                ionization_df = None
+                ionization_data = None
 
             try:
-                levels_df = store["levels_df"]
+                levels_data = store["levels_df"]
             except KeyError:
                 print "Levels data is not available in this HDF5-data file."
-                levels_df = None
+                levels_data = None
 
             try:
-                lines_df = store["lines_df"]
+                lines_data = store["lines_df"]
             except KeyError:
                 print "Lines data is not available in this HDF5-data file"
-                lines_df = None
+                lines_data = None
 
             try:
-                macro_atom_df = store["macro_atom_df"]
+                macro_atom_data = store["macro_atom_df"]
             except KeyError:
                 print "Macro atom data is not available in this HDF5-data file."
-                macro_atom_df = None
+                macro_atom_data = None
 
             try:
-                macro_atom_ref_df = store["macro_atom_ref_df"]
+                macro_atom_ref = store["macro_atom_ref_df"]
             except KeyError:
                 print "Macro atom reference data is not available in this HDF5-data file."
-                macro_atom_ref_df = None
+                macro_atom_ref = None
 
             try:
                 zeta_data = store["zeta_data"]
@@ -173,11 +173,11 @@ class AtomData(object):
                 zeta_data = None
 
             try:
-                collisions_df = store["collisions_df"]
-                collisions_temperatures = store.get_storer("collisions_df").attrs["temperatures"]
+                collision_data = store["collisions_df"]
+                collision_temperatures = store.get_storer("collisions_df").attrs["temperatures"]
             except KeyError:
                 print "Collision data is not available in this HDF5-data file."
-                collisions_df, collisions_temperatures = (None, None)
+                collision_data, collision_temperatures = (None, None)
 
             try:
                 synpp_refs = store["synpp_refs"]
@@ -186,15 +186,15 @@ class AtomData(object):
                 synpp_refs = None
 
             try:
-                ion_cx_df = store["ion_cx_df"]
+                ion_cx_data = store["ion_cx_data"]
             except KeyError:
                 print "Ionization cx data is not available in this HDF5-data file."
-                ion_cx_df = None
+                ion_cx_data = None
 
-            atom_data = cls(atom_data=basic_atom_df, ionization_data=ionization_df, levels_data=levels_df,
-                            lines_data=lines_df, macro_atom_data=(macro_atom_df, macro_atom_ref_df), zeta_data=zeta_data,
-                            collision_data=(collisions_df, collisions_temperatures), synpp_refs=synpp_refs,
-                            ion_cx_data=ion_cx_df)
+            atom_data = cls(atom_data=basic_atom_data, ionization_data=ionization_data, levels_data=levels_data,
+                            lines_data=lines_data, macro_atom_data=(macro_atom_data, macro_atom_ref), zeta_data=zeta_data,
+                            collision_data=(collision_data, collision_temperatures), synpp_refs=synpp_refs,
+                            ion_cx_data=ion_cx_data)
 
             atom_data.uuid1 = store.root._v_attrs['uuid1']
             atom_data.md5 = store.root._v_attrs['md5']
