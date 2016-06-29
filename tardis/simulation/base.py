@@ -326,7 +326,6 @@ class Simulation(object):
 
         self.runner.legacy_update_spectrum(no_of_virtual_packets)
         self.legacy_set_final_model_properties(model)
-        model.Edotlu_estimators = self.runner.Edotlu_estimator
 
         #the following instructions, passing down information to the model are
         #required for the gui
