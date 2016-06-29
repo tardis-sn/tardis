@@ -1,6 +1,5 @@
+import glob
 import os
-import shutil
-import tempfile
 import yaml
 import numpy as np
 import pytest
@@ -26,18 +25,12 @@ def pytest_configure(config):
             config.dokureport = DokuReport(
                 config.option.integration_tests_config['dokuwiki'])
             config.pluginmanager.register(config.dokureport)
-    # A common tempdir for storing plots / PDFs and other slow test related data
-    # generated during execution.
-    tempdir_session = tempfile.mkdtemp()
-    config.option.tempdir = tempdir_session
 
 
 def pytest_unconfigure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
     if integration_tests_configpath is not None:
         config.pluginmanager.unregister(config.dokureport)
-    # Remove tempdir by recursive deletion
-    shutil.rmtree(config.option.tempdir)
 
 
 @pytest.mark.hookwrapper
@@ -57,25 +50,24 @@ def plot_object(request):
     return PlotUploader(request)
 
 
-@pytest.fixture(scope="session")
-def integration_tests_config(request):
-    return request.config.option.integration_tests_config
+@pytest.fixture(scope="class", params=[
+    path for path in glob.glob(os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "*")) if os.path.isdir(path)
+])
+def data_path(request):
+    integration_tests_config = request.config.option.integration_tests_config
+    setup_name = os.path.basename(request.param)
+    return {
+        'config_dirpath': request.param,
+        'reference_dirpath': os.path.join(os.path.expandvars(
+            os.path.expanduser(integration_tests_config["reference"])), setup_name
+        ),
+        'setup_name': setup_name
+    }
 
 
-@pytest.fixture(scope="session")
-def reference_datadir(integration_tests_config):
-    return os.path.expandvars(
-        os.path.expanduser(integration_tests_config["reference"])
-    )
-
-
-@pytest.fixture(scope="session")
-def data_path():
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), "w7")
-
-
-@pytest.fixture(scope="session")
-def reference(request, reference_datadir):
+@pytest.fixture(scope="class")
+def reference(data_path):
     """
     Fixture to ingest reference data for slow test from already available
     compressed binaries (.npz). All data is collected in one dict and
@@ -100,11 +92,12 @@ def reference(request, reference_datadir):
         * luminosity_density_nu          | * wavelength
         * delta_frequency                | * luminosity_density_lambda
     """
+    reference_dirpath = data_path['reference_dirpath']
 
     # TODO: make this fixture ingest data from an HDF5 file.
-    ndarrays = dict(np.load(os.path.join(reference_datadir, "ndarrays.npz")))
-    quantities = dict(np.load(os.path.join(reference_datadir, "quantities.npz")))
-    spectrum = dict(np.load(os.path.join(reference_datadir, "spectrum.npz")))
+    ndarrays = dict(np.load(os.path.join(reference_dirpath, "ndarrays.npz")))
+    quantities = dict(np.load(os.path.join(reference_dirpath, "quantities.npz")))
+    spectrum = dict(np.load(os.path.join(reference_dirpath, "spectrum.npz")))
 
     # Associate CGS units to ndarrays of reference quantities.
     ndarrays.update(
