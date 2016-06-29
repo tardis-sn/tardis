@@ -5,7 +5,6 @@ from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.atomic import AtomData
-from tardis.io.util import yaml_load_config_file
 from tardis.simulation.base import Simulation
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
@@ -13,20 +12,22 @@ from tardis.io.config_reader import Configuration
 
 @pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
                     reason="integration tests are not included in this run")
-class TestW7(object):
-    """
-    Slow integration test for Stratified W7 setup.
+class TestIntegration(object):
+    """Slow integration test for various setups present in subdirectories of
+    ``tardis/tests/tests_slow``.
     """
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path, atomic_data_fname,
-              reference_datadir):
+    def setup(self, reference, data_path, atomic_data_fname):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
-        self.config_file = os.path.join(data_path, "config.yml")
+        # The last component in dirpath can be extracted as name of setup.
+        self.name = data_path['setup_name']
+
+        self.config_file = os.path.join(data_path['config_dirpath'], "config.yml")
 
         # Load atom data file separately, pass it for forming tardis config.
         self.atom_data = AtomData.from_hdf5(atomic_data_fname)
@@ -48,12 +49,6 @@ class TestW7(object):
 
         # Get the reference data through the fixture.
         self.reference = reference
-
-        # Form a base directory to save plots for `W7` setup.
-        # TODO: Rough prototyping, parametrize this as more setups are added.
-        self.name = "w7"
-        self.base_plot_dir = os.path.join(request.config.option.tempdir, self.name)
-        os.makedirs(self.base_plot_dir)
 
     def test_j_estimators(self):
         assert_allclose(
@@ -102,7 +97,7 @@ class TestW7(object):
                 self.result.luminosity_inner)
 
     def test_spectrum(self, plot_object):
-        plot_object.add(self.plot_spectrum(), "spectrum")
+        plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
 
         assert_quantity_allclose(
             self.reference['luminosity_density_nu'],
@@ -154,7 +149,7 @@ class TestW7(object):
                 self.result.montecarlo_nu)
 
     def test_shell_temperature(self, plot_object):
-        plot_object.add(self.plot_t_rads(), "t_rads")
+        plot_object.add(self.plot_t_rads(), "{0}_t_rads".format(self.name))
 
         assert_quantity_allclose(
             self.reference['t_rads'],
@@ -172,7 +167,6 @@ class TestW7(object):
                               marker=".", label="Result")
         reference_line = ax.plot(self.reference['t_rads'], color="green",
                                  marker=".", label="Reference")
-        ax.axis([0, 28, 5000, 10000])
 
         error_ax = ax.twinx()
         error_line = error_ax.plot((1 - self.result.t_rads / self.reference['t_rads']),
