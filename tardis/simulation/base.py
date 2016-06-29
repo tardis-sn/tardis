@@ -343,6 +343,8 @@ class Simulation(object):
                         'simulation{}'.format(self.iterations_executed),
                         plasma_properties)
 
+        self.make_source_func()
+
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
 
@@ -428,3 +430,14 @@ def run_radial1d(radial1d_model, hdf_path_or_buf=None,
     simulation = Simulation(radial1d_model.tardis_config)
     simulation.legacy_run_simulation(radial1d_model, hdf_path_or_buf,
                                      hdf_mode, hdf_last_only)
+
+    def make_source_func(self):
+        upper_level_index = mdl.atom_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
+        edotlu_df = pd.DataFrame(mdl.runner.Edotlu, index=upper_level_index)
+        self.Edotu = edotlu_df.groupby(level=[0, 1, 2]).sum()
+        transitions_df = mdl.atom_data.macro_atom_data[mdl.atom_data.macro_atom_data.transition_type == -1].copy()
+        transitions_index = transition_df.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
+        qul_df = mdl.plasma.transition_probabilities[(mdl.atom_data.macro_atom_data.transition_type == -1).values]
+        qul_df.set_index(transitions_df)
+
+
