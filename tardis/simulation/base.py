@@ -406,11 +406,12 @@ class Simulation(object):
     def make_source_func(self,model):
         upper_level_index = model.atom_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
         edotlu_df = pd.DataFrame(self.runner.Edotlu, index=upper_level_index)
-        self.Edotu = edotlu_df.groupby(level=[0, 1, 2]).sum()
+        self.runner.Edotu = edotlu_df.groupby(level=[0, 1, 2]).sum()
         transitions_df = model.atom_data.macro_atom_data[model.atom_data.macro_atom_data.transition_type == -1].copy()
         transitions_index = transitions_df.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
         qul_df = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
         qul_df.set_index(transitions_index)
+        self.runner.qul = qul_df
 
 def run_radial1d(radial1d_model, hdf_path_or_buf=None,
                  hdf_mode='full', hdf_last_only=True):
