@@ -27,7 +27,6 @@ def pytest_configure(config):
             open(integration_tests_configpath))
 
         if not config.getoption("--generate-reference"):
-            config.option.generate_reference['generate_reference'] = None
             # Used by DokuReport class to show build environment details in report.
             config._environment = []
             # prevent opening dokupath on slave nodes (xdist)
@@ -42,6 +41,15 @@ def pytest_unconfigure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
     if integration_tests_configpath and not config.getoption("--generate-reference"):
         config.pluginmanager.unregister(config.dokureport)
+
+
+def pytest_terminal_summary(terminalreporter):
+    if terminalreporter.config.getoption("--generate-reference") and (
+            terminalreporter.config.getvalue("integration-tests")):
+        # TODO: Add a check whether generation was successful or not.
+        terminalreporter.write_sep("-", "Generated reference data: {0}".format(
+            terminalreporter.config.option.integration_tests_config['generate_reference']
+        ))
 
 
 @pytest.mark.hookwrapper
@@ -79,8 +87,8 @@ def data_path(request):
 
 @pytest.fixture(scope="session")
 def gen_ref_dirpath(request):
-    integration_tests_config = request.config.integration_tests_config
     if request.config.getoption("--generate-reference"):
+        integration_tests_config = request.config.integration_tests_config
         path = os.path.join(os.path.expandvars(os.path.expanduser(
             integration_tests_config["generate_reference"])), tardis_githash
         )
