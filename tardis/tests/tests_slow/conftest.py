@@ -10,13 +10,6 @@ from tardis.tests.tests_slow.report import DokuReport
 from tardis.tests.tests_slow.plot_helpers import PlotUploader
 
 
-def pytest_addoption(parser):
-    parser.addoption("--integration-tests", dest="integration-tests", default=None,
-                     help="path to configuration file for integration tests")
-    parser.addoption("--generate-reference", action="store_true", default=False,
-                     help="execute integration test run to generate reference data")
-
-
 def pytest_configure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
     if integration_tests_configpath:
