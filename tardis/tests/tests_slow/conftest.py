@@ -11,15 +11,15 @@ from tardis.tests.tests_slow.plot_helpers import PlotUploader
 
 
 def pytest_addoption(parser):
-    parser.addoption("--integration-tests", dest="integration-tests",
+    parser.addoption("--integration-tests", dest="integration-tests", default=None,
                      help="path to configuration file for integration tests")
-    parser.addoption("--generate-reference", action="store_true",
+    parser.addoption("--generate-reference", action="store_true", default=False,
                      help="execute integration test run to generate reference data")
 
 
 def pytest_configure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
-    if integration_tests_configpath is not None:
+    if integration_tests_configpath:
         integration_tests_configpath = os.path.expandvars(
             os.path.expanduser(integration_tests_configpath)
         )
@@ -44,7 +44,7 @@ def pytest_unconfigure(config):
 
 
 def pytest_terminal_summary(terminalreporter):
-    if terminalreporter.config.getoption("--generate-reference") and (
+    if (terminalreporter.config.getoption("--generate-reference") and
             terminalreporter.config.getvalue("integration-tests")):
         # TODO: Add a check whether generation was successful or not.
         terminalreporter.write_sep("-", "Generated reference data: {0}".format(
@@ -88,7 +88,7 @@ def data_path(request):
 @pytest.fixture(scope="session")
 def gen_ref_dirpath(request):
     if request.config.getoption("--generate-reference"):
-        integration_tests_config = request.config.integration_tests_config
+        integration_tests_config = request.config.option.integration_tests_config
         path = os.path.join(os.path.expandvars(os.path.expanduser(
             integration_tests_config["generate_reference"])), tardis_githash
         )
