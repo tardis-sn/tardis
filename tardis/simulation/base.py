@@ -343,7 +343,7 @@ class Simulation(object):
                         'simulation{}'.format(self.iterations_executed),
                         plasma_properties)
 
-        self.make_source_func(model)
+        self.att_S_ul =  self.make_source_function(model)
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
@@ -403,15 +403,31 @@ class Simulation(object):
         self.runner.to_hdf(path_or_buf, path)
         model.to_hdf(path_or_buf, path, plasma_properties)
 
-    def make_source_func(self,model):
+    def make_source_function(self, model):
+        """
+        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+
+        Formally it calculates the expresion ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+        so there is no need to factor out the source function explicitly.
+
+        Parameters
+        ----------
+        model : tardis.model.Radial1DModel
+
+        Returns
+        -------
+        DataFrame containing ( 1 - exp(-tau_ul) ) S_ul
+        """
+
         upper_level_index = model.atom_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
-        edotlu_df = pd.DataFrame(self.runner.Edotlu, index=upper_level_index)
-        self.runner.Edotu = edotlu_df.groupby(level=[0, 1, 2]).sum()
-        transitions_df = model.atom_data.macro_atom_data[model.atom_data.macro_atom_data.transition_type == -1].copy()
-        transitions_index = transitions_df.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
-        qul_df = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
-        qul_df.set_index(transitions_index)
-        self.runner.qul = qul_df
+        e_dot_lu = pd.DataFrame(self.runner.Edotlu, index=upper_level_index)
+        e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+        transitions = model.atom_data.macro_atom_data[model.atom_data.macro_atom_data.transition_type == -1].copy()
+        transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
+        tmp = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
+        q_ul = tmp.set_index(transitions_index)
+        return (model.atom_data.lines.wavelength[transitions.transition_line_id].values.reshape(-1,1) * 
+                 (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion / (4*np.pi) )
 
 def run_radial1d(radial1d_model, hdf_path_or_buf=None,
                  hdf_mode='full', hdf_last_only=True):
