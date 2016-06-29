@@ -343,7 +343,7 @@ class Simulation(object):
                         'simulation{}'.format(self.iterations_executed),
                         plasma_properties)
 
-        self.att_S_ul =  self.make_source_function(model)
+        self.runner.att_S_ul =  self.make_source_function(model)
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
@@ -422,6 +422,7 @@ class Simulation(object):
         upper_level_index = model.atom_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
         e_dot_lu = pd.DataFrame(self.runner.Edotlu, index=upper_level_index)
         e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+        e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
         transitions = model.atom_data.macro_atom_data[model.atom_data.macro_atom_data.transition_type == -1].copy()
         transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
         tmp = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
