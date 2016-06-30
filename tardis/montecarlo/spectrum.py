@@ -1,5 +1,9 @@
+import os
 import numpy as np
 from astropy import constants, units as u
+
+from tardis.io.util import to_hdf
+
 
 class TARDISSpectrum(object):
     """
@@ -67,3 +71,29 @@ class TARDISSpectrum(object):
             np.savetxt(fname, zip(self.wavelength.value, self.flux_lambda.value))
         else:
             raise NotImplementedError('only mode "luminosity_density" and "flux" are implemented')
+
+    def to_hdf(self, path_or_buf, path='', name=''):
+        """
+        Store the spectrum to an HDF structure.
+
+        Parameters
+        ----------
+        path_or_buf
+            Path or buffer to the HDF store
+        path : str
+            Path inside the HDF store to store the spectrum
+        name : str, optional
+            A different name than 'spectrum', if needed.
+
+        Returns
+        -------
+        None
+
+        """
+        if not name:
+            name = 'spectrum'
+        spectrum_path = os.path.join(path, name)
+        properties = ['luminosity_density_nu', 'delta_frequency', 'wavelength',
+                      'luminosity_density_lambda']
+        to_hdf(path_or_buf, spectrum_path, {name: getattr(self, name) for name
+                                            in properties})

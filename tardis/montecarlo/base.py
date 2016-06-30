@@ -303,3 +303,8 @@ class MontecarloRunner(object):
                       'j_estimator']
         to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
                                           in properties})
+        self.spectrum.to_hdf(path_or_buf, runner_path)
+        self.spectrum_virtual.to_hdf(path_or_buf, runner_path,
+                                     'spectrum_virtual')
+        self.spectrum_reabsorbed.to_hdf(path_or_buf, runner_path,
+                                        'spectrum_reabsorbed')
