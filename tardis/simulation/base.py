@@ -340,9 +340,11 @@ class Simulation(object):
             self.iterations_executed, time.time()-start_time))
 
         if hdf_path_or_buf is not None:
-            self.to_hdf(model, hdf_path_or_buf,
-                        'simulation{}'.format(self.iterations_executed),
-                        plasma_properties)
+            if hdf_last_only:
+                name = 'simulation'
+            else:
+                name = 'simulation{}'.format(self.iterations_executed)
+            self.to_hdf(model, hdf_path_or_buf, name, plasma_properties)
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
