@@ -77,11 +77,4 @@ def test_packet_output(simulation_one_loop, simulation_compare_data):
 
 def test_make_source_function(simulation_one_loop,raw_model):
     # For now just test that the method can be called without exceptions
-    succes = False
-
-    try:
-        tmp =  simulation_one_loop.make_source_function(raw_model)
-        succes = True
-    except Exception:
-        pass
-    assert(succes)
+    tmp =  simulation_one_loop.make_source_function(raw_model)
