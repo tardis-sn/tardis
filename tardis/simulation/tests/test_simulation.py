@@ -1,5 +1,8 @@
 import numpy.testing as npt
 
+import numpy as np
+import pandas as pd
+
 import h5py
 import pytest
 from tardis.io import config_reader
@@ -31,6 +34,15 @@ def simulation_one_loop(raw_model, tardis_config):
 def simulation_compare_data_fname():
     return 'tardis/simulation/tests/data/test_data.h5'
 
+@pytest.fixture()
+def simulation_mock_dataframes():
+    lincol = ['atomic_number', 'ion_number', 'level_number_upper','wavelength']
+    lin = np.hstack(( np.random.randint(0, 20, size = (5,3)),
+                      np.random.random((5, 1)) ))
+    lin = pd.DataFrame(lin,columns=lincol)
+    lin.index.name = 'line_id'
+    pass
+
 
 @pytest.fixture()
 def simulation_compare_data(simulation_compare_data_fname):
@@ -61,3 +73,9 @@ def test_packet_output(simulation_one_loop, simulation_compare_data):
     assert_quantity_allclose(simulation_one_loop.runner.output_energy,
                         simulation_compare_data['test1/output_energy'] * u.Unit('erg'),
                         atol=0.0 * u.Unit('erg'))
+
+
+def test_make_source_function():
+    print "test"
+    test = 1
+    assert(1 > test)
