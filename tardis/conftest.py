@@ -80,7 +80,7 @@ def pytest_addoption(parser):
 def atomic_data_fname():
     atomic_data_fname = pytest.config.getvalue("atomic-dataset")
     if atomic_data_fname is None:
-        pytest.skip('--atomic_database was not specified')
+        pytest.skip('--atomic-dataset was not specified')
     else:
         return os.path.expandvars(os.path.expanduser(atomic_data_fname))
 
