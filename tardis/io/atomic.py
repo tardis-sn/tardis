@@ -32,6 +32,13 @@ def tests_data_path(fname):
 
 default_atom_h5_path = data_path('atom_data.h5')
 
+atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
+                                    names=['atomic_number', 'symbol'])
+
+symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
+                                       atomic_symbols_data['atomic_number']))
+atomic_number2symbol = OrderedDict(atomic_symbols_data)
+
 
 class AtomData(object):
     """
