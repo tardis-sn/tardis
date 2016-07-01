@@ -278,11 +278,10 @@ class AtomData(object):
             self.has_collision_data = False
 
         if synpp_refs is not None:
+            self.synpp_refs = synpp_refs
             self.has_synpp_refs = True
-            self.synpp_refs = pd.DataFrame(synpp_refs)
-            self.synpp_refs.set_index(['atomic_number', 'ion_number'], inplace=True)
-
         else:
+            self.synpp_refs = None
             self.has_synpp_refs = False
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
