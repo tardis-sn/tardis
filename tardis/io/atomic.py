@@ -261,22 +261,23 @@ class AtomData(object):
             self.macro_atom_references_all = None
             self.has_macro_atom = False
 
-        # if ion_cx_data is not None:
-        #     self.has_ion_cx_data = True
-        #     #TODO:Farm a panda here
-        #     self.ion_cx_th_data = DataFrame(np.array(ion_cx_data[0]))
-        #     self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_id'], inplace=True)
-        #
-        #     self.ion_cx_sp_data = DataFrame(np.array(ion_cx_data[1]))
-        #     self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_id'])
-        # else:
-        #     self.has_ion_cx_data = False
+        if ion_cx_data is not None:
+            self.has_ion_cx_data = True
+            #TODO:Farm a panda here
+            self.ion_cx_th_data = DataFrame(np.array(ion_cx_data[0]))
+            self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_id'], inplace=True)
 
-        # if zeta_data is not None:
-        #     self.zeta_data = zeta_data
-        #     self.has_zeta_data = True
-        # else:
-        #     self.has_zeta_data = False
+            self.ion_cx_sp_data = DataFrame(np.array(ion_cx_data[1]))
+            self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_id'])
+        else:
+            self.has_ion_cx_data = False
+
+        if zeta_data is not None:
+            self.zeta_data = zeta_data
+            self.has_zeta_data = True
+        else:
+            self.zeta_data = None
+            self.has_zeta_data = False
 
         if collision_data[0] is not None:
             self.collision_data, self.collision_data_temperatures = collision_data
@@ -286,13 +287,13 @@ class AtomData(object):
             self.collision_data_temperatures = None
             self.has_collision_data = False
 
-        # if synpp_refs is not None:
-        #     self.has_synpp_refs = True
-        #     self.synpp_refs = pd.DataFrame(synpp_refs)
-        #     self.synpp_refs.set_index(['atomic_number', 'ion_number'], inplace=True)
-        #
-        # else:
-        #     self.has_synpp_refs = False
+        if synpp_refs is not None:
+            self.has_synpp_refs = True
+            self.synpp_refs = pd.DataFrame(synpp_refs)
+            self.synpp_refs.set_index(['atomic_number', 'ion_number'], inplace=True)
+
+        else:
+            self.has_synpp_refs = False
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
