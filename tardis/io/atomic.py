@@ -49,12 +49,12 @@ class AtomData(object):
     atom_data: pandas.DataFrame
         A DataFrame containing the *basic atomic data* with:
             index: atomic_number;
-            columns: symbol, name, mass[u].
+            columns: symbol, name, mass[CGS].
 
     ionization_data: pandas.DataFrame
         A DataFrame containing the *ionization data* with:
             index: atomic_number, ion_number;
-            columns: ionization_energy[eV].
+            columns: ionization_energy[CGS].
 
        It is important to note here is that `ion_number` describes the *final ion state*
             e.g. H I - H II is described with ion=1
@@ -62,13 +62,13 @@ class AtomData(object):
     levels_data: pandas.DataFrame
         A DataFrame containing the *levels data* with:
             index: no index;
-            columns: atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
+            columns: atomic_number, ion_number, level_number, energy[CGS], g[1], metastable.
 
     lines_data: pandas.DataFrame
         A DataFrame containing the *lines data* with:
             index: no index;
             columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
-                wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
+                wavelength[angstrom], wavelength_cm[CGS], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
     macro_atom_data: (pandas.DataFrame, pandas.DataFrame)
         A tuple containing a DataFrame with the *macro atom data* with:
@@ -227,19 +227,10 @@ class AtomData(object):
         self.prepared = False
 
         self.atom_data = atom_data
-        # We have to use constants.u because astropy uses different values for the unit u and the constant.
-        # This is changed in later versions of astropy (the value of constants.u is used in all cases)
-        if units.u.cgs == constants.u.cgs:
-            self.atom_data["mass"] = units.Quantity(self.atom_data["mass"].values, "u").cgs
-        else:
-            self.atom_data["mass"] = self.atom_data["mass"].values * constants.u.cgs
-
         self.ionization_data = ionization_data
-        self.ionization_data["ionization_energy"] = units.Quantity(self.ionization_data["ionization_energy"].values, "eV").cgs
 
         if levels_data is not None:
             self.levels = levels_data
-            self.levels["energy"] = units.Quantity(self.levels["energy"].values, 'eV').cgs
             self.has_levels = True
         else:
             self.levels = None
@@ -247,7 +238,6 @@ class AtomData(object):
 
         if lines_data is not None:
             self.lines = lines_data
-            self.lines['wavelength_cm'] = units.Quantity(self.lines['wavelength'], 'angstrom').cgs
             self.has_lines = True
         else:
             self.lines = None
