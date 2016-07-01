@@ -40,9 +40,10 @@ def pytest_terminal_summary(terminalreporter):
     if (terminalreporter.config.getoption("--generate-reference") and
             terminalreporter.config.getvalue("integration-tests")):
         # TODO: Add a check whether generation was successful or not.
-        terminalreporter.write_sep("-", "Generated reference data: {0}".format(
-            terminalreporter.config.option.integration_tests_config['generate_reference']
-        ))
+        terminalreporter.write_sep("-", "Generated reference data: {0}".format(os.path.join(
+            terminalreporter.config.option.integration_tests_config['generate_reference'],
+            tardis_githash[:7]
+        )))
 
 
 @pytest.mark.hookwrapper
