@@ -20,7 +20,7 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, reference, data_path, atomic_data_fname, gen_ref_dirpath):
+    def setup(self, request, reference, data_path, atomic_data_fname):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -50,12 +50,12 @@ class TestIntegration(object):
         # output model to HDF file, save it at specified path. Skip all tests.
         # Else simply perform the run and move further for performing
         # assertions.
-        if gen_ref_dirpath:
+        if request.config.getoption("--generate-reference"):
             run_radial1d(self.result, os.path.join(
-                gen_ref_dirpath, "{0}.h5".format(self.name)
+                data_path['gen_ref_dirpath'], "{0}.h5".format(self.name)
             ))
-            pytest.skip("Reference data saved at {0}/{1}".format(
-                gen_ref_dirpath, tardis_githash[:7]
+            pytest.skip("Reference data saved at {0}".format(
+                data_path['gen_ref_dirpath']
             ))
         else:
             run_radial1d(self.result)

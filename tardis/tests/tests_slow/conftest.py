@@ -69,25 +69,20 @@ def plot_object(request):
 def data_path(request):
     integration_tests_config = request.config.option.integration_tests_config
     setup_name = os.path.basename(request.param)
-    return {
+
+    path = {
         'config_dirpath': request.param,
         'reference_dirpath': os.path.join(os.path.expandvars(
             os.path.expanduser(integration_tests_config["reference"])), setup_name
         ),
+        'gen_ref_dirpath': os.path.join(os.path.expandvars(os.path.expanduser(
+            integration_tests_config["generate_reference"])), tardis_githash[:7]
+        ),
         'setup_name': setup_name
     }
-
-
-@pytest.fixture(scope="session")
-def gen_ref_dirpath(request):
-    if request.config.getoption("--generate-reference"):
-        integration_tests_config = request.config.option.integration_tests_config
-        path = os.path.join(os.path.expandvars(os.path.expanduser(
-            integration_tests_config["generate_reference"])), tardis_githash[:7]
-        )
-        os.makedirs(os.path.join(path))
-    else:
-        path = None
+    if (request.config.getoption("--generate-reference") and not
+            os.path.exists(path['gen_ref_dirpath'])):
+        os.makedirs(path['gen_ref_dirpath'])
     return path
 
 
@@ -117,6 +112,11 @@ def reference(request, data_path):
         * luminosity_density_nu          | * wavelength
         * delta_frequency                | * luminosity_density_lambda
     """
+    # Reference data need not be loaded and provided if current test run itself
+    # generates new reference data.
+    if request.config.getoption("--generate-reference"):
+        return
+
     reference_dirpath = data_path['reference_dirpath']
 
     # TODO: make this fixture ingest data from an HDF5 file.
