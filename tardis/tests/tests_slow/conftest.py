@@ -83,7 +83,7 @@ def gen_ref_dirpath(request):
     if request.config.getoption("--generate-reference"):
         integration_tests_config = request.config.option.integration_tests_config
         path = os.path.join(os.path.expandvars(os.path.expanduser(
-            integration_tests_config["generate_reference"])), tardis_githash
+            integration_tests_config["generate_reference"])), tardis_githash[:7]
         )
         os.makedirs(os.path.join(path))
     else:
