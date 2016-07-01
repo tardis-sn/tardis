@@ -109,7 +109,7 @@ def atomic_dataset(atomic_data_fname):
     atomic_data = AtomData.from_hdf5(atomic_data_fname)
     if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
         pytest.skip('Need default Kurucz atomic dataset '
-                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
+                    '(md5="06709f04d369f07c58e01a7d0f34bd10"')
     else:
         return atomic_data
 
