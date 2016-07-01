@@ -117,17 +117,17 @@ class TestIntegration(object):
     def test_spectrum(self, plot_object):
         plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
 
-        assert_quantity_allclose(
+        assert_allclose(
             self.reference['/simulation/runner/spectrum/luminosity_density_nu'],
-            self.result.runner.spectrum.luminosity_density_nu)
+            self.result.runner.spectrum.luminosity_density_nu.value)
 
-        assert_quantity_allclose(
+        assert_allclose(
             self.reference['/simulation/runner/spectrum/wavelength'],
-            self.result.runner.spectrum.wavelength)
+            self.result.runner.spectrum.wavelength.value)
 
-        assert_quantity_allclose(
+        assert_allclose(
             self.reference['/simulation/runner/spectrum/luminosity_density_lambda'],
-            self.result.runner.spectrum.luminosity_density_lambda)
+            self.result.runner.spectrum.luminosity_density_lambda.value)
 
     def plot_spectrum(self):
         plt.suptitle("Deviation in spectrum_quantities", fontweight="bold")
@@ -142,10 +142,12 @@ class TestIntegration(object):
         ldl_ax.set_ylabel("Relative error (1 - result / reference)")
         deviation = 1 - (
             self.result.runner.spectrum.luminosity_density_lambda.value /
-            self.reference['luminosity_density_lambda'].value)
-
-        ldl_ax.plot(self.reference['wavelength'], deviation,
-                    color="blue", marker=".")
+            self.reference['/simulation/runner/spectrum/luminosity_density_lambda']
+        )
+        ldl_ax.plot(
+            self.reference['/simulation/runner/spectrum/wavelength'], deviation,
+            color="blue", marker="."
+        )
 
         return figure
 
@@ -166,9 +168,9 @@ class TestIntegration(object):
     def test_shell_temperature(self, plot_object):
         plot_object.add(self.plot_t_rads(), "{0}_t_rads".format(self.name))
 
-        assert_quantity_allclose(
+        assert_allclose(
             self.reference['/simulation/model/t_rads'],
-            self.result.t_rads)
+            self.result.t_rads.value)
 
     def plot_t_rads(self):
         plt.suptitle("Shell temperature for packets", fontweight="bold")
@@ -178,14 +180,19 @@ class TestIntegration(object):
         ax.set_xlabel("Shell id")
         ax.set_ylabel("t_rads")
 
-        result_line = ax.plot(self.result.t_rads, color="blue",
-                              marker=".", label="Result")
-        reference_line = ax.plot(self.reference['t_rads'], color="green",
-                                 marker=".", label="Reference")
+        result_line = ax.plot(
+            self.result.t_rads, color="blue", marker=".", label="Result"
+        )
+        reference_line = ax.plot(
+            self.reference['/simulation/model/t_rads'],
+            color="green", marker=".", label="Reference"
+        )
 
         error_ax = ax.twinx()
-        error_line = error_ax.plot((1 - self.result.t_rads / self.reference['t_rads']),
-                                   color="red", marker=".", label="Rel. Error")
+        error_line = error_ax.plot(
+            (1 - self.result.t_rads.value / self.reference['/simulation/model/t_rads']),
+            color="red", marker=".", label="Rel. Error"
+        )
         error_ax.set_ylabel("Relative error (1 - result / reference)")
 
         lines = result_line + reference_line + error_line
