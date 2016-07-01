@@ -21,4 +21,4 @@ exclude_lines =
 
 omit =
    # Slow Tests should be run but need not appear in "html report"
-   tests_slow
+   tardis/tests/tests_slow/*
