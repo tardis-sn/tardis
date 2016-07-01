@@ -4,8 +4,9 @@ import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 
+from tardis import __githash__ as tardis_githash
 from tardis.atomic import AtomData
-from tardis.simulation.base import Simulation
+from tardis.simulation.base import run_radial1d
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
 
@@ -44,15 +45,20 @@ class TestIntegration(object):
 
         # We now do a run with prepared config and get radial1d model.
         self.result = Radial1DModel(tardis_config)
-        simulation = Simulation(tardis_config)
-        simulation.legacy_run_simulation(self.result)
 
-        # Output the model to an HDF file and save it at specified path.
+        # If current test run is just for collecting reference data, store the
+        # output model to HDF file, save it at specified path. Skip all tests.
+        # Else simply perform the run and move further for performing
+        # assertions.
         if gen_ref_dirpath:
-            self.result.to_hdf(
-                os.path.join(gen_ref_dirpath, "{0}.h5".format(self.name))
-            )
-            pytest.skip("Reference data saved at {0}".format(gen_ref_dirpath))
+            run_radial1d(self.result, os.path.join(
+                gen_ref_dirpath, "{0}.h5".format(self.name)
+            ))
+            pytest.skip("Reference data saved at {0}/{1}".format(
+                gen_ref_dirpath, tardis_githash[:7]
+            ))
+        else:
+            run_radial1d(self.result)
 
         # Get the reference data through the fixture.
         self.reference = reference
