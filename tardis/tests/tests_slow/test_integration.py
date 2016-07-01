@@ -50,7 +50,7 @@ class TestIntegration(object):
         # Else simply perform the run and move further for performing
         # assertions.
         if request.config.getoption("--generate-reference"):
-            run_radial1d(self.result, os.path.join(
+            run_radial1d(self.result, hdf_path_or_buf=os.path.join(
                 data_path['gen_ref_dirpath'], "{0}.h5".format(self.name)
             ))
             pytest.skip("Reference data saved at {0}".format(
