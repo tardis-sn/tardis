@@ -77,6 +77,7 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
 
 install:
+   - cd $TRAVIS_BUILD_DIR
    - conda env create -f tardis_env27.yml
    - source activate tardis
 
