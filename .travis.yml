@@ -73,7 +73,7 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $CARSUS_DB_URL $HOME/carsus-db; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $HOME/carsus-db; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="test_hdfstores/" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip test_hdfstores/kurucz_cd23_chianti_H_He.h5 -d $HOME; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip test_hdfstores/kurucz_cd23_chianti_H_He.zip -d $HOME; fi
 
 install:
    - cd $TRAVIS_BUILD_DIR
