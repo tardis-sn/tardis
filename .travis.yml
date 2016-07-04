@@ -22,7 +22,7 @@ env:
         - TEST_MODE='normal'
         - ATOM_DATA_URL='http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
-        - CARSUS_DB_REPO='https://github.com/tardis-sn/carsus-db.git'
+        - CARSUS_DB_URL='https://github.com/tardis-sn/carsus-db.git'
 
 matrix:
     include:
@@ -67,6 +67,7 @@ before_install:
     - export PATH=$HOME/miniconda/bin:$PATH
     - hash -r
     - conda update --yes conda
+
     - if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c ostrokach git-lfs=1.2.1 -y; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $CARSUS_DB_URL $HOME/carsus-db; fi
