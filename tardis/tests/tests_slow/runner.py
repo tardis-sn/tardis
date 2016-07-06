@@ -1,6 +1,10 @@
 import argparse
+import json
 import os
 import time
+
+import requests
+from tardis import __githash__ as tardis_githash
 
 
 parser = argparse.ArgumentParser(description="Run slow integration tests")
@@ -18,5 +22,15 @@ test_command = (
 if __name__ == "__main__":
     args = parser.parse_args()
     while True:
-        os.system(test_command.format(args.yaml_filepath, args.atomic_dataset))
-        time.sleep(20)
+        gh_request = requests.get(
+            "https://api.github.com/repos/tardis-sn/tardis/branches/master"
+        )
+        gh_master_head_data = json.loads(gh_request.content)
+        gh_tardis_githash = gh_master_head_data['commit']['sha']
+
+        if gh_tardis_githash != tardis_githash:
+            os.system("git pull origin master")
+            os.system(test_command.format(args.yaml_filepath,
+                                          args.atomic_dataset))
+        else:
+            time.sleep(600)
