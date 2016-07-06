@@ -140,37 +140,37 @@ class AtomData(object):
         with pd.HDFStore(fname) as store:
 
             try:
-                basic_atom_data = store["basic_atom_df"]
+                basic_atom_data = store["atom_masses"]
             except KeyError:
                 print "Basic atom data is not available in this HDF5-data file."
                 basic_atom_data = None
 
             try:
-                ionization_data = store["ionization_df"]
+                ionization_data = store["ionization_energies"]
             except KeyError:
                 print "Ionization data is not available in this HDF5-data file."
                 ionization_data = None
 
             try:
-                levels_data = store["levels_df"]
+                levels_data = store["levels"]
             except KeyError:
                 print "Levels data is not available in this HDF5-data file."
                 levels_data = None
 
             try:
-                lines_data = store["lines_df"]
+                lines_data = store["lines"]
             except KeyError:
                 print "Lines data is not available in this HDF5-data file"
                 lines_data = None
 
             try:
-                macro_atom_data = store["macro_atom_df"]
+                macro_atom_data = store["macro_atom"]
             except KeyError:
                 print "Macro atom data is not available in this HDF5-data file."
                 macro_atom_data = None
 
             try:
-                macro_atom_ref = store["macro_atom_ref_df"]
+                macro_atom_ref = store["macro_atom_references"]
             except KeyError:
                 print "Macro atom reference data is not available in this HDF5-data file."
                 macro_atom_ref = None
@@ -182,8 +182,8 @@ class AtomData(object):
                 zeta_data = None
 
             try:
-                collision_data = store["collisions_df"]
-                collision_temperatures = store.get_storer("collisions_df").attrs["temperatures"]
+                collision_data = store["collisions"]
+                collision_temperatures = store.get_storer("collisions").attrs["temperatures"]
             except KeyError:
                 print "Collision data is not available in this HDF5-data file."
                 collision_data, collision_temperatures = (None, None)
