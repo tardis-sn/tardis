@@ -3,14 +3,13 @@
 import os
 import logging
 import tardis
-import cPickle as pickle
-from collections import OrderedDict
-
-import h5py
 import numpy as np
 import pandas as pd
+import cPickle as pickle
+
 from scipy import interpolate
-from astropy import table, units, constants
+from astropy import units, constants
+from collections import OrderedDict
 from pandas import DataFrame
 
 
@@ -22,14 +21,17 @@ logger = logging.getLogger(__name__)
 
 tardis_dir = os.path.dirname(os.path.realpath(tardis.__file__))
 
+
 def data_path(fname):
     return os.path.join(tardis_dir, 'data', fname)
+
 
 def tests_data_path(fname):
     return os.path.join(tardis_dir, 'tests', 'data', fname)
 
 
 default_atom_h5_path = data_path('atom_data.h5')
+
 atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
                                     names=['atomic_number', 'symbol'])
 
@@ -38,270 +40,95 @@ symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
 atomic_number2symbol = OrderedDict(atomic_symbols_data)
 
 
-@PendingDeprecationWarning
-def read_atomic_data(fname=None):
-    return read_basic_atom_data(fname)
-
-
-def read_hdf5_data(fname, dset_name):
-    """This function reads the dataset (dset_name) from the hdf5 file (fname).
-    In addition it uses the attribute 'units' and parses it to the `~astropy.table.Table` constructor.
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        returns the respective
-    """
-
-    h5_file = h5py.File(fname, 'r')
-    dataset = h5_file[dset_name]
-    data = np.asarray(dataset)
-    #    data_units = dataset.attrs['units']
-
-    data_table = table.Table(data)
-
-    #    for i, col_unit in enumerate(data_units):
-    #        if col_unit == 'n':
-    #            data_table.columns[i].units = None
-    #        elif col_unit == '1':
-    #            data_table.columns[i].units = units.Unit(1)
-    #        else:
-    #            data_table.columns[i].units = units.Unit(col_unit)
-
-    h5_file.close()
-
-    return data_table
-
-
-def read_basic_atom_data(fname=None):
-    """This function reads the atomic number, symbol, and mass from hdf5 file
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        table with fields z[1], symbol, mass[u]
-    """
-
-    data_table = read_hdf5_data(fname, 'basic_atom_data')
-    #    data_table.columns['mass'] = units.Unit('u').to('g', data_table['mass'])
-
-    return data_table
-
-
-def read_ionization_data(fname=None):
-    """This function reads the atomic number, ion number, and ionization energy from hdf5 file
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        table with fields z[1], ion[1], ionization_energy[eV]
-        .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
-                  to twice ionized ion=2, etc.
-    """
-
-    data_table = read_hdf5_data(fname, 'ionization_data')
-    #data_table.columns['ionization_energy'] = units.Unit('eV').to('erg', data_table.columns['ionization_energy'])
-
-    return data_table
-
-
-def read_levels_data(fname=None):
-    """This function reads atomic number, ion number, level_number, energy, g, metastable
-    information from hdf5 file.
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        table with fields z[1], ion[1], level_number, energy, g, metastable
-    """
-
-    data_table = read_hdf5_data(fname, 'levels_data')
-    #data_table.columns['energy'].convert_units_to('erg')
-    #data_table.columns['energy'] = units.Unit('eV').to('erg', data_table.columns['energy'])
-
-
-    return data_table
-
-
-def read_synpp_refs(fname):
-    data_table = h5py.File(fname, 'r')['synpp_refs']
-
-    return data_table.__array__()
-
-
-def read_lines_data(fname=None):
-    """
-    This function reads the wavelength, atomic number, ion number, f_ul, f_l and level id information
-     from hdf5 file
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        table with fields wavelength, atomic_number, ion_number, f_ul, f_lu, level_id_lower, level_id_upper.
-    """
-
-    data_table = read_hdf5_data(fname, 'lines_data')
-    #data_table.columns['ionization_energy'].convert_units_to('erg')
-
-    return data_table
-
-
-def read_zeta_data(fname):
-    """
-    This function reads the recombination coefficient data from the HDF5 file
-
-
-    :return:
-    """
-
-    if fname is None:
-        raise ValueError('fname can not be "None" when trying to use NebularAtom')
-
-    if not os.path.exists(fname):
-        raise IOError('HDF5 File doesn\'t exist')
-
-    h5_file = h5py.File(fname, 'r')
-
-    if 'zeta_data' not in h5_file.keys():
-        raise ValueError('zeta_data not available in this HDF5-data file. It can not be used with NebularAtomData')
-
-    zeta_data = h5_file['zeta_data']
-    t_rads = zeta_data.attrs['t_rad']
-    return pd.DataFrame(zeta_data[:,2:], index=pd.MultiIndex.from_arrays(zeta_data[:,:2].transpose().astype(int)),
-                 columns=t_rads)
-
-
-def read_collision_data(fname):
-    if fname is None:
-        raise ValueError('fname can not be "None" when trying to use NebularAtom')
-
-    if not os.path.exists(fname):
-        raise IOError('HDF5 File doesn\'t exist')
-
-    h5_file = h5py.File(fname, 'r')
-
-    if 'collision_data' not in h5_file.keys():
-        raise ValueError('collision_data not available in this HDF5-data file. It can not be used with NLTE')
-
-    collision_data = np.array(h5_file['collision_data'])
-    collision_temperatures = h5_file['collision_data'].attrs['temperatures']
-
-    return collision_data, collision_temperatures
-
-
-def read_ion_cx_data(fname):
-    try:
-        h5_file = h5py.File(fname, 'r')
-        ion_cx_th_data = h5_file['ionization_cx_threshold']
-        ion_cx_sp_data = h5_file['ionization_cx_support']
-        return ion_cx_th_data, ion_cx_sp_data
-    except IOError, err:
-        print(err.errno)
-        print(err)
-        logger.critical('Cannot import. Error opening the file to read ionization_cx')
-
-
-def read_macro_atom_data(fname):
-    if fname is None:
-        raise ValueError('fname can not be "None" when trying to use NebularAtom')
-
-    if not os.path.exists(fname):
-        raise IOError('HDF5 File doesn\'t exist')
-
-    h5_file = h5py.File(fname, 'r')
-
-    if 'macro_atom_data' not in h5_file.keys():
-        raise ValueError('Macro Atom Data (macro_atom_data) is not in this HDF5-data file. '
-                         'It is needed for complex line interaction')
-    macro_atom_data = h5_file['macro_atom_data']
-
-    macro_atom_counts = h5_file['macro_atom_references']
-
-    return macro_atom_data, macro_atom_counts
-
-
 class AtomData(object):
     """
     Class for storing atomic data
 
-    AtomData
-    ---------
-
     Parameters
     ----------
+    atom_data: pandas.DataFrame
+        A DataFrame containing the *basic atomic data* with:
+            index: atomic_number;
+            columns: symbol, name, mass[CGS].
 
-    basic_atom_data : `~astropy.table.Table`
-        containing the basic atom data: z, symbol, and mass
+    ionization_data: pandas.DataFrame
+        A DataFrame containing the *ionization data* with:
+            index: atomic_number, ion_number;
+            columns: ionization_energy[CGS].
 
-    ionization_data : ~astropy.table.Table
-        containing the ionization data: z, ion, and ionization energy
-        ::important to note here is that ion describes the final ion state
-            e.g. H I - H II is described with ion=2
+       It is important to note here is that `ion_number` describes the *final ion state*
+            e.g. H I - H II is described with ion=1
 
-    levels : ~astropy.table.Table
-        containing the levels data: z, ion, level_number, energy, g
+    levels_data: pandas.DataFrame
+        A DataFrame containing the *levels data* with:
+            index: no index;
+            columns: atomic_number, ion_number, level_number, energy[CGS], g[1], metastable.
 
-    lines : ~astropy.table.Table
-        containing the lines data: wavelength, z, ion, levels_number_lower,
-        levels_number_upper, f_lu, f_ul
+    lines_data: pandas.DataFrame
+        A DataFrame containing the *lines data* with:
+            index: no index;
+            columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
+                wavelength[angstrom], wavelength_cm[CGS], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
-    macro_atom_data : tuple of ~astropy.table.Table
-        default ~None, a tuple of the macro-atom data and macro-atom references
+    macro_atom_data: (pandas.DataFrame, pandas.DataFrame)
+        A tuple containing a DataFrame with the *macro atom data* with:
+            index: no_index;
+            columns: atomic_number, ion_number, source_level_number, destination_level_number,
+                transition_line_id, transition_type, transition_probability;
+        and a DataFrame with the *macro atom references* with:
+            index: no_index;
+            columns: atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
 
-    zeta_data : ~dict of interpolation objects
-        default ~None
+        Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+
+    collision_data: (pandas.DataFrame, np.array)
+        A tuple containing a DataFrame with the *electron collisions data* with:
+            index: atomic_number, ion_number, level_number_lower, level_number_upper;
+            columns: e_col_id, delta_e, g_ratio, c_ul;
+        and an array with the collision temperatures.
+
+    zeta_data: ?
+    synpp_refs: ?
+    ion_cx_data: ?
+
+    Attributes
+    -------------
+    prepared: bool
+    has_levels: bool
+    has_lines: bool
+    has_macro_atom: bool
+    atom_data: pandas.DataFrame
+    ionization_data: pandas.DataFrame
+    macro_atom_data_all: pandas.DataFrame
+    macro_atom_references_all: pandas.DataFrame
+    collision_data: pandas.DataFrame
+    collision_data_temperatures: numpy.array
+    symbol2atomic_number: OrderedDict
+    atomic_number2symbol OrderedDict
+
+    Methods
+    --------
+    from_hdfstore
+    prepare_atom_data
+
+    Notes
+    ------
+    1. The units of some columns are given in the square brackets. They are **NOT** the parts of columns' names!
 
     """
 
     @classmethod
-    def from_hdf5(cls, fname=None):
+    def from_hdfstore(cls, fname=None):
         """
-        Function to read all the atom data from a special TARDIS HDF5 File.
+        Function to read all the atom data from the special Carsus HDFStore file.
 
         Parameters
         ----------
 
         fname: str, optional
-            the default for this is `None` and then it will use the very limited atomic_data shipped with TARDIS
-            For more complex atomic data please contact the authors.
-
-        use_macro_atom:
-            default `False`. Set to `True`, if you want to read in macro_atom_data
+            The path to the HDFStore file. If set to `None` the default file with limited atomic_data
+            shipped with TARDIS will be used. For more complex atomic data please contact the authors.
+            (default: None)
         """
 
         if fname is None:
@@ -310,51 +137,85 @@ class AtomData(object):
         if not os.path.exists(fname):
             raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
 
-        atom_data = read_basic_atom_data(fname)
-        ionization_data = read_ionization_data(fname)
-        levels_data = read_levels_data(fname)
-        lines_data = read_lines_data(fname)
+        with pd.HDFStore(fname) as store:
 
-        with h5py.File(fname, 'r') as h5_file:
-            h5_datasets = h5_file.keys()
+            try:
+                basic_atom_data = store["atom_masses"]
+            except KeyError:
+                print "Basic atom data is not available in this HDF5-data file."
+                basic_atom_data = None
 
-        if 'macro_atom_data' in h5_datasets:
-            macro_atom_data = read_macro_atom_data(fname)
-        else:
-            macro_atom_data = None
+            try:
+                ionization_data = store["ionization_energies"]
+            except KeyError:
+                print "Ionization data is not available in this HDF5-data file."
+                ionization_data = None
 
-        if 'zeta_data' in h5_datasets:
-            zeta_data = read_zeta_data(fname)
-        else:
-            zeta_data = None
+            try:
+                levels_data = store["levels"]
+            except KeyError:
+                print "Levels data is not available in this HDF5-data file."
+                levels_data = None
 
-        if 'collision_data' in h5_datasets:
-            collision_data, collision_data_temperatures = read_collision_data(fname)
-        else:
-            collision_data, collision_data_temperatures = (None, None)
+            try:
+                lines_data = store["lines"]
+            except KeyError:
+                print "Lines data is not available in this HDF5-data file"
+                lines_data = None
 
-        if 'synpp_refs' in h5_datasets:
-            synpp_refs = read_synpp_refs(fname)
-        else:
-            synpp_refs = None
+            try:
+                macro_atom_data = store["macro_atom"]
+            except KeyError:
+                print "Macro atom data is not available in this HDF5-data file."
+                macro_atom_data = None
 
-        if 'ion_cx_data' in h5_datasets and 'ion_cx_data' in h5_datasets:
-            ion_cx_data = read_ion_cx_data(fname)
-        else:
-            ion_cx_data = None
+            try:
+                macro_atom_ref = store["macro_atom_references"]
+            except KeyError:
+                print "Macro atom reference data is not available in this HDF5-data file."
+                macro_atom_ref = None
 
-        atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-                        lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
-                        collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs,
-                        ion_cx_data=ion_cx_data)
+            try:
+                zeta_data = store["zeta_data"]
+            except KeyError:
+                print "Zeta data is not available in this HDF5-data file."
+                zeta_data = None
 
-        with h5py.File(fname, 'r') as h5_file:
-            atom_data.uuid1 = h5_file.attrs['uuid1']
-            atom_data.md5 = h5_file.attrs['md5']
-            atom_data.version = h5_file.attrs.get('database_version', None)
+            try:
+                collision_data = store["collisions"]
+                collision_temperatures = store.get_storer("collisions").attrs["temperatures"]
+            except KeyError:
+                print "Collision data is not available in this HDF5-data file."
+                collision_data, collision_temperatures = (None, None)
 
-            if atom_data.version is not None:
-                atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
+            try:
+                synpp_refs = store["synpp_refs"]
+            except KeyError:
+                print "Synpp refs is not available in this HDF5-data file."
+                synpp_refs = None
+
+            try:
+                ion_cx_data = store["ion_cx_data"]
+            except KeyError:
+                print "Ionization cx data is not available in this HDF5-data file."
+                ion_cx_data = None
+
+            atom_data = cls(atom_data=basic_atom_data, ionization_data=ionization_data, levels_data=levels_data,
+                            lines_data=lines_data, macro_atom_data=(macro_atom_data, macro_atom_ref), zeta_data=zeta_data,
+                            collision_data=(collision_data, collision_temperatures), synpp_refs=synpp_refs,
+                            ion_cx_data=ion_cx_data)
+
+            atom_data.uuid1 = store.root._v_attrs['uuid1']
+            atom_data.md5 = store.root._v_attrs['md5']
+
+            try:
+                atom_data.version = store.root._v_attrs['database_version']
+            except KeyError:
+                atom_data.version = None
+
+            # ToDo: strore data sources as attributes in carsus
+            # if atom_data.version is not None:
+            #     atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
 
             logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
 
@@ -365,21 +226,29 @@ class AtomData(object):
 
         self.prepared = False
 
+        self.atom_data = atom_data
+        self.ionization_data = ionization_data
+
         if levels_data is not None:
+            self.levels = levels_data
             self.has_levels = True
         else:
+            self.levels = None
             self.has_levels = False
 
         if lines_data is not None:
+            self.lines = lines_data
             self.has_lines = True
         else:
+            self.lines = None
             self.has_lines = False
 
         if macro_atom_data is not None:
+            self.macro_atom_data_all, self.macro_atom_references_all = macro_atom_data
             self.has_macro_atom = True
-            self.macro_atom_data_all = DataFrame(macro_atom_data[0].__array__())
-            self.macro_atom_references_all = DataFrame(macro_atom_data[1].__array__())
         else:
+            self.macro_atom_data_all = None
+            self.macro_atom_references_all = None
             self.has_macro_atom = False
 
         if ion_cx_data is not None:
@@ -397,61 +266,26 @@ class AtomData(object):
             self.zeta_data = zeta_data
             self.has_zeta_data = True
         else:
+            self.zeta_data = None
             self.has_zeta_data = False
 
         if collision_data[0] is not None:
-            self.collision_data = DataFrame(collision_data[0])
-            self.collision_data_temperatures = collision_data[1]
-            self.collision_data.set_index(['atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper'],
-                                          inplace=True)
-
+            self.collision_data, self.collision_data_temperatures = collision_data
             self.has_collision_data = True
         else:
+            self.collision_data = None
+            self.collision_data_temperatures = None
             self.has_collision_data = False
 
         if synpp_refs is not None:
+            self.synpp_refs = synpp_refs
             self.has_synpp_refs = True
-            self.synpp_refs = pd.DataFrame(synpp_refs)
-            self.synpp_refs.set_index(['atomic_number', 'ion_number'], inplace=True)
-
         else:
+            self.synpp_refs = None
             self.has_synpp_refs = False
-
-        self.atom_data = DataFrame(atom_data.__array__())
-        self.atom_data.set_index('atomic_number', inplace=True)
-        # We have to use constants.u because astropy uses different values for the unit u and the constant.
-        # This is changed in later versions of astropy (the value of constants.u is used in all cases)
-        if units.u.cgs == constants.u.cgs:
-            self.atom_data.mass = units.Quantity(self.atom_data.mass.values, 'u').cgs
-        else:
-            self.atom_data.mass = constants.u.cgs * self.atom_data.mass.values
-
-        self.ionization_data = DataFrame(ionization_data.__array__())
-        self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
-        self.ionization_data.ionization_energy = units.Quantity(self.ionization_data.ionization_energy.values, 'eV').cgs
-
-        self.levels = DataFrame(levels_data.__array__())
-        self.levels.energy = units.Quantity(self.levels.energy.values, 'eV').cgs
-
-        self.lines = DataFrame(lines_data.__array__())
-        self.lines['nu'] = units.Quantity(self.lines['wavelength'], 'angstrom').to('Hz', units.spectral())
-        self.lines['wavelength_cm'] = units.Quantity(self.lines['wavelength'], 'angstrom').cgs
-
-
-
-
-        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines)
-        #self.lines_inde
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
-
-
-
-
-        self.ion_cx_data = ion_cx_data
-
-
 
     def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
                           nlte_species=[]):
@@ -587,7 +421,6 @@ class AtomData(object):
                     np.ones(len(self.macro_atom_data)) * -1).astype(np.int64)
 
         self.nlte_data = NLTEData(self, nlte_species)
-
 
     def __repr__(self):
         return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
