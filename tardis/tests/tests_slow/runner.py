@@ -1,12 +1,15 @@
 import argparse
 import datetime
 import json
+import logging
 import os
 import time
 
 import requests
 from tardis import __githash__ as tardis_githash
 
+
+logger = logging.getLogger(__name__)
 
 parser = argparse.ArgumentParser(description="Run slow integration tests")
 parser.add_argument("--yaml", dest="yaml_filepath",
@@ -35,7 +38,7 @@ if __name__ == "__main__":
                                           args.atomic_dataset))
         else:
             checked = datetime.datetime.now()
-            print "Up-to-date. Checked on {0} {1}".format(
+            logger.info("Up-to-date. Checked on {0} {1}".format(
                 checked.strftime("%d-%b-%Y"), checked.strftime("%H:%M:%S")
-            )
+            ))
             time.sleep(600)
