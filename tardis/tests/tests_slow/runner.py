@@ -1,4 +1,5 @@
 import argparse
+import datetime
 import json
 import os
 import time
@@ -33,4 +34,8 @@ if __name__ == "__main__":
             os.system(test_command.format(args.yaml_filepath,
                                           args.atomic_dataset))
         else:
+            checked = datetime.datetime.now()
+            print "Up-to-date. Checked on {0} {1}".format(
+                checked.strftime("%d-%b-%Y"), checked.strftime("%H:%M:%S")
+            )
             time.sleep(600)
