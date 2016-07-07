@@ -8,7 +8,9 @@ import pandas as pd
 import numpy as np
 
 from astropy import units as u
+from astropy import constants as co
 
+from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.properties.base import Input
 
@@ -344,6 +346,7 @@ class Simulation(object):
                         plasma_properties)
 
         self.runner.att_S_ul =  self.make_source_function(model)
+        self.runner.L_nu     =  self.integrate(model)
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
@@ -429,6 +432,24 @@ class Simulation(object):
         q_ul = tmp.set_index(transitions_index)
         return (model.atom_data.lines.wavelength[transitions.transition_line_id].values.reshape(-1,1) * 
                  (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion / (4*np.pi) )
+
+    def integrate(self,model):
+        numshell, = self.runner.volume.shape
+        ps = np.linspace(1,0,num=3*numshell)
+        Rmax = self.runner.r_outer_cgs.max()
+        ct   = co.c.cgs.value*self.tardis_config.supernova.time_explosion.value/Rmax
+
+        r_shells = np.zeros((numshell+1,1))
+        # Note the reorder from outer to inner
+        r_shells[1:,0],r_shells[0,0] = self.runner.r_inner_cgs[::-1]/Rmax, 1.0
+        zs = np.sqrt(r_shells**2 - ps**2)
+        n_shell_p = (numshell+1) - np.isnan(zs).sum(axis=0)
+
+        prop = 1/(1 + zs/ct)
+        prop[np.isnan(zs)] = -1
+
+        montecarlo.integrate(model,self.runner)
+        
 
 def run_radial1d(radial1d_model, hdf_path_or_buf=None,
                  hdf_mode='full', hdf_last_only=True):
