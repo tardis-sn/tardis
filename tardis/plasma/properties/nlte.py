@@ -6,7 +6,7 @@ import pandas as pd
 
 from tardis.plasma.properties.base import (PreviousIterationProperty,
                                            ProcessingPlasmaProperty)
-from tardis.plasma.properties import PhiSahaNebular, PhiSahaLTE
+from tardis.plasma.properties.ion_population import PhiSahaNebular
 
 __all__ = ['PreviousElectronDensities', 'PreviousBetaSobolev',
            'HeliumNLTE', 'HeliumNumericalNLTE']
@@ -45,7 +45,8 @@ class PreviousBetaSobolev(PreviousIterationProperty):
 class HeliumNLTE(ProcessingPlasmaProperty):
     outputs = ('helium_population',)
 
-    def calculate(self, level_boltzmann_factor, electron_densities,
+    @staticmethod
+    def calculate(level_boltzmann_factor,
         ionization_data, beta_rad, g, g_electron, w, t_rad, t_electrons,
         delta, zeta_data, number_density, partition_function):
         """
@@ -53,12 +54,9 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         """
         helium_population = level_boltzmann_factor.ix[2].copy()
         # He I excited states
-        he_one_population = self.calculate_helium_one(g_electron, beta_rad,
-            ionization_data, level_boltzmann_factor, electron_densities, g, w)
+        he_one_population = HeliumNLTE.calculate_helium_one(g_electron, beta_rad,
+            ionization_data, level_boltzmann_factor, g, w)
         helium_population.ix[0].update(he_one_population)
-        #He I metastable states
-        helium_population.ix[0,1] *= (1 / w)
-        helium_population.ix[0,2] *= (1 / w)
         #He I ground state
         helium_population.ix[0,0] = 0.0
         #He II excited states
@@ -68,38 +66,38 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         #He II ground state
         helium_population.ix[1,0] = 1.0
         #He III states
-        helium_population.ix[2,0] = self.calculate_helium_three(t_rad, w,
+        helium_population.ix[2,0] = HeliumNLTE.calculate_helium_three(t_rad, w,
             zeta_data, t_electrons, delta, g_electron, beta_rad,
-            ionization_data, electron_densities, g)
-        unnormalised = helium_population.sum()
-        normalised = helium_population.mul(number_density.ix[2] / unnormalised)
-        helium_population.update(normalised)
+            ionization_data, g)
+#        unnormalised = helium_population.sum()
+#        normalised = helium_population.mul(number_density.ix[2] /
+# unnormalised)
+#        helium_population.update(normalised)
         return helium_population
 
     @staticmethod
     def calculate_helium_one(g_electron, beta_rad, ionization_data,
-        level_boltzmann_factor, electron_densities, g, w):
+        level_boltzmann_factor, g, w):
         """
         Calculates the He I level population values, in equilibrium with the He II ground state.
         """
-        return level_boltzmann_factor.ix[2,0].mul(
-            g.ix[2,0], axis=0) * (1./(2*g.ix[2,1,0])) * \
-            (1/g_electron) * (1/(w**2)) * np.exp(
-            ionization_data.ionization_energy.ix[2,1] * beta_rad) * \
-            electron_densities
+        return level_boltzmann_factor.ix[2,0] * (1./(2*g.ix[2,1,0])) * \
+            (1/g_electron) * (1/(w**2.)) * np.exp(
+            ionization_data.ionization_energy.ix[2,1] * beta_rad)
 
     @staticmethod
     def calculate_helium_three(t_rad, w, zeta_data, t_electrons, delta,
-        g_electron, beta_rad, ionization_data, electron_densities, g):
+        g_electron, beta_rad, ionization_data, g):
         """
         Calculates the He III level population values.
         """
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
-        he_three_population = (2 / electron_densities) * \
+        he_three_population = 2 * \
             (float(g.ix[2,2,0])/g.ix[2,1,0]) * g_electron * \
             np.exp(-ionization_data.ionization_energy.ix[2,2] * beta_rad) \
             * w * (delta.ix[2,2] * zeta + w * (1. - zeta)) * \
             (t_electrons / t_rad) ** 0.5
+        return he_three_population
 
 class HeliumNumericalNLTE(ProcessingPlasmaProperty):
     '''

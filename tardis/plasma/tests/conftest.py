@@ -199,7 +199,7 @@ def ion_number_density(phi_saha_lte, partition_function, number_density):
     ion_number_density_module = IonNumberDensity(None)
     ion_number_density, electron_densities = \
         ion_number_density_module.calculate(phi_saha_lte, partition_function,
-                                            number_density)
+                       number_density)
     return ion_number_density
 
 @pytest.fixture
@@ -207,7 +207,7 @@ def electron_densities(phi_saha_lte, partition_function, number_density):
     electron_density_module = IonNumberDensity(None)
     ion_number_density, electron_densities = \
         electron_density_module.calculate(phi_saha_lte, partition_function,
-                                          number_density)
+                       number_density)
     return electron_densities
 
 @pytest.fixture
