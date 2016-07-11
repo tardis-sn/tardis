@@ -14,7 +14,7 @@ from tardis.io.config_reader import Configuration
                     reason="integration tests are not included in this run")
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
-    ``tardis/tests/tests_slow``.
+    ``tardis/tests/integration_tests``.
     """
 
     @classmethod
