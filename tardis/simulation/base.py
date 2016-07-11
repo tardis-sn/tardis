@@ -478,25 +478,30 @@ class Simulation(object):
 
         dtau = 1 # Just to remeber it 
 
+
         for nu in nus.value:
             I_outer = np.zeros(ps_outer.shape)
             for p_idx,p in enumerate(ps_outer):
-                z_cross_p = z_ct_outer[z_ct_outer > 0,p_idx]
+                z_cross_p = z_ct_outer[z_ct_outer[:,p_idx] > 0,p_idx]
                 z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1],0))
 
-                shell_idx = num_shell - np.arange(n_shell_p_outer[p_idx])
+                shell_idx = (num_shell-1) - np.arange(n_shell_p_outer[p_idx]) # -1 for 0-based indexing
                 shell_idx = np.hstack((shell_idx,shell_idx[::-1]))
 
-                for idx,z_cross in z_cross_p[:-1]:
+                for idx,z_cross in enumerate(z_cross_p[:-1]):
                     nu_start = nu / (1 + z_cross) 
                     nu_end   = nu / (1 + z_cross_p[idx+1])
                     shell = shell_idx[idx]
-                    ks, = np.where( (line_nu > nu_min) & (line_nu <= nu_next) )
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
+#                    print "{:} {:8.5f} {:8.5f} {:8.5f} {:8.5f}".format(len(ks),nu_start/1e14, nu_end/1e14,line_nu.min()/1e14,line_nu.max()/1e14)
+
+                    if len(ks) < 1:
+                        continue
 
                     I_outer[p_idx] = dtau * ( 
-                                        ( J_rlues[ks[0],shell] + J_blues[ks[1],shell] ) / 2 )
+                                        ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
                     for k in ks:
-                        I_outer[p_idx] += I_outer[p_idx] * np.exp(taus[k,shell]) + att_S_ul[k,shell]
+                        I_outer[p_idx] += I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
 
             print (I_outer * ps_outer).sum()
 
