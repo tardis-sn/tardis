@@ -434,22 +434,73 @@ class Simulation(object):
                  (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion / (4*np.pi) )
 
     def integrate(self,model):
-        numshell, = self.runner.volume.shape
-        ps = np.linspace(1,0,num=3*numshell)
-        Rmax = self.runner.r_outer_cgs.max()
-        ct   = co.c.cgs.value*self.tardis_config.supernova.time_explosion.value/Rmax
+        num_shell, = self.runner.volume.shape
+        ps         = np.linspace(0.999, 0, num = 3 * num_shell)
+        R_max      = self.runner.r_outer_cgs.max()
+        R_min_rel  = self.runner.r_inner_cgs.min() / R_max
+        ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
+        J_blues    = model.j_blues
+        J_rlues    = model.j_blues.values * np.exp( -model.plasma.tau_sobolevs.values) + self.runner.att_S_ul
 
-        r_shells = np.zeros((numshell+1,1))
+        r_shells = np.zeros((num_shell+1,1))
         # Note the reorder from outer to inner
-        r_shells[1:,0],r_shells[0,0] = self.runner.r_inner_cgs[::-1]/Rmax, 1.0
-        zs = np.sqrt(r_shells**2 - ps**2)
-        n_shell_p = (numshell+1) - np.isnan(zs).sum(axis=0)
+        r_shells[1:,0],r_shells[0,0] = self.runner.r_inner_cgs[::-1] / R_max, 1.0
+        z_crossings = np.sqrt(r_shells**2 - ps**2)
 
-        prop = 1/(1 + zs/ct)
-        prop[np.isnan(zs)] = -1
-
-        montecarlo.integrate(model,self.runner)
+        z_ct = z_crossings/ct
+        z_ct[np.isnan(z_crossings)] = 0
         
+        ## p > Rmin
+        ps_outer        = ps[ ps > R_min_rel]
+        z_ct_outer      = z_ct[:, ps > R_min_rel]
+        n_shell_p_outer = (num_shell+1) - np.isnan(z_ct[:, ps > R_min_rel]).sum(axis=0)
+
+        ## p < Rmin
+#        ps_inner        = ps[ ps <= R_min_rel]
+#        z_ct_inner      = z_ct[:, ps <= R_min_rel]
+#        n_shell_p_inner = numshell - np.isnan(zs[:, ps <= R_min_rel]).sum(axis=0)
+
+
+        # I will traverse from largest shell in, but
+        # elsewhere shell structure is from smallest and out,
+        # so this is for reversing it
+        shell_nr = np.arange(0,num_shell,dtype="int")[::-1]
+
+#        montecarlo.integrate(model,self.runner)
+ 
+        nus = np.linspace(4000, 7000, 10)*u.angstrom
+        nus = co.c.cgs / nus.cgs
+        
+        #Just aliasing for cleaner expressions later
+        line_nu  = model.plasma.lines.nu
+        taus     = model.plasma.tau_sobolevs
+        att_S_ul = self.runner.att_S_ul
+
+        dtau = 1 # Just to remeber it 
+
+        for nu in nus.value:
+            I_outer = np.zeros(ps_outer.shape)
+            for p_idx,p in enumerate(ps_outer):
+                z_cross_p = z_ct_outer[z_ct_outer > 0,p_idx]
+                z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1],0))
+
+                shell_idx = num_shell - np.arange(n_shell_p_outer[p_idx])
+                shell_idx = np.hstack((shell_idx,shell_idx[::-1]))
+
+                for idx,z_cross in z_cross_p[:-1]:
+                    nu_start = nu / (1 + z_cross) 
+                    nu_end   = nu / (1 + z_cross_p[idx+1])
+                    shell = shell_idx[idx]
+                    ks, = np.where( (line_nu > nu_min) & (line_nu <= nu_next) )
+
+                    I_outer[p_idx] = dtau * ( 
+                                        ( J_rlues[ks[0],shell] + J_blues[ks[1],shell] ) / 2 )
+                    for k in ks:
+                        I_outer[p_idx] += I_outer[p_idx] * np.exp(taus[k,shell]) + att_S_ul[k,shell]
+
+            print (I_outer * ps_outer).sum()
+
+
 
 def run_radial1d(radial1d_model, hdf_path_or_buf=None,
                  hdf_mode='full', hdf_last_only=True):
