@@ -31,3 +31,4 @@ The source function for each line can then be derived from the relation
 
 where math::`\lambda_{ul}` is the wavelength of each line  :math:`u \right l`, and math::`q_{ul}` is the corresponding branching ratio. The attenuating factor is kept on the left hand side because it is the product of the two that will appear in later formulae. The product on the right hand side is also evaluated in `make_source_function`. 
 
+more coming...
