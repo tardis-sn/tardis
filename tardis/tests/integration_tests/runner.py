@@ -18,7 +18,7 @@ parser.add_argument("--atomic-dataset", dest="atomic_dataset",
                     help="Path to atomic dataset.")
 
 
-if __name__ == "__main__":
+def run_tests():
     args = parser.parse_args()
     while True:
         gh_request = requests.get(
@@ -34,7 +34,7 @@ if __name__ == "__main__":
 
             subprocess.call([
                 "python", "setup.py", "test",
-                "--test-path=tardis/tests/tests_slow/test_integration.py", "--args",
+                "--test-path=tardis/tests/integration_tests/test_integration.py", "--args",
                 "-rs --integration-tests={0} --atomic-dataset={1} --remote-data".format(
                     args.yaml_filepath, args.atomic_dataset
                 )

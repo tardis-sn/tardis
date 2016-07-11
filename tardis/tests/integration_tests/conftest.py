@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 
 from tardis import __githash__ as tardis_githash
-from tardis.tests.tests_slow.report import DokuReport
-from tardis.tests.tests_slow.plot_helpers import PlotUploader
+from tardis.tests.integration_tests.report import DokuReport
+from tardis.tests.integration_tests.plot_helpers import PlotUploader
 
 
 def pytest_configure(config):
