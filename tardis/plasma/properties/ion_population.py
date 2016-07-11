@@ -7,8 +7,6 @@ import numexpr as ne
 
 from scipy import interpolate
 
-
-
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.exceptions import PlasmaIonizationError
 
@@ -16,7 +14,7 @@ from tardis.plasma.exceptions import PlasmaIonizationError
 logger = logging.getLogger(__name__)
 
 __all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
-           'IonNumberDensity']
+           'IonNumberDensity', 'IonNumberDensityHeNLTE']
 
 
 def calculate_block_ids_from_dataframe(dataframe):
@@ -195,23 +193,19 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
 
-    def update_helium_nlte(self, ion_number_density, number_density):
-        ion_number_density.ix[2].ix[0] = 0.0
-        ion_number_density.ix[2].ix[2] = 0.0
-        ion_number_density.ix[2].ix[1].update(number_density.ix[2])
-        return ion_number_density
-
-    def calculate_with_n_electron(self, phi, partition_function,
-                                  number_density, n_electron):
-        if self.block_ids is None:
-            self.block_ids = self._calculate_block_ids(phi)
+    @staticmethod
+    def calculate_with_n_electron(phi, partition_function,
+                                  number_density, n_electron, block_ids,
+                                  ion_zero_threshold):
+        if block_ids is None:
+            block_ids = IonNumberDensity._calculate_block_ids(phi)
 
         ion_populations = np.empty_like(partition_function.values)
 
         phi_electron = np.nan_to_num(phi.values / n_electron.values)
 
-        for i, start_id in enumerate(self.block_ids[:-1]):
-            end_id = self.block_ids[i + 1]
+        for i, start_id in enumerate(block_ids[:-1]):
+            end_id = block_ids[i + 1]
             current_phis = phi_electron[start_id:end_id]
             phis_product = np.cumprod(current_phis, 0)
 
@@ -223,11 +217,10 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
             ion_populations[start_id + i:end_id + 1 + i] = tmp_ion_populations
 
-        ion_populations[ion_populations < self.ion_zero_threshold] = 0.0
+        ion_populations[ion_populations < ion_zero_threshold] = 0.0
 
         return pd.DataFrame(data = ion_populations,
-                            index=partition_function.index)
-
+                            index=partition_function.index), block_ids
 
     @staticmethod
     def _calculate_block_ids(phi):
@@ -239,14 +232,10 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         n_electron_iterations = 0
 
         while True:
-            ion_number_density = self.calculate_with_n_electron(
-                phi, partition_function, number_density, n_electron)
-            if hasattr(self.plasma_parent, 'plasma_properties_dict'):
-                if 'HeliumNLTE' in \
-                    self.plasma_parent.plasma_properties_dict.keys():
-                    ion_number_density = \
-                        self.update_helium_nlte(ion_number_density,
-                        number_density)
+            ion_number_density, self.block_ids = \
+                self.calculate_with_n_electron(
+                phi, partition_function, number_density, n_electron,
+                    self.block_ids, self.ion_zero_threshold)
             ion_numbers = ion_number_density.index.get_level_values(1).values
             ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
             new_n_electron = (ion_number_density.values * ion_numbers).sum(
@@ -264,3 +253,78 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                 break
             n_electron = 0.5 * (new_n_electron + n_electron)
         return ion_number_density, n_electron
+
+class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
+    """
+    Attributes:
+    ion_number_density : Pandas DataFrame, dtype float
+                         Index atom number, ion number. Columns zones.
+    electron_densities : Numpy Array, dtype float
+
+    Convergence process to find the correct solution. A trial value for
+    the electron density is initiated in a particular zone. The ion
+    number densities are then calculated using the Saha equation. The
+    electron density is then re-calculated by using the ion number
+    densities to sum over the number of free electrons. If the two values
+    for the electron densities are not similar to within the threshold
+    value, a new guess for the value of the electron density is chosen
+    and the process is repeated.
+    """
+    outputs = ('ion_number_density', 'electron_densities',
+               'helium_population_updated')
+    latex_name = ('N_{i,j}','n_{e}',)
+
+    def __init__(self, plasma_parent, ion_zero_threshold=1e-20):
+        super(IonNumberDensityHeNLTE, self).__init__(plasma_parent)
+        self.ion_zero_threshold = ion_zero_threshold
+        self.block_ids = None
+
+    def update_he_population(self, helium_population, n_electron,
+                             number_density):
+        helium_population_updated = helium_population.copy()
+        he_one_population = helium_population_updated.ix[0].mul(n_electron)
+        he_three_population = helium_population_updated.ix[2].mul(
+            1./n_electron)
+        helium_population_updated.ix[0].update(he_one_population)
+        helium_population_updated.ix[2].update(he_three_population)
+        unnormalised = helium_population_updated.sum()
+        normalised = helium_population_updated.mul(number_density.ix[2] /
+            unnormalised)
+        helium_population_updated.update(normalised)
+        return helium_population_updated
+
+    def calculate(self, phi, partition_function, number_density,
+                  helium_population):
+        n_e_convergence_threshold = 0.05
+        n_electron = number_density.sum(axis=0)
+        n_electron_iterations = 0
+        while True:
+            ion_number_density, self.block_ids = \
+                IonNumberDensity.calculate_with_n_electron(
+                phi, partition_function, number_density, n_electron,
+                    self.block_ids, self.ion_zero_threshold)
+            helium_population_updated = self.update_he_population(
+                helium_population, n_electron, number_density)
+            ion_number_density.ix[2].ix[0].update(helium_population_updated.ix[
+                                                      0].sum(axis=0))
+            ion_number_density.ix[2].ix[1].update(helium_population_updated.ix[
+                                                      1].sum(axis=0))
+            ion_number_density.ix[2].ix[2].update(helium_population_updated.ix[
+                                                      2].ix[0])
+            ion_numbers = ion_number_density.index.get_level_values(1).values
+            ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
+            new_n_electron = (ion_number_density.values * ion_numbers).sum(
+                axis=0)
+            if np.any(np.isnan(new_n_electron)):
+                raise PlasmaIonizationError('n_electron just turned "nan" -'
+                                            ' aborting')
+            n_electron_iterations += 1
+            if n_electron_iterations > 100:
+                logger.warn('n_electron iterations above 100 ({0}) -'
+                            ' something is probably wrong'.format(
+                    n_electron_iterations))
+            if np.all(np.abs(new_n_electron - n_electron)
+                              / n_electron < n_e_convergence_threshold):
+                break
+            n_electron = 0.5 * (new_n_electron + n_electron)
+        return ion_number_density, n_electron, helium_population_updated

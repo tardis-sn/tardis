@@ -8,7 +8,8 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
-    nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties)
+    nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
+    helium_lte_properties)
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import LevelBoltzmannFactorNLTE
 
@@ -112,8 +113,7 @@ class LegacyPlasmaArray(BasePlasma):
 
         if helium_treatment=='recomb-nlte':
             plasma_modules += helium_nlte_properties
-
-        if helium_treatment=='numerical-nlte':
+        elif helium_treatment=='numerical-nlte':
             plasma_modules += helium_numerical_nlte_properties
             if heating_rate_data_file is None:
                 raise PlasmaConfigError('Heating rate data file not specified')
@@ -121,6 +121,8 @@ class LegacyPlasmaArray(BasePlasma):
                 self.heating_rate_data_file = heating_rate_data_file
                 self.v_inner = v_inner
                 self.v_outer = v_outer
+        else:
+            plasma_modules += helium_lte_properties
 
         self.delta_treatment = delta_treatment
 
@@ -128,4 +130,5 @@ class LegacyPlasmaArray(BasePlasma):
             plasma_properties=plasma_modules, t_rad=t_rad,
             abundance=abundance, density=density,
             atomic_data=atomic_data, time_explosion=time_explosion,
-            j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron)
+            j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
+            helium_treatment=helium_treatment)
