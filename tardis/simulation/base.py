@@ -476,7 +476,7 @@ class Simulation(object):
         taus     = model.plasma.tau_sobolevs
         att_S_ul = self.runner.att_S_ul
 
-        dtau = 1 # Just to remeber it 
+        dtau = 1 # Just to remember it 
 
 
         for nu in nus.value:
@@ -492,8 +492,8 @@ class Simulation(object):
                     nu_start = nu / (1 + z_cross) 
                     nu_end   = nu / (1 + z_cross_p[idx+1])
                     shell = shell_idx[idx]
+                    # Note the direction of the comparisons
                     ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
-#                    print "{:} {:8.5f} {:8.5f} {:8.5f} {:8.5f}".format(len(ks),nu_start/1e14, nu_end/1e14,line_nu.min()/1e14,line_nu.max()/1e14)
 
                     if len(ks) < 1:
                         continue
