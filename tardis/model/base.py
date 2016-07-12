@@ -1,12 +1,21 @@
 import numpy as np
 
 
+class HomologousDensity(object):
+    def __init__(self, density_0, time_0):
+        self.density_0 = density_0
+        self.time_0 = time_0
+
+    def after_time(self, time_explosion):
+        return self.density_0 * (time_explosion / self.time_0) ** -3
+
+
 class Radial1DModel(object):
-    def __init__(self, velocity, density, abundance, t_inner, t_radiative,
-                 v_boundary_inner, v_boundary_outer, time_explosion,
-                 dilution_factor=None):
+    def __init__(self, velocity, homologous_density, abundance, t_inner,
+                 t_radiative, v_boundary_inner, v_boundary_outer,
+                 time_explosion, dilution_factor=None):
         self.velocity = velocity
-        self.density = density
+        self.homologous_density = homologous_density
         self.abundance = abundance
         self.t_inner = t_inner
         self.t_radiative = t_radiative
@@ -58,6 +67,10 @@ class Radial1DModel(object):
     @property
     def v_middle(self):
         return 0.5 * self.v_inner + 0.5 * self.v_outer
+
+    @property
+    def density(self):
+        return self.homologous_density.after_time(self.time_explosion)
 
     @classmethod
     def from_config(cls, config):
