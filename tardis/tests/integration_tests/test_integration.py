@@ -42,6 +42,16 @@ class TestIntegration(object):
         tardis_config = Configuration.from_yaml(
             self.config_file, atom_data=self.atom_data)
 
+        # Check whether current run is with less packets.
+        if request.config.getoption("--less-packets"):
+            less_packets = request.config.integration_tests_config['less_packets']
+            tardis_config['montecarlo']['no_of_packets'] = (
+                less_packets['no_of_packets']
+            )
+            tardis_config['montecarlo']['last_no_of_packets'] = (
+                less_packets['last_no_of_packets']
+            )
+
         # We now do a run with prepared config and get radial1d model.
         self.result = Radial1DModel(tardis_config)
 
