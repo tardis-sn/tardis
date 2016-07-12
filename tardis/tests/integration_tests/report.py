@@ -67,10 +67,14 @@ class DokuReport(HTMLReport):
         else:
             self.dokuwiki_url = dokuwiki_details["url"]
 
+    def pytest_sessionstart(self, session):
+        self.suite_start_datetime = datetime.datetime.now().strftime('%d %b %H:%M:%S')
+        super(DokuReport, self).pytest_sessionstart(session)
+
     def _generate_report(self, session):
         """Writes HTML report to a temporary logfile."""
         suite_stop_time = time.time()
-        suite_time_delta = suite_stop_time - self.suite_start_time
+        self.suite_time_delta = suite_stop_time - self.suite_start_time
         numtests = self.passed + self.failed + self.xpassed + self.xfailed
         generated = datetime.datetime.now()
 
@@ -84,7 +88,7 @@ class DokuReport(HTMLReport):
 
         summary = [html.h2('Summary'), html.p(
             '{0} tests ran in {1:.2f} seconds.'.format(
-                numtests, suite_time_delta),
+                numtests, self.suite_time_delta),
             html.br(),
             html.span('{0} passed'.format(
                 self.passed), class_='passed'), ', ',
@@ -171,10 +175,17 @@ class DokuReport(HTMLReport):
         else:
             status = "Errored"
 
+        row = "| "
+        # Append hash
+        row += "[[reports:{0}|{0}]] | ".format(tardis.__githash__[:7])
+        # Append start time
+        row += "{0} | ".format(self.suite_start_datetime)
+        # Append time elapsed
+        row += "{0:.2f} sec | ".format(self.suite_time_delta)
+        # Append status
+        row += "{0} |".format(status)
         try:
-            self.doku_conn.pages.append('/', "| [[reports:{0}|{0}]] | {1} |".format(
-                tardis.__githash__[:7], status
-            ))
+            self.doku_conn.pages.append('/', row)
         except (gaierror, TypeError):
             pass
 
