@@ -25,8 +25,9 @@ References
 3. "pytest-html" ( https://www.github.com/davehunt/pytest-html )
 """
 import datetime
-import pkg_resources
+import json
 import os
+import pkg_resources
 import time
 
 # For specifying error while exception handling
@@ -39,8 +40,10 @@ import tardis
 
 try:
     import dokuwiki
+    import requests
 except ImportError:
     dokuwiki = None
+    requests = None
 
 
 class DokuReport(HTMLReport):
@@ -175,9 +178,26 @@ class DokuReport(HTMLReport):
         else:
             status = "Errored"
 
+        # Fetch commit message from github.
+        gh_request = requests.get(
+            "https://api.github.com/repos/tardis-sn/tardis/git/commits/{0}".format(
+                tardis.__githash__
+            )
+        )
+        gh_commit_data = json.loads(gh_request.content)
+        # Pick only first line of commit message
+        gh_commit_message = gh_commit_data['message'].split('\n')[0]
+
+        # Truncate long commit messages
+        if len(gh_commit_message) > 40:
+            gh_commit_message = "{0}...".format(gh_commit_message[:37])
         row = "| "
         # Append hash
         row += "[[reports:{0}|{0}]] | ".format(tardis.__githash__[:7])
+        # Append commit message
+        row += "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{1}]] | ".format(
+            tardis.__githash__, gh_commit_message
+        )
         # Append start time
         row += "{0} | ".format(self.suite_start_datetime)
         # Append time elapsed
