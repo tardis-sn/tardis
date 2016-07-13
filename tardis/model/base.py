@@ -72,6 +72,14 @@ class Radial1DModel(object):
     def density(self):
         return self.homologous_density.after_time(self.time_explosion)
 
+    @property
+    def volume(self):
+        return ((4. / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)).cgs
+
+    @property
+    def no_of_shells(self):
+        return len(self.velocity) - 1
+
     @classmethod
     def from_config(cls, config):
         pass
