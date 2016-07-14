@@ -13,7 +13,7 @@ from astropy import constants as co
 from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.properties.base import Input
-
+from tardis.util import intensity_black_body
 # Adding logging support
 logger = logging.getLogger(__name__)
 
@@ -346,7 +346,7 @@ class Simulation(object):
                         plasma_properties)
 
         self.runner.att_S_ul =  self.make_source_function(model)
-        self.runner.L_nu     =  self.integrate(model)
+        self.runner.L_nu,self.runner.L_nu_nus     =  self.integrate(model)
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
@@ -453,58 +453,89 @@ class Simulation(object):
         ## p > Rmin
         ps_outer        = ps[ ps > R_min_rel]
         z_ct_outer      = z_ct[:, ps > R_min_rel]
-        n_shell_p_outer = (num_shell+1) - np.isnan(z_ct[:, ps > R_min_rel]).sum(axis=0)
+        n_shell_p_outer = (num_shell+1) - np.isnan(z_crossings[:, ps > R_min_rel]).sum(axis=0)
 
         ## p < Rmin
-#        ps_inner        = ps[ ps <= R_min_rel]
-#        z_ct_inner      = z_ct[:, ps <= R_min_rel]
-#        n_shell_p_inner = numshell - np.isnan(zs[:, ps <= R_min_rel]).sum(axis=0)
-
+        ps_inner        = ps[ ps <= R_min_rel]
+        z_ct_inner      = z_ct[:, ps <= R_min_rel]
 
         # I will traverse from largest shell in, but
         # elsewhere shell structure is from smallest and out,
         # so this is for reversing it
         shell_nr = np.arange(0,num_shell,dtype="int")[::-1]
 
-#        montecarlo.integrate(model,self.runner)
  
-        nus = np.linspace(4000, 7000, 10)*u.angstrom
+        nus = np.linspace(4000, 7000, 20)*u.angstrom
         nus = co.c.cgs / nus.cgs
-        
+      
+#        nus = np. array([  7.28882474e+12,   4.72768145e+13,   8.72648043e+13, 1.27252794e+14,   1.67240784e+14,   2.07228774e+14, 2.47216763e+14,   2.87204753e+14,   3.27192743e+14,          3.67180733e+14,   4.07168722e+14,   4.47156712e+14, 4.87144702e+14,   5.27132692e+14,   5.67120682e+14, 6.07108671e+14,   6.47096661e+14,   6.87084651e+14,  7.27072641e+14,   7.67060630e+14,   8.07048620e+14,          8.47036610e+14,   8.87024600e+14,   9.27012590e+14, 9.67000579e+14,   1.00698857e+15,   1.04697656e+15, 1.08696455e+15,   1.12695254e+15,   1.16694053e+15,  1.20692852e+15,   1.24691651e+15,   1.28690450e+15,          1.32689249e+15,   1.36688048e+15,   1.40686847e+15, 1.44685646e+15,   1.48684445e+15,   1.52683244e+15, 1.56682043e+15,   1.60680842e+15,   1.64679641e+15,  1.68678440e+15,   1.72677238e+15,   1.76676037e+15,          1.80674836e+15,   1.84673635e+15,   1.88672434e+15, 1.92671233e+15,   1.96670032e+15,   2.00668831e+15, 2.04667630e+15,   2.08666429e+15,   2.12665228e+15,  2.16664027e+15,   2.20662826e+15,   2.24661625e+15,          2.28660424e+15,   2.32659223e+15,   2.36658022e+15, 2.40656821e+15,   2.44655620e+15,   2.48654419e+15, 2.52653218e+15,   2.56652017e+15,   2.60650816e+15,  2.64649615e+15,   2.68648414e+15,   2.72647213e+15,          2.76646012e+15,   2.80644811e+15,   2.84643610e+15, 2.88642409e+15,   2.92641208e+15,   2.96640007e+15, 3.00638806e+15,   3.04637605e+15,   3.08636404e+15,  3.12635203e+15,   3.16634002e+15,   3.20632801e+15,          3.24631600e+15,   3.28630399e+15,   3.32629198e+15, 3.36627997e+15,   3.40626796e+15,   3.44625595e+15, 3.48624393e+15,   3.52623192e+15,   3.56621991e+15,  3.60620790e+15,   3.64619589e+15,   3.68618388e+15,          3.72617187e+15,   3.76615986e+15,   3.80614785e+15, 3.84613584e+15,   3.88612383e+15,   3.92611182e+15, 3.96609981e+15,   4.00608780e+15])/u.s
+
         #Just aliasing for cleaner expressions later
         line_nu  = model.plasma.lines.nu
         taus     = model.plasma.tau_sobolevs
         att_S_ul = self.runner.att_S_ul
+        temps    = model.plasma.t_rad
 
         dtau = 1 # Just to remember it 
 
+        L_nu  = np.zeros(nus.shape)
 
-        for nu in nus.value:
+        import pdb
+        for nu_idx,nu in enumerate(nus.value):
             I_outer = np.zeros(ps_outer.shape)
             for p_idx,p in enumerate(ps_outer):
                 z_cross_p = z_ct_outer[z_ct_outer[:,p_idx] > 0,p_idx]
-                z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1],0))
-
+                z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
+                                                                          # 1: avoids double counting center
                 shell_idx = (num_shell-1) - np.arange(n_shell_p_outer[p_idx]) # -1 for 0-based indexing
-                shell_idx = np.hstack((shell_idx,shell_idx[::-1]))
-
+                shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
+                
                 for idx,z_cross in enumerate(z_cross_p[:-1]):
                     nu_start = nu / (1 + z_cross) 
                     nu_end   = nu / (1 + z_cross_p[idx+1])
                     shell = shell_idx[idx]
                     # Note the direction of the comparisons
-                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )                    
 
-                    if len(ks) < 1:
+                    if len(ks) < 2:
                         continue
 
                     I_outer[p_idx] = dtau * ( 
                                         ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
+
                     for k in ks:
-                        I_outer[p_idx] += I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
+                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
 
-            print (I_outer * ps_outer).sum()
 
+            I_inner = np.zeros(ps_inner.shape)
+            for p_idx,p in enumerate(ps_inner):
+                z_cross_p = z_ct_inner[z_ct_inner[:,p_idx] > 0,p_idx]
+                z_cross_p = np.hstack((z_cross_p[::-1],0)) # Zero ensures empty ks in last step below
+
+                shell_idx = np.hstack(( np.arange(num_shell), 0 ))
+                for idx,z_cross in enumerate(z_cross_p[:-1]):
+                    nu_start = nu / (1 + z_cross) 
+                    nu_end   = nu / (1 + z_cross_p[idx+1])
+                    shell = shell_idx[idx]
+                    # Note the direction of the comparisons
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )                    
+
+                    if len(ks) < 2:
+                        continue
+
+                    I_inner[p_idx] = intensity_black_body(nu,temps[shell])
+
+                    #dtau * ( 
+                    #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
+
+                    for k in ks:
+                        I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
+
+
+            print float(nu_idx)/len(nus)
+            L_nu[nu_idx] = (I_outer*ps_outer).sum() + (I_inner*ps_inner).sum()
+
+        return  L_nu,nus
 
 
 def run_radial1d(radial1d_model, hdf_path_or_buf=None,
