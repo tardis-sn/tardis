@@ -45,6 +45,10 @@ class Radial1DModel(object):
         self.t_radiative = value
 
     @property
+    def radius(self):
+        return self.time_explosion * self.velocity
+
+    @property
     def r_inner(self):
         return self.time_explosion * self.v_inner
 
