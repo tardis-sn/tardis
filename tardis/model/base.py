@@ -1,17 +1,11 @@
 import numpy as np
 from astropy import constants, units as u
 
-
-class HomologousDensity(object):
-    def __init__(self, density_0, time_0):
-        self.density_0 = density_0
-        self.time_0 = time_0
-
-    def after_time(self, time_explosion):
-        return self.density_0 * (time_explosion / self.time_0) ** -3
+from tardis.model import density
+from tardis.util import quantity_linspace, InstanceDescriptorMixin
 
 
-class Radial1DModel(object):
+class Radial1DModel(InstanceDescriptorMixin):
     def __init__(self, velocity, homologous_density, abundance, t_inner,
                  time_explosion, t_radiative=None, dilution_factor=None,
                  v_boundary_inner=None, v_boundary_outer=None):
@@ -24,7 +18,7 @@ class Radial1DModel(object):
         if t_radiative is None:
             lambda_wien_inner = constants.b_wien / self.t_inner
             self.t_radiative = constants.b_wien / (lambda_wien_inner * (
-                1 + (self.v_middle - self.v_boundary_inner) / constants.c))
+                1 + (self.v_middle - self.v_inner[0]) / constants.c))
         else:
             self.t_radiative = t_radiative
 
@@ -91,7 +85,7 @@ class Radial1DModel(object):
 
     @property
     def density(self):
-        return self.homologous_density.after_time(self.time_explosion)
+        return self.homologous_density
 
     @property
     def volume(self):
@@ -124,4 +118,27 @@ class Radial1DModel(object):
 
     @classmethod
     def from_config(cls, config):
-        pass
+        # TODO: Currently only supporting structure type specific
+        t_inner = config.plasma.t_inner
+        t_radiative = config.plasma.t_rads
+        time_explosion = config.supernova.time_explosion
+        abundance = config.abundances
+
+        structure = config.model.structure
+        if structure.type == 'specific':
+            velocity = quantity_linspace(structure.velocity.start,
+                                         structure.velocity.stop,
+                                         structure.velocity.num + 1)
+            homologous_density = density.Density.from_config(config)
+        else:
+            raise NotImplementedError
+
+        return cls(velocity=velocity,
+                   homologous_density=homologous_density,
+                   abundance=abundance,
+                   t_inner=t_inner,
+                   time_explosion=time_explosion,
+                   t_radiative=t_radiative,
+                   dilution_factor=None,
+                   v_boundary_inner=None,
+                   v_boundary_outer=None)
