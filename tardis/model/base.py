@@ -1,4 +1,5 @@
 import numpy as np
+from astropy import constants
 
 
 class HomologousDensity(object):
@@ -12,16 +13,21 @@ class HomologousDensity(object):
 
 class Radial1DModel(object):
     def __init__(self, velocity, homologous_density, abundance, t_inner,
-                 t_radiative, v_boundary_inner, v_boundary_outer,
-                 time_explosion, dilution_factor=None):
+                 time_explosion, v_boundary_inner, v_boundary_outer,
+                 t_radiative=None, dilution_factor=None):
         self.velocity = velocity
         self.homologous_density = homologous_density
         self.abundance = abundance
         self.t_inner = t_inner
-        self.t_radiative = t_radiative
+        self.time_explosion = time_explosion
         self.v_boundary_inner = v_boundary_inner
         self.v_boundary_outer = v_boundary_outer
-        self.time_explosion = time_explosion
+        if t_radiative is None:
+            lambda_wien_inner = constants.b_wien / self.t_inner
+            self.t_radiative = constants.b_wien / (lambda_wien_inner * (
+                    1 + (self.v_middle - self.v_boundary_inner) / constants.c))
+        else:
+            self.t_radiative = t_radiative
         if dilution_factor is None:
             self.dilution_factor = 0.5 * (1 - np.sqrt(
                 1 - (self.r_inner[0] ** 2 / self.r_middle ** 2).to(1).value))
