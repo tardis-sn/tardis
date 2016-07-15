@@ -91,13 +91,13 @@ class Radial1DModel(object):
 
         self.t_inner = tardis_config.plasma.t_inner
 
-        self.v_inner = tardis_config.structure.v_inner
-        self.v_outer = tardis_config.structure.v_outer
+        self.v_inner = tardis_config.model.structure.v_inner
+        self.v_outer = tardis_config.model.structure.v_outer
         self.v_middle = 0.5 * (self.v_inner + self.v_outer)
 
         self.ws = self.calculate_geometric_w(
-            tardis_config.structure.r_middle,
-            tardis_config.structure.r_inner[0])
+            tardis_config.model.structure.r_middle,
+            tardis_config.model.structure.r_inner[0])
 
         if tardis_config.plasma.t_rads is None:
             self.t_rads = self._init_t_rad(
@@ -177,14 +177,14 @@ class Radial1DModel(object):
         self._t_inner = value
         self.luminosity_inner = (
             4 * np.pi * constants.sigma_sb.cgs *
-            self.tardis_config.structure.r_inner[0] ** 2
+            self.tardis_config.model.structure.r_inner[0] ** 2
             * self.t_inner ** 4).to('erg/s')
 
         self.time_of_simulation = (1.0 * u.erg / self.luminosity_inner)
         self.j_blues_norm_factor = (
             constants.c.cgs * self.tardis_config.supernova.time_explosion /
             (4 * np.pi * self.time_of_simulation *
-             self.tardis_config.structure.volumes))
+             self.tardis_config.model.structure.volumes))
 
 
 
@@ -227,7 +227,7 @@ class Radial1DModel(object):
                     index=self.atom_data.lines.index,
                     columns=np.arange(len(self.t_rads)))
 
-            for i in xrange(self.tardis_config.structure.no_of_shells):
+            for i in xrange(self.tardis_config.model.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = (
                     w_epsilon * intensity_black_body(

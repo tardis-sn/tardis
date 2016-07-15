@@ -680,25 +680,25 @@ class ModelViewer(QtGui.QWidget):
             self.graph.cb = self.graph.figure.colorbar(t_rad_color_map)
             self.graph.cb.set_label('T (K)')
         self.graph.normalizing_factor = 0.2 * (
-            self.model.tardis_config.structure.r_outer.value[-1] - 
-            self.model.tardis_config.structure.r_inner.value[0]) / (
-            self.model.tardis_config.structure.r_inner.value[0])
+            self.model.tardis_config.model.structure.r_outer.value[-1] -
+            self.model.tardis_config.model.structure.r_inner.value[0]) / (
+            self.model.tardis_config.model.structure.r_inner.value[0])
 
         #self.graph.normalizing_factor = 8e-16
         for i, t_rad in enumerate(self.model.t_rads.value):
-            r_inner = (self.model.tardis_config.structure.r_inner.value[i] * 
+            r_inner = (self.model.tardis_config.model.structure.r_inner.value[i] *
                 self.graph.normalizing_factor)
-            r_outer = (self.model.tardis_config.structure.r_outer.value[i] * 
+            r_outer = (self.model.tardis_config.model.structure.r_outer.value[i] *
                 self.graph.normalizing_factor)
             self.shells.append(Shell(i, (0,0), r_inner, r_outer, 
                 facecolor=t_rad_color_map.to_rgba(t_rad),
                 picker=self.graph.shell_picker))
             self.graph.ax2.add_patch(self.shells[i])
         self.graph.ax2.set_xlim(0, 
-            self.model.tardis_config.structure.r_outer.value[-1] * 
+            self.model.tardis_config.model.structure.r_outer.value[-1] *
             self.graph.normalizing_factor)
         self.graph.ax2.set_ylim(0, 
-            self.model.tardis_config.structure.r_outer.value[-1] * 
+            self.model.tardis_config.model.structure.r_outer.value[-1] *
             self.graph.normalizing_factor)
         self.graph.figure.tight_layout()
         self.graph.draw()

@@ -552,13 +552,6 @@ class Configuration(ConfigurationNameSpace):
                                        (r_outer ** 3 -
                                         r_inner ** 3)).cgs
 
-
-        #### TODO the following is legacy code and should be removed
-        validated_config_dict['structure'] = \
-            validated_config_dict['model']['structure']
-        # ^^^^^^^^^^^^^^^^
-
-
         abundances_section = model_section['abundances']
 
         if abundances_section['type'] == 'uniform':
@@ -713,7 +706,7 @@ class Configuration(ConfigurationNameSpace):
         self.atom_data = atom_data
         selected_atomic_numbers = self.abundances.index
         if atom_data is not None:
-            self.number_densities = (self.abundances * self.structure.mean_densities.to('g/cm^3').value)
+            self.number_densities = (self.abundances * self.model.structure.mean_densities.to('g/cm^3').value)
             self.number_densities = self.number_densities.div(self.atom_data.atom_data.mass.ix[selected_atomic_numbers],
                                                               axis=0)
         else:
