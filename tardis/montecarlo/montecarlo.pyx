@@ -304,3 +304,6 @@ def postprocess(model, runner):
                         runner.line_lists_tau_sobolevs.reshape(-1,
                             model.tardis_config.structure["velocity"]["num"]) ) 
     runner.Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
+
+def integrate(model,runner):
+    print "Called"
