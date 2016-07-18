@@ -1,4 +1,6 @@
 import os
+import yaml
+
 import pytest
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
@@ -28,6 +30,7 @@ class TestIntegration(object):
         self.name = data_path['setup_name']
 
         self.config_file = os.path.join(data_path['config_dirpath'], "config.yml")
+        self.config_dict = yaml.load(self.config_file)
 
         # Load atom data file separately, pass it for forming tardis config.
         self.atom_data = AtomData.from_hdf5(atomic_data_fname)
@@ -39,8 +42,10 @@ class TestIntegration(object):
         assert self.atom_data.uuid1 == kurucz_data_file_uuid1
 
         # Create a Configuration through yaml file and atom data.
-        tardis_config = Configuration.from_yaml(
-            self.config_file, atom_data=self.atom_data)
+        tardis_config = Configuration.from_config_dict(
+            self.config_file, atom_data=self.atom_data,
+            config_dirname=data_path['config_dirpath']
+        )
 
         # Check whether current run is with less packets.
         if request.config.getoption("--less-packets"):
