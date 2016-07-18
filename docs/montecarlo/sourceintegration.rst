@@ -55,8 +55,14 @@ or include them, then requiring we perform
 .. note::
       Currently the code does not perform the steps necessary to include continuum sources of opacity.
 
-Because the SNE is expanding homologously, along any ray parallel to the line of sight the Doppler effect will make a range of 
-To find which lines to include when recursing we need to find the limits 
+We seek to integrate all emissions at a certain wavelength :math:`\nu` along a ray at some specific impact parameter :math:`p'`. Because the SNE is expanding homologously, along any ray parallel to the line of sight the Doppler effect will sift a range of co-moving frequencies :math:`\nu_0` into the desired observer frame frequency :math:`\nu`.
+
+To find which lines to include when recursing on the line list we need to find the maximum Doppler shift along a given ray. At any point, the Doppler effect in our coordinates is
+
+.. math::
+    \nu = \nu_0 \left( 1 + \beta \mu \right)
+
+where :math:`\beta = \frac v c`, and :math:`\mu = \cos \theta`. Here :math:`\theta` is the angle between the radial direction and the ray to the observer, as shown in the figure below. Because we are in the homologous expansion regime :math:`v = \frac r t`. 
 
 .. image:: https://i.imgur.com/WwVHp5c.png
 
