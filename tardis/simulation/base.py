@@ -476,7 +476,7 @@ class Simulation(object):
         att_S_ul = self.runner.att_S_ul
         temps    = model.plasma.t_rad
 
-        dtau = 1 # Just to remember it 
+        dtau = 0 # Just to remember it 
 
         L_nu  = np.zeros(nus.shape)
 
@@ -500,8 +500,8 @@ class Simulation(object):
                     if len(ks) < 2:
                         continue
 
-                    I_outer[p_idx] = dtau * ( 
-                                        ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
+                    #I_outer[p_idx] = I_outer[p_idx] + dtau * ( 
+                    #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
 
                     for k in ks:
                         I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
@@ -513,6 +513,7 @@ class Simulation(object):
                 z_cross_p = np.hstack((z_cross_p[::-1],0)) # Zero ensures empty ks in last step below
 
                 shell_idx = np.hstack(( np.arange(num_shell), 0 ))
+                I_inner[p_idx] = intensity_black_body(nu,temps[0])
                 for idx,z_cross in enumerate(z_cross_p[:-1]):
                     nu_start = nu / (1 + z_cross) 
                     nu_end   = nu / (1 + z_cross_p[idx+1])
@@ -523,7 +524,6 @@ class Simulation(object):
                     if len(ks) < 2:
                         continue
 
-                    I_inner[p_idx] = intensity_black_body(nu,temps[0])
 
                     #dtau * ( 
                     #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
