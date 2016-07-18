@@ -114,3 +114,11 @@ def included_he_atomic_data(test_data_path):
 def tardis_config_verysimple():
     return yaml_load_config_file(
         'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+
+
+@pytest.fixture(scope="session")
+def atom_data_url():
+    return {
+        'kurucz_cd23_chianti_H_He.h5':
+            'http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
+    }
