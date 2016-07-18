@@ -7,7 +7,7 @@ Direct source integration method
     The following is provisional information, describing a code path that is right now active in the downbranch scheme.
 
 
-One way to increase the signal to noise of the monte carlo procedure is by improving final method of generating the spectra so that the quality of spectra produced by a given amount of packets is increased. This is the goal of the source integration scheme of :cite `Lucy99b`, which replaces the simple binning of the escaping packets with a method based on the formal integral of the source function for the verious lines.
+One way to increase the speed of the monte carlo procedure is by improving final method of generating the spectra so that the quality of spectra produced by a given amount of packets is increased. This is the goal of the source integration scheme of :cite `Lucy99b`, which replaces the simple binning of the escaping packets with a method based on the formal integral of the emergent intensity.
 
 The procedure starts with a monte carlo line absorption rate estimator:
 
@@ -32,9 +32,32 @@ The source function for each line can then be derived from the relation
 
 where :math:`\lambda_{ul}` is the wavelength of each line  :math:`u \rightarrow l`, and :math:`q_{ul}` is the corresponding branching ratio. The attenuating factor is kept on the left hand side because it is the product of the two that will appear in later formulae. The product on the right hand side is also evaluated in `make_source_function`. 
 
-Having thus produced attenuated source functions from our Monte Carlo run, we move on to using this to calculate the derived 
+Having thus produced attenuated source functions from our Monte Carlo run, we move on to using this to calculate the emerging intensity and finally the luminosity per wavelength. The final integral is given as 
 
+.. math::
+     L_\nu  = 8 \pi^2 \int_0^\infty I_\nu (p) p dp
 
-.. image:: https://imgur.com/WwVHp5c
+where :math:`p` is the impact parameter of a ray trough the supernova envelope that reaches the distant observer, and :math:`I_\nu (p)` is the intensity along one such ray, given by recursing trough the list of attenuated source functions from the blue to the red and adding up contributions. The relation linking the intensity before the k:th transition :math:`u \rightarrow l` to the intensity after is 
+
+.. math::
+      I_k^r = I_k^b e^{-\tau_k} + \left( 1- e^{-\tau_k}\right) S_{k}
+
+where the superscripts are crucial, with :math:`r` and :math:`b` referencing the red and blue sides of the k:th transition respectively. To go from the red side of a line to the blue side of the next we can either ignore continuum sources of opacity, in which case
+
+.. math:: 
+      I_{k+1}^b = I_k^r
+
+or include them, then requiring we perform
+
+.. math:: 
+      I_{k+1}^b = I_k^r + \Delta \tau_k \left[ \frac 1 2(J_k^r + J_{k+1}^b) - I_k^r  \right]
+
+.. note::
+      Currently the code does not perform the steps necessary to include continuum sources of opacity.
+
+Because the SNE is expanding homologously, along any ray parallel to the line of sight the Doppler effect will make a range of 
+To find which lines to include when recursing we need to find the limits 
+
+.. image:: https://i.imgur.com/WwVHp5c.png
 
 more coming...
