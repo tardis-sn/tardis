@@ -9,6 +9,8 @@ class Radial1DModel(InstanceDescriptorMixin):
     def __init__(self, velocity, homologous_density, abundance, t_inner,
                  time_explosion, t_radiative=None, dilution_factor=None,
                  v_boundary_inner=None, v_boundary_outer=None):
+        self._v_boundary_inner = None
+        self._v_boundary_outer = None
         self.velocity = velocity
         self.homologous_density = homologous_density
         self.abundance = abundance
@@ -28,14 +30,6 @@ class Radial1DModel(InstanceDescriptorMixin):
         else:
             self.dilution_factor = dilution_factor
 
-        if v_boundary_inner is not None and v_boundary_outer is not None:
-            if v_boundary_inner > v_boundary_outer:
-                raise ValueError('v_boundary_inner must not be higher than'
-                                 'v_boundary_outer.')
-        if v_boundary_inner is not None and v_boundary_inner > self.v_outer[-1]:
-            raise ValueError('v_boundary_inner is outside of the model range.')
-        if v_boundary_outer is not None and v_boundary_outer < self.v_inner[0]:
-            raise ValueError('v_boundary_outer is outside of the model range.')
         self.v_boundary_inner = v_boundary_inner
         self.v_boundary_outer = v_boundary_outer
 
@@ -94,6 +88,40 @@ class Radial1DModel(InstanceDescriptorMixin):
     @property
     def no_of_shells(self):
         return len(self.velocity) - 1
+
+    @property
+    def v_boundary_inner(self):
+        if self._v_boundary_inner is None:
+            return self.v_inner[0]
+        return self._v_boundary_inner
+
+    @v_boundary_inner.setter
+    def v_boundary_inner(self, value):
+        if value is not None:
+            if value > self.v_boundary_outer:
+                raise ValueError('v_boundary_inner must not be higher than'
+                                 'v_boundary_outer.')
+            if value > self.v_outer[-1]:
+                raise ValueError('v_boundary_inner is outside of'
+                                 'the model range.')
+        self._v_boundary_inner = value
+
+    @property
+    def v_boundary_outer(self):
+        if self._v_boundary_outer is None:
+            return self.v_outer[-1]
+        return self._v_boundary_outer
+
+    @v_boundary_outer.setter
+    def v_boundary_outer(self, value):
+        if value is not None:
+            if value < self.v_boundary_inner:
+                raise ValueError('v_boundary_outer must not be smaller than'
+                                 'v_boundary_inner.')
+            if value < self.v_inner[0]:
+                raise ValueError('v_boundary_outer is outside of'
+                                 'the model range.')
+        self._v_boundary_outer = value
 
     @property
     def v_boundary_inner_index(self):
