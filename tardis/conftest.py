@@ -83,26 +83,6 @@ def pytest_addoption(parser):
 # -------------------------------------------------------------------------
 
 
-@pytest.fixture(scope="session")
-def atomic_data_fname():
-    atomic_data_fname = pytest.config.getvalue("atomic-dataset")
-    if atomic_data_fname is None:
-        pytest.skip('--atomic-dataset was not specified')
-    else:
-        return os.path.expandvars(os.path.expanduser(atomic_data_fname))
-
-
-@pytest.fixture
-def kurucz_atomic_data(atomic_data_fname):
-    atomic_data = AtomData.from_hdf5(atomic_data_fname)
-
-    if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
-        pytest.skip('Need default Kurucz atomic dataset '
-                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
-    else:
-        return atomic_data
-
-
 @pytest.fixture
 def test_data_path():
     return os.path.join(tardis.__path__[0], 'tests', 'data')
@@ -120,21 +100,14 @@ def tardis_config_verysimple():
         'tardis/io/tests/data/tardis_configv1_verysimple.yml')
 
 
-@pytest.fixture(scope="session")
-def atom_data_url():
-    return {
-        'kurucz_cd23_chianti_H_He.h5':
-            'http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
-    }
-
-
 @remote_data
 @pytest.fixture(scope="session")
 def _atom_data(request):
     atom_data_name = 'kurucz_cd23_chianti_H_He.h5'
     # Download and cache the zip file of atomic data.
     atom_data_cache = download_file(
-        atom_data_url[atom_data_name], cache=True
+        'http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip',
+        cache=True
     )
 
     # Obtained file is a zip file, hence unzipped inside a tempdir.
@@ -156,4 +129,7 @@ def _atom_data(request):
 @remote_data
 @pytest.fixture(scope="class")
 def atom_data(_atom_data):
+    if _atom_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
+        pytest.skip('Need default Kurucz atomic dataset '
+                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
     return copy.deepcopy(_atom_data)
