@@ -16,6 +16,9 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis import atomic
 from tardis.util import (species_string_to_tuple, parse_quantity,
                          element_symbol2atomic_number, quantity_linspace)
+# TODO: Remove the following
+from tardis.model.density import *
+###
 
 import copy
 
@@ -49,59 +52,6 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     spectrum_end_wavelength = max(spectral_bin_boundary_1, spectral_bin_boundary_2)
 
     return spectrum_start_wavelength, spectrum_end_wavelength
-
-
-def calculate_exponential_density(velocities, v_0, rho0):
-    """
-    This function computes the exponential density profile.
-    :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`
-
-    Parameters
-    ----------
-
-    velocities : ~astropy.Quantity
-        Array like velocity profile
-    velocity_0 : ~astropy.Quantity
-        reference velocity
-    rho0 : ~astropy.Quantity
-        reference density
-
-    Returns
-    -------
-
-    densities : ~astropy.Quantity
-
-    """
-    densities = rho0 * np.exp(-(velocities / v_0))
-    return densities
-
-
-def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
-    """
-
-    This function computes a descret exponential density profile.
-    :math:`\\rho = \\rho_0 \\times \\left( \\frac{v}{v_0} \\right)^n`
-
-    Parameters
-    ----------
-
-    velocities : ~astropy.Quantity
-        Array like velocity profile
-    velocity_0 : ~astropy.Quantity
-        reference velocity
-    rho0 : ~astropy.Quantity
-        reference density
-    exponent : ~float
-        exponent used in the powerlaw
-
-    Returns
-    -------
-
-    densities : ~astropy.Quantity
-
-    """
-    densities = rho_0 * np.power((velocities / velocity_0), exponent)
-    return densities
 
 
 def parse_model_file_section(model_setup_file_dict, time_explosion):
