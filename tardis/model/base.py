@@ -21,8 +21,9 @@ class HomologousDensity(object):
             velocity = quantity_linspace(config.structure.velocity.start,
                                          config.structure.velocity.stop,
                                          config.structure.velocity.num + 1)
-
-            v_middle = velocity[:-1] * 0.5 + velocity[1:] * 0.5
+            adjusted_velocity = velocity.insert(0, 0)
+            v_middle = (adjusted_velocity[1:] * 0.5 +
+                        adjusted_velocity[:-1] * 0.5)
             density_0 = calculate_power_law_density(v_middle, d_conf.w7_v_0,
                                                     d_conf.w7_rho_0, -7)
             return cls(density_0, d_conf.w7_time_0)
@@ -113,7 +114,9 @@ class Radial1DModel(object):
 
     @property
     def density(self):
-        return self.homologous_density.after_time(self.time_explosion)
+        density = self.homologous_density.after_time(self.time_explosion)
+        return density[self.v_boundary_inner_index
+                       :self.v_boundary_outer_index][1:]
 
     @property
     def volume(self):
