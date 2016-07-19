@@ -1,3 +1,4 @@
+import copy
 import os
 
 import pytest
@@ -37,7 +38,7 @@ class TestIntegration(object):
         # Create a Configuration through yaml file and atom data.
         tardis_config = Configuration.from_yaml(
             os.path.join(data_path['config_dirpath'], 'config.yml'),
-            atom_data=atom_data
+            atom_data=copy.deepcopy(atom_data)
         )
 
         # Check whether current run is with less packets.

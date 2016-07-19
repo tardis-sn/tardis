@@ -98,7 +98,6 @@ def tardis_config_verysimple():
         'tardis/io/tests/data/tardis_configv1_verysimple.yml')
 
 
-@remote_data
 @pytest.fixture(scope="session")
 def _atom_data(request):
     atom_data_name = 'kurucz_cd23_chianti_H_He.h5'
@@ -124,7 +123,6 @@ def _atom_data(request):
     return atom_data
 
 
-@remote_data
 @pytest.fixture(scope="class")
 def atom_data(_atom_data):
     if _atom_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':

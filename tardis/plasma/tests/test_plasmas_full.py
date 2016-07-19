@@ -1,3 +1,4 @@
+import copy
 import os
 
 import h5py
@@ -35,14 +36,14 @@ class TestPlasmas(object):
     def setup(self, atom_data):
         self.lte_config = Configuration.from_yaml(
             'tardis/plasma/tests/data/plasma_test_config_lte.yml',
-            atom_data=atom_data
+            atom_data=copy.deepcopy(atom_data)
         )
         self.lte_model = Radial1DModel(self.lte_config)
         run_radial1d(self.lte_model)
 
         self.nlte_config = Configuration.from_yaml(
             'tardis/plasma/tests/data/plasma_test_config_nlte.yml',
-            atom_data=atom_data
+            atom_data=copy.deepcopy(atom_data)
         )
         self.nlte_model = Radial1DModel(self.nlte_config)
         run_radial1d(self.nlte_model)

@@ -142,7 +142,7 @@ def test_atomic_symbol_reverse():
 @remote_data
 @pytest.mark.parametrize(['selected_atomic_numbers'], [[14], [20]])
 def test_atomic_reprepare(atom_data, selected_atomic_numbers):
-    atom_data.prepare_atom_data(selected_atomic_numbers)
+    atom_data.prepare_atom_data([selected_atomic_numbers])
     assert len(atom_data.lines) > 0
     # FIXME: (new behavior of prepare_atom_data)
     # Consider doing only one prepare_atom_data and check

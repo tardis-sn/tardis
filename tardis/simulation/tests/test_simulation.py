@@ -9,11 +9,10 @@ from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose, remote_data
 
 
-@remote_data
 @pytest.fixture
-def tardis_config(kurucz_atomic_data, tardis_config_verysimple):
+def tardis_config(atom_data, tardis_config_verysimple):
     return Configuration.from_config_dict(
-        tardis_config_verysimple, atom_data=kurucz_atomic_data
+        tardis_config_verysimple, atom_data=atom_data
     )
 
 
@@ -40,6 +39,7 @@ def simulation_compare_data(simulation_compare_data_fname):
     return h5py.File(simulation_compare_data_fname, mode='r')
 
 
+@remote_data
 def test_plasma_estimates(simulation_one_loop, simulation_compare_data):
     t_rad, w = simulation_one_loop.runner.calculate_radiationfield_properties()
 
@@ -55,6 +55,7 @@ def test_plasma_estimates(simulation_one_loop, simulation_compare_data):
     npt.assert_allclose(w, simulation_compare_data['test1/w'], atol=0.0)
 
 
+@remote_data
 def test_packet_output(simulation_one_loop, simulation_compare_data):
     assert_quantity_allclose(
             simulation_one_loop.runner.output_nu,
