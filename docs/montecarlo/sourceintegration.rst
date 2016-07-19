@@ -57,6 +57,8 @@ or include them, then requiring we perform
 
    I_{k+1}^b = I_k^r + \Delta \tau_k \left[ \frac 1 2(J_k^r + J_{k+1}^b) - I_k^r  \right]
 
+The starting condition for the blue to red side transition is either :math:`I_0^r = 0` for the case that the impact parameter is greater than the radius if the photosphere, or :math:`I_0^r = B_\nu(T)` if the impact parameter is less than the radius of the photosphere. 
+
 .. note::
 
    Currently the code does not perform the steps necessary to include continuum sources of opacity.
@@ -83,7 +85,7 @@ and in turn :math:`z_c` can be given as
 
    z_c = \sqrt{r_c^2 + p_c^2}
 
-where the subscripts indicate the value at point C.
+where the subscripts indicate the value at point C. By symmetry the intersection point for negative :math:`z` is simply :math:`-z_c`.
 
 Using the expression for :math:`\mu`, :math:`\beta` above leads to the dependence on :math:`r` cancelling, and solving for :math:`\nu_0` gives
 
@@ -93,4 +95,8 @@ Using the expression for :math:`\mu`, :math:`\beta` above leads to the dependenc
 
 For any given shell and impact parameter we can thus find the maximum and minimum co-moving frequency that will give the specified lab frame frequency if we know the intersection points of the ray with correct impact parameter, and this we find easily given the impact parameter and the radius of the shell.
 
-more coming...
+The integrator function proceeds as follows: first set up a grid of relative impact parameters `ps`. Then take all the shell radii from largest to smallest and put them in relative units by dividing with the largest radius. Using these two we calculate the :math:`z` coordinate of the crossing points if the various impact parameters, directly yielding the positive :math:`z_c` in the upper triangular matrix `z_crossings`. I also include the normalization factor :math:`ct`.
+
+Because the recursions have different starting conditions, we then split the crossings and impact parameters into an 'inner' and an 'outer' part, defined by whether the impact parameter a crossing corresponds to is greater or smaller than the innermost shell radius `R_min_rel`.
+
+Then we simply iterate over all the frequencies we want, and for each frequency over both sections of impact parameters, in each section recursing over selections of the line lists derived by from the crossing points.
