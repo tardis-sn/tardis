@@ -11,7 +11,10 @@ class Radial1DModel(InstanceDescriptorMixin):
                  v_boundary_inner=None, v_boundary_outer=None):
         self._v_boundary_inner = None
         self._v_boundary_outer = None
-        self.velocity = velocity
+        self._velocity = None
+        self.v_boundary_inner = v_boundary_inner
+        self.v_boundary_outer = v_boundary_outer
+        self.raw_velocity = velocity
         self.homologous_density = homologous_density
         self.abundance = abundance
         self.t_inner = t_inner
@@ -29,9 +32,6 @@ class Radial1DModel(InstanceDescriptorMixin):
                 1 - (self.r_inner[0] ** 2 / self.r_middle ** 2).to(1).value))
         else:
             self.dilution_factor = dilution_factor
-
-        self.v_boundary_inner = v_boundary_inner
-        self.v_boundary_outer = v_boundary_outer
 
     @property
     def w(self):
@@ -66,6 +66,15 @@ class Radial1DModel(InstanceDescriptorMixin):
         return 0.5 * self.r_inner + 0.5 * self.r_outer
 
     @property
+    def velocity(self):
+        if not self._velocity:
+            self._velocity = self.raw_velocity[self.v_boundary_inner_index:
+                                        self.v_boundary_outer_index].copy()
+            self._velocity[0] = self.v_boundary_inner
+            self._velocity[-1] = self.v_boundary_outer
+        return self._velocity
+
+    @property
     def v_inner(self):
         return self.velocity[:-1]
 
@@ -92,57 +101,62 @@ class Radial1DModel(InstanceDescriptorMixin):
     @property
     def v_boundary_inner(self):
         if self._v_boundary_inner is None:
-            return self.v_inner[0]
+            return self.raw_velocity[0]
         return self._v_boundary_inner
 
     @v_boundary_inner.setter
     def v_boundary_inner(self, value):
         if value is not None:
             if value > self.v_boundary_outer:
-                raise ValueError('v_boundary_inner must not be higher than'
+                raise ValueError('v_boundary_inner must not be higher than '
                                  'v_boundary_outer.')
-            if value > self.v_outer[-1]:
-                raise ValueError('v_boundary_inner is outside of'
+            if value > self.raw_velocity[-1]:
+                raise ValueError('v_boundary_inner is outside of '
                                  'the model range.')
+            value = max(value, self.raw_velocity[0])
         self._v_boundary_inner = value
+        # Invalidate the cached cut-down velocity array
+        self._velocity = None
 
     @property
     def v_boundary_outer(self):
         if self._v_boundary_outer is None:
-            return self.v_outer[-1]
+            return self.raw_velocity[-1]
         return self._v_boundary_outer
 
     @v_boundary_outer.setter
     def v_boundary_outer(self, value):
         if value is not None:
             if value < self.v_boundary_inner:
-                raise ValueError('v_boundary_outer must not be smaller than'
+                raise ValueError('v_boundary_outer must not be smaller than '
                                  'v_boundary_inner.')
-            if value < self.v_inner[0]:
-                raise ValueError('v_boundary_outer is outside of'
+            if value < self.raw_velocity[0]:
+                raise ValueError('v_boundary_outer is outside of '
                                  'the model range.')
+            value = min(value, self.raw_velocity[-1])
         self._v_boundary_outer = value
+        # Invalidate the cached cut-down velocity array
+        self._velocity = None
 
     @property
     def v_boundary_inner_index(self):
-        if (self.v_boundary_inner is None or
-                    self.v_boundary_inner < self.v_inner[0]):
+        if self.v_boundary_inner <= self.raw_velocity[0]:
             return None
         else:
-            idx = self.v_inner.searchsorted(self.v_boundary_inner) - 1
+            idx = max(0,
+                      self.raw_velocity.searchsorted(self.v_boundary_inner) - 1)
             # check for zero volume of designated first cell
-            if (np.isclose(self.v_boundary_inner, self.v_inner[idx + 1],
-                           atol=1e-8 * u.km / u.s) and
-                    (self.v_boundary_inner <= self.v_inner[idx + 1])):
+            if np.isclose(self.v_boundary_inner, self.raw_velocity[idx + 1],
+                          atol=1e-8 * u.km / u.s) and (self.v_boundary_inner <=
+                                                           self.raw_velocity[idx + 1]):
                 idx += 1
             return idx
 
     @property
     def v_boundary_outer_index(self):
-        if (self.v_boundary_outer is None or
-                    self.v_boundary_outer > self.v_outer[-1]):
+        if self.v_boundary_outer >= self.raw_velocity[-1]:
             return None
-        return self.v_outer.searchsorted(self.v_boundary_outer) + 1
+        return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
 
     @classmethod
     def from_config(cls, config):
