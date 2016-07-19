@@ -42,7 +42,7 @@ class Radial1DModel(object):
         self.v_boundary_outer = v_boundary_outer
         self.raw_velocity = velocity
         self.homologous_density = homologous_density
-        self.abundance = abundance
+        self._abundance = abundance
         self.t_inner = t_inner
         self.time_explosion = time_explosion
 
@@ -117,6 +117,13 @@ class Radial1DModel(object):
         density = self.homologous_density.after_time(self.time_explosion)
         return density[self.v_boundary_inner_index
                        :self.v_boundary_outer_index][1:]
+
+    @property
+    def abundance(self):
+        abundance = self._abundance.ix[:, self.v_boundary_inner_index:
+                                     self.v_boundary_outer_index]
+        abundance.columns = range(len(abundance.columns))
+        return abundance
 
     @property
     def volume(self):
