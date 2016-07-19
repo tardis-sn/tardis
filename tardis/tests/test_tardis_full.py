@@ -1,48 +1,36 @@
+import os
 import pytest
 import numpy as np
-import tardis
 import numpy.testing as nptesting
 from astropy import units as u
-import os
+from astropy.tests.helper import remote_data
 
-from tardis.io.util import yaml_load_config_file
-from tardis.simulation.base import Simulation
+import tardis
 from tardis.model import Radial1DModel
-
 from tardis.io.config_reader import Configuration
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
-
+from tardis.simulation.base import run_radial1d
 
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
 
-@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
-                    reason='--atomic_database was not specified')
-class TestSimpleRun():
+
+@remote_data
+class TestSimpleRun(object):
     """
     Very simple run
     """
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self):
-        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
-            pytest.config.getvalue('atomic-dataset')))
-        assert os.path.exists(self.atom_data_filename), ("{0} atomic datafiles"
-                                                         " does not seem to "
-                                                         "exist".format(
-            self.atom_data_filename))
-        self.config_yaml = yaml_load_config_file(
-            'tardis/io/tests/data/tardis_configv1_verysimple.yml')
-        self.config_yaml['atom_data'] = self.atom_data_filename
-
-        tardis_config = Configuration.from_config_dict(self.config_yaml)
+    def setup(self, tardis_config_verysimple, atom_data):
+        tardis_config = Configuration.from_yaml(
+            tardis_config_verysimple, atom_data=atom_data
+        )
         self.model = Radial1DModel(tardis_config)
-        self.simulation = Simulation(tardis_config)
-
-        self.simulation.legacy_run_simulation(self.model)
+        run_radial1d(self.model)
 
     def test_j_blue_estimators(self):
         j_blue_estimator = np.load(
