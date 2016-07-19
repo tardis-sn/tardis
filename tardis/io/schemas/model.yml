@@ -47,14 +47,10 @@ definitions:
         v_0:
           type: quantity
           description: at what velocity the density rho_0 applies
-        exponent:
-          type: number
-          description: exponent for exponential density profile
       required:
       - time_0
       - rho_0
       - v_0
-      - exponent
     power_law:
       type: object
       additionalProperties: false
