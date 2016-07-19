@@ -20,7 +20,6 @@ env:
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
         - TEST_MODE='normal'
-        - ATOM_DATA_URL='http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
 
 matrix:
@@ -28,20 +27,20 @@ matrix:
         - python: 2.7
           env:
             - COMPILER=gcc
-            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
+            - SETUP_CMD='test --args="--remote-data"'
             - TEST_MODE='spectrum'
 
         - python: 2.7
           env:
             - COMPILER=clang
-            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
+            - SETUP_CMD='test --args="--remote-data"'
             - TEST_MODE='spectrum'
 
         - os: osx
           language: generic
           env:
             - COMPILER=clang
-            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
+            - SETUP_CMD='test --args="--remote-data"'
             - TEST_MODE='spectrum'
             - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
 
@@ -66,9 +65,6 @@ before_install:
     - export PATH=$HOME/miniconda/bin:$PATH
     - hash -r
     - conda update --yes conda
-    - if [[ $TEST_MODE == 'spectrum' ]]; then wget $ATOM_DATA_URL; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
 
 install:
    - conda env create -f tardis_env27.yml
