@@ -2,33 +2,7 @@ import numpy as np
 from astropy import constants, units as u
 
 from tardis.util import quantity_linspace
-from tardis.io.config_reader import calculate_power_law_density
-
-
-class HomologousDensity(object):
-    def __init__(self, density_0, time_0):
-        self.density_0 = density_0
-        self.time_0 = time_0
-
-    def after_time(self, time_explosion):
-        return (self.density_0 * (time_explosion / self.time_0) ** -3).cgs
-
-    @classmethod
-    def from_config(cls, config):
-        d_conf = config.structure.density
-        if d_conf.type == 'branch85_w7':
-            # This is temporary, until the old model is removed.
-            velocity = quantity_linspace(config.structure.velocity.start,
-                                         config.structure.velocity.stop,
-                                         config.structure.velocity.num + 1)
-            adjusted_velocity = velocity.insert(0, 0)
-            v_middle = (adjusted_velocity[1:] * 0.5 +
-                        adjusted_velocity[:-1] * 0.5)
-            density_0 = calculate_power_law_density(v_middle, d_conf.w7_v_0,
-                                                    d_conf.w7_rho_0, -7)
-            return cls(density_0, d_conf.w7_time_0)
-        else:
-            raise NotImplementedError
+from density import HomologousDensity
 
 
 class Radial1DModel(object):
