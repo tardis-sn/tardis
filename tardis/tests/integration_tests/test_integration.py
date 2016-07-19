@@ -1,24 +1,18 @@
 import os
-import shutil
-import tempfile
-import zipfile
 
 import pytest
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose, remote_data
-from astropy.utils.data import download_file
 
-from tardis.atomic import AtomData
 from tardis.simulation.base import run_radial1d
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
-from tardis.io.util import yaml_load_config_file
 
 
+@remote_data
 @pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
                     reason="integration tests are not included in this run")
-@remote_data
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
     ``tardis/tests/integration_tests``.
@@ -26,7 +20,7 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path, atom_data_url):
+    def setup(self, request, reference, data_path, atom_data):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -34,39 +28,16 @@ class TestIntegration(object):
         # The last component in dirpath can be extracted as name of setup.
         self.name = data_path['setup_name']
 
-        self.config_file = os.path.join(data_path['config_dirpath'], "config.yml")
-        self.config_dict = yaml_load_config_file(self.config_file)
-
-        # Download and cache the zip file of atomic data. Name of atom data
-        # file is specified in config file, while url is provided by fixture.
-        atom_data_cache = download_file(
-            atom_data_url[self.config_dict['atom_data']], cache=True
-        )
-
-        # TODO: manipulate less packets in this dict itself after #620 merge
-
-        # Obtained file is a zip file, hence unzipped inside a tempdir.
-        atom_data_zipfile = zipfile.ZipFile(atom_data_cache)
-        atom_data_extract_tempdir = tempfile.mkdtemp()
-        atom_data_zipfile.extract(
-            self.config_dict['atom_data'], path=atom_data_extract_tempdir
-        )
-
-        # Load atom data file separately, pass it for forming tardis config.
-        self.atom_data = AtomData.from_hdf5(
-            os.path.join(atom_data_extract_tempdir, self.config_dict['atom_data'])
-        )
-
         # Check whether the atom data file in current run and the atom data
         # file used in obtaining the reference data are same.
         # TODO: hard coded UUID for kurucz atom data file, generalize it later.
         kurucz_data_file_uuid1 = "5ca3035ca8b311e3bb684437e69d75d7"
-        assert self.atom_data.uuid1 == kurucz_data_file_uuid1
+        assert atom_data.uuid1 == kurucz_data_file_uuid1
 
         # Create a Configuration through yaml file and atom data.
-        tardis_config = Configuration.from_config_dict(
-            self.config_dict, atom_data=self.atom_data,
-            config_dirname=data_path['config_dirpath']
+        tardis_config = Configuration.from_yaml(
+            os.path.join(data_path['config_dirpath'], 'config.yml'),
+            atom_data=atom_data
         )
 
         # Check whether current run is with less packets.
@@ -98,11 +69,6 @@ class TestIntegration(object):
 
         # Get the reference data through the fixture.
         self.reference = reference
-
-        def fin():
-            # Delete the tempdir as no longer required.
-            shutil.rmtree(atom_data_extract_tempdir)
-        request.addfinalizer(fin)
 
     @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
     def test_j_estimators(self):

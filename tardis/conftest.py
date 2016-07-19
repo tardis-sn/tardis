@@ -1,16 +1,20 @@
 # this contains imports plugins that configure py.test for astropy tests.
 # by importing them here in conftest.py they are discoverable by py.test
 # no matter how it is invoked within the source tree.
+import copy
+import shutil
+import tempfile
+import zipfile
 
+from astropy.tests.helper import remote_data
 from astropy.tests.pytest_plugins import *
 from astropy.tests.pytest_plugins import (
         pytest_addoption as _pytest_add_option
     )
+from astropy.utils.data import download_file
 
 import tardis
-import pytest
 from tardis.atomic import AtomData
-from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
 
 ###
@@ -122,3 +126,34 @@ def atom_data_url():
         'kurucz_cd23_chianti_H_He.h5':
             'http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
     }
+
+
+@remote_data
+@pytest.fixture(scope="session")
+def _atom_data(request):
+    atom_data_name = 'kurucz_cd23_chianti_H_He.h5'
+    # Download and cache the zip file of atomic data.
+    atom_data_cache = download_file(
+        atom_data_url[atom_data_name], cache=True
+    )
+
+    # Obtained file is a zip file, hence unzipped inside a tempdir.
+    atom_data_zipfile = zipfile.ZipFile(atom_data_cache)
+    atom_data_extract_tempdir = tempfile.mkdtemp()
+    atom_data_zipfile.extract(atom_data_name, path=atom_data_extract_tempdir)
+
+    atom_data = AtomData.from_hdf5(
+        os.path.join(atom_data_extract_tempdir, atom_data_name)
+    )
+
+    def fin():
+        # Delete the tempdir as no longer required.
+        shutil.rmtree(atom_data_extract_tempdir)
+    request.addfinalizer(fin)
+    return atom_data
+
+
+@remote_data
+@pytest.fixture(scope="class")
+def atom_data(_atom_data):
+    return copy.deepcopy(_atom_data)
