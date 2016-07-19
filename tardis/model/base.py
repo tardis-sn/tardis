@@ -142,13 +142,15 @@ class Radial1DModel(object):
     @v_boundary_inner.setter
     def v_boundary_inner(self, value):
         if value is not None:
+            value = u.Quantity(value, self.v_boundary_inner.unit)
             if value > self.v_boundary_outer:
                 raise ValueError('v_boundary_inner must not be higher than '
                                  'v_boundary_outer.')
             if value > self.raw_velocity[-1]:
                 raise ValueError('v_boundary_inner is outside of '
                                  'the model range.')
-            value = max(value, self.raw_velocity[0])
+            if value <= self.raw_velocity[0]:
+                value = None
         self._v_boundary_inner = value
         # Invalidate the cached cut-down velocity array
         self._velocity = None
@@ -162,13 +164,15 @@ class Radial1DModel(object):
     @v_boundary_outer.setter
     def v_boundary_outer(self, value):
         if value is not None:
+            value = u.Quantity(value, self.v_boundary_outer.unit)
             if value < self.v_boundary_inner:
                 raise ValueError('v_boundary_outer must not be smaller than '
                                  'v_boundary_inner.')
             if value < self.raw_velocity[0]:
                 raise ValueError('v_boundary_outer is outside of '
                                  'the model range.')
-            value = min(value, self.raw_velocity[-1])
+            if value >= self.raw_velocity[-1]:
+                value = None
         self._v_boundary_outer = value
         # Invalidate the cached cut-down velocity array
         self._velocity = None
