@@ -70,6 +70,8 @@ def pytest_addoption(parser):
                      help="path to configuration file for integration tests")
     parser.addoption("--generate-reference", action="store_true", default=False,
                      help="execute integration test run to generate reference data")
+    parser.addoption("--less-packets", action="store_true", default=False,
+                     help="Run integration tests with less packets.")
 
 
 # -------------------------------------------------------------------------

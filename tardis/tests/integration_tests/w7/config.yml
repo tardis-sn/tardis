@@ -16,10 +16,8 @@ montecarlo:
     start: 1 angstrom
     stop: 1000000 angstrom
   iterations: 20
-# originally 2.0e+5
-  last_no_of_packets: 2.0e+3
-# originally 4.0e+4
-  no_of_packets: 4.0e+2
+  last_no_of_packets: 2.0e+5
+  no_of_packets: 4.0e+4
   no_of_virtual_packets: 10
   nthreads: 2
   seed: 23111963

@@ -14,7 +14,7 @@ from tardis.io.config_reader import Configuration
                     reason="integration tests are not included in this run")
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
-    ``tardis/tests/tests_slow``.
+    ``tardis/tests/integration_tests``.
     """
 
     @classmethod
@@ -41,6 +41,16 @@ class TestIntegration(object):
         # Create a Configuration through yaml file and atom data.
         tardis_config = Configuration.from_yaml(
             self.config_file, atom_data=self.atom_data)
+
+        # Check whether current run is with less packets.
+        if request.config.getoption("--less-packets"):
+            less_packets = request.config.integration_tests_config['less_packets']
+            tardis_config['montecarlo']['no_of_packets'] = (
+                less_packets['no_of_packets']
+            )
+            tardis_config['montecarlo']['last_no_of_packets'] = (
+                less_packets['last_no_of_packets']
+            )
 
         # We now do a run with prepared config and get radial1d model.
         self.result = Radial1DModel(tardis_config)

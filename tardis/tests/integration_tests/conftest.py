@@ -5,8 +5,8 @@ import pandas as pd
 import pytest
 
 from tardis import __githash__ as tardis_githash
-from tardis.tests.tests_slow.report import DokuReport
-from tardis.tests.tests_slow.plot_helpers import PlotUploader
+from tardis.tests.integration_tests.report import DokuReport
+from tardis.tests.integration_tests.plot_helpers import PlotUploader
 
 
 def pytest_configure(config):
@@ -15,7 +15,7 @@ def pytest_configure(config):
         integration_tests_configpath = os.path.expandvars(
             os.path.expanduser(integration_tests_configpath)
         )
-        config.option.integration_tests_config = yaml.load(
+        config.integration_tests_config = yaml.load(
             open(integration_tests_configpath))
 
         if not config.getoption("--generate-reference"):
@@ -24,7 +24,7 @@ def pytest_configure(config):
             # prevent opening dokupath on slave nodes (xdist)
             if not hasattr(config, 'slaveinput'):
                 config.dokureport = DokuReport(
-                    config.option.integration_tests_config['dokuwiki'])
+                    config.integration_tests_config['dokuwiki'])
                 config.pluginmanager.register(config.dokureport)
 
 
@@ -40,7 +40,7 @@ def pytest_terminal_summary(terminalreporter):
             terminalreporter.config.getvalue("integration-tests")):
         # TODO: Add a check whether generation was successful or not.
         terminalreporter.write_sep("-", "Generated reference data: {0}".format(os.path.join(
-            terminalreporter.config.option.integration_tests_config['generate_reference'],
+            terminalreporter.config.integration_tests_config['generate_reference'],
             tardis_githash[:7]
         )))
 
@@ -67,7 +67,7 @@ def plot_object(request):
         os.path.dirname(os.path.realpath(__file__)), "*")) if os.path.isdir(path)
 ])
 def data_path(request):
-    integration_tests_config = request.config.option.integration_tests_config
+    integration_tests_config = request.config.integration_tests_config
     hdf_filename = "{0}.h5".format(os.path.basename(request.param))
 
     path = {
