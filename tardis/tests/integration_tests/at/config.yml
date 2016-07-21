@@ -24,10 +24,8 @@ montecarlo:
     threshold: 0.05
     type: specific
   iterations: 20
-# originally 5.0e+5
-  last_no_of_packets: 5.0e+3
-# originally 5.0e+4
-  no_of_packets: 5.0e+2
+  last_no_of_packets: 5.0e+5
+  no_of_packets: 5.0e+4
   no_of_virtual_packets: 3
   nthreads: 16
   seed: 23111963
