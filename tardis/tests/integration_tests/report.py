@@ -68,9 +68,7 @@ class DokuReport(HTMLReport):
             self.dokuwiki_url = dokuwiki_details["url"]
 
     def _generate_report(self, session):
-        """
-        The method writes HTML report to a temporary logfile.
-        """
+        """Writes HTML report to a temporary logfile."""
         suite_stop_time = time.time()
         suite_time_delta = suite_stop_time - self.suite_start_time
         numtests = self.passed + self.failed + self.xpassed + self.xfailed
@@ -154,13 +152,29 @@ class DokuReport(HTMLReport):
 
     def _save_report(self, report_content):
         """
-        The method uploads the report and closes the temporary file. Temporary
-        file is made using `tempfile` built-in module, it gets deleted upon
-        closing.
+        Uploads the report and closes the temporary file. Temporary file is
+        made using `tempfile` built-in module, it gets deleted upon closing.
         """
         try:
             self.doku_conn.pages.set("reports:{0}".format(
                 tardis.__githash__[:7]), report_content)
+        except (gaierror, TypeError):
+            pass
+
+    def _wiki_overview_entry(self):
+        """Makes an entry of current test run on overview page of dokuwiki."""
+        if self.errors == 0:
+            if self.failed + self.xpassed == 0:
+                status = "Passed"
+            else:
+                status = "Failed"
+        else:
+            status = "Errored"
+
+        try:
+            self.doku_conn.pages.append('/', "| [[reports:{0}|{0}]] | {1} |".format(
+                tardis.__githash__[:7], status
+            ))
         except (gaierror, TypeError):
             pass
 
@@ -171,6 +185,7 @@ class DokuReport(HTMLReport):
         """
         report_content = self._generate_report(session)
         self._save_report(report_content)
+        self._wiki_overview_entry()
 
     def pytest_terminal_summary(self, terminalreporter):
         """
