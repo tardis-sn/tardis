@@ -30,8 +30,8 @@ def pytest_configure(config):
 
 def pytest_unconfigure(config):
     # Unregister only if it was registered in pytest_configure
-    integration_tests_configpath = config.getvalue("integration-tests")
-    if integration_tests_configpath and not config.getoption("--generate-reference"):
+    if (config.getvalue("integration-tests") and not
+            config.getoption("--generate-reference")):
         config.pluginmanager.unregister(config.dokureport)
 
 
