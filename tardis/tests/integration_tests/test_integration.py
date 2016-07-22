@@ -141,7 +141,7 @@ class TestIntegration(object):
 
     def test_ws(self):
         assert_allclose(
-            self.reference['simulation/model/ws'],
+            self.reference['/simulation/model/ws'],
             self.result.ws
         )
 
@@ -227,16 +227,20 @@ class TestIntegration(object):
         )
         return figure
 
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_montecarlo_properties(self):
-        assert_quantity_allclose(
-                self.reference['montecarlo_luminosity'],
-                self.result.montecarlo_luminosity)
+    def test_montecarlo_luminosity(self):
+        assert_allclose(
+            self.reference['/simulation/model/montecarlo_luminosity'],
+            self.result.montecarlo_luminosity.cgs.value
+        )
 
-        assert_quantity_allclose(
-                self.reference['montecarlo_virtual_luminosity'],
-                self.result.runner.montecarlo_virtual_luminosity)
+    def test_montecarlo_virtual_luminosity(self):
+        assert_allclose(
+            self.reference['/simulation/runner/montecarlo_virtual_luminosity'],
+            self.result.runner.montecarlo_virtual_luminosity.cgs.value
+        )
 
-        assert_quantity_allclose(
-                self.reference['montecarlo_nu'],
-                self.result.montecarlo_nu)
+    def test_montecarlo_nu(self):
+        assert_allclose(
+            self.reference['/simulation/model/montecarlo_nu'],
+            self.result.montecarlo_nu
+        )
