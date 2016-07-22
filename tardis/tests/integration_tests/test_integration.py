@@ -102,11 +102,60 @@ class TestIntegration(object):
             self.result.plasma.transition_probabilities
         )
 
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_j_estimators(self):
+    def test_t_rads(self, plot_object):
+        plot_object.add(self.plot_t_rads(), "{0}_t_rads".format(self.name))
+
         assert_allclose(
-                self.reference['j_estimators'],
-                self.result.j_estimators)
+            self.reference['/simulation/model/t_rads'],
+            self.result.t_rads.cgs.value
+        )
+
+    def plot_t_rads(self):
+        plt.suptitle("Shell temperature for packets", fontweight="bold")
+        figure = plt.figure()
+
+        ax = figure.add_subplot(111)
+        ax.set_xlabel("Shell id")
+        ax.set_ylabel("t_rads")
+
+        result_line = ax.plot(
+            self.result.t_rads.cgs, color="blue", marker=".", label="Result"
+        )
+        reference_line = ax.plot(
+            self.reference['/simulation/model/t_rads'],
+            color="green", marker=".", label="Reference"
+        )
+
+        error_ax = ax.twinx()
+        error_line = error_ax.plot(
+            (1 - self.result.t_rads.cgs.value / self.reference['/simulation/model/t_rads']),
+            color="red", marker=".", label="Rel. Error"
+        )
+        error_ax.set_ylabel("Relative error (1 - result / reference)")
+
+        lines = result_line + reference_line + error_line
+        labels = [l.get_label() for l in lines]
+
+        ax.legend(lines, labels, loc="lower left")
+        return figure
+
+    def test_ws(self):
+        assert_allclose(
+            self.reference['simulation/model/ws'],
+            self.result.ws
+        )
+
+    def test_j_estimator(self):
+        assert_allclose(
+            self.reference['/simulation/runner/j_estimator'],
+            self.result.runner.j_estimator
+        )
+
+    def test_nu_bar_estimator(self):
+        assert_allclose(
+            self.reference['/simulation/runner/nu_bar_estimator'],
+            self.result.runner.nu_bar_estimator
+        )
 
     @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
     def test_j_blue_estimators(self):
@@ -135,18 +184,6 @@ class TestIntegration(object):
         assert_quantity_allclose(
                 self.reference['last_line_interaction_angstrom'],
                 self.result.last_line_interaction_angstrom)
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_nubar_estimators(self):
-        assert_allclose(
-                self.reference['nubar_estimators'],
-                self.result.nubar_estimators)
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_ws(self):
-        assert_allclose(
-                self.reference['ws'],
-                self.result.ws)
 
     @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
     def test_luminosity_inner(self):
@@ -203,39 +240,3 @@ class TestIntegration(object):
         assert_quantity_allclose(
                 self.reference['montecarlo_nu'],
                 self.result.montecarlo_nu)
-
-    def test_shell_temperature(self, plot_object):
-        plot_object.add(self.plot_t_rads(), "{0}_t_rads".format(self.name))
-
-        assert_allclose(
-            self.reference['/simulation/model/t_rads'],
-            self.result.t_rads.cgs.value)
-
-    def plot_t_rads(self):
-        plt.suptitle("Shell temperature for packets", fontweight="bold")
-        figure = plt.figure()
-
-        ax = figure.add_subplot(111)
-        ax.set_xlabel("Shell id")
-        ax.set_ylabel("t_rads")
-
-        result_line = ax.plot(
-            self.result.t_rads.cgs, color="blue", marker=".", label="Result"
-        )
-        reference_line = ax.plot(
-            self.reference['/simulation/model/t_rads'],
-            color="green", marker=".", label="Reference"
-        )
-
-        error_ax = ax.twinx()
-        error_line = error_ax.plot(
-            (1 - self.result.t_rads.cgs.value / self.reference['/simulation/model/t_rads']),
-            color="red", marker=".", label="Rel. Error"
-        )
-        error_ax.set_ylabel("Relative error (1 - result / reference)")
-
-        lines = result_line + reference_line + error_line
-        labels = [l.get_label() for l in lines]
-
-        ax.legend(lines, labels, loc="lower left")
-        return figure
