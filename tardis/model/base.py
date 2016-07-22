@@ -94,8 +94,13 @@ class Radial1DModel(object):
 
     @property
     def abundance(self):
-        abundance = self._abundance.ix[:, self.v_boundary_inner_index:
-                                     self.v_boundary_outer_index]
+        start = self.v_boundary_inner_index
+        stop = self.v_boundary_outer_index
+        if stop is not None:
+            # abundance has one element less than velocity
+            # ix stop index is inclusive
+            stop -= 2
+        abundance = self._abundance.ix[:, start:stop]
         abundance.columns = range(len(abundance.columns))
         return abundance
 
