@@ -10,6 +10,9 @@ import logging
 logger = logging.getLogger(__name__)
 
 from tardis.util import parse_quantity
+# TODO: Remove the following
+from tardis.model.density import *
+###
 
 class ConfigurationError(Exception):
     pass
@@ -245,33 +248,3 @@ def read_simple_ascii_abundances(fname):
     abundances = pd.DataFrame(data[1:,1:].transpose(), index=np.arange(1, data.shape[1]))
 
     return index, abundances
-
-
-
-
-
-def calculate_density_after_time(densities, time_0, time_explosion):
-    """
-    scale the density from an initial time of the model to the time of the explosion by ^-3
-
-    Parameters:
-    -----------
-
-    densities: ~astropy.units.Quantity
-        densities
-
-    time_0: ~astropy.units.Quantity
-        time of the model
-
-    time_explosion: ~astropy.units.Quantity
-        time to be scaled to
-
-    Returns:
-    --------
-
-    scaled_density
-    """
-
-    return densities * (time_explosion / time_0) ** -3
-
-
