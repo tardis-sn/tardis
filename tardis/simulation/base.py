@@ -465,7 +465,7 @@ class Simulation(object):
         shell_nr = np.arange(0,num_shell,dtype="int")[::-1]
 
  
-        nus = np.linspace(500, 20000, 20)*u.angstrom
+        nus = np.linspace(20000,500, 10000)*u.angstrom
         nus = co.c.cgs / nus.cgs
 
 #        nus = np.array([1.49896229e+14, 2.08349912e+14, 2.66803596e+14, 3.25257279e+14, 3.83710962e+14, 4.42164646e+14, 5.00618329e+14, 5.59072012e+14, 6.17525696e+14, 6.75979379e+14, 7.34433063e+14, 7.92886746e+14, 8.51340429e+14, 9.09794113e+14, 9.68247796e+14, 1.02670148e+15, 1.08515516e+15, 1.14360885e+15, 1.20206253e+15, 1.26051621e+15, 1.31896990e+15, 1.37742358e+15, 1.43587726e+15, 1.49433095e+15, 1.55278463e+15, 1.61123831e+15, 1.66969200e+15, 1.72814568e+15, 1.78659936e+15, 1.84505305e+15, 1.90350673e+15, 1.96196041e+15, 2.02041410e+15, 2.07886778e+15, 2.13732146e+15, 2.19577515e+15, 2.25422883e+15, 2.31268251e+15, 2.37113620e+15, 2.42958988e+15, 2.48804356e+15, 2.54649725e+15, 2.60495093e+15, 2.66340461e+15, 2.72185830e+15, 2.78031198e+15, 2.83876566e+15, 2.89721935e+15, 2.95567303e+15, 3.01412671e+15, 3.07258040e+15, 3.13103408e+15, 3.18948776e+15, 3.24794145e+15, 3.30639513e+15, 3.36484881e+15, 3.42330250e+15, 3.48175618e+15, 3.54020986e+15, 3.59866355e+15, 3.65711723e+15, 3.71557091e+15, 3.77402460e+15, 3.83247828e+15, 3.89093196e+15, 3.94938565e+15, 4.00783933e+15, 4.06629301e+15, 4.12474670e+15, 4.18320038e+15, 4.24165406e+15, 4.30010775e+15, 4.35856143e+15, 4.41701511e+15, 4.47546880e+15, 4.53392248e+15, 4.59237616e+15, 4.65082985e+15, 4.70928353e+15, 4.76773721e+15, 4.82619090e+15, 4.88464458e+15, 4.94309826e+15, 5.00155195e+15, 5.06000563e+15, 5.11845931e+15, 5.17691300e+15, 5.23536668e+15, 5.29382036e+15, 5.35227405e+15, 5.41072773e+15, 5.46918141e+15, 5.52763510e+15, 5.58608878e+15, 5.64454246e+15, 5.70299615e+15, 5.76144983e+15, 5.81990351e+15, 5.87835720e+15, 5.93681088e+15, 5.99526456e+15])/u.s
@@ -475,7 +475,7 @@ class Simulation(object):
         line_nu  = model.plasma.lines.nu
         taus     = model.plasma.tau_sobolevs
         att_S_ul = self.runner.att_S_ul
-        temps    = model.plasma.t_rad
+        T        = model.t_inner
 
         dtau = 0 # Just to remember it 
         cnst = 0
@@ -517,7 +517,7 @@ class Simulation(object):
                 z_cross_p = np.hstack((z_cross_p[::-1],0)) # Zero ensures empty ks in last step below
 
                 shell_idx = np.hstack(( np.arange(num_shell), 0 ))
-                I_inner[p_idx] = intensity_black_body(nu,temps[0])
+                I_inner[p_idx] = intensity_black_body(nu,T)
                 continue
 
                 for idx,z_cross in enumerate(z_cross_p[:-1]):
@@ -537,8 +537,8 @@ class Simulation(object):
                     for k in ks:
                         I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
 
-
-            print float(nu_idx)/len(nus)
+            if ( nu_idx % 100 ) == 0:
+                print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
             ps = np.hstack((ps_outer,ps_inner))*R_max
             I_nu = np.hstack((I_outer,I_inner))*ps
             L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_nu[::-1],x = ps[::-1])
