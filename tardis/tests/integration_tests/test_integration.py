@@ -72,6 +72,36 @@ class TestIntegration(object):
         # Get the reference data through the fixture.
         self.reference = reference
 
+    def test_plasma_ion_number_density(self):
+        assert_allclose(
+            self.reference['/simulation/model/plasma/ion_number_density'],
+            self.result.plasma.ion_number_density
+        )
+
+    def test_plasma_level_number_density(self):
+        assert_allclose(
+            self.reference['/simulation/model/plasma/level_number_density'],
+            self.result.plasma.level_number_density
+        )
+
+    def test_plasma_electron_densities(self):
+        assert_allclose(
+            self.reference['/simulation/model/plasma/electron_densities'],
+            self.result.plasma.electron_densities
+        )
+
+    def test_plasma_tau_sobolevs(self):
+        assert_allclose(
+            self.reference['/simulation/model/plasma/tau_sobolevs'],
+            self.result.plasma.tau_sobolevs
+        )
+
+    def test_plasma_transition_probabilities(self):
+        assert_allclose(
+            self.reference['/simulation/model/plasma/transition_probabilities'],
+            self.result.plasma.transition_probabilities
+        )
+
     @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
     def test_j_estimators(self):
         assert_allclose(
