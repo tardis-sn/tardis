@@ -276,7 +276,7 @@ class Radial1DModel(object):
         model_path = os.path.join(path, 'model')
         properties = [
             'last_line_interaction_in_id', 'last_line_interaction_out_id',
-            'last_line_interaction_shell_id', 'line_line_interaction_angstrom',
+            'last_line_interaction_shell_id', 'last_line_interaction_angstrom',
             't_inner', 'ws', 't_rads', 'v_inner', 'v_outer', 'luminosity_inner',
             'j_blues', 'j_blue_estimators', 'j_blues_norm_factor',
             'montecarlo_luminosity', 'montecarlo_nu'
