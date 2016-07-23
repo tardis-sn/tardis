@@ -116,7 +116,7 @@ class TestIntegration(object):
 
     def test_luminosity_inner(self):
         assert_quantity_allclose(
-            self.reference['/simulation/model/luminosity_inner'],
+            self.reference['/simulation/model/scalars']['luminosity_inner'],
             self.result.luminosity_inner.cgs.value
         )
 
