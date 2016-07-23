@@ -72,6 +72,30 @@ class TestIntegration(object):
         # Get the reference data through the fixture.
         self.reference = reference
 
+    def test_last_line_interaction_in_id(self):
+        assert_allclose(
+            self.reference['/simulation/model/last_line_interaction_in_id'],
+            self.result.last_line_interaction_in_id
+        )
+
+    def test_last_line_interaction_out_id(self):
+        assert_allclose(
+            self.reference['/simulation/model/last_line_interaction_out_id'],
+            self.result.last_line_interaction_out_id
+        )
+
+    def test_last_line_interaction_shell_id(self):
+        assert_allclose(
+            self.reference['/simulation/model/last_line_interaction_shell_id'],
+            self.result.last_line_interaction_shell_id
+        )
+
+    def test_last_line_interaction_angstrom(self):
+        assert_allclose(
+            self.reference['/simulation/model/last_line_interaction_angstrom'],
+            self.result.last_line_interaction_angstrom.cgs.value
+        )
+
     def test_plasma_ion_number_density(self):
         assert_allclose(
             self.reference['/simulation/model/plasma/ion_number_density'],
@@ -168,24 +192,6 @@ class TestIntegration(object):
                 self.result.j_blues_norm_factor)
 
     @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_last_line_interactions(self):
-        assert_allclose(
-                self.reference['last_line_interaction_in_id'],
-                self.result.last_line_interaction_in_id)
-
-        assert_allclose(
-                self.reference['last_line_interaction_out_id'],
-                self.result.last_line_interaction_out_id)
-
-        assert_allclose(
-                self.reference['last_line_interaction_shell_id'],
-                self.result.last_line_interaction_shell_id)
-
-        assert_quantity_allclose(
-                self.reference['last_line_interaction_angstrom'],
-                self.result.last_line_interaction_angstrom)
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
     def test_luminosity_inner(self):
         assert_quantity_allclose(
                 self.reference['luminosity_inner'],
@@ -242,5 +248,5 @@ class TestIntegration(object):
     def test_montecarlo_nu(self):
         assert_allclose(
             self.reference['/simulation/model/montecarlo_nu'],
-            self.result.montecarlo_nu
+            self.result.montecarlo_nu.cgs.value
         )
