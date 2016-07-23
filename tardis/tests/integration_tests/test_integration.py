@@ -114,6 +114,12 @@ class TestIntegration(object):
             self.result.j_blues_norm_factor
         )
 
+    def test_luminosity_inner(self):
+        assert_quantity_allclose(
+            self.reference['/simulation/model/luminosity_inner'],
+            self.result.luminosity_inner.cgs.value
+        )
+
     def test_montecarlo_luminosity(self):
         assert_allclose(
             self.reference['/simulation/model/montecarlo_luminosity'],
@@ -216,12 +222,6 @@ class TestIntegration(object):
             self.reference['/simulation/runner/nu_bar_estimator'],
             self.result.runner.nu_bar_estimator
         )
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_luminosity_inner(self):
-        assert_quantity_allclose(
-                self.reference['luminosity_inner'],
-                self.result.luminosity_inner)
 
     def test_spectrum(self, plot_object):
         plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
