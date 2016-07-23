@@ -274,8 +274,12 @@ class Radial1DModel(object):
 
         """
         model_path = os.path.join(path, 'model')
-        properties = ['t_inner', 'ws', 't_rads', 'v_inner', 'v_outer',
-                      'montecarlo_luminosity', 'montecarlo_nu']
+        properties = [
+            'last_line_interaction_in_id', 'last_line_interaction_out_id',
+            'last_line_interaction_shell_id', 'line_line_interaction_angstrom',
+            't_inner', 'ws', 't_rads', 'v_inner', 'v_outer',
+            'montecarlo_luminosity', 'montecarlo_nu'
+        ]
         to_hdf(path_or_buf, model_path, {name: getattr(self, name) for name
                                          in properties})
 
