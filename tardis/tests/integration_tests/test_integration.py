@@ -96,6 +96,42 @@ class TestIntegration(object):
             self.result.last_line_interaction_angstrom.cgs.value
         )
 
+    def test_j_blues(self):
+        assert_allclose(
+            self.reference['/simulation/model/j_blues'],
+            self.result.j_blues
+        )
+
+    def test_j_blue_estimators(self):
+        assert_allclose(
+            self.reference['/simulation/model/j_blue_estimators'],
+            self.result.j_blue_estimators
+        )
+
+    def j_blues_norm_factor(self):
+        assert_quantity_allclose(
+            self.reference['/simulation/model/j_blues_norm_factor'],
+            self.result.j_blues_norm_factor
+        )
+
+    def test_montecarlo_luminosity(self):
+        assert_allclose(
+            self.reference['/simulation/model/montecarlo_luminosity'],
+            self.result.montecarlo_luminosity.cgs.value
+        )
+
+    def test_montecarlo_virtual_luminosity(self):
+        assert_allclose(
+            self.reference['/simulation/runner/montecarlo_virtual_luminosity'],
+            self.result.runner.montecarlo_virtual_luminosity.cgs.value
+        )
+
+    def test_montecarlo_nu(self):
+        assert_allclose(
+            self.reference['/simulation/model/montecarlo_nu'],
+            self.result.montecarlo_nu.cgs.value
+        )
+
     def test_plasma_ion_number_density(self):
         assert_allclose(
             self.reference['/simulation/model/plasma/ion_number_density'],
@@ -182,16 +218,6 @@ class TestIntegration(object):
         )
 
     @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_j_blue_estimators(self):
-        assert_allclose(
-                self.reference['j_blue_estimators'],
-                self.result.j_blue_estimators)
-
-        assert_quantity_allclose(
-                self.reference['j_blues_norm_factor'],
-                self.result.j_blues_norm_factor)
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
     def test_luminosity_inner(self):
         assert_quantity_allclose(
                 self.reference['luminosity_inner'],
@@ -232,21 +258,3 @@ class TestIntegration(object):
             color="blue", marker="."
         )
         return figure
-
-    def test_montecarlo_luminosity(self):
-        assert_allclose(
-            self.reference['/simulation/model/montecarlo_luminosity'],
-            self.result.montecarlo_luminosity.cgs.value
-        )
-
-    def test_montecarlo_virtual_luminosity(self):
-        assert_allclose(
-            self.reference['/simulation/runner/montecarlo_virtual_luminosity'],
-            self.result.runner.montecarlo_virtual_luminosity.cgs.value
-        )
-
-    def test_montecarlo_nu(self):
-        assert_allclose(
-            self.reference['/simulation/model/montecarlo_nu'],
-            self.result.montecarlo_nu.cgs.value
-        )
