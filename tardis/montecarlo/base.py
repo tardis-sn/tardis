@@ -110,7 +110,7 @@ class MontecarloRunner(object):
             self.spectrum_virtual.update_luminosity(
                 self.montecarlo_virtual_luminosity)
 
-    def run(self, model, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
+    def run(self, model, plasma, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
         """
         Running the TARDIS simulation
 
@@ -118,6 +118,7 @@ class MontecarloRunner(object):
         ----------
 
         :param model:
+        :param plasma:
         :param no_of_virtual_packets:
         :param nthreads:
         :return:
@@ -125,7 +126,7 @@ class MontecarloRunner(object):
         self.time_of_simulation = model.time_of_simulation
         self.volume = model.volume
         self._initialize_estimator_arrays(self.volume.shape[0],
-                                          model.plasma.tau_sobolevs.shape)
+                                          plasma.tau_sobolevs.shape)
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(model.t_inner.value,
