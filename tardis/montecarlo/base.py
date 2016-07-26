@@ -53,18 +53,18 @@ class MontecarloRunner(object):
         self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
 
 
-    def _initialize_geometry_arrays(self, structure):
+    def _initialize_geometry_arrays(self, model):
         """
         Generate the cgs like geometry arrays for the montecarlo part
 
         Parameters
         ----------
 
-        structure: ~ConfigurationNameSpace
+        model : model.Radial1DModel
         """
-        self.r_inner_cgs = structure.r_inner.to('cm').value
-        self.r_outer_cgs = structure.r_outer.to('cm').value
-        self.v_inner_cgs = structure.v_inner.to('cm/s').value
+        self.r_inner_cgs = model.r_inner.to('cm').value
+        self.r_outer_cgs = model.r_outer.to('cm').value
+        self.v_inner_cgs = model.v_inner.to('cm/s').value
 
     def _initialize_packets(self, T, no_of_packets, no_of_virtual_packets=None):
         nus, mus, energies = self.packet_source.create_packets(T, no_of_packets)
@@ -123,10 +123,10 @@ class MontecarloRunner(object):
         :return:
         """
         self.time_of_simulation = model.time_of_simulation
-        self.volume = model.tardis_config.structure.volumes
+        self.volume = model.volume
         self._initialize_estimator_arrays(self.volume.shape[0],
                                           model.plasma.tau_sobolevs.shape)
-        self._initialize_geometry_arrays(model.tardis_config.structure)
+        self._initialize_geometry_arrays(model)
 
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets)
