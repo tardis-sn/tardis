@@ -345,7 +345,7 @@ class Simulation(object):
                         'simulation{}'.format(self.iterations_executed),
                         plasma_properties)
 
-        self.runner.att_S_ul =  self.make_source_function(model)
+        self.runner.att_S_ul,self.runner.Edot_u,self.runner.wave =  self.make_source_function(model)
         self.runner.L_nu,self.runner.L_nu_nus     =  self.integrate(model)
 
     def legacy_set_final_model_properties(self, model):
@@ -430,8 +430,8 @@ class Simulation(object):
         transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
         tmp = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
         q_ul = tmp.set_index(transitions_index)
-        return (model.atom_data.lines.wavelength[transitions.transition_line_id].values.reshape(-1,1) * 
-                 (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion / (4*np.pi) )
+        return (model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1) * 
+                 (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion / (4*np.pi) ),e_dot_u,model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
@@ -505,7 +505,7 @@ class Simulation(object):
                     #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
 
                     for k in ks:
-                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]*cnst
+                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
 
 
             I_inner = np.zeros(ps_inner.shape)
@@ -515,7 +515,6 @@ class Simulation(object):
 
                 shell_idx = np.hstack(( np.arange(num_shell), 0 ))
                 I_inner[p_idx] = intensity_black_body(nu,T)
-
                 for idx,z_cross in enumerate(z_cross_p[:-1]):
                     nu_start = nu / (1 + z_cross) 
                     nu_end   = nu / (1 + z_cross_p[idx+1])
@@ -530,8 +529,14 @@ class Simulation(object):
                     #dtau * ( 
                     #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
 
+#                    if p_idx == 0:
+#                        print "p_idx", p_idx
+
                     for k in ks:
                         I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
+#                        if (p_idx == 0) &  (I_inner[p_idx] > 0.0001):
+#                            print  att_S_ul.iloc[k,shell],np.exp(-taus.iloc[k,shell])
+
 
             if ( nu_idx % 10 ) == 0:
                 print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
