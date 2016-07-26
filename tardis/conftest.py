@@ -99,7 +99,7 @@ def tardis_config_verysimple():
 
 
 @pytest.fixture(scope="session")
-def _atom_data(request):
+def atom_data(request):
     atom_data_name = 'kurucz_cd23_chianti_H_He.h5'
     # Download and cache the zip file of atomic data.
     atom_data_cache = download_file(
@@ -116,16 +116,13 @@ def _atom_data(request):
         os.path.join(atom_data_extract_tempdir, atom_data_name)
     )
 
+    if atom_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
+        pytest.skip('Need default Kurucz atomic dataset '
+                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
+
     def fin():
         # Delete the tempdir as no longer required.
         shutil.rmtree(atom_data_extract_tempdir)
     request.addfinalizer(fin)
+
     return atom_data
-
-
-@pytest.fixture(scope="class")
-def atom_data(_atom_data):
-    if _atom_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
-        pytest.skip('Need default Kurucz atomic dataset '
-                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
-    return copy.deepcopy(_atom_data)

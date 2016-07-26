@@ -1,18 +1,21 @@
-import numpy.testing as npt
+import copy
 
 import h5py
+import numpy.testing as npt
 import pytest
+
+from astropy import units as u
+from astropy.tests.helper import assert_quantity_allclose, remote_data
+
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
 from tardis.simulation import Simulation
-from astropy import units as u
-from astropy.tests.helper import assert_quantity_allclose, remote_data
 
 
 @pytest.fixture
 def tardis_config(atom_data, tardis_config_verysimple):
     return Configuration.from_config_dict(
-        tardis_config_verysimple, atom_data=atom_data
+        tardis_config_verysimple, atom_data=copy.deepcopy(atom_data)
     )
 
 
