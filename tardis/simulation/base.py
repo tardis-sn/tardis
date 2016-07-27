@@ -431,7 +431,7 @@ class Simulation(object):
         tmp = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
         q_ul = tmp.set_index(transitions_index)
         return (model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1) * 
-                 (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion / (4*np.pi) ),e_dot_u,model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
+                 (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion.value / (4*np.pi) ).as_matrix(),e_dot_u,model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
@@ -440,7 +440,7 @@ class Simulation(object):
         R_min_rel  = self.runner.r_inner_cgs.min() / R_max
         ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
         J_blues    = model.j_blues
-        J_rlues    = model.j_blues.values * np.exp( -model.plasma.tau_sobolevs.values) + self.runner.att_S_ul
+#        J_rlues    = model.j_blues.values * np.exp( -model.plasma.tau_sobolevs.values) + self.runner.att_S_ul
 
         r_shells = np.zeros((num_shell+1,1))
         # Note the reorder from outer to inner
@@ -503,9 +503,8 @@ class Simulation(object):
 
                     #I_outer[p_idx] = I_outer[p_idx] + dtau * ( 
                     #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
-
                     for k in ks:
-                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
+                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
 
 
             I_inner = np.zeros(ps_inner.shape)
@@ -533,7 +532,7 @@ class Simulation(object):
 #                        print "p_idx", p_idx
 
                     for k in ks:
-                        I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
+                        I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
 #                        if (p_idx == 0) &  (I_inner[p_idx] > 0.0001):
 #                            print  att_S_ul.iloc[k,shell],np.exp(-taus.iloc[k,shell])
 
