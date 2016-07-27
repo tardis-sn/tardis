@@ -45,6 +45,11 @@ def assemble_plasma(config, model):
     : ~plasma.BasePlasma
 
     """
+    selected_atomic_numbers = config.abundances.index
+    config.atom_data.prepare_atom_data(
+        selected_atomic_numbers,
+        line_interaction_type=config.plasma.line_interaction_type,
+        nlte_species=config.plasma.nlte.species)
     kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
                   density=model.density, atomic_data=config.atom_data,
                   time_explosion=model.time_explosion, j_blues=None,
