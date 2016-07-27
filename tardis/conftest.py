@@ -15,7 +15,6 @@ from astropy.utils.data import download_file
 
 import tardis
 from tardis.atomic import AtomData
-from tardis.io.util import yaml_load_config_file
 
 ###
 # Astropy
@@ -94,8 +93,7 @@ def included_he_atomic_data(test_data_path):
 
 @pytest.fixture(scope="session")
 def tardis_config_verysimple():
-    return yaml_load_config_file(
-        'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+    return 'tardis/io/tests/data/tardis_configv1_verysimple.yml'
 
 
 @pytest.fixture(scope="session")

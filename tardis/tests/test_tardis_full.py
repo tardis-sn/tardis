@@ -27,7 +27,7 @@ class TestSimpleRun(object):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(self, tardis_config_verysimple, atom_data):
-        tardis_config = Configuration.from_config_dict(
+        tardis_config = Configuration.from_yaml(
             tardis_config_verysimple, atom_data=copy.deepcopy(atom_data)
         )
         self.model = Radial1DModel(tardis_config)

@@ -13,19 +13,11 @@ from tardis.simulation import Simulation
 
 
 @pytest.fixture
-def tardis_config(atom_data, tardis_config_verysimple):
-    return Configuration.from_config_dict(
+def simulation_one_loop(atom_data, tardis_config_verysimple):
+    tardis_config = Configuration.from_yaml(
         tardis_config_verysimple, atom_data=copy.deepcopy(atom_data)
     )
-
-
-@pytest.fixture()
-def raw_model(tardis_config):
-    return Radial1DModel(tardis_config)
-
-
-@pytest.fixture()
-def simulation_one_loop(raw_model, tardis_config):
+    raw_model = Radial1DModel(tardis_config)
     sim = Simulation(tardis_config)
     sim.run_single_montecarlo(raw_model, 40000)
 
