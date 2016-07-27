@@ -435,7 +435,7 @@ class Simulation(object):
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
-        ps         = np.linspace(0.999, 0, num = 8) # 3 * num_shell)
+        ps         = np.linspace(0.999, 0, num = 10) # 3 * num_shell)
         R_max      = self.runner.r_outer_cgs.max()
         R_min_rel  = self.runner.r_inner_cgs.min() / R_max
         ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
@@ -465,7 +465,7 @@ class Simulation(object):
         shell_nr = np.arange(0,num_shell,dtype="int")[::-1]
 
  
-        nus = self.runner.spectrum_frequency
+        nus = self.runner.spectrum.frequency
 
 
         #Just aliasing for cleaner expressions later
