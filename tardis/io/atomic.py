@@ -238,64 +238,16 @@ class AtomData(object):
 
         self.atom_data = atom_data
         self.ionization_data = ionization_data
-
-        if levels is not None:
-            self.levels = levels
-            self.has_levels = True
-        else:
-            self.levels = None
-            self.has_levels = False
-
-        if lines is not None:
-            self.lines = lines
-            self.has_lines = True
-        else:
-            self.lines = None
-            self.has_lines = False
-
-        if macro_atom_data is not None:
-            self.macro_atom_data_all, self.macro_atom_references_all = macro_atom_data, macro_atom_references
-            self.has_macro_atom = True
-        else:
-            self.macro_atom_data_all = None
-            self.macro_atom_references_all = None
-            self.has_macro_atom = False
-
-        if ion_cx_th_data is not None:
-            self.has_ion_cx_th_data = True
-            self.ion_cx_th_data = ion_cx_th_data
-        else:
-            self.has_ion_cx_th_data = False
-            self.ion_cx_th_data = None
-
-        if ion_cx_sp_data is not None:
-            self.has_ion_cx_sp_data = True
-            self.ion_cx_sp_data = ion_cx_sp_data
-        else:
-            self.has_ion_cx_th_data = False
-            self.ion_cx_sp_data = None
-
-        if zeta_data is not None:
-            self.zeta_data = zeta_data
-            self.has_zeta_data = True
-        else:
-            self.zeta_data = None
-            self.has_zeta_data = False
-
-        if collision_data is not None:
-            self.collision_data, self.collision_data_temperatures = collision_data, collision_data_temperatures
-            self.has_collision_data = True
-        else:
-            self.collision_data = None
-            self.collision_data_temperatures = None
-            self.has_collision_data = False
-
-        if synpp_refs is not None:
-            self.synpp_refs = synpp_refs
-            self.has_synpp_refs = True
-        else:
-            self.synpp_refs = None
-            self.has_synpp_refs = False
+        self.levels = levels
+        self.lines = lines
+        self.macro_atom_data = macro_atom_data
+        self.macro_atom_references = macro_atom_references
+        self.zeta_data = zeta_data
+        self.collision_data = collision_data
+        self.collision_data_temperatures = collision_data_temperatures
+        self.synpp_refs = self.synpp_refs
+        self.ion_cx_th_data = ion_cx_th_data
+        self.ion_cx_sp_data = ion_cx_sp_data
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
@@ -363,7 +315,7 @@ class AtomData(object):
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
-        if self.has_macro_atom and not (line_interaction_type == 'scatter'):
+        if self.macro_atom_data is not None and not line_interaction_type == 'scatter':
 
             self.macro_atom_data = self.macro_atom_data_all.loc[
                 self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)
@@ -448,7 +400,7 @@ class NLTEData(object):
             logger.info('Preparing the NLTE data')
             self._init_indices()
             self._create_nlte_mask()
-            if atom_data.has_collision_data:
+            if atom_data.collision_data is not None:
                 self._create_collision_coefficient_matrix()
         else:
             self._create_nlte_mask()
