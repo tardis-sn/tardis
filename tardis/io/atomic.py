@@ -118,7 +118,7 @@ class AtomData(object):
     """
 
     @classmethod
-    def from_hdfstore(cls, fname=None):
+    def from_hdf(cls, fname=None):
         """
         Function to read all the atom data from the special Carsus HDFStore file.
 
