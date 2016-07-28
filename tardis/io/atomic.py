@@ -183,10 +183,15 @@ class AtomData(object):
 
             try:
                 collision_data = store["collisions_data"]
-                collision_data_temperatures = store.get_storer("collisions").attrs["temperatures"]
             except KeyError:
                 print "Collision data is not available in this HDF5-data file."
-                collision_data, collision_data_temperatures = (None, None)
+                collision_data = None
+
+            try:
+                collision_data_temperatures = store.get_storer("collisions").attrs["temperatures"]
+            except KeyError:
+                print "Collision data temperatures is not available in this HDF5-data file."
+                collision_data_temperatures = None
 
             try:
                 synpp_refs = store["synpp_refs"]
