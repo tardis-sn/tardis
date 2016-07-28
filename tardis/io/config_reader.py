@@ -798,7 +798,7 @@ class Configuration(ConfigurationNameSpace):
 
         if atom_data is None and not test_parser:
             logger.info('Reading Atomic Data from %s', atom_data_fname)
-            atom_data = atomic.AtomData.from_hdfstore(atom_data_fname)
+            atom_data = atomic.AtomData.from_hdf(atom_data_fname)
         else:
             atom_data = atom_data
 
