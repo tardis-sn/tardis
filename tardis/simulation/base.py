@@ -430,9 +430,12 @@ class Simulation(object):
         transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
         tmp  = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
         q_ul = tmp.set_index(transitions_index)
+        t    = model.tardis_config.supernova.time_explosion.value
         wave = model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
-        return (model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1) * 
-                 (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion.value / (4*np.pi) ).as_matrix(),e_dot_u,wave
+        reorder  = wave[:,0].argsort()
+        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) ).iloc[reorder,:]
+
+        return att_S_ul.as_matrix(),e_dot_u,wave
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
