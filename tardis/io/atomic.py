@@ -121,6 +121,10 @@ class AtomData(object):
 
     """
 
+    hdf_names = ["atom_data", "ionization_data", "levels", "lines",
+                 "macro_atom_data", "macro_atom_references", "zeta_data", "collisions_data",
+                 "collisions_data_temperatures", "synpp_refs", "ion_cx_th_data", "ion_cx_sp_data"]
+
     @classmethod
     def from_hdf(cls, fname=None):
         """
@@ -141,86 +145,16 @@ class AtomData(object):
         if not os.path.exists(fname):
             raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
 
+        dataframes = dict()
+
         with pd.HDFStore(fname) as store:
+            for name in cls.hdf_names:
+                try:
+                    dataframes[name] = store[name]
+                except KeyError:
+                    print "{} not available in this HDF5-data file".format(name)
 
-            try:
-                atom_data = store["atom_data"]
-            except KeyError:
-                print "Atom data is not available in this HDF5-data file."
-                atom_data = None
-
-            try:
-                ionization_data = store["ionization_data"]
-            except KeyError:
-                print "Ionization data is not available in this HDF5-data file."
-                ionization_data = None
-
-            try:
-                levels = store["levels"]
-            except KeyError:
-                print "Levels data is not available in this HDF5-data file."
-                levels = None
-
-            try:
-                lines = store["lines"]
-            except KeyError:
-                print "Lines data is not available in this HDF5-data file"
-                lines = None
-
-            try:
-                macro_atom_data = store["macro_atom_data"]
-            except KeyError:
-                print "Macro atom data is not available in this HDF5-data file."
-                macro_atom_data = None
-
-            try:
-                macro_atom_references = store["macro_atom_references"]
-            except KeyError:
-                print "Macro atom reference data is not available in this HDF5-data file."
-                macro_atom_references = None
-
-            try:
-                zeta_data = store["zeta_data"]
-            except KeyError:
-                print "Zeta data is not available in this HDF5-data file."
-                zeta_data = None
-
-            try:
-                collision_data = store["collisions_data"]
-            except KeyError:
-                print "Collision data is not available in this HDF5-data file."
-                collision_data = None
-
-            try:
-                collision_data_temperatures = store.get_storer("collisions_data").attrs["temperatures"]
-            except KeyError:
-                print "Collision data temperatures is not available in this HDF5-data file."
-                collision_data_temperatures = None
-
-            try:
-                synpp_refs = store["synpp_refs"]
-            except KeyError:
-                print "Synpp refs is not available in this HDF5-data file."
-                synpp_refs = None
-
-            try:
-                ion_cx_th_data = store["ion_cx_th_data"]
-            except KeyError:
-                print "Ionization cx th data is not available in this HDF5-data file."
-                ion_cx_th_data = None
-
-            try:
-                ion_cx_sp_data = store["ion_cx_sp_data"]
-            except KeyError:
-                print "Ionization cx sp data is not available in this HDF5-data file."
-                ion_cx_sp_data = None
-
-            atom_data = cls(
-                atom_data=atom_data, ionization_data=ionization_data, levels=levels, lines=lines,
-                macro_atom_data=macro_atom_data, macro_atom_references=macro_atom_references,
-                collision_data=collision_data, collision_data_temperatures=collision_data_temperatures,
-                synpp_refs=synpp_refs, zeta_data=zeta_data, ion_cx_th_data=ion_cx_th_data, ion_cx_sp_data=ion_cx_sp_data
-            )
+            atom_data = cls(**dataframes)
 
             atom_data.uuid1 = store.root._v_attrs['uuid1']
             atom_data.md5 = store.root._v_attrs['md5']
@@ -325,7 +259,7 @@ class AtomData(object):
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
-        if self.macro_atom_data is not None and not line_interaction_type == 'scatter':
+        if self.macro_atom_data_all is not None and not line_interaction_type == 'scatter':
 
             self.macro_atom_data = self.macro_atom_data_all.loc[
                 self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)
