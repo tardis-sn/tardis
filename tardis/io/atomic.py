@@ -140,40 +140,40 @@ class AtomData(object):
         with pd.HDFStore(fname) as store:
 
             try:
-                basic_atom_data = store["atom_masses"]
+                atom_data = store["atom_data"]
             except KeyError:
-                print "Basic atom data is not available in this HDF5-data file."
-                basic_atom_data = None
+                print "Atom data is not available in this HDF5-data file."
+                atom_data = None
 
             try:
-                ionization_data = store["ionization_energies"]
+                ionization_data = store["ionization_data"]
             except KeyError:
                 print "Ionization data is not available in this HDF5-data file."
                 ionization_data = None
 
             try:
-                levels_data = store["levels"]
+                levels = store["levels"]
             except KeyError:
                 print "Levels data is not available in this HDF5-data file."
-                levels_data = None
+                levels = None
 
             try:
-                lines_data = store["lines"]
+                lines = store["lines"]
             except KeyError:
                 print "Lines data is not available in this HDF5-data file"
                 lines_data = None
 
             try:
-                macro_atom_data = store["macro_atom"]
+                macro_atom_data = store["macro_atom_data"]
             except KeyError:
                 print "Macro atom data is not available in this HDF5-data file."
                 macro_atom_data = None
 
             try:
-                macro_atom_ref = store["macro_atom_references"]
+                macro_atom_references = store["macro_atom_references"]
             except KeyError:
                 print "Macro atom reference data is not available in this HDF5-data file."
-                macro_atom_ref = None
+                macro_atom_references = None
 
             try:
                 zeta_data = store["zeta_data"]
@@ -182,11 +182,11 @@ class AtomData(object):
                 zeta_data = None
 
             try:
-                collision_data = store["collisions"]
-                collision_temperatures = store.get_storer("collisions").attrs["temperatures"]
+                collision_data = store["collisions_data"]
+                collision_data_temperatures = store.get_storer("collisions").attrs["temperatures"]
             except KeyError:
                 print "Collision data is not available in this HDF5-data file."
-                collision_data, collision_temperatures = (None, None)
+                collision_data, collision_data_temperatures = (None, None)
 
             try:
                 synpp_refs = store["synpp_refs"]
@@ -195,15 +195,23 @@ class AtomData(object):
                 synpp_refs = None
 
             try:
-                ion_cx_data = store["ion_cx_data"]
+                ion_cx_th_data = store["ion_cx_th_data"]
             except KeyError:
-                print "Ionization cx data is not available in this HDF5-data file."
-                ion_cx_data = None
+                print "Ionization cx th data is not available in this HDF5-data file."
+                ion_cx_th_data = None
 
-            atom_data = cls(atom_data=basic_atom_data, ionization_data=ionization_data, levels_data=levels_data,
-                            lines_data=lines_data, macro_atom_data=(macro_atom_data, macro_atom_ref), zeta_data=zeta_data,
-                            collision_data=(collision_data, collision_temperatures), synpp_refs=synpp_refs,
-                            ion_cx_data=ion_cx_data)
+            try:
+                ion_cx_sp_data = store["ion_cx_sp_data"]
+            except KeyError:
+                print "Ionization cx sp data is not available in this HDF5-data file."
+                ion_cx_sp_data = None
+
+            atom_data = cls(
+                atom_data=atom_data, ionization_data=ionization_data, levels=levels, lines=lines,
+                macro_atom_data=macro_atom_data, macro_atom_references=macro_atom_references,
+                collision_data=collision_data, collision_data_temperatures=collision_data_temperatures,
+                synpp_refs=synpp_refs, zeta_data=zeta_data, ion_cx_th_data=ion_cx_th_data, ion_cx_sp_data=ion_cx_sp_data
+            )
 
             atom_data.uuid1 = store.root._v_attrs['uuid1']
             atom_data.md5 = store.root._v_attrs['md5']
@@ -221,46 +229,51 @@ class AtomData(object):
 
         return atom_data
 
-    def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
-                 collision_data=None, synpp_refs=None, ion_cx_data=None):
+    def __init__(self, atom_data, ionization_data, levels=None, lines=None,
+                 macro_atom_data=None, macro_atom_references=None, zeta_data=None,
+                 collision_data=None, collision_data_temperatures=None, synpp_refs=None,
+                 ion_cx_th_data=None, ion_cx_sp_data=None):
 
         self.prepared = False
 
         self.atom_data = atom_data
         self.ionization_data = ionization_data
 
-        if levels_data is not None:
-            self.levels = levels_data
+        if levels is not None:
+            self.levels = levels
             self.has_levels = True
         else:
             self.levels = None
             self.has_levels = False
 
-        if lines_data is not None:
-            self.lines = lines_data
+        if lines is not None:
+            self.lines = lines
             self.has_lines = True
         else:
             self.lines = None
             self.has_lines = False
 
         if macro_atom_data is not None:
-            self.macro_atom_data_all, self.macro_atom_references_all = macro_atom_data
+            self.macro_atom_data_all, self.macro_atom_references_all = macro_atom_data, macro_atom_references
             self.has_macro_atom = True
         else:
             self.macro_atom_data_all = None
             self.macro_atom_references_all = None
             self.has_macro_atom = False
 
-        if ion_cx_data is not None:
-            self.has_ion_cx_data = True
-            #TODO:Farm a panda here
-            self.ion_cx_th_data = DataFrame(np.array(ion_cx_data[0]))
-            self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_id'], inplace=True)
-
-            self.ion_cx_sp_data = DataFrame(np.array(ion_cx_data[1]))
-            self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_id'])
+        if ion_cx_th_data is not None:
+            self.has_ion_cx_th_data = True
+            self.ion_cx_th_data = ion_cx_th_data
         else:
-            self.has_ion_cx_data = False
+            self.has_ion_cx_th_data = False
+            self.ion_cx_th_data = None
+
+        if ion_cx_sp_data is not None:
+            self.has_ion_cx_sp_data = True
+            self.ion_cx_sp_data = ion_cx_sp_data
+        else:
+            self.has_ion_cx_th_data = False
+            self.ion_cx_sp_data = None
 
         if zeta_data is not None:
             self.zeta_data = zeta_data
@@ -269,8 +282,8 @@ class AtomData(object):
             self.zeta_data = None
             self.has_zeta_data = False
 
-        if collision_data[0] is not None:
-            self.collision_data, self.collision_data_temperatures = collision_data
+        if collision_data is not None:
+            self.collision_data, self.collision_data_temperatures = collision_data, collision_data_temperatures
             self.has_collision_data = True
         else:
             self.collision_data = None
