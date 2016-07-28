@@ -192,7 +192,7 @@ class AtomData(object):
                 collision_data = None
 
             try:
-                collision_data_temperatures = store.get_storer("collisions").attrs["temperatures"]
+                collision_data_temperatures = store.get_storer("collisions_data").attrs["temperatures"]
             except KeyError:
                 print "Collision data temperatures is not available in this HDF5-data file."
                 collision_data_temperatures = None
