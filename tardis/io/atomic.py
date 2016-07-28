@@ -5,12 +5,9 @@ import logging
 import tardis
 import numpy as np
 import pandas as pd
-import cPickle as pickle
 
 from scipy import interpolate
-from astropy import units, constants
 from collections import OrderedDict
-from pandas import DataFrame
 
 
 class AtomDataNotPreparedError(Exception):
