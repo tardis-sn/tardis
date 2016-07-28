@@ -227,8 +227,6 @@ class AtomData(object):
                 atom_data.version = None
 
             # ToDo: strore data sources as attributes in carsus
-            # if atom_data.version is not None:
-            #     atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
 
             logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
 
