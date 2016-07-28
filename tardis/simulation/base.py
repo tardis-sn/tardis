@@ -419,7 +419,7 @@ class Simulation(object):
 
         Returns
         -------
-        DataFrame containing ( 1 - exp(-tau_ul) ) S_ul
+        Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
         """
 
         upper_level_index = model.atom_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
