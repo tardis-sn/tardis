@@ -316,109 +316,107 @@ class AtomData(object):
         self.nlte_species = nlte_species
         self.levels = self.levels.reset_index(drop=True)
 
-        self.levels = self.levels[self.levels['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.levels = self.levels.loc[self.levels['atomic_number'].isin(self.selected_atomic_numbers)].copy()
 
         if max_ion_number is not None:
-            self.levels = self.levels[self.levels['ion_number'] <= max_ion_number]
+            self.levels = self.levels.loc[self.levels['ion_number'] <= max_ion_number].copy()
 
         self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
-
         self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
         #cutting levels_lines
-        self.lines = self.lines[self.lines['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.lines = self.lines.loc[self.lines['atomic_number'].isin(self.selected_atomic_numbers)].copy()
         if max_ion_number is not None:
-            self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
+            self.lines = self.lines.loc[self.lines['ion_number'] <= max_ion_number].copy()
 
         # self.lines.sort(['wavelength', 'line_id'], inplace=True)
         self.lines.sort_values(by='wavelength', inplace=True)
         self.lines.set_index('line_id', inplace=True)
 
-
-
         self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
 
-        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_lower']])
+        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([
+            self.lines['atomic_number'], self.lines['ion_number'],self.lines['level_number_lower']
+        ])
 
-        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values.astype(np.int64)
+        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].astype(np.int64).values
 
-        tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_upper']])
+        tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays([
+            self.lines['atomic_number'], self.lines['ion_number'], self.lines['level_number_upper']
+        ])
 
-        self.lines_upper2level_idx = self.levels_index.ix[tmp_lines_upper2level_idx].values.astype(np.int64)
+        self.lines_upper2level_idx = self.levels_index.ix[tmp_lines_upper2level_idx].astype(np.int64).values
 
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
         if self.has_macro_atom and not (line_interaction_type == 'scatter'):
-            self.macro_atom_data = self.macro_atom_data_all[
-                self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)]
+
+            self.macro_atom_data = self.macro_atom_data_all.loc[
+                self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)
+            ].copy()
 
             if max_ion_number is not None:
-                self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['ion_number'] <= max_ion_number]
+                self.macro_atom_data = self.macro_atom_data.loc[
+                    self.macro_atom_data['ion_number'] <= max_ion_number
+                ].copy()
 
-            self.macro_atom_references = self.macro_atom_references_all[
-                self.macro_atom_references_all['atomic_number'].isin(
-                    self.selected_atomic_numbers)]
+            self.macro_atom_references = self.macro_atom_references_all.loc[
+                self.macro_atom_references_all['atomic_number'].isin(self.selected_atomic_numbers)
+            ].copy()
+
             if max_ion_number is not None:
-                self.macro_atom_references = self.macro_atom_references[
-                    self.macro_atom_references['ion_number'] <= max_ion_number]
+                self.macro_atom_references = self.macro_atom_references.loc[
+                    self.macro_atom_references['ion_number'] <= max_ion_number
+                ].copy()
 
             if line_interaction_type == 'downbranch':
-                self.macro_atom_data = self.macro_atom_data[(self.macro_atom_data['transition_type'] == -1).values]
+                self.macro_atom_data = self.macro_atom_data.loc[
+                    self.macro_atom_data['transition_type'] == -1
+                ].copy()
+                self.macro_atom_references = self.macro_atom_references.loc[
+                    self.macro_atom_references['count_down'] > 0
+                ].copy()
+                self.macro_atom_references.loc[:, 'count_total'] = self.macro_atom_references['count_down']
+                self.macro_atom_references.loc[:, 'block_references'] = np.hstack(
+                    (0, np.cumsum(self.macro_atom_references['count_down'].values[:-1]))
+                )
 
-                self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['count_down'] > 0]
-                self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']
-                self.macro_atom_references['block_references'] = np.hstack((0,
-                                                                            np.cumsum(self.macro_atom_references[
-                                                                                          'count_down'].values[:-1])))
             elif line_interaction_type == 'macroatom':
-                block_references = np.hstack((0, np.cumsum(
-                    self.macro_atom_references['count_total'].values[:-1])))
-                self.macro_atom_references.insert(len(
-                    self.macro_atom_references.columns), 'block_references',
-                    pd.Series(block_references,
-                    index=self.macro_atom_references.index))
+                self.macro_atom_references.loc[:, 'block_references'] = np.hstack(
+                    (0, np.cumsum(self.macro_atom_references['count_total'].values[:-1]))
+                )
 
-            self.macro_atom_references.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
-            self.macro_atom_references.insert(len(
-                    self.macro_atom_references.columns), 'references_idx',
-                    pd.Series(np.arange(len(self.macro_atom_references)),
-                    index=self.macro_atom_references.index))
+            self.macro_atom_references = self.macro_atom_references.set_index(
+                ['atomic_number', 'ion_number', 'source_level_number']
+            )
 
-            self.macro_atom_data.insert(len(
-                self.macro_atom_data.columns), 'lines_idx',
-                pd.Series(self.lines_index.ix[self.macro_atom_data[
-                'transition_line_id']].values,
-                index=self.macro_atom_data.index))
+            self.macro_atom_references.loc[:, "references_idx"] = np.arange(len(self.macro_atom_references))
 
-            tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays(
-                [self.lines['atomic_number'], self.lines['ion_number'],
-                 self.lines['level_number_upper']])
+            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.ix[
+                self.macro_atom_data['transition_line_id']
+            ].values
 
-            self.lines_upper2macro_reference_idx = self.macro_atom_references['references_idx'].ix[
-                tmp_lines_upper2level_idx].values.astype(np.int64)
-
-            tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([self.macro_atom_data['atomic_number'],
-                                                                         self.macro_atom_data['ion_number'],
-                                                                         self.macro_atom_data[
-                                                                             'destination_level_number']])
+            self.lines_upper2macro_reference_idx = self.macro_atom_references.ix[
+                tmp_lines_upper2level_idx, 'references_idx'
+            ].astype(np.int64).values
 
             if line_interaction_type == 'macroatom':
-                #Sets all
+                # Sets all
+                tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([
+                    self.macro_atom_data['atomic_number'],
+                    self.macro_atom_data['ion_number'],
+                    self.macro_atom_data['destination_level_number']
+                ])
 
-                self.macro_atom_data.insert(len(
-                    self.macro_atom_data.columns), 'destination_level_idx',
-                    pd.Series(self.macro_atom_references['references_idx'].ix[
-                    tmp_macro_destination_level_idx].values.astype(
-                        np.int64), index=self.macro_atom_data.index))
+                self.macro_atom_data.loc[:, 'destination_level_idx'] = self.macro_atom_references.ix[
+                    tmp_macro_destination_level_idx, "references_idx"
+                ].astype(np.int64).values  # why it is named `destination_level_idx` ?! It is reference index
 
             elif line_interaction_type == 'downbranch':
                 # Sets all the destination levels to -1 to indicate that they
                 # are not used in downbranch calculations
-                self.macro_atom_data.loc[:, 'destination_level_idx'] = (
-                    np.ones(len(self.macro_atom_data)) * -1).astype(np.int64)
+                self.macro_atom_data.loc[:, 'destination_level_idx'] = -1
 
         self.nlte_data = NLTEData(self, nlte_species)
 
