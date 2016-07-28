@@ -85,7 +85,7 @@ class Radial1DModel(object):
             nlte_species=tardis_config.plasma.nlte.species)
 
         if tardis_config.plasma.ionization == 'nebular':
-            if not self.atom_data.has_zeta_data:
+            if self.atom_data.zeta_data is None:
                 raise ValueError("Requiring Recombination coefficients Zeta "
                                  "for 'nebular' plasma ionization")
 

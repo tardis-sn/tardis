@@ -184,7 +184,7 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
 
 def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     logger.warning('Currently only works with Si and a special setup')
-    if not radial1d_mdl.atom_data.has_synpp_refs:
+    if radial1d_mdl.atom_data.synpp_refs is not None:
         raise ValueError(
             'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
 
