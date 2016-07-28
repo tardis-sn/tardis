@@ -243,8 +243,11 @@ class AtomData(object):
         self.ionization_data = ionization_data
         self.levels = levels
         self.lines = lines
-        self.macro_atom_data = macro_atom_data
-        self.macro_atom_references = macro_atom_references
+
+        # Rename these (drop "_all") when `prepare_atom_data` is removed!
+        self.macro_atom_data_all = macro_atom_data
+        self.macro_atom_references_all = macro_atom_references
+
         self.zeta_data = zeta_data
         self.collision_data = collision_data
         self.collision_data_temperatures = collision_data_temperatures
