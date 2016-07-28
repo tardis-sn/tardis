@@ -161,7 +161,7 @@ class AtomData(object):
                 lines = store["lines"]
             except KeyError:
                 print "Lines data is not available in this HDF5-data file"
-                lines_data = None
+                lines = None
 
             try:
                 macro_atom_data = store["macro_atom_data"]
