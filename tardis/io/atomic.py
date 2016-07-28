@@ -248,7 +248,7 @@ class AtomData(object):
         self.zeta_data = zeta_data
         self.collision_data = collision_data
         self.collision_data_temperatures = collision_data_temperatures
-        self.synpp_refs = self.synpp_refs
+        self.synpp_refs = synpp_refs
         self.ion_cx_th_data = ion_cx_th_data
         self.ion_cx_sp_data = ion_cx_sp_data
 
