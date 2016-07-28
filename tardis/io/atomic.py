@@ -59,56 +59,63 @@ class AtomData(object):
        It is important to note here is that `ion_number` describes the *final ion state*
             e.g. H I - H II is described with ion=1
 
-    levels_data: pandas.DataFrame
+    levels: pandas.DataFrame
         A DataFrame containing the *levels data* with:
             index: no index;
             columns: atomic_number, ion_number, level_number, energy[CGS], g[1], metastable.
 
-    lines_data: pandas.DataFrame
+    lines: pandas.DataFrame
         A DataFrame containing the *lines data* with:
             index: no index;
             columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
                 wavelength[angstrom], wavelength_cm[CGS], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
-    macro_atom_data: (pandas.DataFrame, pandas.DataFrame)
-        A tuple containing a DataFrame with the *macro atom data* with:
+    macro_atom_data:
+        A DataFrame containing the *macro atom data* with:
             index: no_index;
             columns: atomic_number, ion_number, source_level_number, destination_level_number,
                 transition_line_id, transition_type, transition_probability;
-        and a DataFrame with the *macro atom references* with:
+
+    macro_atom_references:
+        A DataFrame containing  the *macro atom references* with:
             index: no_index;
             columns: atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
 
         Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
 
     collision_data: (pandas.DataFrame, np.array)
-        A tuple containing a DataFrame with the *electron collisions data* with:
+        A DataFrame containing the *electron collisions data* with:
             index: atomic_number, ion_number, level_number_lower, level_number_upper;
             columns: e_col_id, delta_e, g_ratio, c_ul;
-        and an array with the collision temperatures.
+
+    collision_data_temperatures: np.array
+        An array with the collision temperatures.
 
     zeta_data: ?
     synpp_refs: ?
-    ion_cx_data: ?
+    ion_cx_tx_data: ?
+    ion_cx_sp_data: ?
 
     Attributes
     -------------
     prepared: bool
-    has_levels: bool
-    has_lines: bool
-    has_macro_atom: bool
+
     atom_data: pandas.DataFrame
     ionization_data: pandas.DataFrame
     macro_atom_data_all: pandas.DataFrame
     macro_atom_references_all: pandas.DataFrame
     collision_data: pandas.DataFrame
     collision_data_temperatures: numpy.array
+    zeta_data: pandas.DataFrame
+    synpp_refs: pandas.DataFrame
+    ion_cx_tx_data: pandas.DataFrame
+    ion_cx_sp_data: pandas.DataFrame
     symbol2atomic_number: OrderedDict
     atomic_number2symbol OrderedDict
 
     Methods
     --------
-    from_hdfstore
+    from_hdf
     prepare_atom_data
 
     Notes
