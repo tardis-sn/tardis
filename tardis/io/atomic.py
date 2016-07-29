@@ -122,8 +122,8 @@ class AtomData(object):
     """
 
     hdf_names = ["atom_data", "ionization_data", "levels", "lines",
-                 "macro_atom_data", "macro_atom_references", "zeta_data", "collisions_data",
-                 "collisions_data_temperatures", "synpp_refs", "ion_cx_th_data", "ion_cx_sp_data"]
+                 "macro_atom_data", "macro_atom_references", "zeta_data", "collision_data",
+                 "collision_data_temperatures", "synpp_refs", "ion_cx_th_data", "ion_cx_sp_data"]
 
     @classmethod
     def from_hdf(cls, fname=None):
