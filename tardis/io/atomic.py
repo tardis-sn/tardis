@@ -146,13 +146,14 @@ class AtomData(object):
             raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
 
         dataframes = dict()
+        nonavailable = list()
 
         with pd.HDFStore(fname) as store:
             for name in cls.hdf_names:
                 try:
                     dataframes[name] = store[name]
                 except KeyError:
-                    print "{} not available in this HDF5-data file".format(name)
+                    nonavailable.append(name)
 
             atom_data = cls(**dataframes)
 
@@ -166,7 +167,11 @@ class AtomData(object):
 
             # ToDo: strore data sources as attributes in carsus
 
-            logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
+            logger.info(
+                "Read Atom Data with UUID={0} and MD5={1}. "
+                "Not found: {2}".format(atom_data.uuid1, atom_data.md5, ", ".join(nonavailable))
+            )
+
 
         return atom_data
 
