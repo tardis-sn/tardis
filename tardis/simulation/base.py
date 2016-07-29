@@ -439,7 +439,7 @@ class Simulation(object):
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
-        ps         = np.linspace(0.999, 0, num = 10) # 3 * num_shell)
+        ps         = np.linspace(0.999, 0, num = 34) # 3 * num_shell)
         R_max      = self.runner.r_outer_cgs.max()
         R_min_rel  = self.runner.r_inner_cgs.min() / R_max
         ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
@@ -490,8 +490,11 @@ class Simulation(object):
             I_outer = np.zeros(ps_outer.shape)
             for p_idx,p in enumerate(ps_outer):
                 z_cross_p = z_ct_outer[z_ct_outer[:,p_idx] > 0,p_idx]
-                z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
-                                                                          # 1: avoids double counting center
+                if len(z_cross_p) == 1:
+                    z_cross_p = np.hstack((-z_cross_p,z_cross_p))
+                else:
+                    z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
+                                                                              # 1: avoids double counting center
                 shell_idx = (num_shell-1) - np.arange(n_shell_p_outer[p_idx]) # -1 for 0-based indexing
                 shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
                 
@@ -504,7 +507,6 @@ class Simulation(object):
 
                     if len(ks) < 2:
                         continue
-
                     #I_outer[p_idx] = I_outer[p_idx] + dtau * ( 
                     #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
                     for k in ks:
@@ -532,16 +534,11 @@ class Simulation(object):
                     #dtau * ( 
                     #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
 
-#                    if p_idx == 0:
-#                        print "p_idx", p_idx
-
                     for k in ks:
                         I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
-#                        if (p_idx == 0) &  (I_inner[p_idx] > 0.0001):
-#                            print  att_S_ul.iloc[k,shell],np.exp(-taus.iloc[k,shell])
 
 
-            if ( nu_idx % 10 ) == 0:
+            if ( nu_idx % 30 ) == 0:
                 print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
                 print I_outer, I_inner
             ps = np.hstack((ps_outer,ps_inner))*R_max
