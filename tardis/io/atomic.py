@@ -157,8 +157,15 @@ class AtomData(object):
 
             atom_data = cls(**dataframes)
 
-            atom_data.uuid1 = store.root._v_attrs['uuid1']
-            atom_data.md5 = store.root._v_attrs['md5']
+            try:
+                atom_data.uuid1 = store.root._v_attrs['uuid1']
+            except KeyError:
+                atom_data.uuid1 = None
+
+            try:
+                atom_data.md5 = store.root._v_attrs['md5']
+            except KeyError:
+                atom_data.md5 = None
 
             try:
                 atom_data.version = store.root._v_attrs['database_version']
