@@ -17,9 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation(object):
-
-    converged = False
-
     def __init__(self, tardis_config):
         self.tardis_config = tardis_config
         self.runner = MontecarloRunner(self.tardis_config.montecarlo.seed,
@@ -31,6 +28,7 @@ class Simulation(object):
                                         lock_t_inner_cycles)
         t_inner_lock_cycle[0] = True
         self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
+        self.converged = False
 
     def run_single_montecarlo(self, model, no_of_packets,
                               no_of_virtual_packets=0,last_run=False):
