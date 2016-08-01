@@ -244,14 +244,20 @@ class Simulation(object):
 
         self.iterations_remaining = self.tardis_config.montecarlo.iterations
         self.iterations_max_requested = self.tardis_config.montecarlo.iterations
+        convergence_strategy = self.tardis_config.montecarlo.convergence_strategy
         self.iterations_executed = 0
         converged = False
 
-        convergence_section = (
-                    self.tardis_config.montecarlo.convergence_strategy)
-
         while self.iterations_remaining > 1:
-            logger.info('Remaining run %d', self.iterations_remaining)
+            logger.info('Running iteration {}/{}'.format(
+                        self.iterations_executed + 1,
+                        self.iterations_max_requested))
+            if self.holding:
+                hold_n = (convergence_strategy.hold_iterations - 
+                         self.iterations_remaining + 1)
+                logger.info('Hold iteration {}/{}'.format(
+                    hold_n, convergence_strategy.hold_iterations))
+
             self.run_single_montecarlo(
                 model, self.tardis_config.montecarlo.no_of_packets)
             self.log_run_results(self.calculate_emitted_luminosity(),
@@ -287,26 +293,27 @@ class Simulation(object):
                             'simulation{}'.format(self.iterations_executed),
                             plasma_properties)
 
-
-            # if switching into the hold iterations mode or out back to the normal one
-            # if it is in either of these modes already it will just stay there
-            if converged and not self.holding:
+            # If the iteration has converged get in the hold iterations mode
+            if (converged and not self.holding and
+                            convergence_strategy.hold_iterations > 0):
                 self.holding = True
-                # UMN - used to be 'hold_iterations_wrong' but this is
-                # currently not in the convergence_section namespace...
-                self.iterations_remaining = (
-                    convergence_section["hold_iterations"])
+                self.iterations_remaining = convergence_strategy.hold_iterations
+            # If not all of the hold iterations converged switch back to
+            # the normal iterations
             elif not converged and self.holding:
-                self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
+                self.iterations_remaining = (self.iterations_max_requested -
+                                             self.iterations_executed)
                 self.holding = False
-            else:
-                # either it is converged and the status of the simulation is
-                # converged OR it is not converged and the status of the
-                # simulation is not converged - Do nothing.
-                pass
 
         #Finished second to last loop running one more time
-        logger.info('Doing last run')
+        logger.info('Running iteration {}/{}'.format(
+            self.iterations_executed + 1,
+            self.iterations_max_requested))
+        if self.holding:
+            hold_n = (convergence_strategy.hold_iterations -
+                      self.iterations_remaining + 1)
+            logger.info('Hold iteration {}/{}'.format(
+                hold_n, convergence_strategy.hold_iterations))
         if self.tardis_config.montecarlo.last_no_of_packets is not None:
             no_of_packets = self.tardis_config.montecarlo.last_no_of_packets
         else:
