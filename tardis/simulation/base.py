@@ -419,28 +419,32 @@ class Simulation(object):
 
         Returns
         -------
-        DataFrame containing ( 1 - exp(-tau_ul) ) S_ul
+        Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
         """
 
         upper_level_index = model.atom_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
-        e_dot_lu = pd.DataFrame(self.runner.Edotlu, index=upper_level_index)
-        e_dot_u = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+        e_dot_lu          = pd.DataFrame(self.runner.Edotlu, index=upper_level_index)
+        e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
-        transitions = model.atom_data.macro_atom_data[model.atom_data.macro_atom_data.transition_type == -1].copy()
+        transitions       = model.atom_data.macro_atom_data[model.atom_data.macro_atom_data.transition_type == -1].copy()
         transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
-        tmp = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
+        tmp  = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
         q_ul = tmp.set_index(transitions_index)
-        return (model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1) * 
-                 (q_ul * e_dot_u) * model.tardis_config.supernova.time_explosion / (4*np.pi) ),e_dot_u,model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
+        t    = model.tardis_config.supernova.time_explosion.value
+        wave = model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
+        reorder  = wave[:,0].argsort()
+        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) ).iloc[reorder,:]
+
+        return att_S_ul.as_matrix(),e_dot_u,wave
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
-        ps         = np.linspace(0.999, 0, num = 8) # 3 * num_shell)
+        ps         = np.linspace(0.999, 0, num = 34) # 3 * num_shell)
         R_max      = self.runner.r_outer_cgs.max()
         R_min_rel  = self.runner.r_inner_cgs.min() / R_max
         ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
         J_blues    = model.j_blues
-        J_rlues    = model.j_blues.values * np.exp( -model.plasma.tau_sobolevs.values) + self.runner.att_S_ul
+#        J_rlues    = model.j_blues.values * np.exp( -model.plasma.tau_sobolevs.values) + self.runner.att_S_ul
 
         r_shells = np.zeros((num_shell+1,1))
         # Note the reorder from outer to inner
@@ -465,7 +469,7 @@ class Simulation(object):
         shell_nr = np.arange(0,num_shell,dtype="int")[::-1]
 
  
-        nus = self.runner.spectrum_frequency
+        nus = self.runner.spectrum.frequency
 
 
         #Just aliasing for cleaner expressions later
@@ -486,8 +490,11 @@ class Simulation(object):
             I_outer = np.zeros(ps_outer.shape)
             for p_idx,p in enumerate(ps_outer):
                 z_cross_p = z_ct_outer[z_ct_outer[:,p_idx] > 0,p_idx]
-                z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
-                                                                          # 1: avoids double counting center
+                if len(z_cross_p) == 1:
+                    z_cross_p = np.hstack((-z_cross_p,z_cross_p))
+                else:
+                    z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
+                                                                              # 1: avoids double counting center
                 shell_idx = (num_shell-1) - np.arange(n_shell_p_outer[p_idx]) # -1 for 0-based indexing
                 shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
                 
@@ -500,12 +507,10 @@ class Simulation(object):
 
                     if len(ks) < 2:
                         continue
-
                     #I_outer[p_idx] = I_outer[p_idx] + dtau * ( 
                     #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
-
                     for k in ks:
-                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
+                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
 
 
             I_inner = np.zeros(ps_inner.shape)
@@ -529,16 +534,11 @@ class Simulation(object):
                     #dtau * ( 
                     #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
 
-#                    if p_idx == 0:
-#                        print "p_idx", p_idx
-
                     for k in ks:
-                        I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul.iloc[k,shell]
-#                        if (p_idx == 0) &  (I_inner[p_idx] > 0.0001):
-#                            print  att_S_ul.iloc[k,shell],np.exp(-taus.iloc[k,shell])
+                        I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
 
 
-            if ( nu_idx % 10 ) == 0:
+            if ( nu_idx % 30 ) == 0:
                 print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
                 print I_outer, I_inner
             ps = np.hstack((ps_outer,ps_inner))*R_max
