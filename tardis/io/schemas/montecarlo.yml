@@ -164,6 +164,7 @@ definitions:
         hold_iterations:
           type: number
           multipleOf: 1.0
+          minimum: 1
           default: 3
           description: the number of iterations that the convergence criteria need
             to be fulfilled before TARDIS accepts the simulation as converged
