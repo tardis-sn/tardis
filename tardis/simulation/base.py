@@ -297,7 +297,6 @@ class Simulation(object):
                 self.iterations_remaining = (
                     convergence_section["hold_iterations"])
             elif not converged and self.holding:
-                # UMN Warning: the following two iterations attributes of the Simulation object don't exist
                 self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
                 self.holding = False
             else:
@@ -305,10 +304,6 @@ class Simulation(object):
                 # converged OR it is not converged and the status of the
                 # simulation is not converged - Do nothing.
                 pass
-
-            if converged:
-                self.iterations_remaining = (
-                    convergence_section["hold_iterations"])
 
         #Finished second to last loop running one more time
         logger.info('Doing last run')
