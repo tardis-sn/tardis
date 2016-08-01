@@ -28,7 +28,7 @@ class Simulation(object):
                                         lock_t_inner_cycles)
         t_inner_lock_cycle[0] = True
         self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
-        self.converged = False
+        self.holding = False
 
     def run_single_montecarlo(self, model, no_of_packets,
                               no_of_virtual_packets=0,last_run=False):
@@ -290,16 +290,16 @@ class Simulation(object):
 
             # if switching into the hold iterations mode or out back to the normal one
             # if it is in either of these modes already it will just stay there
-            if converged and not self.converged:
-                self.converged = True
+            if converged and not self.holding:
+                self.holding = True
                 # UMN - used to be 'hold_iterations_wrong' but this is
                 # currently not in the convergence_section namespace...
                 self.iterations_remaining = (
                     convergence_section["hold_iterations"])
-            elif not converged and self.converged:
+            elif not converged and self.holding:
                 # UMN Warning: the following two iterations attributes of the Simulation object don't exist
                 self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
-                self.converged = False
+                self.holding = False
             else:
                 # either it is converged and the status of the simulation is
                 # converged OR it is not converged and the status of the
