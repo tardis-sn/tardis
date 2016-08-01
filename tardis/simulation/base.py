@@ -323,6 +323,8 @@ class Simulation(object):
             self.tardis_config.montecarlo.no_of_virtual_packets)
 
         self.run_single_montecarlo(model, no_of_packets, no_of_virtual_packets, last_run=True)
+        self.iterations_executed += 1
+        self.iterations_remaining -= 1
 
         self.runner.legacy_update_spectrum(no_of_virtual_packets)
         self.legacy_set_final_model_properties(model)
