@@ -444,7 +444,7 @@ class Simulation(object):
         R_min_rel  = self.runner.r_inner_cgs.min() / R_max
         ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
         J_blues    = model.j_blues
-#        J_rlues    = model.j_blues.values * np.exp( -model.plasma.tau_sobolevs.values) + self.runner.att_S_ul
+        J_rlues    = model.j_blues.values * np.exp( -model.plasma.tau_sobolevs.values) + self.runner.att_S_ul
 
         r_shells = np.zeros((num_shell+1,1))
         # Note the reorder from outer to inner
@@ -453,7 +453,7 @@ class Simulation(object):
 
         z_ct = z_crossings/ct
         z_ct[np.isnan(z_crossings)] = 0
-        
+
         ## p > Rmin
         ps_outer        = ps[ ps > R_min_rel]
         z_ct_outer      = z_ct[:, ps > R_min_rel]
@@ -470,7 +470,6 @@ class Simulation(object):
 
  
         nus = self.runner.spectrum.frequency
-
 
         #Just aliasing for cleaner expressions later
         line_nu  = model.plasma.lines.nu
@@ -499,8 +498,8 @@ class Simulation(object):
                 shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
                 
                 for idx,z_cross in enumerate(z_cross_p[:-1]):
-                    nu_start = nu / (1 + z_cross) 
-                    nu_end   = nu / (1 + z_cross_p[idx+1])
+                    nu_start = nu * (1 - z_cross) 
+                    nu_end   = nu * (1 - z_cross_p[idx+1])
                     shell = shell_idx[idx]
                     # Note the direction of the comparisons
                     ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) ) 
@@ -521,8 +520,8 @@ class Simulation(object):
                 shell_idx = np.hstack(( np.arange(num_shell), 0 ))
                 I_inner[p_idx] = intensity_black_body(nu,T)
                 for idx,z_cross in enumerate(z_cross_p[:-1]):
-                    nu_start = nu / (1 + z_cross) 
-                    nu_end   = nu / (1 + z_cross_p[idx+1])
+                    nu_start = nu * (1 - z_cross) 
+                    nu_end   = nu * (1 - z_cross_p[idx+1])
                     shell = shell_idx[idx]
                     # Note the direction of the comparisons
                     ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )                    
