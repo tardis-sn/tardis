@@ -8,6 +8,9 @@ import pandas as pd
 
 from scipy import interpolate
 from collections import OrderedDict
+from astropy import units as u
+from astropy import constants as const
+from astropy.units import Quantity
 
 
 class AtomDataNotPreparedError(Exception):
@@ -49,12 +52,12 @@ class AtomData(object):
     atom_data: pandas.DataFrame
         A DataFrame containing the *basic atomic data* with:
             index: atomic_number;
-            columns: symbol, name, mass[CGS].
+            columns: symbol, name, mass[u].
 
     ionization_data: pandas.DataFrame
         A DataFrame containing the *ionization data* with:
             index: atomic_number, ion_number;
-            columns: ionization_energy[CGS].
+            columns: ionization_energy[eV].
 
        It is important to note here is that `ion_number` describes the *final ion state*
             e.g. H I - H II is described with ion=1
@@ -62,13 +65,13 @@ class AtomData(object):
     levels: pandas.DataFrame
         A DataFrame containing the *levels data* with:
             index: no index;
-            columns: atomic_number, ion_number, level_number, energy[CGS], g[1], metastable.
+            columns: atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
 
     lines: pandas.DataFrame
         A DataFrame containing the *lines data* with:
             index: no index;
             columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
-                wavelength[angstrom], wavelength_cm[CGS], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
+                wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
     macro_atom_data:
         A DataFrame containing the *macro atom data* with:
@@ -195,6 +198,25 @@ class AtomData(object):
                  ion_cx_th_data=None, ion_cx_sp_data=None):
 
         self.prepared = False
+
+        # CONVERT VALUES TO CGS UNITS
+
+        # Convert atomic masses to CGS
+        # We have to use constants.u because astropy uses different values for the unit u and the constant.
+        # This is changed in later versions of astropy (the value of constants.u is used in all cases)
+        if u.u.cgs == const.u.cgs:
+            atom_data["mass"] = Quantity(atom_data["mass"].values, "u").cgs
+        else:
+            atom_data["mass"] = atom_data["mass"].values * const.u.cgs
+
+        # Convert ionization energies to CGS
+        ionization_data["ionization_energy"] = Quantity(ionization_data["ionization_energy"].values, "eV").cgs
+
+        # Convert energy to CGS
+        levels["energy"] = Quantity(levels["energy"].values, 'eV').cgs
+
+        # Create a new columns with wavelengths in the CGS units
+        lines['wavelength_cm'] = Quantity(lines['wavelength'], 'angstrom').cgs
 
         self.atom_data = atom_data
         self.ionization_data = ionization_data
