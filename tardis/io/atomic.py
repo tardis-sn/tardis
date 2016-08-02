@@ -218,6 +218,8 @@ class AtomData(object):
         # Create a new columns with wavelengths in the CGS units
         lines['wavelength_cm'] = Quantity(lines['wavelength'], 'angstrom').cgs
 
+        # SET ATTRIBUTES
+
         self.atom_data = atom_data
         self.ionization_data = ionization_data
         self.levels = levels
