@@ -432,14 +432,33 @@ class Simulation(object):
         q_ul = tmp.set_index(transitions_index)
         t    = model.tardis_config.supernova.time_explosion.value
         wave = model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
-        reorder  = wave[:,0].argsort()
-        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) ).iloc[reorder,:]
+        reorder  = wave[:,0].argsort(kind="mergesort")
+        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )[model.atom_data.lines.index]# .iloc[reorder,:]
 
-        return att_S_ul.as_matrix(),e_dot_u,wave
+        line_ids = model.atom_data.lines.index
+        upper_levels = model.atom_data.lines.level_number_upper.values
+        lower_levels = model.atom_data.lines.level_number_lower.values
+        t = model.tardis_config.supernova.time_explosion
+
+        Edot_u = {}
+        j_ul = {}
+        S_ul = {}
+
+        for i in range(1, int(max(upper_levels)+1), 1):
+            Edot_u[i] = model.runner.Edotlu[upper_levels == i].sum()
+
+        for i in xrange(len(line_ids)):
+            line_id = line_ids[i]
+            j_ul[line_id] = 1. / (4. * np.pi) * model.plasma.transition_probabilities.ix[line_id].values * Edot_u[upper_levels[i]]
+            S_ul[line_id] = (j_ul[line_id] * t * u.AA * model.atom_data.lines.ix[line_id].wavelength).to("1/cm^2")
+
+        S_ul  = np.array([S_ul[idx][0].value for idx in line_ids ])
+
+        return S_ul.reshape(-1,1),att_S_ul.as_matrix(),wave
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
-        ps         = np.linspace(0.999, 0, num = 34) # 3 * num_shell)
+        ps         = np.linspace(0.999, 0, num = 40) # 3 * num_shell)
         R_max      = self.runner.r_outer_cgs.max()
         R_min_rel  = self.runner.r_inner_cgs.min() / R_max
         ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
@@ -498,18 +517,30 @@ class Simulation(object):
                 shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
                 
                 for idx,z_cross in enumerate(z_cross_p[:-1]):
+                    if z_cross_p[idx+1] == 0:
+                        continue
                     nu_start = nu * (1 - z_cross) 
                     nu_end   = nu * (1 - z_cross_p[idx+1])
                     shell = shell_idx[idx]
                     # Note the direction of the comparisons
-                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) ) 
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
 
                     if len(ks) < 2:
-                        continue
+                        ks = list(ks)
+
                     #I_outer[p_idx] = I_outer[p_idx] + dtau * ( 
                     #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
                     for k in ks:
                         I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
+
+                    if False:
+                        print "Outer"
+                        print p_idx,p,z_cross_p, I_outer[p_idx]
+                        print "Nus", nu, nu_start, nu_end
+                        print "Lam", co.c.to("Angstrom/s")/nu, co.c.to("Angstrom/s")/nu_start, co.c.to("Angstrom/s")/nu_end
+                        print "Exp tau", np.exp(-taus.iloc[ks,shell].values)
+                        print "Att", att_S_ul[ks,shell]
+                        print "lines", line_nu.iloc[ks].values
 
 
             I_inner = np.zeros(ps_inner.shape)
@@ -520,15 +551,16 @@ class Simulation(object):
                 shell_idx = np.hstack(( np.arange(num_shell), 0 ))
                 I_inner[p_idx] = intensity_black_body(nu,T)
                 for idx,z_cross in enumerate(z_cross_p[:-1]):
+                    if z_cross_p[idx+1] == 0:
+                        continue
                     nu_start = nu * (1 - z_cross) 
                     nu_end   = nu * (1 - z_cross_p[idx+1])
                     shell = shell_idx[idx]
                     # Note the direction of the comparisons
-                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )                    
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
 
                     if len(ks) < 2:
-                        continue
-
+                        ks = list(ks)
 
                     #dtau * ( 
                     #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
@@ -536,6 +568,14 @@ class Simulation(object):
                     for k in ks:
                         I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
 
+                    if False:
+                        print "Inner"
+                        print p_idx,p,z_cross_p,I_inner[p_idx]
+                        print "Nus", nu, nu_start, nu_end
+                        print "Lam", co.c.to("Angstrom/s")/nu, co.c.to("Angstrom/s")/nu_start, co.c.to("Angstrom/s")/nu_end
+                        print "Exp tau", np.exp(-taus.iloc[ks,shell].values)
+                        print "Att", att_S_ul[ks,shell]
+                        print "lines", line_nu.iloc[ks].values
 
             if ( nu_idx % 30 ) == 0:
                 print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
