@@ -8,6 +8,7 @@ from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
 from tardis.montecarlo import montecarlo, packet_source
+from tardis.util import intensity_black_body
 from tardis.io.util import to_hdf
 
 import numpy as np
@@ -283,6 +284,46 @@ class MontecarloRunner(object):
 
     def calculate_f_lambda(self, wavelength):
         pass
+
+    def calculate_j_blues(self, model, plasma, atom_data,
+                          init_detailed_j_blues=False):
+        nus = atom_data.lines.nu.values
+        radiative_rates_type = plasma.radiative_rates_type
+        w_epsilon = plasma.w_epsilon
+
+        if radiative_rates_type == 'blackbody':
+            logger.info('Calculating J_blues for radiative_rates_type=lte')
+            j_blues = intensity_black_body(nus[np.newaxis].T, model.t_rad.value)
+            return pd.DataFrame(
+                j_blues, index=atom_data.lines.index,
+                columns=np.arange(len(model.t_rad)))
+
+        elif radiative_rates_type == 'dilute-blackbody' or init_detailed_j_blues:
+            logger.info('Calculating J_blues for radiative_rates_type=dilute-blackbody')
+            j_blues = model.w * intensity_black_body(nus[np.newaxis].T, model.t_rad.value)
+            return pd.DataFrame(
+                j_blues, index=atom_data.lines.index,
+                columns=np.arange(len(model.t_rad)))
+
+        elif radiative_rates_type == 'detailed':
+            logger.info('Calculating J_blues for radiate_rates_type=detailed')
+            j_blues_norm_factor = (const.c.cgs * model.time_explosion /
+            (4 * np.pi * model.time_of_simulation * model.volume))
+            j_blues = pd.DataFrame(
+                self.j_blue_estimator *
+                    j_blues_norm_factor.value,
+                    index=atom_data.lines.index,
+                    columns=np.arange(len(model.t_rad)))
+
+            for i in xrange(model.no_of_shells):
+                zero_j_blues = j_blues[i] == 0.0
+                j_blues[i][zero_j_blues] = (
+                    w_epsilon * intensity_black_body(
+                        atom_data.lines.nu[zero_j_blues].values,
+                        model.t_rad.value[i]))
+
+        else:
+            raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
 
     def to_hdf(self, path_or_buf, path=''):
         """
