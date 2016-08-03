@@ -73,12 +73,15 @@ def data_path(request):
     path = {
         'config_dirpath': request.param,
         'reference_filepath': os.path.join(os.path.expandvars(
-            os.path.expanduser(integration_tests_config["reference"])), hdf_filename
+            os.path.expanduser(integration_tests_config['reference'])), hdf_filename
         ),
         'gen_ref_dirpath': os.path.join(os.path.expandvars(os.path.expanduser(
-            integration_tests_config["generate_reference"])), tardis_githash[:7]
+            integration_tests_config['generate_reference'])), tardis_githash[:7]
         ),
-        'setup_name': hdf_filename[:-3]
+        'setup_name': hdf_filename[:-3],
+        # Temporary hack for providing atom data per individual setup.
+        # This url has all the atom data files hosted, for downloading.
+        'atom_data_url': integration_tests_config['atom_data_url']
     }
     if (request.config.getoption("--generate-reference") and not
             os.path.exists(path['gen_ref_dirpath'])):
