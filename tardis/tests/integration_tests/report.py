@@ -70,10 +70,6 @@ class DokuReport(HTMLReport):
         else:
             self.dokuwiki_url = dokuwiki_details["url"]
 
-    def pytest_sessionstart(self, session):
-        self.suite_start_datetime = datetime.datetime.utcnow().strftime('%d %b %H:%M:%S')
-        super(DokuReport, self).pytest_sessionstart(session)
-
     def _generate_report(self, session):
         """Writes HTML report to a temporary logfile."""
         suite_stop_time = time.time()
@@ -178,6 +174,8 @@ class DokuReport(HTMLReport):
         else:
             status = "Errored"
 
+        suite_start_datetime = datetime.datetime.utcfromtimestamp(self.suite_start_time)
+
         # Fetch commit message from github.
         gh_request = requests.get(
             "https://api.github.com/repos/tardis-sn/tardis/git/commits/{0}".format(
@@ -199,7 +197,7 @@ class DokuReport(HTMLReport):
             tardis.__githash__, gh_commit_message
         )
         # Append start time
-        row += "{0}  |  ".format(self.suite_start_datetime)
+        row += "{0}  |  ".format(suite_start_datetime.strftime('%d %b %H:%M:%S'))
         # Append time elapsed
         row += "{0:.2f} sec  |  ".format(self.suite_time_delta)
         # Append status
