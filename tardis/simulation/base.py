@@ -3,6 +3,8 @@ import logging
 import numpy as np
 
 from tardis.montecarlo.base import MontecarloRunner
+from tardis.model.base import Radial1DModel
+from tardis.plasma.standard_plasmas import assemble_plasma
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -130,5 +132,21 @@ class Simulation(object):
 
     @classmethod
     def from_config(cls, config):
-        raise NotImplementedError()
-        #TODO
+        model = Radial1DModel.from_config(config)
+        plasma = assemble_plasma(config, model)
+        return cls(iterations=config.montecarlo.iterations,
+                   model=model,
+                   plasma=plasma,
+                   atom_data=config.atom_data,
+                   no_of_packets=config.montecarlo.no_of_packets,
+                   no_of_virtual_packets=config.montecarlo.no_of_virtual_packets,
+                   luminosity_nu_start=config.supernova.luminosity_nu_start,
+                   luminosity_nu_end=config.supernova.luminosity_nu_end,
+                   last_no_of_packets=config.montecarlo.last_no_of_packets,
+                   luminosity_requested=config.supernova.luminosity_requested,
+                   convergence_strategy=config.montecarlo.convergence_strategy,
+                   seed=config.montecarlo.seed,
+                   spectrum_frequency=config.spectrum.frequency,
+                   distance=config.supernova.get('distance', None),
+                   nthreads=config.montecarlo.nthreads)
+
