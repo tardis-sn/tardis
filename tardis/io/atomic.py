@@ -205,18 +205,18 @@ class AtomData(object):
         # We have to use constants.u because astropy uses different values for the unit u and the constant.
         # This is changed in later versions of astropy (the value of constants.u is used in all cases)
         if u.u.cgs == const.u.cgs:
-            atom_data["mass"] = Quantity(atom_data["mass"].values, "u").cgs
+            atom_data.loc[:, "mass"] = Quantity(atom_data["mass"].values, "u").cgs
         else:
-            atom_data["mass"] = atom_data["mass"].values * const.u.cgs
+            atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs
 
         # Convert ionization energies to CGS
-        ionization_data["ionization_energy"] = Quantity(ionization_data["ionization_energy"].values, "eV").cgs
+        ionization_data.loc[:, "ionization_energy"] = Quantity(ionization_data["ionization_energy"].values, "eV").cgs
 
         # Convert energy to CGS
-        levels["energy"] = Quantity(levels["energy"].values, 'eV').cgs
+        levels.loc[:, "energy"] = Quantity(levels["energy"].values, 'eV').cgs
 
         # Create a new columns with wavelengths in the CGS units
-        lines['wavelength_cm'] = Quantity(lines['wavelength'], 'angstrom').cgs
+        lines.loc[:, 'wavelength_cm'] = Quantity(lines['wavelength'], 'angstrom').cgs
 
         # SET ATTRIBUTES
 
