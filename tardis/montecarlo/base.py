@@ -36,7 +36,7 @@ class MontecarloRunner(object):
         self.spectrum_reabsorbed = TARDISSpectrum(spectrum_frequency, distance)
 
 
-    def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
+    def _initialize_estimator_arrays(self, no_of_lines, no_of_shells):
         """
         Initialize the output arrays of the montecarlo simulation.
 
@@ -49,8 +49,8 @@ class MontecarloRunner(object):
         #Estimators
         self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
-        self.j_blue_estimator = np.zeros(tau_sobolev_shape)
-        self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
+        self.j_blue_estimator = np.zeros((no_of_shells, no_of_lines))
+        self.Edotlu_estimator = np.zeros((no_of_shells, no_of_lines))
 
 
     def _initialize_geometry_arrays(self, structure):
@@ -124,8 +124,7 @@ class MontecarloRunner(object):
         """
         self.time_of_simulation = model.time_of_simulation
         self.volume = model.tardis_config.structure.volumes
-        self._initialize_estimator_arrays(self.volume.shape[0],
-                                          model.plasma.tau_sobolevs.shape)
+        self._initialize_estimator_arrays(*model.plasma.tau_sobolevs.shape)
         self._initialize_geometry_arrays(model.tardis_config.structure)
 
         self._initialize_packets(model.t_inner.value,
@@ -137,8 +136,9 @@ class MontecarloRunner(object):
         # Workaround so that j_blue_estimator is in the right ordering
         # They are written as an array of dimension (no_of_shells, no_of_lines)
         # but python expects (no_of_lines, no_of_shells)
-        # self.j_blue_estimator = self.j_blue_estimator.flatten().reshape(
-        #         self.j_blue_estimator.shape, order='F')
+        self.j_blue_estimator = self.j_blue_estimator.flatten().reshape(
+                self.j_blue_estimator.shape, order='F')
+        self.j_blue_estimator = self.j_blue_estimator.T
         self.Edotlu_estimator = self.Edotlu_estimator.flatten().reshape(
                 self.Edotlu_estimator.shape, order='F')
 
