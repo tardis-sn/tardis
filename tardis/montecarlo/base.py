@@ -124,7 +124,7 @@ class MontecarloRunner(object):
         :param nthreads:
         :return:
         """
-        self.time_of_simulation = model.time_of_simulation
+        self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
         self._initialize_estimator_arrays(self.volume.shape[0],
                                           plasma.tau_sobolevs.shape)
@@ -326,6 +326,13 @@ class MontecarloRunner(object):
 
         else:
             raise ValueError('radiative_rates_type type unknown - %s', radiative_rates_type)
+
+    def calculate_time_of_simulation(self, model):
+        luminosity_inner = (
+            4 * np.pi * const.sigma_sb.cgs * model.r_inner[0] ** 2 *
+            model.t_inner ** 4).to('erg/s')
+
+        return 1.0 * u.erg / luminosity_inner
 
     def to_hdf(self, path_or_buf, path=''):
         """
