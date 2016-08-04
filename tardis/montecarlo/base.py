@@ -136,8 +136,8 @@ class MontecarloRunner(object):
         # Workaround so that j_blue_estimator is in the right ordering
         # They are written as an array of dimension (no_of_shells, no_of_lines)
         # but python expects (no_of_lines, no_of_shells)
-        self.j_blue_estimator = self.j_blue_estimator.flatten().reshape(
-                self.j_blue_estimator.shape, order='F')
+        # self.j_blue_estimator = self.j_blue_estimator.flatten().reshape(
+        #         self.j_blue_estimator.shape, order='F')
         self.j_blue_estimator = self.j_blue_estimator.T
         self.Edotlu_estimator = self.Edotlu_estimator.flatten().reshape(
                 self.Edotlu_estimator.shape, order='F')
