@@ -1,17 +1,20 @@
 # this contains imports plugins that configure py.test for astropy tests.
 # by importing them here in conftest.py they are discoverable by py.test
 # no matter how it is invoked within the source tree.
+import copy
+import shutil
+import tempfile
+import zipfile
 
+from astropy.tests.helper import remote_data
 from astropy.tests.pytest_plugins import *
 from astropy.tests.pytest_plugins import (
         pytest_addoption as _pytest_add_option
     )
+from astropy.utils.data import download_file
 
 import tardis
-import pytest
 from tardis.atomic import AtomData
-from tardis.io.config_reader import Configuration
-from tardis.io.util import yaml_load_config_file
 
 ###
 # Astropy
@@ -64,8 +67,6 @@ except NameError:   # Needed to support Astropy <= 1.0.0
 
 def pytest_addoption(parser):
     _pytest_add_option(parser)
-    parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
-                     help="filename for atomic dataset")
     parser.addoption("--integration-tests", dest="integration-tests", default=None,
                      help="path to configuration file for integration tests")
     parser.addoption("--generate-reference", action="store_true", default=False,
@@ -79,26 +80,6 @@ def pytest_addoption(parser):
 # -------------------------------------------------------------------------
 
 
-@pytest.fixture(scope="session")
-def atomic_data_fname():
-    atomic_data_fname = pytest.config.getvalue("atomic-dataset")
-    if atomic_data_fname is None:
-        pytest.skip('--atomic-dataset was not specified')
-    else:
-        return os.path.expandvars(os.path.expanduser(atomic_data_fname))
-
-
-@pytest.fixture
-def kurucz_atomic_data(atomic_data_fname):
-    atomic_data = AtomData.from_hdf5(atomic_data_fname)
-
-    if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
-        pytest.skip('Need default Kurucz atomic dataset '
-                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
-    else:
-        return atomic_data
-
-
 @pytest.fixture
 def test_data_path():
     return os.path.join(tardis.__path__[0], 'tests', 'data')
@@ -110,7 +91,36 @@ def included_he_atomic_data(test_data_path):
     return AtomData.from_hdf5(atomic_db_fname)
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def tardis_config_verysimple():
-    return yaml_load_config_file(
-        'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+    return 'tardis/io/tests/data/tardis_configv1_verysimple.yml'
+
+
+@pytest.fixture(scope="session")
+def atom_data(request):
+    atom_data_name = 'kurucz_cd23_chianti_H_He.h5'
+    # Download and cache the zip file of atomic data.
+    atom_data_cache = download_file(
+        'http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip',
+        cache=True
+    )
+
+    # Obtained file is a zip file, hence unzipped inside a tempdir.
+    atom_data_zipfile = zipfile.ZipFile(atom_data_cache)
+    atom_data_extract_tempdir = tempfile.mkdtemp()
+    atom_data_zipfile.extract(atom_data_name, path=atom_data_extract_tempdir)
+
+    atom_data = AtomData.from_hdf5(
+        os.path.join(atom_data_extract_tempdir, atom_data_name)
+    )
+
+    if atom_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
+        pytest.skip('Need default Kurucz atomic dataset '
+                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
+
+    def fin():
+        # Delete the tempdir as no longer required.
+        shutil.rmtree(atom_data_extract_tempdir)
+    request.addfinalizer(fin)
+
+    return atom_data

@@ -1,46 +1,52 @@
-import pytest
-import numpy as np
-import tardis
-import numpy.testing as nptesting
-from astropy import units as u
+import copy
 import os
-import h5py
 
-from tardis.base import run_tardis
-from tardis.io.util import yaml_load_config_file
+import h5py
+import numpy as np
+import numpy.testing as nptesting
+import pytest
+
+from astropy import units as u
+from astropy.tests.helper import remote_data
+
+import tardis
+from tardis.model import Radial1DModel
+from tardis.io.config_reader import Configuration
+from tardis.simulation.base import run_radial1d
 
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'plasma', 'tests', 'data', fname)
 
-@pytest.fixture()
+
+@pytest.fixture
 def plasma_compare_data_fname():
     return data_path('plasma_test_data.h5')
 
-@pytest.fixture()
+
+@pytest.fixture
 def plasma_compare_data(plasma_compare_data_fname):
     return h5py.File(plasma_compare_data_fname, 'r')
 
-@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
-                    reason='--atomic_database was not specified')
-class TestPlasmas():
+
+@remote_data
+class TestPlasmas(object):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self):
-        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
-            pytest.config.getvalue('atomic-dataset')))
-        assert os.path.exists(self.atom_data_filename), ("{0} atomic datafiles"
-                                                         " does not seem to "
-                                                         "exist".format(
-            self.atom_data_filename))
-        self.config_yaml = yaml_load_config_file(
-            'tardis/plasma/tests/data/plasma_test_config_lte.yml')
-        self.config_yaml['atom_data'] = self.atom_data_filename
-        self.lte_model = run_tardis(self.config_yaml)
-        self.config_yaml = yaml_load_config_file(
-            'tardis/plasma/tests/data/plasma_test_config_nlte.yml')
-        self.config_yaml['atom_data'] = self.atom_data_filename
-        self.nlte_model = run_tardis(self.config_yaml)
+    def setup(self, atom_data):
+        self.lte_config = Configuration.from_yaml(
+            'tardis/plasma/tests/data/plasma_test_config_lte.yml',
+            atom_data=copy.deepcopy(atom_data)
+        )
+        self.lte_model = Radial1DModel(self.lte_config)
+        run_radial1d(self.lte_model)
+
+        self.nlte_config = Configuration.from_yaml(
+            'tardis/plasma/tests/data/plasma_test_config_nlte.yml',
+            atom_data=copy.deepcopy(atom_data)
+        )
+        self.nlte_model = Radial1DModel(self.nlte_config)
+        run_radial1d(self.nlte_model)
 
     def test_lte_plasma(self, plasma_compare_data):
         old_plasma_t_rads = plasma_compare_data['test_lte1/t_rad']

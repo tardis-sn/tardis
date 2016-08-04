@@ -1,26 +1,23 @@
-import numpy.testing as npt
+import copy
 
 import h5py
+import numpy.testing as npt
 import pytest
-from tardis.io import config_reader
+
+from astropy import units as u
+from astropy.tests.helper import assert_quantity_allclose, remote_data
+
+from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
 from tardis.simulation import Simulation
-from astropy import units as u
-from astropy.tests.helper import assert_quantity_allclose
+
 
 @pytest.fixture
-def tardis_config(kurucz_atomic_data, tardis_config_verysimple):
-    return config_reader.Configuration.from_config_dict(
-        tardis_config_verysimple, atom_data=kurucz_atomic_data)
-
-
-@pytest.fixture()
-def raw_model(tardis_config):
-    return Radial1DModel(tardis_config)
-
-
-@pytest.fixture()
-def simulation_one_loop(raw_model, tardis_config):
+def simulation_one_loop(atom_data, tardis_config_verysimple):
+    tardis_config = Configuration.from_yaml(
+        tardis_config_verysimple, atom_data=copy.deepcopy(atom_data)
+    )
+    raw_model = Radial1DModel(tardis_config)
     sim = Simulation(tardis_config)
     sim.run_single_montecarlo(raw_model, 40000)
 
@@ -37,6 +34,7 @@ def simulation_compare_data(simulation_compare_data_fname):
     return h5py.File(simulation_compare_data_fname, mode='r')
 
 
+@remote_data
 def test_plasma_estimates(simulation_one_loop, simulation_compare_data):
     t_rad, w = simulation_one_loop.runner.calculate_radiationfield_properties()
 
@@ -52,6 +50,7 @@ def test_plasma_estimates(simulation_one_loop, simulation_compare_data):
     npt.assert_allclose(w, simulation_compare_data['test1/w'], atol=0.0)
 
 
+@remote_data
 def test_packet_output(simulation_one_loop, simulation_compare_data):
     assert_quantity_allclose(
             simulation_one_loop.runner.output_nu,
