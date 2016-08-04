@@ -433,7 +433,7 @@ class Simulation(object):
         t    = model.tardis_config.supernova.time_explosion.value
         wave = model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
         reorder  = wave[:,0].argsort(kind="mergesort")
-        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )[model.atom_data.lines.index]# .iloc[reorder,:]
+        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) ).iloc[reorder,:]
 
         line_ids = model.atom_data.lines.index
         upper_levels = model.atom_data.lines.level_number_upper.values
@@ -454,11 +454,11 @@ class Simulation(object):
 
         S_ul  = np.array([S_ul[idx][0].value for idx in line_ids ])
 
-        return S_ul.reshape(-1,1),att_S_ul.as_matrix(),wave
+        return att_S_ul.as_matrix(),S_ul.reshape(-1,1),wave
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
-        ps         = np.linspace(0.999, 0, num = 40) # 3 * num_shell)
+        ps         = np.linspace(0.999, 0, num = 100) # 3 * num_shell)
         R_max      = self.runner.r_outer_cgs.max()
         R_min_rel  = self.runner.r_inner_cgs.min() / R_max
         ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
