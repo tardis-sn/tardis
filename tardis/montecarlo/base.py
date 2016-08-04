@@ -138,7 +138,7 @@ class MontecarloRunner(object):
         # but python expects (no_of_lines, no_of_shells)
         # self.j_blue_estimator = self.j_blue_estimator.flatten().reshape(
         #         self.j_blue_estimator.shape, order='F')
-        self.j_blue_estimator = self.j_blue_estimator.T
+        self.j_blue_estimator = self.j_blue_estimator.copy("C")
         self.Edotlu_estimator = self.Edotlu_estimator.flatten().reshape(
                 self.Edotlu_estimator.shape, order='F')
 
