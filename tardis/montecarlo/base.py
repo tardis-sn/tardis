@@ -134,7 +134,7 @@ class MontecarloRunner(object):
                                  no_of_packets)
 
         montecarlo.montecarlo_radial1d(
-            model, self, virtual_packet_flag=no_of_virtual_packets,
+            model, plasma, self, virtual_packet_flag=no_of_virtual_packets,
             nthreads=nthreads,last_run=last_run)
         # Workaround so that j_blue_estimator is in the right ordering
         # They are written as an array of dimension (no_of_shells, no_of_lines)
