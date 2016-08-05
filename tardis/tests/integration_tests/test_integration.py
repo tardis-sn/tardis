@@ -36,7 +36,7 @@ class TestIntegration(object):
         # A quick hack to download and cache atom data according to requirement
         # of setup. This will be cleaned up after new atomic data is available.
         # Read the name of atomic data required:
-        atom_data_name = yaml.load(self.config_file)['atom_data']
+        atom_data_name = yaml.load(open(self.config_file))['atom_data']
 
         # Download and cache the atom data file
         atom_data_filepath = download_file("{url}/{name}".format(
