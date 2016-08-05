@@ -40,8 +40,8 @@ class TestIntegration(object):
 
         # Download and cache the atom data file
         atom_data_filepath = download_file("{url}/{name}".format(
-            url=data_path['atom_data_url'], name=atom_data_name
-        ))
+            url=data_path['atom_data_url'], name=atom_data_name), cache=True
+        )
 
         # Load atom data file separately, pass it for forming tardis config.
         self.atom_data = AtomData.from_hdf5(atom_data_filepath)

@@ -25,7 +25,7 @@ model:
     type: file
 
   structure:
-    filename: artis_model.dat
+    filename: densities.dat
     filetype: artis
     type: file
 #    v_lowest: 9000.0 km/s
