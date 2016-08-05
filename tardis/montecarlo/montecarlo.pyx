@@ -105,8 +105,7 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.packet_energies = <double*> PyArray_DATA(runner.input_energy)
 
     # Setup of structure
-    structure = model.tardis_config.structure
-    storage.no_of_shells = structure.no_of_shells
+    storage.no_of_shells = model.no_of_shells
 
 
     storage.r_inner = <double*> PyArray_DATA(runner.r_inner_cgs)
@@ -115,8 +114,7 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
 
     # Setup the rest
     # times
-    storage.time_explosion = model.tardis_config.supernova.time_explosion.to(
-        's').value
+    storage.time_explosion = model.time_explosion.to('s').value
     storage.inverse_time_explosion = 1.0 / storage.time_explosion
     #electron density
     storage.electron_densities = <double*> PyArray_DATA(
@@ -161,7 +159,7 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
             runner.Edotlu_estimator)
 
     storage.line_interaction_id = runner.get_line_interaction_id(
-        model.tardis_config.plasma.line_interaction_type)
+        runner.line_interaction_type)
 
     # macro atom & downbranch
     if storage.line_interaction_id >= 1:
@@ -203,20 +201,20 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.js = <double*> PyArray_DATA(runner.j_estimator)
     storage.nubars = <double*> PyArray_DATA(runner.nu_bar_estimator)
 
-    storage.spectrum_start_nu = model.tardis_config.spectrum.frequency.value.min()
-    storage.spectrum_end_nu = model.tardis_config.spectrum.frequency.value.max()
-    storage.spectrum_virt_start_nu = model.tardis_config.montecarlo.virtual_spectrum_range.end.to('Hz', units.spectral()).value
-    storage.spectrum_virt_end_nu = model.tardis_config.montecarlo.virtual_spectrum_range.start.to('Hz', units.spectral()).value
-    storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - model.tardis_config.spectrum.frequency.value[0]
+    storage.spectrum_start_nu = runner.spectrum_frequency.value.min()
+    storage.spectrum_end_nu = runner.spectrum_frequency.value.max()
+    # TODO: Linspace handling for virtual_spectrum_range
+    storage.spectrum_virt_start_nu = runner.virtual_spectrum_range.end.to('Hz', units.spectral()).value
+    storage.spectrum_virt_end_nu = runner.virtual_spectrum_range.start.to('Hz', units.spectral()).value
+    storage.spectrum_delta_nu = runner.spectrum_frequency.value[1] - runner.spectrum_frequency.value[0]
 
     storage.spectrum_virt_nu = <double*> PyArray_DATA(
         runner.legacy_montecarlo_virtual_luminosity)
 
-    storage.sigma_thomson = (
-        model.tardis_config.montecarlo.sigma_thomson.cgs.value)
+    storage.sigma_thomson = runner.sigma_thomson.cgs.value
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
-    storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
-    storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
+    storage.reflective_inner_boundary = runner.enable_reflective_inner_boundary
+    storage.inner_boundary_albedo = runner.inner_boundary_albedo
     # Data for continuum implementation
     cdef np.ndarray[double, ndim=1] t_electrons = plasma.t_electrons
     storage.t_electrons = <double*> t_electrons.data
@@ -255,8 +253,7 @@ def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
 
     initialize_storage_model(model, plasma, runner, &storage)
 
-    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
-                         model.tardis_config.montecarlo.seed)
+    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, runner.seed)
     cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_last_interaction_in_nu = np.zeros(storage.virt_packet_count, dtype=np.float64)
@@ -298,8 +295,8 @@ def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
 
 def postprocess(model, runner):
     Edotlu_norm_factor = (1 /
-        (model.time_of_simulation * model.tardis_config.structure.volumes))
+        (runner.time_of_simulation * model.volume))
     exptau = 1 - np.exp(-
                         runner.line_lists_tau_sobolevs.reshape(-1,
                             runner.j_estimator.shape[0]) )
-    model.Edotlu = Edotlu_norm_factor*exptau*runner.Edotlu_estimator
+    runner.Edotlu = Edotlu_norm_factor*exptau*runner.Edotlu_estimator

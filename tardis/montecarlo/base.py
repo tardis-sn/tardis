@@ -29,9 +29,18 @@ class MontecarloRunner(object):
     t_rad_estimator_constant = ((np.pi**4 / (15 * 24 * zeta(5, 1))) *
                                 (const.h / const.k_B)).cgs.value
 
-    def __init__(self, seed, spectrum_frequency, distance=None):
+    def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
+                 sigma_thomson, enable_reflective_inner_boundary,
+                 inner_boundary_albedo, line_interaction_type, distance=None):
+
+        self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
         self.spectrum_frequency = spectrum_frequency
+        self.virtual_spectrum_range = virtual_spectrum_range # TODO: linspace handling
+        self.sigma_thomson = sigma_thomson
+        self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
+        self.inner_boundary_albedo = inner_boundary_albedo
+        self.line_interaction_type = line_interaction_type
         self.spectrum = TARDISSpectrum(spectrum_frequency, distance)
         self.spectrum_virtual = TARDISSpectrum(spectrum_frequency, distance)
         self.spectrum_reabsorbed = TARDISSpectrum(spectrum_frequency, distance)
