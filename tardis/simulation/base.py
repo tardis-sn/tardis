@@ -11,16 +11,18 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation(object):
-    def __init__(self, iterations, model, plasma, atom_data, no_of_packets,
+    def __init__(self, iterations, model, plasma, runner,
+                 atom_data, no_of_packets,
                  no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
-                 luminosity_requested, convergence_strategy, seed,
-                 spectrum_frequency, distance, nthreads):
+                 luminosity_requested, convergence_strategy,
+                 nthreads):
         self.converged = False
         self.iterations = iterations
         self.iterations_executed = 0
         self.model = model
         self.plasma = plasma
+        self.runner = runner
         self.atom_data = atom_data
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
@@ -29,9 +31,6 @@ class Simulation(object):
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
-        self.runner = MontecarloRunner(seed,
-                                       spectrum_frequency,
-                                       distance)
         if convergence_strategy.type in ('damped', 'specific'):
             self.convergence_strategy = convergence_strategy
         else:
@@ -134,9 +133,11 @@ class Simulation(object):
     def from_config(cls, config):
         model = Radial1DModel.from_config(config)
         plasma = assemble_plasma(config, model)
+        runner = MontecarloRunner.from_config(config)
         return cls(iterations=config.montecarlo.iterations,
                    model=model,
                    plasma=plasma,
+                   runner=runner,
                    atom_data=config.atom_data,
                    no_of_packets=config.montecarlo.no_of_packets,
                    no_of_virtual_packets=config.montecarlo.no_of_virtual_packets,
@@ -145,8 +146,5 @@ class Simulation(object):
                    last_no_of_packets=config.montecarlo.last_no_of_packets,
                    luminosity_requested=config.supernova.luminosity_requested,
                    convergence_strategy=config.montecarlo.convergence_strategy,
-                   seed=config.montecarlo.seed,
-                   spectrum_frequency=config.spectrum.frequency,
-                   distance=config.supernova.get('distance', None),
                    nthreads=config.montecarlo.nthreads)
 
