@@ -368,3 +368,14 @@ class MontecarloRunner(object):
                                      'spectrum_virtual')
         self.spectrum_reabsorbed.to_hdf(path_or_buf, runner_path,
                                         'spectrum_reabsorbed')
+
+    @classmethod
+    def from_config(cls, config):
+        return cls(seed=config.montecarlo.seed,
+                   spectrum_frequency=config.spectrum.frequency,
+                   virtual_spectrum_range=config.montecarlo.virtual_spectrum_range,
+                   sigma_thomson=config.montecarlo.sigma_thomson,
+                   enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
+                   inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
+                   line_interaction_type=config.plasma.line_interaction_type,
+                   distance=config.supernova.get('distance', None))
