@@ -345,8 +345,8 @@ class Simulation(object):
                         'simulation{}'.format(self.iterations_executed),
                         plasma_properties)
 
-        self.runner.att_S_ul,self.runner.Edot_u,self.runner.wave =  self.make_source_function(model)
-        self.runner.L_nu,self.runner.L_nu_nus     =  self.integrate(model)
+        self.runner.att_S_ul,self.runner.Edot_u =  self.make_source_function(model)
+        self.runner.L_nu,self.runner.L_nu_nus   =  self.integrate(model)
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
@@ -432,8 +432,7 @@ class Simulation(object):
         q_ul = tmp.set_index(transitions_index)
         t    = model.tardis_config.supernova.time_explosion.value
         wave = model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
-        reorder  = wave[:,0].argsort(kind="mergesort")
-        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) ).iloc[reorder,:]
+        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
 
         line_ids = model.atom_data.lines.index
         upper_levels = model.atom_data.lines.level_number_upper.values
@@ -453,12 +452,14 @@ class Simulation(object):
             S_ul[line_id] = (j_ul[line_id] * t * u.AA * model.atom_data.lines.ix[line_id].wavelength).to("1/cm^2")
 
         S_ul  = np.array([S_ul[idx][0].value for idx in line_ids ])
+        
+        test = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
 
-        return att_S_ul.as_matrix(),S_ul.reshape(-1,1),wave
+        return test.ix[model.atom_data.lines.index.values].as_matrix(),S_ul.reshape(-1,1)
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
-        ps         = np.linspace(0.999, 0, num = 100) # 3 * num_shell)
+        ps         = np.linspace(0.999, 0, num = 20) # 3 * num_shell)
         R_max      = self.runner.r_outer_cgs.max()
         R_min_rel  = self.runner.r_inner_cgs.min() / R_max
         ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
@@ -577,7 +578,7 @@ class Simulation(object):
                         print "Att", att_S_ul[ks,shell]
                         print "lines", line_nu.iloc[ks].values
 
-            if ( nu_idx % 30 ) == 0:
+            if ( nu_idx % 200 ) == 0:
                 print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
                 print I_outer, I_inner
             ps = np.hstack((ps_outer,ps_inner))*R_max
