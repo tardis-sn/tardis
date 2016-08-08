@@ -11,7 +11,7 @@ from tardis.plasma.properties.util import macro_atom
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-    'TransitionProbabilities', 'JBluesBlackBody']
+    'TransitionProbabilities', 'JBluesBlackBody', 'JBluesDiluteBlackBody']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
@@ -253,4 +253,23 @@ class JBluesBlackBody(ProcessingPlasmaProperty):
         remainder = (2 * (h * nu.values ** 3) /
             (c ** 2))
         j_blues = exponential.mul(remainder, axis=0)
+        return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)
+
+
+class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
+    outputs = ('j_blues',)
+    latex_name = ('J_{\\textrm{blue}}')
+
+    @staticmethod
+    def calculate(lines, nu, beta_rad, w):
+        beta_rad = pd.Series(beta_rad)
+        nu = pd.Series(nu)
+        h = const.h.cgs.value
+        c = const.c.cgs.value
+        df = pd.DataFrame(1, index=nu.index, columns=beta_rad.index)
+        df = df.mul(nu, axis='index') * beta_rad
+        exponential = (np.exp(h * df) - 1)**(-1)
+        remainder = (2 * (h * nu.values ** 3) /
+            (c ** 2))
+        j_blues = w * exponential.mul(remainder, axis=0)
         return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)
