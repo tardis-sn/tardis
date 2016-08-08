@@ -144,8 +144,8 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
         storage.l_pop_r = <double*> l_pop_r.data
 
     # Line lists
-    storage.no_of_lines = model.atom_data.lines.nu.values.size
-    storage.line_list_nu = <double*> PyArray_DATA(model.atom_data.lines.nu.values)
+    storage.no_of_lines = plasma.atomic_data.lines.nu.values.size
+    storage.line_list_nu = <double*> PyArray_DATA(plasma.atomic_data.lines.nu.values)
     runner.line_lists_tau_sobolevs = (
             plasma.tau_sobolevs.values.flatten(order='F')
             )
@@ -172,17 +172,17 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
         storage.transition_probabilities_nd = (
         plasma.transition_probabilities.values.shape[0])
         storage.line2macro_level_upper = <int_type_t*> PyArray_DATA(
-            model.atom_data.lines_upper2macro_reference_idx)
+            plasma.atomic_data.lines_upper2macro_reference_idx)
         storage.macro_block_references = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_references['block_references'].values)
+            plasma.atomic_data.macro_atom_references['block_references'].values)
         storage.transition_type = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['transition_type'].values)
+            plasma.atomic_data.macro_atom_data['transition_type'].values)
 
         # Destination level is not needed and/or generated for downbranch
         storage.destination_level_id = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['destination_level_idx'].values)
+            plasma.atomic_data.macro_atom_data['destination_level_idx'].values)
         storage.transition_line_id = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['lines_idx'].values)
+            plasma.atomic_data.macro_atom_data['lines_idx'].values)
 
     storage.output_nus = <double*> PyArray_DATA(runner._output_nu)
     storage.output_energies = <double*> PyArray_DATA(runner._output_energy)
