@@ -21,7 +21,7 @@ dilute_lte_excitation_properties = PlasmaPropertyCollection([
     LevelBoltzmannFactorDiluteLTE])
 non_nlte_properties = PlasmaPropertyCollection([LevelBoltzmannFactorNoNLTE])
 nlte_properties = PlasmaPropertyCollection([
-    LevelBoltzmannFactorNLTE, NLTEData, LTEJBlues, PreviousElectronDensities,
+    LevelBoltzmannFactorNLTE, NLTEData, JBluesBlackBody, PreviousElectronDensities,
     PreviousBetaSobolev, BetaSobolev])
 helium_nlte_properties = PlasmaPropertyCollection([HeliumNLTE,
     RadiationFieldCorrection, ZetaData,
