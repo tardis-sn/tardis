@@ -11,7 +11,7 @@ from tardis.plasma.properties.util import macro_atom
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-    'TransitionProbabilities', 'LTEJBlues']
+    'TransitionProbabilities', 'JBluesBlackBody']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
@@ -231,7 +231,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
 
 
 
-class LTEJBlues(ProcessingPlasmaProperty):
+class JBluesBlackBody(ProcessingPlasmaProperty):
     '''
     Attributes
     ----------
