@@ -4,7 +4,7 @@ class PlasmaPropertyCollection(list):
     pass
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
-    TimeExplosion, AtomicData, JBlues, DilutionFactor, LinkTRadTElectron,
+    TimeExplosion, AtomicData, DilutionFactor, LinkTRadTElectron,
     HeliumTreatment])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, PartitionFunction,
