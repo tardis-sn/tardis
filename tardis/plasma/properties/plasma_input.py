@@ -1,7 +1,8 @@
 from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlues', 'LinkTRadTElectron', 'HeliumTreatment']
+           'TimeExplosion', 'JBlues', 'JBlueEstimator', 'LinkTRadTElectron',
+           'HeliumTreatment']
 
 class TRadiative(ArrayInput):
     """
@@ -80,6 +81,16 @@ class JBlues(DataFrameInput):
     """
     outputs = ('j_blues',)
     latex_name = ('J_{lu}^{b}',)
+
+
+class JBlueEstimator(ArrayInput):
+    """
+    Attributes
+    ----------
+    j_blue_estimators : Numpy array
+    """
+    outputs = ('j_blue_estimators',)
+    latex_name = ('J_{\\textrm{blue-estimator}}',)
 
 class LinkTRadTElectron(Input):
     """
