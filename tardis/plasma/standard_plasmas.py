@@ -11,7 +11,8 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
     helium_lte_properties)
 from tardis.plasma.exceptions import PlasmaConfigError
-from tardis.plasma.properties import LevelBoltzmannFactorNLTE
+from tardis.plasma.properties import (LevelBoltzmannFactorNLTE, JBluesBlackBody,
+                                      JBluesDiluteBlackBody)
 
 logger = logging.getLogger(__name__)
 
@@ -52,10 +53,19 @@ def assemble_plasma(config, model):
         nlte_species=config.plasma.nlte.species)
     kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
                   density=model.density, atomic_data=config.atom_data,
-                  time_explosion=model.time_explosion, j_blues=None,
+                  time_explosion=model.time_explosion,
                   w=model.dilution_factor, link_t_rad_t_electron=0.9)
 
     plasma_modules = basic_inputs + basic_properties
+    if config.plasma.radiative_rates_type == 'blackbody':
+        plasma_modules.append(JBluesBlackBody)
+    elif config.plasma.radiative_rates_type == 'dilute-blackbody':
+        plasma_modules.append(JBluesDiluteBlackBody)
+    elif config.plasma.radiative_rates_type == 'detailed':
+        raise NotImplementedError("Detailed mode not implemented yet.")
+    else:
+        raise ValueError('radiative_rates_type type unknown - %s',
+                         config.plasma.radiative_rates_type)
 
     if config.plasma.excitation == 'lte':
         plasma_modules += lte_excitation_properties
