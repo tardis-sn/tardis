@@ -243,18 +243,11 @@ class JBluesBlackBody(ProcessingPlasmaProperty):
     latex_name = ('J^{b}_{lu(LTE)}')
 
     @staticmethod
-    def calculate(lines, nu, beta_rad):
-        beta_rad = pd.Series(beta_rad)
-        nu = pd.Series(nu)
-        h = const.h.cgs.value
-        c = const.c.cgs.value
-        df = pd.DataFrame(1, index=nu.index, columns=beta_rad.index)
-        df = df.mul(nu, axis='index') * beta_rad
-        exponential = (np.exp(h * df) - 1)**(-1)
-        remainder = (2 * (h * nu.values ** 3) /
-            (c ** 2))
-        j_blues = exponential.mul(remainder, axis=0)
-        return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)
+    def calculate(lines, nu, t_rad):
+        j_blues = intensity_black_body(nu.values[np.newaxis].T, t_rad)
+        j_blues = pd.DataFrame(j_blues, index=lines.index,
+                               columns=np.arange(len(t_rad)))
+        return np.array(j_blues, copy=False)
 
 
 class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
