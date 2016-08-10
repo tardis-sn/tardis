@@ -239,7 +239,7 @@ class JBluesBlackBody(ProcessingPlasmaProperty):
     lte_j_blues : Pandas DataFrame, dtype float
                   J_blue values as calculated in LTE.
     '''
-    outputs = ('lte_j_blues',)
+    outputs = ('j_blues',)
     latex_name = ('J^{b}_{lu(LTE)}')
 
     @staticmethod
