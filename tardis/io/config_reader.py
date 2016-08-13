@@ -460,11 +460,6 @@ def parse_supernova_section(supernova_dict):
 
     config_dict['time_explosion'] = parse_quantity(supernova_dict['time_explosion']).to('s')
 
-    if 'distance' in supernova_dict:
-        config_dict['distance'] = parse_quantity(supernova_dict['distance'])
-    else:
-        config_dict['distance'] = None
-
     if 'luminosity_wavelength_start' in supernova_dict:
         config_dict['luminosity_nu_end'] = parse_quantity(supernova_dict['luminosity_wavelength_start']). \
             to('Hz', u.spectral())
