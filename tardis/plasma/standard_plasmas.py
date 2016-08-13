@@ -62,6 +62,9 @@ def assemble_plasma(config, model):
     elif config.plasma.radiative_rates_type == 'dilute-blackbody':
         plasma_modules.append(JBluesDiluteBlackBody)
     elif config.plasma.radiative_rates_type == 'detailed':
+        # FIXME: Support initializing arguments of Plasma properties
+        # we need to pass w_epsilon value in the __init__ method of
+        # JBluesDiluteDetailed
         raise NotImplementedError("Detailed mode not implemented yet.")
     else:
         raise ValueError('radiative_rates_type type unknown - %s',
@@ -82,11 +85,11 @@ def assemble_plasma(config, model):
         plasma_modules += nlte_properties
         kwargs['nlte_species'] = nlte_conf.species
         if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
-            plasma_modules.append(LevelBoltzmannFactorNLTE)
-            kwargs['classical_nebular'] = True
+            # FIXME: Support initializing arguments of Plasma properties
+            plasma_modules.append(LevelBoltzmannFactorNLTE) # (classical_nebular = True)
         elif nlte_conf.coronal_approximation and not nlte_conf.classical_nebular:
-            plasma_modules.append(LevelBoltzmannFactorNLTE)
-            kwargs['coronal_approximation'] = True
+            # FIXME: Support initializing arguments of Plasma properties
+            plasma_modules.append(LevelBoltzmannFactorNLTE) # (coronal_approximation = True)
         elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
             raise PlasmaConfigError('Both coronal approximation and '
                                     'classical nebular specified in the '
