@@ -340,8 +340,10 @@ class MontecarloRunner(object):
             config.spectrum.stop.to('Hz', u.spectral()),
             config.spectrum.start.to('Hz', u.spectral()),
             num=config.spectrum.num + 1)
+
         return cls(seed=config.montecarlo.seed,
                    spectrum_frequency=spectrum_frequency,
+                   # TODO: Linspace handling for virtual_spectrum_range
                    virtual_spectrum_range=config.montecarlo.virtual_spectrum_range,
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
