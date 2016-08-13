@@ -328,10 +328,18 @@ class MontecarloRunner(object):
 
     @classmethod
     def from_config(cls, config):
+        if config.plasma.disable_electron_scattering:
+            logger.warn('Disabling electron scattering - this is not physical')
+            sigma_thomson = 1e-200 / (u.cm ** 2)
+        else:
+            logger.debug("Electron scattering switched on")
+            sigma_thomson = 6.652486e-25 / (u.cm ** 2)
+
+
         return cls(seed=config.montecarlo.seed,
                    spectrum_frequency=config.spectrum.frequency,
                    virtual_spectrum_range=config.montecarlo.virtual_spectrum_range,
-                   sigma_thomson=config.montecarlo.sigma_thomson,
+                   sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
                    line_interaction_type=config.plasma.line_interaction_type,

@@ -943,22 +943,6 @@ class Configuration(ConfigurationNameSpace):
         else:
             plasma_section['t_rads'] = None
 
-        if plasma_section['disable_electron_scattering'] is False:
-            logger.debug("Electron scattering switched on")
-            validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
-        else:
-            logger.warn('Disabling electron scattering - this is not physical')
-            validated_config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm ** 2)
-
-        if plasma_section['helium_treatment'] == 'recomb-nlte':
-            validated_config_dict['plasma']['helium_treatment'] == 'recomb-nlte'
-        else:
-            validated_config_dict['plasma']['helium_treatment'] == 'dilute-lte'
-
-
-
-
-
         ##### NLTE subsection of Plasma start
         nlte_validated_config_dict = {}
         nlte_species = []
