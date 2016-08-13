@@ -3,6 +3,7 @@ import logging
 import pandas as pd
 import numpy as np
 
+from tardis.util import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
@@ -46,11 +47,15 @@ def assemble_plasma(config, model):
     : ~plasma.BasePlasma
 
     """
+    # Convert the nlte species list to a proper format.
+    nlte_species = [species_string_to_tuple(s) for s in
+                    config.plasma.nlte.species]
+
     selected_atomic_numbers = config.abundances.index
     config.atom_data.prepare_atom_data(
         selected_atomic_numbers,
         line_interaction_type=config.plasma.line_interaction_type,
-        nlte_species=config.plasma.nlte.species)
+        nlte_species=nlte_species)
     kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
                   density=model.density, atomic_data=config.atom_data,
                   time_explosion=model.time_explosion,
@@ -80,10 +85,10 @@ def assemble_plasma(config, model):
     elif config.plasma.ionization == 'nebular':
         plasma_modules += nebular_ionization_properties
 
-    nlte_conf = config.plasma.nlte
-    if nlte_conf.species:
+    if nlte_species:
         plasma_modules += nlte_properties
-        kwargs['nlte_species'] = nlte_conf.species
+        kwargs['nlte_species'] = nlte_species
+        nlte_conf = config.plasma.nlte
         if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
             # FIXME: Support initializing arguments of Plasma properties
             plasma_modules.append(LevelBoltzmannFactorNLTE) # (classical_nebular = True)

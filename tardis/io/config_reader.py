@@ -957,39 +957,6 @@ class Configuration(ConfigurationNameSpace):
 
 
 
-
-
-        ##### NLTE subsection of Plasma start
-        nlte_validated_config_dict = {}
-        nlte_species = []
-        nlte_section = plasma_section['nlte']
-
-        nlte_species_list = nlte_section.pop('species')
-        for species_string in nlte_species_list:
-            nlte_species.append(species_string_to_tuple(species_string))
-
-        nlte_validated_config_dict['species'] = nlte_species
-        nlte_validated_config_dict['species_string'] = nlte_species_list
-        nlte_validated_config_dict.update(nlte_section)
-
-        if 'coronal_approximation' not in nlte_section:
-            logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
-            nlte_validated_config_dict['coronal_approximation'] = False
-
-        if 'classical_nebular' not in nlte_section:
-            logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
-            nlte_validated_config_dict['classical_nebular'] = False
-
-
-        elif nlte_section:  #checks that the dictionary is not empty
-            logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
-                        pp.pformat(nlte_section))
-
-        if not nlte_validated_config_dict:
-            nlte_validated_config_dict['species'] = []
-
-        plasma_section['nlte'] = nlte_validated_config_dict
-
         #^^^^^^^^^^^^^^ End of Plasma Section
 
         ##### Monte Carlo Section
