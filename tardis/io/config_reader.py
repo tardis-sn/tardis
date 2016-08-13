@@ -16,9 +16,6 @@ from tardis.io.util import YAMLLoader, yaml_load_file
 from tardis import atomic
 from tardis.util import (species_string_to_tuple, parse_quantity,
                          element_symbol2atomic_number, quantity_linspace)
-# TODO: Remove the following
-from tardis.model.density import *
-###
 
 import copy
 
@@ -52,6 +49,59 @@ def parse_spectral_bin(spectral_bin_boundary_1, spectral_bin_boundary_2):
     spectrum_end_wavelength = max(spectral_bin_boundary_1, spectral_bin_boundary_2)
 
     return spectrum_start_wavelength, spectrum_end_wavelength
+
+
+def calculate_exponential_density(velocities, v_0, rho0):
+    """
+    This function computes the exponential density profile.
+    :math:`\\rho = \\rho_0 \\times \\exp \\left( -\\frac{v}{v_0} \\right)`
+
+    Parameters
+    ----------
+
+    velocities : ~astropy.Quantity
+        Array like velocity profile
+    velocity_0 : ~astropy.Quantity
+        reference velocity
+    rho0 : ~astropy.Quantity
+        reference density
+
+    Returns
+    -------
+
+    densities : ~astropy.Quantity
+
+    """
+    densities = rho0 * np.exp(-(velocities / v_0))
+    return densities
+
+
+def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
+    """
+
+    This function computes a descret exponential density profile.
+    :math:`\\rho = \\rho_0 \\times \\left( \\frac{v}{v_0} \\right)^n`
+
+    Parameters
+    ----------
+
+    velocities : ~astropy.Quantity
+        Array like velocity profile
+    velocity_0 : ~astropy.Quantity
+        reference velocity
+    rho0 : ~astropy.Quantity
+        reference density
+    exponent : ~float
+        exponent used in the powerlaw
+
+    Returns
+    -------
+
+    densities : ~astropy.Quantity
+
+    """
+    densities = rho_0 * np.power((velocities / velocity_0), exponent)
+    return densities
 
 
 def parse_model_file_section(model_setup_file_dict, time_explosion):
@@ -410,6 +460,11 @@ def parse_supernova_section(supernova_dict):
 
     config_dict['time_explosion'] = parse_quantity(supernova_dict['time_explosion']).to('s')
 
+    if 'distance' in supernova_dict:
+        config_dict['distance'] = parse_quantity(supernova_dict['distance'])
+    else:
+        config_dict['distance'] = None
+
     if 'luminosity_wavelength_start' in supernova_dict:
         config_dict['luminosity_nu_end'] = parse_quantity(supernova_dict['luminosity_wavelength_start']). \
             to('Hz', u.spectral())
@@ -423,6 +478,35 @@ def parse_supernova_section(supernova_dict):
         config_dict['luminosity_nu_start'] = 0.0 * u.Hz
 
     return config_dict
+
+
+def parse_spectrum_list2dict(spectrum_list):
+    """
+    Parse the spectrum list [start, stop, num] to a list
+    """
+    if 'start' in spectrum_list and 'stop' in spectrum_list \
+            and 'num' in spectrum_list:
+        spectrum_list = [spectrum_list['start'], spectrum_list['stop'],
+                         spectrum_list['num']]
+    if spectrum_list[0].unit.physical_type != 'length' and \
+                    spectrum_list[1].unit.physical_type != 'length':
+        raise ValueError('start and end of spectrum need to be a length')
+
+
+    spectrum_config_dict = {}
+    spectrum_config_dict['start'] = spectrum_list[0]
+    spectrum_config_dict['end'] = spectrum_list[1]
+    spectrum_config_dict['bins'] = spectrum_list[2]
+
+    spectrum_frequency = quantity_linspace(
+        spectrum_config_dict['end'].to('Hz', u.spectral()),
+        spectrum_config_dict['start'].to('Hz', u.spectral()),
+        num=spectrum_config_dict['bins'] + 1)
+
+    spectrum_config_dict['frequency'] = spectrum_frequency
+
+    return spectrum_config_dict
+
 
 
 def parse_convergence_section(convergence_section_dict):
@@ -859,36 +943,19 @@ class Configuration(ConfigurationNameSpace):
         else:
             plasma_section['t_rads'] = None
 
-        ##### NLTE subsection of Plasma start
-        nlte_validated_config_dict = {}
-        nlte_species = []
-        nlte_section = plasma_section['nlte']
+        if plasma_section['disable_electron_scattering'] is False:
+            logger.debug("Electron scattering switched on")
+            validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
+        else:
+            logger.warn('Disabling electron scattering - this is not physical')
+            validated_config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm ** 2)
 
-        nlte_species_list = nlte_section.pop('species')
-        for species_string in nlte_species_list:
-            nlte_species.append(species_string_to_tuple(species_string))
-
-        nlte_validated_config_dict['species'] = nlte_species
-        nlte_validated_config_dict['species_string'] = nlte_species_list
-        nlte_validated_config_dict.update(nlte_section)
-
-        if 'coronal_approximation' not in nlte_section:
-            logger.debug('NLTE "coronal_approximation" not specified in NLTE section - defaulting to False')
-            nlte_validated_config_dict['coronal_approximation'] = False
-
-        if 'classical_nebular' not in nlte_section:
-            logger.debug('NLTE "classical_nebular" not specified in NLTE section - defaulting to False')
-            nlte_validated_config_dict['classical_nebular'] = False
+        if plasma_section['helium_treatment'] == 'recomb-nlte':
+            validated_config_dict['plasma']['helium_treatment'] == 'recomb-nlte'
+        else:
+            validated_config_dict['plasma']['helium_treatment'] == 'dilute-lte'
 
 
-        elif nlte_section:  #checks that the dictionary is not empty
-            logger.warn('No "species" given - ignoring other NLTE options given:\n%s',
-                        pp.pformat(nlte_section))
-
-        if not nlte_validated_config_dict:
-            nlte_validated_config_dict['species'] = []
-
-        plasma_section['nlte'] = nlte_validated_config_dict
 
         #^^^^^^^^^^^^^^ End of Plasma Section
 
@@ -915,8 +982,20 @@ class Configuration(ConfigurationNameSpace):
             black_body_section['stop']
         montecarlo_section['black_body_sampling']['samples'] = \
             black_body_section['num']
+        virtual_spectrum_section = montecarlo_section['virtual_spectrum_range']
+        montecarlo_section['virtual_spectrum_range'] = {}
+        montecarlo_section['virtual_spectrum_range']['start'] = \
+            virtual_spectrum_section['start']
+        montecarlo_section['virtual_spectrum_range']['end'] = \
+            virtual_spectrum_section['stop']
+        montecarlo_section['virtual_spectrum_range']['samples'] = \
+            virtual_spectrum_section['num']
 
         ###### END of convergence section reading
+
+
+        validated_config_dict['spectrum'] = parse_spectrum_list2dict(
+            validated_config_dict['spectrum'])
 
         return cls(validated_config_dict, atom_data)
 
