@@ -7,6 +7,7 @@ from astropy import units as u, constants as const
 from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
+from tardis.util import quantity_linspace
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
 
@@ -335,9 +336,12 @@ class MontecarloRunner(object):
             logger.debug("Electron scattering switched on")
             sigma_thomson = 6.652486e-25 / (u.cm ** 2)
 
-
+        spectrum_frequency = quantity_linspace(
+            config.spectrum.stop.to('Hz', u.spectral()),
+            config.spectrum.start.to('Hz', u.spectral()),
+            num=config.spectrum.num + 1)
         return cls(seed=config.montecarlo.seed,
-                   spectrum_frequency=config.spectrum.frequency,
+                   spectrum_frequency=spectrum_frequency,
                    virtual_spectrum_range=config.montecarlo.virtual_spectrum_range,
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
