@@ -86,14 +86,10 @@ class Simulation(object):
         #          self.store_previous_properties()
         self.plasma.update(t_rad=self.model.t_rad, w=self.model.w)
 
-    def run_single(self, last_run=False):
-        no_of_packets = self.no_of_packets
-        if last_run:
-            if self.last_no_of_packets is not None:
-                no_of_packets = self.last_no_of_packets
-
+    def run_single(self, no_of_packets, no_of_virtual_packets=0,
+                   last_run=False):
         self.runner.run(self.model, self.plasma, no_of_packets,
-                        no_of_virtual_packets=self.no_of_virtual_packets,
+                        no_of_virtual_packets=no_of_virtual_packets,
                         nthreads=self.nthreads, last_run=last_run)
 
         output_energy = self.runner.output_energy
@@ -102,17 +98,15 @@ class Simulation(object):
         self.last_interaction_type = self.runner.last_interaction_type
         self.last_line_interaction_shell_id = (
             self.runner.last_line_interaction_shell_id)
-        if last_run:
-            self.runner.legacy_update_spectrum(self.no_of_virtual_packets)
 
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
     def run(self):
         start_time = time.time()
-        while self.iterations_executed < self.iterations:
+        while self.iterations_executed < self.iterations - 1:
             logger.info('Starting iteration #%d', self.iterations_executed + 1)
-            self.run_single()
+            self.run_single(self.no_of_packets)
             emitted_luminosity = self.runner.calculate_emitted_luminosity(
                 self.luminosity_nu_start, self.luminosity_nu_end)
             reabsorbed_luminosity = self.runner.calculate_reabsorbed_luminosity(
@@ -121,6 +115,19 @@ class Simulation(object):
                                  reabsorbed_luminosity)
             self.iterations_executed += 1
             self.advance_state()
+
+        if self.last_no_of_packets is not None and self.last_no_of_packets > 0:
+            no_of_packets = self.last_no_of_packets
+        else:
+            no_of_packets = self.no_of_packets
+        logger.info('Starting iteration #%d', self.iterations_executed + 1)
+        self.run_single(no_of_packets, self.no_of_virtual_packets, True)
+        self.iterations_executed += 1
+        self.runner.legacy_update_spectrum(self.no_of_virtual_packets)
+
+        logger.info("Simulation finished in {0:d} iterations "
+                    "and took {1:.2f} s".format(
+                        self.iterations_executed, time.time() - start_time))
 
     def log_run_results(self, emitted_luminosity, absorbed_luminosity):
         logger.info("Luminosity emitted = {0:.5e} "
