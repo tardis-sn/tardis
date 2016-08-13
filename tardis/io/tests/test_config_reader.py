@@ -31,14 +31,6 @@ def test_quantity_linspace():
     assert len(quantity_linspace) == 1000
 
 
-def test_spectrum_list2_dict():
-    spectrum_dict = config_reader.parse_spectrum_list2dict(
-        [200*u.angstrom, 10000 * u.angstrom, 100])
-    assert_almost_equal(spectrum_dict['start'].to(u.angstrom).value, 200)
-    assert_almost_equal(spectrum_dict['end'].to(u.angstrom).value, 10000)
-    assert_almost_equal(spectrum_dict['bins'], 100)
-
-
 def test_convergence_section_parser():
     test_convergence_section = {'type': 'damped',
                                 'lock_t_inner_cyles': 1,
