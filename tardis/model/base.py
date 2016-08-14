@@ -1,7 +1,9 @@
+import os
 import numpy as np
 from astropy import constants, units as u
 
 from tardis.util import quantity_linspace
+from tardis.io.model_reader import read_density_file
 from density import HomologousDensity
 
 
@@ -178,7 +180,6 @@ class Radial1DModel(object):
 
     @classmethod
     def from_config(cls, config):
-        # TODO: Currently only supporting structure type specific
         t_inner = config.plasma.t_inner
         t_radiative = config.plasma.t_rads
         time_explosion = config.supernova.time_explosion
@@ -190,6 +191,16 @@ class Radial1DModel(object):
                                          structure.velocity.stop,
                                          structure.velocity.num + 1)
             homologous_density = HomologousDensity.from_config(config)
+        elif structure.type == 'file':
+            if os.path.isabs(structure.filename):
+                structure_fname = structure.filename
+            else:
+                structure_fname = os.path.join(config.config_dirname,
+                                               structure.filename)
+
+            time_0, velocity, density_0 = read_density_file(
+                structure_fname, structure.filetype)
+            homologous_density = HomologousDensity(density_0, time_0)
         else:
             raise NotImplementedError
 

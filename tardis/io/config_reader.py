@@ -734,6 +734,8 @@ class Configuration(ConfigurationNameSpace):
         else:
             validated_config_dict = config_dict
 
+        validated_config_dict.config_dirname = config_dirname
+
         #First let's see if we can find an atom_db anywhere:
         if test_parser:
             atom_data = None
