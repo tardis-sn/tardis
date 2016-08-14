@@ -12,9 +12,10 @@ logger = logging.getLogger(__name__)
 
 
 class Radial1DModel(object):
-    def __init__(self, velocity, homologous_density, abundance, t_inner,
-                 time_explosion, t_radiative=None, dilution_factor=None,
-                 v_boundary_inner=None, v_boundary_outer=None):
+    def __init__(self, velocity, homologous_density, abundance, time_explosion,
+                 t_inner, luminosity_requested=None, t_radiative=None,
+                 dilution_factor=None, v_boundary_inner=None,
+                 v_boundary_outer=None):
         self._v_boundary_inner = None
         self._v_boundary_outer = None
         self._velocity = None
@@ -23,8 +24,17 @@ class Radial1DModel(object):
         self.raw_velocity = velocity
         self.homologous_density = homologous_density
         self._abundance = abundance
-        self.t_inner = t_inner
         self.time_explosion = time_explosion
+        if t_inner is None:
+            if luminosity_requested is not None:
+                self.t_inner = ((luminosity_requested /
+                                (4 * np.pi * self.r_inner[0] ** 2 *
+                                 constants.sigma_sb)) ** .25).to('K')
+            else:
+                raise ValueError('Both t_inner and luminosity_requested cannot '
+                                 'be None.')
+        else:
+            self.t_inner = t_inner
 
         if t_radiative is None:
             lambda_wien_inner = constants.b_wien / self.t_inner
@@ -184,7 +194,6 @@ class Radial1DModel(object):
 
     @classmethod
     def from_config(cls, config):
-        t_inner = config.plasma.t_inner
         time_explosion = config.supernova.time_explosion
 
         structure = config.model.structure
@@ -211,6 +220,13 @@ class Radial1DModel(object):
             t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
+
+        if config.plasma.initial_t_inner < 0.0 * u.K:
+            luminosity_requested = config.supernova.luminosity_requested
+            t_inner = None
+        else:
+            luminosity_requested = None
+            t_inner = config.plasma.initial_t_inner
 
         abundances_section = config.model.abundances
         if abundances_section.type == 'uniform':
@@ -249,9 +265,10 @@ class Radial1DModel(object):
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
                    abundance=abundance,
-                   t_inner=t_inner,
                    time_explosion=time_explosion,
                    t_radiative=t_radiative,
+                   t_inner=t_inner,
+                   luminosity_requested=luminosity_requested,
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
                    v_boundary_outer=structure.get('v_outer_boundary', None))

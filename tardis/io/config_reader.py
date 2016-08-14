@@ -889,17 +889,6 @@ class Configuration(ConfigurationNameSpace):
         ########### DOING PLASMA SECTION ###############
         plasma_section = validated_config_dict['plasma']
 
-        if plasma_section['initial_t_inner'] < 0.0 * u.K:
-            luminosity_requested = validated_config_dict['supernova']['luminosity_requested']
-            plasma_section['t_inner'] = ((luminosity_requested /
-                                          (4 * np.pi * r_inner[0] ** 2 *
-                                           constants.sigma_sb)) ** .25).to('K')
-            logger.info('"initial_t_inner" is not specified in the plasma '
-                        'section - initializing to %s with given luminosity',
-                        plasma_section['t_inner'])
-        else:
-            plasma_section['t_inner'] = plasma_section['initial_t_inner']
-
         if plasma_section['disable_electron_scattering'] is False:
             logger.debug("Electron scattering switched on")
             validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
