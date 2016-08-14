@@ -15,19 +15,35 @@ class HomologousDensity(object):
     @classmethod
     def from_config(cls, config):
         d_conf = config.structure.density
+        velocity = quantity_linspace(config.structure.velocity.start,
+                                     config.structure.velocity.stop,
+                                     config.structure.velocity.num + 1)
+
+        adjusted_velocity = velocity.insert(0, 0)
+        v_middle = (adjusted_velocity[1:] * 0.5 +
+                    adjusted_velocity[:-1] * 0.5)
+        no_of_shells = len(adjusted_velocity) - 1
+
         if d_conf.type == 'branch85_w7':
-            # This is temporary, until the old model is removed.
-            velocity = quantity_linspace(config.structure.velocity.start,
-                                         config.structure.velocity.stop,
-                                         config.structure.velocity.num + 1)
-            adjusted_velocity = velocity.insert(0, 0)
-            v_middle = (adjusted_velocity[1:] * 0.5 +
-                        adjusted_velocity[:-1] * 0.5)
             density_0 = calculate_power_law_density(v_middle, d_conf.w7_v_0,
                                                     d_conf.w7_rho_0, -7)
             return cls(density_0, d_conf.w7_time_0)
+        elif d_conf.type == 'uniform':
+            density_0 = (config.density.value.to('g cm^-3') *
+                         np.ones(no_of_shells))
+            return cls(density_0, config.supernova.time_explosion)
+        elif d_conf.type == 'power_law':
+            density_0 = calculate_power_law_density(v_middle, d_conf.v_0,
+                                                    d_conf.rho_0,
+                                                    d_conf.exponent)
+            return cls(density_0, d_conf.time_0)
+        elif d_conf.type == 'exponential':
+            density_0 = calculate_exponential_density(v_middle, d_conf.v_0,
+                                                      d_conf.rho_0)
+            return cls(density_0, d_conf.time_0)
         else:
-            raise NotImplementedError
+            raise ValueError("Unrecognized density type "
+                             "'{}'".format(d_conf.type))
 
 
 def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
