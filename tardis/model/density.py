@@ -32,7 +32,8 @@ class HomologousDensity(object):
         elif d_conf.type == 'uniform':
             density_0 = (config.density.value.to('g cm^-3') *
                          np.ones(no_of_shells))
-            return cls(density_0, time_explosion)
+            time_0 = d_conf.get('time_0', time_explosion)
+            return cls(density_0, time_0)
         elif d_conf.type == 'power_law':
             density_0 = calculate_power_law_density(v_middle, d_conf.v_0,
                                                     d_conf.rho_0,
