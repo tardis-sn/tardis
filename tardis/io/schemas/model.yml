@@ -48,7 +48,6 @@ definitions:
           type: quantity
           description: at what velocity the density rho_0 applies
       required:
-      - time_0
       - rho_0
       - v_0
     power_law:
@@ -71,7 +70,6 @@ definitions:
           type: number
           description: exponent for exponential density profile
       required:
-      - time_0
       - rho_0
       - v_0
       - exponent
