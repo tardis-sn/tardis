@@ -181,7 +181,6 @@ class Radial1DModel(object):
     @classmethod
     def from_config(cls, config):
         t_inner = config.plasma.t_inner
-        t_radiative = config.plasma.t_rads
         time_explosion = config.supernova.time_explosion
         abundance = config.abundances
 
@@ -203,6 +202,12 @@ class Radial1DModel(object):
             homologous_density = HomologousDensity(density_0, time_0)
         else:
             raise NotImplementedError
+        no_of_shells = len(velocity) - 1
+
+        if config.plasma.initial_t_rad > 0 * u.K:
+            t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
+        else:
+            t_radiative = None
 
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
