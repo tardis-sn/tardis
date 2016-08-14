@@ -216,5 +216,5 @@ class Radial1DModel(object):
                    time_explosion=time_explosion,
                    t_radiative=t_radiative,
                    dilution_factor=None,
-                   v_boundary_inner=None,
-                   v_boundary_outer=None)
+                   v_boundary_inner=structure.get('v_inner_boundary', None),
+                   v_boundary_outer=structure.get('v_outer_boundary', None))
