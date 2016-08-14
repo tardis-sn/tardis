@@ -1,10 +1,14 @@
 import os
+import logging
 import numpy as np
+import pandas as pd
 from astropy import constants, units as u
 
-from tardis.util import quantity_linspace
-from tardis.io.model_reader import read_density_file
+from tardis.util import quantity_linspace, element_symbol2atomic_number
+from tardis.io.model_reader import read_density_file, read_abundances_file
 from density import HomologousDensity
+
+logger = logging.getLogger(__name__)
 
 
 class Radial1DModel(object):
@@ -182,7 +186,6 @@ class Radial1DModel(object):
     def from_config(cls, config):
         t_inner = config.plasma.t_inner
         time_explosion = config.supernova.time_explosion
-        abundance = config.abundances
 
         structure = config.model.structure
         if structure.type == 'specific':
@@ -208,6 +211,40 @@ class Radial1DModel(object):
             t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
+
+        abundances_section = config.model.abundances
+        if abundances_section.type == 'uniform':
+            abundance = pd.DataFrame(columns=np.arange(no_of_shells),
+                                     index=pd.Index(np.arange(1, 120),
+                                                    name='atomic_number'),
+                                     dtype=np.float64)
+
+            for element_symbol_string in abundances_section:
+                if element_symbol_string == 'type':
+                    continue
+                z = element_symbol2atomic_number(element_symbol_string)
+                abundance.ix[z] = float(abundances_section[element_symbol_string])
+
+        elif abundances_section.type == 'file':
+            if os.path.isabs(abundances_section.filename):
+                abundances_fname = abundances_section.filename
+            else:
+                abundances_fname = os.path.join(config.config_dirname,
+                                                abundances_section.filename)
+
+            index, abundance = read_abundances_file(abundances_fname,
+                                                    abundances_section.filetype)
+
+        abundance = abundance.replace(np.nan, 0.0)
+        abundance = abundance[abundance.sum(axis=1) > 0]
+
+        norm_factor = abundance.sum(axis=0)
+
+        if np.any(np.abs(norm_factor - 1) > 1e-12):
+            logger.warning("Abundances have not been normalized to 1."
+                           " - normalizing")
+            abundance /= norm_factor
+
 
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
