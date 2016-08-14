@@ -836,45 +836,6 @@ class Configuration(ConfigurationNameSpace):
         # ^^^^^^^^^^^^^^^^
 
 
-        abundances_section = model_section['abundances']
-
-        if abundances_section['type'] == 'uniform':
-            abundances = pd.DataFrame(columns=np.arange(no_of_shells),
-                                      index=pd.Index(np.arange(1, 120), name='atomic_number'), dtype=np.float64)
-
-            for element_symbol_string in abundances_section:
-                if element_symbol_string == 'type': continue
-                z = element_symbol2atomic_number(element_symbol_string)
-                abundances.ix[z] = float(abundances_section[element_symbol_string])
-
-        elif abundances_section['type'] == 'file':
-            if os.path.isabs(abundances_section['filename']):
-                abundances_fname = abundances_section['filename']
-            else:
-                abundances_fname = os.path.join(config_dirname,
-                                                abundances_section['filename'])
-
-            index, abundances = read_abundances_file(abundances_fname,
-                                                     abundances_section['filetype'],
-                                                     inner_boundary_index, outer_boundary_index)
-            if len(index) != no_of_shells:
-                raise ConfigurationError('The abundance file specified has not the same number of cells'
-                                         'as the specified density profile')
-
-        abundances = abundances.replace(np.nan, 0.0)
-
-        abundances = abundances[abundances.sum(axis=1) > 0]
-
-        norm_factor = abundances.sum(axis=0)
-
-        if np.any(np.abs(norm_factor - 1) > 1e-12):
-            logger.warning("Abundances have not been normalized to 1. - normalizing")
-            abundances /= norm_factor
-
-        validated_config_dict['abundances'] = abundances
-
-
-
         ########### DOING PLASMA SECTION ###############
         plasma_section = validated_config_dict['plasma']
 
