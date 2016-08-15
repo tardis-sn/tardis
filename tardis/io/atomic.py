@@ -243,7 +243,6 @@ class AtomData(object):
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
 
-
     def _check_related(self):
         """ Check that either all or none of the related dataframes are given."""
         for group in self.related_groups:
@@ -254,7 +253,6 @@ class AtomData(object):
                     "The following dataframes from the related group [{0}] "
                     "were not given: {1}".format(", ".join(group), ", ".join(check_list))
                 )
-
 
     def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
                           nlte_species=[]):
