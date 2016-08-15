@@ -22,6 +22,7 @@ env:
         - TEST_MODE='normal'
         - ATOM_DATA_URL='http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
+        - CARSUS_DB_URL='https://github.com/tardis-sn/carsus-db.git'
 
 matrix:
     include:
@@ -66,11 +67,16 @@ before_install:
     - export PATH=$HOME/miniconda/bin:$PATH
     - hash -r
     - conda update --yes conda
-    - if [[ $TEST_MODE == 'spectrum' ]]; then wget $ATOM_DATA_URL; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
+
+    - if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c ostrokach git-lfs=1.2.1 -y; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $CARSUS_DB_URL $HOME/carsus-db; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $HOME/carsus-db; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="test_hdfstores/" origin; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip test_hdfstores/kurucz_cd23_chianti_H_He.zip -d $HOME; fi
 
 install:
+   - cd $TRAVIS_BUILD_DIR
    - conda env create -f tardis_env27.yml
    - source activate tardis
 

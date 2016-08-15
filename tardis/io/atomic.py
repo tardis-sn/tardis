@@ -3,18 +3,20 @@
 import os
 import logging
 import tardis
-import cPickle as pickle
-from collections import OrderedDict
-
-import h5py
 import numpy as np
 import pandas as pd
+
 from scipy import interpolate
-from astropy import table, units, constants
-from pandas import DataFrame
+from collections import OrderedDict
+from astropy import units as u
+from astropy import constants as const
+from astropy.units import Quantity
 
 
 class AtomDataNotPreparedError(Exception):
+    pass
+
+class AtomDataMissingError(Exception):
     pass
 
 
@@ -22,14 +24,17 @@ logger = logging.getLogger(__name__)
 
 tardis_dir = os.path.dirname(os.path.realpath(tardis.__file__))
 
+
 def data_path(fname):
     return os.path.join(tardis_dir, 'data', fname)
+
 
 def tests_data_path(fname):
     return os.path.join(tardis_dir, 'tests', 'data', fname)
 
 
 default_atom_h5_path = data_path('atom_data.h5')
+
 atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
                                     names=['atomic_number', 'symbol'])
 
@@ -38,270 +43,111 @@ symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
 atomic_number2symbol = OrderedDict(atomic_symbols_data)
 
 
-@PendingDeprecationWarning
-def read_atomic_data(fname=None):
-    return read_basic_atom_data(fname)
-
-
-def read_hdf5_data(fname, dset_name):
-    """This function reads the dataset (dset_name) from the hdf5 file (fname).
-    In addition it uses the attribute 'units' and parses it to the `~astropy.table.Table` constructor.
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        returns the respective
-    """
-
-    h5_file = h5py.File(fname, 'r')
-    dataset = h5_file[dset_name]
-    data = np.asarray(dataset)
-    #    data_units = dataset.attrs['units']
-
-    data_table = table.Table(data)
-
-    #    for i, col_unit in enumerate(data_units):
-    #        if col_unit == 'n':
-    #            data_table.columns[i].units = None
-    #        elif col_unit == '1':
-    #            data_table.columns[i].units = units.Unit(1)
-    #        else:
-    #            data_table.columns[i].units = units.Unit(col_unit)
-
-    h5_file.close()
-
-    return data_table
-
-
-def read_basic_atom_data(fname=None):
-    """This function reads the atomic number, symbol, and mass from hdf5 file
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        table with fields z[1], symbol, mass[u]
-    """
-
-    data_table = read_hdf5_data(fname, 'basic_atom_data')
-    #    data_table.columns['mass'] = units.Unit('u').to('g', data_table['mass'])
-
-    return data_table
-
-
-def read_ionization_data(fname=None):
-    """This function reads the atomic number, ion number, and ionization energy from hdf5 file
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        table with fields z[1], ion[1], ionization_energy[eV]
-        .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
-                  to twice ionized ion=2, etc.
-    """
-
-    data_table = read_hdf5_data(fname, 'ionization_data')
-    #data_table.columns['ionization_energy'] = units.Unit('eV').to('erg', data_table.columns['ionization_energy'])
-
-    return data_table
-
-
-def read_levels_data(fname=None):
-    """This function reads atomic number, ion number, level_number, energy, g, metastable
-    information from hdf5 file.
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        table with fields z[1], ion[1], level_number, energy, g, metastable
-    """
-
-    data_table = read_hdf5_data(fname, 'levels_data')
-    #data_table.columns['energy'].convert_units_to('erg')
-    #data_table.columns['energy'] = units.Unit('eV').to('erg', data_table.columns['energy'])
-
-
-    return data_table
-
-
-def read_synpp_refs(fname):
-    data_table = h5py.File(fname, 'r')['synpp_refs']
-
-    return data_table.__array__()
-
-
-def read_lines_data(fname=None):
-    """
-    This function reads the wavelength, atomic number, ion number, f_ul, f_l and level id information
-     from hdf5 file
-
-    Parameters
-    ----------
-
-    fname : `str`, optional
-        path to atomic.h5 file, if set to None it will read in default data directory
-
-    Returns
-    -------
-
-    data : `~astropy.table.Table`
-        table with fields wavelength, atomic_number, ion_number, f_ul, f_lu, level_id_lower, level_id_upper.
-    """
-
-    data_table = read_hdf5_data(fname, 'lines_data')
-    #data_table.columns['ionization_energy'].convert_units_to('erg')
-
-    return data_table
-
-
-def read_zeta_data(fname):
-    """
-    This function reads the recombination coefficient data from the HDF5 file
-
-
-    :return:
-    """
-
-    if fname is None:
-        raise ValueError('fname can not be "None" when trying to use NebularAtom')
-
-    if not os.path.exists(fname):
-        raise IOError('HDF5 File doesn\'t exist')
-
-    h5_file = h5py.File(fname, 'r')
-
-    if 'zeta_data' not in h5_file.keys():
-        raise ValueError('zeta_data not available in this HDF5-data file. It can not be used with NebularAtomData')
-
-    zeta_data = h5_file['zeta_data']
-    t_rads = zeta_data.attrs['t_rad']
-    return pd.DataFrame(zeta_data[:,2:], index=pd.MultiIndex.from_arrays(zeta_data[:,:2].transpose().astype(int)),
-                 columns=t_rads)
-
-
-def read_collision_data(fname):
-    if fname is None:
-        raise ValueError('fname can not be "None" when trying to use NebularAtom')
-
-    if not os.path.exists(fname):
-        raise IOError('HDF5 File doesn\'t exist')
-
-    h5_file = h5py.File(fname, 'r')
-
-    if 'collision_data' not in h5_file.keys():
-        raise ValueError('collision_data not available in this HDF5-data file. It can not be used with NLTE')
-
-    collision_data = np.array(h5_file['collision_data'])
-    collision_temperatures = h5_file['collision_data'].attrs['temperatures']
-
-    return collision_data, collision_temperatures
-
-
-def read_ion_cx_data(fname):
-    try:
-        h5_file = h5py.File(fname, 'r')
-        ion_cx_th_data = h5_file['ionization_cx_threshold']
-        ion_cx_sp_data = h5_file['ionization_cx_support']
-        return ion_cx_th_data, ion_cx_sp_data
-    except IOError, err:
-        print(err.errno)
-        print(err)
-        logger.critical('Cannot import. Error opening the file to read ionization_cx')
-
-
-def read_macro_atom_data(fname):
-    if fname is None:
-        raise ValueError('fname can not be "None" when trying to use NebularAtom')
-
-    if not os.path.exists(fname):
-        raise IOError('HDF5 File doesn\'t exist')
-
-    h5_file = h5py.File(fname, 'r')
-
-    if 'macro_atom_data' not in h5_file.keys():
-        raise ValueError('Macro Atom Data (macro_atom_data) is not in this HDF5-data file. '
-                         'It is needed for complex line interaction')
-    macro_atom_data = h5_file['macro_atom_data']
-
-    macro_atom_counts = h5_file['macro_atom_references']
-
-    return macro_atom_data, macro_atom_counts
-
-
 class AtomData(object):
     """
     Class for storing atomic data
 
-    AtomData
-    ---------
-
     Parameters
     ----------
+    atom_data: pandas.DataFrame
+        A DataFrame containing the *basic atomic data* with:
+            index: atomic_number;
+            columns: symbol, name, mass[u].
 
-    basic_atom_data : `~astropy.table.Table`
-        containing the basic atom data: z, symbol, and mass
+    ionization_data: pandas.DataFrame
+        A DataFrame containing the *ionization data* with:
+            index: atomic_number, ion_number;
+            columns: ionization_energy[eV].
 
-    ionization_data : ~astropy.table.Table
-        containing the ionization data: z, ion, and ionization energy
-        ::important to note here is that ion describes the final ion state
-            e.g. H I - H II is described with ion=2
+       It is important to note here is that `ion_number` describes the *final ion state*
+            e.g. H I - H II is described with ion=1
 
-    levels : ~astropy.table.Table
-        containing the levels data: z, ion, level_number, energy, g
+    levels: pandas.DataFrame
+        A DataFrame containing the *levels data* with:
+            index: no index;
+            columns: atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
 
-    lines : ~astropy.table.Table
-        containing the lines data: wavelength, z, ion, levels_number_lower,
-        levels_number_upper, f_lu, f_ul
+    lines: pandas.DataFrame
+        A DataFrame containing the *lines data* with:
+            index: no index;
+            columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
+                wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
-    macro_atom_data : tuple of ~astropy.table.Table
-        default ~None, a tuple of the macro-atom data and macro-atom references
+    macro_atom_data:
+        A DataFrame containing the *macro atom data* with:
+            index: no_index;
+            columns: atomic_number, ion_number, source_level_number, destination_level_number,
+                transition_line_id, transition_type, transition_probability;
 
-    zeta_data : ~dict of interpolation objects
-        default ~None
+    macro_atom_references:
+        A DataFrame containing  the *macro atom references* with:
+            index: no_index;
+            columns: atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
+
+        Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
+
+    collision_data: (pandas.DataFrame, np.array)
+        A DataFrame containing the *electron collisions data* with:
+            index: atomic_number, ion_number, level_number_lower, level_number_upper;
+            columns: e_col_id, delta_e, g_ratio, c_ul;
+
+    collision_data_temperatures: np.array
+        An array with the collision temperatures.
+
+    zeta_data: ?
+    synpp_refs: ?
+    ion_cx_tx_data: ?
+    ion_cx_sp_data: ?
+
+    Attributes
+    -------------
+    prepared: bool
+
+    atom_data: pandas.DataFrame
+    ionization_data: pandas.DataFrame
+    macro_atom_data_all: pandas.DataFrame
+    macro_atom_references_all: pandas.DataFrame
+    collision_data: pandas.DataFrame
+    collision_data_temperatures: numpy.array
+    zeta_data: pandas.DataFrame
+    synpp_refs: pandas.DataFrame
+    ion_cx_tx_data: pandas.DataFrame
+    ion_cx_sp_data: pandas.DataFrame
+    symbol2atomic_number: OrderedDict
+    atomic_number2symbol OrderedDict
+
+    Methods
+    --------
+    from_hdf
+    prepare_atom_data
+
+    Notes
+    ------
+    1. The units of some columns are given in the square brackets. They are **NOT** the parts of columns' names!
 
     """
 
+    hdf_names = ["atom_data", "ionization_data", "levels", "lines",
+                 "macro_atom_data", "macro_atom_references", "zeta_data", "collision_data",
+                 "collision_data_temperatures", "synpp_refs", "ion_cx_th_data", "ion_cx_sp_data"]
+
+    # List of tuples of the related dataframes.
+    # Either all or none of the related dataframes must be given
+    related_groups = [("macro_atom_data_all", "macro_atom_references_all"),
+                      ("collision_data", "collision_data_temperatures")]
+
     @classmethod
-    def from_hdf5(cls, fname=None):
+    def from_hdf(cls, fname=None):
         """
-        Function to read all the atom data from a special TARDIS HDF5 File.
+        Function to read all the atom data from the special Carsus HDFStore file.
 
         Parameters
         ----------
 
         fname: str, optional
-            the default for this is `None` and then it will use the very limited atomic_data shipped with TARDIS
-            For more complex atomic data please contact the authors.
-
-        use_macro_atom:
-            default `False`. Set to `True`, if you want to read in macro_atom_data
+            The path to the HDFStore file. If set to `None` the default file with limited atomic_data
+            shipped with TARDIS will be used. For more complex atomic data please contact the authors.
+            (default: None)
         """
 
         if fname is None:
@@ -310,148 +156,103 @@ class AtomData(object):
         if not os.path.exists(fname):
             raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
 
-        atom_data = read_basic_atom_data(fname)
-        ionization_data = read_ionization_data(fname)
-        levels_data = read_levels_data(fname)
-        lines_data = read_lines_data(fname)
+        dataframes = dict()
+        nonavailable = list()
 
-        with h5py.File(fname, 'r') as h5_file:
-            h5_datasets = h5_file.keys()
+        with pd.HDFStore(fname) as store:
+            for name in cls.hdf_names:
+                try:
+                    dataframes[name] = store[name]
+                except KeyError:
+                    nonavailable.append(name)
 
-        if 'macro_atom_data' in h5_datasets:
-            macro_atom_data = read_macro_atom_data(fname)
-        else:
-            macro_atom_data = None
+            atom_data = cls(**dataframes)
 
-        if 'zeta_data' in h5_datasets:
-            zeta_data = read_zeta_data(fname)
-        else:
-            zeta_data = None
+            try:
+                atom_data.uuid1 = store.root._v_attrs['uuid1']
+            except KeyError:
+                atom_data.uuid1 = None
 
-        if 'collision_data' in h5_datasets:
-            collision_data, collision_data_temperatures = read_collision_data(fname)
-        else:
-            collision_data, collision_data_temperatures = (None, None)
+            try:
+                atom_data.md5 = store.root._v_attrs['md5']
+            except KeyError:
+                atom_data.md5 = None
 
-        if 'synpp_refs' in h5_datasets:
-            synpp_refs = read_synpp_refs(fname)
-        else:
-            synpp_refs = None
+            try:
+                atom_data.version = store.root._v_attrs['database_version']
+            except KeyError:
+                atom_data.version = None
 
-        if 'ion_cx_data' in h5_datasets and 'ion_cx_data' in h5_datasets:
-            ion_cx_data = read_ion_cx_data(fname)
-        else:
-            ion_cx_data = None
+            # ToDo: strore data sources as attributes in carsus
 
-        atom_data = cls(atom_data=atom_data, ionization_data=ionization_data, levels_data=levels_data,
-                        lines_data=lines_data, macro_atom_data=macro_atom_data, zeta_data=zeta_data,
-                        collision_data=(collision_data, collision_data_temperatures), synpp_refs=synpp_refs,
-                        ion_cx_data=ion_cx_data)
-
-        with h5py.File(fname, 'r') as h5_file:
-            atom_data.uuid1 = h5_file.attrs['uuid1']
-            atom_data.md5 = h5_file.attrs['md5']
-            atom_data.version = h5_file.attrs.get('database_version', None)
-
-            if atom_data.version is not None:
-                atom_data.data_sources = pickle.loads(h5_file.attrs['data_sources'])
-
-            logger.info('Read Atom Data with UUID=%s and MD5=%s', atom_data.uuid1, atom_data.md5)
+            logger.info(
+                "Read Atom Data with UUID={0} and MD5={1}. "
+                "Not found: {2}".format(atom_data.uuid1, atom_data.md5, ", ".join(nonavailable))
+            )
 
         return atom_data
 
-    def __init__(self, atom_data, ionization_data, levels_data, lines_data, macro_atom_data=None, zeta_data=None,
-                 collision_data=None, synpp_refs=None, ion_cx_data=None):
+    def __init__(self, atom_data, ionization_data, levels=None, lines=None,
+                 macro_atom_data=None, macro_atom_references=None, zeta_data=None,
+                 collision_data=None, collision_data_temperatures=None, synpp_refs=None,
+                 ion_cx_th_data=None, ion_cx_sp_data=None):
 
         self.prepared = False
 
-        if levels_data is not None:
-            self.has_levels = True
-        else:
-            self.has_levels = False
+        # CONVERT VALUES TO CGS UNITS
 
-        if lines_data is not None:
-            self.has_lines = True
-        else:
-            self.has_lines = False
-
-        if macro_atom_data is not None:
-            self.has_macro_atom = True
-            self.macro_atom_data_all = DataFrame(macro_atom_data[0].__array__())
-            self.macro_atom_references_all = DataFrame(macro_atom_data[1].__array__())
-        else:
-            self.has_macro_atom = False
-
-        if ion_cx_data is not None:
-            self.has_ion_cx_data = True
-            #TODO:Farm a panda here
-            self.ion_cx_th_data = DataFrame(np.array(ion_cx_data[0]))
-            self.ion_cx_th_data.set_index(['atomic_number', 'ion_number', 'level_id'], inplace=True)
-
-            self.ion_cx_sp_data = DataFrame(np.array(ion_cx_data[1]))
-            self.ion_cx_sp_data.set_index(['atomic_number', 'ion_number', 'level_id'])
-        else:
-            self.has_ion_cx_data = False
-
-        if zeta_data is not None:
-            self.zeta_data = zeta_data
-            self.has_zeta_data = True
-        else:
-            self.has_zeta_data = False
-
-        if collision_data[0] is not None:
-            self.collision_data = DataFrame(collision_data[0])
-            self.collision_data_temperatures = collision_data[1]
-            self.collision_data.set_index(['atomic_number', 'ion_number', 'level_number_lower', 'level_number_upper'],
-                                          inplace=True)
-
-            self.has_collision_data = True
-        else:
-            self.has_collision_data = False
-
-        if synpp_refs is not None:
-            self.has_synpp_refs = True
-            self.synpp_refs = pd.DataFrame(synpp_refs)
-            self.synpp_refs.set_index(['atomic_number', 'ion_number'], inplace=True)
-
-        else:
-            self.has_synpp_refs = False
-
-        self.atom_data = DataFrame(atom_data.__array__())
-        self.atom_data.set_index('atomic_number', inplace=True)
+        # Convert atomic masses to CGS
         # We have to use constants.u because astropy uses different values for the unit u and the constant.
         # This is changed in later versions of astropy (the value of constants.u is used in all cases)
-        if units.u.cgs == constants.u.cgs:
-            self.atom_data.mass = units.Quantity(self.atom_data.mass.values, 'u').cgs
+        if u.u.cgs == const.u.cgs:
+            atom_data.loc[:, "mass"] = Quantity(atom_data["mass"].values, "u").cgs
         else:
-            self.atom_data.mass = constants.u.cgs * self.atom_data.mass.values
+            atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs
 
-        self.ionization_data = DataFrame(ionization_data.__array__())
-        self.ionization_data.set_index(['atomic_number', 'ion_number'], inplace=True)
-        self.ionization_data.ionization_energy = units.Quantity(self.ionization_data.ionization_energy.values, 'eV').cgs
+        # Convert ionization energies to CGS
+        ionization_data.loc[:, "ionization_energy"] = Quantity(ionization_data["ionization_energy"].values, "eV").cgs
 
-        self.levels = DataFrame(levels_data.__array__())
-        self.levels.energy = units.Quantity(self.levels.energy.values, 'eV').cgs
+        # Convert energy to CGS
+        levels.loc[:, "energy"] = Quantity(levels["energy"].values, 'eV').cgs
 
-        self.lines = DataFrame(lines_data.__array__())
-        self.lines['nu'] = units.Quantity(self.lines['wavelength'], 'angstrom').to('Hz', units.spectral())
-        self.lines['wavelength_cm'] = units.Quantity(self.lines['wavelength'], 'angstrom').cgs
+        # Create a new columns with wavelengths in the CGS units
+        lines.loc[:, 'wavelength_cm'] = Quantity(lines['wavelength'], 'angstrom').cgs
 
+        # SET ATTRIBUTES
 
+        self.atom_data = atom_data
+        self.ionization_data = ionization_data
+        self.levels = levels
+        self.lines = lines
 
+        # Rename these (drop "_all") when `prepare_atom_data` is removed!
+        self.macro_atom_data_all = macro_atom_data
+        self.macro_atom_references_all = macro_atom_references
 
-        #tmp_lines_index = pd.MultiIndex.from_arrays(self.lines)
-        #self.lines_inde
+        self.zeta_data = zeta_data
+
+        self.collision_data = collision_data
+        self.collision_data_temperatures = collision_data_temperatures
+
+        self.synpp_refs = synpp_refs
+        self.ion_cx_th_data = ion_cx_th_data
+        self.ion_cx_sp_data = ion_cx_sp_data
+
+        self._check_related()
 
         self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
         self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
 
+    def _check_related(self):
+        """ Check that either all or none of the related dataframes are given."""
+        for group in self.related_groups:
+            check_list = [name for name in group if getattr(self, name) is None]
 
-
-
-        self.ion_cx_data = ion_cx_data
-
-
+            if len(check_list) != 0 and len(check_list) != len(group):
+                raise AtomDataMissingError(
+                    "The following dataframes from the related group [{0}] "
+                    "were not given: {1}".format(", ".join(group), ", ".join(check_list))
+                )
 
     def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
                           nlte_species=[]):
@@ -482,112 +283,109 @@ class AtomData(object):
         self.nlte_species = nlte_species
         self.levels = self.levels.reset_index(drop=True)
 
-        self.levels = self.levels[self.levels['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.levels = self.levels.loc[self.levels['atomic_number'].isin(self.selected_atomic_numbers)].copy()
 
         if max_ion_number is not None:
-            self.levels = self.levels[self.levels['ion_number'] <= max_ion_number]
+            self.levels = self.levels.loc[self.levels['ion_number'] <= max_ion_number].copy()
 
         self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
 
-
         self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
         #cutting levels_lines
-        self.lines = self.lines[self.lines['atomic_number'].isin(self.selected_atomic_numbers)]
+        self.lines = self.lines.loc[self.lines['atomic_number'].isin(self.selected_atomic_numbers)].copy()
         if max_ion_number is not None:
-            self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
+            self.lines = self.lines.loc[self.lines['ion_number'] <= max_ion_number].copy()
 
         # self.lines.sort(['wavelength', 'line_id'], inplace=True)
-        self.lines.sort(['wavelength'], inplace=True)
-        self.lines.set_index('line_id', inplace=True)
-
-
+        self.lines = self.lines.sort(['wavelength'])
+        self.lines = self.lines.set_index('line_id')
 
         self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
 
-        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_lower']])
+        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([
+            self.lines['atomic_number'], self.lines['ion_number'],self.lines['level_number_lower']
+        ])
 
-        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].values.astype(np.int64)
+        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].astype(np.int64).values
 
-        tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays([self.lines['atomic_number'], self.lines['ion_number'],
-                                                               self.lines['level_number_upper']])
+        tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays([
+            self.lines['atomic_number'], self.lines['ion_number'], self.lines['level_number_upper']
+        ])
 
-        self.lines_upper2level_idx = self.levels_index.ix[tmp_lines_upper2level_idx].values.astype(np.int64)
+        self.lines_upper2level_idx = self.levels_index.ix[tmp_lines_upper2level_idx].astype(np.int64).values
 
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
-        if self.has_macro_atom and not (line_interaction_type == 'scatter'):
-            self.macro_atom_data = self.macro_atom_data_all[
-                self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)]
+        if self.macro_atom_data_all is not None and not line_interaction_type == 'scatter':
+
+            self.macro_atom_data = self.macro_atom_data_all.loc[
+                self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)
+            ].copy()
 
             if max_ion_number is not None:
-                self.macro_atom_data = self.macro_atom_data[self.macro_atom_data['ion_number'] <= max_ion_number]
+                self.macro_atom_data = self.macro_atom_data.loc[
+                    self.macro_atom_data['ion_number'] <= max_ion_number
+                ].copy()
 
-            self.macro_atom_references = self.macro_atom_references_all[
-                self.macro_atom_references_all['atomic_number'].isin(
-                    self.selected_atomic_numbers)]
+            self.macro_atom_references = self.macro_atom_references_all.loc[
+                self.macro_atom_references_all['atomic_number'].isin(self.selected_atomic_numbers)
+            ].copy()
+
             if max_ion_number is not None:
-                self.macro_atom_references = self.macro_atom_references[
-                    self.macro_atom_references['ion_number'] <= max_ion_number]
+                self.macro_atom_references = self.macro_atom_references.loc[
+                    self.macro_atom_references['ion_number'] <= max_ion_number
+                ].copy()
 
             if line_interaction_type == 'downbranch':
-                self.macro_atom_data = self.macro_atom_data[(self.macro_atom_data['transition_type'] == -1).values]
+                self.macro_atom_data = self.macro_atom_data.loc[
+                    self.macro_atom_data['transition_type'] == -1
+                ].copy()
+                self.macro_atom_references = self.macro_atom_references.loc[
+                    self.macro_atom_references['count_down'] > 0
+                ].copy()
+                self.macro_atom_references.loc[:, 'count_total'] = self.macro_atom_references['count_down']
+                self.macro_atom_references.loc[:, 'block_references'] = np.hstack(
+                    (0, np.cumsum(self.macro_atom_references['count_down'].values[:-1]))
+                )
 
-                self.macro_atom_references = self.macro_atom_references[self.macro_atom_references['count_down'] > 0]
-                self.macro_atom_references['count_total'] = self.macro_atom_references['count_down']
-                self.macro_atom_references['block_references'] = np.hstack((0,
-                                                                            np.cumsum(self.macro_atom_references[
-                                                                                          'count_down'].values[:-1])))
             elif line_interaction_type == 'macroatom':
-                block_references = np.hstack((0, np.cumsum(
-                    self.macro_atom_references['count_total'].values[:-1])))
-                self.macro_atom_references.insert(len(
-                    self.macro_atom_references.columns), 'block_references',
-                    pd.Series(block_references,
-                    index=self.macro_atom_references.index))
+                self.macro_atom_references.loc[:, 'block_references'] = np.hstack(
+                    (0, np.cumsum(self.macro_atom_references['count_total'].values[:-1]))
+                )
 
-            self.macro_atom_references.set_index(['atomic_number', 'ion_number', 'source_level_number'], inplace=True)
-            self.macro_atom_references.insert(len(
-                    self.macro_atom_references.columns), 'references_idx',
-                    pd.Series(np.arange(len(self.macro_atom_references)),
-                    index=self.macro_atom_references.index))
+            self.macro_atom_references = self.macro_atom_references.set_index(
+                ['atomic_number', 'ion_number', 'source_level_number']
+            )
 
-            self.macro_atom_data.insert(len(
-                self.macro_atom_data.columns), 'lines_idx',
-                pd.Series(self.lines_index.ix[self.macro_atom_data[
-                'transition_line_id']].values,
-                index=self.macro_atom_data.index))
+            self.macro_atom_references.loc[:, "references_idx"] = np.arange(len(self.macro_atom_references))
 
-            tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays(
-                [self.lines['atomic_number'], self.lines['ion_number'],
-                 self.lines['level_number_upper']])
+            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.ix[
+                self.macro_atom_data['transition_line_id']
+            ].values
 
-            self.lines_upper2macro_reference_idx = self.macro_atom_references['references_idx'].ix[
-                tmp_lines_upper2level_idx].values.astype(np.int64)
-
-            tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([self.macro_atom_data['atomic_number'],
-                                                                         self.macro_atom_data['ion_number'],
-                                                                         self.macro_atom_data[
-                                                                             'destination_level_number']])
+            self.lines_upper2macro_reference_idx = self.macro_atom_references.ix[
+                tmp_lines_upper2level_idx, 'references_idx'
+            ].astype(np.int64).values
 
             if line_interaction_type == 'macroatom':
-                #Sets all
+                # Sets all
+                tmp_macro_destination_level_idx = pd.MultiIndex.from_arrays([
+                    self.macro_atom_data['atomic_number'],
+                    self.macro_atom_data['ion_number'],
+                    self.macro_atom_data['destination_level_number']
+                ])
 
-                self.macro_atom_data.insert(len(
-                    self.macro_atom_data.columns), 'destination_level_idx',
-                    pd.Series(self.macro_atom_references['references_idx'].ix[
-                    tmp_macro_destination_level_idx].values.astype(
-                        np.int64), index=self.macro_atom_data.index))
+                self.macro_atom_data.loc[:, 'destination_level_idx'] = self.macro_atom_references.ix[
+                    tmp_macro_destination_level_idx, "references_idx"
+                ].astype(np.int64).values  # why it is named `destination_level_idx` ?! It is reference index
 
             elif line_interaction_type == 'downbranch':
                 # Sets all the destination levels to -1 to indicate that they
                 # are not used in downbranch calculations
-                self.macro_atom_data.loc[:, 'destination_level_idx'] = (
-                    np.ones(len(self.macro_atom_data)) * -1).astype(np.int64)
+                self.macro_atom_data.loc[:, 'destination_level_idx'] = -1
 
         self.nlte_data = NLTEData(self, nlte_species)
-
 
     def __repr__(self):
         return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
@@ -604,7 +402,7 @@ class NLTEData(object):
             logger.info('Preparing the NLTE data')
             self._init_indices()
             self._create_nlte_mask()
-            if atom_data.has_collision_data:
+            if atom_data.collision_data is not None:
                 self._create_collision_coefficient_matrix()
         else:
             self._create_nlte_mask()
