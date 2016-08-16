@@ -483,13 +483,10 @@ class Simulation(object):
         ps_inner        = ps[ ps <= R_min_rel]
         z_ct_inner      = z_ct[:, ps <= R_min_rel]
 
-        # I will traverse from largest shell in, but
-        # elsewhere shell structure is from smallest and out,
-        # so this is for reversing it
-        shell_nr = np.arange(0,num_shell,dtype="int")[::-1]
 
- 
+        #Allocating stuff
         nus = self.runner.spectrum.frequency
+        L_nu  = np.zeros(nus.shape)
 
         #Just aliasing for cleaner expressions later
         line_nu  = model.plasma.lines.nu
@@ -498,12 +495,11 @@ class Simulation(object):
         T        = model.t_inner
 
         dtau = 0 # Just to remember it 
-        cnst = 0
 
-        L_nu  = np.zeros(nus.shape)
-
-        #### Debug ####
-        import pdb 
+        # I will traverse from largest shell in, but
+        # elsewhere shell structure is from smallest and out,
+        # so this is for reversing it
+        shell_nr = np.arange(0,num_shell,dtype="int")[::-1]
 
         for nu_idx,nu in enumerate(nus.value):
             I_outer = np.zeros(ps_outer.shape)
