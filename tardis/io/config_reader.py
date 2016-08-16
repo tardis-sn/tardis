@@ -747,9 +747,7 @@ class Configuration(ConfigurationNameSpace):
             yaml_dict, *args, **kwargs)
 
     @classmethod
-    def from_config_dict(cls, config_dict, atom_data=None, test_parser=False,
-                         validate=True,
-                         config_dirname=''):
+    def from_config_dict(cls, config_dict, validate=True, config_dirname=''):
         """
         Validating and subsequently parsing a config file.
 
@@ -759,14 +757,6 @@ class Configuration(ConfigurationNameSpace):
 
         config_dict : ~dict
             dictionary of a raw unvalidated config file
-
-        atom_data: ~tardis.atomic.AtomData
-            atom data object. if `None` will be tried to be read from
-            atom data file path in the config_dict [default=None]
-
-        test_parser: ~bool
-            switch on to ignore a working atom_data, mainly useful for
-            testing this reader
 
         validate: ~bool
             Turn validation on or off.
@@ -783,26 +773,6 @@ class Configuration(ConfigurationNameSpace):
             validated_config_dict = config_validator.validate_dict(config_dict)
         else:
             validated_config_dict = config_dict
-
-        #First let's see if we can find an atom_db anywhere:
-        if test_parser:
-            atom_data = None
-        elif 'atom_data' in validated_config_dict.keys():
-            if os.path.isabs(validated_config_dict['atom_data']):
-                atom_data_fname = validated_config_dict['atom_data']
-            else:
-                atom_data_fname = os.path.join(config_dirname,
-                                               validated_config_dict['atom_data'])
-            validated_config_dict['atom_data_fname'] = atom_data_fname
-        else:
-            raise ConfigurationError('No atom_data key found in config or command line')
-
-        if atom_data is None and not test_parser:
-            logger.info('Reading Atomic Data from %s', atom_data_fname)
-            atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
-        else:
-            atom_data = atom_data
-
 
 
         #Parsing supernova dictionary
@@ -1018,23 +988,8 @@ class Configuration(ConfigurationNameSpace):
         validated_config_dict['spectrum'] = parse_spectrum_list2dict(
             validated_config_dict['spectrum'])
 
-        return cls(validated_config_dict, atom_data)
+        return cls(validated_config_dict)
 
 
-    def __init__(self, config_dict, atom_data):
+    def __init__(self, config_dict):
         super(Configuration, self).__init__(config_dict)
-        self.atom_data = atom_data
-        selected_atomic_numbers = self.abundances.index
-        if atom_data is not None:
-            self.number_densities = (self.abundances * self.structure.mean_densities.to('g/cm^3').value)
-            self.number_densities = self.number_densities.div(self.atom_data.atom_data.mass.ix[selected_atomic_numbers],
-                                                              axis=0)
-        else:
-            logger.critical('atom_data is None, only sensible for testing the parser')
-
-
-
-
-
-
-
