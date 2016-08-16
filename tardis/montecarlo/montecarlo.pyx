@@ -93,7 +93,7 @@ cdef extern from "src/cmontecarlo.h":
 
 
 
-cdef initialize_storage_model(model, runner, storage_model_t *storage):
+cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     """
     Initializing the storage struct.
 
@@ -105,8 +105,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.packet_energies = <double*> PyArray_DATA(runner.input_energy)
 
     # Setup of structure
-    structure = model.tardis_config.structure
-    storage.no_of_shells = structure.no_of_shells
+    storage.no_of_shells = model.no_of_shells
 
 
     storage.r_inner = <double*> PyArray_DATA(runner.r_inner_cgs)
@@ -115,15 +114,14 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
 
     # Setup the rest
     # times
-    storage.time_explosion = model.tardis_config.supernova.time_explosion.to(
-        's').value
+    storage.time_explosion = model.time_explosion.to('s').value
     storage.inverse_time_explosion = 1.0 / storage.time_explosion
     #electron density
     storage.electron_densities = <double*> PyArray_DATA(
-        model.plasma.electron_densities.values)
+        plasma.electron_densities.values)
 
     runner.inverse_electron_densities = (
-        1.0 / model.plasma.electron_densities.values)
+        1.0 / plasma.electron_densities.values)
     storage.inverse_electron_densities = <double*> PyArray_DATA(
         runner.inverse_electron_densities)
     # Switch for continuum processes
@@ -146,10 +144,10 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
         storage.l_pop_r = <double*> l_pop_r.data
 
     # Line lists
-    storage.no_of_lines = model.atom_data.lines.nu.values.size
-    storage.line_list_nu = <double*> PyArray_DATA(model.atom_data.lines.nu.values)
+    storage.no_of_lines = plasma.atomic_data.lines.nu.values.size
+    storage.line_list_nu = <double*> PyArray_DATA(plasma.atomic_data.lines.nu.values)
     runner.line_lists_tau_sobolevs = (
-            model.plasma.tau_sobolevs.values.flatten(order='F')
+            plasma.tau_sobolevs.values.flatten(order='F')
             )
     storage.line_lists_tau_sobolevs = <double*> PyArray_DATA(
             runner.line_lists_tau_sobolevs
@@ -161,30 +159,30 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
             runner.Edotlu_estimator)
 
     storage.line_interaction_id = runner.get_line_interaction_id(
-        model.tardis_config.plasma.line_interaction_type)
+        runner.line_interaction_type)
 
     # macro atom & downbranch
     if storage.line_interaction_id >= 1:
         runner.transition_probabilities = (
-                model.plasma.transition_probabilities.values.flatten(order='F')
+                plasma.transition_probabilities.values.flatten(order='F')
         )
         storage.transition_probabilities = <double*> PyArray_DATA(
                 runner.transition_probabilities
                 )
         storage.transition_probabilities_nd = (
-        model.plasma.transition_probabilities.values.shape[0])
+        plasma.transition_probabilities.values.shape[0])
         storage.line2macro_level_upper = <int_type_t*> PyArray_DATA(
-            model.atom_data.lines_upper2macro_reference_idx)
+            plasma.atomic_data.lines_upper2macro_reference_idx)
         storage.macro_block_references = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_references['block_references'].values)
+            plasma.atomic_data.macro_atom_references['block_references'].values)
         storage.transition_type = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['transition_type'].values)
+            plasma.atomic_data.macro_atom_data['transition_type'].values)
 
         # Destination level is not needed and/or generated for downbranch
         storage.destination_level_id = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['destination_level_idx'].values)
+            plasma.atomic_data.macro_atom_data['destination_level_idx'].values)
         storage.transition_line_id = <int_type_t*> PyArray_DATA(
-            model.atom_data.macro_atom_data['lines_idx'].values)
+            plasma.atomic_data.macro_atom_data['lines_idx'].values)
 
     storage.output_nus = <double*> PyArray_DATA(runner._output_nu)
     storage.output_energies = <double*> PyArray_DATA(runner._output_energy)
@@ -203,25 +201,25 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.js = <double*> PyArray_DATA(runner.j_estimator)
     storage.nubars = <double*> PyArray_DATA(runner.nu_bar_estimator)
 
-    storage.spectrum_start_nu = model.tardis_config.spectrum.frequency.value.min()
-    storage.spectrum_end_nu = model.tardis_config.spectrum.frequency.value.max()
-    storage.spectrum_virt_start_nu = model.tardis_config.montecarlo.virtual_spectrum_range.end.to('Hz', units.spectral()).value
-    storage.spectrum_virt_end_nu = model.tardis_config.montecarlo.virtual_spectrum_range.start.to('Hz', units.spectral()).value
-    storage.spectrum_delta_nu = model.tardis_config.spectrum.frequency.value[1] - model.tardis_config.spectrum.frequency.value[0]
+    storage.spectrum_start_nu = runner.spectrum_frequency.value.min()
+    storage.spectrum_end_nu = runner.spectrum_frequency.value.max()
+    # TODO: Linspace handling for virtual_spectrum_range
+    storage.spectrum_virt_start_nu = runner.virtual_spectrum_range.stop.to('Hz', units.spectral()).value
+    storage.spectrum_virt_end_nu = runner.virtual_spectrum_range.start.to('Hz', units.spectral()).value
+    storage.spectrum_delta_nu = runner.spectrum_frequency.value[1] - runner.spectrum_frequency.value[0]
 
     storage.spectrum_virt_nu = <double*> PyArray_DATA(
         runner.legacy_montecarlo_virtual_luminosity)
 
-    storage.sigma_thomson = (
-        model.tardis_config.montecarlo.sigma_thomson.cgs.value)
+    storage.sigma_thomson = runner.sigma_thomson.cgs.value
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
-    storage.reflective_inner_boundary = model.tardis_config.montecarlo.enable_reflective_inner_boundary
-    storage.inner_boundary_albedo = model.tardis_config.montecarlo.inner_boundary_albedo
+    storage.reflective_inner_boundary = runner.enable_reflective_inner_boundary
+    storage.inner_boundary_albedo = runner.inner_boundary_albedo
     # Data for continuum implementation
-    cdef np.ndarray[double, ndim=1] t_electrons = model.plasma.t_electrons
+    cdef np.ndarray[double, ndim=1] t_electrons = plasma.t_electrons
     storage.t_electrons = <double*> t_electrons.data
 
-def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
+def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
                         int nthreads=4,last_run=False):
     """
     Parameters
@@ -253,10 +251,9 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
     cdef storage_model_t storage
 
-    initialize_storage_model(model, runner, &storage)
+    initialize_storage_model(model, plasma, runner, &storage)
 
-    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads,
-                         model.tardis_config.montecarlo.seed)
+    montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, runner.seed)
     cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
     cdef np.ndarray[double, ndim=1] virt_packet_last_interaction_in_nu = np.zeros(storage.virt_packet_count, dtype=np.float64)
@@ -298,8 +295,8 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
 
 def postprocess(model, runner):
     Edotlu_norm_factor = (1 /
-        (model.time_of_simulation * model.tardis_config.structure.volumes))
+        (runner.time_of_simulation * model.volume))
     exptau = 1 - np.exp(-
                         runner.line_lists_tau_sobolevs.reshape(-1,
                             runner.j_estimator.shape[0]) )
-    model.Edotlu = Edotlu_norm_factor*exptau*runner.Edotlu_estimator
+    runner.Edotlu = Edotlu_norm_factor*exptau*runner.Edotlu_estimator

@@ -460,11 +460,6 @@ def parse_supernova_section(supernova_dict):
 
     config_dict['time_explosion'] = parse_quantity(supernova_dict['time_explosion']).to('s')
 
-    if 'distance' in supernova_dict:
-        config_dict['distance'] = parse_quantity(supernova_dict['distance'])
-    else:
-        config_dict['distance'] = None
-
     if 'luminosity_wavelength_start' in supernova_dict:
         config_dict['luminosity_nu_end'] = parse_quantity(supernova_dict['luminosity_wavelength_start']). \
             to('Hz', u.spectral())
@@ -478,35 +473,6 @@ def parse_supernova_section(supernova_dict):
         config_dict['luminosity_nu_start'] = 0.0 * u.Hz
 
     return config_dict
-
-
-def parse_spectrum_list2dict(spectrum_list):
-    """
-    Parse the spectrum list [start, stop, num] to a list
-    """
-    if 'start' in spectrum_list and 'stop' in spectrum_list \
-            and 'num' in spectrum_list:
-        spectrum_list = [spectrum_list['start'], spectrum_list['stop'],
-                         spectrum_list['num']]
-    if spectrum_list[0].unit.physical_type != 'length' and \
-                    spectrum_list[1].unit.physical_type != 'length':
-        raise ValueError('start and end of spectrum need to be a length')
-
-
-    spectrum_config_dict = {}
-    spectrum_config_dict['start'] = spectrum_list[0]
-    spectrum_config_dict['end'] = spectrum_list[1]
-    spectrum_config_dict['bins'] = spectrum_list[2]
-
-    spectrum_frequency = quantity_linspace(
-        spectrum_config_dict['end'].to('Hz', u.spectral()),
-        spectrum_config_dict['start'].to('Hz', u.spectral()),
-        num=spectrum_config_dict['bins'] + 1)
-
-    spectrum_config_dict['frequency'] = spectrum_frequency
-
-    return spectrum_config_dict
-
 
 
 def parse_convergence_section(convergence_section_dict):
@@ -943,22 +909,6 @@ class Configuration(ConfigurationNameSpace):
         else:
             plasma_section['t_rads'] = None
 
-        if plasma_section['disable_electron_scattering'] is False:
-            logger.debug("Electron scattering switched on")
-            validated_config_dict['montecarlo']['sigma_thomson'] = 6.652486e-25 / (u.cm ** 2)
-        else:
-            logger.warn('Disabling electron scattering - this is not physical')
-            validated_config_dict['montecarlo']['sigma_thomson'] = 1e-200 / (u.cm ** 2)
-
-        if plasma_section['helium_treatment'] == 'recomb-nlte':
-            validated_config_dict['plasma']['helium_treatment'] == 'recomb-nlte'
-        else:
-            validated_config_dict['plasma']['helium_treatment'] == 'dilute-lte'
-
-
-
-
-
         ##### NLTE subsection of Plasma start
         nlte_validated_config_dict = {}
         nlte_species = []
@@ -1015,20 +965,8 @@ class Configuration(ConfigurationNameSpace):
             black_body_section['stop']
         montecarlo_section['black_body_sampling']['samples'] = \
             black_body_section['num']
-        virtual_spectrum_section = montecarlo_section['virtual_spectrum_range']
-        montecarlo_section['virtual_spectrum_range'] = {}
-        montecarlo_section['virtual_spectrum_range']['start'] = \
-            virtual_spectrum_section['start']
-        montecarlo_section['virtual_spectrum_range']['end'] = \
-            virtual_spectrum_section['stop']
-        montecarlo_section['virtual_spectrum_range']['samples'] = \
-            virtual_spectrum_section['num']
 
         ###### END of convergence section reading
-
-
-        validated_config_dict['spectrum'] = parse_spectrum_list2dict(
-            validated_config_dict['spectrum'])
 
         return cls(validated_config_dict, atom_data)
 

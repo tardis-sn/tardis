@@ -7,13 +7,14 @@ from astropy import units as u, constants as const
 from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
+from tardis.util import quantity_linspace
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
 
 import numpy as np
 import pandas as pd
 
-logger = logging.getLevelName(__name__)
+logger = logging.getLogger(__name__)
 
 class MontecarloRunner(object):
     """
@@ -28,9 +29,18 @@ class MontecarloRunner(object):
     t_rad_estimator_constant = ((np.pi**4 / (15 * 24 * zeta(5, 1))) *
                                 (const.h / const.k_B)).cgs.value
 
-    def __init__(self, seed, spectrum_frequency, distance=None):
+    def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
+                 sigma_thomson, enable_reflective_inner_boundary,
+                 inner_boundary_albedo, line_interaction_type, distance=None):
+
+        self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
         self.spectrum_frequency = spectrum_frequency
+        self.virtual_spectrum_range = virtual_spectrum_range # TODO: linspace handling
+        self.sigma_thomson = sigma_thomson
+        self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
+        self.inner_boundary_albedo = inner_boundary_albedo
+        self.line_interaction_type = line_interaction_type
         self.spectrum = TARDISSpectrum(spectrum_frequency, distance)
         self.spectrum_virtual = TARDISSpectrum(spectrum_frequency, distance)
         self.spectrum_reabsorbed = TARDISSpectrum(spectrum_frequency, distance)
@@ -53,18 +63,18 @@ class MontecarloRunner(object):
         self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
 
 
-    def _initialize_geometry_arrays(self, structure):
+    def _initialize_geometry_arrays(self, model):
         """
         Generate the cgs like geometry arrays for the montecarlo part
 
         Parameters
         ----------
 
-        structure: ~ConfigurationNameSpace
+        model : model.Radial1DModel
         """
-        self.r_inner_cgs = structure.r_inner.to('cm').value
-        self.r_outer_cgs = structure.r_outer.to('cm').value
-        self.v_inner_cgs = structure.v_inner.to('cm/s').value
+        self.r_inner_cgs = model.r_inner.to('cm').value
+        self.r_outer_cgs = model.r_outer.to('cm').value
+        self.v_inner_cgs = model.v_inner.to('cm/s').value
 
     def _initialize_packets(self, T, no_of_packets, no_of_virtual_packets=None):
         nus, mus, energies = self.packet_source.create_packets(T, no_of_packets)
@@ -110,7 +120,7 @@ class MontecarloRunner(object):
             self.spectrum_virtual.update_luminosity(
                 self.montecarlo_virtual_luminosity)
 
-    def run(self, model, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
+    def run(self, model, plasma, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
         """
         Running the TARDIS simulation
 
@@ -118,21 +128,22 @@ class MontecarloRunner(object):
         ----------
 
         :param model:
+        :param plasma:
         :param no_of_virtual_packets:
         :param nthreads:
         :return:
         """
-        self.time_of_simulation = model.time_of_simulation
-        self.volume = model.tardis_config.structure.volumes
+        self.time_of_simulation = self.calculate_time_of_simulation(model)
+        self.volume = model.volume
         self._initialize_estimator_arrays(self.volume.shape[0],
-                                          model.plasma.tau_sobolevs.shape)
-        self._initialize_geometry_arrays(model.tardis_config.structure)
+                                          plasma.tau_sobolevs.shape)
+        self._initialize_geometry_arrays(model)
 
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets)
 
         montecarlo.montecarlo_radial1d(
-            model, self, virtual_packet_flag=no_of_virtual_packets,
+            model, plasma, self, virtual_packet_flag=no_of_virtual_packets,
             nthreads=nthreads,last_run=last_run)
         # Workaround so that j_blue_estimator is in the right ordering
         # They are written as an array of dimension (no_of_shells, no_of_lines)
@@ -277,6 +288,13 @@ class MontecarloRunner(object):
 
         return t_rad * u.K, w
 
+    def calculate_luminosity_inner(self, model):
+        return (4 * np.pi * const.sigma_sb.cgs *
+                model.r_inner[0] ** 2 * model.t_inner ** 4).to('erg/s')
+
+    def calculate_time_of_simulation(self, model):
+        return (1.0 * u.erg / self.calculate_luminosity_inner(model))
+
     def calculate_f_nu(self, frequency):
         pass
 
@@ -308,3 +326,27 @@ class MontecarloRunner(object):
                                      'spectrum_virtual')
         self.spectrum_reabsorbed.to_hdf(path_or_buf, runner_path,
                                         'spectrum_reabsorbed')
+
+    @classmethod
+    def from_config(cls, config):
+        if config.plasma.disable_electron_scattering:
+            logger.warn('Disabling electron scattering - this is not physical')
+            sigma_thomson = 1e-200 / (u.cm ** 2)
+        else:
+            logger.debug("Electron scattering switched on")
+            sigma_thomson = 6.652486e-25 / (u.cm ** 2)
+
+        spectrum_frequency = quantity_linspace(
+            config.spectrum.stop.to('Hz', u.spectral()),
+            config.spectrum.start.to('Hz', u.spectral()),
+            num=config.spectrum.num + 1)
+
+        return cls(seed=config.montecarlo.seed,
+                   spectrum_frequency=spectrum_frequency,
+                   # TODO: Linspace handling for virtual_spectrum_range
+                   virtual_spectrum_range=config.montecarlo.virtual_spectrum_range,
+                   sigma_thomson=sigma_thomson,
+                   enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
+                   inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
+                   line_interaction_type=config.plasma.line_interaction_type,
+                   distance=config.supernova.get('distance', None))
