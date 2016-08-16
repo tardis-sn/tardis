@@ -12,8 +12,7 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation(object):
-    def __init__(self, iterations, model, plasma, runner,
-                 atom_data, no_of_packets,
+    def __init__(self, iterations, model, plasma, runner, no_of_packets,
                  no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
                  luminosity_requested, convergence_strategy,
@@ -24,7 +23,6 @@ class Simulation(object):
         self.model = model
         self.plasma = plasma
         self.runner = runner
-        self.atom_data = atom_data
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
         self.no_of_virtual_packets = no_of_virtual_packets
@@ -195,7 +193,6 @@ class Simulation(object):
                    model=model,
                    plasma=plasma,
                    runner=runner,
-                   atom_data=config.atom_data,
                    no_of_packets=int(config.montecarlo.no_of_packets),
                    no_of_virtual_packets=int(
                        config.montecarlo.no_of_virtual_packets),
