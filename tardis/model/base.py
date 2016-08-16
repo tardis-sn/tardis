@@ -194,13 +194,13 @@ class Radial1DModel(object):
 
     @classmethod
     def from_config(cls, config):
-        time_explosion = config.supernova.time_explosion
+        time_explosion = config.supernova.time_explosion.cgs
 
         structure = config.model.structure
         if structure.type == 'specific':
             velocity = quantity_linspace(structure.velocity.start,
                                          structure.velocity.stop,
-                                         structure.velocity.num + 1)
+                                         structure.velocity.num + 1).cgs
             homologous_density = HomologousDensity.from_config(config)
         elif structure.type == 'file':
             if os.path.isabs(structure.filename):
