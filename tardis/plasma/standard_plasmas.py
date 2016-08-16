@@ -1,8 +1,10 @@
+import os
 import logging
 
 import pandas as pd
 import numpy as np
 
+from tardis import atomic
 from tardis.util import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
@@ -51,12 +53,25 @@ def assemble_plasma(config, model):
     nlte_species = [species_string_to_tuple(s) for s in
                     config.plasma.nlte.species]
 
-    config.atom_data.prepare_atom_data(
+    if 'atom_data' in config:
+        if os.path.isabs(config.atom_data):
+            atom_data_fname = config.atom_data
+        else:
+            atom_data_fname = os.path.join(config.config_dirname,
+                                           config.atom_data)
+    else:
+        raise ValueError('No atom_data option found in the configuration.')
+
+    logger.info('Reading Atomic Data from %s', atom_data_fname)
+    atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
+
+    atom_data.prepare_atom_data(
         model.abundance.index,
         line_interaction_type=config.plasma.line_interaction_type,
         nlte_species=nlte_species)
+
     kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
-                  density=model.density, atomic_data=config.atom_data,
+                  density=model.density, atomic_data=atom_data,
                   time_explosion=model.time_explosion,
                   w=model.dilution_factor, link_t_rad_t_electron=0.9)
 
