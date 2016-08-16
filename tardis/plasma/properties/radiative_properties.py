@@ -7,11 +7,12 @@ from astropy import units as u, constants as const
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
+from tardis.util import intensity_black_body
 
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-    'TransitionProbabilities', 'LTEJBlues']
+    'TransitionProbabilities', 'JBluesBlackBody', 'JBluesDiluteBlackBody']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
@@ -231,26 +232,31 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
 
 
 
-class LTEJBlues(ProcessingPlasmaProperty):
+class JBluesBlackBody(ProcessingPlasmaProperty):
     '''
     Attributes
     ----------
     lte_j_blues : Pandas DataFrame, dtype float
                   J_blue values as calculated in LTE.
     '''
-    outputs = ('lte_j_blues',)
+    outputs = ('j_blues',)
     latex_name = ('J^{b}_{lu(LTE)}')
 
     @staticmethod
-    def calculate(lines, nu, beta_rad):
-        beta_rad = pd.Series(beta_rad)
-        nu = pd.Series(nu)
-        h = const.h.cgs.value
-        c = const.c.cgs.value
-        df = pd.DataFrame(1, index=nu.index, columns=beta_rad.index)
-        df = df.mul(nu, axis='index') * beta_rad
-        exponential = (np.exp(h * df) - 1)**(-1)
-        remainder = (2 * (h * nu.values ** 3) /
-            (c ** 2))
-        j_blues = exponential.mul(remainder, axis=0)
-        return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)
+    def calculate(lines, nu, t_rad):
+        j_blues = intensity_black_body(nu.values[np.newaxis].T, t_rad)
+        j_blues = pd.DataFrame(j_blues, index=lines.index,
+                               columns=np.arange(len(t_rad)))
+        return np.array(j_blues, copy=False)
+
+
+class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
+    outputs = ('j_blues',)
+    latex_name = ('J_{\\textrm{blue}}')
+
+    @staticmethod
+    def calculate(lines, nu, t_rad, w):
+        j_blues = w * intensity_black_body(nu.values[np.newaxis].T, t_rad)
+        j_blues = pd.DataFrame(j_blues, index=lines.index,
+                               columns=np.arange(len(t_rad)))
+        return np.array(j_blues, copy=False)

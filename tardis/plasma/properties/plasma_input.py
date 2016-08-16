@@ -1,7 +1,8 @@
 from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
-           'TimeExplosion', 'JBlues', 'LinkTRadTElectron', 'HeliumTreatment']
+           'TimeExplosion', 'JBlueEstimator', 'LinkTRadTElectron',
+           'HeliumTreatment']
 
 class TRadiative(ArrayInput):
     """
@@ -71,15 +72,15 @@ class TimeExplosion(Input):
     outputs = ('time_explosion',)
     latex_name = ('t_{\\textrm{exp}}',)
 
-class JBlues(DataFrameInput):
+
+class JBlueEstimator(ArrayInput):
     """
     Attributes
     ----------
-    j_blues : Pandas DataFrame
-              Mean intensity in the blue wing of each line.
+    j_blue_estimators : Numpy array
     """
-    outputs = ('j_blues',)
-    latex_name = ('J_{lu}^{b}',)
+    outputs = ('j_blue_estimators',)
+    latex_name = ('J_{\\textrm{blue-estimator}}',)
 
 class LinkTRadTElectron(Input):
     """
