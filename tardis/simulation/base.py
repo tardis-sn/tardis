@@ -2,6 +2,7 @@ import time
 import logging
 import numpy as np
 import pandas as pd
+from astropy import units as u
 
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.model.base import Radial1DModel
@@ -189,6 +190,16 @@ class Simulation(object):
         model = Radial1DModel.from_config(config)
         plasma = assemble_plasma(config, model)
         runner = MontecarloRunner.from_config(config)
+
+        luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
+                u.Hz, u.spectral())
+
+        try:
+            luminosity_nu_end = config.supernova.luminosity_wavelength_start.to(
+                u.Hz, u.spectral())
+        except ZeroDivisionError:
+            luminosity_nu_end = np.inf * u.Hz
+
         return cls(iterations=config.montecarlo.iterations,
                    model=model,
                    plasma=plasma,
@@ -196,10 +207,10 @@ class Simulation(object):
                    no_of_packets=int(config.montecarlo.no_of_packets),
                    no_of_virtual_packets=int(
                        config.montecarlo.no_of_virtual_packets),
-                   luminosity_nu_start=config.supernova.luminosity_nu_start,
-                   luminosity_nu_end=config.supernova.luminosity_nu_end,
+                   luminosity_nu_start=luminosity_nu_start,
+                   luminosity_nu_end=luminosity_nu_end,
                    last_no_of_packets=int(config.montecarlo.last_no_of_packets),
-                   luminosity_requested=config.supernova.luminosity_requested,
+                   luminosity_requested=config.supernova.luminosity_requested.cgs,
                    convergence_strategy=config.montecarlo.convergence_strategy,
                    nthreads=config.montecarlo.nthreads)
 
