@@ -196,11 +196,12 @@ class Simulation(object):
                    plasma=plasma,
                    runner=runner,
                    atom_data=config.atom_data,
-                   no_of_packets=config.montecarlo.no_of_packets,
-                   no_of_virtual_packets=config.montecarlo.no_of_virtual_packets,
+                   no_of_packets=int(config.montecarlo.no_of_packets),
+                   no_of_virtual_packets=int(
+                       config.montecarlo.no_of_virtual_packets),
                    luminosity_nu_start=config.supernova.luminosity_nu_start,
                    luminosity_nu_end=config.supernova.luminosity_nu_end,
-                   last_no_of_packets=config.montecarlo.last_no_of_packets,
+                   last_no_of_packets=int(config.montecarlo.last_no_of_packets),
                    luminosity_requested=config.supernova.luminosity_requested,
                    convergence_strategy=config.montecarlo.convergence_strategy,
                    nthreads=config.montecarlo.nthreads)
