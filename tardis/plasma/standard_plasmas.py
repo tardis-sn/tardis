@@ -51,9 +51,8 @@ def assemble_plasma(config, model):
     nlte_species = [species_string_to_tuple(s) for s in
                     config.plasma.nlte.species]
 
-    selected_atomic_numbers = config.abundances.index
     config.atom_data.prepare_atom_data(
-        selected_atomic_numbers,
+        model.abundance.index,
         line_interaction_type=config.plasma.line_interaction_type,
         nlte_species=nlte_species)
     kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
