@@ -14,7 +14,7 @@ from tardis.io.util import to_hdf
 import numpy as np
 import pandas as pd
 
-logger = logging.getLevelName(__name__)
+logger = logging.getLogger(__name__)
 
 class MontecarloRunner(object):
     """
