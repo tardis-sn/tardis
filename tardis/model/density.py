@@ -14,10 +14,10 @@ class HomologousDensity(object):
 
     @classmethod
     def from_config(cls, config):
-        d_conf = config.structure.density
-        velocity = quantity_linspace(config.structure.velocity.start,
-                                     config.structure.velocity.stop,
-                                     config.structure.velocity.num + 1).cgs
+        d_conf = config.model.structure.density
+        velocity = quantity_linspace(config.model.structure.velocity.start,
+                                     config.model.structure.velocity.stop,
+                                     config.model.structure.velocity.num + 1).cgs
 
         adjusted_velocity = velocity.insert(0, 0)
         v_middle = (adjusted_velocity[1:] * 0.5 +
