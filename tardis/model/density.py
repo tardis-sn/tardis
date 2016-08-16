@@ -17,13 +17,13 @@ class HomologousDensity(object):
         d_conf = config.structure.density
         velocity = quantity_linspace(config.structure.velocity.start,
                                      config.structure.velocity.stop,
-                                     config.structure.velocity.num + 1)
+                                     config.structure.velocity.num + 1).cgs
 
         adjusted_velocity = velocity.insert(0, 0)
         v_middle = (adjusted_velocity[1:] * 0.5 +
                     adjusted_velocity[:-1] * 0.5)
         no_of_shells = len(adjusted_velocity) - 1
-        time_explosion = config.supernova.time_explosion
+        time_explosion = config.supernova.time_explosion.cgs
 
         if d_conf.type == 'branch85_w7':
             density_0 = calculate_power_law_density(v_middle, d_conf.w7_v_0,
