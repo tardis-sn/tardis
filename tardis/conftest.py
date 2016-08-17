@@ -103,7 +103,7 @@ def test_data_path():
 
 
 @pytest.fixture
-def included_he_atomic_data(test_data_path):
+def atom_data_he(test_data_path):
     atomic_db_fname = os.path.join(test_data_path, 'chianti_he_db.h5')
     return AtomData.from_hdf(atomic_db_fname)
 
