@@ -5,11 +5,6 @@ from tardis.io import atomic
 
 
 @pytest.fixture(scope="module")
-def default_atom_h5_path():
-    return atomic.data_path('atom_data.h5')
-
-
-@pytest.fixture(scope="module")
 def chianti_he_db_h5_path():
     return atomic.tests_data_path('chianti_he_db.h5')
 
