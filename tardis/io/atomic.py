@@ -117,7 +117,7 @@ class AtomData(object):
                       ("collision_data", "collision_data_temperatures")]
 
     @classmethod
-    def from_hdf(cls, fname=None):
+    def from_hdf(cls, fname):
         """
         Function to read all the atom data from the special Carsus HDFStore file.
 
@@ -125,13 +125,9 @@ class AtomData(object):
         ----------
 
         fname: str, optional
-            The path to the HDFStore file. If set to `None` the default file with limited atomic_data
-            shipped with TARDIS will be used. For more complex atomic data please contact the authors.
+            Path to the HDFStore file. Please contact the authors to get the up-to-date file.
             (default: None)
         """
-
-        if fname is None:
-            fname = default_atom_h5_path
 
         if not os.path.exists(fname):
             raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
