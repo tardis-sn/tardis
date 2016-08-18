@@ -257,7 +257,7 @@ class Configuration(ConfigurationNameSpace):
         else:
             validated_config_dict = config_dict
 
-        validated_config_dict.config_dirname = config_dirname
+        validated_config_dict['config_dirname'] = config_dirname
 
         montecarlo_section = validated_config_dict['montecarlo']
         montecarlo_section['convergence_strategy'] = (
