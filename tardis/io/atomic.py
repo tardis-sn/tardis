@@ -2,7 +2,6 @@
 
 import os
 import logging
-import tardis
 import numpy as np
 import pandas as pd
 
@@ -16,31 +15,12 @@ from astropy.units import Quantity
 class AtomDataNotPreparedError(Exception):
     pass
 
+
 class AtomDataMissingError(Exception):
     pass
 
 
 logger = logging.getLogger(__name__)
-
-tardis_dir = os.path.dirname(os.path.realpath(tardis.__file__))
-
-
-def data_path(fname):
-    return os.path.join(tardis_dir, 'data', fname)
-
-
-def tests_data_path(fname):
-    return os.path.join(tardis_dir, 'tests', 'data', fname)
-
-
-default_atom_h5_path = data_path('atom_data.h5')
-
-atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
-                                    names=['atomic_number', 'symbol'])
-
-symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
-                                       atomic_symbols_data['atomic_number']))
-atomic_number2symbol = OrderedDict(atomic_symbols_data)
 
 
 class AtomData(object):
@@ -137,7 +117,7 @@ class AtomData(object):
                       ("collision_data", "collision_data_temperatures")]
 
     @classmethod
-    def from_hdf(cls, fname=None):
+    def from_hdf(cls, fname):
         """
         Function to read all the atom data from the special Carsus HDFStore file.
 
@@ -145,13 +125,9 @@ class AtomData(object):
         ----------
 
         fname: str, optional
-            The path to the HDFStore file. If set to `None` the default file with limited atomic_data
-            shipped with TARDIS will be used. For more complex atomic data please contact the authors.
+            Path to the HDFStore file. Please contact the authors to get the up-to-date file.
             (default: None)
         """
-
-        if fname is None:
-            fname = default_atom_h5_path
 
         if not os.path.exists(fname):
             raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
