@@ -80,6 +80,16 @@ def data_path(request):
         ),
         'setup_name': hdf_filename[:-3]
     }
+
+    # For providing atom data per individual setup. Atom data can be fetched
+    # from a local directory or a remote url.
+    if integration_tests_config['atom_data']['fetch'] == "remote":
+        path['atom_data_url'] = integration_tests_config['atom_data']['url']
+    elif integration_tests_config['atom_data']['fetch'] == "local":
+        path['atom_data_dirpath'] = os.path.expandvars(os.path.expanduser(
+            integration_tests_config['atom_data']['dirpath']
+        ))
+
     if (request.config.getoption("--generate-reference") and not
             os.path.exists(path['gen_ref_dirpath'])):
         os.makedirs(path['gen_ref_dirpath'])
