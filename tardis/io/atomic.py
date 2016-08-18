@@ -2,7 +2,6 @@
 
 import os
 import logging
-import tardis
 import numpy as np
 import pandas as pd
 
@@ -16,31 +15,12 @@ from astropy.units import Quantity
 class AtomDataNotPreparedError(Exception):
     pass
 
+
 class AtomDataMissingError(Exception):
     pass
 
 
 logger = logging.getLogger(__name__)
-
-tardis_dir = os.path.dirname(os.path.realpath(tardis.__file__))
-
-
-def data_path(fname):
-    return os.path.join(tardis_dir, 'data', fname)
-
-
-def tests_data_path(fname):
-    return os.path.join(tardis_dir, 'tests', 'data', fname)
-
-
-default_atom_h5_path = data_path('atom_data.h5')
-
-atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
-                                    names=['atomic_number', 'symbol'])
-
-symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
-                                       atomic_symbols_data['atomic_number']))
-atomic_number2symbol = OrderedDict(atomic_symbols_data)
 
 
 class AtomData(object):
