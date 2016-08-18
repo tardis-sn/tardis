@@ -7,10 +7,9 @@ from astropy.tests.pytest_plugins import (
         pytest_addoption as _pytest_add_option
     )
 
-import tardis
 import pytest
+
 from tardis.io.atomic import AtomData
-from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
 from tardis.simulation import Simulation
 from copy import deepcopy
