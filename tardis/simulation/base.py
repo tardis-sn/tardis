@@ -100,12 +100,6 @@ class Simulation(object):
                         nthreads=self.nthreads, last_run=last_run)
 
         output_energy = self.runner.output_energy
-        self.j_estimator = self.runner.j_estimator
-        self.nu_bar_estimator = self.runner.nu_bar_estimator
-        self.last_interaction_type = self.runner.last_interaction_type
-        self.last_line_interaction_shell_id = (
-            self.runner.last_line_interaction_shell_id)
-
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
