@@ -13,13 +13,14 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation(object):
-    def __init__(self, iterations, model, plasma, runner, no_of_packets,
-                 no_of_virtual_packets, luminosity_nu_start,
+    def __init__(self, iterations, hold_iterations, model, plasma, runner,
+                 no_of_packets, no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
                  luminosity_requested, convergence_strategy,
                  nthreads):
         self.converged = False
         self.iterations = iterations
+        self.hold_iterations = hold_iterations
         self.iterations_executed = 0
         self.model = model
         self.plasma = plasma
@@ -55,19 +56,66 @@ class Simulation(object):
         # as a method
         return value + damping_factor * (estimated_value - value)
 
+    def _get_convergence_status(self, t_rad, w, t_inner, estimated_t_rad,
+                                estimated_w, estimated_t_inner):
+        # FIXME: Move the convergence checking in its own class.
+        no_of_shells = self.model.no_of_shells
+
+        convergence_t_rad = (abs(t_rad - estimated_t_rad) /
+                             estimated_t_rad).value
+        convergence_w = (abs(w - estimated_w) / estimated_w)
+        convergence_t_inner = (abs(t_inner - estimated_t_inner) /
+                               estimated_t_inner).value
+
+        if self.convergence_strategy.type == 'specific':
+            fraction_t_rad_converged = (
+                np.count_nonzero(
+                    convergence_t_rad < self.convergence_strategy.t_rad.threshold)
+                / no_of_shells)
+
+            t_rad_converged = (
+                fraction_t_rad_converged > self.convergence_strategy.t_rad.threshold)
+
+            fraction_w_converged = (
+                np.count_nonzero(
+                    convergence_w < self.convergence_strategy.w.threshold)
+                / no_of_shells)
+
+            w_converged = (
+                fraction_w_converged > self.convergence_strategy.w.threshold)
+
+            t_inner_converged = (
+                convergence_t_inner < self.convergence_strategy.t_inner.threshold)
+
+            if np.all([t_rad_converged, w_converged, t_inner_converged]):
+                return True
+            else:
+                return False
+
+        else:
+            return False
+
     def advance_state(self):
         """
         Advances the state of the model and the plasma for the next
-        iteration of the simulation.
+        iteration of the simulation. Returns True if the convergence criteria
+        are met, else False.
 
         Returns
         -------
-        : None
+            converged : ~bool
         """
         estimated_t_rad, estimated_w = (
             self.runner.calculate_radiationfield_properties())
         estimated_t_inner = self.estimate_t_inner(
             self.model.t_inner, self.luminosity_requested)
+
+        converged = self._get_convergence_status(self.model.t_rad,
+                                                 self.model.w,
+                                                 self.model.t_inner,
+                                                 estimated_t_rad,
+                                                 estimated_w,
+                                                 estimated_t_inner)
 
         # calculate_next_plasma_state equivalent
         # FIXME: Should convergence strategy have its own class?
@@ -93,37 +141,45 @@ class Simulation(object):
         #          self.store_previous_properties()
         self.plasma.update(t_rad=self.model.t_rad, w=self.model.w)
 
-    def run_single(self, no_of_packets, no_of_virtual_packets=0,
-                   last_run=False):
+        return converged
+
+    def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
+        logger.info('Starting iteration {0:d}/{1:d}'.format(
+                    self.iterations_executed + 1, self.iterations))
         self.runner.run(self.model, self.plasma, no_of_packets,
                         no_of_virtual_packets=no_of_virtual_packets,
                         nthreads=self.nthreads, last_run=last_run)
-
         output_energy = self.runner.output_energy
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
+        emitted_luminosity = self.runner.calculate_emitted_luminosity(
+            self.luminosity_nu_start, self.luminosity_nu_end)
+        reabsorbed_luminosity = self.runner.calculate_reabsorbed_luminosity(
+            self.luminosity_nu_start, self.luminosity_nu_end)
+        self.log_run_results(emitted_luminosity,
+                             reabsorbed_luminosity)
+        self.iterations_executed += 1
+
     def run(self):
         start_time = time.time()
-        while self.iterations_executed < self.iterations - 1:
-            logger.info('Starting iteration #%d', self.iterations_executed + 1)
-            self.run_single(self.no_of_packets)
-            emitted_luminosity = self.runner.calculate_emitted_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end)
-            reabsorbed_luminosity = self.runner.calculate_reabsorbed_luminosity(
-                self.luminosity_nu_start, self.luminosity_nu_end)
-            self.log_run_results(emitted_luminosity,
-                                 reabsorbed_luminosity)
-            self.iterations_executed += 1
-            self.advance_state()
-
-        if self.last_no_of_packets is not None and self.last_no_of_packets > 0:
-            no_of_packets = self.last_no_of_packets
-        else:
-            no_of_packets = self.no_of_packets
-        logger.info('Starting iteration #%d', self.iterations_executed + 1)
-        self.run_single(no_of_packets, self.no_of_virtual_packets, True)
-        self.iterations_executed += 1
+        times_converged = 0
+        # If an iteration has converged, require hold_iterations more iterations
+        # to converge before we conclude that the Simulation is converged.
+        while (self.iterations_executed < self.iterations - 1 and
+                        times_converged <= self.hold_iterations):
+            self.iterate(self.no_of_packets)
+            converged = self.advance_state()
+            if converged:
+                times_converged += 1
+                logger.info("Iteration converged {0:d}/{1:d} consecutive "
+                            "times.".format(times_converged,
+                                            self.hold_iterations + 1))
+            else:
+                times_converged = 0
+        self.converged = times_converged == self.hold_iterations + 1
+        # Last iteration
+        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
         self.runner.legacy_update_spectrum(self.no_of_virtual_packets)
 
         logger.info("Simulation finished in {0:d} iterations "
@@ -194,7 +250,13 @@ class Simulation(object):
         except ZeroDivisionError:
             luminosity_nu_end = np.inf * u.Hz
 
+        last_no_of_packets = config.montecarlo.last_no_of_packets
+        if last_no_of_packets is None or last_no_of_packets < 0:
+            last_no_of_packets =  config.montecarlo.no_of_packets
+        last_no_of_packets = int(last_no_of_packets)
+
         return cls(iterations=config.montecarlo.iterations,
+                   hold_iterations=config.montecarlo.hold_iterations,
                    model=model,
                    plasma=plasma,
                    runner=runner,
@@ -203,7 +265,7 @@ class Simulation(object):
                        config.montecarlo.no_of_virtual_packets),
                    luminosity_nu_start=luminosity_nu_start,
                    luminosity_nu_end=luminosity_nu_end,
-                   last_no_of_packets=int(config.montecarlo.last_no_of_packets),
+                   last_no_of_packets=last_no_of_packets,
                    luminosity_requested=config.supernova.luminosity_requested.cgs,
                    convergence_strategy=config.montecarlo.convergence_strategy,
                    nthreads=config.montecarlo.nthreads)
