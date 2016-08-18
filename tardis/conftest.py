@@ -92,7 +92,7 @@ def atomic_data_fname():
 
 @pytest.fixture
 def kurucz_atomic_data(atomic_data_fname):
-    atomic_data = AtomData.from_hdfstore(atomic_data_fname)
+    atomic_data = AtomData.from_hdf(atomic_data_fname)
 
     if atomic_data.md5 != '06709f04d369f07c58e01a7d0f34bd10':
         pytest.skip('Need default Kurucz atomic dataset '
