@@ -50,7 +50,7 @@ class MalformedQuantityError(MalformedError):
 
 logger = logging.getLogger(__name__)
 
-tardis_dir = os.path.dirname(os.path.realpath(tardis.__path__[0]))
+tardis_dir = os.path.realpath(tardis.__path__[0])
 
 
 def get_data_path(fname):
