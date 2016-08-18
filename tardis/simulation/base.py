@@ -256,7 +256,7 @@ class Simulation(object):
         last_no_of_packets = int(last_no_of_packets)
 
         return cls(iterations=config.montecarlo.iterations,
-                   hold_iterations=config.montecarlo.hold_iterations,
+                   hold_iterations=config.montecarlo.convergence_strategy.hold_iterations,
                    model=model,
                    plasma=plasma,
                    runner=runner,
