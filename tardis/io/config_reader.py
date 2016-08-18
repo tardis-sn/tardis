@@ -806,22 +806,10 @@ class Configuration(ConfigurationNameSpace):
 
 
         #Parsing supernova dictionary
-        validated_config_dict['supernova']['luminosity_nu_start'] = \
-            validated_config_dict['supernova']['luminosity_wavelength_end'].to(
-                u.Hz, u.spectral())
-        try:
-            validated_config_dict['supernova']['luminosity_nu_end'] = \
-                (validated_config_dict['supernova']
-                 ['luminosity_wavelength_start'].to(u.Hz, u.spectral()))
-        except ZeroDivisionError:
-            validated_config_dict['supernova']['luminosity_nu_end'] = (
-                np.inf * u.Hz)
 
         validated_config_dict['supernova']['time_explosion'] = (
             validated_config_dict['supernova']['time_explosion'].cgs)
 
-        validated_config_dict['supernova']['luminosity_requested'] = (
-            validated_config_dict['supernova']['luminosity_requested'].cgs)
 
         #Parsing the model section
 
