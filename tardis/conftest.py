@@ -103,17 +103,6 @@ def kurucz_atomic_data(atomic_data_fname):
 
 
 @pytest.fixture
-def test_data_path():
-    return os.path.join(tardis.__path__[0], 'tests', 'data')
-
-
-@pytest.fixture
-def included_he_atomic_data(test_data_path):
-    atomic_db_fname = os.path.join(test_data_path, 'chianti_he_db.h5')
-    return AtomData.from_hdf5(atomic_db_fname)
-
-
-@pytest.fixture
 def tardis_config_verysimple():
     return yaml_load_config_file(
         'tardis/io/tests/data/tardis_configv1_verysimple.yml')
