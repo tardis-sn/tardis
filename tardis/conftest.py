@@ -58,7 +58,7 @@ try:
 except NameError:   # Needed to support Astropy <= 1.0.0
     pass
 
-DEFAULT_UUID = '06709f04d369f07c58e01a7d0f34bd10'
+DEFAULT_UUID = '94af35cb55d22ec5020914ea9409a1cb'
 
 # -------------------------------------------------------------------------
 # Initialization
@@ -108,7 +108,7 @@ def atomic_data_fname(tardis_ref_path):
 @pytest.fixture(scope="session")
 def atomic_dataset(atomic_data_fname):
     atomic_data = AtomData.from_hdf(atomic_data_fname)
-
+    
     if atomic_data.md5 != DEFAULT_UUID:
         pytest.skip('Need default Kurucz atomic dataset (md5="{}"'.format(DEFAULT_UUID))
     else:
