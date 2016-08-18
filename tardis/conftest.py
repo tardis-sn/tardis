@@ -58,7 +58,7 @@ try:
 except NameError:   # Needed to support Astropy <= 1.0.0
     pass
 
-DEFAULT_UUID = '06709f04d369f07c58e01a7d0f34bd10'
+DEFAULT_UUID = '94af35cb55d22ec5020914ea9409a1cb'
 
 # -------------------------------------------------------------------------
 # Initialization
