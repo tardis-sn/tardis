@@ -54,8 +54,9 @@ class DokuReport(HTMLReport):
         """
         # Base class accepts a file path to save the report, but we pass an
         # empty string and then delete it anyhow.
-        super(DokuReport, self).__init__(" ")
-        del self.logfile
+        super(DokuReport, self).__init__(
+            logfile=" ", self_contained=True, has_rerun=False
+        )
 
         try:
             self.doku_conn = dokuwiki.DokuWiki(
