@@ -24,7 +24,7 @@ def pytest_configure(config):
             # prevent opening dokupath on slave nodes (xdist)
             if not hasattr(config, 'slaveinput'):
                 config.dokureport = DokuReport(
-                    config.integration_tests_config['dokuwiki'])
+                    config.integration_tests_config['report'])
                 config.pluginmanager.register(config.dokureport)
 
 
