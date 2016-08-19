@@ -290,3 +290,7 @@ class BasePlasma(object):
             properties = self.plasma_properties
         for prop in properties:
             prop.to_hdf(path_or_buf, os.path.join(path, 'plasma'))
+
+        metadata = pd.Series({'atom_data_uuid': self.atomic_data.uuid1})
+        metadata.to_hdf(path_or_buf,
+                        os.path.join(os.path.join(path, 'plasma'), 'metadata'))
