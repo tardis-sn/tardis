@@ -26,22 +26,20 @@ References
 """
 import datetime
 import json
-import os
-import pkg_resources
 import time
 
 # For specifying error while exception handling
 from socket import gaierror
 
-from py.xml import html, raw
-from pytest_html import __name__ as pytest_html_path
-from pytest_html.plugin import HTMLReport
 import tardis
 
 try:
+    from pytest_html import __name__ as pytest_html_path
+    from pytest_html.plugin import HTMLReport
     import dokuwiki
     import requests
 except ImportError:
+    pytest_html = None
     dokuwiki = None
     requests = None
 
@@ -56,8 +54,9 @@ class DokuReport(HTMLReport):
         """
         # Base class accepts a file path to save the report, but we pass an
         # empty string and then delete it anyhow.
-        super(DokuReport, self).__init__(" ")
-        del self.logfile
+        super(DokuReport, self).__init__(
+            logfile=" ", self_contained=True, has_rerun=False
+        )
 
         try:
             self.doku_conn = dokuwiki.DokuWiki(
@@ -72,71 +71,11 @@ class DokuReport(HTMLReport):
 
     def _generate_report(self, session):
         """Writes HTML report to a temporary logfile."""
+        # Little hack to include suite_time_delta in wiki overview page.
         suite_stop_time = time.time()
         self.suite_time_delta = suite_stop_time - self.suite_start_time
-        numtests = self.passed + self.failed + self.xpassed + self.xfailed
-        generated = datetime.datetime.utcnow()
 
-        style_css = pkg_resources.resource_string(
-            pytest_html_path, os.path.join('resources', 'style.css'))
-
-        head = html.head(
-            html.meta(charset='utf-8'),
-            html.title('Test Report'),
-            html.style(raw(style_css)))
-
-        summary = [html.h2('Summary'), html.p(
-            '{0} tests ran in {1:.2f} seconds.'.format(
-                numtests, self.suite_time_delta),
-            html.br(),
-            html.span('{0} passed'.format(
-                self.passed), class_='passed'), ', ',
-            html.span('{0} skipped'.format(
-                self.skipped), class_='skipped'), ', ',
-            html.span('{0} failed'.format(
-                self.failed), class_='failed'), ', ',
-            html.span('{0} errors'.format(
-                self.errors), class_='error'), '.',
-            html.br(),
-            html.span('{0} expected failures'.format(
-                self.xfailed), class_='skipped'), ', ',
-            html.span('{0} unexpected passes'.format(
-                self.xpassed), class_='failed'), '.')]
-
-        results = [html.h2('Results'), html.table([html.thead(
-            html.tr([
-                html.th('Result',
-                        class_='sortable initial-sort result',
-                        col='result'),
-                html.th('Test', class_='sortable', col='name'),
-                html.th('Duration',
-                        class_='sortable numeric',
-                        col='duration'),
-                html.th('Links')]), id='results-table-head'),
-            html.tbody(*self.test_logs, id='results-table-body')],
-            id='results-table')]
-
-        main_js = pkg_resources.resource_string(
-            pytest_html_path, os.path.join('resources', 'main.js'))
-
-        body = html.body(
-            html.script(raw(main_js)),
-            html.p('Report generated on {0} at {1}'.format(
-                generated.strftime('%d-%b-%Y'),
-                generated.strftime('%H:%M:%S'))))
-
-        if session.config._environment:
-            environment = set(session.config._environment)
-            body.append(html.h2('Environment'))
-            body.append(html.table(
-                [html.tr(html.td(e[0]), html.td(e[1])) for e in sorted(
-                    environment, key=lambda e: e[0]) if e[1]],
-                id='environment'))
-
-        body.extend(summary)
-        body.extend(results)
-
-        doc = html.html(head, body)
+        report_content = super(DokuReport, self)._generate_report(session)
 
         # A string which holds the complete report.
         report_content = (
@@ -144,13 +83,14 @@ class DokuReport(HTMLReport):
             "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{0}]]\n\n".format(
                 tardis.__githash__
             )
-        )
-        report_content += doc.unicode(indent=2)
+        ) + report_content
 
         # Quick hack for preventing log to be placed in narrow left out space
         report_content = report_content.replace(
             u'class="log"', u'class="log" style="clear: both"'
         )
+        # It was displayed raw on wiki pages, but not needed.
+        report_content = report_content.replace(u'<!DOCTYPE html>', u'')
         return report_content
 
     def _save_report(self, report_content):
