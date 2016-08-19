@@ -19,9 +19,9 @@ class Radial1DModel(object):
         self._v_boundary_inner = None
         self._v_boundary_outer = None
         self._velocity = None
+        self.raw_velocity = velocity
         self.v_boundary_inner = v_boundary_inner
         self.v_boundary_outer = v_boundary_outer
-        self.raw_velocity = velocity
         self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
