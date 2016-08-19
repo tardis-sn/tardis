@@ -235,6 +235,28 @@ class Simulation(object):
             emitted_luminosity, absorbed_luminosity,
             self.luminosity_requested))
 
+    def to_hdf(self, path_or_buf, path='', plasma_properties=None):
+        """
+        Store the simulation to an HDF structure.
+
+        Parameters
+        ----------
+        path_or_buf
+            Path or buffer to the HDF store
+        path : str
+            Path inside the HDF store to store the simulation
+        plasma_properties
+            `None` or a `PlasmaPropertyCollection` which will
+            be passed as the collection argument to the
+            plasma.to_hdf method.
+        Returns
+        -------
+        None
+        """
+        self.runner.to_hdf(path_or_buf, path)
+        self.model.to_hdf(path_or_buf, path)
+        self.plasma.to_hdf(path_or_buf, path, plasma_properties)
+
     @classmethod
     def from_config(cls, config):
         model = Radial1DModel.from_config(config)

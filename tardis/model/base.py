@@ -6,6 +6,7 @@ from astropy import constants, units as u
 
 from tardis.util import quantity_linspace, element_symbol2atomic_number
 from tardis.io.model_reader import read_density_file, read_abundances_file
+from tardis.io.util import to_hdf
 from density import HomologousDensity
 
 logger = logging.getLogger(__name__)
@@ -191,6 +192,27 @@ class Radial1DModel(object):
         if self.v_boundary_outer >= self.raw_velocity[-1]:
             return None
         return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
+
+    def to_hdf(self, path_or_buf, path=''):
+        """
+        Store the model to an HDF structure.
+
+        Parameters
+        ----------
+        path_or_buf
+            Path or buffer to the HDF store
+        path : str
+            Path inside the HDF store to store the model
+
+        Returns
+        -------
+        None
+
+        """
+        model_path = os.path.join(path, 'model')
+        properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer']
+        to_hdf(path_or_buf, model_path, {name: getattr(self, name) for name
+                                         in properties})
 
     @classmethod
     def from_config(cls, config):
