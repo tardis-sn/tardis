@@ -78,14 +78,19 @@ class DokuReport(HTMLReport):
                 self.dokuwiki_url = dokuwiki_details['url']
         else:
             # Save the html report file locally.
-            self.report_dirpath = os.path.join(report_config['dirpath'], tardis_githash[:7])
+            self.report_dirpath = os.path.join(
+                os.path.expandvars(os.path.expanduser(report_config['dirpath'])),
+                tardis_githash[:7]
+            )
+
             if os.path.exists(self.report_dirpath):
                 shutil.rmtree(self.report_dirpath)
             os.makedirs(self.report_dirpath)
+            os.makedirs(os.path.join(self.report_dirpath, 'assets'))
 
             super(DokuReport, self).__init__(
                 logfile=os.path.join(self.report_dirpath, "report.html"),
-                self_contained=True, has_rerun=False
+                self_contained=False, has_rerun=False
             )
 
     def _generate_report(self, session):
@@ -126,7 +131,11 @@ class DokuReport(HTMLReport):
                 pass
         else:
             # Save the file locally at "self.logfile" path
-            super(DokuReport, self)._save_report(report_content)
+            with open(self.logfile, 'w') as f:
+                f.write(report_content)
+
+            with open(os.path.join(self.report_dirpath, 'assets', 'style.css'), 'w') as f:
+                f.write(self.style_css)
 
     def _wiki_overview_entry(self):
         """Makes an entry of current test run on overview page of dokuwiki."""

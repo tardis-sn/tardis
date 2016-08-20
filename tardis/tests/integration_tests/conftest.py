@@ -6,7 +6,7 @@ import pytest
 
 from tardis import __githash__ as tardis_githash
 from tardis.tests.integration_tests.report import DokuReport
-from tardis.tests.integration_tests.plot_helpers import PlotUploader
+from tardis.tests.integration_tests.plot_helpers import PlotUploader, LocalPlotSaver
 
 
 def pytest_configure(config):
@@ -59,7 +59,15 @@ def pytest_runtest_makereport(item, call):
 
 @pytest.fixture(scope="function")
 def plot_object(request):
-    return PlotUploader(request)
+    integration_tests_config = request.config.integration_tests_config
+    report_save_mode = integration_tests_config['report']['save_mode']
+
+    if report_save_mode == "remote":
+        return PlotUploader(request, request.config.dokureport.dokuwiki_url)
+    else:
+        return LocalPlotSaver(request, os.path.join(
+            request.config.dokureport.report_dirpath, "assets")
+        )
 
 
 @pytest.fixture(scope="class", params=[
