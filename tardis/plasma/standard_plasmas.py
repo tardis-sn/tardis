@@ -34,7 +34,7 @@ class LTEPlasma(BasePlasma):
             delta_input=delta_treatment, nlte_species=None)
 
 
-def assemble_plasma(config, model):
+def assemble_plasma(config, model, atom_data=None):
     """
     Create a BasePlasma instance from a Configuration object
     and a Radial1DModel.
@@ -43,6 +43,9 @@ def assemble_plasma(config, model):
     ----------
     config: ~io.config_reader.Configuration
     model: ~model.Radial1DModel
+    atom_data: ~atomic.AtomData
+        If None, an attempt will be made to read the atomic data
+        from config.
 
     Returns
     -------
@@ -53,17 +56,18 @@ def assemble_plasma(config, model):
     nlte_species = [species_string_to_tuple(s) for s in
                     config.plasma.nlte.species]
 
-    if 'atom_data' in config:
-        if os.path.isabs(config.atom_data):
-            atom_data_fname = config.atom_data
+    if atom_data is None:
+        if 'atom_data' in config:
+            if os.path.isabs(config.atom_data):
+                atom_data_fname = config.atom_data
+            else:
+                atom_data_fname = os.path.join(config.config_dirname,
+                                               config.atom_data)
         else:
-            atom_data_fname = os.path.join(config.config_dirname,
-                                           config.atom_data)
-    else:
-        raise ValueError('No atom_data option found in the configuration.')
+            raise ValueError('No atom_data option found in the configuration.')
 
-    logger.info('Reading Atomic Data from %s', atom_data_fname)
-    atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
+        logger.info('Reading Atomic Data from %s', atom_data_fname)
+        atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
 
     atom_data.prepare_atom_data(
         model.abundance.index,
