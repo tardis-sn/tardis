@@ -293,20 +293,5 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
         runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
 
-    if last_run:
-        postprocess(model,runner)
-
-def postprocess(model, runner):
-    
-    print  runner.Edotlu_estimator
-
-
-    Edotlu_norm_factor = (1 / 
-        (model.time_of_simulation * model.tardis_config.structure.volumes))
-    exptau = 1 - np.exp(- 
-                        runner.line_lists_tau_sobolevs.reshape(-1,
-                            model.tardis_config.structure["velocity"]["num"]) ) 
-    runner.Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
-
 def integrate(model,runner):
     print "Called"

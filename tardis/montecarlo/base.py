@@ -146,7 +146,6 @@ class MontecarloRunner(object):
                 )
 
 
-
     def legacy_return(self):
         return (self.output_nu, self.output_energy,
                 self.j_estimator, self.nu_bar_estimator,
