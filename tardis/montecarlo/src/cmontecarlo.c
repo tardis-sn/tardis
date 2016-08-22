@@ -816,7 +816,9 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
                                                                 distance, mt_state);
       if (virtual_packet > 0 && rpacket_get_tau_event (packet) > 10.0)
         {
-          rpacket_set_tau_event (packet, 100.0);
+          // Ideally we would like to set the weight 
+          // instead of the energy but this isn't possible yet
+          rpacket_set_energy (packet, 0.0);
           rpacket_set_status (packet, TARDIS_PACKET_STATUS_EMITTED);
         }
     }
