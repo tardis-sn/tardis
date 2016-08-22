@@ -14,15 +14,6 @@ def data_path(filename):
     data_dir = os.path.dirname(__file__)
     return os.path.abspath(os.path.join(data_dir, 'data', filename))
 
-def test_config_namespace_attribute_test():
-    namespace = config_reader.ConfigurationNameSpace({'param1':1})
-    assert namespace.param1 == 1
-
-def test_config_namespace_attribute_test():
-    namespace = config_reader.ConfigurationNameSpace({'param1':1})
-    with pytest.raises(AttributeError):
-        assert namespace.param2 == 1
-
 
 def test_convergence_section_parser():
     test_convergence_section = {'type': 'damped',
