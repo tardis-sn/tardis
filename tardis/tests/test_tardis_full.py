@@ -11,7 +11,6 @@ from tardis.model import Radial1DModel
 
 from tardis.io.config_reader import Configuration
 from tardis.montecarlo.base import MontecarloRunner
-from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 
 
 
@@ -102,42 +101,3 @@ class TestSimpleRun():
         for prop, prop_type in required_props.items():
 
             assert type(getattr(self.model.runner, prop)) == prop_type, ("wrong type of attribute '{}': expected {}, found {}".format(prop, prop_type, type(getattr(self.model.runner, prop))))
-
-
-    def test_legacy_model_properties(self):
-        """Tests whether a number of model attributes exist and also verifies
-        their types
-
-        Currently, model attributes needed to run the gui and to call the model
-        routine to_hdf5 are checked.
-
-        Notes
-        -----
-        The list of properties may be incomplete
-
-        """
-
-        props_required_by_gui = dict([
-                ("converged", bool),
-                ("iterations_executed", int),
-                ("iterations_max_requested", int),
-                ("current_no_of_packets", int),
-                ("no_of_packets", int),
-                ("no_of_virtual_packets", int),
-                ])
-        props_required_by_tohdf5 = dict([
-                ("runner", MontecarloRunner),
-                ("plasma_array", LegacyPlasmaArray),
-                ("last_line_interaction_in_id", np.ndarray),
-                ("last_line_interaction_out_id", np.ndarray),
-                ("last_line_interaction_shell_id", np.ndarray),
-                ("last_line_interaction_in_id", np.ndarray),
-                ("last_line_interaction_angstrom", u.quantity.Quantity),
-                ])
-
-        required_props = props_required_by_gui.copy()
-        required_props.update(props_required_by_tohdf5)
-
-        for prop, prop_type in required_props.items():
-
-            assert type(getattr(self.model, prop)) == prop_type, ("wrong type of attribute '{}': expected {}, found {}".format(prop, prop_type, type(getattr(self.model, prop))))
