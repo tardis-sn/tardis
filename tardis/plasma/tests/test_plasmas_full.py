@@ -6,7 +6,7 @@ from astropy import units as u
 import os
 import h5py
 
-from tardis.base import run_tardis
+from tardis.simulation import Simulation
 from tardis.io.util import yaml_load_config_file
 
 
@@ -36,19 +36,21 @@ class TestPlasmas():
         self.config_yaml = yaml_load_config_file(
             'tardis/plasma/tests/data/plasma_test_config_lte.yml')
         self.config_yaml['atom_data'] = self.atom_data_filename
-        self.lte_model = run_tardis(self.config_yaml)
+        self.lte_simulation = Simulation.from_config(self.config_yaml)
+        self.lte_simulation.run()
         self.config_yaml = yaml_load_config_file(
             'tardis/plasma/tests/data/plasma_test_config_nlte.yml')
         self.config_yaml['atom_data'] = self.atom_data_filename
-        self.nlte_model = run_tardis(self.config_yaml)
+        self.nlte_simulation = Simulation.from_config(self.config_yaml)
+        self.nlte_simulation.run()
 
     def test_lte_plasma(self, plasma_compare_data):
         old_plasma_t_rads = plasma_compare_data['test_lte1/t_rad']
         old_plasma_levels = plasma_compare_data['test_lte1/levels']
 
-        new_plasma_t_rads = self.lte_model.t_rads / u.Unit('K')
+        new_plasma_t_rads = self.lte_simulation.model.t_rads / u.Unit('K')
         new_plasma_levels = \
-            self.lte_model.plasma.get_value(
+            self.lte_simulation.plasma.get_value(
             'level_number_density').ix[8].ix[1][10].values
         np.testing.assert_allclose(
             new_plasma_t_rads, old_plasma_t_rads, atol=100)
@@ -58,9 +60,9 @@ class TestPlasmas():
     def test_nlte_plasma(self, plasma_compare_data):
         old_plasma_t_rads = plasma_compare_data['test_nlte1/t_rad']
         old_plasma_levels = plasma_compare_data['test_nlte1/levels']
-        new_plasma_t_rads = self.nlte_model.t_rads / u.Unit('K')
+        new_plasma_t_rads = self.nlte_simulation.model.t_rads / u.Unit('K')
         new_plasma_levels = \
-            self.nlte_model.plasma.get_value(
+            self.nlte_simulation.plasma.get_value(
             'level_number_density').ix[2].ix[1][10].values
         np.testing.assert_allclose(
             new_plasma_t_rads, old_plasma_t_rads, atol=150)
