@@ -916,6 +916,11 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
   printf("Nu             S_ul      \n");
   for (int idx = 0; idx < storage->no_of_lines; ++idx)
   {      
-      printf("%e   %e\n",storage->line_list_nu[idx], storage->line_lists_Edotlu[idx]);
+      printf("%e: ",storage->line_list_nu[idx]);
+      for (int shell = 0; shell  < storage->no_of_shells; ++shell)
+      {
+          printf("%e, ", storage->line_lists_Edotlu[idx+storage->no_of_lines*shell]);
+      }
+      printf("\n\n");
   }
 }
