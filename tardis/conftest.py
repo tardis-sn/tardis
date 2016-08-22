@@ -7,10 +7,9 @@ from astropy.tests.pytest_plugins import (
         pytest_addoption as _pytest_add_option
     )
 
-import tardis
 import pytest
+
 from tardis.io.atomic import AtomData
-from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
 
 ###
@@ -57,6 +56,8 @@ try:
 except NameError:   # Needed to support Astropy <= 1.0.0
     pass
 
+DEFAULT_UUID = '94af35cb55d22ec5020914ea9409a1cb'
+
 # -------------------------------------------------------------------------
 # Initialization
 # -------------------------------------------------------------------------
@@ -88,24 +89,12 @@ def atomic_data_fname():
 
 @pytest.fixture
 def kurucz_atomic_data(atomic_data_fname):
-    atomic_data = AtomData.from_hdfstore(atomic_data_fname)
-
-    if atomic_data.md5 != '06709f04d369f07c58e01a7d0f34bd10':
-        pytest.skip('Need default Kurucz atomic dataset '
-                    '(md5="06709f04d369f07c58e01a7d0f34bd10"')
+    atomic_data = AtomData.from_hdf(atomic_data_fname)
+    
+    if atomic_data.md5 != DEFAULT_UUID:
+        pytest.skip('Need default Kurucz atomic dataset (md5="{}"'.format(DEFAULT_UUID))
     else:
         return atomic_data
-
-
-@pytest.fixture
-def test_data_path():
-    return os.path.join(tardis.__path__[0], 'tests', 'data')
-
-
-@pytest.fixture
-def included_he_atomic_data(test_data_path):
-    atomic_db_fname = os.path.join(test_data_path, 'chianti_he_db.h5')
-    return AtomData.from_hdf5(atomic_db_fname)
 
 
 @pytest.fixture
