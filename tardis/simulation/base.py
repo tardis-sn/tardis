@@ -422,6 +422,10 @@ class Simulation(object):
         Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
         """
 
+        Edotlu_norm_factor = (1 / (model.time_of_simulation * model.tardis_config.structure.volumes))
+        exptau = 1 - np.exp(- model.plasma.tau_sobolevs) 
+        self.runner.Edotlu = Edotlu_norm_factor * exptau * self.runner.Edotlu_estimator
+
         upper_level_index = model.atom_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
         e_dot_lu          = pd.DataFrame(self.runner.Edotlu, index=upper_level_index)
         e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
