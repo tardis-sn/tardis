@@ -15,7 +15,7 @@ from tardis.plasma.properties import *
 def atomic_data(selected_atoms):
     atomic_db_fname = os.path.join(tardis.__path__[0], 'tests', 'data',
                                    'chianti_he_db.h5')
-    atom_data = AtomData.from_hdf5(atomic_db_fname)
+    atom_data = AtomData.from_hdf(atomic_db_fname)
     atom_data.prepare_atom_data(selected_atoms)
     return atom_data
 
