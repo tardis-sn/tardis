@@ -45,6 +45,19 @@ def read_density_file(filename, filetype):
                     'simple_ascii': read_simple_ascii_density}
 
     time_of_model,velocity, unscaled_mean_densities = file_parsers[filetype](filename)
+    v_inner = velocity[:-1]
+    v_outer = velocity[1:]
+    invalid_volume_mask = (v_outer - v_inner) <= 0
+    if invalid_volume_mask.sum() > 0:
+        message = "\n".join(["cell {0:d}: v_inner {1:s}, v_outer "
+                             "{2:s}".format(i, v_inner_i, v_outer_i) for i,
+                               v_inner_i, v_outer_i in
+                             zip(np.arange(len(v_outer))[invalid_volume_mask],
+                                 v_inner[invalid_volume_mask],
+                                 v_outer[invalid_volume_mask])])
+        raise ConfigurationError("Invalid volume of following cell(s):\n"
+                                 "{:s}".format(message))
+
     return time_of_model, velocity, unscaled_mean_densities
 
 def read_abundances_file(abundance_filename, abundance_filetype,
