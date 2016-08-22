@@ -297,6 +297,9 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         postprocess(model,runner)
 
 def postprocess(model, runner):
+    
+    print  runner.Edotlu_estimator
+
 
     Edotlu_norm_factor = (1 / 
         (model.time_of_simulation * model.tardis_config.structure.volumes))

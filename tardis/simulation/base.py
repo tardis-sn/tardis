@@ -434,28 +434,8 @@ class Simulation(object):
         wave = model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
         att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
 
-        line_ids = model.atom_data.lines.index
-        upper_levels = model.atom_data.lines.level_number_upper.values
-        lower_levels = model.atom_data.lines.level_number_lower.values
-        t = model.tardis_config.supernova.time_explosion
-
-        Edot_u = {}
-        j_ul = {}
-        S_ul = {}
-
-        for i in range(1, int(max(upper_levels)+1), 1):
-            Edot_u[i] = model.runner.Edotlu[upper_levels == i].sum()
-
-        for i in xrange(len(line_ids)):
-            line_id = line_ids[i]
-            j_ul[line_id] = 1. / (4. * np.pi) * model.plasma.transition_probabilities.ix[line_id].values * Edot_u[upper_levels[i]]
-            S_ul[line_id] = (j_ul[line_id] * t * u.AA * model.atom_data.lines.ix[line_id].wavelength).to("1/cm^2")
-
-        S_ul  = np.array([S_ul[idx][0].value for idx in line_ids ])
-        
-        test = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
-
-        return test.ix[model.atom_data.lines.index.values].as_matrix(),S_ul.reshape(-1,1)
+        result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
+        return result.ix[model.atom_data.lines.index.values].as_matrix(),e_dot_u
 
     def integrate(self,model):
         num_shell, = self.runner.volume.shape
