@@ -320,10 +320,21 @@ class Simulation(object):
             return False
 
     @classmethod
-    def from_config(cls, config):
-        model = Radial1DModel.from_config(config)
-        plasma = assemble_plasma(config, model)
-        runner = MontecarloRunner.from_config(config)
+    def from_config(cls, config, **kwargs):
+        # Allow overriding some config structures. This is useful in some
+        # unit tests, and could be extended in all the from_config classmethods.
+        if 'model' in kwargs:
+            model = kwargs['model']
+        else:
+            model = Radial1DModel.from_config(config)
+        if 'plasma' in kwargs:
+            plasma = kwargs['plasma']
+        else:
+            plasma = assemble_plasma(config, model)
+        if 'runner' in kwargs:
+            runner = kwargs['runner']
+        else:
+            runner = MontecarloRunner.from_config(config)
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
                 u.Hz, u.spectral())
