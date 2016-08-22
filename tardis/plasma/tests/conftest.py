@@ -7,7 +7,6 @@ import pytest
 
 import tardis
 from tardis.atomic import AtomData
-from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 from tardis.plasma.properties import *
 
 # INPUTS
