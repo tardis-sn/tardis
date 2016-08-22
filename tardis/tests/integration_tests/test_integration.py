@@ -52,7 +52,7 @@ class TestIntegration(object):
             )
 
         # Load atom data file separately, pass it for forming tardis config.
-        self.atom_data = AtomData.from_hdf5(atom_data_filepath)
+        self.atom_data = AtomData.from_hdf(atom_data_filepath)
 
         # Check whether the atom data file in current run and the atom data
         # file used in obtaining the reference data are same.

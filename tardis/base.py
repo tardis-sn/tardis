@@ -24,7 +24,7 @@ def run_tardis(config, atom_data=None):
 
     if atom_data is not None:
         try:
-            atom_data = atomic.AtomData.from_hdf5(atom_data)
+            atom_data = atomic.AtomData.from_hdf(atom_data)
         except TypeError:
             atom_data = atom_data
 
