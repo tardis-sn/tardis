@@ -1,8 +1,12 @@
 import os
+import urlparse
+import yaml
 import pytest
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
+
 from astropy.tests.helper import assert_quantity_allclose
+from astropy.utils.data import download_file
 
 from tardis.atomic import AtomData
 from tardis.simulation.base import run_radial1d
@@ -19,7 +23,7 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path, atomic_data_fname):
+    def setup(self, request, reference, data_path):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
@@ -29,14 +33,31 @@ class TestIntegration(object):
 
         self.config_file = os.path.join(data_path['config_dirpath'], "config.yml")
 
+        # A quick hack to use atom data per setup. Atom data is ingested from
+        # local HDF or downloaded and cached from a url, depending on data_path
+        # keys.
+        atom_data_name = yaml.load(open(self.config_file))['atom_data']
+
+        # Get the path to HDF file:
+        if 'atom_data_url' in data_path:
+            # If the atom data is to be ingested from url:
+            atom_data_filepath = download_file(urlparse.urljoin(
+                base=data_path['atom_data_url'], url=atom_data_name), cache=True
+            )
+        else:
+            # If the atom data is to be ingested from local file:
+            atom_data_filepath = os.path.join(
+                data_path['atom_data_dirpath'], atom_data_name
+            )
+
         # Load atom data file separately, pass it for forming tardis config.
-        self.atom_data = AtomData.from_hdf5(atomic_data_fname)
+        self.atom_data = AtomData.from_hdf5(atom_data_filepath)
 
         # Check whether the atom data file in current run and the atom data
         # file used in obtaining the reference data are same.
         # TODO: hard coded UUID for kurucz atom data file, generalize it later.
-        kurucz_data_file_uuid1 = "5ca3035ca8b311e3bb684437e69d75d7"
-        assert self.atom_data.uuid1 == kurucz_data_file_uuid1
+        # kurucz_data_file_uuid1 = "5ca3035ca8b311e3bb684437e69d75d7"
+        # assert self.atom_data.uuid1 == kurucz_data_file_uuid1
 
         # Create a Configuration through yaml file and atom data.
         tardis_config = Configuration.from_yaml(
