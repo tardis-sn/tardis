@@ -14,14 +14,13 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation(object):
-    def __init__(self, iterations, hold_iterations, model, plasma, runner,
+    def __init__(self, iterations, model, plasma, runner,
                  no_of_packets, no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
                  luminosity_requested, convergence_strategy,
                  nthreads):
         self.converged = False
         self.iterations = iterations
-        self.hold_iterations = hold_iterations
         self.iterations_executed = 0
         self.model = model
         self.plasma = plasma
@@ -35,6 +34,8 @@ class Simulation(object):
         self.nthreads = nthreads
         if convergence_strategy.type in ('damped', 'specific'):
             self.convergence_strategy = convergence_strategy
+            self.converged = False
+            self.consecutive_converges_count = 0
         else:
             raise ValueError('Convergence strategy type is '
                              'neither damped nor specific '
@@ -92,8 +93,17 @@ class Simulation(object):
                 convergence_t_inner < self.convergence_strategy.t_inner.threshold)
 
             if np.all([t_rad_converged, w_converged, t_inner_converged]):
-                return True
+                hold_iterations = self.convergence_strategy.hold_iterations
+                self.consecutive_converges_count += 1
+                logger.info("Iteration converged {0:d}/{1:d} consecutive "
+                            "times.".format(self.consecutive_converges_count,
+                                            hold_iterations + 1))
+                # If an iteration has converged, require hold_iterations more
+                # iterations to converge before we conclude that the Simulation
+                # is converged.
+                return self.consecutive_converges_count == hold_iterations + 1
             else:
+                self.consecutive_converges_count = 0
                 return False
 
         else:
@@ -167,22 +177,10 @@ class Simulation(object):
 
     def run(self):
         start_time = time.time()
-        times_converged = 0
-        # If an iteration has converged, require hold_iterations more iterations
-        # to converge before we conclude that the Simulation is converged.
-        while (self.iterations_executed < self.iterations - 1 and
-                        times_converged <= self.hold_iterations):
+        while self.iterations_executed < self.iterations-1 and not self.converged:
             self.iterate(self.no_of_packets)
-            converged = self.advance_state()
-            if converged:
-                times_converged += 1
-                logger.info("Iteration converged {0:d}/{1:d} consecutive "
-                            "times.".format(times_converged,
-                                            self.hold_iterations + 1))
-            else:
-                times_converged = 0
+            self.converged = self.advance_state()
             self._call_back()
-        self.converged = times_converged == self.hold_iterations + 1
         # Last iteration
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
         self.runner.legacy_update_spectrum(self.no_of_virtual_packets)
@@ -351,7 +349,6 @@ class Simulation(object):
         last_no_of_packets = int(last_no_of_packets)
 
         return cls(iterations=config.montecarlo.iterations,
-                   hold_iterations=config.montecarlo.convergence_strategy.hold_iterations,
                    model=model,
                    plasma=plasma,
                    runner=runner,
