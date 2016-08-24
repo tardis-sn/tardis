@@ -233,6 +233,7 @@ class Radial1DModel(object):
 
             time_0, velocity, density_0 = read_density_file(
                 structure_fname, structure.filetype)
+            density_0 = density_0.insert(0, 0)
             homologous_density = HomologousDensity(density_0, time_0)
         else:
             raise NotImplementedError
