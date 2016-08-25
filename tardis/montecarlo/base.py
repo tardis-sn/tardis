@@ -307,3 +307,6 @@ class MontecarloRunner(object):
                       'j_estimator']
         to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
                                           in properties})
+
+    def print_c_version(self,arg,twod=None):
+        montecarlo.print_c_version(arg,twod)
