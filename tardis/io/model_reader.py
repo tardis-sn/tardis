@@ -128,7 +128,8 @@ def read_simple_ascii_density(fname):
         time_of_model = parse_quantity(time_of_model_string)
 
     data = recfromtxt(fname, skip_header=1,
-                      names=('velocity', 'density'), dtype=(float, float))
+                      names=('index', 'velocity', 'density'),
+                      dtype=(int, float, float))
     velocity = (data['velocity'] * u.km / u.s).to('cm/s')
     mean_density = (data['density'] * u.Unit('g/cm^3'))[1:]
 
