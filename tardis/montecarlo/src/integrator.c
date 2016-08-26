@@ -32,11 +32,33 @@ indexpair_t find_array_bounds_nonzero(double* array, int idx2, int len)
     return idxs;
 }
 
-indexpair_t find_nu_limits_for_shell_and_p(double p,int shl_idx, double* Rs, int no_shells)
+indexpair_t find_nu_limits_for_shell_and_p(double p,int shl_idx, double* Rs, int num_cross_shells, int* lens)
+{
+    if (no_shells > 1) {
+    assert(Rs[0] > Rs[1]);} // Decreasing order
+    double  R_ph = Rs[no_shells-1];
+
+    if (shl_idx <= lens[SHELLEN]){
+        blu_idx = shl_idx;
+        red_idx  = shl_idx++;}
+    else if (shl_idx > lens[SHELLEN]){
+        out_idx = shl_idx;
+        in_idx  = shl_idx++;}
+
+    r_out = sqrt( Rs[0]*Rs[0] - p*p )
+
+}
+
+int get_num_intersected_shells(double p, double* Rs, int no_shells)
 {
     assert(Rs[0] > Rs[1]); // Decreasing order
-    double R_ph = Rs[no_shells];
-    printf("Not implemented yet");
+    double  R_ph = Rs[no_shells-1];
+
+    for (int = r_idx; r_idx < no_shells; ++r_idx)
+    {
+        if (Rs[r_idx] < p) { break; } 
+    }
+    return r_idx; 
 }
 
 double integrate_intensity(double* I_nu,double* ps, int* lens)
@@ -77,10 +99,11 @@ void integrate_source_functions(double* L_nu, double* line_nu, double* taus, dou
             if (ps[p_idx] < R_ph) 
             {
                 I_nu[nu_idx] = I_BB[nu_idx];
-            }
-            for (int shl_idx = 0; shl_idx < lens[SHELLEN]; ++shl_idx)
+            }           
+            int64_t intersected_shells = get_num_intersected_shells(ps[p_idx],Rs,lens[SHELLEN]);
+            for (int shl_idx = 0; shl_idx < 2*lens[SHELLEN]; ++shl_idx)
             {
-                nu_lims = find_nu_limits_for_shell_and_p(ps[p_idx],shl_idx,Rs,R_ph);
+                nu_lims = find_nu_limits_for_shell_and_p(ps[p_idx],shl_idx,Rs,ntersected_shells);
                 for (int k_idx = nu_lims.start; k_idx < nu_lims.end; ++k_idx)
                 {
                     I_nu[nu_idx] = I_nu[nu_idx]*exp(-taus[k_idx*lens[SHELLEN]+shl_idx]) + att_S_ul[k_idx*lens[SHELLEN]+shl_idx];
