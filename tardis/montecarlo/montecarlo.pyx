@@ -90,6 +90,8 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t virt_packet_count
         int_type_t virt_array_size
 
+
+cdef extern from "src/integrator.h":
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
     void debug_print_arg(double* arg, int len)
     void debug_print_2d_arg(double* arg, int len1, int len2)
