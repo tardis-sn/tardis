@@ -8,6 +8,7 @@ import h5py
 
 from tardis.simulation import Simulation
 from tardis.io.util import yaml_load_config_file
+from tardis.io.config_reader import Configuration
 
 
 def data_path(fname):
@@ -36,12 +37,14 @@ class TestPlasmas():
         self.config_yaml = yaml_load_config_file(
             'tardis/plasma/tests/data/plasma_test_config_lte.yml')
         self.config_yaml['atom_data'] = self.atom_data_filename
-        self.lte_simulation = Simulation.from_config(self.config_yaml)
+        conf = Configuration.from_config_dict(self.config_yaml)
+        self.lte_simulation = Simulation.from_config(conf)
         self.lte_simulation.run()
         self.config_yaml = yaml_load_config_file(
             'tardis/plasma/tests/data/plasma_test_config_nlte.yml')
         self.config_yaml['atom_data'] = self.atom_data_filename
-        self.nlte_simulation = Simulation.from_config(self.config_yaml)
+        conf = Configuration.from_config_dict(self.config_yaml)
+        self.nlte_simulation = Simulation.from_config(conf)
         self.nlte_simulation.run()
 
     def test_lte_plasma(self, plasma_compare_data):
