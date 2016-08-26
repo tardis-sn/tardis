@@ -17,18 +17,17 @@ def data_path(filename):
 
 
 def test_simple_ascii_density_reader_time():
-    time_model, index, v_inner, v_outer, density = io.read_simple_ascii_density(data_path('tardis_simple_ascii_density_test.dat'))
+    time_model, velocity, density = io.read_simple_ascii_density(data_path('tardis_simple_ascii_density_test.dat'))
 
     assert time_model.unit.physical_type == 'time'
     npt.assert_almost_equal(time_model.to(u.day).value, 1.0)
 
 def test_simple_ascii_density_reader_data():
 
-    time_model, index, v_inner, v_outer, density = io.read_simple_ascii_density(data_path('tardis_simple_ascii_density_test.dat'))
-    assert index[0] == 0
-    assert v_inner.unit == u.Unit('cm/s')
+    time_model, velocity, density = io.read_simple_ascii_density(data_path('tardis_simple_ascii_density_test.dat'))
+    assert velocity.unit == u.Unit('cm/s')
 
-    npt.assert_allclose(v_inner[3].value, 1.3e4*1e5)
+    npt.assert_allclose(velocity[3].value, 1.3e4*1e5)
 
 
 def test_simple_ascii_abundance_reader():
@@ -36,32 +35,7 @@ def test_simple_ascii_abundance_reader():
     npt.assert_almost_equal(abundances.ix[1, 0], 1.542953e-08)
     npt.assert_almost_equal(abundances.ix[14, 54], 0.21864420000000001)
 
-@pytest.mark.parametrize("v_inner_boundary, v_outer_boundary, actual_v_inner, actual_v_outer, inner_index, outer_index", [
-    (0.0 * u.km/u.s, np.inf * u.km/u.s, np.nan, np.nan, None, None),
-    (500 * u.km/u.s, 6000 * u.km/u.s, np.nan, 6000 * u.km/u.s, None, 16),
-    (1300 * u.km/u.s, 6000 * u.km/u.s, 1300 * u.km/u.s, 6000 * u.km/u.s, 0, 16),
-    (1600 * u.km/u.s, 6000 * u.km/u.s, 1600 * u.km/u.s, 6000 * u.km/u.s, 1, 16),
-    (1889.063 * u.km/u.s, np.inf * u.km/u.s, 1889.063 * u.km/u.s, np.nan, 2, None)
-])
-def test_ascii_reader_density_boundaries(v_inner_boundary, v_outer_boundary, actual_v_inner, actual_v_outer,
-                                         inner_index, outer_index):
-    v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index = \
-        io.read_density_file(data_path('artis_model.dat'), 'artis', 19 * u.day, v_inner_boundary, v_outer_boundary)
-
-    assert inner_boundary_index == inner_index
-    assert outer_boundary_index == outer_index
-
-    if not np.isnan(actual_v_inner):
-        npt.assert_allclose(v_inner[0].value,
-                            actual_v_inner.to(v_inner[0].unit).value)
-
-    if not np.isnan(actual_v_outer):
-        npt.assert_allclose(v_outer[-1].value,
-                            actual_v_outer.to(v_outer[-1].unit).value)
 
 def test_ascii_reader_invalid_volumes():
-
     with pytest.raises(io.model_reader.ConfigurationError):
-        v_inner, v_outer, mean_densities, inner_boundary_index, outer_boundary_index = \
-            io.read_density_file(data_path('invalid_artis_model.dat'), 'artis', 19 *
-                                 u.day, 0.0 * u.km/u.s, np.inf * u.km/u.s)
+        io.read_density_file(data_path('invalid_artis_model.dat'), 'artis')
