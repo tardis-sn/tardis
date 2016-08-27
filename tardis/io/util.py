@@ -6,7 +6,6 @@ import numpy as np
 import collections
 from collections import OrderedDict
 import yaml
-import copy
 from astropy import constants, units as u
 from tardis.util import element_symbol2atomic_number
 
@@ -66,38 +65,6 @@ class YAMLLoader(yaml.Loader):
     A custom YAML loader containing all the constructors required
     to properly parse the tardis configuration.
     """
-    @classmethod
-    def add_implicit_resolver(cls, tag, regexp, first=None):
-        """
-        Parameters
-        ----------
-
-        tag:
-            The YAML tag to implicitly apply to any YAML scalar that matches `regexp`
-
-        regexp:
-            The regular expression to match YAML scalars against `tag`
-
-
-        Notes
-        -----
-
-        This classmethod is a monkey-patch for a copy() related bug
-        in the original class method which affects this yaml.Loader subclass.
-
-        This class method is to be removed when this bug gets fixed upstream.
-
-        https://bitbucket.org/xi/pyyaml/issues/57/add_implicit_resolver-on-a-subclass-may
-        """
-        if 'yaml_implicit_resolvers' not in cls.__dict__:
-            yaml_implicit_resolvers = {}
-            for k, v in cls.yaml_implicit_resolvers.items():
-                yaml_implicit_resolvers[k] = copy.copy(v)
-            cls.yaml_implicit_resolvers = yaml_implicit_resolvers
-        if first is None:
-            first = [None]
-        for ch in first:
-            cls.yaml_implicit_resolvers.setdefault(ch, []).append((tag, regexp))
 
     def construct_quantity(self, node):
         """
@@ -124,9 +91,9 @@ class YAMLLoader(yaml.Loader):
 
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
 YAMLLoader.add_implicit_resolver(u'!quantity',
-                                 MockRegexPattern(quantity_from_str))
+                                 MockRegexPattern(quantity_from_str), None)
 YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
-                                 MockRegexPattern(float))
+                                 MockRegexPattern(float), None)
 YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
                            YAMLLoader.mapping_constructor)
 
