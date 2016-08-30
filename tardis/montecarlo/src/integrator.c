@@ -91,10 +91,9 @@ int get_num_shell_cr(double p, const double* Rs, int len)
     int num;
     for(num = 0; num < len; ++num)
     {
-        if( p > Rs[num]) {
+        if( p >= Rs[num]) {
             break;}
     }
-    printf("\n");
     return num;
 }
 
