@@ -72,7 +72,7 @@ int get_cr_start(int no_of_cr_shells, double p, double R_ph)
     if (p >= R_ph) {
         return 0;}
     else if (p < R_ph) {
-        return no_of_cr_shells+1;
+        return no_of_cr_shells;
     }
 }
 
