@@ -388,7 +388,7 @@ def c_source_integrate(np.ndarray[float_t] L_nu, np.ndarray[float_t] line_nu, np
 
     integrate_source_functions(<double*> PyArray_DATA(L_nu), <double*> PyArray_DATA(line_nu), <double*> PyArray_DATA(taus),
             <double*> PyArray_DATA(att_S_ul), <double*> PyArray_DATA(I_BB), <double*> PyArray_DATA(nus), <double*> PyArray_DATA(ps), 
-            <double*> PyArray_DATA(Rs), <double> PyArray_DATA(R_ph), <int_type_t*> PyArray_DATA(lens))
+            <double*> PyArray_DATA(Rs), <double>R_ph, <int_type_t*> PyArray_DATA(lens))
 
     return L_nu
 
