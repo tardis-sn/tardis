@@ -17,7 +17,7 @@
 
 #define C_INV 3.33564e-11
 
-indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p,int cr_idx, int no_of_shell_cr, double* Rs,double inv_t)
+indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p,int cr_idx, int no_of_shell_cr, double inv_t, double* Rs, double* line_nu, int len)
 {
     double blu_R, red_R, z_blu, z_red, z_cr, nu_blu, nu_red;
     indexpair_t pair;
@@ -40,8 +40,13 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p,int cr_idx, in
         nu_red = nu * (1 + z_cr*C_INV*inv_t);
     }
 
-    pair.start = nu_blu;
-    pair.end   = nu_red;
+    for (int idx = 0; idx < len; ++idx)
+    {
+        if (line_nu[idx] == nu_blu){
+            pair.start = idx;}
+        if (line_nu[idx] == nu_red){
+            pair.end = idx;}
+    }
     
     return pair;
 }
@@ -130,24 +135,23 @@ void debug_print_2d_arg(double* arg,int len1, int len2)
 void integrate_source_functions(double* L_nu, double* line_nu, double* taus, double* att_S_ul, double* I_BB, double* nus, 
               double* ps, double* Rs, double R_ph, int64_t* lens)
 {
-    double I_nu[lens[SHELLEN]];
-    double inv_t = 1.8432e+42;
+    double* I_nu  = calloc(lens[PLEN], sizeof(double));
+    double  inv_t = 1.8432e+42;
     int no_of_shell_cr;
     indexpair_t nu_lims;
-    printf("Test: bajs!");
     for (int nu_idx = 0; nu_idx < lens[NULEN]; ++nu_idx)
     {
-        memset(I_nu,0.0,sizeof(I_nu));
+        memset(I_nu,0.0, lens[PLEN] * sizeof(I_nu));
         for (int p_idx = 0; p_idx < lens[PLEN]; ++p_idx)
         {
             if (ps[p_idx] < R_ph) 
             {
-                I_nu[nu_idx] = I_BB[nu_idx];
+                I_nu[p_idx] = I_BB[nu_idx];
             }           
             no_of_shell_cr = get_num_shell_cr(ps[p_idx],Rs,lens[SHELLEN]);
             for (int cr_idx = get_cr_start(no_of_shell_cr, ps[p_idx], R_ph); cr_idx < 2*no_of_shell_cr; ++cr_idx)
             {
-                nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_shell_cr, Rs, inv_t);
+                nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_shell_cr, inv_t, Rs, line_nu, lens[LINELEN]);
                 for (int k_idx = nu_lims.start; k_idx < nu_lims.end; ++k_idx)
                 {
                     I_nu[nu_idx] = I_nu[nu_idx] * exp(-taus[k_idx * lens[SHELLEN] + get_sh_idx(cr_idx,no_of_shell_cr)]) 
@@ -155,7 +159,7 @@ void integrate_source_functions(double* L_nu, double* line_nu, double* taus, dou
                 }
             }
         }
-        L_nu[nu_idx] = integrate_intensity(I_nu, ps, lens); 
+        L_nu[nu_idx] = integrate_intensity(I_nu, ps, lens[PLEN]); 
     }
     debug_print_arg(L_nu, lens[NULEN]);
 }
