@@ -53,10 +53,7 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
 
 double get_r(int cr_idx, int no_of_cr_shells, const double* Rs)
 {
-    if (cr_idx < no_of_cr_shells){
-        return Rs[cr_idx];}
-    else if (cr_idx < 2*no_of_cr_shells){
-        return Rs[(2*no_of_cr_shells - 1) - cr_idx];}
+    return Rs[ get_sh_idx(cr_idx, no_of_cr_shells)];
 }
 
 int get_cr_sign(int cr_idx, const int no_of_cr_shells)
@@ -80,6 +77,8 @@ int get_sh_idx(int cr_idx, int no_of_cr_shells)
 {
     if (cr_idx < no_of_cr_shells){
        return cr_idx;}
+    else if (cr_idx == 2*no_of_cr_shells-1){ // last crossing, used for indexing Rs
+        return 0;}
     else if (cr_idx < 2*no_of_cr_shells-1){
         return (2*(no_of_cr_shells-1) - cr_idx);}
 
