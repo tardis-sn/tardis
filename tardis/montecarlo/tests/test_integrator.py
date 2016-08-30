@@ -60,16 +60,18 @@ cmontecarlo_methods = CDLL(cmontecarlo_filepath)
      ( 5  ,  3   ,   1)]
 )
 def test_get_cr_sign(cr_idx, no_of_cr_shells,expected):
-    result = cmontecarlo_methods.get_cr_sign(cr_idx, no_of_cr_shells)
+    result = cmontecarlo_methods.get_cr_sign(c_int64(cr_idx), c_int64(no_of_cr_shells))
     assert_equal(result,expected)
 
 @pytest.mark.parametrize(
     ['no_of_cr_shells', 'p' , 'R_ph', 'expected'],
     [( 3 , 1797120000000000.0 , 1235520000000000.0, 0),
      ( 3 ,  898560000000000.0 , 1235520000000000.0, 3),
-     ( 3 , 1235520000000000.0 , 1235520000000000.0, 0),
+     ( 3 , 1235520000000000.0 , 1235520000000000.0, 0)]
 )
 def test_get_cr_start(no_of_cr_shells, p, R_ph, expected):
-    result = cmontecarlo_methods.get_cr_start(no_of_cr_shells,p,R_ph)
+    result = cmontecarlo_methods.get_cr_start(c_int64(no_of_cr_shells), c_double(p), c_double(R_ph))
     assert_equal(result,expected)
+
+
 
