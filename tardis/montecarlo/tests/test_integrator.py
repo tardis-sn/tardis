@@ -73,5 +73,19 @@ def test_get_cr_start(no_of_cr_shells, p, R_ph, expected):
     result = cmontecarlo_methods.get_cr_start(c_int64(no_of_cr_shells), c_double(p), c_double(R_ph))
     assert_equal(result,expected)
 
+@pytest.mark.parametrize(
+    ['cr_idx', 'no_of_cr_shells', 'expected'],
+    [( 0  ,  1  ,  0),
+     ( 2  ,  4  ,  2),
+     ( 3  ,  4  ,  3),
+     ( 4  ,  4  ,  2),
+     ( 5  ,  4  ,  1),
+     ( 3  ,  3  ,  1),
+     ( 2  ,  3  ,  2)]
+)
+def test_get_sh_idx(cr_idx, no_of_cr_shells,expected):
+    result = cmontecarlo_methods.get_sh_idx(c_int64(cr_idx), c_int64(no_of_cr_shells))
+    assert_equal(result,expected)
+
 
 

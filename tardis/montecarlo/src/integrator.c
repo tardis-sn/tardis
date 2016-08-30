@@ -80,8 +80,8 @@ int get_sh_idx(int cr_idx, int no_of_cr_shells)
 {
     if (cr_idx < no_of_cr_shells){
        return cr_idx;}
-    else if (cr_idx < 2*no_of_cr_shells){
-        return ((2*no_of_cr_shells - 1) - cr_idx);}
+    else if (cr_idx < 2*no_of_cr_shells-1){
+        return (2*(no_of_cr_shells-1) - cr_idx);}
 
 }
 int get_num_shell_cr(double p, const double* Rs, int len)
