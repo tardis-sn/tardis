@@ -124,6 +124,7 @@ class Radial1DModel(object):
 
         self.calculate_j_blues(init_detailed_j_blues=True)
         self.update_plasmas(initialize_nlte=True)
+        self.debugfun = None
 
     @property
     @deprecated('v1.5', 'spectrum will be removed from model. Use model.runner.spectrum instead.')
@@ -282,6 +283,5 @@ class Radial1DModel(object):
         metadata = pd.Series({'atom_data_uuid': self.atom_data.uuid1})
         metadata.to_hdf(path_or_buf,
                                  os.path.join(model_path, 'metadata'))
-
 
 

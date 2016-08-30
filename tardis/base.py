@@ -36,6 +36,6 @@ def run_tardis(config, atom_data=None):
             config, atom_data=atom_data)
 
     radial1d_mdl = model.Radial1DModel(tardis_config)
-    simulation.run_radial1d(radial1d_mdl)
+    radial1d_mdl.debugfun = simulation.run_radial1d(radial1d_mdl)
 
     return radial1d_mdl
