@@ -154,7 +154,7 @@ void integrate_source_functions(double* L_nu, double* line_nu, double* taus, dou
                 nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_shell_cr, inv_t, Rs, line_nu, lens[LINELEN]);
                 for (int k_idx = nu_lims.start; k_idx < nu_lims.end; ++k_idx)
                 {
-                    I_nu[nu_idx] = I_nu[nu_idx] * exp(-taus[k_idx * lens[SHELLEN] + get_sh_idx(cr_idx,no_of_shell_cr)]) 
+                    I_nu[p_idx] = I_nu[p_idx] * exp(-taus[k_idx * lens[SHELLEN] + get_sh_idx(cr_idx,no_of_shell_cr)]) 
                                     + att_S_ul[k_idx * lens[SHELLEN] + get_sh_idx(cr_idx,no_of_shell_cr)];
                 }
             }
