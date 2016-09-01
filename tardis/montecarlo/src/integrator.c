@@ -17,7 +17,7 @@
 #define M_PI acos(-1.0)
 #define C_INV 3.33564e-11
 
-indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_t, const double* Rs, const double* line_nu, int len)
+indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len)
 {
     double blu_R, red_R, z_blu, z_red, z_cr, nu_blu, nu_red;
     indexpair_t pair;
@@ -30,22 +30,22 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
         red_R = get_r(cr_idx,no_of_cr_shells,Rs);
         z_blu = sqrt( blu_R*blu_R - p*p );
         z_red = sqrt( red_R*red_R - p*p );
-        nu_blu = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*C_INV*inv_t);
-        nu_red = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_red*C_INV*inv_t);
+        nu_blu = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
+        nu_red = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_red*inv_ct);
     }
     else 
     {
         z_cr = sqrt( Rs[cr_idx]*Rs[cr_idx] - p*p );
-        nu_blu = nu * (1 - z_cr*C_INV*inv_t);
-        nu_red = nu * (1 + z_cr*C_INV*inv_t);
+        nu_blu = nu * (1 - z_cr*inv_ct);
+        nu_red = nu * (1 + z_cr*inv_ct);
     }
 
     for (int idx = 0; idx < len; ++idx)
     {
-        if (line_nu[idx] == nu_blu){
+        if (line_nu[idx] >= nu_blu){
             pair.start = idx;}
-        if (line_nu[idx] == nu_red){
-            pair.end = idx;}
+        if (line_nu[idx] <= nu_red){
+            pair.end = idx-1;}
     }
     
     return pair;
@@ -131,10 +131,9 @@ void debug_print_2d_arg(double* arg,int len1, int len2)
 }
 
 void integrate_source_functions(double* L_nu, const double* line_nu, const double* taus, const double* att_S_ul, const double* I_BB, 
-        const double* nus, const double* ps, const double* Rs, double R_ph, const int64_t* lens)
+        const double* nus, const double* ps, const double* Rs, double R_ph, double inv_ct, const int64_t* lens)
 {
     double* I_nu  = calloc(lens[PLEN], sizeof(double));
-    double  inv_t = 1.8432e+42;
     int no_of_cr_shells;
     indexpair_t nu_lims;
     for (int nu_idx = 0; nu_idx < lens[NULEN]; ++nu_idx)
@@ -151,7 +150,7 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
             printf("start %d, end %d\n", get_cr_start(no_of_cr_shells, ps[p_idx], R_ph),  2*no_of_cr_shells);
             for (int cr_idx = get_cr_start(no_of_cr_shells, ps[p_idx], R_ph); cr_idx < 2*no_of_cr_shells; ++cr_idx)
             {
-                nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_cr_shells, inv_t, Rs, line_nu, lens[LINELEN]);
+                nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN]);
                 printf("Inner loop from %d to %d; ",nu_lims.start,nu_lims.end);
                 for (int k_idx = nu_lims.start; k_idx < nu_lims.end; ++k_idx)
                 {

@@ -47,6 +47,7 @@ from ctypes import CDLL, byref, c_uint, c_int, c_int64, c_double, c_ulong, POINT
 from numpy.testing import assert_equal, assert_almost_equal
 
 from tardis import __path__ as path
+from tardis.montecarlo.struct import IndexPair
 
 cmontecarlo_filepath = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 cmontecarlo_methods = CDLL(cmontecarlo_filepath)
@@ -118,3 +119,22 @@ def test_get_r(cr_idx, no_of_cr_shells, Rs, expected):
     cmontecarlo_methods.get_r.restype = c_double
     result = cmontecarlo_methods.get_r(c_int64(cr_idx), c_int64(no_of_cr_shells), Rs)
     assert_almost_equal(result, expected)
+
+RS_SIX_SHELL = np.array([2.24640000e+15, 2.07792000e+15, 1.90944000e+15, 1.74096000e+15, 1.57248000e+15, 1.40400000e+15, 1.23552000e+15])
+
+@pytest.mark.parametrize(
+    ['nu','p','cr_idx', 'no_of_cr_shells', 'inv_ct', 'Rs', 'line_nu', 'len', 'expected'],
+    [(c_double(6.16510725e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
+        (c_double * 5)(*TEST_RS), #Rs 
+        (c_double * 3)(*[ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14]), 3, # Line_nu, linelen
+        IndexPair(start=0,end=0)),
+    (c_double( 4.56675108e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
+        (c_double * 5)(*TEST_RS), #Rs 
+        (c_double * 3)(*[ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14]), 3, # Line_nu, linelen
+        IndexPair(start=1,end=1)),
+    ]
+
+def test_find_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_t, Rs, line_nu, len, expected):
+    cmontecarlo_methods.get_r.restype = IndexPair
+    result = cmontecarlo_methods.get_rfind_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_t, Rs, line_nu, len)
+    assert_equal(result, expected)

@@ -488,7 +488,7 @@ class Simulation(object):
         ps   = ps * R_max
 
         L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
-                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph)
+                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
 
         if False:
             for nu_idx,nu in enumerate(nus.value):

@@ -125,3 +125,9 @@ class RKState(Structure):
         ('has_gauss', c_int),
         ('gauss', c_double)
     ]
+
+class IndexPair(Structure):
+    _fields_ = [
+        ('start', c_int),
+        ('end', c_int)
+    ]    
