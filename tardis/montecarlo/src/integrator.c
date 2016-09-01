@@ -26,8 +26,8 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
     {
         assert(Rs[0] > Rs[1]); // Decreasing order
         
-        blu_R = get_r(cr_idx-1,no_of_cr_shells,Rs);
-        red_R = get_r(cr_idx,no_of_cr_shells,Rs);
+        blu_R = get_r(cr_idx,no_of_cr_shells,Rs);
+        red_R = get_r(cr_idx+1,no_of_cr_shells,Rs);
         z_blu = sqrt( blu_R*blu_R - p*p );
         z_red = sqrt( red_R*red_R - p*p );
         nu_blu = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
@@ -50,6 +50,34 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
     
     return pair;
 }
+
+double test_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len)
+{
+    double blu_R, red_R, z_blu, z_red, z_cr, nu_blu, nu_red;
+    double pair;
+
+    if (no_of_cr_shells > 1)
+    {
+        assert(Rs[0] > Rs[1]); // Decreasing order
+        
+        blu_R = get_r(cr_idx,no_of_cr_shells,Rs);
+        red_R = get_r(cr_idx+1,no_of_cr_shells,Rs);
+        z_blu = sqrt( blu_R*blu_R - p*p );
+        z_red = sqrt( red_R*red_R - p*p );
+        nu_blu = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
+        nu_red = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_red*inv_ct);
+    }
+    else 
+    {
+        z_cr = sqrt( Rs[cr_idx]*Rs[cr_idx] - p*p );
+        nu_blu = nu * (1 - z_cr*inv_ct);
+        nu_red = nu * (1 + z_cr*inv_ct);
+    }
+    pair =  (1 - z_blu*inv_ct);
+    
+    return nu_blu;
+}
+
 
 double get_r(int cr_idx, int no_of_cr_shells, const double* Rs)
 {

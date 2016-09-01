@@ -43,8 +43,9 @@ Please follow this design procedure while adding a new test:
 
 import os
 import pytest
+import numpy as np
 from ctypes import CDLL, byref, c_uint, c_int, c_int64, c_double, c_ulong, POINTER
-from numpy.testing import assert_equal, assert_almost_equal
+from numpy.testing import assert_equal, assert_almost_equal, assert_approx_equal
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import IndexPair
@@ -125,16 +126,42 @@ RS_SIX_SHELL = np.array([2.24640000e+15, 2.07792000e+15, 1.90944000e+15, 1.74096
 @pytest.mark.parametrize(
     ['nu','p','cr_idx', 'no_of_cr_shells', 'inv_ct', 'Rs', 'line_nu', 'len', 'expected'],
     [(c_double(6.16510725e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
-        (c_double * 5)(*TEST_RS), #Rs 
+        (c_double * 7)(*RS_SIX_SHELL), #Rs 
         (c_double * 3)(*[ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14]), 3, # Line_nu, linelen
-        IndexPair(start=0,end=0)),
+        (0,0)),
     (c_double( 4.56675108e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
-        (c_double * 5)(*TEST_RS), #Rs 
+        (c_double * 7)(*RS_SIX_SHELL), #Rs 
         (c_double * 3)(*[ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14]), 3, # Line_nu, linelen
-        IndexPair(start=1,end=1)),
+        (1,1)),
+    (c_double( 4.56675108e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
+        (c_double * 7)(*RS_SIX_SHELL), #Rs 
+        (c_double * 4)(*[4.56684917e+14, 4.56684013e+14, 4.56680743e+14, 4.56675108e+14]), 4, # Line_nu, linelen
+        (0,3)),
     ]
+)
+def test_find_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len, expected):
+    cmontecarlo_methods.find_nu_limits_for_crossing_and_p.restype = IndexPair
+    result = cmontecarlo_methods.find_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len)
+    assert_equal(result.start, expected[0])
+    assert_equal(result.end,   expected[1])
 
-def test_find_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_t, Rs, line_nu, len, expected):
-    cmontecarlo_methods.get_r.restype = IndexPair
-    result = cmontecarlo_methods.get_rfind_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_t, Rs, line_nu, len)
-    assert_equal(result, expected)
+@pytest.mark.parametrize(
+    ['nu','p','cr_idx', 'no_of_cr_shells', 'inv_ct', 'Rs', 'line_nu', 'len', 'expected'],
+    [(c_double(6.16510725e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
+        (c_double * 7)(*RS_SIX_SHELL), #Rs 
+        (c_double * 3)(*[ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14]), 3, # Line_nu, linelen
+        (6.03732521e+14,1.05)),
+#    (c_double( 4.56675108e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
+#        (c_double * 7)(*RS_SIX_SHELL), #Rs 
+#        (c_double * 3)(*[ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14]), 3, # Line_nu, linelen
+#        (0,1)),
+#    (c_double( 4.56675108e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
+#        (c_double * 7)(*RS_SIX_SHELL), #Rs 
+#        (c_double * 4)(*[4.56684917e+14, 4.56684013e+14, 4.56680743e+14, 4.56675108e+14]), 4, # Line_nu, linelen
+#        (0,3)),
+    ]
+)
+def test_test_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len, expected):
+    cmontecarlo_methods.test_nu_limits_for_crossing_and_p.restype = c_double
+    result = cmontecarlo_methods.test_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len)
+    assert_approx_equal(result, expected[0],significant=9)
