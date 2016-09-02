@@ -8,10 +8,9 @@
 
 #include "storage.h"
 #include "integrator.h"
+#include "cmontecarlo.h"
 
-#ifdef WITHOPENMP
 #include <omp.h>
-#endif
 
 #define NULEN   0
 #define LINELEN 1
@@ -95,25 +94,28 @@ calculate_z(double r, double p, double inv_t)
 }
 
 
-void populate_z(const storage_model_t *storage, const double p, double *oz)
+int64_t populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *oshell_id)
 {
     //const double *radius = storage->r_outer;
 
     // Abbreviations
     double *r = storage->r_outer;
-    const int N = storage->no_of_shells;
+    const int64_t N = storage->no_of_shells;
     double inv_t = storage->inverse_time_explosion;
     double z = 0;
 
-    int i = 0, offset = -1, middle=N-1;
+    int64_t i = 0, offset = -1, i_low, i_up;
 
     if (p <= storage->r_inner[0])
     {
         oz[0] = calculate_z(storage->r_inner[0], p, inv_t);
+        oshell_id[0] = 0;
         for(i = 0; i < N; ++i)
         { // Loop from outside to inside
             oz[i+1] = calculate_z(r[i], p, inv_t);
+            oshell_id[i+1] = i;
         }
+        return N + 1;
     }
     else
     {
@@ -125,12 +127,16 @@ void populate_z(const storage_model_t *storage, const double p, double *oz)
             if (offset == -1)
             {
                 offset = i;
-                middle = N - i - 1;
             }
+            i_low = N - i - 1;
+            i_up = N + i - 2 * offset;
 
-            oz[middle - (i - offset)] = -z;
-            oz[middle + (i - offset) + 1] = z;
+            oz[i_low] = -z;
+            oshell_id[i_low] = i;
+            oz[i_up] = z;
+            oshell_id[i_up] = i;
         }
+        return 2*( N - offset);
     }
 }
 
@@ -140,19 +146,27 @@ void _formal_integral(
 {
     // Initialization phase
     double *I_nu  = calloc(N, sizeof(double));
-    double *z = calloc( 2 * storage->no_of_shells + 1, sizeof(double));
-    double  inv_t = storage->inverse_time_explosion;
-    int spectrum_length = (storage->spectrum_end_nu - storage->spectrum_start_nu)/storage->spectrum_delta_nu;
+    double *z = calloc(2 * storage->no_of_shells + 1, sizeof(double));
+    int64_t *shell_id = calloc(2 * storage->no_of_shells + 1, sizeof(int64_t));
+
+
+    int64_t offset = 0, i = 0,
+        no_lines = storage->no_of_lines,
+        no_shells = storage->no_of_shells;
+    int64_t idx_nu_start = 0;
+
+    // TODO: This omits the last bin sometimes
+    int64_t spectrum_length =
+        (storage->spectrum_end_nu - storage->spectrum_start_nu)/storage->spectrum_delta_nu;
 
     double R_ph = storage->r_inner[0];
-    double R_max = storage->r_outer[storage->no_of_shells - 1];
-    double p = 0, r = 0, nu_start, nu_end, nu, exp_factor;
-
-    int offset = 0, inner_shell_idx=0, i;
+    double R_max = storage->r_outer[no_shells - 1];
+    double p = 0, nu_start, nu_end, nu, exp_factor;
 
     double *ptau, *patt_S_ul, *pline;
 
     // Loop over wavelengths in spectrum
+    printf("sizeof shell_id: %ld", sizeof(shell_id));
     for (int nu_idx = 0; nu_idx < spectrum_length ; ++nu_idx)
     {
         nu = storage->spectrum_start_nu + nu_idx * storage->spectrum_delta_nu;
@@ -160,19 +174,17 @@ void _formal_integral(
         // Loop over discrete values along line
         for (int p_idx = 0; p_idx < N; ++p_idx)
         {
-            // calloc should be moved to initialization
-            // memset here instead
-            // z is an array with
-            memset(z, 0, (2 * storage->no_of_shells + 1) * sizeof(z));
+            // TODO: precompute these and save as 2D array
+            memset(z, 0, (2 * no_shells + 1) * sizeof(*z));
+            memset(shell_id, 0, (2 * no_shells + 1) * sizeof(*shell_id));
 
-            // Maybe correct? At least this matches the BB
+            // Maybe correct? At least this matches the BB *exacly*
             p = R_max/N * (p_idx + 0.5);
 
-            populate_z(storage, p, z);
+            populate_z(storage, p, z, shell_id);
 
             // initialize I_nu
             if (p <= R_ph)
-            //{
                 I_nu[p_idx] = I_BB[nu_idx];
             else
                 I_nu[p_idx] = 0;
@@ -180,7 +192,8 @@ void _formal_integral(
             // TODO: Ugly loop
             // Loop over all intersections
 
-            for (i = 0; i < 2*storage->no_of_shells + 1; ++i)
+            // TODO: replace by number of intersections and remove break
+            for (i = 0; i < 2*no_shells + 1; ++i)
             {
                 if (z[i] == 0)
                     break;
@@ -189,38 +202,41 @@ void _formal_integral(
 
                 // Calculate offset properly
                 // Which shell is important for photosphere?
-                // This is might be right
+                offset = shell_id[i] * no_lines;
 
-                if (i < storage->no_of_shells)
-                    offset = (storage->no_of_shells - i - 1) * storage->no_of_lines;
-                else if (i == storage->no_of_shells)
-                    offset = 0;
-                else
-                    offset = (i - storage->no_of_shells - 1) * storage->no_of_lines;
+                // Find first contributing line
+                line_search(
+                            storage->line_list_nu, nu_start, no_lines,
+                            &idx_nu_start);
+                pline = storage->line_list_nu + idx_nu_start;
+                ptau = storage->line_lists_tau_sobolevs + offset + idx_nu_start;
+                patt_S_ul = att_S_ul + offset + idx_nu_start;
 
-                for (
-                        pline = storage->line_list_nu,
-                        ptau = &storage->line_lists_tau_sobolevs[offset],
-                        patt_S_ul = &att_S_ul[offset];
-                        pline < storage->line_list_nu + storage->no_of_lines;
+                for (;pline < storage->line_list_nu + no_lines;
+                        // We have to increment all pointers simultanously
                         ++pline,
                         ++ptau,
                         ++patt_S_ul)
-
                 {
-                    if (*pline > nu_start)
+                    if (*pline > nu_start) // TODO: test if this can be removed
                         continue;
                     if (*pline < nu_end)
                         break;
-                    exp_factor = exp(- (*ptau) );
+
+                    // maybe move to next line (optimization gets id of it anyway
+                    exp_factor = exp(- (*ptau) ); 
                     I_nu[p_idx] = I_nu[p_idx] * exp_factor + *patt_S_ul;
+
                 }
             }
             I_nu[p_idx] *= p;
         }
         L[nu_idx] = 8 * M_PI * M_PI * integrate_intensity(I_nu, R_max/N, N);
     }
+
+    // Free everything allocated on heap
     free(z);
+    free(shell_id);
     free(I_nu);
     printf("\n\n");
 }
