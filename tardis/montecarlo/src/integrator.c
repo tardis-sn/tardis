@@ -142,6 +142,15 @@ int get_num_shell_cr(double p, const double* Rs, int len)
     return num;
 }
 
+double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const double* att_S_ul, int sh_idx, int len)
+{
+    double result = I_nu;
+    for (int k_idx = nu_lims.start; k_idx <= nu_lims.end; ++k_idx)
+    {
+        result = result * exp(-taus[sh_idx * len + k_idx]) + att_S_ul[ sh_idx * len + k_idx];
+    }
+    return result;
+}
 
 double integrate_intensity(const double* I_nu, const double* ps, int len)
 {
@@ -166,21 +175,21 @@ void debug_print_arg(double* arg,int len)
 }
 void debug_print_2d_arg(double* arg,int len1, int len2)
 {
-    for (int64_t i = 0; i < len1; ++i)
+    for (int64_t j = 0; j < len1; ++j)
     {
-        for(int64_t j = 0; j < len2; ++j)
+        for(int64_t i = 0; i < len2; ++i)
         {
-        printf("[%d,%d,%d]: %.8f, ",i,j,i*len2+j,arg[i*len2+j]);
+        printf("[%d,%d:%d]: %.8f, ",i,j,i*len1+j,arg[i*len1+j]);
         }
         printf("\n\n");
-    }
+    } 
 }
 
 void integrate_source_functions(double* L_nu, const double* line_nu, const double* taus, const double* att_S_ul, const double* I_BB, 
         const double* nus, const double* ps, const double* Rs, double R_ph, double inv_ct, const int64_t* lens)
 {
     double* I_nu  = calloc(lens[PLEN], sizeof(double));
-    int no_of_cr_shells;
+    int no_of_cr_shells, sh_idx;
     indexpair_t nu_lims;
     for (int nu_idx = 0; nu_idx < lens[NULEN]; ++nu_idx)
     {
@@ -197,12 +206,8 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
             for (int cr_idx = get_cr_start(no_of_cr_shells, ps[p_idx], R_ph); cr_idx < 2*no_of_cr_shells; ++cr_idx)
             {
                 nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN]);
-                printf("Inner loop from %d to %d; ",nu_lims.start,nu_lims.end);
-                for (int k_idx = nu_lims.start; k_idx < nu_lims.end; ++k_idx)
-                {
-                    I_nu[p_idx] = I_nu[p_idx] * exp(-taus[k_idx * lens[SHELLEN] + get_sh_idx(cr_idx,no_of_cr_shells)]) 
-                                    + att_S_ul[k_idx * lens[SHELLEN] + get_sh_idx(cr_idx,no_of_cr_shells)];
-                }
+                sh_idx  = get_sh_idx(cr_idx,no_of_cr_shells);
+                I_nu[p_idx] = sum_lines(nu_lims, I_nu[p_idx], taus, att_S_ul, sh_idx, lens[SHELLEN]);
             }
         }
         L_nu[nu_idx] = integrate_intensity(I_nu, ps, lens[PLEN]); 

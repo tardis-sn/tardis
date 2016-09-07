@@ -14,6 +14,8 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
 double test_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len, int red);
 indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line_nu, int len);
 
+double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const double* att_S_ul, int sh_idx, int len);
+
 int get_cr_sign(int cr_idx, int no_of_cr_shells);
 int get_cr_start(int no_of_cr_shells, double p, double R_ph);
 int get_sh_idx(int cr_idx, int no_of_cr_shells);

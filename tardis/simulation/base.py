@@ -483,14 +483,14 @@ class Simulation(object):
 #                    num_shell,n_shell_p_outer)
 
 
-        I_BB = intensity_black_body(nus,T)
-        R_ph = self.runner.r_inner_cgs.min()
-        ps   = ps * R_max
+#        I_BB = intensity_black_body(nus,T)
+#        R_ph = self.runner.r_inner_cgs.min()
+#        ps   = ps * R_max
 
-        L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
-                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
+#        L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
+#                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
 
-        if False:
+        if True:
             for nu_idx,nu in enumerate(nus.value):
                 I_outer = np.zeros(ps_outer.shape)
                 for p_idx,p in enumerate(ps_outer):
@@ -520,6 +520,7 @@ class Simulation(object):
                         for k in ks:
                             I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
 
+
                 I_inner = np.zeros(ps_inner.shape)
                 for p_idx,p in enumerate(ps_inner):
                     z_cross_p = z_ct_inner[z_ct_inner[:,p_idx] > 0,p_idx]
@@ -544,6 +545,10 @@ class Simulation(object):
 
                         for k in ks:
                             I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
+                            if ( nu_idx % 200 ) == 0:
+                                print p_idx,idx, k, I_inner[p_idx]
+                        if (( nu_idx % 200 ) == 0) & (idx == 1):
+                            print p_idx,idx, I_inner[p_idx]
 
                 if ( nu_idx % 200 ) == 0:
                     print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
@@ -617,6 +622,8 @@ class Simulation(object):
             print num_shell
         elif quant == "n_shell":
             print n_shell_p_outer
+        elif quant == "c_S_ul":
+            montecarlo.print_c_version(att_S_ul,twod=True)
 
 
 def run_radial1d(radial1d_model, hdf_path_or_buf=None,

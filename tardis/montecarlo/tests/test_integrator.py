@@ -44,6 +44,7 @@ Please follow this design procedure while adding a new test:
 import os
 import pytest
 import numpy as np
+
 from ctypes import CDLL, byref, c_uint, c_int, c_int64, c_double, c_ulong, POINTER
 from numpy.testing import assert_equal, assert_almost_equal, assert_approx_equal
 
@@ -52,6 +53,22 @@ from tardis.montecarlo.struct import IndexPair
 
 cmontecarlo_filepath = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 cmontecarlo_methods = CDLL(cmontecarlo_filepath)
+
+RS_SIX_SHELL = np.array([2.24640000e+15, 2.07792000e+15, 1.90944000e+15, 1.74096000e+15, 1.57248000e+15, 1.40400000e+15, 1.23552000e+15])
+
+@pytest.fixture
+def three_lines_atom_data():
+    taus = np.array([[  2.62870433,   2.62870433,   2.62870433,   2.62870433, 2.62870433,   2.62870433],
+                     [ 19.81254555,  19.81254555,  19.81254555,  19.81254555, 19.81254555,  19.81254555],
+                     [  3.11753516,   3.11753516,   3.11753516,   3.11753516, 3.11753516,   3.11753516]])
+    s_ul = np.array([[  1.03081070e-05,   6.88799038e-06,   5.34986499e-06, 4.08517213e-06,   3.23265549e-06,   2.69619598e-06],
+                     [  1.61772204e-05,   1.06697121e-05,   8.03779370e-06, 6.42442807e-06,   5.19508084e-06,   4.39577502e-06],
+                     [  8.32617749e-06,   5.70817366e-06,   4.52953255e-06, 4.26894544e-06,   3.28933528e-06,   2.75121093e-06]])
+    line_nu = np.array([ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14])
+
+    return ((c_double * line_nu.size)(*line_nu.flatten()),
+            (c_double * s_ul.size)(*s_ul.flatten()),
+            (c_double * taus.size)(*taus.flatten()))
 
 @pytest.mark.parametrize(
     ['cr_idx', 'no_of_cr_shells', 'expected'],
@@ -122,7 +139,6 @@ def test_get_r(cr_idx, no_of_cr_shells, Rs, expected):
     result = cmontecarlo_methods.get_r(c_int64(cr_idx), c_int64(no_of_cr_shells), Rs)
     assert_almost_equal(result, expected)
 
-RS_SIX_SHELL = np.array([2.24640000e+15, 2.07792000e+15, 1.90944000e+15, 1.74096000e+15, 1.57248000e+15, 1.40400000e+15, 1.23552000e+15])
 
 @pytest.mark.parametrize(
     ['nu','p','cr_idx', 'no_of_cr_shells', 'inv_ct', 'Rs', 'line_nu', 'len', 'expected'],
@@ -175,8 +191,6 @@ def test_test_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_c
       (c_double * 4)(*[4.56684917e+14, 4.56684013e+14, 4.56680743e+14, 4.56675108e+14]), c_int(4), (0,3) ),
     ( c_double(5.0e+14), c_double(4.56684013e+14), 
       (c_double * 4)(*[4.56684917e+14, 4.56684013e+14, 4.56680743e+14, 4.56675108e+14]), c_int(4), (0,1) )]
-
-
 )
 def test_nu_limits_from_nu_pair(nu_blu, nu_red, line_nu, len, expected):
     cmontecarlo_methods.nu_idx_from_nu_pair.restype = IndexPair
@@ -184,4 +198,15 @@ def test_nu_limits_from_nu_pair(nu_blu, nu_red, line_nu, len, expected):
     assert_equal(result.start, expected[0])
     assert_equal(result.end,   expected[1])
 
+@pytest.mark.parametrize(
+    ['I_nu','nu_lims','sh_idx','len','expected'],
+    [(0.0, IndexPair(0,0), 0, 3,  1.03081070e-05),
+     (0.0, IndexPair(0,0), 1, 3,  4.08517213e-06),
+     (0.0, IndexPair(0,1), 1, 3,  4.08517213e-06)]
+)
+def test_sum_lines(I_nu,nu_lims, three_lines_atom_data, sh_idx, len, expected):  
+    cmontecarlo_methods.sum_lines.restype = c_double
+    result = cmontecarlo_methods.sum_lines(nu_lims, c_double(I_nu), three_lines_atom_data[2],
+            three_lines_atom_data[1], sh_idx, len)
+    assert_almost_equal(result,expected)
 
