@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
@@ -30,31 +31,43 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
         red_R = get_r(cr_idx+1,no_of_cr_shells,Rs);
         z_blu = sqrt( blu_R*blu_R - p*p );
         z_red = sqrt( red_R*red_R - p*p );
-        nu_blu = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
-        nu_red = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_red*inv_ct);
+        nu_blu = nu * (1 - get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
+        nu_red = nu * (1 - get_cr_sign(cr_idx,no_of_cr_shells)*z_red*inv_ct);
     }
     else 
     {
         z_cr = sqrt( Rs[cr_idx]*Rs[cr_idx] - p*p );
-        nu_blu = nu * (1 - z_cr*inv_ct);
-        nu_red = nu * (1 + z_cr*inv_ct);
+        nu_blu = nu * (1 + z_cr*inv_ct);
+        nu_red = nu * (1 - z_cr*inv_ct);
     }
 
+    pair = nu_idx_from_nu_pair(nu_blu, nu_red, line_nu, len);
+ 
+    return pair;
+}
+indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line_nu, int len)
+{
+    indexpair_t pair;
+    bool found_blu = false;
+    pair.end = len-1;
     for (int idx = 0; idx < len; ++idx)
     {
-        if (line_nu[idx] >= nu_blu){
-            pair.start = idx;}
+        if ((line_nu[idx] <= nu_blu) & (!found_blu)){
+            pair.start = idx;
+            found_blu = true;}
         if (line_nu[idx] <= nu_red){
-            pair.end = idx-1;}
+            pair.end = idx;
+            break;}
     }
-    
+
     return pair;
 }
 
-double test_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len)
+
+double test_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len, int red)
 {
     double blu_R, red_R, z_blu, z_red, z_cr, nu_blu, nu_red;
-    double pair;
+    double out;
 
     if (no_of_cr_shells > 1)
     {
@@ -64,8 +77,8 @@ double test_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no
         red_R = get_r(cr_idx+1,no_of_cr_shells,Rs);
         z_blu = sqrt( blu_R*blu_R - p*p );
         z_red = sqrt( red_R*red_R - p*p );
-        nu_blu = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
-        nu_red = nu * (1 + get_cr_sign(cr_idx,no_of_cr_shells)*z_red*inv_ct);
+        nu_blu = nu * (1 - get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
+        nu_red = nu * (1 - get_cr_sign(cr_idx+1,no_of_cr_shells)*z_red*inv_ct);
     }
     else 
     {
@@ -73,15 +86,22 @@ double test_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no
         nu_blu = nu * (1 - z_cr*inv_ct);
         nu_red = nu * (1 + z_cr*inv_ct);
     }
-    pair =  (1 - z_blu*inv_ct);
-    
-    return nu_blu;
+    out  = nu_blu;
+    if (red != 0){
+    out  = nu_red;}
+    return out;
 }
 
 
 double get_r(int cr_idx, int no_of_cr_shells, const double* Rs)
 {
-    return Rs[ get_sh_idx(cr_idx, no_of_cr_shells)];
+    int r_idx;
+    if (cr_idx < no_of_cr_shells){
+        r_idx = cr_idx;}
+    else if (cr_idx < 2*no_of_cr_shells){
+        r_idx = no_of_cr_shells-1 - cr_idx % no_of_cr_shells;}
+
+    return Rs[r_idx];
 }
 
 int get_cr_sign(int cr_idx, const int no_of_cr_shells)
@@ -105,8 +125,6 @@ int get_sh_idx(int cr_idx, int no_of_cr_shells)
 {
     if (cr_idx < no_of_cr_shells){
        return cr_idx;}
-    else if (cr_idx == 2*no_of_cr_shells-1){ // last crossing, used for indexing Rs
-        return 0;}
     else if (cr_idx < 2*no_of_cr_shells-1){
         return (2*(no_of_cr_shells-1) - cr_idx);}
 
