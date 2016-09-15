@@ -202,11 +202,25 @@ def test_nu_limits_from_nu_pair(nu_blu, nu_red, line_nu, len, expected):
     ['I_nu','nu_lims','sh_idx','len','expected'],
     [(0.0, IndexPair(0,0), 0, 3,  1.03081070e-05),
      (0.0, IndexPair(0,0), 1, 3,  4.08517213e-06),
-     (0.0, IndexPair(0,1), 1, 3,  4.08517213e-06)]
-)
+#     (0.0, IndexPair(0,1), 1, 3,  4.08517213e-06)]
+])
 def test_sum_lines(I_nu,nu_lims, three_lines_atom_data, sh_idx, len, expected):  
     cmontecarlo_methods.sum_lines.restype = c_double
     result = cmontecarlo_methods.sum_lines(nu_lims, c_double(I_nu), three_lines_atom_data[2],
             three_lines_atom_data[1], sh_idx, len)
+    assert_almost_equal(result,expected)
+
+
+@pytest.mark.parametrize(
+    ['i','j','len','expected'],
+    [(0, 0, 3, 1.03081070e-05),
+     (1, 1, 6, 1.06697121e-05),
+     (0, 5, 6, 2.69619598e-06),
+     (2, 2, 6, 4.52953255e-06),
+    ]
+)
+def test_intex_macro(three_lines_atom_data,i,j,len,expected):
+    cmontecarlo_methods.test_index_macro.restype = c_double
+    result = cmontecarlo_methods.test_index_macro(three_lines_atom_data[1],i,j,len)
     assert_almost_equal(result,expected)
 

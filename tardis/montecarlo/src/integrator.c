@@ -64,33 +64,6 @@ indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line
 }
 
 
-double test_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len, int red)
-{
-    double blu_R, red_R, z_blu, z_red, z_cr, nu_blu, nu_red;
-    double out;
-
-    if (no_of_cr_shells > 1)
-    {
-        assert(Rs[0] > Rs[1]); // Decreasing order
-        
-        blu_R = get_r(cr_idx,no_of_cr_shells,Rs);
-        red_R = get_r(cr_idx+1,no_of_cr_shells,Rs);
-        z_blu = sqrt( blu_R*blu_R - p*p );
-        z_red = sqrt( red_R*red_R - p*p );
-        nu_blu = nu * (1 - get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
-        nu_red = nu * (1 - get_cr_sign(cr_idx+1,no_of_cr_shells)*z_red*inv_ct);
-    }
-    else 
-    {
-        z_cr = sqrt( Rs[cr_idx]*Rs[cr_idx] - p*p );
-        nu_blu = nu * (1 - z_cr*inv_ct);
-        nu_red = nu * (1 + z_cr*inv_ct);
-    }
-    out  = nu_blu;
-    if (red != 0){
-    out  = nu_red;}
-    return out;
-}
 
 
 double get_r(int cr_idx, int no_of_cr_shells, const double* Rs)
@@ -141,17 +114,15 @@ int get_num_shell_cr(double p, const double* Rs, int len)
     }
     return num;
 }
-
 double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const double* att_S_ul, int sh_idx, int len)
 {
     double result = I_nu;
     for (int k_idx = nu_lims.start; k_idx <= nu_lims.end; ++k_idx)
     {
-        result = result * exp(-taus[sh_idx * len + k_idx]) + att_S_ul[ sh_idx * len + k_idx];
+        result = result * exp(-GET_IJ(taus,sh_idx,k_idx,len)) + GET_IJ(att_S_ul,sh_idx,k_idx,len);
     }
     return result;
 }
-
 double integrate_intensity(const double* I_nu, const double* ps, int len)
 {
     double result = 0.0;
@@ -164,25 +135,6 @@ double integrate_intensity(const double* I_nu, const double* ps, int len)
     }
     result += I_nu[len-1]*h*ps[len-1]/2.0;
     return result*8*M_PI*M_PI;
-}
-
-void debug_print_arg(double* arg,int len)
-{
-    for (int64_t i = 0; i < len; i++)
-    {
-        printf("%e, ",arg[i]);
-    }
-}
-void debug_print_2d_arg(double* arg,int len1, int len2)
-{
-    for (int64_t j = 0; j < len1; ++j)
-    {
-        for(int64_t i = 0; i < len2; ++i)
-        {
-        printf("[%d,%d:%d]: %.8f, ",i,j,i*len1+j,arg[i*len1+j]);
-        }
-        printf("\n\n");
-    } 
 }
 
 void integrate_source_functions(double* L_nu, const double* line_nu, const double* taus, const double* att_S_ul, const double* I_BB, 
@@ -214,3 +166,56 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
     }
     printf("\n\n");
 }
+
+
+double test_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len, int red)
+{
+    double blu_R, red_R, z_blu, z_red, z_cr, nu_blu, nu_red;
+    double out;
+
+    if (no_of_cr_shells > 1)
+    {
+        assert(Rs[0] > Rs[1]); // Decreasing order
+        
+        blu_R = get_r(cr_idx,no_of_cr_shells,Rs);
+        red_R = get_r(cr_idx+1,no_of_cr_shells,Rs);
+        z_blu = sqrt( blu_R*blu_R - p*p );
+        z_red = sqrt( red_R*red_R - p*p );
+        nu_blu = nu * (1 - get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
+        nu_red = nu * (1 - get_cr_sign(cr_idx+1,no_of_cr_shells)*z_red*inv_ct);
+    }
+    else 
+    {
+        z_cr = sqrt( Rs[cr_idx]*Rs[cr_idx] - p*p );
+        nu_blu = nu * (1 - z_cr*inv_ct);
+        nu_red = nu * (1 + z_cr*inv_ct);
+    }
+    out  = nu_blu;
+    if (red != 0){
+    out  = nu_red;}
+    return out;
+}
+
+double test_index_macro(const double* array, int i, int j, int jlen)
+{
+    return GET_IJ(array,i,j,jlen);
+}
+void debug_print_arg(double* arg,int len)
+{
+    for (int64_t i = 0; i < len; i++)
+    {
+        printf("%e, ",arg[i]);
+    }
+}
+void debug_print_2d_arg(double* arg,int len1, int len2)
+{
+    for (int64_t j = 0; j < len1; ++j)
+    {
+        for(int64_t i = 0; i < len2; ++i)
+        {
+        printf("[%d,%d:%d]: %.8f, ",i,j,i*len1+j,arg[i*len1+j]);
+        }
+        printf("\n\n");
+    } 
+}
+
