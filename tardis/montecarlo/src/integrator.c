@@ -77,7 +77,7 @@ double get_r(int cr_idx, int no_of_cr_shells, const double* Rs)
     return Rs[r_idx];
 }
 
-int get_cr_sign(int cr_idx, const int no_of_cr_shells)
+int get_cr_sign(int cr_idx, int no_of_cr_shells)
 {
     if (cr_idx < no_of_cr_shells){
         return -1;}
@@ -153,14 +153,16 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
                 I_nu[p_idx] = I_BB[nu_idx];
             }           
             no_of_cr_shells = get_num_shell_cr(ps[p_idx],Rs,lens[SHELLEN]);
-            printf("no_sh %d\n", no_of_cr_shells);
-            printf("start %d, end %d\n", get_cr_start(no_of_cr_shells, ps[p_idx], R_ph),  2*no_of_cr_shells);
-            for (int cr_idx = get_cr_start(no_of_cr_shells, ps[p_idx], R_ph); cr_idx < 2*no_of_cr_shells; ++cr_idx)
+//            printf("no_sh %d\n", no_of_cr_shells);
+//            printf("start %d, end %d\n", get_cr_start(no_of_cr_shells, ps[p_idx], R_ph),  2*no_of_cr_shells);
+            for (int cr_idx = get_cr_start(no_of_cr_shells, ps[p_idx], R_ph); cr_idx < 2*no_of_cr_shells-1; ++cr_idx)
             {
                 nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN]);
                 sh_idx  = get_sh_idx(cr_idx,no_of_cr_shells);
                 I_nu[p_idx] = sum_lines(nu_lims, I_nu[p_idx], taus, att_S_ul, sh_idx, lens[SHELLEN]);
+                printf("%d %f ", cr_idx, I_nu[p_idx]);
             }
+            printf("%f \n",I_nu[p_idx]);
         }
         L_nu[nu_idx] = integrate_intensity(I_nu, ps, lens[PLEN]); 
     }

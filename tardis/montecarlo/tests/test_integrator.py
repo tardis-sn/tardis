@@ -159,8 +159,8 @@ def test_get_r(cr_idx, no_of_cr_shells, Rs, expected):
 def test_find_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len, expected):
     cmontecarlo_methods.find_nu_limits_for_crossing_and_p.restype = IndexPair
     result = cmontecarlo_methods.find_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len)
-#    assert_equal(result.start, expected[0])
-#    assert_equal(result.end,   expected[1])
+    assert_equal(result.start, expected[0])
+    assert_equal(result.end,   expected[1])
 
 @pytest.mark.parametrize(
     ['nu','p','cr_idx', 'no_of_cr_shells', 'inv_ct', 'Rs', 'line_nu', 'len', 'expected'],

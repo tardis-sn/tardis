@@ -483,14 +483,14 @@ class Simulation(object):
 #                    num_shell,n_shell_p_outer)
 
 
-#        I_BB = intensity_black_body(nus,T)
-#        R_ph = self.runner.r_inner_cgs.min()
-#        ps   = ps * R_max
+        I_BB = intensity_black_body(nus,T)
+        R_ph = self.runner.r_inner_cgs.min()
+        ps   = ps * R_max
 
-#        L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
-#                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
+        L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
+                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
 
-        if True:
+        if False:
             for nu_idx,nu in enumerate(nus.value):
                 I_outer = np.zeros(ps_outer.shape)
                 for p_idx,p in enumerate(ps_outer):
