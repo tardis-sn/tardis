@@ -43,15 +43,17 @@ being an isolated environment that can be set to be the default one, but by no
 means will mess with your other environments. It will also work on computers
 where ``root``-rights are not available. Use these `instructions
 <http://docs.continuum.io/anaconda/install.html>`_ to install Anaconda on your
-machine. The next step is to create an environment for tardis that contains all
+machine. The next step is to create an environment for TARDIS that contains all
 of the necessary packages (this ensures that TARDIS requirements won't clash
 with any other python installs on disc::
 
-    conda create -n tardis --file https://raw.githubusercontent.com/tardis-sn/tardis/master/conda-requirements python=2
+First, download the environment definition file from::
 
-This command fails on some systems. If that is the case, you can download the file manually from the official repository or, if you have a local copy of the tardis repository, use the local file. The command in that case would be::
+    https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env27.yml
 
-    conda create -n tardis --file conda-requirements python=2
+To create the environment, change to the directory that you downloaded the environment definition file and run::
+
+    conda-env create -f tardis_env27.yml
 
 Then to activate this environment simply do::
 
@@ -61,7 +63,7 @@ and after you are done with TARDIS you can deactivate::
 
     source deactivate
 
-One does not need to recreate the environment, but simply activate it everytime
+One does not need to recreate the environment, but simply activate it every time
 TARDIS is used.
 
 To install the latest stable version of TARDIS simply do::
@@ -72,7 +74,7 @@ or to use the development version::
 
     pip install git+https://github.com/tardis-sn/tardis
 
-Installing TARDIS with virtualenvs
+Installing TARDIS with virtualenv
 ==================================
 
 
