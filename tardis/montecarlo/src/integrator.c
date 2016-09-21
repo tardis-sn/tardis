@@ -111,7 +111,7 @@ int64_t populate_z(const storage_model_t *storage, const double p, double *oz, i
         oz[0] = calculate_z(storage->r_inner[0], p, inv_t);
         oshell_id[0] = 0;
         for(i = 0; i < N; ++i)
-        { // Loop from outside to inside
+        { // Loop from inside to outside
             oz[i+1] = calculate_z(r[i], p, inv_t);
             oshell_id[i+1] = i;
         }
@@ -145,112 +145,111 @@ void _formal_integral(
         storage_model_t *storage, double *I_BB, double *att_S_ul, int N, double *L)
 {
     // Initialization phase
-    double *I_nu  = calloc(N, sizeof(double));
-    double *z = calloc(2 * storage->no_of_shells + 1, sizeof(double));
-    int64_t *shell_id = calloc(2 * storage->no_of_shells + 1, sizeof(int64_t));
-
-
-    int64_t offset = 0, i = 0,
-        no_lines = storage->no_of_lines,
-        no_shells = storage->no_of_shells;
-    int64_t idx_nu_start = 0;
-
-    // TODO: This omits the last bin sometimes
-    int64_t spectrum_length =
-        (storage->spectrum_end_nu - storage->spectrum_start_nu)/storage->spectrum_delta_nu;
-
-    double R_ph = storage->r_inner[0];
-    double R_max = storage->r_outer[no_shells - 1];
-    double p = 0, nu_start, nu_end, nu, exp_factor;
-
-    double *ptau, *patt_S_ul, *pline;
-
-    // Loop over wavelengths in spectrum
-    printf("sizeof shell_id: %ld", sizeof(shell_id));
-    for (int nu_idx = 0; nu_idx < spectrum_length ; ++nu_idx)
+#pragma omp parallel shared(L)
     {
-        nu = storage->spectrum_start_nu + nu_idx * storage->spectrum_delta_nu;
+        printf("Doing the formal integral with %d threads", omp_get_num_threads());
 
-        // Loop over discrete values along line
-        for (int p_idx = 0; p_idx < N; ++p_idx)
-        {
-            // TODO: precompute these and save as 2D array
-            memset(z, 0, (2 * no_shells + 1) * sizeof(*z));
-            memset(shell_id, 0, (2 * no_shells + 1) * sizeof(*shell_id));
+        int64_t offset = 0, i = 0,
+                size_line = storage->no_of_lines,
+                size_shell = storage->no_of_shells,
+                size_tau = size_line * size_shell,
+                size_z = 2 * size_shell + 1,
+                idx_nu_start = 0;
 
-            // Maybe correct? At least this matches the BB *exacly*
-            p = R_max/N * (p_idx + 0.5);
 
-            populate_z(storage, p, z, shell_id);
+        double *I_nu  = calloc(N, sizeof(double));
+        double *z = calloc(2 * storage->no_of_shells + 1, sizeof(double));
+        int64_t *shell_id = calloc(2 * storage->no_of_shells + 1, sizeof(int64_t));
+        double *exp_tau = malloc(size_tau * sizeof(double));
+        //double exp_tau[size_tau];
 
-            // initialize I_nu
-            if (p <= R_ph)
-                I_nu[p_idx] = I_BB[nu_idx];
-            else
-                I_nu[p_idx] = 0;
 
-            // TODO: Ugly loop
-            // Loop over all intersections
+        // TODO: This omits the last bin sometimes
+        int64_t spectrum_length =
+            (storage->spectrum_end_nu - storage->spectrum_start_nu)/storage->spectrum_delta_nu;
 
-            // TODO: replace by number of intersections and remove break
-            for (i = 0; i < 2*no_shells + 1; ++i)
-            {
-                if (z[i] == 0)
-                    break;
-                nu_start = nu * ( 1 - z[i]);
-                nu_end = nu * ( 1 - z[i+1]);
+        double R_ph = storage->r_inner[0];
+        double R_max = storage->r_outer[size_shell - 1];
+        double p = 0, nu_start, nu_end, nu, exp_factor;
 
-                // Calculate offset properly
-                // Which shell is important for photosphere?
-                offset = shell_id[i] * no_lines;
+        double *pexp_tau, *patt_S_ul, *pline;
 
-                // Find first contributing line
-                line_search(
-                            storage->line_list_nu, nu_start, no_lines,
-                            &idx_nu_start);
-                pline = storage->line_list_nu + idx_nu_start;
-                ptau = storage->line_lists_tau_sobolevs + offset + idx_nu_start;
-                patt_S_ul = att_S_ul + offset + idx_nu_start;
-
-                for (;pline < storage->line_list_nu + no_lines;
-                        // We have to increment all pointers simultanously
-                        ++pline,
-                        ++ptau,
-                        ++patt_S_ul)
-                {
-                    if (*pline > nu_start) // TODO: test if this can be removed
-                        continue;
-                    if (*pline < nu_end)
-                        break;
-
-                    // maybe move to next line (optimization gets id of it anyway
-                    exp_factor = exp(- (*ptau) ); 
-                    I_nu[p_idx] = I_nu[p_idx] * exp_factor + *patt_S_ul;
-
-                }
-            }
-            I_nu[p_idx] *= p;
+        // Prepare exp_tau
+        for (i = 0; i < size_tau; ++i) {
+            exp_tau[i] = exp( -storage->line_lists_tau_sobolevs[i]);
         }
-        L[nu_idx] = 8 * M_PI * M_PI * integrate_intensity(I_nu, R_max/N, N);
-    }
 
-    // Free everything allocated on heap
-    free(z);
-    free(shell_id);
-    free(I_nu);
-    printf("\n\n");
+        // Loop over wavelengths in spectrum
+#pragma omp for
+        for (int nu_idx = 0; nu_idx < spectrum_length ; ++nu_idx)
+        {
+            nu = storage->spectrum_start_nu + nu_idx * storage->spectrum_delta_nu;
+
+            // Loop over discrete values along line
+            for (int p_idx = 0; p_idx < N; ++p_idx)
+            {
+                // TODO: precompute these and save as 2D array
+                memset(z, 0, size_z * sizeof(*z));
+                memset(shell_id, 0, size_z * sizeof(*shell_id));
+
+                // Maybe correct? At least this matches the BB *exacly*
+                p = R_max/N * (p_idx + 0.5);
+
+                populate_z(storage, p, z, shell_id);
+
+                // initialize I_nu
+                if (p <= R_ph)
+                    I_nu[p_idx] = I_BB[nu_idx];
+                else
+                    I_nu[p_idx] = 0;
+
+                // TODO: Ugly loop
+                // Loop over all intersections
+
+                // TODO: replace by number of intersections and remove break
+                for (i = 0; i < size_z; ++i)
+                {
+                    if (z[i] == 0)
+                        break;
+                    nu_start = nu * ( 1 - z[i]);
+                    nu_end = nu * ( 1 - z[i+1]);
+
+                    // Calculate offset properly
+                    // Which shell is important for photosphere?
+                    offset = shell_id[i] * size_line;
+
+                    // Find first contributing line
+                    line_search(
+                            storage->line_list_nu, nu_start, size_line,
+                            &idx_nu_start
+                            );
+
+                    // Initialize pointers for inner loop
+                    pline = storage->line_list_nu + idx_nu_start;
+                    pexp_tau = exp_tau + offset + idx_nu_start;
+                    patt_S_ul = att_S_ul + offset + idx_nu_start;
+
+                    for (;pline < storage->line_list_nu + size_line;
+                            // We have to increment all pointers simultanously
+                            ++pline,
+                            ++pexp_tau,
+                            ++patt_S_ul)
+                    {
+                        if (*pline < nu_end)
+                            break;
+                        I_nu[p_idx] = I_nu[p_idx] * (*pexp_tau) + *patt_S_ul;
+
+                    }
+                }
+                I_nu[p_idx] *= p;
+            }
+            L[nu_idx] = 8 * M_PI * M_PI * integrate_intensity(I_nu, R_max/N, N);
+        }
+
+        // Free everything allocated on heap
+        free(z);
+        free(shell_id);
+        free(I_nu);
+        printf("\n\n");
+    }
 }
-
-/*
-
-double
-recursive_update_luminosity (double nu_start, double nu_end, double *line_nu, double *tau, double *att_S_ul, double initial)
-{
-    if (nu_start > nu_line[0])
-    {
-        return initial
-    }
-    else if (nu_end < nu_line
-        return recursive_update_luminosity(
-                nu_start, nu_end, line_nu - 1, line
-                */
