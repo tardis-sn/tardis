@@ -12,6 +12,7 @@ dependencies:
 - Cython=0.21
 - networkx=1.10
 - pytest=2.9.1
+- pyyaml=3.12
 - jsonschema=2.5.1
 
 
@@ -35,4 +36,3 @@ dependencies:
   - sphinxcontrib-tikz
   - coveralls
   - pytest-html==1.10.0
-  - pyyaml==3.12
