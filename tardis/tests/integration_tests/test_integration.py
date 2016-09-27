@@ -8,7 +8,8 @@ from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 from astropy.utils.data import download_file
 
-from tardis.atomic import AtomData
+
+from tardis.io.atomic import AtomData
 from tardis.simulation.base import run_radial1d
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
@@ -51,7 +52,7 @@ class TestIntegration(object):
             )
 
         # Load atom data file separately, pass it for forming tardis config.
-        self.atom_data = AtomData.from_hdf5(atom_data_filepath)
+        self.atom_data = AtomData.from_hdf(atom_data_filepath)
 
         # Check whether the atom data file in current run and the atom data
         # file used in obtaining the reference data are same.
