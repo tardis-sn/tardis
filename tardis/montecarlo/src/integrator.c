@@ -119,7 +119,7 @@ double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const dou
     double result = I_nu;
     for (int k_idx = nu_lims.start; k_idx <= nu_lims.end; ++k_idx)
     {
-        result = result * exp(-GET_IJ(taus,sh_idx,k_idx,len)) + GET_IJ(att_S_ul,sh_idx,k_idx,len);
+        result = result * exp(-GET_IJ(taus,sh_idx,k_idx,len));// + GET_IJ(att_S_ul,sh_idx,k_idx,len);
     }
     return result;
 }
