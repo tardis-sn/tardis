@@ -30,7 +30,7 @@ class HomologousDensity(object):
                                                     d_conf.w7_rho_0, -7)
             return cls(density_0, d_conf.w7_time_0)
         elif d_conf.type == 'uniform':
-            density_0 = (config.density.value.to('g cm^-3') *
+            density_0 = (d_conf.value.to('g cm^-3') *
                          np.ones(no_of_shells))
             time_0 = d_conf.get('time_0', time_explosion)
             return cls(density_0, time_0)
