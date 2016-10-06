@@ -32,7 +32,7 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
         z_blu = sqrt( blu_R*blu_R - p*p );
         z_red = sqrt( red_R*red_R - p*p );
         nu_blu = nu * (1 - get_cr_sign(cr_idx,no_of_cr_shells)*z_blu*inv_ct);
-        nu_red = nu * (1 - get_cr_sign(cr_idx,no_of_cr_shells)*z_red*inv_ct);
+        nu_red = nu * (1 - get_cr_sign(cr_idx+1,no_of_cr_shells)*z_red*inv_ct);
     }
     else 
     {
@@ -47,9 +47,9 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
 }
 indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line_nu, int len)
 {
-    indexpair_t pair;
+    indexpair_t pair = { .start = 0, .end = len-1};
     bool found_blu = false;
-    pair.end = len-1;
+
     for (int idx = 0; idx < len; ++idx)
     {
         if ((line_nu[idx] <= nu_blu) & (!found_blu)){
@@ -62,8 +62,6 @@ indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line
 
     return pair;
 }
-
-
 
 
 double get_r(int cr_idx, int no_of_cr_shells, const double* Rs)
@@ -119,7 +117,8 @@ double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const dou
     double result = I_nu;
     for (int k_idx = nu_lims.start; k_idx <= nu_lims.end; ++k_idx)
     {
-        result = result * exp(-GET_IJ(taus,sh_idx,k_idx,len));// + GET_IJ(att_S_ul,sh_idx,k_idx,len);
+        result = result * exp(-taus[k_idx*len +sh_idx]);// + GET_IJ(att_S_ul,sh_idx,k_idx,len);
+        printf(" %.4e ",exp(-taus[k_idx*len +sh_idx]));
     }
     return result;
 }
@@ -206,7 +205,8 @@ void debug_print_arg(double* arg,int len)
 {
     for (int64_t i = 0; i < len; i++)
     {
-        printf("%e, ",arg[i]);
+        printf("%d: %f, ", i, arg[i]);
+        if ( (i % 8 == 0 ) & i > 0){printf("\n");}
     }
 }
 void debug_print_2d_arg(double* arg,int len1, int len2)

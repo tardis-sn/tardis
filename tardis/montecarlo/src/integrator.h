@@ -3,7 +3,8 @@
 
 #include "storage.h"
 
-#define GET_IJ(ARR,I,J,JLEN) (ARR[I*JLEN+J])
+#define GET_IJ(ARR,I,J,JLEN) (ARR[J*JLEN+I])
+#define IJ(I,J,JLEN) [J * JLEN + I]
 typedef struct IndexPair
 {
     int start;
