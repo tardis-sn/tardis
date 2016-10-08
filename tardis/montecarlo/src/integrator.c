@@ -40,9 +40,14 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
         nu_blu = nu * (1 + z_cr*inv_ct);
         nu_red = nu * (1 - z_cr*inv_ct);
     }
-
-    pair = nu_idx_from_nu_pair(nu_blu, nu_red, line_nu, len);
- 
+    if ((nu_blu >= line_nu[0]) && (nu_red <= line_nu[len-1]) ) // Is nus in range of linelist? 
+    {
+        pair = nu_idx_from_nu_pair(nu_blu, nu_red, line_nu, len);
+    }
+    else 
+    {
+        pair.start = -1; //Signal no line found
+    }
     return pair;
 }
 indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line_nu, int len)
@@ -115,10 +120,10 @@ int get_num_shell_cr(double p, const double* Rs, int len)
 double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const double* att_S_ul, int sh_idx, int len)
 {
     double result = I_nu;
+
     for (int k_idx = nu_lims.start; k_idx <= nu_lims.end; ++k_idx)
     {
-        result = result * exp(-taus[k_idx*len +sh_idx]);// + GET_IJ(att_S_ul,sh_idx,k_idx,len);
-        printf(" %.4e ",exp(-taus[k_idx*len +sh_idx]));
+        result = result * exp(-taus[k_idx*len +sh_idx]) + GET_IJ(att_S_ul,sh_idx,k_idx,len);
     }
     return result;
 }
@@ -158,7 +163,9 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
             {
                 nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN]);
                 sh_idx  = get_sh_idx(cr_idx,no_of_cr_shells);
-                I_nu[p_idx] = sum_lines(nu_lims, I_nu[p_idx], taus, att_S_ul, sh_idx, lens[SHELLEN]);
+                if (nu_lims.start > -1) { // Just sum lines if any line was found                    
+                    I_nu[p_idx] = sum_lines(nu_lims, I_nu[p_idx], taus, att_S_ul, sh_idx, lens[SHELLEN]);}
+
                 printf("%d %f ", cr_idx, I_nu[p_idx]);
             }
             printf("%f \n",I_nu[p_idx]);
