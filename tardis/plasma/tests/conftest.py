@@ -14,9 +14,12 @@ from tardis.plasma.properties import *
 
 @pytest.fixture
 def atomic_data(selected_atoms):
-    atomic_db_fname = os.path.join(tardis.__path__[0], 'tests', 'data',
-                                   'chianti_he_db.h5')
-    atom_data = AtomData.from_hdf(atomic_db_fname)
+    atom_data_filename = os.path.expanduser(
+        os.path.expandvars(pytest.config.getvalue('atomic-dataset'))
+    )
+    assert os.path.exists(atom_data_filename), \
+    "{0} atomic datafiles does not seem to exist".format(atom_data_filename)
+    atom_data = AtomData.from_hdf(atom_data_filename)
     atom_data.prepare_atom_data(selected_atoms)
     return atom_data
 

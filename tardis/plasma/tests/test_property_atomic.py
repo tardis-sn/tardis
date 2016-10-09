@@ -4,8 +4,8 @@ def test_levels_property(excitation_energy):
     assert np.isclose(excitation_energy.ix[2].ix[0].ix[1], 3.17545416e-11)
 
 def test_lines_property(lines):
-    assert np.isclose(lines.ix[564954]['wavelength'], 10833.307)
-    assert lines.index[124] == 564954
+    assert np.isclose(lines.ix[639650]['wavelength'], 1.197236e+04)
+    assert lines.index[124] == 639650
 
 def test_lines_lower_level_index_property(lines_lower_level_index):
     assert lines_lower_level_index[9] == 0
