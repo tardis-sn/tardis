@@ -39,7 +39,6 @@ def simulation_compare_data(simulation_compare_data_fname):
 
 def test_plasma_estimates(simulation_one_loop, simulation_compare_data):
     t_rad, w = simulation_one_loop.runner.calculate_radiationfield_properties()
-
     npt.assert_allclose(simulation_one_loop.runner.nu_bar_estimator,
                         simulation_compare_data['test1/nubar_estimators'],
                         atol=0.0)
