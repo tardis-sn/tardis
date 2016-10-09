@@ -338,7 +338,7 @@ class AtomData(object):
 
             self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.ix[
                 self.macro_atom_data['transition_line_id']
-            ].values
+            ].astype(np.int64).values
 
             self.lines_upper2macro_reference_idx = self.macro_atom_references.ix[
                 tmp_lines_upper2level_idx, 'references_idx'
