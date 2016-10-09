@@ -47,7 +47,6 @@ class TestSimpleRun():
     def test_j_blue_estimators(self):
         j_blue_estimator = np.load(
             data_path('simple_test_j_blue_estimator.npy'))
-
         np.testing.assert_allclose(self.model.runner.j_blue_estimator,
                                    j_blue_estimator)
 
@@ -57,7 +56,6 @@ class TestSimpleRun():
 
         luminosity_density = luminosity_density * u.Unit(
             'erg / (Angstrom s)')
-
         np.testing.assert_allclose(
             self.model.runner.spectrum.luminosity_density_lambda,luminosity_density)
 
@@ -67,7 +65,6 @@ class TestSimpleRun():
 
         virtual_luminosity_density = virtual_luminosity_density * u.Unit(
             'erg / (Angstrom s)')
-
         np.testing.assert_allclose(
             self.model.runner.spectrum_virtual.luminosity_density_lambda,
             virtual_luminosity_density)
