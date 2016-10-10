@@ -56,8 +56,15 @@ cmontecarlo_methods = CDLL(cmontecarlo_filepath)
 
 RS_SIX_SHELL = np.array([2.24640000e+15, 2.07792000e+15, 1.90944000e+15, 1.74096000e+15, 1.57248000e+15, 1.40400000e+15, 1.23552000e+15])
 
+
+class DataCollection:
+    def __init__(self, **kwds):
+        self.__dict__.update(kwds)
+
+
 @pytest.fixture
-def three_lines_atom_data():
+def six_shell_three_lines():
+    rs = np.array([2.24640000e+15, 2.07792000e+15, 1.90944000e+15, 1.74096000e+15, 1.57248000e+15, 1.40400000e+15, 1.23552000e+15])
     line_nu = np.array([ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14])
     s_ul = np.array([[  1.03081070e-05,   6.88799038e-06,   5.34986499e-06, 4.08517213e-06,   3.23265549e-06,   2.69619598e-06],
                      [  1.61772204e-05,   1.06697121e-05,   8.03779370e-06, 6.42442807e-06,   5.19508084e-06,   4.39577502e-06],
@@ -65,10 +72,38 @@ def three_lines_atom_data():
     taus = np.array([[  2.62870433,   2.62870433,   2.62870433,   2.62870433, 2.62870433,   2.62870433],
                      [ 19.81254555,  19.81254555,  19.81254555,  19.81254555, 19.81254555,  19.81254555],
                      [  3.11753516,   3.11753516,   3.11753516,   3.11753516, 3.11753516,   3.11753516]])
+    return DataCollection(Rs    = (c_double * rs.size)(*rs.flatten(order='C')),
+                          lines = (c_double * line_nu.size)(*line_nu.flatten(order='C')),
+                          s_ul  = (c_double * s_ul.size)(*s_ul.flatten(order='C')),
+                          taus  = (c_double * taus.size)(*taus.flatten(order='C')),
+                          Rmax  = rs.max(),
+                          llen  = line_nu.size)
+@pytest.fixture
+def six_shell_one_lines():
+    rs = np.array([2.24640000e+15, 2.07792000e+15, 1.90944000e+15, 1.74096000e+15, 1.57248000e+15, 1.40400000e+15, 1.23552000e+15])
+    line_nu = np.array([ 6.16510725e+14])
+    s_ul = np.array([])
+    taus = np.array([])
+    return DataCollection(Rs    = (c_double * rs.size)(*rs.flatten(order='C')),
+                          lines = (c_double * line_nu.size)(*line_nu.flatten(order='C')),
+                          s_ul  = (c_double * s_ul.size)(*s_ul.flatten(order='C')),
+                          taus  = (c_double * taus.size)(*taus.flatten(order='C')),
+                          Rmax  = rs.max(),
+                          llen  = line_nu.size)
 
-    return ((c_double * line_nu.size)(*line_nu.flatten(order='C')),            
-            (c_double * s_ul.size)(*s_ul.flatten(order='F')),
-            (c_double * taus.size)(*taus.flatten(order='F')))
+@pytest.fixture
+def six_shell_four_lines():
+    rs = np.array([2.24640000e+15, 2.07792000e+15, 1.90944000e+15, 1.74096000e+15, 1.57248000e+15, 1.40400000e+15, 1.23552000e+15])
+    line_nu = np.array([4.56684917e+14, 4.56684013e+14, 4.56680743e+14, 4.56675108e+14])
+    s_ul = np.array([])
+    taus = np.array([])
+    return DataCollection(Rs    = (c_double * rs.size)(*rs.flatten(order='C')),
+                          lines = (c_double * line_nu.size)(*line_nu.flatten(order='C')),
+                          s_ul  = (c_double * s_ul.size)(*s_ul.flatten(order='C')),
+                          taus  = (c_double * taus.size)(*taus.flatten(order='C')),
+                          Rmax  = rs.max(),                        
+                          llen  = line_nu.size)
+                          
 
 @pytest.mark.parametrize(
     ['cr_idx', 'no_of_cr_shells', 'expected'],
@@ -140,45 +175,40 @@ def test_get_r(cr_idx, no_of_cr_shells, Rs, expected):
     assert_almost_equal(result, expected)
 
 @pytest.mark.parametrize(
-    ['nu','p','cr_idx', 'no_of_cr_shells', 'inv_ct', 'Rs', 'line_nu', 'len', 'expected'],
-    [(c_double( 6.16510725e+14), c_double(RS_SIX_SHELL.max()*0.71), 0, 4, c_double(2.969765804826852e-17),
-        (c_double * 7)(*RS_SIX_SHELL), #Rs 
-        (c_double * 3)(*[ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14]), 3, # Line_nu, linelen
-        (645473954328893.38,640896021318693.62) ),
-    (c_double(6.16510725e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
-        (c_double * 7)(*RS_SIX_SHELL), #Rs 
-        (c_double * 3)(*[ 6.16510725e+14, 4.56675108e+14, 1.59835930e+14]), 3, # Line_nu, linelen
-        (629288929493385.5, 603732520506614.38) ),
-    (c_double(6.16510725e+14), c_double(RS_SIX_SHELL.max()*0.71), 3, 4, c_double(2.969765804826852e-17),
-        (c_double * 7)(*RS_SIX_SHELL), #Rs 
-        (c_double * 1)(*[ 6.16510725e+14]), 1, # Line_nu, linelen
-        (629288929493385.5, 603732520506614.38) ),
+    ['nu','rmax_frac','cr_idx', 'no_of_cr_shells', 'inv_ct', 'input_data', 'expected'],
+    [(c_double( 6.16510725e+14),0.71, 0, 4, c_double(2.969765804826852e-17),
+        six_shell_three_lines, (645473954328893.38,640896021318693.62) ),
+    (c_double(6.16510725e+14), 0.71, 3, 4, c_double(2.969765804826852e-17),
+        six_shell_three_lines, (629288929493385.5, 603732520506614.38) ),
+    (c_double(6.16510725e+14), 0.71, 3, 4, c_double(2.969765804826852e-17),
+        six_shell_one_lines  , (629288929493385.5, 603732520506614.38) ),
 #    (c_double( 4.56675108e+14), c_double(RS_SIX_SHELL.max()*0.88), 3, 4, c_double(2.969765804826852e-17),
 #        (c_double * 7)(*RS_SIX_SHELL), #Rs 
 #        (c_double * 4)(*[4.56684917e+14, 4.56684013e+14, 4.56680743e+14, 4.56675108e+14]), 4, # Line_nu, linelen
 #        (0,3)),    
     ]
 )
-def test_test_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len, expected):
+def test_test_nu_limits_for_crossing_and_p(nu, rmax_frac, cr_idx, no_of_cr_shells, inv_ct, input_data, expected):
+    indata = input_data()
+    p = c_double(indata.Rmax*rmax_frac)
     cmontecarlo_methods.test_nu_limits_for_crossing_and_p.restype = c_double
-    blu = cmontecarlo_methods.test_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len,0)
-    red = cmontecarlo_methods.test_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, len,1)
+    blu = cmontecarlo_methods.test_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct,
+            indata.Rs, indata.lines, indata.llen, 0)
+    red = cmontecarlo_methods.test_nu_limits_for_crossing_and_p(nu, p, cr_idx, no_of_cr_shells, inv_ct, 
+            indata.Rs, indata.lines, indata.llen, 1)
     assert_approx_equal(blu, expected[0],significant=9)
     assert_approx_equal(red, expected[1],significant=9)
 
 @pytest.mark.parametrize(
-    ['nu_blu', 'nu_red' , 'line_nu', 'len', 'expected'],
-    [( c_double(5.0e+14), c_double(4.0e+14), 
-      (c_double * 4)(*[4.56684917e+14, 4.56684013e+14, 4.56680743e+14, 4.56675108e+14]), c_int(4), (0,3) ),
-    ( c_double(5.0e+14), c_double(4.56684013e+14), 
-      (c_double * 4)(*[4.56684917e+14, 4.56684013e+14, 4.56680743e+14, 4.56675108e+14]), c_int(4), (0,1) ),
-    ( c_double(5.0e+14), c_double(4.56684917e+14), 
-      (c_double * 1)(*[4.56684917e+14]), c_int(1), (0,0) ),
+    ['nu_blu', 'nu_red' , 'input_data', 'expected'],
+    [( c_double(5.0e+14), c_double(4.0e+14), six_shell_four_lines, (0,3) ),
+     ( c_double(5.0e+14), c_double(4.56684013e+14), six_shell_four_lines, (0,1) ),
+     ( c_double(7.0e+14), c_double(6.16510725e+14), six_shell_one_lines, (0,0) ),
 ])
-def test_nu_limits_from_nu_pair(nu_blu, nu_red, line_nu, len, expected):
+def test_nu_limits_from_nu_pair(nu_blu, nu_red, input_data, expected):
+    indata = input_data()
     cmontecarlo_methods.nu_idx_from_nu_pair.restype = IndexPair
-    result = cmontecarlo_methods.nu_idx_from_nu_pair(nu_blu, nu_red, line_nu, len)
-    print "Bajs"
+    result = cmontecarlo_methods.nu_idx_from_nu_pair(nu_blu, nu_red, indata.lines, indata.llen)
     assert_equal(result.start, expected[0])
     assert_equal(result.end,   expected[1])
 
@@ -214,23 +244,22 @@ def test_find_nu_limits_for_crossing_and_p(capfd, nu, p, cr_idx, no_of_cr_shells
      (0.0, IndexPair(0,0), 1, 3,  4.08517213e-06),
 #     (0.0, IndexPair(0,1), 1, 3,  4.08517213e-06)
 ])
-def test_sum_lines(I_nu,nu_lims, three_lines_atom_data, sh_idx, len, expected):  
+def test_sum_lines(I_nu,nu_lims, sh_idx, len, expected, atom_data=six_shell_three_lines()):
     cmontecarlo_methods.sum_lines.restype = c_double
-    result = cmontecarlo_methods.sum_lines(nu_lims, c_double(I_nu), three_lines_atom_data[2],
-            three_lines_atom_data[1], sh_idx, len)
+    result = cmontecarlo_methods.sum_lines(nu_lims, c_double(I_nu), atom_data.taus, atom_data.s_ul, sh_idx, len)
 #    assert_almost_equal(result,expected)
 
 
 @pytest.mark.parametrize(
     ['i','j','len','expected'],
-    [(0, 0, 3, 1.03081070e-05),
-     (1, 1, 3, 1.06697121e-05),
-     (0, 5, 3, 2.69619598e-06),
-     (2, 3, 3, 4.26894544e-06),
+    [(0, 0, 6, 1.03081070e-05),
+     (1, 1, 6, 1.06697121e-05),
+     (5, 0, 6, 2.69619598e-06),
+     (3, 2, 6, 4.26894544e-06),
     ]
 )
-def test_intex_macro(three_lines_atom_data,i,j,len,expected):
+def test_intex_macro(i,j,len,expected,atom_data=six_shell_three_lines()):
     cmontecarlo_methods.test_index_macro.restype = c_double
-    result = cmontecarlo_methods.test_index_macro(three_lines_atom_data[1],i,j,len)
+    result = cmontecarlo_methods.test_index_macro(atom_data.s_ul,i,j,len)
     assert_almost_equal(result,expected)
 
