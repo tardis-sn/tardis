@@ -487,144 +487,80 @@ class Simulation(object):
         R_ph = self.runner.r_inner_cgs.min()
         ps   = ps * R_max
 
-        L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
-                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
+#        L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
+#                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
 
-        if False:
-            for nu_idx,nu in enumerate(nus.value):
-                I_outer = np.zeros(ps_outer.shape)
-                for p_idx,p in enumerate(ps_outer):
-                    z_cross_p = z_ct_outer[z_ct_outer[:,p_idx] > 0,p_idx]
-                    if len(z_cross_p) == 1:
-                        z_cross_p = np.hstack((-z_cross_p,z_cross_p))
-                    else:
-                        z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
-                                                                                  # 1: avoids double counting center
-                    shell_idx = (num_shell-1) - np.arange(n_shell_p_outer[p_idx]) # -1 for 0-based indexing
-                    shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
-                    
-                    for idx,z_cross in enumerate(z_cross_p[:-1]):
-                        if z_cross_p[idx+1] == 0:
-                            continue
-                        nu_start = nu * (1 - z_cross) 
-                        nu_end   = nu * (1 - z_cross_p[idx+1])
-                        shell = shell_idx[idx]
-                        # Note the direction of the comparisons
-                        ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
-
-                        if len(ks) < 2:
-                            ks = list(ks)
-
-                        #I_outer[p_idx] = I_outer[p_idx] + dtau * ( 
-                        #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
-                        for k in ks:
-                            I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
-
-
-                I_inner = np.zeros(ps_inner.shape)
-                for p_idx,p in enumerate(ps_inner):
-                    z_cross_p = z_ct_inner[z_ct_inner[:,p_idx] > 0,p_idx]
-                    z_cross_p = np.hstack((z_cross_p[::-1],0)) # Zero ensures empty ks in last step below
-
-                    shell_idx = np.hstack(( np.arange(num_shell), 0 ))
-                    I_inner[p_idx] = intensity_black_body(nu,T)
-                    for idx,z_cross in enumerate(z_cross_p[:-1]):
-                        if z_cross_p[idx+1] == 0:
-                            continue
-                        nu_start = nu * (1 - z_cross) 
-                        nu_end   = nu * (1 - z_cross_p[idx+1])
-                        shell = shell_idx[idx]
-                        # Note the direction of the comparisons
-                        ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
-
-                        if len(ks) < 2:
-                            ks = list(ks)
-
-                        #dtau * ( 
-                        #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
-
-                        for k in ks:
-                            I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
-                            if ( nu_idx % 200 ) == 0:
-                                print p_idx,idx, k, I_inner[p_idx]
-                        if (( nu_idx % 200 ) == 0) & (idx == 1):
-                            print p_idx,idx, I_inner[p_idx]
-
-                if ( nu_idx % 200 ) == 0:
-                    print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
-                    print I_outer, I_inner
-                ps = np.hstack((ps_outer,ps_inner))*R_max
-                I_p = np.hstack((I_outer,I_inner))*ps
-                L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
        
         return  L_nu,nus
 
-    def debug_integrator(self,model,quant):
-        num_shell, = self.runner.volume.shape
-        ps         = np.linspace(0.999, 0, num = 20) # 3 * num_shell)
-        R_max      = self.runner.r_outer_cgs.max()
-        R_min_rel  = self.runner.r_inner_cgs.min() / R_max
-        ct         = co.c.cgs.value * self.tardis_config.supernova.time_explosion.value / R_max
-        J_blues    = model.j_blues
-        J_rlues    = model.j_blues.values * np.exp( -model.plasma.tau_sobolevs.values) + self.runner.att_S_ul
+    def py_integrate(self,L_nu, line_nu, taus, att_S_ul, T, nus, num_shell, R_max, ps_outer, ps_inner, n_shell_p_outer, z_ct_outer, z_ct_inner):
+        for nu_idx,nu in enumerate(nus.value):
+            I_outer = np.zeros(ps_outer.shape)
+            for p_idx,p in enumerate(ps_outer):
+                z_cross_p = z_ct_outer[z_ct_outer[:,p_idx] > 0,p_idx]
+                if len(z_cross_p) == 1:
+                    z_cross_p = np.hstack((-z_cross_p,z_cross_p))
+                else:
+                    z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
+                                                                              # 1: avoids double counting center
+                shell_idx = (num_shell-1) - np.arange(n_shell_p_outer[p_idx]) # -1 for 0-based indexing
+                shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
+                
+                for idx,z_cross in enumerate(z_cross_p[:-1]):
+                    if z_cross_p[idx+1] == 0:
+                        continue
+                    nu_start = nu * (1 - z_cross) 
+                    nu_end   = nu * (1 - z_cross_p[idx+1])
+                    shell = shell_idx[idx]
+                    # Note the direction of the comparisons
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
 
-        r_shells = np.zeros((num_shell+1,1))
-        # Note the reorder from outer to inner
-        r_shells[1:,0],r_shells[0,0] = self.runner.r_inner_cgs[::-1] / R_max, 1.0
-        z_crossings = np.sqrt(r_shells**2 - ps**2)
+                    if len(ks) < 2:
+                        ks = list(ks)
 
-        z_ct = z_crossings/ct
-        z_ct[np.isnan(z_crossings)] = 0
-
-        ## p > Rmin
-        ps_outer        = ps[ ps > R_min_rel]
-        z_ct_outer      = z_ct[:, ps > R_min_rel]
-        n_shell_p_outer = (num_shell+1) - np.isnan(z_crossings[:, ps > R_min_rel]).sum(axis=0)
-
-        ## p < Rmin
-        ps_inner        = ps[ ps <= R_min_rel]
-        z_ct_inner      = z_ct[:, ps <= R_min_rel]
+                    #I_outer[p_idx] = I_outer[p_idx] + dtau * ( 
+                    #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
+                    for k in ks:
+                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
 
 
-        #Allocating stuff
-        nus = self.runner.spectrum.frequency
-        L_nu  = np.zeros(nus.shape)
+            I_inner = np.zeros(ps_inner.shape)
+            for p_idx,p in enumerate(ps_inner):
+                z_cross_p = z_ct_inner[z_ct_inner[:,p_idx] > 0,p_idx]
+                z_cross_p = np.hstack((z_cross_p[::-1],0)) # Zero ensures empty ks in last step below
 
-        #Just aliasing for cleaner expressions later
-        line_nu  = model.plasma.lines.nu
-        taus     = model.plasma.tau_sobolevs
-        att_S_ul = self.runner.att_S_ul
-        T        = model.t_inner
-        
-        if quant == "L_nu":            
-            print L_nu
-        elif quant == "line":
-            print line_nu.as_matrix()
-        elif quant == "tau":
-            print taus.as_matrix()
-        elif quant == "S_ul":
-            print att_S_ul
-        elif quant == "R_max":
-            print R_max
-        elif quant == "T":
-            print T
-        elif quant == "nus":
-            print nus
-        elif quant == "ps_outer":
-            print ps_outer
-        elif quant == "ps_inner":
-            print ps_inner
-        elif quant == "z_ct_outer":
-            print z_ct_outer
-        elif quant == "z_ct_inner":
-            print z_ct_inner
-        elif quant == "num_shell":
-            print num_shell
-        elif quant == "n_shell":
-            print n_shell_p_outer
-        elif quant == "c_S_ul":
-            montecarlo.print_c_version(att_S_ul,twod=True)
+                shell_idx = np.hstack(( np.arange(num_shell), 0 ))
+                I_inner[p_idx] = intensity_black_body(nu,T)
+                for idx,z_cross in enumerate(z_cross_p[:-1]):
+                    if z_cross_p[idx+1] == 0:
+                        continue
+                    nu_start = nu * (1 - z_cross) 
+                    nu_end   = nu * (1 - z_cross_p[idx+1])
+                    shell = shell_idx[idx]
+                    # Note the direction of the comparisons
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
 
+                    if len(ks) < 2:
+                        ks = list(ks)
+
+                    #dtau * ( 
+                    #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
+
+                    for k in ks:
+                        I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus.iloc[k,shell]) + att_S_ul[k,shell]
+                        if ( nu_idx % 200 ) == 0:
+                            print p_idx,idx, k, I_inner[p_idx]
+                    if (( nu_idx % 200 ) == 0) & (idx == 1):
+                        print p_idx,idx, I_inner[p_idx]
+
+            if ( nu_idx % 200 ) == 0:
+                print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
+                print I_outer, I_inner
+            ps = np.hstack((ps_outer,ps_inner))*R_max
+            I_p = np.hstack((I_outer,I_inner))*ps
+            L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
+
+        return L_nu
 
 def run_radial1d(radial1d_model, hdf_path_or_buf=None,
                  hdf_mode='full', hdf_last_only=True):
