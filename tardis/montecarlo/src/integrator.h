@@ -12,7 +12,7 @@ typedef struct IndexPair
 } indexpair_t;
 
 indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line_nu, int len);
-indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len);
+indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len, bool debug);
 
 int get_cr_sign(int cr_idx, int no_of_cr_shells);
 int get_cr_start(int no_of_cr_shells, double p, double R_ph);

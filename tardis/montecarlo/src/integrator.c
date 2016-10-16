@@ -18,7 +18,7 @@
 #define M_PI acos(-1.0)
 #define C_INV 3.33564e-11
 
-indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len)
+indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, int no_of_cr_shells, double inv_ct, const double* Rs, const double* line_nu, int len, bool debug)
 {
     double blu_R, red_R, z_blu, z_red, z_cr, nu_blu, nu_red;
     indexpair_t pair;
@@ -36,18 +36,34 @@ indexpair_t find_nu_limits_for_crossing_and_p(double nu, double p, int cr_idx, i
     }
     else 
     {
-        z_cr = sqrt( Rs[cr_idx]*Rs[cr_idx] - p*p );
-        nu_blu = nu * (1 + z_cr*inv_ct);
-        nu_red = nu * (1 - z_cr*inv_ct);
+        if (p > Rs[1]) { 
+            // Not intersecting photosphere
+            z_cr = sqrt( Rs[0]*Rs[0] - p*p );
+            nu_blu = nu * (1 + z_cr*inv_ct);
+            nu_red = nu * (1 - z_cr*inv_ct); }
+        else { 
+            // Indexing follows from ordering and geometry
+            nu_blu = nu * (1 - inv_ct*sqrt(Rs[1]*Rs[1]-p*p));
+            nu_red = nu * (1 - inv_ct*sqrt(Rs[0]*Rs[0]-p*p));
+        }
+
     }
-    if ((nu_blu >= line_nu[0]) && (nu_red <= line_nu[len-1]) ) // Is nus in range of linelist? 
+    if ((nu_blu <= line_nu[len-1])|| (nu_red >= line_nu[0]) ) // Is nus in range of linelist? 
     {
-        pair = nu_idx_from_nu_pair(nu_blu, nu_red, line_nu, len);
+        if(debug){
+        printf("find_limits: no_cr %d ", no_of_cr_shells );
+        printf(", nu_blu %e, nu_red %e, nu %e \n",nu_blu,nu_red, nu);}
+        pair.start = -1; //Signal no line found
     }
     else 
     {
-        pair.start = -1; //Signal no line found
+        if(debug){
+        printf("find_limits: no_cr %d ", no_of_cr_shells );
+        printf(", nu_blu %e, nu_red %e, nu %e ",nu_blu,nu_red, nu);
+        printf("Nu in list\n");}
+        pair = nu_idx_from_nu_pair(nu_blu, nu_red, line_nu, len);
     }
+
     return pair;
 }
 indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line_nu, int len)
@@ -88,12 +104,12 @@ int get_cr_sign(int cr_idx, int no_of_cr_shells)
         return 1;}
 }
 
-int get_cr_start(int no_of_cr_shells, double p, double R_ph)
+int get_cr_start(int no_of_shells, double p, double R_ph)
 {
     if (p >= R_ph) {
         return 0;}
     else if (p < R_ph) {
-        return no_of_cr_shells;
+        return no_of_shells+1;
     }
 }
 
@@ -145,30 +161,40 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
         const double* nus, const double* ps, const double* Rs, double R_ph, double inv_ct, const int64_t* lens)
 {
     double* I_nu  = calloc(lens[PLEN], sizeof(double));
-    int no_of_cr_shells, sh_idx;
+    int no_of_cr_shells, sh_idx, cr_start, cr_end;
+    int kludge = 0;
     indexpair_t nu_lims;
     for (int nu_idx = 0; nu_idx < lens[NULEN]; ++nu_idx)
     {
         memset(I_nu,0.0, lens[PLEN] * sizeof(I_nu));
         for (int p_idx = 0; p_idx < lens[PLEN]; ++p_idx)
         {
-            if (ps[p_idx] < R_ph) 
+            no_of_cr_shells = get_num_shell_cr(ps[p_idx],Rs,lens[SHELLEN]);
+            if (ps[p_idx] > R_ph) 
+            {
+                cr_start = 0;
+                cr_end   = 2*no_of_cr_shells;
+            }
+            else
             {
                 I_nu[p_idx] = I_BB[nu_idx];
-            }           
-            no_of_cr_shells = get_num_shell_cr(ps[p_idx],Rs,lens[SHELLEN]);
-//            printf("no_sh %d\n", no_of_cr_shells);
-//            printf("start %d, end %d\n", get_cr_start(no_of_cr_shells, ps[p_idx], R_ph),  2*no_of_cr_shells);
-            for (int cr_idx = get_cr_start(no_of_cr_shells, ps[p_idx], R_ph); cr_idx < 2*no_of_cr_shells-1; ++cr_idx)
+                cr_start = lens[SHELLEN]+1; // get_cr_start(lens[SHELLEN], ps[p_idx], R_ph);
+                cr_end   = 2*no_of_cr_shells+1;
+                kludge   = 1; // Needed to get proper sh_idx when photosphere is crossed
+                
+                find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], 2, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN],true);
+            }
+
+//            printf("no_of_cr_sh %d ", no_of_cr_shells);
+//            printf("start crossing %d, end crossing %d ",cr_start, cr_end );
+            for (int cr_idx = cr_start; cr_idx < cr_end; ++cr_idx)
             {
-                nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN]);
-                sh_idx  = get_sh_idx(cr_idx,no_of_cr_shells);
+                nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN],false);
+                sh_idx  = get_sh_idx(cr_idx,no_of_cr_shells+kludge);
                 if (nu_lims.start > -1) { // Just sum lines if any line was found                    
                     I_nu[p_idx] = sum_lines(nu_lims, I_nu[p_idx], taus, att_S_ul, sh_idx, lens[SHELLEN]);}
-
-                printf("%d %f ", cr_idx, I_nu[p_idx]);
             }
-            printf("%f \n",I_nu[p_idx]);
+//            printf("Result nu %e, p %e, %f \n",nus[nu_idx], ps[p_idx] ,I_nu[p_idx]);
         }
         L_nu[nu_idx] = integrate_intensity(I_nu, ps, lens[PLEN]); 
     }
