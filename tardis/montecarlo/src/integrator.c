@@ -84,6 +84,15 @@ indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line
     return pair;
 }
 
+double intensity_black_body(double nu, double T){
+    double k_B_cgs = 1.3806488000e-16;
+    double h_cgs   = 6.6260695700e-27;
+    double c_cgs   = 2.9979245800e+10;
+    double coefficient, beta_rad;
+    beta_rad = 1 / (k_B_cgs * T);
+    coefficient = 2 * h_cgs / (c_cgs * c_cgs);
+    return coefficient * nu*nu*nu / (exp(h_cgs * nu * beta_rad) -1 );
+}    
 
 double get_r(int cr_idx, int no_of_cr_shells, const double* Rs)
 {
@@ -136,7 +145,6 @@ int get_num_shell_cr(double p, const double* Rs, int len)
 double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const double* att_S_ul, int sh_idx, int len)
 {
     double result = I_nu;
-
     for (int k_idx = nu_lims.start; k_idx <= nu_lims.end; ++k_idx)
     {
         result = result * exp(-taus[k_idx*len +sh_idx]) + GET_IJ(att_S_ul,sh_idx,k_idx,len);
@@ -156,9 +164,8 @@ double integrate_intensity(const double* I_nu, const double* ps, int len)
     result += I_nu[len-1]*h*ps[len-1]/2.0;
     return result*8*M_PI*M_PI;
 }
-
-void integrate_source_functions(double* L_nu, const double* line_nu, const double* taus, const double* att_S_ul, const double* I_BB, 
-        const double* nus, const double* ps, const double* Rs, double R_ph, double inv_ct, const int64_t* lens)
+void integrate_source_functions(double* L_nu, const double* line_nu, const double* taus, const double* att_S_ul, const double* nus,
+        const double* ps, const double* Rs, double T, double R_ph, double inv_ct, const int64_t* lens)
 {
     double* I_nu  = calloc(lens[PLEN], sizeof(double));
     int no_of_cr_shells, sh_idx, cr_start, cr_end;
@@ -177,7 +184,7 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
             }
             else
             {
-                I_nu[p_idx] = I_BB[nu_idx];
+                I_nu[p_idx] = intensity_black_body(nus[nu_idx], T);
                 cr_start = lens[SHELLEN]+1; // get_cr_start(lens[SHELLEN], ps[p_idx], R_ph);
                 cr_end   = 2*no_of_cr_shells+1;
                 kludge   = 1; // Needed to get proper sh_idx when photosphere is crossed
@@ -185,8 +192,6 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
                 find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], 2, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN],true);
             }
 
-//            printf("no_of_cr_sh %d ", no_of_cr_shells);
-//            printf("start crossing %d, end crossing %d ",cr_start, cr_end );
             for (int cr_idx = cr_start; cr_idx < cr_end; ++cr_idx)
             {
                 nu_lims = find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], cr_idx, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN],false);
@@ -194,11 +199,9 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
                 if (nu_lims.start > -1) { // Just sum lines if any line was found                    
                     I_nu[p_idx] = sum_lines(nu_lims, I_nu[p_idx], taus, att_S_ul, sh_idx, lens[SHELLEN]);}
             }
-//            printf("Result nu %e, p %e, %f \n",nus[nu_idx], ps[p_idx] ,I_nu[p_idx]);
         }
         L_nu[nu_idx] = integrate_intensity(I_nu, ps, lens[PLEN]); 
     }
-    printf("\n\n");
 }
 
 

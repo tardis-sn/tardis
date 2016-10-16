@@ -19,12 +19,13 @@ int get_cr_start(int no_of_cr_shells, double p, double R_ph);
 int get_sh_idx(int cr_idx, int no_of_cr_shells);
 int get_num_shell_cr(double p, const double* Rs, int len);
 
+double intensity_black_body(double nu, double T);
 double get_r(int cr_idx, int no_of_cr_shells, const double* Rs);
 double integrate_intensity(const double* I_nu, const double* ps, int len);
 double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const double* att_S_ul, int sh_idx, int len);
 
-void integrate_source_functions(double* L_nu, const double* line_nu, const double* taus, const double* att_S_ul, const double* I_BB, 
-        const double* nus, const double* ps, const double* Rs, double R_ph, double inv_ct, const int64_t* lens);
+void integrate_source_functions(double* L_nu, const double* line_nu, const double* taus, const double* att_S_ul, const double* nus,
+        const double* ps, const double* Rs, double T, double R_ph, double inv_ct, const int64_t* lens);
 
 
 void debug_print_arg(double* arg,int len);

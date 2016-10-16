@@ -487,8 +487,8 @@ class Simulation(object):
         R_ph = self.runner.r_inner_cgs.min()
         ps   = ps * R_max
 
-#        L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
-#                    I_BB, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
+        L_nu = montecarlo.c_source_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, 
+                   T.value, nus, ps, r_shells.reshape(-1) * R_max, num_shell, R_ph, 1/ct*1/R_max)
 
        
         return  L_nu,nus

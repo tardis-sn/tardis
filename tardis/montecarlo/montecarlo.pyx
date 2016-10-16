@@ -95,8 +95,8 @@ cdef extern from "src/integrator.h":
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
     void debug_print_arg(double* arg, int len)
     void debug_print_2d_arg(double* arg, int len1, int len2)
-    void integrate_source_functions(double* L_nu, double* line_nu, double* taus, double* att_S_ul, double* I_BB, double* nus, 
-              double* ps, double* Rs, double R_ph, double inv_ct, int_type_t* lens)
+    void integrate_source_functions(double* L_nu, double* line_nu, double* taus, double* att_S_ul, double* nus, double* ps, 
+            double* Rs, double T, double R_ph, double inv_ct, int_type_t* lens)
 
 cdef initialize_storage_model(model, runner, storage_model_t *storage):
     """
@@ -377,7 +377,7 @@ def print_c_version(arg,twod):
         debug_print_arg(<double*> PyArray_DATA(arg), len(arg))
 
 def c_source_integrate(np.ndarray[float_t] L_nu, np.ndarray[float_t] line_nu, np.ndarray[float_t, ndim=2] taus, 
-              np.ndarray[float_t, ndim=2] att_S_ul, np.ndarray[float_t] I_BB, np.ndarray[float_t] nus,
+              np.ndarray[float_t, ndim=2] att_S_ul, double T, np.ndarray[float_t] nus,
               np.ndarray[float_t] ps, np.ndarray[float_t] Rs, int num_shell, double R_ph, double inv_ct):
               
     lens = np.array([0,0,0,0])
@@ -387,7 +387,6 @@ def c_source_integrate(np.ndarray[float_t] L_nu, np.ndarray[float_t] line_nu, np
     lens[3] = num_shell
 
     integrate_source_functions(<double*> PyArray_DATA(L_nu), <double*> PyArray_DATA(line_nu), <double*> PyArray_DATA(taus.flatten(order='C')),
-            <double*> PyArray_DATA(att_S_ul.flatten(order='C')), <double*> PyArray_DATA(I_BB), <double*> PyArray_DATA(nus), <double*> PyArray_DATA(ps), 
-            <double*> PyArray_DATA(Rs), <double>R_ph, <double>inv_ct, <int_type_t*> PyArray_DATA(lens))
+            <double*> PyArray_DATA(att_S_ul.flatten(order='C')), <double*> PyArray_DATA(nus), <double*> PyArray_DATA(ps), 
+            <double*> PyArray_DATA(Rs), <double> T, <double>R_ph, <double>inv_ct, <int_type_t*> PyArray_DATA(lens))
     return L_nu
-
