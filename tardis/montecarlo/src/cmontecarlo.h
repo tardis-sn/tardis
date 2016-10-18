@@ -110,4 +110,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 
 double sample_nu_free_free(const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
+double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage,
+                            int64_t continuum_id, rk_state *mt_state);
+
 #endif // TARDIS_CMONTECARLO_H

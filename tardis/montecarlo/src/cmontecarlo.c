@@ -624,6 +624,17 @@ sample_nu_free_free(const rpacket_t * packet, const storage_model_t * storage, r
 	return -KB * T / H * log(zrand);	// Lucy 2003 MC II Eq.41
 }
 
+double
+sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage,
+                     int64_t continuum_id, rk_state *mt_state)
+{
+    double th_frequency = storage->continuum_list_nu[continuum_id];
+	int64_t shell_id = rpacket_get_current_shell_id(packet);
+	double T = storage->t_electrons[shell_id];
+	double zrand = (rk_double(mt_state));
+	return th_frequency * (1 - (KB * T / H / th_frequency * log(zrand)));	// Lucy 2003 MC II Eq.26
+}
+
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                          double distance, rk_state *mt_state)
