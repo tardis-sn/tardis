@@ -113,4 +113,9 @@ double sample_nu_free_free(const rpacket_t * packet, const storage_model_t * sto
 double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage,
                             int64_t continuum_id, rk_state *mt_state);
 
+int64_t sample_cooling_processes(const rpacket_t * packet, rk_state *mt_state,
+                                 double *individual_cooling_probabilities,
+                                 int64_t *cooling_references,
+                                 int64_t no_of_individual_processes);
+
 #endif // TARDIS_CMONTECARLO_H
