@@ -615,6 +615,14 @@ montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage, doub
   rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
 }
 
+double
+sample_nu_free_free(const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state)
+{
+	int64_t shell_id = rpacket_get_current_shell_id(packet);
+	double T = storage->t_electrons[shell_id];
+	double zrand = (rk_double(mt_state));
+	return -KB * T / H * log(zrand);	// Lucy 2003 MC II Eq.41
+}
 
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
