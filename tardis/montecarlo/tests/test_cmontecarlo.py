@@ -45,6 +45,7 @@ Please follow this design procedure while adding a new test:
 
 import os
 import pytest
+import numpy as np
 from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, POINTER
 from numpy.testing import assert_equal, assert_almost_equal
 
@@ -65,6 +66,7 @@ from tardis.montecarlo.struct import (
 cmontecarlo_filepath = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 cmontecarlo_methods = CDLL(cmontecarlo_filepath)
 
+data_filepath = os.path.join(path[0], 'montecarlo', 'tests', 'data')
 
 @pytest.fixture(scope="function")
 def packet():
@@ -162,6 +164,25 @@ def mt_state():
         has_gauss=0,
         gauss=0.0
     )
+
+
+@pytest.fixture(scope="function")
+def mt_state_seeded(mt_state):
+    seed = 23111963
+    cmontecarlo_methods.rk_seed(seed, byref(mt_state))
+    return mt_state
+
+
+@pytest.fixture(scope="function",
+                params=["ff_emissivity_15000K.npz", "ff_emissivity_2500K.npz"])
+def ff_emissivity(request):
+    fname = request.param
+    emissivity = np.load(os.path.join(data_filepath, fname))
+    def fin():
+        emissivity.close()
+    request.addfinalizer(fin)
+
+    return emissivity
 
 
 """
@@ -474,6 +495,28 @@ def test_montecarlo_main_loop(packet, model, mt_state):
 @pytest.mark.skipif(True, reason="Yet to be written.")
 def test_montecarlo_event_handler(packet, model, mt_state):
     pass
+
+
+"""
+Continuum Tests:
+----------------
+The tests written further (till next block comment is encountered) are for the
+methods related to continuum interactions.
+"""
+
+@pytest.mark.continuumtest
+def test_sample_nu_free_free(ff_emissivity, packet, model, mt_state_seeded):
+    model.t_electrons[packet.current_shell_id] = ff_emissivity['t_electron']
+    cmontecarlo_methods.sample_nu_free_free.restype = c_double
+
+    nus = []
+    for _ in xrange(int(1e5)):
+        nu = cmontecarlo_methods.sample_nu_free_free(byref(packet), byref(model), byref(mt_state_seeded))
+        nus.append(nu)
+
+    nu_hist = np.histogram(nus, normed=True, bins=1e2)
+
+    assert_equal(nu_hist[0], ff_emissivity['emissivity'])
 
 
 """
