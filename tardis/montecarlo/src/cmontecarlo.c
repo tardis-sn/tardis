@@ -635,6 +635,22 @@ sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage,
 	return th_frequency * (1 - (KB * T / H / th_frequency * log(zrand)));	// Lucy 2003 MC II Eq.26
 }
 
+int64_t
+sample_cooling_processes(const rpacket_t * packet, rk_state *mt_state, double *individual_cooling_probabilities,
+int64_t *cooling_references, int64_t no_of_individual_processes)
+{
+  int64_t shell_id = rpacket_get_current_shell_id(packet), j = -1;
+  double zrand = (rk_double(mt_state)), p = 0.0;
+  // TODO: maybe sum before and use bisection
+  do
+    {
+      p += individual_cooling_probabilities[shell_id * no_of_individual_processes + (++j)];
+    }
+  while(p <= zrand);
+
+  return cooling_references[j];
+}
+
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                          double distance, rk_state *mt_state)
