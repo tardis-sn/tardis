@@ -96,6 +96,8 @@ bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double c
 
 void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage);
 
+void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage);
+
 void
 move_packet_across_shell_boundary (rpacket_t * packet,
                                    storage_model_t * storage, double distance, rk_state *mt_state);

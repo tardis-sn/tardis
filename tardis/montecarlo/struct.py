@@ -86,6 +86,7 @@ class StorageModel(Structure):
         ('reflective_inner_boundary', c_int64),
         ('current_packet_id', c_int64),
         ('chi_bf_tmp_partial', POINTER(c_double)),
+        ('chi_ff_factor', POINTER(c_double)),
         ('t_electrons', POINTER(c_double)),
         ('l_pop', POINTER(c_double)),
         ('l_pop_r', POINTER(c_double)),
