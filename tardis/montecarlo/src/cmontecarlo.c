@@ -149,6 +149,20 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
   rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
 }
 
+void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage)
+{
+  double doppler_factor = rpacket_doppler_factor (packet, storage);
+  double comov_nu = rpacket_get_nu (packet) * doppler_factor;
+  int64_t shell_id = rpacket_get_current_shell_id(packet);
+  double T = storage->t_electrons[shell_id];
+  double boltzmann_factor = exp(-(H * comov_nu) / KB / T);
+  double chi_ff_factor = storage->chi_ff_factor[shell_id];
+
+  double chi_ff = chi_ff_factor * (1 - boltzmann_factor) * pow(comov_nu, -3);
+
+  rpacket_set_chi_freefree(packet, chi_ff * doppler_factor);
+}
+
 void
 compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
 {

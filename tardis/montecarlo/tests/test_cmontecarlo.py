@@ -147,6 +147,7 @@ def model():
         reflective_inner_boundary=0,
 
         chi_bf_tmp_partial=(c_double * 20000)(*([160.0] * 20000)),
+        chi_ff_factor = (c_double * 2)(*([1.0] * 2)),
         t_electrons=(c_double * 2)(*([0.0] * 2)),
 
         l_pop=(c_double * 20000)(*([2.0] * 20000)),

@@ -75,6 +75,7 @@ cdef extern from "src/cmontecarlo.h":
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
         double *chi_bf_tmp_partial
+        double *chi_ff_factor
         double *t_electrons
         double *l_pop
         double *l_pop_r
