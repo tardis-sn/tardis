@@ -154,7 +154,7 @@ double sum_lines(indexpair_t nu_lims, double I_nu, const double* taus, const dou
 double integrate_intensity(const double* I_nu, const double* ps, int len)
 {
     double result = 0.0;
-    double h = (ps[0]-ps[len-1])/len;
+    double h = (ps[0]-ps[len-1])/(len-1);
     result =  I_nu[0]*h*ps[0]/2.0;
 
     for (int idx = 1; idx < len-1; ++idx)
@@ -179,6 +179,7 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
             no_of_cr_shells = get_num_shell_cr(ps[p_idx],Rs,lens[SHELLEN]);
             if (ps[p_idx] > R_ph) 
             {
+                kludge   = 0;
                 cr_start = 0;
                 cr_end   = 2*no_of_cr_shells;
             }

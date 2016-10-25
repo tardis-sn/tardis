@@ -249,6 +249,23 @@ def test_sum_lines(I_nu,nu_lims, sh_idx, len, expected, atom_data=six_shell_thre
     result = cmontecarlo_methods.sum_lines(nu_lims, c_double(I_nu), atom_data.taus, atom_data.s_ul, sh_idx, len)
 #    assert_almost_equal(result,expected)
 
+@pytest.mark.parametrize(
+    ['len','Rmax'],
+    [(20, 2.24640000e+15),]
+   )
+
+def test_integrate_intensity(len,Rmax):
+    ps = np.linspace(0.999, 0, num = len)*Rmax
+    I_nu = np.array([2.40739908129e+27, 2.40039294821e+27, 2.78750654685e+27, 3.03077239309e+27, 3.02260473791e+27, 3.30099043765e+27, 3.29209678908e+27, 3.28285455902e+27, 3.434666461e+27, 3.2633625314e+27, 3.25313169884e+27, 2.46201222899e+27, 1.87332590148e+27, 1.00422409649e+27, 7.53168073762e+26, 5.37977197133e+26, 3.58651466602e+26, 2.05262250637e+27, 2.22838279668e+27, 2.21568602442e+27])
+    I_p = I_nu*ps
+    expected = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
+    ps   = (c_double * len)(*ps)
+    I_nu = (c_double * len)(*I_nu)
+    cmontecarlo_methods.integrate_intensity.restype = c_double
+    result = cmontecarlo_methods.integrate_intensity(I_nu,ps,len)
+    assert_approx_equal(result,expected,significant=9)
+
+
 
 @pytest.mark.parametrize(
     ['i','j','len','expected'],
