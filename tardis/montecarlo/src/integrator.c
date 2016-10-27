@@ -76,8 +76,8 @@ indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line
         if ((line_nu[idx] <= nu_blu) & (!found_blu)){
             pair.start = idx;
             found_blu = true;}
-        if (line_nu[idx] <= nu_red){
-            pair.end = idx;
+        if (line_nu[idx] < nu_red){
+            pair.end = idx-1;
             break;}
     }
 
@@ -174,6 +174,7 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
     for (int nu_idx = 0; nu_idx < lens[NULEN]; ++nu_idx)
     {
         memset(I_nu,0.0, lens[PLEN] * sizeof(I_nu));
+//        printf("I_nu ");
         for (int p_idx = 0; p_idx < lens[PLEN]; ++p_idx)
         {
             no_of_cr_shells = get_num_shell_cr(ps[p_idx],Rs,lens[SHELLEN]);
@@ -190,7 +191,6 @@ void integrate_source_functions(double* L_nu, const double* line_nu, const doubl
                 cr_end   = 2*no_of_cr_shells+1;
                 kludge   = 1; // Needed to get proper sh_idx when photosphere is crossed
                 
-                find_nu_limits_for_crossing_and_p(nus[nu_idx], ps[p_idx], 2, no_of_cr_shells, inv_ct, Rs, line_nu, lens[LINELEN],true);
             }
 
             for (int cr_idx = cr_start; cr_idx < cr_end; ++cr_idx)
