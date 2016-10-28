@@ -204,6 +204,24 @@ def expected_ff_emissivity(continuum_compare_data):
 
     return ff_emissivity
 
+
+@pytest.fixture(scope='module')
+def get_rkstate(continuum_compare_data):
+    data = continuum_compare_data['z2rkstate']
+
+    def z2rkstate(z_random):
+        key = (c_ulong * 624)(*data.loc[z_random, 'key'])
+        pos = data.loc[z_random, 'pos']
+        return RKState(
+            key=key,
+            pos=pos,
+            has_gauss=0,
+            gauss=0.0
+        )
+
+    return z2rkstate
+
+
 """
 Important Tests:
 ----------------
@@ -541,6 +559,31 @@ def test_sample_nu_free_free(t_electron, packet, model, mt_state_seeded, expecte
     obtained_emissivity, _ = np.histogram(nus, normed=True, bins=nu_bins)
 
     assert_equal(obtained_emissivity, expected_emissivity)
+
+
+@pytest.mark.parametrize(
+    ['z_random', 'current_shell_id', 'expected'],
+    [(0.22443743797312765, 0, 0),
+     (0.54510721066252377, 0, 2),
+     (0.94183547596539363, 0, 3),
+     (0.22443743797312765, 1, 2),
+     (0.94183547596539363, 1, 3)]
+)
+@pytest.mark.continuumtest
+def test_sample_cooling_processes(packet, z_random, current_shell_id, get_rkstate, expected):
+    cooling_references = (c_int64 * 4)(0, 1, 2, 3)
+    no_processes = c_int64(len(cooling_references))
+    cooling_probabilities = (c_double * 8)(*([0.25] * 4 + [0.10] * 2 + [0.40] * 2))
+
+    cmontecarlo_methods.sample_cooling_processes.restype = c_int64
+
+    packet.current_shell_id = current_shell_id
+    rkstate = get_rkstate(z_random)
+
+    obtained_reference = cmontecarlo_methods.sample_cooling_processes(
+        byref(packet), byref(rkstate), cooling_probabilities, cooling_references, no_processes)
+
+    assert_equal(obtained_reference, expected)
 
 
 """
