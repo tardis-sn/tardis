@@ -1,4 +1,4 @@
-from ctypes import Structure, POINTER, c_int, c_int64, c_double, c_ulong
+from ctypes import Structure, POINTER, c_int, c_int64, c_double, c_ulong, c_bool
 
 c_tardis_error_t = c_int
 c_rpacket_status_t = c_int
@@ -30,7 +30,8 @@ class RPacket(Structure):
         ('chi_th', c_double),
         ('chi_cont', c_double),
         ('chi_ff', c_double),
-        ('chi_bf', c_double)
+        ('chi_bf', c_double),
+        ('compute_chi_bf', c_bool)
     ]
 
 

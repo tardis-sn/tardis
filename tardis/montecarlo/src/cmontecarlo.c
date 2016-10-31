@@ -261,23 +261,26 @@ compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
 void
 compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
 {
-  double chi_freefree, chi_electron, chi_continuum, d_continuum;
+  double chi_continuum, d_continuum;
+  double chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson;
 
   if (storage->cont_status == CONTINUUM_ON)
     {
-      calculate_chi_bf(packet, storage);
-      double chi_boundfree = rpacket_get_chi_boundfree(packet);
-      rpacket_set_chi_freefree(packet, 0.0);
-      chi_freefree = rpacket_get_chi_freefree(packet); // MR ?? this is always zero
-      chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson *
-        rpacket_doppler_factor (packet, storage);
-      chi_continuum = chi_boundfree + chi_freefree + chi_electron;
+    if (packet->compute_chi_bf)
+      {
+        calculate_chi_bf(packet, storage);
+        calculate_chi_ff(packet, storage);
+      }
+    else
+      {
+        packet->compute_chi_bf=true;
+      }
+      chi_electron *= rpacket_doppler_factor (packet, storage);
+      chi_continuum = rpacket_get_chi_boundfree(packet) + rpacket_get_chi_freefree(packet) + chi_electron;
       d_continuum = rpacket_get_tau_event(packet) / chi_continuum;
     }
   else
     {
-      // FIXME MR: an assignment to chi_freefree seems to be missing here
-      chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson;
       chi_continuum = chi_electron;
       d_continuum = storage->inverse_electron_densities[rpacket_get_current_shell_id (packet)] *
         storage->inverse_sigma_thomson * rpacket_get_tau_event (packet);
@@ -286,11 +289,8 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
   if (rpacket_get_virtual_packet(packet) > 0)
     {
       //Set all continuum distances to MISS_DISTANCE in case of an virtual_packet
-      rpacket_set_d_continuum(packet, MISS_DISTANCE);
-      rpacket_set_chi_boundfree(packet, 0.0);
-      rpacket_set_chi_electron(packet, chi_electron);
-      rpacket_set_chi_freefree(packet, 0.0);
-      rpacket_set_chi_continuum(packet, chi_continuum);
+      d_continuum = MISS_DISTANCE;
+      packet->compute_chi_bf = false;
     }
   else
     {
@@ -302,11 +302,11 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
       //        fprintf(stderr, "chi_line = %e \n", rpacket_get_tau_event(packet) / rpacket_get_d_line(packet));
       //        fprintf(stderr, "--------\n");
 
-      rpacket_set_chi_freefree(packet, chi_freefree);
+      //rpacket_set_chi_freefree(packet, chi_freefree);
       rpacket_set_chi_electron(packet, chi_electron);
-      rpacket_set_chi_continuum(packet, chi_continuum);
-      rpacket_set_d_continuum(packet, d_continuum);
     }
+  rpacket_set_chi_continuum(packet, chi_continuum);
+  rpacket_set_d_continuum(packet, d_continuum);
 }
 
 int64_t
@@ -523,6 +523,7 @@ move_packet_across_shell_boundary (rpacket_t * packet,
       rpacket_set_tau_event (packet,
                              rpacket_get_tau_event (packet) +
                              delta_tau_event);
+	  packet->compute_chi_bf = true;
     }
   else
     {
@@ -748,6 +749,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       rpacket_set_tau_event (packet,
                              rpacket_get_tau_event (packet) - tau_line);
       rpacket_set_next_line_id (packet, next_line_id + 1);
+      packet->compute_chi_bf = false;
     }
   if (!rpacket_get_last_line (packet) &&
       fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -

@@ -57,6 +57,7 @@ typedef struct RPacket
   double chi_cont; /**< Opacity due to continuum processes */
   double chi_ff; /**< Opacity due to free-free processes */
   double chi_bf; /**< Opacity due to bound-free processes */
+  bool compute_chi_bf;
 } rpacket_t;
 
 static inline double rpacket_get_nu (const rpacket_t * packet)
