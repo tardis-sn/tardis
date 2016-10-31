@@ -47,7 +47,7 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, POINTER
+from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, c_void_p, cast, POINTER
 from numpy.testing import assert_equal, assert_almost_equal
 
 from tardis import __path__ as path
@@ -608,6 +608,33 @@ def test_calculate_chi_ff(packet, model, packet_params, t_electrons, chi_ff_fact
     assert_equal(obtained, expected)
 
 
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['continuum_status', 'z_random', 'packet_params', 'expected'],
+    [(CONTINUUM_OFF, 0.94183547596539363, {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5}, 'montecarlo_thomson_scatter'),
+     (CONTINUUM_ON, 0.22443743797312765, {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5}, 'montecarlo_thomson_scatter'),
+     (CONTINUUM_ON, 0.54510721066252377, {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5}, 'montecarlo_bound_free_scatter'),
+     (CONTINUUM_ON, 0.94183547596539363, {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5}, 'montecarlo_free_free_scatter'),
+     (CONTINUUM_ON, 0.22443743797312765, {'chi_c': 1e2, 'chi_th': 1e1, 'chi_bf': 2e1}, 'montecarlo_bound_free_scatter')]
+)
+def test_montecarlo_continuum_event_handler(continuum_status, expected, z_random,
+                                            packet_params, packet, model, get_rkstate):
+    packet.chi_cont = packet_params['chi_c']
+    packet.chi_th = packet_params['chi_th']
+    packet.chi_bf = packet_params['chi_bf']
+    model.cont_status = continuum_status
+
+    rkstate = get_rkstate(z_random)
+
+    cmontecarlo_methods.montecarlo_continuum_event_handler.restype = c_void_p
+    obtained = cmontecarlo_methods.montecarlo_continuum_event_handler(byref(packet),
+                                                      byref(model), byref(rkstate))
+    expected = getattr(cmontecarlo_methods, expected)
+    expected = cast(expected, c_void_p).value
+
+    assert_equal(obtained, expected)
+
+
 """
 Not Yet Relevant Tests:
 -----------------------
@@ -657,18 +684,6 @@ def test_calculate_chi_bf(packet_params, expected, packet, model):
     cmontecarlo_methods.calculate_chi_bf(byref(packet), byref(model))
 
     assert_almost_equal(packet.chi_bf, expected)
-
-
-@pytest.mark.skipif(True, reason="Not yet relevant")
-def test_montecarlo_continuum_event_handler(packet_params, continuum_status, expected,
-                                            packet, model, mt_state):
-    packet.chi_cont = packet_params['chi_cont']
-    packet.chi_th = packet_params['chi_th']
-    packet.chi_bf = packet.chi_cont - packet.chi_th
-    model.cont_status = continuum_status
-
-    obtained = cmontecarlo_methods.montecarlo_continuum_event_handler(byref(packet),
-                                                      byref(model), byref(mt_state))
 
 
 @pytest.mark.skipif(True, reason="Not yet relevant")
