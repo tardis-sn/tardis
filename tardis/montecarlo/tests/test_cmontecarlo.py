@@ -586,6 +586,28 @@ def test_sample_cooling_processes(packet, z_random, current_shell_id, get_rkstat
     assert_equal(obtained_reference, expected)
 
 
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['packet_params', 't_electrons', 'chi_ff_factor', 'expected'],
+    [({'nu': 4.5e14, 'mu': 0.0, 'current_shell_id': 1}, 15000, 2.0, 1.6746639430359494e-44),
+     ({'nu': 3.0e15, 'mu': 0.0, 'current_shell_id': 0}, 5000, 3.0, 1.1111111111107644e-46),
+     ({'nu': 3.0e15, 'mu': 0.4, 'current_shell_id': 0}, 10000, 4.0, 1.5638286016098277e-46)]
+)
+def test_calculate_chi_ff(packet, model, packet_params, t_electrons, chi_ff_factor, expected):
+    packet.mu = packet_params['mu']
+    packet.nu = packet_params['nu']
+    packet.current_shell_id = packet_params['current_shell_id']
+    packet.r = 1.04e17
+
+    model.t_electrons[packet_params['current_shell_id']] = t_electrons
+    model.chi_ff_factor[packet_params['current_shell_id']] = chi_ff_factor
+
+    cmontecarlo_methods.calculate_chi_ff(byref(packet), byref(model))
+    obtained = packet.chi_ff
+
+    assert_equal(obtained, expected)
+
+
 """
 Not Yet Relevant Tests:
 -----------------------
