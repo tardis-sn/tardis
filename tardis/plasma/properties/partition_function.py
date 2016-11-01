@@ -163,17 +163,14 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
     def _calculate_classical_nebular(self, t_electrons, lines, atomic_data,
         nlte_data, general_level_boltzmann_factor, j_blues,
-        lte_j_blues, previous_electron_densities):
+        previous_electron_densities):
         """
         Performs NLTE calculations using the classical nebular treatment.
         All beta sobolev values taken as 1.
         """
         beta_sobolevs = np.ones((len(lines), len(t_electrons)))
-        if len(j_blues)==0:
-            j_blues = lte_j_blues
-        else:
-            j_blues = pd.DataFrame(j_blues, index=lines.index, columns =
-                range(len(t_electrons)))
+        j_blues = pd.DataFrame(j_blues, index=lines.index, columns=
+                               range(len(t_electrons)))
         general_level_boltzmann_factor = self._main_nlte_calculation(
             atomic_data, nlte_data, t_electrons, j_blues,
             beta_sobolevs, general_level_boltzmann_factor,
@@ -197,7 +194,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
     def _calculate_general(self, t_electrons, lines, atomic_data, nlte_data,
         general_level_boltzmann_factor, j_blues,
-        previous_beta_sobolev, lte_j_blues, previous_electron_densities):
+        previous_beta_sobolev, previous_electron_densities):
         """
         Full NLTE calculation without approximations.
         """
@@ -205,11 +202,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             beta_sobolevs = np.ones((len(lines), len(t_electrons)))
         else:
             beta_sobolevs = previous_beta_sobolev
-        if len(j_blues)==0:
-            j_blues = lte_j_blues
-        else:
-            j_blues = pd.DataFrame(j_blues, index=lines.index, columns =
-                range(len(t_electrons)))
+        j_blues = pd.DataFrame(j_blues, index=lines.index, columns=
+                               range(len(t_electrons)))
         general_level_boltzmann_factor = self._main_nlte_calculation(
             atomic_data, nlte_data, t_electrons, j_blues,
             beta_sobolevs, general_level_boltzmann_factor,
