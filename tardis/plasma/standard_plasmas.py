@@ -80,7 +80,7 @@ def assemble_plasma(config, model, atom_data=None):
                   w=model.dilution_factor, link_t_rad_t_electron=0.9)
 
     plasma_modules = basic_inputs + basic_properties
-    property_args = {}
+    property_kwargs = {}
     if config.plasma.radiative_rates_type == 'blackbody':
         plasma_modules.append(JBluesBlackBody)
     elif config.plasma.radiative_rates_type == 'dilute-blackbody':
@@ -108,11 +108,11 @@ def assemble_plasma(config, model, atom_data=None):
         nlte_conf = config.plasma.nlte
         if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
             plasma_modules.append(LevelBoltzmannFactorNLTE)
-            property_args[LevelBoltzmannFactorNLTE] = {
+            property_kwargs[LevelBoltzmannFactorNLTE] = {
                 'classical_nebular': True}
         elif nlte_conf.coronal_approximation and not nlte_conf.classical_nebular:
             plasma_modules.append(LevelBoltzmannFactorNLTE)
-            property_args[LevelBoltzmannFactorNLTE] = {
+            property_kwargs[LevelBoltzmannFactorNLTE] = {
                 'coronal_approximation': True}
         elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
             raise PlasmaConfigError('Both coronal approximation and '
@@ -144,6 +144,6 @@ def assemble_plasma(config, model, atom_data=None):
         kwargs['delta_treatment'] = config.plasma.delta_treatment
 
     plasma = BasePlasma(plasma_properties=plasma_modules,
-                        property_args=property_args, **kwargs)
+                        property_kwargs=property_kwargs, **kwargs)
 
     return plasma
