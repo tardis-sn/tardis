@@ -14,11 +14,11 @@ logger = logging.getLogger(__name__)
 class BasePlasma(object):
 
     outputs_dict = {}
-    def __init__(self, plasma_properties, **kwargs):
+    def __init__(self, plasma_properties, property_args=None, **kwargs):
         self.outputs_dict = {}
         self.input_properties = []
         self.plasma_properties = self._init_properties(plasma_properties,
-                                                       **kwargs)
+                                                       property_args, **kwargs)
         self._build_graph()
 #        self.write_to_tex('Plasma_Graph')
         self.update(**kwargs)
@@ -90,7 +90,7 @@ class BasePlasma(object):
                 self.graph.add_edge(self.outputs_dict[input].name,
                     plasma_property.name, label = label)
 
-    def _init_properties(self, plasma_properties, **kwargs):
+    def _init_properties(self, plasma_properties, property_args=None, **kwargs):
         """
         Builds a dictionary with the plasma module names as keys
 
@@ -99,18 +99,25 @@ class BasePlasma(object):
 
         plasma_modules: ~list
             list of Plasma properties
+        property_args: ~dict
+            dict of plasma module : kwargs pairs. kwargs should be a dict
+            of arguments that will be passed to the __init__ method of
+            the respective plasma module.
         kwargs: dictionary
             input values for input properties. For example, t_rad=[5000, 6000,],
             j_blues=[..]
 
         """
+        if property_args is None:
+            property_args = {}
         plasma_property_objects = []
         self.previous_iteration_properties = []
         self.outputs_dict = {}
         for plasma_property in plasma_properties:
 
             if issubclass(plasma_property, PreviousIterationProperty):
-                current_property_object = plasma_property()
+                current_property_object = plasma_property(
+                    **property_args.get(plasma_property, {}))
                 current_property_object.set_initial_value(kwargs)
                 self.previous_iteration_properties.append(
                     current_property_object)
@@ -124,9 +131,11 @@ class BasePlasma(object):
                                                'instantiating the '
                                                'plasma'.format(
                                                missing_input_values))
-                current_property_object = plasma_property()
+                current_property_object = plasma_property(
+                    **property_args.get(plasma_property, {}))
             else:
-                current_property_object = plasma_property(self)
+                current_property_object = plasma_property(
+                    self, **property_args.get(plasma_property, {}))
             for output in plasma_property.outputs:
                 self.outputs_dict[output] = current_property_object
                 plasma_property_objects.append(current_property_object)
