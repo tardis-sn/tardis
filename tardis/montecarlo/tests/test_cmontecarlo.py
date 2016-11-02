@@ -88,7 +88,9 @@ def packet():
         next_shell_id=1,
         status=TARDIS_PACKET_STATUS_IN_PROCESS,
         id=0,
-        chi_cont=6.652486e-16
+        chi_cont=6.652486e-16,
+        chi_bf_tmp_partial = (c_double * 100)(),
+        compute_chi_bf = True
     )
 
 
@@ -146,7 +148,6 @@ def model():
         inner_boundary_albedo=0.0,
         reflective_inner_boundary=0,
 
-        chi_bf_tmp_partial=(c_double * 20000)(*([160.0] * 20000)),
         chi_ff_factor = (c_double * 2)(*([1.0] * 2)),
         t_electrons=(c_double * 2)(*([0.0] * 2)),
 

@@ -140,13 +140,21 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
       double l_pop = storage->l_pop[shell_id * no_of_continuum_edges + i];
       // get the levelpopulation ratio \frac{n_{0,j+1,k}}{n_{i,j,k}} \frac{n_{i,j,k}}{n_{0,j+1,k}}^{*}:
       double l_pop_r = storage->l_pop_r[shell_id * no_of_continuum_edges + i];
-      bf_helper += l_pop * bf_cross_section(storage, i, comov_nu) * (1 - l_pop_r * boltzmann_factor);
+      double bf_x_sect = bf_cross_section(storage, i, comov_nu);
+      if (bf_x_sect == 0.0)
+        {
+          for (int64_t j = i; j < no_of_continuum_edges; j++)
+            {
+              packet->chi_bf_tmp_partial[j] = bf_helper;
+            }
+          break;
+        }
+      bf_helper += l_pop * bf_x_sect * (1.0 - l_pop_r * boltzmann_factor) * doppler_factor;
 
-      // FIXME MR: Is this thread-safe? It doesn't look like it to me ...
-      storage->chi_bf_tmp_partial[i] = bf_helper;
+      packet->chi_bf_tmp_partial[i] = bf_helper;
     }
 
-  rpacket_set_chi_boundfree(packet, bf_helper * doppler_factor);
+  rpacket_set_chi_boundfree(packet, bf_helper);
 }
 
 void calculate_chi_ff(rpacket_t * packet, const storage_model_t * storage)
@@ -598,7 +606,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
 
   int64_t ccontinuum = current_continuum_id; /* continuum_id of the continuum in which bf-absorption occurs */
 
-  while (storage->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf)
+  while (packet->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf)
     {
       ccontinuum++;
     }
@@ -912,18 +920,21 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
         fprintf(stderr, "Running with OpenMP - %d threads\n", omp_get_num_threads());
         print_progress(0, storage->no_of_packets);
       }
-#pragma omp for
 #else
       rk_state mt_state;
       rk_seed (seed, &mt_state);
       fprintf(stderr, "Running without OpenMP\n");
 #endif
+      int64_t chi_bf_tmp_size = (storage->cont_status) ? storage->no_of_edges : 0;
+      double *chi_bf_tmp_partial = safe_malloc(sizeof(double) * chi_bf_tmp_size);
+
+      #pragma omp for
       for (int64_t packet_index = 0; packet_index < storage->no_of_packets; ++packet_index)
         {
           int reabsorbed = 0;
           rpacket_t packet;
           rpacket_set_id(&packet, packet_index);
-          rpacket_init(&packet, storage, packet_index, virtual_packet_flag);
+          rpacket_init(&packet, storage, packet_index, virtual_packet_flag, chi_bf_tmp_partial);
           if (virtual_packet_flag > 0)
             {
               reabsorbed = montecarlo_one_packet(storage, &packet, -1, &mt_state);
@@ -950,6 +961,7 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #endif
             }
         }
+      free(chi_bf_tmp_partial);
 #ifdef WITHOPENMP
     }
 #endif

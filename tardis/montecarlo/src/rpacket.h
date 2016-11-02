@@ -57,6 +57,7 @@ typedef struct RPacket
   double chi_cont; /**< Opacity due to continuum processes */
   double chi_ff; /**< Opacity due to free-free processes */
   double chi_bf; /**< Opacity due to bound-free processes */
+  double *chi_bf_tmp_partial;
   bool compute_chi_bf;
 } rpacket_t;
 
@@ -250,7 +251,7 @@ static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_sta
 }
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
-                             int packet_index, int virtual_packet_flag);
+                             int packet_index, int virtual_packet_flag, double * chi_bf_tmp_partial);
 
 /* New getter and setter methods for continuum implementation */
 
