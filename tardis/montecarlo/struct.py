@@ -31,6 +31,7 @@ class RPacket(Structure):
         ('chi_cont', c_double),
         ('chi_ff', c_double),
         ('chi_bf', c_double),
+        ('chi_bf_tmp_partial', POINTER(c_double)),
         ('compute_chi_bf', c_bool)
     ]
 
@@ -86,7 +87,6 @@ class StorageModel(Structure):
         ('inner_boundary_albedo', c_double),
         ('reflective_inner_boundary', c_int64),
         ('current_packet_id', c_int64),
-        ('chi_bf_tmp_partial', POINTER(c_double)),
         ('chi_ff_factor', POINTER(c_double)),
         ('t_electrons', POINTER(c_double)),
         ('l_pop', POINTER(c_double)),
