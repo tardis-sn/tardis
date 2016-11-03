@@ -36,6 +36,14 @@ class RPacket(Structure):
     ]
 
 
+class PhotoXsect1level(Structure):
+    _fields_ = [
+        ('nu', POINTER(c_double)),
+        ('x_sect', POINTER(c_double)),
+        ('no_of_points', c_int64)
+    ]
+
+
 class StorageModel(Structure):
     _fields_ = [
         ('packet_nus', POINTER(c_double)),
@@ -87,6 +95,7 @@ class StorageModel(Structure):
         ('inner_boundary_albedo', c_double),
         ('reflective_inner_boundary', c_int64),
         ('current_packet_id', c_int64),
+        ('photo_xsect', POINTER(POINTER(PhotoXsect1level))),
         ('chi_ff_factor', POINTER(c_double)),
         ('t_electrons', POINTER(c_double)),
         ('l_pop', POINTER(c_double)),
@@ -101,6 +110,7 @@ class StorageModel(Structure):
         ('virt_packet_count', c_int64),
         ('virt_array_size', c_int64)
     ]
+
 
 # Variables corresponding to `tardis_error_t` enum.
 TARDIS_ERROR_OK = 0

@@ -25,6 +25,11 @@ cdef extern from "src/cmontecarlo.h":
 
     cdef int LOG_VPACKETS
 
+    ctypedef struct photo_xsect_1level:
+        double *nu
+        double *x_sect
+        int_type_t no_of_points
+
     ctypedef struct storage_model_t:
         double *packet_nus
         double *packet_mus
@@ -74,6 +79,7 @@ cdef extern from "src/cmontecarlo.h":
         double inverse_sigma_thomson
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
+        photo_xsect_1level ** photo_xsect
         double *chi_ff_factor
         double *t_electrons
         double *l_pop

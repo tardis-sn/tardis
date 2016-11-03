@@ -5,6 +5,13 @@
 
 #include "status.h"
 
+typedef struct photo_xsect_1level
+{
+  double * nu;
+  double * x_sect;
+  int64_t no_of_points;
+} photo_xsect_1level;
+
 typedef struct StorageModel
 {
   double *packet_nus;
@@ -56,6 +63,7 @@ typedef struct StorageModel
   double inner_boundary_albedo;
   int64_t reflective_inner_boundary;
   int64_t current_packet_id;
+  photo_xsect_1level **photo_xsect;
   double *chi_ff_factor;
   double *t_electrons;
   double *l_pop;
