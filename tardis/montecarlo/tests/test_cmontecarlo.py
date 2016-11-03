@@ -47,12 +47,13 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, c_void_p, cast, POINTER
+from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, c_void_p, cast, POINTER, pointer
 from numpy.testing import assert_equal, assert_almost_equal
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import (
     RPacket, StorageModel, RKState,
+    PhotoXsect1level,
     TARDIS_ERROR_OK,
     TARDIS_ERROR_BOUNDS_ERROR,
     TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE,
@@ -89,8 +90,8 @@ def packet():
         status=TARDIS_PACKET_STATUS_IN_PROCESS,
         id=0,
         chi_cont=6.652486e-16,
-        chi_bf_tmp_partial = (c_double * 100)(),
-        compute_chi_bf = True
+        chi_bf_tmp_partial=(c_double * 2)(),
+        compute_chi_bf=True
     )
 
 
@@ -117,16 +118,16 @@ def model():
                                          1.23357675e+16, 1.23357675e+16,
                                          1.16961598e+16]),
 
-        continuum_list_nu=(c_double * 20000)(*([1.e13] * 20000)),
+        continuum_list_nu=(c_double * 2)(*([1.e13] * 2)),
 
         line_lists_tau_sobolevs=(c_double * 1000)(*([1.e-5] * 1000)),
         line_lists_j_blues=(c_double * 2)(*([1.e-10] * 2)),
         line_lists_j_blues_nd=0,
 
-        line_lists_Edotlu=(c_double * 3)(*[0.0,0.0,1.0]), # Init to an explicit array 
+        line_lists_Edotlu=(c_double * 3)(*[0.0,0.0,1.0]), # Init to an explicit array
 
         no_of_lines=2,
-        no_of_edges=100,
+        no_of_edges=2,
 
         line_interaction_id=0,
         line2macro_level_upper=(c_int64 * 2)(*([0] * 2)),
@@ -148,7 +149,7 @@ def model():
         inner_boundary_albedo=0.0,
         reflective_inner_boundary=0,
 
-        chi_ff_factor = (c_double * 2)(*([1.0] * 2)),
+        chi_ff_factor=(c_double * 2)(*([1.0] * 2)),
         t_electrons=(c_double * 2)(*([0.0] * 2)),
 
         l_pop=(c_double * 20000)(*([2.0] * 20000)),
@@ -165,13 +166,13 @@ def continuum_compare_data_fname():
 
 @pytest.fixture(scope='module')
 def continuum_compare_data(continuum_compare_data_fname, request):
-   compare_data = pd.HDFStore(continuum_compare_data_fname, mode='r')
+    compare_data = pd.HDFStore(continuum_compare_data_fname, mode='r')
 
-   def fin():
-       compare_data.close()
-   request.addfinalizer(fin)
+    def fin():
+        compare_data.close()
+    request.addfinalizer(fin)
 
-   return compare_data
+    return compare_data
 
 
 @pytest.fixture(scope="function")
@@ -221,6 +222,36 @@ def get_rkstate(continuum_compare_data):
         )
 
     return z2rkstate
+
+
+@pytest.fixture(scope='function')
+def model_w_edges(ion_edges, model):
+    photo_xsect = (POINTER(PhotoXsect1level) * len(ion_edges))()
+
+    for i, edge in enumerate(ion_edges):
+        x_sect_1level = PhotoXsect1level()
+        for key, value in edge.iteritems():
+            if key in ['nu', 'x_sect']:
+                value = (c_double * len(value))(*value)
+            setattr(x_sect_1level, key, value)
+        photo_xsect[i] = pointer(x_sect_1level)
+
+    no_of_edges = len(ion_edges)
+    continuum_list_nu = (c_double * no_of_edges)(*[edge['nu'][0] for edge in ion_edges])
+
+    model.photo_xsect = photo_xsect
+    model.continuum_list_nu = continuum_list_nu
+    model.no_of_edges = no_of_edges
+    return model
+
+
+@pytest.fixture(scope='module')
+def ion_edges():
+    return [
+        {'nu': [4.0e14, 4.1e14, 4.2e14, 4.3e14], 'x_sect': [1.0, 0.9, 0.8, 0.7], 'no_of_points': 4},
+        {'nu': [3.0e14, 3.1e14, 3.2e14, 3.3e14, 3.4e14], 'x_sect': [1.0, 0.9, 0.8, 0.7, 0.6], 'no_of_points': 5},
+        {'nu': [2.8e14, 3.0e14, 3.2e14, 3.4e14], 'x_sect': [2.0, 1.8, 1.6, 1.4], 'no_of_points': 4}
+    ]
 
 
 """
@@ -487,6 +518,7 @@ def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, 
     assert_almost_equal(packet.tau_event, expected_params['tau_event'])
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
+
 """
 Simple Tests:
 ----------------
@@ -495,9 +527,9 @@ These test check very simple pices of code still work.
 
 @pytest.mark.parametrize(
     ['packet_params', 'line_idx', 'expected'],
-    [({'energy':0.0}, 0, 0),
-     ({'energy':1.0}, 1, 1),
-     ({'energy':0.5}, 2, 1.5)]
+    [({'energy': 0.0}, 0, 0),
+     ({'energy': 1.0}, 1, 1),
+     ({'energy': 0.5}, 2, 1.5)]
 )
 def test_increment_Edotlu_estimator(packet_params, line_idx, expected, packet, model):
     packet.energy = packet_params['energy']
@@ -541,6 +573,7 @@ Continuum Tests:
 The tests written further (till next block comment is encountered) are for the
 methods related to continuum interactions.
 """
+
 
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
@@ -629,11 +662,55 @@ def test_montecarlo_continuum_event_handler(continuum_status, expected, z_random
 
     cmontecarlo_methods.montecarlo_continuum_event_handler.restype = c_void_p
     obtained = cmontecarlo_methods.montecarlo_continuum_event_handler(byref(packet),
-                                                      byref(model), byref(rkstate))
+            byref(model), byref(rkstate))
     expected = getattr(cmontecarlo_methods, expected)
     expected = cast(expected, c_void_p).value
 
     assert_equal(obtained, expected)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['nu', 'continuum_id', 'expected'],
+    [(4.40e14, 1, 0.00),
+     (3.25e14, 1, 0.75),
+     (4.03e14, 0, 0.97),
+     (4.10e14 + 1e-1, 0, 0.90),
+     pytest.mark.xfail(reason="nu coincides with a supporting point")((4.1e14, 0, 0.90))]
+)
+def test_bf_cross_section(nu, continuum_id, model_w_edges, expected):
+    cmontecarlo_methods.bf_cross_section.restype = c_double
+    obtained = cmontecarlo_methods.bf_cross_section(byref(model_w_edges), continuum_id, c_double(nu))
+
+    assert_almost_equal(obtained, expected)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['packet_params', 'expected'],
+    [({'nu': 4.13e14, 'mu': 0.0, 'current_shell_id': 1}, [3.2882087455641473] * 3),
+     ({'nu': 3.27e14, 'mu': 0.0, 'current_shell_id': 0}, [0.0, 1.3992114634681028, 5.702548202131454]),
+     ({'nu': 3.27e14, 'mu': -0.4, 'current_shell_id': 0}, [0.0, 1.2670858, 5.4446587])]
+)
+def test_calculate_chi_bf(packet_params, expected, packet, model_w_edges):
+    model_w_edges.l_pop = (c_double * 6)(*range(1, 7))
+    model_w_edges.l_pop_r = (c_double * 6)(*np.linspace(0.1, 0.6, 6))
+    model_w_edges.t_electrons[packet_params['current_shell_id']] = 1e4
+
+    packet.mu = packet_params['mu']
+    packet.nu = packet_params['nu']
+    packet.r = 1.04e17
+    packet.current_shell_id = packet_params['current_shell_id']
+    packet.chi_bf_tmp_partial = (c_double * model_w_edges.no_of_edges)()
+
+    cmontecarlo_methods.calculate_chi_bf(byref(packet), byref(model_w_edges))
+
+    obtained_chi_bf_tmp = np.array([packet.chi_bf_tmp_partial[i] for i in range(model_w_edges.no_of_edges)])
+    expected_chi_bf_tmp = np.array(expected)
+    expected_chi_bf = expected_chi_bf_tmp[-1]
+
+    assert_almost_equal(obtained_chi_bf_tmp, expected_chi_bf_tmp)
+    assert_almost_equal(packet.chi_bf, expected_chi_bf)
 
 
 """
@@ -643,48 +720,6 @@ The tests written further (till next block comment is encountered) are for the
 methods related to Continuum interactions. These are not required to be tested
 on current master and can be skipped for now.
 """
-
-
-@pytest.mark.skipif(True, reason="Not yet relevant")
-@pytest.mark.parametrize(
-    ['packet_params', 'expected'],
-    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 2.5010827921809502e+26),
-     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 3.123611229395459e+25)]
-)
-def test_bf_cross_section(packet_params, expected, packet, model):
-    packet.nu = packet_params['nu']
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
-
-    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
-    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
-    comov_nu = packet.nu * doppler_factor
-
-    cmontecarlo_methods.bf_cross_section.restype = c_double
-    obtained = cmontecarlo_methods.bf_cross_section(byref(model), c_int64(0),
-                                                    c_double(comov_nu))
-
-    assert_almost_equal(obtained, expected)
-
-
-# TODO: fix underlying method and update expected values in testcases.
-# For loop is not being executed in original method, and hence bf_helper
-# always remains zero. Reason for for loop not executed:
-#         "current_continuum_id = no_of_continuum edges"
-@pytest.mark.skipif(True, reason="Not yet relevant")
-@pytest.mark.parametrize(
-    ['packet_params', 'expected'],
-    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0.0),
-     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0.0)]
-)
-def test_calculate_chi_bf(packet_params, expected, packet, model):
-    packet.nu = packet_params['nu']
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
-
-    cmontecarlo_methods.calculate_chi_bf(byref(packet), byref(model))
-
-    assert_almost_equal(packet.chi_bf, expected)
 
 
 @pytest.mark.skipif(True, reason="Not yet relevant")

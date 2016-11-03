@@ -94,6 +94,52 @@ line_search (const double *nu, double nu_insert, int64_t number_of_lines,
   return ret_val;
 }
 
+tardis_error_t
+binary_search (const double *x, double x_insert, int64_t imin,
+	       int64_t imax, int64_t * result)
+{
+  /*
+     Have in mind that *x points to a sorted array.
+     Like [1,2,3,4,5,...]
+   */
+  int imid;
+  tardis_error_t ret_val = TARDIS_ERROR_OK;
+  if (x_insert < x[imin] || x_insert > x[imax])
+    {
+      ret_val = TARDIS_ERROR_BOUNDS_ERROR;
+    }
+  else
+    {
+      while (imax >= imin)
+	{
+	  imid = (imin + imax) / 2;
+	  if (x[imid] == x_insert)
+	    {
+	      *result = imid;
+	      break;
+	    }
+	  else if (x[imid] < x_insert)
+	    {
+	      imin = imid + 1;
+	    }
+	  else
+	    {
+	      imax = imid - 1;
+	    }
+	}
+      if (imax - imid == 2 && x_insert < x[imin + 1])
+	{
+	  *result = imin;
+	}
+      else
+	{
+	  *result = imin;
+	}
+    }
+  return ret_val;
+}
+
+
 double
 rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *storage)
 {
@@ -103,20 +149,24 @@ rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *storage)
 }
 
 /* Methods for calculating continuum opacities */
-
 double
 bf_cross_section(const storage_model_t * storage, int64_t continuum_id, double comov_nu)
 {
-  // FIXME MR: this seems like it should not be used in production!
-  /* Temporary hardcoded values */
-#define chi_bf_partial 0.25e-15
-  static const double cont_chi_bf[] = {chi_bf_partial, 0.0, 2.0 * chi_bf_partial, 0.3 * chi_bf_partial, 2.0 * chi_bf_partial};
-#undef chi_bf_partial
-  /* End of temporary hardcoded values */
-
-  double sigma_bf = cont_chi_bf[continuum_id]; //storage->bf_cross_sections[continuum_id]
-  double tmp=storage->continuum_list_nu[continuum_id] / comov_nu;
-  return sigma_bf * tmp*tmp*tmp;
+  int64_t result;
+  tardis_error_t error = binary_search (storage->photo_xsect[continuum_id]->nu, comov_nu, 0,
+	       storage->photo_xsect[continuum_id]->no_of_points - 1, &result);
+  if (error == TARDIS_ERROR_BOUNDS_ERROR)
+    {
+      return 0.0;
+    }
+  else
+    {
+      double bf_xsect = storage->photo_xsect[continuum_id]->x_sect[result-1]
+        + (comov_nu - storage->photo_xsect[continuum_id]->nu[result-1])
+        / (storage->photo_xsect[continuum_id]->nu[result] - storage->photo_xsect[continuum_id]->nu[result-1])
+        * (storage->photo_xsect[continuum_id]->x_sect[result] - storage->photo_xsect[continuum_id]->x_sect[result-1]);
+      return bf_xsect;
+    }
 }
 
 void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
@@ -131,7 +181,7 @@ void calculate_chi_bf(rpacket_t * packet, storage_model_t * storage)
 
   int64_t shell_id = rpacket_get_current_shell_id(packet);
   double T = storage->t_electrons[shell_id];
-  double boltzmann_factor = exp(-(H * comov_nu) / (KB*T));
+  double boltzmann_factor = exp(-(H * comov_nu) / (KB * T));
 
   double bf_helper = 0;
   for(int64_t i = current_continuum_id; i < no_of_continuum_edges; i++)

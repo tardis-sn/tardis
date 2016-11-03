@@ -26,6 +26,10 @@ tardis_error_t
 reverse_binary_search (const double *x, double x_insert,
                        int64_t imin, int64_t imax, int64_t * result);
 
+tardis_error_t
+binary_search (const double *x, double x_insert,
+               int64_t imin, int64_t imax, int64_t * result);
+
 double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *storage);
 
 /** Calculate the distance to shell boundary.
