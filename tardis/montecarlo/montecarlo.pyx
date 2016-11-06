@@ -11,12 +11,14 @@ from numpy cimport PyArray_DATA
 from astropy import constants
 from astropy import units
 from libc.stdlib cimport free
+from tardis.util import intensity_black_body
 
 np.import_array()
 
 
 
 ctypedef np.int64_t int_type_t
+ctypedef np.float64_t float_t
 
 cdef extern from "src/cmontecarlo.h":
     ctypedef enum ContinuumProcessesStatus:
@@ -88,10 +90,13 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t virt_packet_count
         int_type_t virt_array_size
 
+
+cdef extern from "src/integrator.h":
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
-
-
-
+    void debug_print_arg(double* arg, int len)
+    void debug_print_2d_arg(double* arg, int len1, int len2)
+    void integrate_source_functions(double* L_nu, double* line_nu, double* taus, double* att_S_ul, double* nus, double* ps, 
+            double* Rs, double T, double R_ph, double inv_ct, int_type_t* lens)
 
 cdef initialize_storage_model(model, runner, storage_model_t *storage):
     """
@@ -293,14 +298,95 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
         runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
 
-    if last_run:
-        postprocess(model,runner)
+def integrate(np.ndarray[float_t] L_nu,np.ndarray[float_t] line_nu, np.ndarray[float_t, ndim=2] taus, 
+              np.ndarray[float_t, ndim=2] att_S_ul, float R_max, float T, np.ndarray[float_t] nus, 
+              np.ndarray[float_t] ps_outer, np.ndarray[float_t] ps_inner,
+              np.ndarray[float_t, ndim=2] z_ct_outer, np.ndarray[float_t, ndim=2] z_ct_inner,
+              int num_shell, np.ndarray[int_type_t] n_shell_p_outer):   
 
-def postprocess(model, runner):
+    cdef int k, nu_idx, p_idx,  z_len
+    cdef float nu_start, nu_end, p,
+    cdef np.ndarray I_outer, I_inner, z_cross_p, shell_idx, ks, ps, I_p
 
-    Edotlu_norm_factor = (1 / 
-        (model.time_of_simulation * model.tardis_config.structure.volumes))
-    exptau = 1 - np.exp(- 
-                        runner.line_lists_tau_sobolevs.reshape(-1,
-                            model.tardis_config.structure["velocity"]["num"]) ) 
-    runner.Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
+    for nu_idx,nu in enumerate(nus.value):
+        I_outer = np.zeros(len(ps_outer))
+        for p_idx,p in enumerate(ps_outer):
+            z_cross_p = z_ct_outer[z_ct_outer[:,p_idx] > 0,p_idx]
+            if len(z_cross_p) == 1:
+                z_cross_p = np.hstack((-z_cross_p,z_cross_p))
+            else:
+                z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
+                                                                          # 1: avoids double counting center
+            shell_idx = (num_shell-1) - np.arange(n_shell_p_outer[p_idx]) # -1 for 0-based indexing
+            shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
+            
+            z_len = len(z_cross_p)
+            for idx,z_cross in enumerate(z_cross_p[0:z_len-1]):
+                if z_cross_p[idx+1] == 0:
+                    continue
+                nu_start = nu * (1 - z_cross) 
+                nu_end   = nu * (1 - z_cross_p[idx+1])
+                shell = shell_idx[idx]
+                # Note the direction of the comparisons
+                ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
+
+                if len(ks) < 2:
+                    ks = np.array(ks)
+
+                for k in ks:
+                    I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus[k,shell]) + att_S_ul[k,shell]
+
+        I_inner = np.zeros(len(ps_inner))
+        for p_idx,p in enumerate(ps_inner):
+            z_cross_p = z_ct_inner[z_ct_inner[:,p_idx] > 0,p_idx]
+            z_cross_p = np.hstack((z_cross_p[::-1],0)) # Zero ensures empty ks in last step below
+
+            shell_idx = np.hstack(( np.arange(num_shell), 0 ))
+            I_inner[p_idx] = intensity_black_body(nu,T)
+            z_len = len(z_cross_p)
+
+            for idx,z_cross in enumerate(z_cross_p[0:z_len-1]):
+                if z_cross_p[idx+1] == 0:
+                    continue
+                nu_start = nu * (1 - z_cross) 
+                nu_end   = nu * (1 - z_cross_p[idx+1])
+                shell = shell_idx[idx]
+                # Note the direction of the comparisons
+                ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
+
+                if len(ks) < 2:
+                    ks = np.array(ks)
+
+                for k in ks:
+                    I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus[k,shell]) + att_S_ul[k,shell]
+
+
+        if ( nu_idx % 200 ) == 0:
+            print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
+            print I_outer, I_inner
+        ps = np.hstack((ps_outer,ps_inner))*R_max
+        I_p = np.hstack((I_outer,I_inner))*ps
+        L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
+    return  L_nu
+
+
+def print_c_version(arg,twod):
+    if twod is not None:
+        debug_print_2d_arg(<double*> PyArray_DATA(arg),  arg.shape[0], arg.shape[1])
+    else:
+        debug_print_arg(<double*> PyArray_DATA(arg), len(arg))
+
+def c_source_integrate(np.ndarray[float_t] L_nu, np.ndarray[float_t] line_nu, np.ndarray[float_t, ndim=2] taus, 
+              np.ndarray[float_t, ndim=2] att_S_ul, double T, np.ndarray[float_t] nus,
+              np.ndarray[float_t] ps, np.ndarray[float_t] Rs, int num_shell, double R_ph, double inv_ct):
+              
+    lens = np.array([0,0,0,0])
+    lens[0] = len(L_nu)
+    lens[1] = len(line_nu)
+    lens[2] = len(ps)
+    lens[3] = num_shell
+
+    integrate_source_functions(<double*> PyArray_DATA(L_nu), <double*> PyArray_DATA(line_nu), <double*> PyArray_DATA(taus.flatten(order='C')),
+            <double*> PyArray_DATA(att_S_ul.flatten(order='C')), <double*> PyArray_DATA(nus), <double*> PyArray_DATA(ps), 
+            <double*> PyArray_DATA(Rs), <double> T, <double>R_ph, <double>inv_ct, <int_type_t*> PyArray_DATA(lens))
+    return L_nu
