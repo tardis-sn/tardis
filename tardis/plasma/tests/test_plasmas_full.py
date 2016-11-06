@@ -51,7 +51,7 @@ class TestPlasmas():
         old_plasma_t_rads = plasma_compare_data['test_lte1/t_rad']
         old_plasma_levels = plasma_compare_data['test_lte1/levels']
 
-        new_plasma_t_rads = self.lte_simulation.model.t_rads / u.Unit('K')
+        new_plasma_t_rads = self.lte_simulation.model.t_rad / u.Unit('K')
         new_plasma_levels = \
             self.lte_simulation.plasma.get_value(
             'level_number_density').ix[8].ix[1][10].values
@@ -63,7 +63,7 @@ class TestPlasmas():
     def test_nlte_plasma(self, plasma_compare_data):
         old_plasma_t_rads = plasma_compare_data['test_nlte1/t_rad']
         old_plasma_levels = plasma_compare_data['test_nlte1/levels']
-        new_plasma_t_rads = self.nlte_simulation.model.t_rads / u.Unit('K')
+        new_plasma_t_rads = self.nlte_simulation.model.t_rad / u.Unit('K')
         new_plasma_levels = \
             self.nlte_simulation.plasma.get_value(
             'level_number_density').ix[2].ix[1][10].values

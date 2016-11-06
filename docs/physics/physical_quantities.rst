@@ -46,14 +46,14 @@ as Astropy `Quantities <http://astropy.readthedocs.org/en/v0.2.1/_generated/astr
 
 .. code-block:: python
 
-    model.t_rads.cgs
+    model.t_rad.cgs
 
 will give you a list of the :math:`T_{\rm rad}`-values for the model zones
 in cgs units. To obtain an array of the values (without units) use
 
 .. code-block:: python
 
-    model.t_rads.cgs.value
+    model.t_rad.cgs.value
 
 Similarly, the :math:`W`-values can be accessed using
 
