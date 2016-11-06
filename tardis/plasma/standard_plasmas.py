@@ -104,7 +104,6 @@ def assemble_plasma(config, model, atom_data=None):
 
     if nlte_species:
         plasma_modules += nlte_properties
-        kwargs['nlte_species'] = nlte_species
         nlte_conf = config.plasma.nlte
         if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
             plasma_modules.append(LevelBoltzmannFactorNLTE)

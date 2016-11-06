@@ -114,7 +114,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         The core of the NLTE calculation, used with all possible config.
         options.
         """
-        for species in self.plasma_parent.nlte_species:
+        for species in nlte_data.nlte_species:
             j_blues = j_blues.values
             logger.info('Calculating rates for species %s', species)
             number_of_levels = atomic_data.levels.energy.ix[species].count()
