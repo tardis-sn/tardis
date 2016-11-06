@@ -76,8 +76,8 @@ indexpair_t nu_idx_from_nu_pair(double nu_blu, double nu_red, const double* line
         if ((line_nu[idx] <= nu_blu) & (!found_blu)){
             pair.start = idx;
             found_blu = true;}
-        if (line_nu[idx] <= nu_red){
-            pair.end = idx;
+        if (line_nu[idx] < nu_red){
+            pair.end = idx-1;
             break;}
     }
 
