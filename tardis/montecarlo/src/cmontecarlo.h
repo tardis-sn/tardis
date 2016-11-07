@@ -75,6 +75,10 @@ void increment_Edotlu_estimator (const rpacket_t * packet,
                                  storage_model_t * storage,
                                  int64_t j_blue_idx);
 
+void
+increment_continuum_estimators (const rpacket_t * packet, storage_model_t * storage, double distance,
+                                double comov_nu, double comov_energy);
+
 int64_t montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                                int64_t virtual_mode, rk_state *mt_state);
 
