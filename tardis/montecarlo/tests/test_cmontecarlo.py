@@ -48,7 +48,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, c_void_p, cast, POINTER, pointer
-from numpy.testing import assert_equal, assert_almost_equal
+from numpy.testing import assert_equal, assert_almost_equal, assert_array_equal
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import (
@@ -150,11 +150,12 @@ def model():
         reflective_inner_boundary=0,
 
         chi_ff_factor=(c_double * 2)(*([1.0] * 2)),
-        t_electrons=(c_double * 2)(*([0.0] * 2)),
+        t_electrons=(c_double * 2)(*([1.0e4] * 2)),
 
         l_pop=(c_double * 20000)(*([2.0] * 20000)),
         l_pop_r=(c_double * 20000)(*([3.0] * 20000)),
-        cont_status=CONTINUUM_OFF
+        cont_status=CONTINUUM_OFF,
+        ff_heating_estimator=(c_double * 2)(*([0.0] * 2))
     )
 
 
@@ -242,6 +243,13 @@ def model_w_edges(ion_edges, model):
     model.photo_xsect = photo_xsect
     model.continuum_list_nu = continuum_list_nu
     model.no_of_edges = no_of_edges
+
+    estimator_size = model.no_of_shells * no_of_edges
+    estims = ['photo_ion_estimator', 'stim_recomb_estimator', 'bf_heating_estimator', 'stim_recomb_cooling_estimator']
+    for estimator in estims:
+        setattr(model, estimator, (c_double * estimator_size)(*[0] * estimator_size))
+
+    model.photo_ion_estimator_statistics = (c_int64 * estimator_size)(*[0] * estimator_size)
     return model
 
 
@@ -662,7 +670,7 @@ def test_montecarlo_continuum_event_handler(continuum_status, expected, z_random
 
     cmontecarlo_methods.montecarlo_continuum_event_handler.restype = c_void_p
     obtained = cmontecarlo_methods.montecarlo_continuum_event_handler(byref(packet),
-            byref(model), byref(rkstate))
+                                                                      byref(model), byref(rkstate))
     expected = getattr(cmontecarlo_methods, expected)
     expected = cast(expected, c_void_p).value
 
@@ -705,12 +713,84 @@ def test_calculate_chi_bf(packet_params, expected, packet, model_w_edges):
 
     cmontecarlo_methods.calculate_chi_bf(byref(packet), byref(model_w_edges))
 
-    obtained_chi_bf_tmp = np.array([packet.chi_bf_tmp_partial[i] for i in range(model_w_edges.no_of_edges)])
+    obtained_chi_bf_tmp = np.ctypeslib.as_array(packet.chi_bf_tmp_partial, shape=(model_w_edges.no_of_edges,))
     expected_chi_bf_tmp = np.array(expected)
     expected_chi_bf = expected_chi_bf_tmp[-1]
 
     assert_almost_equal(obtained_chi_bf_tmp, expected_chi_bf_tmp)
     assert_almost_equal(packet.chi_bf, expected_chi_bf)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['comov_energy', 'distance', 'chi_ff', 'no_of_updates', 'expected'],
+    [(1.3, 1.3e14, 3e-12, 1, 507.),
+     (0.9, 0.7e15, 2e-12, 10, 1.260e4),
+     (0.8, 0.8e13, 1.5e-12, 35, 336.)]
+)
+def test_increment_continuum_estimators_ff_heating_estimator(packet, model_w_edges, comov_energy, distance,
+                                                             chi_ff, no_of_updates, expected):
+    packet.chi_ff = chi_ff
+
+    for _ in range(no_of_updates):
+        cmontecarlo_methods.increment_continuum_estimators(byref(packet), byref(model_w_edges), c_double(distance),
+                                                           c_double(0), c_double(comov_energy))
+    obtained = model_w_edges.ff_heating_estimator[packet.current_shell_id]
+
+    assert_almost_equal(obtained, expected)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['comov_nus', 'expected'],
+    [([4.05e14, 4.17e14, 3.3e14, 3.2e14, 2.9e14], [2, 2, 3]),
+     ([4.15e15, 3.25e14, 3.3e14, 2.85e14, 2.9e14], [0, 2, 4])]
+)
+def test_increment_continuum_estimators_photo_ion_estimator_statistics(packet, model_w_edges, comov_nus, expected):
+    for comov_nu in comov_nus:
+        cmontecarlo_methods.increment_continuum_estimators(byref(packet), byref(model_w_edges), c_double(1e13),
+                                                           c_double(comov_nu), c_double(1.0))
+
+    no_of_edges = model_w_edges.no_of_edges
+    no_of_shells = model_w_edges.no_of_shells
+
+    obtained = np.ctypeslib.as_array(model_w_edges.photo_ion_estimator_statistics,
+                                     shape=(no_of_edges * no_of_shells,))
+    obtained = np.reshape(obtained, newshape=(no_of_shells, no_of_edges), order='F')
+    obtained = obtained[packet.current_shell_id]
+    expected = np.array(expected)
+
+    assert_array_equal(obtained, expected)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['comov_energy', 'distance', 'comov_nus', 'expected'],
+    [(1.3, 1.3e14, [4.05e14, 2.65e14], {"photo_ion": [0.39641975308641975, 0., 0.],
+                                        "stim_recomb": [0.056757061269242064, 0., 0.],
+                                        "bf_heating": [1.9820987654321076e12, 0., 0.],
+                                        "stim_recomb_cooling": [283784812699.75476, 0., 0.]}),
+     (0.9, 0.7e15, [3.25e14, 2.85e14], {"photo_ion": [0., 1.4538461538461538, 7.315141700404858],
+                                        "stim_recomb": [0., 0.3055802, 1.7292954],
+                                        "bf_heating": [0., 36346153846153.82, 156760323886639.69],
+                                        "stim_recomb_cooling": [0., 7639505724285.9746, 33907776077426.875]})]
+)
+def test_increment_continuum_estimators_bf_estimators(packet, model_w_edges, comov_energy,
+                                                      distance, comov_nus, expected):
+    for comov_nu in comov_nus:
+        cmontecarlo_methods.increment_continuum_estimators(byref(packet), byref(model_w_edges), c_double(distance),
+                                                           c_double(comov_nu), c_double(comov_energy))
+
+    no_of_edges = model_w_edges.no_of_edges
+    no_of_shells = model_w_edges.no_of_shells
+
+    for estim_name, expected_value in expected.iteritems():
+        obtained = np.ctypeslib.as_array(getattr(model_w_edges, estim_name + "_estimator"),
+                                         shape=(no_of_edges * no_of_shells,))
+        obtained = np.reshape(obtained, newshape=(no_of_shells, no_of_edges), order='F')
+        obtained = obtained[packet.current_shell_id]
+        
+        assert_almost_equal(obtained, np.array(expected_value))
 
 
 """

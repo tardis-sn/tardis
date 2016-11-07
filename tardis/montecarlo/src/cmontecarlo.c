@@ -419,6 +419,69 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 #endif
           storage->nubars[rpacket_get_current_shell_id (packet)] +=
             comov_energy * distance * comov_nu;
+
+          if (storage->cont_status)
+            {
+              increment_continuum_estimators(packet, storage, distance, comov_nu, comov_energy);
+            }
+        }
+    }
+}
+
+void
+increment_continuum_estimators (const rpacket_t * packet, storage_model_t * storage, double distance,
+                                double comov_nu, double comov_energy)
+{
+  int64_t current_continuum_id;
+  int64_t no_of_continuum_edges = storage->no_of_edges;
+  int64_t shell_id = rpacket_get_current_shell_id(packet);
+  line_search(storage->continuum_list_nu, comov_nu, no_of_continuum_edges, &current_continuum_id);
+  double T = storage->t_electrons[shell_id];
+  double boltzmann_factor = exp(-(H * comov_nu) / (KB * T));
+
+  #ifdef WITHOPENMP
+  #pragma omp atomic
+  #endif
+  storage->ff_heating_estimator[shell_id] += comov_energy * distance * rpacket_get_chi_freefree(packet);
+
+  for(int64_t i = current_continuum_id; i < no_of_continuum_edges; i++)
+    {
+      double bf_xsect = bf_cross_section(storage, i, comov_nu);
+      int64_t photo_ion_idx = i * storage->no_of_shells + shell_id;
+      double photo_ion_estimator_helper = comov_energy * distance * bf_xsect / comov_nu;
+      double bf_heating_estimator_helper =
+        comov_energy * distance * bf_xsect * (1. - storage->continuum_list_nu[i] / comov_nu);
+
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
+      storage->photo_ion_estimator[photo_ion_idx] += photo_ion_estimator_helper;
+
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
+      storage->stim_recomb_estimator[photo_ion_idx] += photo_ion_estimator_helper * boltzmann_factor;
+
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
+      storage->bf_heating_estimator[photo_ion_idx] += bf_heating_estimator_helper;
+
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
+      storage->stim_recomb_cooling_estimator[photo_ion_idx] += bf_heating_estimator_helper * boltzmann_factor;
+
+      if (photo_ion_estimator_helper != 0.0)
+        {
+        #ifdef WITHOPENMP
+        #pragma omp atomic
+        #endif
+        storage->photo_ion_estimator_statistics[photo_ion_idx] += 1;
+        }
+      else
+        {
+          break;
         }
     }
 }

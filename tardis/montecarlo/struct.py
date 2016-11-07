@@ -108,7 +108,13 @@ class StorageModel(Structure):
         ('virt_packet_last_line_interaction_in_id', POINTER(c_int64)),
         ('virt_packet_last_line_interaction_out_id', POINTER(c_int64)),
         ('virt_packet_count', c_int64),
-        ('virt_array_size', c_int64)
+        ('virt_array_size', c_int64),
+        ('photo_ion_estimator', POINTER(c_double)),
+        ('stim_recomb_estimator', POINTER(c_double)),
+        ('photo_ion_estimator_statistics', POINTER(c_int64)),
+        ('bf_heating_estimator', POINTER(c_double)),
+        ('ff_heating_estimator', POINTER(c_double)),
+        ('stim_recomb_cooling_estimator', POINTER(c_double))
     ]
 
 

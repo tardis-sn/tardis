@@ -77,6 +77,12 @@ typedef struct StorageModel
   int64_t *virt_packet_last_line_interaction_out_id;
   int64_t virt_packet_count;
   int64_t virt_array_size;
+  double *photo_ion_estimator;
+  double *stim_recomb_estimator;
+  int64_t *photo_ion_estimator_statistics;
+  double *bf_heating_estimator;
+  double *ff_heating_estimator;
+  double *stim_recomb_cooling_estimator;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H
