@@ -21,4 +21,14 @@ typedef enum
   CONTINUUM_ON = 1,
 } ContinuumProcessesStatus;
 
+typedef enum
+{
+  BB_EMISSION = -1,
+  BF_EMISSION = -2,
+  FF_EMISSION = -3,
+  EXCITATION = 0,
+  IONIZATION = 1,
+  KPACKET_CREATION = 2
+} next_interaction2process;
+
 #endif // TARDIS_STATUS_H

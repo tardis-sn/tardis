@@ -128,4 +128,8 @@ int64_t sample_cooling_processes(const rpacket_t * packet, rk_state *mt_state,
                                  int64_t *cooling_references,
                                  int64_t no_of_individual_processes);
 
+void
+k_packet(rpacket_t * packet, const storage_model_t * storage,
+         next_interaction2process * next_process, rk_state *mt_state);
+
 #endif // TARDIS_CMONTECARLO_H

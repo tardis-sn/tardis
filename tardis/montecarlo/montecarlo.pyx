@@ -93,6 +93,19 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *virt_packet_last_line_interaction_out_id
         int_type_t virt_packet_count
         int_type_t virt_array_size
+        double *fb_cooling_prob
+        double *ff_cooling_prob
+        double *coll_exc_cooling_prob
+        double *coll_ion_cooling_prob
+        double *fb_cooling_prob_individual
+        double *coll_exc_cooling_prob_individual
+        double *coll_ion_cooling_prob_individual
+        int_type_t *fb_cooling_references
+        int_type_t *coll_ion_cooling_references
+        int_type_t *coll_exc_cooling_references
+        int_type_t fb_cooling_prob_nd
+        int_type_t coll_ion_cooling_prob_nd
+        int_type_t coll_exc_cooling_prob_nd
         double *photo_ion_estimator
         double *stim_recomb_estimator
         int_type_t *photo_ion_estimator_statistics
