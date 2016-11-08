@@ -393,6 +393,65 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state 
 }
 
 void
+k_packet(rpacket_t * packet, const storage_model_t * storage,
+         next_interaction2process * next_process, rk_state *mt_state)
+{
+  int64_t shell_id = rpacket_get_current_shell_id(packet);
+  double zrand = (rk_double(mt_state));
+  double cooling_prob = 0.0;
+  if (zrand < (cooling_prob += storage->fb_cooling_prob[shell_id]))
+    {
+      * next_process = BF_EMISSION;
+    }
+  else if (zrand < (cooling_prob += storage->ff_cooling_prob[shell_id]))
+    {
+      * next_process = FF_EMISSION;
+    }
+  else if (zrand < (cooling_prob += storage->coll_exc_cooling_prob[shell_id]))
+    {
+      * next_process = EXCITATION;
+    }
+  else
+    {
+      * next_process = IONIZATION;
+    }
+  switch(* next_process)
+    {
+      case FF_EMISSION:
+        // No need to select an individual process.
+        break;
+
+      case BF_EMISSION:
+        {
+          int64_t continuum_id = sample_cooling_processes(packet, mt_state, storage->fb_cooling_prob_individual,
+            storage->fb_cooling_references, storage->fb_cooling_prob_nd);
+          rpacket_set_current_continuum_id(packet, continuum_id);
+        }
+        break;
+
+      case IONIZATION:
+        {
+          int64_t activate_level = sample_cooling_processes(packet, mt_state, storage->coll_ion_cooling_prob_individual,
+            storage->coll_ion_cooling_references, storage->coll_ion_cooling_prob_nd);
+          rpacket_set_macro_atom_activation_level(packet, activate_level);
+        }
+        break;
+
+      case EXCITATION:
+        {
+          int64_t activate_level = sample_cooling_processes(packet, mt_state, storage->coll_exc_cooling_prob_individual,
+            storage->coll_exc_cooling_references, storage->coll_exc_cooling_prob_nd);
+          rpacket_set_macro_atom_activation_level(packet, activate_level);
+        }
+        break;
+
+      default:
+        fprintf(stderr, "This process for kpacket destruction should not exist! (next_process = %d)\n", * next_process);
+        exit(1);
+    }
+}
+
+void
 move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 {
   double doppler_factor = rpacket_doppler_factor (packet, storage);

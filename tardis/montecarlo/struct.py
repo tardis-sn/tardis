@@ -32,6 +32,7 @@ class RPacket(Structure):
         ('chi_ff', c_double),
         ('chi_bf', c_double),
         ('chi_bf_tmp_partial', POINTER(c_double)),
+        ('macro_atom_activation_level', c_int64),
         ('compute_chi_bf', c_bool)
     ]
 
@@ -109,6 +110,19 @@ class StorageModel(Structure):
         ('virt_packet_last_line_interaction_out_id', POINTER(c_int64)),
         ('virt_packet_count', c_int64),
         ('virt_array_size', c_int64),
+        ('fb_cooling_prob', POINTER(c_double)),
+        ('ff_cooling_prob', POINTER(c_double)),
+        ('coll_exc_cooling_prob', POINTER(c_double)),
+        ('coll_ion_cooling_prob', POINTER(c_double)),
+        ('fb_cooling_prob_individual', POINTER(c_double)),
+        ('coll_exc_cooling_prob_individual', POINTER(c_double)),
+        ('coll_ion_cooling_prob_individual', POINTER(c_double)),
+        ('fb_cooling_references', POINTER(c_int64)),
+        ('coll_ion_cooling_references', POINTER(c_int64)),
+        ('coll_exc_cooling_references', POINTER(c_int64)),
+        ('fb_cooling_prob_nd', c_int64),
+        ('coll_ion_cooling_prob_nd', c_int64),
+        ('coll_exc_cooling_prob_nd', c_int64),
         ('photo_ion_estimator', POINTER(c_double)),
         ('stim_recomb_estimator', POINTER(c_double)),
         ('photo_ion_estimator_statistics', POINTER(c_int64)),
@@ -131,6 +145,14 @@ TARDIS_PACKET_STATUS_REABSORBED = 2
 # Variables corresponding to `ContinuumProcessesStatus` enum.
 CONTINUUM_OFF = 0
 CONTINUUM_ON = 1
+
+# Variables corresponding to `next_interaction2process` enum.
+BB_EMISSION = -1
+BF_EMISSION = -2
+FF_EMISSION = -3
+EXCITATION = 0
+IONIZATION = 1
+KPACKET_CREATION = 2
 
 # `rk_state` specific macros.
 RK_STATE_LEN = 624

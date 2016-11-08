@@ -47,7 +47,7 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, c_void_p, cast, POINTER, pointer
+from ctypes import CDLL, byref, c_uint, c_int, c_int64, c_double, c_ulong, c_void_p, cast, POINTER, pointer
 from numpy.testing import assert_equal, assert_almost_equal, assert_array_equal
 
 from tardis import __path__ as path
@@ -61,7 +61,11 @@ from tardis.montecarlo.struct import (
     TARDIS_PACKET_STATUS_EMITTED,
     TARDIS_PACKET_STATUS_REABSORBED,
     CONTINUUM_OFF,
-    CONTINUUM_ON
+    CONTINUUM_ON,
+    BF_EMISSION,
+    FF_EMISSION,
+    EXCITATION,
+    IONIZATION
 )
 
 # Wrap the shared object containing C methods, which are tested here.
@@ -155,7 +159,11 @@ def model():
         l_pop=(c_double * 20000)(*([2.0] * 20000)),
         l_pop_r=(c_double * 20000)(*([3.0] * 20000)),
         cont_status=CONTINUUM_OFF,
-        ff_heating_estimator=(c_double * 2)(*([0.0] * 2))
+        ff_heating_estimator=(c_double * 2)(*([0.0] * 2)),
+        fb_cooling_prob = (c_double * 2)(*([0.0] * 2)),
+        ff_cooling_prob = (c_double *2)(*([0.0] * 2)),
+        coll_exc_cooling_prob = (c_double *2)(*([0.0] * 2)),
+        coll_ion_cooling_prob = (c_double *2)(*([0.0] * 2))
     )
 
 
@@ -653,11 +661,25 @@ def test_calculate_chi_ff(packet, model, packet_params, t_electrons, chi_ff_fact
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ['continuum_status', 'z_random', 'packet_params', 'expected'],
-    [(CONTINUUM_OFF, 0.94183547596539363, {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5}, 'montecarlo_thomson_scatter'),
-     (CONTINUUM_ON, 0.22443743797312765, {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5}, 'montecarlo_thomson_scatter'),
-     (CONTINUUM_ON, 0.54510721066252377, {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5}, 'montecarlo_bound_free_scatter'),
-     (CONTINUUM_ON, 0.94183547596539363, {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5}, 'montecarlo_free_free_scatter'),
-     (CONTINUUM_ON, 0.22443743797312765, {'chi_c': 1e2, 'chi_th': 1e1, 'chi_bf': 2e1}, 'montecarlo_bound_free_scatter')]
+    [(CONTINUUM_OFF, 0.94183547596539363,
+      {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5},
+      'montecarlo_thomson_scatter'),
+
+     (CONTINUUM_ON, 0.22443743797312765,
+      {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5},
+      'montecarlo_thomson_scatter'),
+
+     (CONTINUUM_ON, 0.54510721066252377,
+      {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5},
+      'montecarlo_bound_free_scatter'),
+
+     (CONTINUUM_ON, 0.94183547596539363,
+      {'chi_c': 1.0, 'chi_th': 0.4, 'chi_bf': 0.5},
+      'montecarlo_free_free_scatter'),
+
+     (CONTINUUM_ON, 0.22443743797312765,
+      {'chi_c': 1e2, 'chi_th': 1e1, 'chi_bf': 2e1},
+      'montecarlo_bound_free_scatter')]
 )
 def test_montecarlo_continuum_event_handler(continuum_status, expected, z_random,
                                             packet_params, packet, model, get_rkstate):
@@ -696,9 +718,14 @@ def test_bf_cross_section(nu, continuum_id, model_w_edges, expected):
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ['packet_params', 'expected'],
-    [({'nu': 4.13e14, 'mu': 0.0, 'current_shell_id': 1}, [3.2882087455641473] * 3),
-     ({'nu': 3.27e14, 'mu': 0.0, 'current_shell_id': 0}, [0.0, 1.3992114634681028, 5.702548202131454]),
-     ({'nu': 3.27e14, 'mu': -0.4, 'current_shell_id': 0}, [0.0, 1.2670858, 5.4446587])]
+    [({'nu': 4.13e14, 'mu': 0.0, 'current_shell_id': 1},
+      [3.2882087455641473] * 3),
+
+     ({'nu': 3.27e14, 'mu': 0.0, 'current_shell_id': 0},
+      [0.0, 1.3992114634681028, 5.702548202131454]),
+
+     ({'nu': 3.27e14, 'mu': -0.4, 'current_shell_id': 0},
+      [0.0, 1.2670858, 5.4446587])]
 )
 def test_calculate_chi_bf(packet_params, expected, packet, model_w_edges):
     model_w_edges.l_pop = (c_double * 6)(*range(1, 7))
@@ -766,14 +793,17 @@ def test_increment_continuum_estimators_photo_ion_estimator_statistics(packet, m
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ['comov_energy', 'distance', 'comov_nus', 'expected'],
-    [(1.3, 1.3e14, [4.05e14, 2.65e14], {"photo_ion": [0.39641975308641975, 0., 0.],
-                                        "stim_recomb": [0.056757061269242064, 0., 0.],
-                                        "bf_heating": [1.9820987654321076e12, 0., 0.],
-                                        "stim_recomb_cooling": [283784812699.75476, 0., 0.]}),
-     (0.9, 0.7e15, [3.25e14, 2.85e14], {"photo_ion": [0., 1.4538461538461538, 7.315141700404858],
-                                        "stim_recomb": [0., 0.3055802, 1.7292954],
-                                        "bf_heating": [0., 36346153846153.82, 156760323886639.69],
-                                        "stim_recomb_cooling": [0., 7639505724285.9746, 33907776077426.875]})]
+    [(1.3, 1.3e14, [4.05e14, 2.65e14],
+      {"photo_ion": [0.39641975308641975, 0., 0.],
+       "stim_recomb": [0.056757061269242064, 0., 0.],
+       "bf_heating": [1.9820987654321076e12, 0., 0.],
+       "stim_recomb_cooling": [283784812699.75476, 0., 0.]}),
+
+     (0.9, 0.7e15, [3.25e14, 2.85e14],
+      {"photo_ion": [0., 1.4538461538461538, 7.315141700404858],
+       "stim_recomb": [0., 0.3055802, 1.7292954],
+       "bf_heating": [0., 36346153846153.82, 156760323886639.69],
+       "stim_recomb_cooling": [0., 7639505724285.9746, 33907776077426.875]})]
 )
 def test_increment_continuum_estimators_bf_estimators(packet, model_w_edges, comov_energy,
                                                       distance, comov_nus, expected):
@@ -789,8 +819,50 @@ def test_increment_continuum_estimators_bf_estimators(packet, model_w_edges, com
                                          shape=(no_of_edges * no_of_shells,))
         obtained = np.reshape(obtained, newshape=(no_of_shells, no_of_edges), order='F')
         obtained = obtained[packet.current_shell_id]
-        
+
         assert_almost_equal(obtained, np.array(expected_value))
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['z_random', 'expected'],
+    [(0.22443743797312765,  # next z_random = 0.545678896748
+      {'process_type': BF_EMISSION, 'current_continuum_id': 2}),
+
+     (0.58269284658380704,  # next z_random = 0.845102049919
+      {'process_type': EXCITATION, 'macro_atom_activation_level': 3}),
+
+     (0.78961460371187597,  # next z_random = 0.818455414618
+      {'process_type': IONIZATION, 'macro_atom_activation_level': 3}),
+
+     (0.3956855427967142,
+      {'process_type': FF_EMISSION})]
+)
+def test_k_packet(packet, model_w_edges, get_rkstate, z_random, expected):
+    rkstate = get_rkstate(z_random)
+
+    model_w_edges.fb_cooling_prob[packet.current_shell_id] = 0.25
+    model_w_edges.ff_cooling_prob[packet.current_shell_id] = 0.25
+    model_w_edges.coll_exc_cooling_prob[packet.current_shell_id] = 0.25
+
+    cooling_references = (c_int64 * 4)(0, 1, 2, 3)
+    no_processes = c_int64(len(cooling_references))
+    cooling_probabilities = (c_double * 8)(*([0.25] * 4 + [0.10] * 2 + [0.40] * 2))
+    for name in ['fb', 'coll_exc', 'coll_ion']:
+        setattr(model_w_edges, name + '_cooling_references', cooling_references)
+        setattr(model_w_edges, name + '_cooling_prob_nd', no_processes)
+        setattr(model_w_edges, name + '_cooling_prob_individual', cooling_probabilities)
+
+    obtained_process_type = c_int(-10)
+    expected_process_type = expected.pop('process_type')
+
+    cmontecarlo_methods.k_packet(byref(packet), byref(model_w_edges), byref(obtained_process_type), byref(rkstate))
+
+    assert_equal(obtained_process_type.value, expected_process_type)
+
+    for reference_name, expected_reference_value in expected.iteritems():
+        obtained_reference_value = getattr(packet, reference_name)
+        assert_equal(obtained_reference_value, expected_reference_value)
 
 
 """
