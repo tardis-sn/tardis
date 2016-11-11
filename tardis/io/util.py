@@ -166,7 +166,7 @@ def check_equality(item1, item2):
         return True
 
 
-def to_hdf(path_or_buf, path, elements):
+def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     """
     A function to uniformly store TARDIS data
     to an HDF file.
@@ -217,7 +217,7 @@ def to_hdf(path_or_buf, path, elements):
 
         # Unfortunately, with to_hdf we cannot append, so merge beforehand
         scalars_path = os.path.join(path, 'scalars')
-        with pd.HDFStore(path_or_buf) as store:
+        with pd.HDFStore(path_or_buf, complevel=complevel, complib=complib) as store:
             if scalars_path in store:
                 scalars_series = store[scalars_path].append(scalars_series)
         scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
