@@ -68,6 +68,7 @@ Current and Former GSoC and SOCIS Students
 ------------------------------------------
 
  * Aoife Boyle (GSoC 2015)
+ * Tomas Bylund (SOCIS 2016)
  * Karan Desai (GSoC 2016)
  * Vytautas Jancauskas (GSoC 2015)
  * Mikhail Mishin (GSoC 2016)
