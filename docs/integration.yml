@@ -1,0 +1,15 @@
+atom_data_url: "http://opensupernova.org/~karandesai96/atom_data"
+reference: "~/slow-tests/bigref"
+generate_reference: "~/slow-tests/bigref"
+# reference: "~/slow-tests/reference"
+# generate_reference: "~/slow-tests/generated"
+
+dokuwiki:
+  url: "http://opensupernova.org/~karandesai96/integration/"
+  username: "karandesai96"
+  password: "XXXXXX"
+
+less_packets:
+  no_of_packets: 100
+  last_no_of_packets: 1000
+
