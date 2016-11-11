@@ -1,6 +1,6 @@
 import os
+import urlparse
 import yaml
-
 import pytest
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
@@ -33,15 +33,22 @@ class TestIntegration(object):
 
         self.config_file = os.path.join(data_path['config_dirpath'], "config.yml")
 
-        # A quick hack to download and cache atom data according to requirement
-        # of setup. This will be cleaned up after new atomic data is available.
-        # Read the name of atomic data required:
+        # A quick hack to use atom data per setup. Atom data is ingested from
+        # local HDF or downloaded and cached from a url, depending on data_path
+        # keys.
         atom_data_name = yaml.load(open(self.config_file))['atom_data']
 
-        # Download and cache the atom data file
-        atom_data_filepath = download_file("{url}/{name}".format(
-            url=data_path['atom_data_url'], name=atom_data_name), cache=True
-        )
+        # Get the path to HDF file:
+        if 'atom_data_url' in data_path:
+            # If the atom data is to be ingested from url:
+            atom_data_filepath = download_file(urlparse.urljoin(
+                base=data_path['atom_data_url'], url=atom_data_name), cache=True
+            )
+        else:
+            # If the atom data is to be ingested from local file:
+            atom_data_filepath = os.path.join(
+                data_path['atom_data_dirpath'], atom_data_name
+            )
 
         # Load atom data file separately, pass it for forming tardis config.
         self.atom_data = AtomData.from_hdf5(atom_data_filepath)
