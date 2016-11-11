@@ -25,8 +25,9 @@ References
 3. "pytest-html" ( https://www.github.com/davehunt/pytest-html )
 """
 import datetime
-import pkg_resources
+import json
 import os
+import pkg_resources
 import time
 
 # For specifying error while exception handling
@@ -39,8 +40,10 @@ import tardis
 
 try:
     import dokuwiki
+    import requests
 except ImportError:
     dokuwiki = None
+    requests = None
 
 
 class DokuReport(HTMLReport):
@@ -68,13 +71,11 @@ class DokuReport(HTMLReport):
             self.dokuwiki_url = dokuwiki_details["url"]
 
     def _generate_report(self, session):
-        """
-        The method writes HTML report to a temporary logfile.
-        """
+        """Writes HTML report to a temporary logfile."""
         suite_stop_time = time.time()
-        suite_time_delta = suite_stop_time - self.suite_start_time
+        self.suite_time_delta = suite_stop_time - self.suite_start_time
         numtests = self.passed + self.failed + self.xpassed + self.xfailed
-        generated = datetime.datetime.now()
+        generated = datetime.datetime.utcnow()
 
         style_css = pkg_resources.resource_string(
             pytest_html_path, os.path.join('resources', 'style.css'))
@@ -86,7 +87,7 @@ class DokuReport(HTMLReport):
 
         summary = [html.h2('Summary'), html.p(
             '{0} tests ran in {1:.2f} seconds.'.format(
-                numtests, suite_time_delta),
+                numtests, self.suite_time_delta),
             html.br(),
             html.span('{0} passed'.format(
                 self.passed), class_='passed'), ', ',
@@ -154,13 +155,55 @@ class DokuReport(HTMLReport):
 
     def _save_report(self, report_content):
         """
-        The method uploads the report and closes the temporary file. Temporary
-        file is made using `tempfile` built-in module, it gets deleted upon
-        closing.
+        Uploads the report and closes the temporary file. Temporary file is
+        made using `tempfile` built-in module, it gets deleted upon closing.
         """
         try:
             self.doku_conn.pages.set("reports:{0}".format(
                 tardis.__githash__[:7]), report_content)
+        except (gaierror, TypeError):
+            pass
+
+    def _wiki_overview_entry(self):
+        """Makes an entry of current test run on overview page of dokuwiki."""
+        if self.errors == 0:
+            if self.failed + self.xpassed == 0:
+                status = "Passed"
+            else:
+                status = "Failed"
+        else:
+            status = "Errored"
+
+        suite_start_datetime = datetime.datetime.utcfromtimestamp(self.suite_start_time)
+
+        # Fetch commit message from github.
+        gh_request = requests.get(
+            "https://api.github.com/repos/tardis-sn/tardis/git/commits/{0}".format(
+                tardis.__githash__
+            )
+        )
+        gh_commit_data = json.loads(gh_request.content)
+        # Pick only first line of commit message
+        gh_commit_message = gh_commit_data['message'].split('\n')[0]
+
+        # Truncate long commit messages
+        if len(gh_commit_message) > 60:
+            gh_commit_message = "{0}...".format(gh_commit_message[:57])
+        row = "|  "
+        # Append hash
+        row += "[[reports:{0}|{0}]]  | ".format(tardis.__githash__[:7])
+        # Append commit message
+        row += "[[https://www.github.com/tardis-sn/tardis/commit/{0}|{1}]] |  ".format(
+            tardis.__githash__, gh_commit_message
+        )
+        # Append start time
+        row += "{0}  |  ".format(suite_start_datetime.strftime('%d %b %H:%M:%S'))
+        # Append time elapsed
+        row += "{0:.2f} sec  |  ".format(self.suite_time_delta)
+        # Append status
+        row += "{0}  |\n".format(status)
+        try:
+            self.doku_conn.pages.append('/', row)
         except (gaierror, TypeError):
             pass
 
@@ -171,6 +214,7 @@ class DokuReport(HTMLReport):
         """
         report_content = self._generate_report(session)
         self._save_report(report_content)
+        self._wiki_overview_entry()
 
     def pytest_terminal_summary(self, terminalreporter):
         """
