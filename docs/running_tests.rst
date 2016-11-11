@@ -39,9 +39,14 @@ These tests require reference files against which the results of the various
 tardis runs are tested. So you first need to either download the current
 reference files (XXX link XXX) or generate new ones.
 
+Both of of these require a configuration file for the integration tests:
+
+.. literalinclude:: integration.yml
+    :language: yaml
+
 .. code-block::
 
-    > python setup.py
+    > python setup.py test --args="--atomic-dataset=kurucz_cd23_chianti_H_He.h5"
 
 
 
