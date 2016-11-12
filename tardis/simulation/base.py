@@ -328,7 +328,8 @@ class Simulation(object):
         if 'plasma' in kwargs:
             plasma = kwargs['plasma']
         else:
-            plasma = assemble_plasma(config, model)
+            plasma = assemble_plasma(config, model,
+                                     atom_data=kwargs.get('atom_data', None))
         if 'runner' in kwargs:
             runner = kwargs['runner']
         else:
