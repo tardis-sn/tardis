@@ -1,6 +1,7 @@
 from __future__ import print_function
 #codes to for analyse the model.
 
+from builtins import object
 import re
 import os
 
@@ -253,7 +254,7 @@ class TARDISHistory(object):
 
         hdf_store.close()
         if is_scalar:
-            return pd.DataFrame(level_populations_dict.values()[0])
+            return pd.DataFrame(list(level_populations_dict.values())[0])
         else:
             return pd.Panel(level_populations_dict)
 
@@ -276,7 +277,7 @@ class TARDISHistory(object):
 
         hdf_store.close()
         if is_scalar:
-            return pd.DataFrame(jblues_dict.values()[0])
+            return pd.DataFrame(list(jblues_dict.values())[0])
         else:
             return pd.Panel(jblues_dict)
 
@@ -301,7 +302,7 @@ class TARDISHistory(object):
 
         hdf_store.close()
         if is_scalar:
-            return pd.DataFrame(ion_populations_dict.values()[0])
+            return pd.DataFrame(list(ion_populations_dict.values())[0])
         else:
             return pd.Panel(ion_populations_dict)
 

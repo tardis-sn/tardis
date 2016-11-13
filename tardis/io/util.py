@@ -1,5 +1,8 @@
 #Utility functions for the IO part of TARDIS
 
+from builtins import zip
+from past.builtins import basestring
+from builtins import object
 import os
 import pandas as pd
 import numpy as np
@@ -192,7 +195,7 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
 
     """
     scalars = {}
-    for key, value in elements.iteritems():
+    for key, value in elements.items():
         if hasattr(value, 'cgs'):
             value = value.cgs.value
         if np.isscalar(value):

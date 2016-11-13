@@ -1,4 +1,7 @@
 from __future__ import print_function
+from builtins import str
+from builtins import map
+from builtins import range
 import os
 if os.environ.get('QT_API', None)=='pyqt':
     from PyQt4 import QtGui, QtCore
@@ -660,7 +663,7 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax1.set_ylabel('Rad. Temp (K)')
         self.graph.ax1.yaxis.get_major_formatter().set_powerlimits((0, 1))
         self.graph.dataplot = self.graph.ax1.plot(
-            range(len(self.model.t_rads.value)), self.model.t_rads.value)
+            list(range(len(self.model.t_rads.value))), self.model.t_rads.value)
         self.graph.ax2.clear()
         self.graph.ax2.set_title('Shell View')
         self.graph.ax2.set_xticklabels([])
@@ -857,13 +860,16 @@ class LineInfo(QtGui.QDialog):
         self.grouped_lines_in, self.grouped_lines_out = (self.last_line_in.groupby(
             ['atomic_number', 'ion_number']), 
         self.last_line_out.groupby(['atomic_number', 'ion_number']))
-        self.ions_in, self.ions_out = (self.grouped_lines_in.groups.keys(), 
-        self.grouped_lines_out.groups.keys())
+        self.ions_in, self.ions_out = (
+                list(self.grouped_lines_in.groups.keys()),
+                list(self.grouped_lines_out.groups.keys()))
         self.ions_in.sort()
         self.ions_out.sort()
         self.header_list = []
-        self.ion_table = (self.grouped_lines_in.wavelength.count().astype(float) / 
-            self.grouped_lines_in.wavelength.count().sum()).values.tolist()
+        self.ion_table = (
+                self.grouped_lines_in.wavelength.count().astype(float) /
+                self.grouped_lines_in.wavelength.count().sum()
+                ).values.tolist()
         for z, ion in self.ions_in:
             self.header_list.append('Z = %d: Ion %d' % (z, ion))
 
@@ -890,7 +896,7 @@ class LineInfo(QtGui.QDialog):
             s += item
         for index in range(len(transitions_count)):
             transitions_count[index] /= float(s)
-        for key, value in transitions.items():
+        for key, value in list(transitions.items()):
             transitions_parsed.append("%d-%d (%.2f A)" % (key[0], key[1], 
                 self.parent.model.atom_data.lines.ix[value[0]]['wavelength']))
         return transitions_parsed, transitions_count
@@ -971,7 +977,7 @@ class LineInteractionTables(QtGui.QWidget):
         species_abundances = (
             line_interaction_species_group.wavelength.count().astype(float) /
             line_interaction_analysis.last_line_in.wavelength.count()).astype(float).tolist()
-        species_abundances = map(float, species_abundances)
+        species_abundances = list(map(float, species_abundances))
         species_table_model.add_data(species_abundances)
         self.species_table.setModel(species_table_model)
 
@@ -1006,7 +1012,7 @@ class LineInteractionTables(QtGui.QWidget):
             'line_id_out'])
         exc_deexc_string = 'exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)'
 
-        for line_id, row in grouped_line_interactions.wavelength.count().iteritems():
+        for line_id, row in grouped_line_interactions.wavelength.count().items():
             current_line_in = self.atom_data.lines.ix[line_id[0]]
             current_line_out = self.atom_data.lines.ix[line_id[1]]
             last_line_in_string.append(exc_deexc_string % (

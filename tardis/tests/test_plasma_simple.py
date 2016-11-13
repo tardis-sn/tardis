@@ -1,3 +1,5 @@
+from builtins import str
+from builtins import object
 from astropy import constants as const, units as u
 import os
 import pandas as pd

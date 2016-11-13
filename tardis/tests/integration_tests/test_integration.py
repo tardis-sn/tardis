@@ -1,5 +1,8 @@
+from future import standard_library
+standard_library.install_aliases()
+from builtins import object
 import os
-import urlparse
+import urllib.parse
 import yaml
 import pytest
 import matplotlib.pyplot as plt
@@ -12,12 +15,6 @@ from tardis.atomic import AtomData
 from tardis.simulation.base import run_radial1d
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
-
-print('aSDSAFADS')
-print(pytest.config.getvalue("integration-tests"))
-print('END debug')
-
-pytest.mark.skip(reason='Debug')
 
 
 @pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
@@ -47,7 +44,7 @@ class TestIntegration(object):
         # Get the path to HDF file:
         if 'atom_data_url' in data_path:
             # If the atom data is to be ingested from url:
-            atom_data_filepath = download_file(urlparse.urljoin(
+            atom_data_filepath = download_file(urllib.parse.urljoin(
                 base=data_path['atom_data_url'], url=atom_data_name), cache=True
             )
         else:

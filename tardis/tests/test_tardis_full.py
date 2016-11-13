@@ -1,3 +1,4 @@
+from builtins import object
 import pytest
 import numpy as np
 import tardis
@@ -20,7 +21,7 @@ def data_path(fname):
 
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
-class TestSimpleRun():
+class TestSimpleRun(object):
     """
     Very simple run
     """

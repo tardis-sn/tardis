@@ -1,4 +1,7 @@
 from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 import logging
 import tempfile
@@ -42,7 +45,7 @@ class BasePlasma(object):
                  if not item.startswith('_')]
         attrs += [item for item in self.__class__.__dict__
                  if not item.startswith('_')]
-        attrs += self.outputs_dict.keys()
+        attrs += list(self.outputs_dict.keys())
         return attrs
 
     @property

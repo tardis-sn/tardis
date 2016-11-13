@@ -1,6 +1,8 @@
 from __future__ import print_function
 # atomic model
 
+from builtins import zip
+from builtins import object
 import os
 import logging
 
@@ -16,6 +18,7 @@ import pandas as pd
 from scipy import interpolate
 from astropy import table, units, constants
 from pandas import DataFrame
+from builtins import bytes
 
 
 class AtomDataNotPreparedError(Exception):
@@ -37,8 +40,9 @@ atomic_symbols_data = np.recfromtxt(
             ('atomic_number', '<i8'),
             ('symbol', 'U3')])
 
-symbol2atomic_number = OrderedDict(list(zip(atomic_symbols_data['symbol'],
-                                       atomic_symbols_data['atomic_number'])))
+symbol2atomic_number = OrderedDict(
+       zip(atomic_symbols_data['symbol'],
+           atomic_symbols_data['atomic_number']))
 atomic_number2symbol = OrderedDict(atomic_symbols_data)
 
 
@@ -103,7 +107,18 @@ def read_basic_atom_data(fname=None):
     data_table = read_hdf5_data(fname, 'basic_atom_data')
     #    data_table.columns['mass'] = units.Unit('u').to('g', data_table['mass'])
 
-    return data_table
+    # This is a workaround to get the element name and symbol
+    # as unicode string instead of as bytes
+    return table.Table(
+            data_table.__array__().astype(
+                [
+                    ('atomic_number', '<i8'),
+                    ('symbol', 'U3'),
+                    ('name', 'U13'),
+                    ('mass', '<f8')
+                    ]
+                )
+            )
 
 
 def read_ionization_data(fname=None):
@@ -353,8 +368,8 @@ class AtomData(object):
                         ion_cx_data=ion_cx_data)
 
         with h5py.File(fname, 'r') as h5_file:
-            atom_data.uuid1 = h5_file.attrs['uuid1']
-            atom_data.md5 = h5_file.attrs['md5']
+            atom_data.uuid1 = bytes(h5_file.attrs['uuid1'])
+            atom_data.md5 = bytes(h5_file.attrs['md5'])
             atom_data.version = h5_file.attrs.get('database_version', None)
 
             if atom_data.version is not None:

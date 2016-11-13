@@ -1,5 +1,6 @@
 # Module to read the rather complex config data
 
+from builtins import range
 import logging
 import os
 import pprint
@@ -250,7 +251,7 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
             old_mean_densities = mean_densities
             mean_densities = np.empty(no_of_shells * split_shells) * old_mean_densities.unit
             new_abundance_data = np.empty((abundances.values.shape[0], no_of_shells * split_shells))
-            for i in xrange(split_shells):
+            for i in range(split_shells):
                 mean_densities[i::split_shells] = old_mean_densities
                 new_abundance_data[:, i::split_shells] = abundances.values
 
@@ -270,7 +271,7 @@ def parse_model_file_section(model_setup_file_dict, time_explosion):
         parser = model_file_section_parser[model_setup_file_dict['type']]
     except KeyError:
         raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
-                                 (model_file_section_parser.keys(), model_file_section_parser['type']))
+                                 (list(model_file_section_parser.keys()), model_file_section_parser['type']))
 
     return parser(model_setup_file_dict, time_explosion)
 
@@ -339,7 +340,7 @@ def parse_density_file_section(density_file_dict, time_explosion):
         parser = density_file_parser[density_file_dict['type']]
     except KeyError:
         raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
-                                 (density_file_parser.keys(), density_file_dict['type']))
+                                 (list(density_file_parser.keys()), density_file_dict['type']))
 
     return parser(density_file_dict, time_explosion)
 
@@ -400,7 +401,7 @@ def parse_density_section(density_dict, v_inner, v_outer, time_explosion):
         parser = density_parser[density_dict['type']]
     except KeyError:
         raise ConfigurationError('In density section only types %s are allowed (supplied %s) ' %
-                                 (density_parser.keys(), density_dict['type']))
+                                 (list(density_parser.keys()), density_dict['type']))
     return parser(density_dict, v_inner, v_outer, time_explosion)
 
 
@@ -426,7 +427,7 @@ def parse_abundance_file_section(abundance_file_dict, abundances, min_shell, max
         parser = abundance_file_parser[abundance_file_dict['type']]
     except KeyError:
         raise ConfigurationError('In abundance file section only types %s are allowed (supplied %s) ' %
-                                 (abundance_file_parser.keys(), abundance_file_dict['type']))
+                                 (list(abundance_file_parser.keys()), abundance_file_dict['type']))
 
     return parser(abundance_file_dict, abundances, min_shell, max_shell)
 
@@ -655,7 +656,7 @@ class ConfigurationNameSpace(dict):
     __setattr__ = __setitem__
 
     def __dir__(self):
-        return self.keys()
+        return list(self.keys())
 
     def get_config_item(self, config_item_string):
         """

@@ -34,7 +34,7 @@ def extend_with_default(validator_class):
         # values on schemas that use the oneOf keyword
         if not list(
                 validate_properties(validator, properties, instance, schema)):
-            for property, subschema in properties.iteritems():
+            for property, subschema in properties.items():
                 if 'default' in subschema:
                     instance.setdefault(property, subschema['default'])
 

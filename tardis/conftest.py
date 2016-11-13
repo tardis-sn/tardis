@@ -13,6 +13,8 @@ from tardis.atomic import AtomData
 from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
 
+from builtins import bytes
+
 ###
 # Astropy
 ###
@@ -92,7 +94,7 @@ def atomic_data_fname():
 def kurucz_atomic_data(atomic_data_fname):
     atomic_data = AtomData.from_hdf5(atomic_data_fname)
 
-    if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
+    if atomic_data.md5 != bytes(b'21095dd25faa1683f4c90c911a00c3f8'):
         pytest.skip('Need default Kurucz atomic dataset '
                     '(md5="21095dd25faa1683f4c90c911a00c3f8"')
     else:
