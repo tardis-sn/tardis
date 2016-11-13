@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # This module contains the model class
 
 import logging
@@ -9,7 +10,7 @@ from astropy import constants, units as u
 from astropy.utils.decorators import deprecated
 
 from tardis.io.util import to_hdf
-from util import intensity_black_body
+from .util import intensity_black_body
 
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 

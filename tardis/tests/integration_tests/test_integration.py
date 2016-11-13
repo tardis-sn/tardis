@@ -13,6 +13,12 @@ from tardis.simulation.base import run_radial1d
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
 
+print('aSDSAFADS')
+print(pytest.config.getvalue("integration-tests"))
+print('END debug')
+
+pytest.mark.skip(reason='Debug')
+
 
 @pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
                     reason="integration tests are not included in this run")

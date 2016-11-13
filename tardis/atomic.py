@@ -1,3 +1,4 @@
+from __future__ import print_function
 # atomic model
 
 import os
@@ -226,7 +227,7 @@ def read_ion_cx_data(fname):
         ion_cx_th_data = h5_file['ionization_cx_threshold']
         ion_cx_sp_data = h5_file['ionization_cx_support']
         return ion_cx_th_data, ion_cx_sp_data
-    except IOError, err:
+    except IOError as err:
         print(err.errno)
         print(err)
         logger.critical('Cannot import. Error opening the file to read ionization_cx')

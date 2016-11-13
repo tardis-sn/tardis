@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 # Utilities for TARDIS
 
 from astropy import units as u, constants
@@ -8,7 +9,7 @@ import yaml
 import re
 
 import logging
-import atomic
+from . import atomic
 
 
 k_B_cgs = constants.k_B.cgs.value
@@ -300,7 +301,7 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     try:
         window_size = np.abs(np.int(window_size))
         order = np.abs(np.int(order))
-    except ValueError, msg:
+    except ValueError as msg:
         raise ValueError("window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
         raise TypeError("window_size size must be a positive odd number")

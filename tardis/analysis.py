@@ -1,3 +1,4 @@
+from __future__ import print_function
 #codes to for analyse the model.
 
 import re
@@ -127,13 +128,13 @@ class LastLineInteraction(object):
         ax.set_ylabel('Last interaction Wave out')
 
         def onpick(event):
-            print "-" * 80
-            print "Line_in (%d/%d):\n%s" % (
-                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
-            print "\n\n"
-            print "Line_out (%d/%d):\n%s" % (
-                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
-            print "^" * 80
+            print("-" * 80)
+            print("Line_in (%d/%d):\n%s" % (
+                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind]))
+            print("\n\n")
+            print("Line_out (%d/%d):\n%s" % (
+                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind]))
+            print("^" * 80)
 
         def onpress(event):
             pass

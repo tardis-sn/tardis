@@ -1,3 +1,4 @@
+from __future__ import print_function
 import os
 if os.environ.get('QT_API', None)=='pyqt':
     from PyQt4 import QtGui, QtCore
@@ -369,9 +370,9 @@ class ConfigEditor(QtGui.QWidget):
                             
                             
                         else:
-                            print 'The selected and available options'
-                            print optionselected
-                            print options
+                            print('The selected and available options')
+                            print(optionselected)
+                            print(options)
                             raise exceptions.IOError("An invalid option was"+
                                 " provided in the input file")
 

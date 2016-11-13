@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import os
 import logging
 import warnings
@@ -5,7 +6,7 @@ import warnings
 from astropy import units as u, constants as const
 
 from scipy.special import zeta
-from spectrum import TARDISSpectrum
+from .spectrum import TARDISSpectrum
 
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf

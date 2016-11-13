@@ -105,8 +105,8 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
         This function uses the CPython API to read the variable names from the
         `calculate`-function and makes the plasma routines easily programmable.
         """
-        calculate_call_signature = self.calculate.func_code.co_varnames[
-                                   :self.calculate.func_code.co_argcount]
+        calculate_call_signature = self.calculate.__code__.co_varnames[
+                                   :self.calculate.__code__.co_argcount]
         self.inputs = [
                 item for item in calculate_call_signature
                 if item != 'self']
