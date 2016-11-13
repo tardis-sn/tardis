@@ -30,6 +30,7 @@ dependencies:
 - pytest-cov=2.2.1
 
 - pip:
+  - future
   - nbsphinx
   - sphinx_bootstrap_theme
   - sphinxcontrib-bibtex

@@ -61,8 +61,9 @@ from tardis.montecarlo.struct import (
     CONTINUUM_ON
 )
 
+from tardis.montecarlo.montecarlo import __file__ as cmontecarlo_filepath
+
 # Wrap the shared object containing C methods, which are tested here.
-cmontecarlo_filepath = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
 cmontecarlo_methods = CDLL(cmontecarlo_filepath)
 
 

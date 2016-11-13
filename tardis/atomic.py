@@ -3,7 +3,11 @@ from __future__ import print_function
 
 import os
 import logging
-import cPickle as pickle
+
+try:
+    import pickle as pickle
+except ImportError:
+    import pickle
 from collections import OrderedDict
 
 import h5py
@@ -27,11 +31,14 @@ def data_path(fname):
 
 
 default_atom_h5_path = data_path('atom_data.h5')
-atomic_symbols_data = np.recfromtxt(data_path('atomic_symbols.dat'),
-                                    names=['atomic_number', 'symbol'])
+atomic_symbols_data = np.recfromtxt(
+        data_path('atomic_symbols.dat'),
+        dtype=[
+            ('atomic_number', '<i8'),
+            ('symbol', 'U3')])
 
-symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
-                                       atomic_symbols_data['atomic_number']))
+symbol2atomic_number = OrderedDict(list(zip(atomic_symbols_data['symbol'],
+                                       atomic_symbols_data['atomic_number'])))
 atomic_number2symbol = OrderedDict(atomic_symbols_data)
 
 
