@@ -95,6 +95,9 @@ void montecarlo_main_loop(storage_model_t * storage,
                           int nthreads,
                           unsigned long seed);
 
+montecarlo_event_handler_t get_event_handler (rpacket_t * packet, storage_model_t * storage,
+                                              double *distance, rk_state *mt_state);
+
 /* New handlers for continuum implementation */
 
 montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state);

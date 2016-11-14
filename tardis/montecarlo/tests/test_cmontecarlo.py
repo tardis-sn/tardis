@@ -65,7 +65,8 @@ from tardis.montecarlo.struct import (
     BF_EMISSION,
     FF_EMISSION,
     EXCITATION,
-    IONIZATION
+    IONIZATION,
+    C, INVERSE_C
 )
 
 # Wrap the shared object containing C methods, which are tested here.
@@ -278,6 +279,30 @@ def mock_sample_nu():
         return packet.contents.nu
 
     return SAMPLE_NUFUNC(sample_nu_simple)
+
+
+def d_cont_setter(d_cont, model, packet):
+    model.inverse_electron_densities[packet.current_shell_id] = c_double(1.0)
+    model.inverse_sigma_thomson = c_double(1.0)
+    packet.tau_event = c_double(d_cont)
+
+
+def d_line_setter(d_line, model, packet):
+    packet.mu = c_double(0.0)
+    scale = d_line * 1e1
+    model.time_explosion = c_double(INVERSE_C * scale)
+    packet.nu = c_double(1.0)
+    nu_line = (1. - d_line/scale)
+    packet.nu_line = c_double(nu_line)
+
+
+def d_boundary_setter(d_boundary, model, packet):
+    packet.mu = c_double(1e-16)
+    r_outer = 2. * d_boundary
+    model.r_outer[packet.current_shell_id] = r_outer
+
+    r = np.sqrt(r_outer**2 - d_boundary**2)
+    packet.r = r
 
 
 """
@@ -545,6 +570,35 @@ def test_montecarlo_line_scatter(packet_params, expected_params, packet, model, 
     assert_almost_equal(packet.next_line_id, expected_params['next_line_id'])
 
 
+@pytest.mark.parametrize(
+    ['distances', 'expected'],
+    [({'boundary': 1.3e13, 'continuum': 1e14, 'line': 1e15},
+      {'handler': 'move_packet_across_shell_boundary', 'distance': 1.3e13}),
+
+     ({'boundary': 1.3e13, 'continuum': 1e14, 'line': 2.5e12},
+      {'handler': 'montecarlo_line_scatter', 'distance': 2.5e12}),
+
+     ({'boundary': 1.3e13, 'continuum': 1e11, 'line': 2.5e12},
+      {'handler': 'montecarlo_thomson_scatter', 'distance': 1e11})]
+)
+def test_get_event_handler(packet, model, mt_state, distances, expected):
+    d_cont_setter(distances['continuum'], model, packet)
+    d_line_setter(distances['line'], model, packet)
+    d_boundary_setter(distances['boundary'], model, packet)
+    obtained_distance = c_double()
+
+    cmontecarlo_methods.get_event_handler.restype = c_void_p
+    obtained_handler = cmontecarlo_methods.get_event_handler(byref(packet), byref(model),
+                                                             byref(obtained_distance),
+                                                             byref(mt_state))
+
+    expected_handler = getattr(cmontecarlo_methods, expected['handler'])
+    expected_handler = cast(expected_handler, c_void_p).value
+
+    assert_equal(obtained_handler, expected_handler)
+    assert_allclose(obtained_distance.value, expected['distance'], rtol=1e-10)
+
+
 """
 Simple Tests:
 ----------------
@@ -587,10 +641,6 @@ def test_montecarlo_one_packet_loop(packet, model, mt_state):
 def test_montecarlo_main_loop(packet, model, mt_state):
     pass
 
-
-@pytest.mark.skipif(True, reason="Yet to be written.")
-def test_montecarlo_event_handler(packet, model, mt_state):
-    pass
 
 
 """
