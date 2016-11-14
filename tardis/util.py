@@ -1,5 +1,8 @@
+from __future__ import absolute_import
 # Utilities for TARDIS
 
+from builtins import range
+from six import string_types
 from astropy import units as u, constants
 import numexpr as ne
 import numpy as np
@@ -8,7 +11,7 @@ import yaml
 import re
 
 import logging
-import atomic
+from . import atomic
 
 
 k_B_cgs = constants.k_B.cgs.value
@@ -130,7 +133,7 @@ def roman_to_int(roman_input):
      ...
     ValueError: input is not a valid roman numeral: IL
     """
-    if not isinstance(roman_input, str):
+    if not isinstance(roman_input, string_types):
         raise TypeError("expected string, got %s" % type(roman_input))
 
     roman_input = roman_input.upper()
@@ -300,13 +303,13 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     try:
         window_size = np.abs(np.int(window_size))
         order = np.abs(np.int(order))
-    except ValueError, msg:
+    except ValueError as msg:
         raise ValueError("window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
         raise TypeError("window_size size must be a positive odd number")
     if window_size < order + 2:
         raise TypeError("window_size is too small for the polynomials order")
-    order_range = range(order+1)
+    order_range = list(range(order+1))
     half_window = (window_size -1) // 2
     # precompute coefficients
     b = np.mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
@@ -358,7 +361,7 @@ def species_string_to_tuple(species_string):
 
 def parse_quantity(quantity_string):
 
-    if not isinstance(quantity_string, basestring):
+    if not isinstance(quantity_string, string_types):
         raise MalformedQuantityError(quantity_string)
 
     try:

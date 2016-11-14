@@ -1,12 +1,11 @@
 os:
   - linux
+
 language: python
 
 python:
     - 2.7
-
-virtualenv:
-  system_site_packages: true
+    - 3.5
 
 cache:
   apt: true
@@ -15,39 +14,21 @@ sudo: false
 
 env:
     global:
-        - COMPILER=gcc
-        - PANDAS_VERSION=0.16
-        - ASTROPY_USE_SYSTEM_PYTEST=1
-        - SETUP_CMD='test'
-        - TEST_MODE='normal'
         - ATOM_DATA_URL='http://www.mpa-garching.mpg.de/~michi/tardis/data/kurucz_cd23_chianti_H_He.zip'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
+    matrix:
+        - TEST_MODE='normal';
+        - TEST_MODE='spectrum'; CC='gcc'
+        - TEST_MODE='spectrum'; CC='clang'
+
 
 matrix:
     include:
-        - python: 2.7
-          env:
-            - COMPILER=gcc
-            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
-            - TEST_MODE='spectrum'
-
-        - python: 2.7
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
-            - TEST_MODE='spectrum'
-
         - os: osx
           language: generic
           env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"'
-            - TEST_MODE='spectrum'
             - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
-
-
-        - python: 2.7
-          env: SETUP_CMD='test --coverage'
+            - TEST_MODE='spectrum'; CC='clang'
 
 addons:
   apt:
@@ -66,20 +47,37 @@ before_install:
     - export PATH=$HOME/miniconda/bin:$PATH
     - hash -r
     - conda update --yes conda
-    - if [[ $TEST_MODE == 'spectrum' ]]; then wget $ATOM_DATA_URL; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then unzip kurucz_cd23_chianti_H_He.zip; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then mv kurucz_cd23_chianti_H_He.h5 $HOME/; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then
+      wget $ATOM_DATA_URL;
+      unzip kurucz_cd23_chianti_H_He.zip;
+      mv kurucz_cd23_chianti_H_He.h5 $HOME/;
+      fi
 
 install:
-   - conda env create -f tardis_env27.yml
-   - source activate tardis
+    - if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then
+      ENV_FILE='./tardis_env27.yml';
+      elif [[ $TRAVIS_PYTHON_VERSION == '3.5' ]]; then
+      ENV_FILE='./tardis_env35.yml';
+      elif [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      ENV_FILE='./tardis_env27.yml';
+      else
+      env;
+      echo "TRAVIS_PYTHON_VERSION=$TRAVIS_PYTHON_VERSION is unknown. Please fix .travis.yml \nExiting now.";
+      exit 1;
+      fi
+    - conda env create -f $ENV_FILE
+    - source activate tardis
 
 script:
-    - echo CC=$COMPILER python setup.py $SETUP_CMD
-    - CC=$COMPILER python setup.py $SETUP_CMD
+    - echo $CC
+    - python -V
+    - if [[ $TEST_MODE == 'spectrum' ]]; then python setup.py test --args="--atomic-dataset=$HOME/kurucz_cd23_chianti_H_He.h5"; fi
+    - if [[ $TEST_MODE == 'normal' ]]; then python setup.py test --coverage; fi
+      #- echo CC=$COMPILER python setup.py $SETUP_CMD
+      #- CC=$COMPILER python setup.py $SETUP_CMD
 
 after_success:
-    - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls; fi
+    - if [[ $TEST_MODE == 'normal' ]]; then coveralls; fi
 
 after_failure:
     - cat /home/travis/.pip/pip.log

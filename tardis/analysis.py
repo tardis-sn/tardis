@@ -1,5 +1,7 @@
+from __future__ import print_function
 #codes to for analyse the model.
 
+from builtins import object
 import re
 import os
 
@@ -127,13 +129,13 @@ class LastLineInteraction(object):
         ax.set_ylabel('Last interaction Wave out')
 
         def onpick(event):
-            print "-" * 80
-            print "Line_in (%d/%d):\n%s" % (
-                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
-            print "\n\n"
-            print "Line_out (%d/%d):\n%s" % (
-                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind])
-            print "^" * 80
+            print("-" * 80)
+            print("Line_in (%d/%d):\n%s" % (
+                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind]))
+            print("\n\n")
+            print("Line_out (%d/%d):\n%s" % (
+                len(event.ind), self.current_no_packets, self.last_line_list_in.ix[event.ind]))
+            print("^" * 80)
 
         def onpress(event):
             pass
@@ -252,7 +254,7 @@ class TARDISHistory(object):
 
         hdf_store.close()
         if is_scalar:
-            return pd.DataFrame(level_populations_dict.values()[0])
+            return pd.DataFrame(list(level_populations_dict.values())[0])
         else:
             return pd.Panel(level_populations_dict)
 
@@ -275,7 +277,7 @@ class TARDISHistory(object):
 
         hdf_store.close()
         if is_scalar:
-            return pd.DataFrame(jblues_dict.values()[0])
+            return pd.DataFrame(list(jblues_dict.values())[0])
         else:
             return pd.Panel(jblues_dict)
 
@@ -300,7 +302,7 @@ class TARDISHistory(object):
 
         hdf_store.close()
         if is_scalar:
-            return pd.DataFrame(ion_populations_dict.values()[0])
+            return pd.DataFrame(list(ion_populations_dict.values())[0])
         else:
             return pd.Panel(ion_populations_dict)
 

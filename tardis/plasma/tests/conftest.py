@@ -1,3 +1,4 @@
+from builtins import range
 import os
 
 import numpy as np
@@ -27,7 +28,7 @@ def number_of_cells():
 @pytest.fixture
 def abundance(number_of_cells):
     return pd.DataFrame(data=1.0, index=[2],
-                        columns=range(number_of_cells), dtype=np.float64)
+                        columns=list(range(number_of_cells)), dtype=np.float64)
 
 @pytest.fixture
 def density(number_of_cells):
@@ -47,7 +48,7 @@ def t_rad(number_of_cells):
 
 @pytest.fixture
 def j_blues(lines):
-    return pd.DataFrame(1.e-5, index=lines.index, columns=range(20))
+    return pd.DataFrame(1.e-5, index=lines.index, columns=list(range(20)))
 
 @pytest.fixture
 def link_t_rad_t_electron():

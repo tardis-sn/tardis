@@ -1,5 +1,8 @@
+from __future__ import absolute_import
 # This module contains the model class
 
+from builtins import range
+from builtins import object
 import logging
 import os
 
@@ -9,7 +12,7 @@ from astropy import constants, units as u
 from astropy.utils.decorators import deprecated
 
 from tardis.io.util import to_hdf
-from util import intensity_black_body
+from .util import intensity_black_body
 
 from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 
@@ -227,7 +230,7 @@ class Radial1DModel(object):
                     index=self.atom_data.lines.index,
                     columns=np.arange(len(self.t_rads)))
 
-            for i in xrange(self.tardis_config.structure.no_of_shells):
+            for i in range(self.tardis_config.structure.no_of_shells):
                 zero_j_blues = self.j_blues[i] == 0.0
                 self.j_blues[i][zero_j_blues] = (
                     w_epsilon * intensity_black_body(

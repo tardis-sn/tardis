@@ -1,3 +1,4 @@
+from builtins import object
 import pytest
 import numpy as np
 import tardis
@@ -23,7 +24,7 @@ def plasma_compare_data(plasma_compare_data_fname):
 
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
-class TestPlasmas():
+class TestPlasmas(object):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(self):

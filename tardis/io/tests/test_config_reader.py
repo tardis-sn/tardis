@@ -1,4 +1,5 @@
 # tests for the config reader module
+from builtins import object
 from tardis.io import config_reader, util
 from astropy import units as u
 import os
@@ -74,7 +75,7 @@ def test_parse_density_section():
     assert_almost_equal(mean_densities[0].cgs.value,
                         desired_mean_densities_0.cgs.value)
 
-class TestParsePaper1Config:
+class TestParsePaper1Config(object):
 
     def setup(self):
         #general parsing of the paper config
@@ -139,7 +140,7 @@ def test_last_no_of_packets():
     assert (config.montecarlo.last_no_of_packets ==
             config.montecarlo.no_of_packets)
 
-class TestParseConfigV1ASCIIDensity:
+class TestParseConfigV1ASCIIDensity(object):
 
     def setup(self):
         #general parsing of the paper config
@@ -158,7 +159,7 @@ class TestParseConfigV1ASCIIDensity:
         assert_array_almost_equal(oxygen_abundance, self.config.abundances.ix[8].values)
 
 
-class TestParseConfigV1ArtisDensity:
+class TestParseConfigV1ArtisDensity(object):
 
     def setup(self):
         #general parsing of the paper config
@@ -179,7 +180,7 @@ class TestParseConfigV1ArtisDensity:
 
 
 
-class TestParseConfigV1ArtisDensityAbundances:
+class TestParseConfigV1ArtisDensityAbundances(object):
 
     def setup(self):
         #general parsing of the paper config
@@ -203,7 +204,7 @@ class TestParseConfigV1ArtisDensityAbundances:
         assert_almost_equal(self.config.abundances.ix[14, 54], 0.21864420000000001)
 
 
-class TestParseConfigV1ArtisDensityAbundancesVSlice:
+class TestParseConfigV1ArtisDensityAbundancesVSlice(object):
 
     def setup(self):
         #general parsing of the paper config
@@ -228,7 +229,7 @@ class TestParseConfigV1ArtisDensityAbundancesVSlice:
         assert_almost_equal(self.config.abundances.ix[14, 31], 2.156751e-01)
 
 
-class TestParseConfigV1UniformDensity:
+class TestParseConfigV1UniformDensity(object):
 
     def setup(self):
         #general parsing of the paper config
@@ -244,7 +245,7 @@ class TestParseConfigV1UniformDensity:
         assert_array_almost_equal(self.config.structure.mean_densities.to(u.Unit('g / cm3')).value,
                                   1.e-14)
 
-class TestParseConfigTinner:
+class TestParseConfigTinner(object):
 
     def setup(self):
         #general parsing of the paper config
@@ -261,7 +262,7 @@ class TestParseConfigTinner:
         assert_almost_equal(self.config.plasma.t_inner.value, 2508)
 
 
-class TestParseConfigV1ArtisDensityAbundancesAllAscii:
+class TestParseConfigV1ArtisDensityAbundancesAllAscii(object):
 
     def setup(self):
         #general parsing of the paper config

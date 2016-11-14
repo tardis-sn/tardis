@@ -1,6 +1,6 @@
 name: tardis
 dependencies:
-- python=2.7
+- python=3.5
 - numpy=1.10
 - scipy=0.17.0
 - pandas=0.16.2
@@ -9,7 +9,7 @@ dependencies:
 - matplotlib=1.4.3
 - astropy=1.1.2
 - numexpr=2.4.4
-- Cython=0.21
+- Cython=0.25
 - networkx=1.10
 - pytest=2.9.1
 - pyyaml=3.12

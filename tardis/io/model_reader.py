@@ -1,5 +1,6 @@
 #reading different model files
 
+from builtins import zip
 import numpy as np
 from numpy import recfromtxt, genfromtxt
 import pandas as pd
@@ -195,7 +196,7 @@ def read_artis_density(fname):
     """
 
     with open(fname) as fh:
-        for i, line in enumerate(file(fname)):
+        for i, line in enumerate(fh):
             if i == 0:
                 no_of_shells = np.int64(line.strip())
             elif i == 1:

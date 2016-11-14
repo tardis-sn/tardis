@@ -1,3 +1,7 @@
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 import os
 import logging
 import tempfile
@@ -41,7 +45,7 @@ class BasePlasma(object):
                  if not item.startswith('_')]
         attrs += [item for item in self.__class__.__dict__
                  if not item.startswith('_')]
-        attrs += self.outputs_dict.keys()
+        attrs += list(self.outputs_dict.keys())
         return attrs
 
     @property
@@ -230,11 +234,11 @@ class BasePlasma(object):
             texmode='raw'))
 
         for line in fileinput.input(fname_graph, inplace = 1):
-            print line.replace('\documentclass{article}',
-                '\documentclass[class=minimal,border=20pt]{standalone}'),
+            print(line.replace('\documentclass{article}',
+                '\documentclass[class=minimal,border=20pt]{standalone}'), end=' ')
 
         for line in fileinput.input(fname_graph, inplace = 1):
-            print line.replace('\enlargethispage{100cm}', ''),
+            print(line.replace('\enlargethispage{100cm}', ''), end=' ')
 
     def remove_hidden_properties(self, print_graph):
         for item in self.plasma_properties_dict.values():
