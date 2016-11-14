@@ -17,6 +17,10 @@ typedef void (*montecarlo_event_handler_t) (rpacket_t *packet,
                                             storage_model_t *storage,
                                             double distance, rk_state *mt_state);
 
+typedef double (*pt2sample_nu) (const rpacket_t *packet,
+                                       const storage_model_t *storage,
+                                       rk_state *mt_state);
+
 void initialize_random_kit (unsigned long seed);
 
 tardis_error_t line_search (const double *nu, double nu_insert,
@@ -120,13 +124,15 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 
 double sample_nu_free_free(const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
-double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage,
-                            int64_t continuum_id, rk_state *mt_state);
+double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
 int64_t sample_cooling_processes(const rpacket_t * packet, rk_state *mt_state,
                                  double *individual_cooling_probabilities,
                                  int64_t *cooling_references,
                                  int64_t no_of_individual_processes);
+
+void continuum_emission(rpacket_t * packet, storage_model_t * storage,
+                        rk_state *mt_state, pt2sample_nu sample_nu_continuum);
 
 void
 k_packet(rpacket_t * packet, const storage_model_t * storage,

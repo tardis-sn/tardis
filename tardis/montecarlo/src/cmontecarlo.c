@@ -820,9 +820,9 @@ sample_nu_free_free(const rpacket_t * packet, const storage_model_t * storage, r
 }
 
 double
-sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage,
-                     int64_t continuum_id, rk_state *mt_state)
+sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state)
 {
+    int64_t continuum_id = rpacket_get_current_continuum_id (packet);
     double th_frequency = storage->continuum_list_nu[continuum_id];
 	int64_t shell_id = rpacket_get_current_shell_id(packet);
 	double T = storage->t_electrons[shell_id];
@@ -937,6 +937,29 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                                              1e-7))
     {
       rpacket_set_close_line (packet, true);
+    }
+}
+
+void
+continuum_emission(rpacket_t * packet, storage_model_t * storage,
+                   rk_state *mt_state, pt2sample_nu sample_nu_continuum)
+{
+  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  double nu_comov = sample_nu_continuum (packet, storage, mt_state);
+  rpacket_set_nu (packet, nu_comov * inverse_doppler_factor);
+  rpacket_reset_tau_event (packet, mt_state);
+
+  // Have to find current position in line list
+  int64_t current_line_id;
+  line_search (storage->line_list_nu, nu_comov, storage->no_of_lines, &current_line_id);
+
+  bool last_line = (current_line_id == storage->no_of_lines);
+  rpacket_set_last_line (packet, last_line);
+  rpacket_set_next_line_id (packet, current_line_id);
+
+  if (rpacket_get_virtual_packet_flag (packet) > 0)
+    {
+      montecarlo_one_packet (storage, packet, 1, mt_state);
     }
 }
 

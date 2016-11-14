@@ -47,8 +47,8 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
-from ctypes import CDLL, byref, c_uint, c_int, c_int64, c_double, c_ulong, c_void_p, cast, POINTER, pointer
-from numpy.testing import assert_equal, assert_almost_equal, assert_array_equal
+from ctypes import CDLL, byref, c_uint, c_int, c_int64, c_double, c_ulong, c_void_p, cast, POINTER, pointer, CFUNCTYPE
+from numpy.testing import assert_equal, assert_almost_equal, assert_array_equal, assert_allclose
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import (
@@ -130,7 +130,7 @@ def model():
 
         line_lists_Edotlu=(c_double * 3)(*[0.0,0.0,1.0]), # Init to an explicit array
 
-        no_of_lines=2,
+        no_of_lines=5,
         no_of_edges=2,
 
         line_interaction_id=0,
@@ -268,6 +268,16 @@ def ion_edges():
         {'nu': [3.0e14, 3.1e14, 3.2e14, 3.3e14, 3.4e14], 'x_sect': [1.0, 0.9, 0.8, 0.7, 0.6], 'no_of_points': 5},
         {'nu': [2.8e14, 3.0e14, 3.2e14, 3.4e14], 'x_sect': [2.0, 1.8, 1.6, 1.4], 'no_of_points': 4}
     ]
+
+
+@pytest.fixture(scope='module')
+def mock_sample_nu():
+    SAMPLE_NUFUNC = CFUNCTYPE(c_double, POINTER(RPacket), POINTER(StorageModel), POINTER(RKState))
+
+    def sample_nu_simple(packet, model, mt_state):
+        return packet.contents.nu
+
+    return SAMPLE_NUFUNC(sample_nu_simple)
 
 
 """
@@ -863,6 +873,32 @@ def test_k_packet(packet, model_w_edges, get_rkstate, z_random, expected):
     for reference_name, expected_reference_value in expected.iteritems():
         obtained_reference_value = getattr(packet, reference_name)
         assert_equal(obtained_reference_value, expected_reference_value)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['packet_params', 'expected_params'],
+    [({'nu_comov': 1.1e16, 'mu': 0.0, 'r': 1.4e14},
+      {'next_line_id': 5, 'last_line': True, 'nu': 1.1e16}),
+
+     ({'nu_comov': 1.3e16, 'mu': 0.3, 'r': 7.5e14},
+      {'next_line_id': 0, 'last_line': False, 'nu': 1.30018766e+16}),
+
+     ({'nu_comov': 1.24e16, 'mu': -0.3, 'r': 7.5e14},
+      {'next_line_id': 2, 'last_line': False, 'nu': 1.23982106e+16})]
+)
+def test_continuum_emission(packet, model, mock_sample_nu, packet_params, expected_params, mt_state):
+    packet.nu = packet_params['nu_comov']  # Is returned by mock function mock_sample_nu
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
+
+    cmontecarlo_methods.continuum_emission(byref(packet), byref(model), byref(mt_state), mock_sample_nu)
+
+    obtained_next_line_id = packet.next_line_id
+
+    assert_equal(obtained_next_line_id, expected_params['next_line_id'])
+    assert_equal(packet.last_line, expected_params['last_line'])
+    assert_allclose(packet.nu, expected_params['nu'], rtol=1e-7)
 
 
 """
