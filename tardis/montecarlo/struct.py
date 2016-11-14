@@ -154,6 +154,13 @@ EXCITATION = 0
 IONIZATION = 1
 KPACKET_CREATION = 2
 
+# Variables corresponding to macros defined in rpacket.h .
+MISS_DISTANCE = 1e99
+C = 29979245800.0
+INVERSE_C = 3.33564095198152e-11
+H = 6.6260755e-27
+KB = 1.3806488e-16
+
 # `rk_state` specific macros.
 RK_STATE_LEN = 624
 

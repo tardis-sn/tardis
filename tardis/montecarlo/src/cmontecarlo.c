@@ -983,7 +983,7 @@ montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
     }
 }
 
-static montecarlo_event_handler_t
+montecarlo_event_handler_t
 get_event_handler (rpacket_t * packet, storage_model_t * storage,
                    double *distance, rk_state *mt_state)
 {
