@@ -281,6 +281,27 @@ def mock_sample_nu():
     return SAMPLE_NUFUNC(sample_nu_simple)
 
 
+@pytest.fixture(scope='function')
+def model_3lvlatom(model):
+    model.line2macro_level_upper = (c_int64 * 3)(*[2, 1, 2])
+    model.macro_block_references = (c_int64 * 3)(*[0, 2, 5])
+
+    transition_probabilities = [
+        0.0, 0.0, 0.75, 0.25, 0.0, 0.25, 0.5, 0.25, 0.0,  # shell_id = 0
+        0.0, 0.0, 1.00, 0.00, 0.0, 0.00, 0.0, 1.00, 0.0   # shell_id = 1
+    ]
+
+    nd = len(transition_probabilities)/2
+    model.transition_type = (c_int64 * nd)(*[1, 1, -1, 1, 0, 0, -1, -1, 0])
+    model.destination_level_id = (c_int64 * nd)(*[1, 2, 0, 2, 0, 1, 1, 0, 0])
+    model.transition_line_id = (c_int64 * nd)(*[0, 1, 1, 2, 1, 2, 2, 0, 0])
+
+    model.transition_probabilities_nd = c_int64(nd)
+    model.transition_probabilities = (c_double * (nd * 2))(*transition_probabilities)
+
+    return model
+
+
 def d_cont_setter(d_cont, model, packet):
     model.inverse_electron_densities[packet.current_shell_id] = c_double(1.0)
     model.inverse_sigma_thomson = c_double(1.0)
@@ -599,6 +620,35 @@ def test_get_event_handler(packet, model, mt_state, distances, expected):
     assert_allclose(obtained_distance.value, expected['distance'], rtol=1e-10)
 
 
+@pytest.mark.parametrize(
+    ['z_random', 'packet_params', 'expected'],
+    [(0.22443743797312765,
+      {'line_id':1, 'shell_id': 0}, 1),  # Direct deactivation
+
+     (0.78961460371187597,  # next z_random = 0.818455414618
+      {'line_id':1, 'shell_id': 0}, 0),  # Upwards jump, then deactivation
+
+     (0.22443743797312765,  # next z_random = 0.545678896748
+      {'line_id':0, 'shell_id': 0}, 1),  # Downwards jump, then deactivation
+
+     (0.765958602560605,  # next z_random = 0.145914243888, 0.712382380384
+      {'line_id':1, 'shell_id': 0}, 1),  # Upwards jump, downwards jump, then deactivation
+
+     (0.22443743797312765,
+      {'line_id':0, 'shell_id': 1}, 0)]  # Direct deactivation
+)
+def test_macro_atom(model_3lvlatom, packet, z_random, packet_params, get_rkstate, expected):
+    packet.next_line_id = packet_params['line_id']
+    packet.current_shell_id = packet_params['shell_id']
+    rkstate = get_rkstate(z_random)
+
+    cmontecarlo_methods.macro_atom.restype = c_int64
+
+    obtained_line_id = cmontecarlo_methods.macro_atom(byref(packet), byref(model_3lvlatom), byref(rkstate))
+
+    assert_equal(obtained_line_id, expected)
+
+
 """
 Simple Tests:
 ----------------
@@ -640,7 +690,6 @@ def test_montecarlo_one_packet_loop(packet, model, mt_state):
 @pytest.mark.skipif(True, reason="Yet to be written.")
 def test_montecarlo_main_loop(packet, model, mt_state):
     pass
-
 
 
 """
