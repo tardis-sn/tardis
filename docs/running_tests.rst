@@ -25,7 +25,8 @@ tests you can run this with:
 
 
 Running the more advanced unit tests it requires atomic data that can be
-downloaded (XXX Link XXX).
+downloaded
+(`atom_data <http://opensupernova.org/files/atomic/kurucz_cd23_chianti_H_He.h5.zip>`_).
 
 .. code-block:: shell
 
@@ -37,7 +38,8 @@ Running the integration tests
 
 These tests require reference files against which the results of the various
 tardis runs are tested. So you first need to either download the current
-reference files (XXX link XXX) or generate new ones.
+reference files (`here <https://github.com/tardis-sn/tardis-refdata>`_)
+or generate new ones.
 
 Both of of these require a configuration file for the integration tests:
 
