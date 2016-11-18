@@ -16,6 +16,7 @@ from tardis.io.config_reader import Configuration
 @remote_data
 @pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
                     reason="integration tests are not included in this run")
+@pytest.mark.integration
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
     ``tardis/tests/integration_tests``.
@@ -39,16 +40,9 @@ class TestIntegration(object):
         atom_data_name = yaml.load(open(self.config_file))['atom_data']
 
         # Get the path to HDF file:
-        if 'atom_data_url' in data_path:
-            # If the atom data is to be ingested from url:
-            atom_data_filepath = download_file(urlparse.urljoin(
-                base=data_path['atom_data_url'], url=atom_data_name), cache=True
-            )
-        else:
-            # If the atom data is to be ingested from local file:
-            atom_data_filepath = os.path.join(
-                data_path['atom_data_dirpath'], atom_data_name
-            )
+        atom_data_filepath = os.path.join(
+            data_path['atom_data_path'], atom_data_name
+        )
 
         # Load atom data file separately, pass it for forming tardis config.
         self.atom_data = AtomData.from_hdf5(atom_data_filepath)
@@ -81,11 +75,15 @@ class TestIntegration(object):
         # Else simply perform the run and move further for performing
         # assertions.
         if request.config.getoption("--generate-reference"):
-            run_radial1d(self.result, hdf_path_or_buf=os.path.join(
-                data_path['gen_ref_dirpath'], "{0}.h5".format(self.name)
-            ))
+            ref_data_path = os.path.join(
+                data_path['gen_ref_path'], "{0}.h5".format(self.name)
+            )
+            if os.path.exists(ref_data_path):
+                raise IOError('Reference data {0} does exist and tests will not'
+                              'proceed generating new data')
+            run_radial1d(self.result, hdf_path_or_buf=ref_data_path)
             pytest.skip("Reference data saved at {0}".format(
-                data_path['gen_ref_dirpath']
+                data_path['gen_ref_path']
             ))
         else:
             run_radial1d(self.result)
