@@ -79,8 +79,9 @@ class TestIntegration(object):
                 data_path['gen_ref_path'], "{0}.h5".format(self.name)
             )
             if os.path.exists(ref_data_path):
-                raise IOError('Reference data {0} does exist and tests will not'
-                              'proceed generating new data')
+                raise IOError(
+                    'Reference data {0} does exist and tests will not '
+                    'proceed generating new data'.format(ref_data_path))
             run_radial1d(self.result, hdf_path_or_buf=ref_data_path)
             pytest.skip("Reference data saved at {0}".format(
                 data_path['gen_ref_path']
