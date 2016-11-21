@@ -873,9 +873,10 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       rpacket_set_tau_event (packet,
                              rpacket_get_tau_event (packet) + tau_line);
       rpacket_set_next_line_id (packet, next_line_id + 1);
+      test_for_close_line(packet, storage);
     }
   else if (rpacket_get_tau_event (packet) < tau_combined)
-    {
+    { // Line absorption occurs
       move_packet (packet, storage, distance);
       double old_doppler_factor = rpacket_doppler_factor (packet, storage);
       rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
@@ -898,39 +899,50 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
         {
           emission_line_id = macro_atom (packet, storage, mt_state);
         }
-      storage->last_line_interaction_out_id[rpacket_get_id (packet)] =
-        emission_line_id;
-      rpacket_set_nu (packet,
-                      storage->line_list_nu[emission_line_id] *
-                      inverse_doppler_factor);
-      rpacket_set_nu_line (packet, storage->line_list_nu[emission_line_id]);
-      rpacket_set_next_line_id (packet, emission_line_id + 1);
-      rpacket_reset_tau_event (packet, mt_state);
-      if (rpacket_get_virtual_packet_flag (packet) > 0)
-        {
-          bool virtual_close_line = false;
-          if (!rpacket_get_last_line (packet) &&
-              fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
-                    rpacket_get_nu_line (packet)) <
-              (rpacket_get_nu_line (packet)* 1e-7))
-            {
-              virtual_close_line = true;
-            }
-          // QUESTIONABLE!!!
-          bool old_close_line = rpacket_get_close_line (packet);
-          rpacket_set_close_line (packet, virtual_close_line);
-          montecarlo_one_packet (storage, packet, 1, mt_state);
-          rpacket_set_close_line (packet, old_close_line);
-          virtual_close_line = false;
-        }
+      line_emission(packet, storage, emission_line_id, mt_state);
     }
   else
-    {
+    { // Packet passes line without interacting
       rpacket_set_tau_event (packet,
                              rpacket_get_tau_event (packet) - tau_line);
       rpacket_set_next_line_id (packet, next_line_id + 1);
       packet->compute_chi_bf = false;
+      test_for_close_line(packet, storage);
     }
+}
+
+void
+line_emission(rpacket_t * packet, storage_model_t * storage, int64_t emission_line_id, rk_state *mt_state)
+{
+  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  storage->last_line_interaction_out_id[rpacket_get_id (packet)] = emission_line_id;
+  rpacket_set_nu (packet,
+		      storage->line_list_nu[emission_line_id] * inverse_doppler_factor);
+  rpacket_set_nu_line (packet, storage->line_list_nu[emission_line_id]);
+  rpacket_set_next_line_id (packet, emission_line_id + 1);
+  rpacket_reset_tau_event (packet, mt_state);
+  if (rpacket_get_virtual_packet_flag (packet) > 0)
+	{
+	  bool virtual_close_line = false;
+	  if (!rpacket_get_last_line (packet) &&
+	      fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
+		    rpacket_get_nu_line (packet)) <
+	      (rpacket_get_nu_line (packet)* 1e-7))
+	    {
+	      virtual_close_line = true;
+	    }
+	  // QUESTIONABLE!!!
+	  bool old_close_line = rpacket_get_close_line (packet);
+	  rpacket_set_close_line (packet, virtual_close_line);
+	  montecarlo_one_packet (storage, packet, 1, mt_state);
+	  rpacket_set_close_line (packet, old_close_line);
+	  virtual_close_line = false;
+    }
+  test_for_close_line(packet, storage);
+}
+
+void test_for_close_line(rpacket_t * packet, const storage_model_t * storage)
+{
   if (!rpacket_get_last_line (packet) &&
       fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
             rpacket_get_nu_line (packet)) < (rpacket_get_nu_line (packet)*
