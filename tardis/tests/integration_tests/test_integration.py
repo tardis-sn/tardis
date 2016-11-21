@@ -49,7 +49,7 @@ quantity_comparison = [
     ('/simulation/runner/nu_bar_estimator',
      'runner.nu_bar_estimator'),
     ('/simulation/model/j_blues_norm_factor',
-     'j_blues_norm_factor')
+     'j_blues_norm_factor.cgs.value')
      ]
 
 
@@ -68,11 +68,14 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path):
+    def setup(self, request, reference, data_path, pytestconfig):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
+        # Get capture manager
+        capmanager = pytestconfig.pluginmanager.getplugin('capturemanager')
+
         # The last component in dirpath can be extracted as name of setup.
         self.name = data_path['setup_name']
 
@@ -111,8 +114,13 @@ class TestIntegration(object):
                 less_packets['last_no_of_packets']
             )
 
+
+
+        capmanager.suspendcapture()
         # We now do a run with prepared config and get radial1d model.
         self.result = Radial1DModel(tardis_config)
+        capmanager.resumecapture()
+
 
         # If current test run is just for collecting reference data, store the
         # output model to HDF file, save it at specified path. Skip all tests.
