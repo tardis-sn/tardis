@@ -1,19 +1,63 @@
 import os
-import urlparse
+
 import yaml
 import pytest
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
-from astropy.tests.helper import assert_quantity_allclose, remote_data
-from astropy.utils.data import download_file
+from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.atomic import AtomData
 from tardis.simulation.base import run_radial1d
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
 
+quantity_comparison = [
+    ('/simulation/model/last_line_interaction_in_id',
+     'last_line_interaction_in_id'),
+    ('/simulation/model/last_line_interaction_out_id',
+     'last_line_interaction_out_id'),
+    ('/simulation/model/last_line_interaction_shell_id',
+     'last_line_interaction_shell_id'),
+    ('/simulation/model/last_line_interaction_angstrom',
+     'last_line_interaction_angstrom.cgs.value'),
+    ('/simulation/model/j_blues',
+     'j_blues'),
+    ('/simulation/model/j_blue_estimators',
+     'j_blue_estimators'),
+    ('/simulation/model/montecarlo_luminosity',
+     'montecarlo_luminosity.cgs.value'),
+    ('/simulation/runner/montecarlo_virtual_luminosity',
+     'runner.montecarlo_virtual_luminosity.cgs.value'),
+    ('/simulation/model/montecarlo_nu',
+     'montecarlo_nu.cgs.value'),
+    ('/simulation/model/plasma/ion_number_density',
+     'plasma.ion_number_density'),
+    ('/simulation/model/plasma/level_number_density',
+     'plasma.level_number_density'),
+    ('/simulation/model/plasma/electron_densities',
+     'plasma.electron_densities'),
+    ('/simulation/model/plasma/tau_sobolevs',
+     'plasma.tau_sobolevs'),
+    ('/simulation/model/plasma/transition_probabilities',
+     'plasma.transition_probabilities'),
+    ('/simulation/model/t_rads',
+     't_rads.cgs.value'),
+    ('/simulation/model/ws',
+     'ws'),
+    ('/simulation/runner/j_estimator',
+     'runner.j_estimator'),
+    ('/simulation/runner/nu_bar_estimator',
+     'runner.nu_bar_estimator'),
+    ('/simulation/model/j_blues_norm_factor',
+     'j_blues_norm_factor')
+     ]
 
-@remote_data
+
+@pytest.fixture(params=quantity_comparison)
+def model_quantities(request):
+    return request.param
+
+
 @pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
                     reason="integration tests are not included in this run")
 @pytest.mark.integration
@@ -92,41 +136,14 @@ class TestIntegration(object):
         # Get the reference data through the fixture.
         self.reference = reference
 
-    def test_last_line_interaction_in_id(self):
-        assert_allclose(
-            self.reference['/simulation/model/last_line_interaction_in_id'],
-            self.result.last_line_interaction_in_id
-        )
-
-    def test_last_line_interaction_out_id(self):
-        assert_allclose(
-            self.reference['/simulation/model/last_line_interaction_out_id'],
-            self.result.last_line_interaction_out_id
-        )
-
-    def test_last_line_interaction_shell_id(self):
-        assert_allclose(
-            self.reference['/simulation/model/last_line_interaction_shell_id'],
-            self.result.last_line_interaction_shell_id
-        )
-
-    def test_last_line_interaction_angstrom(self):
-        assert_allclose(
-            self.reference['/simulation/model/last_line_interaction_angstrom'],
-            self.result.last_line_interaction_angstrom.cgs.value
-        )
-
-    def test_j_blues(self):
-        assert_allclose(
-            self.reference['/simulation/model/j_blues'],
-            self.result.j_blues
-        )
-
-    def test_j_blue_estimators(self):
-        assert_allclose(
-            self.reference['/simulation/model/j_blue_estimators'],
-            self.result.j_blue_estimators
-        )
+    def test_model_quantities(self, model_quantities):
+        reference_quantity_name, tardis_quantity_name = model_quantities
+        if reference_quantity_name not in self.reference:
+            pytest.skip('{0} not calculated in this run'.format(
+                reference_quantity_name))
+        reference_quantity = self.reference[reference_quantity_name]
+        tardis_quantity = eval('self.result.' + tardis_quantity_name)
+        assert_allclose(tardis_quantity, reference_quantity)
 
     def j_blues_norm_factor(self):
         assert_quantity_allclose(
@@ -140,61 +157,6 @@ class TestIntegration(object):
             self.result.luminosity_inner.cgs.value
         )
 
-    def test_montecarlo_luminosity(self):
-        assert_allclose(
-            self.reference['/simulation/model/montecarlo_luminosity'],
-            self.result.montecarlo_luminosity.cgs.value
-        )
-
-    def test_montecarlo_virtual_luminosity(self):
-        assert_allclose(
-            self.reference['/simulation/runner/montecarlo_virtual_luminosity'],
-            self.result.runner.montecarlo_virtual_luminosity.cgs.value
-        )
-
-    def test_montecarlo_nu(self):
-        assert_allclose(
-            self.reference['/simulation/model/montecarlo_nu'],
-            self.result.montecarlo_nu.cgs.value
-        )
-
-    def test_plasma_ion_number_density(self):
-        assert_allclose(
-            self.reference['/simulation/model/plasma/ion_number_density'],
-            self.result.plasma.ion_number_density
-        )
-
-    def test_plasma_level_number_density(self):
-        assert_allclose(
-            self.reference['/simulation/model/plasma/level_number_density'],
-            self.result.plasma.level_number_density
-        )
-
-    def test_plasma_electron_densities(self):
-        assert_allclose(
-            self.reference['/simulation/model/plasma/electron_densities'],
-            self.result.plasma.electron_densities
-        )
-
-    def test_plasma_tau_sobolevs(self):
-        assert_allclose(
-            self.reference['/simulation/model/plasma/tau_sobolevs'],
-            self.result.plasma.tau_sobolevs
-        )
-
-    def test_plasma_transition_probabilities(self):
-        assert_allclose(
-            self.reference['/simulation/model/plasma/transition_probabilities'],
-            self.result.plasma.transition_probabilities
-        )
-
-    def test_t_rads(self, plot_object):
-        plot_object.add(self.plot_t_rads(), "{0}_t_rads".format(self.name))
-
-        assert_allclose(
-            self.reference['/simulation/model/t_rads'],
-            self.result.t_rads.cgs.value
-        )
 
     def plot_t_rads(self):
         plt.suptitle("Shell temperature for packets", fontweight="bold")
@@ -225,23 +187,6 @@ class TestIntegration(object):
         ax.legend(lines, labels, loc="lower left")
         return figure
 
-    def test_ws(self):
-        assert_allclose(
-            self.reference['/simulation/model/ws'],
-            self.result.ws
-        )
-
-    def test_j_estimator(self):
-        assert_allclose(
-            self.reference['/simulation/runner/j_estimator'],
-            self.result.runner.j_estimator
-        )
-
-    def test_nu_bar_estimator(self):
-        assert_allclose(
-            self.reference['/simulation/runner/nu_bar_estimator'],
-            self.result.runner.nu_bar_estimator
-        )
 
     def test_spectrum(self, plot_object):
         plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
