@@ -116,12 +116,11 @@ class TestIntegration(object):
 
 
 
-        capmanager.suspendcapture()
+
         # We now do a run with prepared config and get radial1d model.
         self.result = Radial1DModel(tardis_config)
-        capmanager.resumecapture()
 
-
+        capmanager.suspendcapture(True)
         # If current test run is just for collecting reference data, store the
         # output model to HDF file, save it at specified path. Skip all tests.
         # Else simply perform the run and move further for performing
@@ -139,7 +138,9 @@ class TestIntegration(object):
                 data_path['gen_ref_path']
             ))
         else:
+
             run_radial1d(self.result)
+        capmanager.resumecapture()
 
         # Get the reference data through the fixture.
         self.reference = reference
