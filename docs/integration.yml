@@ -16,16 +16,16 @@ report:
   # If "save_mode" is "local", a sub directory will be made in this
   # directory according to commit hash (shortened), and it will contain
   # the complete report content.
-  dirpath: "~/Desktop/reports"
+  reportpath: "~/projects/tardis/integration"
 
 
 # Path to directory containing reference HDF files.
-reference: "~/Documents/TARDIS/reference"
+reference: "~/projects/tardis/integration/"
 
 # Path to directory where reference HDF files will be generated and
 # saved during the test run. Use "--generate-reference" flag in command
 # line args for the purpose, for other cases this will be simply ignored.
-generate_reference: "~/Documents/TARDIS/generated"
+generate_reference: "~/projects/tardis/integration/"
 
 
 # Speeds up test execution by reducing amount of packets per iteration,
