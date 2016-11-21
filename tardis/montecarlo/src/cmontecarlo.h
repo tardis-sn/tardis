@@ -98,6 +98,8 @@ void montecarlo_main_loop(storage_model_t * storage,
 montecarlo_event_handler_t get_event_handler (rpacket_t * packet, storage_model_t * storage,
                                               double *distance, rk_state *mt_state);
 
+void test_for_close_line(rpacket_t * packet, const storage_model_t * storage);
+
 /* New handlers for continuum implementation */
 
 montecarlo_event_handler_t montecarlo_continuum_event_handler(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state);
@@ -124,6 +126,10 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 void
 montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
                          double distance, rk_state *mt_state);
+
+void
+line_emission(rpacket_t * packet, storage_model_t * storage,
+              int64_t emission_line_id, rk_state *mt_state);
 
 double sample_nu_free_free(const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
