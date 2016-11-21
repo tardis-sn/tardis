@@ -933,6 +933,23 @@ def test_continuum_emission(packet, model, mock_sample_nu, packet_params, expect
     assert_allclose(packet.nu, expected_params['nu'], rtol=1e-7)
 
 
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['packet_params', 'expected'],
+    [({'next_line_id': 3, 'last_line': 0}, 1),
+     ({'next_line_id': 5, 'last_line': 1}, 0),
+     ({'next_line_id': 2, 'last_line': 0}, 0),
+     ({'next_line_id': 1, 'last_line': 0}, 1)]
+)
+def test_test_for_close_line(packet, model, packet_params, expected):
+    packet.nu_line = model.line_list_nu[packet_params['next_line_id'] - 1]
+    packet.next_line_id = packet_params['next_line_id']
+
+    cmontecarlo_methods.test_for_close_line(byref(packet), byref(model))
+
+    assert_equal(expected, packet.close_line)
+
+
 """
 Not Yet Relevant Tests:
 -----------------------
