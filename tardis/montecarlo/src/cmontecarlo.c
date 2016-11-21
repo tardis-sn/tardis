@@ -393,65 +393,6 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state 
 }
 
 void
-k_packet(rpacket_t * packet, const storage_model_t * storage,
-         next_interaction2process * next_process, rk_state *mt_state)
-{
-  int64_t shell_id = rpacket_get_current_shell_id(packet);
-  double zrand = (rk_double(mt_state));
-  double cooling_prob = 0.0;
-  if (zrand < (cooling_prob += storage->fb_cooling_prob[shell_id]))
-    {
-      * next_process = BF_EMISSION;
-    }
-  else if (zrand < (cooling_prob += storage->ff_cooling_prob[shell_id]))
-    {
-      * next_process = FF_EMISSION;
-    }
-  else if (zrand < (cooling_prob += storage->coll_exc_cooling_prob[shell_id]))
-    {
-      * next_process = EXCITATION;
-    }
-  else
-    {
-      * next_process = IONIZATION;
-    }
-  switch(* next_process)
-    {
-      case FF_EMISSION:
-        // No need to select an individual process.
-        break;
-
-      case BF_EMISSION:
-        {
-          int64_t continuum_id = sample_cooling_processes(packet, mt_state, storage->fb_cooling_prob_individual,
-            storage->fb_cooling_references, storage->fb_cooling_prob_nd);
-          rpacket_set_current_continuum_id(packet, continuum_id);
-        }
-        break;
-
-      case IONIZATION:
-        {
-          int64_t activate_level = sample_cooling_processes(packet, mt_state, storage->coll_ion_cooling_prob_individual,
-            storage->coll_ion_cooling_references, storage->coll_ion_cooling_prob_nd);
-          rpacket_set_macro_atom_activation_level(packet, activate_level);
-        }
-        break;
-
-      case EXCITATION:
-        {
-          int64_t activate_level = sample_cooling_processes(packet, mt_state, storage->coll_exc_cooling_prob_individual,
-            storage->coll_exc_cooling_references, storage->coll_exc_cooling_prob_nd);
-          rpacket_set_macro_atom_activation_level(packet, activate_level);
-        }
-        break;
-
-      default:
-        fprintf(stderr, "This process for kpacket destruction should not exist! (next_process = %d)\n", * next_process);
-        exit(1);
-    }
-}
-
-void
 move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
 {
   double doppler_factor = rpacket_doppler_factor (packet, storage);
@@ -828,22 +769,6 @@ sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage, 
 	double T = storage->t_electrons[shell_id];
 	double zrand = (rk_double(mt_state));
 	return th_frequency * (1 - (KB * T / H / th_frequency * log(zrand)));	// Lucy 2003 MC II Eq.26
-}
-
-int64_t
-sample_cooling_processes(const rpacket_t * packet, rk_state *mt_state, double *individual_cooling_probabilities,
-int64_t *cooling_references, int64_t no_of_individual_processes)
-{
-  int64_t shell_id = rpacket_get_current_shell_id(packet), j = -1;
-  double zrand = (rk_double(mt_state)), p = 0.0;
-  // TODO: maybe sum before and use bisection
-  do
-    {
-      p += individual_cooling_probabilities[shell_id * no_of_individual_processes + (++j)];
-    }
-  while(p <= zrand);
-
-  return cooling_references[j];
 }
 
 void
