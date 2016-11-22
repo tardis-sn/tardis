@@ -66,7 +66,7 @@ tardis_error_t compute_distance2line (rpacket_t * packet,
  */
 void compute_distance2continuum (rpacket_t *packet, storage_model_t *storage);
 
-int64_t macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
+void macro_atom (rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
 void move_packet (rpacket_t * packet, storage_model_t * storage,
                     double distance);

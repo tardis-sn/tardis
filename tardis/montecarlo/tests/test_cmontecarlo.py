@@ -295,6 +295,8 @@ def model_3lvlatom(model):
     model.transition_probabilities_nd = c_int64(nd)
     model.transition_probabilities = (c_double * (nd * 2))(*transition_probabilities)
 
+    model.last_line_interaction_out_id = (c_int64 * 1)(*[-5])
+
     return model
 
 
@@ -619,28 +621,27 @@ def test_get_event_handler(packet, model, mt_state, distances, expected):
 @pytest.mark.parametrize(
     ['z_random', 'packet_params', 'expected'],
     [(0.22443743797312765,
-      {'line_id':1, 'shell_id': 0}, 1),  # Direct deactivation
+      {'activation_level': 1, 'shell_id': 0}, 1),  # Direct deactivation
 
      (0.78961460371187597,  # next z_random = 0.818455414618
-      {'line_id':1, 'shell_id': 0}, 0),  # Upwards jump, then deactivation
+      {'activation_level': 1, 'shell_id': 0}, 0),  # Upwards jump, then deactivation
 
      (0.22443743797312765,  # next z_random = 0.545678896748
-      {'line_id':0, 'shell_id': 0}, 1),  # Downwards jump, then deactivation
+      {'activation_level': 2, 'shell_id': 0}, 1),  # Downwards jump, then deactivation
 
      (0.765958602560605,  # next z_random = 0.145914243888, 0.712382380384
-      {'line_id':1, 'shell_id': 0}, 1),  # Upwards jump, downwards jump, then deactivation
+      {'activation_level': 1, 'shell_id': 0}, 1),  # Upwards jump, downwards jump, then deactivation
 
      (0.22443743797312765,
-      {'line_id':0, 'shell_id': 1}, 0)]  # Direct deactivation
+      {'activation_level': 2, 'shell_id': 1}, 0)]  # Direct deactivation
 )
 def test_macro_atom(model_3lvlatom, packet, z_random, packet_params, get_rkstate, expected):
-    packet.next_line_id = packet_params['line_id']
+    packet.macro_atom_activation_level = packet_params['activation_level']
     packet.current_shell_id = packet_params['shell_id']
     rkstate = get_rkstate(z_random)
 
-    cmontecarlo_methods.macro_atom.restype = c_int64
-
-    obtained_line_id = cmontecarlo_methods.macro_atom(byref(packet), byref(model_3lvlatom), byref(rkstate))
+    cmontecarlo_methods.macro_atom(byref(packet), byref(model_3lvlatom), byref(rkstate))
+    obtained_line_id = model_3lvlatom.last_line_interaction_out_id[packet.id]
 
     assert_equal(obtained_line_id, expected)
 

@@ -367,13 +367,12 @@ compute_distance2continuum(rpacket_t * packet, storage_model_t * storage)
   rpacket_set_d_continuum(packet, d_continuum);
 }
 
-int64_t
-macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state)
+void
+macro_atom (rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state)
 {
   int emit = 0, i = 0, offset = -1;
-  uint64_t activate_level =
-    storage->line2macro_level_upper[rpacket_get_next_line_id (packet)];
-  while (emit != -1)
+  uint64_t activate_level = rpacket_get_macro_atom_activation_level (packet);
+  while (emit >= 0)
     {
       double event_random = rk_double (mt_state);
       i = storage->macro_block_references[activate_level] - 1;
@@ -389,7 +388,25 @@ macro_atom (const rpacket_t * packet, const storage_model_t * storage, rk_state 
       emit = storage->transition_type[i];
       activate_level = storage->destination_level_id[i];
     }
-  return storage->transition_line_id[i];
+  switch (emit)
+    {
+      case BB_EMISSION:
+        line_emission (packet, storage, storage->transition_line_id[i], mt_state);
+        break;
+
+      case BF_EMISSION:
+        rpacket_set_current_continuum_id (packet, storage->transition_line_id[i]);
+        continuum_emission (packet, storage, sample_nu_free_bound, mt_state);
+        break;
+
+      case FF_EMISSION:
+        continuum_emission (packet, storage, sample_nu_free_free, mt_state);
+        break;
+
+      default:
+        fprintf (stderr, "This process for macro-atom deactivation should not exist! (emit = %d)\n", emit);
+        exit(1);
+    }
 }
 
 void
@@ -815,16 +832,16 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =
         rpacket_get_current_shell_id (packet);
       storage->last_interaction_type[rpacket_get_id (packet)] = 2;
-      int64_t emission_line_id = 0;
       if (storage->line_interaction_id == 0)
         {
-          emission_line_id = next_line_id;
+          line_emission (packet, storage, next_line_id, mt_state);
         }
       else if (storage->line_interaction_id >= 1)
         {
-          emission_line_id = macro_atom (packet, storage, mt_state);
+          rpacket_set_macro_atom_activation_level (packet,
+                                                   storage->line2macro_level_upper[next_line_id]);
+          macro_atom (packet, storage, mt_state);
         }
-      line_emission(packet, storage, emission_line_id, mt_state);
     }
   else
     { // Packet passes line without interacting
