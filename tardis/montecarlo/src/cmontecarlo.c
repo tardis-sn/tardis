@@ -722,42 +722,41 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 void
 montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, double distance, rk_state *mt_state)
 {
-  /* current position in list of continuum edges -> indicates which bound-free processes are possible */
-  int64_t current_continuum_id = rpacket_get_current_continuum_id(packet);
+  // current position in list of continuum edges -> indicates which bound-free processes are possible
+  int64_t ccontinuum = rpacket_get_current_continuum_id (packet);
 
   // Determine in which continuum the bf-absorption occurs
-  double nu = rpacket_get_nu(packet);
-  double chi_bf = rpacket_get_chi_boundfree(packet);
-  // get new zrand
+  double chi_bf = rpacket_get_chi_boundfree (packet);
   double zrand = rk_double (mt_state);
   double zrand_x_chibf = zrand * chi_bf;
 
-  int64_t ccontinuum = current_continuum_id; /* continuum_id of the continuum in which bf-absorption occurs */
-
-  while (packet->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf)
+  while ((ccontinuum < storage->no_of_edges - 1) && (packet->chi_bf_tmp_partial[ccontinuum] <= zrand_x_chibf))
     {
       ccontinuum++;
     }
-  //  Alternative way to choose a continuum for bf-absorption:
-  //  error =
-  //  binary_search(storage->chi_bf_tmp_partial, zrand_x_chibf, current_continuum_id,no_of_continuum_edges-1,&ccontinuum);
-  //  if (error == TARDIS_ERROR_BOUNDS_ERROR) // x_insert < x[imin] -> set index equal to imin
-  //   {
-  //      ccontinuum = current_continuum_id;
-  //   }
+  rpacket_set_current_continuum_id (packet, ccontinuum);
 
-  zrand = rk_double(mt_state);
-  if (zrand < storage->continuum_list_nu[ccontinuum] / nu)
-    {
-      // go to ionization energy
-      rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
-    }
-  else
-    {
-      //go to the thermal pool
-      //create_kpacket(packet);
-      rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
-    }
+  /* For consistency reasons the branching between ionization and thermal energy is determined using the
+     comoving frequency at the initial position instead of the frequency at the point of interaction */
+  double comov_nu = rpacket_get_nu (packet) * rpacket_doppler_factor (packet, storage);
+
+  /* Move the packet to the place of absorption, select a direction for re-emission and impose energy conservation
+     in the co-moving frame. */
+  move_packet (packet, storage, distance);
+  double old_doppler_factor = rpacket_doppler_factor (packet, storage);
+  rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
+  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
+  rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
+  storage->last_interaction_type[rpacket_get_id (packet)] = 3; // last interaction was a bf-absorption
+
+  // Convert the rpacket to thermal or ionization energy
+  zrand = rk_double (mt_state);
+  int64_t activate_level = (zrand < storage->continuum_list_nu[ccontinuum] / comov_nu) ?
+    storage->cont_edge2macro_level[ccontinuum] : storage->kpacket2macro_level;
+
+  rpacket_set_macro_atom_activation_level (packet, activate_level);
+  macro_atom (packet, storage, mt_state);
 }
 
 void
