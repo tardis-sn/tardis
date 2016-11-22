@@ -62,10 +62,6 @@ from tardis.montecarlo.struct import (
     TARDIS_PACKET_STATUS_REABSORBED,
     CONTINUUM_OFF,
     CONTINUUM_ON,
-    BF_EMISSION,
-    FF_EMISSION,
-    EXCITATION,
-    IONIZATION,
     C, INVERSE_C
 )
 

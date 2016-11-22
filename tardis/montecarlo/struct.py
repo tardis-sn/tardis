@@ -133,13 +133,10 @@ TARDIS_PACKET_STATUS_REABSORBED = 2
 CONTINUUM_OFF = 0
 CONTINUUM_ON = 1
 
-# Variables corresponding to `next_interaction2process` enum.
+# Variables corresponding to `emission_type` enum.
 BB_EMISSION = -1
 BF_EMISSION = -2
 FF_EMISSION = -3
-EXCITATION = 0
-IONIZATION = 1
-KPACKET_CREATION = 2
 
 # Variables corresponding to macros defined in rpacket.h .
 MISS_DISTANCE = 1e99
