@@ -77,6 +77,7 @@ typedef struct StorageModel
   int64_t *virt_packet_last_line_interaction_out_id;
   int64_t virt_packet_count;
   int64_t virt_array_size;
+  int64_t kpacket2macro_level;
   double *photo_ion_estimator;
   double *stim_recomb_estimator;
   int64_t *photo_ion_estimator_statistics;
