@@ -160,7 +160,8 @@ def model():
         fb_cooling_prob = (c_double * 2)(*([0.0] * 2)),
         ff_cooling_prob = (c_double *2)(*([0.0] * 2)),
         coll_exc_cooling_prob = (c_double *2)(*([0.0] * 2)),
-        coll_ion_cooling_prob = (c_double *2)(*([0.0] * 2))
+        coll_ion_cooling_prob = (c_double *2)(*([0.0] * 2)),
+        cont_edge2macro_level=(c_int64 * 6)(*([1] * 6)),
     )
 
 
@@ -947,6 +948,34 @@ def test_test_for_close_line(packet, model, packet_params, expected):
     assert_equal(expected, packet.close_line)
 
 
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['packet_params', 'z_random', 'expected'],
+    [({'current_continuum_id': 1, 'chi_bf_tmp_partial': [0.0, 0.23e13, 1.0e13]},
+      0.22443743797312765, 1),
+
+     ({'current_continuum_id': 1, 'chi_bf_tmp_partial': [0.0, 0.23e10, 1.0e10]},
+      0.78961460371187597, 2),
+
+     ({'current_continuum_id': 0, 'chi_bf_tmp_partial': [0.2e5, 0.5e5, 0.6e5, 1.0e5, 1.0e5]},
+      0.78961460371187597, 3)]
+)
+def test_montecarlo_bound_free_scatter_continuum_selection(packet, model_3lvlatom, packet_params,
+                                                           get_rkstate, z_random, expected):
+    rkstate = get_rkstate(z_random)
+    packet.current_continuum_id = packet_params['current_continuum_id']
+
+    chi_bf_tmp = packet_params['chi_bf_tmp_partial']
+    packet.chi_bf_tmp_partial = (c_double * len(chi_bf_tmp))(*chi_bf_tmp)
+    packet.chi_bf = chi_bf_tmp[-1]
+    model_3lvlatom.no_of_edges = len(chi_bf_tmp)
+
+    cmontecarlo_methods.montecarlo_bound_free_scatter(byref(packet), byref(model_3lvlatom),
+                                                      c_double(1.e13), byref(rkstate))
+
+    assert_equal(packet.current_continuum_id, expected)
+
+
 """
 Not Yet Relevant Tests:
 -----------------------
@@ -959,14 +988,6 @@ on current master and can be skipped for now.
 @pytest.mark.skipif(True, reason="Not yet relevant")
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
     cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
-                                                     c_double(1.e13), byref(mt_state))
-
-    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
-
-
-@pytest.mark.skipif(True, reason="Not yet relevant")
-def test_montecarlo_bound_free_scatter(packet, model, mt_state):
-    cmontecarlo_methods.montecarlo_bound_free_scatter(byref(packet), byref(model),
                                                      c_double(1.e13), byref(mt_state))
 
     assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
