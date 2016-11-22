@@ -93,6 +93,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *virt_packet_last_line_interaction_out_id
         int_type_t virt_packet_count
         int_type_t virt_array_size
+        int_type_t kpacket2macro_level;
         double *photo_ion_estimator
         double *stim_recomb_estimator
         int_type_t *photo_ion_estimator_statistics

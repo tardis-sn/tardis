@@ -765,7 +765,19 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
 void
 montecarlo_free_free_scatter(rpacket_t * packet, storage_model_t * storage, double distance, rk_state *mt_state)
 {
-  rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
+  /* Move the packet to the place of absorption, select a direction for re-emission and impose energy conservation
+     in the co-moving frame. */
+  move_packet (packet, storage, distance);
+  double old_doppler_factor = rpacket_doppler_factor (packet, storage);
+  rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
+  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
+  rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
+  storage->last_interaction_type[rpacket_get_id (packet)] = 4; // last interaction was a ff-absorption
+
+  // Create a k-packet
+  rpacket_set_macro_atom_activation_level (packet, storage->kpacket2macro_level);
+  macro_atom (packet, storage, mt_state);
 }
 
 double
