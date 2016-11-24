@@ -37,3 +37,4 @@ dependencies:
   - sphinxcontrib-tikz
   - coveralls
   - pytest-html==1.10.0
+  - dokuwiki
