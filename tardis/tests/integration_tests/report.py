@@ -38,7 +38,6 @@ from tardis import __githash__ as tardis_githash
 try:
     from pytest_html import __name__ as pytest_html_path
     from pytest_html.plugin import HTMLReport
-    import dokuwiki
     import requests
 except ImportError:
     pytest_html = None
@@ -58,6 +57,7 @@ class DokuReport(HTMLReport):
         self.save_mode = report_config['save_mode']
 
         if self.save_mode == "remote":
+            import dokuwiki
             # Base class accepts a file path to save the report, but we pass an
             # empty string as it is redundant for this use case.
             super(DokuReport, self).__init__(
