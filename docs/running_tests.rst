@@ -59,3 +59,20 @@ TARDIS prints out the progress:
     > python setup.py test --args="--integration=integration.yml -m integration
     --generate-reference --less-packets -s"
 
+
+Setting up the Dokuwiki report
+==============================
+
+A normal dokuwiki installation is performed on the required server. Before the
+connection works one is requires to set the option remote access in the
+settings. If this is not done the ``dokuwiki`` python plugin will not connect
+with the warning ``DokuWikiError: syntax error: line 1, column 0``. One also
+has to enable this for users (``remoteuser`` option) otherwise the error:
+``ProtocolError for xmlrpc.php?p=tardisisgreat&u=tardistester: 403 Forbidden``
+will appear.
+
+Another important configuration option is to enable embedded html ``htmlok``
+otherwise it won't show nice html page reports.
+
+
+
