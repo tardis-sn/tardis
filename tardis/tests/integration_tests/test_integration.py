@@ -154,7 +154,7 @@ class TestIntegration(object):
         tardis_quantity = eval('self.result.' + tardis_quantity_name)
         assert_allclose(tardis_quantity, reference_quantity)
 
-    def j_blues_norm_factor(self):
+    def test_j_blues_norm_factor(self):
         assert_quantity_allclose(
             self.reference['/simulation/model/j_blues_norm_factor'],
             self.result.j_blues_norm_factor
@@ -213,22 +213,38 @@ class TestIntegration(object):
             self.result.runner.spectrum.luminosity_density_lambda.cgs.value)
 
     def plot_spectrum(self):
-        plt.suptitle("Deviation in spectrum_quantities", fontweight="bold")
-        figure = plt.figure()
 
         # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
         # Axes of subplot are extracted, if we wish to make multiple plots
         # for different spectrum quantities all in one figure.
-        ldl_ax = figure.add_subplot(111)
-        ldl_ax.set_title("Deviation in luminosity_density_lambda")
-        ldl_ax.set_xlabel("Wavelength")
-        ldl_ax.set_ylabel("Relative error (1 - result / reference)")
+        gs = plt.GridSpec(2, 1, height_ratios=[3, 1])
+
+        spectrum_ax = gs[0]
+
+        spectrum_ax.set_ylabel("Flux [cgs]")
         deviation = 1 - (
             self.result.runner.spectrum.luminosity_density_lambda.cgs.value /
-            self.reference['/simulation/runner/spectrum/luminosity_density_lambda']
+            self.reference[
+                '/simulation/runner/spectrum/luminosity_density_lambda']
+
         )
-        ldl_ax.plot(
-            self.reference['/simulation/runner/spectrum/wavelength'], deviation,
-            color="blue", marker="."
+
+
+        spectrum_ax.plot(
+            self.reference['/simulation/runner/spectrum/wavelength'],
+            self.reference[
+                '/simulation/runner/spectrum/luminosity_density_lambda'],
+            color="black"
         )
+
+        spectrum_ax.plot(
+            self.reference['/simulation/runner/spectrum/wavelength'],
+            self.result.runner.spectrum.luminosity_density_lambda.cgs.value,
+            color="red"
+        )
+
+        gs[1].plot(self.reference['/simulation/runner/spectrum/wavelength'],
+                   deviation, color='black')
+        gs[1].set_xlabel()
+        spectrum_ax.set_xlabel("Wavelength [Angstrom]")
         return figure

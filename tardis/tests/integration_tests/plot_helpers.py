@@ -68,7 +68,7 @@ class BasePlotSaver(object):
 thumbnail_html_remote = """
 <div class="image" style="float: left">
     <a href="#">
-        <img src= "{dokuwiki_url}lib/exe/fetch.php?media=reports:{githash}:{name}.png" />
+        <img src= "{dokuwiki_url}/lib/exe/fetch.php?media=reports:{githash}:{name}.png" />
     </a>
 </div>
 """
