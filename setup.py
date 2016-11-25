@@ -12,7 +12,7 @@ from setuptools import setup
 try:
     os.remove(os.path.join('tardis', 'montecarlo', 'montecarlo.c'))
     os.remove(os.path.join('tardis', 'plasma', 'properties', 'util', 'macro_atom.c'))
-except:
+except IOError:
     pass
 
 #A dirty hack to get around some early import/configurations ambiguities
