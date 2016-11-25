@@ -130,7 +130,7 @@ class TestIntegration(object):
                 data_path['gen_ref_path'], "{0}.h5".format(self.name)
             )
             if os.path.exists(ref_data_path):
-                raise IOError(
+                pytest.skip(
                     'Reference data {0} does exist and tests will not '
                     'proceed generating new data'.format(ref_data_path))
             run_radial1d(self.result, hdf_path_or_buf=ref_data_path)
@@ -154,11 +154,6 @@ class TestIntegration(object):
         tardis_quantity = eval('self.result.' + tardis_quantity_name)
         assert_allclose(tardis_quantity, reference_quantity)
 
-    def test_j_blues_norm_factor(self):
-        assert_quantity_allclose(
-            self.reference['/simulation/model/j_blues_norm_factor'],
-            self.result.j_blues_norm_factor
-        )
 
     def test_luminosity_inner(self):
         assert_quantity_allclose(
@@ -219,7 +214,7 @@ class TestIntegration(object):
         # for different spectrum quantities all in one figure.
         gs = plt.GridSpec(2, 1, height_ratios=[3, 1])
 
-        spectrum_ax = gs[0]
+        spectrum_ax = plt.subplot(gs[0])
 
         spectrum_ax.set_ylabel("Flux [cgs]")
         deviation = 1 - (
@@ -242,9 +237,10 @@ class TestIntegration(object):
             self.result.runner.spectrum.luminosity_density_lambda.cgs.value,
             color="red"
         )
-
-        gs[1].plot(self.reference['/simulation/runner/spectrum/wavelength'],
+        spectrum_ax.set_xticks([])
+        deviation_ax = plt.subplot(gs[1])
+        deviation_ax.plot(self.reference['/simulation/runner/spectrum/wavelength'],
                    deviation, color='black')
-        gs[1].set_xlabel()
-        spectrum_ax.set_xlabel("Wavelength [Angstrom]")
-        return figure
+        deviation_ax.set_xlabel("Wavelength [Angstrom]")
+
+        return plt.gcf()
