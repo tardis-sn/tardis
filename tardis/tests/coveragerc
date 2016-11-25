@@ -20,5 +20,5 @@ exclude_lines =
    pragma: py{ignore_python_version}
 
 omit =
-   # Slow Tests should be run but need not appear in "html report"
-   tardis/tests/tests_slow/*
+   # Integration Tests should not appear in coveralls
+   tardis/tests/integration_tests/*

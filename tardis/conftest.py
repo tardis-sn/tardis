@@ -66,12 +66,6 @@ def pytest_addoption(parser):
     _pytest_add_option(parser)
     parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
                      help="filename for atomic dataset")
-    parser.addoption("--integration-tests", dest="integration-tests", default=None,
-                     help="path to configuration file for integration tests")
-    parser.addoption("--generate-reference", action="store_true", default=False,
-                     help="execute integration test run to generate reference data")
-    parser.addoption("--less-packets", action="store_true", default=False,
-                     help="Run integration tests with less packets.")
 
 
 # -------------------------------------------------------------------------
