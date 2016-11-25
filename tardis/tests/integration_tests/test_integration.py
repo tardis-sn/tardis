@@ -1,21 +1,66 @@
 import os
-import urlparse
+
 import yaml
 import pytest
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
-
 from astropy.tests.helper import assert_quantity_allclose
-from astropy.utils.data import download_file
 
 from tardis.atomic import AtomData
 from tardis.simulation.base import run_radial1d
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration
 
+quantity_comparison = [
+    ('/simulation/model/last_line_interaction_in_id',
+     'last_line_interaction_in_id'),
+    ('/simulation/model/last_line_interaction_out_id',
+     'last_line_interaction_out_id'),
+    ('/simulation/model/last_line_interaction_shell_id',
+     'last_line_interaction_shell_id'),
+    ('/simulation/model/last_line_interaction_angstrom',
+     'last_line_interaction_angstrom.cgs.value'),
+    ('/simulation/model/j_blues',
+     'j_blues'),
+    ('/simulation/model/j_blue_estimators',
+     'j_blue_estimators'),
+    ('/simulation/model/montecarlo_luminosity',
+     'montecarlo_luminosity.cgs.value'),
+    ('/simulation/runner/montecarlo_virtual_luminosity',
+     'runner.montecarlo_virtual_luminosity.cgs.value'),
+    ('/simulation/model/montecarlo_nu',
+     'montecarlo_nu.cgs.value'),
+    ('/simulation/model/plasma/ion_number_density',
+     'plasma.ion_number_density'),
+    ('/simulation/model/plasma/level_number_density',
+     'plasma.level_number_density'),
+    ('/simulation/model/plasma/electron_densities',
+     'plasma.electron_densities'),
+    ('/simulation/model/plasma/tau_sobolevs',
+     'plasma.tau_sobolevs'),
+    ('/simulation/model/plasma/transition_probabilities',
+     'plasma.transition_probabilities'),
+    ('/simulation/model/t_rads',
+     't_rads.cgs.value'),
+    ('/simulation/model/ws',
+     'ws'),
+    ('/simulation/runner/j_estimator',
+     'runner.j_estimator'),
+    ('/simulation/runner/nu_bar_estimator',
+     'runner.nu_bar_estimator'),
+    ('/simulation/model/j_blues_norm_factor',
+     'j_blues_norm_factor.cgs.value')
+     ]
+
+
+@pytest.fixture(params=quantity_comparison)
+def model_quantities(request):
+    return request.param
+
 
 @pytest.mark.skipif(not pytest.config.getvalue("integration-tests"),
                     reason="integration tests are not included in this run")
+@pytest.mark.integration
 class TestIntegration(object):
     """Slow integration test for various setups present in subdirectories of
     ``tardis/tests/integration_tests``.
@@ -23,11 +68,14 @@ class TestIntegration(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self, request, reference, data_path):
+    def setup(self, request, reference, data_path, pytestconfig):
         """
         This method does initial setup of creating configuration and performing
         a single run of integration test.
         """
+        # Get capture manager
+        capmanager = pytestconfig.pluginmanager.getplugin('capturemanager')
+
         # The last component in dirpath can be extracted as name of setup.
         self.name = data_path['setup_name']
 
@@ -39,16 +87,9 @@ class TestIntegration(object):
         atom_data_name = yaml.load(open(self.config_file))['atom_data']
 
         # Get the path to HDF file:
-        if 'atom_data_url' in data_path:
-            # If the atom data is to be ingested from url:
-            atom_data_filepath = download_file(urlparse.urljoin(
-                base=data_path['atom_data_url'], url=atom_data_name), cache=True
-            )
-        else:
-            # If the atom data is to be ingested from local file:
-            atom_data_filepath = os.path.join(
-                data_path['atom_data_dirpath'], atom_data_name
-            )
+        atom_data_filepath = os.path.join(
+            data_path['atom_data_path'], atom_data_name
+        )
 
         # Load atom data file separately, pass it for forming tardis config.
         self.atom_data = AtomData.from_hdf5(atom_data_filepath)
@@ -73,134 +114,53 @@ class TestIntegration(object):
                 less_packets['last_no_of_packets']
             )
 
+
+
+
         # We now do a run with prepared config and get radial1d model.
         self.result = Radial1DModel(tardis_config)
 
+        capmanager.suspendcapture(True)
         # If current test run is just for collecting reference data, store the
         # output model to HDF file, save it at specified path. Skip all tests.
         # Else simply perform the run and move further for performing
         # assertions.
         if request.config.getoption("--generate-reference"):
-            run_radial1d(self.result, hdf_path_or_buf=os.path.join(
-                data_path['gen_ref_dirpath'], "{0}.h5".format(self.name)
-            ))
+            ref_data_path = os.path.join(
+                data_path['gen_ref_path'], "{0}.h5".format(self.name)
+            )
+            if os.path.exists(ref_data_path):
+                pytest.skip(
+                    'Reference data {0} does exist and tests will not '
+                    'proceed generating new data'.format(ref_data_path))
+            run_radial1d(self.result, hdf_path_or_buf=ref_data_path)
             pytest.skip("Reference data saved at {0}".format(
-                data_path['gen_ref_dirpath']
+                data_path['gen_ref_path']
             ))
         else:
+
             run_radial1d(self.result)
+        capmanager.resumecapture()
 
         # Get the reference data through the fixture.
         self.reference = reference
 
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_j_estimators(self):
-        assert_allclose(
-                self.reference['j_estimators'],
-                self.result.j_estimators)
+    def test_model_quantities(self, model_quantities):
+        reference_quantity_name, tardis_quantity_name = model_quantities
+        if reference_quantity_name not in self.reference:
+            pytest.skip('{0} not calculated in this run'.format(
+                reference_quantity_name))
+        reference_quantity = self.reference[reference_quantity_name]
+        tardis_quantity = eval('self.result.' + tardis_quantity_name)
+        assert_allclose(tardis_quantity, reference_quantity)
 
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_j_blue_estimators(self):
-        assert_allclose(
-                self.reference['j_blue_estimators'],
-                self.result.j_blue_estimators)
 
-        assert_quantity_allclose(
-                self.reference['j_blues_norm_factor'],
-                self.result.j_blues_norm_factor)
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_last_line_interactions(self):
-        assert_allclose(
-                self.reference['last_line_interaction_in_id'],
-                self.result.last_line_interaction_in_id)
-
-        assert_allclose(
-                self.reference['last_line_interaction_out_id'],
-                self.result.last_line_interaction_out_id)
-
-        assert_allclose(
-                self.reference['last_line_interaction_shell_id'],
-                self.result.last_line_interaction_shell_id)
-
-        assert_quantity_allclose(
-                self.reference['last_line_interaction_angstrom'],
-                self.result.last_line_interaction_angstrom)
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_nubar_estimators(self):
-        assert_allclose(
-                self.reference['nubar_estimators'],
-                self.result.nubar_estimators)
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_ws(self):
-        assert_allclose(
-                self.reference['ws'],
-                self.result.ws)
-
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
     def test_luminosity_inner(self):
         assert_quantity_allclose(
-                self.reference['luminosity_inner'],
-                self.result.luminosity_inner)
-
-    def test_spectrum(self, plot_object):
-        plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
-
-        assert_allclose(
-            self.reference['/simulation/runner/spectrum/luminosity_density_nu'],
-            self.result.runner.spectrum.luminosity_density_nu.cgs.value)
-
-        assert_allclose(
-            self.reference['/simulation/runner/spectrum/wavelength'],
-            self.result.runner.spectrum.wavelength.cgs.value)
-
-        assert_allclose(
-            self.reference['/simulation/runner/spectrum/luminosity_density_lambda'],
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value)
-
-    def plot_spectrum(self):
-        plt.suptitle("Deviation in spectrum_quantities", fontweight="bold")
-        figure = plt.figure()
-
-        # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
-        # Axes of subplot are extracted, if we wish to make multiple plots
-        # for different spectrum quantities all in one figure.
-        ldl_ax = figure.add_subplot(111)
-        ldl_ax.set_title("Deviation in luminosity_density_lambda")
-        ldl_ax.set_xlabel("Wavelength")
-        ldl_ax.set_ylabel("Relative error (1 - result / reference)")
-        deviation = 1 - (
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value /
-            self.reference['/simulation/runner/spectrum/luminosity_density_lambda']
+            self.reference['/simulation/model/scalars']['luminosity_inner'],
+            self.result.luminosity_inner.cgs.value
         )
-        ldl_ax.plot(
-            self.reference['/simulation/runner/spectrum/wavelength'], deviation,
-            color="blue", marker="."
-        )
-        return figure
 
-    @pytest.mark.skipif(True, reason="Introduction of HDF mechanism.")
-    def test_montecarlo_properties(self):
-        assert_quantity_allclose(
-                self.reference['montecarlo_luminosity'],
-                self.result.montecarlo_luminosity)
-
-        assert_quantity_allclose(
-                self.reference['montecarlo_virtual_luminosity'],
-                self.result.runner.montecarlo_virtual_luminosity)
-
-        assert_quantity_allclose(
-                self.reference['montecarlo_nu'],
-                self.result.montecarlo_nu)
-
-    def test_shell_temperature(self, plot_object):
-        plot_object.add(self.plot_t_rads(), "{0}_t_rads".format(self.name))
-
-        assert_allclose(
-            self.reference['/simulation/model/t_rads'],
-            self.result.t_rads.cgs.value)
 
     def plot_t_rads(self):
         plt.suptitle("Shell temperature for packets", fontweight="bold")
@@ -230,3 +190,57 @@ class TestIntegration(object):
 
         ax.legend(lines, labels, loc="lower left")
         return figure
+
+
+    def test_spectrum(self, plot_object):
+        plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
+
+        assert_allclose(
+            self.reference['/simulation/runner/spectrum/luminosity_density_nu'],
+            self.result.runner.spectrum.luminosity_density_nu.cgs.value)
+
+        assert_allclose(
+            self.reference['/simulation/runner/spectrum/wavelength'],
+            self.result.runner.spectrum.wavelength.cgs.value)
+
+        assert_allclose(
+            self.reference['/simulation/runner/spectrum/luminosity_density_lambda'],
+            self.result.runner.spectrum.luminosity_density_lambda.cgs.value)
+
+    def plot_spectrum(self):
+
+        # `ldl_` prefixed variables associated with `luminosity_density_lambda`.
+        # Axes of subplot are extracted, if we wish to make multiple plots
+        # for different spectrum quantities all in one figure.
+        gs = plt.GridSpec(2, 1, height_ratios=[3, 1])
+
+        spectrum_ax = plt.subplot(gs[0])
+
+        spectrum_ax.set_ylabel("Flux [cgs]")
+        deviation = 1 - (
+            self.result.runner.spectrum.luminosity_density_lambda.cgs.value /
+            self.reference[
+                '/simulation/runner/spectrum/luminosity_density_lambda']
+
+        )
+
+
+        spectrum_ax.plot(
+            self.reference['/simulation/runner/spectrum/wavelength'],
+            self.reference[
+                '/simulation/runner/spectrum/luminosity_density_lambda'],
+            color="black"
+        )
+
+        spectrum_ax.plot(
+            self.reference['/simulation/runner/spectrum/wavelength'],
+            self.result.runner.spectrum.luminosity_density_lambda.cgs.value,
+            color="red"
+        )
+        spectrum_ax.set_xticks([])
+        deviation_ax = plt.subplot(gs[1])
+        deviation_ax.plot(self.reference['/simulation/runner/spectrum/wavelength'],
+                   deviation, color='black')
+        deviation_ax.set_xlabel("Wavelength [Angstrom]")
+
+        return plt.gcf()
