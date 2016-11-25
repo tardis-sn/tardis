@@ -8,6 +8,13 @@ import sys
 import ah_bootstrap
 from setuptools import setup
 
+# A dirty hack below! we force recompile by removing the cython generated files.
+try:
+    os.remove(os.path.join('tardis', 'montecarlo', 'montecarlo.c'))
+    os.remove(os.path.join('tardis', 'plasma', 'properties', 'util', 'macro_atom.c'))
+except:
+    pass
+
 #A dirty hack to get around some early import/configurations ambiguities
 if sys.version_info[0] >= 3:
     import builtins
