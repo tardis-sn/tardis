@@ -8,6 +8,16 @@ from tardis import __githash__ as tardis_githash
 from tardis.tests.integration_tests.report import DokuReport
 from tardis.tests.integration_tests.plot_helpers import LocalPlotSaver, RemotePlotSaver
 
+def pytest_addoption(parser):
+    parser.addoption("--integration-tests",
+            dest="integration-tests", default=None,
+            help="path to configuration file for integration tests")
+    parser.addoption("--generate-reference",
+            action="store_true", default=False,
+            help="execute integration test run to generate reference data")
+    parser.addoption("--less-packets",
+            action="store_true", default=False,
+            help="Run integration tests with less packets.")
 
 def pytest_configure(config):
     integration_tests_configpath = config.getvalue("integration-tests")
