@@ -38,7 +38,6 @@ from tardis import __githash__ as tardis_githash
 try:
     from pytest_html import __name__ as pytest_html_path
     from pytest_html.plugin import HTMLReport
-    import dokuwiki
     import requests
 except ImportError:
     pytest_html = None
@@ -58,6 +57,7 @@ class DokuReport(HTMLReport):
         self.save_mode = report_config['save_mode']
 
         if self.save_mode == "remote":
+            import dokuwiki
             # Base class accepts a file path to save the report, but we pass an
             # empty string as it is redundant for this use case.
             super(DokuReport, self).__init__(
@@ -71,7 +71,8 @@ class DokuReport(HTMLReport):
                     url=dokuwiki_details['url'],
                     user=dokuwiki_details['username'],
                     password=dokuwiki_details['password'])
-            except (TypeError, gaierror, dokuwiki.DokuWikiError):
+            except (TypeError, gaierror, dokuwiki.DokuWikiError) as e:
+                raise e
                 self.doku_conn = None
                 self.dokuwiki_url = ""
             else:
@@ -79,7 +80,7 @@ class DokuReport(HTMLReport):
         else:
             # Save the html report file locally.
             self.report_dirpath = os.path.join(
-                os.path.expandvars(os.path.expanduser(report_config['dirpath'])),
+                os.path.expandvars(os.path.expanduser(report_config['reportpath'])),
                 tardis_githash[:7]
             )
 
@@ -92,6 +93,8 @@ class DokuReport(HTMLReport):
                 logfile=os.path.join(self.report_dirpath, "report.html"),
                 self_contained=False, has_rerun=False
             )
+
+        self.suite_start_time = time.time()
 
     def _generate_report(self, session):
         """Writes HTML report to a temporary logfile."""

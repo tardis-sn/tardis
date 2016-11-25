@@ -81,26 +81,26 @@ def data_path(request):
     path = {
         'config_dirpath': request.param,
         'reference_filepath': os.path.join(os.path.expandvars(
-            os.path.expanduser(integration_tests_config["reference"])), hdf_filename
+            os.path.expanduser(integration_tests_config['reference'])), hdf_filename
         ),
-        'gen_ref_dirpath': os.path.join(os.path.expandvars(os.path.expanduser(
-            integration_tests_config["generate_reference"])), tardis_githash[:7]
+        'gen_ref_path': os.path.join(os.path.expandvars(os.path.expanduser(
+            integration_tests_config['generate_reference'])), tardis_githash[:7]
         ),
-        'setup_name': hdf_filename[:-3]
+        'setup_name': hdf_filename[:-3],
+        # Temporary hack for providing atom data per individual setup.
+        # This url has all the atom data files hosted, for downloading.
+#        'atom_data_url': integration_tests_config['atom_data']['atom_data_url']
     }
 
     # For providing atom data per individual setup. Atom data can be fetched
     # from a local directory or a remote url.
-    if integration_tests_config['atom_data']['fetch'] == "remote":
-        path['atom_data_url'] = integration_tests_config['atom_data']['url']
-    elif integration_tests_config['atom_data']['fetch'] == "local":
-        path['atom_data_dirpath'] = os.path.expandvars(os.path.expanduser(
-            integration_tests_config['atom_data']['dirpath']
-        ))
+    path['atom_data_path'] = os.path.expandvars(os.path.expanduser(
+        integration_tests_config['atom_data_path']
+    ))
 
     if (request.config.getoption("--generate-reference") and not
-            os.path.exists(path['gen_ref_dirpath'])):
-        os.makedirs(path['gen_ref_dirpath'])
+            os.path.exists(path['gen_ref_path'])):
+        os.makedirs(path['gen_ref_path'])
     return path
 
 
@@ -117,4 +117,12 @@ def reference(request, data_path):
     # generates new reference data.
     if request.config.getoption("--generate-reference"):
         return
-    return pd.HDFStore(data_path['reference_filepath'])
+    else:
+        try:
+            reference = pd.HDFStore(data_path['reference_filepath'], 'r')
+        except IOError:
+            raise IOError('Reference file {0} does not exist and is needed'
+                          ' for the tests'.format(data_path['reference_filepath']))
+
+        else:
+            return reference

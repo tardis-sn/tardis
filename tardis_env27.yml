@@ -11,7 +11,7 @@ dependencies:
 - numexpr=2.4.4
 - Cython=0.21
 - networkx=1.10
-- pytest=2.9.1
+- pytest=3.0
 - pyyaml=3.12
 - jsonschema=2.5.1
 
@@ -36,3 +36,4 @@ dependencies:
   - sphinxcontrib-tikz
   - coveralls
   - pytest-html==1.10.0
+  - dokuwiki
