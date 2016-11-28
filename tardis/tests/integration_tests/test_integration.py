@@ -2,6 +2,8 @@ import os
 
 import yaml
 import pytest
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
