@@ -247,7 +247,7 @@ class Simulation(object):
             emitted_luminosity, absorbed_luminosity,
             self.luminosity_requested))
 
-    def to_hdf(self, path_or_buf, path='', plasma_properties=None,
+    def to_hdf(self, path_or_buf, path='simulation', plasma_properties=None,
                suffix_count=True):
         """
         Store the simulation to an HDF structure.
