@@ -2,7 +2,7 @@ from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
            'TimeExplosion', 'JBlueEstimator', 'LinkTRadTElectron',
-           'HeliumTreatment']
+           'HeliumTreatment', 'RInner', 'TInner', 'Volume']
 
 class TRadiative(ArrayInput):
     """
@@ -95,3 +95,12 @@ class LinkTRadTElectron(Input):
 
 class HeliumTreatment(Input):
     outputs = ('helium_treatment',)
+
+class RInner(Input):
+    outputs = ('r_inner',)
+
+class TInner(Input):
+    outputs = ('t_inner',)
+
+class Volume(Input):
+    outputs = ('volume',)

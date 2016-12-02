@@ -153,7 +153,15 @@ class Simulation(object):
         # model.update_plasmas() equivalent
         # TODO: if nlte_config is not None and nlte_config.species:
         #          self.store_previous_properties()
-        self.plasma.update(t_rad=self.model.t_rad, w=self.model.w)
+
+        update_properties = dict(t_rad=self.model.t_rad, w=self.model.w)
+        # A check to see if the plasma is set with JBluesDetailed, in which
+        # case it needs some extra kwargs.
+        if 'j_blue_estimator' in self.plasma.outputs_dict:
+            update_properties.update(t_inner=next_t_inner,
+                                 j_blue_estimator=self.runner.j_blue_estimator)
+
+        self.plasma.update(**update_properties)
 
         return converged
 
