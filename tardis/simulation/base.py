@@ -8,10 +8,12 @@ import pandas as pd
 import numpy as np
 
 from astropy import units as u
+from astropy import constants as co
 
+from tardis.montecarlo import montecarlo
 from tardis.montecarlo.base import MontecarloRunner
 from tardis.plasma.properties.base import Input
-
+from tardis.util import intensity_black_body
 # Adding logging support
 logger = logging.getLogger(__name__)
 
@@ -326,7 +328,6 @@ class Simulation(object):
 
         self.runner.legacy_update_spectrum(no_of_virtual_packets)
         self.legacy_set_final_model_properties(model)
-        model.Edotlu_estimators = self.runner.Edotlu_estimator
 
         #the following instructions, passing down information to the model are
         #required for the gui
@@ -345,6 +346,10 @@ class Simulation(object):
             else:
                 name = 'simulation{}'.format(self.iterations_executed)
             self.to_hdf(model, hdf_path_or_buf, name, plasma_properties)
+
+        # TODO: Add config flag to activate formal integral
+        # self.runner.att_S_ul,self.runner.Edot_u =  self.make_source_function(model)
+        # self.runner.L_nu,self.runner.L_nu_nus   =  self.integrate(model)
 
     def legacy_set_final_model_properties(self, model):
         """Sets additional model properties to be compatible with old model design
@@ -404,6 +409,40 @@ class Simulation(object):
         self.runner.to_hdf(path_or_buf, path)
         model.to_hdf(path_or_buf, path, plasma_properties)
 
+    def make_source_function(self, model):
+        """
+        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+
+        Formally it calculates the expresion ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+        so there is no need to factor out the source function explicitly.
+
+        Parameters
+        ----------
+        model : tardis.model.Radial1DModel
+
+        Returns
+        -------
+        Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
+        """
+
+        Edotlu_norm_factor = (1 / (model.time_of_simulation * model.tardis_config.structure.volumes))
+        exptau = 1 - np.exp(- model.plasma.tau_sobolevs)
+        self.runner.Edotlu = Edotlu_norm_factor * exptau * self.runner.Edotlu_estimator
+
+        upper_level_index = model.atom_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
+        e_dot_lu          = pd.DataFrame(self.runner.Edotlu, index=upper_level_index)
+        e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+        e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
+        transitions       = model.atom_data.macro_atom_data[model.atom_data.macro_atom_data.transition_type == -1].copy()
+        transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
+        tmp  = model.plasma.transition_probabilities[(model.atom_data.macro_atom_data.transition_type == -1).values]
+        q_ul = tmp.set_index(transitions_index)
+        t    = model.tardis_config.supernova.time_explosion.value
+        wave = model.atom_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
+        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
+
+        result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
+        return result.ix[model.atom_data.lines.index.values].as_matrix(),e_dot_u
 
 def run_radial1d(radial1d_model, hdf_path_or_buf=None,
                  hdf_mode='full', hdf_last_only=True):

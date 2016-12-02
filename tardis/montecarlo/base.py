@@ -141,8 +141,11 @@ class MontecarloRunner(object):
                 self.j_blue_estimator.flatten().reshape(
                 self.j_blue_estimator.shape, order='F')
                 )
-        self.Edotlu_estimator = self.Edotlu_estimator.flatten().reshape(
+        self.Edotlu_estimator = np.ascontiguousarray(
+                self.Edotlu_estimator.flatten().reshape(
                 self.Edotlu_estimator.shape, order='F')
+                )
+
 
     def legacy_return(self):
         return (self.output_nu, self.output_energy,

@@ -15,9 +15,15 @@ rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
   double current_nu = storage->packet_nus[packet_index];
   double current_energy = storage->packet_energies[packet_index];
   double current_mu = storage->packet_mus[packet_index];
-  double comov_current_nu = current_nu;
   int current_shell_id = 0;
   double current_r = storage->r_inner[0];
+  double comov_current_nu = current_nu;
+/* WARNING/TODO: THIS IS NOT FINAL
+ * For an exact reconstruction of the BlackBody we need to initialize the packets differently
+ * This initialization was assumed by Lucy (insert exact reference)
+ * For this 'convention' it is required to comment the next two lines (current_nu and current_energy calculation)
+  double comov_current_nu = current_nu * (1 - (current_mu * current_r * storage->inverse_time_explosion * INVERSE_C)); 
+  */
   current_nu =
     current_nu / (1 -
                   (current_mu * current_r * storage->inverse_time_explosion *

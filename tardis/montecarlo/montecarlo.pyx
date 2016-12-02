@@ -11,12 +11,14 @@ from numpy cimport PyArray_DATA
 from astropy import constants
 from astropy import units
 from libc.stdlib cimport free
+from tardis.util import intensity_black_body
 
 np.import_array()
 
 
 
 ctypedef np.int64_t int_type_t
+ctypedef np.float64_t float_t
 
 cdef extern from "src/cmontecarlo.h":
     ctypedef enum ContinuumProcessesStatus:
@@ -88,9 +90,8 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t virt_packet_count
         int_type_t virt_array_size
 
+
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
-
-
 
 
 cdef initialize_storage_model(model, runner, storage_model_t *storage):
@@ -222,7 +223,7 @@ cdef initialize_storage_model(model, runner, storage_model_t *storage):
     storage.t_electrons = <double*> t_electrons.data
 
 def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
-                        int nthreads=4,last_run=False):
+                        int nthreads=4, last_run=False):
     """
     Parameters
     ----------
@@ -293,13 +294,3 @@ def montecarlo_radial1d(model, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
         runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
 
-    if last_run:
-        postprocess(model,runner)
-
-def postprocess(model, runner):
-    Edotlu_norm_factor = (1 /
-        (model.time_of_simulation * model.tardis_config.structure.volumes))
-    exptau = 1 - np.exp(-
-                        runner.line_lists_tau_sobolevs.reshape(-1,
-                            runner.j_estimator.shape[0]) )
-    model.Edotlu = Edotlu_norm_factor*exptau*runner.Edotlu_estimator

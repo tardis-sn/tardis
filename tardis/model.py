@@ -123,7 +123,6 @@ class Radial1DModel(object):
             v_outer=self.v_outer)
 
         self.calculate_j_blues(init_detailed_j_blues=True)
-        self.Edotlu = np.zeros(np.shape(self.j_blues.shape))
         self.update_plasmas(initialize_nlte=True)
 
     @property
