@@ -1,7 +1,9 @@
 import numpy as np
 import pandas as pd
+from astropy import constants as const
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.plasma.properties.base import ProcessingPlasmaProperty, \
+    DataFrameInput
 from tardis.util import intensity_black_body
 
 
@@ -33,3 +35,47 @@ class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
         j_blues = pd.DataFrame(j_blues, index=lines.index,
                                columns=np.arange(len(t_rad)))
         return np.array(j_blues, copy=False)
+
+
+class JBluesDetailed(ProcessingPlasmaProperty):
+    outputs = ('j_blues',)
+    latex_name = ('J_{\\textrm{blue}}')
+
+    def __init__(self, w_epsilon):
+        self.w_epsilon = w_epsilon
+
+    def calculate(self, lines, nu, t_rad, w, j_blues_norm_factor,
+                  j_blue_estimator):
+        # Used for initialization
+        if len(j_blue_estimator) == 0:
+            return JBluesDiluteBlackBody.calculate(lines, nu, t_rad, w)
+        else:
+            j_blues = pd.DataFrame(
+                j_blue_estimator *
+                j_blues_norm_factor.value,
+                index=lines.index,
+                columns=np.arange(len(t_rad)))
+
+            for i in xrange(len(j_blues)):
+                zero_j_blues = j_blues[i] == 0.0
+                j_blues[i][zero_j_blues] = (
+                    self.w_epsilon *
+                    intensity_black_body(lines.nu[zero_j_blues].values,
+                                         t_rad.value[i]))
+            return j_blues
+
+
+class JBluesNormFactor(ProcessingPlasmaProperty):
+
+    outputs = ('j_blues_norm_factor',)
+    latex = ('\\frac{c time_\\textrm{simulation}}}{4 \\pi '
+             'time_\\textrm{simulation} volume}')
+
+    @staticmethod
+    def calculate(time_explosion, time_simulation, volume):
+        return (const.c.cgs * time_explosion /
+                (4 * np.pi * time_simulation * volume))
+
+
+class JBluesEstimator(DataFrameInput):
+    outputs = ('j_blue_estimator',)

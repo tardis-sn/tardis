@@ -12,10 +12,10 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
-    helium_lte_properties)
+    helium_lte_properties, detailed_j_blues_properties)
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (LevelBoltzmannFactorNLTE, JBluesBlackBody,
-                                      JBluesDiluteBlackBody)
+                                      JBluesDiluteBlackBody, JBluesDetailed)
 
 logger = logging.getLogger(__name__)
 
@@ -86,8 +86,12 @@ def assemble_plasma(config, model, atom_data=None):
     elif config.plasma.radiative_rates_type == 'dilute-blackbody':
         plasma_modules.append(JBluesDiluteBlackBody)
     elif config.plasma.radiative_rates_type == 'detailed':
-        # FIXME: Detailed j_blues not implemented after restructure.
-        raise NotImplementedError("Detailed mode not implemented yet.")
+        plasma_modules += detailed_j_blues_properties
+        kwargs.update(r_inner=model.r_inner,
+                      t_inner=model.t_inner,
+                      volume=model.volume,
+                      j_blue_estimator=None)
+        property_kwargs[JBluesDetailed] = {'w_epsilon': config.plasma.w_epsilon}
     else:
         raise ValueError('radiative_rates_type type unknown - %s',
                          config.plasma.radiative_rates_type)
