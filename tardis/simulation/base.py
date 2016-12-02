@@ -151,8 +151,9 @@ class Simulation(object):
 
         # model.calculate_j_blues() equivalent
         # model.update_plasmas() equivalent
-        # TODO: if nlte_config is not None and nlte_config.species:
-        #          self.store_previous_properties()
+        # Bad test to see if this is a nlte run
+        if 'nlte_data' in self.plasma.outputs_dict:
+            self.plasma.store_previous_properties()
 
         update_properties = dict(t_rad=self.model.t_rad, w=self.model.w)
         # A check to see if the plasma is set with JBluesDetailed, in which
