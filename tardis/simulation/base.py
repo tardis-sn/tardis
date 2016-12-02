@@ -220,6 +220,9 @@ class Simulation(object):
                     "and took {1:.2f} s".format(
                         self.iterations_executed, time.time() - start_time))
         self._call_back()
+        # TODO: Add config flag to activate formal integral
+        # self.runner.att_S_ul,self.runner.Edot_u =  self.make_source_function(model)
+        # self.runner.L_nu,self.runner.L_nu_nus   =  self.integrate(model)
 
     def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
                          next_t_inner, log_sampling=5):
@@ -410,3 +413,41 @@ class Simulation(object):
                    convergence_strategy=config.montecarlo.convergence_strategy,
                    nthreads=config.montecarlo.nthreads)
 
+    def make_source_function(self):
+        """
+        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+
+        Formally it calculates the expresion ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+        so there is no need to factor out the source function explicitly.
+
+        Parameters
+        ----------
+        model : tardis.model.Radial1DModel
+
+        Returns
+        -------
+        Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
+        """
+        model = self.model
+        plasma = self.plasma
+        runner = self.runner
+        atomic_data = self.plasma.atomic_data
+
+        Edotlu_norm_factor = (1 / (runner.time_of_simulation * model.volume))
+        exptau = 1 - np.exp(- plasma.tau_sobolevs)
+        Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
+
+        upper_level_index = atomic_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
+        e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)
+        e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+        e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
+        transitions       = atomic_data.macro_atom_data[atomic_data.macro_atom_data.transition_type == -1].copy()
+        transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
+        tmp  = plasma.transition_probabilities[(atomic_data.macro_atom_data.transition_type == -1).values]
+        q_ul = tmp.set_index(transitions_index)
+        t    = model.time_explosion.value
+        wave = atomic_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
+        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
+
+        result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
+        return result.ix[atomic_data.lines.index.values].as_matrix(),e_dot_u
