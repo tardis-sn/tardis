@@ -320,7 +320,12 @@ class MontecarloRunner(object):
         """
         runner_path = os.path.join(path, 'runner')
         properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
-                      'j_estimator', 'montecarlo_virtual_luminosity']
+                      'j_estimator', 'montecarlo_virtual_luminosity',
+                      'last_line_interaction_in_id',
+                      'last_line_interaction_out_id',
+                      'last_line_interaction_shell_id',
+                      'packet_luminosity', 'output_nu'
+                      ]
         to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
                                           in properties})
         self.spectrum.to_hdf(path_or_buf, runner_path)
