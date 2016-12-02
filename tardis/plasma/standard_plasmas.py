@@ -15,7 +15,10 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     helium_lte_properties, detailed_j_blues_properties)
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (LevelBoltzmannFactorNLTE, JBluesBlackBody,
-                                      JBluesDiluteBlackBody, JBluesDetailed)
+                                      JBluesDiluteBlackBody, JBluesDetailed,
+                                      RadiationFieldCorrection,
+                                      StimulatedEmissionFactor,
+                                      HeliumNumericalNLTE)
 
 logger = logging.getLogger(__name__)
 
@@ -121,6 +124,8 @@ def assemble_plasma(config, model, atom_data=None):
             raise PlasmaConfigError('Both coronal approximation and '
                                     'classical nebular specified in the '
                                     'config.')
+        property_kwargs[StimulatedEmissionFactor] = dict(
+            nlte_species=nlte_species)
     else:
         plasma_modules += non_nlte_properties
 
@@ -129,22 +134,20 @@ def assemble_plasma(config, model, atom_data=None):
 
     if config.plasma.helium_treatment == 'recomb-nlte':
         plasma_modules += helium_nlte_properties
+        if 'delta_treatment' in config.plasma:
+            property_kwargs[RadiationFieldCorrection] = dict(
+                delta_treatment=config.plasma.delta_treatment)
     elif config.plasma.helium_treatment == 'numerical-nlte':
         plasma_modules += helium_numerical_nlte_properties
         # TODO: See issue #633
         if config.plasma.heating_rate_data_file in ['none', None]:
             raise PlasmaConfigError('Heating rate data file not specified')
         else:
-            kwargs['heating_rate_data_file'] = \
-                config.plasma.heating_rate_data_file
-            kwargs['v_inner'] = model.v_inner
-            kwargs['v_outer'] = model.v_outer
+            property_kwargs[HeliumNumericalNLTE] = dict(
+                heating_rate_data_file=config.plasma.heating_rate_data_file)
     else:
         plasma_modules += helium_lte_properties
     kwargs['helium_treatment'] = config.plasma.helium_treatment
-
-    if 'delta_treatment' in config.plasma:
-        kwargs['delta_treatment'] = config.plasma.delta_treatment
 
     plasma = BasePlasma(plasma_properties=plasma_modules,
                         property_kwargs=property_kwargs, **kwargs)
