@@ -27,10 +27,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         super(StimulatedEmissionFactor, self).__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
-        try:
-            self.nlte_species = self.plasma_parent.nlte_species
-        except:
-            self.nlte_species = nlte_species
+        self.nlte_species = nlte_species
 
     def get_g_lower(self, g, lines_lower_level_index):
         if self._g_lower is None:
