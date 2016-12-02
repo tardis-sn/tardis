@@ -658,6 +658,7 @@ These test check very simple pices of code still work.
      ({'energy': 1.0}, 1, 1),
      ({'energy': 0.5}, 2, 1.5)]
 )
+@pytest.mark.skipif(True, reason="Needs rewrite to be relevant.")
 def test_increment_Edotlu_estimator(packet_params, line_idx, expected, packet, model):
     packet.energy = packet_params['energy']
 
