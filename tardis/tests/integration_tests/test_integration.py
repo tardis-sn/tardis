@@ -9,49 +9,46 @@ from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.atomic import AtomData
-from tardis.simulation.base import run_radial1d
-from tardis.model import Radial1DModel
+from tardis.simulation import Simulation
 from tardis.io.config_reader import Configuration
 
 quantity_comparison = [
-    ('/simulation/model/last_line_interaction_in_id',
-     'last_line_interaction_in_id'),
-    ('/simulation/model/last_line_interaction_out_id',
-     'last_line_interaction_out_id'),
-    ('/simulation/model/last_line_interaction_shell_id',
-     'last_line_interaction_shell_id'),
-    ('/simulation/model/last_line_interaction_angstrom',
-     'last_line_interaction_angstrom.cgs.value'),
-    ('/simulation/model/j_blues',
-     'j_blues'),
-    ('/simulation/model/j_blue_estimators',
-     'j_blue_estimators'),
-    ('/simulation/model/montecarlo_luminosity',
-     'montecarlo_luminosity.cgs.value'),
+    ('/simulation/runner/last_line_interaction_in_id',
+     'runner.last_line_interaction_in_id'),
+    ('/simulation/runner/last_line_interaction_out_id',
+     'runner.last_line_interaction_out_id'),
+    ('/simulation/runner/last_line_interaction_shell_id',
+     'runner.last_line_interaction_shell_id'),
+    ('/simulation/plasma/j_blues',
+     'plasma.j_blues'),
+    ('/simulation/plasma/j_blue_estimator',
+     'plasma.j_blue_estimator'),
+    ('/simulation/runner/packet_luminosity',
+     'runner.packet_luminosity.cgs.value'),
     ('/simulation/runner/montecarlo_virtual_luminosity',
      'runner.montecarlo_virtual_luminosity.cgs.value'),
-    ('/simulation/model/montecarlo_nu',
-     'montecarlo_nu.cgs.value'),
-    ('/simulation/model/plasma/ion_number_density',
+    ('/simulation/runner/output_nu',
+     'runner.output_nu.cgs.value'),
+    ('/simulation/plasma/ion_number_density',
      'plasma.ion_number_density'),
-    ('/simulation/model/plasma/level_number_density',
+    ('/simulation/plasma/level_number_density',
      'plasma.level_number_density'),
-    ('/simulation/model/plasma/electron_densities',
+    ('/simulation/plasma/electron_densities',
      'plasma.electron_densities'),
-    ('/simulation/model/plasma/tau_sobolevs',
+    ('/simulation/plasma/tau_sobolevs',
      'plasma.tau_sobolevs'),
-    ('/simulation/model/plasma/transition_probabilities',
+    ('/simulation/plasma/transition_probabilities',
      'plasma.transition_probabilities'),
-    ('/simulation/model/t_rads',
-     't_rads.cgs.value'),
-    ('/simulation/model/ws',
-     'ws'),
+    ('/simulation/model/t_radiative',
+     'model.t_radiative.cgs.value'),
+    ('/simulation/model/w',
+     'model.w'),
     ('/simulation/runner/j_estimator',
      'runner.j_estimator'),
     ('/simulation/runner/nu_bar_estimator',
      'runner.nu_bar_estimator'),
-    ('/simulation/model/j_blues_norm_factor',
-     'j_blues_norm_factor.cgs.value')
+    ('/simulation/plasma/j_blues_norm_factor',
+     'plasma.j_blues_norm_factor.cgs.value')
      ]
 
 
@@ -103,8 +100,7 @@ class TestIntegration(object):
         # assert self.atom_data.uuid1 == kurucz_data_file_uuid1
 
         # Create a Configuration through yaml file and atom data.
-        tardis_config = Configuration.from_yaml(
-            self.config_file, atom_data=self.atom_data)
+        tardis_config = Configuration.from_yaml(self.config_file)
 
         # Check whether current run is with less packets.
         if request.config.getoption("--less-packets"):
@@ -119,14 +115,16 @@ class TestIntegration(object):
 
 
 
-        # We now do a run with prepared config and get radial1d model.
-        self.result = Radial1DModel(tardis_config)
+        # We now do a run with prepared config and get the simulation object.
+        self.result = Simulation.from_config(tardis_config,
+                                             atom_data=self.atom_data)
 
         capmanager.suspendcapture(True)
         # If current test run is just for collecting reference data, store the
         # output model to HDF file, save it at specified path. Skip all tests.
         # Else simply perform the run and move further for performing
         # assertions.
+        self.result.run()
         if request.config.getoption("--generate-reference"):
             ref_data_path = os.path.join(
                 data_path['gen_ref_path'], "{0}.h5".format(self.name)
@@ -135,13 +133,11 @@ class TestIntegration(object):
                 pytest.skip(
                     'Reference data {0} does exist and tests will not '
                     'proceed generating new data'.format(ref_data_path))
-            run_radial1d(self.result, hdf_path_or_buf=ref_data_path)
+            self.result.to_hdf(hdf_path_or_buf=ref_data_path,
+                               suffix_count=False)
             pytest.skip("Reference data saved at {0}".format(
                 data_path['gen_ref_path']
             ))
-        else:
-
-            run_radial1d(self.result)
         capmanager.resumecapture()
 
         # Get the reference data through the fixture.
@@ -164,25 +160,25 @@ class TestIntegration(object):
         )
 
 
-    def plot_t_rads(self):
+    def plot_t_rad(self):
         plt.suptitle("Shell temperature for packets", fontweight="bold")
         figure = plt.figure()
 
         ax = figure.add_subplot(111)
         ax.set_xlabel("Shell id")
-        ax.set_ylabel("t_rads")
+        ax.set_ylabel("t_rad")
 
         result_line = ax.plot(
-            self.result.t_rads.cgs, color="blue", marker=".", label="Result"
+            self.result.model.t_rad.cgs, color="blue", marker=".", label="Result"
         )
         reference_line = ax.plot(
-            self.reference['/simulation/model/t_rads'],
+            self.reference['/simulation/model/t_rad'],
             color="green", marker=".", label="Reference"
         )
 
         error_ax = ax.twinx()
         error_line = error_ax.plot(
-            (1 - self.result.t_rads.cgs.value / self.reference['/simulation/model/t_rads']),
+            (1 - self.result.model.t_rad.cgs.value / self.reference['/simulation/model/t_rad']),
             color="red", marker=".", label="Rel. Error"
         )
         error_ax.set_ylabel("Relative error (1 - result / reference)")
