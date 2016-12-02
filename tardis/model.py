@@ -288,6 +288,3 @@ class Radial1DModel(object):
         metadata = pd.Series({'atom_data_uuid': self.atom_data.uuid1})
         metadata.to_hdf(path_or_buf,
                                  os.path.join(model_path, 'metadata'))
-
-
-
