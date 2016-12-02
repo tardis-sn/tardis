@@ -6,4 +6,4 @@ from tardis.plasma.properties.partition_function import *
 from tardis.plasma.properties.plasma_input import *
 from tardis.plasma.properties.radiative_properties import *
 from tardis.plasma.properties.nlte import *
-
+from tardis.plasma.properties.j_blues import *
