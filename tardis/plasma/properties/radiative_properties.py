@@ -7,12 +7,11 @@ from astropy import units as u, constants as const
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
-from tardis.util import intensity_black_body
 
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-    'TransitionProbabilities', 'JBluesBlackBody', 'JBluesDiluteBlackBody']
+           'TransitionProbabilities']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
@@ -229,34 +228,3 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 return atomic_data.macro_atom_data
             except:
                 return atomic_data.macro_atom_data_all
-
-
-
-class JBluesBlackBody(ProcessingPlasmaProperty):
-    '''
-    Attributes
-    ----------
-    lte_j_blues : Pandas DataFrame, dtype float
-                  J_blue values as calculated in LTE.
-    '''
-    outputs = ('j_blues',)
-    latex_name = ('J^{b}_{lu(LTE)}')
-
-    @staticmethod
-    def calculate(lines, nu, t_rad):
-        j_blues = intensity_black_body(nu.values[np.newaxis].T, t_rad)
-        j_blues = pd.DataFrame(j_blues, index=lines.index,
-                               columns=np.arange(len(t_rad)))
-        return np.array(j_blues, copy=False)
-
-
-class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
-    outputs = ('j_blues',)
-    latex_name = ('J_{\\textrm{blue}}')
-
-    @staticmethod
-    def calculate(lines, nu, t_rad, w):
-        j_blues = w * intensity_black_body(nu.values[np.newaxis].T, t_rad)
-        j_blues = pd.DataFrame(j_blues, index=lines.index,
-                               columns=np.arange(len(t_rad)))
-        return np.array(j_blues, copy=False)
