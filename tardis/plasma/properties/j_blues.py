@@ -63,7 +63,7 @@ class JBluesDetailed(ProcessingPlasmaProperty):
                     self.w_epsilon *
                     intensity_black_body(nu[zero_j_blues].values,
                                          t_rad[i]))
-            return j_blues
+            return np.array(j_blues, copy=False)
 
 
 class JBluesNormFactor(ProcessingPlasmaProperty):
