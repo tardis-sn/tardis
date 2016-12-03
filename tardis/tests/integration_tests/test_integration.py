@@ -133,7 +133,7 @@ class TestIntegration(object):
                 pytest.skip(
                     'Reference data {0} does exist and tests will not '
                     'proceed generating new data'.format(ref_data_path))
-            self.result.to_hdf(hdf_path_or_buf=ref_data_path,
+            self.result.to_hdf(path_or_buf=ref_data_path,
                                suffix_count=False)
             pytest.skip("Reference data saved at {0}".format(
                 data_path['gen_ref_path']
