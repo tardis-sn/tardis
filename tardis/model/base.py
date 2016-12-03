@@ -76,7 +76,7 @@ class Radial1DModel(object):
 
     @t_radiative.setter
     def t_radiative(self, value):
-        if len(value) == self.no_of_raw_shells:
+        if len(value) == len(self._t_radiative):
             self._t_radiative = value
         elif len(value) == self.no_of_shells:
             self._t_radiative[self.v_boundary_inner_index:
