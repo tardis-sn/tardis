@@ -12,7 +12,7 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
-    helium_lte_properties, detailed_j_blues_properties)
+    helium_lte_properties, detailed_j_blues_properties, detailed_j_blues_inputs)
 from tardis.plasma.exceptions import PlasmaConfigError
 from tardis.plasma.properties import (LevelBoltzmannFactorNLTE, JBluesBlackBody,
                                       JBluesDiluteBlackBody, JBluesDetailed,
@@ -89,7 +89,7 @@ def assemble_plasma(config, model, atom_data=None):
     elif config.plasma.radiative_rates_type == 'dilute-blackbody':
         plasma_modules.append(JBluesDiluteBlackBody)
     elif config.plasma.radiative_rates_type == 'detailed':
-        plasma_modules += detailed_j_blues_properties
+        plasma_modules += detailed_j_blues_properties + detailed_j_blues_inputs
         kwargs.update(r_inner=model.r_inner,
                       t_inner=model.t_inner,
                       volume=model.volume,

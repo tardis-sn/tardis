@@ -30,6 +30,8 @@ helium_lte_properties = PlasmaPropertyCollection([LevelNumberDensity,
                                                   IonNumberDensity])
 helium_numerical_nlte_properties = PlasmaPropertyCollection([
     HeliumNumericalNLTE])
+detailed_j_blues_inputs = PlasmaPropertyCollection([JBluesEstimator, RInner,
+                                                    TInner, Volume])
 detailed_j_blues_properties = PlasmaPropertyCollection([JBluesDetailed,
                                                         JBluesNormFactor,
                                                         LuminosityInner,
