@@ -39,10 +39,10 @@ class Radial1DModel(object):
 
         if t_radiative is None:
             lambda_wien_inner = constants.b_wien / self.t_inner
-            self.t_radiative = constants.b_wien / (lambda_wien_inner * (
+            self._t_radiative = constants.b_wien / (lambda_wien_inner * (
                 1 + (self.v_middle - self.v_boundary_inner) / constants.c))
         else:
-            self.t_radiative = t_radiative
+            self._t_radiative = t_radiative
 
         if dilution_factor is None:
             self.dilution_factor = 0.5 * (1 - np.sqrt(
@@ -65,6 +65,22 @@ class Radial1DModel(object):
     @t_rad.setter
     def t_rad(self, value):
         self.t_radiative = value
+
+    @property
+    def t_radiative(self):
+        return self._t_radiative[self.v_boundary_inner_index:
+                                 self.v_boundary_outer_index]
+
+    @t_radiative.setter
+    def t_radiative(self, value):
+        if len(value) == self.no_of_raw_shells:
+            self._t_radiative = value
+        elif len(value) == self.no_of_shells:
+            self._t_radiative[self.v_boundary_inner_index:
+                              self.v_boundary_outer_index] = value
+        else:
+            raise ValueError("Trying to set t_radiative for unmatching number"
+                             "of shells.")
 
     @property
     def radius(self):
@@ -128,6 +144,10 @@ class Radial1DModel(object):
     @property
     def no_of_shells(self):
         return len(self.velocity) - 1
+
+    @property
+    def no_of_raw_shells(self):
+        return len(self.raw_velocity) - 1
 
     @property
     def v_boundary_inner(self):
@@ -237,6 +257,8 @@ class Radial1DModel(object):
             homologous_density = HomologousDensity(density_0, time_0)
         else:
             raise NotImplementedError
+        # Note: This is the number of shells *without* taking in mind the
+        #       v boundaries.
         no_of_shells = len(velocity) - 1
 
         if config.plasma.initial_t_rad > 0 * u.K:
