@@ -41,7 +41,8 @@ class JBluesDetailed(ProcessingPlasmaProperty):
     outputs = ('j_blues',)
     latex_name = ('J_{\\textrm{blue}}')
 
-    def __init__(self, w_epsilon):
+    def __init__(self, plasma_parent, w_epsilon):
+        super(JBluesDetailed, self).__init__(plasma_parent)
         self.w_epsilon = w_epsilon
 
     def calculate(self, lines, nu, t_rad, w, j_blues_norm_factor,
