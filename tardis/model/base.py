@@ -68,8 +68,11 @@ class Radial1DModel(object):
 
     @property
     def t_radiative(self):
-        return self._t_radiative[self.v_boundary_inner_index:
-                                 self.v_boundary_outer_index]
+        if len(self._t_radiative) > self.no_of_shells:
+            return self._t_radiative[self.v_boundary_inner_index:
+                                     self.v_boundary_outer_index]
+        else:
+            return self._t_radiative
 
     @t_radiative.setter
     def t_radiative(self, value):
