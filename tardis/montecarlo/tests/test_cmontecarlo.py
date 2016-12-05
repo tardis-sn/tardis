@@ -159,10 +159,6 @@ def model():
         cont_status=CONTINUUM_OFF,
         bf_treatment=BoundFreeTreatment.LIN_INTERPOLATION.value,
         ff_heating_estimator=(c_double * 2)(*([0.0] * 2)),
-        fb_cooling_prob = (c_double * 2)(*([0.0] * 2)),
-        ff_cooling_prob = (c_double *2)(*([0.0] * 2)),
-        coll_exc_cooling_prob = (c_double *2)(*([0.0] * 2)),
-        coll_ion_cooling_prob = (c_double *2)(*([0.0] * 2)),
         cont_edge2macro_level=(c_int64 * 6)(*([1] * 6)),
     )
 
