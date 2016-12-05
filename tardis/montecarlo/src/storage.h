@@ -69,6 +69,7 @@ typedef struct StorageModel
   double *l_pop;
   double *l_pop_r;
   ContinuumProcessesStatus cont_status;
+  bound_free_treatment bf_treatment;
   double *virt_packet_nus;
   double *virt_packet_energies;
   double *virt_packet_last_interaction_in_nu;

@@ -29,4 +29,10 @@ typedef enum
   ADIABATIC_COOLING = -4
 } emission_type;
 
+typedef enum
+{
+  LIN_INTERPOLATION = 0,
+  HYDROGENIC = 1
+} bound_free_treatment;
+
 #endif // TARDIS_STATUS_H
