@@ -401,6 +401,11 @@ macro_atom (rpacket_t * packet, const storage_model_t * storage, rk_state *mt_st
         continuum_emission (packet, storage, sample_nu_free_free, mt_state);
         break;
 
+      case ADIABATIC_COOLING:
+        storage->last_interaction_type[rpacket_get_id (packet)] = 5;
+        rpacket_set_status (packet, TARDIS_PACKET_STATUS_REABSORBED);
+        break;
+
       default:
         fprintf (stderr, "This process for macro-atom deactivation should not exist! (emit = %d)\n", emit);
         exit(1);

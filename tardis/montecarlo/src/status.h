@@ -25,7 +25,8 @@ typedef enum
 {
   BB_EMISSION = -1,
   BF_EMISSION = -2,
-  FF_EMISSION = -3
+  FF_EMISSION = -3,
+  ADIABATIC_COOLING = -4
 } emission_type;
 
 #endif // TARDIS_STATUS_H
