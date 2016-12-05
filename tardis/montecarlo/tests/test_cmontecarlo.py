@@ -62,7 +62,8 @@ from tardis.montecarlo.struct import (
     TARDIS_PACKET_STATUS_REABSORBED,
     CONTINUUM_OFF,
     CONTINUUM_ON,
-    C, INVERSE_C
+    C, INVERSE_C,
+    BoundFreeTreatment
 )
 
 # Wrap the shared object containing C methods, which are tested here.
@@ -156,6 +157,7 @@ def model():
         l_pop=(c_double * 20000)(*([2.0] * 20000)),
         l_pop_r=(c_double * 20000)(*([3.0] * 20000)),
         cont_status=CONTINUUM_OFF,
+        bf_treatment=BoundFreeTreatment.LIN_INTERPOLATION.value,
         ff_heating_estimator=(c_double * 2)(*([0.0] * 2)),
         fb_cooling_prob = (c_double * 2)(*([0.0] * 2)),
         ff_cooling_prob = (c_double *2)(*([0.0] * 2)),
@@ -783,14 +785,20 @@ def test_montecarlo_continuum_event_handler(continuum_status, expected, z_random
 
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
-    ['nu', 'continuum_id', 'expected'],
-    [(4.40e14, 1, 0.00),
-     (3.25e14, 1, 0.75),
-     (4.03e14, 0, 0.97),
-     (4.10e14 + 1e-1, 0, 0.90),
-     pytest.mark.xfail(reason="nu coincides with a supporting point")((4.1e14, 0, 0.90))]
+    ['nu', 'continuum_id', 'expected', 'bf_treatment'],
+    [(4.40e14, 1, 0.00, BoundFreeTreatment.LIN_INTERPOLATION),
+     (3.25e14, 1, 0.75, BoundFreeTreatment.LIN_INTERPOLATION),
+     (4.03e14, 0, 0.97, BoundFreeTreatment.LIN_INTERPOLATION),
+     (4.10e14 + 1e-1, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION),
+     pytest.mark.xfail(reason="nu coincides with a supporting point")(
+         (4.1e14, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION)),
+
+     (6.50e14, 0, 0.23304506144742834, BoundFreeTreatment.HYDROGENIC),
+     (3.40e14, 2, 1.1170364339507428, BoundFreeTreatment.HYDROGENIC)]
 )
-def test_bf_cross_section(nu, continuum_id, model_w_edges, expected):
+def test_bf_cross_section(nu, continuum_id, model_w_edges, expected, bf_treatment):
+    model_w_edges.bf_treatment = bf_treatment.value
+
     cmontecarlo_methods.bf_cross_section.restype = c_double
     obtained = cmontecarlo_methods.bf_cross_section(byref(model_w_edges), continuum_id, c_double(nu))
 

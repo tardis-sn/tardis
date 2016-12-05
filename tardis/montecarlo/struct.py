@@ -1,4 +1,5 @@
 from ctypes import Structure, POINTER, c_int, c_int64, c_double, c_ulong, c_bool
+from enum import Enum
 
 c_tardis_error_t = c_int
 c_rpacket_status_t = c_int
@@ -102,6 +103,7 @@ class StorageModel(Structure):
         ('l_pop', POINTER(c_double)),
         ('l_pop_r', POINTER(c_double)),
         ('cont_status', c_cont_status_t),
+        ('bf_treatment', c_int),
         ('virt_packet_nus', POINTER(c_double)),
         ('virt_packet_energies', POINTER(c_double)),
         ('virt_packet_last_interaction_in_nu', POINTER(c_double)),
@@ -139,6 +141,11 @@ CONTINUUM_ON = 1
 BB_EMISSION = -1
 BF_EMISSION = -2
 FF_EMISSION = -3
+
+# Variables corresponding to `bound_free_treatment` enum.
+class BoundFreeTreatment(Enum):
+    LIN_INTERPOLATION = 0
+    HYDROGENIC = 1
 
 # Variables corresponding to macros defined in rpacket.h .
 MISS_DISTANCE = 1e99

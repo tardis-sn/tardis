@@ -150,21 +150,41 @@ rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *storage)
 double
 bf_cross_section (const storage_model_t * storage, int64_t continuum_id, double comov_nu)
 {
-  int64_t result;
-  tardis_error_t error = binary_search (storage->photo_xsect[continuum_id]->nu, comov_nu, 0,
-	       storage->photo_xsect[continuum_id]->no_of_points - 1, &result);
-  if (error == TARDIS_ERROR_BOUNDS_ERROR)
+  double bf_xsect;
+  double *x_sect = storage->photo_xsect[continuum_id]->x_sect;
+  double *nu = storage->photo_xsect[continuum_id]->nu;
+
+  switch (storage->bf_treatment)
     {
-      return 0.0;
+      case LIN_INTERPOLATION:
+        {
+          int64_t result;
+          tardis_error_t error = binary_search (nu, comov_nu, 0,
+	        storage->photo_xsect[continuum_id]->no_of_points - 1, &result);
+          if (error == TARDIS_ERROR_BOUNDS_ERROR)
+           {
+             bf_xsect = 0.0;
+           }
+          else
+           {
+             bf_xsect = x_sect[result-1] + (comov_nu - nu[result-1]) / (nu[result] - nu[result-1])
+               * (x_sect[result] - x_sect[result-1]);
+           }
+          break;
+        }
+
+      case HYDROGENIC:
+        {
+          double nu_ratio = nu[0] / comov_nu;
+          bf_xsect = x_sect[0] * nu_ratio * nu_ratio * nu_ratio;
+          break;
+        }
+
+      default:
+        fprintf (stderr, "(%d) is not a valid bound-free cross section treatment.\n", storage->bf_treatment);
+        exit(1);
     }
-  else
-    {
-      double bf_xsect = storage->photo_xsect[continuum_id]->x_sect[result-1]
-        + (comov_nu - storage->photo_xsect[continuum_id]->nu[result-1])
-        / (storage->photo_xsect[continuum_id]->nu[result] - storage->photo_xsect[continuum_id]->nu[result-1])
-        * (storage->photo_xsect[continuum_id]->x_sect[result] - storage->photo_xsect[continuum_id]->x_sect[result-1]);
-      return bf_xsect;
-    }
+  return bf_xsect;
 }
 
 void calculate_chi_bf (rpacket_t * packet, storage_model_t * storage)
