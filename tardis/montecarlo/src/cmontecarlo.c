@@ -211,10 +211,6 @@ void calculate_chi_bf (rpacket_t * packet, storage_model_t * storage)
       double bf_x_sect = bf_cross_section (storage, i, comov_nu);
       if (bf_x_sect == 0.0)
         {
-          for (int64_t j = i; j < no_of_continuum_edges; j++)
-            {
-              packet->chi_bf_tmp_partial[j] = bf_helper;
-            }
           break;
         }
       bf_helper += l_pop * bf_x_sect * (1.0 - l_pop_r * boltzmann_factor) * doppler_factor;

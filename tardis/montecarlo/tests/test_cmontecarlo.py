@@ -805,7 +805,7 @@ def test_bf_cross_section(nu, continuum_id, model_w_edges, expected, bf_treatmen
 @pytest.mark.parametrize(
     ['packet_params', 'expected'],
     [({'nu': 4.13e14, 'mu': 0.0, 'current_shell_id': 1},
-      [3.2882087455641473] * 3),
+      [3.2882087455641473, 0.0, 0.0]),
 
      ({'nu': 3.27e14, 'mu': 0.0, 'current_shell_id': 0},
       [0.0, 1.3992114634681028, 5.702548202131454]),
@@ -828,7 +828,7 @@ def test_calculate_chi_bf(packet_params, expected, packet, model_w_edges):
 
     obtained_chi_bf_tmp = np.ctypeslib.as_array(packet.chi_bf_tmp_partial, shape=(model_w_edges.no_of_edges,))
     expected_chi_bf_tmp = np.array(expected)
-    expected_chi_bf = expected_chi_bf_tmp[-1]
+    expected_chi_bf = expected_chi_bf_tmp[expected_chi_bf_tmp > 0][-1]
 
     assert_almost_equal(obtained_chi_bf_tmp, expected_chi_bf_tmp)
     assert_almost_equal(packet.chi_bf, expected_chi_bf)
