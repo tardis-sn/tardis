@@ -48,7 +48,9 @@ quantity_comparison = [
     ('/simulation/runner/nu_bar_estimator',
      'runner.nu_bar_estimator'),
     ('/simulation/plasma/j_blues_norm_factor',
-     'plasma.j_blues_norm_factor.cgs.value')
+     'plasma.j_blues_norm_factor.cgs.value'),
+    ('/simulation/plasma/luminosity_inner',
+     'plasma.luminosity_inner.cgs.value'),
      ]
 
 
@@ -151,14 +153,6 @@ class TestIntegration(object):
         reference_quantity = self.reference[reference_quantity_name]
         tardis_quantity = eval('self.result.' + tardis_quantity_name)
         assert_allclose(tardis_quantity, reference_quantity)
-
-
-    def test_luminosity_inner(self):
-        assert_quantity_allclose(
-            self.reference['/simulation/model/scalars']['luminosity_inner'],
-            self.result.luminosity_inner.cgs.value
-        )
-
 
     def plot_t_rad(self):
         plt.suptitle("Shell temperature for packets", fontweight="bold")
