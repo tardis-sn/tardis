@@ -113,6 +113,9 @@ cdef extern from "src/cmontecarlo.h":
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
+cdef extern from "src/integrator.h":
+    void _formal_integral(
+            storage_model_t *storage, double *I_BB, double *att_S_ul, int N, double *L)
 
 
 
@@ -291,3 +294,19 @@ def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_last_interaction_type = np.zeros(0)
         runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
         runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
+
+
+def formal_integral(simulation, I_BB, N):
+    cdef storage_model_t storage
+
+    initialize_storage_model(simulation.model, simulation.plasma, simulation.runner, &storage)
+
+    cdef double* pI_BB = <double*> PyArray_DATA(I_BB)
+    att_S_ul = simulation.make_source_function()[0].flatten(order='F')
+    cdef double* patt_S_ul = <double*> PyArray_DATA(att_S_ul)
+
+    cdef np.ndarray[double, ndim=1] L = np.zeros(
+            I_BB.shape, dtype=np.float64)
+
+    _formal_integral(&storage, pI_BB, patt_S_ul, N, <double*> PyArray_DATA(L))
+    return L
