@@ -5,6 +5,7 @@ import pandas as pd
 from astropy import units as u, constants as c
 from collections import OrderedDict
 
+from tardis.montecarlo import montecarlo
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
@@ -450,55 +451,15 @@ class Simulation(object):
         att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
 
         result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
-        return result.ix[atomic_data.lines.index.values].as_matrix(),e_dot_u
+        return result.ix[atomic_data.lines.index.values].as_matrix(), e_dot_u
 
-    def integrate(self):
-        model = self.model
-        plasma = self.plasma
-        runner = self.runner
-
-        num_shell, = self.runner.volume.shape
-        ps         = np.linspace(0.999, 0, num = 20) # 3 * num_shell)
-        R_max      = runner.r_outer_cgs.max()
-        R_min_rel  = runner.r_inner_cgs.min() / R_max
-        ct         = c.c.cgs.value * model.time_explosion.value / R_max
-
-        att_S_ul, Edot_u = self.make_source_function()
-        J_blues    = plasma.j_blues
-        J_rlues    = plasma.j_blues * np.exp( -plasma.tau_sobolevs.values) + att_S_ul
-
-        r_shells = np.zeros((num_shell+1,1))
-        # Note the reorder from outer to inner
-        r_shells[1:,0],r_shells[0,0] = self.runner.r_inner_cgs[::-1] / R_max, 1.0
-        z_crossings = np.sqrt(r_shells**2 - ps**2)
-
-        z_ct = z_crossings/ct
-        z_ct[np.isnan(z_crossings)] = 0
-
-        ## p > Rmin
-        ps_outer        = ps[ ps > R_min_rel]
-        z_ct_outer      = z_ct[:, ps > R_min_rel]
-        n_shell_p_outer = (num_shell+1) - np.isnan(z_crossings[:, ps > R_min_rel]).sum(axis=0)
-
-        ## p < Rmin
-        ps_inner        = ps[ ps <= R_min_rel]
-        z_ct_inner      = z_ct[:, ps <= R_min_rel]
-
-
+    def integrate(self, nu):
         #Allocating stuff
-        nus = runner.spectrum.frequency
-        L_nu  = np.zeros(nus.shape)
+        I_BB = intensity_black_body(
+                nu,
+                self.model.t_inner)
 
-        #Just aliasing for cleaner expressions later
-        line_nu  = plasma.lines.nu
-        taus     = plasma.tau_sobolevs
-        T        = model.t_inner
-
-        L_nu = self.py_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, R_max,
-                    T.value, nus, ps_outer, ps_inner, z_ct_outer, z_ct_inner,
-                    num_shell,n_shell_p_outer)
-
-        return  L_nu#,nus
+        return montecarlo.formal_integral(self, I_BB, 1000)
 
     def py_integrate(self, L_nu, line_nu, taus, att_S_ul, R_max,
                     T, nus, ps_outer, ps_inner, z_ct_outer, z_ct_inner,
