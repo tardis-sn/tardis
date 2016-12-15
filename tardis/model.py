@@ -11,7 +11,7 @@ from astropy.utils.decorators import deprecated
 from tardis.io.util import to_hdf
 from util import intensity_black_body
 
-from tardis.plasma.standard_plasmas import LegacyPlasmaArray
+from tardis.plasma.standard_plasmas import assemble_plasma
 
 logger = logging.getLogger(__name__)
 
@@ -108,19 +108,7 @@ class Radial1DModel(object):
         heating_rate_data_file = getattr(
             tardis_config.plasma, 'heating_rate_data_file', None)
 
-        self.plasma = LegacyPlasmaArray(
-            tardis_config.number_densities, tardis_config.atom_data,
-            tardis_config.supernova.time_explosion.to('s').value,
-            nlte_config=tardis_config.plasma.nlte,
-            delta_treatment=tardis_config.plasma.get('delta_treatment', None),
-            ionization_mode=tardis_config.plasma.ionization,
-            excitation_mode=tardis_config.plasma.excitation,
-            line_interaction_type=tardis_config.plasma.line_interaction_type,
-            link_t_rad_t_electron=0.9,
-            helium_treatment=tardis_config.plasma.helium_treatment,
-            heating_rate_data_file=heating_rate_data_file,
-            v_inner=self.v_inner,
-            v_outer=self.v_outer)
+        self.plasma = assemble_plasma(tardis_config, self)
 
         self.calculate_j_blues(init_detailed_j_blues=True)
         self.Edotlu = np.zeros(np.shape(self.j_blues.shape))
