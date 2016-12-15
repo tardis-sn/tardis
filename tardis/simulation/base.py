@@ -93,7 +93,7 @@ class Simulation(object):
     def get_convergence_status(self, t_rad, w, t_inner, estimated_t_rad, estimated_w,
                                estimated_t_inner):
         convergence_section = self.tardis_config.montecarlo.convergence_strategy
-        no_of_shells = self.tardis_config.structure.no_of_shells
+        no_of_shells = self.tardis_config.model.structure.no_of_shells
 
         convergence_t_rad = (abs(t_rad - estimated_t_rad) /
                              estimated_t_rad).value

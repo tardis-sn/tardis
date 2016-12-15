@@ -204,9 +204,9 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
 
 
     #raise Exception("there's a problem here with units what units does synpp expect?")
-    yaml_reference['opacity']['v_ref'] = float((radial1d_mdl.tardis_config.structure.v_inner[0].to('km/s') /
+    yaml_reference['opacity']['v_ref'] = float((radial1d_mdl.tardis_config.model.structure.v_inner[0].to('km/s') /
                                                (1000. * u.km / u.s)).value)
-    yaml_reference['grid']['v_outer_max'] = float((radial1d_mdl.tardis_config.structure.v_outer[-1].to('km/s') /
+    yaml_reference['grid']['v_outer_max'] = float((radial1d_mdl.tardis_config.model.structure.v_outer[-1].to('km/s') /
                                                   (1000. * u.km / u.s)).value)
 
     #pdb.set_trace()

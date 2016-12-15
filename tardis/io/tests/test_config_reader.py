@@ -89,15 +89,15 @@ class TestParsePaper1Config:
 
     def test_velocities(self):
         assert_almost_equal(self.yaml_data['model']['structure']['velocity']['start'].cgs.value,
-                            self.config.structure.v_inner[0].cgs.value)
+                            self.config.model.structure.v_inner[0].cgs.value)
         assert_almost_equal(self.yaml_data['model']['structure']['velocity']['stop'].cgs.value,
-                    self.config.structure.v_outer[-1].cgs.value)
-        assert len(self.config.structure.v_outer) == (self.yaml_data['model']['structure']['velocity']['num'])
+                    self.config.model.structure.v_outer[-1].cgs.value)
+        assert len(self.config.model.structure.v_outer) == (self.yaml_data['model']['structure']['velocity']['num'])
 
     def test_densities(self):
-        assert_almost_equal(self.config['structure']['mean_densities'][0].cgs.value,
+        assert_almost_equal(self.config['model']['structure']['mean_densities'][0].cgs.value,
                             (7.542803599143591e-14 * u.Unit('g/cm^3')).value)
-        assert_almost_equal(self.config['structure']['mean_densities'][-1].cgs.value,
+        assert_almost_equal(self.config['model']['structure']['mean_densities'][-1].cgs.value,
                             (1.432259798833509e-15 * u.Unit('g/cm^3')).value)
 
 
@@ -150,8 +150,8 @@ class TestParseConfigV1ASCIIDensity:
 
 
     def test_velocities(self):
-        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
-        assert_almost_equal(self.config.structure.v_inner[0].value, 1e4 * 1e5)
+        assert self.config.model.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.model.structure.v_inner[0].value, 1e4 * 1e5)
 
     def test_abundances(self):
         oxygen_abundance = self.yaml_data['model']['abundances']['O']
@@ -169,8 +169,8 @@ class TestParseConfigV1ArtisDensity:
 
 
     def test_velocities(self):
-        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
-        assert_almost_equal(self.config.structure.v_inner[0].value, 1.259375e+03 * 1e5)
+        assert self.config.model.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.model.structure.v_inner[0].value, 1.259375e+03 * 1e5)
 
     def test_abundances(self):
         oxygen_abundance = self.yaml_data['model']['abundances']['O']
@@ -196,8 +196,8 @@ class TestParseConfigV1ArtisDensityAbundances:
 
 
     def test_velocities(self):
-        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
-        assert_almost_equal(self.config.structure.v_inner[0].value, 1.259375e+03 * 1e5)
+        assert self.config.model.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.model.structure.v_inner[0].value, 1.259375e+03 * 1e5)
 
     def test_abundances(self):
         assert_almost_equal(self.config.abundances.ix[14, 54], 0.21864420000000001)
@@ -220,8 +220,8 @@ class TestParseConfigV1ArtisDensityAbundancesVSlice:
 
 
     def test_velocities(self):
-        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
-        assert_almost_equal(self.config.structure.v_inner[0].to(
+        assert self.config.model.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.model.structure.v_inner[0].to(
             u.km / u.s).value, 9000)
 
     def test_abundances(self):
@@ -241,7 +241,7 @@ class TestParseConfigV1UniformDensity:
                                                                   config_dirname=data_path(''))
 
     def test_density(self):
-        assert_array_almost_equal(self.config.structure.mean_densities.to(u.Unit('g / cm3')).value,
+        assert_array_almost_equal(self.config.model.structure.mean_densities.to(u.Unit('g / cm3')).value,
                                   1.e-14)
 
 class TestParseConfigTinner:
@@ -277,8 +277,8 @@ class TestParseConfigV1ArtisDensityAbundancesAllAscii:
 
 
     def test_velocities(self):
-        assert self.config.structure.v_inner.unit == u.Unit('cm/s')
-        assert_almost_equal(self.config.structure.v_inner[0].to(
+        assert self.config.model.structure.v_inner.unit == u.Unit('cm/s')
+        assert_almost_equal(self.config.model.structure.v_inner[0].to(
             u.km / u.s).value, 11000)
 
     def test_abundances(self):
@@ -298,13 +298,13 @@ class TestParseConfigV1ArtisDensityAbundancesAllAscii:
         assert_almost_equal(self.config.abundances.ix[6, 6], 0.5)
 
     def test_densities(self):
-        assert_almost_equal(self.config.structure.mean_densities[0].to(u.Unit('g/cm3')).value, 9.7656229e-11 / 13.0**3 )
-        assert_almost_equal(self.config.structure.mean_densities[1].to(u.Unit('g/cm3')).value, 4.8170911e-11/ 13.0**3 )
-        assert_almost_equal(self.config.structure.mean_densities[2].to(u.Unit('g/cm3')).value, 2.5600000e-11/ 13.0**3 )
-        assert_almost_equal(self.config.structure.mean_densities[3].to(u.Unit('g/cm3')).value, 1.4450533e-11/ 13.0**3 )
-        assert_almost_equal(self.config.structure.mean_densities[4].to(u.Unit('g/cm3')).value, 8.5733893e-11/ 13.0**3 )
-        assert_almost_equal(self.config.structure.mean_densities[5].to(u.Unit('g/cm3')).value, 5.3037103e-11/ 13.0**3 )
-        assert_almost_equal(self.config.structure.mean_densities[6].to(u.Unit('g/cm3')).value, 3.3999447e-11/ 13.0**3 )
+        assert_almost_equal(self.config.model.structure.mean_densities[0].to(u.Unit('g/cm3')).value, 9.7656229e-11 / 13.0**3 )
+        assert_almost_equal(self.config.model.structure.mean_densities[1].to(u.Unit('g/cm3')).value, 4.8170911e-11/ 13.0**3 )
+        assert_almost_equal(self.config.model.structure.mean_densities[2].to(u.Unit('g/cm3')).value, 2.5600000e-11/ 13.0**3 )
+        assert_almost_equal(self.config.model.structure.mean_densities[3].to(u.Unit('g/cm3')).value, 1.4450533e-11/ 13.0**3 )
+        assert_almost_equal(self.config.model.structure.mean_densities[4].to(u.Unit('g/cm3')).value, 8.5733893e-11/ 13.0**3 )
+        assert_almost_equal(self.config.model.structure.mean_densities[5].to(u.Unit('g/cm3')).value, 5.3037103e-11/ 13.0**3 )
+        assert_almost_equal(self.config.model.structure.mean_densities[6].to(u.Unit('g/cm3')).value, 3.3999447e-11/ 13.0**3 )
 
 
 def test_ascii_reader_power_law():
@@ -320,7 +320,7 @@ def test_ascii_reader_power_law():
     v_outer =  yaml_data['model']['structure']['velocity']['stop']
     my_conf = config_reader.Configuration.from_yaml(data_path('tardis_configv1_density_power_law_test.yml'),
                                                     test_parser=True)
-    structure = my_conf['structure']
+    structure = my_conf['model']['structure']
 
     expected_densites = [3.29072513e-14,  2.70357804e-14,  2.23776573e-14,
                          1.86501954e-14,  1.56435277e-14,  1.32001689e-14, 1.12007560e-14,
@@ -348,7 +348,7 @@ def test_ascii_reader_exponential_law():
     v_outer =  yaml_data['model']['structure']['velocity']['stop']
     my_conf = config_reader.Configuration.from_yaml(data_path('tardis_configv1_density_exponential_test.yml'),
                                                     test_parser=True)
-    structure = my_conf['structure']
+    structure = my_conf['model']['structure']
 
     expected_densites = [5.18114795e-14,  4.45945537e-14,  3.83828881e-14, 3.30364579e-14,  2.84347428e-14,  2.44740100e-14, 2.10649756e-14,  1.81307925e-14,  1.56053177e-14, 1.34316215e-14,  1.15607037e-14,  9.95038990e-15, 8.56437996e-15,  7.37143014e-15,  6.34464872e-15, 5.46088976e-15,  4.70023138e-15,  4.04552664e-15, 3.48201705e-15,  2.99699985e-15]
     expected_unit = 'g / (cm3)'

@@ -123,10 +123,10 @@ class MontecarloRunner(object):
         :return:
         """
         self.time_of_simulation = model.time_of_simulation
-        self.volume = model.tardis_config.structure.volumes
+        self.volume = model.tardis_config.model.structure.volumes
         self._initialize_estimator_arrays(self.volume.shape[0],
                                           model.plasma.tau_sobolevs.shape)
-        self._initialize_geometry_arrays(model.tardis_config.structure)
+        self._initialize_geometry_arrays(model.tardis_config.model.structure)
 
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets)
