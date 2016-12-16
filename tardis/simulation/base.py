@@ -14,6 +14,28 @@ logger = logging.getLogger(__name__)
 
 
 class Simulation(object):
+    """A composite object containing all the required information for a
+    simulation.
+
+    Parameters
+    ----------
+    converged : bool
+    iterations : int
+    model : tardis.model.Radial1DModel
+    plasma : tardis.plasma.BasePlasma
+    runner : tardis.montecarlo.base.MontecarloRunner
+    no_of_packets : int
+    last_no_of_packets : int
+    no_of_virtual_packets : int
+    luminosity_nu_start : astropy.units.Quantity
+    luminosity_nu_end : astropy.units.Quantity
+    luminosity_requested : astropy.units.Quantity
+    nthreads : int
+        The number of threads to run montecarlo with
+
+        .. note:: TARDIS must be built with OpenMP support in order for
+        `nthreads` to have effect.
+    """
     def __init__(self, iterations, model, plasma, runner,
                  no_of_packets, no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
@@ -328,6 +350,22 @@ class Simulation(object):
 
     @classmethod
     def from_config(cls, config, **kwargs):
+        """
+        Create a new Simulation instance from a Configuration object.
+
+        Parameters
+        ----------
+        config : tardis.io.config_reader.Configuration
+        **kwargs
+            Allow overriding some structures, such as model, plasma, atomic data
+            and the runner, instead of creating them from the configuration
+            object.
+
+        Returns
+        -------
+        Simulation
+
+        """
         # Allow overriding some config structures. This is useful in some
         # unit tests, and could be extended in all the from_config classmethods.
         if 'model' in kwargs:

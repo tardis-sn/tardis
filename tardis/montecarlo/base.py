@@ -122,16 +122,20 @@ class MontecarloRunner(object):
 
     def run(self, model, plasma, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
         """
-        Running the TARDIS simulation
+        Run the montecarlo calculation
 
         Parameters
         ----------
+        model : tardis.model.Radial1DModel
+        plasma : tardis.plasma.BasePlasma
+        no_of_packets : int
+        no_of_virtual_packets : int
+        nthreads : int
+        last_run : bool
 
-        :param model:
-        :param plasma:
-        :param no_of_virtual_packets:
-        :param nthreads:
-        :return:
+        Returns
+        -------
+        None
         """
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
@@ -336,6 +340,18 @@ class MontecarloRunner(object):
 
     @classmethod
     def from_config(cls, config):
+        """
+        Create a new MontecarloRunner instance from a Configuration object.
+
+        Parameters
+        ----------
+        config : tardis.io.config_reader.Configuration
+
+        Returns
+        -------
+        MontecarloRunner
+
+        """
         if config.plasma.disable_electron_scattering:
             logger.warn('Disabling electron scattering - this is not physical')
             sigma_thomson = 1e-200 / (u.cm ** 2)
