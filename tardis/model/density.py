@@ -16,7 +16,7 @@ class HomologousDensity(object):
         self.density_0 = density_0
         self.time_0 = time_0
 
-    def after_time(self, time_explosion):
+    def calculate_density_at_time_of_simulation(self, time_explosion):
         """
         Scale `density_0` from an `time_0` to the `time_explosion` by ^-3
 
