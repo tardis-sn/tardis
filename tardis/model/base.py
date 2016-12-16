@@ -170,7 +170,7 @@ class Radial1DModel(object):
 
     @property
     def density(self):
-        density = self.homologous_density.after_time(self.time_explosion)
+        density = self.homologous_density.calculate_density_at_time_of_simulation(self.time_explosion)
         return density[self.v_boundary_inner_index
                        :self.v_boundary_outer_index][1:]
 
