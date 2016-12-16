@@ -59,26 +59,24 @@ class HomologousDensity(object):
         if d_conf.type == 'branch85_w7':
             density_0 = calculate_power_law_density(v_middle, d_conf.w7_v_0,
                                                     d_conf.w7_rho_0, -7)
-            return cls(density_0, d_conf.w7_time_0)
+            time_0 = d_conf.w7_time_0
         elif d_conf.type == 'uniform':
             density_0 = (d_conf.value.to('g cm^-3') *
                          np.ones(no_of_shells))
             time_0 = d_conf.get('time_0', time_explosion)
-            return cls(density_0, time_0)
         elif d_conf.type == 'power_law':
             density_0 = calculate_power_law_density(v_middle, d_conf.v_0,
                                                     d_conf.rho_0,
                                                     d_conf.exponent)
             time_0 = d_conf.get('time_0', time_explosion)
-            return cls(density_0, time_0)
         elif d_conf.type == 'exponential':
             density_0 = calculate_exponential_density(v_middle, d_conf.v_0,
                                                       d_conf.rho_0)
             time_0 = d_conf.get('time_0', time_explosion)
-            return cls(density_0, time_0)
         else:
             raise ValueError("Unrecognized density type "
                              "'{}'".format(d_conf.type))
+        return cls(density_0, time_0)
 
 
 def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
