@@ -36,7 +36,7 @@ class MontecarloRunner(object):
         self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
         self.spectrum_frequency = spectrum_frequency
-        self.virtual_spectrum_range = virtual_spectrum_range # TODO: linspace handling
+        self.virtual_spectrum_range = virtual_spectrum_range
         self.sigma_thomson = sigma_thomson
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
@@ -366,7 +366,6 @@ class MontecarloRunner(object):
 
         return cls(seed=config.montecarlo.seed,
                    spectrum_frequency=spectrum_frequency,
-                   # TODO: Linspace handling for virtual_spectrum_range
                    virtual_spectrum_range=config.montecarlo.virtual_spectrum_range,
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
