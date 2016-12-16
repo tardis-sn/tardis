@@ -4,16 +4,47 @@ from tardis.util import quantity_linspace
 
 
 class HomologousDensity(object):
+    """A class that holds an initial density and time
+
+    Parameters
+    ----------
+    density_0 : astropy.units.Quantity
+    time_0 : astropy.units.Quantity
+
+    """
     def __init__(self, density_0, time_0):
         self.density_0 = density_0
         self.time_0 = time_0
 
     def after_time(self, time_explosion):
+        """
+        Scale `density_0` from an `time_0` to the `time_explosion` by ^-3
+
+        Parameters
+        ----------
+        time_explosion : astropy.units.Quantity
+
+        Returns
+        -------
+        astropy.units.Quantity
+        """
         return calculate_density_after_time(self.density_0, self.time_0,
                                             time_explosion).cgs
 
     @classmethod
     def from_config(cls, config):
+        """
+        Create a new HomologousDensity instance from a Configuration object.
+
+        Parameters
+        ----------
+        config : tardis.io.config_reader.Configuration
+
+        Returns
+        -------
+        HomologousDensity
+
+        """
         d_conf = config.model.structure.density
         velocity = quantity_linspace(config.model.structure.velocity.start,
                                      config.model.structure.velocity.stop,

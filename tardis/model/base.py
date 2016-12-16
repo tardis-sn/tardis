@@ -13,6 +13,50 @@ logger = logging.getLogger(__name__)
 
 
 class Radial1DModel(object):
+    """An object that hold information about the individual shells.
+
+    Parameters
+    ----------
+    velocity : np.ndarray
+        An array with n+1 (for n shells) velocities "cut" to the provided
+        boundaries
+
+        .. note:: To access the entire, "uncut", velocity array,
+        use `raw_velocity`
+    homologous_density : HomologousDensity
+    density : astropy.units.quantity.Quantity
+    abundance : pd.DataFrame
+    time_explosion : astropy.units.Quantity
+        Time since explosion
+    t_inner : astropy.units.Quantity
+    t_radiative : astropy.units.Quantity
+        Radiative temperature for the shells
+    dilution_factor : np.ndarray
+        If None, the dilution_factor will be initialized with the geometric
+        dilution factor.
+    v_inner : astropy.units.Quantity
+    v_middle : astropy.units.Quantity
+    v_outer : astropy.units.Quantity
+    r_inner : astropy.units.Quantity
+    r_middle : astropy.units.Quantity
+    r_outer : astropy.units.Quantity
+    radius : astropy.units.Quantity
+    volume : astropy.units.Quantity
+    no_of_shells : int
+        The number of shells as formed by `v_boundary_inner` and
+        `v_boundary_outer`
+    no_of_raw_shells : int
+    v_boundary_inner : astropy.units.Quantity
+    v_boundary_outer : astropy.units.Quantity
+    raw_velocity : np.ndarray
+        The complete array of the velocities, without being cut by
+        `v_boundary_inner` and `v_boundary_outer`
+    w : np.ndarray
+        Shortcut for `dilution_factor`
+    t_rad : astropy.units.Quantity
+        Shortcut for `t_radiative`
+
+    """
     def __init__(self, velocity, homologous_density, abundance, time_explosion,
                  t_inner, luminosity_requested=None, t_radiative=None,
                  dilution_factor=None, v_boundary_inner=None,
@@ -52,6 +96,7 @@ class Radial1DModel(object):
 
     @property
     def w(self):
+        """Shortcut for `dilution_factor`"""
         return self.dilution_factor
 
     @w.setter
@@ -60,6 +105,7 @@ class Radial1DModel(object):
 
     @property
     def t_rad(self):
+        """Shortcut for `t_radiative`"""
         return self.t_radiative
 
     @t_rad.setter
@@ -239,6 +285,18 @@ class Radial1DModel(object):
 
     @classmethod
     def from_config(cls, config):
+        """
+        Create a new Radial1DModel instance from a Configuration object.
+
+        Parameters
+        ----------
+        config : tardis.io.config_reader.Configuration
+
+        Returns
+        -------
+        Radial1DModel
+
+        """
         time_explosion = config.supernova.time_explosion.cgs
 
         structure = config.model.structure
