@@ -44,7 +44,8 @@ def read_density_file(filename, filetype):
     file_parsers = {'artis': read_artis_density,
                     'simple_ascii': read_simple_ascii_density}
 
-    time_of_model,velocity, unscaled_mean_densities = file_parsers[filetype](filename)
+    (time_of_model, velocity,
+     unscaled_mean_densities) = file_parsers[filetype](filename)
     v_inner = velocity[:-1]
     v_outer = velocity[1:]
     invalid_volume_mask = (v_outer - v_inner) <= 0
