@@ -354,10 +354,10 @@ class MontecarloRunner(object):
         """
         if config.plasma.disable_electron_scattering:
             logger.warn('Disabling electron scattering - this is not physical')
-            sigma_thomson = 1e-200 / (u.cm ** 2)
+            sigma_thomson = 1e-200 * (u.cm ** 2)
         else:
             logger.debug("Electron scattering switched on")
-            sigma_thomson = 6.652486e-25 / (u.cm ** 2)
+            sigma_thomson = const.sigma_T.cgs
 
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to('Hz', u.spectral()),
