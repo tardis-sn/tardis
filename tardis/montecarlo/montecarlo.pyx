@@ -41,6 +41,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *last_line_interaction_out_id
         int_type_t *last_line_interaction_shell_id
         int_type_t *last_interaction_type
+        int_type_t *last_interaction_out_type
         int_type_t no_of_packets
         int_type_t no_of_shells
         double *r_inner

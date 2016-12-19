@@ -410,11 +410,14 @@ macro_atom (rpacket_t * packet, const storage_model_t * storage, rk_state *mt_st
 
       case BF_EMISSION:
         rpacket_set_current_continuum_id (packet, storage->transition_line_id[i]);
-        continuum_emission (packet, storage, sample_nu_free_bound, mt_state);
+        storage->last_line_interaction_out_id[rpacket_get_id (packet)] =
+          rpacket_get_current_continuum_id (packet);
+
+        continuum_emission (packet, storage, mt_state, sample_nu_free_bound, 3);
         break;
 
       case FF_EMISSION:
-        continuum_emission (packet, storage, sample_nu_free_free, mt_state);
+        continuum_emission (packet, storage, mt_state, sample_nu_free_free, 4);
         break;
 
       case ADIABATIC_COOLING:
@@ -770,6 +773,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   storage->last_interaction_type[rpacket_get_id (packet)] = 3; // last interaction was a bf-absorption
+  storage->last_line_interaction_in_id[rpacket_get_id (packet)] = ccontinuum;
 
   // Convert the rpacket to thermal or ionization energy
   zrand = rk_double (mt_state);
@@ -888,6 +892,11 @@ line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_l
 {
   double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
   storage->last_line_interaction_out_id[rpacket_get_id (packet)] = emission_line_id;
+  if (storage->cont_status == CONTINUUM_ON)
+  {
+    storage->last_interaction_out_type[rpacket_get_id (packet)] = 2;
+  }
+
   rpacket_set_nu (packet,
 		      storage->line_list_nu[emission_line_id] * inverse_doppler_factor);
   rpacket_set_nu_line (packet, storage->line_list_nu[emission_line_id]);
@@ -925,13 +934,15 @@ void test_for_close_line (rpacket_t * packet, const storage_model_t * storage)
 }
 
 void
-continuum_emission (rpacket_t * packet, storage_model_t * storage,
-                    rk_state *mt_state, pt2sample_nu sample_nu_continuum)
+continuum_emission (rpacket_t * packet, storage_model_t * storage, rk_state *mt_state,
+                    pt2sample_nu sample_nu_continuum, int64_t emission_type_id)
 {
   double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
   double nu_comov = sample_nu_continuum (packet, storage, mt_state);
   rpacket_set_nu (packet, nu_comov * inverse_doppler_factor);
   rpacket_reset_tau_event (packet, mt_state);
+
+  storage->last_interaction_out_type[rpacket_get_id (packet)] = emission_type_id;
 
   // Have to find current position in line list
   int64_t current_line_id;

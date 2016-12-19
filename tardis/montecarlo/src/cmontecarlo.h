@@ -135,7 +135,7 @@ double sample_nu_free_free(const rpacket_t * packet, const storage_model_t * sto
 
 double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state);
 
-void continuum_emission(rpacket_t * packet, storage_model_t * storage,
-                        rk_state *mt_state, pt2sample_nu sample_nu_continuum);
+void continuum_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state,
+                        pt2sample_nu sample_nu_continuum, int64_t emission_type_id);
 
 #endif // TARDIS_CMONTECARLO_H
