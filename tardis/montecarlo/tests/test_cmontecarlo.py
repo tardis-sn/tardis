@@ -103,7 +103,8 @@ def model():
     return StorageModel(
         last_line_interaction_in_id=(c_int64 * 2)(*([0] * 2)),
         last_line_interaction_shell_id=(c_int64 * 2)(*([0] * 2)),
-        last_line_interaction_type=(c_int64 * 2)(*([2])),
+        last_interaction_type=(c_int64 * 2)(*([2])),
+        last_interaction_out_type=(c_int64 * 1)(*([0])),
 
         no_of_shells=2,
 
@@ -913,25 +914,29 @@ def test_increment_continuum_estimators_bf_estimators(packet, model_w_edges, com
 @pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'nu_comov': 1.1e16, 'mu': 0.0, 'r': 1.4e14},
-      {'next_line_id': 5, 'last_line': True, 'nu': 1.1e16}),
+      {'next_line_id': 5, 'last_line': True, 'nu': 1.1e16, 'type_id': 3}),
 
      ({'nu_comov': 1.3e16, 'mu': 0.3, 'r': 7.5e14},
-      {'next_line_id': 0, 'last_line': False, 'nu': 1.30018766e+16}),
+      {'next_line_id': 0, 'last_line': False, 'nu': 1.30018766e+16, 'type_id': 3}),
 
      ({'nu_comov': 1.24e16, 'mu': -0.3, 'r': 7.5e14},
-      {'next_line_id': 2, 'last_line': False, 'nu': 1.23982106e+16})]
+      {'next_line_id': 2, 'last_line': False, 'nu': 1.23982106e+16, 'type_id': 4})]
 )
 def test_continuum_emission(packet, model, mock_sample_nu, packet_params, expected_params, mt_state):
     packet.nu = packet_params['nu_comov']  # Is returned by mock function mock_sample_nu
     packet.mu = packet_params['mu']
     packet.r = packet_params['r']
+    expected_interaction_out_type = expected_params['type_id']
 
-    cmontecarlo_methods.continuum_emission(byref(packet), byref(model), byref(mt_state), mock_sample_nu)
+    cmontecarlo_methods.continuum_emission(byref(packet), byref(model), byref(mt_state),
+                                           mock_sample_nu, expected_interaction_out_type)
 
     obtained_next_line_id = packet.next_line_id
+    obtained_last_interaction_out_type = model.last_interaction_out_type[0]
 
     assert_equal(obtained_next_line_id, expected_params['next_line_id'])
     assert_equal(packet.last_line, expected_params['last_line'])
+    assert_equal(expected_interaction_out_type, obtained_last_interaction_out_type)
     assert_allclose(packet.nu, expected_params['nu'], rtol=1e-7)
 
 
@@ -978,6 +983,7 @@ def test_montecarlo_bound_free_scatter_continuum_selection(packet, model_3lvlato
                                                       c_double(1.e13), byref(rkstate))
 
     assert_equal(packet.current_continuum_id, expected)
+    assert_equal(model_3lvlatom.last_line_interaction_in_id[packet.id], expected)
 
 
 """

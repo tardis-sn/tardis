@@ -24,6 +24,7 @@ typedef struct StorageModel
   int64_t *last_line_interaction_out_id;
   int64_t *last_line_interaction_shell_id;
   int64_t *last_interaction_type;
+  int64_t *last_interaction_out_type;
   int64_t no_of_packets;
   int64_t no_of_shells;
   double *r_inner;
