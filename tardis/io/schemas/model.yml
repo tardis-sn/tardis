@@ -48,7 +48,6 @@ definitions:
           type: quantity
           description: at what velocity the density rho_0 applies
       required:
-      - time_0
       - rho_0
       - v_0
     power_law:
@@ -71,7 +70,6 @@ definitions:
           type: number
           description: exponent for exponential density profile
       required:
-      - time_0
       - rho_0
       - v_0
       - exponent
@@ -82,6 +80,9 @@ definitions:
         type:
           enum:
           - uniform
+        time_0:
+          type: quantity
+          description: Time at which the pure model densities are right
         value:
           type: quantity
           description: value for uniform density

@@ -566,7 +566,7 @@ class ModelViewer(QtGui.QWidget):
         """Reset the model set in the GUI."""
         self.model = model
         self.tablemodel.arraydata = []
-        self.tablemodel.add_data(model.t_rads.value.tolist())
+        self.tablemodel.add_data(model.t_rad.value.tolist())
         self.tablemodel.add_data(model.ws.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
@@ -626,7 +626,7 @@ class ModelViewer(QtGui.QWidget):
 
     def change_graph_to_t_rads(self):
         """Change the graph back to radiation Temperature."""
-        self.change_graph(self.model.t_rads.value, 't_rads', '(K)')
+        self.change_graph(self.model.t_rad.value, 't_rad', '(K)')
 
     def change_graph(self, data, name, unit):
         """Called to change the shell plot by the two methods above."""
@@ -659,7 +659,7 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax1.set_ylabel('Rad. Temp (K)')
         self.graph.ax1.yaxis.get_major_formatter().set_powerlimits((0, 1))
         self.graph.dataplot = self.graph.ax1.plot(
-            range(len(self.model.t_rads.value)), self.model.t_rads.value)
+            range(len(self.model.t_rad.value)), self.model.t_rad.value)
         self.graph.ax2.clear()
         self.graph.ax2.set_title('Shell View')
         self.graph.ax2.set_xticklabels([])
@@ -667,14 +667,14 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax2.grid = True
 
         self.shells = []
-        t_rad_normalizer = colors.Normalize(vmin=self.model.t_rads.value.min(), 
-            vmax=self.model.t_rads.value.max())
+        t_rad_normalizer = colors.Normalize(vmin=self.model.t_rad.value.min(),
+            vmax=self.model.t_rad.value.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, 
             cmap=plt.cm.jet)
-        t_rad_color_map.set_array(self.model.t_rads.value)
+        t_rad_color_map.set_array(self.model.t_rad.value)
         if self.graph.cb:
-            self.graph.cb.set_clim(vmin=self.model.t_rads.value.min(), 
-                vmax=self.model.t_rads.value.max())
+            self.graph.cb.set_clim(vmin=self.model.t_rad.value.min(),
+                vmax=self.model.t_rad.value.max())
             self.graph.cb.update_normal(t_rad_color_map)
         else:
             self.graph.cb = self.graph.figure.colorbar(t_rad_color_map)
@@ -685,7 +685,7 @@ class ModelViewer(QtGui.QWidget):
             self.model.tardis_config.structure.r_inner.value[0])
 
         #self.graph.normalizing_factor = 8e-16
-        for i, t_rad in enumerate(self.model.t_rads.value):
+        for i, t_rad in enumerate(self.model.t_rad.value):
             r_inner = (self.model.tardis_config.structure.r_inner.value[i] * 
                 self.graph.normalizing_factor)
             r_outer = (self.model.tardis_config.structure.r_outer.value[i] * 

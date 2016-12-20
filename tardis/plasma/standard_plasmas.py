@@ -1,17 +1,24 @@
+import os
 import logging
 
 import pandas as pd
 import numpy as np
 
+from tardis import atomic
+from tardis.util import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
-    helium_lte_properties)
+    helium_lte_properties, detailed_j_blues_properties, detailed_j_blues_inputs)
 from tardis.plasma.exceptions import PlasmaConfigError
-from tardis.plasma.properties import LevelBoltzmannFactorNLTE
+from tardis.plasma.properties import (LevelBoltzmannFactorNLTE, JBluesBlackBody,
+                                      JBluesDiluteBlackBody, JBluesDetailed,
+                                      RadiationFieldCorrection,
+                                      StimulatedEmissionFactor,
+                                      HeliumNumericalNLTE)
 
 logger = logging.getLogger(__name__)
 
@@ -26,109 +33,123 @@ class LTEPlasma(BasePlasma):
         super(LTEPlasma, self).__init__(plasma_properties=plasma_modules,
             t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,
             density=density, time_explosion=time_explosion, j_blues=j_blues,
-	        w=None, link_t_rad_t_electron=link_t_rad_t_electron,
+            w=None, link_t_rad_t_electron=link_t_rad_t_electron,
             delta_input=delta_treatment, nlte_species=None)
 
-class LegacyPlasmaArray(BasePlasma):
 
-    def from_number_densities(self, number_densities, atomic_data):
-        atomic_mass = atomic_data.atom_data.ix[number_densities.index].mass
-        elemental_density = number_densities.mul(atomic_mass,
-            axis='index')
-        density = elemental_density.sum()
-        abundance = pd.DataFrame(elemental_density/density,
-            index=number_densities.index, columns=number_densities.columns,
-            dtype=np.float64)
-        return abundance, density
+def assemble_plasma(config, model, atom_data=None):
+    """
+    Create a BasePlasma instance from a Configuration object
+    and a Radial1DModel.
 
-    def initial_t_rad(self, number_densities):
-        return np.ones(len(number_densities.columns)) * 10000
+    Parameters
+    ----------
+    config: ~io.config_reader.Configuration
+    model: ~model.Radial1DModel
+    atom_data: ~atomic.AtomData
+        If None, an attempt will be made to read the atomic data
+        from config.
 
-    def initial_w(self, number_densities):
-        return np.ones(len(number_densities.columns)) * 0.5
+    Returns
+    -------
+    : ~plasma.BasePlasma
 
-    def update_radiationfield(self, t_rad, ws, j_blues, nlte_config,
-        t_electrons=None, n_e_convergence_threshold=0.05,
-        initialize_nlte=False):
-        if nlte_config is not None and nlte_config.species:
-            self.store_previous_properties()
-        self.update(t_rad=t_rad, w=ws, j_blues=j_blues)
+    """
+    # Convert the nlte species list to a proper format.
+    nlte_species = [species_string_to_tuple(s) for s in
+                    config.plasma.nlte.species]
 
-    def __init__(self, number_densities, atomic_data, time_explosion,
-        t_rad=None, delta_treatment=None, nlte_config=None,
-        ionization_mode='lte', excitation_mode='lte',
-        line_interaction_type='scatter', link_t_rad_t_electron=0.9,
-        helium_treatment='none', heating_rate_data_file=None,
-        v_inner=None, v_outer=None):
-
-        plasma_modules = basic_inputs + basic_properties
-
-        if excitation_mode == 'lte':
-            plasma_modules += lte_excitation_properties
-        elif excitation_mode == 'dilute-lte':
-            plasma_modules += dilute_lte_excitation_properties
-        else:
-            raise NotImplementedError('Sorry {0} not implemented yet.'.format(
-            excitation_mode))
-
-        if ionization_mode == 'lte':
-            plasma_modules += lte_ionization_properties
-        elif ionization_mode == 'nebular':
-            plasma_modules += nebular_ionization_properties
-        else:
-            raise NotImplementedError('Sorry ' + ionization_mode +
-                ' not implemented yet.')
-
-        if nlte_config is not None and nlte_config.species:
-            plasma_modules += nlte_properties
-            if nlte_config.classical_nebular==True and \
-                nlte_config.coronal_approximation==False:
-                LevelBoltzmannFactorNLTE(self, classical_nebular=True)
-            elif nlte_config.coronal_approximation==True and \
-                nlte_config.classical_nebular==False:
-                LevelBoltzmannFactorNLTE(self, coronal_approximation=True)
-            elif nlte_config.coronal_approximation==True and \
-                nlte_config.classical_nebular==True:
-                raise PlasmaConfigError('Both coronal approximation and '
-                                        'classical nebular specified in the '
-                                        'config.')
-        else:
-            plasma_modules += non_nlte_properties
-
-        if line_interaction_type in ('downbranch', 'macroatom'):
-            plasma_modules += macro_atom_properties
-
-        if t_rad is None:
-            t_rad = self.initial_t_rad(number_densities)
-
-        w = self.initial_w(number_densities)
-
-        abundance, density = self.from_number_densities(number_densities,
-            atomic_data)
-
-        if nlte_config is not None and nlte_config.species:
-            self.nlte_species = nlte_config.species
-        else:
-            self.nlte_species = None
-
-        if helium_treatment=='recomb-nlte':
-            plasma_modules += helium_nlte_properties
-        elif helium_treatment=='numerical-nlte':
-            plasma_modules += helium_numerical_nlte_properties
-            if heating_rate_data_file is None:
-                raise PlasmaConfigError('Heating rate data file not specified')
+    if atom_data is None:
+        if 'atom_data' in config:
+            if os.path.isabs(config.atom_data):
+                atom_data_fname = config.atom_data
             else:
-                self.heating_rate_data_file = heating_rate_data_file
-                self.v_inner = v_inner
-                self.v_outer = v_outer
+                atom_data_fname = os.path.join(config.config_dirname,
+                                               config.atom_data)
         else:
-            plasma_modules += helium_lte_properties
+            raise ValueError('No atom_data option found in the configuration.')
 
-        self.delta_treatment = delta_treatment
+        logger.info('Reading Atomic Data from %s', atom_data_fname)
+        atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
 
-        super(LegacyPlasmaArray, self).__init__(
-            plasma_properties=plasma_modules, t_rad=t_rad,
-            abundance=abundance, density=density,
-            atomic_data=atomic_data, time_explosion=time_explosion,
-            j_blues=None, w=w, link_t_rad_t_electron=link_t_rad_t_electron,
-            helium_treatment=helium_treatment)
+    atom_data.prepare_atom_data(
+        model.abundance.index,
+        line_interaction_type=config.plasma.line_interaction_type,
+        nlte_species=nlte_species)
+
+    kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
+                  density=model.density, atomic_data=atom_data,
+                  time_explosion=model.time_explosion,
+                  w=model.dilution_factor, link_t_rad_t_electron=0.9)
+
+    plasma_modules = basic_inputs + basic_properties
+    property_kwargs = {}
+    if config.plasma.radiative_rates_type == 'blackbody':
+        plasma_modules.append(JBluesBlackBody)
+    elif config.plasma.radiative_rates_type == 'dilute-blackbody':
+        plasma_modules.append(JBluesDiluteBlackBody)
+    elif config.plasma.radiative_rates_type == 'detailed':
+        plasma_modules += detailed_j_blues_properties + detailed_j_blues_inputs
+        kwargs.update(r_inner=model.r_inner,
+                      t_inner=model.t_inner,
+                      volume=model.volume,
+                      j_blue_estimator=None)
+        property_kwargs[JBluesDetailed] = {'w_epsilon': config.plasma.w_epsilon}
+    else:
+        raise ValueError('radiative_rates_type type unknown - %s',
+                         config.plasma.radiative_rates_type)
+
+    if config.plasma.excitation == 'lte':
+        plasma_modules += lte_excitation_properties
+    elif config.plasma.excitation == 'dilute-lte':
+        plasma_modules += dilute_lte_excitation_properties
+
+    if config.plasma.ionization == 'lte':
+        plasma_modules += lte_ionization_properties
+    elif config.plasma.ionization == 'nebular':
+        plasma_modules += nebular_ionization_properties
+
+    if nlte_species:
+        plasma_modules += nlte_properties
+        nlte_conf = config.plasma.nlte
+        if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
+            plasma_modules.append(LevelBoltzmannFactorNLTE)
+            property_kwargs[LevelBoltzmannFactorNLTE] = {
+                'classical_nebular': True}
+        elif nlte_conf.coronal_approximation and not nlte_conf.classical_nebular:
+            plasma_modules.append(LevelBoltzmannFactorNLTE)
+            property_kwargs[LevelBoltzmannFactorNLTE] = {
+                'coronal_approximation': True}
+        elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
+            raise PlasmaConfigError('Both coronal approximation and '
+                                    'classical nebular specified in the '
+                                    'config.')
+        property_kwargs[StimulatedEmissionFactor] = dict(
+            nlte_species=nlte_species)
+    else:
+        plasma_modules += non_nlte_properties
+
+    if config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
+        plasma_modules += macro_atom_properties
+
+    if config.plasma.helium_treatment == 'recomb-nlte':
+        plasma_modules += helium_nlte_properties
+        if 'delta_treatment' in config.plasma:
+            property_kwargs[RadiationFieldCorrection] = dict(
+                delta_treatment=config.plasma.delta_treatment)
+    elif config.plasma.helium_treatment == 'numerical-nlte':
+        plasma_modules += helium_numerical_nlte_properties
+        # TODO: See issue #633
+        if config.plasma.heating_rate_data_file in ['none', None]:
+            raise PlasmaConfigError('Heating rate data file not specified')
+        else:
+            property_kwargs[HeliumNumericalNLTE] = dict(
+                heating_rate_data_file=config.plasma.heating_rate_data_file)
+    else:
+        plasma_modules += helium_lte_properties
+    kwargs['helium_treatment'] = config.plasma.helium_treatment
+
+    plasma = BasePlasma(plasma_properties=plasma_modules,
+                        property_kwargs=property_kwargs, **kwargs)
+
+    return plasma

@@ -2,27 +2,33 @@ import numpy.testing as npt
 
 import h5py
 import pytest
-from tardis.io import config_reader
+from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
+from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation import Simulation
 from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 
 @pytest.fixture
-def tardis_config(kurucz_atomic_data, tardis_config_verysimple):
-    return config_reader.Configuration.from_config_dict(
-        tardis_config_verysimple, atom_data=kurucz_atomic_data)
+def tardis_config(tardis_config_verysimple):
+    return Configuration.from_config_dict(tardis_config_verysimple)
 
 
 @pytest.fixture()
 def raw_model(tardis_config):
-    return Radial1DModel(tardis_config)
+    return Radial1DModel.from_config(tardis_config)
 
 
 @pytest.fixture()
-def simulation_one_loop(raw_model, tardis_config):
-    sim = Simulation(tardis_config)
-    sim.run_single_montecarlo(raw_model, 40000)
+def raw_plasma(tardis_config, raw_model, kurucz_atomic_data):
+    return assemble_plasma(tardis_config, raw_model, kurucz_atomic_data)
+
+
+@pytest.fixture()
+def simulation_one_loop(raw_model, raw_plasma, tardis_config):
+    sim = Simulation.from_config(tardis_config, model=raw_model,
+                                 plasma=raw_plasma)
+    sim.iterate(40000)
 
     return sim
 

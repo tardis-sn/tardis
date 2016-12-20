@@ -11,88 +11,55 @@ logger = logging.getLogger(__name__)
 
 from tardis.util import parse_quantity
 
+
 class ConfigurationError(Exception):
     pass
 
 
-def read_density_file(density_filename, density_filetype, time_explosion,
-                      v_inner_boundary=0.0, v_outer_boundary=np.inf):
+def read_density_file(filename, filetype):
     """
     read different density file formats
 
     Parameters
     ----------
 
-    density_filename: ~str
+    filename: ~str
         filename or path of the density file
 
-    density_filetype: ~str
+    filetype: ~str
         type of the density file
 
-    time_explosion: ~astropy.units.Quantity
-        time since explosion used to scale the density
+    Returns
+    -------
+    time_of_model: ~astropy.units.Quantity
+        time at which the model is valid
+
+    velocity: ~np.ndarray
+        the array containing the velocities
+
+    unscaled_mean_densities: ~np.ndarray
+        the array containing the densities
 
     """
     file_parsers = {'artis': read_artis_density,
                     'simple_ascii': read_simple_ascii_density}
 
-    time_of_model, index, v_inner, v_outer, unscaled_mean_densities = file_parsers[density_filetype](density_filename)
-    mean_densities = calculate_density_after_time(unscaled_mean_densities, time_of_model, time_explosion)
-
-    if v_inner_boundary > v_outer_boundary:
-        raise ConfigurationError('v_inner_boundary > v_outer_boundary '
-                                 '({0:s} > {1:s}). unphysical!'.format(
-            v_inner_boundary, v_outer_boundary))
-
-    if (not np.isclose(v_inner_boundary, 0.0 * u.km / u.s,
-                       atol=1e-8 * u.km / u.s)
-        and v_inner_boundary > v_inner[0]):
-
-        if v_inner_boundary > v_outer[-1]:
-            raise ConfigurationError('Inner boundary selected outside of model')
-
-        inner_boundary_index = v_inner.searchsorted(v_inner_boundary) - 1
-        # check for zero volume of designated first cell
-        if np.isclose(v_inner_boundary, v_inner[inner_boundary_index + 1],
-                      atol=1e-8 * u.km / u.s) and (v_inner_boundary <=
-                                                   v_inner[inner_boundary_index + 1]):
-            inner_boundary_index += 1
-
-    else:
-        inner_boundary_index = None
-        v_inner_boundary = v_inner[0]
-        logger.warning("v_inner_boundary requested too small for readin file."
-                       " Boundary shifted to match file.")
-
-    if not np.isinf(v_outer_boundary) and v_outer_boundary < v_outer[-1]:
-        outer_boundary_index = v_outer.searchsorted(v_outer_boundary) + 1
-    else:
-        outer_boundary_index = None
-        v_outer_boundary = v_outer[-1]
-        logger.warning("v_outer_boundary requested too large for readin file. Boundary shifted to match file.")
-
-
-    v_inner = v_inner[inner_boundary_index:outer_boundary_index]
-    v_inner[0] = v_inner_boundary
-
-    v_outer = v_outer[inner_boundary_index:outer_boundary_index]
-    v_outer[-1] = v_outer_boundary
-
-    mean_densities = mean_densities[inner_boundary_index:outer_boundary_index]
-
+    (time_of_model, velocity,
+     unscaled_mean_densities) = file_parsers[filetype](filename)
+    v_inner = velocity[:-1]
+    v_outer = velocity[1:]
     invalid_volume_mask = (v_outer - v_inner) <= 0
     if invalid_volume_mask.sum() > 0:
         message = "\n".join(["cell {0:d}: v_inner {1:s}, v_outer "
                              "{2:s}".format(i, v_inner_i, v_outer_i) for i,
-                             v_inner_i, v_outer_i in
+                               v_inner_i, v_outer_i in
                              zip(np.arange(len(v_outer))[invalid_volume_mask],
                                  v_inner[invalid_volume_mask],
                                  v_outer[invalid_volume_mask])])
         raise ConfigurationError("Invalid volume of following cell(s):\n"
                                  "{:s}".format(message))
 
-    return (v_inner, v_outer, mean_densities,
-            inner_boundary_index, outer_boundary_index)
+    return time_of_model, velocity, unscaled_mean_densities
 
 def read_abundances_file(abundance_filename, abundance_filetype,
                          inner_boundary_index=None, outer_boundary_index=None):
@@ -161,12 +128,13 @@ def read_simple_ascii_density(fname):
         time_of_model_string = fh.readline().strip()
         time_of_model = parse_quantity(time_of_model_string)
 
-    data = recfromtxt(fname, skip_header=1, names=('index', 'velocity', 'density'), dtype=(int, float, float))
+    data = recfromtxt(fname, skip_header=1,
+                      names=('index', 'velocity', 'density'),
+                      dtype=(int, float, float))
     velocity = (data['velocity'] * u.km / u.s).to('cm/s')
-    v_inner, v_outer = velocity[:-1], velocity[1:]
     mean_density = (data['density'] * u.Unit('g/cm^3'))[1:]
 
-    return time_of_model, data['index'], v_inner, v_outer, mean_density
+    return time_of_model, velocity, mean_density
 
 def read_artis_density(fname):
     """
@@ -211,9 +179,8 @@ def read_artis_density(fname):
 
     velocity = u.Quantity(artis_model['velocities'], 'km/s').to('cm/s')
     mean_density = u.Quantity(10 ** artis_model['mean_densities_0'], 'g/cm^3')[1:]
-    v_inner, v_outer = velocity[:-1], velocity[1:]
 
-    return time_of_model, artis_model['index'], v_inner, v_outer, mean_density
+    return time_of_model, velocity, mean_density
 
 
 
@@ -245,33 +212,3 @@ def read_simple_ascii_abundances(fname):
     abundances = pd.DataFrame(data[1:,1:].transpose(), index=np.arange(1, data.shape[1]))
 
     return index, abundances
-
-
-
-
-
-def calculate_density_after_time(densities, time_0, time_explosion):
-    """
-    scale the density from an initial time of the model to the time of the explosion by ^-3
-
-    Parameters:
-    -----------
-
-    densities: ~astropy.units.Quantity
-        densities
-
-    time_0: ~astropy.units.Quantity
-        time of the model
-
-    time_explosion: ~astropy.units.Quantity
-        time to be scaled to
-
-    Returns:
-    --------
-
-    scaled_density
-    """
-
-    return densities * (time_explosion / time_0) ** -3
-
-
