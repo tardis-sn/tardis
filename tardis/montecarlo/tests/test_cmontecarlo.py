@@ -986,18 +986,7 @@ def test_montecarlo_bound_free_scatter_continuum_selection(packet, model_3lvlato
     assert_equal(model_3lvlatom.last_line_interaction_in_id[packet.id], expected)
 
 
-"""
-Not Yet Relevant Tests:
------------------------
-The tests written further (till next block comment is encountered) are for the
-methods related to Continuum interactions. These are not required to be tested
-on current master and can be skipped for now.
-"""
-
-
-@pytest.mark.skipif(True, reason="Not yet relevant")
+@pytest.mark.continuumtest
+@pytest.mark.skipif(True, reason="Yet to be written.")
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
-    cmontecarlo_methods.montecarlo_free_free_scatter(byref(packet), byref(model),
-                                                     c_double(1.e13), byref(mt_state))
-
-    assert_equal(packet.status, TARDIS_PACKET_STATUS_REABSORBED)
+    pass
