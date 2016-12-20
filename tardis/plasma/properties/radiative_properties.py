@@ -11,7 +11,7 @@ from tardis.plasma.properties.util import macro_atom
 logger = logging.getLogger(__name__)
 
 __all__ = ['StimulatedEmissionFactor', 'TauSobolev', 'BetaSobolev',
-    'TransitionProbabilities', 'LTEJBlues']
+           'TransitionProbabilities']
 
 class StimulatedEmissionFactor(ProcessingPlasmaProperty):
     """
@@ -27,10 +27,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         super(StimulatedEmissionFactor, self).__init__(plasma_parent)
         self._g_upper = None
         self._g_lower = None
-        try:
-            self.nlte_species = self.plasma_parent.nlte_species
-        except:
-            self.nlte_species = nlte_species
+        self.nlte_species = nlte_species
 
     def get_g_lower(self, g, lines_lower_level_index):
         if self._g_lower is None:
@@ -228,29 +225,3 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
                 return atomic_data.macro_atom_data
             except:
                 return atomic_data.macro_atom_data_all
-
-
-
-class LTEJBlues(ProcessingPlasmaProperty):
-    '''
-    Attributes
-    ----------
-    lte_j_blues : Pandas DataFrame, dtype float
-                  J_blue values as calculated in LTE.
-    '''
-    outputs = ('lte_j_blues',)
-    latex_name = ('J^{b}_{lu(LTE)}')
-
-    @staticmethod
-    def calculate(lines, nu, beta_rad):
-        beta_rad = pd.Series(beta_rad)
-        nu = pd.Series(nu)
-        h = const.h.cgs.value
-        c = const.c.cgs.value
-        df = pd.DataFrame(1, index=nu.index, columns=beta_rad.index)
-        df = df.mul(nu, axis='index') * beta_rad
-        exponential = (np.exp(h * df) - 1)**(-1)
-        remainder = (2 * (h * nu.values ** 3) /
-            (c ** 2))
-        j_blues = exponential.mul(remainder, axis=0)
-        return pd.DataFrame(j_blues, index=lines.index, columns=beta_rad.index)

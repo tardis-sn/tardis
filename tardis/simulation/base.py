@@ -1,99 +1,92 @@
-import os
-import logging
 import time
-import itertools
-
-import pandas as pd
-
+import logging
 import numpy as np
-
+import pandas as pd
 from astropy import units as u
+from collections import OrderedDict
 
 from tardis.montecarlo.base import MontecarloRunner
-from tardis.plasma.properties.base import Input
+from tardis.model.base import Radial1DModel
+from tardis.plasma.standard_plasmas import assemble_plasma
 
 # Adding logging support
 logger = logging.getLogger(__name__)
 
 
 class Simulation(object):
+    """A composite object containing all the required information for a
+    simulation.
 
-    converged = False
+    Parameters
+    ----------
+    converged : bool
+    iterations : int
+    model : tardis.model.Radial1DModel
+    plasma : tardis.plasma.BasePlasma
+    runner : tardis.montecarlo.base.MontecarloRunner
+    no_of_packets : int
+    last_no_of_packets : int
+    no_of_virtual_packets : int
+    luminosity_nu_start : astropy.units.Quantity
+    luminosity_nu_end : astropy.units.Quantity
+    luminosity_requested : astropy.units.Quantity
+    nthreads : int
+        The number of threads to run montecarlo with
 
-    def __init__(self, tardis_config):
-        self.tardis_config = tardis_config
-        self.runner = MontecarloRunner(self.tardis_config.montecarlo.seed,
-                                       tardis_config.spectrum.frequency,
-                                       tardis_config.supernova.get('distance',
-                                                                   None))
-        t_inner_lock_cycle = [False] * (tardis_config.montecarlo.
-                                        convergence_strategy.
-                                        lock_t_inner_cycles)
-        t_inner_lock_cycle[0] = True
-        self.t_inner_update = itertools.cycle(t_inner_lock_cycle)
+        .. note:: TARDIS must be built with OpenMP support in order for
+        `nthreads` to have effect.
+    """
+    def __init__(self, iterations, model, plasma, runner,
+                 no_of_packets, no_of_virtual_packets, luminosity_nu_start,
+                 luminosity_nu_end, last_no_of_packets,
+                 luminosity_requested, convergence_strategy,
+                 nthreads):
+        self.converged = False
+        self.iterations = iterations
+        self.iterations_executed = 0
+        self.model = model
+        self.plasma = plasma
+        self.runner = runner
+        self.no_of_packets = no_of_packets
+        self.last_no_of_packets = last_no_of_packets
+        self.no_of_virtual_packets = no_of_virtual_packets
+        self.luminosity_nu_start = luminosity_nu_start
+        self.luminosity_nu_end = luminosity_nu_end
+        self.luminosity_requested = luminosity_requested
+        self.nthreads = nthreads
+        if convergence_strategy.type in ('damped', 'specific'):
+            self.convergence_strategy = convergence_strategy
+            self.converged = False
+            self.consecutive_converges_count = 0
+        else:
+            raise ValueError('Convergence strategy type is '
+                             'neither damped nor specific '
+                             '- input is {0}'.format(convergence_strategy.type))
 
-    def run_single_montecarlo(self, model, no_of_packets,
-                              no_of_virtual_packets=0,last_run=False):
-        """
-        Will do a single TARDIS iteration with the given model
-        Parameters
-        ----------
-        model: ~tardis.model.Radial1DModel
-        no_of_packet: ~int
-        no_of_virtual_packets: ~int
-            default is 0 and switches of the virtual packet mode. Recommended
-            is 3.
-
-        Returns
-        -------
-            : None
-
-        """
-        self.runner.run(model, no_of_packets,
-                        no_of_virtual_packets=no_of_virtual_packets,
-                        nthreads=self.tardis_config.montecarlo.nthreads,last_run=last_run)
-
-
-        (montecarlo_nu, montecarlo_energies, self.j_estimators,
-         self.nubar_estimators, last_line_interaction_in_id,
-         last_line_interaction_out_id, self.last_interaction_type,
-         self.last_line_interaction_shell_id) = self.runner.legacy_return()
-
-        if np.sum(montecarlo_energies < 0) == len(montecarlo_energies):
-            logger.critical("No r-packet escaped through the outer boundary.")
-
-
-
-    def calculate_emitted_luminosity(self):
-        """
-
-        Returns
-        -------
-
-        """
-        return self.runner.calculate_emitted_luminosity(
-            self.tardis_config.supernova.luminosity_nu_start,
-            self.tardis_config.supernova.luminosity_nu_end)
-
-    def calculate_reabsorbed_luminosity(self):
-        return self.runner.calculate_reabsorbed_luminosity(
-            self.tardis_config.supernova.luminosity_nu_start,
-            self.tardis_config.supernova.luminosity_nu_end)
-
+        self._callbacks = OrderedDict()
+        self._cb_next_id = 0
 
     def estimate_t_inner(self, input_t_inner, luminosity_requested,
                          t_inner_update_exponent=-0.5):
-        emitted_luminosity = self.calculate_emitted_luminosity()
+        emitted_luminosity = self.runner.calculate_emitted_luminosity(
+                                self.luminosity_nu_start,
+                                self.luminosity_nu_end)
 
         luminosity_ratios = (
             (emitted_luminosity / luminosity_requested).to(1).value)
 
         return input_t_inner * luminosity_ratios ** t_inner_update_exponent
 
-    def get_convergence_status(self, t_rad, w, t_inner, estimated_t_rad, estimated_w,
-                               estimated_t_inner):
-        convergence_section = self.tardis_config.montecarlo.convergence_strategy
-        no_of_shells = self.tardis_config.structure.no_of_shells
+    @staticmethod
+    def damped_converge(value, estimated_value, damping_factor):
+        # FIXME: Should convergence strategy have its own class containing this
+        # as a method
+        return value + damping_factor * (estimated_value - value)
+
+    def _get_convergence_status(self, t_rad, w, t_inner, estimated_t_rad,
+                                estimated_w, estimated_t_inner):
+        # FIXME: Move the convergence checking in its own class.
+        no_of_shells = self.model.no_of_shells
 
         convergence_t_rad = (abs(t_rad - estimated_t_rad) /
                              estimated_t_rad).value
@@ -101,42 +94,132 @@ class Simulation(object):
         convergence_t_inner = (abs(t_inner - estimated_t_inner) /
                                estimated_t_inner).value
 
-        if convergence_section.type == 'specific':
+        if self.convergence_strategy.type == 'specific':
             fraction_t_rad_converged = (
                 np.count_nonzero(
-                    convergence_t_rad < convergence_section.t_rad.threshold)
+                    convergence_t_rad < self.convergence_strategy.t_rad.threshold)
                 / no_of_shells)
 
             t_rad_converged = (
-                fraction_t_rad_converged > convergence_section.t_rad.threshold)
+                fraction_t_rad_converged > self.convergence_strategy.t_rad.threshold)
 
             fraction_w_converged = (
                 np.count_nonzero(
-                    convergence_w < convergence_section.w.threshold)
+                    convergence_w < self.convergence_strategy.w.threshold)
                 / no_of_shells)
 
             w_converged = (
-                fraction_w_converged > convergence_section.w.threshold)
+                fraction_w_converged > self.convergence_strategy.w.threshold)
 
             t_inner_converged = (
-                convergence_t_inner < convergence_section.t_inner.threshold)
+                convergence_t_inner < self.convergence_strategy.t_inner.threshold)
 
             if np.all([t_rad_converged, w_converged, t_inner_converged]):
-                return True
+                hold_iterations = self.convergence_strategy.hold_iterations
+                self.consecutive_converges_count += 1
+                logger.info("Iteration converged {0:d}/{1:d} consecutive "
+                            "times.".format(self.consecutive_converges_count,
+                                            hold_iterations + 1))
+                # If an iteration has converged, require hold_iterations more
+                # iterations to converge before we conclude that the Simulation
+                # is converged.
+                return self.consecutive_converges_count == hold_iterations + 1
             else:
+                self.consecutive_converges_count = 0
                 return False
 
         else:
             return False
 
+    def advance_state(self):
+        """
+        Advances the state of the model and the plasma for the next
+        iteration of the simulation. Returns True if the convergence criteria
+        are met, else False.
 
-    def log_run_results(self, emitted_luminosity, absorbed_luminosity):
-            logger.info("Luminosity emitted = {0:.5e} "
-                    "Luminosity absorbed = {1:.5e} "
-                    "Luminosity requested = {2:.5e}".format(
-                emitted_luminosity, absorbed_luminosity,
-                self.tardis_config.supernova.luminosity_requested))
+        Returns
+        -------
+            converged : ~bool
+        """
+        estimated_t_rad, estimated_w = (
+            self.runner.calculate_radiationfield_properties())
+        estimated_t_inner = self.estimate_t_inner(
+            self.model.t_inner, self.luminosity_requested)
 
+        converged = self._get_convergence_status(self.model.t_rad,
+                                                 self.model.w,
+                                                 self.model.t_inner,
+                                                 estimated_t_rad,
+                                                 estimated_w,
+                                                 estimated_t_inner)
+
+        # calculate_next_plasma_state equivalent
+        # FIXME: Should convergence strategy have its own class?
+        next_t_rad = self.damped_converge(
+            self.model.t_rad, estimated_t_rad,
+            self.convergence_strategy.t_rad.damping_constant)
+        next_w = self.damped_converge(
+            self.model.w, estimated_w, self.convergence_strategy.w.damping_constant)
+        next_t_inner = self.damped_converge(
+            self.model.t_inner, estimated_t_inner,
+            self.convergence_strategy.t_inner.damping_constant)
+
+        self.log_plasma_state(self.model.t_rad, self.model.w,
+                              self.model.t_inner, next_t_rad, next_w,
+                              next_t_inner)
+        self.model.t_rad = next_t_rad
+        self.model.w = next_w
+        self.model.t_inner = next_t_inner
+
+        # model.calculate_j_blues() equivalent
+        # model.update_plasmas() equivalent
+        # Bad test to see if this is a nlte run
+        if 'nlte_data' in self.plasma.outputs_dict:
+            self.plasma.store_previous_properties()
+
+        update_properties = dict(t_rad=self.model.t_rad, w=self.model.w)
+        # A check to see if the plasma is set with JBluesDetailed, in which
+        # case it needs some extra kwargs.
+        if 'j_blue_estimator' in self.plasma.outputs_dict:
+            update_properties.update(t_inner=next_t_inner,
+                                 j_blue_estimator=self.runner.j_blue_estimator)
+
+        self.plasma.update(**update_properties)
+
+        return converged
+
+    def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
+        logger.info('Starting iteration {0:d}/{1:d}'.format(
+                    self.iterations_executed + 1, self.iterations))
+        self.runner.run(self.model, self.plasma, no_of_packets,
+                        no_of_virtual_packets=no_of_virtual_packets,
+                        nthreads=self.nthreads, last_run=last_run)
+        output_energy = self.runner.output_energy
+        if np.sum(output_energy < 0) == len(output_energy):
+            logger.critical("No r-packet escaped through the outer boundary.")
+
+        emitted_luminosity = self.runner.calculate_emitted_luminosity(
+            self.luminosity_nu_start, self.luminosity_nu_end)
+        reabsorbed_luminosity = self.runner.calculate_reabsorbed_luminosity(
+            self.luminosity_nu_start, self.luminosity_nu_end)
+        self.log_run_results(emitted_luminosity,
+                             reabsorbed_luminosity)
+        self.iterations_executed += 1
+
+    def run(self):
+        start_time = time.time()
+        while self.iterations_executed < self.iterations-1 and not self.converged:
+            self.iterate(self.no_of_packets)
+            self.converged = self.advance_state()
+            self._call_back()
+        # Last iteration
+        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
+        self.runner.legacy_update_spectrum(self.no_of_virtual_packets)
+
+        logger.info("Simulation finished in {0:d} iterations "
+                    "and took {1:.2f} s".format(
+                        self.iterations_executed, time.time() - start_time))
+        self._call_back()
 
     def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
                          next_t_inner, log_sampling=5):
@@ -180,215 +263,20 @@ class Simulation(object):
         logger.info('t_inner {0:.3f} -- next t_inner {1:.3f}'.format(
             t_inner, next_t_inner))
 
+    def log_run_results(self, emitted_luminosity, absorbed_luminosity):
+        logger.info("Luminosity emitted = {0:.5e} "
+                    "Luminosity absorbed = {1:.5e} "
+                    "Luminosity requested = {2:.5e}".format(
+            emitted_luminosity, absorbed_luminosity,
+            self.luminosity_requested))
 
-    @staticmethod
-    def damped_converge(value, estimated_value, damping_factor):
-        return value + damping_factor * (estimated_value - value)
-
-
-    def calculate_next_plasma_state(self, t_rad, w, t_inner,
-                                    estimated_w, estimated_t_rad,
-                                    estimated_t_inner):
-
-        convergence_strategy = (
-            self.tardis_config.montecarlo.convergence_strategy)
-
-        if (convergence_strategy.type == 'damped'
-            or convergence_strategy.type == 'specific'):
-
-            next_t_rad = self.damped_converge(
-                t_rad, estimated_t_rad,
-                convergence_strategy.t_rad.damping_constant)
-            next_w = self.damped_converge(
-                w, estimated_w, convergence_strategy.w.damping_constant)
-            next_t_inner = self.damped_converge(
-                t_inner, estimated_t_inner,
-                convergence_strategy.t_inner.damping_constant)
-
-            return next_t_rad, next_w, next_t_inner
-
-        else:
-            raise ValueError('Convergence strategy type is '
-                             'neither damped nor specific '
-                             '- input is {0}'.format(convergence_strategy.type))
-
-    def legacy_run_simulation(self, model, hdf_path_or_buf=None,
-                              hdf_mode='full', hdf_last_only=True):
-        """
-
-        Parameters
-        ----------
-        model : tardis.model.Radial1DModel
-        hdf_path_or_buf : str, optional
-            A path to store the data of each simulation iteration
-            (the default value is None, which means that nothing
-            will be stored).
-        hdf_mode : {'full', 'input'}, optional
-            If 'full' all plasma properties will be stored to HDF,
-            if 'input' only input plasma properties will be stored.
-        hdf_last_only: bool, optional
-            If True, only the last iteration of the simulation will
-            be stored to the HDFStore.
-
-        Returns
-        -------
-
-        """
-        if hdf_path_or_buf is not None:
-            if hdf_mode == 'full':
-                plasma_properties = None
-            elif hdf_mode == 'input':
-                plasma_properties = [Input]
-            else:
-                raise ValueError('hdf_mode must be "full" or "input"'
-                                 ', not "{}"'.format(type(hdf_mode)))
-        start_time = time.time()
-
-        self.iterations_remaining = self.tardis_config.montecarlo.iterations
-        self.iterations_max_requested = self.tardis_config.montecarlo.iterations
-        self.iterations_executed = 0
-        converged = False
-
-        convergence_section = (
-                    self.tardis_config.montecarlo.convergence_strategy)
-
-        while self.iterations_remaining > 1:
-            logger.info('Remaining run %d', self.iterations_remaining)
-            self.run_single_montecarlo(
-                model, self.tardis_config.montecarlo.no_of_packets)
-            self.log_run_results(self.calculate_emitted_luminosity(),
-                                 self.calculate_reabsorbed_luminosity())
-            self.iterations_executed += 1
-            self.iterations_remaining -= 1
-
-            estimated_t_rad, estimated_w = (
-                self.runner.calculate_radiationfield_properties())
-            estimated_t_inner = self.estimate_t_inner(
-                model.t_inner,
-                self.tardis_config.supernova.luminosity_requested)
-
-            converged = self.get_convergence_status(
-                model.t_rads, model.ws, model.t_inner, estimated_t_rad,
-                estimated_w, estimated_t_inner)
-
-            next_t_rad, next_w, next_t_inner = self.calculate_next_plasma_state(
-                model.t_rads, model.ws, model.t_inner,
-                estimated_w, estimated_t_rad, estimated_t_inner)
-
-            self.log_plasma_state(model.t_rads, model.ws, model.t_inner,
-                                  next_t_rad, next_w, next_t_inner)
-            model.t_rads = next_t_rad
-            model.ws = next_w
-            model.t_inner = next_t_inner
-            model.j_blue_estimators = self.runner.j_blue_estimator
-
-            model.calculate_j_blues(init_detailed_j_blues=False)
-            model.update_plasmas(initialize_nlte=False)
-            if hdf_path_or_buf is not None and not hdf_last_only:
-                self.to_hdf(model, hdf_path_or_buf,
-                            'simulation{}'.format(self.iterations_executed),
-                            plasma_properties)
-
-
-            # if switching into the hold iterations mode or out back to the normal one
-            # if it is in either of these modes already it will just stay there
-            if converged and not self.converged:
-                self.converged = True
-                # UMN - used to be 'hold_iterations_wrong' but this is
-                # currently not in the convergence_section namespace...
-                self.iterations_remaining = (
-                    convergence_section["hold_iterations"])
-            elif not converged and self.converged:
-                # UMN Warning: the following two iterations attributes of the Simulation object don't exist
-                self.iterations_remaining = self.iterations_max_requested - self.iterations_executed
-                self.converged = False
-            else:
-                # either it is converged and the status of the simulation is
-                # converged OR it is not converged and the status of the
-                # simulation is not converged - Do nothing.
-                pass
-
-            if converged:
-                self.iterations_remaining = (
-                    convergence_section["hold_iterations"])
-
-        #Finished second to last loop running one more time
-        logger.info('Doing last run')
-        if self.tardis_config.montecarlo.last_no_of_packets is not None:
-            no_of_packets = self.tardis_config.montecarlo.last_no_of_packets
-        else:
-            no_of_packets = self.tardis_config.montecarlo.no_of_packets
-
-        no_of_virtual_packets = (
-            self.tardis_config.montecarlo.no_of_virtual_packets)
-
-        self.run_single_montecarlo(model, no_of_packets, no_of_virtual_packets, last_run=True)
-
-        self.runner.legacy_update_spectrum(no_of_virtual_packets)
-        self.legacy_set_final_model_properties(model)
-        model.Edotlu_estimators = self.runner.Edotlu_estimator
-
-        #the following instructions, passing down information to the model are
-        #required for the gui
-        model.no_of_packets = no_of_packets
-        model.no_of_virtual_packets = no_of_virtual_packets
-        model.converged = converged
-        model.iterations_executed = self.iterations_executed
-        model.iterations_max_requested = self.iterations_max_requested
-
-        logger.info("Finished in {0:d} iterations and took {1:.2f} s".format(
-            self.iterations_executed, time.time()-start_time))
-
-        if hdf_path_or_buf is not None:
-            if hdf_last_only:
-                name = 'simulation'
-            else:
-                name = 'simulation{}'.format(self.iterations_executed)
-            self.to_hdf(model, hdf_path_or_buf, name, plasma_properties)
-
-    def legacy_set_final_model_properties(self, model):
-        """Sets additional model properties to be compatible with old model design
-
-        The runner object is given to the model and other packet diagnostics are set.
-
-        Parameters
-        ----------
-        model: ~tardis.model.Radial1DModel
-
-        Returns
-        -------
-            : None
-
-        """
-
-        #pass the runner to the model
-        model.runner = self.runner
-        #TODO: pass packet diagnostic arrays
-        (montecarlo_nu, montecarlo_energies, model.j_estimators,
-                model.nubar_estimators, last_line_interaction_in_id,
-                last_line_interaction_out_id, model.last_interaction_type,
-                model.last_line_interaction_shell_id) = model.runner.legacy_return()
-
-        model.montecarlo_nu = self.runner.output_nu
-        model.montecarlo_luminosity = self.runner.packet_luminosity
-
-
-        model.last_line_interaction_in_id = model.atom_data.lines_index.index.values[last_line_interaction_in_id]
-        model.last_line_interaction_in_id = model.last_line_interaction_in_id[last_line_interaction_in_id != -1]
-        model.last_line_interaction_out_id = model.atom_data.lines_index.index.values[last_line_interaction_out_id]
-        model.last_line_interaction_out_id = model.last_line_interaction_out_id[last_line_interaction_out_id != -1]
-        model.last_line_interaction_angstrom = model.montecarlo_nu[last_line_interaction_in_id != -1].to('angstrom',
-                                                                                                       u.spectral())
-        # required for gui
-        model.current_no_of_packets = model.tardis_config.montecarlo.no_of_packets
-
-    def to_hdf(self, model, path_or_buf, path='', plasma_properties=None):
+    def to_hdf(self, path_or_buf, path='simulation', plasma_properties=None,
+               suffix_count=True):
         """
         Store the simulation to an HDF structure.
 
         Parameters
         ----------
-        model : tardis.model.Radial1DModel
         path_or_buf
             Path or buffer to the HDF store
         path : str
@@ -397,37 +285,128 @@ class Simulation(object):
             `None` or a `PlasmaPropertyCollection` which will
             be passed as the collection argument to the
             plasma.to_hdf method.
+        suffix_count : bool
+            If True, the path inside the HDF will be suffixed with the
+            number of the iteration being stored.
         Returns
         -------
         None
         """
+        if suffix_count:
+            path += str(self.iterations_executed)
         self.runner.to_hdf(path_or_buf, path)
-        model.to_hdf(path_or_buf, path, plasma_properties)
+        self.model.to_hdf(path_or_buf, path)
+        self.plasma.to_hdf(path_or_buf, path, plasma_properties)
 
+    def _call_back(self):
+        for cb, args in self._callbacks.values():
+            cb(self, *args)
 
-def run_radial1d(radial1d_model, hdf_path_or_buf=None,
-                 hdf_mode='full', hdf_last_only=True):
-    """
+    def add_callback(self, cb_func, *args):
+        """
+        Add a function which will be called
+        after every iteration.
 
-    Parameters
-    ----------
-    radial1d_model : tardis.model.Radial1DModel
-    hdf_path_or_buf : str, optional
-        A path to store the data of each simulation iteration
-        (the default value is None, which means that nothing
-        will be stored).
-    hdf_mode : {'full', 'input'}, optional
-        If 'full' all plasma properties will be stored to HDF,
-        if 'input' only input plasma properties will be stored.
-    hdf_last_only: bool, optional
-        If True, only the last iteration of the simulation will
-        be stored to the HDFStore.
+        The cb_func signature must look like:
+        cb_func(simulation, extra_arg1, ...)
 
-    Returns
-    -------
+        Parameters
+        ----------
+        cb_func: callable
+            The callback function
+        arg1:
+            The first additional arguments passed to the callable function
+        ...
 
-    """
+        Returns
+        -------
+        : int
+         The callback ID
+        """
+        cb_id = self._cb_next_id
+        self._callbacks[cb_id] = (cb_func, args)
+        self._cb_next_id += 1
+        return cb_id
 
-    simulation = Simulation(radial1d_model.tardis_config)
-    simulation.legacy_run_simulation(radial1d_model, hdf_path_or_buf,
-                                     hdf_mode, hdf_last_only)
+    def remove_callback(self, id):
+        """
+        Remove the callback with a specific ID (which was returned by
+        add_callback)
+
+        Parameters
+        ----------
+        id: int
+            The callback ID
+
+        Returns
+        -------
+        : True if the callback was successfully removed.
+        """
+        try:
+            del self._callbacks[id]
+            return True
+        except KeyError:
+            return False
+
+    @classmethod
+    def from_config(cls, config, **kwargs):
+        """
+        Create a new Simulation instance from a Configuration object.
+
+        Parameters
+        ----------
+        config : tardis.io.config_reader.Configuration
+        **kwargs
+            Allow overriding some structures, such as model, plasma, atomic data
+            and the runner, instead of creating them from the configuration
+            object.
+
+        Returns
+        -------
+        Simulation
+
+        """
+        # Allow overriding some config structures. This is useful in some
+        # unit tests, and could be extended in all the from_config classmethods.
+        if 'model' in kwargs:
+            model = kwargs['model']
+        else:
+            model = Radial1DModel.from_config(config)
+        if 'plasma' in kwargs:
+            plasma = kwargs['plasma']
+        else:
+            plasma = assemble_plasma(config, model,
+                                     atom_data=kwargs.get('atom_data', None))
+        if 'runner' in kwargs:
+            runner = kwargs['runner']
+        else:
+            runner = MontecarloRunner.from_config(config)
+
+        luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
+                u.Hz, u.spectral())
+
+        try:
+            luminosity_nu_end = config.supernova.luminosity_wavelength_start.to(
+                u.Hz, u.spectral())
+        except ZeroDivisionError:
+            luminosity_nu_end = np.inf * u.Hz
+
+        last_no_of_packets = config.montecarlo.last_no_of_packets
+        if last_no_of_packets is None or last_no_of_packets < 0:
+            last_no_of_packets =  config.montecarlo.no_of_packets
+        last_no_of_packets = int(last_no_of_packets)
+
+        return cls(iterations=config.montecarlo.iterations,
+                   model=model,
+                   plasma=plasma,
+                   runner=runner,
+                   no_of_packets=int(config.montecarlo.no_of_packets),
+                   no_of_virtual_packets=int(
+                       config.montecarlo.no_of_virtual_packets),
+                   luminosity_nu_start=luminosity_nu_start,
+                   luminosity_nu_end=luminosity_nu_end,
+                   last_no_of_packets=last_no_of_packets,
+                   luminosity_requested=config.supernova.luminosity_requested.cgs,
+                   convergence_strategy=config.montecarlo.convergence_strategy,
+                   nthreads=config.montecarlo.nthreads)
+

@@ -106,15 +106,20 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
     with Tardis) to work.
     '''
     outputs = ('helium_population',)
+    def __init__(self, plasma_parent, heating_rate_data_file):
+        super(HeliumNumericalNLTE, self).__init__(plasma_parent)
+        self._g_upper = None
+        self._g_lower = None
+        self.heating_rate_data = np.loadtxt(
+            heating_rate_data_file, unpack=True)
+
     def calculate(self, ion_number_density, electron_densities, t_electrons, w,
         lines, j_blues, levels, level_boltzmann_factor, t_rad,
         zeta_data, g_electron, delta, partition_function, ionization_data,
-        beta_rad, g):
+        beta_rad, g, time_explosion):
         logger.info('Performing numerical NLTE He calculations.')
         if len(j_blues)==0:
             return None
-        heating_rate_data = np.loadtxt(
-            self.plasma_parent.heating_rate_data_file, unpack=True)
         #Outputting data required by SH module
         for zone, _ in enumerate(electron_densities):
             with open('He_NLTE_Files/shellconditions_{}.txt'.format(zone),
@@ -122,9 +127,9 @@ class HeliumNumericalNLTE(ProcessingPlasmaProperty):
                 output_file.write(ion_number_density.ix[2].sum()[zone])
                 output_file.write(electron_densities[zone])
                 output_file.write(t_electrons[zone])
-                output_file.write(heating_rate_data[zone])
+                output_file.write(self.heating_rate_data[zone])
                 output_file.write(w[zone])
-                output_file.write(self.plasma_parent.time_explosion)
+                output_file.write(time_explosion)
                 output_file.write(t_rad[zone])
                 output_file.write(self.plasma_parent.v_inner[zone])
                 output_file.write(self.plasma_parent.v_outer[zone])

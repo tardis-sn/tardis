@@ -126,11 +126,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         chi_0_species=(20,2), delta_treatment=None):
         super(RadiationFieldCorrection, self).__init__(plasma_parent)
         self.departure_coefficient = departure_coefficient
-        try:
-            self.delta_treatment = self.plasma_parent.delta_treatment
-        except:
-            self.delta_treatment = delta_treatment
-
+        self.delta_treatment = delta_treatment
         self.chi_0_species = chi_0_species
 
     def _set_chi_0(self, ionization_data):
@@ -164,7 +160,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
                 less_than_chi_0],beta_rad) - self.chi_0 * beta_electron)
         else:
             radiation_field_correction = np.ones((len(ionization_data),
-                len(beta_rad))) * self.plasma_parent.delta_treatment
+                len(beta_rad))) * self.delta_treatment
         delta = pd.DataFrame(radiation_field_correction,
             columns=np.arange(len(t_rad)), index=ionization_data.index)
         return delta

@@ -19,23 +19,22 @@ def run_tardis(config, atom_data=None):
         atomic data will be loaded according to keywords set in the configuration
         [default=None]
     """
-    from tardis.io import config_reader
-    from tardis import model, simulation, atomic
+    from tardis.io.config_reader import Configuration
+    from tardis.simulation import Simulation
+    from tardis.atomic import AtomData
 
     if atom_data is not None:
         try:
-            atom_data = atomic.AtomData.from_hdf5(atom_data)
+            atom_data = AtomData.from_hdf5(atom_data)
         except TypeError:
             atom_data = atom_data
 
     try:
-        tardis_config = config_reader.Configuration.from_yaml(
-            config, atom_data=atom_data)
+        tardis_config = Configuration.from_yaml(config)
     except TypeError:
-        tardis_config = config_reader.Configuration.from_config_dict(
-            config, atom_data=atom_data)
+        tardis_config = Configuration.from_config_dict(config)
 
-    radial1d_mdl = model.Radial1DModel(tardis_config)
-    simulation.run_radial1d(radial1d_mdl)
+    simulation = Simulation.from_config(tardis_config, atom_data=atom_data)
+    simulation.run()
 
-    return radial1d_mdl
+    return simulation

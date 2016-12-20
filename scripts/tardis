@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 from tardis.io import config_reader
 
-from tardis import model
-from tardis.simulation.base import run_radial1d
+from tardis.simulation import Simulation
 import numpy as np
 
 import logging
@@ -63,20 +62,20 @@ if args.packet_log_file:
     logger.addHandler(packet_logging_handler)
 
 tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
-radial1d_mdl = model.Radial1DModel(tardis_config)
+simulation = Simulation.from_config(tardis_config)
 
 if args.gdb:
     import os; print(os.getpid()); raw_input() # Workaround to attach gdb
 if args.profile:
     import cProfile
-    cProfile.runctx('run_radial1d(radial1d_mdl)', locals(),
+    cProfile.runctx('simulation.run()', locals(),
                     globals(), filename=args.profiler_log_file)
 else:
-    run_radial1d(radial1d_mdl)
+    simulation.run()
 
 
-if not np.all(radial1d_mdl.spectrum_virtual.luminosity_density_lambda.value
+if not np.all(simulation.runner.spectrum_virtual.luminosity_density_lambda.value
         == 0.0):
-    radial1d_mdl.spectrum_virtual.to_ascii(args.spectrum_fname)
+    simulation.runner.spectrum_virtual.to_ascii(args.spectrum_fname)
 else:
-    radial1d_mdl.spectrum.to_ascii(args.spectrum_fname)
+    simulation.runner.spectrum.to_ascii(args.spectrum_fname)

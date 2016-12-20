@@ -1,14 +1,15 @@
 import logging
 
 import numpy as np
-from astropy import constants as const
+from astropy import constants as const, units as u
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
 logger = logging.getLogger(__name__)
 
 __all__ = ['BetaRadiation', 'GElectron', 'NumberDensity', 'SelectedAtoms',
-           'ElectronTemperature', 'BetaElectron']
+           'ElectronTemperature', 'BetaElectron', 'LuminosityInner',
+           'TimeSimulation']
 
 class BetaRadiation(ProcessingPlasmaProperty):
     """
@@ -98,3 +99,18 @@ class BetaElectron(ProcessingPlasmaProperty):
 
     def calculate(self, t_electrons):
         return 1 / (self.k_B_cgs * t_electrons)
+
+class LuminosityInner(ProcessingPlasmaProperty):
+    outputs = ('luminosity_inner',)
+
+    @staticmethod
+    def calculate(r_inner, t_inner):
+        return (4 * np.pi * const.sigma_sb.cgs * r_inner[0] ** 2
+                * t_inner ** 4).to('erg/s')
+
+class TimeSimulation(ProcessingPlasmaProperty):
+    outputs = ('time_simulation',)
+
+    @staticmethod
+    def calculate(luminosity_inner):
+        return 1.0 * u.erg / luminosity_inner

@@ -7,11 +7,7 @@ import os
 
 from tardis.io.util import yaml_load_config_file
 from tardis.simulation.base import Simulation
-from tardis.model import Radial1DModel
-
 from tardis.io.config_reader import Configuration
-from tardis.montecarlo.base import MontecarloRunner
-from tardis.plasma.standard_plasmas import LegacyPlasmaArray
 
 
 
@@ -39,16 +35,14 @@ class TestSimpleRun():
         self.config_yaml['atom_data'] = self.atom_data_filename
 
         tardis_config = Configuration.from_config_dict(self.config_yaml)
-        self.model = Radial1DModel(tardis_config)
-        self.simulation = Simulation(tardis_config)
-
-        self.simulation.legacy_run_simulation(self.model)
+        self.simulation = Simulation.from_config(tardis_config)
+        self.simulation.run()
 
     def test_j_blue_estimators(self):
         j_blue_estimator = np.load(
             data_path('simple_test_j_blue_estimator.npy'))
 
-        np.testing.assert_allclose(self.model.runner.j_blue_estimator,
+        np.testing.assert_allclose(self.simulation.runner.j_blue_estimator,
                                    j_blue_estimator)
 
     def test_spectrum(self):
@@ -59,7 +53,8 @@ class TestSimpleRun():
             'erg / (Angstrom s)')
 
         np.testing.assert_allclose(
-            self.model.runner.spectrum.luminosity_density_lambda,luminosity_density)
+            self.simulation.runner.spectrum.luminosity_density_lambda,
+            luminosity_density)
 
     def test_virtual_spectrum(self):
         virtual_luminosity_density = np.load(
@@ -69,7 +64,7 @@ class TestSimpleRun():
             'erg / (Angstrom s)')
 
         np.testing.assert_allclose(
-            self.model.runner.spectrum_virtual.luminosity_density_lambda,
+            self.simulation.runner.spectrum_virtual.luminosity_density_lambda,
             virtual_luminosity_density)
 
     def test_plasma_properties(self):
@@ -101,43 +96,4 @@ class TestSimpleRun():
 
         for prop, prop_type in required_props.items():
 
-            assert type(getattr(self.model.runner, prop)) == prop_type, ("wrong type of attribute '{}': expected {}, found {}".format(prop, prop_type, type(getattr(self.model.runner, prop))))
-
-
-    def test_legacy_model_properties(self):
-        """Tests whether a number of model attributes exist and also verifies
-        their types
-
-        Currently, model attributes needed to run the gui and to call the model
-        routine to_hdf5 are checked.
-
-        Notes
-        -----
-        The list of properties may be incomplete
-
-        """
-
-        props_required_by_gui = dict([
-                ("converged", bool),
-                ("iterations_executed", int),
-                ("iterations_max_requested", int),
-                ("current_no_of_packets", int),
-                ("no_of_packets", int),
-                ("no_of_virtual_packets", int),
-                ])
-        props_required_by_tohdf5 = dict([
-                ("runner", MontecarloRunner),
-                ("plasma_array", LegacyPlasmaArray),
-                ("last_line_interaction_in_id", np.ndarray),
-                ("last_line_interaction_out_id", np.ndarray),
-                ("last_line_interaction_shell_id", np.ndarray),
-                ("last_line_interaction_in_id", np.ndarray),
-                ("last_line_interaction_angstrom", u.quantity.Quantity),
-                ])
-
-        required_props = props_required_by_gui.copy()
-        required_props.update(props_required_by_tohdf5)
-
-        for prop, prop_type in required_props.items():
-
-            assert type(getattr(self.model, prop)) == prop_type, ("wrong type of attribute '{}': expected {}, found {}".format(prop, prop_type, type(getattr(self.model, prop))))
+            assert type(getattr(self.simulation.runner, prop)) == prop_type, ("wrong type of attribute '{}': expected {}, found {}".format(prop, prop_type, type(getattr(self.simulation.runner, prop))))
