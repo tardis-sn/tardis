@@ -1008,31 +1008,28 @@ get_event_handler (rpacket_t * packet, storage_model_t * storage,
 montecarlo_event_handler_t
 montecarlo_continuum_event_handler (rpacket_t * packet, storage_model_t * storage, rk_state *mt_state)
 {
-  if (storage->cont_status == CONTINUUM_OFF)
+  if (storage->cont_status)
     {
-      return &montecarlo_thomson_scatter;
-    }
-  else
-    {
-      double zrand = (rk_double(mt_state));
-      double normaliz_cont_th = rpacket_get_chi_electron (packet) / rpacket_get_chi_continuum (packet);
-      double normaliz_cont_bf = rpacket_get_chi_boundfree(packet) / rpacket_get_chi_continuum (packet);
+      double zrand_x_chi_cont = rk_double (mt_state) * rpacket_get_chi_continuum (packet);
+      double chi_th = rpacket_get_chi_electron (packet);
+      double chi_bf = rpacket_get_chi_boundfree (packet);
 
-      if (zrand < normaliz_cont_th)
+      if (zrand_x_chi_cont < chi_th)
         {
-          //Return the electron scatter event function
           return &montecarlo_thomson_scatter;
         }
-      else if (zrand < (normaliz_cont_th + normaliz_cont_bf))
+      else if (zrand_x_chi_cont < chi_th + chi_bf)
         {
-          //Return the bound-free scatter event function
           return &montecarlo_bound_free_scatter;
         }
       else
         {
-          //Return the free-free scatter event function
           return &montecarlo_free_free_scatter;
         }
+    }
+  else
+    {
+      return &montecarlo_thomson_scatter;
     }
 }
 
