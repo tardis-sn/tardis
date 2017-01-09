@@ -1,4 +1,5 @@
-from ctypes import Structure, POINTER, c_int, c_int64, c_double, c_ulong
+from ctypes import Structure, POINTER, c_int, c_int64, c_double, c_ulong, c_bool
+from enum import Enum
 
 c_tardis_error_t = c_int
 c_rpacket_status_t = c_int
@@ -30,7 +31,18 @@ class RPacket(Structure):
         ('chi_th', c_double),
         ('chi_cont', c_double),
         ('chi_ff', c_double),
-        ('chi_bf', c_double)
+        ('chi_bf', c_double),
+        ('chi_bf_tmp_partial', POINTER(c_double)),
+        ('macro_atom_activation_level', c_int64),
+        ('compute_chi_bf', c_bool)
+    ]
+
+
+class PhotoXsect1level(Structure):
+    _fields_ = [
+        ('nu', POINTER(c_double)),
+        ('x_sect', POINTER(c_double)),
+        ('no_of_points', c_int64)
     ]
 
 
@@ -45,7 +57,8 @@ class StorageModel(Structure):
         ('last_line_interaction_in_id', POINTER(c_int64)),
         ('last_line_interaction_out_id', POINTER(c_int64)),
         ('last_line_interaction_shell_id', POINTER(c_int64)),
-        ('last_line_interaction_type', POINTER(c_int64)),
+        ('last_interaction_type', POINTER(c_int64)),
+        ('last_interaction_out_type', POINTER(c_int64)),
         ('no_of_packets', c_int64),
         ('no_of_shells', c_int64),
         ('r_inner', POINTER(c_double)),
@@ -85,11 +98,13 @@ class StorageModel(Structure):
         ('inner_boundary_albedo', c_double),
         ('reflective_inner_boundary', c_int64),
         ('current_packet_id', c_int64),
-        ('chi_bf_tmp_partial', POINTER(c_double)),
+        ('photo_xsect', POINTER(POINTER(PhotoXsect1level))),
+        ('chi_ff_factor', POINTER(c_double)),
         ('t_electrons', POINTER(c_double)),
         ('l_pop', POINTER(c_double)),
         ('l_pop_r', POINTER(c_double)),
         ('cont_status', c_cont_status_t),
+        ('bf_treatment', c_int),
         ('virt_packet_nus', POINTER(c_double)),
         ('virt_packet_energies', POINTER(c_double)),
         ('virt_packet_last_interaction_in_nu', POINTER(c_double)),
@@ -97,8 +112,17 @@ class StorageModel(Structure):
         ('virt_packet_last_line_interaction_in_id', POINTER(c_int64)),
         ('virt_packet_last_line_interaction_out_id', POINTER(c_int64)),
         ('virt_packet_count', c_int64),
-        ('virt_array_size', c_int64)
+        ('virt_array_size', c_int64),
+        ('kpacket2macro_level', c_int64),
+        ('cont_edge2macro_level', POINTER(c_int64)),
+        ('photo_ion_estimator', POINTER(c_double)),
+        ('stim_recomb_estimator', POINTER(c_double)),
+        ('photo_ion_estimator_statistics', POINTER(c_int64)),
+        ('bf_heating_estimator', POINTER(c_double)),
+        ('ff_heating_estimator', POINTER(c_double)),
+        ('stim_recomb_cooling_estimator', POINTER(c_double))
     ]
+
 
 # Variables corresponding to `tardis_error_t` enum.
 TARDIS_ERROR_OK = 0
@@ -113,6 +137,23 @@ TARDIS_PACKET_STATUS_REABSORBED = 2
 # Variables corresponding to `ContinuumProcessesStatus` enum.
 CONTINUUM_OFF = 0
 CONTINUUM_ON = 1
+
+# Variables corresponding to `emission_type` enum.
+BB_EMISSION = -1
+BF_EMISSION = -2
+FF_EMISSION = -3
+
+# Variables corresponding to `bound_free_treatment` enum.
+class BoundFreeTreatment(Enum):
+    LIN_INTERPOLATION = 0
+    HYDROGENIC = 1
+
+# Variables corresponding to macros defined in rpacket.h .
+MISS_DISTANCE = 1e99
+C = 29979245800.0
+INVERSE_C = 3.33564095198152e-11
+H = 6.6260755e-27
+KB = 1.3806488e-16
 
 # `rk_state` specific macros.
 RK_STATE_LEN = 624

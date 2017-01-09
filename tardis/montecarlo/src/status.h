@@ -18,7 +18,21 @@ typedef enum
 typedef enum
 {
   CONTINUUM_OFF = 0,
-  CONTINUUM_ON = 1,
+  CONTINUUM_ON = 1
 } ContinuumProcessesStatus;
+
+typedef enum
+{
+  BB_EMISSION = -1,
+  BF_EMISSION = -2,
+  FF_EMISSION = -3,
+  ADIABATIC_COOLING = -4
+} emission_type;
+
+typedef enum
+{
+  LIN_INTERPOLATION = 0,
+  HYDROGENIC = 1
+} bound_free_treatment;
 
 #endif // TARDIS_STATUS_H

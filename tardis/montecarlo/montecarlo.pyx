@@ -25,6 +25,11 @@ cdef extern from "src/cmontecarlo.h":
 
     cdef int LOG_VPACKETS
 
+    ctypedef struct photo_xsect_1level:
+        double *nu
+        double *x_sect
+        int_type_t no_of_points
+
     ctypedef struct storage_model_t:
         double *packet_nus
         double *packet_mus
@@ -36,6 +41,7 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *last_line_interaction_out_id
         int_type_t *last_line_interaction_shell_id
         int_type_t *last_interaction_type
+        int_type_t *last_interaction_out_type
         int_type_t no_of_packets
         int_type_t no_of_shells
         double *r_inner
@@ -74,7 +80,8 @@ cdef extern from "src/cmontecarlo.h":
         double inverse_sigma_thomson
         double inner_boundary_albedo
         int_type_t reflective_inner_boundary
-        double *chi_bf_tmp_partial
+        photo_xsect_1level ** photo_xsect
+        double *chi_ff_factor
         double *t_electrons
         double *l_pop
         double *l_pop_r
@@ -87,6 +94,14 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *virt_packet_last_line_interaction_out_id
         int_type_t virt_packet_count
         int_type_t virt_array_size
+        int_type_t kpacket2macro_level
+        int_type_t *cont_edge2macro_level
+        double *photo_ion_estimator
+        double *stim_recomb_estimator
+        int_type_t *photo_ion_estimator_statistics
+        double *bf_heating_estimator
+        double *ff_heating_estimator
+        double *stim_recomb_cooling_estimator
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -128,7 +143,6 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.cont_status = CONTINUUM_OFF
     # Continuum data
     cdef np.ndarray[double, ndim=1] continuum_list_nu
-    cdef np.ndarray[double, ndim =1] chi_bf_tmp_partial
     cdef np.ndarray[double, ndim=1] l_pop
     cdef np.ndarray[double, ndim=1] l_pop_r
 
@@ -136,8 +150,6 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
         continuum_list_nu = np.array([9.0e14, 8.223e14, 6.0e14, 3.5e14, 3.0e14])  # sorted list of threshold frequencies
         storage.continuum_list_nu = <double*> continuum_list_nu.data
         storage.no_of_edges = continuum_list_nu.size
-        chi_bf_tmp_partial = np.zeros(continuum_list_nu.size)
-        storage.chi_bf_tmp_partial = <double*> chi_bf_tmp_partial.data
         l_pop = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
         storage.l_pop = <double*> l_pop.data
         l_pop_r = np.ones(storage.no_of_shells * continuum_list_nu.size, dtype=np.float64)
