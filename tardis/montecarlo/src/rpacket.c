@@ -8,7 +8,7 @@ extern tardis_error_t line_search (const double *nu, double nu_insert,
 
 tardis_error_t
 rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
-              int virtual_packet_flag)
+              int virtual_packet_flag, double * chi_bf_tmp_partial)
 {
   int64_t current_line_id;
   tardis_error_t ret_val = TARDIS_ERROR_OK;
@@ -43,5 +43,7 @@ rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
   rpacket_set_last_line (packet, last_line);
   rpacket_set_close_line (packet, false);
   rpacket_set_virtual_packet_flag (packet, virtual_packet_flag);
+  packet->chi_bf_tmp_partial = chi_bf_tmp_partial;
+  packet->compute_chi_bf = true;
   return ret_val;
 }
