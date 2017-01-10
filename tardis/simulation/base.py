@@ -5,8 +5,8 @@ import pandas as pd
 from astropy import units as u
 from collections import OrderedDict
 
-from tardis.montecarlo.base import MontecarloRunner
-from tardis.model.base import Radial1DModel
+from tardis.montecarlo import MontecarloRunner
+from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 
 # Adding logging support
@@ -23,7 +23,7 @@ class Simulation(object):
     iterations : int
     model : tardis.model.Radial1DModel
     plasma : tardis.plasma.BasePlasma
-    runner : tardis.montecarlo.base.MontecarloRunner
+    runner : tardis.montecarlo.MontecarloRunner
     no_of_packets : int
     last_no_of_packets : int
     no_of_virtual_packets : int
