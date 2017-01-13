@@ -566,8 +566,8 @@ class ModelViewer(QtGui.QWidget):
         """Reset the model set in the GUI."""
         self.model = model
         self.tablemodel.arraydata = []
-        self.tablemodel.add_data(model.t_rad.value.tolist())
-        self.tablemodel.add_data(model.ws.tolist())
+        self.tablemodel.add_data(model.model.t_rad.value.tolist())
+        self.tablemodel.add_data(model.model.w.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
         """Change the spectrum data to the virtual spectrum."""
