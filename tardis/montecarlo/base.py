@@ -42,8 +42,8 @@ class MontecarloRunner(HDFWriterMixin):
 
     def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
                  sigma_thomson, enable_reflective_inner_boundary,
-                 inner_boundary_albedo, line_interaction_type,
-                 integrator_settings):
+                 enable_full_relativity, inner_boundary_albedo,
+                 line_interaction_type, integrator_settings, distance=None):
 
         self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
@@ -52,6 +52,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.sigma_thomson = sigma_thomson
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
+        self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
         self.integrator_settings = integrator_settings
         self._integrator = None
@@ -410,6 +411,7 @@ class MontecarloRunner(HDFWriterMixin):
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
+                   enable_full_relativity=config.montecarlo.enable_full_relativity,
                    line_interaction_type=config.plasma.line_interaction_type,
-                   integrator_settings=config.spectrum.integrated
-                   )
+                   integrator_settings=config.spectrum.integrated,
+                   distance=config.supernova.get('distance', None))

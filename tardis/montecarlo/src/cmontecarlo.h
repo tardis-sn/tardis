@@ -36,6 +36,11 @@ binary_search (const double *x, double x_insert,
 
 double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *storage);
 
+double rpacket_inverse_doppler_factor(const rpacket_t *packet, const storage_model_t *storage);
+
+void
+do_angle_aberration(rpacket_t * packet, const storage_model_t * storage);
+
 /** Calculate the distance to shell boundary.
  *
  * @param packet rpacket structure with packet information

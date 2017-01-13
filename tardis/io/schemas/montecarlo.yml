@@ -63,6 +63,12 @@ properties:
     - $ref: '#/definitions/convergence_strategy/custom'
     default:
       type: 'damped'
+  enable_full_relativity:
+    type: boolean
+    default: false
+    description: Enables a more complete treatment of relativitic effects. This includes
+      angle aberration as well as use of the fully general Doppler formula.
+
 required:
 - no_of_packets
 - iterations

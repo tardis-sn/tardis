@@ -420,13 +420,14 @@ def test_move_packet(clib, packet_params, expected_params, packet, model):
     packet.energy = packet_params['energy']
     packet.r = packet_params['r']
 
+    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
     clib.move_packet(byref(packet), byref(model), c_double(1.e13))
 
     assert_almost_equal(packet.mu, expected_params['mu'])
     assert_almost_equal(packet.r, expected_params['r'])
 
-    assert_almost_equal(model.js[packet.current_shell_id], expected_params['j'])
-    assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
+    assert_almost_equal(model.js[packet.current_shell_id], expected_params['j'] * doppler_factor)
+    assert_allclose(model.nubars[packet.current_shell_id], expected_params['nubar'] * doppler_factor, rtol=1e-15)
 
 
 @pytest.mark.parametrize(
@@ -924,6 +925,32 @@ def test_montecarlo_bound_free_scatter_continuum_selection(clib, packet, model_3
 
     assert_equal(packet.current_continuum_id, expected)
     assert_equal(model_3lvlatom.last_line_interaction_in_id[packet.id], expected)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp', 'full_relativity'],
+    [(0.8, 7.5e14, 1 / 5.2e5, 1),
+     (-0.7, 7.5e14, 1 / 5.2e5, 1),
+     (0.3, 7.5e14, 1 / 2.2e5, 1),
+     (0.0, 7.5e14, 1 / 2.2e5, 1),
+     (-0.7, 7.5e14, 1 / 5.2e5, 0)]
+)
+def test_frame_transformations(packet, model, mu, r, inv_t_exp, full_relativity):
+    packet.r = r
+    packet.mu = mu
+    model.inverse_time_explosion = inv_t_exp
+    model.full_relativity = full_relativity
+    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
+    cmontecarlo_methods.rpacket_inverse_doppler_factor.restype = c_double
+
+    inverse_doppler_factor = cmontecarlo_methods.rpacket_inverse_doppler_factor(byref(packet), byref(model))
+    if full_relativity:
+        cmontecarlo_methods.do_angle_aberration(byref(packet), byref(model))
+
+    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+
+    assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
 
 
 @pytest.mark.continuumtest
