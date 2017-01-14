@@ -162,9 +162,11 @@ class AtomData(object):
             # ToDo: strore data sources as attributes in carsus
 
             logger.info(
-                "Read Atom Data with UUID={0} and MD5={1}. "
-                "Not found: {2}".format(atom_data.uuid1, atom_data.md5, ", ".join(nonavailable))
-            )
+                "Read Atom Data with UUID={0} and MD5={1}.".format(
+                    atom_data.uuid1, atom_data.md5))
+            if nonavailable:
+                logger.info("Non provided atomic data: {0}".format(
+                    ", ".join(nonavailable)))
 
         return atom_data
 
