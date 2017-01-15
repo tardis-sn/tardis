@@ -201,6 +201,19 @@ class ConfigEditor(QtGui.QWidget):
         
         #Configurations from the input and template    
         configDict = yaml.load(open(yamlconfigfile))
+        
+        # Enabling conversion of a string input to a dict input  
+        if isinstance(configDict['montecarlo']['black_body_sampling'], str):
+            params = configDict['montecarlo']['black_body_sampling'].split(" ")
+            configDict['montecarlo']['black_body_sampling'] = {}
+
+            configDict['montecarlo']['black_body_sampling']['start'] = params[0] + " " +params[3]
+            if(len(params)==4):
+                configDict['montecarlo']['black_body_sampling']['stop'] = params[1]  + " " +params[3]
+            else:
+                configDict['montecarlo']['black_body_sampling']['stop'] = params[1]  + " " +params[4]
+            configDict['montecarlo']['black_body_sampling']['num'] = params[2]
+
         templatedictionary ={'tardis_config_version':[True, 'v1.0'],
             'supernova':{ 'luminosity_requested':[True, '1 solLum'],
                           'time_explosion':[True, None],
@@ -256,10 +269,10 @@ class ConfigEditor(QtGui.QWidget):
                           'no_of_packets':[True, None],
                           'iterations':[True, None],
                           'black_body_sampling':{
-                                                    'start': '1 angstrom',
-                                                    'stop': '1000000 angstrom',
-                                                    'num': '1.e+6',
-                                                },
+                                                  'start': '1 angstrom',
+                                                  'stop': '1000000 angstrom',
+                                                  'num': '1.e+6',
+                                                 },
                           'last_no_of_packets':[False, -1],
                           'no_of_virtual_packets':[False, 0],
                           'enable_reflective_inner_boundary':[False, False],
