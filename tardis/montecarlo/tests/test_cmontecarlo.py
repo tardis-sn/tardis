@@ -47,6 +47,7 @@ import os
 import pytest
 from ctypes import CDLL, byref, c_uint, c_int64, c_double, c_ulong, POINTER
 from numpy.testing import assert_equal, assert_almost_equal
+from astropy import constants as const
 
 from tardis import __path__ as path
 from tardis.montecarlo.struct import (
@@ -138,8 +139,8 @@ def model():
         spectrum_virt_end_nu=6e15,
         spectrum_virt_nu=(c_double * 20000)(*([0.0] * 20000)),
 
-        sigma_thomson=6.652486e-25,
-        inverse_sigma_thomson=1 / 6.652486e-25,
+        sigma_thomson=const.sigma_T.cgs.value,
+        inverse_sigma_thomson=1 / const.sigma_T.cgs.value,
 
         inner_boundary_albedo=0.0,
         reflective_inner_boundary=0,
