@@ -20,7 +20,7 @@ ax2 = plt.figure(2).add_subplot(111)
 atom_fname = os.path.expanduser('~/.tardis/si_kurucz.h5')
 
 # reading in the HDF5 File
-atom_data = atomic.AtomData.from_hdf5(atom_fname)
+atom_data = atomic.AtomData.from_hdf(atom_fname)
 
 #The atom_data needs to be prepared to create indices. The Class needs to know which atomic numbers are needed for the
 #calculation and what line interaction is needed (for "downbranch" and "macroatom" the code creates special tables)
