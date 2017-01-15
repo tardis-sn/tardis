@@ -57,6 +57,9 @@ typedef struct RPacket
   double chi_cont; /**< Opacity due to continuum processes */
   double chi_ff; /**< Opacity due to free-free processes */
   double chi_bf; /**< Opacity due to bound-free processes */
+  double *chi_bf_tmp_partial;
+  int64_t macro_atom_activation_level;
+  bool compute_chi_bf;
 } rpacket_t;
 
 static inline double rpacket_get_nu (const rpacket_t * packet)
@@ -249,7 +252,7 @@ static inline void rpacket_reset_tau_event (rpacket_t * packet, rk_state *mt_sta
 }
 
 tardis_error_t rpacket_init (rpacket_t * packet, storage_model_t * storage,
-                             int packet_index, int virtual_packet_flag);
+                             int packet_index, int virtual_packet_flag, double * chi_bf_tmp_partial);
 
 /* New getter and setter methods for continuum implementation */
 
@@ -311,6 +314,16 @@ static inline unsigned int rpacket_get_current_continuum_id (const rpacket_t * p
 static inline void rpacket_set_current_continuum_id (rpacket_t * packet, unsigned int current_continuum_id)
 {
   packet->current_continuum_id = current_continuum_id;
+}
+
+static inline void rpacket_set_macro_atom_activation_level (rpacket_t * packet, unsigned int activation_level)
+{
+  packet->macro_atom_activation_level = activation_level;
+}
+
+static inline unsigned int rpacket_get_macro_atom_activation_level (const rpacket_t * packet)
+{
+  return packet->macro_atom_activation_level;
 }
 
 #endif // TARDIS_RPACKET_H
