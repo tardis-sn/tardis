@@ -205,7 +205,7 @@ Macro Atom References
 The Atom Data Class
 -------------------
 
-Atom Data is stored inside TARDIS in the :class:`AtomData`-class. The class method :func:`AtomData.from_hdf5` will
+Atom Data is stored inside TARDIS in the :class:`AtomData`-class. The class method :func:`AtomData.from_hdf` will
 instantiate a new `AtomData`-class from an HDF5 file. If none is given it will automatically
 take the default HDF5-dataset shipped with TARDIS. A second function :func:`AtomData.prepare_atom_data`
 will cut the levels and lines data to only the required atoms and ions. In addition, it will create the intricate system
