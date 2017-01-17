@@ -21,13 +21,8 @@ ctypedef np.int64_t int_type_t
 cdef extern from "numpy/arrayobject.h":
     void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
 
-cdef int_array_to_numpy(void *ptr, np.npy_intp N):
-    cdef np.ndarray[int_type_t, ndim=1] arr = np.PyArray_SimpleNewFromData(1, &N, np.NPY_INT64, ptr)
-    PyArray_ENABLEFLAGS(arr, np.NPY_OWNDATA)
-    return arr
-
-cdef double_array_to_numpy(void *ptr, np.npy_intp N):
-    cdef np.ndarray[double, ndim=1] arr = np.PyArray_SimpleNewFromData(1, &N, np.NPY_DOUBLE, ptr)
+cdef c_array_to_numpy(void *ptr, int dtype, np.npy_intp N):
+    cdef np.ndarray arr = np.PyArray_SimpleNewFromData(1, &N, dtype, ptr)
     PyArray_ENABLEFLAGS(arr, np.NPY_OWNDATA)
     return arr
 
@@ -281,12 +276,14 @@ def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, runner.seed)
     runner.virt_logging = LOG_VPACKETS
     if LOG_VPACKETS != 0:
-        runner.virt_packet_nus = double_array_to_numpy(storage.virt_packet_nus, storage.virt_packet_count)
-        runner.virt_packet_energies = double_array_to_numpy(storage.virt_packet_energies, storage.virt_packet_count)
-        runner.virt_packet_last_interaction_in_nu = double_array_to_numpy(storage.virt_packet_last_interaction_in_nu, storage.virt_packet_count)
-        runner.virt_packet_last_interaction_type = int_array_to_numpy(storage.virt_packet_last_interaction_type, storage.virt_packet_count)
-        runner.virt_packet_last_line_interaction_in_id = int_array_to_numpy(storage.virt_packet_last_line_interaction_in_id, storage.virt_packet_count)
-        runner.virt_packet_last_line_interaction_out_id = int_array_to_numpy(storage.virt_packet_last_line_interaction_out_id, storage.virt_packet_count)
+        runner.virt_packet_nus = c_array_to_numpy(storage.virt_packet_nus, np.NPY_DOUBLE, storage.virt_packet_count)
+        runner.virt_packet_energies = c_array_to_numpy(storage.virt_packet_energies, np.NPY_DOUBLE, storage.virt_packet_count)
+        runner.virt_packet_last_interaction_in_nu = c_array_to_numpy(storage.virt_packet_last_interaction_in_nu, np.NPY_DOUBLE, storage.virt_packet_count)
+        runner.virt_packet_last_interaction_type = c_array_to_numpy(storage.virt_packet_last_interaction_type, np.NPY_INT64, storage.virt_packet_count)
+        runner.virt_packet_last_line_interaction_in_id = c_array_to_numpy(storage.virt_packet_last_line_interaction_in_id, np.NPY_INT64,
+                                                                          storage.virt_packet_count)
+        runner.virt_packet_last_line_interaction_out_id = c_array_to_numpy(storage.virt_packet_last_line_interaction_out_id, np.NPY_INT64,
+                                                                           storage.virt_packet_count)
     else:
         runner.virt_packet_nus = np.zeros(0)
         runner.virt_packet_energies = np.zeros(0)
