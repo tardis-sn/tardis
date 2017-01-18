@@ -18,6 +18,14 @@ np.import_array()
 
 ctypedef np.int64_t int_type_t
 
+cdef extern from "numpy/arrayobject.h":
+    void PyArray_ENABLEFLAGS(np.ndarray arr, int flags)
+
+cdef c_array_to_numpy(void *ptr, int dtype, np.npy_intp N):
+    cdef np.ndarray arr = np.PyArray_SimpleNewFromData(1, &N, dtype, ptr)
+    PyArray_ENABLEFLAGS(arr, np.NPY_OWNDATA)
+    return arr
+
 cdef extern from "src/cmontecarlo.h":
     ctypedef enum ContinuumProcessesStatus:
         CONTINUUM_OFF = 0
@@ -266,34 +274,16 @@ def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
     initialize_storage_model(model, plasma, runner, &storage)
 
     montecarlo_main_loop(&storage, virtual_packet_flag, nthreads, runner.seed)
-    cdef np.ndarray[double, ndim=1] virt_packet_nus = np.zeros(storage.virt_packet_count, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] virt_packet_energies = np.zeros(storage.virt_packet_count, dtype=np.float64)
-    cdef np.ndarray[double, ndim=1] virt_packet_last_interaction_in_nu = np.zeros(storage.virt_packet_count, dtype=np.float64)
-    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_interaction_type = np.zeros(storage.virt_packet_count, dtype=np.int64)
-    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_in_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
-    cdef np.ndarray[int_type_t, ndim=1] virt_packet_last_line_interaction_out_id = np.zeros(storage.virt_packet_count, dtype=np.int64)
     runner.virt_logging = LOG_VPACKETS
     if LOG_VPACKETS != 0:
-        for i in range(storage.virt_packet_count):
-            virt_packet_nus[i] = storage.virt_packet_nus[i]
-            virt_packet_energies[i] = storage.virt_packet_energies[i]
-            virt_packet_last_interaction_in_nu[i] = storage.virt_packet_last_interaction_in_nu[i]
-            virt_packet_last_interaction_type[i] = storage.virt_packet_last_interaction_type[i]
-            virt_packet_last_line_interaction_in_id[i] = storage.virt_packet_last_line_interaction_in_id[i]
-            virt_packet_last_line_interaction_out_id[i] = storage.virt_packet_last_line_interaction_out_id[i]
-        free(<void *>storage.virt_packet_nus)
-        free(<void *>storage.virt_packet_energies)
-        free(<void *>storage.virt_packet_last_interaction_in_nu)
-        free(<void *>storage.virt_packet_last_interaction_type)
-        free(<void *>storage.virt_packet_last_line_interaction_in_id)
-        free(<void *>storage.virt_packet_last_line_interaction_out_id)
-        runner.virt_packet_nus = virt_packet_nus
-        runner.virt_packet_energies = virt_packet_energies
-        runner.virt_packet_last_interaction_in_nu = virt_packet_last_interaction_in_nu
-        runner.virt_packet_last_interaction_type = virt_packet_last_interaction_type
-        runner.virt_packet_last_line_interaction_in_id = virt_packet_last_line_interaction_in_id
-        runner.virt_packet_last_line_interaction_out_id = virt_packet_last_line_interaction_out_id
-    #return output_nus, output_energies, js, nubars, last_line_interaction_in_id, last_line_interaction_out_id, last_interaction_type, last_line_interaction_shell_id, virt_packet_nus, virt_packet_energies
+        runner.virt_packet_nus = c_array_to_numpy(storage.virt_packet_nus, np.NPY_DOUBLE, storage.virt_packet_count)
+        runner.virt_packet_energies = c_array_to_numpy(storage.virt_packet_energies, np.NPY_DOUBLE, storage.virt_packet_count)
+        runner.virt_packet_last_interaction_in_nu = c_array_to_numpy(storage.virt_packet_last_interaction_in_nu, np.NPY_DOUBLE, storage.virt_packet_count)
+        runner.virt_packet_last_interaction_type = c_array_to_numpy(storage.virt_packet_last_interaction_type, np.NPY_INT64, storage.virt_packet_count)
+        runner.virt_packet_last_line_interaction_in_id = c_array_to_numpy(storage.virt_packet_last_line_interaction_in_id, np.NPY_INT64,
+                                                                          storage.virt_packet_count)
+        runner.virt_packet_last_line_interaction_out_id = c_array_to_numpy(storage.virt_packet_last_line_interaction_out_id, np.NPY_INT64,
+                                                                           storage.virt_packet_count)
     else:
         runner.virt_packet_nus = np.zeros(0)
         runner.virt_packet_energies = np.zeros(0)
