@@ -6,9 +6,6 @@ import numpy as np
 
 import logging
 import argparse
-import pprint
-pp = pprint.PrettyPrinter(indent=4)
-
 tardis_description =\
 """
 TARDIS Supernova Montecarlo Radiative transfer code
