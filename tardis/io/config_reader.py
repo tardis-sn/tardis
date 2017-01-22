@@ -233,7 +233,6 @@ class Configuration(ConfigurationNameSpace):
 
         kwargs['config_dirname'] = os.path.dirname(fname)
 
-        print yaml_dict
         return cls.from_config_dict(
             yaml_dict, *args, **kwargs)
 
