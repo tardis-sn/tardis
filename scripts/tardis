@@ -68,7 +68,7 @@ if args.profile:
     cProfile.runctx('simulation.run()', locals(),
                     globals(), filename=args.profiler_log_file)
 else:
-   simulation.run()
+    simulation.run()
 
 
 if not np.all(simulation.runner.spectrum_virtual.luminosity_density_lambda.value
