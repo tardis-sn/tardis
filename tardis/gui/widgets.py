@@ -201,19 +201,6 @@ class ConfigEditor(QtGui.QWidget):
         
         #Configurations from the input and template    
         configDict = yaml.load(open(yamlconfigfile))
-        
-        # Enabling conversion of a string input to a dict input  
-        if isinstance(configDict['montecarlo']['black_body_sampling'], str):
-            params = configDict['montecarlo']['black_body_sampling'].split(" ")
-            configDict['montecarlo']['black_body_sampling'] = {}
-
-            configDict['montecarlo']['black_body_sampling']['start'] = params[0] + " " +params[3]
-            if(len(params)==4):
-                configDict['montecarlo']['black_body_sampling']['stop'] = params[1]  + " " +params[3]
-            else:
-                configDict['montecarlo']['black_body_sampling']['stop'] = params[1]  + " " +params[4]
-            configDict['montecarlo']['black_body_sampling']['num'] = params[2]
-
         templatedictionary ={'tardis_config_version':[True, 'v1.0'],
             'supernova':{ 'luminosity_requested':[True, '1 solLum'],
                           'time_explosion':[True, None],
