@@ -9,7 +9,6 @@ from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file, quantity_from_str
 from tardis.util import quantity_linspace
 
-pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
 
