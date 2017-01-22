@@ -6,8 +6,8 @@ import numpy as np
 
 import logging
 import argparse
-
-
+import pprint
+pp = pprint.PrettyPrinter(indent=4)
 
 tardis_description =\
 """
@@ -62,6 +62,8 @@ if args.packet_log_file:
     logger.addHandler(packet_logging_handler)
 
 tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
+tardis_config['spectrum']['array'] = np.linspace(50,50000,10000)
+pp.pprint(tardis_config)
 simulation = Simulation.from_config(tardis_config)
 
 if args.gdb:
@@ -71,7 +73,7 @@ if args.profile:
     cProfile.runctx('simulation.run()', locals(),
                     globals(), filename=args.profiler_log_file)
 else:
-    simulation.run()
+   simulation.run()
 
 
 if not np.all(simulation.runner.spectrum_virtual.luminosity_density_lambda.value
