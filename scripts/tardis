@@ -59,8 +59,6 @@ if args.packet_log_file:
     logger.addHandler(packet_logging_handler)
 
 tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
-tardis_config['spectrum']['array'] = np.linspace(50,50000,10000)
-pp.pprint(tardis_config)
 simulation = Simulation.from_config(tardis_config)
 
 if args.gdb:
