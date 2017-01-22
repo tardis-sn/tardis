@@ -363,7 +363,6 @@ class MontecarloRunner(object):
         #     config.spectrum.stop.to('Hz', u.spectral()),
         #     config.spectrum.start.to('Hz', u.spectral()),
         #     num=config.spectrum.num + 1)
-        
         spectrum_frequency = config.spectrum.array       
 	return cls(seed=config.montecarlo.seed,
                    spectrum_frequency=spectrum_frequency,
