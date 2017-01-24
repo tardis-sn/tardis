@@ -954,6 +954,29 @@ def test_frame_transformations(packet, model, mu, r, inv_t_exp, full_relativity)
 
 
 @pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp'],
+    [(0.8, 7.5e14, 1 / 5.2e5),
+     (-0.7, 7.5e14, 1 / 5.2e5),
+     (0.3, 7.5e14, 1 / 2.2e5),
+     (0.0, 7.5e14, 1 / 2.2e5),
+     (-0.7, 7.5e14, 1 / 5.2e5)]
+)
+def test_angle_transformation_invariance(packet, model, mu, r, inv_t_exp):
+    packet.r = r
+    packet.mu = mu
+    model.inverse_time_explosion = inv_t_exp
+    model.full_relativity = 1
+    cmontecarlo_methods.inverse_angle_aberration.restype = c_double
+
+    cmontecarlo_methods.do_angle_aberration(byref(packet), byref(model))
+    mu_obtained = cmontecarlo_methods.inverse_angle_aberration(
+        byref(packet), byref(model), c_double(packet.mu))
+
+    assert_almost_equal(mu_obtained, mu)
+
+
+@pytest.mark.continuumtest
 @pytest.mark.skipif(True, reason="Yet to be written.")
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
     pass

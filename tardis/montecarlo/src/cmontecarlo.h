@@ -34,12 +34,15 @@ tardis_error_t
 binary_search (const double *x, double x_insert,
                int64_t imin, int64_t imax, int64_t * result);
 
-double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *storage);
+double rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *storage);
 
-double rpacket_inverse_doppler_factor(const rpacket_t *packet, const storage_model_t *storage);
+double rpacket_inverse_doppler_factor (const rpacket_t *packet, const storage_model_t *storage);
 
 void
-do_angle_aberration(rpacket_t * packet, const storage_model_t * storage);
+do_angle_aberration (rpacket_t * packet, const storage_model_t * storage);
+
+double
+inverse_angle_aberration (rpacket_t *packet, const storage_model_t *storage, double mu);
 
 /** Calculate the distance to shell boundary.
  *

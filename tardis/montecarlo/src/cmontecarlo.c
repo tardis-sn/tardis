@@ -140,11 +140,26 @@ binary_search (const double *x, double x_insert, int64_t imin,
 }
 
 void
-do_angle_aberration(rpacket_t *packet, const storage_model_t *storage)
+do_angle_aberration (rpacket_t *packet, const storage_model_t *storage)
 {
   double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
   double mu_0 = rpacket_get_mu (packet);
   rpacket_set_mu (packet, (mu_0 + beta) / (1.0 + beta * mu_0));
+}
+
+/** Transform the lab frame direction cosine to the CMF
+ *
+ * @param packet
+ * @param storage
+ * @param mu lab frame direction cosine
+ *
+ * @return CMF direction cosine
+ */
+double
+inverse_angle_aberration (rpacket_t *packet, const storage_model_t *storage, double mu)
+{
+  double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
+  return (mu - beta) / (1.0 - beta * mu);
 }
 
 double
@@ -483,12 +498,12 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
         {
           double comov_energy = rpacket_get_energy (packet) * doppler_factor;
           double comov_nu = rpacket_get_nu (packet) * doppler_factor;
-	      double comov_distance = distance * doppler_factor;
+          double comov_distance = distance * doppler_factor;
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
           storage->js[rpacket_get_current_shell_id (packet)] +=
-	        comov_energy * comov_distance;
+            comov_energy * comov_distance;
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
@@ -628,6 +643,12 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                     -1.0 * sqrt (1.0 -
                                  (storage->r_inner[0] / rpacket_get_r(&virt_packet)) *
                                  (storage->r_inner[0] / rpacket_get_r(&virt_packet)));
+
+                  if (storage->full_relativity)
+                    {
+                      // Need to transform the angular size of the photosphere into the CMF
+                      mu_min = inverse_angle_aberration (&virt_packet, storage, mu_min);
+                    }
                 }
               else
                 {
@@ -655,6 +676,10 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                   // FIXME MR: we need to somehow signal an error here
                   // I'm adding an exit() here to inform the compiler about the impossible path
                   exit(1);
+                }
+              if (storage->full_relativity)
+                {
+                  do_angle_aberration (&virt_packet, storage);
                 }
               double doppler_factor_ratio =
                 rpacket_doppler_factor (packet, storage) /
