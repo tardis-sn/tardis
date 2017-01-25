@@ -107,8 +107,8 @@ class AtomData(object):
 
     """
 
-    hdf_names = ["atom_masses", "ionization_energies", "levels", "lines",
-                 "macro_atom", "macro_atom_references", "zeta_data", "collision_data",
+    hdf_names = ["atom_data", "ionization_data", "levels", "lines",
+                 "macro_atom_data", "macro_atom_references", "zeta_data", "collision_data",
                  "collision_data_temperatures", "synpp_refs", "ion_cx_th_data", "ion_cx_sp_data"]
 
     # List of tuples of the related dataframes.
@@ -170,8 +170,8 @@ class AtomData(object):
 
         return atom_data
 
-    def __init__(self, atom_masses, ionization_energies, levels=None, lines=None,
-                 macro_atom=None, macro_atom_references=None, zeta_data=None,
+    def __init__(self, atom_data, ionization_data, levels=None, lines=None,
+                 macro_atom_data=None, macro_atom_references=None, zeta_data=None,
                  collision_data=None, collision_data_temperatures=None, synpp_refs=None,
                  ion_cx_th_data=None, ion_cx_sp_data=None):
 
@@ -183,12 +183,12 @@ class AtomData(object):
         # We have to use constants.u because astropy uses different values for the unit u and the constant.
         # This is changed in later versions of astropy (the value of constants.u is used in all cases)
         if u.u.cgs == const.u.cgs:
-            atom_masses.loc[:, "mass"] = Quantity(atom_masses["mass"].values, "u").cgs
+            atom_data.loc[:, "mass"] = Quantity(atom_data["mass"].values, "u").cgs
         else:
-            atom_masses.loc[:, "mass"] = atom_masses["mass"].values * const.u.cgs
+            atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs
 
         # Convert ionization energies to CGS
-        ionization_energies.loc[:, "ionization_energy"] = Quantity(ionization_energies["ionization_energy"].values, "eV").cgs
+        ionization_data.loc[:, "ionization_energy"] = Quantity(ionization_data["ionization_energy"].values, "eV").cgs
 
         # Convert energy to CGS
         levels.loc[:, "energy"] = Quantity(levels["energy"].values, 'eV').cgs
@@ -198,13 +198,13 @@ class AtomData(object):
 
         # SET ATTRIBUTES
 
-        self.atom_data = atom_masses
-        self.ionization_data = ionization_energies
+        self.atom_data = atom_data
+        self.ionization_data = ionization_data
         self.levels = levels
         self.lines = lines
 
         # Rename these (drop "_all") when `prepare_atom_data` is removed!
-        self.macro_atom_data_all = macro_atom
+        self.macro_atom_data_all = macro_atom_data
         self.macro_atom_references_all = macro_atom_references
 
         self.zeta_data = zeta_data
