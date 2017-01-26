@@ -384,7 +384,8 @@ void
 compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
 {
   double chi_continuum, d_continuum;
-  double chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson;
+  double chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] *
+    storage->sigma_thomson * rpacket_doppler_factor (packet, storage);
 
   if (storage->cont_status == CONTINUUM_ON)
     {
@@ -397,7 +398,6 @@ compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
       {
         packet->compute_chi_bf=true;
       }
-      chi_electron *= rpacket_doppler_factor (packet, storage);
       chi_continuum = rpacket_get_chi_boundfree (packet) + rpacket_get_chi_freefree (packet) + chi_electron;
       d_continuum = rpacket_get_tau_event (packet) / chi_continuum;
     }
