@@ -221,12 +221,12 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.js = <double*> PyArray_DATA(runner.j_estimator)
     storage.nubars = <double*> PyArray_DATA(runner.nu_bar_estimator)
 
-    storage.spectrum_start_nu = runner.spectrum_frequency.value.min()
-    storage.spectrum_end_nu = runner.spectrum_frequency.value.max()
+    storage.spectrum_start_nu = runner.spectrum_frequency.to('Hz').value.min()
+    storage.spectrum_end_nu = runner.spectrum_frequency.to('Hz').value.max()
     # TODO: Linspace handling for virtual_spectrum_range
     storage.spectrum_virt_start_nu = runner.virtual_spectrum_range.stop.to('Hz', units.spectral()).value
     storage.spectrum_virt_end_nu = runner.virtual_spectrum_range.start.to('Hz', units.spectral()).value
-    storage.spectrum_delta_nu = runner.spectrum_frequency.value[1] - runner.spectrum_frequency.value[0]
+    storage.spectrum_delta_nu = runner.spectrum_frequency.to('Hz').value[1] - runner.spectrum_frequency.to('Hz').value[0]
 
     storage.spectrum_virt_nu = <double*> PyArray_DATA(
         runner.legacy_montecarlo_virtual_luminosity)
