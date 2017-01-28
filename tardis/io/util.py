@@ -1,6 +1,7 @@
 #Utility functions for the IO part of TARDIS
 
 import os
+import re
 import pandas as pd
 import numpy as np
 import collections
@@ -11,6 +12,34 @@ from tardis.util import element_symbol2atomic_number
 
 import logging
 logger = logging.getLogger(__name__)
+
+float_pattern = r"""    # A numeric string consists of:
+    (?P<sign>[-+])?              # an optional sign, followed by either...
+
+    (
+
+        (?=\d|\.\d)              # ...a number (with at least one digit)
+
+        (?P<int>\d*)             # having a (possibly empty) integer part
+
+        (\.(?P<frac>\d*))?       # followed by an optional fractional part
+
+        (E(?P<exp>[-+]?\d+))?    # followed by an optional exponent, or...
+
+    |
+
+        Inf(inity)?              # ...an infinity, or...
+
+    |
+        NaN                      # NaN
+    )
+"""
+
+unit_pattern = r"[a-zA-Z1(][\w\s/^*()+-]*"
+
+float_regex = re.compile("^" + float_pattern + "$", re.VERBOSE | re.IGNORECASE)
+quantity_regex = re.compile("^" + float_pattern + "\s+" + unit_pattern + "$",
+                            re.VERBOSE | re.IGNORECASE)
 
 
 def quantity_from_str(text):
@@ -30,34 +59,6 @@ def quantity_from_str(text):
         value = 10 ** (value + np.log10(constants.L_sun.cgs.value))
         unit = 'erg/s'
     return u.Quantity(value, unit)
-
-
-class MockRegexPattern(object):
-    """
-    A mock class to be used in place of a compiled regular expression
-    when a type check is needed instead of a regex match.
-
-    Note: This is usually a lot slower than regex matching.
-    """
-    def __init__(self, target_type):
-        self.type = target_type
-
-    def match(self, text):
-        """
-
-        Parameters
-        ----------
-        text:
-            A string to be passed to `target_type` for conversion.
-        Returns
-        -------
-        `True` if `text` can be converted to `target_type`.
-        """
-        try:
-            self.type(text)
-        except ValueError:
-            return False
-        return True
 
 
 class YAMLLoader(yaml.Loader):
@@ -90,10 +91,10 @@ class YAMLLoader(yaml.Loader):
         return OrderedDict(self.construct_pairs(node))
 
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
-YAMLLoader.add_implicit_resolver(u'!quantity',
-                                 MockRegexPattern(quantity_from_str), None)
-YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
-                                 MockRegexPattern(float), None)
+YAMLLoader.add_implicit_resolver(u'!quantity', quantity_regex,
+                                 list('-+0123456789.nNiI'))
+YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float', float_regex,
+                                 list('-+0123456789.nNiI'))
 YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
                            YAMLLoader.mapping_constructor)
 
