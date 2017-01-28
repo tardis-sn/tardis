@@ -25,7 +25,8 @@ def calculate_block_ids_from_dataframe(dataframe):
 
 class PhiSahaLTE(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     phi : Pandas DataFrame, dtype float
           Used for LTE ionization. Indexed by atomic number, ion number. Columns are zones.
     """
@@ -73,7 +74,8 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     phi : Pandas DataFrame, dtype float
           Used for nebular ionization. Indexed by atomic number, ion number. Columns are zones.
     """
@@ -112,7 +114,8 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
 
 class RadiationFieldCorrection(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     delta : Pandas DataFrame, dtype float
             Calculates the radiation field correction (see Mazzali & Lucy, 1993) if
             not given as input in the config. file. The default chi_0_species is
@@ -167,7 +170,8 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
 
 class IonNumberDensity(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     ion_number_density : Pandas DataFrame, dtype float
                          Index atom number, ion number. Columns zones.
     electron_densities : Numpy Array, dtype float
@@ -252,7 +256,8 @@ class IonNumberDensity(ProcessingPlasmaProperty):
 
 class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     ion_number_density : Pandas DataFrame, dtype float
                          Index atom number, ion number. Columns zones.
     electron_densities : Numpy Array, dtype float

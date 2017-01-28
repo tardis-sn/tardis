@@ -52,7 +52,7 @@ def read_hdf5_data(fname, dset_name):
     Returns
     -------
 
-    data : `~astropy.table.Table`
+    data : `astropy.table.Table`
         returns the respective
     """
 
@@ -88,7 +88,7 @@ def read_basic_atom_data(fname=None):
     Returns
     -------
 
-    data : `~astropy.table.Table`
+    data : `astropy.table.Table`
         table with fields z[1], symbol, mass[u]
     """
 
@@ -110,7 +110,7 @@ def read_ionization_data(fname=None):
     Returns
     -------
 
-    data : `~astropy.table.Table`
+    data : `astropy.table.Table`
         table with fields z[1], ion[1], ionization_energy[eV]
         .. note:: energy from unionized atoms to once-ionized atoms ion = 1, for once ionized
                   to twice ionized ion=2, etc.
@@ -135,7 +135,7 @@ def read_levels_data(fname=None):
     Returns
     -------
 
-    data : `~astropy.table.Table`
+    data : `astropy.table.Table`
         table with fields z[1], ion[1], level_number, energy, g, metastable
     """
 
@@ -167,7 +167,7 @@ def read_lines_data(fname=None):
     Returns
     -------
 
-    data : `~astropy.table.Table`
+    data : `astropy.table.Table`
         table with fields wavelength, atomic_number, ion_number, f_ul, f_lu, level_id_lower, level_id_upper.
     """
 
@@ -261,26 +261,26 @@ class AtomData(object):
     Parameters
     ----------
 
-    basic_atom_data : `~astropy.table.Table`
+    basic_atom_data : `astropy.table.Table`
         containing the basic atom data: z, symbol, and mass
 
-    ionization_data : ~astropy.table.Table
+    ionization_data : `astropy.table.Table`
         containing the ionization data: z, ion, and ionization energy
         ::important to note here is that ion describes the final ion state
             e.g. H I - H II is described with ion=2
 
-    levels : ~astropy.table.Table
+    levels : `astropy.table.Table`
         containing the levels data: z, ion, level_number, energy, g
 
-    lines : ~astropy.table.Table
+    lines : `astropy.table.Table`
         containing the lines data: wavelength, z, ion, levels_number_lower,
         levels_number_upper, f_lu, f_ul
 
-    macro_atom_data : tuple of ~astropy.table.Table
-        default ~None, a tuple of the macro-atom data and macro-atom references
+    macro_atom_data : tuple of `astropy.table.Table`
+        default: None, a tuple of the macro-atom data and macro-atom references
 
-    zeta_data : ~dict of interpolation objects
-        default ~None
+    zeta_data : dict of interpolation objects
+        default: None
 
     """
 
@@ -459,13 +459,13 @@ class AtomData(object):
         Parameters
         ----------
 
-        selected_atoms : `~set`
+        selected_atoms : `set`
             set of selected atom numbers, e.g. set([14, 26])
 
-        line_interaction_type : `~str`
+        line_interaction_type : `str`
             can be 'scatter', 'downbranch' or 'macroatom'
 
-        max_ion_number : `~int`
+        max_ion_number : `int`
             maximum ion number to be included in the calculation
 
         """

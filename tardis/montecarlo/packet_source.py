@@ -40,14 +40,14 @@ class BlackBodySimpleSource(object):
 
         Parameters
         ----------
-        T : ~float
+        T : float
             temperature
-        no_of_packets: ~int
+        no_of_packets: int
 
         Returns
         -------
 
-            : ~numpy.ndarray
+            : numpy.ndarray
             array of frequencies
         """
 
