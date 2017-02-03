@@ -4,7 +4,7 @@ properties:
   nthreads:
     type: number
     multipleOf: 1.0
-    default: 1
+    default: 0
     description: The number of OpenMP threads.
   seed:
     type: number
