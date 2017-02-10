@@ -51,6 +51,13 @@ This model can then be used for inspecting the run as described
 
 Graphical User Interface
 ========================
+
+.. warning::
+    The GUI is currently not compatible with the latest development version of
+    TARDIS (see `TEP
+    <https://github.com/tardis-sn/tep/blob/master/TEP012_gui_overhaul.rst>`_
+    and `Issue #690 <https://github.com/tardis-sn/tardis/issues/690>`_)
+
 To get a detailed explanation on gui layout go to :ref:`gui_explanation` .
 
 **To setup and run the GUI(under development) follow these steps:**

@@ -4,6 +4,13 @@
 Graphical User Interface
 ************************
 
+.. warning::
+    The GUI is currently not compatible with the latest development version of
+    TARDIS (see `TEP
+    <https://github.com/tardis-sn/tep/blob/master/TEP012_gui_overhaul.rst>`_
+    and `Issue #690 <https://github.com/tardis-sn/tardis/issues/690>`_)
+
+
 TARDIS uses the `PyQt4 framework <http://www.riverbankcomputing.com/software/pyqt/download>`_ for its cross-platform
 interface.
 
