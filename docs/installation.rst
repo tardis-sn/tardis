@@ -20,10 +20,6 @@ Requirements
 .. warning::
     TARDIS only works on 64-bit python installations.
 
-The requirements for running TARDIS are easy to install using package managers like
-OS X's macports or Linux package managers or using the Anaconda python
-distribution.
-
 You can see a list of all the requirements of TARDIS in the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env27.yml>`_.
 
 TARDIS is using astropy's excellent installation helpers and thus uses similar
@@ -63,7 +59,7 @@ and after you are done with TARDIS you can deactivate::
 One does not need to recreate the environment, but simply activate it every time
 TARDIS is used.
 
-Use the development version::
+Since TARDIS has reached a mature state, we recommend always installing the latest development version::
 
     pip install git+https://github.com/tardis-sn/tardis
 
