@@ -142,9 +142,12 @@ binary_search (const double *x, double x_insert, int64_t imin,
 void
 do_angle_aberration (rpacket_t *packet, const storage_model_t *storage)
 {
-  double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
-  double mu_0 = rpacket_get_mu (packet);
-  rpacket_set_mu (packet, (mu_0 + beta) / (1.0 + beta * mu_0));
+  if (storage->full_relativity)
+    {
+      double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
+      double mu_0 = rpacket_get_mu (packet);
+      rpacket_set_mu (packet, (mu_0 + beta) / (1.0 + beta * mu_0));
+    }
 }
 
 /** Transform the lab frame direction cosine to the CMF
@@ -677,10 +680,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                   // I'm adding an exit() here to inform the compiler about the impossible path
                   exit(1);
                 }
-              if (storage->full_relativity)
-                {
-                  do_angle_aberration (&virt_packet, storage);
-                }
+              do_angle_aberration (&virt_packet, storage);
               double doppler_factor_ratio =
                 rpacket_doppler_factor (packet, storage) /
                 rpacket_doppler_factor (&virt_packet, storage);
@@ -808,10 +808,7 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   rpacket_reset_tau_event (packet, mt_state);
   storage->last_interaction_type[rpacket_get_id (packet)] = 1;
 
-  if (storage->full_relativity)
-    {
-      do_angle_aberration (packet, storage);
-    }
+  do_angle_aberration (packet, storage);
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
@@ -979,10 +976,7 @@ line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_l
   rpacket_set_next_line_id (packet, emission_line_id + 1);
   rpacket_reset_tau_event (packet, mt_state);
 
-  if (storage->full_relativity)
-    {
-      do_angle_aberration (packet, storage);
-    }
+  do_angle_aberration (packet, storage);
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
 	{
@@ -1034,10 +1028,7 @@ continuum_emission (rpacket_t * packet, storage_model_t * storage, rk_state *mt_
   rpacket_set_last_line (packet, last_line);
   rpacket_set_next_line_id (packet, current_line_id);
 
-  if (storage->full_relativity)
-    {
-      do_angle_aberration (packet, storage);
-    }
+  do_angle_aberration (packet, storage);
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {

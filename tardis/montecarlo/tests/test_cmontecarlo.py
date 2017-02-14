@@ -945,8 +945,7 @@ def test_frame_transformations(packet, model, mu, r, inv_t_exp, full_relativity)
     cmontecarlo_methods.rpacket_inverse_doppler_factor.restype = c_double
 
     inverse_doppler_factor = cmontecarlo_methods.rpacket_inverse_doppler_factor(byref(packet), byref(model))
-    if full_relativity:
-        cmontecarlo_methods.do_angle_aberration(byref(packet), byref(model))
+    cmontecarlo_methods.do_angle_aberration(byref(packet), byref(model))
 
     doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
 
