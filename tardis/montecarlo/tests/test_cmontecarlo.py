@@ -976,6 +976,40 @@ def test_angle_transformation_invariance(packet, model, mu, r, inv_t_exp):
 
 
 @pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    'full_relativity',
+    [1, 0]
+)
+@pytest.mark.parametrize(
+    ['mu', 'r', 't_exp', 'nu', 'nu_line'],
+    [(0.8, 7.5e14, 5.2e5, 1.0e15, 9.4e14),
+     (0.0, 6.3e14, 2.2e5, 6.0e12, 5.8e12),
+     (1.0, 9.0e14, 2.2e5, 4.0e8, 3.4e8),
+     (0.9, 9.0e14, 0.5e5, 1.0e15, 4.5e14),
+     (-0.7, 7.5e14, 5.2e5, 1.0e15, 9.8e14),
+     (-1.0, 6.3e14, 2.2e5, 6.0e12, 6.55e12)]
+)
+def test_compute_distance2line_relativistic(mu, r, t_exp, nu, nu_line, full_relativity, packet, model):
+    packet.r = r
+    packet.mu = mu
+    packet.nu = nu
+    packet.nu_line = nu_line
+    model.inverse_time_explosion = 1 / t_exp
+    model.time_explosion = t_exp
+    model.full_relativity = full_relativity
+
+    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
+
+    cmontecarlo_methods.compute_distance2line(byref(packet), byref(model))
+    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(packet.d_line))
+
+    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    comov_nu = packet.nu * doppler_factor
+
+    assert_allclose(comov_nu, nu_line, rtol=1e-14)
+
+
+@pytest.mark.continuumtest
 @pytest.mark.skipif(True, reason="Yet to be written.")
 def test_montecarlo_free_free_scatter(packet, model, mt_state):
     pass
