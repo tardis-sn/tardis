@@ -420,6 +420,7 @@ def test_move_packet(clib, packet_params, expected_params, packet, model):
     packet.energy = packet_params['energy']
     packet.r = packet_params['r']
 
+    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
     doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
     clib.move_packet(byref(packet), byref(model), c_double(1.e13))
 
@@ -430,22 +431,20 @@ def test_move_packet(clib, packet_params, expected_params, packet, model):
     assert_allclose(model.nubars[packet.current_shell_id], expected_params['nubar'] * doppler_factor, rtol=1e-15)
 
 
+@pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ['packet_params', 'j_blue_idx', 'expected'],
-    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
-     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
-     ({'nu': 0.5, 'mu': 0.5, 'r': 7.9e14}, 1, 0.719988453650551),
-     ({'nu': 0.6, 'mu': -.5, 'r': 8.1e14}, 1, 0.499990378058792)]
+    [({'nu': 0.30, 'energy': 0.30}, 0, 1.0),
+     ({'nu': 0.20, 'energy': 1.e5}, 0, 5e5),
+     ({'nu': 2e15, 'energy': 0.50}, 1, 2.5e-16),
+     ({'nu': 0.40, 'energy': 1e-7}, 1, 2.5e-7)]
 )
 def test_increment_j_blue_estimator(clib, packet_params, j_blue_idx, expected, packet, model):
     packet.nu = packet_params['nu']
-    packet.mu = packet_params['mu']
-    packet.r = packet_params['r']
+    packet.energy = packet_params['energy']
 
-    clib.compute_distance2line(byref(packet), byref(model))
-    clib.move_packet(byref(packet), byref(model), c_double(1.e13))
-    clib.increment_j_blue_estimator(byref(packet), byref(model),
-                                 c_double(packet.d_line), c_int64(j_blue_idx))
+    cmontecarlo_methods.increment_j_blue_estimator(byref(packet), byref(model),
+                                                   c_int64(j_blue_idx))
 
     assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
 

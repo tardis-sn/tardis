@@ -81,11 +81,11 @@ void move_packet (rpacket_t * packet, storage_model_t * storage,
 
 void increment_j_blue_estimator (const rpacket_t * packet,
                                  storage_model_t * storage,
-                                 double d_line, int64_t j_blue_idx);
+                                 int64_t j_blue_idx);
 
 void increment_Edotlu_estimator (const rpacket_t * packet,
                                  storage_model_t * storage,
-                                 double d_line, int64_t j_blue_idx);
+                                 int64_t j_blue_idx);
 
 void
 increment_continuum_estimators (const rpacket_t * packet, storage_model_t * storage, double distance,

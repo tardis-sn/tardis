@@ -581,43 +581,30 @@ increment_continuum_estimators (const rpacket_t * packet, storage_model_t * stor
 
 void
 increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
-                            double d_line, int64_t j_blue_idx)
+                            int64_t j_blue_idx)
 {
   if (storage->line_lists_j_blues != NULL)
     {
-      double r = rpacket_get_r (packet);
-      double r_interaction =
-        sqrt (r * r + d_line * d_line +
-              2.0 * r * d_line * rpacket_get_mu (packet));
-      double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
-      double doppler_factor = 1.0 - mu_interaction * r_interaction *
-        storage->inverse_time_explosion * INVERSE_C;
-      double comov_energy = rpacket_get_energy (packet) * doppler_factor;
+      // Accurate up to a factor 1 / gamma
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
       storage->line_lists_j_blues[j_blue_idx] +=
-        comov_energy / rpacket_get_nu (packet);
+        rpacket_get_energy (packet) / rpacket_get_nu (packet);
     }
 }
 
 void
-increment_Edotlu_estimator (const rpacket_t * packet, storage_model_t * storage, double d_line, int64_t line_idx)
+increment_Edotlu_estimator (const rpacket_t * packet, storage_model_t * storage, int64_t line_idx)
 {
   if (storage->line_lists_Edotlu != NULL)
     {
-    double r = rpacket_get_r (packet);
-    double r_interaction =
-      sqrt (r * r + d_line * d_line +
-            2.0 * r * d_line * rpacket_get_mu (packet));
-    double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
-    double doppler_factor = 1.0 - mu_interaction * r_interaction *
-      storage->inverse_time_explosion * INVERSE_C;
-    double comov_energy = rpacket_get_energy (packet) * doppler_factor;
+      // Accurate up to a factor 1 / gamma
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
-    storage->line_lists_Edotlu[line_idx] +=  comov_energy;  //rpacket_get_energy (packet);
+      storage->line_lists_j_blues[line_idx] +=
+        (rpacket_get_energy (packet) * rpacket_get_nu_line (packet)) / rpacket_get_nu (packet);
     }
 }
 
@@ -904,8 +891,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     storage->no_of_lines * rpacket_get_current_shell_id (packet);
   if (rpacket_get_virtual_packet (packet) == 0)
     {
-      increment_j_blue_estimator (packet, storage, distance, line2d_idx);
-      increment_Edotlu_estimator (packet, storage, distance, line2d_idx);
+      increment_j_blue_estimator (packet, storage, line2d_idx);
+      increment_Edotlu_estimator (packet, storage, line2d_idx);
     }
   double tau_line =
     storage->line_lists_tau_sobolevs[line2d_idx];
