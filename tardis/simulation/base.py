@@ -457,11 +457,13 @@ class Simulation(object):
         velocity = np.append(v_boundary_inner.value,
                              v_boundary_outer.value) * u.cm / u.s
 
-        #homologous_density and luminosity_requested parameters are None
+        #Presently homologous_density and luminosity_requested parameters are set to None
         model = Radial1DModel(velocity, None, abundance, time_explosion,
                               t_inner, None, t_radiative,
                               dilution_factor, v_boundary_inner,
                               v_boundary_outer)
+        
+        #TODO Extend it to plasma and montecarlo objects and return Simulation object
 
         return model
 
