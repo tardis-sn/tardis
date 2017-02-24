@@ -449,7 +449,7 @@ class Simulation(object):
         abundance = sim_dict['plasma']['abundance']
         time_explosion = sim_dict['plasma']['scalars']['time_explosion'] * u.s
         t_inner = sim_dict['model']['scalars']['t_inner'] * u.K
-        t_radiative = sim_dict['plasma']['t_rad'] * u.K
+        t_radiative = np.array(sim_dict['plasma']['t_rad']) * u.K
         v_boundary_inner = sim_dict['model']['v_inner'][0] * u.cm / u.s
         v_boundary_outer = sim_dict['model']['v_outer'][
             len(sim_dict['model']['v_outer']) - 1] * u.cm / u.s
