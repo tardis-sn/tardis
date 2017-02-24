@@ -454,16 +454,16 @@ class Simulation(object):
         v_boundary_outer = sim_dict['model']['v_outer'][
             len(sim_dict['model']['v_outer']) - 1] * u.cm / u.s
         dilution_factor = np.array(sim_dict['model']['w'])
-        velocity = np.append(v_boundary_inner.value,
+        velocity = np.append(sim_dict['model']['v_inner'],
                              v_boundary_outer.value) * u.cm / u.s
 
-        #Presently homologous_density and luminosity_requested parameters are set to None
+        # Presently homologous_density and luminosity_requested parameters are
+        # set to None
         model = Radial1DModel(velocity, None, abundance, time_explosion,
                               t_inner, None, t_radiative,
                               dilution_factor, v_boundary_inner,
                               v_boundary_outer)
-        
-        #TODO Extend it to plasma and montecarlo objects and return Simulation object
+        # TODO : Extend it to plasma and montecarlo objects and return Simulation object
 
         return model
 
