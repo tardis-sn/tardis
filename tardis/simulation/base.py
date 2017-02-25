@@ -497,13 +497,12 @@ class Simulation(object):
             raise IOError("Supplied HDF5 File %s does not exists" % file_path)
         if not h5_file:
             raise ValueError("h5file Parameter can`t be None")
-        data = pd.HDFStore(file_path)
-        for key in h5_file[path].keys():
-            sim_dict[key] = {}
-            buff_path = path + '/' + key + '/'
-            sim_dict[key] = data[buff_path]
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in h5_file[path].keys():
+                sim_dict[key] = {}
+                buff_path = path + '/' + key + '/'
+                sim_dict[key] = data[buff_path]
 
-        data.close()
 
     @classmethod
     def read_plasma_data(cls, h5_file, path, sim_dict, file_path):
@@ -535,16 +534,15 @@ class Simulation(object):
         if not h5_file:
             raise ValueError("h5file Parameter can`t be None")
 
-        data = pd.HDFStore(file_path)
+        with pd.HDFStore(file_path, 'r') as data:
         # For now , it reads only that keys , which are required for constructing
         # Radial1DModel Object
-        plasma_keys = ['abundance', 't_rad', 'scalars']
-        for key in h5_file[path].keys():
-            if key in plasma_keys:
-                sim_dict[key] = {}
-                buff_path = path + '/' + key + '/'
-                sim_dict[key] = data[buff_path]
+            plasma_keys = ['abundance', 't_rad', 'scalars']
+            for key in h5_file[path].keys():
+                if key in plasma_keys:
+                    sim_dict[key] = {}
+                    buff_path = path + '/' + key + '/'
+                    sim_dict[key] = data[buff_path]
 
-        data.close()
 
 
