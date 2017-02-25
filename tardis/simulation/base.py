@@ -433,18 +433,18 @@ class Simulation(object):
         if not os.path.exists(file_path):
             raise IOError("Supplied HDF5 File %s does not exists" % file_path)
 
-        h5_file = h5py.File(file_path)
-        sim_dict = {}  # It will store HDF Objects in a dict form
-        for simulation in h5_file.keys():
-            for key in h5_file[simulation]:
-                sim_dict[key] = {}
-                if 'model' in key:
-                    cls.read_model_data(
-                        h5_file, simulation + '/model/', sim_dict[key], file_path)
-                if 'plasma' in key:
-                    cls.read_plasma_data(
-                        h5_file, simulation + '/plasma/', sim_dict[key], file_path)
-        h5_file.close()
+        with h5py.File(file_path, 'r') as h5_file:
+            sim_dict = {}  # It will store HDF Objects in a dict form
+            for simulation in h5_file.keys():
+                for key in h5_file[simulation]:
+                    sim_dict[key] = {}
+                    if 'model' in key:
+                        cls.read_model_data(
+                            h5_file, simulation + '/model/', sim_dict[key], file_path)
+                    if 'plasma' in key:
+                        cls.read_plasma_data(
+                            h5_file, simulation + '/plasma/', sim_dict[key], file_path)
+
         #Creates corresponding astropy.units.Quantity objects
         abundance = sim_dict['plasma']['abundance']
         time_explosion = sim_dict['plasma']['scalars']['time_explosion'] * u.s
