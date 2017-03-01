@@ -222,7 +222,11 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
                 scalars_series = store[scalars_path].append(scalars_series)
         scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
 
-
+'''
+Code for Custom Logger Classes (ColoredFormatter and ColorLogger) and its helper function
+(formatter_message) is used from this thread
+http://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
+'''
 def formatter_message(message, use_color=True):
     '''
     Helper Function used for Coloring Log Output
