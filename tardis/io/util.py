@@ -224,7 +224,9 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
 
 
 def formatter_message(message, use_color=True):
-
+    '''
+    Helper Function used for Coloring Log Output
+    '''
     #These are the sequences need to get colored ouput
     RESET_SEQ = "\033[0m"
     BOLD_SEQ = "\033[1m"
@@ -240,7 +242,6 @@ class ColoredFormatter(logging.Formatter):
     '''
     Custom logger class for changing levels color
     '''
-
     def __init__(self, msg, use_color=True):
         logging.Formatter.__init__(self, msg)
         self.use_color = use_color
