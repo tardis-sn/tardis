@@ -87,6 +87,16 @@ class YAMLLoader(yaml.Loader):
         return quantity_from_str(data)
 
     def mapping_constructor(self, node):
+        mapping_dict = self.construct_mapping(node)
+        if set(mapping_dict.keys()) == {'start', 'stop', 'num'}:
+            if type(mapping_dict['start']) == int:
+                return np.linspace(mapping_dict['start'],
+                                                mapping_dict['stop'],
+                                                mapping_dict['num']),
+            else:
+                return np.linspace(mapping_dict['start'].value,
+                                                mapping_dict['stop'].value,
+                                                mapping_dict['num']), mapping_dict['start'].unit,
         return OrderedDict(self.construct_pairs(node))
 
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
