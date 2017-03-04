@@ -94,9 +94,9 @@ class YAMLLoader(yaml.Loader):
                                                 mapping_dict['stop'],
                                                 mapping_dict['num']),
             else:
-                return np.linspace(mapping_dict['start'].value,
+                return u.Quantity(np.linspace(mapping_dict['start'].value,
                                                 mapping_dict['stop'].value,
-                                                mapping_dict['num']), mapping_dict['start'].unit,
+                                                mapping_dict['num']), mapping_dict['start'].unit)
         return OrderedDict(self.construct_pairs(node))
 
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
