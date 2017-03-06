@@ -412,7 +412,7 @@ class Simulation(object):
                    nthreads=config.montecarlo.nthreads)
 
     @classmethod
-    def from_hdf5(cls, file_path):
+    def from_hdf(cls, file_path):
         """
         This function converts a hdf5 file to a Radial1DModel Object.
 
@@ -420,7 +420,7 @@ class Simulation(object):
         ----------
 
         file_path : `str`
-            path to Simulation generated hdf file
+             Path to Simulation generated hdf file
 
         Returns
         -------
@@ -430,119 +430,19 @@ class Simulation(object):
 
         if file_path is None:
             raise ValueError("File Path can`t be None")
-        if not os.path.exists(file_path):
-            raise IOError("Supplied HDF5 File %s does not exists" % file_path)
 
         with h5py.File(file_path, 'r') as h5_file:
-            sim_dict = {}  # It will store HDF Objects in a dict form
             for simulation in h5_file.keys():
                 for key in h5_file[simulation]:
-                    sim_dict[key] = {}
                     if 'model' in key:
-                        cls.read_model_data(
-                            h5_file, simulation + '/model/', sim_dict[key], file_path)
-                    if 'plasma' in key:
-                        cls.read_plasma_data(
-                            h5_file, simulation + '/plasma/', sim_dict[key], file_path)
+                        model = Radial1DModel.from_hdf(
+                            simulation, h5_file, file_path)
 
-        #Creates corresponding astropy.units.Quantity objects
-        abundance = sim_dict['plasma']['abundance']
-        time_explosion = sim_dict['plasma']['scalars']['time_explosion'] * u.s
-        t_inner = sim_dict['model']['scalars']['t_inner'] * u.K
-        t_radiative = np.array(sim_dict['plasma']['t_rad']) * u.K
-        v_boundary_inner = sim_dict['model']['v_inner'][0] * u.cm / u.s
-        v_boundary_outer = sim_dict['model']['v_outer'][
-            len(sim_dict['model']['v_outer']) - 1] * u.cm / u.s
-        dilution_factor = np.array(sim_dict['model']['w'])
-        velocity = np.append(sim_dict['model']['v_inner'],
-                             v_boundary_outer.value) * u.cm / u.s
-
-        # Presently homologous_density and luminosity_requested parameters are
-        # set to None
-        model = Radial1DModel(velocity, None, abundance, time_explosion,
-                              t_inner, None, t_radiative,
-                              dilution_factor, v_boundary_inner,
-                              v_boundary_outer)
         # TODO : Extend it to plasma and montecarlo objects and return Simulation object
-
+        # As of now , it cannot return Simulation object , as convergence_strategy cannot
+        # be set to None , at the time of initialization
         return model
 
-    @classmethod
-    def read_model_data(cls, h5_file, path, sim_dict, file_path):
-        """
-        This function reads model data from given HDF5 File.
-
-        Parameters
-        ----------
-
-        h5_file : `h5py.File`
-            Given HDF5 file
-        path : 'str'
-            Path to transverse in hdf file
-        sim_dict : 'dict'
-            Stores HDF Leaf objects
-        file_path : 'str'
-            Path of Simulation generated HDF file 
-            Required for pd.HDFStore function call
-
-
-        Returns
-        -------
-        None
-        """
-
-        if file_path is None:
-            raise ValueError("File Path can`t be None")
-        if not os.path.exists(file_path):
-            raise IOError("Supplied HDF5 File %s does not exists" % file_path)
-        if not h5_file:
-            raise ValueError("h5file Parameter can`t be None")
-        with pd.HDFStore(file_path, 'r') as data:
-            for key in h5_file[path].keys():
-                sim_dict[key] = {}
-                buff_path = path + '/' + key + '/'
-                sim_dict[key] = data[buff_path]
-
-
-    @classmethod
-    def read_plasma_data(cls, h5_file, path, sim_dict, file_path):
-        """
-        This function reads plasma data from given HDF5 File.
-
-        Parameters
-        ----------
-
-        h5_file : `h5py.File`
-            Given HDF5 file
-        path : 'str'
-            Path to transverse in hdf file
-        sim_dict : 'dict'
-            Stores HDF Leaf objects
-        file_path : 'str' 
-            Path to Simulation generated hdf file
-            Required for pd.HDFStore function call
-
-
-        Returns
-        -------
-        None
-        """
-        if file_path is None:
-            raise ValueError("File Path can`t be None")
-        if not os.path.exists(file_path):
-            raise IOError("Supplied HDF5 File %s does not exists" % file_path)
-        if not h5_file:
-            raise ValueError("h5file Parameter can`t be None")
-
-        with pd.HDFStore(file_path, 'r') as data:
-        # For now , it reads only that keys , which are required for constructing
-        # Radial1DModel Object
-            plasma_keys = ['abundance', 't_rad', 'scalars']
-            for key in h5_file[path].keys():
-                if key in plasma_keys:
-                    sim_dict[key] = {}
-                    buff_path = path + '/' + key + '/'
-                    sim_dict[key] = data[buff_path]
 
 
 
