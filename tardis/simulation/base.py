@@ -442,7 +442,3 @@ class Simulation(object):
         # As of now , it cannot return Simulation object , as convergence_strategy cannot
         # be set to None , at the time of initialization
         return model
-
-
-
-
