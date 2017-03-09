@@ -4,10 +4,11 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 from collections import OrderedDict
-
+import h5py
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
+import os
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -410,3 +411,34 @@ class Simulation(object):
                    convergence_strategy=config.montecarlo.convergence_strategy,
                    nthreads=config.montecarlo.nthreads)
 
+    @classmethod
+    def from_hdf(cls, file_path):
+        """
+        This function converts a hdf5 file to a Radial1DModel Object.
+
+        Parameters
+        ----------
+
+        file_path : `str`
+             Path to Simulation generated hdf file
+
+        Returns
+        -------
+
+        model : `~Radial1DModel`
+        """
+
+        if file_path is None:
+            raise ValueError("File Path can`t be None")
+
+        with h5py.File(file_path, 'r') as h5_file:
+            for simulation in h5_file.keys():
+                for key in h5_file[simulation]:
+                    if 'model' in key:
+                        model = Radial1DModel.from_hdf(
+                            simulation, h5_file, file_path)
+
+        # TODO : Extend it to plasma and montecarlo objects and return Simulation object
+        # As of now , it cannot return Simulation object , as convergence_strategy cannot
+        # be set to None , at the time of initialization
+        return model

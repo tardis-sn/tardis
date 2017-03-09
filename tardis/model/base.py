@@ -378,3 +378,63 @@ class Radial1DModel(object):
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
                    v_boundary_outer=structure.get('v_outer_boundary', None))
+
+    @classmethod
+    def from_hdf(cls,path,h5_file,file_path):
+        """
+        This function returns a Radial1DModel object 
+        from given HDF5 File.
+
+        Parameters
+        ----------
+        path : 'str'
+            Path to transverse in hdf file
+        h5_file : 'h5py.File'
+            Given HDF5 file
+        file_path : 'str'
+            Path of Simulation generated HDF file 
+
+        Returns
+        -------
+        model : `~Radial1DModel`
+        """
+
+        if not h5_file:
+            raise ValueError("h5_file Parameter can`t be None")
+
+        model_path = path + '/model'
+        plasma_path = path + '/plasma'
+        model = {}
+        plasma = {}
+        plasma_keys = ['abundance', 't_rad', 'scalars']
+
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in h5_file[model_path].keys():
+                model[key] = {}
+                buff_path = model_path + '/' + key + '/'
+                model[key] = data[buff_path]
+
+            for key in h5_file[plasma_path].keys():
+                if key in plasma_keys:
+                    plasma[key] = {}
+                    buff_path = plasma_path + '/' + key + '/'
+                    plasma[key] = data[buff_path]
+
+        #Creates corresponding astropy.units.Quantity objects
+        abundance = plasma['abundance']
+        time_explosion = plasma['scalars']['time_explosion'] * u.s
+        t_inner = model['scalars']['t_inner'] * u.K
+        t_radiative = np.array(plasma['t_rad']) * u.K
+        v_boundary_inner = model['v_inner'][0] * u.cm / u.s
+        v_boundary_outer = model['v_outer'][
+            len(model['v_outer']) - 1] * u.cm / u.s
+        dilution_factor = np.array(model['w'])
+        velocity = np.append(model['v_inner'],
+                             v_boundary_outer.value) * u.cm / u.s
+
+        # Presently homologous_density and luminosity_requested parameters are
+        # set to None
+        return Radial1DModel(velocity, None, abundance, time_explosion,
+                             t_inner, None, t_radiative,
+                             dilution_factor, v_boundary_inner,
+                             v_boundary_outer)
