@@ -92,10 +92,10 @@ class YAMLLoader(yaml.Loader):
         if set(mapping_dict.keys()) == {'start', 'stop', 'num'}:
             if hasattr(mapping_dict['start'], 'unit'):
                 return quantity_linspace(mapping_dict['start'], mapping_dict['stop'],
-                                         mapping_dict['num'])
+                                         mapping_dict['num']+1)
             else:
                 return np.linspace(mapping_dict['start'], mapping_dict['stop'],
-                                         mapping_dict['num'])
+                                         mapping_dict['num']+1)
         return OrderedDict(self.construct_pairs(node))
 
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)

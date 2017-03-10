@@ -23,11 +23,11 @@ class TestModelFromPaper1Config:
 
     def test_velocities(self):
         velocity = self.config.model.structure.velocity
-        assert_almost_equal(velocity.start.cgs.value,
+        assert_almost_equal(velocity[0].cgs.value,
                             self.model.v_inner[0].cgs.value)
-        assert_almost_equal(velocity.stop.cgs.value,
+        assert_almost_equal(velocity[-1].cgs.value,
                             self.model.v_outer[-1].cgs.value)
-        assert len(self.model.v_outer) == velocity.num
+        assert len(self.model.v_outer) == len(velocity)-1
 
     def test_densities(self):
         assert_almost_equal(self.model.density[0].cgs.value,
