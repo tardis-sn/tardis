@@ -171,6 +171,29 @@ class MontecarloRunner(object):
         return ['scatter', 'downbranch', 'macroatom'].index(
             line_interaction_type)
 
+    def to_hdf(self, path_or_buf):
+        """
+            path_or_buf may include path like "model/plasma/levelpopulation/hdf_file.h5"
+        """
+        path, filename = os.path.split(path_or_buf)
+        
+        if not os.path.exists(path):
+            try:
+                os.makedirs(path)
+            except:
+                raise OSError("Can't create destination directory (%s)!" % (path)) 
+ 
+        try:
+            hdf = pd.HDFStore(filename)
+        except:
+            if not isinstance(hdf,pd.HDFStore):
+                raise TypeError
+                hdf = filename
+        
+        for item in self.legacy_return:
+            item.to_hdf(hdf, path)
+        
+        hdf.close()
 
     @property
     def output_nu(self):
