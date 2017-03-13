@@ -88,7 +88,7 @@ def data_path(request):
 
     path = {
         'config_dirpath': request.param,
-        'reference_filepath': ref_path,
+        'reference_path': ref_path,
         'setup_name': hdf_filename[:-3],
         # Temporary hack for providing atom data per individual setup.
         # This url has all the atom data files hosted, for downloading.
@@ -102,8 +102,8 @@ def data_path(request):
     ))
 
     if (request.config.getoption("--generate-reference") and not
-            os.path.exists(path['reference_filepath'])):
-        os.makedirs(path['reference_filepath'])
+            os.path.exists(path['reference_path'])):
+        os.makedirs(path['reference_path'])
     return path
 
 
@@ -113,7 +113,7 @@ def reference(request, data_path):
     HDF file. All data is unpacked as a collection of ``pd.Series`` and
     ``pd.DataFrames`` in a ``pd.HDFStore`` object and returned away.
 
-    Assumed that ``data_path['reference_filepath']`` is a valid HDF file
+    Assumed that ``data_path['reference_path']`` is a valid HDF file
     containing the reference dath for a particular setup.
     """
     # Reference data need not be loaded and provided if current test run itself
@@ -122,10 +122,10 @@ def reference(request, data_path):
         return
     else:
         try:
-            reference = pd.HDFStore(data_path['reference_filepath'], 'r')
+            reference = pd.HDFStore(data_path['reference_path'], 'r')
         except IOError:
             raise IOError('Reference file {0} does not exist and is needed'
-                          ' for the tests'.format(data_path['reference_filepath']))
+                          ' for the tests'.format(data_path['reference_path']))
 
         else:
             return reference
