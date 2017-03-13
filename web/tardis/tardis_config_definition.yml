@@ -1,0 +1,139 @@
+tardis_config_version:
+  property_type: string
+  default: None
+  mandatory: True
+  help: Version of the configuration file
+
+
+supernova:
+    luminosity_requested:
+        property_type: quantity
+        mandatory: True
+        default: 1 solLum
+        help: requested output luminosity for simulation
+
+    time_explosion:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help: time since explosion
+        
+    distance:
+        property_type: quantity
+        mandatory: False
+        default: None
+        help: distance to supernova
+      
+    luminosity_wavelength_start:
+        property_type: quantity
+        mandatory: False
+        default: 0 angstrom
+        help: start of the integral needed for getting the luminosity right
+
+
+    luminosity_wavelength_end:
+        property_type: quantity
+        mandatory: False
+        default: inf angstrom
+        help: start of the integral needed for getting the luminosity right
+
+atom_data:
+    property_type: string
+    mandatory: True
+    help: path or filename to the Atomic Data HDF5 file
+  
+plasma:
+    initial_t_inner:
+        property_type: quantity
+        mandatory: False
+        default: -1 K
+        help: > 
+            initial temperature of the inner boundary black body. If set to -1 K 
+            will result in automatic calculation of boundary
+        
+        
+    initial_t_rad:
+        property_type: quantity
+        mandatory: False
+        default: 10000 K
+        help: initial radiative temperature in all cells (if set
+        
+    disable_electron_scattering:
+        property_type: bool
+        mandatory: False
+        default: False
+        help: >
+            disable electron scattering process in montecarlo part - non-physical only
+            for tests
+            
+    ionization:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: nebular lte
+        help: ionization treatment mode
+          
+      
+    excitation:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: lte dilute-lte
+        help: excitation treatment mode
+        
+    radiative_rates_type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: dilute-blackbody detailed
+        help: radiative rates treatment mode
+        
+    line_interaction_type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: scatter downbranch macroatom 
+        help: line interaction mode
+        
+    w_epsilon:
+        property_type: float
+        mandatory: False
+        default:  1e-10
+        help: w to use when j_blues get numerically 0. - avoids numerical complications
+
+    delta_treatment:
+        property_type: float
+        mandatory: False
+        default: None
+        help: >
+            In the saha calculation set delta equals to the number given in
+            this configuration item. if set to None (default), normal delta
+            treatment (as described in Mazzali & Lucy 1993) will be applied
+
+    nlte:
+        species:
+            property_type: list
+            mandatory: False
+            default: []
+            help: >
+                Species that are requested to be NLTE treated in the format 
+                ['Si 2', 'Ca 1', etc.]
+
+        coronal_approximation:
+            property_type: bool
+            default: False
+            mandatory: False
+            help: set all jblues=0.0
+    
+        classical_nebular:
+            property_type: bool
+            default: False
+            mandatory: False
+            help: sets all beta_sobolevs to 1
+
+spectrum:
+    property_type: quantity_range_sampled
+    default: None
+    mandatory: True
+    help: Final spectrum sampling
+
