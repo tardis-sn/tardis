@@ -40,7 +40,7 @@ def pytest_terminal_summary(terminalreporter):
             terminalreporter.config.getvalue("integration-tests")):
         # TODO: Add a check whether generation was successful or not.
         terminalreporter.write_sep("-", "Generated reference data: {0}".format(os.path.join(
-            terminalreporter.config.integration_tests_config['generate_reference'],
+            terminalreporter.config.integration_tests_config['reference'],
             tardis_githash[:7]
         )))
 
@@ -77,15 +77,18 @@ def plot_object(request):
 def data_path(request):
     integration_tests_config = request.config.integration_tests_config
     hdf_filename = "{0}.h5".format(os.path.basename(request.param))
+    if (request.config.getoption("--generate-reference") ):
+        ref_path = os.path.join(os.path.expandvars(os.path.expanduser(
+            integration_tests_config['reference'])), tardis_githash[:7]
+        )
+    else:
+        ref_path = os.path.join(os.path.expandvars(
+            os.path.expanduser(integration_tests_config['reference'])), hdf_filename
+        )
 
     path = {
         'config_dirpath': request.param,
-        'reference_filepath': os.path.join(os.path.expandvars(
-            os.path.expanduser(integration_tests_config['reference'])), hdf_filename
-        ),
-        'gen_ref_path': os.path.join(os.path.expandvars(os.path.expanduser(
-            integration_tests_config['generate_reference'])), tardis_githash[:7]
-        ),
+        'reference_filepath': ref_path,
         'setup_name': hdf_filename[:-3],
         # Temporary hack for providing atom data per individual setup.
         # This url has all the atom data files hosted, for downloading.
@@ -99,8 +102,8 @@ def data_path(request):
     ))
 
     if (request.config.getoption("--generate-reference") and not
-            os.path.exists(path['gen_ref_path'])):
-        os.makedirs(path['gen_ref_path'])
+            os.path.exists(path['reference_filepath'])):
+        os.makedirs(path['reference_filepath'])
     return path
 
 
