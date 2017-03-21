@@ -75,7 +75,7 @@ def pytest_addoption(parser):
     parser.addoption("--less-packets",
                      action="store_true", default=False,
                      help="Run integration tests with less packets.")
-    parser.addoption("--py.test",dest='py.test',
+    parser.addoption("--full-test",dest='full-test',
                      action="store_true", default=False,
                      help="Run Tardis full test.")
 

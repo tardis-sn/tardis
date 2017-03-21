@@ -10,7 +10,7 @@ from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
 
 slow = pytest.mark.skipif(
-       not pytest.config.getoption("--py.test"),
+       not pytest.config.getoption("--full-test"),
        reason = "Need py.test commandline option to run the test")
 
 def data_path(fname):
