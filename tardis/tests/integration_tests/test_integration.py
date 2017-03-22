@@ -53,8 +53,19 @@ quantity_comparison = [
      'plasma.luminosity_inner.cgs.value'),
      ]
 
+scalar_comparison = [
+    ('/simulation/model/scalars',
+     'model.scalars'),
+    ('/simulation/plasma/scalars',
+     'plasma.scalars'),
+     ]
+
 @pytest.fixture(params=quantity_comparison)
 def model_quantities(request):
+    return request.param
+
+@pytest.fixture(params=scalar_comparison)
+def model_scalars(request):
     return request.param
 
 
@@ -143,6 +154,16 @@ class TestIntegration(object):
 
         # Get the reference data through the fixture.
         self.reference = reference
+
+    def test_model_scalars(self, model_scalars):
+        reference_quantity_name, tardis_quantity_name = model_scalars
+
+        if reference_quantity_name not in self.reference:
+            pytest.skip('{0} not calculated in this run'.format(
+                reference_quantity_name))
+        reference_quantity = self.reference[reference_quantity_name]
+        tardis_quantity = eval('self.result.' + tardis_quantity_name)
+        assert_allclose(tardis_quantity, reference_quantity)
 
     def test_model_quantities(self, model_quantities, plot_object):
         plot_object.add(self.plot_model_quantities(model_quantities),
