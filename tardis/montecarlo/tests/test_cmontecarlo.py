@@ -380,6 +380,32 @@ def test_line_search(nu, nu_insert, number_of_lines, expected_params):
     assert obtained_result.value == expected_params['result']
     assert obtained_tardis_error == expected_params['ret_val']
 
+@pytest.mark.parametrize(
+    ['x', 'x_insert', 'imin', 'imax', 'expected_params'],
+    [([2.0, 4.0, 6.0, 7.0], 5.0, 0, 3,
+      {'result': 2, 'ret_val': TARDIS_ERROR_OK}),
+
+     ([2.0, 3.0, 5.0, 7.0], 8.0, 0, 3,
+      {'result': 0, 'ret_val': TARDIS_ERROR_BOUNDS_ERROR}),
+
+     ([2.0, 4.0, 6.0, 7.0], 4.0, 0, 3,
+      {'result': 0, 'ret_val': TARDIS_ERROR_OK})
+     ]
+)
+def test_binary_search(x, x_insert, imin, imax, expected_params):
+    x = (c_double * (imax - imin + 1))(*x)
+    x_insert = c_double(x_insert)
+    imin = c_int64(imin)
+    imax = c_int64(imax)
+    obtained_result = c_int64(0)
+
+    cmontecarlo_methods.binary_search.restype = c_uint
+    obtained_tardis_error = cmontecarlo_methods.binary_search(
+                        byref(x), x_insert, imin, imax, byref(obtained_result))
+
+    assert obtained_result.value == expected_params['result']
+    assert obtained_tardis_error == expected_params['ret_val']
+
 
 @pytest.mark.parametrize(
     ['mu', 'r', 'inv_t_exp', 'expected'],
