@@ -138,6 +138,7 @@ class MontecarloRunner(object):
         None
         """
         self.time_of_simulation = self.calculate_time_of_simulation(model)
+        self.luminosity_inner = calculate_luminosity_inner(model)
         self.volume = model.volume
         self._initialize_estimator_arrays(self.volume.shape[0],
                                           plasma.tau_sobolevs.shape)
@@ -295,9 +296,8 @@ class MontecarloRunner(object):
         return t_rad * u.K, w
 
     def calculate_luminosity_inner(self, model):
-        self.luminosity_inner = (4 * np.pi * const.sigma_sb.cgs *
+        return (4 * np.pi * const.sigma_sb.cgs *
                 model.r_inner[0] ** 2 * model.t_inner ** 4).to('erg/s')
-        return self.luminosity_inner
 
     def calculate_time_of_simulation(self, model):
         return (1.0 * u.erg / self.calculate_luminosity_inner(model))
