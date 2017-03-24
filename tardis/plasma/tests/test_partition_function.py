@@ -1,19 +1,37 @@
+import os
+import pytest
+import h5py
 import numpy as np
 
-def test_level_boltzmann_factor_lte(level_boltzmann_factor_lte, levels):
-    assert np.allclose(level_boltzmann_factor_lte.ix[2].ix[0].ix[0], 1)
-    assert np.allclose(level_boltzmann_factor_lte.ix[2].ix[1].ix[0], 2)
-    assert np.allclose(level_boltzmann_factor_lte.ix[2].ix[0].ix[10],
-        7.6218092841240705e-12)
+from tardis import __path__ as path
 
-def test_level_boltzmann_factor_dilute_lte(level_boltzmann_factor_dilute_lte,
+@pytest.fixture(scope='module')
+def partition_compare_data_fname():
+    fname = 'partition_compare_data.h5'
+    return os.path.join(path[0], 'plasma', 'tests', 'data', fname)
+
+@pytest.fixture()
+def partition_compare_data(partition_compare_data_fname):
+    return h5py.File(partition_compare_data_fname, 'r')
+
+def test_level_boltzmann_factor_lte(level_boltzmann_factor_lte, partition_compare_data, levels):
+    expected_lbfl = partition_compare_data['lbfl']
+    assert np.allclose(level_boltzmann_factor_lte.ix[2].ix[0].ix[0], expected_lbfl[0])
+    assert np.allclose(level_boltzmann_factor_lte.ix[2].ix[1].ix[0], expected_lbfl[1])
+    assert np.allclose(level_boltzmann_factor_lte.ix[2].ix[0].ix[10], expected_lbfl[2])
+
+def test_level_boltzmann_factor_dilute_lte(level_boltzmann_factor_dilute_lte, partition_compare_data,
     levels):
-    assert np.allclose(level_boltzmann_factor_dilute_lte.ix[2].ix[0].ix[0], 1)
-    assert np.allclose(level_boltzmann_factor_dilute_lte.ix[2].ix[1].ix[0], 2)
-    assert np.allclose(level_boltzmann_factor_dilute_lte.ix[2].ix[0].ix[10],
-        3.8109046420620353e-12)
+    expected_lbfdl = partition_compare_data['lbfdl']
+    assert np.allclose(level_boltzmann_factor_dilute_lte.ix[2].ix[0].ix[0], expected_lbfdl[0])
+    assert np.allclose(level_boltzmann_factor_dilute_lte.ix[2].ix[1].ix[0], expected_lbfdl[1])
+    assert np.allclose(level_boltzmann_factor_dilute_lte.ix[2].ix[0].ix[10], expected_lbfdl[2])
 
-def test_lte_partition_function(partition_function, levels):
-    assert np.allclose(partition_function.ix[2].ix[0], 1.0)
-    assert np.allclose(partition_function.ix[2].ix[1], 2.0)
-    assert np.allclose(partition_function.ix[2].ix[2], 1.0)
+def test_lte_partition_function(partition_function, partition_compare_data, levels):
+    expected_pf = partition_compare_data['pf']
+    assert np.allclose(partition_function.ix[2].ix[0], expected_pf[0])
+    assert np.allclose(partition_function.ix[2].ix[1], expected_pf[1])
+    assert np.allclose(partition_function.ix[2].ix[2], expected_pf[2])
+
+
+
