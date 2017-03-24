@@ -1006,8 +1006,8 @@ class LineInteractionTables(QtGui.QWidget):
         exc_deexc_string = 'exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)'
 
         for line_id, row in grouped_line_interactions.wavelength.count().iteritems():
-            current_line_in = self.atom_data.lines.ix[line_id[0]]
-            current_line_out = self.atom_data.lines.ix[line_id[1]]
+            current_line_in = self.simulation.atom_data.lines.ix[line_id[0]]
+            current_line_out = self.simulation.plasma.atom_data.lines.ix[line_id[1]]
             last_line_in_string.append(exc_deexc_string % (
                 current_line_in['level_number_lower'],
                current_line_in['level_number_upper'],
