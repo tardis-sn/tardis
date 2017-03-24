@@ -35,6 +35,7 @@ def run_tardis(config, atom_data=None):
         tardis_config = Configuration.from_config_dict(config)
 
     simulation = Simulation.from_config(tardis_config, atom_data=atom_data)
+    simulation.atom_data = atom_data
     simulation.run()
 
     return simulation

@@ -295,8 +295,9 @@ class MontecarloRunner(object):
         return t_rad * u.K, w
 
     def calculate_luminosity_inner(self, model):
-        return (4 * np.pi * const.sigma_sb.cgs *
+        self.luminosity_inner = (4 * np.pi * const.sigma_sb.cgs *
                 model.r_inner[0] ** 2 * model.t_inner ** 4).to('erg/s')
+        return self.luminosity_inner
 
     def calculate_time_of_simulation(self, model):
         return (1.0 * u.erg / self.calculate_luminosity_inner(model))

@@ -399,7 +399,7 @@ class ModelViewer(QtGui.QWidget):
         QtGui.QWidget.__init__(self, parent)
         
         #Data structures
-        self.model = None
+        self.simulation = None
         self.shell_info = {}
         self.line_info = []
 
@@ -470,15 +470,15 @@ class ModelViewer(QtGui.QWidget):
                      Model converged     : {} <br/> Simulation Time    :  {} s <br/>\
                      Inner Temperature   : {} K <br/> Number of packets  :  {}<br/>\
                      Inner Luminosity    : {}'\
-                     .format(self.model.iterations_max_requested, 
-                        self.model.iterations_executed,
+                     .format(self.simulation.iterations, #Needs checking#
+                        self.simulation.iterations_executed,
                         '<font color="green"><b>True</b></font>' if 
-                        self.model.converged else 
+                        self.simulation.converged else 
                         '<font color="red"><b>False</b></font>', 
-                        self.model.time_of_simulation.value,
-                        self.model.t_inner.value, 
-                        self.model.current_no_of_packets,
-                        self.model.luminosity_inner)
+                        self.simulation.runner.time_of_simulation.value,
+                        self.simulation.model.t_inner.value, 
+                        self.simulation.no_of_virtual_packets,
+                        self.simulation.runner.luminosity_inner)
         self.outputLabel.setText(labeltext)
 
     def make_shell_widget(self):
@@ -562,33 +562,33 @@ class ModelViewer(QtGui.QWidget):
             self.change_spectrum_to_spec_virtual_flux_angstrom()
         self.show()
 
-    def change_model(self, model):
+    def change_simulation(self, simulation):
         """Reset the model set in the GUI."""
-        self.model = model
+        self.simulation = simulation
         self.tablemodel.arraydata = []
-        self.tablemodel.add_data(model.t_rad.value.tolist())
-        self.tablemodel.add_data(model.ws.tolist())
+        self.tablemodel.add_data(simulation.model.t_rad.value.tolist())
+        self.tablemodel.add_data(simulation.model.w.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
         """Change the spectrum data to the virtual spectrum."""
-        if self.model.runner.spectrum_virtual.luminosity_density_lambda is None:
+        if self.simulation.runner.spectrum_virtual.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
-                self.model.runner.spectrum_virtual.wavelength)
+                self.simulation.runner.spectrum_virtual.wavelength)
         else:
             luminosity_density_lambda = \
-            self.model.runner.spectrum_virtual.luminosity_density_lambda.value
+            self.simulation.runner.spectrum_virtual.luminosity_density_lambda.value
 
         self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
 
     def change_spectrum_to_spec_flux_angstrom(self):
         """Change spectrum data back from virtual spectrum. (See the 
             method above)."""
-        if self.model.runner.spectrum.luminosity_density_lambda is None:
+        if self.simulation.runner.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(
-                self.model.runner.spectrum.wavelength)
+                self.simulation.runner.spectrum.wavelength)
         else:
             luminosity_density_lambda = \
-            self.model.runner.spectrum.luminosity_density_lambda.value
+            self.simulation.runner.spectrum.luminosity_density_lambda.value
 
         self.change_spectrum(luminosity_density_lambda, 'spec_flux_angstrom')
 
@@ -609,12 +609,12 @@ class ModelViewer(QtGui.QWidget):
         self.spectrum.ax.set_title('Spectrum')
         self.spectrum.ax.set_xlabel('Wavelength (A)')
         self.spectrum.ax.set_ylabel('Intensity')
-        wavelength = self.model.runner.spectrum.wavelength.value
-        if self.model.runner.spectrum.luminosity_density_lambda is None:
+        wavelength = self.simulation.runner.spectrum.wavelength.value
+        if self.simulation.runner.spectrum.luminosity_density_lambda is None:
             luminosity_density_lambda = np.zeros_like(wavelength)
         else:
             luminosity_density_lambda =\
-             self.model.runner.spectrum.luminosity_density_lambda.value
+             self.simulation.runner.spectrum.luminosity_density_lambda.value
 
         self.spectrum.dataplot = self.spectrum.ax.plot(wavelength, 
             luminosity_density_lambda, label='b')
@@ -622,11 +622,11 @@ class ModelViewer(QtGui.QWidget):
 
     def change_graph_to_ws(self):
         """Change the shell plot to show dilution factor."""
-        self.change_graph(self.model.ws, 'Ws', '')
+        self.change_graph(self.simulation.model.w, 'W', '')
 
     def change_graph_to_t_rads(self):
         """Change the graph back to radiation Temperature."""
-        self.change_graph(self.model.t_rad.value, 't_rad', '(K)')
+        self.change_graph(self.simulation.model.t_rad.value, 't_rad', '(K)')
 
     def change_graph(self, data, name, unit):
         """Called to change the shell plot by the two methods above."""
@@ -659,7 +659,7 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax1.set_ylabel('Rad. Temp (K)')
         self.graph.ax1.yaxis.get_major_formatter().set_powerlimits((0, 1))
         self.graph.dataplot = self.graph.ax1.plot(
-            range(len(self.model.t_rad.value)), self.model.t_rad.value)
+            range(len(self.simulation.model.t_rad.value)), self.simulation.model.t_rad.value)
         self.graph.ax2.clear()
         self.graph.ax2.set_title('Shell View')
         self.graph.ax2.set_xticklabels([])
@@ -667,42 +667,42 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax2.grid = True
 
         self.shells = []
-        t_rad_normalizer = colors.Normalize(vmin=self.model.t_rad.value.min(),
-            vmax=self.model.t_rad.value.max())
+        t_rad_normalizer = colors.Normalize(vmin=self.simulation.model.t_rad.value.min(),
+            vmax=self.simulation.model.t_rad.value.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, 
             cmap=plt.cm.jet)
-        t_rad_color_map.set_array(self.model.t_rad.value)
+        t_rad_color_map.set_array(self.simulation.model.t_rad.value)
         if self.graph.cb:
-            self.graph.cb.set_clim(vmin=self.model.t_rad.value.min(),
-                vmax=self.model.t_rad.value.max())
+            self.graph.cb.set_clim(vmin=self.simulation.model.t_rad.value.min(),
+                vmax=self.simulation.model.t_rad.value.max())
             self.graph.cb.update_normal(t_rad_color_map)
         else:
             self.graph.cb = self.graph.figure.colorbar(t_rad_color_map)
             self.graph.cb.set_label('T (K)')
         self.graph.normalizing_factor = 0.2 * (
-            self.model.tardis_config.structure.r_outer.value[-1] - 
-            self.model.tardis_config.structure.r_inner.value[0]) / (
-            self.model.tardis_config.structure.r_inner.value[0])
+            self.simulation.model.r_outer.value[-1] - 
+            self.simulation.model.r_inner.value[0]) / (
+            self.simulation.model.r_inner.value[0])
 
         #self.graph.normalizing_factor = 8e-16
-        for i, t_rad in enumerate(self.model.t_rad.value):
-            r_inner = (self.model.tardis_config.structure.r_inner.value[i] * 
+        for i, t_rad in enumerate(self.simulation.model.t_rad.value):
+            r_inner = (self.simulation.model.r_inner.value[i] * 
                 self.graph.normalizing_factor)
-            r_outer = (self.model.tardis_config.structure.r_outer.value[i] * 
+            r_outer = (self.simulation.model.r_outer.value[i] * 
                 self.graph.normalizing_factor)
             self.shells.append(Shell(i, (0,0), r_inner, r_outer, 
                 facecolor=t_rad_color_map.to_rgba(t_rad),
                 picker=self.graph.shell_picker))
             self.graph.ax2.add_patch(self.shells[i])
         self.graph.ax2.set_xlim(0, 
-            self.model.tardis_config.structure.r_outer.value[-1] * 
+            self.simulation.model.r_outer.value[-1] * 
             self.graph.normalizing_factor)
         self.graph.ax2.set_ylim(0, 
-            self.model.tardis_config.structure.r_outer.value[-1] * 
+            self.simulation.model.r_outer.value[-1] * 
             self.graph.normalizing_factor)
         self.graph.figure.tight_layout()
         self.graph.draw()
-
+        
     def on_header_double_clicked(self, index):
         """Callback to get counts for different Z from table."""
         self.shell_info[index] = ShellInfo(index, self.createTable, self)
@@ -727,7 +727,7 @@ class ShellInfo(QtGui.QDialog):
             self.on_atom_header_double_clicked)
 
 
-        self.table1_data = self.parent.model.tardis_config.abundances[
+        self.table1_data = self.parent.simulation.plasma.abundance[
             self.shell_index]
         self.atomsdata = self.createTable([['Z = '], ['Count (Shell %d)' % (
             self.shell_index + 1)]], iterate_header=(2, 0), 
@@ -750,7 +750,7 @@ class ShellInfo(QtGui.QDialog):
         """Called when a header in the first column is clicked to show 
         ion populations."""
         self.current_atom_index = self.table1_data.index.values.tolist()[index]
-        self.table2_data = self.parent.model.plasma.ion_number_density[
+        self.table2_data = self.parent.simulation.plasma.ion_number_density[
             self.shell_index].ix[self.current_atom_index]
         self.ionsdata = self.createTable([['Ion: '], 
             ['Count (Z = %d)' % self.current_atom_index]], 
@@ -759,7 +759,7 @@ class ShellInfo(QtGui.QDialog):
         normalized_data = []
         for item in self.table2_data.values:
             normalized_data.append(float(item /
-               self.parent.model.tardis_config.number_densities[self.shell_index]
+               self.parent.simulation.plasma.number_density[self.shell_index]
                .ix[self.current_atom_index]))
 
 
@@ -776,7 +776,7 @@ class ShellInfo(QtGui.QDialog):
     def on_ion_header_double_clicked(self, index):
         """Called on double click of ion headers to show level populations."""
         self.current_ion_index = self.table2_data.index.values.tolist()[index]
-        self.table3_data = self.parent.model.plasma.level_number_density[
+        self.table3_data = self.parent.simulation.plasma.level_number_density[
             self.shell_index].ix[self.current_atom_index, self.current_ion_index]
         self.levelsdata = self.createTable([['Level: '], 
             ['Count (Ion %d)' % self.current_ion_index]], 
@@ -1158,7 +1158,7 @@ class Tardis(QtGui.QMainWindow):
 
         """
         if model:
-            self.mdv.change_model(model)
+            self.mdv.change_simulation(model)
         if model.converged:
             self.successLabel.setText('<font color="green">converged</font>')
         if self.mode == 'active':
