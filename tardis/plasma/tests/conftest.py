@@ -1,5 +1,5 @@
 import os
-
+import glob
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -7,6 +7,7 @@ import pytest
 
 import tardis
 from tardis.atomic import AtomData
+from tardis import __githash__ as tardis_githash
 from tardis.plasma.properties import *
 
 # INPUTS
@@ -177,6 +178,28 @@ def level_boltzmann_factor_dilute_lte(levels, g, excitation_energy, beta_rad,
 def partition_function(level_boltzmann_factor_lte):
     partition_function_module = PartitionFunction(None)
     return partition_function_module.calculate(level_boltzmann_factor_lte)
+
+@pytest.fixture(scope="class", params=[
+    path for path in glob.glob(os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "*")) if os.path.isdir(path)
+])
+def data_path(request):
+    hdf_filename = "{0}.h5".format(os.path.basename(request.param))
+    d_path = os.path.join(os.path.expandvars(os.path.expanduser(
+        'home/suyash/Documents/tardis_clone/tardis_plasma_unit/tardis/plasma/tests/data'))
+        , tardis_githash[:7]
+    )
+    path = {
+        'gen_ref_path': os.path.join(os.path.expandvars(os.path.expanduser(
+            d_path)), tardis_githash[:7]
+        ),
+        'setup_name': hdf_filename[:-3],
+    }
+
+    if (request.config.getoption("--generate-reference") and not
+            os.path.exists(path['gen_ref_path'])):
+        os.makedirs(path['gen_ref_path'])
+    return path
 
 # ION POPULATION PROPERTIES
 
