@@ -5,6 +5,7 @@ import h5py
 import numpy as np
 
 from tardis import __path__ as path
+from tardis.atomic import AtomData
 from tardis.io.util import yaml_load_config_file
 from tardis.simulation import Simulation
 from tardis.io.config_reader import Configuration
@@ -22,27 +23,32 @@ def partition_compare_data(partition_compare_data_fname):
 @pytest.mark.skipif(not pytest.config.getvalue("partition-test"),
                     reason="partition tests are not included in this run")
 @pytest.mark.partition
-class TESTPartition():
+class TESTPartition(object):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(self, request, reference, data_path, pytestconfig):
 
-        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
-            pytest.config.getvalue('atomic-dataset')))
-        assert os.path.exists(self.atom_data_filename), ("{0} atomic datafiles"
-                                                         " does not seem to "
-                                                         "exist".format(
-            self.atom_data_filename))
-        self.config_yaml = yaml_load_config_file('address')  #address
-        self.config_yaml['atom_data'] = self.atom_data_filename
-        conf = Configuration.from_config_dict(self.config_yaml)
-        self.result = Simulation.from_config(conf,
-                                             atom_data=self.atom_data).plasma    #error may come
-        self.result.run()
+        capmanager = pytestconfig.pluginmanager.getplugin('capturemanager')
         self.name = data_path['setup_name']
 
-        if request.config.getoption("--generate-reference"):
+        self.config_file = os.path.join(data_path['config_dirpath'], "config.yml")
+
+        atom_data_name = yaml.load(open(self.config_file))['atom_data']
+        atom_data_filepath = os.path.join(
+            data_path['atom_data_path'], atom_data_name
+        )
+        self.atom_data = AtomData.from_hdf5(atom_data_filepath)
+
+        conf = Configuration.from_config_dict(self.config_yaml)
+        self.result = Simulation.from_config(conf,
+                                             atom_data=self.atom_data).plasma
+
+        capmanager.suspendcapture(True)
+
+        self.result.run()
+
+        if request.config.getoption("--generate-reference-partition"):
 
             ref_data_path = os.path.join(
                 data_path['gen_ref_path'], "{0}.h5".format(self.name)
@@ -56,6 +62,10 @@ class TESTPartition():
             pytest.skip("Reference data saved at {0}".format(
                 data_path['gen_ref_path']
             ))
+
+        capmanager.resumecapture()
+
+        self.reference = reference
 
     def test_level_boltzmann_factor_lte(level_boltzmann_factor_lte, partition_compare_data, levels):
         expected_lbfl = partition_compare_data['lbfl']
