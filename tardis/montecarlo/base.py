@@ -325,6 +325,7 @@ class MontecarloRunner(object):
         runner_path = os.path.join(path, 'runner')
         properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
                       'j_estimator', 'montecarlo_virtual_luminosity',
+                      'last_interaction_type',
                       'last_interaction_in_nu',
                       'last_line_interaction_in_id',
                       'last_line_interaction_out_id',
