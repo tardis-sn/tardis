@@ -1,0 +1,35 @@
+<h3>Atom data</h3>
+<p>The atomic data for tardis is stored in hdf5 files. TARDIS ships with a relatively simple atomic dataset which only contains silicon lines and levels. use this to link download example <a href="http://tardis.readthedocs.org/en/latest/atomic/atomic_data.html">Tardis Atomic Dataset</a></p>
+<div class="form-group col-sm-12">
+  <label for="exampleInputEmail1" class="control-label">
+    Atomic data:
+  </label>
+  <div>
+    <input type="file" class="form-control" required file="main.data.atom_data">
+  </div>
+  <span class="help-block pull-right">select Atomic Data HDF5 file</span>
+</div>
+
+  <h3>Spectrum</h3>
+  <div class="col-sm-12 pull-right">
+    <div class="form-group col-sm-6">
+      <quantity-field ng-model="main.data.spectrum.start" 
+                      name="start"
+                      units="angstrom">
+      </quantity-field>
+    </div>
+    <div class="form-group col-sm-6 pull-right">
+      <quantity-field ng-model="main.data.spectrum.end" 
+                      name="start"
+                      units="angstrom">
+      </quantity-field>
+    </div>
+    <div class="form-group col-sm-6">
+      <label for="exampleInputEmail1" class="control-label">
+        num:
+      </label>
+      <div>
+        <input type="text" class="form-control" ng-model="main.data.spectrum.num">
+      </div>
+  </div>
+</div>

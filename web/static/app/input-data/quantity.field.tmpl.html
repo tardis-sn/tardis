@@ -1,0 +1,14 @@
+<div>
+  <label for="exampleInputEmail1" class="control-label">
+    {$ vm.name $}:
+  </label>
+  <div class="input-group">
+    <input type="text" class="form-control" ng-model="vm.value">
+    <div class="input-group-addon">
+      <select ng-model="vm.unit">
+        <option data-ng-repeat="unit in vm.unitArray()" value="{$unit$}">{$unit$}</option>
+      </select>
+    </div>
+  </div>
+  <span class="help-block">{$ vm.help $}</span>
+</div>

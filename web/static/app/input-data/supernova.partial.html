@@ -1,0 +1,40 @@
+<div class="form-group col-sm-6">
+  <quantity-field ng-model="main.data.supernova.luminosity_requested" 
+                  name="luminosity requested"
+                  units="solLum, log_lsun"
+                  help="requested output luminosity for simulation">
+  </quantity-field>
+</div>
+<div class="form-group col-sm-6 pull-right">
+  <quantity-field ng-model="main.data.supernova.time_explosion" 
+                  name="time explosion"
+                  units="day, month, year"
+                  help="time since explosion">
+  </quantity-field>
+</div>
+<!--  -->
+<!-- Advanced options -->
+<!--  -->
+<div class="advanced" ng-show="main.advanced" >
+  <div class="form-group col-sm-6">
+    <quantity-field ng-model="main.data.supernova.luminosity_wavelength_start" 
+                    name="luminosity wavelength start"
+                    units="angstrom"
+                    help="start of the integral needed for getting the luminosity right">
+    </quantity-field>
+  </div>
+  <div class="form-group col-sm-6 pull-right">
+    <quantity-field ng-model="main.data.supernova.luminosity_wavelength_end" 
+                    name="luminosity wavelength end"
+                    units="angstrom"
+                    help="end of the integral needed for getting the luminosity right">
+    </quantity-field>
+  </div>
+  <div class="form-group col-sm-6">
+    <quantity-field ng-model="main.data.supernova.distance" 
+                    name="distance"
+                    units="lightyear"
+                    help="distance to supernova">
+    </quantity-field>
+  </div>
+</div>
