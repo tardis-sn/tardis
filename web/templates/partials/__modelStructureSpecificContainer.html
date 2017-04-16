@@ -1,0 +1,115 @@
+<div class="form-group well" id="specificContStructure" style="display:none;">
+    <div class="form-group" style="margin:15px 0px; float:left">
+        <label for="inputEmail" class="col-lg-12 control-label" style="margin:10px 0px; float:left">velocity <span class="label label-info">mand</span></label>
+        <div class="input-group col-lg-3 col-lg-offset-1" style="float:left">
+            <input type="text" class="form-control" data-field="start" data-parentTags="model-structure-velocity" data-type="quantity" placeholder="start">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="description of the boundaries of the shells">i</span></span>
+        </div>
+        <div class="input-group col-lg-3 col-lg-offset-1" style="float:left">
+            <input type="text" class="form-control" data-field="stop" data-parentTags="model-structure-velocity" data-type="quantity"placeholder="end">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="description of the boundaries of the shells">i</span></span>
+        </div>
+        <div class="input-group col-lg-3 col-lg-offset-1" style="float:left">
+            <input type="text" class="form-control" data-field="num" data-parentTags="model-structure-velocity" data-type="int"placeholder="number of samples">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="description of the boundaries of the shells">i</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputEmail" class="col-lg-3 control-label">density</label>
+        <div class="input-group col-lg-8 col-lg-offset-1">
+            <select class="form-control containerProp" data-field="type" data-parentTags="model-structure-density" data-type="string">
+                <option value="" data-targetCont="">---</option>
+                <option value="branch85_w7" data-targetCont="#branch85_w7ContDensity">branch85 w7</option>
+                <option value="exponential" data-targetCont="#exponentialContDensity">exponential</option>
+                <option value="power_law" data-targetCont="#power_lawContDensity">power law</option>
+                <option value="uniform" data-targetCont="#uniformContDensity">uniform</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="density">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group well" id="branch85_w7ContDensity" style="display:none;">
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">w7_time_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" id="Lum" placeholder="w7_time_0" disabled="">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="This needs no change - DO NOT TOUCH">i</span> <span class="label label-info">non-mand</span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">w7_rho_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" id="Lum" placeholder="w7_rho_0" disabled="">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="This needs no change - DO NOT TOUCH">i</span> <span class="label label-info">non-mand</span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">w7_v_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" id="Lum" placeholder="w7_v_0" disabled="">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="This needs no change - DO NOT TOUCH">i</span> <span class="label label-info">non-mand</span></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group well" id="exponentialContDensity" style="display:none;">
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">time_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" data-field="time_0" data-parentTags="model-structure-density" data-type="quantity" placeholder="time_0">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Time at which the pure model densities are right">i</span> <span class="label label-info">mand</span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">rho_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" data-field="rho_0" data-parentTags="model-structure-density" data-type="quantity" placeholder="density at time_0">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="density at time_0">i</span> <span class="label label-info">mand</span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">v_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" data-field="v_0" data-parentTags="model-structure-density" data-type="quantity" placeholder="at what velocity the density rho_0 applies">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="at what velocity the density rho_0 applies">i</span> <span class="label label-info">mand</span></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group well" id="power_lawContDensity" style="display:none;">
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">time_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" data-field="time_0" data-parentTags="model-structure-density" data-type="quantity" placeholder="time_0">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Time at which the pure model densities are right">i</span> <span class="label label-info">mand</span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">rho_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" data-field="rho_0" data-parentTags="model-structure-density" data-type="quantity" placeholder="density at time_0">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="density at time_0">i</span> <span class="label label-info">mand</span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">v_0</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" data-field="v_0" data-parentTags="model-structure-density" data-type="quantity" placeholder="at what velocity the density rho_0 applies">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="at what velocity the density rho_0 applies">i</span> <span class="label label-info">mand</span></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">exponent</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" data-field="exponent" data-parentTags="model-structure-density" data-type="float" placeholder="exponent for exponential density profile">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="exponent for exponential density profile">i</span> <span class="label label-info">mand</span></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group well" id="uniformContDensity" style="display:none;">
+        <div class="form-group">
+            <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">value</label>
+            <div class="input-group col-lg-7 col-lg-offset-1">
+                <input type="text" class="form-control" data-field="value" data-parentTags="model-structure-density" data-type="quantity" placeholder="value for uniform density">
+                <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="value for uniform density">i</span> <span class="label label-info">non-mand</span></span>
+            </div>
+        </div>
+    </div>
+</div>

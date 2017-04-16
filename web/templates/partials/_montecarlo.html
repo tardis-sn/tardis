@@ -1,0 +1,80 @@
+<div class="well col-lg-8 col-lg-offset-2" id="montecarloDiv" style="display:none;">
+    <legend>Monte Carlo</legend>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Number of packets</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="no_of_packets" data-parentTags="montecarlo" data-type="int" placeholder="Number of packets">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Number of packets">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Number of iterations</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="iterations" data-parentTags="montecarlo"  data-type="int" placeholder="Number of iterations">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Number of maximum iterations">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Convergence strategy</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <select class="form-control containerProp" data-field="type" data-parentTags="montecarlo-convergence_criteria">
+              <option value="" data-targetCont="">---</option>
+              <option value="damped" data-targetCont="#dampedContMC">damped</option>
+              <option value="specific" data-targetCont="#specificContMC">specific</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Convergence strategy">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    {% include __montecarloDampedContainer.html %}
+    {% include __montecarloSpecificContainer.html %}
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">seed</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="seed" data-parentTags="montecarlo"  data-type="int" placeholder="seed">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Seed for the random number generator">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">last number of packets</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="last_no_of_packets" data-parentTags="montecarlo"  data-type="int" placeholder="last number of packets">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="This can set the number of packets for the last run. If set negative it will remain the same as all other runs.">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">number of virtual packets</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="no_of_virtual_packets" data-parentTags="montecarlo"  data-type="int" placeholder="number of virtual packets">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Setting the number of virtual packets for the last iteration.">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">inner boundary albedo</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="inner_boundary_albedo" data-parentTags="montecarlo"  data-type="float" placeholder="inner boundary albedo">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="albedo of the reflective boundary">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">enable reflective inner boundary</label>
+        <div class="input-group col-lg-2 col-lg-offset-1">
+            <span class="input-group-addon"><input type="checkbox" data-field="enable_reflective_inner_boundary" data-parentTags="montecarlo"  data-type="bool"></span>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="experimental feature to enable a reflective boundary.">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-12 control-label" style="margin:10px 0px;">Black body sampling  <span class="label label-info">non-mand</span></label>
+        <div class="input-group col-lg-3 col-lg-offset-1" style="float:left">
+            <input type="text" class="form-control" data-field="start" data-parentTags="montecarlo-black_body_sampling" data-type="quantity"placeholder="start">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)">i</span></span>
+        </div>
+        <div class="input-group col-lg-3 col-lg-offset-1" style="float:left">
+            <input type="text" class="form-control" data-field="stop" data-parentTags="montecarlo-black_body_sampling" data-type="quantity" placeholder="end">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)">i</span></span>
+        </div>
+        <div class="input-group col-lg-3 col-lg-offset-1" style="float:left">
+            <input type="text" class="form-control" data-field="num" data-parentTags="montecarlo-black_body_sampling" data-type="int" placeholder="number of samples">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)">i</span></span>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,110 @@
+<div class="well col-lg-8 col-lg-offset-2" id="plasmaDiv" style="display:none;">
+    <legend>Plasma Data</legend>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Ionization treatment mode</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <select class="form-control" data-field="ionization" data-parentTags="plasma" data-type="string">
+                <option value="">---</option>
+                <option value="nebular">nebular</option>
+                <option value="lte">lte</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Ionization treatment mode">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Excitation treatment mode</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <select class="form-control" data-field="excitation" data-parentTags="plasma" data-type="string">
+              <option value="">---</option>
+              <option value="lte">lte</option>
+              <option value="dilute-lte">dilute-lte</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Excitation treatment mode">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Radiative rates treatment mode</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <select class="form-control" data-field="radiative_rates_type" data-parentTags="plasma" data-type="string">
+                <option value="">---</option>
+              <option value="dilute-blackbody">dilute-blackbody</option>
+              <option value="detailed">detailed</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Radiative rates treatment mode">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Line interaction mode</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <select class="form-control" data-field="line_interaction_type" data-parentTags="plasma" data-type="string">
+              <option value="">---</option>  
+              <option value="scatter">scatter</option>
+              <option value="downbranch">downbranch</option>
+              <option value="macroatom">macroatom</option>
+            </select>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="Line interaction mode">i</span> <span class="label label-info">mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Initial Inner Temperature</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="initial_t_inner" data-parentTags="plasma" data-type="quantity" placeholder="Initial temperature of the inner boundary black body">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="initial temperature of the inner boundary black body. If set to -1 K will result in automatic calculation of boundary">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Initial Radiative Temperature</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="initial_t_rad" data-parentTags="plasma" data-type="quantity" placeholder="Initial radiative temperature in all cells">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="initial radiative temperature in all cells">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">W Epsilon</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="w_epsilon" data-parentTags="plasma" data-type="float" placeholder="w to use when j_blues get numerically 0">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="w to use when j_blues get numerically 0. - avoids numerical complications">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputEmail" class="col-lg-3 col-lg-offset-1 control-label">Delta Treatment</label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control" data-field="delta_treatment" data-parentTags="plasma" data-type="float" placeholder="set delta equals to the number in the saha calculation">
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="In the saha calculation set delta equals to the number given in this configuration item. if set to None (default), normal delta treatment (as described in Mazzali & Lucy 1993) will be applied">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Disable electron scattering</label>
+        <div class="input-group col-lg-2 col-lg-offset-1">
+            <span class="input-group-addon">
+                <input type="checkbox" data-field="disable_electron_scattering" data-parentTags="plasma" data-type="bool">
+            </span>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="disable electron scattering process in montecarlo part - non-physical only for tests">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+    <h3>Nlte</h3>
+    <div class="form-group">
+        <label class="col-lg-3 col-lg-offset-1 control-label">Species <span class="badge" style="cursor:pointer; font-weight:900;" data-toggle="tooltip" data-placement="top" title="" data-original-title="Species that are requested to be NLTE treated in the format ['Si 2', 'Ca 1', etc.]">i</span> <span class="label label-info">non-mand</span></label>
+        <div class="input-group col-lg-7 col-lg-offset-1">
+            <input type="text" class="form-control tags-inp" data-field="" data-parentTags="plasma-nlte-species" placeholder="Type species follwed by number" data-role="tagsinput" data-type="float">
+        </div>
+    </div>
+    <div class="form-group" style="margin-top:10px;">
+        <div class="input-group col-lg-5 col-lg-offset-1" style="float:left">
+            <span class="input-group-addon" >Coronal Approximation 
+                <span style="margin:0px 5px;">
+                    <input type="checkbox" data-field="coronal_approximation" data-parentTags="plasma-nlte" data-type="bool">
+                </span>
+            </span>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="set all jblues=0.0">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+        <div class="input-group col-lg-5 col-lg-offset-1" style="float:left">
+            <span class="input-group-addon">Classical Nebular 
+                <span style="margin:0px 5px;">
+                    <input type="checkbox" data-field="classical_nebular" data-parentTags="plasma-nlte" data-type="bool">
+                </span>
+            </span>
+            <span class="input-group-addon"><span class="badge"  data-toggle="tooltip" data-placement="top" title="" data-original-title="sets all beta_sobolevs to 1">i</span> <span class="label label-info">non-mand</span></span>
+        </div>
+    </div>
+</div>
