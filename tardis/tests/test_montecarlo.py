@@ -4,6 +4,65 @@ import pytest
 
 test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
 
+from tardis.montecarlo.wrappers import wrapper
+
+@pytest.fixture
+def packet():
+    rpacket = {'energy': -1.0,
+               'mu': -1,
+               'nu': -1.0,
+               'nu_line': -1.0,
+               'r': -1.0,
+               'tau_event': -1.0}
+    ret_rpacket = wrapper.struct_to_dict(rpacket)
+    return ret_rpacket
+
+def test_rpacket_set_nu(packet):
+    assert packet['nu'] == -1.0
+
+def test_rpacket_set_mu(packet):
+    assert packet['mu'] == -1
+
+def test_rpacket_set_energy(packet):
+    assert packet['energy'] == -1.0
+
+def test_rpacket_set_r(packet):
+    assert packet['r'] == -1.0
+
+def test_rpacket_set_tau_event(packet):
+    assert packet['tau_event'] == -1.0
+
+def test_rpacket_set_nu_line(packet):
+    assert packet['nu_line'] == -1.0
+
+def test_C_value():
+    C = wrapper.C_value()
+    np.testing.assert_almost_equal(C, 29979245800.0)
+
+def test_get_nu(packet):
+    nu = wrapper.get_nu(packet['nu'])
+    assert packet['nu'] == nu
+
+def test_get_mu(packet):
+    mu = wrapper.get_mu(packet['mu'])
+    assert packet['mu'] == mu
+
+def test_get_energy(packet):
+    energy = wrapper.get_energy(packet['energy'])
+    assert packet['energy'] == energy
+
+def test_get_r(packet):
+    r = wrapper.get_r(packet['r'])
+    assert packet['r'] == r
+
+def test_get_tau_event(packet):
+    tau_event = wrapper.get_tau_event(packet['tau_event'])
+    assert packet['tau_event'] == tau_event
+
+def test_get_nu_line(packet):
+    nu_line = wrapper.get_nu_line(packet['nu_line'])
+    assert packet['nu_line'] == nu_line
+
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
 #     (8.5, 1),
