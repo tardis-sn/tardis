@@ -4,6 +4,16 @@ import pytest
 
 test_line_list = np.array([10, 9, 8, 7, 6, 5, 5, 4, 3, 2, 1]).astype(np.float64)
 
+from tardis.montecarlo.wrappers import get_test_wrapper
+
+def test_preliminary():
+    y = get_test_wrapper.getit(3)
+    assert y == 3
+
+def test_rpacket_get_nu():
+    nu_value = get_test_wrapper.get_rpacket_nu_value(1.456)
+    assert nu_value == 1.456
+
 # @pytest.mark.parametrize(("insert_value", "expected_insert_position"), [
 #     (9.5, 0),
 #     (8.5, 1),
