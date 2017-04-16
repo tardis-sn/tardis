@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ static_url('css/form.css') }}">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <title></title>
+</head>
+<body>
+<br>
+<br>
+    <div class="container-fluid">
+        <div class="col-md-4">
+        </div>
+        <div class=col-md-4">
+            <form id="yaml-form">
+                {% include config_form_generator.html %}
+                <br>
+                <input class="btn" type="submit" id="yaml-form-submit"  value="Submit">
+            </form>
+        </div>
+    </div>
+</body>
+</html>

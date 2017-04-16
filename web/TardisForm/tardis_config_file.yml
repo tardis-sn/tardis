@@ -1,0 +1,407 @@
+tardis_config_version:
+  property_type: string
+  default: None
+  mandatory: True
+  help: Version of the configuration file
+
+
+supernova:
+    luminosity_requested:
+        property_type: quantity
+        mandatory: True
+        default: 1 solLum
+        help: requested output luminosity for simulation
+
+    time_explosion:
+        property_type: quantity
+        mandatory: True
+        default: None
+        help: time since explosion
+
+    distance:
+        property_type: quantity
+        mandatory: False
+        default: None
+        help: distance to supernova
+
+    luminosity_wavelength_start:
+        property_type: quantity
+        mandatory: False
+        default: 0 angstrom
+        help: start of the integral needed for getting the luminosity right
+
+
+    luminosity_wavelength_end:
+        property_type: quantity
+        mandatory: False
+        default: inf angstrom
+        help: start of the integral needed for getting the luminosity right
+
+atom_data:
+    property_type: string
+    mandatory: True
+    help: path or filename to the Atomic Data HDF5 file
+
+plasma:
+    initial_t_inner:
+        property_type: quantity
+        mandatory: False
+        default: -1 K
+        help: >
+            initial temperature of the inner boundary black body. If set to -1 K
+            will result in automatic calculation of boundary
+
+
+    initial_t_rad:
+        property_type: quantity
+        mandatory: False
+        default: 10000 K
+        help: initial radiative temperature in all cells (if set
+
+    disable_electron_scattering:
+        property_type: bool
+        mandatory: False
+        default: False
+        help: >
+            disable electron scattering process in montecarlo part - non-physical only
+            for tests
+
+    ionization:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: nebular lte
+        help: ionization treatment mode
+
+
+    excitation:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: lte dilute-lte
+        help: excitation treatment mode
+
+    radiative_rates_type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: dilute-blackbody detailed
+        help: radiative rates treatment mode
+
+    line_interaction_type:
+        property_type: string
+        mandatory: True
+        default: None
+        allowed_value: scatter downbranch macroatom
+        help: line interaction mode
+
+    w_epsilon:
+        property_type: float
+        mandatory: False
+        default:  1e-10
+        help: w to use when j_blues get numerically 0. - avoids numerical complications
+
+    delta_treatment:
+        property_type: float
+        mandatory: False
+        default: None
+        help: >
+            In the saha calculation set delta equals to the number given in
+            this configuration item. if set to None (default), normal delta
+            treatment (as described in Mazzali & Lucy 1993) will be applied
+    nlte:
+        species:
+            property_type: list
+            mandatory: False
+            default: []
+            help: >
+                Species that are requested to be NLTE treated in the format
+                ['Si 2', 'Ca 1', etc.]
+        coronal_approximation:
+            property_type: bool
+            default: False
+            mandatory: False
+            help: set all jblues=0.0
+
+        classical_nebular:
+            property_type: bool
+            default: False
+            mandatory: False
+            help: sets all beta_sobolevs to 1
+
+
+
+model:
+    structure:
+        property_type : container-property
+        type:
+            property_type: container-declaration
+            containers: ['file', 'specific']
+            _file: ['filename','filetype']
+            +file: ['v_inner_boundary','v_outer_boundary']
+            _specific: ['velocity', 'density']
+
+
+        filename:
+            property_type: string
+            default: None
+            mandatory: True
+            help: file name (with path) to structure model
+
+        filetype:
+            property_type: string
+            default: None
+            allowed_value: ['simple_ascii', 'artis']
+            mandatory: True
+            help: file type
+
+        v_inner_boundary:
+            property_type: quantity
+            default: 0 km/s
+            mandatory: False
+            help: location of the inner boundary chosen from the model
+
+        v_outer_boundary:
+            property_type: quantity
+            default: inf km/s
+            mandatory: False
+            help: location of the inner boundary chosen from the model
+
+
+        velocity:
+            property_type: quantity_range_sampled
+            default: None
+            mandatory: True
+            help: description of the boundaries of the shells
+
+        density:
+            property_type: container-property
+            type:
+                property_type: container-declaration
+                containers: ['branch85_w7','exponential','power_law', 'uniform']
+                _uniform: ['value']
+                _branch85_w7: []
+                +branch85_w7: ['w7_time_0', 'w7_rho_0', 'w7_v_0']
+                _power_law: ['time_0', 'rho_0', 'v_0', 'exponent']
+                _exponential: ['time_0', 'rho_0', 'v_0']
+
+            w7_time_0:
+                property_type: quantity
+                default: 0.000231481 day
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            w7_rho_0:
+                property_type: quantity
+                default: 3e29 g/cm^3
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            w7_v_0:
+                property_type: quantity
+                default: 1 km/s
+                mandatory: False
+                help: This needs no change - DO NOT TOUCH
+
+            time_0:
+                property_type: quantity
+                default: None
+                mandatory: True
+                help: Time at which the pure model densities are right
+
+            rho_0:
+                property_type: quantity
+                default: None
+                mandatory: True
+                help: density at time_0
+
+            v_0:
+                property_type: quantity
+                default: None
+                mandatory: True
+                help: at what velocity the density rho_0 applies
+
+            exponent:
+                property_type: float
+                default: None
+                mandatory: True
+                help: exponent for exponential density profile
+
+            value:
+                property_type: quantity
+                default: None
+                mandatory: True
+                help: value for uniform density
+
+    abundances:
+        property_type: container-property
+        type:
+            property_type: container-declaration
+            containers: ['file','uniform']
+            _uniform: []
+            _file: ['filetype','filename']
+
+        filename:
+            property_type: string
+            default: None
+            mandatory: True
+            help: filename
+
+        filetype:
+            property_type: string
+            default: None
+            mandatory: False
+            help: type of abundance file to read in
+
+
+
+
+
+
+
+montecarlo:
+    seed:
+        property_type: int
+        default: 23111963
+        mandatory: False
+        help: Seed for the random number generator
+
+    no_of_packets:
+        property_type: int
+        default: None
+        mandatory: True
+        help: Seed for the random number generator
+
+    iterations:
+        property_type: int
+        default: None
+        mandatory: True
+        help: Number of maximum iterations
+
+    black_body_sampling:
+        property_type: quantity_range_sampled
+        default: [50 angstrom, 200000 angstrom, 1000000]
+        mandatory: False
+        help: Sampling of the black-body for energy packet creation (giving maximum and minimum packet frequency)
+
+    last_no_of_packets:
+        property_type: int
+        default: -1
+        mandatory: False
+        help: >
+            This can set the number of packets for the last run.
+            If set negative it will remain the same as all other runs.
+    no_of_virtual_packets:
+        property_type: int
+        default: 0
+        mandatory: False
+        help: Setting the number of virtual packets for the last iteration.
+
+    enable_reflective_inner_boundary:
+        property_type: bool
+        default: False
+        mandatory: False
+        help: >
+            experimental feature to enable a reflective boundary.
+
+    inner_boundary_albedo:
+        property_type: float
+        default: 0.0
+        mandatory: False
+        help: albedo of the reflective boundary
+
+    convergence_strategy:
+        property_type : container-property
+        type:
+            property_type: container-declaration
+            containers: ['damped', 'specific']
+            _damped: []
+            +damped: ['damping_constant', 't_inner', 't_rad', 'w']
+            _specific: ['damping_constant', 'threshold', 'fraction', 'hold-iterations']
+            +specific: ['t_inner', 't_rad', 'w']
+
+        t_inner_update_exponent:
+            property_type: float
+            default: -0.5
+            mandatory: False
+            help: L=4*pi*r**2*T^y
+
+        lock_t_inner_cycles:
+            property_type: int
+            mandatory: False
+            default: 1
+            help: >
+                The number of cycles to lock the update of the inner boundary temperature.
+                This process helps with convergence. The default is to switch it off (1 cycle)
+        hold-iterations:
+            property_type: int
+            default: 3
+            mandatory: True
+            help: >
+                the number of iterations that the convergence criteria need to be
+                fulfilled before TARDIS accepts the simulation as converged
+        fraction:
+            property_type: float
+            default: 0.8
+            mandatory: True
+            help: >
+                the fraction of shells that have to converge to the given
+                convergence threshold. For example, 0.8 means that 80% of shells
+                have to converge to the threshold that convergence is established
+
+        damping_constant:
+            property_type: float
+            mandatory: False
+            default: 0.5
+            help: damping constant
+
+        threshold:
+            property_type: float
+            mandatory: True
+            help: >
+                specifies the threshold that is taken as convergence
+                (i.e. 0.05 means that the value does not change more than 5%)
+        t_inner:
+            damping_constant:
+                property_type: float
+                mandatory: False
+                default: 0.5
+                help: damping constant
+
+            threshold:
+                property_type: float
+                mandatory: False
+                help: >
+                    specifies the threshold that is taken as convergence
+                    (i.e. 0.05 means that the value does not change more than 5%)
+        t_rad:
+            damping_constant:
+                property_type: float
+                mandatory: False
+                default: 0.5
+                help: damping constant
+
+            threshold:
+                property_type: float
+                mandatory: True
+                help: >
+                    specifies the threshold that is taken as convergence
+                    (i.e. 0.05 means that the value does not change more than 5%)
+        w:
+            damping_constant:
+                property_type: float
+                mandatory: False
+                default: 0.5
+                help: damping constant
+
+            threshold:
+                property_type: float
+                mandatory: True
+                help: >
+                    specifies the threshold that is taken as convergence
+                    (i.e. 0.05 means that the value does not change more than 5%)
+spectrum:
+    property_type: quantity_range_sampled
+    default: None
+    mandatory: True
+    help: Final spectrum sampling
