@@ -13,14 +13,13 @@ from tardis.io.config_reader import Configuration
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
-
+@pytest.mark.slow
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
 class TestSimpleRun():
     """
     Very simple run
     """
-
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(self):
