@@ -1,5 +1,6 @@
 import numpy as np
 import os
+import pandas as pd
 from astropy import constants, units as u
 
 from tardis.util import quantity_linspace
@@ -101,6 +102,45 @@ class HomologousDensity(object):
         properties = ['density_0','time_0']
         to_hdf(path_or_buf, homologous_density_path, {name: getattr(self, name) for name
                                          in properties})
+
+    @classmethod
+    def from_hdf(cls,path,h5_file,file_path):
+        """
+        This function returns a HomologousDensity object 
+        from given HDF5 File.
+
+        Parameters
+        ----------
+        path : 'str'
+            Path to transverse in hdf file
+        h5_file : 'h5py.File'
+            Given HDF5 file
+        file_path : 'str'
+            Path of Simulation generated HDF file 
+
+        Returns
+        -------
+        model : `~HomologousDensity`
+        """
+
+        if not h5_file:
+            raise ValueError("h5_file Parameter can`t be None")
+
+        homologous_density_path = path + '/homologous_density'
+        homologous_density={}
+
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in h5_file[homologous_density_path].keys():
+                homologous_density[key] = {}
+                buff_path = homologous_density_path + '/' + key + '/'
+                homologous_density[key] = data[buff_path]
+
+
+        #Creates corresponding astropy.units.Quantity objects
+        density_0 = np.array(homologous_density['density_0']) * u.g / u.cm**3
+        time_0 = homologous_density['scalars']['time_0'] * u.s
+        
+        return cls(density_0,time_0)
 
 
 

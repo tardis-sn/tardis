@@ -407,13 +407,15 @@ class Radial1DModel(object):
         plasma_path = path + '/plasma'
         model = {}
         plasma = {}
+        model_keys = ['w','v_inner','t_radiative','v_outer','scalars']
         plasma_keys = ['abundance', 't_rad', 'scalars']
 
         with pd.HDFStore(file_path, 'r') as data:
             for key in h5_file[model_path].keys():
-                model[key] = {}
-                buff_path = model_path + '/' + key + '/'
-                model[key] = data[buff_path]
+                if key in model_keys:
+                    model[key] = {}
+                    buff_path = model_path + '/' + key + '/'
+                    model[key] = data[buff_path]
 
             for key in h5_file[plasma_path].keys():
                 if key in plasma_keys:
@@ -422,6 +424,7 @@ class Radial1DModel(object):
                     plasma[key] = data[buff_path]
         
         #Creates corresponding astropy.units.Quantity objects
+        homologous_density = HomologousDensity.from_hdf(model_path,h5_file,file_path)
         abundance = plasma['abundance']
         time_explosion = plasma['scalars']['time_explosion'] * u.s
         t_inner = model['scalars']['t_inner'] * u.K
@@ -435,7 +438,7 @@ class Radial1DModel(object):
 
         # Presently homologous_density and luminosity_requested parameters are
         # set to None
-        return Radial1DModel(velocity, None, abundance, time_explosion,
+        return Radial1DModel(velocity, homologous_density, abundance, time_explosion,
                              t_inner, None, t_radiative,
                              dilution_factor, v_boundary_inner,
                              v_boundary_outer)
