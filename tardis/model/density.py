@@ -1,6 +1,9 @@
 import numpy as np
+import os
+from astropy import constants, units as u
 
 from tardis.util import quantity_linspace
+from tardis.io.util import to_hdf
 
 
 class HomologousDensity(object):
@@ -77,6 +80,28 @@ class HomologousDensity(object):
             raise ValueError("Unrecognized density type "
                              "'{}'".format(d_conf.type))
         return cls(density_0, time_0)
+
+    def to_hdf(self, path_or_buf, path=''):
+        """
+        Store the model to an HDF structure.
+
+        Parameters
+        ----------
+        path_or_buf
+            Path or buffer to the HDF store
+        path : str
+            Path inside the HDF store to store the model
+
+        Returns
+        -------
+        None
+
+        """
+        homologous_density_path = os.path.join(path, 'homologous_density')
+        properties = ['density_0','time_0']
+        to_hdf(path_or_buf, homologous_density_path, {name: getattr(self, name) for name
+                                         in properties})
+
 
 
 def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):

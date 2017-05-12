@@ -282,6 +282,7 @@ class Radial1DModel(object):
         properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer']
         to_hdf(path_or_buf, model_path, {name: getattr(self, name) for name
                                          in properties})
+        self.homologous_density.to_hdf(path_or_buf,model_path)
 
     @classmethod
     def from_config(cls, config):
@@ -419,7 +420,7 @@ class Radial1DModel(object):
                     plasma[key] = {}
                     buff_path = plasma_path + '/' + key + '/'
                     plasma[key] = data[buff_path]
-
+        
         #Creates corresponding astropy.units.Quantity objects
         abundance = plasma['abundance']
         time_explosion = plasma['scalars']['time_explosion'] * u.s
