@@ -439,6 +439,5 @@ class Simulation(object):
                             simulation, h5_file, file_path)
 
         # TODO : Extend it to plasma and montecarlo objects and return Simulation object
-        # As of now , it cannot return Simulation object , as convergence_strategy cannot
-        # be set to None , at the time of initialization
-        return model
+        cls.model = model
+        return cls       
