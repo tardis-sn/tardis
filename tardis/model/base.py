@@ -418,6 +418,7 @@ class Radial1DModel(object):
                     buff_path = model_path + '/' + key + '/'
                     model[key] = data[buff_path]
 
+            #Will be refactored later under BasePlasma from_hdf method
             for key in h5_file[plasma_path].keys():
                 if key in plasma_keys:
                     plasma[key] = {}
@@ -450,8 +451,6 @@ class Radial1DModel(object):
         velocity = np.append(model['v_inner'],
                              v_boundary_outer.value) * u.cm / u.s
 
-        # Presently homologous_density and luminosity_requested parameters are
-        # set to None
         return Radial1DModel(velocity, homologous_density, abundance, time_explosion,
                              t_inner, luminosity_requested, t_radiative,
                              dilution_factor, v_boundary_inner,

@@ -414,7 +414,7 @@ class Simulation(object):
     @classmethod
     def from_hdf(cls, file_path):
         """
-        This function converts a hdf5 file to a Radial1DModel Object.
+        This function converts a hdf5 file to a Simulation Object.
 
         Parameters
         ----------
@@ -425,7 +425,7 @@ class Simulation(object):
         Returns
         -------
 
-        model : `~Radial1DModel`
+        model : `~Simulation`
         """
 
         if file_path is None:
@@ -438,6 +438,6 @@ class Simulation(object):
                         model = Radial1DModel.from_hdf(
                             simulation, h5_file, file_path)
 
-        # TODO : Extend it to plasma and montecarlo objects and return Simulation object
+        # TODO : Extend it to plasma and montecarlo objects
         cls.model = model
-        return cls       
+        return cls
