@@ -162,3 +162,52 @@ def assemble_plasma(config, model, atom_data=None):
                         property_kwargs=property_kwargs, **kwargs)
 
     return plasma
+
+def from_plasma_hdf(path, h5_file, file_path, model, atom_data_fname=None):
+    """
+    This function returns a Plasma object 
+    from given HDF5 File.
+
+    Parameters
+    ----------
+    path : 'str'
+        Path to transverse in hdf file
+    h5_file : 'h5py.File'
+        Given HDF5 file
+    file_path : 'str'
+        Path of Simulation generated HDF file 
+
+    Returns
+    -------
+    model : `~Plasma`
+    """
+
+    if not h5_file:
+        raise ValueError("h5_file Parameter can`t be None")
+    if atom_data_fname is None:
+        atom_data_fname = 'kurucz_cd23_chianti_H_He.h5'
+
+    plasma = {}
+    plasma_path = path + '/plasma'
+    plasma_dict = {}
+    plasma_dict['plasma'] = {}
+    plasma_keys = ['property_kwargs', 'metadata']
+    atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
+
+    with pd.HDFStore(file_path, 'r') as data:
+        for key in h5_file[plasma_path].keys():
+            if key in plasma_keys:
+                plasma[key] = {}
+                buff_path = plasma_path + '/' + key + '/'
+                plasma[key] = data[buff_path]
+
+    if plasma['metadata']['atom_data_uuid'] != atom_data.uuid1:
+        raise ValueError('Wrong Atom Data passed as parameter')
+
+    property_kwargs = {}
+    property_kwargs['plasma'] = {}
+    property_kwargs['plasma'] = dict(
+        zip(plasma['property_kwargs'].index.format(), plasma['property_kwargs']))
+    config = Configuration.from_config_dict(
+        property_kwargs, validate=False, plasma_only=True)
+    return assemble_plasma(config, model, atom_data=atom_data)
