@@ -7,7 +7,10 @@ from astropy import units as u, constants as const
 from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
-from tardis.util import quantity_linspace
+from tardis.util import (
+        quantity_linspace,
+        SimulationChild,
+        )
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
 
@@ -16,7 +19,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-class MontecarloRunner(object):
+class MontecarloRunner(SimulationChild):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
@@ -173,7 +176,6 @@ class MontecarloRunner(object):
     def get_line_interaction_id(self, line_interaction_type):
         return ['scatter', 'downbranch', 'macroatom'].index(
             line_interaction_type)
-
 
     @property
     def output_nu(self):

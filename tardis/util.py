@@ -429,3 +429,28 @@ def quantity_linspace(start, stop, num, **kwargs):
                          'unit attribute')
 
     return np.linspace(start.value, stop.to(start.unit).value, num, **kwargs) * start.unit
+
+
+class SimulationChild(object):
+    '''
+    Mixing class to allow access to the simulation object from a child.
+    '''
+
+    @property
+    def simulation(self):
+        if getattr(self, '_simulation', None):
+            return self._simulation
+        else:
+            raise ValueError(
+                    str(self.__class__.__name__) +
+                    ' is not yet linked to a Simulation instance.')
+
+    @simulation.setter
+    def simulation(self, value):
+        from tardis.simulation import Simulation
+        if not isinstance(value, Simulation):
+            raise ValueError(
+                    'The setter of ' +
+                    str(self.__class__.__name__) +
+                    '.simulation expects an instance of Simulation')
+        self._simulation = value

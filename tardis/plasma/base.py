@@ -6,12 +6,13 @@ import fileinput
 import networkx as nx
 import pandas as pd
 
+from tardis.util import SimulationChild
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from tardis.plasma.properties.base import *
 
 logger = logging.getLogger(__name__)
 
-class BasePlasma(object):
+class BasePlasma(SimulationChild):
 
     outputs_dict = {}
     def __init__(self, plasma_properties, property_kwargs=None, **kwargs):
