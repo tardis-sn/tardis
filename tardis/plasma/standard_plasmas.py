@@ -84,6 +84,15 @@ def assemble_plasma(config, model, atom_data=None):
 
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
+
+    property_kwargs['line_interaction_type'] = config.plasma.line_interaction_type
+    property_kwargs['radiative_rates_type'] = config.plasma.radiative_rates_type
+    property_kwargs['excitation'] = config.plasma.excitation
+    property_kwargs['ionization'] = config.plasma.ionization
+    property_kwargs['helium_treatment'] = config.plasma.helium_treatment
+    property_kwargs['nlte'] = {}
+    property_kwargs['nlte']['species'] = config.plasma.nlte.species
+
     if config.plasma.radiative_rates_type == 'blackbody':
         plasma_modules.append(JBluesBlackBody)
     elif config.plasma.radiative_rates_type == 'dilute-blackbody':
