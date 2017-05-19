@@ -418,7 +418,7 @@ class Simulation(object):
         """
         Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
 
-        Formally it calculates the expresion ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+        Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
         so there is no need to factor out the source function explicitly.
 
         Parameters
