@@ -1,9 +1,9 @@
 import os
 import logging
-
+import h5py
 import pandas as pd
 import numpy as np
-
+from tardis.io.config_reader import Configuration
 from tardis import atomic
 from tardis.util import species_string_to_tuple
 from tardis.plasma import BasePlasma
