@@ -87,7 +87,6 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
           oz[i] = 1 - calculate_z(r[i], p, inv_t);
           oshell_id[i] = i;
         }
-      oz[N] = 1;
       return N;
     }
   else
@@ -113,7 +112,6 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
           oz[i_up] = 1 - z;
           oshell_id[i_up] = i;
         }
-      oz[2 * (N - offset)] = 1;
       return 2 * (N - offset);
     }
 }
@@ -126,8 +124,7 @@ _formal_integral(
                  double *inu, int64_t inu_size,
                  double *att_S_ul, int N)
 {
-  // Initialization phase
-  //double L[N] = calloc(inu_size, sizeof(double));
+  // Initialize the output which is shared among threads
   double *L = calloc(inu_size, sizeof(double));
 #pragma omp parallel shared(L)
     {
@@ -141,12 +138,12 @@ _formal_integral(
               size_line = storage->no_of_lines,
               size_shell = storage->no_of_shells,
               size_tau = size_line * size_shell,
-              size_z = 2 * size_shell + 1,
+              size_z = 0,
               idx_nu_start = 0;
 
 
-      double I_nu[N], z[2 * storage->no_of_shells + 1], exp_tau[size_tau];
-      int64_t shell_id[2 * storage->no_of_shells + 1];
+      double I_nu[N], z[2 * storage->no_of_shells], exp_tau[size_tau];
+      int64_t shell_id[2 * storage->no_of_shells];
 
       double R_ph = storage->r_inner[0];
       double R_max = storage->r_outer[size_shell - 1];
@@ -167,7 +164,6 @@ _formal_integral(
         {
           nu = inu[nu_idx];
 
-
           // Loop over discrete values along line
           for (int p_idx = 1; p_idx < N; ++p_idx)
             {
@@ -185,7 +181,7 @@ _formal_integral(
               // Loop over all intersections
 
               // TODO: replace by number of intersections and remove break
-              for (i = 0; i < size_z; ++i)
+              for (i = 0; i < size_z - 1; ++i)
                 {
                   nu_start = nu * z[i];
                   nu_end = nu * z[i+1];
@@ -221,6 +217,7 @@ _formal_integral(
                 }
               I_nu[p_idx] *= p;
             }
+          // TODO: change integration to match the calculation of p values
           L[nu_idx] = 8 * M_PI * M_PI * integrate_intensity(I_nu, R_max/N, N);
         }
 
