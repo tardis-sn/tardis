@@ -59,11 +59,13 @@ int64_t
 populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *oshell_id)
 {
   /*
-   * Parameters:
+   * Input parameters:
    *      storage_model_t storage: A storage model containing the environment
    *      const double p: distance of the integration line to the center
-   *      double *oz: OUTPUT: will be set with z values
-   *      int64_t *oshell_id: OUTPUT: will be set with the corresponding shell_ids
+   * Output parameters:
+   *      double *oz: will be set with z values. The array is truncated by the
+   *                  value `1`.
+   *      int64_t *oshell_id: will be set with the corresponding shell_ids
    * Returns:
    *      number of shells intersected by the p-line
    *
@@ -86,16 +88,16 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
           oshell_id[i] = i;
         }
       oz[N] = 1;
-      return N + 1;
+      return N;
     }
   else
     {
       // Do not intersect the photosphere
-      // that means we pass through all shells twice (except the innermost)
+      // that means we intersect each shell twice
       for(i = 0; i < N; ++i)
         { // Loop from inside to outside
           z = calculate_z(r[i], p, inv_t);
-          if (z==0)
+          if (z == 0)
             continue;
           if (offset == -1)
             {
@@ -134,6 +136,7 @@ _formal_integral(
           printf("Doing the formal integral with %d threads", omp_get_num_threads());
         }
 
+      // Initializing all the thread-local variables
       int64_t offset = 0, i = 0,
               size_line = storage->no_of_lines,
               size_shell = storage->no_of_shells,
@@ -142,15 +145,12 @@ _formal_integral(
               idx_nu_start = 0;
 
 
-      double I_nu[N];  // = calloc(N, sizeof(double));
-      double z[2 * storage->no_of_shells + 1];
+      double I_nu[N], z[2 * storage->no_of_shells + 1], exp_tau[size_tau];
       int64_t shell_id[2 * storage->no_of_shells + 1];
-      double exp_tau[size_tau];  // = malloc(size_tau * sizeof(double));
-      //double exp_tau[size_tau];
 
       double R_ph = storage->r_inner[0];
       double R_max = storage->r_outer[size_shell - 1];
-      double p = 0, nu_start, nu_end, nu, exp_factor;
+      double p = 0, pp[N], nu_start, nu_end, nu, exp_factor;
 
       double *pexp_tau, *patt_S_ul, *pline;
 
@@ -158,6 +158,8 @@ _formal_integral(
       for (i = 0; i < size_tau; ++i) {
           exp_tau[i] = exp( -storage->line_lists_tau_sobolevs[i]);
       }
+      calculate_p_values(storage, N, pp);
+      // Done with the initialization
 
       // Loop over wavelengths in spectrum
 #pragma omp for
@@ -165,13 +167,13 @@ _formal_integral(
         {
           nu = inu[nu_idx];
 
+
           // Loop over discrete values along line
           for (int p_idx = 1; p_idx < N; ++p_idx)
             {
-              // Trapezoid integration points
-              p = R_max/(N -1) * (p_idx);
+              p = pp[p_idx];
 
-              populate_z(storage, p, z, shell_id);
+              size_z = populate_z(storage, p, z, shell_id);
 
               // initialize I_nu
               if (p <= R_ph)
@@ -185,8 +187,6 @@ _formal_integral(
               // TODO: replace by number of intersections and remove break
               for (i = 0; i < size_z; ++i)
                 {
-                  if (z[i] == 1)
-                    break;
                   nu_start = nu * z[i];
                   nu_end = nu * z[i+1];
 
@@ -228,4 +228,16 @@ _formal_integral(
       printf("\n\n");
     }
   return L;
+}
+
+
+void
+calculate_p_values(storage_model_t *storage, int64_t N, double *opp)
+{
+  double R_max = storage->r_outer[storage->no_of_shells - 1];
+  for(int i = 0; i<N; ++i)
+    {
+      // Trapezoid integration points
+      opp[i] = R_max/(N - 1) * (i);
+    }
 }
