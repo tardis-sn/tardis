@@ -2,11 +2,12 @@ import time
 import logging
 import numpy as np
 import pandas as pd
-from astropy import units as u, constants as c
+from astropy import units as u
 from collections import OrderedDict
+from types import MethodType
 
-from tardis.montecarlo import montecarlo
 from tardis.montecarlo import MontecarloRunner
+from tardis.montecarlo.montecarlo import formal_integral
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util import intensity_black_body
@@ -453,13 +454,6 @@ class Simulation(object):
         result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
         return result.ix[atomic_data.lines.index.values].as_matrix(), e_dot_u
 
-    def integrate(self, nu):
-        #Allocating stuff
-        I_BB = intensity_black_body(
-                nu,
-                self.model.t_inner)
-
-        return montecarlo.formal_integral(self, I_BB, 1000)
 
     def py_integrate(self, L_nu, line_nu, taus, att_S_ul, R_max,
                     T, nus, ps_outer, ps_inner, z_ct_outer, z_ct_inner,
@@ -532,3 +526,5 @@ class Simulation(object):
             L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
 
         return L_nu
+
+Simulation.integrate = MethodType(formal_integral, None, Simulation)

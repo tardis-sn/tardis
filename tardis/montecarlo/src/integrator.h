@@ -24,8 +24,8 @@ void debug_print_2d_arg(double* arg,int len1, int len2);
 void integrate_source_functions(double* L_nu, const double* line_nu, const double* taus, const double* att_S_ul, const double* I_BB, 
         const double* nus, const double* ps, const double* Rs, double R_ph, const int64_t* lens);
 
-void _formal_integral(
-        storage_model_t *storage, double *I_BB, double *att_S_ul, int N, double *L);
+double *_formal_integral(
+        storage_model_t *storage, double T, double *nu, int64_t nu_size, double *att_S_ul, int N);
 /*
 double recursive_update_luminosity(
     double nu_start, double nu_end, double *line_nu, double *tau, double *att_S_ul, double initial);
