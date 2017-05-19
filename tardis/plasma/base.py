@@ -17,6 +17,7 @@ class BasePlasma(object):
     def __init__(self, plasma_properties, property_kwargs=None, **kwargs):
         self.outputs_dict = {}
         self.input_properties = []
+        self.property_kwargs = property_kwargs
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        property_kwargs, **kwargs)
         self._build_graph()
@@ -299,7 +300,13 @@ class BasePlasma(object):
             properties = self.plasma_properties
         for prop in properties:
             prop.to_hdf(path_or_buf, os.path.join(path, 'plasma'))
-
+        
+        property_kwargs_args = ['line_interaction_type', 'radiative_rates_type',
+                                'excitation', 'ionization', 'helium_treatment', 'nlte']
+        property_kwargs_pd = pd.Series(
+            {k: self.property_kwargs.get(k, None) for k in property_kwargs_args})
+        property_kwargs_pd.to_hdf(path_or_buf, os.path.join(
+            os.path.join(path, 'plasma'), 'property_kwargs'))
         metadata = pd.Series({'atom_data_uuid': self.atomic_data.uuid1})
         metadata.to_hdf(path_or_buf,
                         os.path.join(os.path.join(path, 'plasma'), 'metadata'))
