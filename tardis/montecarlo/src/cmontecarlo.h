@@ -77,7 +77,7 @@ void increment_j_blue_estimator (const rpacket_t * packet,
 
 void increment_Edotlu_estimator (const rpacket_t * packet,
                                  storage_model_t * storage,
-                                 int64_t j_blue_idx);
+                                 double d_line, int64_t j_blue_idx);
 
 void
 increment_continuum_estimators (const rpacket_t * packet, storage_model_t * storage, double distance,
