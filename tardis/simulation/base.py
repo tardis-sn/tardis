@@ -8,7 +8,7 @@ import h5py
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
-from tardis.plasma.standard_plasmas import from_plasma
+from tardis.plasma.standard_plasmas import from_plasma_hdf
 import os
 
 # Adding logging support
