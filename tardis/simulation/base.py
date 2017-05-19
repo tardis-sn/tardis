@@ -8,6 +8,7 @@ import h5py
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.plasma.standard_plasmas import from_plasma
 import os
 
 # Adding logging support
@@ -437,7 +438,11 @@ class Simulation(object):
                     if 'model' in key:
                         model = Radial1DModel.from_hdf(
                             simulation, h5_file, file_path)
+                    if 'plasma' in key:
+                        plasma = from_plasma_hdf(
+                            simulation, h5_file, file_path, model)
 
         # TODO : Extend it to plasma and montecarlo objects
         cls.model = model
+        cls.plasma = plasma
         return cls
