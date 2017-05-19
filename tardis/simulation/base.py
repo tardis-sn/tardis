@@ -2,12 +2,13 @@ import time
 import logging
 import numpy as np
 import pandas as pd
-from astropy import units as u
+from astropy import units as u, constants as c
 from collections import OrderedDict
 
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
+from tardis.util import intensity_black_body
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -220,6 +221,9 @@ class Simulation(object):
                     "and took {1:.2f} s".format(
                         self.iterations_executed, time.time() - start_time))
         self._call_back()
+        # TODO: Add config flag to activate formal integral
+        # self.runner.att_S_ul,self.runner.Edot_u =  self.make_source_function(model)
+        # self.runner.L_nu,self.runner.L_nu_nus   =  self.integrate(model)
 
     def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
                          next_t_inner, log_sampling=5):
@@ -410,3 +414,161 @@ class Simulation(object):
                    convergence_strategy=config.montecarlo.convergence_strategy,
                    nthreads=config.montecarlo.nthreads)
 
+    def make_source_function(self):
+        """
+        Calculates the source function using the line absorption rate estimator `Edotlu_estimator`
+
+        Formally it calculates the expression ( 1 - exp(-tau_ul) ) S_ul but this product is what we need later,
+        so there is no need to factor out the source function explicitly.
+
+        Parameters
+        ----------
+        model : tardis.model.Radial1DModel
+
+        Returns
+        -------
+        Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
+        """
+        model = self.model
+        plasma = self.plasma
+        runner = self.runner
+        atomic_data = self.plasma.atomic_data
+
+        Edotlu_norm_factor = (1 / (runner.time_of_simulation * model.volume))
+        exptau = 1 - np.exp(- plasma.tau_sobolevs)
+        Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
+
+        upper_level_index = atomic_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
+        e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)
+        e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+        e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
+        transitions       = atomic_data.macro_atom_data[atomic_data.macro_atom_data.transition_type == -1].copy()
+        transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
+        tmp  = plasma.transition_probabilities[(atomic_data.macro_atom_data.transition_type == -1).values]
+        q_ul = tmp.set_index(transitions_index)
+        t    = model.time_explosion.value
+        wave = atomic_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
+        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
+
+        result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
+        return result.ix[atomic_data.lines.index.values].as_matrix(),e_dot_u
+
+    def integrate(self):
+        model = self.model
+        plasma = self.plasma
+        runner = self.runner
+
+        num_shell, = self.runner.volume.shape
+        ps         = np.linspace(0.999, 0, num = 20) # 3 * num_shell)
+        R_max      = runner.r_outer_cgs.max()
+        R_min_rel  = runner.r_inner_cgs.min() / R_max
+        ct         = c.c.cgs.value * model.time_explosion.value / R_max
+
+        att_S_ul, Edot_u = self.make_source_function()
+        J_blues    = plasma.j_blues
+        J_rlues    = plasma.j_blues * np.exp( -plasma.tau_sobolevs.values) + att_S_ul
+
+        r_shells = np.zeros((num_shell+1,1))
+        # Note the reorder from outer to inner
+        r_shells[1:,0],r_shells[0,0] = self.runner.r_inner_cgs[::-1] / R_max, 1.0
+        z_crossings = np.sqrt(r_shells**2 - ps**2)
+
+        z_ct = z_crossings/ct
+        z_ct[np.isnan(z_crossings)] = 0
+
+        ## p > Rmin
+        ps_outer        = ps[ ps > R_min_rel]
+        z_ct_outer      = z_ct[:, ps > R_min_rel]
+        n_shell_p_outer = (num_shell+1) - np.isnan(z_crossings[:, ps > R_min_rel]).sum(axis=0)
+
+        ## p < Rmin
+        ps_inner        = ps[ ps <= R_min_rel]
+        z_ct_inner      = z_ct[:, ps <= R_min_rel]
+
+
+        #Allocating stuff
+        nus = runner.spectrum.frequency
+        L_nu  = np.zeros(nus.shape)
+
+        #Just aliasing for cleaner expressions later
+        line_nu  = plasma.lines.nu
+        taus     = plasma.tau_sobolevs
+        T        = model.t_inner
+
+        L_nu = self.py_integrate(L_nu, line_nu.as_matrix(), taus.as_matrix(), att_S_ul, R_max,
+                    T.value, nus, ps_outer, ps_inner, z_ct_outer, z_ct_inner,
+                    num_shell,n_shell_p_outer)
+
+        return  L_nu#,nus
+
+    def py_integrate(self, L_nu, line_nu, taus, att_S_ul, R_max,
+                    T, nus, ps_outer, ps_inner, z_ct_outer, z_ct_inner,
+                    num_shell,n_shell_p_outer):
+    # def py_integrate(self,L_nu, line_nu, taus, att_S_ul, T, nus, num_shell, R_max, ps_outer, ps_inner, n_shell_p_outer, z_ct_outer, z_ct_inner):
+        for nu_idx,nu in enumerate(nus.value):
+            I_outer = np.zeros(ps_outer.shape)
+            for p_idx,p in enumerate(ps_outer):
+                z_cross_p = z_ct_outer[z_ct_outer[:,p_idx] > 0,p_idx]
+                if len(z_cross_p) == 1:
+                    z_cross_p = np.hstack((-z_cross_p,z_cross_p))
+                else:
+                    z_cross_p = np.hstack((-z_cross_p,z_cross_p[::-1][1:],0)) # Zero ensures empty ks in last step below
+                                                                              # 1: avoids double counting center
+                shell_idx = (num_shell-1) - np.arange(n_shell_p_outer[p_idx]) # -1 for 0-based indexing
+                shell_idx = np.hstack((shell_idx,shell_idx[::-1][1:]))
+
+                for idx,z_cross in enumerate(z_cross_p[:-1]):
+                    if z_cross_p[idx+1] == 0:
+                        continue
+                    nu_start = nu * (1 - z_cross)
+                    nu_end   = nu * (1 - z_cross_p[idx+1])
+                    shell = shell_idx[idx]
+                    # Note the direction of the comparisons
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
+
+                    if len(ks) < 2:
+                        ks = list(ks)
+
+                    #I_outer[p_idx] = I_outer[p_idx] + dtau * (
+                    #                    ( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 - I_outer[p_idx] )
+                    for k in ks:
+                        I_outer[p_idx] = I_outer[p_idx] * np.exp(-taus[k,shell]) + att_S_ul[k,shell]
+
+
+            I_inner = np.zeros(ps_inner.shape)
+            for p_idx,p in enumerate(ps_inner):
+                z_cross_p = z_ct_inner[z_ct_inner[:,p_idx] > 0,p_idx]
+                z_cross_p = np.hstack((z_cross_p[::-1],0)) # Zero ensures empty ks in last step below
+
+                shell_idx = np.hstack(( np.arange(num_shell), 0 ))
+                I_inner[p_idx] = intensity_black_body(nu,T)
+                for idx,z_cross in enumerate(z_cross_p[:-1]):
+                    if z_cross_p[idx+1] == 0:
+                        continue
+                    nu_start = nu * (1 - z_cross)
+                    nu_end   = nu * (1 - z_cross_p[idx+1])
+                    shell = shell_idx[idx]
+                    # Note the direction of the comparisons
+                    ks, = np.where( (line_nu < nu_start) & (line_nu >= nu_end) )
+
+                    if len(ks) < 2:
+                        ks = list(ks)
+
+                    #dtau * (
+                    #( J_rlues.iloc[ks[0],shell] + J_blues.iloc[ks[1],shell] ) / 2 )
+
+                    for k in ks:
+                        I_inner[p_idx] = I_inner[p_idx] * np.exp(-taus[k,shell]) + att_S_ul[k,shell]
+                        if ( nu_idx % 200 ) == 0:
+                            print p_idx,idx, k, I_inner[p_idx]
+                    if (( nu_idx % 200 ) == 0) & (idx == 1):
+                        print p_idx,idx, I_inner[p_idx]
+
+            if ( nu_idx % 200 ) == 0:
+                print "{:3.0f} %".format( 100*float(nu_idx)/len(nus))
+                print I_outer, I_inner
+            ps = np.hstack((ps_outer,ps_inner))*R_max
+            I_p = np.hstack((I_outer,I_inner))*ps
+            L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
+
+        return L_nu
