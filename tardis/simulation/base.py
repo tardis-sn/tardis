@@ -4,11 +4,13 @@ import numpy as np
 import pandas as pd
 from astropy import units as u, constants as c
 from collections import OrderedDict
-
+import h5py
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util import intensity_black_body
+from tardis.plasma.standard_plasmas import from_plasma_hdf
+import os
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -572,3 +574,40 @@ class Simulation(object):
             L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
 
         return L_nu
+
+    @classmethod
+    def from_hdf(cls, file_path):
+        """
+        This function converts a hdf5 file to a Simulation Object.
+
+        Parameters
+        ----------
+
+        file_path : `str`
+             Path to Simulation generated hdf file
+
+        Returns
+        -------
+
+        model : `~Simulation`
+        """
+
+        if file_path is None:
+            raise ValueError("File Path can`t be None")
+
+        with h5py.File(file_path, 'r') as h5_file:
+            for simulation in h5_file.keys():
+                for key in h5_file[simulation]:
+                    if 'model' in key:
+                        model = Radial1DModel.from_hdf(
+                            simulation, h5_file, file_path)
+                    if 'plasma' in key:
+                        plasma = from_plasma_hdf(
+                            simulation, h5_file, file_path, model)
+
+        # TODO : Extend it to montecarlo object
+
+        #Currently a workaround to bypass Simulation class initialization
+        cls.model = model
+        cls.plasma = plasma
+        return cls
