@@ -418,7 +418,6 @@ class Radial1DModel(object):
                     buff_path = model_path + '/' + key + '/'
                     model[key] = data[buff_path]
 
-            #Will be refactored later under BasePlasma from_hdf method
             for key in h5_file[plasma_path].keys():
                 if key in plasma_keys:
                     plasma[key] = {}
@@ -427,19 +426,9 @@ class Radial1DModel(object):
 
         #Creates corresponding astropy.units.Quantity objects
 
-        #These checks are to ensure consistency in case of old HDF5 files,
-        #as homologous_density and luminosity_requested were not saved before
-        if 'homologous_density' in h5_file[model_path].keys():
-            homologous_density = HomologousDensity.from_hdf(
-                model_path, h5_file, file_path)
-        else:
-            homologous_density = None
-
-        if 'luminosity_requested' in model['scalars']:
-            luminosity_requested = model['scalars']['luminosity_requested'] * u.erg / u.s
-        else:
-            luminosity_requested = None
-
+        homologous_density = HomologousDensity.from_hdf(
+            model_path, h5_file, file_path)
+        luminosity_requested = model['scalars']['luminosity_requested'] * u.erg / u.s
         abundance = plasma['abundance']
         time_explosion = plasma['scalars']['time_explosion'] * u.s
         t_inner = model['scalars']['t_inner'] * u.K

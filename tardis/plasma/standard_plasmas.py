@@ -84,7 +84,8 @@ def assemble_plasma(config, model, atom_data=None):
 
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
-
+    # Storing these properties , as these will be required when generating Plasma object
+    # from HDF5 file
     property_kwargs['line_interaction_type'] = config.plasma.line_interaction_type
     property_kwargs['radiative_rates_type'] = config.plasma.radiative_rates_type
     property_kwargs['excitation'] = config.plasma.excitation
@@ -200,7 +201,8 @@ def from_plasma_hdf(path, h5_file, file_path, model, atom_data_fname=None):
                 plasma[key] = {}
                 buff_path = plasma_path + '/' + key + '/'
                 plasma[key] = data[buff_path]
-
+    
+    # atom_data uuid should match with stored uuid in HDF file 
     if plasma['metadata']['atom_data_uuid'] != atom_data.uuid1:
         raise ValueError('Wrong Atom Data passed as parameter')
 
@@ -208,6 +210,9 @@ def from_plasma_hdf(path, h5_file, file_path, model, atom_data_fname=None):
     property_kwargs['plasma'] = {}
     property_kwargs['plasma'] = dict(
         zip(plasma['property_kwargs'].index.format(), plasma['property_kwargs']))
+    
+    # Workaround to create a Configuration object , with only plasma attributes
     config = Configuration.from_config_dict(
         property_kwargs, validate=False, plasma_only=True)
+    
     return assemble_plasma(config, model, atom_data=atom_data)

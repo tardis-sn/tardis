@@ -300,7 +300,7 @@ class BasePlasma(object):
             properties = self.plasma_properties
         for prop in properties:
             prop.to_hdf(path_or_buf, os.path.join(path, 'plasma'))
-        
+
         property_kwargs_args = ['line_interaction_type', 'radiative_rates_type',
                                 'excitation', 'ionization', 'helium_treatment', 'nlte']
         property_kwargs_pd = pd.Series(

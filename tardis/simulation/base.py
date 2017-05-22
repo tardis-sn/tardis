@@ -442,7 +442,9 @@ class Simulation(object):
                         plasma = from_plasma_hdf(
                             simulation, h5_file, file_path, model)
 
-        # TODO : Extend it to plasma and montecarlo objects
+        # TODO : Extend it to montecarlo object
+
+        #Currently a workaround to bypass Simulation class initialization
         cls.model = model
         cls.plasma = plasma
         return cls
