@@ -576,7 +576,7 @@ class Simulation(object):
         return L_nu
 
     @classmethod
-    def from_hdf(cls, file_path):
+    def from_hdf(cls, file_path, atomic_data=None):
         """
         This function converts a hdf5 file to a Simulation Object.
 
@@ -585,6 +585,8 @@ class Simulation(object):
 
         file_path : `str`
              Path to Simulation generated hdf file
+        atomic_data : `str'
+            Path to atomic_data file
 
         Returns
         -------
@@ -603,7 +605,7 @@ class Simulation(object):
                             simulation, h5_file, file_path)
                     if 'plasma' in key:
                         plasma = from_plasma_hdf(
-                            simulation, h5_file, file_path, model)
+                            simulation, h5_file, file_path, model, atomic_data)
 
         # TODO : Extend it to montecarlo object
 
