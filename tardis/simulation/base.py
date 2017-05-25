@@ -606,10 +606,11 @@ class Simulation(object):
                     if 'plasma' in key:
                         plasma = from_plasma_hdf(
                             simulation, h5_file, file_path, model, atomic_data)
-
-        # TODO : Extend it to montecarlo object
+                    if 'runner' in key:
+                        runner = MontecarloRunner.from_hdf(simulation,h5_file,file_path)
 
         #Currently a workaround to bypass Simulation class initialization
         cls.model = model
         cls.plasma = plasma
+        cls.runner = runner
         return cls

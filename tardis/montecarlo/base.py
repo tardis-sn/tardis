@@ -1,7 +1,7 @@
 import os
 import logging
 import warnings
-
+import h5py
 from astropy import units as u, constants as const
 
 from scipy.special import zeta
@@ -41,6 +41,7 @@ class MontecarloRunner(object):
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.line_interaction_type = line_interaction_type
+        self.distance = distance
         self.spectrum = TARDISSpectrum(spectrum_frequency, distance)
         self.spectrum_virtual = TARDISSpectrum(spectrum_frequency, distance)
         self.spectrum_reabsorbed = TARDISSpectrum(spectrum_frequency, distance)
@@ -332,7 +333,9 @@ class MontecarloRunner(object):
                       'last_line_interaction_in_id',
                       'last_line_interaction_out_id',
                       'last_line_interaction_shell_id',
-                      'packet_luminosity', 'output_nu'
+                      'packet_luminosity', 'output_nu', 'seed', 'spectrum_frequency', 
+                      'virtual_spectrum_range','sigma_thomson', 'enable_reflective_inner_boundary',
+                      'inner_boundary_albedo', 'line_interaction_type', 'distance'
                       ]
         to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
                                           in properties})
@@ -376,3 +379,52 @@ class MontecarloRunner(object):
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
                    line_interaction_type=config.plasma.line_interaction_type,
                    distance=config.supernova.get('distance', None))
+
+    @classmethod
+    def from_hdf(cls, path, h5_file, file_path):
+        """
+        This function returns a MontecarloRunner object 
+        from given HDF5 File.
+
+        Parameters
+        ----------
+        path : 'str'
+            Path to transverse in hdf file
+        h5_file : 'h5py.File'
+            Given HDF5 file
+        file_path : 'str'
+            Path of Simulation generated HDF file 
+
+        Returns
+        -------
+        `~MontecarloRunner`
+        """
+
+        if not h5_file:
+            raise ValueError("h5_file Parameter can`t be None")
+
+        runner_path = path + '/runner'
+        runner_keys = ['scalars', 'spectrum_frequency',
+                       'virtual_spectrum_range', 'distance']
+        runner = {}
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in h5_file[runner_path].keys():
+                if key in runner_keys:
+                    runner[key] = {}
+                    buff_path = runner_path + '/' + key + '/'
+                    runner[key] = data[buff_path]
+
+        #Creates corresponding astropy.units.Quantity objects
+
+        seed = runner['scalars']['seed']
+        sigma_thomson = runner['scalars']['sigma_thomson']
+        enable_reflective_inner_boundary = runner['scalars']['enable_reflective_inner_boundary']
+        inner_boundary_albedo = runner['scalars']['inner_boundary_albedo']
+        line_interaction_type = runner['scalars']['line_interaction_type']
+        distance = runner['distance']
+        virtual_spectrum_range = (runner['virtual_spectrum_range']) #To change
+        spectrum_frequency = np.array(runner['spectrum_frequency']) * u.Hz
+        #print virtual_spectrum_range
+        return MontecarloRunner(seed, spectrum_frequency, virtual_spectrum_range,
+                                sigma_thomson, enable_reflective_inner_boundary,
+                                inner_boundary_albedo, line_interaction_type, distance)
