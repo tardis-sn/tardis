@@ -333,8 +333,8 @@ class MontecarloRunner(object):
                       'last_line_interaction_in_id',
                       'last_line_interaction_out_id',
                       'last_line_interaction_shell_id',
-                      'packet_luminosity', 'output_nu', 'seed', 'spectrum_frequency', 
-                      'virtual_spectrum_range','sigma_thomson', 'enable_reflective_inner_boundary',
+                      'packet_luminosity', 'output_nu', 'seed', 'spectrum_frequency',
+                      'virtual_spectrum_range', 'sigma_thomson', 'enable_reflective_inner_boundary',
                       'inner_boundary_albedo', 'line_interaction_type', 'distance'
                       ]
         to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
@@ -422,9 +422,12 @@ class MontecarloRunner(object):
         inner_boundary_albedo = runner['scalars']['inner_boundary_albedo']
         line_interaction_type = runner['scalars']['line_interaction_type']
         distance = runner['distance']
-        virtual_spectrum_range = (runner['virtual_spectrum_range']) #To change
         spectrum_frequency = np.array(runner['spectrum_frequency']) * u.Hz
-        #print virtual_spectrum_range
-        return MontecarloRunner(seed, spectrum_frequency, virtual_spectrum_range,
+        virtual_spectrum_range = dict(
+            stop=runner['virtual_spectrum_range']['stop'][0] ,
+            start=runner['virtual_spectrum_range']['start'][0],
+            num=runner['virtual_spectrum_range']['num'][0])
+            
+        return cls(seed, spectrum_frequency, virtual_spectrum_range,
                                 sigma_thomson, enable_reflective_inner_boundary,
                                 inner_boundary_albedo, line_interaction_type, distance)
