@@ -440,7 +440,7 @@ class Radial1DModel(object):
         velocity = np.append(model['v_inner'],
                              v_boundary_outer.value) * u.cm / u.s
 
-        return Radial1DModel(velocity, homologous_density, abundance, time_explosion,
+        return cls(velocity, homologous_density, abundance, time_explosion,
                              t_inner, luminosity_requested, t_radiative,
                              dilution_factor, v_boundary_inner,
                              v_boundary_outer)

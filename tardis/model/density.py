@@ -1,7 +1,7 @@
 import os
 import numpy as np
 import pandas as pd
-from astropy import constants, units as u
+from astropy import units as u
 
 from tardis.util import quantity_linspace
 from tardis.io.util import to_hdf
@@ -138,7 +138,7 @@ class HomologousDensity(object):
         #Creates corresponding astropy.units.Quantity objects
         density_0 = np.array(homologous_density['density_0']) * u.g / u.cm**3
         time_0 = (homologous_density['scalars']['time_0']) * u.s
-        return HomologousDensity(density_0, time_0)
+        return cls(density_0, time_0)
 
 
 
