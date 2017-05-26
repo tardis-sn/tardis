@@ -10,6 +10,7 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util import intensity_black_body
 from tardis.plasma.standard_plasmas import from_plasma_hdf
+from tardis.io.util import to_hdf
 import os
 
 # Adding logging support
@@ -303,6 +304,12 @@ class Simulation(object):
         self.runner.to_hdf(path_or_buf, path)
         self.model.to_hdf(path_or_buf, path)
         self.plasma.to_hdf(path_or_buf, path, plasma_properties)
+
+        properties = ['iterations', 'no_of_packets', 'no_of_virtual_packets', 'luminosity_nu_start',
+                      'luminosity_nu_end', 'last_no_of_packets', 'luminosity_requested',
+                      'convergence_strategy', 'nthreads']
+        to_hdf(path_or_buf, os.path.join(path, 'consts'), {name: getattr(self, name) for name
+                                                           in properties})
 
     def _call_back(self):
         for cb, args in self._callbacks.values():
@@ -609,6 +616,13 @@ class Simulation(object):
                     if 'runner' in key:
                         runner = MontecarloRunner.from_hdf(simulation,h5_file,file_path)
 
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in h5_file[runner_path].keys():
+                if key in runner_keys:
+                    runner[key] = {}
+                    buff_path = runner_path + '/' + key + '/'
+                    runner[key] = data[buff_path]
+                    
         #Currently a workaround to bypass Simulation class initialization
         cls.model = model
         cls.plasma = plasma

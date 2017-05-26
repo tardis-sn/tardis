@@ -424,10 +424,10 @@ class MontecarloRunner(object):
         distance = runner['distance']
         spectrum_frequency = np.array(runner['spectrum_frequency']) * u.Hz
         virtual_spectrum_range = dict(
-            stop=runner['virtual_spectrum_range']['stop'][0] ,
+            stop=runner['virtual_spectrum_range']['stop'][0],
             start=runner['virtual_spectrum_range']['start'][0],
             num=runner['virtual_spectrum_range']['num'][0])
-            
+
         return cls(seed, spectrum_frequency, virtual_spectrum_range,
-                                sigma_thomson, enable_reflective_inner_boundary,
-                                inner_boundary_albedo, line_interaction_type, distance)
+                   sigma_thomson, enable_reflective_inner_boundary,
+                   inner_boundary_albedo, line_interaction_type, distance)
