@@ -420,7 +420,6 @@ class MontecarloRunner(object):
                 consts[key] = data[buff_path]
 
         #Creates corresponding astropy.units.Quantity objects
-
         seed = runner_dict['scalars']['seed']
         sigma_thomson = runner_dict['scalars']['sigma_thomson'] * \
             (1 / (u.cm * u.cm))
@@ -445,9 +444,8 @@ class MontecarloRunner(object):
         runner._initialize_estimator_arrays(runner.volume.shape[0],
                                             plasma.tau_sobolevs.shape)
         runner._initialize_geometry_arrays(model)
-        # runner._initialize_packets(model.t_inner.value,
-        #                          int(consts['scalars']['no_of_packets']))
 
+        #Assigning values from stored HDF5 file
         runner._output_energy = runner_dict['output_energy']
         runner._output_nu = runner_dict['output_nu']
         runner.last_line_interaction_in_id = np.array(

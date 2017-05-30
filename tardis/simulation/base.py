@@ -606,6 +606,7 @@ class Simulation(object):
             raise ValueError("File Path can`t be None")
         
         with pd.HDFStore(file_path, 'r') as data:
+            # __members__ is used as a workaround to get only root group name (eg. simulation20) in HDF file
             for simulation in data.root.__members__:
                     model = Radial1DModel.from_hdf(
                         simulation, file_path)
