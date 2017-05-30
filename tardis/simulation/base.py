@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from astropy import units as u, constants as c
 from collections import OrderedDict
-import h5py
+
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
@@ -605,25 +605,19 @@ class Simulation(object):
         if file_path is None:
             raise ValueError("File Path can`t be None")
         
-        with h5py.File(file_path, 'r') as h5_file:
-            for simulation in h5_file.keys():
-                for key in h5_file[simulation]:
-                    if 'model' in key:
-                        model = Radial1DModel.from_hdf(
-                            simulation, file_path)
-                    if 'plasma' in key:
-                        plasma = from_plasma_hdf(
-                            simulation, file_path, model, atomic_data)
-                    if 'runner' in key:
-                        runner = MontecarloRunner.from_hdf(simulation,file_path,model,plasma)
-                    if 'consts' in key:
-                        with pd.HDFStore(file_path, 'r') as data:
-                            scalars = data[simulation+'/consts/scalars'] #Replace with zip
-                            convergence_strategy = data[simulation+'/consts/convergence_strategy']
+        with pd.HDFStore(file_path, 'r') as data:
+            for simulation in data.root.__members__:
+                    model = Radial1DModel.from_hdf(
+                        simulation, file_path)
+                    plasma = from_plasma_hdf(
+                        simulation, file_path, model, atomic_data)
+                    runner = MontecarloRunner.from_hdf(simulation,file_path,model,plasma)
+                    scalars = data[simulation+'/consts/scalars'] #Replace with zip
+                    convergence_strategy = data[simulation+'/consts/convergence_strategy']
 
         convergence_strategy = dict( (k,convergence_strategy[k][0]) for k in convergence_strategy.keys())
         convergence_strategy = ConfigurationNameSpace(convergence_strategy)
-        
+
         return cls(scalars['iterations'], model, plasma, runner,
                  scalars['no_of_packets'], scalars['no_of_virtual_packets'], scalars['luminosity_nu_start'],
                  scalars['luminosity_nu_end'], scalars['last_no_of_packets'],

@@ -1,7 +1,6 @@
 import os
 import logging
 import warnings
-import h5py
 from astropy import units as u, constants as const
 
 from scipy.special import zeta
