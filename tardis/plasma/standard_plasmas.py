@@ -1,5 +1,6 @@
 import os
 import logging
+
 import pandas as pd
 import numpy as np
 from tardis.io.config_reader import Configuration

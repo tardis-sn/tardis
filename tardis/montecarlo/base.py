@@ -1,6 +1,7 @@
 import os
 import logging
 import warnings
+
 from astropy import units as u, constants as const
 
 from scipy.special import zeta
@@ -339,7 +340,7 @@ class MontecarloRunner(object):
                       'last_line_interaction_in_id',
                       'last_line_interaction_out_id',
                       'last_line_interaction_shell_id',
-                      'seed', 'spectrum_frequency',
+                      'packet_luminosity', 'seed', 'spectrum_frequency',
                       'virtual_spectrum_range', 'sigma_thomson', 'enable_reflective_inner_boundary',
                       'inner_boundary_albedo', 'line_interaction_type', 'distance'
                       ]
