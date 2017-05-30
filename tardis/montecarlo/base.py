@@ -10,7 +10,7 @@ from spectrum import TARDISSpectrum
 from tardis.util import quantity_linspace
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
-
+from tardis.io.config_reader import ConfigurationNameSpace
 import numpy as np
 import pandas as pd
 
@@ -333,7 +333,7 @@ class MontecarloRunner(object):
                       'last_line_interaction_in_id',
                       'last_line_interaction_out_id',
                       'last_line_interaction_shell_id',
-                      'packet_luminosity', 'output_nu', 'seed', 'spectrum_frequency',
+                      'seed', 'spectrum_frequency',
                       'virtual_spectrum_range', 'sigma_thomson', 'enable_reflective_inner_boundary',
                       'inner_boundary_albedo', 'line_interaction_type', 'distance'
                       ]
@@ -381,7 +381,7 @@ class MontecarloRunner(object):
                    distance=config.supernova.get('distance', None))
 
     @classmethod
-    def from_hdf(cls, path, h5_file, file_path):
+    def from_hdf(cls, path, h5_file, file_path,model,plasma):
         """
         This function returns a MontecarloRunner object 
         from given HDF5 File.
@@ -405,29 +405,94 @@ class MontecarloRunner(object):
 
         runner_path = path + '/runner'
         runner_keys = ['scalars', 'spectrum_frequency',
-                       'virtual_spectrum_range', 'distance']
-        runner = {}
+                       'virtual_spectrum_range', 'distance','packet_luminosity','output_energy','output_nu',
+                       'last_line_interaction_in_id','last_interaction_in_nu','last_line_interaction_out_id','last_line_interaction_shell_id',
+                       'j_estimator','montecarlo_virtual_luminosity','nu_bar_estimator']
+        runner_dict = {}
         with pd.HDFStore(file_path, 'r') as data:
             for key in h5_file[runner_path].keys():
                 if key in runner_keys:
-                    runner[key] = {}
+                    runner_dict[key] = {}
                     buff_path = runner_path + '/' + key + '/'
-                    runner[key] = data[buff_path]
+                    runner_dict[key] = data[buff_path]
 
         #Creates corresponding astropy.units.Quantity objects
 
-        seed = runner['scalars']['seed']
-        sigma_thomson = runner['scalars']['sigma_thomson']
-        enable_reflective_inner_boundary = runner['scalars']['enable_reflective_inner_boundary']
-        inner_boundary_albedo = runner['scalars']['inner_boundary_albedo']
-        line_interaction_type = runner['scalars']['line_interaction_type']
-        distance = runner['distance']
-        spectrum_frequency = np.array(runner['spectrum_frequency']) * u.Hz
+        seed = runner_dict['scalars']['seed']
+        sigma_thomson = runner_dict['scalars']['sigma_thomson'] * (1/(u.cm * u.cm))
+        enable_reflective_inner_boundary = runner_dict['scalars']['enable_reflective_inner_boundary']
+        inner_boundary_albedo = runner_dict['scalars']['inner_boundary_albedo']
+        line_interaction_type = runner_dict['scalars']['line_interaction_type']
+        distance = runner_dict['distance']
+        spectrum_frequency = np.array(runner_dict['spectrum_frequency']) * u.Hz
         virtual_spectrum_range = dict(
-            stop=runner['virtual_spectrum_range']['stop'][0],
-            start=runner['virtual_spectrum_range']['start'][0],
-            num=runner['virtual_spectrum_range']['num'][0])
+            stop=runner_dict['virtual_spectrum_range']['stop'][0],
+            start=runner_dict['virtual_spectrum_range']['start'][0],
+            num=runner_dict['virtual_spectrum_range']['num'][0])
+        virtual_spectrum_range = ConfigurationNameSpace(virtual_spectrum_range)
 
-        return cls(seed, spectrum_frequency, virtual_spectrum_range,
+        runner =  cls(seed, spectrum_frequency, virtual_spectrum_range,
                    sigma_thomson, enable_reflective_inner_boundary,
                    inner_boundary_albedo, line_interaction_type, distance)
+        
+        runner.time_of_simulation = runner.calculate_time_of_simulation(model)
+        runner.volume = model.volume
+        runner._initialize_estimator_arrays(runner.volume.shape[0],
+                                          plasma.tau_sobolevs.shape)
+        runner._initialize_geometry_arrays(model)
+
+        consts_path = path + '/consts'
+        consts_keys = ['scalars']
+        consts = {}
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in h5_file[consts_path].keys():
+                if key in consts_keys:
+                    consts[key] = {}
+                    buff_path = consts_path + '/' + key + '/'
+                    consts[key] = data[buff_path]
+        
+        runner._initialize_packets(model.t_inner.value,
+                                 int(consts['scalars']['no_of_packets']))
+                                 
+        # runner._initialize_packets(model.t_inner.value,
+        #                          100000)
+        #print int(consts['scalars']['no_of_packets'])
+        # runner.j_blue_estimator = np.ascontiguousarray(
+        #         runner.j_blue_estimator.flatten().reshape(
+        #         runner.j_blue_estimator.shape, order='F')
+        #         )
+        # runner.Edotlu_estimator = np.ascontiguousarray(
+        #         runner.Edotlu_estimator.flatten().reshape(
+        #         runner.Edotlu_estimator.shape, order='F')
+        #         )
+        # runner.virt_logging = 0
+        # montecarlo.montecarlo_radial1d(
+        #     model, plasma, runner, virtual_packet_flag=consts['scalars']['no_of_virtual_packets'],nthreads=consts['scalars']['nthreads'],last_run=True)
+        runner._output_energy = runner_dict['output_energy']
+        runner._output_nu = runner_dict['output_nu']
+        runner.last_line_interaction_in_id = np.array(runner_dict['last_line_interaction_in_id'])
+        runner.last_interaction_in_nu = np.array(runner_dict['last_interaction_in_nu'])
+        runner.last_line_interaction_out_id = np.array(runner_dict['last_line_interaction_out_id'])
+        runner.last_line_interaction_shell_id = np.array(runner_dict['last_line_interaction_shell_id'])
+        runner.j_estimator = np.array(runner_dict['j_estimator'])
+        runner.montecarlo_virtual_luminosity = np.array(runner_dict['montecarlo_virtual_luminosity']) * u.erg/u.s
+        runner.nu_bar_estimator = np.array(runner_dict['nu_bar_estimator'])
+
+        runner.line_lists_tau_sobolevs =  plasma.tau_sobolevs.values.flatten(order='F')
+        if runner.get_line_interaction_id(runner.line_interaction_type)>=1:
+            runner.transition_probabilities = (
+                  plasma.transition_probabilities.values.flatten(order='F'))
+        
+        # runner.virt_packet_nus = np.zeros(0)
+        # runner.virt_packet_energies = np.zeros(0)             
+        # runner.virt_packet_last_interaction_in_nu = np.zeros(0)
+        # runner.virt_packet_last_interaction_type = np.zeros(0)
+        runner.inverse_electron_densities = (1.0 / plasma.electron_densities.values)
+        #print runner.get_line_interaction_id(runner.line_interaction_type)
+        
+        #see no_of_packets
+        #print runner.sigma_thomson
+
+        #runner.run(model, plasma, int(consts['scalars']['no_of_packets']), no_of_virtual_packets=int(consts['scalars']['no_of_virtual_packets']), nthreads=int(consts['scalars']['nthreads']),last_run=False)
+
+        return runner

@@ -11,6 +11,7 @@ from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util import intensity_black_body
 from tardis.plasma.standard_plasmas import from_plasma_hdf
 from tardis.io.util import to_hdf
+from tardis.io.config_reader import ConfigurationNameSpace
 import os
 
 # Adding logging support
@@ -603,7 +604,7 @@ class Simulation(object):
 
         if file_path is None:
             raise ValueError("File Path can`t be None")
-
+        
         with h5py.File(file_path, 'r') as h5_file:
             for simulation in h5_file.keys():
                 for key in h5_file[simulation]:
@@ -614,17 +615,19 @@ class Simulation(object):
                         plasma = from_plasma_hdf(
                             simulation, h5_file, file_path, model, atomic_data)
                     if 'runner' in key:
-                        runner = MontecarloRunner.from_hdf(simulation,h5_file,file_path)
+                        runner = MontecarloRunner.from_hdf(simulation,h5_file,file_path,model,plasma)
+                    if 'consts' in key:
+                        with pd.HDFStore(file_path, 'r') as data:
+                            scalars = data[simulation+'/consts/scalars'] #Replace with zip
+                            convergence_strategy = data[simulation+'/consts/convergence_strategy']
 
-        with pd.HDFStore(file_path, 'r') as data:
-            for key in h5_file[runner_path].keys():
-                if key in runner_keys:
-                    runner[key] = {}
-                    buff_path = runner_path + '/' + key + '/'
-                    runner[key] = data[buff_path]
-                    
-        #Currently a workaround to bypass Simulation class initialization
-        cls.model = model
-        cls.plasma = plasma
-        cls.runner = runner
-        return cls
+        convergence_strategy = dict( (k,convergence_strategy[k][0]) for k in convergence_strategy.keys())
+        convergence_strategy = ConfigurationNameSpace(convergence_strategy)
+        
+        return cls(scalars['iterations'], model, plasma, runner,
+                 scalars['no_of_packets'], scalars['no_of_virtual_packets'], scalars['luminosity_nu_start'],
+                 scalars['luminosity_nu_end'], scalars['last_no_of_packets'],
+                 scalars['luminosity_requested'], convergence_strategy,
+                 scalars['nthreads'])
+
+
