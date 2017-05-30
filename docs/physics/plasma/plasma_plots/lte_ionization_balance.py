@@ -1,7 +1,8 @@
 import os
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from tardis import atomic, plasma_array, util
+from tardis import plasma_array, util
+from tardis.io import atomic
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -18,7 +19,7 @@ ax2 = plt.figure(2).add_subplot(111)
 atom_fname = os.path.join(os.path.dirname(atomic.__file__), 'data', 'atom_data.h5')
 
 # reading in the HDF5 File
-atom_data = atomic.AtomData.from_hdf5(atom_fname)
+atom_data = atomic.AtomData.from_hdf(atom_fname)
 
 #The atom_data needs to be prepared to create indices. The Class needs to know which atomic numbers are needed for the
 #calculation and what line interaction is needed (for "downbranch" and "macroatom" the code creates special tables)
