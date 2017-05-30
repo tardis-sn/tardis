@@ -17,6 +17,13 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 
 class MontecarloRunner(object):
+
+    hdf_properties = ('scalars', 'spectrum_frequency',
+                       'virtual_spectrum_range', 'distance','packet_luminosity','output_energy','output_nu',
+                       'last_line_interaction_in_id','last_interaction_in_nu','last_line_interaction_out_id','last_line_interaction_shell_id',
+                       'j_estimator','montecarlo_virtual_luminosity','nu_bar_estimator',)
+    simulation_hdf_properties = ('scalars',)
+                
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
@@ -381,7 +388,7 @@ class MontecarloRunner(object):
                    distance=config.supernova.get('distance', None))
 
     @classmethod
-    def from_hdf(cls, path, h5_file, file_path,model,plasma):
+    def from_hdf(cls, path, file_path,model,plasma):
         """
         This function returns a MontecarloRunner object 
         from given HDF5 File.
@@ -390,8 +397,6 @@ class MontecarloRunner(object):
         ----------
         path : 'str'
             Path to transverse in hdf file
-        h5_file : 'h5py.File'
-            Given HDF5 file
         file_path : 'str'
             Path of Simulation generated HDF file 
 
@@ -400,21 +405,14 @@ class MontecarloRunner(object):
         `~MontecarloRunner`
         """
 
-        if not h5_file:
-            raise ValueError("h5_file Parameter can`t be None")
 
         runner_path = path + '/runner'
-        runner_keys = ['scalars', 'spectrum_frequency',
-                       'virtual_spectrum_range', 'distance','packet_luminosity','output_energy','output_nu',
-                       'last_line_interaction_in_id','last_interaction_in_nu','last_line_interaction_out_id','last_line_interaction_shell_id',
-                       'j_estimator','montecarlo_virtual_luminosity','nu_bar_estimator']
         runner_dict = {}
         with pd.HDFStore(file_path, 'r') as data:
-            for key in h5_file[runner_path].keys():
-                if key in runner_keys:
-                    runner_dict[key] = {}
-                    buff_path = runner_path + '/' + key + '/'
-                    runner_dict[key] = data[buff_path]
+            for key in cls.hdf_properties:
+                runner_dict[key] = {}
+                buff_path = runner_path + '/' + key + '/'
+                runner_dict[key] = data[buff_path]
 
         #Creates corresponding astropy.units.Quantity objects
 
@@ -442,14 +440,12 @@ class MontecarloRunner(object):
         runner._initialize_geometry_arrays(model)
 
         consts_path = path + '/consts'
-        consts_keys = ['scalars']
         consts = {}
         with pd.HDFStore(file_path, 'r') as data:
-            for key in h5_file[consts_path].keys():
-                if key in consts_keys:
-                    consts[key] = {}
-                    buff_path = consts_path + '/' + key + '/'
-                    consts[key] = data[buff_path]
+            for key in cls.simulation_hdf_properties:
+                consts[key] = {}
+                buff_path = consts_path + '/' + key + '/'
+                consts[key] = data[buff_path]
         
         runner._initialize_packets(model.t_inner.value,
                                  int(consts['scalars']['no_of_packets']))

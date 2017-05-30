@@ -610,12 +610,12 @@ class Simulation(object):
                 for key in h5_file[simulation]:
                     if 'model' in key:
                         model = Radial1DModel.from_hdf(
-                            simulation, h5_file, file_path)
+                            simulation, file_path)
                     if 'plasma' in key:
                         plasma = from_plasma_hdf(
-                            simulation, h5_file, file_path, model, atomic_data)
+                            simulation, file_path, model, atomic_data)
                     if 'runner' in key:
-                        runner = MontecarloRunner.from_hdf(simulation,h5_file,file_path,model,plasma)
+                        runner = MontecarloRunner.from_hdf(simulation,file_path,model,plasma)
                     if 'consts' in key:
                         with pd.HDFStore(file_path, 'r') as data:
                             scalars = data[simulation+'/consts/scalars'] #Replace with zip

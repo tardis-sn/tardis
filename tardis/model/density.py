@@ -8,6 +8,9 @@ from tardis.io.util import to_hdf
 
 
 class HomologousDensity(object):
+
+    hdf_properties = ('density_0', 'scalars',)
+
     """A class that holds an initial density and time
 
     Parameters
@@ -104,7 +107,7 @@ class HomologousDensity(object):
                                                       in properties})
 
     @classmethod
-    def from_hdf(cls, path, h5_file, file_path):
+    def from_hdf(cls, path, file_path):
         """
         This function returns a HomologousDensity object 
         from given HDF5 File.
@@ -113,8 +116,6 @@ class HomologousDensity(object):
         ----------
         path : 'str'
             Path to transverse in hdf file
-        h5_file : 'h5py.File'
-            Given HDF5 file
         file_path : 'str'
             Path of Simulation generated HDF file 
 
@@ -123,14 +124,12 @@ class HomologousDensity(object):
         model : `~HomologousDensity`
         """
 
-        if not h5_file:
-            raise ValueError("h5_file Parameter can`t be None")
 
         homologous_density_path = path + '/homologous_density'
         homologous_density = {}
 
         with pd.HDFStore(file_path, 'r') as data:
-            for key in h5_file[homologous_density_path].keys():
+            for key in cls.hdf_properties:
                 homologous_density[key] = {}
                 buff_path = homologous_density_path + '/' + key + '/'
                 homologous_density[key] = data[buff_path]

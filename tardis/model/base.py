@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class Radial1DModel(object):
+    
+    model_hdf_properties = ('w', 'v_inner', 't_radiative', 'v_outer', 'scalars',)
+    plasma_hdf_properties = ('abundance', 't_rad', 'scalars',) 
+
     """An object that hold information about the individual shells.
 
     Parameters
@@ -382,7 +386,7 @@ class Radial1DModel(object):
                    v_boundary_outer=structure.get('v_outer_boundary', None))
 
     @classmethod
-    def from_hdf(cls, path, h5_file, file_path):
+    def from_hdf(cls, path, file_path):
         """
         This function returns a Radial1DModel object 
         from given HDF5 File.
@@ -391,8 +395,6 @@ class Radial1DModel(object):
         ----------
         path : 'str'
             Path to transverse in hdf file
-        h5_file : 'h5py.File'
-            Given HDF5 file
         file_path : 'str'
             Path of Simulation generated HDF file 
 
@@ -401,33 +403,27 @@ class Radial1DModel(object):
         model : `~Radial1DModel`
         """
 
-        if not h5_file:
-            raise ValueError("h5_file Parameter can`t be None")
 
         model_path = path + '/model'
         plasma_path = path + '/plasma'
         model = {}
         plasma = {}
-        model_keys = ['w', 'v_inner', 't_radiative', 'v_outer', 'scalars']
-        plasma_keys = ['abundance', 't_rad', 'scalars']
 
         with pd.HDFStore(file_path, 'r') as data:
-            for key in h5_file[model_path].keys():
-                if key in model_keys:
-                    model[key] = {}
-                    buff_path = model_path + '/' + key + '/'
-                    model[key] = data[buff_path]
+            for key in cls.model_hdf_properties:
+                model[key] = {}
+                buff_path = model_path + '/' + key + '/'
+                model[key] = data[buff_path]
 
-            for key in h5_file[plasma_path].keys():
-                if key in plasma_keys:
-                    plasma[key] = {}
-                    buff_path = plasma_path + '/' + key + '/'
-                    plasma[key] = data[buff_path]
+            for key in cls.plasma_hdf_properties:
+                plasma[key] = {}
+                buff_path = plasma_path + '/' + key + '/'
+                plasma[key] = data[buff_path]
 
         #Creates corresponding astropy.units.Quantity objects
 
         homologous_density = HomologousDensity.from_hdf(
-            model_path, h5_file, file_path)
+            model_path, file_path)
         luminosity_requested = model['scalars']['luminosity_requested'] * u.erg / u.s
         abundance = plasma['abundance']
         time_explosion = plasma['scalars']['time_explosion'] * u.s
