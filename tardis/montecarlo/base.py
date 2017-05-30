@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class MontecarloRunner(object):
 
     hdf_properties = ('scalars', 'spectrum_frequency',
-                      'virtual_spectrum_range', 'distance', 'packet_luminosity', 'output_energy', 'output_nu',
+                      'virtual_spectrum_range', 'packet_luminosity', 'output_energy', 'output_nu',
                       'last_line_interaction_in_id', 'last_interaction_in_nu', 'last_line_interaction_out_id',
                       'last_line_interaction_shell_id', 'j_estimator', 'montecarlo_virtual_luminosity', 'nu_bar_estimator',)
     simulation_hdf_properties = ('scalars',)
@@ -342,10 +342,12 @@ class MontecarloRunner(object):
                       'last_line_interaction_shell_id',
                       'packet_luminosity', 'seed', 'spectrum_frequency',
                       'virtual_spectrum_range', 'sigma_thomson', 'enable_reflective_inner_boundary',
-                      'inner_boundary_albedo', 'line_interaction_type', 'distance'
-                      ]
+                      'inner_boundary_albedo', 'line_interaction_type']
         to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
                                           in properties})
+        distance = pd.Series({'distance': self.distance})
+        distance.to_hdf(path_or_buf, os.path.join(
+            os.path.join(runner_path, 'runner'), 'scalars'))
         self.spectrum.to_hdf(path_or_buf, runner_path)
         self.spectrum_virtual.to_hdf(path_or_buf, runner_path,
                                      'spectrum_virtual')
@@ -426,8 +428,9 @@ class MontecarloRunner(object):
         enable_reflective_inner_boundary = runner_dict['scalars']['enable_reflective_inner_boundary']
         inner_boundary_albedo = runner_dict['scalars']['inner_boundary_albedo']
         line_interaction_type = runner_dict['scalars']['line_interaction_type']
-        distance = runner_dict['distance']
-        spectrum_frequency = np.array(runner_dict['spectrum_frequency']) * u.Hz
+        distance = runner_dict['scalars'].get('distance', None)
+        spectrum_frequency = u.Quantity(
+            np.array(runner_dict['spectrum_frequency']), 'Hz')
         virtual_spectrum_range = dict(
             stop=runner_dict['virtual_spectrum_range']['stop'][0],
             start=runner_dict['virtual_spectrum_range']['start'][0],
@@ -457,8 +460,8 @@ class MontecarloRunner(object):
         runner.last_line_interaction_shell_id = np.array(
             runner_dict['last_line_interaction_shell_id'])
         runner.j_estimator = np.array(runner_dict['j_estimator'])
-        runner.montecarlo_virtual_luminosity = np.array(
-            runner_dict['montecarlo_virtual_luminosity']) * u.erg / u.s
+        runner.montecarlo_virtual_luminosity = u.Quantity(np.array(
+            runner_dict['montecarlo_virtual_luminosity']), 'erg/s')
         runner.nu_bar_estimator = np.array(runner_dict['nu_bar_estimator'])
 
         runner.line_lists_tau_sobolevs = plasma.tau_sobolevs.values.flatten(

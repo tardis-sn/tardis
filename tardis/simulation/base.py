@@ -604,25 +604,39 @@ class Simulation(object):
 
         if file_path is None:
             raise ValueError("File Path can`t be None")
-        
+
         with pd.HDFStore(file_path, 'r') as data:
-            # __members__ is used as a workaround to get only root group name (eg. simulation20) in HDF file
+            # __members__ is used as a workaround to get only root group name
+            # (like-> simulation20) in HDF file
             for simulation in data.root.__members__:
                     model = Radial1DModel.from_hdf(
                         simulation, file_path)
                     plasma = from_plasma_hdf(
                         simulation, file_path, model, atomic_data)
-                    runner = MontecarloRunner.from_hdf(simulation,file_path,model,plasma)
-                    scalars = data[simulation+'/consts/scalars'] 
-                    convergence_strategy = data[simulation+'/consts/convergence_strategy']
+                    runner = MontecarloRunner.from_hdf(
+                        simulation, file_path, model, plasma)
+                    scalars = data[simulation + '/consts/scalars']
+                    convergence_strategy = data[simulation +
+                                                '/consts/convergence_strategy']
 
-        convergence_strategy = dict( (k,convergence_strategy[k][0]) for k in convergence_strategy.keys())
+        convergence_strategy = dict(
+            (k, convergence_strategy[k][0]) for k in convergence_strategy.keys())
         convergence_strategy = ConfigurationNameSpace(convergence_strategy)
 
-        return cls(scalars['iterations'], model, plasma, runner,
-                 scalars['no_of_packets'], scalars['no_of_virtual_packets'], scalars['luminosity_nu_start'],
-                 scalars['luminosity_nu_end'], scalars['last_no_of_packets'],
-                 scalars['luminosity_requested'], convergence_strategy,
-                 scalars['nthreads'])
+        iterations = int(scalars['iterations'])
+        no_of_packets = int(scalars['no_of_packets'])
+        no_of_virtual_packets = int(scalars['no_of_virtual_packets'])
+        luminosity_nu_start = scalars['luminosity_nu_start']
+        luminosity_nu_end = scalars['luminosity_nu_end']
+        last_no_of_packets = int(scalars['last_no_of_packets'])
+        luminosity_requested = u.Quantity(
+            scalars['luminosity_requested'], 'erg/s')
+        nthreads = int(scalars['nthreads'])
+
+        return cls(iterations, model, plasma, runner,
+                   no_of_packets, no_of_virtual_packets, luminosity_nu_start,
+                   luminosity_nu_end, last_no_of_packets,
+                   luminosity_requested, convergence_strategy,
+                   nthreads)
 
 

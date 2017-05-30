@@ -422,17 +422,18 @@ class Radial1DModel(object):
         #Creates corresponding astropy.units.Quantity objects
         homologous_density = HomologousDensity.from_hdf(
             model_path, file_path)
-        luminosity_requested = model['scalars']['luminosity_requested'] * u.erg / u.s
+        luminosity_requested = u.Quantity(
+            model['scalars']['luminosity_requested'], 'erg/s')
         abundance = plasma['abundance']
-        time_explosion = plasma['scalars']['time_explosion'] * u.s
-        t_inner = model['scalars']['t_inner'] * u.K
-        t_radiative = np.array(plasma['t_rad']) * u.K
-        v_boundary_inner = model['v_inner'][0] * u.cm / u.s
-        v_boundary_outer = model['v_outer'][
-            len(model['v_outer']) - 1] * u.cm / u.s
+        time_explosion = u.Quantity(plasma['scalars']['time_explosion'], 's')
+        t_inner = u.Quantity(model['scalars']['t_inner'], 'K')
+        t_radiative = u.Quantity(np.array(plasma['t_rad']), 'K')
+        v_boundary_inner = u.Quantity(model['v_inner'][0], 'cm/s')
+        v_boundary_outer = u.Quantity(model['v_outer'][
+            len(model['v_outer']) - 1], 'cm/s')
         dilution_factor = np.array(model['w'])
-        velocity = np.append(model['v_inner'],
-                             v_boundary_outer.value) * u.cm / u.s
+        velocity = u.Quantity(np.append(model['v_inner'],
+                                        v_boundary_outer.value), 'cm/s')
 
         return cls(velocity, homologous_density, abundance, time_explosion,
                    t_inner, luminosity_requested, t_radiative,
