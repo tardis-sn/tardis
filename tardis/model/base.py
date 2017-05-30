@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 class Radial1DModel(object):
-    
+
     model_hdf_properties = ('w', 'v_inner', 't_radiative', 'v_outer', 'scalars',)
-    plasma_hdf_properties = ('abundance', 't_rad', 'scalars',) 
+    plasma_hdf_properties = ('abundance', 't_rad', 'scalars',)
 
     """An object that hold information about the individual shells.
 
@@ -403,7 +403,6 @@ class Radial1DModel(object):
         model : `~Radial1DModel`
         """
 
-
         model_path = path + '/model'
         plasma_path = path + '/plasma'
         model = {}
@@ -437,6 +436,6 @@ class Radial1DModel(object):
                              v_boundary_outer.value) * u.cm / u.s
 
         return cls(velocity, homologous_density, abundance, time_explosion,
-                             t_inner, luminosity_requested, t_radiative,
-                             dilution_factor, v_boundary_inner,
-                             v_boundary_outer)
+                   t_inner, luminosity_requested, t_radiative,
+                   dilution_factor, v_boundary_inner,
+                   v_boundary_outer)

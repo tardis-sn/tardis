@@ -164,6 +164,7 @@ def assemble_plasma(config, model, atom_data=None):
 
     return plasma
 
+
 def from_plasma_hdf(path, file_path, model, atom_data_fname=None):
     """
     This function returns a Plasma object 
@@ -186,8 +187,6 @@ def from_plasma_hdf(path, file_path, model, atom_data_fname=None):
 
     plasma = {}
     plasma_path = path + '/plasma'
-    plasma_dict = {}
-    plasma_dict['plasma'] = {}
     atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
 
     with pd.HDFStore(file_path, 'r') as data:
@@ -196,7 +195,7 @@ def from_plasma_hdf(path, file_path, model, atom_data_fname=None):
             buff_path = plasma_path + '/' + key + '/'
             plasma[key] = data[buff_path]
 
-    # atom_data uuid should match with stored uuid in HDF file 
+    # atom_data uuid should match with stored uuid in HDF file
     if plasma['metadata']['atom_data_uuid'] != atom_data.uuid1:
         raise ValueError('Wrong Atom Data passed as parameter')
 
@@ -205,12 +204,8 @@ def from_plasma_hdf(path, file_path, model, atom_data_fname=None):
     property_kwargs['plasma'] = dict(
         zip(plasma['property_kwargs'].index.format(), plasma['property_kwargs']))
 
-    config = Configuration.from_config_dict(
-        property_kwargs, validate=False, plasma_only=True)
-    return assemble_plasma(config, model, atom_data=atom_data)
-    
     # Workaround to create a Configuration object , with only plasma attributes
     config = Configuration.from_config_dict(
         property_kwargs, validate=False, plasma_only=True)
-    
+
     return assemble_plasma(config, model, atom_data=atom_data)

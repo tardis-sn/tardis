@@ -612,7 +612,7 @@ class Simulation(object):
                     plasma = from_plasma_hdf(
                         simulation, file_path, model, atomic_data)
                     runner = MontecarloRunner.from_hdf(simulation,file_path,model,plasma)
-                    scalars = data[simulation+'/consts/scalars'] #Replace with zip
+                    scalars = data[simulation+'/consts/scalars'] 
                     convergence_strategy = data[simulation+'/consts/convergence_strategy']
 
         convergence_strategy = dict( (k,convergence_strategy[k][0]) for k in convergence_strategy.keys())
