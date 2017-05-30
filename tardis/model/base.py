@@ -420,7 +420,6 @@ class Radial1DModel(object):
                 plasma[key] = data[buff_path]
 
         #Creates corresponding astropy.units.Quantity objects
-
         homologous_density = HomologousDensity.from_hdf(
             model_path, file_path)
         luminosity_requested = model['scalars']['luminosity_requested'] * u.erg / u.s
