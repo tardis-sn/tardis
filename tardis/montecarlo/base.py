@@ -343,8 +343,8 @@ class MontecarloRunner(object):
                       'packet_luminosity', 'seed', 'spectrum_frequency',
                       'virtual_spectrum_range', 'sigma_thomson', 'enable_reflective_inner_boundary',
                       'inner_boundary_albedo', 'line_interaction_type']
-        to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
-                                          in properties})
+        to_hdf(path_or_buf, runner_path, {name: getattr(self, name, None) for name
+                                          in properties if getattr(self, name, None) is not None})
         distance = pd.Series({'distance': self.distance})
         distance.to_hdf(path_or_buf, os.path.join(
             os.path.join(runner_path, 'runner'), 'scalars'))
@@ -415,7 +415,11 @@ class MontecarloRunner(object):
             for key in cls.hdf_properties:
                 runner_dict[key] = {}
                 buff_path = runner_path + '/' + key + '/'
-                runner_dict[key] = data[buff_path]
+                try:
+                    runner_dict[key] = data[buff_path]
+                except:
+                    runner_dict.pop(key,None) 
+                    pass
             for key in cls.simulation_hdf_properties:
                 consts[key] = {}
                 buff_path = consts_path + '/' + key + '/'
@@ -460,8 +464,9 @@ class MontecarloRunner(object):
         runner.last_line_interaction_shell_id = np.array(
             runner_dict['last_line_interaction_shell_id'])
         runner.j_estimator = np.array(runner_dict['j_estimator'])
-        runner.montecarlo_virtual_luminosity = u.Quantity(np.array(
-            runner_dict['montecarlo_virtual_luminosity']), 'erg/s')
+        if 'montecarlo_virtual_luminosity' in runner_dict:
+            runner.montecarlo_virtual_luminosity = u.Quantity(np.array(
+                runner_dict['montecarlo_virtual_luminosity']), 'erg/s')
         runner.nu_bar_estimator = np.array(runner_dict['nu_bar_estimator'])
 
         runner.line_lists_tau_sobolevs = plasma.tau_sobolevs.values.flatten(
