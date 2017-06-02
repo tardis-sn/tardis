@@ -22,32 +22,45 @@
 #define KB_CGS 1.3806488e-16
 #define H_CGS 6.62606957e-27
 
+/**
+ * Calculate the intensity of a black-body according to the following formula
+ * .. math::
+ * I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
+*/
 double
 intensity_black_body (double nu, double T)
 {
-  /*
-     Calculate the intensity of a black-body according to the following formula
-
-     .. math::
-     I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
-
-*/
   double beta_rad = 1 / (KB_CGS * T);
   double coefficient = 2 * H_CGS * C_INV * C_INV;
   return coefficient * nu * nu * nu / (exp(H_CGS * nu * beta_rad) - 1 );
 }
 
+
+/*! @brief Algorithm to integrate an array using the trapezoid integration rule
+ *
+*/
 double
-integrate_intensity(const double* I_nu, const double h, int N)
+trapezoid_integration (const double* array, const double h, int N)
 {
-  double result = (I_nu[0] + I_nu[N-1])/2;
+  double result = (array[0] + array[N-1])/2;
   for (int idx = 1; idx < N-1; ++idx)
     {
-      result += I_nu[idx];
+      result += array[idx];
     }
-  return result*h;
+  return result * h;
 }
 
+/*! @brief Calculate distance to p line
+ *
+ *  Calculate half of the length of the p-line inside a shell
+ *  of radius r in terms of unit length (c * t_exp).
+ *  If shell and p-line do not intersect, return 0.
+ *
+ * @param r radius of the shell
+ * @param p distance of the p-line to the center of the supernova
+ * @param inv_t inverse time_explosio is needed to norm to unit-length
+ * @return half the lenght inside the shell or zero
+ */
 static inline double
 calculate_z(double r, double p, double inv_t)
 {
@@ -55,22 +68,22 @@ calculate_z(double r, double p, double inv_t)
 }
 
 
+/*!
+ * @brief Calculate p line intersections
+ *
+ * This function calculates the intersection points of the p-line with each shell
+ *
+ * @param storage (INPUT) A storage model containing the environment
+ * @param p (INPUT) distance of the integration line to the center
+ * @param oz (OUTPUT) will be set with z values. The array is truncated by the
+ *                  value `1`.
+ * @param oshell_id (OUTPUT) will be set with the corresponding shell_ids
+ * @return number of shells intersected by the p-line
+ */
 int64_t
 populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *oshell_id)
 {
-  /*
-   * Input parameters:
-   *      storage_model_t storage: A storage model containing the environment
-   *      const double p: distance of the integration line to the center
-   * Output parameters:
-   *      double *oz: will be set with z values. The array is truncated by the
-   *                  value `1`.
-   *      int64_t *oshell_id: will be set with the corresponding shell_ids
-   * Returns:
-   *      number of shells intersected by the p-line
-   *
-   * This function calculates the intersection points of the p-line with each shell
-   */
+
   // Abbreviations
   double *r = storage->r_outer;
   const int64_t N = storage->no_of_shells;
@@ -91,7 +104,7 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
     }
   else
     {
-      // Do not intersect the photosphere
+      // No intersection with the photosphere
       // that means we intersect each shell twice
       for(i = 0; i < N; ++i)
         { // Loop from inside to outside
@@ -117,6 +130,23 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
 }
 
 
+/*! @brief Calculate integration points
+ *
+ */
+void
+calculate_p_values(storage_model_t *storage, int64_t N, double *opp)
+{
+  double R_max = storage->r_outer[storage->no_of_shells - 1];
+  for(int i = 0; i<N; ++i)
+    {
+      // Trapezoid integration points
+      opp[i] = R_max/(N - 1) * (i);
+    }
+}
+
+/*! @brief Caculate a spectrum using the formal integral approach
+ *
+ */
 double *
 _formal_integral(
                  storage_model_t *storage,
@@ -124,10 +154,12 @@ _formal_integral(
                  double *inu, int64_t inu_size,
                  double *att_S_ul, int N)
 {
+
   // Initialize the output which is shared among threads
   double *L = calloc(inu_size, sizeof(double));
 #pragma omp parallel shared(L)
     {
+
 #pragma omp master
         {
           printf("Doing the formal integral with %d threads", omp_get_num_threads());
@@ -218,23 +250,11 @@ _formal_integral(
               I_nu[p_idx] *= p;
             }
           // TODO: change integration to match the calculation of p values
-          L[nu_idx] = 8 * M_PI * M_PI * integrate_intensity(I_nu, R_max/N, N);
+          L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max/N, N);
         }
 
       // Free everything allocated on heap
       printf("\n\n");
     }
   return L;
-}
-
-
-void
-calculate_p_values(storage_model_t *storage, int64_t N, double *opp)
-{
-  double R_max = storage->r_outer[storage->no_of_shells - 1];
-  for(int i = 0; i<N; ++i)
-    {
-      // Trapezoid integration points
-      opp[i] = R_max/(N - 1) * (i);
-    }
 }
