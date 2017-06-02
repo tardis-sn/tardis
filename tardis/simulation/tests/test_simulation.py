@@ -72,12 +72,12 @@ def test_packet_output(simulation_one_loop, simulation_compare_data):
 
 
 def data_path(filename):
-    return os.path.join(os.path.join('docs', 'examples'), filename)
+    return os.path.join('tardis/io/tests/data/', filename)
 
 
 @pytest.fixture(scope="module")
 def tardis_config_yml():
-    filename = 'tardis_example.yml'
+    filename = 'tardis_configv1_verysimple.yml'
     config = Configuration.from_yaml(data_path(filename))
     return config
 
