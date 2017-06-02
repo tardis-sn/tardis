@@ -141,8 +141,7 @@ class MontecarloRunner(SimulationChild):
         None
         """
         self.time_of_simulation = self.calculate_time_of_simulation(model)
-        self.volume = model.volume
-        self._initialize_estimator_arrays(self.volume.shape[0],
+        self._initialize_estimator_arrays(self.simulation.model.volume.shape[0],
                                           plasma.tau_sobolevs.shape)
         self._initialize_geometry_arrays(model)
 
@@ -295,7 +294,7 @@ class MontecarloRunner(SimulationChild):
                 / self.j_estimator)
         w = self.j_estimator / (4 * const.sigma_sb.cgs.value * t_rad ** 4
                                 * self.time_of_simulation.value
-                                * self.volume.value)
+                                * self.simulation.model.volume.value)
 
         return t_rad * u.K, w
 
