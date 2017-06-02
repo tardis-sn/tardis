@@ -90,7 +90,7 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
   double inv_t = storage->inverse_time_explosion;
   double z = 0;
 
-  int64_t i = 0, offset = -1, i_low, i_up;
+  int64_t i = 0, offset = N, i_low, i_up;
 
   if (p <= storage->r_inner[0])
     {
@@ -111,7 +111,7 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
           z = calculate_z(r[i], p, inv_t);
           if (z == 0)
             continue;
-          if (offset == -1)
+          if (offset == N)
             {
               offset = i;
             }
