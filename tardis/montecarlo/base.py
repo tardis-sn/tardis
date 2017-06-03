@@ -12,9 +12,9 @@ from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
 
 import numpy as np
-import pandas as pd
 
 logger = logging.getLogger(__name__)
+
 
 class MontecarloRunner(object):
     """
@@ -53,12 +53,11 @@ class MontecarloRunner(object):
         model: ~Radial1DModel
         """
 
-        #Estimators
+        # Estimators
         self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.j_blue_estimator = np.zeros(tau_sobolev_shape)
         self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
-
 
     def _initialize_geometry_arrays(self, model):
         """
