@@ -37,14 +37,11 @@ class MontecarloRunner(object):
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_range = virtual_spectrum_range
+        self.distance = distance
         self.sigma_thomson = sigma_thomson
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.line_interaction_type = line_interaction_type
-        self.spectrum = TARDISSpectrum(spectrum_frequency, distance)
-        self.spectrum_virtual = TARDISSpectrum(spectrum_frequency, distance)
-        self.spectrum_reabsorbed = TARDISSpectrum(spectrum_frequency, distance)
-
 
     def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
         """
@@ -94,31 +91,36 @@ class MontecarloRunner(object):
         self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
 
+        self._montecarlo_virtual_luminosity = u.Quantity(
+                np.zeros_like(self.spectrum_frequency.value),
+                'erg / s'
+                )
 
-        self.legacy_montecarlo_virtual_luminosity = np.zeros_like(
-            self.spectrum_frequency.value)
+    @property
+    def spectrum(self):
+        return TARDISSpectrum(
+                self.spectrum_frequency,
+                self.montecarlo_emitted_luminosity,
+                self.distance)
 
-    def legacy_update_spectrum(self, no_of_virtual_packets):
-        montecarlo_reabsorbed_luminosity = np.histogram(
-            self.reabsorbed_packet_nu,
-            weights=self.reabsorbed_packet_luminosity,
-            bins=self.spectrum_frequency.value)[0] * u.erg / u.s
+    @property
+    def spectrum_reabsorbed(self):
+        return TARDISSpectrum(
+                self.spectrum_frequency,
+                self.montecarlo_reabsorbed_luminosity,
+                self.distance)
 
-        montecarlo_emitted_luminosity = np.histogram(
-            self.emitted_packet_nu,
-            weights=self.emitted_packet_luminosity,
-            bins=self.spectrum_frequency.value)[0] * u.erg / u.s
+    @property
+    def spectrum_virtual(self):
+        # if no_of_virtual_packets > 0:
+        #     montecarlo_virtual_luminosity = (
+        #             self.montecarlo_virtual_luminosity *
+        #             1 * u.erg / self.time_of_simulation)[:-1]
 
-        self.spectrum.update_luminosity(montecarlo_emitted_luminosity)
-        self.spectrum_reabsorbed.update_luminosity(
-            montecarlo_reabsorbed_luminosity)
-
-        if no_of_virtual_packets > 0:
-            self.montecarlo_virtual_luminosity = (
-                self.legacy_montecarlo_virtual_luminosity *
-                1 * u.erg / self.time_of_simulation)[:-1]
-            self.spectrum_virtual.update_luminosity(
-                self.montecarlo_virtual_luminosity)
+        return TARDISSpectrum(
+                self.spectrum_frequency,
+                self.montecarlo_virtual_luminosity,
+                self.distance)
 
     def run(self, model, plasma, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
         """
@@ -230,17 +232,36 @@ class MontecarloRunner(object):
         return self.output_nu[~self.emitted_packet_mask]
 
     @property
-    def reabsorbed_packet_luminosity(self):
-        return -self.packet_luminosity[~self.emitted_packet_mask]
-
-
-    @property
     def emitted_packet_luminosity(self):
         return self.packet_luminosity[self.emitted_packet_mask]
 
     @property
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
+
+    @property
+    def montecarlo_reabsorbed_luminosity(self):
+        return u.Quantity(
+                np.histogram(
+                    self.reabsorbed_packet_nu,
+                    weights=self.reabsorbed_packet_luminosity,
+                    bins=self.spectrum_frequency.value)[0],
+                'erg / s'
+                )
+
+    @property
+    def montecarlo_emitted_luminosity(self):
+        return u.Quantity(
+                np.histogram(
+                    self.emitted_packet_nu,
+                    weights=self.emitted_packet_luminosity,
+                    bins=self.spectrum_frequency.value)[0],
+                'erg / s'
+                )
+
+    @property
+    def montecarlo_virtual_luminosity(self):
+        return self._montecarlo_virtual_luminosity[:-1] / self.time_of_simulation.value
 
     def calculate_emitted_luminosity(self, luminosity_nu_start,
                                      luminosity_nu_end):

@@ -229,7 +229,7 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.spectrum_delta_nu = runner.spectrum_frequency.to('Hz').value[1] - runner.spectrum_frequency.to('Hz').value[0]
 
     storage.spectrum_virt_nu = <double*> PyArray_DATA(
-        runner.legacy_montecarlo_virtual_luminosity)
+        runner._montecarlo_virtual_luminosity.value)
 
     storage.sigma_thomson = runner.sigma_thomson.cgs.value
     storage.inverse_sigma_thomson = 1.0 / storage.sigma_thomson
