@@ -31,13 +31,12 @@ class MontecarloRunner(object):
 
     def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
                  sigma_thomson, enable_reflective_inner_boundary,
-                 inner_boundary_albedo, line_interaction_type, distance=None):
+                 inner_boundary_albedo, line_interaction_type):
 
         self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_range = virtual_spectrum_range
-        self.distance = distance
         self.sigma_thomson = sigma_thomson
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
@@ -99,15 +98,13 @@ class MontecarloRunner(object):
     def spectrum(self):
         return TARDISSpectrum(
                 self.spectrum_frequency,
-                self.montecarlo_emitted_luminosity,
-                self.distance)
+                self.montecarlo_emitted_luminosity)
 
     @property
     def spectrum_reabsorbed(self):
         return TARDISSpectrum(
                 self.spectrum_frequency,
-                self.montecarlo_reabsorbed_luminosity,
-                self.distance)
+                self.montecarlo_reabsorbed_luminosity)
 
     @property
     def spectrum_virtual(self):
@@ -118,8 +115,7 @@ class MontecarloRunner(object):
 
         return TARDISSpectrum(
                 self.spectrum_frequency,
-                self.montecarlo_virtual_luminosity,
-                self.distance)
+                self.montecarlo_virtual_luminosity)
 
     def run(self, model, plasma, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
         """
@@ -394,5 +390,5 @@ class MontecarloRunner(object):
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
-                   line_interaction_type=config.plasma.line_interaction_type,
-                   distance=config.supernova.get('distance', None))
+                   line_interaction_type=config.plasma.line_interaction_type
+                   )
