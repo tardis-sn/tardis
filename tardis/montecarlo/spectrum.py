@@ -1,8 +1,6 @@
-import os
 import numpy as np
-from astropy import constants, units as u
 
-from tardis.io.util import to_hdf
+from astropy import units as u
 
 
 def require_field(name):
@@ -10,7 +8,8 @@ def require_field(name):
         def wrapper(self, *args, **kwargs):
             if not getattr(self, name, None):
                 raise AttributeError(
-                        '{} is required as attribute of {} to calculate {}'.format(
+                        '{} is required as attribute of'
+                        '{} to calculate {}'.format(
                             name,
                             self.__class__.__name__,
                             f.__name__
@@ -24,51 +23,72 @@ def require_field(name):
 
 class TARDISSpectrum(object):
     """
-    TARDIS Spectrum object
+    TARDISSpectrum(_frequency, luminosity)
+
+    _frequency: astropy.units.Quantity with unit 'Hz' or a length
+        These are bin edges of frequency or wavelenght bins for the spectrum.
+
+    luminosity: astropy.units.Quantity with unit Energy per second
+        The luminosity in each bin of the spectrum.
+
+    After manually adding a distance attribute, the properties 'flux_nu' and
+    'flux_lambda' become available
     """
 
-    def __init__(self, frequency, luminosity, distance=None):
-        self.distance = distance
-
-        self._frequency = frequency
-        self.delta_frequency = frequency[1] - frequency[0]
-        self.wavelength = self.frequency.to('angstrom', u.spectral())
-
-        self._luminosity = luminosity
-
-        self.luminosity_density_nu = (
-                luminosity / self.delta_frequency).to('erg / (s Hz)')
-        self.luminosity_density_lambda = u.Quantity(
-                self.f_nu_to_f_lambda(self.luminosity_density_nu.value),
-                'erg / (s Angstrom)'
-                )
-
-        if self.distance is not None:
-            self._flux_nu = (
-                    self.luminosity_density_nu /
-                    (4 * np.pi * self.distance.to('cm')**2))
-
-            self._flux_lambda = u.Quantity(
-                    self.f_nu_to_f_lambda(self.flux_nu.value),
-                    'erg / (s Angstrom cm^2)'
+    def __init__(self, _frequency, luminosity):
+        if not _frequency.shape[0] == luminosity.shape[0] + 1:
+            raise ValueError(
+                    "shape of '_frequency' and 'luminosity' are not compatible"
+                    ": '{}' and '{}'".format(
+                        _frequency.shape[0],
+                        luminosity.shape[0])
                     )
+        self._frequency = _frequency.to('Hz', u.spectral())
+        self.luminosity = luminosity.to('erg / s')
 
     @property
     def frequency(self):
         return self._frequency[:-1]
 
     @property
+    def delta_frequency(self):
+        return self.frequency[1] - self.frequency[0]
+
+    @property
+    def wavelength(self):
+        return self.frequency.to('angstrom', u.spectral())
+
+    @property
+    def luminosity_density_nu(self):
+        return (self.luminosity / self.delta_frequency).to('erg / (s Hz)')
+
+    @property
+    def luminosity_density_lambda(self):
+        return self.f_nu_to_f_lambda(
+                self.luminosity_density_nu,
+                )
+
+    @property
     @require_field('distance')
     def flux_nu(self):
-        return self._flux_nu
+        return self.luminosity_to_flux(
+                self.luminosity_density_nu,
+                self.distance)
 
     @property
     @require_field('distance')
     def flux_lambda(self):
-        return self._flux_lambda
+        return self.luminosity_to_flux(
+                self.luminosity_density_lambda,
+                self.distance
+                )
+
+    @staticmethod
+    def luminosity_to_flux(luminosity, distance):
+        return luminosity / (4 * np.pi * distance.to('cm')**2)
 
     def f_nu_to_f_lambda(self, f_nu):
-        return f_nu * self.frequency.value**2 / constants.c.cgs.value / 1e8
+        return f_nu * self.frequency / self.wavelength
 
     def plot(self, ax, mode='wavelength'):
         if mode == 'wavelength':
@@ -80,32 +100,15 @@ class TARDISSpectrum(object):
         if mode == 'luminosity_density':
             np.savetxt(fname, zip(self.wavelength.value, self.luminosity_density_lambda.value))
         elif mode == 'flux':
-            np.savetxt(fname, zip(self.wavelength.value, self.flux_lambda.value))
+            np.savetxt(
+                    fname,
+                    zip(self.wavelength.value, self.flux_lambda.value))
         else:
             raise NotImplementedError('only mode "luminosity_density" and "flux" are implemented')
 
-    def to_hdf(self, path_or_buf, path='', name=''):
-        """
-        Store the spectrum to an HDF structure.
+    def to_hdf(self, path_or_buf, path):
+        pass
 
-        Parameters
-        ----------
-        path_or_buf
-            Path or buffer to the HDF store
-        path : str
-            Path inside the HDF store to store the spectrum
-        name : str, optional
-            A different name than 'spectrum', if needed.
-
-        Returns
-        -------
-        None
-
-        """
-        if not name:
-            name = 'spectrum'
-        spectrum_path = os.path.join(path, name)
-        properties = ['luminosity_density_nu', 'delta_frequency', 'wavelength',
-                      'luminosity_density_lambda']
-        to_hdf(path_or_buf, spectrum_path, {name: getattr(self, name) for name
-                                            in properties})
+    @classmethod
+    def from_hdf(cls, path_or_buf, path):
+        pass
