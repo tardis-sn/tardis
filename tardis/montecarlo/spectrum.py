@@ -93,18 +93,25 @@ class TARDISSpectrum(object):
     def plot(self, ax, mode='wavelength'):
         if mode == 'wavelength':
             ax.plot(self.wavelength.value, self.flux_lambda.value)
-            ax.set_xlabel('Wavelength [%s]' % self.wavelength.unit._repr_latex_())
+            ax.set_xlabel('Wavelength [{}]'.format(
+                self.wavelength.unit._repr_latex_())
+                )
             ax.set_ylabel('Flux [%s]' % self.flux_lambda.unit._repr_latex_())
 
     def to_ascii(self, fname, mode='luminosity_density'):
         if mode == 'luminosity_density':
-            np.savetxt(fname, zip(self.wavelength.value, self.luminosity_density_lambda.value))
+            np.savetxt(
+                    fname, zip(
+                        self.wavelength.value,
+                        self.luminosity_density_lambda.value))
         elif mode == 'flux':
             np.savetxt(
                     fname,
                     zip(self.wavelength.value, self.flux_lambda.value))
         else:
-            raise NotImplementedError('only mode "luminosity_density" and "flux" are implemented')
+            raise NotImplementedError(
+                    'only mode "luminosity_density"'
+                    'and "flux" are implemented')
 
     def to_hdf(self, path_or_buf, path):
         pass

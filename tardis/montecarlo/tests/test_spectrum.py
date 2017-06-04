@@ -1,4 +1,3 @@
-import os
 import pytest
 import numpy as np
 import pandas as pd
@@ -188,6 +187,7 @@ def test_to_from_hdf_buffer(tmpdir, spectrum):
     compare_spectra(
             spectrum,
             spec_from)
+
 
 def test_creat_from_wl(spectrum):
     actual = TARDISSpectrum(
