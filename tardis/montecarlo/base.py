@@ -343,8 +343,8 @@ class MontecarloRunner(object):
                       'packet_luminosity', 'seed', 'spectrum_frequency',
                       'virtual_spectrum_range', 'sigma_thomson', 'enable_reflective_inner_boundary',
                       'inner_boundary_albedo', 'line_interaction_type']
-        to_hdf(path_or_buf, runner_path, {name: getattr(self, name, None) for name
-                                          in properties if getattr(self, name, None) is not None})
+        to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
+                                          in properties if hasattr(self, name)})
         distance = pd.Series({'distance': self.distance})
         distance.to_hdf(path_or_buf, os.path.join(
             os.path.join(runner_path, 'runner'), 'scalars'))

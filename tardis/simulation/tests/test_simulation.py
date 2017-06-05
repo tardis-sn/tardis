@@ -186,3 +186,13 @@ def test_from_hdf_runner_quantites(sim_hdf, simulation_config_yml, attr):
     if hasattr(simulation_config_yml.runner, attr):
         assert_quantity_allclose(getattr(sim_hdf.runner, attr), getattr(
             simulation_config_yml.runner, attr))
+
+
+homologous_density_attrs = ['density_0', 'time_0']
+
+
+@pytest.mark.parametrize("attr", homologous_density_attrs)
+def test_from_hdf_homologous_density(sim_hdf, simulation_config_yml, attr):
+    if hasattr(simulation_config_yml.model.homologous_density, attr):
+        assert_quantity_allclose(getattr(sim_hdf.model.homologous_density, attr), getattr(
+            simulation_config_yml.model.homologous_density, attr))
