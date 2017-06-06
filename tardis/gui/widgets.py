@@ -256,9 +256,9 @@ class ConfigEditor(QtGui.QWidget):
                           'no_of_packets':[True, None],
                           'iterations':[True, None],
                           'black_body_sampling':{
-                                                    'start': '1 angstrom',
-                                                    'stop': '1000000 angstrom',
-                                                    'num': '1.e+6',
+                                                   'start': '1 angstrom',
+                                                   'stop': '1000000 angstrom',
+                                                   'num': '1.e+6',
                                                 },
                           'last_no_of_packets':[False, -1],
                           'no_of_virtual_packets':[False, 0],

@@ -6,9 +6,9 @@ from astropy import units as u
 
 import tardis
 from tardis.io import config_validator
-from tardis.io.util import YAMLLoader, yaml_load_file
+from tardis.io.util import YAMLLoader, yaml_load_file, quantity_from_str
+from tardis.util import quantity_linspace
 
-pp = pprint.PrettyPrinter(indent=4)
 
 logger = logging.getLogger(__name__)
 
@@ -217,6 +217,10 @@ class Configuration(ConfigurationNameSpace):
         try:
             yaml_dict = yaml_load_file(fname,
                                        loader=kwargs.pop('loader', YAMLLoader))
+            start = yaml_dict['spectrum']['start'] 
+ 			stop = yaml_dict['spectrum']['stop'] 
+ 			num = yaml_dict['spectrum']['num'] 
+ 			yaml_dict['spectrum']['array'] = quantity_linspace(start, stop, num+1)       
         except IOError as e:
             logger.critical('No config file named: %s', fname)
             raise e

@@ -8,7 +8,8 @@ from collections import OrderedDict
 import yaml
 from astropy import constants, units as u
 from tardis.util import element_symbol2atomic_number
-
+from tardis.util import quantity_linspace
+import re
 import logging
 logger = logging.getLogger(__name__)
 
@@ -65,7 +66,18 @@ class YAMLLoader(yaml.Loader):
     A custom YAML loader containing all the constructors required
     to properly parse the tardis configuration.
     """
-
+    def demo_constructor(self, node):
+    	data = self.construct_scalar(node)
+    	return data
+    def spectrum_constructor(self, node):
+    	"""
+    	A constructor to convert spectrum values to nparray
+    	"""
+    	data = self.construct_scalar(node)
+    	data = data.split('%')
+        start = u.Quantity(data[0], data[3])
+        stop = u.Quantity(data[1], data[3])
+        return data
     def construct_quantity(self, node):
         """
         A constructor for converting quantity-like YAML nodes to
@@ -90,13 +102,14 @@ class YAMLLoader(yaml.Loader):
         return OrderedDict(self.construct_pairs(node))
 
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)
+YAMLLoader.add_constructor(u'!demo', YAMLLoader.demo_constructor)
 YAMLLoader.add_implicit_resolver(u'!quantity',
                                  MockRegexPattern(quantity_from_str), None)
 YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
-                                 MockRegexPattern(float), None)
+                                                                          MockRegexPattern(float), None)
 YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
                            YAMLLoader.mapping_constructor)
-
+YAMLLoader.add_implicit_resolver(u'!demo', re.compile(r'^\d+%\d+%\d+%\d+$'))
 def yaml_load_file(filename, loader=yaml.Loader):
     with open(filename) as stream:
         return yaml.load(stream, loader)

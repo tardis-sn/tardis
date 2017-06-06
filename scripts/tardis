@@ -6,15 +6,11 @@ import numpy as np
 
 import logging
 import argparse
-
-
-
 tardis_description =\
 """
 TARDIS Supernova Montecarlo Radiative transfer code
 
 """
-
 parser = argparse.ArgumentParser(description=tardis_description)
 argparse.ArgumentParser()
 parser.add_argument('config_fname', help='path to the configuration yaml file')
