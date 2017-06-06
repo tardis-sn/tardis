@@ -2,14 +2,14 @@ import os
 import numpy as np
 from astropy import constants, units as u
 
-from tardis.io.util import to_hdf
+from tardis.io.util import HDFReaderWriter
 
-
-class TARDISSpectrum(object):
+class TARDISSpectrum(object, HDFReaderWriter):
     """
     TARDIS Spectrum object
     """
-
+    hdf_properties = ['luminosity_density_nu', 'delta_frequency', 'wavelength',
+                      'luminosity_density_lambda']
     def __init__(self, frequency, distance=None):
         self._frequency = frequency
         self.wavelength = self.frequency.to('angstrom', u.spectral())
@@ -93,7 +93,5 @@ class TARDISSpectrum(object):
         if not name:
             name = 'spectrum'
         spectrum_path = os.path.join(path, name)
-        properties = ['luminosity_density_nu', 'delta_frequency', 'wavelength',
-                      'luminosity_density_lambda']
-        to_hdf(path_or_buf, spectrum_path, {name: getattr(self, name) for name
-                                            in properties})
+        HDFReaderWriter.to_hdf(path_or_buf, spectrum_path, {name: getattr(self, name) for name
+                                            in self.hdf_properties})

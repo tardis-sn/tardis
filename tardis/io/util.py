@@ -166,7 +166,91 @@ def check_equality(item1, item2):
         return True
 
 
-def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
+class HDFReaderWriter():
+
+    @classmethod
+    def to_hdf(cls, path_or_buf, path, elements, complevel=9, complib='blosc'):
+        """
+        A function to uniformly store TARDIS data
+        to an HDF file.
+
+        Scalars will be stored in a Series under path/scalars
+        1D arrays will be stored under path/property_name as distinct Series
+        2D arrays will be stored under path/property_name as distinct DataFrames
+
+        Units will be stored as their CGS value
+
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        elements: dict
+            A dict of property names and their values to be
+            stored.
+
+        Returns
+        -------
+
+        """
+        scalars = {}
+        for key, value in elements.iteritems():
+            if hasattr(value, 'cgs'):
+                value = value.cgs.value
+            if np.isscalar(value):
+                scalars[key] = value
+            elif hasattr(value, 'shape'):
+                if value.ndim == 1:
+                    # This try,except block is only for model.plasma.levels
+                    try:
+                        pd.Series(value).to_hdf(path_or_buf,
+                                                os.path.join(path, key))
+                    except NotImplementedError:
+                        pd.DataFrame(value).to_hdf(path_or_buf,
+                                                   os.path.join(path, key))
+                else:
+                    pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
+            else:
+                data = pd.DataFrame([value])
+                data.to_hdf(path_or_buf, os.path.join(path, key))
+
+        if scalars:
+            scalars_series = pd.Series(scalars)
+
+            # Unfortunately, with to_hdf we cannot append, so merge beforehand
+            scalars_path = os.path.join(path, 'scalars')
+            with pd.HDFStore(path_or_buf, complevel=complevel, complib=complib) as store:
+                if scalars_path in store:
+                    scalars_series = store[scalars_path].append(scalars_series)
+            scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
+    
+    scalars=['delta_frequency']
+
+    @classmethod
+    def from_hdf(cls, path, file_path):
+        pass
+        # homologous_density_path = path + '/spectrum'
+        # homologous_density = {}
+
+        # with pd.HDFStore(file_path, 'r') as data:
+        #     for key in cls.hdf_properties:
+        #         homologous_density[key] = {}
+        #         if key in cls.scalars:
+        #             continue
+                
+        #         buff_path = homologous_density_path + '/' + key + '/'
+        #         homologous_density[key] = data[buff_path]
+        # return cls(*homologous_density)
+        # #Creates corresponding astropy.units.Quantity objects
+        # # density_0 = np.array(homologous_density['density_0']) * u.g / u.cm**3
+        # # time_0 = (homologous_density['scalars']['time_0']) * u.s
+        # # return cls(density_0, time_0)
+
+
+
+@classmethod
+def to_hdf(cls, path_or_buf, path, elements, complevel=9, complib='blosc'):
     """
     A function to uniformly store TARDIS data
     to an HDF file.
@@ -205,9 +289,10 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
                                             os.path.join(path, key))
                 except NotImplementedError:
                     pd.DataFrame(value).to_hdf(path_or_buf,
-                                               os.path.join(path, key))
+                                                os.path.join(path, key))
             else:
-                pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
+                pd.DataFrame(value).to_hdf(
+                    path_or_buf, os.path.join(path, key))
         else:
             data = pd.DataFrame([value])
             data.to_hdf(path_or_buf, os.path.join(path, key))
@@ -221,7 +306,6 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
             if scalars_path in store:
                 scalars_series = store[scalars_path].append(scalars_series)
         scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
-
 '''
 Code for Custom Logger Classes (ColoredFormatter and ColorLogger) and its helper function
 (formatter_message) is used from this thread
