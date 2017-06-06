@@ -1,3 +1,5 @@
+import numpy as np
+import pandas as pd
 from astropy import units as u
 
 from tardis.montecarlo.montecarlo import formal_integral
@@ -12,11 +14,22 @@ class FormalIntegrator(object):
         self.runner = runner
 
     def calculate_spectrum(self, frequency, N=1000):
+        # Very crude implementation
+        # The c extension needs bin centers (or something similar)
+        # while TARDISSpectrum needs bin edges
         frequency = frequency.to('Hz', u.spectral())
-        luminosity = formal_integral(
-                self,
-                frequency,
-                N)
+        luminosity = u.Quantity(
+                formal_integral(
+                    self,
+                    frequency,
+                    N),
+                'erg'
+                ) * (frequency[1] - frequency[0])
+        # Ugly hack to convert to 'bin edges'
+        frequency = u.Quantity(
+                np.concatenate(
+                    [frequency.value, [0]]),
+                frequency.unit)
         return TARDISSpectrum(
                 frequency,
                 luminosity
