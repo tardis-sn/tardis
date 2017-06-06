@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 
 from astropy import units as u
@@ -71,6 +72,13 @@ class TARDISSpectrum(object):
     @property
     @require_field('distance')
     def flux_nu(self):
+        warnings.simplefilter('always', DeprecationWarning)
+        warnings.warn(
+                "TARDISSpectrum.flux_nu is deprecated, "
+                "please use TARDISSpectrum.luminosity_to_flux() in the "
+                "future.",
+                category=DeprecationWarning, stacklevel=2)
+        warnings.simplefilter('default', DeprecationWarning)
         return self.luminosity_to_flux(
                 self.luminosity_density_nu,
                 self.distance)
@@ -78,6 +86,13 @@ class TARDISSpectrum(object):
     @property
     @require_field('distance')
     def flux_lambda(self):
+        warnings.simplefilter('always', DeprecationWarning)
+        warnings.warn(
+                "TARDISSpectrum.flux_lambda is deprecated, "
+                "please use TARDISSpectrum.luminosity_to_flux() in the "
+                "future.",
+                category=DeprecationWarning, stacklevel=2)
+        warnings.simplefilter('default', DeprecationWarning)
         return self.luminosity_to_flux(
                 self.luminosity_density_lambda,
                 self.distance
