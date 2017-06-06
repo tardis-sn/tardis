@@ -37,6 +37,8 @@ class TARDISSpectrum(object):
     """
 
     def __init__(self, _frequency, luminosity):
+
+        # Check for correct inputs
         if not _frequency.shape[0] == luminosity.shape[0] + 1:
             raise ValueError(
                     "shape of '_frequency' and 'luminosity' are not compatible"
@@ -47,25 +49,13 @@ class TARDISSpectrum(object):
         self._frequency = _frequency.to('Hz', u.spectral())
         self.luminosity = luminosity.to('erg / s')
 
-    @property
-    def frequency(self):
-        return self._frequency[:-1]
+        self.frequency = self._frequency[:-1]
+        self.delta_frequency = self._frequency[1] - self._frequency[0]
+        self.wavelength = self.frequency.to('angstrom', u.spectral())
 
-    @property
-    def delta_frequency(self):
-        return self.frequency[1] - self.frequency[0]
-
-    @property
-    def wavelength(self):
-        return self.frequency.to('angstrom', u.spectral())
-
-    @property
-    def luminosity_density_nu(self):
-        return (self.luminosity / self.delta_frequency).to('erg / (s Hz)')
-
-    @property
-    def luminosity_density_lambda(self):
-        return self.f_nu_to_f_lambda(
+        self.luminosity_density_nu = (
+                self.luminosity / self.delta_frequency).to('erg / (s Hz)')
+        self.luminosity_density_lambda = self.f_nu_to_f_lambda(
                 self.luminosity_density_nu,
                 )
 

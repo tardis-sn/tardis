@@ -189,10 +189,24 @@ def test_to_from_hdf_buffer(tmpdir, spectrum):
             spec_from)
 
 
+###
+# Test creation from nonstandard units
+###
+
+
 def test_creat_from_wl(spectrum):
     actual = TARDISSpectrum(
             spectrum._frequency.to('angstrom', u.spectral()),
             spectrum.luminosity
+            )
+
+    compare_spectra(actual, spectrum)
+
+
+def test_creat_from_J(spectrum):
+    actual = TARDISSpectrum(
+            spectrum._frequency,
+            spectrum.luminosity.to('J / s')
             )
 
     compare_spectra(actual, spectrum)
