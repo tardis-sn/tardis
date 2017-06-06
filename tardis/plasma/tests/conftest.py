@@ -265,7 +265,7 @@ def update_reference_data(request, level_boltzmann_factor_lte, level_boltzmann_f
     update_reference = request.config.getoption("--update-reference-plasma")
     if update_reference:
         ref_path = os.path.join(
-            'tardis', 'plasma', 'tests', 'data', 'ref_data.hdf')
+            'tardis', 'plasma', 'tests', 'data', 'ref_data.h5')
         if os.path.isfile(ref_path):
             os.remove(ref_path)
         dict_variables = locals()

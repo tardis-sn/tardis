@@ -11,7 +11,7 @@ def set_data_path(compare_with_reference):
     if compare_with_reference:
         ref_data_path= compare_with_reference
     else:
-        ref_data_path= os.path.join('tardis', 'plasma', 'tests', 'data', 'ref_data.hdf')
+        ref_data_path= os.path.join('tardis', 'plasma', 'tests', 'data', 'ref_data.h5')
 
 
 def plasma_compare_data(path):
