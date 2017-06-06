@@ -140,7 +140,7 @@ class Simulation(object):
 
         Returns
         -------
-            converged : ~bool
+            converged : bool
         """
         estimated_t_rad, estimated_w = (
             self.runner.calculate_radiationfield_properties())
@@ -232,15 +232,15 @@ class Simulation(object):
 
         Parameters
         ----------
-        t_rad: ~astropy.units.Quanity
+        t_rad: astropy.units.Quanity
             current t_rad
-        w: ~astropy.units.Quanity
+        w: astropy.units.Quanity
             current w
-        next_t_rad: ~astropy.units.Quanity
+        next_t_rad: astropy.units.Quanity
             next t_rad
-        next_w: ~astropy.units.Quanity
+        next_w: astropy.units.Quanity
             next_w
-        log_sampling: ~int
+        log_sampling: int
             the n-th shells to be plotted
 
         Returns

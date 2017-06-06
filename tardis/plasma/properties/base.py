@@ -73,7 +73,7 @@ class BasePlasmaProperty(object):
         ----------
         path_or_buf:
             Path or buffer to the HDF store
-        path: ~str
+        path: str
             path to store the modules data under
             - will be joined to <path>/output_name
 

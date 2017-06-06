@@ -26,7 +26,7 @@ def parse_convergence_section(convergence_section_dict):
     Parameters
     ----------
 
-    convergence_section_dict: ~dict
+    convergence_section_dict: dict
         dictionary
     """
 
@@ -57,7 +57,7 @@ class ConfigurationNameSpace(dict):
     Parameters
     ----------
 
-    config_dict: ~dict
+    config_dict: dict
         configuration dictionary
 
     Returns
@@ -95,7 +95,7 @@ class ConfigurationNameSpace(dict):
         Parameters
         ----------
 
-        config_dict : ~dict
+        config_dict : dict
             dictionary of a raw unvalidated config file
 
 
@@ -149,7 +149,7 @@ class ConfigurationNameSpace(dict):
         Parameters
         ----------
 
-        config_item_string: ~str
+        config_item_string: str
             string of shape 'section1.sectionb.param1'
         """
         config_item_path = config_item_string.split('.')
@@ -177,7 +177,7 @@ class ConfigurationNameSpace(dict):
         Parameters
         ----------
 
-        config_item_string: ~str
+        config_item_string: str
             string of shape 'section1.sectionb.param1'
 
         value:
@@ -239,10 +239,10 @@ class Configuration(ConfigurationNameSpace):
         Parameters
         ----------
 
-        config_dict : ~dict
+        config_dict : dict
             dictionary of a raw unvalidated config file
 
-        validate: ~bool
+        validate: bool
             Turn validation on or off.
 
         Returns

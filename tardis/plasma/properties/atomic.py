@@ -67,7 +67,8 @@ class Lines(BaseAtomicDataProperty):
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    ----------
     lines_lower_level_index : One-dimensional Numpy Array, dtype int
         Levels data for lower levels of particular lines
     """
@@ -82,7 +83,8 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
 
 class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     lines_upper_level_index : One-dimensional Numpy Array, dtype int
         Levels data for upper levels of particular lines
     """
@@ -111,7 +113,8 @@ class IonCXData(BaseAtomicDataProperty):
 
 class AtomicMass(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     atomic_mass : Pandas Series
         Atomic masses of the elements used. Indexed by atomic number.
     """
@@ -125,7 +128,8 @@ class AtomicMass(ProcessingPlasmaProperty):
 
 class IonizationData(BaseAtomicDataProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     ionization_data : Pandas DataFrame
         Ionization energies. Indexed by atomic number, ion number.
     """
@@ -151,7 +155,8 @@ class IonizationData(BaseAtomicDataProperty):
 
 class ZetaData(BaseAtomicDataProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     zeta_data : Pandas DataFrame, dtype float
         Zeta data for the elements used. Indexed by atomic number, ion number.
         Columns are temperature values up to 40,000 K in iterations of 2,000 K.
@@ -203,7 +208,8 @@ class ZetaData(BaseAtomicDataProperty):
 
 class NLTEData(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     nlte_data :
 #Finish later (need atomic dataset with NLTE data).
     """

@@ -53,7 +53,7 @@ class MontecarloRunner(object):
         Parameters
         ----------
 
-        model: ~Radial1DModel
+        model: Radial1DModel
         """
 
         #Estimators
@@ -275,16 +275,16 @@ class MontecarloRunner(object):
         Parameters
         ----------
 
-        nubar_estimator : ~np.ndarray (float)
+        nubar_estimator : np.ndarray (float)
 
-        j_estimator : ~np.ndarray (float)
+        j_estimator : np.ndarray (float)
 
         Returns
         -------
 
-        t_rad : ~astropy.units.Quantity (float)
+        t_rad : astropy.units.Quantity (float)
 
-        w : ~numpy.ndarray (float)
+        w : numpy.ndarray (float)
 
         """
 

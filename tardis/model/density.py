@@ -88,19 +88,19 @@ def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):
     Parameters
     ----------
 
-    velocities : ~astropy.Quantity
+    velocities : astropy.Quantity
         Array like velocity profile
-    velocity_0 : ~astropy.Quantity
+    velocity_0 : astropy.Quantity
         reference velocity
-    rho_0 : ~astropy.Quantity
+    rho_0 : astropy.Quantity
         reference density
-    exponent : ~float
+    exponent : float
         exponent used in the powerlaw
 
     Returns
     -------
 
-    densities : ~astropy.Quantity
+    densities : astropy.Quantity
 
     """
     densities = rho_0 * np.power((velocities / velocity_0), exponent)
@@ -115,17 +115,17 @@ def calculate_exponential_density(velocities, velocity_0, rho_0):
     Parameters
     ----------
 
-    velocities : ~astropy.Quantity
+    velocities : astropy.Quantity
         Array like velocity profile
-    velocity_0 : ~astropy.Quantity
+    velocity_0 : astropy.Quantity
         reference velocity
-    rho_0 : ~astropy.Quantity
+    rho_0 : astropy.Quantity
         reference density
 
     Returns
     -------
 
-    densities : ~astropy.Quantity
+    densities : astropy.Quantity
 
     """
     densities = rho_0 * np.exp(-(velocities / velocity_0))
@@ -137,19 +137,19 @@ def calculate_density_after_time(densities, time_0, time_explosion):
     scale the density from an initial time of the model to the
     time of the explosion by ^-3
 
-    Parameters:
+    Parameters
     -----------
 
-    densities: ~astropy.units.Quantity
+    densities: astropy.units.Quantity
         densities
 
-    time_0: ~astropy.units.Quantity
+    time_0: astropy.units.Quantity
         time of the model
 
-    time_explosion: ~astropy.units.Quantity
+    time_explosion: astropy.units.Quantity
         time to be scaled to
 
-    Returns:
+    Returns
     --------
 
     scaled_density

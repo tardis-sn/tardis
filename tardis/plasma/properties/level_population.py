@@ -56,7 +56,8 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
 
 class LevelNumberDensityHeNLTE(ProcessingPlasmaProperty):
     """
-    Attributes:
+    Attributes
+    -----------
     level_number_density : Pandas DataFrame, dtype float
                            Index atom number, ion number, level number. Columns are zones.
     """

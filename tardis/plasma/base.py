@@ -97,9 +97,9 @@ class BasePlasma(object):
         Parameters
         ----------
 
-        plasma_modules: ~list
+        plasma_modules: list
             list of Plasma properties
-        property_kwargs: ~dict
+        property_kwargs: dict
             dict of plasma module : kwargs pairs. kwargs should be a dict
             of arguments that will be passed to the __init__ method of
             the respective plasma module.
@@ -170,13 +170,13 @@ class BasePlasma(object):
         Parameters
         ----------
 
-        changed_modules: ~list
+        changed_modules: list
             all modules changed in the plasma
 
         Returns
         -------
 
-            : ~list
+            : list
             all affected modules.
         """
 
