@@ -9,6 +9,10 @@ from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util import intensity_black_body
+from tardis.plasma.standard_plasmas import from_plasma_hdf
+from tardis.io.util import to_hdf
+from tardis.io.config_reader import ConfigurationNameSpace
+import os
 
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -302,6 +306,12 @@ class Simulation(object):
         self.model.to_hdf(path_or_buf, path)
         self.plasma.to_hdf(path_or_buf, path, plasma_properties)
 
+        properties = ['iterations', 'no_of_packets', 'no_of_virtual_packets', 'luminosity_nu_start',
+                      'luminosity_nu_end', 'last_no_of_packets', 'luminosity_requested',
+                      'convergence_strategy', 'nthreads']
+        to_hdf(path_or_buf, os.path.join(path, 'consts'), {name: getattr(self, name) for name
+                                                           in properties})
+
     def _call_back(self):
         for cb, args in self._callbacks.values():
             cb(self, *args)
@@ -572,3 +582,61 @@ class Simulation(object):
             L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
 
         return L_nu
+
+    @classmethod
+    def from_hdf(cls, file_path, atomic_data=None):
+        """
+        This function converts a hdf5 file to a Simulation Object.
+
+        Parameters
+        ----------
+
+        file_path : `str`
+             Path to Simulation generated hdf file
+        atomic_data : `str'
+            Path to atomic_data file
+
+        Returns
+        -------
+
+        model : `~Simulation`
+        """
+
+        if file_path is None:
+            raise ValueError("File Path can`t be None")
+
+        with pd.HDFStore(file_path, 'r') as data:
+            # __members__ is used as a workaround to get only root group name
+            # (like-> simulation20) in HDF file
+            for simulation in data.root.__members__:
+                    model = Radial1DModel.from_hdf(
+                        simulation, file_path)
+                    plasma = from_plasma_hdf(
+                        simulation, file_path, model, atomic_data)
+                    runner = MontecarloRunner.from_hdf(
+                        simulation, file_path, model, plasma)
+                    scalars = data[simulation + '/consts/scalars']
+                    convergence_strategy = data[simulation +
+                                                '/consts/convergence_strategy']
+
+        convergence_strategy = dict(
+            (k, convergence_strategy[k][0]) for k in convergence_strategy.keys())
+        convergence_strategy = ConfigurationNameSpace(convergence_strategy)
+
+        iterations = int(scalars['iterations'])
+        no_of_packets = int(scalars['no_of_packets'])
+        no_of_virtual_packets = int(scalars['no_of_virtual_packets'])
+        luminosity_nu_start = scalars['luminosity_nu_start']
+        luminosity_nu_end = scalars['luminosity_nu_end']
+        last_no_of_packets = int(scalars['last_no_of_packets'])
+        luminosity_requested = u.Quantity(
+            scalars['luminosity_requested'], 'erg/s')
+        nthreads = int(scalars['nthreads'])
+
+        return cls(iterations, model, plasma, runner,
+                   no_of_packets, no_of_virtual_packets, luminosity_nu_start,
+                   luminosity_nu_end, last_no_of_packets,
+                   luminosity_requested, convergence_strategy,
+                   nthreads)
+
+

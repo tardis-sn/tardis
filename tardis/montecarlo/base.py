@@ -10,13 +10,20 @@ from spectrum import TARDISSpectrum
 from tardis.util import quantity_linspace
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
-
+from tardis.io.config_reader import ConfigurationNameSpace
 import numpy as np
 import pandas as pd
 
 logger = logging.getLogger(__name__)
 
 class MontecarloRunner(object):
+
+    hdf_properties = ('scalars', 'spectrum_frequency',
+                      'virtual_spectrum_range', 'packet_luminosity', 'output_energy', 'output_nu',
+                      'last_line_interaction_in_id', 'last_interaction_in_nu', 'last_line_interaction_out_id',
+                      'last_line_interaction_shell_id', 'j_estimator', 'montecarlo_virtual_luminosity', 'nu_bar_estimator',)
+    simulation_hdf_properties = ('scalars',)
+
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
@@ -41,6 +48,7 @@ class MontecarloRunner(object):
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.line_interaction_type = line_interaction_type
+        self.distance = distance
         self.spectrum = TARDISSpectrum(spectrum_frequency, distance)
         self.spectrum_virtual = TARDISSpectrum(spectrum_frequency, distance)
         self.spectrum_reabsorbed = TARDISSpectrum(spectrum_frequency, distance)
@@ -332,10 +340,14 @@ class MontecarloRunner(object):
                       'last_line_interaction_in_id',
                       'last_line_interaction_out_id',
                       'last_line_interaction_shell_id',
-                      'packet_luminosity', 'output_nu'
-                      ]
+                      'packet_luminosity', 'seed', 'spectrum_frequency',
+                      'virtual_spectrum_range', 'sigma_thomson', 'enable_reflective_inner_boundary',
+                      'inner_boundary_albedo', 'line_interaction_type']
         to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
-                                          in properties})
+                                          in properties if hasattr(self, name)})
+        distance = pd.Series({'distance': self.distance})
+        distance.to_hdf(path_or_buf, os.path.join(
+            os.path.join(runner_path, 'runner'), 'scalars'))
         self.spectrum.to_hdf(path_or_buf, runner_path)
         self.spectrum_virtual.to_hdf(path_or_buf, runner_path,
                                      'spectrum_virtual')
@@ -376,3 +388,94 @@ class MontecarloRunner(object):
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
                    line_interaction_type=config.plasma.line_interaction_type,
                    distance=config.supernova.get('distance', None))
+
+    @classmethod
+    def from_hdf(cls, path, file_path, model, plasma):
+        """
+        This function returns a MontecarloRunner object 
+        from given HDF5 File.
+
+        Parameters
+        ----------
+        path : 'str'
+            Path to transverse in hdf file
+        file_path : 'str'
+            Path of Simulation generated HDF file 
+
+        Returns
+        -------
+        `~MontecarloRunner`
+        """
+
+        runner_path = path + '/runner'
+        consts_path = path + '/consts'
+        runner_dict = {}
+        consts = {}
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in cls.hdf_properties:
+                runner_dict[key] = {}
+                buff_path = runner_path + '/' + key + '/'
+                try:
+                    runner_dict[key] = data[buff_path]
+                except:
+                    runner_dict.pop(key,None) 
+                    pass
+            for key in cls.simulation_hdf_properties:
+                consts[key] = {}
+                buff_path = consts_path + '/' + key + '/'
+                consts[key] = data[buff_path]
+
+        #Creates corresponding astropy.units.Quantity objects
+        seed = runner_dict['scalars']['seed']
+        sigma_thomson = runner_dict['scalars']['sigma_thomson'] * \
+            (1 / (u.cm * u.cm))
+        enable_reflective_inner_boundary = runner_dict['scalars']['enable_reflective_inner_boundary']
+        inner_boundary_albedo = runner_dict['scalars']['inner_boundary_albedo']
+        line_interaction_type = runner_dict['scalars']['line_interaction_type']
+        distance = runner_dict['scalars'].get('distance', None)
+        spectrum_frequency = u.Quantity(
+            np.array(runner_dict['spectrum_frequency']), 'Hz')
+        virtual_spectrum_range = dict(
+            stop=runner_dict['virtual_spectrum_range']['stop'][0],
+            start=runner_dict['virtual_spectrum_range']['start'][0],
+            num=runner_dict['virtual_spectrum_range']['num'][0])
+
+        virtual_spectrum_range = ConfigurationNameSpace(virtual_spectrum_range)
+
+        runner = cls(seed, spectrum_frequency, virtual_spectrum_range,
+                     sigma_thomson, enable_reflective_inner_boundary,
+                     inner_boundary_albedo, line_interaction_type, distance)
+
+        runner.time_of_simulation = runner.calculate_time_of_simulation(model)
+        runner.volume = model.volume
+        runner._initialize_estimator_arrays(runner.volume.shape[0],
+                                            plasma.tau_sobolevs.shape)
+        runner._initialize_geometry_arrays(model)
+
+        #Assigning values from stored HDF5 file
+        runner._output_energy = runner_dict['output_energy']
+        runner._output_nu = runner_dict['output_nu']
+        runner.last_line_interaction_in_id = np.array(
+            runner_dict['last_line_interaction_in_id'])
+        runner.last_interaction_in_nu = np.array(
+            runner_dict['last_interaction_in_nu'])
+        runner.last_line_interaction_out_id = np.array(
+            runner_dict['last_line_interaction_out_id'])
+        runner.last_line_interaction_shell_id = np.array(
+            runner_dict['last_line_interaction_shell_id'])
+        runner.j_estimator = np.array(runner_dict['j_estimator'])
+        if 'montecarlo_virtual_luminosity' in runner_dict:
+            runner.montecarlo_virtual_luminosity = u.Quantity(np.array(
+                runner_dict['montecarlo_virtual_luminosity']), 'erg/s')
+        runner.nu_bar_estimator = np.array(runner_dict['nu_bar_estimator'])
+
+        runner.line_lists_tau_sobolevs = plasma.tau_sobolevs.values.flatten(
+            order='F')
+        if runner.get_line_interaction_id(runner.line_interaction_type) >= 1:
+            runner.transition_probabilities = (
+                plasma.transition_probabilities.values.flatten(order='F'))
+
+        runner.inverse_electron_densities = (
+            1.0 / plasma.electron_densities.values)
+
+        return runner

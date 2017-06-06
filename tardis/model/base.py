@@ -13,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 class Radial1DModel(object):
+
+    model_hdf_properties = ('w', 'v_inner', 't_radiative', 'v_outer', 'scalars',)
+    plasma_hdf_properties = ('abundance', 't_rad', 'scalars',)
+
     """An object that hold information about the individual shells.
 
     Parameters
@@ -70,6 +74,7 @@ class Radial1DModel(object):
         self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
+        self.luminosity_requested = luminosity_requested
         if t_inner is None:
             if luminosity_requested is not None:
                 self.t_inner = ((luminosity_requested /
@@ -279,9 +284,10 @@ class Radial1DModel(object):
 
         """
         model_path = os.path.join(path, 'model')
-        properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer']
+        properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'luminosity_requested']
         to_hdf(path_or_buf, model_path, {name: getattr(self, name) for name
                                          in properties})
+        self.homologous_density.to_hdf(path_or_buf, model_path)
 
     @classmethod
     def from_config(cls, config):
@@ -378,3 +384,58 @@ class Radial1DModel(object):
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
                    v_boundary_outer=structure.get('v_outer_boundary', None))
+
+    @classmethod
+    def from_hdf(cls, path, file_path):
+        """
+        This function returns a Radial1DModel object 
+        from given HDF5 File.
+
+        Parameters
+        ----------
+        path : 'str'
+            Path to transverse in hdf file
+        file_path : 'str'
+            Path of Simulation generated HDF file 
+
+        Returns
+        -------
+        model : `~Radial1DModel`
+        """
+
+        model_path = path + '/model'
+        plasma_path = path + '/plasma'
+        model = {}
+        plasma = {}
+
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in cls.model_hdf_properties:
+                model[key] = {}
+                buff_path = model_path + '/' + key + '/'
+                model[key] = data[buff_path]
+
+            for key in cls.plasma_hdf_properties:
+                plasma[key] = {}
+                buff_path = plasma_path + '/' + key + '/'
+                plasma[key] = data[buff_path]
+
+        #Creates corresponding astropy.units.Quantity objects
+        homologous_density = HomologousDensity.from_hdf(
+            model_path, file_path)
+        luminosity_requested = u.Quantity(
+            model['scalars']['luminosity_requested'], 'erg/s')
+        abundance = plasma['abundance']
+        time_explosion = u.Quantity(plasma['scalars']['time_explosion'], 's')
+        t_inner = u.Quantity(model['scalars']['t_inner'], 'K')
+        t_radiative = u.Quantity(np.array(plasma['t_rad']), 'K')
+        v_boundary_inner = u.Quantity(model['v_inner'][0], 'cm/s')
+        v_boundary_outer = u.Quantity(model['v_outer'][
+            len(model['v_outer']) - 1], 'cm/s')
+        dilution_factor = np.array(model['w'])
+        velocity = u.Quantity(np.append(model['v_inner'],
+                                        v_boundary_outer.value), 'cm/s')
+
+        return cls(velocity, homologous_density, abundance, time_explosion,
+                   t_inner, luminosity_requested, t_radiative,
+                   dilution_factor, v_boundary_inner,
+                   v_boundary_outer)
