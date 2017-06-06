@@ -1,14 +1,21 @@
 import numpy as np
 import pandas as pd
 import os
+import pytest
 
-def data_path():
-    return os.path.join('tardis', 'plasma', 'tests', 'data', 'ref_data.hdf')
+ref_data_path=""
+
+@pytest.fixture(autouse=True)
+def set_data_path(compare_with_reference):
+    global ref_data_path
+    if compare_with_reference:
+        ref_data_path= compare_with_reference
+    else:
+        ref_data_path= os.path.join('tardis', 'plasma', 'tests', 'data', 'ref_data.hdf')
 
 
 def plasma_compare_data(path):
-    fpath = data_path()
-    with pd.HDFStore(fpath, 'r') as plasma:
+    with pd.HDFStore(ref_data_path, 'r') as plasma:
         data = plasma[path]
     return data
 
