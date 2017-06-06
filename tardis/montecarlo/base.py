@@ -73,8 +73,11 @@ class MontecarloRunner(object):
         self.r_outer_cgs = model.r_outer.to('cm').value
         self.v_inner_cgs = model.v_inner.to('cm/s').value
 
-    def _initialize_packets(self, T, no_of_packets, no_of_virtual_packets=None):
-        nus, mus, energies = self.packet_source.create_packets(T, no_of_packets)
+    def _initialize_packets(self, T, no_of_packets):
+        nus, mus, energies = self.packet_source.create_packets(
+                T,
+                no_of_packets
+                )
         self.input_nu = nus
         self.input_mu = mus
         self.input_energy = energies
@@ -88,7 +91,8 @@ class MontecarloRunner(object):
             no_of_packets, dtype=np.int64)
         self.last_line_interaction_shell_id = -1 * np.ones(
             no_of_packets, dtype=np.int64)
-        self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
+        self.last_interaction_type = -1 * np.ones(
+                no_of_packets, dtype=np.int64)
         self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
 
         self._montecarlo_virtual_luminosity = u.Quantity(
@@ -163,20 +167,21 @@ class MontecarloRunner(object):
                                  no_of_packets)
 
         montecarlo.montecarlo_radial1d(
-            model, plasma, self, virtual_packet_flag=no_of_virtual_packets,
-            nthreads=nthreads,last_run=last_run)
+            model, plasma, self,
+            virtual_packet_flag=no_of_virtual_packets,
+            nthreads=nthreads,
+            last_run=last_run)
         # Workaround so that j_blue_estimator is in the right ordering
         # They are written as an array of dimension (no_of_shells, no_of_lines)
         # but python expects (no_of_lines, no_of_shells)
         self.j_blue_estimator = np.ascontiguousarray(
                 self.j_blue_estimator.flatten().reshape(
-                self.j_blue_estimator.shape, order='F')
+                    self.j_blue_estimator.shape, order='F')
                 )
         self.Edotlu_estimator = np.ascontiguousarray(
                 self.Edotlu_estimator.flatten().reshape(
-                self.Edotlu_estimator.shape, order='F')
+                    self.Edotlu_estimator.shape, order='F')
                 )
-
 
     def legacy_return(self):
         return (self.output_nu, self.output_energy,
@@ -189,7 +194,6 @@ class MontecarloRunner(object):
     def get_line_interaction_id(self, line_interaction_type):
         return ['scatter', 'downbranch', 'macroatom'].index(
             line_interaction_type)
-
 
     @property
     def output_nu(self):
@@ -204,7 +208,8 @@ class MontecarloRunner(object):
         try:
             return u.Quantity(self.virt_packet_nus, u.Hz)
         except AttributeError:
-            warnings.warn("MontecarloRunner.virtual_packet_nu:"
+            warnings.warn(
+                    "MontecarloRunner.virtual_packet_nu:"
                     "compile with --with-vpacket-logging"
                     "to access this property", UserWarning)
             return None
@@ -214,7 +219,8 @@ class MontecarloRunner(object):
         try:
             return u.Quantity(self.virt_packet_energies, u.erg)
         except AttributeError:
-            warnings.warn("MontecarloRunner.virtual_packet_energy:"
+            warnings.warn(
+                    "MontecarloRunner.virtual_packet_energy:"
                     "compile with --with-vpacket-logging"
                     "to access this property", UserWarning)
             return None
@@ -224,7 +230,8 @@ class MontecarloRunner(object):
         try:
             return self.virtual_packet_energy / self.time_of_simulation
         except TypeError:
-            warnings.warn("MontecarloRunner.virtual_packet_luminosity:"
+            warnings.warn(
+                    "MontecarloRunner.virtual_packet_luminosity:"
                     "compile with --with-vpacket-logging"
                     "to access this property", UserWarning)
             return None
@@ -235,7 +242,7 @@ class MontecarloRunner(object):
 
     @property
     def emitted_packet_mask(self):
-        return self.output_energy >=0
+        return self.output_energy >= 0
 
     @property
     def emitted_packet_nu(self):
@@ -275,7 +282,9 @@ class MontecarloRunner(object):
 
     @property
     def montecarlo_virtual_luminosity(self):
-        return self._montecarlo_virtual_luminosity[:-1] / self.time_of_simulation.value
+        return (
+                self._montecarlo_virtual_luminosity[:-1] /
+                self.time_of_simulation.value)
 
     def calculate_emitted_luminosity(self, luminosity_nu_start,
                                      luminosity_nu_end):
@@ -289,8 +298,9 @@ class MontecarloRunner(object):
 
         return emitted_luminosity
 
-    def calculate_reabsorbed_luminosity(self, luminosity_nu_start,
-                                     luminosity_nu_end):
+    def calculate_reabsorbed_luminosity(
+            self, luminosity_nu_start,
+            luminosity_nu_end):
 
         luminosity_wavelength_filter = (
             (self.reabsorbed_packet_nu > luminosity_nu_start) &
@@ -301,11 +311,12 @@ class MontecarloRunner(object):
 
         return reabsorbed_luminosity
 
-
     def calculate_radiationfield_properties(self):
         """
-        Calculate an updated radiation field from the :math:`\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
-        calculated in the montecarlo simulation. The details of the calculation can be found in the documentation.
+        Calculate an updated radiation field from the :math:
+        `\\bar{nu}_\\textrm{estimator}` and :math:`\\J_\\textrm{estimator}`
+        calculated in the montecarlo simulation.
+        The details of the calculation can be found in the documentation.
 
         Parameters
         ----------
@@ -323,12 +334,14 @@ class MontecarloRunner(object):
 
         """
 
-
-        t_rad = (self.t_rad_estimator_constant * self.nu_bar_estimator
-                / self.j_estimator)
-        w = self.j_estimator / (4 * const.sigma_sb.cgs.value * t_rad ** 4
-                                * self.time_of_simulation.value
-                                * self.volume.value)
+        t_rad = (
+                self.t_rad_estimator_constant *
+                self.nu_bar_estimator /
+                self.j_estimator)
+        w = self.j_estimator / (
+                4 * const.sigma_sb.cgs.value * t_rad ** 4 *
+                self.time_of_simulation.value *
+                self.volume.value)
 
         return t_rad * u.K, w
 
