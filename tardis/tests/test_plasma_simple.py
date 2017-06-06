@@ -10,9 +10,12 @@ from tardis.io.util import parse_abundance_dict_to_dataframe
 data_path = os.path.join(tardis.__path__[0], 'tests', 'data')
 helium_test_db = os.path.join(data_path, 'chianti_he_db.h5')
 
+
 # FIXME
-@pytest.mark.skip("This test needs a rewrite since LegacyPlasmaArray does no"
-                  "longer exist.")
+@pytest.mark.skipif(
+        True,
+        reason="This test needs a rewrite since LegacyPlasmaArray does no"
+        "longer exist.")
 class TestNebularPlasma(object):
 
     def setup(self):
