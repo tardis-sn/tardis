@@ -4,10 +4,8 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 from collections import OrderedDict
-from types import MethodType
 
 from tardis.montecarlo import MontecarloRunner
-from tardis.montecarlo.montecarlo import formal_integral
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.util import intensity_black_body
@@ -526,5 +524,3 @@ class Simulation(object):
             L_nu[nu_idx] = 8 * np.pi**2 *  np.trapz(y = I_p[::-1],x = ps[::-1])
 
         return L_nu
-
-Simulation.integrate = MethodType(formal_integral, None, Simulation)

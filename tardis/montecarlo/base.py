@@ -8,8 +8,9 @@ from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
 from tardis.util import quantity_linspace
-from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
+from tardis.montecarlo import montecarlo, packet_source
+from tardis.montecarlo.formal_integral import FormalIntegrator
 
 import numpy as np
 
@@ -41,6 +42,7 @@ class MontecarloRunner(object):
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.line_interaction_type = line_interaction_type
+        self._integrator = None
 
     def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
         """
@@ -118,7 +120,19 @@ class MontecarloRunner(object):
                 self.spectrum_frequency,
                 self.montecarlo_virtual_luminosity)
 
-    def run(self, model, plasma, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
+    @property
+    def integrator(self):
+        if self._integrator is None:
+            warnings.warn(
+                    "MontecarloRunner.integrator: "
+                    "The FormalIntegrator is not yet available."
+                    "Please run the montecarlo simulation at least once.",
+                    UserWarning)
+        return self._integrator
+
+    def run(self, model, plasma, no_of_packets,
+            no_of_virtual_packets=0, nthreads=1,
+            last_run=False):
         """
         Run the montecarlo calculation
 
@@ -135,6 +149,10 @@ class MontecarloRunner(object):
         -------
         None
         """
+        self._integrator = FormalIntegrator(
+                model,
+                plasma,
+                self)
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
         self._initialize_estimator_arrays(self.volume.shape[0],
