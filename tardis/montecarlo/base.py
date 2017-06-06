@@ -108,10 +108,11 @@ class MontecarloRunner(object):
 
     @property
     def spectrum_virtual(self):
-        # if no_of_virtual_packets > 0:
-        #     montecarlo_virtual_luminosity = (
-        #             self.montecarlo_virtual_luminosity *
-        #             1 * u.erg / self.time_of_simulation)[:-1]
+        if np.all(self.montecarlo_virtual_luminosity == 0):
+            warnings.warn(
+                    "MontecarloRunner.spectrum_virtual"
+                    "is zero. Please run the montecarlo simulation with"
+                    "no_of_virtual_packets > 0", UserWarning)
 
         return TARDISSpectrum(
                 self.spectrum_frequency,
