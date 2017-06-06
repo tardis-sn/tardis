@@ -74,12 +74,13 @@ def test_luminosity_density_lambda(spectrum):
 
 def test_flux_nu(spectrum):
     if getattr(spectrum, 'distance', None):
-        test_helper.assert_quantity_allclose(
-                spectrum.flux_nu,
-                spectrum.luminosity_to_flux(
-                    spectrum.luminosity_density_nu,
-                    spectrum.distance)
-                )
+        with pytest.warns(DeprecationWarning):
+            test_helper.assert_quantity_allclose(
+                    spectrum.flux_nu,
+                    spectrum.luminosity_to_flux(
+                        spectrum.luminosity_density_nu,
+                        spectrum.distance)
+                    )
     else:
         with pytest.raises(AttributeError):
             spectrum.flux_nu
@@ -87,12 +88,13 @@ def test_flux_nu(spectrum):
 
 def test_flux_lambda(spectrum):
     if getattr(spectrum, 'distance', None):
-        test_helper.assert_quantity_allclose(
-                spectrum.flux_lambda,
-                spectrum.luminosity_to_flux(
-                    spectrum.luminosity_density_lambda,
-                    spectrum.distance)
-                )
+        with pytest.warns(DeprecationWarning):
+            test_helper.assert_quantity_allclose(
+                    spectrum.flux_lambda,
+                    spectrum.luminosity_to_flux(
+                        spectrum.luminosity_density_lambda,
+                        spectrum.distance)
+                    )
     else:
         with pytest.raises(AttributeError):
             spectrum.flux_nu
