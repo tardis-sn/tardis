@@ -46,8 +46,11 @@ class Simulation(object):
         self.iterations = iterations
         self.iterations_executed = 0
         self.model = model
+        self.model.simulation = self
         self.plasma = plasma
+        self.plasma.simulation = self
         self.runner = runner
+        self.runner.simulation = self
         self.no_of_packets = no_of_packets
         self.last_no_of_packets = last_no_of_packets
         self.no_of_virtual_packets = no_of_virtual_packets

@@ -7,7 +7,10 @@ from astropy import units as u, constants as const
 from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
-from tardis.util import quantity_linspace
+from tardis.util import (
+        quantity_linspace,
+        SimulationChild,
+        )
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
 
@@ -16,7 +19,7 @@ import pandas as pd
 
 logger = logging.getLogger(__name__)
 
-class MontecarloRunner(object):
+class MontecarloRunner(SimulationChild):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
@@ -138,8 +141,7 @@ class MontecarloRunner(object):
         None
         """
         self.time_of_simulation = self.calculate_time_of_simulation(model)
-        self.volume = model.volume
-        self._initialize_estimator_arrays(self.volume.shape[0],
+        self._initialize_estimator_arrays(self.simulation.model.volume.shape[0],
                                           plasma.tau_sobolevs.shape)
         self._initialize_geometry_arrays(model)
 
@@ -173,7 +175,6 @@ class MontecarloRunner(object):
     def get_line_interaction_id(self, line_interaction_type):
         return ['scatter', 'downbranch', 'macroatom'].index(
             line_interaction_type)
-
 
     @property
     def output_nu(self):
@@ -293,7 +294,7 @@ class MontecarloRunner(object):
                 / self.j_estimator)
         w = self.j_estimator / (4 * const.sigma_sb.cgs.value * t_rad ** 4
                                 * self.time_of_simulation.value
-                                * self.volume.value)
+                                * self.simulation.model.volume.value)
 
         return t_rad * u.K, w
 

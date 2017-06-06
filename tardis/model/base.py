@@ -4,7 +4,11 @@ import numpy as np
 import pandas as pd
 from astropy import constants, units as u
 
-from tardis.util import quantity_linspace, element_symbol2atomic_number
+from tardis.util import (
+        quantity_linspace,
+        element_symbol2atomic_number,
+        SimulationChild
+        )
 from tardis.io.model_reader import read_density_file, read_abundances_file
 from tardis.io.util import to_hdf
 from density import HomologousDensity
@@ -12,7 +16,7 @@ from density import HomologousDensity
 logger = logging.getLogger(__name__)
 
 
-class Radial1DModel(object):
+class Radial1DModel(SimulationChild):
     """An object that hold information about the individual shells.
 
     Parameters
