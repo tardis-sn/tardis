@@ -1,25 +1,6 @@
 import warnings
 import numpy as np
-
 from astropy import units as u
-
-
-def require_field(name):
-    def _require_field(f):
-        def wrapper(self, *args, **kwargs):
-            if not getattr(self, name, None):
-                raise AttributeError(
-                        '{} is required as attribute of'
-                        '{} to calculate {}'.format(
-                            name,
-                            self.__class__.__name__,
-                            f.__name__
-                            )
-                        )
-            else:
-                return f(self, *args, **kwargs)
-        return wrapper
-    return _require_field
 
 
 class TARDISSpectrum(object):
@@ -60,7 +41,6 @@ class TARDISSpectrum(object):
                 )
 
     @property
-    @require_field('distance')
     def flux_nu(self):
         warnings.simplefilter('always', DeprecationWarning)
         warnings.warn(
@@ -69,12 +49,20 @@ class TARDISSpectrum(object):
                 "future.",
                 category=DeprecationWarning, stacklevel=2)
         warnings.simplefilter('default', DeprecationWarning)
-        return self.luminosity_to_flux(
-                self.luminosity_density_nu,
-                self.distance)
+        try:
+            return self.luminosity_to_flux(
+                    self.luminosity_density_nu,
+                    self.distance)
+        except AttributeError:
+                raise AttributeError(
+                        'distance is required as attribute of'
+                        '{} to calculate "{}"'.format(
+                            self.__class__.__name__,
+                            'flux_nu'
+                            )
+                        )
 
     @property
-    @require_field('distance')
     def flux_lambda(self):
         warnings.simplefilter('always', DeprecationWarning)
         warnings.warn(
@@ -83,10 +71,19 @@ class TARDISSpectrum(object):
                 "future.",
                 category=DeprecationWarning, stacklevel=2)
         warnings.simplefilter('default', DeprecationWarning)
-        return self.luminosity_to_flux(
-                self.luminosity_density_lambda,
-                self.distance
-                )
+        try:
+            return self.luminosity_to_flux(
+                    self.luminosity_density_lambda,
+                    self.distance
+                    )
+        except AttributeError:
+                raise AttributeError(
+                        'distance is required as attribute of'
+                        '{} to calculate "{}"'.format(
+                            self.__class__.__name__,
+                            'flux_lambda'
+                            )
+                        )
 
     @staticmethod
     def luminosity_to_flux(luminosity, distance):
@@ -97,11 +94,16 @@ class TARDISSpectrum(object):
 
     def plot(self, ax, mode='wavelength'):
         if mode == 'wavelength':
-            ax.plot(self.wavelength.value, self.luminosity_density_lambda.value)
+            ax.plot(
+                    self.wavelength.value,
+                    self.luminosity_density_lambda.value)
             ax.set_xlabel('Wavelength [{}]'.format(
                 self.wavelength.unit._repr_latex_())
                 )
-            ax.set_ylabel('Flux [%s]' % self.luminosity_density_lambda.unit._repr_latex_())
+            ax.set_ylabel(
+                    'Flux [{:s}]'.format(
+                        self.luminosity_density_lambda.unit._repr_latex_())
+                    )
 
     def to_ascii(self, fname, mode='luminosity_density'):
         if mode == 'luminosity_density':
