@@ -237,14 +237,20 @@ class HDFReaderWriter(object):
                 buff_path = path + '/' + key + '/'
                 if key in cls.quantity_attrs:
                     try:
-                        hdf[key] = u.Quantity(
+                        if isinstance(data[buff_path], pd.Series):
+                            hdf[key] = np.array(data[buff_path])
+                        else:
+                            hdf[key] = u.Quantity(
                             data[buff_path], cls.quantity_attrs[key])
                     except:
                          hdf[key] = u.Quantity(
                              data[path + '/scalars'], cls.quantity_attrs[key])
                 else:
                     try:
-                        hdf[key] = data[buff_path]
+                        if isinstance(data[buff_path], pd.Series):
+                            hdf[key] = np.array(data[buff_path])
+                        else:
+                            hdf[key] = data[buff_path]
                     except:
                         hdf[key] = data[path + '/scalars'][key]
                         if hdf[key] is 'none':
