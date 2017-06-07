@@ -1,9 +1,11 @@
 import warnings
 import numpy as np
+import os
 from astropy import units as u
 
+from tardis.io.util import HDFReaderWriter
 
-class TARDISSpectrum(object):
+class TARDISSpectrum(HDFReaderWriter, object):
     """
     TARDISSpectrum(_frequency, luminosity)
 
@@ -16,6 +18,8 @@ class TARDISSpectrum(object):
     After manually adding a distance attribute, the properties 'flux_nu' and
     'flux_lambda' become available
     """
+    hdf_properties = ['_frequency', 'luminosity']
+    quantity_attrs = {'_frequency': 'Hz', 'luminosity': 'erg/s'}
 
     def __init__(self, _frequency, luminosity):
 
@@ -120,9 +124,29 @@ class TARDISSpectrum(object):
                     'only mode "luminosity_density"'
                     'and "flux" are implemented')
 
-    def to_hdf(self, path_or_buf, path):
-        pass
+    def to_hdf(self, path_or_buf, path='', name=''):
+        """
+        Store the spectrum to an HDF structure.
+        Parameters
+        ----------
+        path_or_buf
+            Path or buffer to the HDF store
+        path : str
+            Path inside the HDF store to store the spectrum
+        name : str, optional
+            A different name than 'spectrum', if needed.
+        Returns
+        -------
+        None
+        """
+        if not name:
+            name = 'spectrum'
+        spectrum_path = os.path.join(path, name)
+        self.to_hdf_util(path_or_buf, spectrum_path, {name: getattr(self, name) for name
+                                         in self.hdf_properties})
 
     @classmethod
-    def from_hdf(cls, path_or_buf, path):
-        pass
+    def from_hdf(cls, path, file_path):
+        buff_path = path + '/spectrum'
+        data = cls.from_hdf_util(buff_path, file_path)
+        return cls(data['_frequency'], data['luminosity'])
