@@ -92,15 +92,11 @@ class TARDISSpectrum(HDFReaderWriter, object):
         None
 
         """
-        #if not name:
-        name = 'spectrum'
+        if not name:
+            name = 'spectrum'
         spectrum_path = os.path.join(path, name)
-        properties = {}
-        for name in self.hdf_properties:
-            properties[name] = getattr(self, name)
-            if properties[name] is None:
-                properties[name] = 'none'
-        self.to_hdf_util(path_or_buf, spectrum_path, properties)
+        self.to_hdf_util(path_or_buf, spectrum_path, {name: getattr(self, name) for name
+                                         in self.hdf_properties})
 
     @classmethod
     def from_hdf(cls, path, file_path):

@@ -58,6 +58,10 @@ class Radial1DModel(HDFReaderWriter, object):
         Shortcut for `t_radiative`
 
     """
+    hdf_properties = ['velocity', 'abundance', 'time_explosion',
+                 't_inner', 'luminosity_requested', 't_radiative',
+                 'dilution_factor', 'v_boundary_inner',
+                 'v_boundary_outer']
     def __init__(self, velocity, homologous_density, abundance, time_explosion,
                  t_inner, luminosity_requested=None, t_radiative=None,
                  dilution_factor=None, v_boundary_inner=None,
@@ -71,6 +75,7 @@ class Radial1DModel(HDFReaderWriter, object):
         self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
+        self.luminosity_requested = luminosity_requested
         if t_inner is None:
             if luminosity_requested is not None:
                 self.t_inner = ((luminosity_requested /
@@ -280,9 +285,9 @@ class Radial1DModel(HDFReaderWriter, object):
 
         """
         model_path = os.path.join(path, 'model')
-        
         self.to_hdf_util(path_or_buf, model_path, {name: getattr(self, name) for name
-                                         in properties})
+                                         in self.hdf_properties})
+        self.homologous_density.to_hdf(path_or_buf, model_path)
     
     @classmethod
     def from_hdf(cls, path, file_path):

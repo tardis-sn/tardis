@@ -196,6 +196,8 @@ class HDFReaderWriter(object):
         """
         scalars = {}
         for key, value in elements.iteritems():
+            if value is None:
+                value = 'none'
             if hasattr(value, 'cgs'):
                 value = value.cgs.value
             if np.isscalar(value):
@@ -239,7 +241,7 @@ class HDFReaderWriter(object):
                             data[buff_path], cls.quantity_attrs[key])
                     except:
                          hdf[key] = u.Quantity(
-                            data[path + '/scalars'], cls.quantity_attrs[key])                       
+                             data[path + '/scalars'], cls.quantity_attrs[key])
                 else:
                     try:
                         hdf[key] = data[buff_path]
