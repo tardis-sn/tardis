@@ -9,8 +9,8 @@ class TARDISSpectrum(HDFReaderWriter, object):
     TARDIS Spectrum object
     """
     hdf_properties = ['luminosity_density_nu', 'delta_frequency', 'wavelength',
-                      'luminosity_density_lambda','frequency','distance']
-    quantity_attrs = {'frequency':'Hz'}
+                      'luminosity_density_lambda', 'frequency', 'distance']
+    quantity_attrs = {'frequency': 'Hz'}
 
     def __init__(self, frequency, distance=None):
         self._frequency = frequency
@@ -95,15 +95,15 @@ class TARDISSpectrum(HDFReaderWriter, object):
         #if not name:
         name = 'spectrum'
         spectrum_path = os.path.join(path, name)
-        properties={}
+        properties = {}
         for name in self.hdf_properties:
-            properties[name]=getattr(self,name)
+            properties[name] = getattr(self, name)
             if properties[name] is None:
-                properties[name]='none'
+                properties[name] = 'none'
         self.to_hdf_util(path_or_buf, spectrum_path, properties)
-    
+
     @classmethod
     def from_hdf(cls, path, file_path):
-        buff_path = path+'/spectrum'
-        data = cls.from_hdf_util(buff_path,file_path)
-        return cls(data['frequency'],data['distance'])
+        buff_path = path + '/spectrum'
+        data = cls.from_hdf_util(buff_path, file_path)
+        return cls(data['frequency'], data['distance'])

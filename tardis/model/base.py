@@ -8,11 +8,12 @@ from tardis.util import quantity_linspace, element_symbol2atomic_number
 from tardis.io.model_reader import read_density_file, read_abundances_file
 from tardis.io.util import to_hdf
 from density import HomologousDensity
+from tardis.io.util import HDFReaderWriter
 
 logger = logging.getLogger(__name__)
 
 
-class Radial1DModel(object):
+class Radial1DModel(HDFReaderWriter, object):
     """An object that hold information about the individual shells.
 
     Parameters
@@ -279,9 +280,15 @@ class Radial1DModel(object):
 
         """
         model_path = os.path.join(path, 'model')
-        properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer']
-        to_hdf(path_or_buf, model_path, {name: getattr(self, name) for name
+        
+        self.to_hdf_util(path_or_buf, model_path, {name: getattr(self, name) for name
                                          in properties})
+    
+    @classmethod
+    def from_hdf(cls, path, file_path):
+        buff_path = path + '/model'
+        data = cls.from_hdf_util(buff_path, file_path)
+        #return cls(data['frequency'], data['distance'])
 
     @classmethod
     def from_config(cls, config):

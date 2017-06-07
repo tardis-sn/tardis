@@ -234,8 +234,12 @@ class HDFReaderWriter(object):
                 hdf[key] = {}
                 buff_path = path + '/' + key + '/'
                 if key in cls.quantity_attrs:
-                    hdf[key] = u.Quantity(
-                        data[buff_path], cls.quantity_attrs[key])
+                    try:
+                        hdf[key] = u.Quantity(
+                            data[buff_path], cls.quantity_attrs[key])
+                    except:
+                         hdf[key] = u.Quantity(
+                            data[path + '/scalars'], cls.quantity_attrs[key])                       
                 else:
                     try:
                         hdf[key] = data[buff_path]
