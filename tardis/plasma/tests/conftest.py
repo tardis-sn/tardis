@@ -1,12 +1,14 @@
 import os
-
+import glob
 import numpy as np
 import pandas as pd
+import yaml
 from astropy import units as u
 import pytest
 
 import tardis
 from tardis.atomic import AtomData
+from tardis import __githash__ as tardis_githash
 from tardis.plasma.properties import *
 
 # INPUTS
@@ -258,3 +260,66 @@ def transition_probabilities(atomic_data, beta_sobolev, j_blues,
                                                      j_blues,
                                                      stimulated_emission_factor,
                                                      tau_sobolev)
+
+ #fixture for paritition test
+
+def pytest_configure(config):
+    partition_test_configpath = config.getvalue("partition-test")
+    if partition_test_configpath:
+        partition_test_configpath = os.path.expandvars(
+            os.path.expanduser(partition_test_configpath)
+        )
+        config.partition_test_config = yaml.load(
+            open(partition_test_configpath))
+
+
+def pytest_terminal_summary(terminalreporter):
+    if (terminalreporter.config.getoption("--generate-reference-partition") and
+            terminalreporter.config.getvalue("partition-test")):
+        # TODO: Add a check whether generation was successful or not.
+        terminalreporter.write_sep("-", "Generated reference data: {0}".format(os.path.join(
+            terminalreporter.config.partition_test_config['generate_reference'],
+            tardis_githash[:7]
+        )))
+
+@pytest.fixture(scope="class", params=[
+    path for path in glob.glob(os.path.join(
+        os.path.dirname(os.path.realpath(__file__)), "*")) if os.path.isdir(path)
+])
+def data_path(request):
+    partition_test_config = request.config.partition_test_config
+    hdf_filename = "{0}.h5".format(os.path.basename(request.param))
+
+    path = {
+        'config_dirpath': request.param,
+        'reference_filepath': os.path.join(os.path.expandvars(
+        os.path.expanduser(partition_test_config['reference'])), hdf_filename
+    ),
+        'gen_ref_path': os.path.join(os.path.expandvars(os.path.expanduser(
+            partition_test_config['generate_reference'])), tardis_githash[:7]
+        ),
+        'setup_name': hdf_filename[:-3],
+    }
+    path['atom_data_path'] = os.path.expandvars(os.path.expanduser(
+        partition_test_config['atom_data_path']
+    ))
+
+    if (request.config.getoption("--generate-reference-partition") and not
+            os.path.exists(path['gen_ref_path'])):
+        os.makedirs(path['gen_ref_path'])
+    return path
+
+@pytest.fixture(scope="class")
+def reference(request, data_path):
+
+    if request.config.getoption("--generate-reference-partition"):
+        return
+    else:
+        try:
+            reference = pd.HDFStore(data_path['reference_filepath'], 'r')
+        except IOError:
+            raise IOError('Reference file {0} does not exist and is needed'
+                          ' for the tests'.format(data_path['reference_filepath']))
+
+        else:
+            return reference

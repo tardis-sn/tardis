@@ -75,6 +75,13 @@ def pytest_addoption(parser):
     parser.addoption("--less-packets",
                      action="store_true", default=False,
                      help="Run integration tests with less packets.")
+    parser.addoption("--partition-test",
+                     dest="partition-test", default=None,
+                     help="path to configuration file for partition tests")
+    parser.addoption("--generate-reference-partition",
+                     dest="store_true", default=False,
+                     help="execute partition function test run to generate reference data")
+
 
 
 # -------------------------------------------------------------------------
