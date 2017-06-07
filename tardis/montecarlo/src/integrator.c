@@ -10,7 +10,13 @@
 #include "integrator.h"
 #include "cmontecarlo.h"
 
-#include <omp.h>
+#ifdef WITHOPENMP
+  #include <omp.h>
+#else
+int64_t omp_get_num_threads(){
+    return 1;
+}
+#endif
 
 #define NULEN   0
 #define LINELEN 1
