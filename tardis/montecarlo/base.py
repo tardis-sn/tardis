@@ -12,9 +12,9 @@ from tardis.montecarlo import montecarlo, packet_source
 from tardis.io.util import to_hdf
 
 import numpy as np
-import pandas as pd
 
 logger = logging.getLogger(__name__)
+
 
 class MontecarloRunner(object):
     """
@@ -31,7 +31,7 @@ class MontecarloRunner(object):
 
     def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
                  sigma_thomson, enable_reflective_inner_boundary,
-                 inner_boundary_albedo, line_interaction_type, distance=None):
+                 inner_boundary_albedo, line_interaction_type):
 
         self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
@@ -41,10 +41,6 @@ class MontecarloRunner(object):
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.line_interaction_type = line_interaction_type
-        self.spectrum = TARDISSpectrum(spectrum_frequency, distance)
-        self.spectrum_virtual = TARDISSpectrum(spectrum_frequency, distance)
-        self.spectrum_reabsorbed = TARDISSpectrum(spectrum_frequency, distance)
-
 
     def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
         """
@@ -56,12 +52,11 @@ class MontecarloRunner(object):
         model: ~Radial1DModel
         """
 
-        #Estimators
+        # Estimators
         self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
         self.j_blue_estimator = np.zeros(tau_sobolev_shape)
         self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
-
 
     def _initialize_geometry_arrays(self, model):
         """
@@ -94,30 +89,33 @@ class MontecarloRunner(object):
         self.last_interaction_type = -1 * np.ones(no_of_packets, dtype=np.int64)
         self.last_interaction_in_nu = np.zeros(no_of_packets, dtype=np.float64)
 
+        self._montecarlo_virtual_luminosity = u.Quantity(
+                np.zeros_like(self.spectrum_frequency.value),
+                'erg / s'
+                )
 
-        self.legacy_montecarlo_virtual_luminosity = np.zeros_like(
-            self.spectrum_frequency.value)
+    @property
+    def spectrum(self):
+        return TARDISSpectrum(
+                self.spectrum_frequency,
+                self.montecarlo_emitted_luminosity)
 
-    def legacy_update_spectrum(self, no_of_virtual_packets):
-        montecarlo_reabsorbed_luminosity = np.histogram(
-            self.reabsorbed_packet_nu,
-            weights=self.reabsorbed_packet_luminosity,
-            bins=self.spectrum_frequency.value)[0] * u.erg / u.s
+    @property
+    def spectrum_reabsorbed(self):
+        return TARDISSpectrum(
+                self.spectrum_frequency,
+                self.montecarlo_reabsorbed_luminosity)
 
-        montecarlo_emitted_luminosity = np.histogram(
-            self.emitted_packet_nu,
-            weights=self.emitted_packet_luminosity,
-            bins=self.spectrum_frequency.value)[0] * u.erg / u.s
+    @property
+    def spectrum_virtual(self):
+        if np.all(self.montecarlo_virtual_luminosity == 0):
+            warnings.warn(
+                    "MontecarloRunner.spectrum_virtual"
+                    "is zero. Please run the montecarlo simulation with"
+                    "no_of_virtual_packets > 0", UserWarning)
 
-        self.spectrum.update_luminosity(montecarlo_emitted_luminosity)
-        self.spectrum_reabsorbed.update_luminosity(
-            montecarlo_reabsorbed_luminosity)
-
-        if no_of_virtual_packets > 0:
-            self.montecarlo_virtual_luminosity = (
-                self.legacy_montecarlo_virtual_luminosity *
-                1 * u.erg / self.time_of_simulation)[:-1]
-            self.spectrum_virtual.update_luminosity(
+        return TARDISSpectrum(
+                self.spectrum_frequency,
                 self.montecarlo_virtual_luminosity)
 
     def run(self, model, plasma, no_of_packets, no_of_virtual_packets=0, nthreads=1,last_run=False):
@@ -230,17 +228,36 @@ class MontecarloRunner(object):
         return self.output_nu[~self.emitted_packet_mask]
 
     @property
-    def reabsorbed_packet_luminosity(self):
-        return -self.packet_luminosity[~self.emitted_packet_mask]
-
-
-    @property
     def emitted_packet_luminosity(self):
         return self.packet_luminosity[self.emitted_packet_mask]
 
     @property
     def reabsorbed_packet_luminosity(self):
         return -self.packet_luminosity[~self.emitted_packet_mask]
+
+    @property
+    def montecarlo_reabsorbed_luminosity(self):
+        return u.Quantity(
+                np.histogram(
+                    self.reabsorbed_packet_nu,
+                    weights=self.reabsorbed_packet_luminosity,
+                    bins=self.spectrum_frequency.value)[0],
+                'erg / s'
+                )
+
+    @property
+    def montecarlo_emitted_luminosity(self):
+        return u.Quantity(
+                np.histogram(
+                    self.emitted_packet_nu,
+                    weights=self.emitted_packet_luminosity,
+                    bins=self.spectrum_frequency.value)[0],
+                'erg / s'
+                )
+
+    @property
+    def montecarlo_virtual_luminosity(self):
+        return self._montecarlo_virtual_luminosity[:-1] / self.time_of_simulation.value
 
     def calculate_emitted_luminosity(self, luminosity_nu_start,
                                      luminosity_nu_end):
@@ -374,5 +391,5 @@ class MontecarloRunner(object):
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
-                   line_interaction_type=config.plasma.line_interaction_type,
-                   distance=config.supernova.get('distance', None))
+                   line_interaction_type=config.plasma.line_interaction_type
+                   )

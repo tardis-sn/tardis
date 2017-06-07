@@ -215,7 +215,6 @@ class Simulation(object):
             self._call_back()
         # Last iteration
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
-        self.runner.legacy_update_spectrum(self.no_of_virtual_packets)
 
         logger.info("Simulation finished in {0:d} iterations "
                     "and took {1:.2f} s".format(
