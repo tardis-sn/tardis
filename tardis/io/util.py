@@ -166,10 +166,10 @@ def check_equality(item1, item2):
         return True
 
 
-class HDFReaderWriter():
+class HDFReaderWriter(object):
 
-    @classmethod
-    def to_hdf(cls, path_or_buf, path, elements, complevel=9, complib='blosc'):
+    
+    def to_hdf_util(self, path_or_buf, path, elements, complevel=9, complib='blosc'):
         """
         A function to uniformly store TARDIS data
         to an HDF file.
@@ -225,27 +225,25 @@ class HDFReaderWriter():
                     scalars_series = store[scalars_path].append(scalars_series)
             scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
     
-    scalars=['delta_frequency']
-
     @classmethod
-    def from_hdf(cls, path, file_path):
-        pass
-        # homologous_density_path = path + '/spectrum'
-        # homologous_density = {}
+    def from_hdf_util(cls, path, file_path):
+        hdf = {}
 
-        # with pd.HDFStore(file_path, 'r') as data:
-        #     for key in cls.hdf_properties:
-        #         homologous_density[key] = {}
-        #         if key in cls.scalars:
-        #             continue
-                
-        #         buff_path = homologous_density_path + '/' + key + '/'
-        #         homologous_density[key] = data[buff_path]
-        # return cls(*homologous_density)
-        # #Creates corresponding astropy.units.Quantity objects
-        # # density_0 = np.array(homologous_density['density_0']) * u.g / u.cm**3
-        # # time_0 = (homologous_density['scalars']['time_0']) * u.s
-        # # return cls(density_0, time_0)
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in cls.hdf_properties:
+                hdf[key] = {}
+                buff_path = path + '/' + key + '/'
+                if key in cls.quantity_attrs:
+                    hdf[key] = u.Quantity(
+                        data[buff_path], cls.quantity_attrs[key])
+                else:
+                    try:
+                        hdf[key] = data[buff_path]
+                    except:
+                        hdf[key] = data[path + '/scalars'][key]
+                        if hdf[key] is 'none':
+                            hdf[key] = None
+        return hdf
 
 
 
