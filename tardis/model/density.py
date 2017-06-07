@@ -13,7 +13,7 @@ class HomologousDensity(HDFReaderWriter, object):
 
     """
     hdf_properties = ['density_0', 'time_0']
-    quantity_attrs = {'density_0':'g cm^3', 'time_0':'s'}
+    quantity_attrs = {'density_0':'g/cm^3', 'time_0':'s'}
 
     def __init__(self, density_0, time_0):
         self.density_0 = density_0
