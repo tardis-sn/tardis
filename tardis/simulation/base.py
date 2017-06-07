@@ -69,12 +69,8 @@ class Simulation(object):
 
     def estimate_t_inner(self, input_t_inner, luminosity_requested,
                          t_inner_update_exponent=-0.5):
-        emitted_luminosity = self.runner.calculate_emitted_luminosity(
-                                self.luminosity_nu_start,
-                                self.luminosity_nu_end)
-
         luminosity_ratios = (
-            (emitted_luminosity / luminosity_requested).to(1).value)
+            (self.emitted_luminosity / luminosity_requested).to(1).value)
 
         return input_t_inner * luminosity_ratios ** t_inner_update_exponent
 
@@ -199,11 +195,11 @@ class Simulation(object):
         if np.sum(output_energy < 0) == len(output_energy):
             logger.critical("No r-packet escaped through the outer boundary.")
 
-        emitted_luminosity = self.runner.calculate_emitted_luminosity(
+        self.emitted_luminosity = self.runner.calculate_emitted_luminosity(
             self.luminosity_nu_start, self.luminosity_nu_end)
         reabsorbed_luminosity = self.runner.calculate_reabsorbed_luminosity(
             self.luminosity_nu_start, self.luminosity_nu_end)
-        self.log_run_results(emitted_luminosity,
+        self.log_run_results(self.emitted_luminosity,
                              reabsorbed_luminosity)
         self.iterations_executed += 1
 
