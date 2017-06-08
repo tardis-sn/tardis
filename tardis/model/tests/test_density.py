@@ -40,7 +40,7 @@ def from_hdf_buffer(hdf_file_path):
 homologous_density_attrs = ['density_0', 'time_0']
 
 @pytest.mark.parametrize("attr", homologous_density_attrs)
-def test_from_hdf_homologous_density(from_hdf_buffer, homologous_density, attr):
+def test_hdf_homologous_density(from_hdf_buffer, homologous_density, attr):
     if hasattr(homologous_density, attr):
         assert_quantity_allclose(getattr(homologous_density, attr), getattr(
             from_hdf_buffer, attr))
