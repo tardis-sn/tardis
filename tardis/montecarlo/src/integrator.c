@@ -10,6 +10,7 @@
 #include "integrator.h"
 #include "cmontecarlo.h"
 
+
 #ifdef WITHOPENMP
   #include <omp.h>
 #else
@@ -155,7 +156,7 @@ calculate_p_values(storage_model_t *storage, int64_t N, double *opp)
  */
 double *
 _formal_integral(
-                 storage_model_t *storage,
+                 const storage_model_t *storage,
                  double iT,
                  double *inu, int64_t inu_size,
                  double *att_S_ul, int N)
@@ -163,7 +164,17 @@ _formal_integral(
 
   // Initialize the output which is shared among threads
   double *L = calloc(inu_size, sizeof(double));
-#pragma omp parallel shared(L)
+
+  // global read-only values
+  int64_t size_line = storage->no_of_lines,
+          size_shell = storage->no_of_shells,
+          size_tau = size_line * size_shell;
+
+  double R_ph = storage->r_inner[0];
+  double R_max = storage->r_outer[size_shell - 1];
+  double pp[N];
+  double *exp_tau = calloc(size_tau, sizeof(double));
+#pragma omp parallel firstprivate(L, exp_tau)
     {
 
 #pragma omp master
@@ -173,23 +184,21 @@ _formal_integral(
 
       // Initializing all the thread-local variables
       int64_t offset = 0, i = 0,
-              size_line = storage->no_of_lines,
-              size_shell = storage->no_of_shells,
-              size_tau = size_line * size_shell,
               size_z = 0,
               idx_nu_start = 0;
 
-
-      double I_nu[N], z[2 * storage->no_of_shells], exp_tau[size_tau];
+      double I_nu[N],
+             z[2 * storage->no_of_shells],
+             p = 0,
+             nu_start,
+             nu_end,
+             nu;
       int64_t shell_id[2 * storage->no_of_shells];
-
-      double R_ph = storage->r_inner[0];
-      double R_max = storage->r_outer[size_shell - 1];
-      double p = 0, pp[N], nu_start, nu_end, nu, exp_factor;
 
       double *pexp_tau, *patt_S_ul, *pline;
 
       // Prepare exp_tau
+#pragma omp for
       for (i = 0; i < size_tau; ++i) {
           exp_tau[i] = exp( -storage->line_lists_tau_sobolevs[i]);
       }

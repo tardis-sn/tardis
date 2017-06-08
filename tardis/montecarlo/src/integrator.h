@@ -14,6 +14,6 @@ calculate_p_values(storage_model_t *storage, int64_t N, double *opp);
 
 double
 *_formal_integral(
-                  storage_model_t *storage, double T, double *nu, int64_t nu_size, double *att_S_ul, int N);
+                  const storage_model_t *storage, double T, double *nu, int64_t nu_size, double *att_S_ul, int N);
 
 #endif
