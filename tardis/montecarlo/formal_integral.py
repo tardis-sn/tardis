@@ -27,9 +27,12 @@ class FormalIntegrator(object):
                 ) * (frequency[1] - frequency[0])
         # Ugly hack to convert to 'bin edges'
         frequency = u.Quantity(
-                np.concatenate(
-                    [frequency.value, [0]]),
-                frequency.unit)
+                np.concatenate([
+                    frequency.value,
+                    [
+                        frequency.value[-1] + np.diff(frequency.value)[-1]
+                        ]]),
+                    frequency.unit)
         return TARDISSpectrum(
                 frequency,
                 luminosity
