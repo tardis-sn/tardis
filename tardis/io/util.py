@@ -234,17 +234,19 @@ class HDFReaderWriter(object):
         with pd.HDFStore(file_path, 'r') as data:
             for key in cls.hdf_properties:
                 hdf[key] = {}
-                buff_path = path + '/' + key + '/'
+                buff_path = os.path.join(path, key)
                 if key in cls.quantity_attrs:
                     try:
                         if isinstance(data[buff_path], pd.Series) and len(data[buff_path])>1:
-                            hdf[key] = u.Quantity(np.array(data[buff_path]), cls.quantity_attrs[key])
+                            hdf[key] = u.Quantity(
+                                np.array(data[buff_path]), cls.quantity_attrs[key])
                         else:
                             hdf[key] = u.Quantity(
-                            data[buff_path], cls.quantity_attrs[key])
+                                data[buff_path], cls.quantity_attrs[key])
                     except:
-                         hdf[key] = u.Quantity(
-                             data[path + '/scalars'][key], cls.quantity_attrs[key])
+                        buff_path = os.path.join(path, 'scalars')
+                        hdf[key] = u.Quantity(
+                             data[buff_path][key], cls.quantity_attrs[key])
                 else:
                     try:
                         if isinstance(data[buff_path], pd.Series) and len(data[buff_path])>1:
@@ -252,7 +254,8 @@ class HDFReaderWriter(object):
                         else:
                             hdf[key] = data[buff_path]
                     except:
-                        hdf[key] = data[path + '/scalars'][key]
+                        buff_path = os.path.join(path, 'scalars')
+                        hdf[key] = data[buff_path][key]
                         if hdf[key] is 'none':
                             hdf[key] = None
         return hdf

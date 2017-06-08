@@ -232,24 +232,18 @@ class Configuration(ConfigurationNameSpace):
             yaml_dict, *args, **kwargs)
 
     @classmethod
-    def from_config_dict(cls, config_dict, validate=True, config_dirname=''):
+    def from_config_dict(cls, config_dict, validate=True, config_dirname='', plasma_only=False):
         """
         Validating and subsequently parsing a config file.
-
         Parameters
         ----------
-
         config_dict : ~dict
             dictionary of a raw unvalidated config file
-
         validate: ~bool
             Turn validation on or off.
-
         Returns
         -------
-
         `tardis.config_reader.Configuration`
-
         """
 
         if validate:
@@ -259,8 +253,11 @@ class Configuration(ConfigurationNameSpace):
 
         validated_config_dict['config_dirname'] = config_dirname
 
-        montecarlo_section = validated_config_dict['montecarlo']
-        montecarlo_section['convergence_strategy'] = (
+        # plasma_only parameter is only required in case of generating Plasma object
+        # from HDF file. When plasma_only = False , it follows normal flow.
+        if plasma_only == False:
+            montecarlo_section = validated_config_dict['montecarlo']
+            montecarlo_section['convergence_strategy'] = (
                 parse_convergence_section(
                     montecarlo_section['convergence_strategy']))
 

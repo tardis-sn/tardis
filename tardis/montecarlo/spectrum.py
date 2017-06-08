@@ -147,6 +147,6 @@ class TARDISSpectrum(HDFReaderWriter, object):
 
     @classmethod
     def from_hdf(cls, file_path, path=''):
-        buff_path = path + '/spectrum'
+        buff_path = os.path.join(path, 'spectrum')
         data = cls.from_hdf_util(file_path, buff_path)
         return cls(data['_frequency'], data['luminosity'])

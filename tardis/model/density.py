@@ -115,7 +115,7 @@ class HomologousDensity(HDFReaderWriter, object):
         """
 
 
-        buff_path = path + '/homologous_density'
+        buff_path = os.path.join(path, 'homologous_density')
         data = cls.from_hdf_util(file_path, buff_path)
         return cls(data['density_0'], data['time_0'])
 

@@ -294,7 +294,7 @@ class Radial1DModel(HDFReaderWriter, object):
 
     @classmethod
     def from_hdf(cls, file_path, path=''):
-        buff_path = path + '/model'
+        buff_path = os.path.join(path, 'model')
         data = cls.from_hdf_util(file_path, buff_path)
         data['homologous_density'] = HomologousDensity.from_hdf(
             file_path, buff_path)
