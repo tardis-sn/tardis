@@ -7,6 +7,8 @@ import numpy as np
 import logging
 import argparse
 
+import warnings
+
 
 
 tardis_description =\
@@ -73,9 +75,18 @@ if args.profile:
 else:
     simulation.run()
 
-
-if not np.all(simulation.runner.spectrum_virtual.luminosity_density_lambda.value
-        == 0.0):
-    simulation.runner.spectrum_virtual.to_ascii(args.spectrum_fname)
+print(tardis_config.spectrum.method * 10)
+if tardis_config.spectrum.method == 'integrated':
+    spectrum = simulation.runner.integrator.calculate_spectrum(
+            simulation.runner.spectrum_frequency[:-1],
+            1000)
 else:
-    simulation.runner.spectrum.to_ascii(args.spectrum_fname)
+    with warnings.catch_warnings(record=True) as w:
+        spectrum = simulation.runner.spectrum_virtual
+        if len(w) > 0 and w[-1]._category_name == 'UserWarning':
+            print(
+                    'Virtual spectrum is not available, using the '
+                    'real packet spectrum instead.')
+            spectrum = simulation.runner.spectrum
+
+spectrum.to_ascii(args.spectrum_fname)
