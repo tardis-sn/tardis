@@ -189,22 +189,20 @@ class PlasmaHDFReaderWriter(HDFReaderWriter, BasePlasma):
         if atom_data_fname is None:
             atom_data_fname = 'kurucz_cd23_chianti_H_He.h5'
 
-        plasma_path = path + '/plasma'
+        plasma_path = os.path.join(path, 'plasma')
         atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
         plasma = cls.from_hdf_util(file_path, plasma_path)
 
         # atom_data uuid should match with stored uuid in HDF file
         if plasma['metadata']['atom_data_uuid'] != atom_data.uuid1:
             raise ValueError('Wrong Atom Data passed as parameter')
+        
+        properties={}
+        properties['plasma'] = plasma
 
-        property_kwargs = {}
-        property_kwargs['plasma'] = {}
-        property_kwargs['plasma'] = dict(
-            zip(plasma['property_kwargs'].index.format(), plasma['property_kwargs']))
-
-        # Workaround to create a Configuration object , with only plasma
+        # Workaround to create Configuration object, with only plasma
         # attributes
         config = Configuration.from_config_dict(
-            property_kwargs, validate=False, plasma_only=True)
+            properties, validate=False, plasma_only=True)
 
         return assemble_plasma(config, model, atom_data=atom_data)

@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 class BasePlasma(object):
     
-    hdf_properties = ['property_kwargs', 'metadata']
+    hdf_properties = ['line_interaction_type', 'radiative_rates_type', 'excitation',
+                      'ionization', 'helium_treatment', 'nlte', 'metadata']
     quantity_attrs = {}
     outputs_dict = {}
     def __init__(self, plasma_properties, property_kwargs=None, **kwargs):
@@ -300,12 +301,9 @@ class BasePlasma(object):
         for prop in properties:
             prop.to_hdf(path_or_buf, os.path.join(path, 'plasma'))
 
-        property_kwargs_args = ['line_interaction_type', 'radiative_rates_type',
-                                'excitation', 'ionization', 'helium_treatment', 'nlte']
-        property_kwargs_pd = pd.Series(
-            {k: self.property_kwargs.get(k, None) for k in property_kwargs_args})
-        property_kwargs_pd.to_hdf(path_or_buf, os.path.join(
-            os.path.join(path, 'plasma'), 'property_kwargs'))
+        property_kwargs_pd = pd.Series(self.property_kwargs)
+        property_kwargs_pd.to_hdf(
+            path_or_buf, os.path.join(path, 'plasma', 'scalars'))
         metadata = pd.Series({'atom_data_uuid': self.atomic_data.uuid1})
         metadata.to_hdf(path_or_buf,
                         os.path.join(os.path.join(path, 'plasma'), 'metadata'))
