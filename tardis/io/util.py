@@ -228,7 +228,7 @@ class HDFReaderWriter(object):
             scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
     
     @classmethod
-    def from_hdf_util(cls, path, file_path):
+    def from_hdf_util(cls, file_path, path=''):
         hdf = {}
 
         with pd.HDFStore(file_path, 'r') as data:
@@ -244,7 +244,7 @@ class HDFReaderWriter(object):
                             data[buff_path], cls.quantity_attrs[key])
                     except:
                          hdf[key] = u.Quantity(
-                             data[path + '/scalars'], cls.quantity_attrs[key])
+                             data[path + '/scalars'][key], cls.quantity_attrs[key])
                 else:
                     try:
                         if isinstance(data[buff_path], pd.Series) and len(data[buff_path])>1:

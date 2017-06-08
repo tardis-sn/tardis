@@ -1,7 +1,8 @@
 import os
+import pytest
 from astropy import units as u
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
-
+import astropy.tests.helper as test_helper
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
 
@@ -202,3 +203,52 @@ def test_ascii_reader_exponential_law():
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(model.density[i].value, mdens)
         assert model.density[i].unit ==  u.Unit(expected_unit)
+
+###
+# Save and Load
+###
+
+
+@pytest.fixture(scope="module")
+def hdf_file_path(tmpdir_factory):
+    path = tmpdir_factory.mktemp('hdf_buffer').join('model.hdf')
+    return str(path)
+
+
+@pytest.fixture(scope="module")
+def actual_model():
+    filename = 'tardis_configv1_verysimple.yml'
+    config = Configuration.from_yaml(data_path(filename))
+    model = Radial1DModel.from_config(config)
+    return model
+
+
+@pytest.fixture(scope="module", autouse=True)
+def to_hdf_buffer(hdf_file_path, actual_model):
+    actual_model.to_hdf(hdf_file_path, 'model')
+
+
+@pytest.fixture(scope="module")
+def from_hdf_buffer(hdf_file_path):
+    hdf_buffer = Radial1DModel.from_hdf(hdf_file_path, 'model')
+    return hdf_buffer
+
+
+model_quantity_attrs = ['luminosity_requested', 'time_explosion',
+                        't_inner', 't_rad', 'v_inner', 'v_outer',
+                        'velocity']
+
+
+@pytest.mark.parametrize("attr", model_quantity_attrs)
+def test_hdf_model_quantites(from_hdf_buffer, actual_model, attr):
+    test_helper.assert_quantity_allclose(getattr(actual_model, attr), getattr(
+        from_hdf_buffer, attr))
+
+
+model_nparray_attrs = ['abundance', 'dilution_factor']
+
+
+@pytest.mark.parametrize("attr", model_nparray_attrs)
+def test_hdf_model_nparray(from_hdf_buffer, actual_model, attr):
+    assert_array_almost_equal(getattr(actual_model, attr), getattr(
+        from_hdf_buffer, attr))

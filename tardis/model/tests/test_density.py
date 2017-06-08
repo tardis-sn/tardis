@@ -28,12 +28,12 @@ def homologous_density():
 
 @pytest.fixture(scope="module",autouse=True)
 def to_hdf_buffer(hdf_file_path,homologous_density):
-    homologous_density.to_hdf(hdf_file_path,'')
+    homologous_density.to_hdf(hdf_file_path, 'density')
 
 
 @pytest.fixture(scope="module")
 def from_hdf_buffer(hdf_file_path):
-    hdf_buffer = HomologousDensity.from_hdf('',hdf_file_path)
+    hdf_buffer = HomologousDensity.from_hdf(hdf_file_path, 'density')
     return hdf_buffer
 
 

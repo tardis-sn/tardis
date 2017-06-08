@@ -161,12 +161,12 @@ def hdf_file_path(tmpdir_factory):
 
 @pytest.fixture(autouse=True)
 def to_hdf_buffer(hdf_file_path,spectrum):
-    spectrum.to_hdf(hdf_file_path,'')
+    spectrum.to_hdf(hdf_file_path,'spectrum')
 
 
 @pytest.fixture()
 def from_hdf_buffer(hdf_file_path):
-    hdf_buffer = TARDISSpectrum.from_hdf('',hdf_file_path)
+    hdf_buffer = TARDISSpectrum.from_hdf(hdf_file_path, 'spectrum')
     return hdf_buffer
 
 

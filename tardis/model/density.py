@@ -99,7 +99,7 @@ class HomologousDensity(HDFReaderWriter, object):
                                                       in self.hdf_properties})
 
     @classmethod
-    def from_hdf(cls, path, file_path):
+    def from_hdf(cls, file_path, path=''):
         """
         This function returns a HomologousDensity object 
         from given HDF5 File.
@@ -116,7 +116,7 @@ class HomologousDensity(HDFReaderWriter, object):
 
 
         buff_path = path + '/homologous_density'
-        data = cls.from_hdf_util(buff_path,file_path)
+        data = cls.from_hdf_util(file_path, buff_path)
         return cls(data['density_0'], data['time_0'])
 
 

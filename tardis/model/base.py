@@ -293,11 +293,11 @@ class Radial1DModel(HDFReaderWriter, object):
         self.homologous_density.to_hdf(path_or_buf, model_path)
 
     @classmethod
-    def from_hdf(cls, path, file_path):
+    def from_hdf(cls, file_path, path=''):
         buff_path = path + '/model'
-        data = cls.from_hdf_util(buff_path, file_path)
+        data = cls.from_hdf_util(file_path, buff_path)
         data['homologous_density'] = HomologousDensity.from_hdf(
-            buff_path, file_path)
+            file_path, buff_path)
         v_boundary_inner = u.Quantity(data['v_inner'][0], 'cm/s')
         v_boundary_outer = u.Quantity(data['v_outer'][
             len(data['v_outer']) - 1], 'cm/s')
