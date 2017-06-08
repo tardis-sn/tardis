@@ -115,7 +115,7 @@ cdef extern from "src/cmontecarlo.h":
 
 cdef extern from "src/integrator.h":
     double *_formal_integral(
-            storage_model_t *storage,
+            const storage_model_t *storage,
             double T,
             double *nu,
             int_type_t nu_size,
