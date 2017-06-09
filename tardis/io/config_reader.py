@@ -235,15 +235,21 @@ class Configuration(ConfigurationNameSpace):
     def from_config_dict(cls, config_dict, validate=True, config_dirname='', plasma_only=False):
         """
         Validating and subsequently parsing a config file.
+
         Parameters
         ----------
+
         config_dict : ~dict
             dictionary of a raw unvalidated config file
+
         validate: ~bool
             Turn validation on or off.
+
         Returns
         -------
+
         `tardis.config_reader.Configuration`
+
         """
 
         if validate:
