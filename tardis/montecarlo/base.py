@@ -431,6 +431,7 @@ class MontecarloRunner(HDFReaderWriter, object):
         runner._initialize_estimator_arrays(runner.volume.shape[0],
                                             plasma.tau_sobolevs.shape)
         runner._initialize_geometry_arrays(model)
+        runner._initialize_packets(model.t_inner.value,data['_output_energy'].shape[0])
 
         #Assigning values from stored HDF5 file
         for key in cls.hdf_properties:
