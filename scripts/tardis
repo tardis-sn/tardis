@@ -7,6 +7,8 @@ import numpy as np
 import logging
 import argparse
 
+import warnings
+
 
 
 tardis_description =\
@@ -74,8 +76,28 @@ else:
     simulation.run()
 
 
-if not np.all(simulation.runner.spectrum_virtual.luminosity_density_lambda.value
-        == 0.0):
-    simulation.runner.spectrum_virtual.to_ascii(args.spectrum_fname)
-else:
-    simulation.runner.spectrum.to_ascii(args.spectrum_fname)
+def get_integrated_spectrum():
+    return simulation.runner.integrator.calculate_spectrum(
+                simulation.runner.spectrum_frequency[:-1],
+                1000)
+
+# Catch warning when acessing invalid spectrum_virtual
+with warnings.catch_warnings(record=True) as w:
+    print('Saving the {} spectrum.'.format(tardis_config.spectrum.method))
+
+    # Believe it or not, that is a fancy switch-case statement
+    # We need functions so that only one spectrum is accessed so we can catch
+    # the warning properly
+    spectrum = {
+            'real': lambda: simulation.runner.spectrum,
+            'virtual': lambda: simulation.runner.spectrum_virtual,
+            'integrated': get_integrated_spectrum,
+            }[tardis_config.spectrum.method]()
+
+    if len(w) > 0 and w[-1]._category_name == 'UserWarning':
+        print(
+                'Virtual spectrum is not available, using the '
+                'real packet spectrum instead.')
+        spectrum = simulation.runner.spectrum
+
+spectrum.to_ascii(args.spectrum_fname)

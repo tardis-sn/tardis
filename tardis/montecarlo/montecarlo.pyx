@@ -113,6 +113,14 @@ cdef extern from "src/cmontecarlo.h":
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
+cdef extern from "src/integrator.h":
+    double *_formal_integral(
+            const storage_model_t *storage,
+            double T,
+            double *nu,
+            int_type_t nu_size,
+            double *att_S_ul,
+            int N)
 
 
 
@@ -291,3 +299,22 @@ def montecarlo_radial1d(model, plasma, runner, int_type_t virtual_packet_flag=0,
         runner.virt_packet_last_interaction_type = np.zeros(0)
         runner.virt_packet_last_line_interaction_in_id = np.zeros(0)
         runner.virt_packet_last_line_interaction_out_id = np.zeros(0)
+
+
+# This will be a method of the Simulation object
+def formal_integral(self, nu, N):
+    cdef storage_model_t storage
+
+    initialize_storage_model(self.model, self.plasma, self.runner, &storage)
+
+    att_S_ul = self.make_source_function()[0].flatten(order='F')
+
+    cdef double *L = _formal_integral(
+            &storage,
+            self.model.t_inner.value,
+            <double*> PyArray_DATA(nu),
+            nu.shape[0],
+            <double*> PyArray_DATA(att_S_ul),
+            N
+            )
+    return c_array_to_numpy(L, np.NPY_DOUBLE, nu.shape[0])
