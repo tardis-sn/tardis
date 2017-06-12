@@ -60,7 +60,7 @@ complex_objects = [np.array([4.0e14, 2, 2e14, 27.5]),
 
 
 @pytest.mark.parametrize("attr", complex_objects)
-def test_dataframe_readwrite(tmpdir, attr):
+def test_complex_obj_readwrite(tmpdir, attr):
     fname = str(tmpdir.mkdir('data').join('dummy.hdf'))
     actual = Mock_HDF(attr)
     actual.to_hdf(fname, 'Mock_HDF')
@@ -87,7 +87,7 @@ quantity_attrs = {'property': 'g/cm**3'}
 
 
 @pytest.mark.parametrize("attr", quantity_objects)
-def test_dataframe_readwrite(tmpdir, attr):
+def test_quantity_objects_readwrite(tmpdir, attr):
     fname = str(tmpdir.mkdir('data').join('dummy.hdf'))
     actual = Mock_HDF(attr)
     actual.quantity_attrs = quantity_attrs
