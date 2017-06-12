@@ -256,7 +256,7 @@ class HDFReaderWriter(object):
                     except:
                         buff_path = os.path.join(path, 'scalars')
                         hdf[key] = data[buff_path][key]
-                        if hdf[key] is 'none':
+                        if hdf[key] == 'none':
                             hdf[key] = None
         return hdf
 
