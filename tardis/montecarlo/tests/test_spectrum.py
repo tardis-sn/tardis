@@ -74,6 +74,12 @@ def test_luminosity_density_lambda(spectrum):
 
 def test_flux_nu(spectrum):
     if getattr(spectrum, 'distance', None):
+
+        if pytest.__version__ < '2.8':
+            pytest.xfail(
+                    reason='requires pytest.warns (introduced in pytest v2.8)',
+                    )
+
         with pytest.warns(DeprecationWarning):
             test_helper.assert_quantity_allclose(
                     spectrum.flux_nu,
@@ -88,6 +94,12 @@ def test_flux_nu(spectrum):
 
 def test_flux_lambda(spectrum):
     if getattr(spectrum, 'distance', None):
+
+        if pytest.__version__ < '2.8':
+            pytest.xfail(
+                    reason='requires pytest.warns (introduced in pytest v2.8)',
+                    )
+
         with pytest.warns(DeprecationWarning):
             test_helper.assert_quantity_allclose(
                     spectrum.flux_lambda,
