@@ -4,8 +4,10 @@ import logging
 import pandas as pd
 import numpy as np
 
+from tardis.io.config_reader import Configuration
 from tardis import atomic
 from tardis.util import species_string_to_tuple
+from tardis.io.util import HDFReaderWriter
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
@@ -84,6 +86,17 @@ def assemble_plasma(config, model, atom_data=None):
 
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
+
+    # Storing these properties , as these will be required when generating Plasma object
+    # from HDF5 file
+    property_kwargs['line_interaction_type'] = config.plasma.line_interaction_type
+    property_kwargs['radiative_rates_type'] = config.plasma.radiative_rates_type
+    property_kwargs['excitation'] = config.plasma.excitation
+    property_kwargs['ionization'] = config.plasma.ionization
+    property_kwargs['helium_treatment'] = config.plasma.helium_treatment
+    property_kwargs['nlte'] = {}
+    property_kwargs['nlte']['species'] = config.plasma.nlte.species
+
     if config.plasma.radiative_rates_type == 'blackbody':
         plasma_modules.append(JBluesBlackBody)
     elif config.plasma.radiative_rates_type == 'dilute-blackbody':
@@ -153,3 +166,43 @@ def assemble_plasma(config, model, atom_data=None):
                         property_kwargs=property_kwargs, **kwargs)
 
     return plasma
+
+
+class PlasmaHDFReaderWriter(HDFReaderWriter, BasePlasma):
+
+    @classmethod
+    def from_hdf(cls, file_path, path, model, atom_data_fname=None):
+        """
+        This function returns a Plasma object 
+        from given HDF5 File.
+        Parameters
+        ----------
+        path : 'str'
+            Path to transverse in hdf file
+        file_path : 'str'
+            Path of Simulation generated HDF file 
+        Returns
+        -------
+        model : `~Plasma`
+        """
+
+        if atom_data_fname is None:
+            atom_data_fname = 'kurucz_cd23_chianti_H_He.h5'
+
+        plasma_path = os.path.join(path, 'plasma')
+        atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
+        plasma = cls.from_hdf_util(file_path, plasma_path)
+
+        # atom_data uuid should match with stored uuid in HDF file
+        if plasma['metadata']['atom_data_uuid'] != atom_data.uuid1:
+            raise ValueError('Wrong Atom Data passed as parameter')
+        
+        properties={}
+        properties['plasma'] = plasma
+
+        # Workaround to create Configuration object, with only plasma
+        # attributes
+        config = Configuration.from_config_dict(
+            properties, validate=False, plasma_only=True)
+
+        return assemble_plasma(config, model, atom_data=atom_data)
