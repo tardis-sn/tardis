@@ -10,7 +10,7 @@ int64_t
 populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *oshell_id);
 
 void
-calculate_p_values(storage_model_t *storage, int64_t N, double *opp);
+calculate_p_values(double R_max, int64_t N, double *opp);
 
 double
 *_formal_integral(

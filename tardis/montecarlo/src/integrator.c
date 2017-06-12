@@ -141,9 +141,8 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
  *
  */
 void
-calculate_p_values(storage_model_t *storage, int64_t N, double *opp)
+calculate_p_values(double R_max, int64_t N, double *opp)
 {
-  double R_max = storage->r_outer[storage->no_of_shells - 1];
   for(int i = 0; i<N; ++i)
     {
       // Trapezoid integration points
@@ -202,7 +201,7 @@ _formal_integral(
       for (i = 0; i < size_tau; ++i) {
           exp_tau[i] = exp( -storage->line_lists_tau_sobolevs[i]);
       }
-      calculate_p_values(storage, N, pp);
+      calculate_p_values(storage->r_outer[storage->no_of_shells - 1], N, pp);
       // Done with the initialization
 
       // Loop over wavelengths in spectrum
