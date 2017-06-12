@@ -294,6 +294,19 @@ class Radial1DModel(HDFReaderWriter, object):
 
     @classmethod
     def from_hdf(cls, file_path, path=''):
+        """
+        This function returns a Radial1DModel object 
+        from given HDF5 File.
+        Parameters
+        ----------
+        path : 'str'
+            Path to transverse in hdf file
+        file_path : 'str'
+            Path of Simulation generated HDF file 
+        Returns
+        -------
+        model : `~Radial1DModel`
+        """
         buff_path = os.path.join(path, 'model')
         data = cls.from_hdf_util(file_path, buff_path)
         data['homologous_density'] = HomologousDensity.from_hdf(
