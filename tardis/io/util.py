@@ -238,9 +238,9 @@ class HDFReaderWriter(object):
         data = self.get_properties()
         buff_path = os.path.join(path, name)
         self.to_hdf_util(file_path, buff_path, data)
-        for property in self.class_properties.keys():
-            prop = getattr(self, property)
-            prop.to_hdf(file_path, buff_path, name=property)
+        for attr in self.class_properties.keys():
+            prop = getattr(self, attr)
+            prop.to_hdf(file_path, buff_path, name=attr)
 
     @classmethod
     def from_hdf_util(cls, file_path, path=''):
@@ -300,7 +300,7 @@ class HDFReaderWriter(object):
         for key, value in cls.class_properties.items():
             data[key] = value.from_hdf(file_path, buff_path, name=key)
 
-        #Get initialization paramaters from constructor definition of class
+        #Get initialization parameters from constructor definition of class
         argspec = inspect.getargspec(cls.__init__).args
         argspec.remove('self')
 

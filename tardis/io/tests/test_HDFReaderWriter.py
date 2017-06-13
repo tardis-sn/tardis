@@ -28,8 +28,7 @@ class MockHDF(HDFReaderWriter, object):
 #Numeric Values
 #Pandas Series Object
 #MultiIndex Object
-# Quantity Objects with - Numeric Values , Numpy Arrays , DataFrame ,
-# Pandas Series, None objects
+#Quantity Objects with - Numeric Values, Numpy Arrays, DataFrame, Pandas Series, None objects
 
 
 simple_objects = [1.5, 'random_string', 4.2e7, None]
@@ -39,8 +38,8 @@ simple_objects = [1.5, 'random_string', 4.2e7, None]
 def test_simple_readwrite(tmpdir, attr):
     fname = str(tmpdir.mkdir('data').join('test.hdf'))
     actual = MockHDF(attr)
-    actual.to_hdf(fname, 'MockHDF')
-    expected = MockHDF.from_hdf(fname, 'MockHDF')
+    actual.to_hdf(fname, path='mockHDF')
+    expected = MockHDF.from_hdf(fname, path='mockHDF')
     assert actual.property == expected.property
 
 
@@ -54,8 +53,8 @@ complex_objects = [np.array([4.0e14, 2, 2e14, 27.5]),
 def test_complex_obj_readwrite(tmpdir, attr):
     fname = str(tmpdir.mkdir('data').join('test.hdf'))
     actual = MockHDF(attr)
-    actual.to_hdf(fname, 'MockHDF')
-    expected = MockHDF.from_hdf(fname, 'MockHDF')
+    actual.to_hdf(fname, path='mockHDF')
+    expected = MockHDF.from_hdf(fname, path='mockHDF')
     assert_array_almost_equal(actual.property, expected.property)
 
 
@@ -68,8 +67,8 @@ mock_multiIndex = pd.MultiIndex.from_tuples(tuples, names=['first', 'second'])
 def test_MultiIndex_readwrite(tmpdir):
     fname = str(tmpdir.mkdir('data').join('test.hdf'))
     actual = MockHDF(mock_multiIndex)
-    actual.to_hdf(fname, 'MockHDF')
-    expected = MockHDF.from_hdf(fname, 'MockHDF')
+    actual.to_hdf(fname, path='mockHDF')
+    expected = MockHDF.from_hdf(fname, path='mockHDF')
     expected.property = pd.MultiIndex.from_tuples(
         expected.property.unstack().values, names=['first', 'second'])
     pdt.assert_almost_equal(actual.property, expected.property)
@@ -84,8 +83,8 @@ def test_quantity_objects_readwrite(tmpdir, attr):
     fname = str(tmpdir.mkdir('data').join('test.hdf'))
     actual = MockHDF(attr)
     actual.quantity_attrs = quantity_attrs
-    actual.to_hdf(fname, 'MockHDF')
-    expected = MockHDF.from_hdf(fname, 'MockHDF')
+    actual.to_hdf(fname, path='mockHDF')
+    expected = MockHDF.from_hdf(fname, path='mockHDF')
     assert_quantity_allclose(actual.property, expected.property)
 
 
@@ -93,8 +92,8 @@ def test_none_with_quantity_readwrite(tmpdir):
     fname = str(tmpdir.mkdir('data').join('test.hdf'))
     actual = MockHDF(None)
     actual.quantity_attrs = quantity_attrs
-    actual.to_hdf(fname, 'MockHDF')
-    expected = MockHDF.from_hdf(fname, 'MockHDF')
+    actual.to_hdf(fname, path='mockHDF')
+    expected = MockHDF.from_hdf(fname, path='mockHDF')
     assert actual.property == expected.property
 
 
@@ -108,8 +107,7 @@ class MockClass(HDFReaderWriter, object):
         self.nested_object = nested_object
 
 
-# Test class_properties parameter (e.g. homologous_density is a class
-# instance/object inside Model class)
+# Test class_properties parameter (like homologous_density is a class instance/object inside Model class)
 quantity_objects = [np.array([4.0e14, 2, 2e14, 27.5]), mock_df, 1.5, 4.2e7]
 quantity_attrs = {'property': 'g/cm**3'}
 
@@ -120,8 +118,8 @@ def test_objects_readwrite(tmpdir, attr):
     nested_object = MockHDF(np.array([4.0e14, 2, 2e14, 27.5]))
     actual = MockClass(attr, nested_object)
     actual.quantity_attrs = quantity_attrs
-    actual.to_hdf(fname, 'MockHDF')
-    expected = MockClass.from_hdf(fname, 'MockHDF')
+    actual.to_hdf(fname, path='mockHDF')
+    expected = MockClass.from_hdf(fname, path='mockHDF')
     assert_quantity_allclose(actual.property, expected.property)
     assert_quantity_allclose(
         actual.nested_object.property, expected.nested_object.property)
