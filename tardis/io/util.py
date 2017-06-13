@@ -229,6 +229,20 @@ class HDFReaderWriter(object):
     
     @classmethod
     def from_hdf_util(cls, file_path, path=''):
+        """
+        A function to return TARDIS data from an HDF file.
+
+        Parameters
+        ----------
+        file_path:
+            Path to the HDF store
+        path: str
+            Path inside the HDF store
+
+        Returns
+        -------
+        `dict`
+        """
         hdf = {}
 
         with pd.HDFStore(file_path, 'r') as data:
@@ -262,8 +276,7 @@ class HDFReaderWriter(object):
 
 
 #Deprecated
-@classmethod
-def to_hdf(cls, path_or_buf, path, elements, complevel=9, complib='blosc'):
+def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     """
     A function to uniformly store TARDIS data
     to an HDF file.
@@ -271,9 +284,9 @@ def to_hdf(cls, path_or_buf, path, elements, complevel=9, complib='blosc'):
     Scalars will be stored in a Series under path/scalars
     1D arrays will be stored under path/property_name as distinct Series
     2D arrays will be stored under path/property_name as distinct DataFrames
-
+    
     Units will be stored as their CGS value
-
+    
     Parameters
     ----------
     path_or_buf:
@@ -283,10 +296,10 @@ def to_hdf(cls, path_or_buf, path, elements, complevel=9, complib='blosc'):
     elements: dict
         A dict of property names and their values to be
         stored.
-
+    
     Returns
     -------
-
+    
     """
     scalars = {}
     for key, value in elements.iteritems():
@@ -302,10 +315,9 @@ def to_hdf(cls, path_or_buf, path, elements, complevel=9, complib='blosc'):
                                             os.path.join(path, key))
                 except NotImplementedError:
                     pd.DataFrame(value).to_hdf(path_or_buf,
-                                                os.path.join(path, key))
+                                               os.path.join(path, key))
             else:
-                pd.DataFrame(value).to_hdf(
-                    path_or_buf, os.path.join(path, key))
+                pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
         else:
             data = pd.DataFrame([value])
             data.to_hdf(path_or_buf, os.path.join(path, key))
