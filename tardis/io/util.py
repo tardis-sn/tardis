@@ -307,6 +307,7 @@ class HDFReaderWriter(object):
         initializer_dict = {name: data[name] for name in argspec}
 
         try:
+            #If possible initialize through dict object else return data
             return cls(**initializer_dict)
         except:
             return data
