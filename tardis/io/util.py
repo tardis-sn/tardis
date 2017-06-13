@@ -1,5 +1,5 @@
 #Utility functions for the IO part of TARDIS
-
+import inspect
 import os
 import pandas as pd
 import numpy as np
@@ -212,7 +212,8 @@ class HDFReaderWriter(object):
                         pd.DataFrame(value).to_hdf(path_or_buf,
                                                    os.path.join(path, key))
                 else:
-                    pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
+                    pd.DataFrame(value).to_hdf(
+                        path_or_buf, os.path.join(path, key))
             else:
                 data = pd.DataFrame([value])
                 data.to_hdf(path_or_buf, os.path.join(path, key))
@@ -226,12 +227,9 @@ class HDFReaderWriter(object):
                 if scalars_path in store:
                     scalars_series = store[scalars_path].append(scalars_series)
             scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
-    
+
     def get_properties(self):
         data = {name: getattr(self, name) for name in self.hdf_properties}
-        for property in self.class_properties:
-            prop = getattr(self, property)
-            data[property] = prop.get_properties()
         return data
 
     def to_hdf(self, file_path, path='', name=None):
@@ -240,6 +238,9 @@ class HDFReaderWriter(object):
         data = self.get_properties()
         buff_path = os.path.join(path, name)
         self.to_hdf_util(file_path, buff_path, data)
+        for property in self.class_properties.keys():
+            prop = getattr(self, property)
+            prop.to_hdf(file_path, buff_path, name=property)
 
     @classmethod
     def from_hdf_util(cls, file_path, path=''):
@@ -288,6 +289,27 @@ class HDFReaderWriter(object):
                             hdf[key] = None
         return hdf
 
+    @classmethod
+    def from_hdf(cls, file_path, path='', name=None):
+
+        if name is None:
+            name = cls.__name__
+
+        buff_path = os.path.join(path, name)
+        data = cls.from_hdf_util(file_path, buff_path)
+        for key, value in cls.class_properties.items():
+            data[key] = value.from_hdf(file_path, buff_path, name=key)
+
+        #Get initialization paramaters from constructor definition of class
+        argspec = inspect.getargspec(cls.__init__).args
+        argspec.remove('self')
+
+        initializer_dict = {name: data[name] for name in argspec}
+
+        try:
+            return cls(**initializer_dict)
+        except:
+            return data
 
 #Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
