@@ -215,9 +215,12 @@ class HDFReaderWriter(object):
                     pd.DataFrame(value).to_hdf(
                         path_or_buf, os.path.join(path, key))
             else:
-                data = pd.DataFrame([value])
-                data.to_hdf(path_or_buf, os.path.join(path, key))
-
+                try:
+                    value.to_hdf(path_or_buf, path, name=key)
+                except:
+                    data = pd.DataFrame([value])
+                    data.to_hdf(path_or_buf, os.path.join(path, key))
+                    
         if scalars:
             scalars_series = pd.Series(scalars)
 
@@ -238,9 +241,6 @@ class HDFReaderWriter(object):
         data = self.get_properties()
         buff_path = os.path.join(path, name)
         self.to_hdf_util(file_path, buff_path, data)
-        for attr in self.class_properties.keys():
-            prop = getattr(self, attr)
-            prop.to_hdf(file_path, buff_path, name=attr)
 
     @classmethod
     def from_hdf_util(cls, file_path, path=''):
@@ -283,34 +283,33 @@ class HDFReaderWriter(object):
                         else:
                             hdf[key] = data[buff_path]
                     except:
-                        buff_path = os.path.join(path, 'scalars')
-                        hdf[key] = data[buff_path][key]
-                        if hdf[key] == 'none':
-                            hdf[key] = None
+                        try:
+                            c = cls.class_properties.get(key)
+                            hdf[key] = c.from_hdf(file_path, path, name=key)
+                        except:
+                            buff_path = os.path.join(path, 'scalars')
+                            hdf[key] = data[buff_path][key]
+                            if hdf[key] == 'none':
+                                hdf[key] = None
+
         return hdf
 
     @classmethod
     def from_hdf(cls, file_path, path='', name=None):
 
-        if name is None:
-            name = cls.__name__
-
+        name = name or cls.__name__
         buff_path = os.path.join(path, name)
         data = cls.from_hdf_util(file_path, buff_path)
-        for key, value in cls.class_properties.items():
-            data[key] = value.from_hdf(file_path, buff_path, name=key)
 
         #Get initialization parameters from constructor definition of class
         argspec = inspect.getargspec(cls.__init__).args
         argspec.remove('self')
 
+        #If any value in HDF file is missing for Class initialization,
+        #KeyError will be automatically raised here 
         initializer_dict = {name: data[name] for name in argspec}
 
-        try:
-            #If possible initialize through dict object else return data
-            return cls(**initializer_dict)
-        except:
-            return data
+        return cls(**initializer_dict)
 
 #Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):

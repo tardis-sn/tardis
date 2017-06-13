@@ -98,7 +98,7 @@ def test_none_with_quantity_readwrite(tmpdir):
 
 
 class MockClass(HDFReaderWriter, object):
-    hdf_properties = ['property']
+    hdf_properties = ['property', 'nested_object']
     quantity_attrs = {}
     class_properties = {'nested_object': MockHDF}
 
