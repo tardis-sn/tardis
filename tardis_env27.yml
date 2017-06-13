@@ -17,10 +17,10 @@ dependencies:
 
 
 # RTD requirements
-- sphinx=1.4.1
+- sphinx=1.5.1
 - nbconvert=4.2.0
 - numpydoc=0.5
-- docutils
+- docutils=0.13.1
 - nbformat=4.0.1
 
 #Coverage requirements
