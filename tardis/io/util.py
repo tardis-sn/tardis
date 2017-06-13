@@ -272,7 +272,7 @@ class HDFReaderWriter(object):
                         else:
                             hdf[key] = u.Quantity(
                                 data[buff_path], cls.quantity_attrs[key])
-                    except (KeyError, TypeError):
+                    except KeyError:
                         buff_path = os.path.join(path, 'scalars')
                         hdf[key] = u.Quantity(
                             data[buff_path][key], cls.quantity_attrs[key])
