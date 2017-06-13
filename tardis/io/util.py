@@ -284,9 +284,9 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     Scalars will be stored in a Series under path/scalars
     1D arrays will be stored under path/property_name as distinct Series
     2D arrays will be stored under path/property_name as distinct DataFrames
-    
+
     Units will be stored as their CGS value
-    
+
     Parameters
     ----------
     path_or_buf:
@@ -296,10 +296,10 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     elements: dict
         A dict of property names and their values to be
         stored.
-    
+
     Returns
     -------
-    
+
     """
     scalars = {}
     for key, value in elements.iteritems():
