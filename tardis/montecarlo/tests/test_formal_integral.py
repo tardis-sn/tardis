@@ -121,9 +121,9 @@ def test_populate_z_photosphere(clib, formal_integral_model, p):
             ndpointer(dtype=np.int64)       # oshell_id
             ]
 
-    size = (formal_integral_model.no_of_shells,)
-    r_inner = as_array(formal_integral_model.r_inner, size)
-    r_outer = as_array(formal_integral_model.r_outer, size)
+    size = formal_integral_model.no_of_shells
+    r_inner = as_array(formal_integral_model.r_inner, (size,))
+    r_outer = as_array(formal_integral_model.r_outer, (size,))
 
     p = r_inner[0] * p
     oz = np.zeros_like(r_inner)
@@ -135,11 +135,11 @@ def test_populate_z_photosphere(clib, formal_integral_model, p):
             oz,
             oshell_id
             )
-    ntest.assert_equal(N, size[0])
+    assert N == size
 
     ntest.assert_allclose(
             oshell_id,
-            np.arange(0, size[0], 1)
+            np.arange(0, size, 1)
             )
 
     ntest.assert_allclose(
@@ -166,17 +166,17 @@ def test_populate_z_shells(clib, formal_integral_model, p):
             ndpointer(dtype=np.int64)       # oshell_id
             ]
 
-    size = (formal_integral_model.no_of_shells,)
-    r_inner = as_array(formal_integral_model.r_inner, size)
-    r_outer = as_array(formal_integral_model.r_outer, size)
+    size = formal_integral_model.no_of_shells
+    r_inner = as_array(formal_integral_model.r_inner, (size,))
+    r_outer = as_array(formal_integral_model.r_outer, (size,))
 
     p = r_inner[0] + (r_outer[-1] - r_inner[0]) * p
     idx = np.searchsorted(r_outer, p, side='right')
 
-    oz = np.zeros(size[0] * 2)
+    oz = np.zeros(size * 2)
     oshell_id = np.zeros_like(oz, dtype=np.int64)
 
-    offset = size[0] - idx
+    offset = size - idx
 
     expected_N = (offset) * 2
     expected_oz = np.zeros_like(oz)
@@ -187,10 +187,10 @@ def test_populate_z_shells(clib, formal_integral_model, p):
             np.arange(0.5, expected_N, 1) - offset) - 0.5 + idx
 
     expected_oz[0:offset] = 1 + calculate_z(
-            r_outer[np.arange(size[0], idx, -1) - 1],
+            r_outer[np.arange(size, idx, -1) - 1],
             p)
     expected_oz[offset:expected_N] = 1 - calculate_z(
-            r_outer[np.arange(idx, size[0], 1)],
+            r_outer[np.arange(idx, size, 1)],
             p)
 
     N = func(
@@ -199,7 +199,8 @@ def test_populate_z_shells(clib, formal_integral_model, p):
             oz,
             oshell_id
             )
-    ntest.assert_equal(N, expected_N)
+
+    assert N == expected_N
 
     ntest.assert_allclose(
             oshell_id,
