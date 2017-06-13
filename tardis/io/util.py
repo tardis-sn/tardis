@@ -217,7 +217,7 @@ class HDFReaderWriter(object):
             else:
                 try:
                     value.to_hdf(path_or_buf, path, name=key)
-                except:
+                except AttributeError:
                     data = pd.DataFrame([value])
                     data.to_hdf(path_or_buf, os.path.join(path, key))
                     
@@ -272,7 +272,7 @@ class HDFReaderWriter(object):
                         else:
                             hdf[key] = u.Quantity(
                                 data[buff_path], cls.quantity_attrs[key])
-                    except:
+                    except (KeyError, TypeError):
                         buff_path = os.path.join(path, 'scalars')
                         hdf[key] = u.Quantity(
                             data[buff_path][key], cls.quantity_attrs[key])
@@ -282,11 +282,11 @@ class HDFReaderWriter(object):
                             hdf[key] = data[buff_path].values
                         else:
                             hdf[key] = data[buff_path]
-                    except:
+                    except (KeyError, TypeError):
                         try:
                             c = cls.class_properties.get(key)
                             hdf[key] = c.from_hdf(file_path, path, name=key)
-                        except:
+                        except AttributeError:
                             buff_path = os.path.join(path, 'scalars')
                             hdf[key] = data[buff_path][key]
                             if hdf[key] == 'none':
