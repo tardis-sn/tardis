@@ -11,17 +11,12 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 from tardis.io.util import HDFReaderWriter
 
 
-class Mock_HDF(HDFReaderWriter, object):
+class MockHDF(HDFReaderWriter, object):
     hdf_properties = ['property']
     quantity_attrs = {}
-
+    class_properties = []
     def __init__(self, property):
         self.property = property
-
-    def to_hdf(self, file_path, path=''):
-        buff_path = os.path.join(path, 'dummy')
-        self.to_hdf_util(file_path, buff_path, {name: getattr(self, name) for name
-                                                in self.hdf_properties})
 
     @classmethod
     def from_hdf(cls, file_path, path=''):
@@ -46,10 +41,10 @@ simple_objects = [1.5, 'random_string', 4.2e7, None]
 
 @pytest.mark.parametrize("attr", simple_objects)
 def test_simple_readwrite(tmpdir, attr):
-    fname = str(tmpdir.mkdir('data').join('dummy.hdf'))
-    actual = Mock_HDF(attr)
-    actual.to_hdf(fname, 'Mock_HDF')
-    expected = Mock_HDF.from_hdf(fname, 'Mock_HDF')
+    fname = str(tmpdir.mkdir('data').join('testHDF.hdf'))
+    actual = MockHDF(attr)
+    actual.to_hdf(fname, 'MockHDF')
+    expected = MockHDF.from_hdf(fname, 'MockHDF')
     assert actual.property == expected.property
 
 
@@ -61,10 +56,10 @@ complex_objects = [np.array([4.0e14, 2, 2e14, 27.5]),
 
 @pytest.mark.parametrize("attr", complex_objects)
 def test_complex_obj_readwrite(tmpdir, attr):
-    fname = str(tmpdir.mkdir('data').join('dummy.hdf'))
-    actual = Mock_HDF(attr)
-    actual.to_hdf(fname, 'Mock_HDF')
-    expected = Mock_HDF.from_hdf(fname, 'Mock_HDF')
+    fname = str(tmpdir.mkdir('data').join('testHDF.hdf'))
+    actual = MockHDF(attr)
+    actual.to_hdf(fname, 'MockHDF')
+    expected = MockHDF.from_hdf(fname, 'MockHDF')
     assert_array_almost_equal(actual.property, expected.property)
 
 
@@ -76,9 +71,9 @@ mock_multiIndex = pd.MultiIndex.from_tuples(tuples, names=['first', 'second'])
 @pytest.mark.xfail
 def test_MultiIndex_readwrite(tmpdir):
     fname = str(tmpdir.mkdir('data').join('dummy.hdf'))
-    actual = Mock_HDF(mock_multiIndex)
-    actual.to_hdf(fname, 'Mock_HDF')
-    expected = Mock_HDF.from_hdf(fname, 'Mock_HDF')
+    actual = MockHDF(mock_multiIndex)
+    actual.to_hdf(fname, 'MockHDF')
+    expected = MockHDF.from_hdf(fname, 'MockHDF')
     pdt.assert_almost_equal(actual.property, expected.property)
 
 
@@ -89,17 +84,17 @@ quantity_attrs = {'property': 'g/cm**3'}
 @pytest.mark.parametrize("attr", quantity_objects)
 def test_quantity_objects_readwrite(tmpdir, attr):
     fname = str(tmpdir.mkdir('data').join('dummy.hdf'))
-    actual = Mock_HDF(attr)
+    actual = MockHDF(attr)
     actual.quantity_attrs = quantity_attrs
-    actual.to_hdf(fname, 'Mock_HDF')
-    expected = Mock_HDF.from_hdf(fname, 'Mock_HDF')
+    actual.to_hdf(fname, 'MockHDF')
+    expected = MockHDF.from_hdf(fname, 'MockHDF')
     assert_quantity_allclose(actual.property, expected.property)
 
 
 def test_none_with_quantity_readwrite(tmpdir):
-    fname = str(tmpdir.mkdir('data').join('Mock_HDF.hdf'))
-    actual = Mock_HDF(None)
+    fname = str(tmpdir.mkdir('data').join('MockHDF.hdf'))
+    actual = MockHDF(None)
     actual.quantity_attrs = quantity_attrs
-    actual.to_hdf(fname, 'Mock_HDF')
-    expected = Mock_HDF.from_hdf(fname, 'Mock_HDF')
+    actual.to_hdf(fname, 'MockHDF')
+    expected = MockHDF.from_hdf(fname, 'MockHDF')
     assert actual.property == expected.property

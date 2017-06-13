@@ -168,8 +168,8 @@ def check_equality(item1, item2):
 
 class HDFReaderWriter(object):
 
-    
-    def to_hdf_util(self, path_or_buf, path, elements, complevel=9, complib='blosc'):
+    @staticmethod
+    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib='blosc'):
         """
         A function to uniformly store TARDIS data
         to an HDF file.
@@ -227,6 +227,20 @@ class HDFReaderWriter(object):
                     scalars_series = store[scalars_path].append(scalars_series)
             scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
     
+    def get_properties(self):
+        data = {name: getattr(self, name) for name in self.hdf_properties}
+        for property in self.class_properties:
+            prop = getattr(self, property)
+            data[property] = prop.get_properties()
+        return data
+
+    def to_hdf(self, file_path, path='', name=None):
+        if name is None:
+            name = self.__class__.__name__
+        data = self.get_properties()
+        buff_path = os.path.join(path, name)
+        self.to_hdf_util(file_path, buff_path, data)
+
     @classmethod
     def from_hdf_util(cls, file_path, path=''):
         """
