@@ -164,43 +164,31 @@ def compare_spectra(actual, desired):
                 actual.distance,
                 desired.distance
                 )
+                
+@pytest.fixture(scope="module")
+def hdf_file_path(tmpdir_factory):
+    path = tmpdir_factory.mktemp('hdf_buffer').join('spectrum.hdf')
+    return str(path)
 
 
-@pytest.mark.xfail
-def test_to_from_hdf(tmpdir, spectrum):
-    path = str(tmpdir.join('spectrum.hdf'))
-    spectrum.to_hdf(
-            str(path),
-            'spectrum'
-            )
-
-    spec_from = TARDISSpectrum.from_hdf(
-            path,
-            'spectrum'
-            )
-
-    compare_spectra(
-            spectrum,
-            spec_from)
+@pytest.fixture(autouse=True)
+def to_hdf_buffer(hdf_file_path,spectrum):
+    spectrum.to_hdf(hdf_file_path,'spectrum')
 
 
-@pytest.mark.xfail
-def test_to_from_hdf_buffer(tmpdir, spectrum):
-    path = str(tmpdir.join('spectrum.hdf'))
-    spectrum.to_hdf(
-            str(path),
-            'spectrum'
-            )
+@pytest.fixture()
+def from_hdf_buffer(hdf_file_path):
+    hdf_buffer = TARDISSpectrum.from_hdf(hdf_file_path, 'spectrum')
+    return hdf_buffer
 
-    with pd.HDFStore(path, mode='r') as buffer:
-        spec_from = TARDISSpectrum.from_hdf(
-                buffer,
-                'spectrum'
-                )
 
-    compare_spectra(
-            spectrum,
-            spec_from)
+spectrum_attrs = ['_frequency', 'luminosity']
+
+@pytest.mark.parametrize("attr", spectrum_attrs)
+def test_hdf_spectrum(from_hdf_buffer, spectrum, attr):
+    if hasattr(spectrum, attr):
+        test_helper.assert_quantity_allclose(getattr(spectrum, attr), getattr(
+            from_hdf_buffer, attr))
 
 
 ###

@@ -12,11 +12,15 @@ from tardis.plasma.properties.base import *
 logger = logging.getLogger(__name__)
 
 class BasePlasma(object):
-
+    
+    hdf_properties = ['line_interaction_type', 'radiative_rates_type', 'excitation',
+                      'ionization', 'helium_treatment', 'nlte', 'metadata']
+    quantity_attrs = {}
     outputs_dict = {}
     def __init__(self, plasma_properties, property_kwargs=None, **kwargs):
         self.outputs_dict = {}
         self.input_properties = []
+        self.property_kwargs = property_kwargs
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        property_kwargs, **kwargs)
         self._build_graph()
@@ -272,7 +276,6 @@ class BasePlasma(object):
     def to_hdf(self, path_or_buf, path='', collection=None):
         """
         Store the plasma to an HDF structure
-
         Parameters
         ----------
         path_or_buf:
@@ -283,14 +286,12 @@ class BasePlasma(object):
             `None` or a `PlasmaPropertyCollection` of which members are
             the property types which will be stored. If `None` then
             all types of properties will be stored.
-
             This acts like a filter, for example if a value of
             `property_collections.basic_inputs` is given, only
             those input parameters will be stored to the HDF store.
         Returns
         -------
             : None
-
         """
         if collection:
             properties = [prop for prop in self.plasma_properties if
@@ -300,6 +301,9 @@ class BasePlasma(object):
         for prop in properties:
             prop.to_hdf(path_or_buf, os.path.join(path, 'plasma'))
 
+        property_kwargs_pd = pd.Series(self.property_kwargs)
+        property_kwargs_pd.to_hdf(
+            path_or_buf, os.path.join(path, 'plasma', 'scalars'))
         metadata = pd.Series({'atom_data_uuid': self.atomic_data.uuid1})
         metadata.to_hdf(path_or_buf,
                         os.path.join(os.path.join(path, 'plasma'), 'metadata'))
