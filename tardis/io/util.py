@@ -260,7 +260,7 @@ class HDFWriter(object):
             try:
                 name = self.hdf_name
             except AttributeError:
-                name = self.convert_to_camel_case(self.__class__.__name__)
+                name = self.convert_to_snake_case(self.__class__.__name__)
 
         data = self.get_properties()
         buff_path = os.path.join(path, name)
