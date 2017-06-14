@@ -286,9 +286,15 @@ class HDFReaderWriter(object):
                             hdf[key] = u.Quantity(
                                 data[buff_path], cls.quantity_attrs[key])
                     except KeyError:
-                        buff_path = os.path.join(path, 'scalars')
-                        hdf[key] = u.Quantity(
-                            data[buff_path][key], cls.quantity_attrs[key])
+                        try:
+                            buff_path = os.path.join(path, 'scalars')
+                            hdf[key] = u.Quantity(
+                                data[buff_path][key], cls.quantity_attrs[key])
+                        except TypeError:
+                            buff_path = os.path.join(path, 'scalars')
+                            hdf[key] = data[buff_path][key]
+                            if hdf[key] == 'none':
+                                hdf[key] = None
                 else:
                     try:
                         if data[buff_path].ndim == 1:
