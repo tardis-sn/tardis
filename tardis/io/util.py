@@ -236,8 +236,21 @@ class HDFReaderWriter(object):
         return data
 
     def to_hdf(self, file_path, path='', name=None):
-        if name is None:
-            name = self.__class__.__name__
+        """
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        name: str
+            Group inside the HDF store to which the `elements` need to be saved
+
+        Returns
+        -------
+
+        """
+        name = name or self.__class__.__name__
         data = self.get_properties()
         buff_path = os.path.join(path, name)
         self.to_hdf_util(file_path, buff_path, data)
@@ -296,7 +309,20 @@ class HDFReaderWriter(object):
 
     @classmethod
     def from_hdf(cls, file_path, path='', name=None):
+        """
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to retrieve the `elements`
+        name: str
+            Group inside the HDF store from which the `elements` need to be retrieved
 
+        Returns
+        -------
+        `Class instance` 
+        """
         name = name or cls.__name__
         buff_path = os.path.join(path, name)
         data = cls.from_hdf_util(file_path, buff_path)
@@ -306,7 +332,7 @@ class HDFReaderWriter(object):
         argspec.remove('self')
 
         #If any value in HDF file is missing for Class initialization,
-        #KeyError will be automatically raised here 
+        #KeyError will be automatically raised here
         initializer_dict = {name: data[name] for name in argspec}
 
         return cls(**initializer_dict)
