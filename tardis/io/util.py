@@ -1,6 +1,7 @@
 #Utility functions for the IO part of TARDIS
 import inspect
 import os
+import re
 import pandas as pd
 import numpy as np
 import collections
@@ -234,6 +235,11 @@ class HDFReaderWriter(object):
     def get_properties(self):
         data = {name: getattr(self, name) for name in self.hdf_properties}
         return data
+    
+    @staticmethod
+    def convert_to_camel_case(s):
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
     def to_hdf(self, file_path, path='', name=None):
         """
@@ -250,7 +256,12 @@ class HDFReaderWriter(object):
         -------
 
         """
-        name = name or self.__class__.__name__
+        if name is None:
+            try:
+                name = self.hdf_name
+            except:
+                name = self.convert_to_camel_case(self.__class__.__name__)
+
         data = self.get_properties()
         buff_path = os.path.join(path, name)
         self.to_hdf_util(file_path, buff_path, data)
@@ -329,7 +340,12 @@ class HDFReaderWriter(object):
         -------
         `Class instance` 
         """
-        name = name or cls.__name__
+        if name is None:
+            try:
+                name = cls.hdf_name
+            except:
+                name = cls.convert_to_camel_case(cls.__name__)
+
         buff_path = os.path.join(path, name)
         data = cls.from_hdf_util(file_path, buff_path)
 
