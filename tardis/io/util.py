@@ -259,7 +259,7 @@ class HDFReaderWriter(object):
         if name is None:
             try:
                 name = self.hdf_name
-            except:
+            except AttributeError:
                 name = self.convert_to_camel_case(self.__class__.__name__)
 
         data = self.get_properties()
@@ -343,7 +343,7 @@ class HDFReaderWriter(object):
         if name is None:
             try:
                 name = cls.hdf_name
-            except:
+            except AttributeError:
                 name = cls.convert_to_camel_case(cls.__name__)
 
         buff_path = os.path.join(path, name)
