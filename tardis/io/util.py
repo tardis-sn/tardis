@@ -1,6 +1,7 @@
 #Utility functions for the IO part of TARDIS
-
+import inspect
 import os
+import re
 import pandas as pd
 import numpy as np
 import collections
@@ -166,6 +167,199 @@ def check_equality(item1, item2):
         return True
 
 
+class HDFReaderWriter(object):
+
+    @staticmethod
+    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib='blosc'):
+        """
+        A function to uniformly store TARDIS data
+        to an HDF file.
+
+        Scalars will be stored in a Series under path/scalars
+        1D arrays will be stored under path/property_name as distinct Series
+        2D arrays will be stored under path/property_name as distinct DataFrames
+
+        Units will be stored as their CGS value
+
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        elements: dict
+            A dict of property names and their values to be
+            stored.
+
+        Returns
+        -------
+
+        """
+        scalars = {}
+        for key, value in elements.iteritems():
+            if value is None:
+                value = 'none'
+            if hasattr(value, 'cgs'):
+                value = value.cgs.value
+            if np.isscalar(value):
+                scalars[key] = value
+            elif hasattr(value, 'shape'):
+                if value.ndim == 1:
+                    # This try,except block is only for model.plasma.levels
+                    try:
+                        pd.Series(value).to_hdf(path_or_buf,
+                                                os.path.join(path, key))
+                    except NotImplementedError:
+                        pd.DataFrame(value).to_hdf(path_or_buf,
+                                                   os.path.join(path, key))
+                else:
+                    pd.DataFrame(value).to_hdf(
+                        path_or_buf, os.path.join(path, key))
+            else:
+                try:
+                    value.to_hdf(path_or_buf, path, name=key)
+                except AttributeError:
+                    data = pd.DataFrame([value])
+                    data.to_hdf(path_or_buf, os.path.join(path, key))
+                    
+        if scalars:
+            scalars_series = pd.Series(scalars)
+
+            # Unfortunately, with to_hdf we cannot append, so merge beforehand
+            scalars_path = os.path.join(path, 'scalars')
+            with pd.HDFStore(path_or_buf, complevel=complevel, complib=complib) as store:
+                if scalars_path in store:
+                    scalars_series = store[scalars_path].append(scalars_series)
+            scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
+
+    def get_properties(self):
+        data = {name: getattr(self, name) for name in self.hdf_properties}
+        return data
+    
+    @staticmethod
+    def convert_to_camel_case(s):
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+    def to_hdf(self, file_path, path='', name=None):
+        """
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        name: str
+            Group inside the HDF store to which the `elements` need to be saved
+
+        Returns
+        -------
+
+        """
+        if name is None:
+            try:
+                name = self.hdf_name
+            except AttributeError:
+                name = self.convert_to_camel_case(self.__class__.__name__)
+
+        data = self.get_properties()
+        buff_path = os.path.join(path, name)
+        self.to_hdf_util(file_path, buff_path, data)
+
+    @classmethod
+    def from_hdf_util(cls, file_path, path=''):
+        """
+        A function to return TARDIS data from an HDF file.
+
+        Parameters
+        ----------
+        file_path:
+            Path to the HDF store
+        path: str
+            Path inside the HDF store
+
+        Returns
+        -------
+        `dict`
+        """
+        hdf = {}
+
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in cls.hdf_properties:
+                hdf[key] = {}
+                buff_path = os.path.join(path, key)
+                if key in cls.quantity_attrs:
+                    try:
+                        if data[buff_path].ndim == 1:
+                            hdf[key] = u.Quantity(
+                                data[buff_path].values, cls.quantity_attrs[key])
+                        else:
+                            hdf[key] = u.Quantity(
+                                data[buff_path], cls.quantity_attrs[key])
+                    except KeyError:
+                        try:
+                            buff_path = os.path.join(path, 'scalars')
+                            hdf[key] = u.Quantity(
+                                data[buff_path][key], cls.quantity_attrs[key])
+                        except TypeError:
+                            buff_path = os.path.join(path, 'scalars')
+                            hdf[key] = data[buff_path][key]
+                            if hdf[key] == 'none':
+                                hdf[key] = None
+                else:
+                    try:
+                        if data[buff_path].ndim == 1:
+                            hdf[key] = data[buff_path].values
+                        else:
+                            hdf[key] = data[buff_path]
+                    except (KeyError, TypeError):
+                        try:
+                            c = cls.class_properties.get(key)
+                            hdf[key] = c.from_hdf(file_path, path, name=key)
+                        except AttributeError:
+                            buff_path = os.path.join(path, 'scalars')
+                            hdf[key] = data[buff_path][key]
+                            if hdf[key] == 'none':
+                                hdf[key] = None
+
+        return hdf
+
+    @classmethod
+    def from_hdf(cls, file_path, path='', name=None):
+        """
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to retrieve the `elements`
+        name: str
+            Group inside the HDF store from which the `elements` need to be retrieved
+
+        Returns
+        -------
+        `Class instance` 
+        """
+        if name is None:
+            try:
+                name = cls.hdf_name
+            except AttributeError:
+                name = cls.convert_to_camel_case(cls.__name__)
+
+        buff_path = os.path.join(path, name)
+        data = cls.from_hdf_util(file_path, buff_path)
+
+        #Get initialization parameters from constructor definition of class
+        argspec = inspect.getargspec(cls.__init__).args
+        argspec.remove('self')
+
+        #If any value in HDF file is missing for Class initialization,
+        #KeyError will be automatically raised here
+        initializer_dict = {name: data[name] for name in argspec}
+
+        return cls(**initializer_dict)
+
+#Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     """
     A function to uniformly store TARDIS data
