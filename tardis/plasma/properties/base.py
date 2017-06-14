@@ -4,7 +4,7 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import numpy as np
 import pandas as pd
 
-from tardis.io.util import to_hdf
+from tardis.io.util import HDFReaderWriter
 
 __all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
            'HiddenPlasmaProperty', 'Input', 'ArrayInput', 'DataFrameInput',
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 import os
 
-class BasePlasmaProperty(object):
+class BasePlasmaProperty(HDFReaderWriter, object):
     """
     Attributes
     ----------
@@ -83,7 +83,7 @@ class BasePlasmaProperty(object):
 
         """
         outputs = {name: getattr(self, name) for name in self.outputs}
-        to_hdf(path_or_buf, path, outputs)
+        self.to_hdf_util(path_or_buf, path, outputs)
 
 
 class ProcessingPlasmaProperty(BasePlasmaProperty):

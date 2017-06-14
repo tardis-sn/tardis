@@ -166,6 +166,116 @@ def check_equality(item1, item2):
         return True
 
 
+class HDFReaderWriter(object):
+
+    
+    def to_hdf_util(self, path_or_buf, path, elements, complevel=9, complib='blosc'):
+        """
+        A function to uniformly store TARDIS data
+        to an HDF file.
+
+        Scalars will be stored in a Series under path/scalars
+        1D arrays will be stored under path/property_name as distinct Series
+        2D arrays will be stored under path/property_name as distinct DataFrames
+
+        Units will be stored as their CGS value
+
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        elements: dict
+            A dict of property names and their values to be
+            stored.
+
+        Returns
+        -------
+
+        """
+        scalars = {}
+        for key, value in elements.iteritems():
+            if value is None:
+                value = 'none'
+            if hasattr(value, 'cgs'):
+                value = value.cgs.value
+            if np.isscalar(value):
+                scalars[key] = value
+            elif hasattr(value, 'shape'):
+                if value.ndim == 1:
+                    # This try,except block is only for model.plasma.levels
+                    try:
+                        pd.Series(value).to_hdf(path_or_buf,
+                                                os.path.join(path, key))
+                    except NotImplementedError:
+                        pd.DataFrame(value).to_hdf(path_or_buf,
+                                                   os.path.join(path, key))
+                else:
+                    pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
+            else:
+                data = pd.DataFrame([value])
+                data.to_hdf(path_or_buf, os.path.join(path, key))
+
+        if scalars:
+            scalars_series = pd.Series(scalars)
+
+            # Unfortunately, with to_hdf we cannot append, so merge beforehand
+            scalars_path = os.path.join(path, 'scalars')
+            with pd.HDFStore(path_or_buf, complevel=complevel, complib=complib) as store:
+                if scalars_path in store:
+                    scalars_series = store[scalars_path].append(scalars_series)
+            scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
+    
+    @classmethod
+    def from_hdf_util(cls, file_path, path=''):
+        """
+        A function to return TARDIS data from an HDF file.
+
+        Parameters
+        ----------
+        file_path:
+            Path to the HDF store
+        path: str
+            Path inside the HDF store
+
+        Returns
+        -------
+        `dict`
+        """
+        hdf = {}
+
+        with pd.HDFStore(file_path, 'r') as data:
+            for key in cls.hdf_properties:
+                hdf[key] = {}
+                buff_path = os.path.join(path, key)
+                if key in cls.quantity_attrs:
+                    try:
+                        if data[buff_path].ndim == 1:
+                            hdf[key] = u.Quantity(
+                                data[buff_path].values, cls.quantity_attrs[key])
+                        else:
+                            hdf[key] = u.Quantity(
+                                data[buff_path], cls.quantity_attrs[key])
+                    except:
+                        buff_path = os.path.join(path, 'scalars')
+                        hdf[key] = u.Quantity(
+                            data[buff_path][key], cls.quantity_attrs[key])
+                else:
+                    try:
+                        if data[buff_path].ndim == 1:
+                            hdf[key] = data[buff_path].values
+                        else:
+                            hdf[key] = data[buff_path]
+                    except:
+                        buff_path = os.path.join(path, 'scalars')
+                        hdf[key] = data[buff_path][key]
+                        if hdf[key] == 'none':
+                            hdf[key] = None
+        return hdf
+
+
+#Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     """
     A function to uniformly store TARDIS data
