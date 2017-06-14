@@ -8,7 +8,7 @@ import pytest
 import tardis
 from tardis.atomic import AtomData
 from tardis.plasma.properties import *
-
+from tardis.io.util import to_hdf
 # INPUTS
 
 @pytest.fixture
@@ -258,3 +258,26 @@ def transition_probabilities(atomic_data, beta_sobolev, j_blues,
                                                      j_blues,
                                                      stimulated_emission_factor,
                                                      tau_sobolev)
+
+
+@pytest.fixture(autouse=True)
+def update_reference_data(request, level_boltzmann_factor_lte, level_boltzmann_factor_dilute_lte, partition_function):
+    update_reference = request.config.getoption("--update-reference-plasma")
+    if update_reference:
+        ref_path = os.path.join(
+            'tardis', 'plasma', 'tests', 'data', 'ref_data.h5')
+        if os.path.isfile(ref_path):
+            os.remove(ref_path)
+        dict_variables = locals()
+        remove_var = ['update_reference', 'ref_path', 'request']
+        for k in remove_var:
+            dict_variables.pop(k)
+        to_hdf(ref_path, 'plasma', dict_variables)
+    else:
+        pass
+
+
+@pytest.fixture()
+def compare_with_reference(request):
+    fpath = request.config.getoption("--compare-reference-plasma")
+    return fpath
