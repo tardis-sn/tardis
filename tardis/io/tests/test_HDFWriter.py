@@ -123,3 +123,16 @@ def test_objects_write(tmpdir, attr):
         fname, key='/test/mock_class/nested_object/property')
     assert_array_almost_equal(
         actual.nested_object.property, nested_property)
+
+
+def test_snake_case():
+    obj = MockHDF(None)
+    assert obj.convert_to_snake_case(
+        "HomologousDensity") == "homologous_density"
+    assert obj.convert_to_snake_case("TARDISSpectrum") == "tardis_spectrum"
+    assert obj.convert_to_snake_case("BasePlasma") == "base_plasma"
+    assert obj.convert_to_snake_case("LTEPlasma") == "lte_plasma"
+    assert obj.convert_to_snake_case(
+        "MonteCarloRunner") == "monte_carlo_runner"
+    assert obj.convert_to_snake_case(
+        "homologous_density") == "homologous_density"
