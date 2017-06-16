@@ -52,18 +52,16 @@ def test_complex_obj_write(tmpdir, attr):
     expected = pd.read_hdf(fname, key='/test/mock_hdf/property').values
     assert_array_almost_equal(actual.property, expected)
 
-arrays = [['L1', 'L1', 'L2', 'L2', 'L3', 'L3', 'L4', 'L4'],
-          ['one', 'two', 'one', 'two', 'one', 'two', 'one', 'two']]
-tuples = list(zip(*arrays))
-mock_multiIndex = pd.MultiIndex.from_tuples(tuples, names=['first', 'second'])
+arr = np.array([['L1', 'L1', 'L2', 'L2', 'L3', 'L3', 'L4', 'L4'],
+                ['one', 'two', 'one', 'two', 'one', 'two', 'one', 'two']])
+mock_multiIndex = pd.MultiIndex.from_arrays(arr.transpose())
 
 def test_MultiIndex_write(tmpdir):
     fname = str(tmpdir.mkdir('data').join('test.hdf'))
     actual = MockHDF(mock_multiIndex)
     actual.to_hdf(fname, path='test')
     expected = pd.read_hdf(fname, key='/test/mock_hdf/property')
-    expected = pd.MultiIndex.from_tuples(
-        expected.unstack().values, names=['first', 'second'])
+    expected = pd.MultiIndex.from_tuples(expected.unstack().values)
     pdt.assert_almost_equal(actual.property, expected)
 
 #Test Quantity Objects
@@ -126,13 +124,12 @@ def test_objects_write(tmpdir, attr):
 
 
 def test_snake_case():
-    obj = MockHDF(None)
-    assert obj.convert_to_snake_case(
+    assert MockHDF.convert_to_snake_case(
         "HomologousDensity") == "homologous_density"
-    assert obj.convert_to_snake_case("TARDISSpectrum") == "tardis_spectrum"
-    assert obj.convert_to_snake_case("BasePlasma") == "base_plasma"
-    assert obj.convert_to_snake_case("LTEPlasma") == "lte_plasma"
-    assert obj.convert_to_snake_case(
+    assert MockHDF.convert_to_snake_case("TARDISSpectrum") == "tardis_spectrum"
+    assert MockHDF.convert_to_snake_case("BasePlasma") == "base_plasma"
+    assert MockHDF.convert_to_snake_case("LTEPlasma") == "lte_plasma"
+    assert MockHDF.convert_to_snake_case(
         "MonteCarloRunner") == "monte_carlo_runner"
-    assert obj.convert_to_snake_case(
+    assert MockHDF.convert_to_snake_case(
         "homologous_density") == "homologous_density"
