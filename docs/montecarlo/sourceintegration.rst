@@ -7,7 +7,7 @@ Direct integration of the radiation field
   The current implementation only works with the downbranch line interaction scheme.
 
 
-:cite `Lucy99b` describes an alternative method for the generation of spectram for the supernova ejecta. Instead of using the frequency and energy of virtual montecarlo packets to create a spectrum through binning, one can use estimators collected during the montecarlo simulation to formally integrate the radiation field. Spectra generated using this method do not contain montecarlo noise directly. Here the monte carlo nature of the simulation only affects the strengths of lines and thus the spectra appear to be of better quality.
+:cite:`Lucy1999a` describes an alternative method for the generation of spectram for the supernova ejecta. Instead of using the frequency and energy of virtual montecarlo packets to create a spectrum through binning, one can use estimators collected during the montecarlo simulation to formally integrate the radiation field. Spectra generated using this method do not contain montecarlo noise directly. Here the monte carlo nature of the simulation only affects the strengths of lines and thus the spectra appear to be of better quality.
 
 The procedure uses a line absorption rate estimator that is collected during the montecarlo simulation:
 
@@ -21,7 +21,7 @@ After the final monte carlo step, a level absorption estimator is calculated, gi
 
 .. math::
 
-   \dot E_u = \sum_{i < u} \dot E_{lu}
+   \dot E_u = \sum_{i < u} \dot E_{iu}
 
 that is, by summing all the line absorption estimators below the currently selected level.
 
@@ -29,7 +29,7 @@ The source function for each line can then be derived from the relation
 
 .. math::
 
-   \left( 1- e^{-\tau_lu}\right) S_{ul} = \frac{\lambda_{ul} t}{4 \pi} q_{ul} \dot E_u
+   \left( 1- e^{-\tau_{lu}}\right) S_{ul} = \frac{\lambda_{ul} t}{4 \pi} q_{ul} \dot E_u
 
 where :math:`\lambda_{ul}` is the wavelength of each line  :math:`u \rightarrow l`, and :math:`q_{ul}` is the corresponding branching ratio. The attenuating factor is kept on the left hand side because it is the product of the two that will appear in later formulae.
 
@@ -51,27 +51,40 @@ where the superscripts are crucial, with :math:`r` and :math:`b` referencing the
 
    I_{k+1}^b = I_k^r
 
+.. note::
+
+   Currently the code does not perform the steps necessary to include continuum sources of opacity.
+
 or include them, then requiring we perform
 
 .. math::
 
    I_{k+1}^b = I_k^r + \Delta \tau_k \left[ \frac 1 2(J_k^r + J_{k+1}^b) - I_k^r  \right]
 
-The starting condition for the blue to red side transition is either :math:`I_0^r = 0` for the case that the impact parameter is greater than the radius if the photosphere, or :math:`I_0^r = B_\nu(T)` if the impact parameter is less than the radius of the photosphere.
+The starting condition for the blue to red side transition is either
+:math:`I_0^r = B_\nu(T)` if the ray intersects the photosphere and :math:`I_0^r = 0` otherwise.
 
-.. note::
+We seek to integrate all emissions at a certain wavelength :math:`\nu` along a
+ray with impact parameter :math:`p`. Because the supernova ejecta is expanding
+homologously, along any ray parallel to the line of sight, the Doppler effect
+will shift a range of co-moving frequencies :math:`\nu_0` into the desired
+observer frame frequency :math:`\nu`.
 
-   Currently the code does not perform the steps necessary to include continuum sources of opacity.
-
-We seek to integrate all emissions at a certain wavelength :math:`\nu` along a ray at some specific impact parameter :math:`p'`. Because the SNE is expanding homologously, along any ray parallel to the line of sight the Doppler effect will shift a range of co-moving frequencies :math:`\nu_0` into the desired observer frame frequency :math:`\nu`.
-
-To find which lines to include when recursing on the line list we need to find the maximum Doppler shift along a given ray. At any point, the Doppler effect in our coordinates is
+To find which lines to include when recursing on the line list we need to find
+the maximum Doppler shift along a given ray. At any point, the Doppler effect in
+our coordinates is
 
 .. math::
 
    \nu = \nu_0 \left( 1 + \beta \mu \right)
 
-where :math:`\beta = \frac v c`, and :math:`\mu = \cos \theta`. Here :math:`\theta` is the angle between the radial direction and the ray to the observer, as shown in the figure below. Because we are in the homologous expansion regime :math:`v = \frac r t`. Solving for :math:`\nu_0` in the above gives the relation we seek, but we require an expression for :math:`\mu`. Examining the figure, we see that for positive :math:`z` the angle :math:`\theta_2` can be related to the :math:`z` coordinate of the point C by
+where :math:`\beta = \frac v c`, and :math:`\mu = \cos \theta`. Here
+:math:`\theta` is the angle between the radial direction and the ray to the
+observer, as shown in the figure below. Because we are in the homologous
+expansion regime :math:`v = \frac r t`. Solving for :math:`\nu_0` in the above
+gives the relation we seek, but we require an expression for :math:`\mu`.
+Examining the figure, we see that for positive :math:`z` the angle
+:math:`\theta_2` can be related to the :math:`z` coordinate of the point C by
 
 .. math::
 
@@ -85,12 +98,15 @@ and in turn :math:`z_c` can be given as
 
    z_c = \sqrt{r_c^2 + p_c^2}
 
-where the subscripts indicate the value at point C. By symmetry the intersection point for negative :math:`z` is simply :math:`-z_c`.
+where the subscripts indicate the value at point C. By symmetry the intersection
+point for negative :math:`z` is simply :math:`-z_c`.
 
-Using the expression for :math:`\mu`, :math:`\beta` above leads to the dependence on :math:`r` cancelling, and solving for :math:`\nu_0` gives
+Using the expression for :math:`\mu`, :math:`\beta` above leads to the
+dependence on :math:`r` cancelling, and solving for :math:`\nu_0` gives
 
 .. math::
 
    \nu_0 = \frac{\nu}{1 + \frac{z}{ct}}
 
-For any given shell and impact parameter we can thus find the maximum and minimum co-moving frequency that will give the specified lab frame frequency if we know the intersection points of the ray with correct impact parameter, and this we find easily given the impact parameter and the radius of the shell.
+For any given shell and impact parameter we can thus find the maximum and
+minimum co-moving frequency that will give the specified lab frame frequency.
