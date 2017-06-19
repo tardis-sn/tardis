@@ -17,6 +17,7 @@ class TARDISSpectrum(HDFWriter, object):
     'flux_lambda' become available
     """
     hdf_properties = ['_frequency', 'luminosity']
+    hdf_name = 'spectrum'
     def __init__(self, _frequency, luminosity):
 
         # Check for correct inputs
