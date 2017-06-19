@@ -6,13 +6,13 @@ from astropy import constants, units as u
 
 from tardis.util import quantity_linspace, element_symbol2atomic_number
 from tardis.io.model_reader import read_density_file, read_abundances_file
-from tardis.io.util import to_hdf
+from tardis.io.util import HDFWriter
 from density import HomologousDensity
 
 logger = logging.getLogger(__name__)
 
 
-class Radial1DModel(object):
+class Radial1DModel(HDFWriter, object):
     """An object that hold information about the individual shells.
 
     Parameters
@@ -57,6 +57,10 @@ class Radial1DModel(object):
         Shortcut for `t_radiative`
 
     """
+    hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
+    class_properties = {'homologous_density': HomologousDensity}
+    hdf_name = 'model'
+    
     def __init__(self, velocity, homologous_density, abundance, time_explosion,
                  t_inner, luminosity_requested=None, t_radiative=None,
                  dilution_factor=None, v_boundary_inner=None,
@@ -261,27 +265,6 @@ class Radial1DModel(object):
         if self.v_boundary_outer >= self.raw_velocity[-1]:
             return None
         return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
-
-    def to_hdf(self, path_or_buf, path=''):
-        """
-        Store the model to an HDF structure.
-
-        Parameters
-        ----------
-        path_or_buf
-            Path or buffer to the HDF store
-        path : str
-            Path inside the HDF store to store the model
-
-        Returns
-        -------
-        None
-
-        """
-        model_path = os.path.join(path, 'model')
-        properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer']
-        to_hdf(path_or_buf, model_path, {name: getattr(self, name) for name
-                                         in properties})
 
     @classmethod
     def from_config(cls, config):
