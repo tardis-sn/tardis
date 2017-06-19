@@ -1,7 +1,7 @@
 import os
-
+import pandas as pd
 import pytest
-from astropy.tests.helper import assert_quantity_allclose
+from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.config_reader import Configuration
 from tardis.model.density import HomologousDensity
@@ -28,19 +28,20 @@ def homologous_density():
 
 @pytest.fixture(scope="module",autouse=True)
 def to_hdf_buffer(hdf_file_path,homologous_density):
-    homologous_density.to_hdf(hdf_file_path, 'density')
+    homologous_density.to_hdf(hdf_file_path)
 
+def test_hdf_density_0(hdf_file_path, homologous_density):
+    actual = homologous_density.density_0
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    path = os.path.join('homologous_density','density_0')
+    expected = pd.read_hdf(hdf_file_path, path)
+    assert_array_almost_equal(actual, expected.values)
 
-@pytest.fixture(scope="module")
-def from_hdf_buffer(hdf_file_path):
-    hdf_buffer = HomologousDensity.from_hdf(hdf_file_path, 'density')
-    return hdf_buffer
-
-
-homologous_density_attrs = ['density_0', 'time_0']
-
-@pytest.mark.parametrize("attr", homologous_density_attrs)
-def test_hdf_homologous_density(from_hdf_buffer, homologous_density, attr):
-    if hasattr(homologous_density, attr):
-        assert_quantity_allclose(getattr(homologous_density, attr), getattr(
-            from_hdf_buffer, attr))
+def test_hdf_time_0(hdf_file_path, homologous_density):
+    actual = homologous_density.time_0
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    path = os.path.join('homologous_density','scalars')
+    expected = pd.read_hdf(hdf_file_path, path)['time_0']
+    assert_almost_equal(actual, expected)
