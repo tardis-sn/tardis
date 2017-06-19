@@ -1,9 +1,9 @@
 import numpy as np
-import os
-from tardis.util import quantity_linspace
-from tardis.io.util import HDFReaderWriter
 
-class HomologousDensity(HDFReaderWriter, object):
+from tardis.util import quantity_linspace
+from tardis.io.util import HDFWriter
+
+class HomologousDensity(HDFWriter, object):
     """A class that holds an initial density and time
 
     Parameters
@@ -13,8 +13,7 @@ class HomologousDensity(HDFReaderWriter, object):
 
     """
     hdf_properties = ['density_0', 'time_0']
-    quantity_attrs = {'density_0':'g/cm^3', 'time_0':'s'}
-
+    
     def __init__(self, density_0, time_0):
         self.density_0 = density_0
         self.time_0 = time_0
@@ -80,44 +79,6 @@ class HomologousDensity(HDFReaderWriter, object):
             raise ValueError("Unrecognized density type "
                              "'{}'".format(d_conf.type))
         return cls(density_0, time_0)
-
-    def to_hdf(self, path_or_buf, path=''):
-        """
-        Store the HomologousDensity to an HDF structure.
-        Parameters
-        ----------
-        path_or_buf
-            Path or buffer to the HDF store
-        path : str
-            Path inside the HDF store to store the HomologousDensity
-        Returns
-        -------
-        None
-        """
-        homologous_density_path = os.path.join(path, 'homologous_density')
-        self.to_hdf_util(path_or_buf, homologous_density_path, {name: getattr(self, name) for name
-                                                      in self.hdf_properties})
-
-    @classmethod
-    def from_hdf(cls, file_path, path=''):
-        """
-        This function returns a HomologousDensity object 
-        from given HDF5 File.
-        Parameters
-        ----------
-        path : 'str'
-            Path to transverse in hdf file
-        file_path : 'str'
-            Path of Simulation generated HDF file 
-        Returns
-        -------
-        `~HomologousDensity`
-        """
-
-
-        buff_path = os.path.join(path, 'homologous_density')
-        data = cls.from_hdf_util(file_path, buff_path)
-        return cls(data['density_0'], data['time_0'])
 
 
 def calculate_power_law_density(velocities, velocity_0, rho_0, exponent):

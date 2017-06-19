@@ -6,14 +6,13 @@ from astropy import constants, units as u
 
 from tardis.util import quantity_linspace, element_symbol2atomic_number
 from tardis.io.model_reader import read_density_file, read_abundances_file
-from tardis.io.util import to_hdf
+from tardis.io.util import HDFWriter
 from density import HomologousDensity
-from tardis.io.util import HDFReaderWriter
 
 logger = logging.getLogger(__name__)
 
 
-class Radial1DModel(HDFReaderWriter, object):
+class Radial1DModel(HDFWriter, object):
     """An object that hold information about the individual shells.
 
     Parameters
@@ -58,13 +57,10 @@ class Radial1DModel(HDFReaderWriter, object):
         Shortcut for `t_radiative`
 
     """
-    hdf_properties = ['velocity', 'abundance', 'time_explosion',
-                      't_inner', 'luminosity_requested', 't_radiative',
-                      'dilution_factor', 'v_inner', 'v_outer']
-    quantity_attrs = {'luminosity_requested': 'erg/s', 'time_explosion': 's', 't_inner': 'K',
-                      't_radiative': 'K', 'v_boundary_inner': 'cm/s', 'v_boundary_outer': 'cm/s',
-                      'velocity': 'cm/s'}
-
+    hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
+    class_properties = {'homologous_density': HomologousDensity}
+    hdf_name = 'model'
+    
     def __init__(self, velocity, homologous_density, abundance, time_explosion,
                  t_inner, luminosity_requested=None, t_radiative=None,
                  dilution_factor=None, v_boundary_inner=None,
@@ -78,7 +74,6 @@ class Radial1DModel(HDFReaderWriter, object):
         self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
-        self.luminosity_requested = luminosity_requested
         if t_inner is None:
             if luminosity_requested is not None:
                 self.t_inner = ((luminosity_requested /
@@ -270,53 +265,6 @@ class Radial1DModel(HDFReaderWriter, object):
         if self.v_boundary_outer >= self.raw_velocity[-1]:
             return None
         return self.raw_velocity.searchsorted(self.v_boundary_outer) + 1
-
-    def to_hdf(self, path_or_buf, path=''):
-        """
-        Store the model to an HDF structure.
-
-        Parameters
-        ----------
-        path_or_buf
-            Path or buffer to the HDF store
-        path : str
-            Path inside the HDF store to store the model
-
-        Returns
-        -------
-        None
-
-        """
-        model_path = os.path.join(path, 'model')
-        self.to_hdf_util(path_or_buf, model_path, {name: getattr(self, name) for name
-                                                   in self.hdf_properties})
-        self.homologous_density.to_hdf(path_or_buf, model_path)
-
-    @classmethod
-    def from_hdf(cls, file_path, path=''):
-        """
-        This function returns a Radial1DModel object 
-        from given HDF5 File.
-        Parameters
-        ----------
-        path : 'str'
-            Path to transverse in hdf file
-        file_path : 'str'
-            Path of Simulation generated HDF file 
-        Returns
-        -------
-        model : `~Radial1DModel`
-        """
-        buff_path = os.path.join(path, 'model')
-        data = cls.from_hdf_util(file_path, buff_path)
-        data['homologous_density'] = HomologousDensity.from_hdf(
-            file_path, buff_path)
-        v_boundary_inner = u.Quantity(data['v_inner'][0], 'cm/s')
-        v_boundary_outer = u.Quantity(data['v_outer'][
-            len(data['v_outer']) - 1], 'cm/s')
-        data.pop('v_inner')
-        data.pop('v_outer')
-        return cls(**data)
 
     @classmethod
     def from_config(cls, config):
