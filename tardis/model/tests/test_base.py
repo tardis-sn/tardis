@@ -2,7 +2,7 @@ import os
 import pytest
 import pandas as pd
 from astropy import units as u
-from numpy.testing import assert_almost_equal
+from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
