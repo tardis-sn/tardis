@@ -1,5 +1,6 @@
 import os
 import pytest
+import pandas as pd
 from astropy import units as u
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 import astropy.tests.helper as test_helper
@@ -225,30 +226,26 @@ def actual_model():
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, actual_model):
-    actual_model.to_hdf(hdf_file_path, 'model')
+    actual_model.to_hdf(hdf_file_path)
 
+model_scalar_attrs = ['t_inner']
 
-@pytest.fixture(scope="module")
-def from_hdf_buffer(hdf_file_path):
-    hdf_buffer = Radial1DModel.from_hdf(hdf_file_path, 'model')
-    return hdf_buffer
+@pytest.mark.parametrize("attr", model_scalar_attrs)
+def test_hdf_model_scalars(hdf_file_path, actual_model, attr):
+    path = os.path.join('model', 'scalars')
+    expected = pd.read_hdf(hdf_file_path, path)[attr]
+    actual = getattr(actual_model, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    assert_almost_equal(actual, expected)
 
-
-model_quantity_attrs = ['luminosity_requested', 'time_explosion',
-                        't_inner', 't_rad', 'v_inner', 'v_outer',
-                        'velocity']
-
-
-@pytest.mark.parametrize("attr", model_quantity_attrs)
-def test_hdf_model_quantites(from_hdf_buffer, actual_model, attr):
-    test_helper.assert_quantity_allclose(getattr(actual_model, attr), getattr(
-        from_hdf_buffer, attr))
-
-
-model_nparray_attrs = ['abundance', 'dilution_factor']
-
+model_nparray_attrs = ['w', 'v_inner', 'v_outer']
 
 @pytest.mark.parametrize("attr", model_nparray_attrs)
-def test_hdf_model_nparray(from_hdf_buffer, actual_model, attr):
-    assert_array_almost_equal(getattr(actual_model, attr), getattr(
-        from_hdf_buffer, attr))
+def test_hdf_model_nparray(hdf_file_path, actual_model, attr):
+    path = os.path.join('model', attr)
+    expected = pd.read_hdf(hdf_file_path, path)
+    actual = getattr(actual_model, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    assert_array_almost_equal(actual, expected)
