@@ -1,9 +1,9 @@
 import warnings
 import numpy as np
 from astropy import units as u
+from tardis.io.util import HDFWriter
 
-
-class TARDISSpectrum(object):
+class TARDISSpectrum(HDFWriter, object):
     """
     TARDISSpectrum(_frequency, luminosity)
 
@@ -16,7 +16,8 @@ class TARDISSpectrum(object):
     After manually adding a distance attribute, the properties 'flux_nu' and
     'flux_lambda' become available
     """
-
+    hdf_properties = ['_frequency', 'luminosity']
+    hdf_name = 'spectrum'
     def __init__(self, _frequency, luminosity):
 
         # Check for correct inputs
@@ -119,10 +120,3 @@ class TARDISSpectrum(object):
             raise NotImplementedError(
                     'only mode "luminosity_density"'
                     'and "flux" are implemented')
-
-    def to_hdf(self, path_or_buf, path):
-        pass
-
-    @classmethod
-    def from_hdf(cls, path_or_buf, path):
-        pass
