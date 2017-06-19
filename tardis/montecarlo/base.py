@@ -28,7 +28,7 @@ class MontecarloRunner(HDFWriter, object):
                       'last_line_interaction_out_id',
                       'last_line_interaction_shell_id',
                       'packet_luminosity', 'spectrum',
-                       'spectrum_virtual', 'spectrum_reabsorbed']
+                      'spectrum_virtual', 'spectrum_reabsorbed']
     class_properties = {'spectrum': TARDISSpectrum,
                         'spectrum_virtual': TARDISSpectrum,
                         'spectrum_reabsorbed': TARDISSpectrum}
