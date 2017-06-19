@@ -1,14 +1,14 @@
 import pytest
 import numpy as np
 import pandas as pd
-
+import os
 from astropy import (
         units as u,
         constants as c
         )
 import astropy.tests.helper as test_helper
 from tardis.montecarlo.spectrum import TARDISSpectrum
-
+from numpy.testing import assert_almost_equal
 BIN = 5
 
 TESTDATA = [
@@ -170,26 +170,20 @@ def hdf_file_path(tmpdir_factory):
     path = tmpdir_factory.mktemp('hdf_buffer').join('spectrum.hdf')
     return str(path)
 
-
 @pytest.fixture(autouse=True)
 def to_hdf_buffer(hdf_file_path,spectrum):
-    spectrum.to_hdf(hdf_file_path,'spectrum')
-
-
-@pytest.fixture()
-def from_hdf_buffer(hdf_file_path):
-    hdf_buffer = TARDISSpectrum.from_hdf(hdf_file_path, 'spectrum')
-    return hdf_buffer
-
+    spectrum.to_hdf(hdf_file_path, name='spectrum')
 
 spectrum_attrs = ['_frequency', 'luminosity']
 
 @pytest.mark.parametrize("attr", spectrum_attrs)
-def test_hdf_spectrum(from_hdf_buffer, spectrum, attr):
-    if hasattr(spectrum, attr):
-        test_helper.assert_quantity_allclose(getattr(spectrum, attr), getattr(
-            from_hdf_buffer, attr))
-
+def test_hdf_spectrum(hdf_file_path, spectrum, attr):
+    actual = getattr(spectrum, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    path = os.path.join('spectrum', attr)
+    expected = pd.read_hdf(hdf_file_path, path)
+    assert_almost_equal(actual, expected.values)
 
 ###
 # Test creation from nonstandard units
