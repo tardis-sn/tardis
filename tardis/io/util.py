@@ -1,6 +1,7 @@
 #Utility functions for the IO part of TARDIS
 
 import os
+import re
 import pandas as pd
 import numpy as np
 import collections
@@ -166,10 +167,10 @@ def check_equality(item1, item2):
         return True
 
 
-class HDFReaderWriter(object):
+class HDFWriter(object):
 
-    
-    def to_hdf_util(self, path_or_buf, path, elements, complevel=9, complib='blosc'):
+    @staticmethod
+    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib='blosc'):
         """
         A function to uniformly store TARDIS data
         to an HDF file.
@@ -212,11 +213,15 @@ class HDFReaderWriter(object):
                         pd.DataFrame(value).to_hdf(path_or_buf,
                                                    os.path.join(path, key))
                 else:
-                    pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
+                    pd.DataFrame(value).to_hdf(
+                        path_or_buf, os.path.join(path, key))
             else:
-                data = pd.DataFrame([value])
-                data.to_hdf(path_or_buf, os.path.join(path, key))
-
+                try:
+                    value.to_hdf(path_or_buf, path, name=key)
+                except AttributeError:
+                    data = pd.DataFrame([value])
+                    data.to_hdf(path_or_buf, os.path.join(path, key))
+                    
         if scalars:
             scalars_series = pd.Series(scalars)
 
@@ -226,55 +231,41 @@ class HDFReaderWriter(object):
                 if scalars_path in store:
                     scalars_series = store[scalars_path].append(scalars_series)
             scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
-    
-    @classmethod
-    def from_hdf_util(cls, file_path, path=''):
-        """
-        A function to return TARDIS data from an HDF file.
 
+    def get_properties(self):
+        data = {name: getattr(self, name) for name in self.hdf_properties}
+        return data
+    
+    @staticmethod
+    def convert_to_snake_case(s):
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+    def to_hdf(self, file_path, path='', name=None):
+        """
         Parameters
         ----------
-        file_path:
-            Path to the HDF store
+        file_path: str
+            Path or buffer to the HDF store
         path: str
-            Path inside the HDF store
+            Path inside the HDF store to store the `elements`
+        name: str
+            Group inside the HDF store to which the `elements` need to be saved
 
         Returns
         -------
-        `dict`
+
         """
-        hdf = {}
+        if name is None:
+            try:
+                name = self.hdf_name
+            except AttributeError:
+                name = self.convert_to_snake_case(self.__class__.__name__)
 
-        with pd.HDFStore(file_path, 'r') as data:
-            for key in cls.hdf_properties:
-                hdf[key] = {}
-                buff_path = os.path.join(path, key)
-                if key in cls.quantity_attrs:
-                    try:
-                        if data[buff_path].ndim == 1:
-                            hdf[key] = u.Quantity(
-                                data[buff_path].values, cls.quantity_attrs[key])
-                        else:
-                            hdf[key] = u.Quantity(
-                                data[buff_path], cls.quantity_attrs[key])
-                    except:
-                        buff_path = os.path.join(path, 'scalars')
-                        hdf[key] = u.Quantity(
-                            data[buff_path][key], cls.quantity_attrs[key])
-                else:
-                    try:
-                        if data[buff_path].ndim == 1:
-                            hdf[key] = data[buff_path].values
-                        else:
-                            hdf[key] = data[buff_path]
-                    except:
-                        buff_path = os.path.join(path, 'scalars')
-                        hdf[key] = data[buff_path][key]
-                        if hdf[key] == 'none':
-                            hdf[key] = None
-        return hdf
-
-
+        data = self.get_properties()
+        buff_path = os.path.join(path, name)
+        self.to_hdf_util(file_path, buff_path, data)
+        
 #Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     """

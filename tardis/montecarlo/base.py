@@ -9,29 +9,30 @@ from spectrum import TARDISSpectrum
 
 from tardis.util import quantity_linspace
 from tardis.montecarlo import montecarlo, packet_source
-from tardis.io.util import HDFReaderWriter
-from tardis.io.config_reader import ConfigurationNameSpace
+from tardis.io.util import HDFWriter
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
 
 
-class MontecarloRunner(HDFReaderWriter, object):
+class MontecarloRunner(HDFWriter, object):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
     """
-    hdf_properties = ['seed', 'spectrum_frequency', 'virtual_spectrum_range',
-                      'sigma_thomson', 'enable_reflective_inner_boundary',
-                      'inner_boundary_albedo', 'line_interaction_type',
-                      '_output_energy', '_output_nu', 'last_line_interaction_in_id',
-                      'last_interaction_in_nu', 'last_line_interaction_out_id',
-                      'last_line_interaction_shell_id', 'j_estimator',
-                      '_montecarlo_virtual_luminosity', 'nu_bar_estimator']
-    quantity_attrs = {'sigma_thomson': 'cm^-2', 'spectrum_frequency': 'Hz',
-                      '_montecarlo_virtual_luminosity': 'erg/s'}
-
+    hdf_properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
+                      'j_estimator', 'montecarlo_virtual_luminosity',
+                      'last_interaction_in_nu',
+                      'last_line_interaction_in_id',
+                      'last_line_interaction_out_id',
+                      'last_line_interaction_shell_id',
+                      'packet_luminosity', 'output_nu',
+                      'spectrum', 'spectrum_virtual', 'spectrum_reabsorbed']
+    class_properties = {'spectrum': TARDISSpectrum,
+                        'spectrum_virtual': TARDISSpectrum,
+                        'spectrum_reabsorbed': TARDISSpectrum}
+    hdf_name = 'runner'
     w_estimator_constant = ((const.c ** 2 / (2 * const.h)) *
                             (15 / np.pi ** 4) * (const.h / const.k_B) ** 4 /
                             (4 * np.pi)).cgs.value
@@ -337,30 +338,6 @@ class MontecarloRunner(HDFReaderWriter, object):
     def calculate_f_lambda(self, wavelength):
         pass
 
-    def to_hdf(self, path_or_buf, path=''):
-        """
-        Store the runner to an HDF structure.
-
-        Parameters
-        ----------
-        path_or_buf:
-            Path or buffer to the HDF store
-        path:
-            Path inside the HDF store to store the runner
-        Returns
-        -------
-            : None
-
-        """
-        runner_path = os.path.join(path, 'runner')
-        self.to_hdf_util(path_or_buf, runner_path, {name: getattr(self, name) for name
-                                                    in self.hdf_properties})
-        self.spectrum.to_hdf(path_or_buf, runner_path)
-        self.spectrum_virtual.to_hdf(path_or_buf, runner_path,
-                                     'spectrum_virtual')
-        self.spectrum_reabsorbed.to_hdf(path_or_buf, runner_path,
-                                        'spectrum_reabsorbed')
-
     @classmethod
     def from_config(cls, config):
         """
@@ -395,46 +372,3 @@ class MontecarloRunner(HDFReaderWriter, object):
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
                    line_interaction_type=config.plasma.line_interaction_type
                    )
-
-    @classmethod
-    def from_hdf(cls, file_path, path, model, plasma):
-        """
-        This function returns a MontecarloRunner object 
-        from given HDF5 File.
-        Parameters
-        ----------
-        path : 'str'
-            Path to transverse in hdf file
-        file_path : 'str'
-            Path of Simulation generated HDF file 
-        Returns
-        -------
-        `~MontecarloRunner`
-        """
-
-        runner_path = os.path.join(path, 'runner')
-        data = cls.from_hdf_util(file_path, runner_path)
-
-        virtual_spectrum_range = dict(
-            stop=data['virtual_spectrum_range']['stop'][0],
-            start=data['virtual_spectrum_range']['start'][0],
-            num=data['virtual_spectrum_range']['num'][0])
-        virtual_spectrum_range = ConfigurationNameSpace(virtual_spectrum_range)
-        data['virtual_spectrum_range'] = virtual_spectrum_range
-
-        runner = cls(data['seed'], data['spectrum_frequency'], data['virtual_spectrum_range'],
-                     data['sigma_thomson'], data['enable_reflective_inner_boundary'],
-                     data['inner_boundary_albedo'], data['line_interaction_type'])
-
-        runner.time_of_simulation = runner.calculate_time_of_simulation(model)
-        runner.volume = model.volume
-        runner._initialize_estimator_arrays(runner.volume.shape[0],
-                                            plasma.tau_sobolevs.shape)
-        runner._initialize_geometry_arrays(model)
-        runner._initialize_packets(model.t_inner.value,data['_output_energy'].shape[0])
-
-        #Assigning values from stored HDF5 file
-        for key in cls.hdf_properties:
-            setattr(runner, key, data[key])
-
-        return runner
