@@ -1,10 +1,9 @@
 import os
-
+import pandas as pd
 import numpy as np
 import numpy.testing as npt
 import pytest
 from astropy import units as u
-from astropy.tests.helper import assert_quantity_allclose
 
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
@@ -53,44 +52,23 @@ def actual(config, model):
     runner._initialize_packets(model.t_inner.value, no_of_packets=20)
     return runner
 
-
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, actual):
-    actual.to_hdf(hdf_file_path, 'runner')
+    actual.to_hdf(hdf_file_path, name='runner')
 
-
-@pytest.fixture(scope="module")
-def from_hdf_buffer(hdf_file_path, model):
-    hdf_buffer = MontecarloRunner.from_hdf(
-        hdf_file_path, 'runner', model, Mock_plasma())
-    return hdf_buffer
-
-
-runner_properties = ['nu_bar_estimator',
-                     'j_estimator',
+runner_properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
+                     'j_estimator', 'montecarlo_virtual_luminosity',
                      'last_interaction_in_nu',
                      'last_line_interaction_in_id',
                      'last_line_interaction_out_id',
                      'last_line_interaction_shell_id',
-                     'seed', 'inner_boundary_albedo',
-                     'enable_reflective_inner_boundary',
-                     '_output_nu', '_output_energy']
-
+                     'packet_luminosity']
 
 @pytest.mark.parametrize("attr", runner_properties)
-def test_from_hdf_runner(from_hdf_buffer, actual, attr):
-    if hasattr(actual, attr):
-        npt.assert_almost_equal(getattr(from_hdf_buffer, attr), getattr(
-            actual, attr))
-
-
-runner_quantity_attrs = ['packet_luminosity',
-                         'spectrum_frequency', 'sigma_thomson',
-                         'montecarlo_virtual_luminosity']
-
-
-@pytest.mark.parametrize("attr", runner_quantity_attrs)
-def test_hdf_runner_quantites(from_hdf_buffer, actual, attr):
-    if hasattr(actual, attr):
-        assert_quantity_allclose(getattr(from_hdf_buffer, attr), getattr(
-            actual, attr))
+def test_hdf_runner(hdf_file_path, actual, attr):
+    actual_property = getattr(actual, attr)
+    if hasattr(actual_property, 'cgs'):
+        actual_property = actual_property.cgs.value
+    path = os.path.join('runner', attr)
+    expected = pd.read_hdf(hdf_file_path, path)
+    npt.assert_almost_equal(actual_property, expected.values)
