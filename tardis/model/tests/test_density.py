@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 import pytest
-from numpy.testing import assert_almost_equal, assert_array_almost_equal
+from numpy.testing import assert_almost_equal
 
 from tardis.io.config_reader import Configuration
 from tardis.model.density import HomologousDensity
@@ -36,7 +36,7 @@ def test_hdf_density_0(hdf_file_path, homologous_density):
         actual = actual.cgs.value
     path = os.path.join('homologous_density','density_0')
     expected = pd.read_hdf(hdf_file_path, path)
-    assert_array_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected.values)
 
 def test_hdf_time_0(hdf_file_path, homologous_density):
     actual = homologous_density.time_0

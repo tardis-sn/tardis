@@ -2,7 +2,7 @@ import os
 import pytest
 import pandas as pd
 from astropy import units as u
-from numpy.testing import assert_almost_equal, assert_array_almost_equal
+from numpy.testing import assert_almost_equal
 
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
@@ -248,4 +248,4 @@ def test_hdf_model_nparray(hdf_file_path, actual_model, attr):
     actual = getattr(actual_model, attr)
     if hasattr(actual, 'cgs'):
         actual = actual.cgs.value
-    assert_array_almost_equal(actual, expected.values)
+    assert_almost_equal(actual, expected.values)
