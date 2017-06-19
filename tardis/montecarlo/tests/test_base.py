@@ -1,10 +1,9 @@
 import os
 import pandas as pd
 import numpy as np
-import numpy.testing as npt
 import pytest
 from astropy import units as u
-
+from numpy.testing import assert_almost_equal
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
 from tardis.montecarlo import MontecarloRunner
@@ -71,4 +70,4 @@ def test_hdf_runner(hdf_file_path, actual, attr):
         actual_property = actual_property.cgs.value
     path = os.path.join('runner', attr)
     expected = pd.read_hdf(hdf_file_path, path)
-    npt.assert_almost_equal(actual_property, expected.values)
+    assert_almost_equal(actual_property, expected.values)
