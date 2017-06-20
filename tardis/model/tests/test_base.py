@@ -209,32 +209,17 @@ def test_ascii_reader_exponential_law():
 # Save and Load
 ###
 
-
-@pytest.fixture(scope="module")
-def hdf_file_path(tmpdir_factory):
-    path = tmpdir_factory.mktemp('hdf_buffer').join('model.hdf')
-    return str(path)
-
-
-@pytest.fixture(scope="module")
-def actual_model():
-    filename = 'tardis_configv1_verysimple.yml'
-    config = Configuration.from_yaml(data_path(filename))
-    model = Radial1DModel.from_config(config)
-    return model
-
-
 @pytest.fixture(scope="module", autouse=True)
-def to_hdf_buffer(hdf_file_path, actual_model):
-    actual_model.to_hdf(hdf_file_path)
+def to_hdf_buffer(hdf_file_path, model):
+    model.to_hdf(hdf_file_path)
 
 model_scalar_attrs = ['t_inner']
 
 @pytest.mark.parametrize("attr", model_scalar_attrs)
-def test_hdf_model_scalars(hdf_file_path, actual_model, attr):
+def test_hdf_model_scalars(hdf_file_path, model, attr):
     path = os.path.join('model', 'scalars')
     expected = pd.read_hdf(hdf_file_path, path)[attr]
-    actual = getattr(actual_model, attr)
+    actual = getattr(model, attr)
     if hasattr(actual, 'cgs'):
         actual = actual.cgs.value
     assert_almost_equal(actual, expected)
@@ -242,10 +227,10 @@ def test_hdf_model_scalars(hdf_file_path, actual_model, attr):
 model_nparray_attrs = ['w', 'v_inner', 'v_outer']
 
 @pytest.mark.parametrize("attr", model_nparray_attrs)
-def test_hdf_model_nparray(hdf_file_path, actual_model, attr):
+def test_hdf_model_nparray(hdf_file_path, model, attr):
     path = os.path.join('model', attr)
     expected = pd.read_hdf(hdf_file_path, path)
-    actual = getattr(actual_model, attr)
+    actual = getattr(model, attr)
     if hasattr(actual, 'cgs'):
         actual = actual.cgs.value
     assert_almost_equal(actual, expected.values)
