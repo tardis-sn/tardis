@@ -66,6 +66,46 @@ if args.packet_log_file:
 tardis_config = config_reader.Configuration.from_yaml(args.config_fname)
 simulation = Simulation.from_config(tardis_config)
 
+
+def get_integrated_spectrum():
+    if (
+            tardis_config.plasma.disable_electron_scattering and
+            tardis_config.plasma.line_interaction_type == 'downbranch'
+            ):
+        return simulation.runner.integrator.calculate_spectrum(
+                simulation.runner.spectrum_frequency[:-1],
+                1000)
+    else:
+        raise config_reader.ConfigurationError(
+                'The formal integral module currently works only for '
+                'plasma settings "downbranch" and disabled electron scattering'
+                '.\nWe got: {}'.format(str(tardis_config.plasma)))
+
+
+def get_virtual_spectrum():
+    # Catch warning when acessing invalid spectrum_virtual
+    with warnings.catch_warnings(record=True) as w:
+        spectrum = simulation.runner.spectrum_virtual
+
+        if len(w) > 0 and w[-1]._category_name == 'UserWarning':
+            print(
+                    'Virtual spectrum is not available, using the '
+                    'real packet spectrum instead.')
+            spectrum = simulation.runner.spectrum
+    return spectrum
+
+print('Saving the {} spectrum.'.format(tardis_config.spectrum.method))
+
+# Believe it or not, that is a fancy switch-case statement
+# We need functions so that only one spectrum is accessed so we can catch
+# the warning properly
+spectrum = {
+        'real': lambda: simulation.runner.spectrum,
+        'virtual': get_virtual_spectrum,
+        'integrated': get_integrated_spectrum,
+        }[tardis_config.spectrum.method]
+
+
 if args.gdb:
     import os; print(os.getpid()); raw_input() # Workaround to attach gdb
 if args.profile:
@@ -75,29 +115,4 @@ if args.profile:
 else:
     simulation.run()
 
-
-def get_integrated_spectrum():
-    return simulation.runner.integrator.calculate_spectrum(
-                simulation.runner.spectrum_frequency[:-1],
-                1000)
-
-# Catch warning when acessing invalid spectrum_virtual
-with warnings.catch_warnings(record=True) as w:
-    print('Saving the {} spectrum.'.format(tardis_config.spectrum.method))
-
-    # Believe it or not, that is a fancy switch-case statement
-    # We need functions so that only one spectrum is accessed so we can catch
-    # the warning properly
-    spectrum = {
-            'real': lambda: simulation.runner.spectrum,
-            'virtual': lambda: simulation.runner.spectrum_virtual,
-            'integrated': get_integrated_spectrum,
-            }[tardis_config.spectrum.method]()
-
-    if len(w) > 0 and w[-1]._category_name == 'UserWarning':
-        print(
-                'Virtual spectrum is not available, using the '
-                'real packet spectrum instead.')
-        spectrum = simulation.runner.spectrum
-
-spectrum.to_ascii(args.spectrum_fname)
+spectrum().to_ascii(args.spectrum_fname)
