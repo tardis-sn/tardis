@@ -9,15 +9,15 @@
 
 :cite:`Lucy1999a` describes an alternative method for the generation of
 synthetic supernova spectra. Instead of using the frequency and energy of
-virtual montecarlo packets to create a spectrum through binning, one can
+virtual Monte Carlo (MC) packets to create a spectrum through binning, one can
 formally integrate the line source functions which can be calculated from
-volume based estimators collected during the montecarlo simulation. Spectra
-generated using this method do not contain montecarlo noise directly. Here the
-monte carlo nature of the simulation only affects the strengths of lines and
+volume based estimators collected during the MC simulation. Spectra
+generated using this method do not contain MC noise directly. Here the
+MC nature of the simulation only affects the strengths of lines and
 thus the spectra appear to be of better quality.
 
 The procedure uses a line absorption rate estimator that is collected during
-the montecarlo simulation:
+the MC simulation:
 
 .. math::
 
@@ -25,11 +25,11 @@ the montecarlo simulation:
    \epsilon
 
 where the sum is over all the packages in a given shell that come into
-resonance with the transition :math:`u \rightarrow l` during the monte carlo
+resonance with the transition :math:`u \rightarrow l` during the MC
 run, :math:`\epsilon` is the energy of one such packet, and :math:`\tau_{lu}`
 the Sobolev optical depth.
 
-After the final monte carlo step, a level absorption estimator is calculated,
+After the final MC step, a level absorption estimator is calculated,
 which includes all levels which lie below the target level:
 
 .. math::
