@@ -1,9 +1,9 @@
 import numpy as np
 
 from tardis.util import quantity_linspace
-from tardis.io.util import HDFWriter
+from tardis.io.util import HDFWriter as HDFWriterMixin
 
-class HomologousDensity(HDFWriter, object):
+class HomologousDensity(HDFWriterMixin):
     """A class that holds an initial density and time
 
     Parameters
