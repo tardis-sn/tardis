@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -6,6 +7,9 @@ from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum
 
 
+class IntegrationError(Exception):
+    pass
+
 class FormalIntegrator(object):
 
     def __init__(self, model, plasma, runner):
@@ -13,10 +17,49 @@ class FormalIntegrator(object):
         self.plasma = plasma
         self.runner = runner
 
-    def calculate_spectrum(self, frequency, N=1000):
+    def check(self, raises=False):
+        '''
+        A method that determines if the formal integral can be performed with
+        the current configuration settings
+
+        The function returns False if the configuration conflicts with the
+        required settings. If raises evaluates to True, then a
+        IntegrationError is raised instead
+        '''
+        def raise_or_return(message):
+            if raises:
+                raise IntegrationError(message)
+            else:
+                warnings.warn(message)
+                return False
+
+        for obj in (self.model, self.plasma, self.runner):
+            if obj is None:
+                return raise_or_return(
+                        'The integrator is missing either model, plasma or '
+                        'runner. Please make sure these are provided to the '
+                        'FormalIntegrator.'
+                        )
+
+        if not self.runner.line_interaction_type == 'downbranch':
+            return raise_or_return(
+                    'The FormalIntegrator currently only works for '
+                    'line_interaction_type == "downbranch"'
+                    )
+
+        if self.runner.sigma_thomson.value > 1e-100:
+            return raise_or_return(
+                    'The FormalIntegrator currently only works with '
+                    'disable_electron_scattering turned on.'
+                    )
+
+        return True
+
+    def calculate_spectrum(self, frequency, N=1000, raises=False):
         # Very crude implementation
         # The c extension needs bin centers (or something similar)
         # while TARDISSpectrum needs bin edges
+        self.check(raises)
         frequency = frequency.to('Hz', u.spectral())
         luminosity = u.Quantity(
                 formal_integral(
