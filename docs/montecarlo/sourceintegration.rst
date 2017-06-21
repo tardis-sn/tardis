@@ -58,7 +58,7 @@ The formal integration is based on the so-called
 
 where :math:`p` is the impact parameter of a ray trough the supernova envelope
 that reaches the distant observer, and :math:`I_\nu (p)` is the intensity along
-one such ray, given by recursing trough the list of attenuated source functions
+one such ray, given by recursing through the list of attenuated source functions
 from the blue to the red and adding up contributions. The relation linking the
 intensity before the k:th transition :math:`u \rightarrow l` to the intensity
 after is
