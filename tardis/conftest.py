@@ -13,6 +13,7 @@ from tardis.atomic import AtomData
 from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
 from tardis.simulation import Simulation
+from copy import deepcopy
 
 ###
 # Astropy
@@ -91,17 +92,19 @@ def atomic_data_fname():
     else:
         return os.path.expandvars(os.path.expanduser(atomic_data_fname))
 
-
-@pytest.fixture
-def kurucz_atomic_data(atomic_data_fname):
+@pytest.fixture(scope="session")
+def atomic_dataset(atomic_data_fname):
     atomic_data = AtomData.from_hdf5(atomic_data_fname)
-
     if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
         pytest.skip('Need default Kurucz atomic dataset '
                     '(md5="21095dd25faa1683f4c90c911a00c3f8"')
     else:
         return atomic_data
 
+@pytest.fixture
+def kurucz_atomic_data(atomic_dataset):
+    atomic_data = deepcopy(atomic_dataset)
+    return atomic_data
 
 @pytest.fixture
 def test_data_path():
@@ -136,12 +139,7 @@ def config_verysimple():
     return config
 
 @pytest.fixture(scope="session")
-def simulation_verysimple(config_verysimple, atomic_data_fname):
-    atomic_data = AtomData.from_hdf5(atomic_data_fname)
-    if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
-        pytest.skip('Need default Kurucz atomic dataset '
-                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
-
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+def simulation_verysimple(config_verysimple, atomic_dataset):
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_dataset)
     sim.iterate(4000)
     return sim
