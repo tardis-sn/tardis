@@ -6,7 +6,7 @@ from astropy import constants, units as u
 
 from tardis.util import quantity_linspace, element_symbol2atomic_number
 from tardis.io.model_reader import read_density_file, read_abundances_file
-from tardis.io.util import HDFWriter as HDFWriterMixin
+from tardis.io.util import HDFWriterMixin
 from density import HomologousDensity
 
 logger = logging.getLogger(__name__)
