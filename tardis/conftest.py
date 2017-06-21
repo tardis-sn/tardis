@@ -12,8 +12,7 @@ import pytest
 from tardis.atomic import AtomData
 from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
-from tardis.model import Radial1DModel
-from tardis.model.density import HomologousDensity
+from tardis.simulation import Simulation
 
 ###
 # Astropy
@@ -93,7 +92,7 @@ def atomic_data_fname():
         return os.path.expandvars(os.path.expanduser(atomic_data_fname))
 
 
-@pytest.fixture
+@pytest.fixture(scope="session")
 def kurucz_atomic_data(atomic_data_fname):
     atomic_data = AtomData.from_hdf5(atomic_data_fname)
 
@@ -130,18 +129,14 @@ def hdf_file_path(tmpdir_factory):
     return str(path)
 
 @pytest.fixture(scope="session")
-def hdf_config():
+def config_verysimple():
     filename = 'tardis_configv1_verysimple.yml'
     path = os.path.abspath(os.path.join('tardis/io/tests/data/', filename))
     config = Configuration.from_yaml(path)
     return config
 
 @pytest.fixture(scope="session")
-def model(hdf_config):
-    model = Radial1DModel.from_config(hdf_config)
-    return model
-
-@pytest.fixture(scope="session")
-def homologous_density(hdf_config):
-    density =  HomologousDensity.from_config(hdf_config)
-    return density
+def simulation_verysimple(config_verysimple, kurucz_atomic_data):
+    sim = Simulation.from_config(config_verysimple, atom_data=kurucz_atomic_data)
+    sim.iterate(4000)
+    return sim

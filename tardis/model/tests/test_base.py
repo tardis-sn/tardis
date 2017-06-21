@@ -210,16 +210,16 @@ def test_ascii_reader_exponential_law():
 ###
 
 @pytest.fixture(scope="module", autouse=True)
-def to_hdf_buffer(hdf_file_path, model):
-    model.to_hdf(hdf_file_path)
+def to_hdf_buffer(hdf_file_path, simulation_verysimple):
+    simulation_verysimple.model.to_hdf(hdf_file_path)
 
 model_scalar_attrs = ['t_inner']
 
 @pytest.mark.parametrize("attr", model_scalar_attrs)
-def test_hdf_model_scalars(hdf_file_path, model, attr):
+def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
     path = os.path.join('model', 'scalars')
     expected = pd.read_hdf(hdf_file_path, path)[attr]
-    actual = getattr(model, attr)
+    actual = getattr(simulation_verysimple.model, attr)
     if hasattr(actual, 'cgs'):
         actual = actual.cgs.value
     assert_almost_equal(actual, expected)
@@ -227,10 +227,10 @@ def test_hdf_model_scalars(hdf_file_path, model, attr):
 model_nparray_attrs = ['w', 'v_inner', 'v_outer']
 
 @pytest.mark.parametrize("attr", model_nparray_attrs)
-def test_hdf_model_nparray(hdf_file_path, model, attr):
+def test_hdf_model_nparray(hdf_file_path, simulation_verysimple, attr):
     path = os.path.join('model', attr)
     expected = pd.read_hdf(hdf_file_path, path)
-    actual = getattr(model, attr)
+    actual = getattr(simulation_verysimple.model, attr)
     if hasattr(actual, 'cgs'):
         actual = actual.cgs.value
     assert_almost_equal(actual, expected.values)
