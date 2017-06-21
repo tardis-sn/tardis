@@ -140,6 +140,7 @@ def config_verysimple():
 
 @pytest.fixture(scope="session")
 def simulation_verysimple(config_verysimple, atomic_dataset):
-    sim = Simulation.from_config(config_verysimple, atom_data=atomic_dataset)
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
     sim.iterate(4000)
     return sim
