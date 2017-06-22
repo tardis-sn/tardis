@@ -167,11 +167,6 @@ def compare_spectra(actual, desired):
                 desired.distance
                 )
                 
-@pytest.fixture(scope="module")
-def hdf_file_path(tmpdir_factory):
-    path = tmpdir_factory.mktemp('hdf_buffer').join('spectrum.hdf')
-    return str(path)
-
 @pytest.fixture(autouse=True)
 def to_hdf_buffer(hdf_file_path,spectrum):
     spectrum.to_hdf(hdf_file_path, name='spectrum')
