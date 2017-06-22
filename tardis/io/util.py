@@ -278,12 +278,10 @@ class PlasmaWriterMixin(HDFWriterMixin):
             data = {name: getattr(self, name) for name in self.outputs}
         except AttributeError:
             if collection:
-                data = {self.convert_to_snake_case(
-                    name.__class__.__name__): name for name in self.plasma_properties
+                data = {name.__class__.__name__: name for name in self.plasma_properties
                         if isinstance(name, tuple(collection))}
             else:
-                data = {self.convert_to_snake_case(
-                    name.__class__.__name__): name for name in self.plasma_properties}
+                data = {name.__class__.__name__: name for name in self.plasma_properties}
                 data['atom_data_uuid'] = self.atomic_data.uuid1
             if 'atomic_data' in data:
                 data.pop('atomic_data')
