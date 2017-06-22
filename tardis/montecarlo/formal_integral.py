@@ -17,7 +17,7 @@ class FormalIntegrator(object):
         self.plasma = plasma
         self.runner = runner
 
-    def check(self, raises=False):
+    def check(self, raises=True):
         '''
         A method that determines if the formal integral can be performed with
         the current configuration settings
@@ -55,7 +55,7 @@ class FormalIntegrator(object):
 
         return True
 
-    def calculate_spectrum(self, frequency, N=1000, raises=False):
+    def calculate_spectrum(self, frequency, N=1000, raises=True):
         # Very crude implementation
         # The c extension needs bin centers (or something similar)
         # while TARDISSpectrum needs bin edges
