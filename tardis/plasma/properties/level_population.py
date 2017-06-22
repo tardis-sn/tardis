@@ -11,6 +11,8 @@ __all__ = ['LevelNumberDensity', 'LevelNumberDensityHeNLTE']
 
 class LevelNumberDensity(ProcessingPlasmaProperty):
     """
+    Calculates the level populations
+
     Attributes:
     level_number_density : Pandas DataFrame, dtype float
                            Index atom number, ion number, level number.
@@ -21,9 +23,6 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     latex_formula = ('N_{i,j}\\dfrac{bf_{i,j,k}}{Z_{i,j}}',)
 
     def __init__(self, plasma_parent):
-        """
-        Calculates the level populations with the Boltzmann equation in LTE.
-        """
         super(LevelNumberDensity, self).__init__(plasma_parent)
         self._update_inputs()
         self.initialize_indices = True
@@ -33,12 +32,12 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
                             index=partition_function.index)
         self._ion2level_idx = indexer.ix[levels.droplevel(2)].values
 
-    def calculate(
+    def _calculate_dilute_lte(
             self, level_boltzmann_factor, ion_number_density,
             levels, partition_function):
         """
-        Reduces non-metastable level populations by a factor of W
-        compared to LTE in the case of dilute-lte excitation.
+        Calculate the level populations from the level_boltzmann_factor,
+        ion_number_density and partition_function
         """
         if self.initialize_indices:
             self._initialize_indices(levels, partition_function)
@@ -53,6 +52,8 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
                                 ion_number_density_broadcast)
         return pd.DataFrame(level_number_density,
                             index=level_boltzmann_factor.index)
+
+    calculate = _calculate_dilute_lte
 
 
 class LevelNumberDensityHeNLTE(LevelNumberDensity):
@@ -72,7 +73,7 @@ class LevelNumberDensityHeNLTE(LevelNumberDensity):
         the helium level populations to the appropriate
         values.
         """
-        level_number_density = super(LevelNumberDensityHeNLTE, self).calculate(
+        level_number_density = self._calculate_dilute_lte(
             level_boltzmann_factor, ion_number_density, levels,
             partition_function)
         if helium_population_updated is not None:
