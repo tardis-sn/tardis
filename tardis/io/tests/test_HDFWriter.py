@@ -8,7 +8,7 @@ from astropy import units as u
 from astropy.tests.helper import assert_quantity_allclose
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
-from tardis.io.util import HDFWriter
+from tardis.io.util import HDFWriterMixin
 
 
 #Test Cases
@@ -22,9 +22,8 @@ from tardis.io.util import HDFWriter
 #MultiIndex Object
 #Quantity Objects with - Numeric Values, Numpy Arrays, DataFrame, Pandas Series, None objects
 
-class MockHDF(HDFWriter, object):
+class MockHDF(HDFWriterMixin):
     hdf_properties = ['property']
-    class_properties = {}
 
     def __init__(self, property):
         self.property = property
@@ -100,9 +99,8 @@ def test_none_write(tmpdir):
 # Test class_properties parameter (like homologous_density is a class
 # instance/object inside Model class)
 
-class MockClass(HDFWriter, object):
+class MockClass(HDFWriterMixin):
     hdf_properties = ['property', 'nested_object']
-    class_properties = {'nested_object': MockHDF}
 
     def __init__(self, property, nested_object):
         self.property = property
