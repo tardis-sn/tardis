@@ -3,6 +3,7 @@ import pandas as pd
 import pytest
 import pandas.util.testing as pdt
 from numpy.testing import assert_almost_equal
+from tardis.plasma.properties import property_collections
 
 ###
 # Save and Load
@@ -61,3 +62,20 @@ def test_hdf_helium_treatment(hdf_file_path, simulation_verysimple):
     path = os.path.join('plasma', 'scalars')
     expected = pd.read_hdf(hdf_file_path, path)['helium_treatment']
     assert actual == expected
+
+
+@pytest.fixture(scope="module", autouse=True)
+def to_hdf_collection_buffer(hdf_file_path, simulation_verysimple):
+    simulation_verysimple.plasma.to_hdf(
+        hdf_file_path, path='collection', collection=property_collections.basic_inputs)
+
+collection_properties = ['t_rad', 'w', 'density']
+
+@pytest.mark.parametrize("attr", collection_properties)
+def test_collection(hdf_file_path, simulation_verysimple, attr):
+    actual = getattr(simulation_verysimple.plasma, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    path = os.path.join('collection', attr)
+    expected = pd.read_hdf(hdf_file_path, path)
+    assert_almost_equal(actual, expected.values)

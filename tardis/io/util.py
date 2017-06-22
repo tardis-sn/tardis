@@ -280,7 +280,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
             if collection:
                 data = {self.convert_to_snake_case(
                     name.__class__.__name__): name for name in self.plasma_properties
-                    if isinstance(name, tuple(collection))}
+                        if isinstance(name, tuple(collection))}
             else:
                 data = {self.convert_to_snake_case(
                     name.__class__.__name__): name for name in self.plasma_properties}
@@ -314,7 +314,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
         """
         data = self.get_properties(collection)
         self.to_hdf_util(file_path, path, data)
-        
+
 
 #Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
