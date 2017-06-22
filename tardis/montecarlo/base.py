@@ -127,8 +127,7 @@ class MontecarloRunner(object):
     @property
     def spectrum_integrated(self):
         return self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1],
-                1000)
+                self.spectrum_frequency[:-1])
 
     @property
     def integrator(self):
