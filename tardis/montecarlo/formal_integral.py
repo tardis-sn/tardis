@@ -10,12 +10,14 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 class IntegrationError(Exception):
     pass
 
+
 class FormalIntegrator(object):
 
-    def __init__(self, model, plasma, runner):
+    def __init__(self, model, plasma, runner, points=1000):
         self.model = model
         self.plasma = plasma
         self.runner = runner
+        self.points = points
 
     def check(self, raises=True):
         '''
@@ -55,12 +57,14 @@ class FormalIntegrator(object):
 
         return True
 
-    def calculate_spectrum(self, frequency, N=1000, raises=True):
+    def calculate_spectrum(self, frequency, points=None, raises=True):
         # Very crude implementation
         # The c extension needs bin centers (or something similar)
         # while TARDISSpectrum needs bin edges
         self.check(raises)
+        N = points or self.points
         frequency = frequency.to('Hz', u.spectral())
+
         luminosity = u.Quantity(
                 formal_integral(
                     self,
@@ -68,6 +72,7 @@ class FormalIntegrator(object):
                     N),
                 'erg'
                 ) * (frequency[1] - frequency[0])
+
         # Ugly hack to convert to 'bin edges'
         frequency = u.Quantity(
                 np.concatenate([
@@ -76,6 +81,7 @@ class FormalIntegrator(object):
                         frequency.value[-1] + np.diff(frequency.value)[-1]
                         ]]),
                     frequency.unit)
+
         return TARDISSpectrum(
                 frequency,
                 luminosity
