@@ -167,7 +167,7 @@ def check_equality(item1, item2):
         return True
 
 
-class HDFWriter(object):
+class HDFWriterMixin(object):
 
     @staticmethod
     def to_hdf_util(path_or_buf, path, elements, complevel=9, complib='blosc'):
