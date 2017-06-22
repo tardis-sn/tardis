@@ -92,7 +92,10 @@ class TARDISSpectrum(object):
     def f_nu_to_f_lambda(self, f_nu):
         return f_nu * self.frequency / self.wavelength
 
-    def plot(self, ax, mode='wavelength'):
+    def plot(self, ax=None, mode='wavelength'):
+        if ax is None:
+            from matplotlib.pyplot import gca
+            ax = gca()
         if mode == 'wavelength':
             ax.plot(
                     self.wavelength.value,
@@ -104,6 +107,10 @@ class TARDISSpectrum(object):
                     'Flux [{:s}]'.format(
                         self.luminosity_density_lambda.unit._repr_latex_())
                     )
+        else:
+            warnings.warn(
+                    'Did not find plotting mode {}, doing nothing.'.format(
+                        mode))
 
     def to_ascii(self, fname, mode='luminosity_density'):
         if mode == 'luminosity_density':
