@@ -218,9 +218,13 @@ class HDFWriterMixin(object):
             else:
                 try:
                     value.to_hdf(path_or_buf, path, name=key)
-                except AttributeError:
-                    data = pd.DataFrame([value])
-                    data.to_hdf(path_or_buf, os.path.join(path, key))
+                except TypeError:
+                    try:
+                        # For PlasmaWriterMixin 
+                        value.to_hdf(path_or_buf, path)
+                    except AttributeError: 
+                        data = pd.DataFrame([value])
+                        data.to_hdf(path_or_buf, os.path.join(path, key))
                     
         if scalars:
             scalars_series = pd.Series(scalars)
@@ -265,7 +269,53 @@ class HDFWriterMixin(object):
         data = self.get_properties()
         buff_path = os.path.join(path, name)
         self.to_hdf_util(file_path, buff_path, data)
+
+
+class PlasmaWriterMixin(HDFWriterMixin):
+
+    def get_properties(self, collection=None):
+        try:
+            data = {name: getattr(self, name) for name in self.outputs}
+        except AttributeError:
+            if collection:
+                data = {self.convert_to_snake_case(
+                    name.__class__.__name__): name for name in self.plasma_properties
+                    if isinstance(name, tuple(collection))}
+            else:
+                data = {self.convert_to_snake_case(
+                    name.__class__.__name__): name for name in self.plasma_properties}
+                data['atom_data_uuid'] = self.atomic_data.uuid1
+            if 'atomic_data' in data:
+                data.pop('atomic_data')
+        return data
+
+    def to_hdf(self, file_path, path='plasma', collection=None):
+        """
+        Store the plasma to an HDF structure
+
+        Parameters
+        ----------
+        file_path:
+            Path or buffer to the HDF store
+        path:
+            Path inside the HDF store to store the plasma
+        collection:
+            `None` or a `PlasmaPropertyCollection` of which members are
+            the property types which will be stored. If `None` then
+            all types of properties will be stored.
+
+            This acts like a filter, for example if a value of
+            `property_collections.basic_inputs` is given, only
+            those input parameters will be stored to the HDF store.
+        Returns
+        -------
+            : None
+
+        """
+        data = self.get_properties(collection)
+        self.to_hdf_util(file_path, path, data)
         
+
 #Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     """
