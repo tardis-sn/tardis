@@ -290,6 +290,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
         for prop in properties:
             for output in prop.outputs:
                 data[output] = getattr(prop, output)
+        data['atom_data_uuid'] = self.atomic_data.uuid1
         if 'atomic_data' in data:
             data.pop('atomic_data')
         return data
