@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class BasePlasma(PlasmaWriterMixin):
 
     outputs_dict = {}
+    hdf_name = 'plasma'
     def __init__(self, plasma_properties, property_kwargs=None, **kwargs):
         self.outputs_dict = {}
         self.input_properties = []
