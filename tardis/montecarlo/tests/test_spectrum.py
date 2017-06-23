@@ -7,6 +7,7 @@ from astropy import (
         constants as c
         )
 import astropy.tests.helper as test_helper
+from numpy.testing import assert_almost_equal
 from tardis.montecarlo.spectrum import (
         TARDISSpectrum,
         )
