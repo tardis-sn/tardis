@@ -195,6 +195,13 @@ class HDFWriterMixin(object):
         -------
 
         """
+        close = False
+        try:
+            buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
+        except TypeError:
+            buf = path_or_buf
+        else:
+            close = True
         scalars = {}
         for key, value in elements.iteritems():
             if value is None:
@@ -207,30 +214,32 @@ class HDFWriterMixin(object):
                 if value.ndim == 1:
                     # This try,except block is only for model.plasma.levels
                     try:
-                        pd.Series(value).to_hdf(path_or_buf,
+                        pd.Series(value).to_hdf(buf,
                                                 os.path.join(path, key))
                     except NotImplementedError:
-                        pd.DataFrame(value).to_hdf(path_or_buf,
+                        pd.DataFrame(value).to_hdf(buf,
                                                    os.path.join(path, key))
                 else:
                     pd.DataFrame(value).to_hdf(
-                        path_or_buf, os.path.join(path, key))
+                        buf, os.path.join(path, key))
             else:
                 try:
-                    value.to_hdf(path_or_buf, path, name=key)
+                    value.to_hdf(buf, path, name=key)
                 except AttributeError:
                     data = pd.DataFrame([value])
-                    data.to_hdf(path_or_buf, os.path.join(path, key))
-                    
+                    data.to_hdf(buf, os.path.join(path, key))
+
         if scalars:
             scalars_series = pd.Series(scalars)
 
             # Unfortunately, with to_hdf we cannot append, so merge beforehand
             scalars_path = os.path.join(path, 'scalars')
-            with pd.HDFStore(path_or_buf, complevel=complevel, complib=complib) as store:
-                if scalars_path in store:
-                    scalars_series = store[scalars_path].append(scalars_series)
-            scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
+            if scalars_path in buf:
+                scalars_series = buf[scalars_path].append(scalars_series)
+            scalars_series.to_hdf(buf, os.path.join(path, 'scalars'))
+
+        if close:
+            buf.close()
 
     def get_properties(self):
         data = {name: getattr(self, name) for name in self.hdf_properties}
@@ -292,6 +301,13 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     -------
 
     """
+    close = False
+    try:
+        buf = pd.HDFStore(path_or_buf, complevel=complevel, complib=complib)
+    except TypeError:
+        buf = path_or_buf
+    else:
+        close = True
     scalars = {}
     for key, value in elements.iteritems():
         if hasattr(value, 'cgs'):
@@ -302,26 +318,28 @@ def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
             if value.ndim == 1:
                 # This try,except block is only for model.plasma.levels
                 try:
-                    pd.Series(value).to_hdf(path_or_buf,
+                    pd.Series(value).to_hdf(buf,
                                             os.path.join(path, key))
                 except NotImplementedError:
-                    pd.DataFrame(value).to_hdf(path_or_buf,
+                    pd.DataFrame(value).to_hdf(buf,
                                                os.path.join(path, key))
             else:
-                pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
+                pd.DataFrame(value).to_hdf(buf, os.path.join(path, key))
         else:
             data = pd.DataFrame([value])
-            data.to_hdf(path_or_buf, os.path.join(path, key))
+            data.to_hdf(buf, os.path.join(path, key))
 
     if scalars:
         scalars_series = pd.Series(scalars)
 
         # Unfortunately, with to_hdf we cannot append, so merge beforehand
         scalars_path = os.path.join(path, 'scalars')
-        with pd.HDFStore(path_or_buf, complevel=complevel, complib=complib) as store:
-            if scalars_path in store:
-                scalars_series = store[scalars_path].append(scalars_series)
-        scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
+        if scalars_path in buf:
+            scalars_series = buf[scalars_path].append(scalars_series)
+        scalars_series.to_hdf(buf, os.path.join(path, 'scalars'))
+
+    if close:
+        buf.close()
 
 '''
 Code for Custom Logger Classes (ColoredFormatter and ColorLogger) and its helper function

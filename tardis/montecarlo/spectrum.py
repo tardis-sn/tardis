@@ -127,9 +127,9 @@ class TARDISSpectrum(object):
                     'only mode "luminosity_density"'
                     'and "flux" are implemented')
 
-    def to_hdf(self, path_or_buf, path):
+    def to_hdf(self, path_or_buf, path, name=''):
         pass
 
     @classmethod
-    def from_hdf(cls, path_or_buf, path):
+    def from_hdf(cls, path_or_buf, path, name=''):
         pass
