@@ -4,7 +4,6 @@ import numpy as np
 import pytest
 from astropy import units as u
 from numpy.testing import assert_almost_equal
-from tardis.io.config_reader import Configuration
 
 ###
 # Save and Load
