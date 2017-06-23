@@ -251,6 +251,14 @@ class HDFWriterMixin(object):
             Path inside the HDF store to store the `elements`
         name: str
             Group inside the HDF store to which the `elements` need to be saved
+        collection:
+            `None` or a `PlasmaPropertyCollection` of which members are
+            the property types which will be stored. If `None` then
+            all types of properties will be stored.
+
+            This acts like a filter, for example if a value of
+            `property_collections.basic_inputs` is given, only
+            those input parameters will be stored to the HDF store.
 
         Returns
         -------
