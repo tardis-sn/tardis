@@ -125,6 +125,11 @@ class MontecarloRunner(object):
                 self.montecarlo_virtual_luminosity)
 
     @property
+    def spectrum_integrated(self):
+        return self.integrator.calculate_spectrum(
+                self.spectrum_frequency[:-1])
+
+    @property
     def integrator(self):
         if self._integrator is None:
             warnings.warn(
