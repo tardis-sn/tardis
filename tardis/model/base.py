@@ -283,9 +283,7 @@ class Radial1DModel(HDFWriterMixin):
 
         structure = config.model.structure
         if structure.type == 'specific':
-            velocity = quantity_linspace(structure.velocity.start,
-                                         structure.velocity.stop,
-                                         structure.velocity.num + 1).cgs
+            velocity = config.model.structure.velocity
             homologous_density = HomologousDensity.from_config(config)
         elif structure.type == 'file':
             if os.path.isabs(structure.filename):

@@ -17,15 +17,7 @@ properties:
   montecarlo:
     $ref: montecarlo.yml
   spectrum:
-    type: object
-    properties:
-      start:
-        type: quantity
-      stop:
-        type: quantity
-      num:
-        type: number
-        multipleOf: 1.0
+    type: quantity
     description: Final spectrum sampling
 required:
 - tardis_config_version

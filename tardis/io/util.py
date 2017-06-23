@@ -9,6 +9,7 @@ from collections import OrderedDict
 import yaml
 from astropy import constants, units as u
 from tardis.util import element_symbol2atomic_number
+from tardis.util import quantity_linspace
 
 import logging
 logger = logging.getLogger(__name__)
@@ -88,6 +89,14 @@ class YAMLLoader(yaml.Loader):
         return quantity_from_str(data)
 
     def mapping_constructor(self, node):
+        mapping_dict = self.construct_mapping(node)
+        if set(mapping_dict.keys()) == {'start', 'stop', 'num'}:
+            if hasattr(mapping_dict['start'], 'unit'):
+                return quantity_linspace(mapping_dict['start'], mapping_dict['stop'],
+                                         mapping_dict['num']+1)
+            else:
+                return np.linspace(mapping_dict['start'], mapping_dict['stop'],
+                                         mapping_dict['num']+1)
         return OrderedDict(self.construct_pairs(node))
 
 YAMLLoader.add_constructor(u'!quantity', YAMLLoader.construct_quantity)

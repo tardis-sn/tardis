@@ -124,15 +124,7 @@ definitions:
           enum:
           - specific
         velocity:
-          type: object
-          properties:
-            start:
-              type: quantity
-            stop:
-              type: quantity
-            num:
-              type: number
-              multipleOf: 1.0
+          type: quantity
           description: description of the boundaries of the shells
         density:
           oneOf:

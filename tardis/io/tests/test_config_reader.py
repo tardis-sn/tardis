@@ -38,12 +38,12 @@ def test_from_config_dict(tardis_config_verysimple):
                                           validate=True,
                                           config_dirname='test')
     assert conf.config_dirname == 'test'
-    assert_almost_equal(conf.spectrum.start.value,
-                        tardis_config_verysimple['spectrum']['start'].value)
-    assert_almost_equal(conf.spectrum.stop.value,
-                        tardis_config_verysimple['spectrum']['stop'].value)
+    assert_almost_equal(conf.spectrum[0].value,
+                        tardis_config_verysimple['spectrum'][0].value)
+    assert_almost_equal(conf.spectrum[-1].value,
+                        tardis_config_verysimple['spectrum'][-1].value)
 
-    tardis_config_verysimple['spectrum']['start'] = 'Invalid'
+    tardis_config_verysimple['spectrum'] = 'Invalid'
     with pytest.raises(ValidationError):
         conf = Configuration.from_config_dict(tardis_config_verysimple,
                                               validate=True,
