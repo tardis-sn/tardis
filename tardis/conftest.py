@@ -12,6 +12,8 @@ import pytest
 from tardis.atomic import AtomData
 from tardis.io.config_reader import Configuration
 from tardis.io.util import yaml_load_config_file
+from tardis.simulation import Simulation
+from copy import deepcopy
 
 ###
 # Astropy
@@ -90,17 +92,19 @@ def atomic_data_fname():
     else:
         return os.path.expandvars(os.path.expanduser(atomic_data_fname))
 
-
-@pytest.fixture
-def kurucz_atomic_data(atomic_data_fname):
+@pytest.fixture(scope="session")
+def atomic_dataset(atomic_data_fname):
     atomic_data = AtomData.from_hdf5(atomic_data_fname)
-
     if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
         pytest.skip('Need default Kurucz atomic dataset '
                     '(md5="21095dd25faa1683f4c90c911a00c3f8"')
     else:
         return atomic_data
 
+@pytest.fixture
+def kurucz_atomic_data(atomic_dataset):
+    atomic_data = deepcopy(atomic_dataset)
+    return atomic_data
 
 @pytest.fixture
 def test_data_path():
@@ -117,3 +121,26 @@ def included_he_atomic_data(test_data_path):
 def tardis_config_verysimple():
     return yaml_load_config_file(
         'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+
+###
+# HDF Fixtures
+###
+
+@pytest.fixture(scope="session")
+def hdf_file_path(tmpdir_factory):
+    path = tmpdir_factory.mktemp('hdf_buffer').join('test.hdf')
+    return str(path)
+
+@pytest.fixture(scope="session")
+def config_verysimple():
+    filename = 'tardis_configv1_verysimple.yml'
+    path = os.path.abspath(os.path.join('tardis/io/tests/data/', filename))
+    config = Configuration.from_yaml(path)
+    return config
+
+@pytest.fixture(scope="session")
+def simulation_verysimple(config_verysimple, atomic_dataset):
+    atomic_data = deepcopy(atomic_dataset)
+    sim = Simulation.from_config(config_verysimple, atom_data=atomic_data)
+    sim.iterate(4000)
+    return sim

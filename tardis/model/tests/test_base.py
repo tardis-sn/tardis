@@ -1,4 +1,6 @@
 import os
+import pytest
+import pandas as pd
 from astropy import units as u
 from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
@@ -202,3 +204,33 @@ def test_ascii_reader_exponential_law():
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(model.density[i].value, mdens)
         assert model.density[i].unit ==  u.Unit(expected_unit)
+
+###
+# Save and Load
+###
+
+@pytest.fixture(scope="module", autouse=True)
+def to_hdf_buffer(hdf_file_path, simulation_verysimple):
+    simulation_verysimple.model.to_hdf(hdf_file_path)
+
+model_scalar_attrs = ['t_inner']
+
+@pytest.mark.parametrize("attr", model_scalar_attrs)
+def test_hdf_model_scalars(hdf_file_path, simulation_verysimple, attr):
+    path = os.path.join('model', 'scalars')
+    expected = pd.read_hdf(hdf_file_path, path)[attr]
+    actual = getattr(simulation_verysimple.model, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    assert_almost_equal(actual, expected)
+
+model_nparray_attrs = ['w', 'v_inner', 'v_outer']
+
+@pytest.mark.parametrize("attr", model_nparray_attrs)
+def test_hdf_model_nparray(hdf_file_path, simulation_verysimple, attr):
+    path = os.path.join('model', attr)
+    expected = pd.read_hdf(hdf_file_path, path)
+    actual = getattr(simulation_verysimple.model, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    assert_almost_equal(actual, expected.values)
