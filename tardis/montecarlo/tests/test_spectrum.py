@@ -172,9 +172,7 @@ def compare_spectra(actual, desired):
 def to_hdf_buffer(hdf_file_path,spectrum):
     spectrum.to_hdf(hdf_file_path, name='spectrum')
 
-spectrum_attrs = ['_frequency', 'luminosity']
-
-@pytest.mark.parametrize("attr", spectrum_attrs)
+@pytest.mark.parametrize("attr", TARDISSpectrum.hdf_properties)
 def test_hdf_spectrum(hdf_file_path, spectrum, attr):
     actual = getattr(spectrum, attr)
     if hasattr(actual, 'cgs'):
