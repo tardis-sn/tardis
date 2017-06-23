@@ -64,6 +64,12 @@ def test_hdf_helium_treatment(hdf_file_path, simulation_verysimple):
     assert actual == expected
 
 
+def test_atomic_data_uuid(hdf_file_path, simulation_verysimple):
+    actual = getattr(simulation_verysimple.plasma.atomic_data, 'uuid1')
+    path = os.path.join('plasma', 'scalars')
+    expected = pd.read_hdf(hdf_file_path, path)['atom_data_uuid']
+    assert actual == expected
+
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_collection_buffer(hdf_file_path, simulation_verysimple):
     simulation_verysimple.plasma.to_hdf(
