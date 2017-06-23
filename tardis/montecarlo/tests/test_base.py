@@ -5,9 +5,6 @@ import pytest
 from astropy import units as u
 from numpy.testing import assert_almost_equal
 from tardis.io.config_reader import Configuration
-from tardis.model import Radial1DModel
-from tardis.montecarlo import MontecarloRunner
-
 
 ###
 # Save and Load
