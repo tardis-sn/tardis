@@ -7,7 +7,9 @@ from astropy import (
         constants as c
         )
 import astropy.tests.helper as test_helper
-from tardis.montecarlo.spectrum import TARDISSpectrum
+from tardis.montecarlo.spectrum import (
+        TARDISSpectrum,
+        )
 
 BIN = 5
 
