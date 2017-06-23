@@ -67,7 +67,7 @@ def test_hdf_helium_treatment(hdf_file_path, simulation_verysimple):
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_collection_buffer(hdf_file_path, simulation_verysimple):
     simulation_verysimple.plasma.to_hdf(
-        hdf_file_path, path='collection', collection=property_collections.basic_inputs)
+        hdf_file_path, name='collection', collection=property_collections.basic_inputs)
 
 collection_properties = ['t_rad', 'w', 'density']
 
