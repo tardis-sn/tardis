@@ -16,6 +16,7 @@ def to_hdf_buffer(hdf_file_path, simulation_verysimple):
 runner_properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
                      'j_estimator', 'montecarlo_virtual_luminosity',
                      'last_interaction_in_nu',
+                     'last_interaction_type',
                      'last_line_interaction_in_id',
                      'last_line_interaction_out_id',
                      'last_line_interaction_shell_id',
@@ -23,9 +24,9 @@ runner_properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
 
 @pytest.mark.parametrize("attr", runner_properties)
 def test_hdf_runner(hdf_file_path, simulation_verysimple, attr):
-    actual_property = getattr(simulation_verysimple.runner, attr)
-    if hasattr(actual_property, 'cgs'):
-        actual_property = actual_property.cgs.value
+    actual = getattr(simulation_verysimple.runner, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
     path = os.path.join('runner', attr)
     expected = pd.read_hdf(hdf_file_path, path)
-    assert_almost_equal(actual_property, expected.values)
+    assert_almost_equal(actual, expected.values)
