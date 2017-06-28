@@ -1,6 +1,7 @@
 import pandas as pd
 from pyne import nucname, material
 from astropy import units as u
+from numpy import genfromtxt
 
 class IsotopeAbundances(pd.DataFrame):
 
@@ -84,4 +85,19 @@ class IsotopeAbundances(pd.DataFrame):
 
         decayed_materials = [item.decay(t_second) for item in materials]
 
-        return IsotopeAbundances.from_materials(decayed_materials)
+        df = IsotopeAbundances.from_materials(decayed_materials)
+        df.sort_index(inplace=True)
+        return df
+
+def read_isotope_file(fname):
+    data = genfromtxt(fname, dtype=None, skip_header=1)
+    ids = [nucname.id(i) for i, _ in data]
+    atomic_number = [nucname.znum(i) for i in ids]
+    mass_number = [nucname.anum(i) for i in ids]
+
+    mass = [i for _, i in data]
+    combined = zip(atomic_number, mass_number)
+    index = pd.MultiIndex.from_tuples(combined,
+                                      names=['atomic_number', 'mass_number'])
+    df = pd.DataFrame(mass, index=index, columns=['mass'])
+    return df
