@@ -158,7 +158,7 @@ _formal_integral(
                  const storage_model_t *storage,
                  double iT,
                  double *inu, int64_t inu_size,
-                 double *att_S_ul, int N)
+                 double *att_S_ul, double *Jred_lu, double *Jblue_lu, int N)
 {
 
   // Initialize the output which is shared among threads
@@ -192,10 +192,14 @@ _formal_integral(
              p = 0,
              nu_start,
              nu_end,
-             nu;
+             nu,
+             zstart,
+             zend,
+             dtau,
+             escat_op;
       int64_t shell_id[2 * storage->no_of_shells];
 
-      double *pexp_tau, *patt_S_ul, *pline;
+      double *pexp_tau, *patt_S_ul, *pline, *pJred_lu, *pJblue_lu;
 
       // Prepare exp_tau
 #pragma omp for
@@ -214,6 +218,7 @@ _formal_integral(
           // Loop over discrete values along line
           for (int p_idx = 1; p_idx < N; ++p_idx)
             {
+              dtau = 0;
               p = pp[p_idx];
 
               size_z = populate_z(storage, p, z, shell_id);
@@ -234,9 +239,13 @@ _formal_integral(
                   nu_start = nu * z[i];
                   nu_end = nu * z[i+1];
 
+                  zstart = storage->time_explosion / C_INV * (1. - nu_start / nu);
+
                   // Calculate offset properly
                   // Which shell is important for photosphere?
                   offset = shell_id[i] * size_line;
+                  // TODO: e-scattering: need to replace 1 with e-scattering opacity in cell;
+                  escat_op = 1.;
 
                   // Find first contributing line
                   line_search(
@@ -246,10 +255,13 @@ _formal_integral(
                               &idx_nu_start
                   );
 
+
                   // Initialize pointers for inner loop
                   pline = storage->line_list_nu + idx_nu_start;
                   pexp_tau = exp_tau + offset + idx_nu_start;
                   patt_S_ul = att_S_ul + offset + idx_nu_start;
+                  pJred_lu = Jred_lu + offset + idx_nu_start;
+                  pJblue_lu = Jblue_lu + offset + idx_nu_start;
 
                   for (;pline < storage->line_list_nu + size_line;
                        // We have to increment all pointers simultanously
@@ -258,11 +270,23 @@ _formal_integral(
                        ++patt_S_ul)
                     {
                       if (*pline < nu_end)
+                        // Calculate e-scattering optical depth to grid cell boundary
+                        zend = storage->time_explosion / C_INV * (1. - nu_end / nu);
+                        dtau += (zend - zstart) * escat_op;
                         break;
+
+                      // Calculate e-scattering optical depth to next resonance point
+                      zend = storage->time_explosion / C_INV * (1. - *pline / nu);
+                      dtau += (zend - zstart) * escat_op;
+
                       I_nu_r[p_idx] = I_nu_b[p_idx] * (*pexp_tau) + *patt_S_ul;
                       // In the absence of electron scattering, simple recursion as in Lucy 1991
                       // TODO: e-scattering: Replace by Lucy 1999, Eq. 27
                       I_nu_b[p_idx] = I_nu_r[p_idx];
+
+                      // reset e-scattering opacity 
+                      dtau = 0;
+                      zstart = zend;
                     }
                 }
               I_nu_r[p_idx] *= p;
