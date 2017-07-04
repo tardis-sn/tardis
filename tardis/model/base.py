@@ -194,14 +194,14 @@ class Radial1DModel(HDFWriterMixin):
         abundance.columns = range(len(abundance.columns))
         return abundance
 
-    def decay(self, day, normalize=True):
+    def decay(self, time_explosion, normalize=True):
 
         if not self.decayed:
             self.decayed = True
         else:
             raise ValueError("Isotopic Abundance already decayed")
 
-        isotope_abundance = self.isotope_abundance.decay(day)
+        isotope_abundance = self.isotope_abundance.decay(time_explosion)
 
         #Set atomic_number as index in isotopic_abundance dataframe
         isotope_abundance = isotope_abundance.reset_index().drop(
