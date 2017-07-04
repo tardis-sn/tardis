@@ -192,25 +192,6 @@ class Radial1DModel(HDFWriterMixin):
         abundance.columns = range(len(abundance.columns))
         return abundance
 
-    def as_atomic_numbers(self, normalize=True):
-
-        #Drop mass_number coloumn in isotopic_abundance dataframe
-        isotope_abundance = self.isotope_abundance.reset_index(
-            level='mass_number').drop('mass_number', axis=1)
-
-        #Merge abundance dataframes
-        modified_df = pd.concat([isotope_abundance, self._abundance])
-        modified_df = modified_df.groupby('atomic_number').sum()
-
-        if normalize:
-            norm_factor = modified_df.sum(axis=0)
-            modified_df /= norm_factor
-
-        #Update abundance
-        self._abundance = modified_df
-
-        return self.abundance
-
     @property
     def volume(self):
         return ((4. / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)).cgs
