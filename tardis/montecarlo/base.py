@@ -163,6 +163,7 @@ class MontecarloRunner(object):
                 plasma,
                 self)
         self.time_of_simulation = self.calculate_time_of_simulation(model)
+        self.luminosity_inner = self.calculate_luminosity_inner(model)
         self.volume = model.volume
         self._initialize_estimator_arrays(self.volume.shape[0],
                                           plasma.tau_sobolevs.shape)
