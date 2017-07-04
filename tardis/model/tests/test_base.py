@@ -215,14 +215,19 @@ def simple_isotope_abundance():
 def test_model_decay(simple_isotope_abundance):
     filename = 'tardis_configv1_verysimple.yml'
     config = Configuration.from_yaml(data_path(filename))
+    config.model.isotope_abundance = simple_isotope_abundance
     model = Radial1DModel.from_config(config)
-    model.raw_isotope_abundance = simple_isotope_abundance
-    model.decay(100,normalize=False)
-    decayed = simple_isotope_abundance.decay(100)
-    assert_almost_equal(model._abundance.loc[8][0], model.raw_abundance.loc[8][0], decimal=4)
-    assert_almost_equal(model._abundance.loc[14][0], model.raw_abundance.loc[14][0]+ decayed.loc[14, 28][0], decimal=4)
-    assert_almost_equal(model._abundance.loc[12][5], model.raw_abundance.loc[12][5]+ decayed.loc[12, 28][5], decimal=4)
-    assert_almost_equal(model._abundance.loc[6][12], decayed.loc[6, 14][12], decimal=4)
+    decayed = simple_isotope_abundance.decay(model.time_explosion)
+    norm_factor = 1.4
+
+    assert_almost_equal(
+        model._abundance.loc[8][0], model.raw_abundance.loc[8][0] / norm_factor, decimal=4)
+    assert_almost_equal(model._abundance.loc[14][0], (
+        model.raw_abundance.loc[14][0] + decayed.loc[14, 28][0]) / norm_factor, decimal=4)
+    assert_almost_equal(model._abundance.loc[12][5], (
+        model.raw_abundance.loc[12][5] + decayed.loc[12, 28][5]) / norm_factor, decimal=4)
+    assert_almost_equal(
+        model._abundance.loc[6][12], (decayed.loc[6, 14][12]) / norm_factor, decimal=4)
 
 
 ###

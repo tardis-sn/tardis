@@ -71,7 +71,6 @@ class Radial1DModel(HDFWriterMixin):
         self.v_boundary_outer = v_boundary_outer
         self.homologous_density = homologous_density
         self._abundance = abundance
-        self.decayed = False
         self.time_explosion = time_explosion
 
         self.raw_abundance = self._abundance
@@ -193,23 +192,15 @@ class Radial1DModel(HDFWriterMixin):
         abundance.columns = range(len(abundance.columns))
         return abundance
 
-    def decay(self, time_explosion, normalize=True):
+    def as_atomic_numbers(self, normalize=True):
 
-        if not self.decayed:
-            self.decayed = True
-        else:
-            raise ValueError("Isotopic Abundance already decayed")
-
-        isotope_abundance = self.raw_isotope_abundance.decay(time_explosion)
-
-        #Set atomic_number as index in isotopic_abundance dataframe
-        isotope_abundance = isotope_abundance.reset_index().drop(
-            'mass_number', axis=1).set_index(['atomic_number'])
+        #Drop mass_number coloumn in isotopic_abundance dataframe
+        isotope_abundance = self.isotope_abundance.reset_index(
+            level='mass_number').drop('mass_number', axis=1)
 
         #Merge abundance dataframes
-        modified_df = isotope_abundance.append(self.abundance)
-        modified_df = modified_df.reset_index().set_index('atomic_number')
-        modified_df = modified_df.groupby(modified_df.index).sum()
+        modified_df = pd.concat([isotope_abundance, self._abundance])
+        modified_df = modified_df.groupby('atomic_number').sum()
 
         if normalize:
             norm_factor = modified_df.sum(axis=0)
@@ -218,7 +209,7 @@ class Radial1DModel(HDFWriterMixin):
         #Update abundance
         self._abundance = modified_df
 
-        return modified_df
+        return self.abundance
 
     @property
     def volume(self):
@@ -385,4 +376,5 @@ class Radial1DModel(HDFWriterMixin):
                    luminosity_requested=luminosity_requested,
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
-                   v_boundary_outer=structure.get('v_outer_boundary', None))
+                   v_boundary_outer=structure.get('v_outer_boundary', None),
+                   isotope_abundance=isotope_abundance)
