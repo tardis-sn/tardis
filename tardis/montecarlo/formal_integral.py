@@ -2,6 +2,7 @@ import warnings
 import numpy as np
 import pandas as pd
 from astropy import units as u
+from astropy import constants as const
 
 from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum
@@ -111,6 +112,15 @@ class FormalIntegrator(object):
         exptau = 1 - np.exp(- plasma.tau_sobolevs)
         Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
 
+        # The following may be achieved by calling the appropriate plasma
+        # functions
+        Jbluelu_norm_factor = (const.c.cgs * model.time_explosion /
+                                (4 * np.pi * runner.time_of_simulation *
+                                 model.volume)).to("1/cm^2/s").value
+        # Jbluelu should already by in the correct order, i.e. by wavelength of
+        # the transition l->u
+        Jbluelu = runner.j_blue_estimator * Jbluelu_norm_factor
+
         upper_level_index = atomic_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
         e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)
         e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
@@ -124,4 +134,4 @@ class FormalIntegrator(object):
         att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
 
         result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
-        return result.ix[atomic_data.lines.index.values].as_matrix(), e_dot_u
+        return result.ix[atomic_data.lines.index.values].as_matrix(), Jbluelu, e_dot_u
