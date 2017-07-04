@@ -6,7 +6,7 @@ from numpy.testing import assert_almost_equal, assert_array_almost_equal
 
 from tardis.io.config_reader import Configuration
 from tardis.model import Radial1DModel
-
+from tardis.io.decay import IsotopeAbundances
 
 def data_path(filename):
     return os.path.abspath(os.path.join('tardis/io/tests/data/', filename))
@@ -204,6 +204,26 @@ def test_ascii_reader_exponential_law():
     for i, mdens in enumerate(expected_densites):
         assert_almost_equal(model.density[i].value, mdens)
         assert model.density[i].unit ==  u.Unit(expected_unit)
+
+@pytest.fixture
+def simple_isotope_abundance():
+    index = pd.MultiIndex.from_tuples([(6, 14), (12, 28)],
+                                      names=['atomic_number', 'mass_number'])
+    abundance = [[0.2 for i in range(20)] for j in range(2)]
+    return IsotopeAbundances(abundance, index=index)
+
+def test_model_decay(simple_isotope_abundance):
+    filename = 'tardis_configv1_verysimple.yml'
+    config = Configuration.from_yaml(data_path(filename))
+    model = Radial1DModel.from_config(config)
+    model.raw_isotope_abundance = simple_isotope_abundance
+    model.decay(100,normalize=False)
+    decayed = simple_isotope_abundance.decay(100)
+    assert_almost_equal(model._abundance.loc[8][0], model.raw_abundance.loc[8][0], decimal=4)
+    assert_almost_equal(model._abundance.loc[14][0], model.raw_abundance.loc[14][0]+ decayed.loc[14, 28][0], decimal=4)
+    assert_almost_equal(model._abundance.loc[12][5], model.raw_abundance.loc[12][5]+ decayed.loc[12, 28][5], decimal=4)
+    assert_almost_equal(model._abundance.loc[6][12], decayed.loc[6, 14][12], decimal=4)
+
 
 ###
 # Save and Load
