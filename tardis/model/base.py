@@ -71,7 +71,6 @@ class Radial1DModel(HDFWriterMixin):
         self.v_boundary_outer = v_boundary_outer
         self.homologous_density = homologous_density
         self._abundance = abundance
-        self.isotope_abundance = isotope_abundance
         self.decayed = False
         self.time_explosion = time_explosion
 
@@ -201,7 +200,7 @@ class Radial1DModel(HDFWriterMixin):
         else:
             raise ValueError("Isotopic Abundance already decayed")
 
-        isotope_abundance = self.isotope_abundance.decay(time_explosion)
+        isotope_abundance = self.raw_isotope_abundance.decay(time_explosion)
 
         #Set atomic_number as index in isotopic_abundance dataframe
         isotope_abundance = isotope_abundance.reset_index().drop(
