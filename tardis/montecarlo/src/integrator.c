@@ -186,7 +186,8 @@ _formal_integral(
               size_z = 0,
               idx_nu_start = 0;
 
-      double I_nu[N],
+      double I_nu_b[N],
+             I_nu_r[N],
              z[2 * storage->no_of_shells],
              p = 0,
              nu_start,
@@ -219,9 +220,10 @@ _formal_integral(
 
               // initialize I_nu
               if (p <= R_ph)
-                I_nu[p_idx] = intensity_black_body(nu, iT);
+                I_nu_b[p_idx] = intensity_black_body(nu, iT);
               else
-                I_nu[p_idx] = 0;
+                I_nu_b[p_idx] = 0;
+              I_nu_r[p_idx] = 0;
 
               // TODO: Ugly loop
               // Loop over all intersections
@@ -257,14 +259,16 @@ _formal_integral(
                     {
                       if (*pline < nu_end)
                         break;
-                      I_nu[p_idx] = I_nu[p_idx] * (*pexp_tau) + *patt_S_ul;
-
+                      I_nu_r[p_idx] = I_nu_b[p_idx] * (*pexp_tau) + *patt_S_ul;
+                      // In the absence of electron scattering, simple recursion as in Lucy 1991
+                      // TODO: e-scattering: Replace by Lucy 1999, Eq. 27
+                      I_nu_b[p_idx] = I_nu_r[p_idx];
                     }
                 }
-              I_nu[p_idx] *= p;
+              I_nu_r[p_idx] *= p;
             }
           // TODO: change integration to match the calculation of p values
-          L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max/N, N);
+          L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu_r, R_max/N, N);
         }
 
       // Free everything allocated on heap
