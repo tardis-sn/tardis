@@ -71,6 +71,7 @@ class Radial1DModel(HDFWriterMixin):
         self.v_boundary_outer = v_boundary_outer
         self.homologous_density = homologous_density
         self._abundance = abundance
+        self.isotope_abundance = isotope_abundance
         self.time_explosion = time_explosion
 
         self.raw_abundance = self._abundance
@@ -191,6 +192,18 @@ class Radial1DModel(HDFWriterMixin):
         abundance = self._abundance.ix[:, start:stop]
         abundance.columns = range(len(abundance.columns))
         return abundance
+
+    def decay(self, day):
+        isotope_abundance = self.isotope_abundance.decay(day)
+        isotope_abundance = isotope_abundance.reset_index().drop(
+            'mass_number', axis=1).set_index(['atomic_number'])
+        modified_df = isotope_abundance.append(self.abundance)
+        modified_df = modified_df.reset_index().set_index('atomic_number')
+        modified_df = modified_df.groupby(modified_df.index).sum()
+        norm_factor = modified_df.sum(axis=0)
+        modified_df /= norm_factor
+        self._abundance = modified_df
+        return modified_df
 
     @property
     def volume(self):
