@@ -493,7 +493,7 @@ class AtomData(object):
             self.lines = self.lines[self.lines['ion_number'] <= max_ion_number]
 
         # self.lines.sort(['wavelength', 'line_id'], inplace=True)
-        self.lines.sort(['wavelength'], inplace=True)
+        self.lines.sort_values(by='wavelength', inplace=True)
         self.lines.set_index('line_id', inplace=True)
 
 
@@ -672,4 +672,3 @@ class NLTEData(object):
                                            t_electrons.reshape((1, 1, t_electrons.shape[0]))) * \
                       self.g_ratio_matrices[species].reshape((no_of_levels, no_of_levels, 1))
         return c_ul_matrix + c_lu_matrix.transpose(1, 0, 2)
-
