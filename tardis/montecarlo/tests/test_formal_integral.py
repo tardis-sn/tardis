@@ -49,7 +49,7 @@ def test_trapezoid_integration(clib, N):
     func = clib.trapezoid_integration
     func.restype = c_double
     h = 1.
-
+    N = int(N)
     func.argtypes = [
             ndpointer(c_double),
             c_double,
