@@ -43,6 +43,7 @@ class MontecarloRunner(object):
         self.inner_boundary_albedo = inner_boundary_albedo
         self.line_interaction_type = line_interaction_type
         self._integrator = None
+        self._spectrum_integrated = None
 
     def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
         """
@@ -126,8 +127,10 @@ class MontecarloRunner(object):
 
     @property
     def spectrum_integrated(self):
-        return self.integrator.calculate_spectrum(
+        if self._spectrum_integrated is None:
+            self._spectrum_integrated = self.integrator.calculate_spectrum(
                 self.spectrum_frequency[:-1])
+        return self._spectrum_integrated
 
     @property
     def integrator(self):
