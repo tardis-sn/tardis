@@ -116,7 +116,7 @@ class FormalIntegrator(object):
         # functions
         Jbluelu_norm_factor = (const.c.cgs * model.time_explosion /
                                 (4 * np.pi * runner.time_of_simulation *
-                                 model.volume)).to("1/cm^2/s").value
+                                 model.volume)).to("1/(cm^2 s)").value
         # Jbluelu should already by in the correct order, i.e. by wavelength of
         # the transition l->u
         Jbluelu = runner.j_blue_estimator * Jbluelu_norm_factor
@@ -134,4 +134,9 @@ class FormalIntegrator(object):
         att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
 
         result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
-        return result.ix[atomic_data.lines.index.values].as_matrix(), Jbluelu, e_dot_u
+        att_S_ul = result.ix[atomic_data.lines.index.values].as_matrix()
+
+        # Jredlu should already by in the correct order, i.e. by wavelength of
+        # the transition l->u (similar to Jbluelu)
+        Jredlu = Jbluelu * np.exp(-plasma.tau_sobolevs.values) + att_S_ul
+        return att_S_ul, Jredlu, Jbluelu, e_dot_u
