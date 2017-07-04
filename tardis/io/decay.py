@@ -83,5 +83,7 @@ class IsotopeAbundances(pd.DataFrame):
         t_second = u.Quantity(t, u.day).to(u.s).value
 
         decayed_materials = [item.decay(t_second) for item in materials]
-
-        return IsotopeAbundances.from_materials(decayed_materials)
+        
+        df = IsotopeAbundances.from_materials(decayed_materials)
+        df.sort_index(inplace=True)
+        return df 
