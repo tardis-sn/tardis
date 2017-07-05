@@ -184,7 +184,9 @@ _formal_integral(
       // Initializing all the thread-local variables
       int64_t offset = 0, i = 0,
               size_z = 0,
-              idx_nu_start = 0;
+              idx_nu_start = 0,
+              direction = 0,
+              first = 0;
 
       double I_nu_b[N],
              I_nu_r[N],
@@ -222,6 +224,7 @@ _formal_integral(
               dtau = 0;
               p = pp[p_idx];
 
+              // initialize z intersections for p values
               size_z = populate_z(storage, p, z, shell_id);
 
               // initialize I_nu
@@ -231,46 +234,38 @@ _formal_integral(
                 I_nu_b[p_idx] = 0;
               I_nu_r[p_idx] = 0;
 
+              // Find first contributing line
+              nu_start = nu * z[0];
+              nu_end = nu * z[1];
+              line_search(
+                  storage->line_list_nu,
+                  nu_start,
+                  size_line,
+                  &idx_nu_start
+              );
+              offset = shell_id[0] * size_line;
+
+              // start tracking accumulated e-scattering optical depth
+              zstart = storage->time_explosion / C_INV * (1. - z[0]);
+
+              // Initialize pointers
+              pline = storage->line_list_nu + idx_nu_start;
+              pexp_tau = exp_tau + offset + idx_nu_start;
+              patt_S_ul = att_S_ul + offset + idx_nu_start;
+              pJred_lu = Jred_lu + offset + idx_nu_start;
+              pJblue_lu = Jblue_lu + offset + idx_nu_start;
+
+              // flag for first contribution to integration on current p-ray
+              first = 1;
+
               // TODO: Ugly loop
               // Loop over all intersections
-
               // TODO: replace by number of intersections and remove break
               for (i = 0; i < size_z - 1; ++i)
                 {
-                  nu_start = nu * z[i];
+                  escat_op = storage->electron_densities[shell_id[i]] * storage->sigma_thomson;
                   nu_end = nu * z[i+1];
 
-                  zstart = storage->time_explosion / C_INV * (1. - nu_start / nu);
-
-                  // Calculate offset properly
-                  // Which shell is important for photosphere?
-                  offset = shell_id[i] * size_line;
-                  // TODO: e-scattering: try to include Doppler factors;
-                  escat_op = storage->electron_densities[shell_id[i]] * storage->sigma_thomson;
-
-                  // Find first contributing line
-                  line_search(
-                              storage->line_list_nu,
-                              nu_start,
-                              size_line,
-                              &idx_nu_start
-                  );
-
-
-                  // Initialize pointers for inner loop
-                  pline = storage->line_list_nu + idx_nu_start;
-                  pexp_tau = exp_tau + offset + idx_nu_start;
-                  patt_S_ul = att_S_ul + offset + idx_nu_start;
-                  pJred_lu = Jred_lu + offset + idx_nu_start;
-                  pJblue_lu = Jblue_lu + offset + idx_nu_start;
-                  // we need Jblues not from the current but from the next line
-                  pJblue_lu += 1;
-
-                  // TODO: e-scattering: We need another safety check since the
-                  // calculation of Jkkp involves Jblue_lu of the next line; we
-                  // need to check for the end of the line list and only
-                  // calculate Jkkp if the current line is not the last line in
-                  // the list
                   // TODO: e-scattering: in principle we also have to check
                   // that dtau is <<1 (as assumed in Lucy 1999); if not, there
                   // is the chance that I_nu_b becomes negative
@@ -279,14 +274,11 @@ _formal_integral(
                        ++pline,
                        ++pexp_tau,
                        ++patt_S_ul,
-                       ++pJred_lu,
                        ++pJblue_lu)
                     {
                       if (*pline < nu_end)
                       {
-                        // Calculate e-scattering optical depth to grid cell boundary
-                        zend = storage->time_explosion / C_INV * (1. - nu_end / nu);
-                        dtau += (zend - zstart) * escat_op;
+                        // next resonance not in current shell
                         break;
                       }
 
@@ -294,14 +286,41 @@ _formal_integral(
                       zend = storage->time_explosion / C_INV * (1. - *pline / nu);
                       dtau += (zend - zstart) * escat_op;
 
+                      if (first == 1){
+                        // First contribution to integration
+                        // NOTE: this treatment of I_nu_b (given by boundary
+                        // conditions) is not in Lucy 1999; should be
+                        // re-examined carefully 
+                        I_nu_b[p_idx] = I_nu_b[p_idx] + dtau * (*pJblue_lu - I_nu_b[p_idx]);
+                        first = 0;
+                      }
+                      else{
+                        // Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
+                        Jkkp = 0.5 * (*pJred_lu + *pJblue_lu);
+                        I_nu_b[p_idx] = I_nu_r[p_idx] + dtau * (Jkkp - I_nu_r[p_idx]);
+                        // this introduces the necessary offset of one element between pJblue_lu and pJred_lu
+                        pJred_lu += 1;
+                      }
+
+                      // Lucy 1999, Eq 26
                       I_nu_r[p_idx] = I_nu_b[p_idx] * (*pexp_tau) + *patt_S_ul;
-                      // In the absence of electron scattering, simple recursion as in Lucy 1991
-                      Jkkp = 0.5 * (*pJred_lu + *pJblue_lu);
-                      I_nu_b[p_idx] = I_nu_r[p_idx] + dtau * (Jkkp - I_nu_r[p_idx]);
 
                       // reset e-scattering opacity 
                       dtau = 0;
                       zstart = zend;
+                    }
+                    // Calculate e-scattering optical depth to grid cell boundary
+                    zend = storage->time_explosion / C_INV * (1. - nu_end / nu);
+                    dtau += (zend - zstart) * escat_op;
+                    zstart = zend;
+
+                    if (i < size_z-1){
+                      // advance pointers
+                      direction = shell_id[i+1] - shell_id[i];
+                      pexp_tau  += direction * size_line;
+                      patt_S_ul += direction * size_line;
+                      pJred_lu  += direction * size_line;
+                      pJblue_lu += direction * size_line;
                     }
                 }
               I_nu_r[p_idx] *= p;
