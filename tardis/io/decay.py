@@ -99,7 +99,7 @@ class IsotopeAbundances(pd.DataFrame):
             If float it will be understood as days
         abundance: pd.DataFrame 
         normalize : bool
-            If true, resultant dataframe will be normalized along the coloumn
+            If true, resultant dataframe will be normalized
 
         Returns:
             : merged abundances
@@ -109,8 +109,7 @@ class IsotopeAbundances(pd.DataFrame):
             level='mass_number').drop('mass_number', axis=1)
 
         #Merge abundance dataframes
-        modified_df = pd.concat([isotope_abundance, abundance])
-        modified_df = modified_df.groupby('atomic_number').sum()
+        modified_df = isotope_abundance.add(abundance, fill_value=0)
 
         if normalize:
             norm_factor = modified_df.sum(axis=0)
