@@ -196,7 +196,8 @@ _formal_integral(
              zstart,
              zend,
              dtau,
-             escat_op;
+             escat_op,
+             Jkkp;
       int64_t shell_id[2 * storage->no_of_shells];
 
       double *pexp_tau, *patt_S_ul, *pline, *pJred_lu, *pJblue_lu;
@@ -244,8 +245,8 @@ _formal_integral(
                   // Calculate offset properly
                   // Which shell is important for photosphere?
                   offset = shell_id[i] * size_line;
-                  // TODO: e-scattering: need to replace 1 with e-scattering opacity in cell;
-                  escat_op = 1.;
+                  // TODO: e-scattering: try to include Doppler factors;
+                  escat_op = storage->electron_densities[shell_id[i]] * storage->sigma_thomson;
 
                   // Find first contributing line
                   line_search(
@@ -262,12 +263,24 @@ _formal_integral(
                   patt_S_ul = att_S_ul + offset + idx_nu_start;
                   pJred_lu = Jred_lu + offset + idx_nu_start;
                   pJblue_lu = Jblue_lu + offset + idx_nu_start;
+                  // we need Jblues not from the current but from the next line
+                  pJblue_lu += 1;
 
+                  // TODO: e-scattering: We need another safety check since the
+                  // calculation of Jkkp involves Jblue_lu of the next line; we
+                  // need to check for the end of the line list and only
+                  // calculate Jkkp if the current line is not the last line in
+                  // the list
+                  // TODO: e-scattering: in principle we also have to check
+                  // that dtau is <<1 (as assumed in Lucy 1999); if not, there
+                  // is the chance that I_nu_b becomes negative
                   for (;pline < storage->line_list_nu + size_line;
                        // We have to increment all pointers simultanously
                        ++pline,
                        ++pexp_tau,
-                       ++patt_S_ul)
+                       ++patt_S_ul,
+                       ++pJred_lu,
+                       ++pJblue_lu)
                     {
                       if (*pline < nu_end)
                       {
@@ -283,8 +296,8 @@ _formal_integral(
 
                       I_nu_r[p_idx] = I_nu_b[p_idx] * (*pexp_tau) + *patt_S_ul;
                       // In the absence of electron scattering, simple recursion as in Lucy 1991
-                      // TODO: e-scattering: Replace by Lucy 1999, Eq. 27
-                      I_nu_b[p_idx] = I_nu_r[p_idx];
+                      Jkkp = 0.5 * (*pJred_lu + *pJblue_lu);
+                      I_nu_b[p_idx] = I_nu_r[p_idx] + dtau * (Jkkp - I_nu_r[p_idx]);
 
                       // reset e-scattering opacity 
                       dtau = 0;
