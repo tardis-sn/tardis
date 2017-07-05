@@ -270,10 +270,12 @@ _formal_integral(
                        ++patt_S_ul)
                     {
                       if (*pline < nu_end)
+                      {
                         // Calculate e-scattering optical depth to grid cell boundary
                         zend = storage->time_explosion / C_INV * (1. - nu_end / nu);
                         dtau += (zend - zstart) * escat_op;
                         break;
+                      }
 
                       // Calculate e-scattering optical depth to next resonance point
                       zend = storage->time_explosion / C_INV * (1. - *pline / nu);
