@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #define STATUS_FORMAT "\r\033[2K\t[%" PRId64 "%%] Packets(finished/total): %" PRId64 "/%" PRId64
-#define STATUS_FORMAT_FI "\r\033[2K\t[%" PRId64 "%%] Rays(finished/total): %" PRId64 "/%" PRId64
+#define STATUS_FORMAT_FI "\r\033[2K\t[%" PRId64 "%%] Bins(finished/total): %" PRId64 "/%" PRId64
 
 static inline void
 print_progress (const int64_t current, const int64_t total)
