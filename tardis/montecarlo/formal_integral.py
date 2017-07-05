@@ -50,12 +50,6 @@ class FormalIntegrator(object):
                     'line_interaction_type == "downbranch"'
                     )
 
-        if self.runner.sigma_thomson.value > 1e-100:
-            return raise_or_return(
-                    'The FormalIntegrator currently only works with '
-                    'disable_electron_scattering turned on.'
-                    )
-
         return True
 
     def calculate_spectrum(self, frequency, points=None, raises=True):
