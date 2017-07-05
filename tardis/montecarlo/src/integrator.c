@@ -6,6 +6,7 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "io.h"
 #include "storage.h"
 #include "integrator.h"
 #include "cmontecarlo.h"
@@ -167,19 +168,26 @@ _formal_integral(
   // global read-only values
   int64_t size_line = storage->no_of_lines,
           size_shell = storage->no_of_shells,
-          size_tau = size_line * size_shell;
+          size_tau = size_line * size_shell,
+          finished_nus = 0;
 
   double R_ph = storage->r_inner[0];
   double R_max = storage->r_outer[size_shell - 1];
   double pp[N];
   double *exp_tau = calloc(size_tau, sizeof(double));
-#pragma omp parallel firstprivate(L, exp_tau)
+#ifdef WITHOPENMP
+#pragma omp parallel firstprivate(L, exp_tau, finished_nus)
     {
 
 #pragma omp master
         {
-          printf("Doing the formal integral with %d threads", omp_get_num_threads());
+          fprintf(stderr, "Doing the formal integral\nRunning with OpenMP - %d threads\n", omp_get_num_threads());
+          print_progress_fi(0, inu_size);
         }
+#else
+      fprintf(stderr, "Doing the formal integral\nRunning without OpenMP\n");
+      print_progress_fi(0, inu_size);
+#endif
 
       // Initializing all the thread-local variables
       int64_t offset = 0, i = 0,
@@ -327,10 +335,19 @@ _formal_integral(
             }
           // TODO: change integration to match the calculation of p values
           L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu_r, R_max/N, N);
+          if (++finished_nus%10 == 0){
+#ifdef WITHOPENMP
+            if (omp_get_thread_num() == 0 )
+              print_progress_fi(finished_nus * omp_get_num_threads(), inu_size);
+#else
+            print_progress_fi(nu_idx, inu_size);
+#endif
+          }
         }
-
       // Free everything allocated on heap
-      printf("\n\n");
+      printf("\n");
+#ifdef WITHOPENMP
     }
+#endif
   return L;
 }
