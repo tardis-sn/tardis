@@ -357,5 +357,4 @@ class Radial1DModel(HDFWriterMixin):
                    luminosity_requested=luminosity_requested,
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
-                   v_boundary_outer=structure.get('v_outer_boundary', None),
-                   isotope_abundance=isotope_abundance)
+                   v_boundary_outer=structure.get('v_outer_boundary', None))
