@@ -88,7 +88,7 @@ class IsotopeAbundances(pd.DataFrame):
         df.sort_index(inplace=True)
         return df 
 
-    def merge_isotopes(self):
+    def as_atoms(self):
         """
         Merge Isotope dataframe according to atomic number 
 
@@ -98,13 +98,13 @@ class IsotopeAbundances(pd.DataFrame):
 
         return self.groupby('atomic_number').sum()
 
-    def as_atomic_numbers(self, abundance, normalize=True):
+    def merge(self, other, normalize=True):
         """
         Merge Isotope dataframe with abundance passed as parameter 
 
         Parameters
         ----------
-        abundance: pd.DataFrame 
+        other: pd.DataFrame 
         normalize : bool
             If true, resultant dataframe will be normalized
 
@@ -113,7 +113,7 @@ class IsotopeAbundances(pd.DataFrame):
         """
         isotope_abundance = self.merge_isotopes()
         #Merge abundance and isotope dataframe
-        modified_df = isotope_abundance.add(abundance, fill_value=0)
+        modified_df = isotope_abundance.add(other, fill_value=0)
 
         if normalize:
             norm_factor = modified_df.sum(axis=0)
