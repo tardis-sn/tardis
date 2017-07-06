@@ -221,7 +221,7 @@ def test_model_decay(simple_isotope_abundance):
 
     model.raw_isotope_abundance = simple_isotope_abundance
     decayed = simple_isotope_abundance.decay(
-        model.time_explosion).merge_isotopes()
+        model.time_explosion).as_atoms()
     norm_factor = 1.4
 
     assert_almost_equal(

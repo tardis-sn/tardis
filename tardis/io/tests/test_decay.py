@@ -27,8 +27,8 @@ def raw_abundance_simple():
 
 def test_abundance_merge(simple_abundance_model, raw_abundance_simple):
     decayed_df = simple_abundance_model.decay(100)
-    isotope_df = decayed_df.merge_isotopes()
-    combined_df = decayed_df.as_atomic_numbers(raw_abundance_simple, normalize=False)
+    isotope_df = decayed_df.as_atoms()
+    combined_df = decayed_df.merge(raw_abundance_simple, normalize=False)
     
     assert_almost_equal(combined_df.loc[28][0], raw_abundance_simple.loc[28][0] + isotope_df.loc[28][0])
     assert_almost_equal(combined_df.loc[28][1], raw_abundance_simple.loc[28][1] + isotope_df.loc[28][1])
