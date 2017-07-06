@@ -112,7 +112,7 @@ class IsotopeAbundances(pd.DataFrame):
             : merged abundances
         """
         isotope_abundance = self.merge_isotopes()
-        #Merge abundance and isotope abundance
+        #Merge abundance and isotope dataframe
         modified_df = isotope_abundance.add(abundance, fill_value=0)
 
         if normalize:
