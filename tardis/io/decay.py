@@ -33,7 +33,7 @@ class IsotopeAbundances(pd.DataFrame):
             for key, value in material.items():
                 abundances.loc[cls.id_to_tuple(key), i] = value
 
-        return abundances
+        return cls(abundances)
 
 
 
@@ -88,15 +88,22 @@ class IsotopeAbundances(pd.DataFrame):
         df.sort_index(inplace=True)
         return df 
 
-    def as_atomic_numbers(self, abundance, t, normalize=True):
+    def merge_isotopes(self):
         """
-        Merge decayed Isotope dataframe with abundance passed as parameter 
+        Merge Isotope dataframe according to atomic number 
+
+        Returns:
+            : merged isotope abundances
+        """
+
+        return self.groupby('atomic_number').sum()
+
+    def as_atomic_numbers(self, abundance, normalize=True):
+        """
+        Merge Isotope dataframe with abundance passed as parameter 
 
         Parameters
         ----------
-
-        t: float or astropy.units.Quantity
-            If float it will be understood as days
         abundance: pd.DataFrame 
         normalize : bool
             If true, resultant dataframe will be normalized
@@ -104,11 +111,8 @@ class IsotopeAbundances(pd.DataFrame):
         Returns:
             : merged abundances
         """
-        #Drop mass_number coloumn in isotopic_abundance dataframe
-        isotope_abundance = self.decay(t).reset_index(
-            level='mass_number').drop('mass_number', axis=1)
-
-        #Merge abundance dataframes
+        isotope_abundance = self.merge_isotopes()
+        #Merge abundance and isotope abundance
         modified_df = isotope_abundance.add(abundance, fill_value=0)
 
         if normalize:
