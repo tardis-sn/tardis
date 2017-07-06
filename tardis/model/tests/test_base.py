@@ -205,12 +205,14 @@ def test_ascii_reader_exponential_law():
         assert_almost_equal(model.density[i].value, mdens)
         assert model.density[i].unit ==  u.Unit(expected_unit)
 
+
 @pytest.fixture
 def simple_isotope_abundance():
     index = pd.MultiIndex.from_tuples([(6, 14), (12, 28)],
                                       names=['atomic_number', 'mass_number'])
     abundance = [[0.2] * 20] * 2
     return IsotopeAbundances(abundance, index=index)
+
 
 def test_model_decay(simple_isotope_abundance):
     filename = 'tardis_configv1_verysimple.yml'
