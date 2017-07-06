@@ -209,25 +209,27 @@ def test_ascii_reader_exponential_law():
 def simple_isotope_abundance():
     index = pd.MultiIndex.from_tuples([(6, 14), (12, 28)],
                                       names=['atomic_number', 'mass_number'])
-    abundance = [[0.2 for i in range(20)] for j in range(2)]
+    abundance = [[0.2] * 20] * 2
     return IsotopeAbundances(abundance, index=index)
 
 def test_model_decay(simple_isotope_abundance):
     filename = 'tardis_configv1_verysimple.yml'
     config = Configuration.from_yaml(data_path(filename))
-    config.model.isotope_abundance = simple_isotope_abundance
     model = Radial1DModel.from_config(config)
-    decayed = simple_isotope_abundance.decay(model.time_explosion)
+
+    model.raw_isotope_abundance = simple_isotope_abundance
+    decayed = simple_isotope_abundance.decay(
+        model.time_explosion).merge_isotopes()
     norm_factor = 1.4
 
     assert_almost_equal(
-        model._abundance.loc[8][0], model.raw_abundance.loc[8][0] / norm_factor, decimal=4)
-    assert_almost_equal(model._abundance.loc[14][0], (
-        model.raw_abundance.loc[14][0] + decayed.loc[14, 28][0]) / norm_factor, decimal=4)
+        model.abundance.loc[8][0], model.raw_abundance.loc[8][0] / norm_factor, decimal=4)
+    assert_almost_equal(model.abundance.loc[14][0], (
+        model.raw_abundance.loc[14][0] + decayed.loc[14][0]) / norm_factor, decimal=4)
     assert_almost_equal(model._abundance.loc[12][5], (
-        model.raw_abundance.loc[12][5] + decayed.loc[12, 28][5]) / norm_factor, decimal=4)
+        model.raw_abundance.loc[12][5] + decayed.loc[12][5]) / norm_factor, decimal=4)
     assert_almost_equal(
-        model._abundance.loc[6][12], (decayed.loc[6, 14][12]) / norm_factor, decimal=4)
+        model.abundance.loc[6][12], (decayed.loc[6][12]) / norm_factor, decimal=4)
 
 
 ###
