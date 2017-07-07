@@ -2,7 +2,7 @@ import os
 import logging
 import numpy as np
 import pandas as pd
-import re
+from pyne import nucname
 from astropy import constants, units as u
 
 from tardis.util import quantity_linspace, element_symbol2atomic_number
@@ -327,13 +327,11 @@ class Radial1DModel(HDFWriterMixin):
                                      index=pd.Index(np.arange(1, 120),
                                                     name='atomic_number'),
                                      dtype=np.float64)
-            index = pd.MultiIndex(
+            isotope_index = pd.MultiIndex(
                 [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
             isotope_abundance = pd.DataFrame(columns=np.arange(no_of_shells),
-                                             index=index,
+                                             index=isotope_index,
                                              dtype=np.float64)
-            #Regex to seperate element name and mass_no
-            regex = re.compile("([a-zA-Z]+)([0-9]*)")
             for element_symbol_string in abundances_section:
                 if element_symbol_string == 'type':
                     continue
@@ -341,13 +339,11 @@ class Radial1DModel(HDFWriterMixin):
                     z = element_symbol2atomic_number(element_symbol_string)
                     abundance.ix[z] = float(
                         abundances_section[element_symbol_string])
-                except:
-                    element = regex.match(element_symbol_string).group(1)
-                    mass_no = regex.match(element_symbol_string).group(2)
-                    z = element_symbol2atomic_number(element)
-
+                except MalformedElementSymbolError:
+                    mass_no = nucname.anum(element_symbol_string)
+                    z = nucname.znum(element_symbol2atomic_number)
                     isotope_abundance.loc[(z, mass_no), :] = float(
-                        isotope_section[element_symbol_string])
+                        abundances_section[element_symbol_string])
 
         elif abundances_section.type == 'file':
             if os.path.isabs(abundances_section.filename):
