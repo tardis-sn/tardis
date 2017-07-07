@@ -5,7 +5,7 @@ import pandas as pd
 from pyne import nucname
 from astropy import constants, units as u
 
-from tardis.util import quantity_linspace, element_symbol2atomic_number
+from tardis.util import quantity_linspace, element_symbol2atomic_number, MalformedElementSymbolError
 from tardis.io.model_reader import read_density_file, read_abundances_file
 from tardis.io.util import HDFWriterMixin
 from density import HomologousDensity
@@ -322,16 +322,17 @@ class Radial1DModel(HDFWriterMixin):
             t_inner = config.plasma.initial_t_inner
 
         abundances_section = config.model.abundances
+        isotope_index = pd.MultiIndex(
+            [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
+        isotope_abundance = pd.DataFrame(columns=np.arange(no_of_shells),
+                                         index=isotope_index,
+                                         dtype=np.float64)
+
         if abundances_section.type == 'uniform':
             abundance = pd.DataFrame(columns=np.arange(no_of_shells),
                                      index=pd.Index(np.arange(1, 120),
                                                     name='atomic_number'),
                                      dtype=np.float64)
-            isotope_index = pd.MultiIndex(
-                [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
-            isotope_abundance = pd.DataFrame(columns=np.arange(no_of_shells),
-                                             index=isotope_index,
-                                             dtype=np.float64)
             for element_symbol_string in abundances_section:
                 if element_symbol_string == 'type':
                     continue
@@ -341,7 +342,7 @@ class Radial1DModel(HDFWriterMixin):
                         abundances_section[element_symbol_string])
                 except MalformedElementSymbolError:
                     mass_no = nucname.anum(element_symbol_string)
-                    z = nucname.znum(element_symbol2atomic_number)
+                    z = nucname.znum(element_symbol_string)
                     isotope_abundance.loc[(z, mass_no), :] = float(
                         abundances_section[element_symbol_string])
 
