@@ -327,12 +327,27 @@ class Radial1DModel(HDFWriterMixin):
                                      index=pd.Index(np.arange(1, 120),
                                                     name='atomic_number'),
                                      dtype=np.float64)
-
+            index = pd.MultiIndex(
+                [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
+            isotope_abundance = pd.DataFrame(columns=np.arange(no_of_shells),
+                                             index=index,
+                                             dtype=np.float64)
+            #Regex to seperate element name and mass_no
+            regex = re.compile("([a-zA-Z]+)([0-9]*)")
             for element_symbol_string in abundances_section:
                 if element_symbol_string == 'type':
                     continue
-                z = element_symbol2atomic_number(element_symbol_string)
-                abundance.ix[z] = float(abundances_section[element_symbol_string])
+                try:
+                    z = element_symbol2atomic_number(element_symbol_string)
+                    abundance.ix[z] = float(
+                        abundances_section[element_symbol_string])
+                except:
+                    element = regex.match(element_symbol_string).group(1)
+                    mass_no = regex.match(element_symbol_string).group(2)
+                    z = element_symbol2atomic_number(element)
+
+                    isotope_abundance.loc[(z, mass_no), :] = float(
+                        isotope_section[element_symbol_string])
 
         elif abundances_section.type == 'file':
             if os.path.isabs(abundances_section.filename):
@@ -347,43 +362,13 @@ class Radial1DModel(HDFWriterMixin):
         abundance = abundance.replace(np.nan, 0.0)
         abundance = abundance[abundance.sum(axis=1) > 0]
 
-        norm_factor = abundance.sum(axis=0)
+        norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
 
         if np.any(np.abs(norm_factor - 1) > 1e-12):
             logger.warning("Abundances have not been normalized to 1."
                            " - normalizing")
             abundance /= norm_factor
-
-        if hasattr(config.model, 'isotope_abundances'):
-            isotope_section = config.model.isotope_abundances
-            if isotope_section.type == 'uniform':
-                index = pd.MultiIndex(
-                    [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
-                isotope_abundance = pd.DataFrame(columns=np.arange(no_of_shells),
-                                                 index=index,
-                                                 dtype=np.float64)
-
-                #Regex to seperate element name and mass_no
-                regex = re.compile("([a-zA-Z]+)([0-9]*)")
-
-                for element_symbol_string in isotope_section:
-                    if element_symbol_string == 'type':
-                        continue
-                    element = regex.match(element_symbol_string).group(1)
-                    mass_no = regex.match(element_symbol_string).group(2)
-                    z = element_symbol2atomic_number(element)
-
-                    isotope_abundance.loc[(z, mass_no), :] = float(
-                        isotope_section[element_symbol_string])
-        else:
-            isotope_abundance = pd.DataFrame()
-
-        if not isotope_abundance.empty:
-            norm_factor = isotope_abundance.sum(axis=0)
-            if np.any(np.abs(norm_factor - 1) > 1e-12):
-                logger.warning("Isotope Abundances have not been normalized to 1."
-                               " - normalizing")
-                isotope_abundance /= norm_factor
+            isotope_abundance /= norm_factor
 
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
