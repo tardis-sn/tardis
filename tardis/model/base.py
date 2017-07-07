@@ -378,6 +378,13 @@ class Radial1DModel(HDFWriterMixin):
         else:
             isotope_abundance = pd.DataFrame()
 
+        if not isotope_abundance.empty:
+            norm_factor = isotope_abundance.sum(axis=0)
+            if np.any(np.abs(norm_factor - 1) > 1e-12):
+                logger.warning("Isotope Abundances have not been normalized to 1."
+                               " - normalizing")
+                isotope_abundance /= norm_factor
+
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
                    abundance=abundance,
