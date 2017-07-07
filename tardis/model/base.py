@@ -2,6 +2,7 @@ import os
 import logging
 import numpy as np
 import pandas as pd
+import re
 from astropy import constants, units as u
 
 from tardis.util import quantity_linspace, element_symbol2atomic_number
@@ -59,10 +60,10 @@ class Radial1DModel(HDFWriterMixin):
     """
     hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
     hdf_name = 'model'
-    
+
     def __init__(self, velocity, homologous_density, abundance, time_explosion,
-                 t_inner, luminosity_requested=None, t_radiative=None,
-                 dilution_factor=None, v_boundary_inner=None,
+                 t_inner, isotope_abundance=None, luminosity_requested=None,
+                 t_radiative=None, dilution_factor=None, v_boundary_inner=None,
                  v_boundary_outer=None):
         self._v_boundary_inner = None
         self._v_boundary_outer = None
@@ -73,6 +74,10 @@ class Radial1DModel(HDFWriterMixin):
         self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
+
+        self.raw_abundance = self._abundance
+        self.raw_isotope_abundance = isotope_abundance
+
         if t_inner is None:
             if luminosity_requested is not None:
                 self.t_inner = ((luminosity_requested /
@@ -349,6 +354,29 @@ class Radial1DModel(HDFWriterMixin):
                            " - normalizing")
             abundance /= norm_factor
 
+        if hasattr(config.model, 'isotope_abundances'):
+            isotope_section = config.model.isotope_abundances
+            if isotope_section.type == 'uniform':
+                index = pd.MultiIndex(
+                    [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
+                isotope_abundance = pd.DataFrame(columns=np.arange(no_of_shells),
+                                                 index=index,
+                                                 dtype=np.float64)
+
+                #Regex to seperate element name and mass_no
+                regex = re.compile("([a-zA-Z]+)([0-9]*)")
+
+                for element_symbol_string in isotope_section:
+                    if element_symbol_string == 'type':
+                        continue
+                    element = regex.match(element_symbol_string).group(1)
+                    mass_no = regex.match(element_symbol_string).group(2)
+                    z = element_symbol2atomic_number(element)
+
+                    isotope_abundance.loc[(z, mass_no), :] = float(
+                        isotope_section[element_symbol_string])
+        else:
+            isotope_abundance = pd.DataFrame()
 
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
@@ -356,6 +384,7 @@ class Radial1DModel(HDFWriterMixin):
                    time_explosion=time_explosion,
                    t_radiative=t_radiative,
                    t_inner=t_inner,
+                   isotope_abundance=isotope_abundance,
                    luminosity_requested=luminosity_requested,
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
