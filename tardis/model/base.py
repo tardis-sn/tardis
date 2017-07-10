@@ -61,10 +61,9 @@ class Radial1DModel(HDFWriterMixin):
     hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
     hdf_name = 'model'
 
-    def __init__(self, velocity, homologous_density, abundance, time_explosion,
-                 t_inner, isotope_abundance=None, luminosity_requested=None,
-                 t_radiative=None, dilution_factor=None, v_boundary_inner=None,
-                 v_boundary_outer=None):
+    def __init__(self, velocity, homologous_density, abundance, isotope_abundance,
+                 time_explosion, t_inner, luminosity_requested=None, t_radiative=None,
+                 dilution_factor=None, v_boundary_inner=None, v_boundary_outer=None):
         self._v_boundary_inner = None
         self._v_boundary_outer = None
         self._velocity = None
@@ -370,10 +369,10 @@ class Radial1DModel(HDFWriterMixin):
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
                    abundance=abundance,
+                   isotope_abundance=isotope_abundance,
                    time_explosion=time_explosion,
                    t_radiative=t_radiative,
                    t_inner=t_inner,
-                   isotope_abundance=isotope_abundance,
                    luminosity_requested=luminosity_requested,
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
