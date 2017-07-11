@@ -354,7 +354,8 @@ class Radial1DModel(HDFWriterMixin):
 
             index, abundance, isotopes = read_abundances_file(abundances_fname,
                                                               abundances_section.filetype)
-            isotope_abundance = isotopes or isotope_abundance
+            if isotopes is not None:
+                isotope_abundance = isotopes
 
         abundance = abundance.replace(np.nan, 0.0)
         abundance = abundance[abundance.sum(axis=1) > 0]

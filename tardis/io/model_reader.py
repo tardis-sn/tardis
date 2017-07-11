@@ -87,9 +87,14 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     file_parsers = {'simple_ascii': read_simple_ascii_abundances,
                     'artis': read_simple_ascii_abundances,
                     'isotopes': read_simple_ascii_isotopes}
-
-    index, abundances, isotope_abundance = file_parsers[abundance_filetype](
-        abundance_filename)
+    
+    isotope_abundance = None
+    if abundance_filetype != 'isotopes':
+        index, abundances = file_parsers[abundance_filetype](
+            abundance_filename)
+    else:
+        index, abundances, isotope_abundance = file_parsers[abundance_filetype](
+            abundance_filename)
 
     if outer_boundary_index is not None:
         outer_boundary_index_m1 = outer_boundary_index - 1
@@ -240,4 +245,4 @@ def read_simple_ascii_abundances(fname):
     index = data[1:,0].astype(int)
     abundances = pd.DataFrame(data[1:,1:].transpose(), index=np.arange(1, data.shape[1]))
 
-    return index, abundances, None
+    return index, abundances
