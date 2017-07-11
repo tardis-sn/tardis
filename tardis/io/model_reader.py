@@ -108,7 +108,7 @@ def read_simple_ascii_isotopes(fname):
 
     #Reshape Numpy Structured arrays
     #File rows are read as tuples here, this line converts it to a Matrix form
-    #First colomn is ignored
+    #First column is ignored
     data = data.view(np.float64).reshape(-1, len(data.dtype))[:, 1:]
 
     #Parse isotopes
