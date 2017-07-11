@@ -4,7 +4,7 @@ import numpy as np
 from numpy import recfromtxt, genfromtxt
 import pandas as pd
 from astropy import units as u
-
+from pyne import nucname
 import logging
 # Adding logging support
 logger = logging.getLogger(__name__)
@@ -85,9 +85,17 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     """
 
     file_parsers = {'simple_ascii': read_simple_ascii_abundances,
-                    'artis': read_simple_ascii_abundances}
+                    'artis': read_simple_ascii_abundances,
+                    'isotopes': read_simple_ascii_isotopes}
+    
+    isotope_abundance = None
+    if abundance_filetype != 'isotopes':
+        index, abundances = file_parsers[abundance_filetype](
+            abundance_filename)
+    else:
+        index, abundances, isotope_abundance = file_parsers[abundance_filetype](
+            abundance_filename)
 
-    index, abundances = file_parsers[abundance_filetype](abundance_filename)
     if outer_boundary_index is not None:
         outer_boundary_index_m1 = outer_boundary_index - 1
     else:
@@ -95,7 +103,33 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     index = index[inner_boundary_index:outer_boundary_index]
     abundances = abundances.ix[:, slice(inner_boundary_index, outer_boundary_index_m1)]
     abundances.columns = np.arange(len(abundances.columns))
-    return index, abundances
+    return index, abundances, isotope_abundance
+
+
+def read_simple_ascii_isotopes(fname):
+
+    data = np.genfromtxt(fname, names=True, dtype=np.float64)
+    isotopes_name = data.dtype.names[31:]
+
+    #Reshape Numpy Structured arrays
+    #File rows are read as tuples here, this line converts it to a Matrix form
+    #First column is ignored
+    data = data.view(np.float64).reshape(-1, len(data.dtype))[:, 1:]
+
+    #Parse isotopes
+    mass_no = [nucname.anum(name) for name in isotopes_name]
+    z = [nucname.znum(name) for name in isotopes_name]
+    isotope_index = pd.MultiIndex.from_tuples(
+        zip(z, mass_no), names=['atomic_number', 'mass_number'])
+
+    isotope_abundance = pd.DataFrame(data[:, 30:].transpose(),
+                                     index=isotope_index,
+                                     dtype=np.float64)
+
+    index = pd.Index(np.arange(1, 30), name='atomic_number')
+    abundances = pd.DataFrame(data[:, :29].transpose(), index=index)
+
+    return index, abundances, isotope_abundance
 
 
 def read_simple_ascii_density(fname):
