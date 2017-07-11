@@ -102,10 +102,15 @@ def read_abundances_file(abundance_filename, abundance_filetype,
 
 
 def read_simple_ascii_isotopes(fname):
-    data = np.genfromtxt(fname, names=True, dtype=float)
-    isotopes_name = data.dtype.names[31:]
-    data = data.view(np.float).reshape(-1, len(data.dtype))[:, 1:]
 
+    data = np.genfromtxt(fname, names=True, dtype=np.float64)
+    isotopes_name = data.dtype.names[31:]
+
+    #Reshape Numpy Structured arrays
+    #File rows are read as tuples here, this line converts it to a Matrix form
+    data = data.view(np.float64).reshape(-1, len(data.dtype))[:, 1:]
+
+    #Parse isotopes
     mass_no = [nucname.anum(name) for name in isotopes_name]
     z = [nucname.znum(name) for name in isotopes_name]
     isotope_index = pd.MultiIndex.from_tuples(
@@ -114,8 +119,10 @@ def read_simple_ascii_isotopes(fname):
     isotope_abundance = pd.DataFrame(data[:, 30:].transpose(),
                                      index=isotope_index,
                                      dtype=np.float64)
-    index = np.arange(1, 30)
+
+    index = pd.Index(np.arange(1, 30), name='atomic_number')
     abundances = pd.DataFrame(data[:, :29].transpose(), index=index)
+
     return index, abundances, isotope_abundance
 
 
