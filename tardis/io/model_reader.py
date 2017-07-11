@@ -4,13 +4,13 @@ import numpy as np
 from numpy import recfromtxt, genfromtxt
 import pandas as pd
 from astropy import units as u
+from pyne import nucname
 
 import logging
 # Adding logging support
 logger = logging.getLogger(__name__)
 
-from tardis.util import parse_quantity
-
+from tardis.util import parse_quantity, element_symbol2atomic_number, MalformedElementSymbolError
 
 class ConfigurationError(Exception):
     pass
@@ -97,6 +97,45 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     abundances.columns = np.arange(len(abundances.columns))
     return index, abundances
 
+
+def read_uniform_abundances(abundances_section, no_of_shells):
+    """
+    Parameters
+    ----------
+
+    abundances_section: ~config.model.abundances
+    no_of_shells: int
+
+    Returns
+    -------
+    abundance: ~pandas.DataFrame
+    isotope_abundance: ~pandas.DataFrame
+    """
+    abundance = pd.DataFrame(columns=np.arange(no_of_shells),
+                             index=pd.Index(np.arange(1, 120),
+                                            name='atomic_number'),
+                             dtype=np.float64)
+
+    isotope_index = pd.MultiIndex(
+        [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
+    isotope_abundance = pd.DataFrame(columns=np.arange(no_of_shells),
+                                     index=isotope_index,
+                                     dtype=np.float64)
+
+    for element_symbol_string in abundances_section:
+        if element_symbol_string == 'type':
+            continue
+        try:
+            z = element_symbol2atomic_number(element_symbol_string)
+            abundance.ix[z] = float(
+                abundances_section[element_symbol_string])
+        except MalformedElementSymbolError:
+            mass_no = nucname.anum(element_symbol_string)
+            z = nucname.znum(element_symbol_string)
+            isotope_abundance.loc[(z, mass_no), :] = float(
+                abundances_section[element_symbol_string])
+
+    return abundance, isotope_abundance
 
 def read_simple_ascii_density(fname):
     """
