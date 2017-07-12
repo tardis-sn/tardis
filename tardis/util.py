@@ -435,13 +435,13 @@ def quantity_linspace(start, stop, num, **kwargs):
 
 def convert_abundances_format(fname, delimiter='\s+'):
     df = pd.read_csv(fname, delimiter=delimiter, comment='#', header=None)
-    #Drop shell column
+    #Drop shell index column
     df.drop(df.columns[0], axis=1, inplace=True)
 
     #Creating Header rows of Element Symbol and Type of Element
     header_df = pd.DataFrame([(nucname.name(i), 'E')
                               for i in range(1, df.shape[1] + 1)]).transpose()
-    #Align coloumns index with abundance dataframe
+    #Align columns index with abundance dataframe
     header_df.columns = header_df.columns + 1
 
     # Adding header rows to top and return resultant DataFrame
