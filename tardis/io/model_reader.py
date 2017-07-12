@@ -85,9 +85,17 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     """
 
     file_parsers = {'simple_ascii': read_simple_ascii_abundances,
-                    'artis': read_simple_ascii_abundances}
+                    'artis': read_simple_ascii_abundances,
+                    'isotopes': read_simple_isotope_abundances}
 
-    index, abundances = file_parsers[abundance_filetype](abundance_filename)
+    isotope_abundance = pd.DataFrame()
+    if abundance_filetype == 'isotopes':
+        index, abundances, isotope_abundance = read_simple_isotope_abundances(
+            abundance_filename)
+    else:
+        index, abundances = file_parsers[abundance_filetype](
+            abundance_filename)
+
     if outer_boundary_index is not None:
         outer_boundary_index_m1 = outer_boundary_index - 1
     else:
@@ -95,7 +103,7 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     index = index[inner_boundary_index:outer_boundary_index]
     abundances = abundances.ix[:, slice(inner_boundary_index, outer_boundary_index_m1)]
     abundances.columns = np.arange(len(abundances.columns))
-    return index, abundances
+    return index, abundances, isotope_abundance
 
 
 def read_uniform_abundances(abundances_section, no_of_shells):
@@ -256,3 +264,31 @@ def read_simple_ascii_abundances(fname):
     abundances = pd.DataFrame(data[1:,1:].transpose(), index=np.arange(1, data.shape[1]))
 
     return index, abundances
+
+
+def read_simple_isotope_abundances(fname, delimiter=','):
+    df = pd.read_csv(fname, header=[0, 1], comment='#', delimiter=delimiter)
+    df = df.transpose()
+
+    abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
+                             index=pd.Index([],
+                                            name='atomic_number'),
+                             dtype=np.float64)
+
+    isotope_index = pd.MultiIndex(
+        [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
+    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
+                                     index=isotope_index,
+                                     dtype=np.float64)
+
+    for element, type_of_element in df.index:
+        if type_of_element == 'E':
+            z = element_symbol2atomic_number(element)
+            abundance.loc[z, :] = df.loc[element, type_of_element].tolist()
+        elif type_of_element == 'I':
+            z = nucname.znum(element)
+            mass_no = nucname.anum(element)
+            isotope_abundance.loc[(
+                z, mass_no), :] = df.loc[element, type_of_element].tolist()
+
+    return abundance.index, abundance, isotope_abundance
