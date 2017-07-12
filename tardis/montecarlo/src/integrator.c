@@ -196,8 +196,9 @@ _formal_integral(
               direction = 0,
               first = 0;
 
-      double I_nu_b[N],
-             I_nu_r[N],
+      double I_nu[N],
+             //I_nu_b[N],
+             //I_nu_r[N],
              z[2 * storage->no_of_shells],
              p = 0,
              nu_start,
@@ -237,10 +238,9 @@ _formal_integral(
 
               // initialize I_nu
               if (p <= R_ph)
-                I_nu_b[p_idx] = intensity_black_body(nu, iT);
+                I_nu[p_idx] = intensity_black_body(nu, iT);
               else
-                I_nu_b[p_idx] = 0;
-              I_nu_r[p_idx] = 0;
+                I_nu[p_idx] = 0;
 
               // Find first contributing line
               nu_start = nu * z[0];
@@ -299,19 +299,19 @@ _formal_integral(
                         // NOTE: this treatment of I_nu_b (given by boundary
                         // conditions) is not in Lucy 1999; should be
                         // re-examined carefully 
-                        I_nu_b[p_idx] = I_nu_b[p_idx] + dtau * (*pJblue_lu - I_nu_b[p_idx]);
+                        I_nu[p_idx] = I_nu[p_idx] + dtau * (*pJblue_lu - I_nu[p_idx]);
                         first = 0;
                       }
                       else{
                         // Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
                         Jkkp = 0.5 * (*pJred_lu + *pJblue_lu);
-                        I_nu_b[p_idx] = I_nu_r[p_idx] + dtau * (Jkkp - I_nu_r[p_idx]);
+                        I_nu[p_idx] = I_nu[p_idx] + dtau * (Jkkp - I_nu[p_idx]);
                         // this introduces the necessary offset of one element between pJblue_lu and pJred_lu
                         pJred_lu += 1;
                       }
 
                       // Lucy 1999, Eq 26
-                      I_nu_r[p_idx] = I_nu_b[p_idx] * (*pexp_tau) + *patt_S_ul;
+                      I_nu[p_idx] = I_nu[p_idx] * (*pexp_tau) + *patt_S_ul;
 
                       // reset e-scattering opacity 
                       dtau = 0;
@@ -331,10 +331,10 @@ _formal_integral(
                       pJblue_lu += direction * size_line;
                     }
                 }
-              I_nu_r[p_idx] *= p;
+              I_nu[p_idx] *= p;
             }
           // TODO: change integration to match the calculation of p values
-          L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu_r, R_max/N, N);
+          L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max/N, N);
           if (++finished_nus%10 == 0){
 #ifdef WITHOPENMP
             if (omp_get_thread_num() == 0 )
