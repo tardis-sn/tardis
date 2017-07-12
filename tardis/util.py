@@ -1,8 +1,10 @@
 # Utilities for TARDIS
 
 from astropy import units as u, constants
+from pyne import nucname
 import numexpr as ne
 import numpy as np
+import pandas as pd
 import os
 import yaml
 import re
@@ -429,3 +431,18 @@ def quantity_linspace(start, stop, num, **kwargs):
                          'unit attribute')
 
     return np.linspace(start.value, stop.to(start.unit).value, num, **kwargs) * start.unit
+
+
+def convert_abundances_format(fname, delimiter='\s+'):
+    df = pd.read_csv(fname, delimiter=delimiter, comment='#', header=None)
+    #Drop shell column
+    df.drop(df.columns[0], axis=1, inplace=True)
+
+    #Creating Header rows of Element Symbol and Type of Element
+    header_df = pd.DataFrame([(nucname.name(i), 'E')
+                              for i in range(1, df.shape[1] + 1)]).transpose()
+    #Align coloumns index with abundance dataframe
+    header_df.columns = header_df.columns + 1
+
+    # Adding header rows to top and return resultant DataFrame
+    return pd.concat([header_df, df])
