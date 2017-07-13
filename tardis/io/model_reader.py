@@ -86,10 +86,10 @@ def read_abundances_file(abundance_filename, abundance_filetype,
 
     file_parsers = {'simple_ascii': read_simple_ascii_abundances,
                     'artis': read_simple_ascii_abundances,
-                    'isotopes': read_simple_isotope_abundances}
+                    'tardis_model': read_simple_isotope_abundances}
 
     isotope_abundance = pd.DataFrame()
-    if abundance_filetype == 'isotopes':
+    if abundance_filetype == 'tardis_model':
         index, abundances, isotope_abundance = read_simple_isotope_abundances(
             abundance_filename)
     else:
@@ -267,7 +267,7 @@ def read_simple_ascii_abundances(fname):
 
 
 def read_simple_isotope_abundances(fname, delimiter=','):
-    df = pd.read_csv(fname, header=[0, 1], comment='#', delimiter=delimiter)
+    df = pd.read_csv(fname, comment='#', delimiter=delimiter)
     df = df.transpose()
 
     abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
@@ -281,14 +281,14 @@ def read_simple_isotope_abundances(fname, delimiter=','):
                                      index=isotope_index,
                                      dtype=np.float64)
 
-    for element, type_of_element in df.index:
-        if type_of_element == 'E':
-            z = element_symbol2atomic_number(element)
-            abundance.loc[z, :] = df.loc[element, type_of_element].tolist()
-        elif type_of_element == 'I':
-            z = nucname.znum(element)
-            mass_no = nucname.anum(element)
+    for element_symbol_string in df.index:
+        if element_symbol_string in nucname.name_zz:
+            z = nucname.name_zz[element_symbol_string]
+            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
+        else:
+            z = nucname.znum(element_symbol_string)
+            mass_no = nucname.anum(element_symbol_string)
             isotope_abundance.loc[(
-                z, mass_no), :] = df.loc[element, type_of_element].tolist()
+                z, mass_no), :] = df.loc[element_symbol_string].tolist()
 
     return abundance.index, abundance, isotope_abundance
