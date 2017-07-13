@@ -10,7 +10,7 @@ import logging
 # Adding logging support
 logger = logging.getLogger(__name__)
 
-from tardis.util import parse_quantity, element_symbol2atomic_number, MalformedElementSymbolError
+from tardis.util import parse_quantity
 
 class ConfigurationError(Exception):
     pass
@@ -126,14 +126,19 @@ def read_uniform_abundances(abundances_section, no_of_shells):
         if element_symbol_string == 'type':
             continue
         try:
-            z = element_symbol2atomic_number(element_symbol_string)
-            abundance.ix[z] = float(
-                abundances_section[element_symbol_string])
-        except MalformedElementSymbolError:
-            mass_no = nucname.anum(element_symbol_string)
-            z = nucname.znum(element_symbol_string)
-            isotope_abundance.loc[(z, mass_no), :] = float(
-                abundances_section[element_symbol_string])
+            if element_symbol_string in nucname.name_zz:
+                z = nucname.name_zz[element_symbol_string]
+                abundance.ix[z] = float(
+                    abundances_section[element_symbol_string])
+            else:
+                mass_no = nucname.anum(element_symbol_string)
+                z = nucname.znum(element_symbol_string)
+                isotope_abundance.loc[(z, mass_no), :] = float(
+                    abundances_section[element_symbol_string])
+
+        except RuntimeError as err:
+            raise RuntimeError(
+                "Abundances are not defined properly in config file : {}".format(err.args))
 
     return abundance, isotope_abundance
 
