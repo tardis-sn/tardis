@@ -13,14 +13,17 @@ class LastLineInteraction(object):
     @classmethod
     def from_model(cls, model):
         return cls(model.runner.last_line_interaction_in_id, model.runner.last_line_interaction_out_id,
-                   model.runner.last_line_interaction_shell_id, model.runner.last_interaction_in_nu, model.plasma.atomic_data.lines)
+                   model.runner.last_line_interaction_shell_id, model.runner.output_nu, model.plasma.atomic_data.lines)
 
     def __init__(self, last_line_interaction_in_id, last_line_interaction_out_id, last_line_interaction_shell_id,
-                 last_interaction_in_nu, lines, packet_filter_mode='packet_nu'):
-        self.last_line_interaction_in_id = last_line_interaction_in_id
-        self.last_line_interaction_out_id = last_line_interaction_out_id
-        self.last_line_interaction_shell_id = last_line_interaction_shell_id
-        self.last_line_interaction_angstrom = (last_interaction_in_nu * u.Hz).to(u.Angstrom, equivalencies=u.spectral())
+                 output_nus, lines, packet_filter_mode='packet_nu'):
+        # mask out packets which did not perform a line interaction
+        # TODO mask out packets which do not escape to observer?
+        mask = last_line_interaction_out_id != 1
+        self.last_line_interaction_in_id = last_line_interaction_in_id[mask]
+        self.last_line_interaction_out_id = last_line_interaction_out_id[mask]
+        self.last_line_interaction_shell_id = last_line_interaction_shell_id[mask]
+        self.last_line_interaction_angstrom = (output_nu * u.Hz).to(u.Angstrom, equivalencies=u.spectral())[mask]
         self.lines = lines
 
         self._wavelength_start = 0 * u.angstrom
@@ -81,7 +84,7 @@ class LastLineInteraction(object):
             packet_filter = (line_in_nu > self.wavelength_start.to(u.angstrom).value) & \
                 (line_in_nu < self.wavelength_end.to(u.angstrom).value)
 
-                
+
         self.last_line_in = self.lines.iloc[self.last_line_interaction_in_id[packet_filter]]
         self.last_line_out = self.lines.iloc[self.last_line_interaction_out_id[packet_filter]]
 
