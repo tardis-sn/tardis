@@ -16,14 +16,14 @@ class LastLineInteraction(object):
                    model.runner.last_line_interaction_shell_id, model.runner.output_nu, model.plasma.atomic_data.lines)
 
     def __init__(self, last_line_interaction_in_id, last_line_interaction_out_id, last_line_interaction_shell_id,
-                 output_nus, lines, packet_filter_mode='packet_nu'):
+                 output_nu, lines, packet_filter_mode='packet_nu'):
         # mask out packets which did not perform a line interaction
         # TODO mask out packets which do not escape to observer?
-        mask = last_line_interaction_out_id != 1
+        mask = last_line_interaction_out_id != -1
         self.last_line_interaction_in_id = last_line_interaction_in_id[mask]
         self.last_line_interaction_out_id = last_line_interaction_out_id[mask]
         self.last_line_interaction_shell_id = last_line_interaction_shell_id[mask]
-        self.last_line_interaction_angstrom = (output_nu * u.Hz).to(u.Angstrom, equivalencies=u.spectral())[mask]
+        self.last_line_interaction_angstrom = output_nu.to(u.Angstrom, equivalencies=u.spectral())[mask]
         self.lines = lines
 
         self._wavelength_start = 0 * u.angstrom
@@ -80,13 +80,13 @@ class LastLineInteraction(object):
             packet_filter = (self.last_line_interaction_angstrom > self.wavelength_start) & \
                       (self.last_line_interaction_angstrom < self.wavelength_end)
         elif self.packet_filter_mode == 'line_in_nu':
-            line_in_nu = self.lines.wavelength.ix[self.last_line_interaction_in_id].values
+            line_in_nu = self.lines.wavelength.iloc[self.last_line_interaction_in_id].values
             packet_filter = (line_in_nu > self.wavelength_start.to(u.angstrom).value) & \
                 (line_in_nu < self.wavelength_end.to(u.angstrom).value)
 
 
-        self.last_line_in = self.lines.ix[self.last_line_interaction_in_id[packet_filter]]
-        self.last_line_out = self.lines.ix[self.last_line_interaction_out_id[packet_filter]]
+        self.last_line_in = self.lines.iloc[self.last_line_interaction_in_id[packet_filter]]
+        self.last_line_out = self.lines.iloc[self.last_line_interaction_out_id[packet_filter]]
 
         if self.atomic_number is not None:
             self.last_line_in = self.last_line_in[self.last_line_in.atomic_number == self.atomic_number]
