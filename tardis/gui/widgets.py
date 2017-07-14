@@ -470,15 +470,15 @@ class ModelViewer(QtGui.QWidget):
                      Model converged     : {} <br/> Simulation Time    :  {} s <br/>\
                      Inner Temperature   : {} K <br/> Number of packets  :  {}<br/>\
                      Inner Luminosity    : {}'\
-                     .format(self.model.iterations_max_requested, 
+                     .format(self.model.iterations, 
                         self.model.iterations_executed,
                         '<font color="green"><b>True</b></font>' if 
                         self.model.converged else 
                         '<font color="red"><b>False</b></font>', 
-                        self.model.time_of_simulation.value,
-                        self.model.t_inner.value, 
-                        self.model.current_no_of_packets,
-                        self.model.luminosity_inner)
+                        self.model.runner.time_of_simulation.value,
+                        self.model.model.t_inner.value, 
+                        self.model.last_no_of_packets,
+                        self.model.runner.calculate_luminosity_inner(self.model.model))
         self.outputLabel.setText(labeltext)
 
     def make_shell_widget(self):
@@ -566,8 +566,8 @@ class ModelViewer(QtGui.QWidget):
         """Reset the model set in the GUI."""
         self.model = model
         self.tablemodel.arraydata = []
-        self.tablemodel.add_data(model.t_rad.value.tolist())
-        self.tablemodel.add_data(model.ws.tolist())
+        self.tablemodel.add_data(model.model.t_rad.value.tolist())
+        self.tablemodel.add_data(model.model.w.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
         """Change the spectrum data to the virtual spectrum."""
@@ -622,11 +622,11 @@ class ModelViewer(QtGui.QWidget):
 
     def change_graph_to_ws(self):
         """Change the shell plot to show dilution factor."""
-        self.change_graph(self.model.ws, 'Ws', '')
+        self.change_graph(self.model.model.w, 'Ws', '')
 
     def change_graph_to_t_rads(self):
         """Change the graph back to radiation Temperature."""
-        self.change_graph(self.model.t_rad.value, 't_rad', '(K)')
+        self.change_graph(self.model.model.t_rad.value, 't_rad', '(K)')
 
     def change_graph(self, data, name, unit):
         """Called to change the shell plot by the two methods above."""
@@ -659,7 +659,7 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax1.set_ylabel('Rad. Temp (K)')
         self.graph.ax1.yaxis.get_major_formatter().set_powerlimits((0, 1))
         self.graph.dataplot = self.graph.ax1.plot(
-            range(len(self.model.t_rad.value)), self.model.t_rad.value)
+            range(len(self.model.model.t_rad.value)), self.model.model.t_rad.value)
         self.graph.ax2.clear()
         self.graph.ax2.set_title('Shell View')
         self.graph.ax2.set_xticklabels([])
@@ -667,38 +667,38 @@ class ModelViewer(QtGui.QWidget):
         self.graph.ax2.grid = True
 
         self.shells = []
-        t_rad_normalizer = colors.Normalize(vmin=self.model.t_rad.value.min(),
-            vmax=self.model.t_rad.value.max())
+        t_rad_normalizer = colors.Normalize(vmin=self.model.model.t_rad.value.min(),
+            vmax=self.model.model.t_rad.value.max())
         t_rad_color_map = plt.cm.ScalarMappable(norm=t_rad_normalizer, 
             cmap=plt.cm.jet)
-        t_rad_color_map.set_array(self.model.t_rad.value)
+        t_rad_color_map.set_array(self.model.model.t_rad.value)
         if self.graph.cb:
-            self.graph.cb.set_clim(vmin=self.model.t_rad.value.min(),
-                vmax=self.model.t_rad.value.max())
+            self.graph.cb.set_clim(vmin=self.model.model.t_rad.value.min(),
+                vmax=self.model.model.t_rad.value.max())
             self.graph.cb.update_normal(t_rad_color_map)
         else:
             self.graph.cb = self.graph.figure.colorbar(t_rad_color_map)
             self.graph.cb.set_label('T (K)')
         self.graph.normalizing_factor = 0.2 * (
-            self.model.tardis_config.structure.r_outer.value[-1] - 
-            self.model.tardis_config.structure.r_inner.value[0]) / (
-            self.model.tardis_config.structure.r_inner.value[0])
+            self.model.model.r_outer.value[-1] - 
+            self.model.model.r_inner.value[0]) / (
+            self.model.model.r_inner.value[0])
 
         #self.graph.normalizing_factor = 8e-16
-        for i, t_rad in enumerate(self.model.t_rad.value):
-            r_inner = (self.model.tardis_config.structure.r_inner.value[i] * 
+        for i, t_rad in enumerate(self.model.model.t_rad.value):
+            r_inner = (self.model.model.r_inner.value[i] * 
                 self.graph.normalizing_factor)
-            r_outer = (self.model.tardis_config.structure.r_outer.value[i] * 
+            r_outer = (self.model.model.r_outer.value[i] * 
                 self.graph.normalizing_factor)
             self.shells.append(Shell(i, (0,0), r_inner, r_outer, 
                 facecolor=t_rad_color_map.to_rgba(t_rad),
                 picker=self.graph.shell_picker))
             self.graph.ax2.add_patch(self.shells[i])
         self.graph.ax2.set_xlim(0, 
-            self.model.tardis_config.structure.r_outer.value[-1] * 
+            self.model.model.r_outer.value[-1] * 
             self.graph.normalizing_factor)
         self.graph.ax2.set_ylim(0, 
-            self.model.tardis_config.structure.r_outer.value[-1] * 
+            self.model.model.r_outer.value[-1] * 
             self.graph.normalizing_factor)
         self.graph.figure.tight_layout()
         self.graph.draw()
@@ -727,7 +727,7 @@ class ShellInfo(QtGui.QDialog):
             self.on_atom_header_double_clicked)
 
 
-        self.table1_data = self.parent.model.tardis_config.abundances[
+        self.table1_data = self.parent.model.plasma.abundance[
             self.shell_index]
         self.atomsdata = self.createTable([['Z = '], ['Count (Shell %d)' % (
             self.shell_index + 1)]], iterate_header=(2, 0), 
@@ -759,7 +759,7 @@ class ShellInfo(QtGui.QDialog):
         normalized_data = []
         for item in self.table2_data.values:
             normalized_data.append(float(item /
-               self.parent.model.tardis_config.number_densities[self.shell_index]
+               self.parent.model.plasma.number_density[self.shell_index]
                .ix[self.current_atom_index]))
 
 
@@ -832,10 +832,10 @@ class LineInfo(QtGui.QDialog):
 
 
         self.layout.addWidget(LineInteractionTables(packet_nu_line_interaction, 
-            self.parent.model.atom_data, 'filtered by frequency of packet', 
+            self.parent.model.plasma.atomic_data.atom_data, self.parent.model.plasma.lines, 'filtered by frequency of packet', 
             self.createTable))
         self.layout.addWidget(LineInteractionTables(line_in_nu_line_interaction, 
-            self.parent.model.atom_data, 
+            self.parent.model.plasma.atomic_data.atom_data, self.parent.model.plasma.lines, 
             'filtered by frequency of line interaction', self.createTable))
 
         self.setLayout(self.layout)
@@ -948,7 +948,7 @@ class LineInteractionTables(QtGui.QWidget):
 
     """
 
-    def __init__(self, line_interaction_analysis, atom_data, description, 
+    def __init__(self, line_interaction_analysis, atom_data, lines_data, description, 
         tablecreator):
         """Create the widget and set data."""
         super(LineInteractionTables, self).__init__()
@@ -959,13 +959,13 @@ class LineInteractionTables(QtGui.QWidget):
         self.layout = QtGui.QHBoxLayout()
         self.line_interaction_analysis = line_interaction_analysis
         self.atom_data = atom_data
+        self.lines_data = lines_data
         line_interaction_species_group = \
         line_interaction_analysis.last_line_in.groupby(['atomic_number', 
             'ion_number'])
         self.species_selected = sorted(
             line_interaction_species_group.groups.keys())
-        species_symbols = [util.species_tuple_to_string(item, 
-            atom_data) for item in self.species_selected]
+        species_symbols = [util.species_tuple_to_string(item) for item in self.species_selected]
         species_table_model = self.createTable([species_symbols, ['Species']])
         species_abundances = (
             line_interaction_species_group.wavelength.count().astype(float) /
@@ -1006,8 +1006,8 @@ class LineInteractionTables(QtGui.QWidget):
         exc_deexc_string = 'exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)'
 
         for line_id, row in grouped_line_interactions.wavelength.count().iteritems():
-            current_line_in = self.atom_data.lines.ix[line_id[0]]
-            current_line_out = self.atom_data.lines.ix[line_id[1]]
+            current_line_in = self.lines_data.ix[line_id[0]]
+            current_line_out = self.lines_data.ix[line_id[1]]
             last_line_in_string.append(exc_deexc_string % (
                 current_line_in['level_number_lower'],
                current_line_in['level_number_upper'],
