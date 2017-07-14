@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from astropy import constants, units as u
 
-from tardis.util import quantity_linspace, element_symbol2atomic_number
-from tardis.io.model_reader import read_density_file, read_abundances_file
+from tardis.util import quantity_linspace
+from tardis.io.model_reader import read_density_file, read_abundances_file, read_uniform_abundances
 from tardis.io.util import HDFWriterMixin
 from density import HomologousDensity
 
@@ -59,11 +59,10 @@ class Radial1DModel(HDFWriterMixin):
     """
     hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
     hdf_name = 'model'
-    
-    def __init__(self, velocity, homologous_density, abundance, time_explosion,
-                 t_inner, luminosity_requested=None, t_radiative=None,
-                 dilution_factor=None, v_boundary_inner=None,
-                 v_boundary_outer=None):
+
+    def __init__(self, velocity, homologous_density, abundance, isotope_abundance,
+                 time_explosion, t_inner, luminosity_requested=None, t_radiative=None,
+                 dilution_factor=None, v_boundary_inner=None, v_boundary_outer=None):
         self._v_boundary_inner = None
         self._v_boundary_outer = None
         self._velocity = None
@@ -73,6 +72,10 @@ class Radial1DModel(HDFWriterMixin):
         self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
+
+        self.raw_abundance = self._abundance
+        self.raw_isotope_abundance = isotope_abundance 
+
         if t_inner is None:
             if luminosity_requested is not None:
                 self.t_inner = ((luminosity_requested /
@@ -317,17 +320,11 @@ class Radial1DModel(HDFWriterMixin):
             t_inner = config.plasma.initial_t_inner
 
         abundances_section = config.model.abundances
-        if abundances_section.type == 'uniform':
-            abundance = pd.DataFrame(columns=np.arange(no_of_shells),
-                                     index=pd.Index(np.arange(1, 120),
-                                                    name='atomic_number'),
-                                     dtype=np.float64)
+        isotope_abundance = pd.DataFrame()
 
-            for element_symbol_string in abundances_section:
-                if element_symbol_string == 'type':
-                    continue
-                z = element_symbol2atomic_number(element_symbol_string)
-                abundance.ix[z] = float(abundances_section[element_symbol_string])
+        if abundances_section.type == 'uniform':
+            abundance, isotope_abundance = read_uniform_abundances(
+                abundances_section, no_of_shells)
 
         elif abundances_section.type == 'file':
             if os.path.isabs(abundances_section.filename):
@@ -342,17 +339,18 @@ class Radial1DModel(HDFWriterMixin):
         abundance = abundance.replace(np.nan, 0.0)
         abundance = abundance[abundance.sum(axis=1) > 0]
 
-        norm_factor = abundance.sum(axis=0)
+        norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
 
         if np.any(np.abs(norm_factor - 1) > 1e-12):
             logger.warning("Abundances have not been normalized to 1."
                            " - normalizing")
             abundance /= norm_factor
-
+            isotope_abundance /= norm_factor
 
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
                    abundance=abundance,
+                   isotope_abundance=isotope_abundance,
                    time_explosion=time_explosion,
                    t_radiative=t_radiative,
                    t_inner=t_inner,
