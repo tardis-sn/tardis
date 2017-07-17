@@ -3,7 +3,7 @@ Using a custom stratified composition
 *************************************
 
 ASCII Format
-========
+=============
 
 To use a stratified ejecta composition in TARDIS, the elemental abundances may
 be specified on a per-cell basis via an external ascii file (similar to setting
@@ -47,7 +47,7 @@ The example file shown here has three simple layers:
    needs, please contact us.
 
 TARDIS ascii input file
-=================
+=======================
 
 If you create a correctly formatted abundance profile file (called "abund.dat"
 in this example), you can use it in TARDIS by putting the following lines in
@@ -58,13 +58,14 @@ the model section of the yaml file:
 
 
 CSV Format
-========
+==========
 
 In this format, both elemental and isotopic abundances may
 be specified on a per-cell basis via an external csv file. A csv file that could
 work on a mesh with ten cells should be formatted like this:
 
-.. csv-table:: tardis_model_abund.csv
+.. csv-table:: Config Example
+    :file: tardis_model_abund.csv
     :header-rows: 1
 
 In this file:
@@ -91,7 +92,7 @@ The example file shown here has three simple layers:
    (i.e. more grid points) should be used.
 
 TARDIS csv input file
-=================
+=====================
 
 If you create a correctly formatted abundance profile file (called "tardis_model_abund.csv"
 in this example), you can use it in TARDIS by putting the following lines in
