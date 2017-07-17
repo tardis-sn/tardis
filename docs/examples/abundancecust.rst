@@ -64,7 +64,7 @@ In this format, both elemental and isotopic abundances may
 be specified on a per-cell basis via an external csv file. A csv file that could
 work on a mesh with ten cells should be formatted like this:
 
-.. csv-table:: Config Example
+.. csv-table:: Example
     :file: tardis_model_abund.csv
     :header-rows: 1
 
@@ -100,3 +100,15 @@ the model section of the yaml file:
 
 .. literalinclude:: tardis_configv1_isotope_abundance_cust_example.yml
     :language: yaml   
+
+Convert ascii abundance file format to csv format
+=================================================
+
+If you want to convert an ASCII abundance file(say "abund.dat") to CSV format, you can use 
+:code:`convert_abundances_format` function for it. Here is an example to demonstrate this:
+
+.. code:: python
+
+    from tardis.util import convert_abundances_format
+    df = convert_abundances_format('abund.dat')
+    df.to_csv('converted_abund.csv',index=False)  
