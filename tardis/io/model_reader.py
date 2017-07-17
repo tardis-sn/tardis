@@ -266,7 +266,7 @@ def read_simple_ascii_abundances(fname):
     return index, abundances
 
 
-def read_simple_isotope_abundances(fname, delimiter=','):
+def read_simple_isotope_abundances(fname, delimiter='\s+'):
     df = pd.read_csv(fname, comment='#', delimiter=delimiter)
     df = df.transpose()
 
