@@ -8,7 +8,7 @@ from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
 from tardis.util import quantity_linspace
-from tardis.io.util import to_hdf
+from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.montecarlo.formal_integral import FormalIntegrator
 
@@ -17,12 +17,21 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
-class MontecarloRunner(object):
+class MontecarloRunner(HDFWriterMixin):
     """
     This class is designed as an interface between the Python part and the
     montecarlo C-part
     """
-
+    hdf_properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
+                      'j_estimator', 'montecarlo_virtual_luminosity',
+                      'last_interaction_in_nu',
+                      'last_interaction_type',
+                      'last_line_interaction_in_id',
+                      'last_line_interaction_out_id',
+                      'last_line_interaction_shell_id',
+                      'packet_luminosity', 'spectrum',
+                      'spectrum_virtual', 'spectrum_reabsorbed']
+    hdf_name = 'runner'
     w_estimator_constant = ((const.c ** 2 / (2 * const.h)) *
                             (15 / np.pi ** 4) * (const.h / const.k_B) ** 4 /
                             (4 * np.pi)).cgs.value
@@ -362,38 +371,6 @@ class MontecarloRunner(object):
 
     def calculate_f_lambda(self, wavelength):
         pass
-
-    def to_hdf(self, path_or_buf, path=''):
-        """
-        Store the runner to an HDF structure.
-
-        Parameters
-        ----------
-        path_or_buf:
-            Path or buffer to the HDF store
-        path:
-            Path inside the HDF store to store the runner
-        Returns
-        -------
-            : None
-
-        """
-        runner_path = os.path.join(path, 'runner')
-        properties = ['output_nu', 'output_energy', 'nu_bar_estimator',
-                      'j_estimator', 'montecarlo_virtual_luminosity',
-                      'last_interaction_in_nu',
-                      'last_line_interaction_in_id',
-                      'last_line_interaction_out_id',
-                      'last_line_interaction_shell_id',
-                      'packet_luminosity', 'output_nu'
-                      ]
-        to_hdf(path_or_buf, runner_path, {name: getattr(self, name) for name
-                                          in properties})
-        self.spectrum.to_hdf(path_or_buf, runner_path)
-        self.spectrum_virtual.to_hdf(path_or_buf, runner_path,
-                                     'spectrum_virtual')
-        self.spectrum_reabsorbed.to_hdf(path_or_buf, runner_path,
-                                        'spectrum_reabsorbed')
 
     @classmethod
     def from_config(cls, config):
