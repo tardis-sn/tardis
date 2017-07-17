@@ -16,9 +16,20 @@ file below). They are specified as mass fractions. E.g.
 
     Si: 0.6
     S: 0.2
-    Ni58: 0.2
+    Ni56: 0.2
 
-will set the mass fraction of silicon (Z=14) to 0.6, sulphur (Z=16) to 0.2 and Nickel(Z=26, A=58) to 0.2.
+will set the mass fraction of silicon (Z=14) to 0.6, sulphur (Z=16) to 0.2 and Nickel(Z=26, A=56) to 0.2.
+
+.. note::
+    
+    Suppose you specify Elemental and Isotopic abundance for the same element. For ex-
+    
+    .. code-block:: none
+
+        Ni: 0.8
+        Ni56: 0.2
+
+    Here, Ni will refer to the stable Nickel, i.e. (Z=26, A=58).
 
 .. note::
     
