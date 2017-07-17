@@ -52,10 +52,10 @@ def test_read_simple_isotope_abundances(tardis_model_abundance_fname):
     index, abundances, isotope_abundance = read_simple_isotope_abundances(
         tardis_model_abundance_fname)
     assert np.isclose(abundances.loc[6, 9], 0.5, atol=1.e-12)
-    assert np.isclose(abundances.loc[12, 6], 0.1, atol=1.e-12)
-    assert np.isclose(abundances.loc[14, 4], 0.2, atol=1.e-12)
-    assert np.isclose(isotope_abundance.loc[(28, 56), 1], 0.1, atol=1.e-12)
-    assert np.isclose(isotope_abundance.loc[(28, 58), 2], 0.1, atol=1.e-12)
+    assert np.isclose(abundances.loc[12, 6], 0.8, atol=1.e-12)
+    assert np.isclose(abundances.loc[14, 2], 0.3, atol=1.e-12)
+    assert np.isclose(isotope_abundance.loc[(28, 56), 1], 0.5, atol=1.e-12)
+    assert np.isclose(isotope_abundance.loc[(28, 58), 2], 0.7, atol=1.e-12)
 
 
 def test_read_uniform_abundances(isotope_uniform_abundance):
