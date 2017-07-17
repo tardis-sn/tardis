@@ -55,3 +55,23 @@ the model section of the yaml file:
 
 .. literalinclude:: tardis_configv1_abundance_cust_example.yml
     :language: yaml
+
+
+CSV Format
+========
+
+In this format, both elemental and isotopic abundances may
+be specified on a per-cell basis via an external csv file. A csv file that could
+work on a mesh with ten cells should be formatted like this:
+
+.. csv-table:: tardis_model_abund.csv
+    :header-rows: 1
+
+In this file:
+
+- Header row contains element and isotopes symbol 
+- the remaining entries in each row give the set of elemental and isotopic abundances.
+
+The abundances are specified as mass fractions (i.e. the sum of columns
+in each row should be 1.0). The mass fractions specified will be adopted directly in
+the TARDIS calculations.
