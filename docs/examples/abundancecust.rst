@@ -2,7 +2,7 @@
 Using a custom stratified composition
 *************************************
 
-Overview
+ASCII Format
 ========
 
 To use a stratified ejecta composition in TARDIS, the elemental abundances may
@@ -46,7 +46,7 @@ The example file shown here has three simple layers:
    including details of how to develop your own dataset to suit your
    needs, please contact us.
 
-TARDIS input file
+TARDIS ascii input file
 =================
 
 If you create a correctly formatted abundance profile file (called "abund.dat"
@@ -75,3 +75,27 @@ In this file:
 The abundances are specified as mass fractions (i.e. the sum of columns
 in each row should be 1.0). The mass fractions specified will be adopted directly in
 the TARDIS calculations.
+
+The example file shown here has three simple layers: 
+
+- an innermost region that is composed of Si and two Nickel Isotopes Ni56 and Ni58
+
+- a middle region that is composed of Mg
+
+- an outer region that is composed of C.
+
+.. warning::
+
+   The example given here is to show the format only. It is not a
+   realistic model. In any real calculation better resolution
+   (i.e. more grid points) should be used.
+
+TARDIS csv input file
+=================
+
+If you create a correctly formatted abundance profile file (called "tardis_model_abund.csv"
+in this example), you can use it in TARDIS by putting the following lines in
+the model section of the yaml file:
+
+.. literalinclude:: tardis_configv1_isotope_abundance_cust_example.yml
+    :language: yaml   
