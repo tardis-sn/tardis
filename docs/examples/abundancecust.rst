@@ -66,6 +66,7 @@ work on a mesh with ten cells should be formatted like this:
 
 .. csv-table:: Example
     :file: tardis_model_abund.csv
+    :delim: space 
     :header-rows: 1
 
 In this file:
@@ -81,9 +82,15 @@ The example file shown here has three simple layers:
 
 - an innermost region that is composed of Si and two Nickel Isotopes Ni56 and Ni58
 
-- a middle region that is composed of Mg
+- a middle region that is composed of O and Mg
 
-- an outer region that is composed of C.
+- an outer region that is composed of C and O.
+
+.. note::
+    
+    Suppose you specify Elemental and Isotopic abundances for the same element. For ex-
+    :code:`Ni` and :code:`Ni56`. 
+    Here, Ni will refer to the stable Nickel, i.e. (Z=26, A=58).
 
 .. warning::
 
@@ -111,4 +118,4 @@ If you want to convert an ASCII abundance file(say "abund.dat") to CSV format, y
 
     from tardis.util import convert_abundances_format
     df = convert_abundances_format('abund.dat')
-    df.to_csv('converted_abund.csv',index=False)  
+    df.to_csv('converted_abund.csv', index=False, sep=' ')  
