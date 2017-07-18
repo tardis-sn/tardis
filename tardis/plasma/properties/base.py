@@ -4,7 +4,6 @@ from abc import ABCMeta, abstractmethod, abstractproperty
 import numpy as np
 import pandas as pd
 
-from tardis.io.util import PlasmaWriterMixin
 
 __all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
            'HiddenPlasmaProperty', 'Input', 'ArrayInput', 'DataFrameInput',
@@ -14,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 import os
 
-class BasePlasmaProperty(PlasmaWriterMixin):
+class BasePlasmaProperty(object):
     """
     Attributes
     ----------
