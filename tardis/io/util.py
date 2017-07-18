@@ -235,14 +235,57 @@ class HDFWriterMixin(object):
     def get_properties(self):
         data = {name: getattr(self, name) for name in self.hdf_properties}
         return data
-    
+
     @staticmethod
     def convert_to_snake_case(s):
         s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
         return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
 
-    def to_hdf(self, file_path, path='', name=None, collection=None):
+    def to_hdf(self, file_path, path='', name=None):
         """
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        name: str
+            Group inside the HDF store to which the `elements` need to be saved
+
+        Returns
+        -------
+
+        """
+        if name is None:
+            try:
+                name = self.hdf_name
+            except AttributeError:
+                name = self.convert_to_snake_case(self.__class__.__name__)
+
+        data = self.get_properties()
+        buff_path = os.path.join(path, name)
+        self.to_hdf_util(file_path, buff_path, data)
+
+
+class PlasmaWriterMixin(HDFWriterMixin):
+
+    def get_properties(self):
+        data = {}
+        if self.collection:
+            properties = [name for name in self.plasma_properties
+                          if isinstance(name, tuple(self.collection))]
+        else:
+            properties = self.plasma_properties
+        for prop in properties:
+            for output in prop.outputs:
+                data[output] = getattr(prop, output)
+        data['atom_data_uuid'] = self.atomic_data.uuid1
+        if 'atomic_data' in data:
+            data.pop('atomic_data')
+        return data
+
+    def to_hdf(self, file_path, path='', name=None, collection=None):
+        '''
         Parameters
         ----------
         file_path: str
@@ -263,37 +306,10 @@ class HDFWriterMixin(object):
         Returns
         -------
 
-        """
-        if name is None:
-            try:
-                name = self.hdf_name
-            except AttributeError:
-                name = self.convert_to_snake_case(self.__class__.__name__)
-        try:
-            data = self.get_properties(collection)
-        except TypeError:
-            data = self.get_properties()
+        '''
+        self.collection = collection
+        super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)
 
-        buff_path = os.path.join(path, name)
-        self.to_hdf_util(file_path, buff_path, data)
-
-
-class PlasmaWriterMixin(HDFWriterMixin):
-
-    def get_properties(self, collection=None):
-        data = {}
-        if collection:
-            properties = [name for name in self.plasma_properties
-                          if isinstance(name, tuple(collection))]
-        else:
-            properties = self.plasma_properties
-        for prop in properties:
-            for output in prop.outputs:
-                data[output] = getattr(prop, output)
-        data['atom_data_uuid'] = self.atomic_data.uuid1
-        if 'atomic_data' in data:
-            data.pop('atomic_data')
-        return data
 
 #Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
