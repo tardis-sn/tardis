@@ -40,8 +40,7 @@ def test_hdf_levels(hdf_file_path, simulation_verysimple):
         actual = actual.cgs.value
     path = os.path.join('plasma', 'levels')
     expected = pd.read_hdf(hdf_file_path, path)
-    expected = pd.MultiIndex.from_tuples(expected.unstack().values)
-    pdt.assert_almost_equal(actual, expected)
+    pdt.assert_almost_equal(pd.DataFrame(actual), expected)
 
 
 scalars_list = ['time_explosion', 'link_t_rad_t_electron']
