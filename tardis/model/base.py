@@ -333,8 +333,8 @@ class Radial1DModel(HDFWriterMixin):
                 abundances_fname = os.path.join(config.config_dirname,
                                                 abundances_section.filename)
 
-            index, abundance = read_abundances_file(abundances_fname,
-                                                    abundances_section.filetype)
+            index, abundance, isotope_abundance = read_abundances_file(abundances_fname,
+                                                                       abundances_section.filetype)
 
         abundance = abundance.replace(np.nan, 0.0)
         abundance = abundance[abundance.sum(axis=1) > 0]
