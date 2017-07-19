@@ -14,6 +14,10 @@ simple TARDIS calculations.
 
 .. _requirements_label:
 
+.. note::
+    We strongly recommond to install TARDIS within an Anaconda environment and
+    to always use the lastest github development version.
+
 Requirements
 ============
 
