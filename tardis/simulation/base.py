@@ -8,12 +8,12 @@ from collections import OrderedDict
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
-
+from tardis.io.util import HDFWriterMixin
 # Adding logging support
 logger = logging.getLogger(__name__)
 
 
-class Simulation(object):
+class Simulation(HDFWriterMixin):
     """A composite object containing all the required information for a
     simulation.
 
@@ -36,6 +36,8 @@ class Simulation(object):
         .. note:: TARDIS must be built with OpenMP support in order for
         `nthreads` to have effect.
     """
+    hdf_properties = ['model', 'plasma', 'runner']
+    hdf_name = 'simulation'
     def __init__(self, iterations, model, plasma, runner,
                  no_of_packets, no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
@@ -319,34 +321,6 @@ class Simulation(object):
             return True
         except KeyError:
             return False
-
-    def to_hdf(self, path_or_buf, path='simulation', plasma_properties=None,
-               suffix_count=True):
-        """
-        Store the simulation to an HDF structure.
-
-        Parameters
-        ----------
-        path_or_buf
-            Path or buffer to the HDF store
-        path : str
-            Path inside the HDF store to store the simulation
-        plasma_properties
-            `None` or a `PlasmaPropertyCollection` which will
-            be passed as the collection argument to the
-            plasma.to_hdf method.
-        suffix_count : bool
-            If True, the path inside the HDF will be suffixed with the
-            number of the iteration being stored.
-        Returns
-        -------
-        None
-        """
-        if suffix_count:
-            path += str(self.iterations_executed)
-        self.runner.to_hdf(path_or_buf, path)
-        self.model.to_hdf(path_or_buf, path)
-        self.plasma.to_hdf(path_or_buf, path, plasma_properties)
 
     @classmethod
     def from_config(cls, config, **kwargs):
