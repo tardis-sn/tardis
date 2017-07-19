@@ -235,7 +235,7 @@ class HDFWriterMixin(object):
     def get_properties(self):
         data = {name: getattr(self, name) for name in self.hdf_properties}
         return data
-    
+
     @staticmethod
     def convert_to_snake_case(s):
         s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
@@ -265,7 +265,52 @@ class HDFWriterMixin(object):
         data = self.get_properties()
         buff_path = os.path.join(path, name)
         self.to_hdf_util(file_path, buff_path, data)
-        
+
+
+class PlasmaWriterMixin(HDFWriterMixin):
+
+    def get_properties(self):
+        data = {}
+        if self.collection:
+            properties = [name for name in self.plasma_properties
+                          if isinstance(name, tuple(self.collection))]
+        else:
+            properties = self.plasma_properties
+        for prop in properties:
+            for output in prop.outputs:
+                data[output] = getattr(prop, output)
+        data['atom_data_uuid'] = self.atomic_data.uuid1
+        if 'atomic_data' in data:
+            data.pop('atomic_data')
+        return data
+
+    def to_hdf(self, file_path, path='', name=None, collection=None):
+        '''
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        name: str
+            Group inside the HDF store to which the `elements` need to be saved
+        collection:
+            `None` or a `PlasmaPropertyCollection` of which members are
+            the property types which will be stored. If `None` then
+            all types of properties will be stored.
+
+            This acts like a filter, for example if a value of
+            `property_collections.basic_inputs` is given, only
+            those input parameters will be stored to the HDF store.
+
+        Returns
+        -------
+
+        '''
+        self.collection = collection
+        super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)
+
+
 #Deprecated
 def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
     """

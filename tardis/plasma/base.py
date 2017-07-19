@@ -8,12 +8,14 @@ import pandas as pd
 
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from tardis.plasma.properties.base import *
+from tardis.io.util import PlasmaWriterMixin
 
 logger = logging.getLogger(__name__)
 
-class BasePlasma(object):
+class BasePlasma(PlasmaWriterMixin):
 
     outputs_dict = {}
+    hdf_name = 'plasma'
     def __init__(self, plasma_properties, property_kwargs=None, **kwargs):
         self.outputs_dict = {}
         self.input_properties = []
@@ -268,38 +270,3 @@ class BasePlasma(object):
                                 value, label = label)
                 print_graph.remove_node(str(item.name))
         return print_graph
-
-    def to_hdf(self, path_or_buf, path='', collection=None):
-        """
-        Store the plasma to an HDF structure
-
-        Parameters
-        ----------
-        path_or_buf:
-            Path or buffer to the HDF store
-        path:
-            Path inside the HDF store to store the plasma
-        collection:
-            `None` or a `PlasmaPropertyCollection` of which members are
-            the property types which will be stored. If `None` then
-            all types of properties will be stored.
-
-            This acts like a filter, for example if a value of
-            `property_collections.basic_inputs` is given, only
-            those input parameters will be stored to the HDF store.
-        Returns
-        -------
-            : None
-
-        """
-        if collection:
-            properties = [prop for prop in self.plasma_properties if
-                          isinstance(prop, tuple(collection))]
-        else:
-            properties = self.plasma_properties
-        for prop in properties:
-            prop.to_hdf(path_or_buf, os.path.join(path, 'plasma'))
-
-        metadata = pd.Series({'atom_data_uuid': self.atomic_data.uuid1})
-        metadata.to_hdf(path_or_buf,
-                        os.path.join(os.path.join(path, 'plasma'), 'metadata'))
