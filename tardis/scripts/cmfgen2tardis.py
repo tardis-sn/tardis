@@ -6,11 +6,6 @@ import pandas as pd
 
 from tardis.atomic import AtomData
 
-parser = argparse.ArgumentParser()
-parser.add_argument('input_path', help='Path to a CMFGEN abundance file')
-parser.add_argument(
-    'output_path', help='Path to store converted TARDIS abundance file')
-args = parser.parse_args()
 
 atomic_dataset = AtomData.from_hdf5()
 
@@ -59,8 +54,17 @@ def convert_format(file_path):
         return df.transpose()
 
 
-def parse_file():
+def parse_file(args):
     df = convert_format(args.input_path)
     filename = os.path.basename(args.input_path)
     save_name = '.'.join((os.path.splitext(filename)[0], 'csv'))
     df.to_csv(os.path.join(args.output_path, save_name), index=False, sep=' ')
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('input_path', help='Path to a CMFGEN abundance file')
+    parser.add_argument(
+        'output_path', help='Path to store converted TARDIS abundance file')
+    args = parser.parse_args()
+    parse_file(args)

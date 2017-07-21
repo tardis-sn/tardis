@@ -108,7 +108,7 @@ for hook in [('prereleaser', 'middle'), ('releaser', 'middle'),
 
 entry_points['console_scripts'] = [
     'tardis_test_runner = tardis.tests.integration_tests.runner:run_tests',
-    'cmfgen2tardis = scripts.cmfgen2tardis:parse_file'
+    'cmfgen2tardis = tardis.scripts.cmfgen2tardis:main'
 ]
 
 #from Cython.Build import cythonize
