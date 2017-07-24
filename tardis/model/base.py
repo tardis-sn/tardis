@@ -7,6 +7,7 @@ from astropy import constants, units as u
 from tardis.util import quantity_linspace
 from tardis.io.model_reader import read_density_file, read_abundances_file, read_uniform_abundances
 from tardis.io.util import HDFWriterMixin
+from tardis.io.decay import IsotopeAbundances
 from density import HomologousDensity
 
 logger = logging.getLogger(__name__)
@@ -349,6 +350,8 @@ class Radial1DModel(HDFWriterMixin):
                            " - normalizing")
             abundance /= norm_factor
             isotope_abundance /= norm_factor
+
+        isotope_abundance = IsotopeAbundances(isotope_abundance)
 
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
