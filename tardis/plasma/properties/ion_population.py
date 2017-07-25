@@ -188,7 +188,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         super(IonNumberDensity, self).__init__(plasma_parent)
         self.ion_zero_threshold = ion_zero_threshold
         self.block_ids = None
-        self.electron_densities = electron_densities
+        self._electron_densities = electron_densities
 
     @staticmethod
     def calculate_with_n_electron(phi, partition_function,
@@ -224,7 +224,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
         return calculate_block_ids_from_dataframe(phi)
 
     def calculate(self, phi, partition_function, number_density):
-        if self.electron_densities is None:
+        if self._electron_densities is None:
             n_e_convergence_threshold = 0.05
             n_electron = number_density.sum(axis=0)
             n_electron_iterations = 0
@@ -251,7 +251,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
                     break
                 n_electron = 0.5 * (new_n_electron + n_electron)
         else:
-            n_electron = self.electron_densities
+            n_electron = self._electron_densities
             ion_number_density, self.block_ids = \
                 self.calculate_with_n_electron(
                     phi, partition_function, number_density, n_electron,
