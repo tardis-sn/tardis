@@ -286,6 +286,7 @@ class Radial1DModel(HDFWriterMixin):
         time_explosion = config.supernova.time_explosion.cgs
 
         structure = config.model.structure
+        electron_densities = None
         if structure.type == 'specific':
             velocity = quantity_linspace(structure.velocity.start,
                                          structure.velocity.stop,
