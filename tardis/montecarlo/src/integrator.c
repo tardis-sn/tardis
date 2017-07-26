@@ -198,7 +198,7 @@ _formal_integral(
              nu,
              zstart,
              zend,
-             dtau,
+             escat_contrib,
              escat_op,
              Jkkp;
       int64_t shell_id[2 * storage->no_of_shells];
@@ -222,7 +222,7 @@ _formal_integral(
           // Loop over discrete values along line
           for (int p_idx = 1; p_idx < N; ++p_idx)
             {
-              dtau = 0;
+              escat_contrib = 0;
               p = pp[p_idx];
 
               // initialize z intersections for p values
@@ -270,7 +270,7 @@ _formal_integral(
                   // that dtau is <<1 (as assumed in Lucy 1999); if not, there
                   // is the chance that I_nu_b becomes negative
                   for (;pline < storage->line_list_nu + size_line;
-                       // We have to increment all pointers simultanously
+                       // We have to increment all pointers simultaneously
                        ++pline,
                        ++pexp_tau,
                        ++patt_S_ul,
@@ -284,20 +284,21 @@ _formal_integral(
 
                       // Calculate e-scattering optical depth to next resonance point
                       zend = storage->time_explosion / C_INV * (1. - *pline / nu);
-                      dtau += (zend - zstart) * escat_op;
 
                       if (first == 1){
                         // First contribution to integration
                         // NOTE: this treatment of I_nu_b (given by boundary
                         // conditions) is not in Lucy 1999; should be
                         // re-examined carefully 
-                        I_nu[p_idx] = I_nu[p_idx] + dtau * (*pJblue_lu - I_nu[p_idx]);
+                        escat_contrib += (zend - zstart) * escat_op * (*pJblue_lu - I_nu[p_idx]) ;
+                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib;
                         first = 0;
                       }
                       else{
                         // Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
                         Jkkp = 0.5 * (*pJred_lu + *pJblue_lu);
-                        I_nu[p_idx] = I_nu[p_idx] + dtau * (Jkkp - I_nu[p_idx]);
+                        escat_contrib += (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx]) ;
+                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib;
                         // this introduces the necessary offset of one element between pJblue_lu and pJred_lu
                         pJred_lu += 1;
                       }
@@ -306,12 +307,13 @@ _formal_integral(
                       I_nu[p_idx] = I_nu[p_idx] * (*pexp_tau) + *patt_S_ul;
 
                       // reset e-scattering opacity 
-                      dtau = 0;
+                      escat_contrib = 0;
                       zstart = zend;
                     }
                     // Calculate e-scattering optical depth to grid cell boundary
+                    Jkkp = 0.5 * (*pJred_lu + *pJblue_lu);
                     zend = storage->time_explosion / C_INV * (1. - nu_end / nu);
-                    dtau += (zend - zstart) * escat_op;
+                    escat_contrib += (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx]);
                     zstart = zend;
 
                     if (i < size_z-1){
