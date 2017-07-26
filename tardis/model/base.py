@@ -287,6 +287,7 @@ class Radial1DModel(HDFWriterMixin):
 
         structure = config.model.structure
         electron_densities = None
+        temperature = None
         if structure.type == 'specific':
             velocity = quantity_linspace(structure.velocity.start,
                                          structure.velocity.stop,
@@ -299,7 +300,7 @@ class Radial1DModel(HDFWriterMixin):
                 structure_fname = os.path.join(config.config_dirname,
                                                structure.filename)
 
-            time_0, velocity, density_0, electron_densities = read_density_file(
+            time_0, velocity, density_0, electron_densities, temperature = read_density_file(
                 structure_fname, structure.filetype)
             density_0 = density_0.insert(0, 0)
             homologous_density = HomologousDensity(density_0, time_0)
@@ -309,7 +310,9 @@ class Radial1DModel(HDFWriterMixin):
         #       v boundaries.
         no_of_shells = len(velocity) - 1
 
-        if config.plasma.initial_t_rad > 0 * u.K:
+        if temperature:
+            t_radiative = temperature
+        elif config.plasma.initial_t_rad > 0 * u.K:
             t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
