@@ -46,10 +46,10 @@ def read_density_file(filename, filetype):
                     'tardis_model': read_cmfgen_density}
 
     electron_densities = None
-
+    temperature = None
     if filetype == 'tardis_model':
         (time_of_model, velocity,
-         unscaled_mean_densities, electron_densities) = read_cmfgen_density(filename)
+         unscaled_mean_densities, electron_densities, temperature) = read_cmfgen_density(filename)
     else:
         (time_of_model, velocity,
          unscaled_mean_densities) = file_parsers[filetype](filename)
@@ -68,7 +68,7 @@ def read_density_file(filename, filetype):
         raise ConfigurationError("Invalid volume of following cell(s):\n"
                                  "{:s}".format(message))
 
-    return time_of_model, velocity, unscaled_mean_densities, electron_densities
+    return time_of_model, velocity, unscaled_mean_densities, electron_densities, temperature
 
 def read_abundances_file(abundance_filename, abundance_filetype,
                          inner_boundary_index=None, outer_boundary_index=None):
@@ -244,37 +244,20 @@ def read_artis_density(fname):
     return time_of_model, velocity, mean_density
 
 
-def extract_cmfgen_file_block(f):
-    qty = []
-    for line in f:
-        items = line.split()
-        if items:
-            qty.extend(np.array(items).astype(np.float64))
-        else:
-            break
-    qty = np.array(qty)
-    return qty
-
-
 def read_cmfgen_density(fname):
-    with open(fname, 'r') as f:
-        for line in f:
-            if 'Time' in line:
-                items = line.split()
-                time_of_model = u.Quantity(
-                    float(items[len(items) - 1]), 'day').to('s')
-            if 'Velocity' in line:
-                velocity = extract_cmfgen_file_block(f)
-            if 'Density' in line:
-                density = extract_cmfgen_file_block(f)
-            if 'Electron density' in line:
-                electron_densities = extract_cmfgen_file_block(f)
 
-    velocity = (velocity[::-1] * u.km / u.s).to('cm/s')
-    mean_density = (density * u.Unit('g/cm^3'))[1:]
-    electron_densities = (electron_densities * u.Unit('g/cm^3'))[1:]
+    df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=1)
+    velocity = (df['Velocity'].values[::-1] * u.km / u.s).to('cm/s')
+    mean_density = (df['Densities'].values * u.Unit('g/cm^3'))[1:]
+    electron_densities = (
+        df['Electron_Densities'].values * u.Unit('g/cm^3'))[1:]
+    temperature = (df['Electron_Densities'].values * u.Unit('10^4 K'))[1:]
 
-    return time_of_model, velocity, mean_density, electron_densities
+    with open(fname) as fh:
+        time_of_model_string = fh.readline().strip()
+        time_of_model = parse_quantity(time_of_model_string)
+
+    return time_of_model, velocity, mean_density, electron_densities, temperature
 
 def read_simple_ascii_abundances(fname):
     """
