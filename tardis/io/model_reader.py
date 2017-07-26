@@ -251,7 +251,7 @@ def read_cmfgen_density(fname):
     mean_density = (df['Densities'].values * u.Unit('g/cm^3'))[1:]
     electron_densities = (
         df['Electron_Densities'].values * u.Unit('g/cm^3'))[1:]
-    temperature = (df['Electron_Densities'].values * u.Unit('10^4 K'))[1:]
+    temperature = (df['Temperature'].values * u.Unit('10^4 K'))[1:]
 
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
