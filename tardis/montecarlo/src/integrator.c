@@ -291,17 +291,16 @@ _formal_integral(
                         // conditions) is not in Lucy 1999; should be
                         // re-examined carefully 
                         escat_contrib += (zend - zstart) * escat_op * (*pJblue_lu - I_nu[p_idx]) ;
-                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib;
                         first = 0;
                       }
                       else{
                         // Account for e-scattering, c.f. Eqs 27, 28 in Lucy 1999
                         Jkkp = 0.5 * (*pJred_lu + *pJblue_lu);
                         escat_contrib += (zend - zstart) * escat_op * (Jkkp - I_nu[p_idx]) ;
-                        I_nu[p_idx] = I_nu[p_idx] + escat_contrib;
                         // this introduces the necessary offset of one element between pJblue_lu and pJred_lu
                         pJred_lu += 1;
                       }
+                      I_nu[p_idx] = I_nu[p_idx] + escat_contrib;
 
                       // Lucy 1999, Eq 26
                       I_nu[p_idx] = I_nu[p_idx] * (*pexp_tau) + *patt_S_ul;
