@@ -77,9 +77,9 @@ def test_simple_read_cmfgen_density(tardis_model_density_fname):
         tardis_model_density_fname)
 
     assert np.isclose(0.976 * u.day, time_of_model, atol=1e-7 * u.day)
-    assert np.isclose(mean_density[3], 2.2411003e-18 * u.g / u.cm**3, atol=1.e-6
+    assert np.isclose(mean_density[4], 4.2539537e-09 * u.g / u.cm**3, atol=1.e-6
                       * u.g / u.cm**3)
-    assert np.isclose(electron_densities[5], 49308.29 * u.g / u.cm**3, atol=1.e-6
+    assert np.isclose(electron_densities[5], 2.5982137e+14 * u.g / u.cm**3, atol=1.e-6
                       * u.g / u.cm**3)
     assert len(mean_density) == 10
     assert len(velocity) == len(mean_density) + 1
