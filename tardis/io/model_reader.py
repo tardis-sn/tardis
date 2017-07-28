@@ -247,11 +247,11 @@ def read_artis_density(fname):
 def read_cmfgen_density(fname):
 
     df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=1)
-    velocity = (df['Velocity'].values[::-1] * u.km / u.s).to('cm/s')
-    mean_density = (df['Densities'].values[::-1] * u.Unit('g/cm^3'))[1:]
+    velocity = (df['Velocity'].values * u.km / u.s).to('cm/s')
+    mean_density = (df['Densities'].values * u.Unit('g/cm^3'))[1:]
     electron_densities = (
-        df['ElectronDensities'].values[::-1] * u.Unit('g/cm^3'))[1:]
-    temperature = (df['Temperature'].values[::-1] * u.Unit('10^4 K'))[1:]
+        df['ElectronDensities'].values * u.Unit('g/cm^3'))[1:]
+    temperature = (df['Temperature'].values * u.Unit('10^4 K'))[1:]
 
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
