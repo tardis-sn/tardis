@@ -30,7 +30,10 @@ def extract_file_block(f):
             break
 
     qty = np.array(qty)
-
+    # Convention in CMFGEN files is different from TARDIS files.
+    # CMFGEN stores velocity values in decreasing order, while
+    # TARDIS stores it in ascending order, so alongwith
+    # velocity, all columns will be reversed.
     return qty[::-1]
 
 
