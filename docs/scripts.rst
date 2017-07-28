@@ -5,8 +5,9 @@ Running scripts
 Convert CMFGEN files to TARDIS file format
 ==========================================
 
-This script takes a CMFGEN file as an input , and an output path to save the converted CSV file in new TARDIS file format. 
+This script takes a CMFGEN file as an input , and an output path to save converted files in new TARDIS file format. 
 CSV file contains abundances of both elements and isotopes.
+DAT file contains values of velocity, density, electron_density and temperature.  
 
 Format of command - :code:`cmfgen2tardis /path/to/input_file path/to/output/`  
 
