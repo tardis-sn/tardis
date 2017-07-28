@@ -15,6 +15,7 @@ Studies using TARDIS
 ==================
 
 * :cite:`Barna2017`
+* :cite:`Heringer2017`
 * :cite:`Magee2017`
 * :cite:`Boyle2017`
 * :cite:`Inserra2016`
