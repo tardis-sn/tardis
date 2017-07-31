@@ -84,20 +84,14 @@ def parse_file(args):
     abundances_df, density_df, time_of_model = convert_format(args.input_path)
 
     filename = os.path.splitext(os.path.basename(args.input_path))[0]
-    abundances_fname = '.'.join((filename, 'csv'))
-    density_fname = '.'.join((filename, 'dat'))
-
-    abundances_file_path = os.path.join(
-        args.output_path, abundances_fname)
-    density_file_path = os.path.join(
-        args.output_path, density_fname)
-
-    abundances_df.to_csv(abundances_file_path, index=False, sep=' ')
-
-    with open(density_file_path, 'w') as f:
+    save_fname = '.'.join((filename, 'csv'))
+    resultant_df = pd.concat([density_df, abundances_df], axis=1)
+    save_file_path = os.path.join(args.output_path, save_fname)
+    with open(save_file_path, 'w') as f:
         f.write(" ".join((str(time_of_model), "day")))
         f.write("\n")
-    density_df.to_csv(density_file_path, index=False, sep=' ', mode='a')
+
+    resultant_df.to_csv(save_file_path, index=False, sep=' ', mode='a')
 
 
 def main():
