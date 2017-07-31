@@ -59,7 +59,7 @@ Developing Tardis
 References
 ==========
 
-* :doc:`TARDIS Papers and useful references <zreferences>`
+* :doc:`Studies using TARDIS and TARDIS references <zreferences>`
 
 ====
 News
