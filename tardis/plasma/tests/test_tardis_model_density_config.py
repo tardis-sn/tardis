@@ -10,7 +10,7 @@ data_path = os.path.join('tardis', 'io', 'tests', 'data')
 
 @pytest.fixture
 def tardis_model_density_config():
-    filename = 'tardis_configv1_tardis_model_density.yml'
+    filename = 'tardis_configv1_tardis_model_format.yml'
     return Configuration.from_yaml(os.path.join(data_path, filename))
 
 
