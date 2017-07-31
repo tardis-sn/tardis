@@ -74,8 +74,8 @@ def convert_format(file_path):
 
         density_df = pd.DataFrame.from_records(
             [velocity, density, electron_density, temperature]).transpose()
-        density_df.columns = ['Velocity', 'Densities',
-                              'ElectronDensities', 'Temperature']
+        density_df.columns = ['velocity', 'densities',
+                              'electron_densities', 'temperature']
 
         return abundances_df.transpose(), density_df, time_of_model
 
@@ -97,8 +97,7 @@ def parse_file(args):
     with open(density_file_path, 'w') as f:
         f.write(" ".join((str(time_of_model), "day")))
         f.write("\n")
-    density_df.to_csv(density_file_path, index=True,
-                      index_label='Index', sep=' ', mode='a')
+    density_df.to_csv(density_file_path, index=False, sep=' ', mode='a')
 
 
 def main():
