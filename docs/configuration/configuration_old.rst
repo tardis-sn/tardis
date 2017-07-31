@@ -249,14 +249,23 @@ The spectrum section defines the
 
     spectrum:
         start : 500 angstrom
-        end : 20000 angstrom
-        bins : 1000
-        sn_distance : lum_density
-        #sn_distance : 10 Mpc
+        stop : 20000 angstrom
+        num : 1000
+        method: virtual
 
-Start and end are given as Quantities with units. If they are given in frequency space they are switched around if
-necessary. The number of bins is just an integer. Finally the ``sn_distance`` can either be a distance or the special
-parameter ``lum_density`` which sets the distance to :math:`\sqrt{\frac{1}{4 \pi}}` to calculate the luminosity density.
+Start and end are given as Quantities with units. If they are given in
+frequency space they are switched around if necessary. The number of bins is
+just an integer. Finally, the method option selects the final spectral synthesis mode. Currently, there are three options:
+
+* real: construct spectrum from the real packet population alone
+* virtual: use the :doc:`virtual packet scheme <../montecarlo/virtualpackets>` for spectral synthesis
+* integrated: use the :doc:`formal integral method <../montecarlo/sourceintegration>` of Lucy 1999
+
+.. warning:: 
+  
+  Currently, the "integrated" mode only works with the downbranching line
+  interaction mode. Note also the limitations listed at the bottom of the
+  dedicated page.
 
 
 Config Reader
