@@ -128,7 +128,7 @@ class FormalIntegrator(object):
         att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
 
         result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
-        att_S_ul = result.ix[atomic_data.lines.index.values].as_matrix()
+        att_S_ul = result.ix[atomic_data.lines.index.values].values
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
