@@ -245,13 +245,39 @@ def read_artis_density(fname):
 
 
 def read_cmfgen_density(fname):
+    """
+    Reading a density file of the following structure (example; lines starting with a hash will be ignored):
+    The first density describes the mean density in the center of the model and is not used.
 
+    velocity[km/s] densities[gm/cm^3] electron_densities[gm/cm^3] temperature[10^4 K]
+    871.66905 4.2537191e-09 2.5953807e+14 7.6395577
+    877.44269 4.2537191e-09 2.5953807e+14 7.6395577
+
+    Parameters
+    ----------
+
+    fname: str
+        filename or path with filename
+
+
+    Returns
+    -------
+
+    time_of_model: ~astropy.units.Quantity
+        time at which the model is valid
+
+    velocity: ~np.ndarray
+    mean_density: ~np.ndarray
+    electron_densities: ~np.ndarray
+    temperature: ~np.ndarray
+    
+    """
     df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=1)
-    velocity = (df['Velocity'].values * u.km / u.s).to('cm/s')
-    mean_density = (df['Densities'].values * u.Unit('g/cm^3'))[1:]
+    velocity = (df['velocity'].values * u.km / u.s).to('cm/s')
+    mean_density = (df['densities'].values * u.Unit('g/cm^3'))[1:]
     electron_densities = (
-        df['ElectronDensities'].values * u.Unit('g/cm^3'))[1:]
-    temperature = (df['Temperature'].values * u.Unit('10^4 K'))[1:]
+        df['electron_densities'].values * u.Unit('g/cm^3'))[1:]
+    temperature = (df['temperature'].values * u.Unit('10^4 K'))[1:]
 
     with open(fname) as fh:
         time_of_model_string = fh.readline().strip()
