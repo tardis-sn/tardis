@@ -253,6 +253,8 @@ def read_cmfgen_density(fname):
     871.66905 4.2537191e-09 2.5953807e+14 7.6395577
     877.44269 4.2537191e-09 2.5953807e+14 7.6395577
 
+    Rest columns contain abundances of elements and isotopes
+
     Parameters
     ----------
 
@@ -270,7 +272,7 @@ def read_cmfgen_density(fname):
     mean_density: ~np.ndarray
     electron_densities: ~np.ndarray
     temperature: ~np.ndarray
-    
+
     """
     df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=1)
     velocity = (df['velocity'].values * u.km / u.s).to('cm/s')
@@ -316,28 +318,52 @@ def read_simple_ascii_abundances(fname):
 
 
 def read_simple_isotope_abundances(fname, delimiter='\s+'):
-    df = pd.read_csv(fname, comment='#', delimiter=delimiter)
+    """
+    Reading an abundance file of the following structure (example; lines starting with hash will be ignored):
+    The first line of abundances describe the abundances in the center of the model and are not used.
+    First 4 columns contain values related to velocity, density, electron_density and temperature.
+    From 5th column onwards, abundances of elements and isotopes begin.
+    Example 
+    velocity...temperature C O Ni56
+    ...................... 0.4 0.3 0.2
+
+    Parameters
+    ----------
+
+    fname: str
+        filename or path with filename
+
+    Returns
+    -------
+
+    index: ~np.ndarray
+    abundances: ~pandas.DataFrame
+    isotope_abundance: ~pandas.MultiIndex    
+    """
+    df = pd.read_csv(fname, comment='#',
+                     delimiter=delimiter, skiprows=1)
     df = df.transpose()
 
-    abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
+    abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
                              index=pd.Index([],
                                             name='atomic_number'),
                              dtype=np.float64)
 
     isotope_index = pd.MultiIndex(
         [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
-    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
+    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
                                      index=isotope_index,
                                      dtype=np.float64)
 
-    for element_symbol_string in df.index:
+    #First 4 columns related to density parser (e.g. velocity)
+    for element_symbol_string in df.index[4:]:
         if element_symbol_string in nucname.name_zz:
             z = nucname.name_zz[element_symbol_string]
-            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
+            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()[1:]
         else:
             z = nucname.znum(element_symbol_string)
             mass_no = nucname.anum(element_symbol_string)
             isotope_abundance.loc[(
-                z, mass_no), :] = df.loc[element_symbol_string].tolist()
+                z, mass_no), :] = df.loc[element_symbol_string].tolist()[1:]
 
     return abundance.index, abundance, isotope_abundance
