@@ -11,6 +11,7 @@ import pytest
 
 from tardis.io.atomic import AtomData
 from tardis.io.util import yaml_load_config_file
+from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 from copy import deepcopy
 
