@@ -4,7 +4,7 @@ import logging
 import pandas as pd
 import numpy as np
 
-from tardis import atomic
+from tardis.io import atomic
 from tardis.util import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
@@ -70,7 +70,7 @@ def assemble_plasma(config, model, atom_data=None):
             raise ValueError('No atom_data option found in the configuration.')
 
         logger.info('Reading Atomic Data from %s', atom_data_fname)
-        atom_data = atomic.AtomData.from_hdf5(atom_data_fname)
+        atom_data = atomic.AtomData.from_hdf(atom_data_fname)
 
     atom_data.prepare_atom_data(
         model.abundance.index,

@@ -6,9 +6,10 @@ import numpy as np
 import os
 import yaml
 import re
-
+import tardis
 import logging
-import atomic
+
+from collections import OrderedDict
 
 
 k_B_cgs = constants.k_B.cgs.value
@@ -47,10 +48,27 @@ class MalformedQuantityError(MalformedError):
         return 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' % self.malformed_quantity_string
 
 
-
 logger = logging.getLogger(__name__)
 
-synpp_default_yaml_fname = os.path.join(os.path.dirname(__file__), 'data', 'synpp_default.yaml')
+tardis_dir = os.path.realpath(tardis.__path__[0])
+
+
+def get_data_path(fname):
+    return os.path.join(tardis_dir, 'data', fname)
+
+
+def get_tests_data_path(fname):
+    return os.path.join(tardis_dir, 'tests', 'data', fname)
+
+
+atomic_symbols_data = np.recfromtxt(get_data_path('atomic_symbols.dat'),
+                                    names=['atomic_number', 'symbol'])
+symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
+                                       atomic_symbols_data['atomic_number']))
+atomic_number2symbol = OrderedDict(atomic_symbols_data)
+
+
+synpp_default_yaml_fname = get_data_path('synpp_default.yaml')
 
 
 def int_to_roman(int_input):
@@ -177,7 +195,7 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
 
 def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     logger.warning('Currently only works with Si and a special setup')
-    if not radial1d_mdl.atom_data.has_synpp_refs:
+    if radial1d_mdl.atom_data.synpp_refs is not None:
         raise ValueError(
             'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
 
@@ -321,7 +339,7 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
 
 def species_tuple_to_string(species_tuple, roman_numerals=True):
     atomic_number, ion_number = species_tuple
-    element_symbol = atomic.atomic_number2symbol[atomic_number]
+    element_symbol = atomic_number2symbol[atomic_number]
     if roman_numerals:
         roman_ion_number = int_to_roman(ion_number+1)
         return '%s %s' % (element_symbol, roman_ion_number)
@@ -381,15 +399,15 @@ def parse_quantity(quantity_string):
 
 def element_symbol2atomic_number(element_string):
     reformatted_element_string = reformat_element_symbol(element_string)
-    if reformatted_element_string not in atomic.symbol2atomic_number:
+    if reformatted_element_string not in symbol2atomic_number:
         raise MalformedElementSymbolError(element_string)
-    return atomic.symbol2atomic_number[reformatted_element_string]
+    return symbol2atomic_number[reformatted_element_string]
 
 def atomic_number2element_symbol(atomic_number):
     """
     Convert atomic number to string symbol
     """
-    return atomic.atomic_number2symbol[atomic_number]
+    return atomic_number2symbol[atomic_number]
 
 def reformat_element_symbol(element_string):
     """

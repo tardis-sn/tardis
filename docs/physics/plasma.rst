@@ -45,8 +45,9 @@ setting `BasePlasma.beta_rad` to :math:`\frac{1}{k_\textrm{B}T_\textrm{rad}}`.
 Here's an example how to instantiate a simple base plasma::
 
 
-    >>> from tardis import atomic, plasma
-    >>> atom_data = atomic.AtomData.from_hdf5()
+    >>> from tardis import plasma
+    >>> from tardis.io import atomic
+    >>> atom_data = atomic.AtomData.from_hdf()
     >>> my_plasma = plasma.BasePlasma({'Fe':0.5, 'Ni':0.5}, 10000, 1e-13, atom_data)
     >>> print my_plasma.abundances
     atomic_number abundance_fraction number_density
