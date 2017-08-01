@@ -274,16 +274,22 @@ def read_cmfgen_density(fname):
     temperature: ~np.ndarray
 
     """
-    df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=1)
-    velocity = (df['velocity'].values * u.km / u.s).to('cm/s')
-    mean_density = (df['densities'].values * u.Unit('g/cm^3'))[1:]
-    electron_densities = (
-        df['electron_densities'].values * u.Unit('g/cm^3'))[1:]
-    temperature = (df['temperature'].values * u.Unit('10^4 K'))[1:]
+    df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=[0, 2])
 
     with open(fname) as fh:
-        time_of_model_string = fh.readline().strip()
-        time_of_model = parse_quantity(time_of_model_string)
+        for row_index, line in enumerate(fh):
+            if row_index == 0:
+                time_of_model_string = line.strip().replace('t0:', '')
+                time_of_model = parse_quantity(time_of_model_string)
+            elif row_index == 2:
+                quantities = line.split()
+
+    quantities = [q.replace('gm', 'g') for q in quantities]
+    velocity = u.Quantity(df['velocity'].values, quantities[0]).to('cm/s')
+    temperature = u.Quantity(df['temperature'].values, quantities[1])[1:]
+    mean_density = u.Quantity(df['densities'].values, quantities[2])[1:]
+    electron_densities = u.Quantity(
+        df['electron_densities'].values, quantities[3])[1:]
 
     return time_of_model, velocity, mean_density, electron_densities, temperature
 
@@ -341,7 +347,7 @@ def read_simple_isotope_abundances(fname, delimiter='\s+'):
     isotope_abundance: ~pandas.MultiIndex    
     """
     df = pd.read_csv(fname, comment='#',
-                     delimiter=delimiter, skiprows=1)
+                     delimiter=delimiter, skiprows=[0, 2])
     df = df.transpose()
 
     abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
@@ -354,7 +360,7 @@ def read_simple_isotope_abundances(fname, delimiter='\s+'):
     isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
                                      index=isotope_index,
                                      dtype=np.float64)
-
+    
     #First 4 columns related to density parser (e.g. velocity)
     for element_symbol_string in df.index[4:]:
         if element_symbol_string in nucname.name_zz:
