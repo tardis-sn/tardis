@@ -250,7 +250,7 @@ def read_cmfgen_density(fname):
     The first density describes the mean density in the center of the model and is not used.
     The file consists of a header row and next row contains unit of the respective attributes
     velocity densities electron_densities temperature
-    km/s gm/cm^3 /cm^3 K
+    km/s g/cm^3 /cm^3 K
     871.66905 4.2537191e-09 2.5953807e+14 7.6395577
     877.44269 4.2537191e-09 2.5953807e+14 7.6395577
 
@@ -285,7 +285,6 @@ def read_cmfgen_density(fname):
             elif row_index == 2:
                 quantities = line.split()
 
-    quantities = [q.replace('gm', 'g') for q in quantities]
     velocity = u.Quantity(df['velocity'].values, quantities[0]).to('cm/s')
     temperature = u.Quantity(df['temperature'].values, quantities[1])[1:]
     mean_density = u.Quantity(df['densities'].values, quantities[2])[1:]
