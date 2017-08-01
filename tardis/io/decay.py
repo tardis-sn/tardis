@@ -33,7 +33,7 @@ class IsotopeAbundances(pd.DataFrame):
             for key, value in material.items():
                 abundances.loc[cls.id_to_tuple(key), i] = value
 
-        return abundances
+        return cls(abundances)
 
 
 
@@ -87,3 +87,36 @@ class IsotopeAbundances(pd.DataFrame):
         df = IsotopeAbundances.from_materials(decayed_materials)
         df.sort_index(inplace=True)
         return df 
+
+    def as_atoms(self):
+        """
+        Merge Isotope dataframe according to atomic number 
+
+        Returns:
+            : merged isotope abundances
+        """
+
+        return self.groupby('atomic_number').sum()
+
+    def merge(self, other, normalize=True):
+        """
+        Merge Isotope dataframe with abundance passed as parameter 
+
+        Parameters
+        ----------
+        other: pd.DataFrame 
+        normalize : bool
+            If true, resultant dataframe will be normalized
+
+        Returns:
+            : merged abundances
+        """
+        isotope_abundance = self.as_atoms()
+        #Merge abundance and isotope dataframe
+        modified_df = isotope_abundance.add(other, fill_value=0)
+
+        if normalize:
+            norm_factor = modified_df.sum(axis=0)
+            modified_df /= norm_factor
+
+        return modified_df
