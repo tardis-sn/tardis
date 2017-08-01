@@ -77,8 +77,8 @@ def convert_format(file_path):
 
         density_df = pd.DataFrame.from_records(
             [velocity, temperature * 10**4, density, electron_density]).transpose()
-        density_df.columns = ['velocity', 'densities',
-                              'electron_densities', 'temperature']
+        density_df.columns = ['velocity', 'temperature',
+                              'densities', 'electron_densities']
         quantities_row += abundances_df.shape[0] * [1]
         return abundances_df.transpose(), density_df, time_of_model, quantities_row
 
