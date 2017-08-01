@@ -248,8 +248,9 @@ def read_cmfgen_density(fname):
     """
     Reading a density file of the following structure (example; lines starting with a hash will be ignored):
     The first density describes the mean density in the center of the model and is not used.
-
-    velocity[km/s] densities[gm/cm^3] electron_densities[gm/cm^3] temperature[10^4 K]
+    The file consists of a header row and next row contains unit of the respective attributes
+    velocity densities electron_densities temperature
+    km/s gm/cm^3 /cm^3 K
     871.66905 4.2537191e-09 2.5953807e+14 7.6395577
     877.44269 4.2537191e-09 2.5953807e+14 7.6395577
 
@@ -329,8 +330,11 @@ def read_simple_isotope_abundances(fname, delimiter='\s+'):
     The first line of abundances describe the abundances in the center of the model and are not used.
     First 4 columns contain values related to velocity, density, electron_density and temperature.
     From 5th column onwards, abundances of elements and isotopes begin.
+    The file consists of a header row and next row contains unit of the respective attributes
+    Since abundance fractions are unitless , its unit row is filled with ones
     Example 
     velocity...temperature C O Ni56
+    km/s.........K         1 1 1
     ...................... 0.4 0.3 0.2
 
     Parameters
