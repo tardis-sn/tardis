@@ -9,11 +9,14 @@ from tardis.io.util import yaml_load_config_file
 from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
 
-
+slow = pytest.mark.skipif(
+       not pytest.config.getoption("--full-test"),
+       reason = "Need py.test commandline option to run the test")
 
 def data_path(fname):
     return os.path.join(tardis.__path__[0], 'tests', 'data', fname)
 
+@slow
 @pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
                     reason='--atomic_database was not specified')
 class TestSimpleRun():
