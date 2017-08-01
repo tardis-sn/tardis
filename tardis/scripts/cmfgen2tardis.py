@@ -51,7 +51,7 @@ def convert_format(file_path):
                                                             name='element'),
                                              dtype=np.float64)
             if any(prop in line for prop in prop_list):
-                quantities_row.append(items[n - 1])
+                quantities_row.append(items[n - 1].replace('gm', 'g'))
             if 'Time' in line:
                 time_of_model = float(items[n - 1])
             if 'Velocity' in line:
