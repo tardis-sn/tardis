@@ -38,10 +38,11 @@ def extract_file_block(f):
 
 
 def convert_format(file_path):
-
+    quantities_row = []
+    prop_list = ['Velocity', 'Density', 'Electron density', 'Temperature']
     with open(file_path, 'r') as f:
         for line in f:
-            items = line.split()
+            items = line.replace('(', '').replace(')', '').split()
             n = len(items)
 
             if 'data points' in line:
@@ -49,6 +50,8 @@ def convert_format(file_path):
                                              index=pd.Index([],
                                                             name='element'),
                                              dtype=np.float64)
+            if any(prop in line for prop in prop_list):
+                quantities_row.append(items[n - 1])
             if 'Time' in line:
                 time_of_model = float(items[n - 1])
             if 'Velocity' in line:
@@ -73,22 +76,25 @@ def convert_format(file_path):
                     abundances_df.loc[element_symbol] = abundances
 
         density_df = pd.DataFrame.from_records(
-            [velocity, density, electron_density, temperature]).transpose()
+            [velocity, temperature * 10**4, density, electron_density]).transpose()
         density_df.columns = ['velocity', 'densities',
                               'electron_densities', 'temperature']
-
-        return abundances_df.transpose(), density_df, time_of_model
+        quantities_row += abundances_df.shape[0] * [1]
+        return abundances_df.transpose(), density_df, time_of_model, quantities_row
 
 
 def parse_file(args):
-    abundances_df, density_df, time_of_model = convert_format(args.input_path)
+    abundances_df, density_df, time_of_model, quantities_row = convert_format(
+        args.input_path)
 
     filename = os.path.splitext(os.path.basename(args.input_path))[0]
     save_fname = '.'.join((filename, 'csv'))
     resultant_df = pd.concat([density_df, abundances_df], axis=1)
+    resultant_df.columns = pd.MultiIndex.from_tuples(
+        zip(resultant_df.columns, quantities_row))
     save_file_path = os.path.join(args.output_path, save_fname)
     with open(save_file_path, 'w') as f:
-        f.write(" ".join((str(time_of_model), "day")))
+        f.write(" ".join(('t0:', str(time_of_model), 'day')))
         f.write("\n")
 
     resultant_df.to_csv(save_file_path, index=False, sep=' ', mode='a')
