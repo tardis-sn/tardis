@@ -125,7 +125,7 @@ def test_luminosity_to_flux():
     flux = TARDISSpectrum.luminosity_to_flux(lum, distance)
     test_helper.assert_quantity_allclose(
             flux,
-            u.Quantity(lum.value / np.pi, 'erg/s/cm^2')
+            u.Quantity(lum.value / np.pi, 'erg s^-1 cm^-2')
             )
 
 

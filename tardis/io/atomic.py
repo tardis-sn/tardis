@@ -135,7 +135,7 @@ class AtomData(object):
         dataframes = dict()
         nonavailable = list()
 
-        with pd.HDFStore(fname) as store:
+        with pd.HDFStore(fname, 'r') as store:
             for name in cls.hdf_names:
                 try:
                     dataframes[name] = store[name]
