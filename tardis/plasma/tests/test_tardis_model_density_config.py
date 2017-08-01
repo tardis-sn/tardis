@@ -25,10 +25,10 @@ def raw_plasma(tardis_model_density_config, raw_model, kurucz_atomic_data):
 
 
 def test_electron_densities(raw_plasma):
-    assert_almost_equal(raw_plasma.electron_densities[8], 2.7241733e+14)
-    assert_almost_equal(raw_plasma.electron_densities[3], 2.595454e+14)
+    assert_almost_equal(raw_plasma.electron_densities[8], 2.72e+14)
+    assert_almost_equal(raw_plasma.electron_densities[3], 2.6e+14)
 
 
 def test_t_rad(raw_plasma):
-    assert_almost_equal(raw_plasma.t_rad[5], 7.6459592)
-    assert_almost_equal(raw_plasma.t_rad[3], 7.6399042)
+    assert_almost_equal(raw_plasma.t_rad[5], 76459.592)
+    assert_almost_equal(raw_plasma.t_rad[3], 76399.042)
