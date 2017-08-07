@@ -18,7 +18,7 @@ from tardis.plasma.properties import (LevelBoltzmannFactorNLTE, JBluesBlackBody,
                                       JBluesDiluteBlackBody, JBluesDetailed,
                                       RadiationFieldCorrection,
                                       StimulatedEmissionFactor,
-                                      HeliumNumericalNLTE)
+                                      HeliumNumericalNLTE, IonNumberDensity, IonNumberDensityHeNLTE)
 
 logger = logging.getLogger(__name__)
 
@@ -147,6 +147,16 @@ def assemble_plasma(config, model, atom_data=None):
                 heating_rate_data_file=config.plasma.heating_rate_data_file)
     else:
         plasma_modules += helium_lte_properties
+
+    if model._electron_densities:
+        electron_densities = pd.Series(model._electron_densities.cgs.value)
+        if config.plasma.helium_treatment == 'numerical-nlte':
+            property_kwargs[IonNumberDensityHeNLTE] = dict(
+                electron_densities=electron_densities)
+        else:
+            property_kwargs[IonNumberDensity] = dict(
+                electron_densities=electron_densities)
+
     kwargs['helium_treatment'] = config.plasma.helium_treatment
 
     plasma = BasePlasma(plasma_properties=plasma_modules,
