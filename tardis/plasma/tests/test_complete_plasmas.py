@@ -8,10 +8,6 @@ from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 
 
-plasma_ref_path = os.path.expanduser(os.path.expandvars(
-    pytest.config.getvalue('plasma-reference')))
-
-
 class BasePlasmaTest:
     #Class defining all common tests for different setups of Plasma
     #This can then be inherited for different Plasma setup
@@ -110,6 +106,8 @@ class TestLTEPlasma(BasePlasmaTest):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(cls):
+    plasma_ref_path = os.path.expanduser(os.path.expandvars(
+        pytest.config.getvalue('plasma-reference')))
         cls.reference_file_path = os.path.join(
             plasma_ref_path, 'plasma_lte_reference.h5')
 
@@ -130,6 +128,8 @@ class TestNLTEPlasma(BasePlasmaTest):
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(cls):
+        plasma_ref_path = os.path.expanduser(os.path.expandvars(
+            pytest.config.getvalue('plasma-reference')))
         cls.reference_file_path = os.path.join(
             plasma_ref_path, 'plasma_nlte_reference.h5')
 
