@@ -63,7 +63,7 @@ class Radial1DModel(HDFWriterMixin):
 
     def __init__(self, velocity, homologous_density, abundance, isotope_abundance,
                  time_explosion, t_inner, luminosity_requested=None, t_radiative=None,
-                 dilution_factor=None, v_boundary_inner=None, v_boundary_outer=None):
+                 dilution_factor=None, v_boundary_inner=None, v_boundary_outer=None, electron_densities=None):
         self._v_boundary_inner = None
         self._v_boundary_outer = None
         self._velocity = None
@@ -73,6 +73,7 @@ class Radial1DModel(HDFWriterMixin):
         self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
+        self._electron_densities = electron_densities
 
         self.raw_abundance = self._abundance
         self.raw_isotope_abundance = isotope_abundance 
@@ -289,6 +290,8 @@ class Radial1DModel(HDFWriterMixin):
         time_explosion = config.supernova.time_explosion.cgs
 
         structure = config.model.structure
+        electron_densities = None
+        temperature = None
         if structure.type == 'specific':
             velocity = quantity_linspace(structure.velocity.start,
                                          structure.velocity.stop,
@@ -301,7 +304,7 @@ class Radial1DModel(HDFWriterMixin):
                 structure_fname = os.path.join(config.config_dirname,
                                                structure.filename)
 
-            time_0, velocity, density_0 = read_density_file(
+            time_0, velocity, density_0, electron_densities, temperature = read_density_file(
                 structure_fname, structure.filetype)
             density_0 = density_0.insert(0, 0)
             homologous_density = HomologousDensity(density_0, time_0)
@@ -311,7 +314,9 @@ class Radial1DModel(HDFWriterMixin):
         #       v boundaries.
         no_of_shells = len(velocity) - 1
 
-        if config.plasma.initial_t_rad > 0 * u.K:
+        if temperature:
+            t_radiative = temperature
+        elif config.plasma.initial_t_rad > 0 * u.K:
             t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
@@ -363,4 +368,5 @@ class Radial1DModel(HDFWriterMixin):
                    luminosity_requested=luminosity_requested,
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
-                   v_boundary_outer=structure.get('v_outer_boundary', None))
+                   v_boundary_outer=structure.get('v_outer_boundary', None),
+                   electron_densities=electron_densities)
