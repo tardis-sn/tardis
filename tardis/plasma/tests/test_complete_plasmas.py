@@ -99,64 +99,65 @@ class BasePlasmaTest:
                                 self.read_hdf_attr('beta_sobolev').values)
 
 
-@pytest.mark.skipif(not pytest.config.getvalue("plasma-reference"),
-                    reason="Path to Plasma Reference files is not defined")
+@pytest.mark.skipif(not pytest.config.getvalue("tardis-refdata"),
+                    reason="Path to Tardis Reference files is not defined")
 class TestLTEPlasma(BasePlasmaTest):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(cls):
-    plasma_ref_path = os.path.expanduser(os.path.expandvars(
-        pytest.config.getvalue('plasma-reference')))
+        tardis_ref_path = os.path.expanduser(
+            os.path.expandvars(pytest.config.getvalue('tardis-refdata')))
         cls.reference_file_path = os.path.join(
-            plasma_ref_path, 'plasma_lte_reference.h5')
+            tardis_ref_path, 'plasma_reference', 'plasma_lte_reference.h5')
 
         cls.config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_lte.yml')
         cls.config = Configuration.from_yaml(cls.config_path)
-        cls.config['atom_data'] = os.path.abspath(os.path.expanduser(os.path.expandvars(
-            pytest.config.getvalue('atomic-dataset'))))
+        cls.config['atom_data'] = os.path.join(
+            tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
         cls.sim = Simulation.from_config(cls.config)
         cls.sim.run()
         cls.plasma = cls.sim.plasma
 
 
-@pytest.mark.skipif(not pytest.config.getvalue("plasma-reference"),
-                    reason="Path to Plasma Reference files is not defined")
+@pytest.mark.skipif(not pytest.config.getvalue("tardis-refdata"),
+                    reason="Path to Tardis Reference files is not defined")
 class TestNLTEPlasma(BasePlasmaTest):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(cls):
-        plasma_ref_path = os.path.expanduser(os.path.expandvars(
-            pytest.config.getvalue('plasma-reference')))
+        tardis_ref_path = os.path.expanduser(
+            os.path.expandvars(pytest.config.getvalue('tardis-refdata')))
         cls.reference_file_path = os.path.join(
-            plasma_ref_path, 'plasma_nlte_reference.h5')
+            tardis_ref_path, 'plasma_reference', 'plasma_nlte_reference.h5')
 
         cls.config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
         cls.config = Configuration.from_yaml(cls.config_path)
-        cls.config['atom_data'] = os.path.abspath(os.path.expanduser(os.path.expandvars(
-            pytest.config.getvalue('atomic-dataset'))))
+        cls.config['atom_data'] = os.path.join(
+            tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
         cls.sim = Simulation.from_config(cls.config)
         cls.sim.run()
         cls.plasma = cls.sim.plasma
 
-    #Additional Tests for NLTE Plasma, apart from tests defined in BasePlasmaTest
-    #GENERAL PROPERTIES
-    def test_beta_electron(self):
-        pdt.assert_almost_equal(self.plasma.beta_electron,
-                                self.read_hdf_attr('beta_electron').values)
+        #Additional Tests for NLTE Plasma, apart from tests defined in BasePlasmaTest
+        #GENERAL PROPERTIES
+        def test_beta_electron(self):
+            pdt.assert_almost_equal(self.plasma.beta_electron,
+                                    self.read_hdf_attr('beta_electron').values)
 
-    def test_selected_atoms(self):
-        pdt.assert_almost_equal(
-            self.plasma.selected_atoms.values, self.read_hdf_attr('selected_atoms').values)
+        def test_selected_atoms(self):
+            pdt.assert_almost_equal(
+                self.plasma.selected_atoms.values, self.read_hdf_attr('selected_atoms').values)
 
-    #ATOMIC PROPERTIES
-    def test_zeta_data_property(self):
-        pdt.assert_almost_equal(
-            self.plasma.zeta_data.values, self.read_hdf_attr('zeta_data').values)
+        #ATOMIC PROPERTIES
+        def test_zeta_data_property(self):
+            pdt.assert_almost_equal(
+                self.plasma.zeta_data.values, self.read_hdf_attr('zeta_data').values)
 
-    #ION POPULATION PROPERTIES
-    def test_radiation_field_correction(self):
-        pdt.assert_almost_equal(self.plasma.delta, self.read_hdf_attr('delta'))
+        #ION POPULATION PROPERTIES
+        def test_radiation_field_correction(self):
+            pdt.assert_almost_equal(
+                self.plasma.delta, self.read_hdf_attr('delta'))
