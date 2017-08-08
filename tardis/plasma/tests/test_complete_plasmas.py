@@ -159,6 +159,16 @@ class TestLTEPlasma(BasePlasmaTest):
             tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
         cls.sim = Simulation.from_config(cls.config)
         cls.sim.run()
+
+        if pytest.config.getvalue("--generate-reference"):
+            if os.path.exists(cls.reference_file_path):
+                pytest.skip(
+                    'Reference data {0} does exist and tests will not '
+                    'proceed generating new data'.format(cls.reference_file_path))
+            cls.sim.plasma.to_hdf(cls.reference_file_path)
+            pytest.skip("Reference data saved at {0}".format(
+                cls.reference_file_path))
+
         cls.plasma = cls.sim.plasma
 
 
@@ -181,6 +191,16 @@ class TestNLTEPlasma(BasePlasmaTest):
             tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
         cls.sim = Simulation.from_config(cls.config)
         cls.sim.run()
+
+        if pytest.config.getvalue("--generate-reference"):
+            if os.path.exists(cls.reference_file_path):
+                pytest.skip(
+                    'Reference data {0} does exist and tests will not '
+                    'proceed generating new data'.format(cls.reference_file_path))
+            cls.sim.plasma.to_hdf(cls.reference_file_path)
+            pytest.skip("Reference data saved at {0}".format(
+                cls.reference_file_path))
+
         cls.plasma = cls.sim.plasma
 
         # Additional Tests for NLTE Plasma, apart from tests defined in
