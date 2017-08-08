@@ -84,14 +84,20 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture(scope="session")
-def atomic_data_fname():
+def tardis_ref_path():
     tardis_ref_path = pytest.config.getvalue("tardis-refdata")
     if tardis_ref_path is None:
         pytest.skip('--tardis-refdata was not specified')
     else:
-        atomic_data_fname = os.path.join(
-            tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
-        return os.path.expandvars(os.path.expanduser(atomic_data_fname))
+        return os.path.expandvars(os.path.expanduser(tardis_ref_path))
+
+
+@pytest.fixture(scope="session")
+def atomic_data_fname(tardis_ref_path):
+    atomic_data_fname = os.path.join(
+        tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
+    return atomic_data_fname
+
 
 @pytest.fixture(scope="session")
 def atomic_dataset(atomic_data_fname):
