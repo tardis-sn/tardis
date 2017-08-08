@@ -135,11 +135,11 @@ def test_atomic_symbol():
 def test_atomic_symbol_reverse():
     assert atomic.symbol2atomic_number['Si'] == 14
 
-@pytest.mark.skipif(not pytest.config.getvalue("atomic-dataset"),
-                    reason='--atomic_database was not specified')
+@pytest.mark.skipif(not pytest.config.getvalue("tardis-refdata"),
+                    reason='--tardis-refdata was not specified')
 def test_atomic_reprepare():
     atom_data_filename = os.path.expanduser(os.path.expandvars(
-        pytest.config.getvalue('atomic-dataset')))
+        os.path.join(pytest.config.getvalue('tardis-refdata'), 'atom_data', 'kurucz_cd23_chianti_H_He.h5')))
     assert os.path.exists(atom_data_filename), ("{0} atomic datafiles "
                                                          "does not seem to "
                                                          "exist".format(

@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 parser = argparse.ArgumentParser(description="Run slow integration tests")
 parser.add_argument("--integration-tests", dest="yaml_filepath",
                     help="Path to YAML config file for integration tests.")
-parser.add_argument("--atomic-dataset", dest="atomic_dataset",
-                    help="Path to atomic dataset.")
+parser.add_argument("--tardis-refdata", dest="tardis-refdata",
+                    help="Path to Tardis Reference Data.")
 parser.add_argument("--less-packets", action="store_true", default=False,
                     help="Run integration tests with less packets.")
 
@@ -34,7 +34,7 @@ def run_tests():
     test_command = [
         "python", "setup.py", "test",
         "--test-path=tardis/tests/integration_tests/test_integration.py", "--args",
-        "--capture=no --integration-tests={0} --atomic-dataset={1} --remote-data "
+        "--capture=no --integration-tests={0} --tardis-refdata={1} --remote-data "
         "{2}".format(args.yaml_filepath, args.atomic_dataset, less_packets)
     ]
     subprocess.call(test_command)
