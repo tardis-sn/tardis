@@ -203,33 +203,31 @@ class TestNLTEPlasma(BasePlasmaTest):
 
         cls.plasma = cls.sim.plasma
 
-        # Additional Tests for NLTE Plasma, apart from tests defined in
-        # BasePlasmaTest
+    # Additional Tests for NLTE Plasma
+    #GENERAL PROPERTIES
+    def test_beta_electron(self):
+        pdt.assert_almost_equal(self.plasma.beta_electron,
+                                self.read_hdf_attr('beta_electron').values)
 
-        #GENERAL PROPERTIES
-        def test_beta_electron(self):
-            pdt.assert_almost_equal(self.plasma.beta_electron,
-                                    self.read_hdf_attr('beta_electron').values)
+    def test_selected_atoms(self):
+        pdt.assert_almost_equal(
+            self.plasma.selected_atoms.values, self.read_hdf_attr('selected_atoms').values)
 
-        def test_selected_atoms(self):
-            pdt.assert_almost_equal(
-                self.plasma.selected_atoms.values, self.read_hdf_attr('selected_atoms').values)
+    #ATOMIC PROPERTIES
+    def test_zeta_data_property(self):
+        pdt.assert_almost_equal(
+            self.plasma.zeta_data.values, self.read_hdf_attr('zeta_data').values)
 
-        #ATOMIC PROPERTIES
-        def test_zeta_data_property(self):
-            pdt.assert_almost_equal(
-                self.plasma.zeta_data.values, self.read_hdf_attr('zeta_data').values)
+    #ION POPULATION PROPERTIES
+    def test_radiation_field_correction(self):
+        pdt.assert_almost_equal(
+            self.plasma.delta, self.read_hdf_attr('delta'))
 
-        #ION POPULATION PROPERTIES
-        def test_radiation_field_correction(self):
-            pdt.assert_almost_equal(
-                self.plasma.delta, self.read_hdf_attr('delta'))
+    def test_previous_electron_densities(self):
+        pdt.assert_almost_equal(self.plasma.previous_electron_densities, self.read_hdf_attr(
+            'previous_electron_densities'))
 
-        def test_previous_electron_densities(self):
-            pdt.assert_almost_equal(self.plasma.previous_electron_densities, self.read_hdf_attr(
-                'previous_electron_densities'))
-
-        #RADIATIVE PROPERTIES
-        def test_previous_beta_sobolev(self):
-            pdt.assert_almost_equal(self.plasma.previous_beta_sobolev, self.read_hdf_attr(
-                'previous_beta_sobolev').values)
+    #RADIATIVE PROPERTIES
+    def test_previous_beta_sobolev(self):
+        pdt.assert_almost_equal(self.plasma.previous_beta_sobolev, self.read_hdf_attr(
+            'previous_beta_sobolev').values)
