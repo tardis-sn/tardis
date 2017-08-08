@@ -135,22 +135,19 @@ def test_atomic_symbol():
 def test_atomic_symbol_reverse():
     assert atomic.symbol2atomic_number['Si'] == 14
 
-@pytest.mark.skipif(not pytest.config.getvalue("tardis-refdata"),
-                    reason='--tardis-refdata was not specified')
-def test_atomic_reprepare():
-    atom_data_filename = os.path.expanduser(os.path.expandvars(
-        os.path.join(pytest.config.getvalue('tardis-refdata'), 'atom_data', 'kurucz_cd23_chianti_H_He.h5')))
-    assert os.path.exists(atom_data_filename), ("{0} atomic datafiles "
-                                                         "does not seem to "
-                                                         "exist".format(
-        atom_data_filename))
-    atom_data = atomic.AtomData.from_hdf5(atom_data_filename)
+
+def test_atomic_reprepare(atomic_data_fname):
+    assert os.path.exists(atomic_data_fname), ("{0} atomic datafiles "
+                                               "does not seem to "
+                                               "exist".format(
+                                                   atomic_data_fname))
+    atom_data = atomic.AtomData.from_hdf5(atomic_data_fname)
     atom_data.prepare_atom_data([14])
     assert len(atom_data.lines) > 0
     # Fix for new behavior of prepare_atom_data
     # Consider doing only one prepare_atom_data and check
     # len(atom_data.lines) == N where N is known
-    atom_data = atomic.AtomData.from_hdf5(atom_data_filename)
+    atom_data = atomic.AtomData.from_hdf5(atomic_data_fname)
     atom_data.prepare_atom_data([20])
     assert len(atom_data.lines) > 0
 
