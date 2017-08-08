@@ -22,27 +22,23 @@ def plasma_compare_data_fname():
 def plasma_compare_data(plasma_compare_data_fname):
     return h5py.File(plasma_compare_data_fname, 'r')
 
-@pytest.mark.skipif(not pytest.config.getvalue("tardis-refdata"),
-                    reason='--tardis-refdata was not specified')
 class TestPlasmas():
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(self):
-        self.atom_data_filename = os.path.expanduser(os.path.expandvars(
-            os.path.join(pytest.config.getvalue('tardis-refdata'), 'atom_data', 'kurucz_cd23_chianti_H_He.h5')))
-        assert os.path.exists(self.atom_data_filename), ("{0} atomic datafiles"
+    def setup(self, atomic_data_fname):
+        assert os.path.exists(atomic_data_fname), ("{0} atomic datafiles"
                                                          " does not seem to "
                                                          "exist".format(
-            self.atom_data_filename))
+            atomic_data_fname))
         self.config_yaml = yaml_load_config_file(
             'tardis/plasma/tests/data/plasma_test_config_lte.yml')
-        self.config_yaml['atom_data'] = self.atom_data_filename
+        self.config_yaml['atom_data'] = atomic_data_fname
         conf = Configuration.from_config_dict(self.config_yaml)
         self.lte_simulation = Simulation.from_config(conf)
         self.lte_simulation.run()
         self.config_yaml = yaml_load_config_file(
             'tardis/plasma/tests/data/plasma_test_config_nlte.yml')
-        self.config_yaml['atom_data'] = self.atom_data_filename
+        self.config_yaml['atom_data'] = atomic_data_fname
         conf = Configuration.from_config_dict(self.config_yaml)
         self.nlte_simulation = Simulation.from_config(conf)
         self.nlte_simulation.run()
