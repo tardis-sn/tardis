@@ -66,8 +66,8 @@ except NameError:   # Needed to support Astropy <= 1.0.0
 
 def pytest_addoption(parser):
     _pytest_add_option(parser)
-    parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
-                     help="filename for atomic dataset")
+    parser.addoption("--tardis-refdata", dest='tardis-refdata', default=None,
+                     help="Path to Tardis Reference Folder")
     parser.addoption("--integration-tests",
                      dest="integration-tests", default=None,
                      help="path to configuration file for integration tests")
@@ -78,7 +78,6 @@ def pytest_addoption(parser):
                      action="store_true", default=False,
                      help="Run integration tests with less packets.")
 
-
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
@@ -86,9 +85,10 @@ def pytest_addoption(parser):
 
 @pytest.fixture(scope="session")
 def atomic_data_fname():
-    atomic_data_fname = pytest.config.getvalue("atomic-dataset")
+    atomic_data_fname = os.path.join(pytest.config.getvalue(
+        "tardis-refdata"), 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
     if atomic_data_fname is None:
-        pytest.skip('--atomic-dataset was not specified')
+        pytest.skip('--tardis-refdata was not specified')
     else:
         return os.path.expandvars(os.path.expanduser(atomic_data_fname))
 
