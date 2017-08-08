@@ -8,7 +8,7 @@ from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 
 
-class BasePlasmaTest:
+class BasePlasmaTest(object):
     #Class defining all common tests for different setups of Plasma
     #This can then be inherited for different Plasma setup
     @classmethod
@@ -140,13 +140,11 @@ class BasePlasmaTest:
             self.plasma.time_explosion.cgs.value, self.read_hdf_attr('scalars')['time_explosion'])
 
 
-@pytest.mark.skipif(not pytest.config.getvalue("tardis-refdata"),
-                    reason="Path to Tardis Reference files is not defined")
 class TestLTEPlasma(BasePlasmaTest):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(cls):
+    def setup(cls, atomic_data_fname):
         tardis_ref_path = os.path.expanduser(
             os.path.expandvars(pytest.config.getvalue('tardis-refdata')))
         cls.reference_file_path = os.path.join(
@@ -155,8 +153,7 @@ class TestLTEPlasma(BasePlasmaTest):
         cls.config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_lte.yml')
         cls.config = Configuration.from_yaml(cls.config_path)
-        cls.config['atom_data'] = os.path.join(
-            tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
+        cls.config['atom_data'] = atomic_data_fname
         cls.sim = Simulation.from_config(cls.config)
         cls.sim.run()
 
@@ -172,13 +169,11 @@ class TestLTEPlasma(BasePlasmaTest):
         cls.plasma = cls.sim.plasma
 
 
-@pytest.mark.skipif(not pytest.config.getvalue("tardis-refdata"),
-                    reason="Path to Tardis Reference files is not defined")
 class TestNLTEPlasma(BasePlasmaTest):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(cls):
+    def setup(cls, atomic_data_fname):
         tardis_ref_path = os.path.expanduser(
             os.path.expandvars(pytest.config.getvalue('tardis-refdata')))
         cls.reference_file_path = os.path.join(
@@ -187,8 +182,7 @@ class TestNLTEPlasma(BasePlasmaTest):
         cls.config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
         cls.config = Configuration.from_yaml(cls.config_path)
-        cls.config['atom_data'] = os.path.join(
-            tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
+        cls.config['atom_data'] = atomic_data_fname
         cls.sim = Simulation.from_config(cls.config)
         cls.sim.run()
 
