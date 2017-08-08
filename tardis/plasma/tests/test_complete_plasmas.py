@@ -35,6 +35,9 @@ class BasePlasmaTest:
         pdt.assert_almost_equal(self.plasma.t_electrons,
                                 self.read_hdf_attr('t_electrons').values)
 
+    def test_dilution_factor(self):
+        pdt.assert_almost_equal(self.plasma.w, self.read_hdf_attr('w').values)
+
     #PARTITION PROPERTIES
     def test_level_boltzmann_factor(self):
         pdt.assert_almost_equal(
@@ -68,6 +71,20 @@ class BasePlasmaTest:
         pdt.assert_almost_equal(
             self.plasma.ionization_data, self.read_hdf_attr('ionization_data'))
 
+    def test_nu(self):
+        pdt.assert_almost_equal(self.plasma.nu, self.read_hdf_attr('nu'))
+
+    def test_wavelength_cm(self):
+        pdt.assert_almost_equal(self.plasma.wavelength_cm,
+                                self.read_hdf_attr('wavelength_cm'))
+
+    def test_f_lu(self):
+        pdt.assert_almost_equal(self.plasma.f_lu, self.read_hdf_attr('f_lu'))
+
+    def test_metastability(self):
+        pdt.assert_almost_equal(self.plasma.metastability,
+                                self.read_hdf_attr('metastability'))
+
     #ION POPULATION PROPERTIES
     def test_phi(self):
         pdt.assert_almost_equal(self.plasma.phi, self.read_hdf_attr('phi'))
@@ -97,6 +114,30 @@ class BasePlasmaTest:
     def test_beta_sobolev(self):
         pdt.assert_almost_equal(self.plasma.beta_sobolev,
                                 self.read_hdf_attr('beta_sobolev').values)
+
+    def test_transition_probabilities(self):
+        pdt.assert_almost_equal(self.plasma.transition_probabilities, self.read_hdf_attr(
+            'transition_probabilities'))
+
+    #J_BLUES PROPERTIES
+    def test_j_blues(self):
+        pdt.assert_almost_equal(self.plasma.j_blues,
+                                self.read_hdf_attr('j_blues').values)
+
+    #SCALARS PROPERTIES
+    def test_helium_treatment(self):
+        expected = self.read_hdf_attr('scalars')['helium_treatment']
+        if expected is 'none':
+            expected = None
+        assert self.plasma.helium_treatment == expected
+
+    def test_link_t_rad_t_electron(self):
+        pdt.assert_almost_equal(self.plasma.link_t_rad_t_electron, self.read_hdf_attr(
+            'scalars')['link_t_rad_t_electron'])
+
+    def test_time_explosion(self):
+        pdt.assert_almost_equal(
+            self.plasma.time_explosion.cgs.value, self.read_hdf_attr('scalars')['time_explosion'])
 
 
 @pytest.mark.skipif(not pytest.config.getvalue("tardis-refdata"),
@@ -142,7 +183,9 @@ class TestNLTEPlasma(BasePlasmaTest):
         cls.sim.run()
         cls.plasma = cls.sim.plasma
 
-        #Additional Tests for NLTE Plasma, apart from tests defined in BasePlasmaTest
+        # Additional Tests for NLTE Plasma, apart from tests defined in
+        # BasePlasmaTest
+
         #GENERAL PROPERTIES
         def test_beta_electron(self):
             pdt.assert_almost_equal(self.plasma.beta_electron,
@@ -161,3 +204,12 @@ class TestNLTEPlasma(BasePlasmaTest):
         def test_radiation_field_correction(self):
             pdt.assert_almost_equal(
                 self.plasma.delta, self.read_hdf_attr('delta'))
+
+        def test_previous_electron_densities(self):
+            pdt.assert_almost_equal(self.plasma.previous_electron_densities, self.read_hdf_attr(
+                'previous_electron_densities'))
+
+        #RADIATIVE PROPERTIES
+        def test_previous_beta_sobolev(self):
+            pdt.assert_almost_equal(self.plasma.previous_beta_sobolev, self.read_hdf_attr(
+                'previous_beta_sobolev').values)
