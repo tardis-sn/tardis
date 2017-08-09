@@ -96,6 +96,11 @@ def tardis_ref_path():
 def atomic_data_fname(tardis_ref_path):
     atomic_data_fname = os.path.join(
         tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
+
+    assert os.path.exists(atomic_data_fname), ("{0} atomic datafiles"
+                                               " does not seem to "
+                                               "exist".format(
+                                                   atomic_data_fname))
     return atomic_data_fname
 
 

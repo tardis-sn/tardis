@@ -26,10 +26,6 @@ class TestPlasmas():
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
     def setup(self, atomic_data_fname):
-        assert os.path.exists(atomic_data_fname), ("{0} atomic datafiles"
-                                                         " does not seem to "
-                                                         "exist".format(
-            atomic_data_fname))
         self.config_yaml = yaml_load_config_file(
             'tardis/plasma/tests/data/plasma_test_config_lte.yml')
         self.config_yaml['atom_data'] = atomic_data_fname
