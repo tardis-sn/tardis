@@ -21,7 +21,6 @@ env:
         - SETUP_CMD='test'
         - TEST_MODE='normal'
         - TARDIS_REF_DATA_URL='https://github.com/tardis-sn/tardis-refdata.git'
-        - TARDIS_REF_VERSION='0.2'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
 
 matrix:
