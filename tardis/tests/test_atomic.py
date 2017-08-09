@@ -137,10 +137,6 @@ def test_atomic_symbol_reverse():
 
 
 def test_atomic_reprepare(atomic_data_fname):
-    assert os.path.exists(atomic_data_fname), ("{0} atomic datafiles "
-                                               "does not seem to "
-                                               "exist".format(
-                                                   atomic_data_fname))
     atom_data = atomic.AtomData.from_hdf5(atomic_data_fname)
     atom_data.prepare_atom_data([14])
     assert len(atom_data.lines) > 0
