@@ -188,7 +188,8 @@ class AtomData(object):
             atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs
 
         # Convert ionization energies to CGS
-        ionization_data.loc[:, "ionization_energy"] = Quantity(ionization_data["ionization_energy"].values, "eV").cgs
+        ionization_data = ionization_data.squeeze()
+        ionization_data[:] = Quantity(ionization_data[:], "eV").cgs
 
         # Convert energy to CGS
         levels.loc[:, "energy"] = Quantity(levels["energy"].values, 'eV').cgs

@@ -35,7 +35,7 @@ def test_atom_data_basic_atom_data(basic_atom_data):
 
 def test_atom_data_ionization_data(ionization_data):
     assert_quantity_allclose(
-        ionization_data.at[(2, 1), 'ionization_energy'] * u.Unit('erg'),
+        ionization_data.loc[(2, 1)] * u.Unit('erg'),
         24.587387936 * u.Unit('eV')
     )
 

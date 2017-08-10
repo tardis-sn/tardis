@@ -4,7 +4,7 @@ def test_phi_saha_lte(beta_rad, g_electron, ionization_data,
         phi_saha_lte):
     assert(phi_saha_lte.shape == (2,20))
     assert np.all(np.isclose(g_electron * 4 * np.exp(
-        -ionization_data.ionization_energy.ix[2].ix[1] * beta_rad),
+        -ionization_data.loc[2,1] * beta_rad),
         phi_saha_lte.ix[2].ix[1]))
 
 def test_ion_number_density(phi_saha_lte, ion_number_density,
