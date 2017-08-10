@@ -144,9 +144,7 @@ class TestLTEPlasma(BasePlasmaTest):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(cls, atomic_data_fname):
-        tardis_ref_path = os.path.expanduser(
-            os.path.expandvars(pytest.config.getvalue('tardis-refdata')))
+    def setup(cls, atomic_data_fname, tardis_ref_path):
         cls.reference_file_path = os.path.join(
             tardis_ref_path, 'plasma_reference', 'plasma_lte_reference.h5')
 
@@ -173,9 +171,7 @@ class TestNLTEPlasma(BasePlasmaTest):
 
     @classmethod
     @pytest.fixture(scope="class", autouse=True)
-    def setup(cls, atomic_data_fname):
-        tardis_ref_path = os.path.expanduser(
-            os.path.expandvars(pytest.config.getvalue('tardis-refdata')))
+    def setup(cls, atomic_data_fname, tardis_ref_path):
         cls.reference_file_path = os.path.join(
             tardis_ref_path, 'plasma_reference', 'plasma_nlte_reference.h5')
 
