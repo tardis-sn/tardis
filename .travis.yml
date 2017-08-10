@@ -72,6 +72,8 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $HOME/tardis-refdata; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/2/head:plasma-ref2; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout plasma-ref2; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="plasma_reference/" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
