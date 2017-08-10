@@ -55,7 +55,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
             phis[start_id - i:end_id - i - 1] = current_phis
 
         broadcast_ionization_energy = (
-            ionization_data.ionization_energy.ix[
+            ionization_data.loc[
                 partition_function.index].dropna())
         phi_index = broadcast_ionization_energy.index
         broadcast_ionization_energy = broadcast_ionization_energy.values
@@ -133,7 +133,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         if self.chi_0_species == (20, 2):
             self.chi_0 = 1.9020591570241798e-11
         else:
-            self.chi_0 = ionization_data.ionization_energy.ix[self.chi_0_species]
+            self.chi_0 = ionization_data.loc[self.chi_0_species]
 
     def calculate(self, w, ionization_data, beta_rad, t_electrons, t_rad,
         beta_electron):
@@ -147,16 +147,16 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
             radiation_field_correction = -np.ones((len(ionization_data), len(
                 beta_rad)))
             less_than_chi_0 = (
-                ionization_data.ionization_energy < self.chi_0).values
+                ionization_data < self.chi_0).values
             factor_a = (t_electrons / (departure_coefficient * w * t_rad))
             radiation_field_correction[~less_than_chi_0] = factor_a * \
-                np.exp(np.outer(ionization_data.ionization_energy.values[
+                np.exp(np.outer(ionization_data.values[
                 ~less_than_chi_0], beta_rad - beta_electron))
             radiation_field_correction[less_than_chi_0] = 1 - np.exp(np.outer(
-                ionization_data.ionization_energy.values[less_than_chi_0],
+                ionization_data.values[less_than_chi_0],
                 beta_rad) - beta_rad * self.chi_0)
             radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
-                np.outer(ionization_data.ionization_energy.values[
+                np.outer(ionization_data.values[
                 less_than_chi_0],beta_rad) - self.chi_0 * beta_electron)
         else:
             radiation_field_correction = np.ones((len(ionization_data),
