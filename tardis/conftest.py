@@ -66,8 +66,8 @@ except NameError:   # Needed to support Astropy <= 1.0.0
 
 def pytest_addoption(parser):
     _pytest_add_option(parser)
-    parser.addoption("--atomic-dataset", dest='atomic-dataset', default=None,
-                     help="filename for atomic dataset")
+    parser.addoption("--tardis-refdata", dest='tardis-refdata', default=None,
+                     help="Path to Tardis Reference Folder")
     parser.addoption("--integration-tests",
                      dest="integration-tests", default=None,
                      help="path to configuration file for integration tests")
@@ -78,19 +78,31 @@ def pytest_addoption(parser):
                      action="store_true", default=False,
                      help="Run integration tests with less packets.")
 
-
 # -------------------------------------------------------------------------
 # project specific fixtures
 # -------------------------------------------------------------------------
 
 
 @pytest.fixture(scope="session")
-def atomic_data_fname():
-    atomic_data_fname = pytest.config.getvalue("atomic-dataset")
-    if atomic_data_fname is None:
-        pytest.skip('--atomic-dataset was not specified')
+def tardis_ref_path():
+    tardis_ref_path = pytest.config.getvalue("tardis-refdata")
+    if tardis_ref_path is None:
+        pytest.skip('--tardis-refdata was not specified')
     else:
-        return os.path.expandvars(os.path.expanduser(atomic_data_fname))
+        return os.path.expandvars(os.path.expanduser(tardis_ref_path))
+
+
+@pytest.fixture(scope="session")
+def atomic_data_fname(tardis_ref_path):
+    atomic_data_fname = os.path.join(
+        tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
+
+    assert os.path.exists(atomic_data_fname), ("{0} atomic datafiles"
+                                               " does not seem to "
+                                               "exist".format(
+                                                   atomic_data_fname))
+    return atomic_data_fname
+
 
 @pytest.fixture(scope="session")
 def atomic_dataset(atomic_data_fname):
