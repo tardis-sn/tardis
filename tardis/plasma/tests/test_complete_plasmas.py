@@ -11,22 +11,22 @@ from tardis.simulation import Simulation
 class BasePlasmaTest(object):
     #Class defining all common tests for different setups of Plasma
     #This can then be inherited for different Plasma setup
-    @classmethod
+
     @pytest.fixture(scope="class", autouse=True)
-    def setup(cls, atomic_data_fname, tardis_ref_path, reference_file_path, config_path):
-        cls.config = Configuration.from_yaml(config_path)
-        cls.config['atom_data'] = atomic_data_fname
-        cls.sim = Simulation.from_config(cls.config)
+    def plasma(self, atomic_data_fname, tardis_ref_path, reference_file_path, config_path):
+        self.config = Configuration.from_yaml(config_path)
+        self.config['atom_data'] = atomic_data_fname
+        self.sim = Simulation.from_config(self.config)
 
         if pytest.config.getvalue("--generate-reference"):
             if os.path.exists(reference_file_path):
                 pytest.skip(
                     'Reference data {0} does exist and tests will not '
                     'proceed generating new data'.format(reference_file_path))
-            cls.sim.plasma.to_hdf(reference_file_path)
+            self.sim.plasma.to_hdf(reference_file_path)
             pytest.skip("Reference data saved at {0}".format(
                 reference_file_path))
-        cls.plasma = cls.sim.plasma
+        return self.sim.plasma
 
     @pytest.fixture(scope="class")
     def reference_file_path(self):
@@ -54,14 +54,14 @@ class BasePlasmaTest(object):
         j_blues_properties
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
+    def test_plasma_properties(self, reference_file_path, plasma, attr):
+        actual = getattr(plasma, attr)
         expected = pd.read_hdf(reference_file_path,
                                os.path.join('plasma', attr))
         assert_almost_equal(actual, expected.values)
 
-    def test_levels(self, reference_file_path):
-        actual = pd.DataFrame(self.plasma.levels)
+    def test_levels(self, reference_file_path, plasma):
+        actual = pd.DataFrame(plasma.levels)
         expected = pd.read_hdf(reference_file_path,
                                os.path.join('plasma', 'levels'))
         pdt.assert_almost_equal(actual, expected)
@@ -69,16 +69,16 @@ class BasePlasmaTest(object):
     scalars_properties = ['time_explosion', 'link_t_rad_t_electron']
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalars_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
+    def test_scalars_properties(self, reference_file_path, plasma, attr):
+        actual = getattr(plasma, attr)
         if hasattr(actual, 'cgs'):
             actual = actual.cgs.value
         expected = pd.read_hdf(reference_file_path, os.path.join(
             'plasma', 'scalars'))[attr]
         assert_almost_equal(actual, expected)
 
-    def test_helium_treatment(self, reference_file_path):
-        actual = self.plasma.helium_treatment
+    def test_helium_treatment(self, reference_file_path, plasma):
+        actual = plasma.helium_treatment
         expected = pd.read_hdf(reference_file_path, os.path.join(
             'plasma', 'scalars'))['helium_treatment']
         assert actual == expected
@@ -115,8 +115,8 @@ class TestNLTEPlasma(BasePlasmaTest):
         nlte_ion_population_properties + nlte_radiative_properties
 
     @pytest.mark.parametrize("attr", nlte_properties)
-    def test_nlte_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
+    def test_nlte_properties(self, reference_file_path, plasma, attr):
+        actual = getattr(plasma, attr)
         expected = pd.read_hdf(reference_file_path,
                                os.path.join('plasma', attr))
         assert_almost_equal(actual, expected.values)
