@@ -36,34 +36,25 @@ class BasePlasmaTest(object):
     def config_path(self):
         pass
 
-    #GENERAL PROPERTIES
     general_properties = ['beta_rad', 'g_electron', 'selected_atoms',
                           'number_density', 't_electrons', 'w', 't_rad']
-
-    @pytest.mark.parametrize("attr", general_properties)
-    def test_general_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #PARTITION PROPERTIES
     partiton_properties = ['level_boltzmann_factor', 'partition_function']
-
-    @pytest.mark.parametrize("attr", partiton_properties)
-    def test_partition_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #ATOMIC PROPERTIES
     atomic_properties = ['excitation_energy', 'lines', 'lines_lower_level_index',
                          'lines_upper_level_index', 'atomic_mass', 'ionization_data',
                          'nu', 'wavelength_cm', 'f_lu', 'metastability']
+    ion_population_properties = [
+        'phi', 'ion_number_density', 'electron_densities']
+    level_population_properties = ['level_number_density']
+    radiative_properties = ['stimulated_emission_factor',
+                            'tau_sobolevs', 'beta_sobolev', 'transition_probabilities']
+    j_blues_properties = ['j_blues']
 
-    @pytest.mark.parametrize("attr", atomic_properties)
-    def test_atomic_properties(self, reference_file_path, attr):
+    combined_properties = general_properties + partiton_properties + atomic_properties + ion_population_properties + \
+        level_population_properties + radiative_properties + \
+        j_blues_properties
+
+    @pytest.mark.parametrize("attr", combined_properties)
+    def test_plasma_properties(self, reference_file_path, attr):
         actual = getattr(self.plasma, attr)
         expected = pd.read_hdf(reference_file_path,
                                os.path.join('plasma', attr))
@@ -75,59 +66,15 @@ class BasePlasmaTest(object):
                                os.path.join('plasma', 'levels'))
         pdt.assert_almost_equal(actual, expected)
 
-    #ION POPULATION PROPERTIES
-    ion_population_properties = [
-        'phi', 'ion_number_density', 'electron_densities']
-
-    @pytest.mark.parametrize("attr", ion_population_properties)
-    def test_ion_population_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #LEVEL POPULATION PROPERTIES
-    level_population_properties = ['level_number_density']
-
-    @pytest.mark.parametrize("attr", level_population_properties)
-    def test_level_population_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #RADIATIVE PROPERTIES
-    radiative_properties = ['stimulated_emission_factor',
-                            'tau_sobolevs', 'beta_sobolev', 'transition_probabilities']
-
-    @pytest.mark.parametrize("attr", radiative_properties)
-    def test_radiative_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #J_BLUES PROPERTIES
-    j_blues_properties = ['j_blues']
-
-    @pytest.mark.parametrize("attr", j_blues_properties)
-    def test_j_blues_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #SCALARS PROPERTIES
     scalars_properties = ['time_explosion', 'link_t_rad_t_electron']
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalar_properties(self, reference_file_path, attr):
+    def test_scalars_properties(self, reference_file_path, attr):
         actual = getattr(self.plasma, attr)
         if hasattr(actual, 'cgs'):
             actual = actual.cgs.value
-        path = os.path.join('plasma', 'scalars')
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', 'scalars'))[attr]
+        expected = pd.read_hdf(reference_file_path, os.path.join(
+            'plasma', 'scalars'))[attr]
         assert_almost_equal(actual, expected)
 
     def test_helium_treatment(self, reference_file_path):
@@ -159,41 +106,16 @@ class TestNLTEPlasma(BasePlasmaTest):
         return os.path.join('tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
 
     #Additional Tests for NLTE Plasma
-    #GENERAL PROPERTIES
+
     nlte_general_properties = ['beta_electron']
-
-    @pytest.mark.parametrize("attr", nlte_general_properties)
-    def test_nlte_general_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #ATOMIC PROPERTIES
     nlte_atomic_properties = ['zeta_data']
-
-    @pytest.mark.parametrize("attr", nlte_atomic_properties)
-    def test_nlte_atomic_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #ION POPULATION PROPERTIES
     nlte_ion_population_properties = ['delta', 'previous_electron_densities']
-
-    @pytest.mark.parametrize("attr", nlte_ion_population_properties)
-    def test_nlte_ion_population_properties(self, reference_file_path, attr):
-        actual = getattr(self.plasma, attr)
-        expected = pd.read_hdf(reference_file_path,
-                               os.path.join('plasma', attr))
-        assert_almost_equal(actual, expected.values)
-
-    #RADIATIVE PROPERTIES
     nlte_radiative_properties = ['previous_beta_sobolev']
+    nlte_properties = nlte_atomic_properties + nlte_general_properties + \
+        nlte_ion_population_properties + nlte_radiative_properties
 
-    @pytest.mark.parametrize("attr", nlte_radiative_properties)
-    def test_nlte_radiative_properties(self, reference_file_path, attr):
+    @pytest.mark.parametrize("attr", nlte_properties)
+    def test_nlte_properties(self, reference_file_path, attr):
         actual = getattr(self.plasma, attr)
         expected = pd.read_hdf(reference_file_path,
                                os.path.join('plasma', attr))
