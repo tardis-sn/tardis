@@ -150,8 +150,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2,
                 len(t_electrons)))
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
-            if atomic_data.has_collision_data:
                 j_blues * beta_sobolevs
+            if atomic_data.has_collision_data:
                 if previous_electron_densities is None:
                     collision_matrix = r_ul_matrix.copy()
                     collision_matrix.fill(0.0)
