@@ -10,4 +10,4 @@ def test_tau_sobolev(tau_sobolev):
 
 def test_beta_sobolev(beta_sobolev):
     assert beta_sobolev.shape == (253,20)
-    assert np.allclose(beta_sobolev[10][10], 1.671404577575537e-07)
+    assert np.allclose(beta_sobolev.iloc[10][10], 1.671404577575537e-07)
