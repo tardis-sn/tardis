@@ -14,11 +14,14 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
     helium_lte_properties, detailed_j_blues_properties, detailed_j_blues_inputs)
 from tardis.plasma.exceptions import PlasmaConfigError
-from tardis.plasma.properties import (LevelBoltzmannFactorNLTE, JBluesBlackBody,
-                                      JBluesDiluteBlackBody, JBluesDetailed,
-                                      RadiationFieldCorrection,
-                                      StimulatedEmissionFactor,
-                                      HeliumNumericalNLTE)
+from tardis.plasma.properties import (
+        LevelBoltzmannFactorNLTE,
+        JBluesBlackBody,
+        JBluesDiluteBlackBody,
+        JBluesDetailed,
+        RadiationFieldCorrection,
+        StimulatedEmissionFactor,
+        HeliumNumericalNLTE)
 
 logger = logging.getLogger(__name__)
 
@@ -112,18 +115,9 @@ def assemble_plasma(config, model, atom_data=None):
     if nlte_species:
         plasma_modules += nlte_properties
         nlte_conf = config.plasma.nlte
-        if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
-            plasma_modules.append(LevelBoltzmannFactorNLTE)
-            property_kwargs[LevelBoltzmannFactorNLTE] = {
-                'classical_nebular': True}
-        elif nlte_conf.coronal_approximation and not nlte_conf.classical_nebular:
-            plasma_modules.append(LevelBoltzmannFactorNLTE)
-            property_kwargs[LevelBoltzmannFactorNLTE] = {
-                'coronal_approximation': True}
-        elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
-            raise PlasmaConfigError('Both coronal approximation and '
-                                    'classical nebular specified in the '
-                                    'config.')
+        plasma_modules.append(
+                LevelBoltzmannFactorNLTE.from_config(nlte_conf)
+                )
         property_kwargs[StimulatedEmissionFactor] = dict(
             nlte_species=nlte_species)
     else:
