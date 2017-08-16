@@ -113,9 +113,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
 
         self._update_inputs()
 
-    def _main_nlte_calculation(self, atomic_data, nlte_data,
-        t_electrons, j_blues, beta_sobolevs, general_level_boltzmann_factor,
-        previous_electron_densities):
+    def _main_nlte_calculation(
+            self, atomic_data, nlte_data, t_electrons,
+            j_blues, beta_sobolevs, general_level_boltzmann_factor,
+            previous_electron_densities):
         """
         The core of the NLTE calculation, used with all possible config.
         options.
@@ -126,38 +127,41 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             lnl = nlte_data.lines_level_number_lower[species]
             lnu = nlte_data.lines_level_number_upper[species]
             lines_index, = nlte_data.lines_idx[species]
+
             try:
-                j_blues = j_blues.iloc[lines_index]
+                j_blues_filtered = j_blues.iloc[lines_index]
             except AttributeError:
-                pass
+                j_blues_filtered = j_blues
             try:
-                beta_sobolevs = beta_sobolevs.iloc[lines_index]
+                beta_sobolevs_filtered = beta_sobolevs.iloc[lines_index]
             except AttributeError:
-                pass
+                beta_sobolevs_filtered = beta_sobolevs
             A_uls = nlte_data.A_uls[species]
             B_uls = nlte_data.B_uls[species]
             B_lus = nlte_data.B_lus[species]
             r_lu_index = lnu * number_of_levels + lnl
             r_ul_index = lnl * number_of_levels + lnu
-            r_ul_matrix = np.zeros((number_of_levels, number_of_levels,
-                len(t_electrons)), dtype=np.float64)
-            r_ul_matrix_reshaped = r_ul_matrix.reshape((number_of_levels**2,
-                len(t_electrons)))
+            r_ul_matrix = np.zeros(
+                    (number_of_levels, number_of_levels, len(t_electrons)),
+                    dtype=np.float64)
+            r_ul_matrix_reshaped = r_ul_matrix.reshape(
+                    (number_of_levels**2, len(t_electrons)))
             r_ul_matrix_reshaped[r_ul_index] = A_uls[np.newaxis].T + \
-                B_uls[np.newaxis].T * j_blues
-            r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs
+                B_uls[np.newaxis].T * j_blues_filtered
+            r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs_filtered
             r_lu_matrix = np.zeros_like(r_ul_matrix)
             r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2,
                 len(t_electrons)))
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
-                j_blues * beta_sobolevs
+                j_blues_filtered * beta_sobolevs_filtered
             if atomic_data.has_collision_data:
                 if previous_electron_densities is None:
                     collision_matrix = r_ul_matrix.copy()
                     collision_matrix.fill(0.0)
                 else:
-                    collision_matrix = nlte_data.get_collision_matrix(species,
-                        t_electrons) * previous_electron_densities.values
+                    collision_matrix = nlte_data.get_collision_matrix(
+                            species, t_electrons
+                            ) * previous_electron_densities.values
             else:
                 collision_matrix = r_ul_matrix.copy()
                 collision_matrix.fill(0.0)
