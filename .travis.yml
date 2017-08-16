@@ -22,14 +22,16 @@ env:
         - TEST_MODE='normal'
         - TARDIS_REF_DATA_URL='https://github.com/tardis-sn/tardis-refdata.git'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
+        - SAVE_COVERAGE=false
 
 matrix:
     include:
         - python: 2.7
           env:
             - COMPILER=gcc
-            - SETUP_CMD='test --args="--tardis-refdata=$HOME/tardis-refdata/"'
+            - SETUP_CMD='test --coverage --args="--tardis-refdata=$HOME/tardis-refdata/"'
             - TEST_MODE='spectrum'
+            - SAVE_COVERAGE=true
 
         - python: 2.7
           env:
@@ -47,7 +49,7 @@ matrix:
 
 
         - python: 2.7
-          env: SETUP_CMD='test --coverage'
+          env: SETUP_CMD='test'
 
 addons:
   apt:
@@ -83,7 +85,7 @@ script:
     - CC=$COMPILER python setup.py $SETUP_CMD
 
 after_success:
-    - if [[ $SETUP_CMD == 'test --coverage' ]]; then coveralls; fi
+    - if [[ "$SAVE_COVERAGE" = true ]]; then coveralls; fi
 
 after_failure:
     - cat /home/travis/.pip/pip.log
