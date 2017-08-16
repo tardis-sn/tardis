@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+from numpy.linalg.linalg import LinAlgError
 import pandas as pd
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
@@ -172,8 +173,14 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
             for i in xrange(len(t_electrons)):
-                level_boltzmann_factor = \
-                    np.linalg.solve(rates_matrix[:, :, i], x)
+                try:
+                    level_boltzmann_factor = np.linalg.solve(
+                            rates_matrix[:, :, i], x)
+                except LinAlgError:
+                    raise ValueError(
+                            'SingularMatrixError during solving of '
+                            'the rate matrix. Does the atomic data contain '
+                            'collision data?')
                 general_level_boltzmann_factor[i].ix[species] = \
                     level_boltzmann_factor
         return general_level_boltzmann_factor
