@@ -68,11 +68,11 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         stimulated_emission_factor[meta_stable_upper &
                                    (stimulated_emission_factor < 0)] = 0.0
         if self.nlte_species:
-            nlte_lines_mask = \
-                np.zeros(stimulated_emission_factor.shape[0]).astype(bool)
-            for species in self.nlte_species:
-                nlte_lines_mask |= (lines.atomic_number == species[0]) & \
-                                   (lines.ion_number == species[1])
+            nlte_lines_mask = lines.apply(
+                    lambda row:
+                    (row.atomic_number, row.ion_number) in self.nlte_species,
+                    axis=1
+            ).values
             stimulated_emission_factor[(stimulated_emission_factor < 0) &
                 nlte_lines_mask[np.newaxis].T] = 0.0
         return stimulated_emission_factor
