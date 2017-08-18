@@ -43,7 +43,7 @@ setupIII = {
 class TestPlasma(object):
 
     @pytest.fixture(scope="class")
-    def plasma(self, chianti_he_db_fpath, tardis_ref_path, config):
+    def plasma(self, chianti_he_db_fpath, config):
         config['atom_data'] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
         if pytest.config.getvalue("--generate-reference"):
