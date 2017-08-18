@@ -8,65 +8,107 @@ from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 
 
-class BasePlasmaTest(object):
-    #Class defining all common tests for different setups of Plasma
-    #This can then be inherited for different Plasma setup
+setupI = {
+    'ionization': 'lte',
+    'excitation': 'lte',
+    'radiative_rates_type': 'dilute-blackbody',
+    'line_interaction_type': 'scatter',
+    'reference_file_path': 'plasma_setupI_reference.h5'
+}
+
+setupII = {
+    'ionization': 'nebular',
+    'excitation': 'dilute-lte',
+    'radiative_rates_type': 'blackbody',
+    'line_interaction_type': 'macroatom',
+    'nlte': {'species': ['He I'], 'classical_nebular': True},
+    'initial_t_inner': '10000 K',
+    'initial_t_rad': '10000 K',
+    'disable_electron_scattering': False,
+    'w_epsilon': '1.0e-10',
+    'reference_file_path': 'plasma_setupII_reference.h5'
+}
+
+setupIII = {
+    'ionization': 'nebular',
+    'excitation': 'dilute-lte',
+    'radiative_rates_type': 'detailed',
+    'line_interaction_type': 'downbranch',
+    'disable_electron_scattering': True,
+    'nlte': {'species': ['He I'], 'coronal_approximation': True},
+    'reference_file_path': 'plasma_setupIII_reference.h5'
+}
+
+
+class TestPlasma(object):
 
     @pytest.fixture(scope="class")
-    def plasma(self, chianti_he_db_fpath, tardis_ref_path, data):
-        config = data['config']
+    def plasma(self, chianti_he_db_fpath, tardis_ref_path, config):
         config['atom_data'] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
-
         if pytest.config.getvalue("--generate-reference"):
-            if os.path.exists(data['reference_file_path']):
+            if os.path.exists(config.reference_file_path):
                 pytest.skip(
                     'Reference data {0} does exist and tests will not '
-                    'proceed generating new data'.format(data['reference_file_path']))
-            sim.plasma.to_hdf(data['reference_file_path'])
+                    'proceed generating new data'.format(config.reference_file_path))
+            sim.plasma.to_hdf(config.reference_file_path)
             pytest.skip("Reference data saved at {0}".format(
-                data['reference_file_path']))
+                config.reference_file_path))
         return sim.plasma
 
     @pytest.fixture(scope="class")
     def chianti_he_db_fpath(self):
         return os.path.abspath(os.path.join('tardis', 'tests', 'data', 'chianti_he_db.h5'))
 
-    @pytest.fixture(scope="class")
-    def data(self):
-        pass
+    @pytest.fixture(scope="class", params=[setupI, setupII, setupIII])
+    def config(self, request, tardis_ref_path):
+        config_path = os.path.join(
+            'tardis', 'plasma', 'tests', 'data', 'plasma_base_test_config.yml')
+        config = Configuration.from_yaml(config_path)
+        for prop, value in request.param.items():
+            if prop == 'reference_file_path':
+                setattr(config, prop, os.path.join(
+                    tardis_ref_path, 'plasma_reference', value))
+            elif prop == 'nlte':
+                for nlte_prop, nlte_value in request.param[prop].items():
+                    setattr(config.plasma.nlte, nlte_prop, nlte_value)
+            else:
+                setattr(config.plasma, prop, value)
+        return config
 
     @pytest.yield_fixture()
-    def reference(self, data):
-        with pd.HDFStore(data['reference_file_path']) as hdf_file:
+    def reference(self, config):
+        with pd.HDFStore(config.reference_file_path) as hdf_file:
             yield hdf_file
 
     general_properties = ['beta_rad', 'g_electron', 'selected_atoms',
-                          'number_density', 't_electrons', 'w', 't_rad']
+                          'number_density', 't_electrons', 'w', 't_rad', 'beta_electron']
     partiton_properties = ['level_boltzmann_factor', 'partition_function']
     atomic_properties = ['excitation_energy', 'lines', 'lines_lower_level_index',
                          'lines_upper_level_index', 'atomic_mass', 'ionization_data',
                          'nu', 'wavelength_cm', 'f_lu', 'metastability']
-    ion_population_properties = [
-        'phi', 'ion_number_density', 'electron_densities']
+    ion_population_properties = ['delta', 'previous_electron_densities',
+                                 'phi', 'ion_number_density', 'electron_densities']
     level_population_properties = ['level_number_density']
-    radiative_properties = ['stimulated_emission_factor',
+    radiative_properties = ['stimulated_emission_factor', 'previous_beta_sobolev',
                             'tau_sobolevs', 'beta_sobolev', 'transition_probabilities']
-    j_blues_properties = ['j_blues']
+    j_blues_properties = ['j_blues', 'j_blues_norm_factor', 'j_blue_estimator']
+    input_properties = ['volume', 'r_inner']
 
-    combined_properties = general_properties + partiton_properties + atomic_properties + ion_population_properties + \
-        level_population_properties + radiative_properties + \
-        j_blues_properties
+    combined_properties = general_properties + partiton_properties + atomic_properties + \
+        ion_population_properties + level_population_properties + radiative_properties + \
+        j_blues_properties + input_properties
 
     @pytest.mark.parametrize("attr", combined_properties)
     def test_plasma_properties(self, plasma, reference, attr):
-        actual = getattr(plasma, attr)
-        if actual.ndim == 1:
-            actual = pd.Series(actual)
-        else:
-            actual = pd.DataFrame(actual)
-        expected = reference.select(os.path.join('plasma', attr))
-        pdt.assert_almost_equal(actual, expected)
+        if hasattr(plasma, attr):
+            actual = getattr(plasma, attr)
+            if actual.ndim == 1:
+                actual = pd.Series(actual)
+            else:
+                actual = pd.DataFrame(actual)
+            expected = reference.select(os.path.join('plasma', attr))
+            pdt.assert_almost_equal(actual, expected)
 
     def test_levels(self, plasma, reference):
         actual = pd.DataFrame(plasma.levels)
@@ -90,98 +132,8 @@ class BasePlasmaTest(object):
             'plasma', 'scalars'))['helium_treatment']
         assert actual == expected
 
-
-class TestLTEPlasma(BasePlasmaTest):
-
-    @pytest.fixture(scope="class")
-    def data(self, tardis_ref_path):
-        plasma_data = {}
-        plasma_data['reference_file_path'] = os.path.join(
-            tardis_ref_path, 'plasma_reference', 'plasma_lte_reference.h5')
-        config_path = os.path.join(
-            'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_lte.yml')
-        plasma_data['config'] = Configuration.from_yaml(config_path)
-        return plasma_data
-
-
-class TestNLTEPlasma(BasePlasmaTest):
-
-    @pytest.fixture(scope="class")
-    def data(self, tardis_ref_path):
-        plasma_data = {}
-        plasma_data['reference_file_path'] = os.path.join(
-            tardis_ref_path, 'plasma_reference', 'plasma_nlte_reference.h5')
-        config_path = os.path.join(
-            'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
-        plasma_data['config'] = Configuration.from_yaml(config_path)
-        return plasma_data
-
-    #Additional Tests for NLTE Plasma
-
-    nlte_general_properties = ['beta_electron']
-    nlte_ion_population_properties = ['delta', 'previous_electron_densities']
-    nlte_radiative_properties = ['previous_beta_sobolev']
-    nlte_properties = nlte_general_properties + \
-        nlte_ion_population_properties + nlte_radiative_properties
-
-    @pytest.mark.parametrize("attr", nlte_properties)
-    def test_nlte_properties(self, plasma, reference, attr):
-        actual = getattr(plasma, attr)
-        if actual.ndim == 1:
-            actual = pd.Series(actual)
-        else:
-            actual = pd.DataFrame(actual)
-        expected = reference.select(os.path.join('plasma', attr))
-        pdt.assert_almost_equal(actual, expected)
-
     def test_zeta_data(self, plasma, reference):
-        actual = getattr(plasma, 'zeta_data')
-        expected = reference.select(os.path.join('plasma', 'zeta_data'))
-        assert_almost_equal(actual, expected.values)
-
-
-class TestPlasmaSetupIII(TestNLTEPlasma):
-
-    @pytest.fixture(scope="class")
-    def data(self, tardis_ref_path):
-        plasma_data = {}
-        plasma_data['reference_file_path'] = os.path.join(
-            tardis_ref_path, 'plasma_reference', 'plasma_setup_III_reference.h5')
-        plasma_data['config_path'] = os.path.join(
-            'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
-        config = Configuration.from_yaml(plasma_data['config_path'])
-        config.plasma.radiative_rates_type = 'detailed'
-        config.plasma.nlte.classical_nebular = True
-        #config.plasma.helium_treatment = 'recomb-nlte'
-        plasma_data['config'] = config
-        return plasma_data
-
-    j_blues_detailed_properties = ['j_blues_norm_factor', 'j_blue_estimator']
-    additional_properties = j_blues_detailed_properties + ['volume', 'r_inner']
-
-    @pytest.mark.parametrize("attr", additional_properties)
-    def test_j_blues_detailed_properties(self, plasma, reference,  attr):
-        actual = getattr(plasma, attr)
-        if actual.ndim == 1:
-            actual = pd.Series(actual)
-        else:
-            actual = pd.DataFrame(actual)
-        expected = reference.select(os.path.join('plasma', attr))
-        pdt.assert_almost_equal(actual, expected)
-
-
-class TestPlasmaSetupIV(TestNLTEPlasma):
-
-    @pytest.fixture(scope="class")
-    def data(self, tardis_ref_path):
-        plasma_data = {}
-        plasma_data['reference_file_path'] = os.path.join(
-            tardis_ref_path, 'plasma_reference', 'plasma_setup_IV_reference.h5')
-        plasma_data['config_path'] = os.path.join(
-            'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
-        config = Configuration.from_yaml(plasma_data['config_path'])
-        config.plasma.radiative_rates_type = 'blackbody'
-        config.plasma.nlte.coronal_approximation = True
-        #config.plasma.helium_treatment = 'numerical-nlte'
-        plasma_data['config'] = config
-        return plasma_data
+        if hasattr(plasma, 'zeta_data'):
+            actual = plasma.zeta_data
+            expected = reference.select(os.path.join('plasma', 'zeta_data'))
+            assert_almost_equal(actual, expected.values)
