@@ -194,7 +194,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         descendants_ob.sort(key=lambda val: sort_order.index(val) )
 
-        logger.debug('Updating modules in the following order:'.format(
+        logger.debug('Updating modules in the following order: {}'.format(
             '->'.join(descendants_ob)))
 
         return descendants_ob
