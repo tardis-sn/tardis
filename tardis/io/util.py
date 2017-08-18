@@ -282,6 +282,8 @@ class PlasmaWriterMixin(HDFWriterMixin):
         data['atom_data_uuid'] = self.atomic_data.uuid1
         if 'atomic_data' in data:
             data.pop('atomic_data')
+        if 'nlte_data' in data:
+            data.pop('nlte_data')
         return data
 
     def to_hdf(self, file_path, path='', name=None, collection=None):
