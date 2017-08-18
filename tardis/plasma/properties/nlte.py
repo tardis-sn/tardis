@@ -34,12 +34,11 @@ class PreviousBetaSobolev(PreviousIterationProperty):
     outputs = ('previous_beta_sobolev',)
 
     def set_initial_value(self, kwargs):
-        try:
-            lines = len(kwargs['atomic_data'].lines)
-        except:
-            lines = len(kwargs['atomic_data']._lines)
-        initial_value = np.ones((lines,
-            len(kwargs['abundance'].columns)))
+        initial_value = pd.DataFrame(
+                1.,
+                index=kwargs['atomic_data'].lines.index,
+                columns=kwargs['abundance'].columns,
+                )
         self._set_initial_value(initial_value)
 
 class HeliumNLTE(ProcessingPlasmaProperty):
