@@ -134,3 +134,50 @@ class TestNLTEPlasma(BasePlasmaTest):
         actual = getattr(plasma, 'zeta_data')
         expected = reference.select(os.path.join('plasma', 'zeta_data'))
         assert_almost_equal(actual, expected.values)
+
+
+class TestPlasmaSetupIII(BasePlasmaTest):
+
+    @pytest.fixture(scope="class")
+    def data(self, tardis_ref_path):
+        plasma_data = {}
+        plasma_data['reference_file_path'] = os.path.join(
+            tardis_ref_path, 'plasma_reference', 'plasma_setup_III_reference.h5')
+        plasma_data['config_path'] = os.path.join(
+            'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
+        config = Configuration.from_yaml(plasma_data['config_path'])
+        config.plasma.radiative_rates_type = 'detailed'
+        config.plasma.nlte.classical_nebular = True
+        #config.plasma.helium_treatment = 'recomb-nlte'
+        plasma_data['config'] = config
+        return plasma_data
+
+    j_blues_detailed_properties = ['j_blues_norm_factor', 'j_blue_estimator']
+    additional_properties = j_blues_detailed_properties + ['volume', 'r_inner']
+
+    @pytest.mark.parametrize("attr", additional_properties)
+    def test_j_blues_detailed_properties(self, plasma, reference,  attr):
+        actual = getattr(plasma, attr)
+        if actual.ndim == 1:
+            actual = pd.Series(actual)
+        else:
+            actual = pd.DataFrame(actual)
+        expected = reference.select(os.path.join('plasma', attr))
+        pdt.assert_almost_equal(actual, expected)
+
+
+class TestPlasmaSetupIV(BasePlasmaTest):
+
+    @pytest.fixture(scope="class")
+    def data(self, tardis_ref_path):
+        plasma_data = {}
+        plasma_data['reference_file_path'] = os.path.join(
+            tardis_ref_path, 'plasma_reference', 'plasma_setup_IV_reference.h5')
+        plasma_data['config_path'] = os.path.join(
+            'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
+        config = Configuration.from_yaml(plasma_data['config_path'])
+        config.plasma.radiative_rates_type = 'blackbody'
+        #config.plasma.nlte.coronal_approximation = True
+        #config.plasma.helium_treatment = 'numerical-nlte'
+        plasma_data['config'] = config
+        return plasma_data
