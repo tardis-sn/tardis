@@ -13,6 +13,7 @@ __all__ = ['LevelBoltzmannFactorLTE', 'LevelBoltzmannFactorDiluteLTE',
            'LevelBoltzmannFactorNoNLTE', 'LevelBoltzmannFactorNLTE',
            'PartitionFunction']
 
+
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     """
     Attributes
@@ -39,6 +40,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
                                               dtype=np.float64)
         return level_boltzmann_factor
 
+
 class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     """
     Attributes
@@ -56,12 +58,14 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     latex_formula = ('Wg_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
         \\textrm{B}}T_{\\textrm{rad}}}}',)
 
-    def calculate(self, levels, g, excitation_energy, beta_rad, w,
-        metastability):
+    def calculate(
+            self, levels, g, excitation_energy, beta_rad, w,
+            metastability):
         level_boltzmann_factor = LevelBoltzmannFactorLTE.calculate(
             excitation_energy, g, beta_rad, levels)
         level_boltzmann_factor[~metastability] *= w
         return level_boltzmann_factor
+
 
 class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
     """
@@ -76,6 +80,7 @@ class LevelBoltzmannFactorNoNLTE(ProcessingPlasmaProperty):
     @staticmethod
     def calculate(general_level_boltzmann_factor):
         return general_level_boltzmann_factor
+
 
 class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     """
@@ -96,7 +101,9 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
     def from_config(cls, nlte_conf):
         if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
             return LevelBoltzmannFactorNLTEClassic
-        elif nlte_conf.coronal_approximation and not nlte_conf.classical_nebular:
+        elif (
+                nlte_conf.coronal_approximation and
+                not nlte_conf.classical_nebular):
             return LevelBoltzmannFactorNLTECoronal
         elif nlte_conf.coronal_approximation and nlte_conf.classical_nebular:
             raise PlasmaConfigError('Both coronal approximation and '
@@ -151,8 +158,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 B_uls[np.newaxis].T * j_blues_filtered
             r_ul_matrix_reshaped[r_ul_index] *= beta_sobolevs_filtered
             r_lu_matrix = np.zeros_like(r_ul_matrix)
-            r_lu_matrix_reshaped = r_lu_matrix.reshape((number_of_levels**2,
-                len(t_electrons)))
+            r_lu_matrix_reshaped = r_lu_matrix.reshape(
+                    (number_of_levels**2, len(t_electrons)))
             r_lu_matrix_reshaped[r_lu_index] = B_lus[np.newaxis].T * \
                 j_blues_filtered * beta_sobolevs_filtered
             if atomic_data.has_collision_data:
@@ -195,9 +202,6 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         """
         beta_sobolevs = 1.0
 
-        # j_blues = pd.DataFrame(
-        #         j_blues, index=lines.index, columns=
-        #                        range(len(t_electrons)))
         general_level_boltzmann_factor = self._main_nlte_calculation(
                 atomic_data,
                 nlte_data,
@@ -208,9 +212,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 previous_electron_densities)
         return general_level_boltzmann_factor
 
-    def _calculate_coronal_approximation(self, t_electrons, lines, atomic_data,
-        nlte_data, general_level_boltzmann_factor,
-        previous_electron_densities):
+    def _calculate_coronal_approximation(
+            self, t_electrons, lines, atomic_data,
+            nlte_data, general_level_boltzmann_factor,
+            previous_electron_densities):
         """
         Performs NLTE calculations using the coronal approximation.
         All beta sobolev values taken as 1 and j_blues taken as 0.
@@ -223,9 +228,10 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             previous_electron_densities)
         return general_level_boltzmann_factor
 
-    def _calculate_general(self, t_electrons, lines, atomic_data, nlte_data,
-        general_level_boltzmann_factor, j_blues,
-        previous_beta_sobolev, previous_electron_densities):
+    def _calculate_general(
+            self, t_electrons, lines, atomic_data, nlte_data,
+            general_level_boltzmann_factor, j_blues,
+            previous_beta_sobolev, previous_electron_densities):
         """
         Full NLTE calculation without approximations.
         """
@@ -240,14 +246,18 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
             previous_electron_densities)
         return general_level_boltzmann_factor
 
+
 class LevelBoltzmannFactorNLTECoronal(LevelBoltzmannFactorNLTE):
     calculate = LevelBoltzmannFactorNLTE._calculate_coronal_approximation
+
 
 class LevelBoltzmannFactorNLTEClassic(LevelBoltzmannFactorNLTE):
     calculate = LevelBoltzmannFactorNLTE._calculate_classical_nebular
 
+
 class LevelBoltzmannFactorNLTEGeneral(LevelBoltzmannFactorNLTE):
     calculate = LevelBoltzmannFactorNLTE._calculate_general
+
 
 class PartitionFunction(ProcessingPlasmaProperty):
     """
