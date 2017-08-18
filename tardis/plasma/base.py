@@ -1,4 +1,5 @@
 import os
+import re
 import logging
 import tempfile
 import fileinput
@@ -145,9 +146,9 @@ class BasePlasma(PlasmaWriterMixin):
 
     def store_previous_properties(self):
         for property in self.previous_iteration_properties:
-            base_property = property.outputs[0][9:]
-            self.outputs_dict[property.outputs[0]].set_value(
-                self.get_value(base_property))
+            p = property.outputs[0]
+            self.outputs_dict[p].set_value(
+                self.get_value(re.sub(r'^previous_', '', p)))
 
     def update(self, **kwargs):
         for key in kwargs:
@@ -193,7 +194,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         descendants_ob.sort(key=lambda val: sort_order.index(val) )
 
-        logger.debug('Updating modules in the following order:'.format(
+        logger.debug('Updating modules in the following order: {}'.format(
             '->'.join(descendants_ob)))
 
         return descendants_ob
