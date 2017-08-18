@@ -97,8 +97,8 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 'This attribute is not defined on the parent class.'
                 'Please use one of the subclasses.')
 
-    @classmethod
-    def from_config(cls, nlte_conf):
+    @staticmethod
+    def from_config(nlte_conf):
         if nlte_conf.classical_nebular and not nlte_conf.coronal_approximation:
             return LevelBoltzmannFactorNLTEClassic
         elif (
