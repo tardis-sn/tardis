@@ -183,11 +183,14 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 try:
                     level_boltzmann_factor = np.linalg.solve(
                             rates_matrix[:, :, i], x)
-                except LinAlgError:
-                    raise ValueError(
-                            'SingularMatrixError during solving of '
-                            'the rate matrix. Does the atomic data contain '
-                            'collision data?')
+                except LinAlgError as e:
+                    if e.message == 'Singular matrix':
+                        raise ValueError(
+                                'SingularMatrixError during solving of the '
+                                'rate matrix. Does the atomic data contain '
+                                'collision data?')
+                    else:
+                        raise e
                 general_level_boltzmann_factor[i].ix[species] = \
                     level_boltzmann_factor
         return general_level_boltzmann_factor
