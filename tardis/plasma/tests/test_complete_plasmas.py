@@ -13,9 +13,9 @@ class BasePlasmaTest(object):
     #This can then be inherited for different Plasma setup
 
     @pytest.fixture(scope="class")
-    def plasma(self, atomic_data_fname, tardis_ref_path, data):
+    def plasma(self, chianti_he_db_fpath, tardis_ref_path, data):
         config = data['config']
-        config['atom_data'] = atomic_data_fname
+        config['atom_data'] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
 
         if pytest.config.getvalue("--generate-reference"):
@@ -27,6 +27,10 @@ class BasePlasmaTest(object):
             pytest.skip("Reference data saved at {0}".format(
                 data['reference_file_path']))
         return sim.plasma
+
+    @pytest.fixture(scope="class")
+    def chianti_he_db_fpath(self):
+        return os.path.abspath(os.path.join('tardis', 'tests', 'data', 'chianti_he_db.h5'))
 
     @pytest.fixture(scope="class")
     def data(self):
@@ -136,7 +140,7 @@ class TestNLTEPlasma(BasePlasmaTest):
         assert_almost_equal(actual, expected.values)
 
 
-class TestPlasmaSetupIII(BasePlasmaTest):
+class TestPlasmaSetupIII(TestNLTEPlasma):
 
     @pytest.fixture(scope="class")
     def data(self, tardis_ref_path):
@@ -166,7 +170,7 @@ class TestPlasmaSetupIII(BasePlasmaTest):
         pdt.assert_almost_equal(actual, expected)
 
 
-class TestPlasmaSetupIV(BasePlasmaTest):
+class TestPlasmaSetupIV(TestNLTEPlasma):
 
     @pytest.fixture(scope="class")
     def data(self, tardis_ref_path):
@@ -177,7 +181,7 @@ class TestPlasmaSetupIV(BasePlasmaTest):
             'tardis', 'plasma', 'tests', 'data', 'plasma_test_config_nlte.yml')
         config = Configuration.from_yaml(plasma_data['config_path'])
         config.plasma.radiative_rates_type = 'blackbody'
-        #config.plasma.nlte.coronal_approximation = True
+        config.plasma.nlte.coronal_approximation = True
         #config.plasma.helium_treatment = 'numerical-nlte'
         plasma_data['config'] = config
         return plasma_data
