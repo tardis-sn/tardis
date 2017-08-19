@@ -18,6 +18,7 @@ excitation = [
 ]
 
 radiative_rates_type = [
+    {'radiative_rates_type': 'detailed', 'w_epsilon': 1.0e-10},
     {'radiative_rates_type': 'detailed'},
     {'radiative_rates_type': 'blackbody'},
     {'radiative_rates_type': 'dilute-blackbody'}
@@ -32,10 +33,6 @@ line_interaction_type = [
 disable_electron_scattering = [
     {'disable_electron_scattering': True},
     {'disable_electron_scattering': False}
-]
-
-w_epsilon = [
-    {'w_epsilon': 1.0e-10}
 ]
 
 nlte = [
@@ -85,7 +82,7 @@ class TestPlasma(object):
 
     @pytest.fixture(scope="class", params=ionization + excitation + radiative_rates_type +
                     line_interaction_type + disable_electron_scattering +
-                    w_epsilon + nlte + initial_t_inner + initial_t_rad + helium_treatment)
+                    nlte + initial_t_inner + initial_t_rad + helium_treatment)
     def config(self, request):
         config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_base_test_config.yml')
