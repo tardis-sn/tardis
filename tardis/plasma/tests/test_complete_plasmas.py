@@ -52,6 +52,10 @@ initial_t_rad = [
     {'initial_t_rad': '10000 K'}
 ]
 
+helium_treatment = [
+    {'helium_treatment': 'recomb-nlte'}
+]
+
 
 class TestPlasma(object):
 
@@ -80,7 +84,7 @@ class TestPlasma(object):
 
     @pytest.fixture(scope="class", params=ionization + excitation + radiative_rates_type +
                     line_interaction_type + disable_electron_scattering +
-                    w_epsilon + nlte + initial_t_inner + initial_t_rad)
+                    w_epsilon + nlte + initial_t_inner + initial_t_rad + helium_treatment)
     def config(self, request):
         config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_base_test_config.yml')
@@ -116,10 +120,11 @@ class TestPlasma(object):
                             'tau_sobolevs', 'beta_sobolev', 'transition_probabilities']
     j_blues_properties = ['j_blues', 'j_blues_norm_factor', 'j_blue_estimator']
     input_properties = ['volume', 'r_inner']
+    helium_nlte_properties = ['helium_population', 'helium_population_updated']
 
     combined_properties = general_properties + partiton_properties + atomic_properties + \
         ion_population_properties + level_population_properties + radiative_properties + \
-        j_blues_properties + input_properties
+        j_blues_properties + input_properties + helium_nlte_properties
 
     @pytest.mark.parametrize("attr", combined_properties)
     def test_plasma_properties(self, plasma, reference, config, attr):
