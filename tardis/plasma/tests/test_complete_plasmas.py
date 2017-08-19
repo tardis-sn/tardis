@@ -35,7 +35,7 @@ disable_electron_scattering = [
 ]
 
 w_epsilon = [
-    {'w_epsilon': '1.0e-10'}
+    {'w_epsilon': 1.0e-10}
 ]
 
 nlte = [
@@ -53,7 +53,8 @@ initial_t_rad = [
 ]
 
 helium_treatment = [
-    {'helium_treatment': 'recomb-nlte'}
+    {'helium_treatment': 'recomb-nlte'},
+    {'helium_treatment': 'recomb-nlte', 'delta_treatment': 0.5}
 ]
 
 
@@ -89,16 +90,17 @@ class TestPlasma(object):
         config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_base_test_config.yml')
         config = Configuration.from_yaml(config_path)
+        hash_string = ''
         for prop, value in request.param.items():
+            hash_string = '_'.join((hash_string, prop))
             if prop == 'nlte':
-                hash_string = prop
                 for nlte_prop, nlte_value in request.param[prop].items():
                     config.plasma.nlte[nlte_prop] = nlte_value
                     if nlte_prop != 'species':
                         hash_string = '_'.join((hash_string, nlte_prop))
             else:
                 config.plasma[prop] = value
-                hash_string = '_'.join((prop, str(value)))
+                hash_string = '_'.join((hash_string, str(value)))
         setattr(config.plasma, 'save_path', hash_string)
         return config
 
