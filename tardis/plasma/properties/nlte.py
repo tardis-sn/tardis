@@ -60,7 +60,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         helium_population.ix[0,0] = 0.0
         #He II excited states
         he_two_population = level_boltzmann_factor.ix[2,1].mul(
-            (g.ix[2,1].ix[0]**(-1)))
+            (g.ix[2,1].ix[0]**(-1.0)))
         helium_population.ix[1].update(he_two_population)
         #He II ground state
         helium_population.ix[1,0] = 1.0
