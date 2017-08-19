@@ -7,78 +7,100 @@ from numpy.testing import assert_almost_equal
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 
+ionization = [
+    {'ionization': 'nebular'},
+    {'ionization': 'lte'},
+]
 
-setupI = {
-    'ionization': 'lte',
-    'excitation': 'lte',
-    'radiative_rates_type': 'dilute-blackbody',
-    'line_interaction_type': 'scatter',
-    'reference_file_path': 'plasma_setupI_reference.h5'
-}
+excitation = [
+    {'excitation': 'lte'},
+    {'excitation': 'dilute-lte'}
+]
 
-setupII = {
-    'ionization': 'nebular',
-    'excitation': 'dilute-lte',
-    'radiative_rates_type': 'blackbody',
-    'line_interaction_type': 'macroatom',
-    'nlte': {'species': ['He I'], 'classical_nebular': True},
-    'initial_t_inner': '10000 K',
-    'initial_t_rad': '10000 K',
-    'disable_electron_scattering': False,
-    'w_epsilon': '1.0e-10',
-    'reference_file_path': 'plasma_setupII_reference.h5'
-}
+radiative_rates_type = [
+    {'radiative_rates_type': 'detailed'},
+    {'radiative_rates_type': 'blackbody'},
+    {'radiative_rates_type': 'dilute-blackbody'}
+]
 
-setupIII = {
-    'ionization': 'nebular',
-    'excitation': 'dilute-lte',
-    'radiative_rates_type': 'detailed',
-    'line_interaction_type': 'downbranch',
-    'disable_electron_scattering': True,
-    'nlte': {'species': ['He I'], 'coronal_approximation': True},
-    'reference_file_path': 'plasma_setupIII_reference.h5'
-}
+line_interaction_type = [
+    {'line_interaction_type': 'scatter'},
+    {'line_interaction_type': 'macroatom'},
+    {'line_interaction_type': 'downbranch'}
+]
+
+disable_electron_scattering = [
+    {'disable_electron_scattering': True},
+    {'disable_electron_scattering': False}
+]
+
+w_epsilon = [
+    {'w_epsilon': '1.0e-10'}
+]
+
+nlte = [
+    {'nlte':  {'species': ['He I'], 'coronal_approximation': True}},
+    {'nlte':  {'species': ['He I'], 'classical_nebular': True}},
+    {'nlte':  {'species': ['He I']}}
+]
+
+initial_t_inner = [
+    {'initial_t_inner': '10000 K'}
+]
+
+initial_t_rad = [
+    {'initial_t_rad': '10000 K'}
+]
 
 
 class TestPlasma(object):
 
     @pytest.fixture(scope="class")
-    def plasma(self, chianti_he_db_fpath, config):
+    def plasma(self, chianti_he_db_fpath, config, reference_fpath, reference):
         config['atom_data'] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
         if pytest.config.getvalue("--generate-reference"):
-            if os.path.exists(config.reference_file_path):
-                pytest.skip(
-                    'Reference data {0} does exist and tests will not '
-                    'proceed generating new data'.format(config.reference_file_path))
-            sim.plasma.to_hdf(config.reference_file_path)
-            pytest.skip("Reference data saved at {0}".format(
-                config.reference_file_path))
+            sim.plasma.to_hdf(reference_fpath, path=config.plasma.save_path)
+            pytest.skip("Reference data saved at {0}".format(reference_fpath))
         return sim.plasma
 
     @pytest.fixture(scope="class")
     def chianti_he_db_fpath(self):
         return os.path.abspath(os.path.join('tardis', 'tests', 'data', 'chianti_he_db.h5'))
 
-    @pytest.fixture(scope="class", params=[setupI, setupII, setupIII])
-    def config(self, request, tardis_ref_path):
+    @pytest.fixture(scope="class")
+    def reference_fpath(self, tardis_ref_path):
+        path = os.path.join(
+            tardis_ref_path, 'plasma_reference', 'reference_data.h5')
+        if pytest.config.getvalue("--generate-reference"):
+            if os.path.exists(path):
+                pytest.skip('Reference data {0} does exist and tests will not '
+                            'proceed generating new data'.format(path))
+        return path
+
+    @pytest.fixture(scope="class", params=ionization + excitation + radiative_rates_type +
+                    line_interaction_type + disable_electron_scattering +
+                    w_epsilon + nlte + initial_t_inner + initial_t_rad)
+    def config(self, request):
         config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_base_test_config.yml')
         config = Configuration.from_yaml(config_path)
         for prop, value in request.param.items():
-            if prop == 'reference_file_path':
-                setattr(config, prop, os.path.join(
-                    tardis_ref_path, 'plasma_reference', value))
-            elif prop == 'nlte':
+            if prop == 'nlte':
+                hash_string = prop
                 for nlte_prop, nlte_value in request.param[prop].items():
-                    setattr(config.plasma.nlte, nlte_prop, nlte_value)
+                    config.plasma.nlte[nlte_prop] = nlte_value
+                    if nlte_prop != 'species':
+                        hash_string = '_'.join((hash_string, nlte_prop))
             else:
-                setattr(config.plasma, prop, value)
+                config.plasma[prop] = value
+                hash_string = '_'.join((prop, str(value)))
+        setattr(config.plasma, 'save_path', hash_string)
         return config
 
-    @pytest.yield_fixture()
-    def reference(self, config):
-        with pd.HDFStore(config.reference_file_path) as hdf_file:
+    @pytest.yield_fixture(scope="class")
+    def reference(self, reference_fpath):
+        with pd.HDFStore(reference_fpath) as hdf_file:
             yield hdf_file
 
     general_properties = ['beta_rad', 'g_electron', 'selected_atoms',
@@ -100,40 +122,43 @@ class TestPlasma(object):
         j_blues_properties + input_properties
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, plasma, reference, attr):
+    def test_plasma_properties(self, plasma, reference, config, attr):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if actual.ndim == 1:
                 actual = pd.Series(actual)
             else:
                 actual = pd.DataFrame(actual)
-            expected = reference.select(os.path.join('plasma', attr))
+            expected = reference.select(os.path.join(
+                config.plasma.save_path, 'plasma', attr))
             pdt.assert_almost_equal(actual, expected)
 
-    def test_levels(self, plasma, reference):
+    def test_levels(self, plasma, reference, config):
         actual = pd.DataFrame(plasma.levels)
-        expected = reference.select(os.path.join('plasma', 'levels'))
+        expected = reference.select(os.path.join(
+            config.plasma.save_path, 'plasma', 'levels'))
         pdt.assert_almost_equal(actual, expected)
 
     scalars_properties = ['time_explosion', 'link_t_rad_t_electron']
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalars_properties(self, plasma, reference, attr):
+    def test_scalars_properties(self, plasma, reference, config, attr):
         actual = getattr(plasma, attr)
         if hasattr(actual, 'cgs'):
             actual = actual.cgs.value
         expected = reference.select(os.path.join(
-            'plasma', 'scalars'))[attr]
+            config.plasma.save_path, 'plasma', 'scalars'))[attr]
         pdt.assert_almost_equal(actual, expected)
 
-    def test_helium_treatment(self, plasma, reference):
+    def test_helium_treatment(self, plasma, reference, config):
         actual = plasma.helium_treatment
         expected = reference.select(os.path.join(
-            'plasma', 'scalars'))['helium_treatment']
+            config.plasma.save_path, 'plasma', 'scalars'))['helium_treatment']
         assert actual == expected
 
-    def test_zeta_data(self, plasma, reference):
+    def test_zeta_data(self, plasma, reference, config):
         if hasattr(plasma, 'zeta_data'):
             actual = plasma.zeta_data
-            expected = reference.select(os.path.join('plasma', 'zeta_data'))
+            expected = reference.select(os.path.join(
+                config.plasma.save_path, 'plasma', 'zeta_data'))
             assert_almost_equal(actual, expected.values)
