@@ -107,9 +107,19 @@ class AtomData(object):
 
     """
 
-    hdf_names = ["atom_data", "ionization_data", "levels", "lines",
-                 "macro_atom_data", "macro_atom_references", "zeta_data", "collision_data",
-                 "collision_data_temperatures", "synpp_refs", "ion_cx_th_data", "ion_cx_sp_data"]
+    hdf_names = [
+            "atom_data",
+            "ionization_data",
+            "levels",
+            "lines",
+            "macro_atom_data",
+            "macro_atom_references",
+            "zeta_data",
+            "collision_data",
+            "collision_data_temperatures",
+            "synpp_refs",
+            "ion_cx_th_data",
+            "ion_cx_sp_data"]
 
     # List of tuples of the related dataframes.
     # Either all or none of the related dataframes must be given
@@ -128,9 +138,6 @@ class AtomData(object):
             Path to the HDFStore file. Please contact the authors to get the up-to-date file.
             (default: None)
         """
-
-        if not os.path.exists(fname):
-            raise ValueError("Supplied Atomic Model Database %s does not exists" % fname)
 
         dataframes = dict()
         nonavailable = list()
@@ -170,20 +177,25 @@ class AtomData(object):
 
         return atom_data
 
-    def __init__(self, atom_data, ionization_data, levels=None, lines=None,
-                 macro_atom_data=None, macro_atom_references=None, zeta_data=None,
-                 collision_data=None, collision_data_temperatures=None, synpp_refs=None,
-                 ion_cx_th_data=None, ion_cx_sp_data=None):
+    def __init__(
+            self, atom_data, ionization_data, levels=None, lines=None,
+            macro_atom_data=None, macro_atom_references=None,
+            zeta_data=None, collision_data=None,
+            collision_data_temperatures=None, synpp_refs=None,
+            ion_cx_th_data=None, ion_cx_sp_data=None):
 
         self.prepared = False
 
         # CONVERT VALUES TO CGS UNITS
 
         # Convert atomic masses to CGS
-        # We have to use constants.u because astropy uses different values for the unit u and the constant.
-        # This is changed in later versions of astropy (the value of constants.u is used in all cases)
+        # We have to use constants.u because astropy uses
+        # different values for the unit u and the constant.
+        # This is changed in later versions of astropy (
+        # the value of constants.u is used in all cases)
         if u.u.cgs == const.u.cgs:
-            atom_data.loc[:, "mass"] = Quantity(atom_data["mass"].values, "u").cgs
+            atom_data.loc[:, "mass"] = Quantity(
+                    atom_data["mass"].values, "u").cgs
         else:
             atom_data.loc[:, "mass"] = atom_data["mass"].values * const.u.cgs
 
@@ -195,7 +207,8 @@ class AtomData(object):
         levels.loc[:, "energy"] = Quantity(levels["energy"].values, 'eV').cgs
 
         # Create a new columns with wavelengths in the CGS units
-        lines.loc[:, 'wavelength_cm'] = Quantity(lines['wavelength'], 'angstrom').cgs
+        lines.loc[:, 'wavelength_cm'] = Quantity(
+                lines['wavelength'], 'angstrom').cgs
 
         # SET ATTRIBUTES
 
@@ -219,26 +232,37 @@ class AtomData(object):
 
         self._check_related()
 
-        self.symbol2atomic_number = OrderedDict(zip(self.atom_data['symbol'].values, self.atom_data.index))
-        self.atomic_number2symbol = OrderedDict(zip(self.atom_data.index, self.atom_data['symbol']))
+        self.symbol2atomic_number = OrderedDict(
+                zip(self.atom_data['symbol'].values, self.atom_data.index))
+        self.atomic_number2symbol = OrderedDict(
+                zip(self.atom_data.index, self.atom_data['symbol']))
 
     def _check_related(self):
-        """ Check that either all or none of the related dataframes are given."""
+        """
+        Check that either all or none of the related dataframes are given.
+        """
         for group in self.related_groups:
-            check_list = [name for name in group if getattr(self, name) is None]
+            check_list = [
+                    name for name in group if getattr(self, name) is None]
 
             if len(check_list) != 0 and len(check_list) != len(group):
                 raise AtomDataMissingError(
                     "The following dataframes from the related group [{0}] "
-                    "were not given: {1}".format(", ".join(group), ", ".join(check_list))
-                )
+                    "were not given: {1}".format(
+                        ", ".join(group),
+                        ", ".join(check_list)
+                        )
+                    )
 
-    def prepare_atom_data(self, selected_atomic_numbers, line_interaction_type='scatter', max_ion_number=None,
-                          nlte_species=[]):
+    def prepare_atom_data(
+            self, selected_atomic_numbers,
+            line_interaction_type='scatter',
+            max_ion_number=None, nlte_species=[]):
         """
-        Prepares the atom data to set the lines, levels and if requested macro atom data.
-        This function mainly cuts the `levels` and `lines` by discarding any data that is not needed (any data
-        for atoms that are not needed
+        Prepares the atom data to set the lines, levels and if requested macro
+        atom data.  This function mainly cuts the `levels` and `lines` by
+        discarding any data that is not needed (any data for atoms that are not
+        needed
 
         Parameters
         ----------
@@ -262,41 +286,63 @@ class AtomData(object):
         self.nlte_species = nlte_species
         self.levels = self.levels.reset_index(drop=True)
 
-        self.levels = self.levels.loc[self.levels['atomic_number'].isin(self.selected_atomic_numbers)].copy()
+        self.levels = self.levels.loc[self.levels['atomic_number'].isin(
+            self.selected_atomic_numbers)].copy()
 
         if max_ion_number is not None:
-            self.levels = self.levels.loc[self.levels['ion_number'] <= max_ion_number].copy()
+            self.levels = self.levels.loc[
+                    self.levels['ion_number'] <= max_ion_number].copy()
 
-        self.levels = self.levels.set_index(['atomic_number', 'ion_number', 'level_number'])
+        self.levels = self.levels.set_index(
+                ['atomic_number', 'ion_number', 'level_number'])
 
-        self.levels_index = pd.Series(np.arange(len(self.levels), dtype=int), index=self.levels.index)
-        #cutting levels_lines
-        self.lines = self.lines.loc[self.lines['atomic_number'].isin(self.selected_atomic_numbers)].copy()
+        self.levels_index = pd.Series(
+                np.arange(len(self.levels), dtype=int),
+                index=self.levels.index)
+
+        # cutting levels_lines
+        self.lines = self.lines.loc[self.lines['atomic_number'].isin(
+            self.selected_atomic_numbers)].copy()
+
         if max_ion_number is not None:
-            self.lines = self.lines.loc[self.lines['ion_number'] <= max_ion_number].copy()
+            self.lines = self.lines.loc[
+                    self.lines['ion_number'] <= max_ion_number].copy()
 
-        # self.lines.sort(['wavelength', 'line_id'], inplace=True)
         self.lines.sort_values(by='wavelength', inplace=True)
         self.lines.set_index('line_id', inplace=True)
 
-        self.lines_index = pd.Series(np.arange(len(self.lines), dtype=int), index=self.lines.index)
+        self.lines_index = pd.Series(
+                np.arange(len(self.lines), dtype=int),
+                index=self.lines.index)
 
-        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays([
-            self.lines['atomic_number'], self.lines['ion_number'],self.lines['level_number_lower']
-        ])
+        tmp_lines_lower2level_idx = pd.MultiIndex.from_arrays(
+                [
+                    self.lines['atomic_number'],
+                    self.lines['ion_number'],
+                    self.lines['level_number_lower']
+                    ])
 
-        self.lines_lower2level_idx = self.levels_index.ix[tmp_lines_lower2level_idx].astype(np.int64).values
+        self.lines_lower2level_idx = (
+                self.levels_index.ix[tmp_lines_lower2level_idx].
+                astype(np.int64).values)
 
-        tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays([
-            self.lines['atomic_number'], self.lines['ion_number'], self.lines['level_number_upper']
-        ])
+        tmp_lines_upper2level_idx = pd.MultiIndex.from_arrays(
+                [
+                    self.lines['atomic_number'],
+                    self.lines['ion_number'],
+                    self.lines['level_number_upper']
+                    ])
 
-        self.lines_upper2level_idx = self.levels_index.ix[tmp_lines_upper2level_idx].astype(np.int64).values
+        self.lines_upper2level_idx = (
+                self.levels_index.ix[tmp_lines_upper2level_idx].
+                astype(np.int64).values)
 
         self.atom_ion_index = None
         self.levels_index2atom_ion_index = None
 
-        if self.macro_atom_data_all is not None and not line_interaction_type == 'scatter':
+        if (
+                self.macro_atom_data_all is not None and
+                not line_interaction_type == 'scatter'):
 
             self.macro_atom_data = self.macro_atom_data_all.loc[
                 self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)
