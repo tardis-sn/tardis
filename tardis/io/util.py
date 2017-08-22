@@ -283,6 +283,7 @@ class PlasmaWriterMixin(HDFWriterMixin):
         if 'atomic_data' in data:
             data.pop('atomic_data')
         if 'nlte_data' in data:
+            logger.warning("nlte_data can't be saved")
             data.pop('nlte_data')
         return data
 
