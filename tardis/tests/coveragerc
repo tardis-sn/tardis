@@ -20,5 +20,19 @@ exclude_lines =
    pragma: py{ignore_python_version}
 
 omit =
-   # Integration Tests should not appear in coveralls
-   tardis/tests/integration_tests/*
+   
+   # Tests should not appear in coveralls 
+   tardis/tests/*
+   tardis/plasma/tests/*
+   tardis/model/tests/*
+   tardis/montecarlo/tests/*
+   tardis/simulation/tests/*
+   tardis/io/tests/*
+   
+   # Omit all setup_package.py files 
+   tardis/tests/setup_package.py
+   tardis/plasma/setup_package.py
+   tardis/montecarlo/setup_package.py
+   tardis/model/setup_package.py
+   tardis/simulation/setup_package.py
+   tardis/io/setup_package.py
