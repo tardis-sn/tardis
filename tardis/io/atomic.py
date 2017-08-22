@@ -425,31 +425,52 @@ class NLTEData(object):
         collision_group = self.atom_data.collision_data.groupby(level=['atomic_number', 'ion_number'])
         for species in self.nlte_species:
             no_of_levels = self.atom_data.levels.ix[species].energy.count()
-            C_ul_matrix = np.zeros((no_of_levels, no_of_levels, len(self.atom_data.collision_data_temperatures)))
+            C_ul_matrix = np.zeros(
+                    (
+                        no_of_levels,
+                        no_of_levels,
+                        len(self.atom_data.collision_data_temperatures))
+                    )
             delta_E_matrix = np.zeros((no_of_levels, no_of_levels))
             g_ratio_matrix = np.zeros((no_of_levels, no_of_levels))
 
-            for (atomic_number, ion_number, level_number_lower, level_number_upper), line in \
-                collision_group.get_group(species).iterrows():
+            for (
+                    atomic_number,
+                    ion_number,
+                    level_number_lower,
+                    level_number_upper), line in (
+                            collision_group.get_group(species).iterrows()):
+                        # line.columns : delta_e, g_ratio, temperatures ...
                 C_ul_matrix[level_number_lower, level_number_upper, :] = line.values[2:]
                 delta_E_matrix[level_number_lower, level_number_upper] = line['delta_e']
                 #TODO TARDISATOMIC fix change the g_ratio to be the otherway round - I flip them now here.
                 g_ratio_matrix[level_number_lower, level_number_upper] = line['g_ratio']
-            self.C_ul_interpolator[species] = interpolate.interp1d(self.atom_data.collision_data_temperatures,
-                                                                   C_ul_matrix)
+            self.C_ul_interpolator[species] = interpolate.interp1d(
+                    self.atom_data.collision_data_temperatures,
+                    C_ul_matrix)
             self.delta_E_matrices[species] = delta_E_matrix
 
             self.g_ratio_matrices[species] = g_ratio_matrix
 
-
     def get_collision_matrix(self, species, t_electrons):
+        '''
+        Creat collision matrix by interpolating the C_ul values for
+        the desired temperatures.
+        '''
         c_ul_matrix = self.C_ul_interpolator[species](t_electrons)
         no_of_levels = c_ul_matrix.shape[0]
         c_ul_matrix[np.isnan(c_ul_matrix)] = 0.0
 
         #TODO in tardisatomic the g_ratio is the other way round - here I'll flip it in prepare_collision matrix
 
-        c_lu_matrix = c_ul_matrix * np.exp(-self.delta_E_matrices[species].reshape((no_of_levels, no_of_levels, 1)) /
-                                           t_electrons.reshape((1, 1, t_electrons.shape[0]))) * \
-                      self.g_ratio_matrices[species].reshape((no_of_levels, no_of_levels, 1))
+        c_lu_matrix = (
+                c_ul_matrix * np.exp(
+                    -self.delta_E_matrices[species].reshape(
+                        (no_of_levels, no_of_levels, 1)) /
+                    t_electrons.reshape(
+                        (1, 1, t_electrons.shape[0]))
+                    ) *
+                self.g_ratio_matrices[species].reshape(
+                    (no_of_levels, no_of_levels, 1))
+                )
         return c_ul_matrix + c_lu_matrix.transpose(1, 0, 2)
