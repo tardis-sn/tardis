@@ -222,7 +222,7 @@ class BasePlasma(PlasmaWriterMixin):
                     print_graph.node[str(node)]['label']+=label
                     print_graph.node[str(node)]['label']+='$'
 
-        nx.write_dot(print_graph, fname)
+        nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
     def write_to_tex(self, fname_graph):
         try:
