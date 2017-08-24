@@ -425,8 +425,10 @@ class NLTEData(object):
         self.B_lus = {}
 
         for species in self.nlte_species:
-            lines_idx = np.where((self.lines.atomic_number == species[0]) &
-                                 (self.lines.ion_number == species[1]))
+            lines_idx = np.where(
+                    (self.lines.atomic_number == species[0]) &
+                    (self.lines.ion_number == species[1])
+                    )
             self.lines_idx[species] = lines_idx
             self.lines_level_number_lower[species] = self.lines.level_number_lower.values[lines_idx].astype(int)
             self.lines_level_number_upper[species] = self.lines.level_number_upper.values[lines_idx].astype(int)
