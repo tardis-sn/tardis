@@ -169,7 +169,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 else:
                     collision_matrix = nlte_data.get_collision_matrix(
                             species, t_electrons
-                            ) * previous_electron_densities
+                            ) * previous_electron_densities.values
             else:
                 collision_matrix = r_ul_matrix.copy()
                 collision_matrix.fill(0.0)
