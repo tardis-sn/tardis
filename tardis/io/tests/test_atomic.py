@@ -41,7 +41,6 @@ def test_atom_data_ionization_data(ionization_data):
 
 
 def test_atom_data_levels(levels):
-    levels = levels.set_index(['atomic_number', 'ion_number', 'level_number'])
     assert_quantity_allclose(
         u.Quantity(levels.at[(2, 0, 2), 'energy'], u.Unit('erg')).to(u.Unit('cm-1'), equivalencies=u.spectral()),
         166277.542 * u.Unit('cm-1')
@@ -49,8 +48,6 @@ def test_atom_data_levels(levels):
 
 
 def test_atom_data_lines(lines):
-    lines = lines.set_index(['atomic_number', 'ion_number',
-                             'level_number_lower', 'level_number_upper'])
     assert_quantity_allclose(
         lines.at[(2, 0, 0, 6), 'wavelength_cm'] * u.Unit('cm'),
         584.335 * u.Unit('Angstrom')
@@ -59,7 +56,7 @@ def test_atom_data_lines(lines):
 
 def test_atomic_reprepare(kurucz_atomic_data):
     kurucz_atomic_data.prepare_atom_data([14, 20])
-    lines = kurucz_atomic_data.lines
+    lines = kurucz_atomic_data.lines.reset_index()
     assert lines['atomic_number'].isin([14, 20]).all()
     assert len(lines.loc[lines['atomic_number'] == 14]) > 0
     assert len(lines.loc[lines['atomic_number'] == 20]) > 0
