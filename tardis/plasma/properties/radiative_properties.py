@@ -68,7 +68,7 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         stimulated_emission_factor[meta_stable_upper &
                                    (stimulated_emission_factor < 0)] = 0.0
         if self.nlte_species:
-            nlte_lines_mask = lines.apply(
+            nlte_lines_mask = lines.reset_index().apply(
                     lambda row:
                     (row.atomic_number, row.ion_number) in self.nlte_species,
                     axis=1

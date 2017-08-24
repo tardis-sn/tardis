@@ -300,7 +300,7 @@ class AtomData(object):
 
         self.levels_index = pd.Series(
                 np.arange(len(self.levels), dtype=int),
-                index=self.levels.set_index('line_id').index)
+                index=self.levels.index)
 
         # cutting levels_lines
         self.lines = self.lines[
@@ -312,7 +312,7 @@ class AtomData(object):
 
         self.lines_index = pd.Series(
                 np.arange(len(self.lines), dtype=int),
-                index=self.lines.index)
+                index=self.lines.set_index('line_id').index)
 
         tmp_lines_lower2level_idx = self.lines.index.droplevel('level_number_upper')
 
@@ -407,17 +407,14 @@ class AtomData(object):
 class NLTEData(object):
     def __init__(self, atom_data, nlte_species):
         self.atom_data = atom_data
-        self.lines = atom_data.lines.reset_index(drop=True)
+        self.lines = atom_data.lines.reset_index()
         self.nlte_species = nlte_species
 
         if nlte_species:
             logger.info('Preparing the NLTE data')
             self._init_indices()
-            self._create_nlte_mask()
             if atom_data.collision_data is not None:
                 self._create_collision_coefficient_matrix()
-        else:
-            self._create_nlte_mask()
 
     def _init_indices(self):
         self.lines_idx = {}
@@ -437,19 +434,6 @@ class NLTEData(object):
             self.A_uls[species] = self.atom_data.lines.A_ul.values[lines_idx]
             self.B_uls[species] = self.atom_data.lines.B_ul.values[lines_idx]
             self.B_lus[species] = self.atom_data.lines.B_lu.values[lines_idx]
-
-    def _create_nlte_mask(self):
-        self.nlte_levels_mask = np.zeros(self.atom_data.levels.energy.count()).astype(bool)
-        self.nlte_lines_mask = np.zeros(self.atom_data.lines.wavelength.count()).astype(bool)
-
-        for species in self.nlte_species:
-            current_levels_mask = (self.atom_data.levels.index.get_level_values(0) == species[0]) & \
-                           (self.atom_data.levels.index.get_level_values(1) == species[1])
-            current_lines_mask = (self.atom_data.lines.atomic_number.values == species[0]) & \
-                           (self.atom_data.lines.ion_number.values == species[1])
-            self.nlte_levels_mask |= current_levels_mask
-            self.nlte_lines_mask |= current_lines_mask
-
 
     def _create_collision_coefficient_matrix(self):
         self.C_ul_interpolator = {}
