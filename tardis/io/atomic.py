@@ -351,23 +351,24 @@ class AtomData(object):
             if max_ion_number is not None:
                 self.macro_atom_references = self.macro_atom_references.loc[
                     self.macro_atom_references['ion_number'] <= max_ion_number
-                ].copy()
+                ]
 
             if line_interaction_type == 'downbranch':
                 self.macro_atom_data = self.macro_atom_data.loc[
                     self.macro_atom_data['transition_type'] == -1
-                ].copy()
+                ]
                 self.macro_atom_references = self.macro_atom_references.loc[
                     self.macro_atom_references['count_down'] > 0
-                ].copy()
+                ]
                 self.macro_atom_references.loc[:, 'count_total'] = self.macro_atom_references['count_down']
                 self.macro_atom_references.loc[:, 'block_references'] = np.hstack(
                     (0, np.cumsum(self.macro_atom_references['count_down'].values[:-1]))
                 )
 
             elif line_interaction_type == 'macroatom':
-                self.macro_atom_references.loc[:, 'block_references'] = np.hstack(
-                    (0, np.cumsum(self.macro_atom_references['count_total'].values[:-1]))
+                self.macro_atom_references['block_references'] = (
+                        self.macro_atom_references['count_total'].cumsum() -
+                        self.macro_atom_references['count_total'][0]
                 )
 
             self.macro_atom_references.loc[:, "references_idx"] = np.arange(len(self.macro_atom_references))
