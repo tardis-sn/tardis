@@ -22,7 +22,10 @@ class PreviousElectronDensities(PreviousIterationProperty):
     outputs = ('previous_electron_densities',)
 
     def set_initial_value(self, kwargs):
-        initial_value = np.ones(len(kwargs['abundance'].columns))*1000000.0
+        initial_value = pd.Series(
+                1000000.0,
+                index=kwargs['abundance'].columns,
+                )
         self._set_initial_value(initial_value)
 
 class PreviousBetaSobolev(PreviousIterationProperty):
