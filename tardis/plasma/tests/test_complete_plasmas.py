@@ -54,21 +54,46 @@ helium_treatment = [
     {'helium_treatment': 'recomb-nlte', 'delta_treatment': 0.5}
 ]
 
+config_list = (
+        ionization + excitation + radiative_rates_type +
+        line_interaction_type + disable_electron_scattering + nlte +
+        initial_t_inner + initial_t_rad + helium_treatment)
+
+
+def idfn(fixture_value):
+    return str('-'.join([
+        '{}:{}'.format(k, v) for k, v in fixture_value.items()]))
+
 
 class TestPlasma(object):
 
-    @pytest.fixture(scope="class")
-    def plasma(self, chianti_he_db_fpath, config, reference_fpath, reference):
-        config['atom_data'] = chianti_he_db_fpath
-        sim = Simulation.from_config(config)
-        if pytest.config.getvalue("--generate-reference"):
-            sim.plasma.to_hdf(reference_fpath, path=config.plasma.save_path)
-            pytest.skip("Reference data saved at {0}".format(reference_fpath))
-        return sim.plasma
+    general_properties = ['beta_rad', 'g_electron', 'selected_atoms',
+                          'number_density', 't_electrons', 'w', 't_rad', 'beta_electron']
+    partiton_properties = ['level_boltzmann_factor', 'partition_function']
+    atomic_properties = ['excitation_energy', 'lines', 'lines_lower_level_index',
+                         'lines_upper_level_index', 'atomic_mass', 'ionization_data',
+                         'nu', 'wavelength_cm', 'f_lu', 'metastability']
+    ion_population_properties = ['delta', 'previous_electron_densities',
+                                 'phi', 'ion_number_density', 'electron_densities']
+    level_population_properties = ['level_number_density']
+    radiative_properties = ['stimulated_emission_factor', 'previous_beta_sobolev',
+                            'tau_sobolevs', 'beta_sobolev', 'transition_probabilities']
+    j_blues_properties = ['j_blues', 'j_blues_norm_factor', 'j_blue_estimator']
+    input_properties = ['volume', 'r_inner']
+    helium_nlte_properties = ['helium_population', 'helium_population_updated']
+
+    combined_properties = (
+            general_properties + partiton_properties +
+            atomic_properties + ion_population_properties +
+            level_population_properties + radiative_properties +
+            j_blues_properties + input_properties + helium_nlte_properties)
+
+    scalars_properties = ['time_explosion', 'link_t_rad_t_electron']
 
     @pytest.fixture(scope="class")
-    def chianti_he_db_fpath(self):
-        return os.path.abspath(os.path.join('tardis', 'tests', 'data', 'chianti_he_db.h5'))
+    def chianti_he_db_fpath(self, tardis_ref_path):
+        return os.path.abspath(os.path.join(
+            tardis_ref_path, 'atom_data', 'chianti_He.h5'))
 
     @pytest.fixture(scope="class")
     def reference_fpath(self, tardis_ref_path):
@@ -80,9 +105,11 @@ class TestPlasma(object):
                             'proceed generating new data'.format(path))
         return path
 
-    @pytest.fixture(scope="class", params=ionization + excitation + radiative_rates_type +
-                    line_interaction_type + disable_electron_scattering +
-                    nlte + initial_t_inner + initial_t_rad + helium_treatment)
+    @pytest.fixture(
+            scope="class",
+            params=config_list,
+            ids=idfn
+            )
     def config(self, request):
         config_path = os.path.join(
             'tardis', 'plasma', 'tests', 'data', 'plasma_base_test_config.yml')
@@ -106,24 +133,15 @@ class TestPlasma(object):
         with pd.HDFStore(reference_fpath) as hdf_file:
             yield hdf_file
 
-    general_properties = ['beta_rad', 'g_electron', 'selected_atoms',
-                          'number_density', 't_electrons', 'w', 't_rad', 'beta_electron']
-    partiton_properties = ['level_boltzmann_factor', 'partition_function']
-    atomic_properties = ['excitation_energy', 'lines', 'lines_lower_level_index',
-                         'lines_upper_level_index', 'atomic_mass', 'ionization_data',
-                         'nu', 'wavelength_cm', 'f_lu', 'metastability']
-    ion_population_properties = ['delta', 'previous_electron_densities',
-                                 'phi', 'ion_number_density', 'electron_densities']
-    level_population_properties = ['level_number_density']
-    radiative_properties = ['stimulated_emission_factor', 'previous_beta_sobolev',
-                            'tau_sobolevs', 'beta_sobolev', 'transition_probabilities']
-    j_blues_properties = ['j_blues', 'j_blues_norm_factor', 'j_blue_estimator']
-    input_properties = ['volume', 'r_inner']
-    helium_nlte_properties = ['helium_population', 'helium_population_updated']
+    @pytest.fixture(scope="class")
+    def plasma(self, chianti_he_db_fpath, config, reference_fpath, reference):
+        config['atom_data'] = chianti_he_db_fpath
+        sim = Simulation.from_config(config)
+        if pytest.config.getvalue("--generate-reference"):
+            sim.plasma.to_hdf(reference_fpath, path=config.plasma.save_path)
+            pytest.skip("Reference data saved at {0}".format(reference_fpath))
+        return sim.plasma
 
-    combined_properties = general_properties + partiton_properties + atomic_properties + \
-        ion_population_properties + level_population_properties + radiative_properties + \
-        j_blues_properties + input_properties + helium_nlte_properties
 
     @pytest.mark.parametrize("attr", combined_properties)
     def test_plasma_properties(self, plasma, reference, config, attr):
@@ -142,8 +160,6 @@ class TestPlasma(object):
         expected = reference.select(os.path.join(
             config.plasma.save_path, 'plasma', 'levels'))
         pdt.assert_almost_equal(actual, expected)
-
-    scalars_properties = ['time_explosion', 'link_t_rad_t_electron']
 
     @pytest.mark.parametrize("attr", scalars_properties)
     def test_scalars_properties(self, plasma, reference, config, attr):
