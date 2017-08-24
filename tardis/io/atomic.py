@@ -257,7 +257,7 @@ class AtomData(object):
     def prepare_atom_data(
             self, selected_atomic_numbers,
             line_interaction_type='scatter',
-            max_ion_number=None, nlte_species=[]):
+            nlte_species=[]):
         """
         Prepares the atom data to set the lines, levels and if requested macro
         atom data.  This function mainly cuts the `levels` and `lines` by
@@ -273,9 +273,6 @@ class AtomData(object):
         line_interaction_type : `~str`
             can be 'scatter', 'downbranch' or 'macroatom'
 
-        max_ion_number : `~int`
-            maximum ion number to be included in the calculation
-
         """
         if not self.prepared:
             self.prepared = True
@@ -289,14 +286,6 @@ class AtomData(object):
                 self.levels.index.isin(
                     self.selected_atomic_numbers,
                     level='atomic_number')]
-
-        if max_ion_number is not None:
-            self.levels = self.levels[
-                    self.levels.index.get_level_values('ion_number') <= max_ion_number
-                    ]
-            self.lines = self.lines[
-                    self.lines.index.get_level_values('ion_number') <= max_ion_number
-                    ]
 
         self.levels_index = pd.Series(
                 np.arange(len(self.levels), dtype=int),
@@ -337,21 +326,11 @@ class AtomData(object):
                 self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)
             ]
 
-            if max_ion_number is not None:
-                self.macro_atom_data = self.macro_atom_data.loc[
-                    self.macro_atom_data['ion_number'] <= max_ion_number
-                ]
-
             self.macro_atom_references = self.macro_atom_references_all[
                 self.macro_atom_references_all.index.isin(
                     self.selected_atomic_numbers,
                     level='atomic_number')
             ]
-
-            if max_ion_number is not None:
-                self.macro_atom_references = self.macro_atom_references.loc[
-                    self.macro_atom_references['ion_number'] <= max_ion_number
-                ]
 
             if line_interaction_type == 'downbranch':
                 self.macro_atom_data = self.macro_atom_data.loc[
