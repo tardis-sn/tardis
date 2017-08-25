@@ -1,65 +1,49 @@
+from os.path import join as pathjoin
 import pytest
-import numpy as np
-import tardis
-import numpy.testing as nptesting
-from astropy import units as u
-import os
-import h5py
+
+import pandas as pd
+import pandas.util.testing as pdt
 
 from tardis.simulation import Simulation
-from tardis.io.util import yaml_load_config_file
 from tardis.io.config_reader import Configuration
 
+config_files = {
+        'lte': 'tardis/plasma/tests/data/plasma_test_config_lte.yml',
+        'nlte': 'tardis/plasma/tests/data/plasma_test_config_nlte.yml',
+        }
 
-def data_path(fname):
-    return os.path.join(tardis.__path__[0], 'plasma', 'tests', 'data', fname)
-
-@pytest.fixture()
-def plasma_compare_data_fname():
-    return data_path('plasma_test_data.h5')
-
-@pytest.fixture()
-def plasma_compare_data(plasma_compare_data_fname):
-    return h5py.File(plasma_compare_data_fname, 'r')
 
 class TestPlasmas():
-    @classmethod
-    @pytest.fixture(scope="class", autouse=True)
-    def setup(self, atomic_data_fname):
-        self.config_yaml = yaml_load_config_file(
-            'tardis/plasma/tests/data/plasma_test_config_lte.yml')
-        self.config_yaml['atom_data'] = atomic_data_fname
-        conf = Configuration.from_config_dict(self.config_yaml)
-        self.lte_simulation = Simulation.from_config(conf)
-        self.lte_simulation.run()
-        self.config_yaml = yaml_load_config_file(
-            'tardis/plasma/tests/data/plasma_test_config_nlte.yml')
-        self.config_yaml['atom_data'] = atomic_data_fname
-        conf = Configuration.from_config_dict(self.config_yaml)
-        self.nlte_simulation = Simulation.from_config(conf)
-        self.nlte_simulation.run()
 
-    def test_lte_plasma(self, plasma_compare_data):
-        old_plasma_t_rads = plasma_compare_data['test_lte1/t_rad']
-        old_plasma_levels = plasma_compare_data['test_lte1/levels']
+    name = 'plasma_full/'
 
-        new_plasma_t_rads = self.lte_simulation.model.t_rad / u.Unit('K')
-        new_plasma_levels = \
-            self.lte_simulation.plasma.get_value(
-            'level_number_density').ix[8].ix[1][10].values
-        np.testing.assert_allclose(
-            new_plasma_t_rads, old_plasma_t_rads, atol=100)
-        np.testing.assert_allclose(
-            new_plasma_levels, old_plasma_levels, rtol=0.1)
+    @pytest.fixture(
+            scope="class",
+            params=config_files.items(),
+            ids=config_files.keys()
+            )
+    def simulation(self, request, atomic_data_fname):
+        name = request.param[0]
+        config = Configuration.from_yaml(request.param[1])
+        config['atom_data'] = atomic_data_fname
+        simulation = Simulation.from_config(config)
+        simulation.run()
+        simulation._test_name = name
+        return simulation
 
-    def test_nlte_plasma(self, plasma_compare_data):
-        old_plasma_t_rads = plasma_compare_data['test_nlte1/t_rad']
-        old_plasma_levels = plasma_compare_data['test_nlte1/levels']
-        new_plasma_t_rads = self.nlte_simulation.model.t_rad / u.Unit('K')
-        new_plasma_levels = \
-            self.nlte_simulation.plasma.get_value(
-            'level_number_density').ix[2].ix[1][10].values
-        np.testing.assert_allclose(
-            new_plasma_t_rads, old_plasma_t_rads, atol=150)
-        np.testing.assert_allclose(
-            new_plasma_levels, old_plasma_levels, rtol=0.1)
+    def test_levels(self, simulation, tardis_ref_data):
+        name = simulation._test_name
+        new_levels = simulation.plasma.get_value('level_number_density')
+
+        old_levels = tardis_ref_data[pathjoin(self.name, name, 'levels')]
+        pdt.assert_almost_equal(
+            new_levels, old_levels)
+
+    def test_trads(self, simulation, tardis_ref_data):
+        name = simulation._test_name
+
+        new_t_rads = pd.Series(simulation.model.t_rad.to('K').value)
+
+        old_t_rads = tardis_ref_data[pathjoin(self.name, name, 't_rad')]
+        pdt.assert_almost_equal(
+            new_t_rads, old_t_rads)
