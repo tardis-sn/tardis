@@ -20,6 +20,7 @@ dependencies:
 - pyyaml=3.12
 - jsonschema=2.5.1
 - pyne=0.5.3
+- graphviz=2.38
 
 # RTD requirements
 - sphinx=1.5.1
@@ -42,3 +43,4 @@ dependencies:
   - coveralls
   - pytest-html==1.10.0
   - dokuwiki
+  - pygraphviz
