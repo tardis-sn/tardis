@@ -30,8 +30,17 @@ downloaded
 
 .. code-block:: shell
 
-    > python setup.py test --args="--tardis-refdata=/path/to/tardis_reference/"
+    > python setup.py test --args="--tardis-refdata=/path/to/tardis-refdata/"
 
+Generating Plasma Reference
+===========================
+
+You can generate Plasma Reference by the following command
+
+.. code-block:: shell
+
+    > pytest -rs tardis/plasma/tests/test_complete_plasmas.py 
+    --tardis-refdata="/path/to/tardis-refdata/" --generate-reference
 
 Running the integration tests
 =============================
