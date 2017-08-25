@@ -1,69 +1,83 @@
-import numpy.testing as npt
+import os
 
-import h5py
 import pytest
 from tardis.io.config_reader import Configuration
-from tardis.model import Radial1DModel
-from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.simulation import Simulation
-from astropy import units as u
-from astropy.tests.helper import assert_quantity_allclose
 
-@pytest.fixture
-def tardis_config(tardis_config_verysimple):
-    return Configuration.from_config_dict(tardis_config_verysimple)
+import pandas as pd
+import pandas.util.testing as pdt
 
 
-@pytest.fixture()
-def raw_model(tardis_config):
-    return Radial1DModel.from_config(tardis_config)
+@pytest.fixture(scope='module')
+def refdata(tardis_ref_data):
+    def get_ref_data(key):
+        return tardis_ref_data[os.path.join(
+                'test_simulation', key)]
+    return get_ref_data
 
 
-@pytest.fixture()
-def raw_plasma(tardis_config, raw_model, kurucz_atomic_data):
-    return assemble_plasma(tardis_config, raw_model, kurucz_atomic_data)
+@pytest.fixture(scope='module')
+def config():
+    return Configuration.from_yaml(
+            'tardis/io/tests/data/tardis_configv1_verysimple.yml')
 
 
-@pytest.fixture()
-def simulation_one_loop(raw_model, raw_plasma, tardis_config):
-    sim = Simulation.from_config(tardis_config, model=raw_model,
-                                 plasma=raw_plasma)
-    sim.iterate(40000)
+@pytest.fixture(scope='module')
+def simulation_one_loop(
+        atomic_data_fname, config,
+        tardis_ref_data, generate_reference):
+    config.atom_data = atomic_data_fname
+    config.montecarlo.iterations = 2
+    config.montecarlo.no_of_packets = int(4e4)
+    config.montecarlo.last_no_of_packets = int(4e4)
 
-    return sim
+    simulation = Simulation.from_config(config)
+    simulation.run()
+
+    if not generate_reference:
+        return simulation
+    else:
+        simulation.model.hdf_properties = [
+                't_radiative',
+                'dilution_factor'
+                ]
+        simulation.runner.hdf_properties = [
+                'j_estimator',
+                'nu_bar_estimator',
+                'output_nu',
+                'output_energy'
+                ]
+        simulation.model.to_hdf(
+                tardis_ref_data,
+                '',
+                'test_simulation')
+        simulation.runner.to_hdf(
+                tardis_ref_data,
+                '',
+                'test_simulation')
+        pytest.skip(
+                'Reference data was generated during this run.')
 
 
-@pytest.fixture()
-def simulation_compare_data_fname():
-    return 'tardis/simulation/tests/data/test_data.h5'
+@pytest.mark.parametrize('name', [
+    'nu_bar_estimator', 'j_estimator', 't_radiative', 'dilution_factor',
+    'output_nu', 'output_energy'
+    ])
+def test_plasma_estimates(
+        simulation_one_loop, refdata, name):
+    try:
+        actual = getattr(
+                simulation_one_loop.runner, name)
+    except AttributeError:
+        actual = getattr(
+                simulation_one_loop.model, name)
 
+    actual = pd.Series(actual)
 
-@pytest.fixture()
-def simulation_compare_data(simulation_compare_data_fname):
-    return h5py.File(simulation_compare_data_fname, mode='r')
+    pdt.assert_almost_equal(
+            actual,
+            refdata(name)
+            )
 
-
-def test_plasma_estimates(simulation_one_loop, simulation_compare_data):
-    t_rad, w = simulation_one_loop.runner.calculate_radiationfield_properties()
-
-    npt.assert_allclose(simulation_one_loop.runner.nu_bar_estimator,
-                        simulation_compare_data['test1/nubar_estimators'],
-                        atol=0.0)
-    npt.assert_allclose(simulation_one_loop.runner.j_estimator,
-                        simulation_compare_data['test1/j_estimators'],
-                        atol=0.0)
-
-    assert_quantity_allclose(
-            t_rad, simulation_compare_data['test1/t_rad'] * u.Unit('K'), atol=0.0 * u.Unit('K'))
-    npt.assert_allclose(w, simulation_compare_data['test1/w'], atol=0.0)
-
-
-def test_packet_output(simulation_one_loop, simulation_compare_data):
-    assert_quantity_allclose(
-            simulation_one_loop.runner.output_nu,
-            simulation_compare_data['test1/output_nu'] * u.Unit('Hz'),
-            atol=0.0 * u.Unit('Hz'))
-
-    assert_quantity_allclose(simulation_one_loop.runner.output_energy,
-                        simulation_compare_data['test1/output_energy'] * u.Unit('erg'),
-                        atol=0.0 * u.Unit('erg'))
+#     assert_quantity_allclose(
+#             t_rad, simulation_compare_data['test1/t_rad'] * u.Unit('K'), atol=0.0 * u.Unit('K'))
