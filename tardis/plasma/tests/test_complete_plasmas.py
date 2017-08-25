@@ -1,4 +1,5 @@
 import os
+import warnings
 
 import pandas as pd
 import pytest
@@ -142,7 +143,6 @@ class TestPlasma(object):
             pytest.skip("Reference data saved at {0}".format(reference_fpath))
         return sim.plasma
 
-
     @pytest.mark.parametrize("attr", combined_properties)
     def test_plasma_properties(self, plasma, reference, config, attr):
         if hasattr(plasma, attr):
@@ -154,6 +154,8 @@ class TestPlasma(object):
             expected = reference.select(os.path.join(
                 config.plasma.save_path, 'plasma', attr))
             pdt.assert_almost_equal(actual, expected)
+        else:
+            warnings.warn('Property "{}" not found'.format(attr))
 
     def test_levels(self, plasma, reference, config):
         actual = pd.DataFrame(plasma.levels)
