@@ -345,9 +345,8 @@ class AtomData(object):
                 )
 
             elif line_interaction_type == 'macroatom':
-                self.macro_atom_references['block_references'] = (
-                        self.macro_atom_references['count_total'].cumsum() -
-                        self.macro_atom_references['count_total'][0]
+                self.macro_atom_references.loc[:, 'block_references'] = np.hstack(
+                    (0, np.cumsum(self.macro_atom_references['count_total'].values[:-1]))
                 )
 
             self.macro_atom_references.loc[:, "references_idx"] = np.arange(len(self.macro_atom_references))
@@ -368,7 +367,7 @@ class AtomData(object):
                     self.macro_atom_data['destination_level_number']
                 ])
 
-                self.macro_atom_data.loc[:, 'destination_level_idx'] = self.macro_atom_references.ix[
+                self.macro_atom_data.loc[:, 'destination_level_idx'] = self.macro_atom_references.loc[
                     tmp_macro_destination_level_idx, "references_idx"
                 ].astype(np.int64).values  # why it is named `destination_level_idx` ?! It is reference index
 
