@@ -44,3 +44,4 @@ dependencies:
   - pytest-html==1.10.0
   - dokuwiki
   - pygraphviz
+  - dot2tex
