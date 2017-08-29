@@ -5,11 +5,10 @@ language: python
 python:
     - 2.7
 
-virtualenv:
-  system_site_packages: true
-
 cache:
-  apt: true
+  directories:
+      - $HOME/miniconda
+      - $HOME/tardis-refdata
 
 sudo: false
 
@@ -59,15 +58,18 @@ addons:
 
 
 
-before_install:
+install:
     # We do this to make sure we get the dependencies so pip works below
     - export PYTHONIOENCODING=UTF8
     - wget $MINICONDA_URL -O miniconda.sh
     - chmod +x miniconda.sh
+    - rm -r $HOME/miniconda
     - bash miniconda.sh -b -p $HOME/miniconda
     - export PATH=$HOME/miniconda/bin:$PATH
     - hash -r
     - conda update --yes conda
+    - conda env create -f tardis_env27.yml
+    - source activate tardis
     - if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata; fi
@@ -78,9 +80,10 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="plasma_reference/" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
 
-install:
-   - conda env create -f tardis_env27.yml
-   - source activate tardis
+before_script:
+    - export PATH=$HOME/miniconda/bin:$PATH
+    - hash -r
+    - source activate tardis
 
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
