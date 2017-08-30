@@ -62,6 +62,10 @@ config_list = (
 
 
 def idfn(fixture_value):
+    '''
+    This function creates a string from a dictionary.
+    We use it to obtain a readable name for the config fixture.
+    '''
     return str('-'.join([
         '{}:{}'.format(k, v) for k, v in fixture_value.items()]))
 
