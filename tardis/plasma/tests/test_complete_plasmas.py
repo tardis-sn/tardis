@@ -134,9 +134,16 @@ class TestPlasma(object):
         return config
 
     @pytest.yield_fixture(scope="class")
-    def reference(self, reference_fpath):
-        with pd.HDFStore(reference_fpath) as hdf_file:
-            yield hdf_file
+    def reference(self, reference_fpath, generate_reference):
+        if generate_reference:
+            mode = 'w'
+        else:
+            mode = 'r'
+        with pd.HDFStore(
+                reference_fpath,
+                mode=mode
+                ) as store:
+            yield store
 
     @pytest.fixture(scope="class")
     def plasma(self, chianti_he_db_fpath, config, reference_fpath, reference):
