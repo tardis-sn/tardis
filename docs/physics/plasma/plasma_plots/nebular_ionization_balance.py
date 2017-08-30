@@ -1,7 +1,7 @@
 import os
 
 from matplotlib import colors
-from tardis import plasma_array, util
+from tardis import util
 from tardis.io import atomic
 from matplotlib import pyplot as plt
 

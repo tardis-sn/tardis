@@ -1,5 +1,7 @@
 import os
 import pytest
+import warnings
+import copy
 
 import pandas as pd
 import pandas.util.testing as pdt
@@ -73,3 +75,11 @@ class TestPlasmas():
         old_t_rads = refdata('t_radiative')
         pdt.assert_almost_equal(
             new_t_rads, old_t_rads)
+
+    def test_high_temperature(self, simulation):
+        simulation = copy.deepcopy(simulation)
+        with warnings.catch_warnings(record=True) as w:
+            simulation.plasma.update_radiationfield(
+                    t_rad=[100000.], ws=[0.5], j_blues=None, nlte_config=None)
+        assert str(w[0].message).startswith(
+                't_rads outside of zeta factor interpolation')
