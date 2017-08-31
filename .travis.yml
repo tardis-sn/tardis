@@ -1,96 +1,121 @@
+# We set the language to c because python isn't supported on the MacOS X nodes
+# on Travis. However, the language ends up being irrelevant anyway, since we
+# install Python ourselves using conda.
+language: c
+
 os:
-  - linux
-language: python
+    - linux
 
-python:
-    - 2.7
-
-virtualenv:
-  system_site_packages: true
-
-cache:
-  apt: true
-
+# Setting sudo to false opts in to Travis-CI container-based builds.
 sudo: false
+
+# The apt packages below are needed for sphinx builds. A full list of packages
+# that can be included can be found here:
+#
+# https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
+
+addons:
+    apt:
+        packages:
+            -clang
 
 env:
     global:
-        - COMPILER=gcc
-        - PANDAS_VERSION=0.16
-        - ASTROPY_USE_SYSTEM_PYTEST=1
+
+        # The following versions are the 'default' for tests, unless
+        # overridden underneath. They are defined here in order to save having
+        # to repeat them for all configurations.
+        - PYTHON_VERSION=2.7
+        - NUMPY_VERSION=stable
+        - ASTROPY_VERSION=stable
+        - MAIN_CMD='python setup.py'
         - SETUP_CMD='test'
-        - TEST_MODE='normal'
+        - PIP_DEPENDENCIES=''
+        - EVENT_TYPE='pull_request push'
+
+
+        # For this package-template, we include examples of Cython modules,
+        # so Cython is required for testing. If your package does not include
+        # Cython code, you can set CONDA_DEPENDENCIES=''
+        - CONDA_DEPENDENCIES='Cython'
+
+        # List other runtime dependencies for the package that are available as
+        # pip packages here.
+        # - PIP_DEPENDENCIES=''
+
+        # Conda packages for affiliated packages are hosted in channel
+        # "astropy" while builds for astropy LTS with recent numpy versions
+        # are in astropy-ci-extras. If your package uses either of these,
+        # add the channels to CONDA_CHANNELS along with any other channels
+        # you want to use.
+        - CONDA_CHANNELS='astropy-ci-extras astropy'
+
+        # If there are matplotlib or other GUI tests, uncomment the following
+        # line to use the X virtual framebuffer.
+        # - SETUP_XVFB=True
+        - COMPILER=gcc
+
         - TARDIS_REF_DATA_URL='https://github.com/tardis-sn/tardis-refdata.git'
-        - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
-        - SAVE_COVERAGE=false
+        - ASTROPY_USE_SYSTEM_PYTEST=1
+        - COMPILER=gcc
+
+    matrix:
+        # Make sure that egg_info works without dependencies
+        # - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
+        # - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
+        # - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
+        # - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
+        - COMPILER=clang
 
 matrix:
+
+    # Don't wait for allowed failures
+    fast_finish: true
+
     include:
-        - python: 2.7
-          env:
-            - COMPILER=gcc
-            - SETUP_CMD='test --coverage --args="--tardis-refdata=$HOME/tardis-refdata/"'
-            - TEST_MODE='spectrum'
-            - SAVE_COVERAGE=true
-
-        - python: 2.7
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$HOME/tardis-refdata/"'
-            - TEST_MODE='spectrum'
-
+        # Try MacOS X
         - os: osx
-          language: generic
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$HOME/tardis-refdata/"'
-            - TEST_MODE='spectrum'
-            - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
-
-
-        - python: 2.7
           env: SETUP_CMD='test'
 
-addons:
-  apt:
-    packages:
-    - clang
+        # Do a coverage test.
+        - os: linux
+          env: SETUP_CMD='test --coverage --args="--tardis-refdata=$HOME/tardis-refdata/"'
 
-
-
-
-before_install:
-    # We do this to make sure we get the dependencies so pip works below
-    - export PYTHONIOENCODING=UTF8
-    - wget $MINICONDA_URL -O miniconda.sh
-    - chmod +x miniconda.sh
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH=$HOME/miniconda/bin:$PATH
-    - hash -r
-    - conda update --yes conda
-    - if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $HOME/tardis-refdata; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/3/head:carsus-ref; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout carsus-ref; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/chianti_He.h5" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="plasma_reference/" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="unit_test_data.h5" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
+        - os: linux
+          env: SETUP_CMD='conda env create -f tardis_env27.yml'
 
 install:
-   - cd $TRAVIS_BUILD_DIR
-   - conda env create -f tardis_env27.yml
-   - source activate tardis
+
+    # We now use the ci-helpers package to set up our testing environment.
+    # This is done by using Miniconda and then using conda and pip to install
+    # dependencies. Which dependencies are installed using conda and pip is
+    # determined by the CONDA_DEPENDENCIES and PIP_DEPENDENCIES variables,
+    # which should be space-delimited lists of package names. See the README
+    # in https://github.com/astropy/ci-helpers for information about the full
+    # list of environment variables that can be used to customize your
+    # environment. In some cases, ci-helpers may not offer enough flexibility
+    # in how to install a package, in which case you can have additional
+    # commands in the install: section below.
+
+    - git clone git://github.com/yeganer/ci-helpers.git
+    - source ci-helpers/travis/setup_conda.sh
+    - source travis/before_install.sh
+
+    # As described above, using ci-helpers, you should be able to set up an
+    # environment with dependencies installed using conda and pip, but in some
+    # cases this may not provide enough flexibility in how to install a
+    # specific dependency (and it will not be able to install non-Python
+    # dependencies). Therefore, you can also include commands below (as
+    # well as at the start of the install section or in the before_install
+    # section if they are needed before setting up conda) to install any
+    # other dependencies.
 
 script:
-    - echo CC=$COMPILER python setup.py $SETUP_CMD
-    - CC=$COMPILER python setup.py $SETUP_CMD
+   - echo CC=$COMPILER $MAIN_CMD $SETUP_CMD
+   - CC=$COMPILER $MAIN_CMD $SETUP_CMD
 
 after_success:
-    - if [[ "$SAVE_COVERAGE" = true ]]; then coveralls; fi
-
-after_failure:
-    - cat /home/travis/.pip/pip.log
+    # If coveralls.io is set up for this package, uncomment the line below.
+    # The coveragerc file may be customized as needed for your package.
+    # - if [[ $SETUP_CMD == *coverage* ]]; then coveralls --rcfile='packagename/tests/coveragerc'; fi
+    - if [[ $SETUP_CMD == *coverage* ]]; then coveralls; fi
