@@ -18,6 +18,11 @@ addons:
     apt:
         packages: clang
 
+cache:
+    directories:
+        - $HOME/miniconda
+        - $HOME/tardis-refdata
+
 env:
     global:
 

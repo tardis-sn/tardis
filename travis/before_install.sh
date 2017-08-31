@@ -1,12 +1,15 @@
 conda env create -f tardis_env27.yml
 source activate tardis
-if [[ $SETUP_CMD == *coverage* ]]; then 
+
+if [[ $SETUP_CMD == *coverage* ]]; then
     conda install -c conda-forge git-lfs=2.2.1 -y
     git lfs install --skip-smudge
-    git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata
+    if [ ! -d "$HOME/tardis-refdata" ]; then
+        git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata
+    fi
     cd $HOME/tardis-refdata
 
-    # Checkout PR version, not master
+    # Checkout PR version of tardis-refdata, not master
     git fetch origin pull/3/head:carsus-ref
     git checkout carsus-ref
 
