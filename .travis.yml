@@ -58,13 +58,15 @@ env:
         - ASTROPY_USE_SYSTEM_PYTEST=1
 
     matrix:
+        - COMPILER=gcc
+        - COMPILER=clang
+        - SETUP_CMD='test'
+        - SETUP_CMD='test --coverage --args="--tardis-refdata=$HOME/tardis-refdata/"'
         # Make sure that egg_info works without dependencies
         # - PYTHON_VERSION=2.7 SETUP_CMD='egg_info'
         # - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
         # - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
         # - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
-        - COMPILER=gcc
-        - COMPILER=clang
 
 matrix:
 
@@ -79,9 +81,6 @@ matrix:
         # Do a coverage test.
         - os: linux
           env: SETUP_CMD='test --coverage --args="--tardis-refdata=$HOME/tardis-refdata/"'
-
-        - os: linux
-          env: SETUP_CMD='conda env create -f tardis_env27.yml'
 
 install:
 
