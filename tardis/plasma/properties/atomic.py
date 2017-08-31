@@ -62,7 +62,7 @@ class Lines(BaseAtomicDataProperty):
         return lines
 
     def _set_index(self, lines):
-        # lines = lines.set_index('line_id')
+        # lines.set_index('line_id', inplace=True)
         return lines, lines['nu'], lines['f_lu'], lines['wavelength_cm']
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
@@ -75,9 +75,7 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
     def calculate(self, levels, lines):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
                                  index=levels)
-        lines_index = lines.set_index(
-            ['atomic_number', 'ion_number',
-             'level_number_lower']).index
+        lines_index = lines.index.droplevel('level_number_upper')
         return np.array(levels_index.ix[lines_index])
 
 class LinesUpperLevelIndex(HiddenPlasmaProperty):
@@ -91,9 +89,7 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
     def calculate(self, levels, lines):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
                                  index=levels)
-        lines_index = lines.set_index(
-            ['atomic_number', 'ion_number',
-             'level_number_upper']).index
+        lines_index = lines.index.droplevel('level_number_lower')
         return np.array(levels_index.ix[lines_index])
 
 class IonCXData(BaseAtomicDataProperty):
@@ -126,28 +122,32 @@ class AtomicMass(ProcessingPlasmaProperty):
 class IonizationData(BaseAtomicDataProperty):
     """
     Attributes:
-    ionization_data : Pandas DataFrame
-        Ionization energies. Indexed by atomic number, ion number.
+    ionization_data : Pandas Series holding ionization energies
+        Indexed by atomic number, ion number.
     """
     outputs = ('ionization_data',)
 
     def _filter_atomic_property(self, ionization_data, selected_atoms):
-        ionization_data['atomic_number'] = ionization_data.index.labels[0] + 1
-        ionization_data['ion_number'] = ionization_data.index.labels[1] + 1
-        ionization_data = ionization_data[ionization_data.atomic_number.isin(
-            selected_atoms)]
-        ion_data_check = counter(ionization_data.atomic_number.values)
-        keys = np.array(ion_data_check.keys())
-        values = np.array(ion_data_check.values())
-        if np.alltrue(keys == values):
+        mask = ionization_data.index.isin(
+                selected_atoms,
+                level='atomic_number'
+                )
+        ionization_data = ionization_data[mask]
+        counts = ionization_data.groupby(
+                level='atomic_number').count()
+
+        if np.alltrue(counts.index == counts):
             return ionization_data
         else:
-            raise IncompleteAtomicData('ionization data for the ion (' +
-                                       str(keys[keys != values]) +
-                                       str(values[keys != values]) + ')')
+            raise IncompleteAtomicData(
+                    'ionization data for the ion ({}, {})'.format(
+                            str(counts.index[counts.index != counts]),
+                            str(counts[counts.index != counts])
+                            )
+                    )
 
     def _set_index(self, ionization_data):
-        return ionization_data.set_index(['atomic_number', 'ion_number'])
+        return ionization_data
 
 class ZetaData(BaseAtomicDataProperty):
     """
