@@ -16,8 +16,7 @@ sudo: false
 
 addons:
     apt:
-        packages:
-            -clang
+        packages: clang
 
 env:
     global:
@@ -57,7 +56,6 @@ env:
 
         - TARDIS_REF_DATA_URL='https://github.com/tardis-sn/tardis-refdata.git'
         - ASTROPY_USE_SYSTEM_PYTEST=1
-        - COMPILER=gcc
 
     matrix:
         # Make sure that egg_info works without dependencies
@@ -65,6 +63,7 @@ env:
         # - PYTHON_VERSION=3.4 SETUP_CMD='egg_info'
         # - PYTHON_VERSION=3.5 SETUP_CMD='egg_info'
         # - PYTHON_VERSION=3.6 SETUP_CMD='egg_info'
+        - COMPILER=gcc
         - COMPILER=clang
 
 matrix:
