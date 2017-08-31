@@ -7,13 +7,14 @@ from astropy.tests.pytest_plugins import (
         pytest_addoption as _pytest_add_option
     )
 
-import tardis
 import pytest
-from tardis.atomic import AtomData
-from tardis.io.config_reader import Configuration
+
+from tardis.io.atomic import AtomData
 from tardis.io.util import yaml_load_config_file
+from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 from copy import deepcopy
+import pandas as pd
 
 ###
 # Astropy
@@ -59,6 +60,8 @@ try:
 except NameError:   # Needed to support Astropy <= 1.0.0
     pass
 
+DEFAULT_UUID = '864f1753714343c41f99cb065710cace'
+
 # -------------------------------------------------------------------------
 # Initialization
 # -------------------------------------------------------------------------
@@ -66,14 +69,14 @@ except NameError:   # Needed to support Astropy <= 1.0.0
 
 def pytest_addoption(parser):
     _pytest_add_option(parser)
-    parser.addoption("--tardis-refdata", dest='tardis-refdata', default=None,
+    parser.addoption("--tardis-refdata", default=None,
                      help="Path to Tardis Reference Folder")
     parser.addoption("--integration-tests",
                      dest="integration-tests", default=None,
                      help="path to configuration file for integration tests")
     parser.addoption("--generate-reference",
                      action="store_true", default=False,
-                     help="execute integration test run to generate reference data")
+                     help="generate reference data instead of testing")
     parser.addoption("--less-packets",
                      action="store_true", default=False,
                      help="Run integration tests with less packets.")
@@ -83,13 +86,37 @@ def pytest_addoption(parser):
 # -------------------------------------------------------------------------
 
 
+@pytest.fixture(scope='session')
+def generate_reference():
+    option = pytest.config.getvalue("generate_reference")
+    if option is None:
+        return False
+    else:
+        return option
+
+
 @pytest.fixture(scope="session")
 def tardis_ref_path():
-    tardis_ref_path = pytest.config.getvalue("tardis-refdata")
+    tardis_ref_path = pytest.config.getvalue("tardis_refdata")
     if tardis_ref_path is None:
         pytest.skip('--tardis-refdata was not specified')
     else:
         return os.path.expandvars(os.path.expanduser(tardis_ref_path))
+
+
+@pytest.yield_fixture(scope="session")
+def tardis_ref_data(tardis_ref_path, generate_reference):
+    if generate_reference:
+        mode = 'w'
+    else:
+        mode = 'r'
+    with pd.HDFStore(
+            os.path.join(
+                tardis_ref_path,
+                'unit_test_data.h5'),
+            mode=mode
+            ) as store:
+        yield store
 
 
 @pytest.fixture(scope="session")
@@ -106,27 +133,20 @@ def atomic_data_fname(tardis_ref_path):
 
 @pytest.fixture(scope="session")
 def atomic_dataset(atomic_data_fname):
-    atomic_data = AtomData.from_hdf5(atomic_data_fname)
-    if atomic_data.md5 != '21095dd25faa1683f4c90c911a00c3f8':
-        pytest.skip('Need default Kurucz atomic dataset '
-                    '(md5="21095dd25faa1683f4c90c911a00c3f8"')
+    atomic_data = AtomData.from_hdf(atomic_data_fname)
+
+    if atomic_data.md5 != DEFAULT_UUID:
+        pytest.skip(
+                'Need default Kurucz atomic dataset (md5="{}"'.format(
+                    DEFAULT_UUID))
     else:
         return atomic_data
+
 
 @pytest.fixture
 def kurucz_atomic_data(atomic_dataset):
     atomic_data = deepcopy(atomic_dataset)
     return atomic_data
-
-@pytest.fixture
-def test_data_path():
-    return os.path.join(tardis.__path__[0], 'tests', 'data')
-
-
-@pytest.fixture
-def included_he_atomic_data(test_data_path):
-    atomic_db_fname = os.path.join(test_data_path, 'chianti_he_db.h5')
-    return AtomData.from_hdf5(atomic_db_fname)
 
 
 @pytest.fixture
@@ -138,10 +158,12 @@ def tardis_config_verysimple():
 # HDF Fixtures
 ###
 
+
 @pytest.fixture(scope="session")
 def hdf_file_path(tmpdir_factory):
     path = tmpdir_factory.mktemp('hdf_buffer').join('test.hdf')
     return str(path)
+
 
 @pytest.fixture(scope="session")
 def config_verysimple():
@@ -149,6 +171,7 @@ def config_verysimple():
     path = os.path.abspath(os.path.join('tardis/io/tests/data/', filename))
     config = Configuration.from_yaml(path)
     return config
+
 
 @pytest.fixture(scope="session")
 def simulation_verysimple(config_verysimple, atomic_dataset):

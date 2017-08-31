@@ -1,7 +1,8 @@
 import os
 from matplotlib import pyplot as plt
 from matplotlib import colors
-from tardis import atomic, plasma_array, util
+from tardis import util
+from tardis.io import atomic
 import numpy as np
 import pandas as pd
 from astropy import units as u
@@ -18,7 +19,7 @@ ax2 = plt.figure(2).add_subplot(111)
 atom_fname = os.path.join(os.path.dirname(atomic.__file__), 'data', 'atom_data.h5')
 
 # reading in the HDF5 File
-atom_data = atomic.AtomData.from_hdf5(atom_fname)
+atom_data = atomic.AtomData.from_hdf(atom_fname)
 
 #The atom_data needs to be prepared to create indices. The Class needs to know which atomic numbers are needed for the
 #calculation and what line interaction is needed (for "downbranch" and "macroatom" the code creates special tables)
@@ -27,7 +28,12 @@ atom_data.prepare_atom_data([14], 'scatter')
 #Initializing the NebularPlasma class using the from_abundance class method.
 #This classmethod is normally only needed to test individual plasma classes
 #Usually the plasma class just gets the number densities from the model class
-lte_plasma = plasma_array.BasePlasmaArray.from_abundance({'Si':1.0}, 1e-14*u.g/u.cm**3, atom_data, 10*u.day)
+assert True, (
+        'This script needs a proper rewrite and should use the new'
+        '"assemble_plasma" function.')
+# TODO: Uncomment and fix the next line
+# lte_plasma = assemble_plasma({'Si':1.0}, 1e-14*u.g/u.cm**3, atom_data, 10*u.day)
+lte_plasma = None
 lte_plasma.update_radiationfield([10000], [1.0])
 
 #Initializing a dataframe to store the ion populations  and level populations for the different temperatures
