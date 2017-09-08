@@ -100,8 +100,7 @@ install:
     # in how to install a package, in which case you can have additional
     # commands in the install: section below.
 
-    - git clone git://github.com/yeganer/ci-helpers.git
-    - source ci-helpers/travis/setup_conda.sh
+    - source travis/setup_conda.sh
     - source travis/before_install.sh
 
     # As described above, using ci-helpers, you should be able to set up an

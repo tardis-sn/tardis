@@ -1,6 +1,3 @@
-conda env create -f tardis_env27.yml
-source activate tardis
-
 if [[ $SETUP_CMD == *coverage* ]]; then
     conda install -c conda-forge git-lfs=2.2.1 -y
     git lfs install --skip-smudge
