@@ -89,25 +89,29 @@ class LastLineInteraction(object):
         self.last_line_out = self.lines.iloc[self.last_line_interaction_out_id[packet_filter]]
 
         if self.atomic_number is not None:
-            self.last_line_in = self.last_line_in[self.last_line_in.atomic_number == self.atomic_number]
-            self.last_line_out = self.last_line_out[self.last_line_out.atomic_number == self.atomic_number]
+            self.last_line_in = self.last_line_in.xs(self.atomic_number, level='atomic_number', drop_level=False)
+            self.last_line_out = self.last_line_out.xs(self.atomic_number, level='atomic_number', drop_level=False)
 
         if self.ion_number is not None:
-            self.last_line_in = self.last_line_in[self.last_line_in.ion_number == self.ion_number]
-            self.last_line_out = self.last_line_out[self.last_line_out.ion_number == self.ion_number]
+            self.last_line_in = self.last_line_in.xs(self.ion_number, level='ion_number', drop_level=False)
+            self.last_line_out = self.last_line_out.xs(self.ion_number, level='ion_number', drop_level=False)
 
 
-        last_line_in_count = self.last_line_in.wavelength.groupby(level=0).count()
-        last_line_out_count = self.last_line_out.wavelength.groupby(level=0).count()
+        last_line_in_count = self.last_line_in.line_id.value_counts()
+        last_line_out_count = self.last_line_out.line_id.value_counts()
 
-        self.last_line_in_table = self.lines[['wavelength', 'atomic_number', 'ion_number', 'level_number_lower',
-                                              'level_number_upper']].ix[last_line_in_count.index]
+        self.last_line_in_table = self.last_line_in.reset_index()[
+                [
+                    'wavelength', 'atomic_number', 'ion_number',
+                    'level_number_lower', 'level_number_upper']]
         self.last_line_in_table['count'] = last_line_in_count
-        self.last_line_in_table.sort('count', ascending=False, inplace=True)
-        self.last_line_out_table = self.lines[['wavelength', 'atomic_number', 'ion_number', 'level_number_lower',
-                                              'level_number_upper']].ix[last_line_out_count.index]
+        self.last_line_in_table.sort_values(by='count', ascending=False, inplace=True)
+        self.last_line_out_table = self.last_line_out.reset_index()[
+                [
+                    'wavelength', 'atomic_number', 'ion_number',
+                    'level_number_lower', 'level_number_upper']]
         self.last_line_out_table['count'] = last_line_out_count
-        self.last_line_out_table.sort('count', ascending=False, inplace=True)
+        self.last_line_out_table.sort_values(by='count', ascending=False, inplace=True)
 
 
     def update_last_interaction_line_in_nu_filter(self):

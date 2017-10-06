@@ -959,7 +959,7 @@ class LineInteractionTables(QtGui.QWidget):
         self.layout = QtGui.QHBoxLayout()
         self.line_interaction_analysis = line_interaction_analysis
         self.atom_data = atom_data
-        self.lines_data = lines_data
+        self.lines_data = lines_data.reset_index().set_index('line_id')
         line_interaction_species_group = \
         line_interaction_analysis.last_line_in.groupby(['atomic_number', 
             'ion_number'])
@@ -990,31 +990,34 @@ class LineInteractionTables(QtGui.QWidget):
         last_line_in = self.line_interaction_analysis.last_line_in
         last_line_out = self.line_interaction_analysis.last_line_out
 
-        last_line_in_filter = (last_line_in.atomic_number == current_species[0]).values & \
-                              (last_line_in.ion_number == current_species[1]).values
+        current_last_line_in = last_line_in.xs(
+                key=(current_species[0], current_species[1]),
+                level=['atomic_number', 'ion_number'],
+                drop_level=False).reset_index()
+        current_last_line_out = last_line_out.xs(
+                key=(current_species[0], current_species[1]),
+                level=['atomic_number', 'ion_number'],
+                drop_level=False).reset_index()
 
-        current_last_line_in = last_line_in[last_line_in_filter].reset_index()
-        current_last_line_out = last_line_out[last_line_in_filter].reset_index()
-
-        current_last_line_in['line_id_out'] = current_last_line_out['line_id']
+        current_last_line_in['line_id_out'] = current_last_line_out.line_id
 
 
         last_line_in_string = []
         last_line_count = []
-        grouped_line_interactions = current_last_line_in.groupby(['line_id', 
-            'line_id_out'])
+        grouped_line_interactions = current_last_line_in.groupby(
+                ['line_id', 'line_id_out'])
         exc_deexc_string = 'exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)'
 
         for line_id, row in grouped_line_interactions.wavelength.count().iteritems():
-            current_line_in = self.lines_data.ix[line_id[0]]
-            current_line_out = self.lines_data.ix[line_id[1]]
+            current_line_in = self.lines_data.loc[line_id[0]]
+            current_line_out = self.lines_data.loc[line_id[1]]
             last_line_in_string.append(exc_deexc_string % (
                 current_line_in['level_number_lower'],
-               current_line_in['level_number_upper'],
-               current_line_in['wavelength'],
-               current_line_out['level_number_upper'],
-               current_line_out['level_number_lower'],
-               current_line_out['wavelength']))
+                current_line_in['level_number_upper'],
+                current_line_in['wavelength'],
+                current_line_out['level_number_upper'],
+                current_line_out['level_number_lower'],
+                current_line_out['wavelength']))
             last_line_count.append(int(row))
 
 
