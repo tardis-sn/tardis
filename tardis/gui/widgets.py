@@ -959,7 +959,7 @@ class LineInteractionTables(QtGui.QWidget):
         self.layout = QtGui.QHBoxLayout()
         self.line_interaction_analysis = line_interaction_analysis
         self.atom_data = atom_data
-        self.lines_data = lines_data.reset_index().set_index('line_data')
+        self.lines_data = lines_data.reset_index().set_index('line_id')
         line_interaction_species_group = \
         line_interaction_analysis.last_line_in.groupby(['atomic_number', 
             'ion_number'])
