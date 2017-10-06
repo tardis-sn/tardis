@@ -56,6 +56,7 @@ class Simulation(HDFWriterMixin):
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
+        self.finished = False
         if convergence_strategy.type in ('damped', 'specific'):
             self.convergence_strategy = convergence_strategy
             self.converged = False
@@ -210,6 +211,10 @@ class Simulation(HDFWriterMixin):
         self.iterations_executed += 1
 
     def run(self):
+        if self.finished == True:
+            logger.info("Simulation already ran once.")
+            return
+
         start_time = time.time()
         while self.iterations_executed < self.iterations-1 and not self.converged:
             self.iterate(self.no_of_packets)
@@ -221,6 +226,7 @@ class Simulation(HDFWriterMixin):
         logger.info("Simulation finished in {0:d} iterations "
                     "and took {1:.2f} s".format(
                         self.iterations_executed, time.time() - start_time))
+        self.finished = True
         self._call_back()
 
     def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
