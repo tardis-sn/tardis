@@ -959,7 +959,7 @@ class LineInteractionTables(QtGui.QWidget):
         self.layout = QtGui.QHBoxLayout()
         self.line_interaction_analysis = line_interaction_analysis
         self.atom_data = atom_data
-        self.lines_data = lines_data
+        self.lines_data = lines_data.reset_index().set_index('line_data')
         line_interaction_species_group = \
         line_interaction_analysis.last_line_in.groupby(['atomic_number', 
             'ion_number'])
@@ -1009,8 +1009,8 @@ class LineInteractionTables(QtGui.QWidget):
         exc_deexc_string = 'exc. %d-%d (%.2f A) de-exc. %d-%d (%.2f A)'
 
         for line_id, row in grouped_line_interactions.wavelength.count().iteritems():
-            current_line_in = self.lines_data.reset_index().set_index('line_id').loc[line_id[0]]
-            current_line_out = self.lines_data.reset_index().set_index('line_id').loc[line_id[1]]
+            current_line_in = self.lines_data.loc[line_id[0]]
+            current_line_out = self.lines_data.loc[line_id[1]]
             last_line_in_string.append(exc_deexc_string % (
                 current_line_in['level_number_lower'],
                 current_line_in['level_number_upper'],
