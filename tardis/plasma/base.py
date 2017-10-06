@@ -190,7 +190,7 @@ class BasePlasma(PlasmaWriterMixin):
             descendants_ob += nx.descendants(self.graph, node_name)
 
         descendants_ob = list(set(descendants_ob))
-        sort_order = nx.topological_sort(self.graph)
+        sort_order = list(nx.topological_sort(self.graph))
 
         descendants_ob.sort(key=lambda val: sort_order.index(val) )
 
