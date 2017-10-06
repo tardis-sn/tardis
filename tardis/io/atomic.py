@@ -324,13 +324,13 @@ class AtomData(object):
 
             self.macro_atom_data = self.macro_atom_data_all.loc[
                 self.macro_atom_data_all['atomic_number'].isin(self.selected_atomic_numbers)
-            ]
+            ].copy()
 
             self.macro_atom_references = self.macro_atom_references_all[
                 self.macro_atom_references_all.index.isin(
                     self.selected_atomic_numbers,
                     level='atomic_number')
-            ]
+            ].copy()
 
             if line_interaction_type == 'downbranch':
                 self.macro_atom_data = self.macro_atom_data.loc[
