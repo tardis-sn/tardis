@@ -21,7 +21,7 @@ dependencies:
 - pyyaml=3.12
 - jsonschema=2.5.1
 - pyne=0.5.3
-- pyside=1.2.0
+- pyside=1.2
 - graphviz=2.38
 - pygraphviz
 
