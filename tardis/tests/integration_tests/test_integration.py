@@ -53,9 +53,19 @@ quantity_comparison = [
      'plasma.luminosity_inner.cgs.value'),
      ]
 
+scalar_comparison = [
+    ('/simulation/model/scalars',
+     'model.scalars'),
+    ('/simulation/plasma/scalars',
+     'plasma.scalars'),
+     ]
 
 @pytest.fixture(params=quantity_comparison)
 def model_quantities(request):
+    return request.param
+
+@pytest.fixture(params=scalar_comparison)
+def model_scalars(request):
     return request.param
 
 
@@ -144,7 +154,20 @@ class TestIntegration(object):
         # Get the reference data through the fixture.
         self.reference = reference
 
-    def test_model_quantities(self, model_quantities):
+    def test_model_scalars(self, model_scalars):
+        reference_quantity_name, tardis_quantity_name = model_scalars
+
+        if reference_quantity_name not in self.reference:
+            pytest.skip('{0} not calculated in this run'.format(
+                reference_quantity_name))
+        reference_quantity = self.reference[reference_quantity_name]
+        tardis_quantity = eval('self.result.' + tardis_quantity_name)
+        assert_allclose(tardis_quantity, reference_quantity)
+
+    def test_model_quantities(self, model_quantities, plot_object):
+        plot_object.add(self.plot_model_quantities(model_quantities),
+                        "{0}_model_quantities".format(self.name))
+
         reference_quantity_name, tardis_quantity_name = model_quantities
         if reference_quantity_name not in self.reference:
             pytest.skip('{0} not calculated in this run'.format(
@@ -152,6 +175,34 @@ class TestIntegration(object):
         reference_quantity = self.reference[reference_quantity_name]
         tardis_quantity = eval('self.result.' + tardis_quantity_name)
         assert_allclose(tardis_quantity, reference_quantity)
+
+    def plot_model_quantities(self, model_quantities):
+        reference_quantity_name, tardis_quantity_name = model_quantities
+        reference_quantity = self.reference[reference_quantity_name]
+        tardis_quantity = eval('self.result.' + tardis_quantity_name)
+
+        gs_mq = (plt.GridSpec(2, 1, height_ratios=[3, 1]))
+        model_ax_mq = (plt.subplot(gs_mq[0]))
+        model_ax_mq.set_ylabel("Value")
+        deviation_mq = 1 - (
+            tardis_quantity / reference_quantity
+        )
+        model_ax_mq.plot(
+            range(reference_quantity.size),
+            reference_quantity, color="black"
+        )
+        model_ax_mq.plot(
+            range(tardis_quantity.size),
+            tardis_quantity, color="red"
+        )
+        model_ax_mq.set_xticks([])
+        deviation_ax_mq = (plt.subplot(gs_mq[1]))
+        deviation_ax_mq.plot(
+            range(deviation_mq.size),
+            deviation_mq, color="black"
+        )
+        deviation_ax_mq.set_xlabel("index-"+ str(reference_quantity_name))
+        return plt.gcf()
 
     def plot_t_rad(self):
         plt.suptitle("Shell temperature for packets", fontweight="bold")
