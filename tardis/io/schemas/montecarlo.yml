@@ -5,8 +5,9 @@ properties:
     type: number
     multipleOf: 1.0
     default: 0
-    description: The number of OpenMP threads (if 0, the maximum number of
-      available threads are used).
+    description: The number of OpenMP threads. If set to 0, the value stored in
+      the OMP_NUM_THREADS environment variable is used. If this variable is not
+      set, the maximum number of available threads are used.
   seed:
     type: number
     multipleOf: 1.0
