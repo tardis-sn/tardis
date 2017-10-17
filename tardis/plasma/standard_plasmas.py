@@ -77,10 +77,8 @@ def assemble_plasma(config, model, atom_data=None):
         try:
             atom_data = atomic.AtomData.from_hdf(atom_data_fname)
         except:
-            logger.warn(
-            'Error might be from the use of an old-format of the atomic database,\n please refer to '+ \
+            raise ValueError('Error might be from the use of an old-format of the atomic database,\n please see '+ \
             'https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data for the most recent version.')
-            raise
 
     atom_data.prepare_atom_data(
         model.abundance.index,
