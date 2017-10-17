@@ -73,10 +73,14 @@ def assemble_plasma(config, model, atom_data=None):
             raise ValueError('No atom_data option found in the configuration.')
 
         logger.info('Reading Atomic Data from %s', atom_data_fname)
+
         try:
             atom_data = atomic.AtomData.from_hdf(atom_data_fname)
-        except TypeError:
-            logger.warn('Use new configuration for the atomic database')
+        except:
+            logger.warn(
+            'Error might be from the use of an old-format of the atomic database,\n please refer to '+ \
+            'https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data for the most recent version.')
+            raise
 
     atom_data.prepare_atom_data(
         model.abundance.index,
