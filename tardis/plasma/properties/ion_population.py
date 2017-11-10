@@ -349,20 +349,4 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                                                       1].sum(axis=0))
             ion_number_density.ix[2].ix[2].update(helium_population_updated.ix[
                                                       2].ix[0])
-            ion_numbers = ion_number_density.index.get_level_values(1).values
-            ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
-            new_n_electron = (ion_number_density.values * ion_numbers).sum(
-                axis=0)
-            if np.any(np.isnan(new_n_electron)):
-                raise PlasmaIonizationError('n_electron just turned "nan" -'
-                                            ' aborting')
-            n_electron_iterations += 1
-            if n_electron_iterations > 100:
-                logger.warn('n_electron iterations above 100 ({0}) -'
-                            ' something is probably wrong'.format(
-                    n_electron_iterations))
-            if np.all(np.abs(new_n_electron - n_electron)
-                              / n_electron < n_e_convergence_threshold):
-                break
-            n_electron = 0.5 * (new_n_electron + n_electron)
         return ion_number_density, n_electron, helium_population_updated
