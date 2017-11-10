@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
 from astropy.tests.helper import assert_quantity_allclose
 
-from tardis.atomic import AtomData
+from tardis.io.atomic import AtomData
 from tardis.simulation import Simulation
 from tardis.io.config_reader import Configuration
 
@@ -93,7 +93,7 @@ class TestIntegration(object):
         )
 
         # Load atom data file separately, pass it for forming tardis config.
-        self.atom_data = AtomData.from_hdf5(atom_data_filepath)
+        self.atom_data = AtomData.from_hdf(atom_data_filepath)
 
         # Check whether the atom data file in current run and the atom data
         # file used in obtaining the reference data are same.
@@ -135,8 +135,7 @@ class TestIntegration(object):
                 pytest.skip(
                     'Reference data {0} does exist and tests will not '
                     'proceed generating new data'.format(ref_data_path))
-            self.result.to_hdf(path_or_buf=ref_data_path,
-                               suffix_count=False)
+            self.result.to_hdf(file_path=ref_data_path)
             pytest.skip("Reference data saved at {0}".format(
                 data_path['gen_ref_path']
             ))

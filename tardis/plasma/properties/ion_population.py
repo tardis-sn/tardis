@@ -55,7 +55,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
             phis[start_id - i:end_id - i - 1] = current_phis
 
         broadcast_ionization_energy = (
-            ionization_data.ionization_energy.ix[
+            ionization_data.loc[
                 partition_function.index].dropna())
         phi_index = broadcast_ionization_energy.index
         broadcast_ionization_energy = broadcast_ionization_energy.values
@@ -133,7 +133,7 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
         if self.chi_0_species == (20, 2):
             self.chi_0 = 1.9020591570241798e-11
         else:
-            self.chi_0 = ionization_data.ionization_energy.ix[self.chi_0_species]
+            self.chi_0 = ionization_data.loc[self.chi_0_species]
 
     def calculate(self, w, ionization_data, beta_rad, t_electrons, t_rad,
         beta_electron):
@@ -147,16 +147,16 @@ class RadiationFieldCorrection(ProcessingPlasmaProperty):
             radiation_field_correction = -np.ones((len(ionization_data), len(
                 beta_rad)))
             less_than_chi_0 = (
-                ionization_data.ionization_energy < self.chi_0).values
+                ionization_data < self.chi_0).values
             factor_a = (t_electrons / (departure_coefficient * w * t_rad))
             radiation_field_correction[~less_than_chi_0] = factor_a * \
-                np.exp(np.outer(ionization_data.ionization_energy.values[
+                np.exp(np.outer(ionization_data.values[
                 ~less_than_chi_0], beta_rad - beta_electron))
             radiation_field_correction[less_than_chi_0] = 1 - np.exp(np.outer(
-                ionization_data.ionization_energy.values[less_than_chi_0],
+                ionization_data.values[less_than_chi_0],
                 beta_rad) - beta_rad * self.chi_0)
             radiation_field_correction[less_than_chi_0] += factor_a * np.exp(
-                np.outer(ionization_data.ionization_energy.values[
+                np.outer(ionization_data.values[
                 less_than_chi_0],beta_rad) - self.chi_0 * beta_electron)
         else:
             radiation_field_correction = np.ones((len(ionization_data),
@@ -341,4 +341,28 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                     phi, partition_function, number_density, n_electron,
                     self.block_ids, self.ion_zero_threshold)
 
+            helium_population_updated = self.update_he_population(
+                helium_population, n_electron, number_density)
+            ion_number_density.ix[2].ix[0].update(helium_population_updated.ix[
+                                                      0].sum(axis=0))
+            ion_number_density.ix[2].ix[1].update(helium_population_updated.ix[
+                                                      1].sum(axis=0))
+            ion_number_density.ix[2].ix[2].update(helium_population_updated.ix[
+                                                      2].ix[0])
+            ion_numbers = ion_number_density.index.get_level_values(1).values
+            ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
+            new_n_electron = (ion_number_density.values * ion_numbers).sum(
+                axis=0)
+            if np.any(np.isnan(new_n_electron)):
+                raise PlasmaIonizationError('n_electron just turned "nan" -'
+                                            ' aborting')
+            n_electron_iterations += 1
+            if n_electron_iterations > 100:
+                logger.warn('n_electron iterations above 100 ({0}) -'
+                            ' something is probably wrong'.format(
+                    n_electron_iterations))
+            if np.all(np.abs(new_n_electron - n_electron)
+                              / n_electron < n_e_convergence_threshold):
+                break
+            n_electron = 0.5 * (new_n_electron + n_electron)
         return ion_number_density, n_electron, helium_population_updated
