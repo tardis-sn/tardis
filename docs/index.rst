@@ -38,6 +38,7 @@ Using Tardis
 * :doc:`Ejecta Model Setup <examples/modelconfig>`
 * :doc:`TARDIS Configuration <configuration/index>`
 * :doc:`Examples <examples/examples>`
+* :doc:`Storing simulations to HDF <to_hdf>`
 * :doc:`Credit & Publication Policies <credits>`
 
 ======================
@@ -59,7 +60,7 @@ Developing Tardis
 References
 ==========
 
-* :doc:`TARDIS Papers and useful references <zreferences>`
+* :doc:`Studies using TARDIS and TARDIS references <zreferences>`
 
 ====
 News

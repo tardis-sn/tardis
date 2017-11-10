@@ -120,6 +120,8 @@ cdef extern from "src/integrator.h":
             double *nu,
             int_type_t nu_size,
             double *att_S_ul,
+            double *Jred_lu,
+            double *Jblue_lu,
             int N)
 
 
@@ -307,7 +309,10 @@ def formal_integral(self, nu, N):
 
     initialize_storage_model(self.model, self.plasma, self.runner, &storage)
 
-    att_S_ul = self.make_source_function()[0].flatten(order='F')
+    res = self.make_source_function()
+    att_S_ul = res[0].flatten(order='F')
+    Jred_lu = res[1].flatten(order='F')
+    Jblue_lu = res[2].flatten(order='F')
 
     cdef double *L = _formal_integral(
             &storage,
@@ -315,6 +320,8 @@ def formal_integral(self, nu, N):
             <double*> PyArray_DATA(nu),
             nu.shape[0],
             <double*> PyArray_DATA(att_S_ul),
+            <double*> PyArray_DATA(Jred_lu),
+            <double*> PyArray_DATA(Jblue_lu),
             N
             )
     return c_array_to_numpy(L, np.NPY_DOUBLE, nu.shape[0])

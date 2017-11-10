@@ -20,12 +20,12 @@ def run_tardis(config, atom_data=None):
         [default=None]
     """
     from tardis.io.config_reader import Configuration
+    from tardis.io.atomic import AtomData
     from tardis.simulation import Simulation
-    from tardis.atomic import AtomData
 
     if atom_data is not None:
         try:
-            atom_data = AtomData.from_hdf5(atom_data)
+            atom_data = AtomData.from_hdf(atom_data)
         except TypeError:
             atom_data = atom_data
 

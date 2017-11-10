@@ -12,15 +12,18 @@ class LastLineInteraction(object):
 
     @classmethod
     def from_model(cls, model):
-        return cls(model.last_line_interaction_in_id, model.last_line_interaction_out_id,
-                   model.last_line_interaction_shell_id, model.last_line_interaction_angstrom, model.atom_data.lines)
+        return cls(model.runner.last_line_interaction_in_id, model.runner.last_line_interaction_out_id,
+                   model.runner.last_line_interaction_shell_id, model.runner.output_nu, model.plasma.atomic_data.lines)
 
     def __init__(self, last_line_interaction_in_id, last_line_interaction_out_id, last_line_interaction_shell_id,
-                 last_line_interaction_angstrom, lines, packet_filter_mode='packet_nu'):
-        self.last_line_interaction_in_id = last_line_interaction_in_id
-        self.last_line_interaction_out_id = last_line_interaction_out_id
-        self.last_line_interaction_shell_id = last_line_interaction_shell_id
-        self.last_line_interaction_angstrom = last_line_interaction_angstrom
+                 output_nu, lines, packet_filter_mode='packet_nu'):
+        # mask out packets which did not perform a line interaction
+        # TODO mask out packets which do not escape to observer?
+        mask = last_line_interaction_out_id != -1
+        self.last_line_interaction_in_id = last_line_interaction_in_id[mask]
+        self.last_line_interaction_out_id = last_line_interaction_out_id[mask]
+        self.last_line_interaction_shell_id = last_line_interaction_shell_id[mask]
+        self.last_line_interaction_angstrom = output_nu.to(u.Angstrom, equivalencies=u.spectral())[mask]
         self.lines = lines
 
         self._wavelength_start = 0 * u.angstrom
@@ -77,34 +80,38 @@ class LastLineInteraction(object):
             packet_filter = (self.last_line_interaction_angstrom > self.wavelength_start) & \
                       (self.last_line_interaction_angstrom < self.wavelength_end)
         elif self.packet_filter_mode == 'line_in_nu':
-            line_in_nu = self.lines.wavelength.ix[self.last_line_interaction_in_id].values
+            line_in_nu = self.lines.wavelength.iloc[self.last_line_interaction_in_id].values
             packet_filter = (line_in_nu > self.wavelength_start.to(u.angstrom).value) & \
                 (line_in_nu < self.wavelength_end.to(u.angstrom).value)
 
-                
-        self.last_line_in = self.lines.ix[self.last_line_interaction_in_id[packet_filter]]
-        self.last_line_out = self.lines.ix[self.last_line_interaction_out_id[packet_filter]]
+
+        self.last_line_in = self.lines.iloc[self.last_line_interaction_in_id[packet_filter]]
+        self.last_line_out = self.lines.iloc[self.last_line_interaction_out_id[packet_filter]]
 
         if self.atomic_number is not None:
-            self.last_line_in = self.last_line_in[self.last_line_in.atomic_number == self.atomic_number]
-            self.last_line_out = self.last_line_out[self.last_line_out.atomic_number == self.atomic_number]
+            self.last_line_in = self.last_line_in.xs(self.atomic_number, level='atomic_number', drop_level=False)
+            self.last_line_out = self.last_line_out.xs(self.atomic_number, level='atomic_number', drop_level=False)
 
         if self.ion_number is not None:
-            self.last_line_in = self.last_line_in[self.last_line_in.ion_number == self.ion_number]
-            self.last_line_out = self.last_line_out[self.last_line_out.ion_number == self.ion_number]
+            self.last_line_in = self.last_line_in.xs(self.ion_number, level='ion_number', drop_level=False)
+            self.last_line_out = self.last_line_out.xs(self.ion_number, level='ion_number', drop_level=False)
 
 
-        last_line_in_count = self.last_line_in.wavelength.groupby(level=0).count()
-        last_line_out_count = self.last_line_out.wavelength.groupby(level=0).count()
+        last_line_in_count = self.last_line_in.line_id.value_counts()
+        last_line_out_count = self.last_line_out.line_id.value_counts()
 
-        self.last_line_in_table = self.lines[['wavelength', 'atomic_number', 'ion_number', 'level_number_lower',
-                                              'level_number_upper']].ix[last_line_in_count.index]
+        self.last_line_in_table = self.last_line_in.reset_index()[
+                [
+                    'wavelength', 'atomic_number', 'ion_number',
+                    'level_number_lower', 'level_number_upper']]
         self.last_line_in_table['count'] = last_line_in_count
-        self.last_line_in_table.sort('count', ascending=False, inplace=True)
-        self.last_line_out_table = self.lines[['wavelength', 'atomic_number', 'ion_number', 'level_number_lower',
-                                              'level_number_upper']].ix[last_line_out_count.index]
+        self.last_line_in_table.sort_values(by='count', ascending=False, inplace=True)
+        self.last_line_out_table = self.last_line_out.reset_index()[
+                [
+                    'wavelength', 'atomic_number', 'ion_number',
+                    'level_number_lower', 'level_number_upper']]
         self.last_line_out_table['count'] = last_line_out_count
-        self.last_line_out_table.sort('count', ascending=False, inplace=True)
+        self.last_line_out_table.sort_values(by='count', ascending=False, inplace=True)
 
 
     def update_last_interaction_line_in_nu_filter(self):

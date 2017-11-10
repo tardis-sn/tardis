@@ -24,14 +24,23 @@ tests you can run this with:
     > python setup.py test
 
 
-Running the more advanced unit tests it requires atomic data that can be
+Running the more advanced unit tests requires Tardis Reference data that can be
 downloaded
-(`atom_data <http://opensupernova.org/files/atomic/kurucz_cd23_chianti_H_He.h5.zip>`_).
+(`tardis_refdata <https://github.com/tardis-sn/tardis-refdata>`_).
 
 .. code-block:: shell
 
-    > python setup.py test --args="--atomic-dataset=kurucz_cd23_chianti_H_He.h5"
+    > python setup.py test --args="--tardis-refdata=/path/to/tardis-refdata/"
 
+Generating Plasma Reference
+===========================
+
+You can generate Plasma Reference by the following command
+
+.. code-block:: shell
+
+    > pytest -rs tardis/plasma/tests/test_complete_plasmas.py 
+    --tardis-refdata="/path/to/tardis-refdata/" --generate-reference
 
 Running the integration tests
 =============================

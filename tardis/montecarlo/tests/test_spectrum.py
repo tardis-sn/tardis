@@ -1,12 +1,13 @@
 import pytest
 import numpy as np
 import pandas as pd
-
+import os
 from astropy import (
         units as u,
         constants as c
         )
 import astropy.tests.helper as test_helper
+from numpy.testing import assert_almost_equal
 from tardis.montecarlo.spectrum import (
         TARDISSpectrum,
         )
@@ -124,7 +125,7 @@ def test_luminosity_to_flux():
     flux = TARDISSpectrum.luminosity_to_flux(lum, distance)
     test_helper.assert_quantity_allclose(
             flux,
-            u.Quantity(lum.value / np.pi, 'erg/s/cm^2')
+            u.Quantity(lum.value / np.pi, 'erg s^-1 cm^-2')
             )
 
 
@@ -166,44 +167,19 @@ def compare_spectra(actual, desired):
                 actual.distance,
                 desired.distance
                 )
+                
+@pytest.fixture(autouse=True)
+def to_hdf_buffer(hdf_file_path,spectrum):
+    spectrum.to_hdf(hdf_file_path, name='spectrum')
 
-
-@pytest.mark.xfail
-def test_to_from_hdf(tmpdir, spectrum):
-    path = str(tmpdir.join('spectrum.hdf'))
-    spectrum.to_hdf(
-            str(path),
-            'spectrum'
-            )
-
-    spec_from = TARDISSpectrum.from_hdf(
-            path,
-            'spectrum'
-            )
-
-    compare_spectra(
-            spectrum,
-            spec_from)
-
-
-@pytest.mark.xfail
-def test_to_from_hdf_buffer(tmpdir, spectrum):
-    path = str(tmpdir.join('spectrum.hdf'))
-    spectrum.to_hdf(
-            str(path),
-            'spectrum'
-            )
-
-    with pd.HDFStore(path, mode='r') as buffer:
-        spec_from = TARDISSpectrum.from_hdf(
-                buffer,
-                'spectrum'
-                )
-
-    compare_spectra(
-            spectrum,
-            spec_from)
-
+@pytest.mark.parametrize("attr", TARDISSpectrum.hdf_properties)
+def test_hdf_spectrum(hdf_file_path, spectrum, attr):
+    actual = getattr(spectrum, attr)
+    if hasattr(actual, 'cgs'):
+        actual = actual.cgs.value
+    path = os.path.join('spectrum', attr)
+    expected = pd.read_hdf(hdf_file_path, path)
+    assert_almost_equal(actual, expected.values)
 
 ###
 # Test creation from nonstandard units

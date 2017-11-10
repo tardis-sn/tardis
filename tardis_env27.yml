@@ -3,6 +3,7 @@ name: tardis
 channels:
     - defaults
     - conda-forge
+    - bioconda
 
 dependencies:
 - python=2.7
@@ -20,6 +21,9 @@ dependencies:
 - pyyaml=3.12
 - jsonschema=2.5.1
 - pyne=0.5.3
+- pyside=1.2
+- graphviz=2.38
+- pygraphviz
 
 # RTD requirements
 - sphinx=1.5.1
@@ -42,3 +46,4 @@ dependencies:
   - coveralls
   - pytest-html==1.10.0
   - dokuwiki
+  - dot2tex

@@ -68,11 +68,11 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
         stimulated_emission_factor[meta_stable_upper &
                                    (stimulated_emission_factor < 0)] = 0.0
         if self.nlte_species:
-            nlte_lines_mask = \
-                np.zeros(stimulated_emission_factor.shape[0]).astype(bool)
-            for species in self.nlte_species:
-                nlte_lines_mask |= (lines.atomic_number == species[0]) & \
-                                   (lines.ion_number == species[1])
+            nlte_lines_mask = lines.reset_index().apply(
+                    lambda row:
+                    (row.atomic_number, row.ion_number) in self.nlte_species,
+                    axis=1
+            ).values
             stimulated_emission_factor[(stimulated_emission_factor < 0) &
                 nlte_lines_mask[np.newaxis].T] = 0.0
         return stimulated_emission_factor
@@ -126,12 +126,19 @@ class BetaSobolev(ProcessingPlasmaProperty):
 
     def calculate(self, tau_sobolevs):
         if getattr(self, 'beta_sobolev', None) is None:
-            beta_sobolev = np.zeros_like(tau_sobolevs.values)
+            initial = 0.
         else:
-            beta_sobolev = self.beta_sobolev
+            initial = self.beta_sobolev
+
+        beta_sobolev = pd.DataFrame(
+                initial,
+                index=tau_sobolevs.index,
+                columns=tau_sobolevs.columns
+                )
+
         macro_atom.calculate_beta_sobolev(
             tau_sobolevs.values.ravel(),
-            beta_sobolev.ravel())
+            beta_sobolev.values.ravel())
         return beta_sobolev
 
 class TransitionProbabilities(ProcessingPlasmaProperty):
@@ -162,7 +169,11 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
             self.transition_probability_coef = (
                 self._get_transition_probability_coefs(macro_atom_data))
             self.initialize = False
-        transition_probabilities = self._calculate_transition_probability(macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor)
+        transition_probabilities = self._calculate_transition_probability(
+                macro_atom_data,
+                beta_sobolev,
+                j_blues,
+                stimulated_emission_factor)
         transition_probabilities = pd.DataFrame(transition_probabilities,
             index=macro_atom_data.transition_line_id,
             columns=tau_sobolevs.columns)
@@ -174,8 +185,15 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
         transition_type = macro_atom_data.transition_type.values
         lines_idx = macro_atom_data.lines_idx.values
         tpos = macro_atom_data.transition_probability.values
-        #optimized_calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, self.block_references, transition_probabilities)
-        macro_atom.calculate_transition_probabilities(tpos, beta_sobolev, j_blues, stimulated_emission_factor, transition_type, lines_idx, self.block_references, transition_probabilities)
+        macro_atom.calculate_transition_probabilities(
+                tpos,
+                beta_sobolev.values,
+                j_blues.values,
+                stimulated_emission_factor,
+                transition_type,
+                lines_idx,
+                self.block_references,
+                transition_probabilities)
         return transition_probabilities
 
     def calculate_transition_probabilities(self, macro_atom_data, beta_sobolev, j_blues, stimulated_emission_factor):
@@ -198,7 +216,7 @@ class TransitionProbabilities(ProcessingPlasmaProperty):
 
     def prepare_transition_probabilities(self, macro_atom_data, beta_sobolev,
                                          j_blues, stimulated_emission_factor):
-        current_beta_sobolev = beta_sobolev.take(
+        current_beta_sobolev = beta_sobolev.values.take(
             macro_atom_data.lines_idx.values, axis=0, mode='raise')
         transition_probabilities = self.transition_probability_coef * current_beta_sobolev
         j_blues = j_blues.take(self.transition_up_line_filter, axis=0,
