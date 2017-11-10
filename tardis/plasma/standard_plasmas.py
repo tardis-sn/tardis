@@ -22,7 +22,8 @@ from tardis.plasma.properties import (
         JBluesDetailed,
         RadiationFieldCorrection,
         StimulatedEmissionFactor,
-        HeliumNumericalNLTE)
+        HeliumNumericalNLTE,
+        IonNumberDensity)
 
 logger = logging.getLogger(__name__)
 
