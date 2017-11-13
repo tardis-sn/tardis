@@ -8,7 +8,7 @@ channels:
 dependencies:
 - python=2.7
 - numpy=1.12
-- scipy=0.18
+- scipy=1.0
 - pandas=0.20
 - pytables
 - h5py=2.6
@@ -21,7 +21,6 @@ dependencies:
 - pyyaml=3.12
 - jsonschema=2.5.1
 - pyne=0.5.3
-- pyside=1.2
 - graphviz=2.38
 - pygraphviz
 
