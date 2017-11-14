@@ -7,6 +7,8 @@ include setup.cfg
 
 recursive-include *.pyx *.c *.pxd *.h
 recursive-include tardis/montecarlo/src *.h *.c
+recursive-include tardis/io/schemas *.yml
+recursive-include tardis/data *
 recursive-include docs *
 recursive-include licenses *
 recursive-include cextern *
