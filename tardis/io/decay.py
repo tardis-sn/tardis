@@ -55,7 +55,7 @@ class IsotopeAbundances(pd.DataFrame):
         :return:
         """
 
-        comp_dicts = [{}] * len(self.columns)
+        comp_dicts = [dict() for i in xrange(len(self.columns))] 
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = '{0:s}{1:d}'.format(nucname.name(atomic_number),
                                            mass_number)
