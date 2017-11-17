@@ -83,7 +83,10 @@ class IsotopeAbundances(pd.DataFrame):
         t_second = u.Quantity(t, u.day).to(u.s).value
 
         decayed_materials = [item.decay(t_second) for item in materials]
-        
+       	for i in range(0,len(materials),1):
+		for key in materials[i].keys():
+			if key not in decayed_materials[i]:
+				decayed_materials[i][key] = 0.0	
         df = IsotopeAbundances.from_materials(decayed_materials)
         df.sort_index(inplace=True)
         return df 
@@ -112,6 +115,7 @@ class IsotopeAbundances(pd.DataFrame):
             : merged abundances
         """
         isotope_abundance = self.as_atoms()
+	isotope_abundance = isotope_abundance.fillna(0)
         #Merge abundance and isotope dataframe
         modified_df = isotope_abundance.add(other, fill_value=0)
 
