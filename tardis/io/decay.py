@@ -9,7 +9,7 @@ class IsotopeAbundances(pd.DataFrame):
         return IsotopeAbundances
 
     def _update_material(self):
-        self.comp_dicts = [{}] * len(self.columns)
+        self.comp_dicts = [dict() for i in xrange(len(self.columns))] 
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = '%s%d'.format(nucname.name(atomic_number),
                                            mass_number)
@@ -27,7 +27,7 @@ class IsotopeAbundances(pd.DataFrame):
             multi_index_tuples, names=['atomic_number', 'mass_number'])
 
 
-        abundances = pd.DataFrame(index=index, columns=xrange(len(materials)))
+        abundances = pd.DataFrame(data=0.0, index=index, columns=xrange(len(materials)))
 
         for i, material in enumerate(materials):
             for key, value in material.items():
@@ -55,7 +55,7 @@ class IsotopeAbundances(pd.DataFrame):
         :return:
         """
 
-        comp_dicts = [{}] * len(self.columns)
+        comp_dicts = [dict() for i in xrange(len(self.columns))] 
         for (atomic_number, mass_number), abundances in self.iterrows():
             nuclear_symbol = '{0:s}{1:d}'.format(nucname.name(atomic_number),
                                            mass_number)
@@ -81,10 +81,10 @@ class IsotopeAbundances(pd.DataFrame):
 
         materials = self.to_materials()
         t_second = u.Quantity(t, u.day).to(u.s).value
-
         decayed_materials = [item.decay(t_second) for item in materials]
-        
-        df = IsotopeAbundances.from_materials(decayed_materials)
+        for i in range(len(materials)):
+            materials[i].update(decayed_materials[i])
+        df = IsotopeAbundances.from_materials(materials)
         df.sort_index(inplace=True)
         return df 
 
@@ -112,6 +112,7 @@ class IsotopeAbundances(pd.DataFrame):
             : merged abundances
         """
         isotope_abundance = self.as_atoms()
+        isotope_abundance = isotope_abundance.fillna(0.0)
         #Merge abundance and isotope dataframe
         modified_df = isotope_abundance.add(other, fill_value=0)
 
