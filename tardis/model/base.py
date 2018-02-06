@@ -4,9 +4,10 @@ import numpy as np
 import pandas as pd
 from astropy import constants, units as u
 
-from tardis.util import quantity_linspace, element_symbol2atomic_number
-from tardis.io.model_reader import read_density_file, read_abundances_file
+from tardis.util import quantity_linspace
+from tardis.io.model_reader import read_density_file, read_abundances_file, read_uniform_abundances
 from tardis.io.util import HDFWriterMixin
+from tardis.io.decay import IsotopeAbundances
 from density import HomologousDensity
 
 logger = logging.getLogger(__name__)
@@ -59,11 +60,10 @@ class Radial1DModel(HDFWriterMixin):
     """
     hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
     hdf_name = 'model'
-    
-    def __init__(self, velocity, homologous_density, abundance, time_explosion,
-                 t_inner, luminosity_requested=None, t_radiative=None,
-                 dilution_factor=None, v_boundary_inner=None,
-                 v_boundary_outer=None):
+
+    def __init__(self, velocity, homologous_density, abundance, isotope_abundance,
+                 time_explosion, t_inner, luminosity_requested=None, t_radiative=None,
+                 dilution_factor=None, v_boundary_inner=None, v_boundary_outer=None, electron_densities=None):
         self._v_boundary_inner = None
         self._v_boundary_outer = None
         self._velocity = None
@@ -73,6 +73,11 @@ class Radial1DModel(HDFWriterMixin):
         self.homologous_density = homologous_density
         self._abundance = abundance
         self.time_explosion = time_explosion
+        self._electron_densities = electron_densities
+
+        self.raw_abundance = self._abundance
+        self.raw_isotope_abundance = isotope_abundance 
+
         if t_inner is None:
             if luminosity_requested is not None:
                 self.t_inner = ((luminosity_requested /
@@ -185,6 +190,9 @@ class Radial1DModel(HDFWriterMixin):
             # abundance has one element less than velocity
             # ix stop index is inclusive
             stop -= 2
+        if not self.raw_isotope_abundance.empty:
+            self._abundance = self.raw_isotope_abundance.decay(
+                self.time_explosion).merge(self.raw_abundance)
         abundance = self._abundance.ix[:, start:stop]
         abundance.columns = range(len(abundance.columns))
         return abundance
@@ -282,6 +290,8 @@ class Radial1DModel(HDFWriterMixin):
         time_explosion = config.supernova.time_explosion.cgs
 
         structure = config.model.structure
+        electron_densities = None
+        temperature = None
         if structure.type == 'specific':
             velocity = quantity_linspace(structure.velocity.start,
                                          structure.velocity.stop,
@@ -294,7 +304,7 @@ class Radial1DModel(HDFWriterMixin):
                 structure_fname = os.path.join(config.config_dirname,
                                                structure.filename)
 
-            time_0, velocity, density_0 = read_density_file(
+            time_0, velocity, density_0, electron_densities, temperature = read_density_file(
                 structure_fname, structure.filetype)
             density_0 = density_0.insert(0, 0)
             homologous_density = HomologousDensity(density_0, time_0)
@@ -304,7 +314,9 @@ class Radial1DModel(HDFWriterMixin):
         #       v boundaries.
         no_of_shells = len(velocity) - 1
 
-        if config.plasma.initial_t_rad > 0 * u.K:
+        if temperature:
+            t_radiative = temperature
+        elif config.plasma.initial_t_rad > 0 * u.K:
             t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
         else:
             t_radiative = None
@@ -317,17 +329,11 @@ class Radial1DModel(HDFWriterMixin):
             t_inner = config.plasma.initial_t_inner
 
         abundances_section = config.model.abundances
-        if abundances_section.type == 'uniform':
-            abundance = pd.DataFrame(columns=np.arange(no_of_shells),
-                                     index=pd.Index(np.arange(1, 120),
-                                                    name='atomic_number'),
-                                     dtype=np.float64)
+        isotope_abundance = pd.DataFrame()
 
-            for element_symbol_string in abundances_section:
-                if element_symbol_string == 'type':
-                    continue
-                z = element_symbol2atomic_number(element_symbol_string)
-                abundance.ix[z] = float(abundances_section[element_symbol_string])
+        if abundances_section.type == 'uniform':
+            abundance, isotope_abundance = read_uniform_abundances(
+                abundances_section, no_of_shells)
 
         elif abundances_section.type == 'file':
             if os.path.isabs(abundances_section.filename):
@@ -336,27 +342,31 @@ class Radial1DModel(HDFWriterMixin):
                 abundances_fname = os.path.join(config.config_dirname,
                                                 abundances_section.filename)
 
-            index, abundance = read_abundances_file(abundances_fname,
-                                                    abundances_section.filetype)
+            index, abundance, isotope_abundance = read_abundances_file(abundances_fname,
+                                                                       abundances_section.filetype)
 
         abundance = abundance.replace(np.nan, 0.0)
         abundance = abundance[abundance.sum(axis=1) > 0]
 
-        norm_factor = abundance.sum(axis=0)
+        norm_factor = abundance.sum(axis=0) + isotope_abundance.sum(axis=0)
 
         if np.any(np.abs(norm_factor - 1) > 1e-12):
             logger.warning("Abundances have not been normalized to 1."
                            " - normalizing")
             abundance /= norm_factor
+            isotope_abundance /= norm_factor
 
+        isotope_abundance = IsotopeAbundances(isotope_abundance)
 
         return cls(velocity=velocity,
                    homologous_density=homologous_density,
                    abundance=abundance,
+                   isotope_abundance=isotope_abundance,
                    time_explosion=time_explosion,
                    t_radiative=t_radiative,
                    t_inner=t_inner,
                    luminosity_requested=luminosity_requested,
                    dilution_factor=None,
                    v_boundary_inner=structure.get('v_inner_boundary', None),
-                   v_boundary_outer=structure.get('v_outer_boundary', None))
+                   v_boundary_outer=structure.get('v_outer_boundary', None),
+                   electron_densities=electron_densities)
