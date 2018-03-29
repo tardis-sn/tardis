@@ -55,14 +55,13 @@ addons:
   apt:
     packages:
     - clang
+    - graphviz
 
 
 
 
 before_install:
     # We do this to make sure we get the dependencies so pip works below
-    #- sudo apt-get -qq update
-    - sudo apt-get install -y graphviz
     - export PYTHONIOENCODING=UTF8
     - wget $MINICONDA_URL -O miniconda.sh
     - chmod +x miniconda.sh
