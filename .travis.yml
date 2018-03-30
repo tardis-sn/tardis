@@ -84,6 +84,7 @@ before_install:
 install:
    - cd $TRAVIS_BUILD_DIR
    - conda env create -f tardis_env27.yml
+   - conda install -y -c conda-forge graphviz=2.38.0 xorg-libxrender xorg-libxpm
    - source activate tardis
 
 script:
