@@ -8,6 +8,7 @@ pytest>=2.6.3
 mock
 
 ### TARDIS docs requirements ###
+sphinx==1.6.7
 numpydoc
 pybtex
 sphinx_bootstrap_theme
