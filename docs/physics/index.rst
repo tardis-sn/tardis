@@ -28,6 +28,6 @@ Old Physics Section of the TARDIS Docu (Outdated)
 
 * :doc:`physical_quantities`
 * :doc:`montecarlo`
-* :doc:`plasma`
+* :doc:`new_plasma`
 * :doc:`plasma/index`
 
