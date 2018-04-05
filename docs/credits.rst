@@ -54,15 +54,18 @@ Principle Investigator
 Core Team
 ---------
 
- * Aoife Boyle
  * Vytautas Jancauskas
- * Michael Klauser
  * Markus Kromer
  * Stefan Lietzau
  * Ulrich Noebauer
  * Stuart Sim
  * Christian Vogl
 
+Past Members
+------------
+
+ * Aoife Boyle
+ * Michael Klauser
 
 Current and Former GSoC and SOCIS Students
 ------------------------------------------
@@ -70,9 +73,12 @@ Current and Former GSoC and SOCIS Students
  * Aoife Boyle (GSoC 2015)
  * Tomas Bylund (SOCIS 2016)
  * Karan Desai (GSoC 2016)
+ * Vaibhav Gupta (GSoC 2017)
  * Vytautas Jancauskas (GSoC 2015)
+ * Stefan Lietzau (GSoC 2017)
  * Mikhail Mishin (GSoC 2016)
  * Fotis Tsamis (GSoC 2016)
+
 
 Contributors
 ------------
