@@ -84,7 +84,6 @@ install:
    - cd $TRAVIS_BUILD_DIR
    - conda env create -f tardis_env27.yml
    - source activate tardis
-   - python setup.py build
 
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
