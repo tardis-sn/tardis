@@ -73,10 +73,6 @@ add_command_option('build', 'with-vpacket-logging', 'compile TARDIS with virtual
 add_command_option('develop', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
                    is_bool=True)
 
-# Adjust the compiler in case the default on this platform is to use a
-# broken one.
-adjust_compiler(PACKAGENAME)
-
 # Freeze build information in version.py
 generate_version_py(PACKAGENAME, VERSION, RELEASE,
                     get_debug_option(PACKAGENAME))
@@ -141,4 +137,3 @@ setup(name=PACKAGENAME + '-sn',
       entry_points=entry_points,
       **package_info
 )
-
