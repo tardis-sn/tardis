@@ -129,7 +129,7 @@ class TestIntegration(object):
         self.result.run()
         if request.config.getoption("--generate-reference"):
             ref_data_path = os.path.join(
-                data_path['gen_ref_path'], "{0}.h5".format(self.name)
+                data_path['reference_path'], "{0}.h5".format(self.name)
             )
             if os.path.exists(ref_data_path):
                 pytest.skip(
@@ -137,7 +137,7 @@ class TestIntegration(object):
                     'proceed generating new data'.format(ref_data_path))
             self.result.to_hdf(file_path=ref_data_path)
             pytest.skip("Reference data saved at {0}".format(
-                data_path['gen_ref_path']
+                data_path['reference_path']
             ))
         capmanager.resumecapture()
 
