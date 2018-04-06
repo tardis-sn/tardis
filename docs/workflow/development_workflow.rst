@@ -11,9 +11,9 @@ to the Astropy team for designing it.
 Preparation and Working with Git
 ================================
 
-The first step is to setup up a python environment. :doc:`python_environment`
-explains how to do that. Some of this information is also contained in the
-:doc:`Installation guide <../installation>`. Once the python environment is
+The first step is to setup up a python environment. We recommend to use
+Anaconda for this purpose and refer to our :doc:`Installation guide
+<../installation>` which covers this topic. Once the python environment is
 running consult :doc:`git_workflow` to learn about interacting with git and
 github for the purpose of developing TARDIS.
 
@@ -43,4 +43,4 @@ which are then acted upon.
 * close issue/partial PR and add to changelog.
 
 
-.. include:: release_workflow.inc
+.. include:: release_workflow.rst
