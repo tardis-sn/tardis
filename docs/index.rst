@@ -39,6 +39,7 @@ Using Tardis
 * :doc:`TARDIS Configuration <configuration/index>`
 * :doc:`Examples <examples/examples>`
 * :doc:`Storing simulations to HDF <to_hdf>`
+* :doc:`Helper Scripts <scripts/index>`
 * :doc:`Credit & Publication Policies <credits>`
 
 ======================
