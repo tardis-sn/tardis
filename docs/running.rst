@@ -4,8 +4,12 @@
 Quickstart Guide
 ****************
 
-To run TARDIS requires two files. The atomic database (for more info refer to :ref:`atomic-data-download`) and a
-configuration file (more info at :ref:`config-file`).
+To run TARDIS requires two files. The atomic database (for more info refer to
+:ref:`atomic-data-download`) and a configuration file (more info at
+:ref:`config-file`). You can obtain a copy of the atomic database from the
+`tardis-refdata <https://github.com/tardis-sn/tardis-refdata>`_ repository
+(``atom_data`` subfolder). We recommended to use the
+``kurucz_cd23_chianti_H_He.h5`` dataset.
 
 Running TARDIS in the commandline
 =================================
