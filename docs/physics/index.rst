@@ -15,6 +15,7 @@ Eventually, information about the following topics will be provided
 * Spectral Synthesis in SNe Ia ejecta
 * Radiative Transfer Primer
 * Reference Frames
+* Nuclear Decay
 * TARDIS Simulation Procedure
 * Plasma State Calculation
 
