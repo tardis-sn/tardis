@@ -7,16 +7,16 @@ Credits & Publication Policies
 We provide TARDIS as a free, open-source tool. If you are using it, please
 adhere to a few policies and acknowledge the TARDIS Team.
 
-
 Publication Policies
 ====================
 
 If you use this code for any publications or presentations please acknowledge
 it accordingly. Please cite `Kerzendorf & Sim 2014
 <http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_ and the `zenodo record
-<https://zenodo.org/record/17630>`_ of the TARDIS version you are using
+<https://doi.org/10.5281/zenodo.592480>`_.
 
-You can use the following bibtex entry:
+You can use the following bibtex entries for the Kerzendorf & Sim 2014
+reference:
 
 .. code-block:: none
 
@@ -36,7 +36,19 @@ You can use the following bibtex entry:
      adsurl = {http://adsabs.harvard.edu/abs/2014MNRAS.440..387K},
     adsnote = {Provided by the SAO/NASA Astrophysics Data System}
   }
+
  
+We would appreciate if the following acknowledgement is included in
+publications using TARDIS:
+
+.. code-block:: none
+
+  This research made use of \textsc{Tardis}, a community-developed software
+  package for spectral synthesis in supernovae. The development of
+  \textsc{Tardis} received support from the Google Summer of Code initiative
+  and from ESA's Summer of Code in Space program. \textsc{Tardis} makes
+  extensive use of Astropy and PyNE.
+
 User modifications and additions that lead to publications need to be handed
 back to the community by incorporating them into this publicly available
 version of TARDIS. Please contact the TARDIS team via the `github page

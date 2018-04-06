@@ -14,6 +14,7 @@ TARDIS Code papers
 Studies using TARDIS
 ==================
 
+* :cite:`Smartt2017`
 * :cite:`Barna2017`
 * :cite:`Heringer2017`
 * :cite:`Magee2017`
