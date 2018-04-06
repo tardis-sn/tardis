@@ -14,9 +14,9 @@ Publication Policies
 If you use this code for any publications or presentations please acknowledge
 it accordingly. Please cite `Kerzendorf & Sim 2014
 <http://adsabs.harvard.edu/abs/2014MNRAS.440..387K>`_ and the `zenodo record
-<https://zenodo.org/record/17630>`_ of the TARDIS version you are using
+<https://doi.org/10.5281/zenodo.592480>`_ of the TARDIS version you are using
 
-You can use the following bibtex entry:
+You can use the following bibtex entries:
 
 .. code-block:: none
 
@@ -36,6 +36,44 @@ You can use the following bibtex entry:
      adsurl = {http://adsabs.harvard.edu/abs/2014MNRAS.440..387K},
     adsnote = {Provided by the SAO/NASA Astrophysics Data System}
   }
+
+  @misc{wolfgang_kerzendorf_2018_1213132,
+    author       = {Wolfgang Kerzendorf and
+                    Vytautas Jancauskas and
+                    Fotis Tsamis and
+                    Vaibhav Gupta and
+                    Karan Desai and
+                    yeganer and
+                    Ulrich Noebauer and
+                    ssim and
+                    Michael and
+                    Mikhail Mishin and
+                    chvogl and
+                    Adam Suban-Loewen and
+                    Gaurav Gautam and
+                    Maryam Patel and
+                    Kaushik Varanasi and
+                    mreineck and
+                    Tomas Bylund and
+                    Srinath Rajagopalan and
+                    Rinkle Jain and
+                    Luke Shingles and
+                    Laud B and
+                    pfreddy and
+                    Sourav Singh and
+                    Chinmay Talegaonkar and
+                    Caroline Sofiatti and
+                    Ujjwal Wahi and
+                    Suyash Gupta and
+                    Pratik Patel and
+                    Kevin Yap},
+    title        = {tardis-sn/tardis: TARDIS v2},
+    month        = apr,
+    year         = 2018,
+    doi          = {10.5281/zenodo.1213132},
+    url          = {https://doi.org/10.5281/zenodo.1213132}
+  }
+
  
 User modifications and additions that lead to publications need to be handed
 back to the community by incorporating them into this publicly available
