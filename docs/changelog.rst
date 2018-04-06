@@ -1,7 +1,7 @@
 .. _changelog:
 
-**************
-Full Changelog
-**************
+*********
+Changelog
+*********
 
 .. include:: ../CHANGELOG.rst
