@@ -5,8 +5,8 @@ Installation
 ************
 
 Before installing TARDIS, please check its :ref:`requirements
-<requirements_label>`. We provide instructions for installing TARDIS using 
-Anaconda :ref:`guide <anaconda_inst_label>`. If you encounter problems, consult the
+<requirements_label>`. We provide :ref:`instructions <anaconda_inst_label>` for installing TARDIS using 
+Anaconda. If you encounter problems, consult the
 :ref:`troubleshooting <troubleshooting_inst_label>` section. Once you have
 installed TARDIS, check out :doc:`running` for instructions of how to perform
 simple TARDIS calculations.
@@ -19,9 +19,6 @@ simple TARDIS calculations.
 
 Requirements
 ============
-
-.. warning::
-    TARDIS only works on 64-bit python installations.
 
 You can see a list of all the requirements of TARDIS in the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env27.yml>`_.
 
@@ -66,12 +63,11 @@ Since TARDIS has reached a mature state, we recommend always installing the late
 
     pip install git+https://github.com/tardis-sn/tardis
 
+Alternatively, you can manually clone our repository and install TARDIS by
 
-To install the latest stable version of TARDIS simply do (usually outdated)::
-
-    pip install tardis-sn
-
-
+    git clone https://github.com/tardis-sn/tardis.git
+    cd tardis
+    python setup.py build install
 
 
 .. _troubleshooting_inst_label:
