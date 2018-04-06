@@ -56,6 +56,7 @@ Developing Tardis
 * :doc:`Reporting Issues <issues>`
 * :doc:`How to contribute <workflow/development_workflow>`
 * :doc:`Running tests <running_tests>`
+* :doc:`Changelog <changelog>`
 
 ==========
 References
