@@ -90,6 +90,12 @@ definitions:
         type:
           enum:
           - specific
+        stop_if_converged:
+          type: boolean
+          default: false
+          description: stop plasma iterations before number of specified
+            iterations are reached if the simulation is plasma and inner
+            boundary state is converged
         threshold:
           type: number
           description: specifies the threshold that is taken as convergence  (i.e.
