@@ -96,10 +96,6 @@ definitions:
           description: stop plasma iterations before number of specified
             iterations are reached if the simulation is plasma and inner
             boundary state is converged
-        threshold:
-          type: number
-          description: specifies the threshold that is taken as convergence  (i.e.
-            0.05 means that the value does not change more than 5%)
         fraction:
           type: number
           default: 0.8
@@ -159,15 +155,10 @@ definitions:
           description: The number of cycles to lock the update of the inner boundary
             temperature. This process helps with convergence. The default is to switch
             it off (1 cycle)
-        damping_constant:
-          type: number
-          default: 0.5
-          description: damping constant
         t_inner_update_exponent:
           type: number
           default: -0.5
           description: L=4*pi*r**2*T^y
       required:
-      - threshold
       - fraction
       - hold_iterations
