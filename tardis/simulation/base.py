@@ -103,7 +103,7 @@ class Simulation(HDFWriterMixin):
             / no_of_shells)
 
         t_rad_converged = (
-            fraction_t_rad_converged > self.convergence_strategy.t_rad.threshold)
+            fraction_t_rad_converged > self.convergence_strategy.fraction)
 
         fraction_w_converged = (
             np.count_nonzero(
@@ -111,7 +111,7 @@ class Simulation(HDFWriterMixin):
             / no_of_shells)
 
         w_converged = (
-            fraction_w_converged > self.convergence_strategy.w.threshold)
+            fraction_w_converged > self.convergence_strategy.fraction)
 
         t_inner_converged = (
             convergence_t_inner < self.convergence_strategy.t_inner.threshold)
