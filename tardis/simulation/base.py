@@ -160,9 +160,12 @@ class Simulation(HDFWriterMixin):
             self.convergence_strategy.t_rad.damping_constant)
         next_w = self.damped_converge(
             self.model.w, estimated_w, self.convergence_strategy.w.damping_constant)
-        next_t_inner = self.damped_converge(
-            self.model.t_inner, estimated_t_inner,
-            self.convergence_strategy.t_inner.damping_constant)
+        if (self.iterations_executed + 1) % self.convergence_strategy.lock_t_inner_cycles == 0:
+            next_t_inner = self.damped_converge(
+                self.model.t_inner, estimated_t_inner,
+                self.convergence_strategy.t_inner.damping_constant)
+        else:
+            next_t_inner = self.model.t_inner
 
         self.log_plasma_state(self.model.t_rad, self.model.w,
                               self.model.t_inner, next_t_rad, next_w,
