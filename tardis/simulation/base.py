@@ -213,9 +213,8 @@ class Simulation(HDFWriterMixin):
             self.converged = self.advance_state()
             self._call_back()
             if self.converged:
-                # this restructure will be later used to either stop after
-                # convergence of continue until all iterations are executed
-                break
+                if self.convergence_strategy.stop_if_converged:
+                    break
         # Last iteration
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
 
