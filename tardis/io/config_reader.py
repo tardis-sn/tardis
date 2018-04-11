@@ -30,9 +30,7 @@ def parse_convergence_section(convergence_section_dict):
         dictionary
     """
 
-
-    convergence_parameters = ['damping_constant', 'threshold', 'fraction',
-            'hold_iterations']
+    convergence_parameters = ['damping_constant', 'threshold']
 
     for convergence_variable in ['t_inner', 't_rad', 'w']:
         if convergence_variable not in convergence_section_dict:
