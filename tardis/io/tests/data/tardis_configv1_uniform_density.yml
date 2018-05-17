@@ -48,7 +48,7 @@ montecarlo:
     no_of_virtual_packets: 10
 
     convergence_strategy:
-        type: specific
+        type: damped
         damping_constant: 1.0
         threshold: 0.05
         fraction: 0.8
