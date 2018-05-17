@@ -15,7 +15,7 @@ dependencies:
 - matplotlib=2.0
 - astropy=1.3
 - numexpr=2.6
-- Cython=0.28
+
 - networkx=1.10
 - pytest=3.0
 - pyyaml=3.12
@@ -46,3 +46,4 @@ dependencies:
   - pytest-html==1.10.0
   - dokuwiki
   - dot2tex
+  - Cython==0.28
