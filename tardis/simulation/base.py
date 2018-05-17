@@ -60,10 +60,15 @@ class Simulation(HDFWriterMixin):
             self.convergence_strategy = convergence_strategy
             self.converged = False
             self.consecutive_converges_count = 0
+        elif convergence_strategy.type in ('custom'):
+            raise NotImplementedError(
+                'Convergence strategy type is custom; '
+                'you need to implement your specific treatment!'
+            )
         else:
             raise ValueError(
                     'Convergence strategy type is '
-                    'not damped '
+                    'not damped or custom '
                     '- input is {0}'.format(convergence_strategy.type))
 
         self._callbacks = OrderedDict()
