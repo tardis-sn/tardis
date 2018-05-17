@@ -1,10 +1,11 @@
 tardis_example
 --------------
 
-The simple and fast TARDIS setup is provided by tardis_example archive which
-may be obtained from `<http://opensupernova.org/~ftsamis/tardis_example.tar.gz>`
-and which we suggest every new user of TARDIS to run
-first.
+The simple and fast TARDIS setup is provided by ``tardis_example.yml`` which
+may be obtained from `tardis-refdata
+<https://github.com/tardis-sn/tardis-refdata>`_ repository. It is located in
+the ``configs/example`` subfolder. We suggest every new user of TARDIS to run this
+setup first.
 
 It calculates a spectrum for a Type Ia supernova model 13 days after explosion,
 requesting a total output luminosity of
