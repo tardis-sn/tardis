@@ -30,7 +30,7 @@ dependencies:
 - numpydoc=0.8
 - docutils=0.13.1
 - nbformat=4.0.1
-
+- nbsphinx
 #Coverage requirements
 - coverage=3.7.1
 - requests=2.9.1
@@ -38,7 +38,7 @@ dependencies:
 - pytest-cov=2.2.1
 
 - pip:
-  - nbsphinx
+
   - sphinx_bootstrap_theme
   - sphinxcontrib-bibtex
   - sphinxcontrib-tikz
