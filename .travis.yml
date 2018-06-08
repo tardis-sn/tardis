@@ -81,10 +81,7 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="plasma_reference/" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="unit_test_data.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
-    - git clone https://github.com/cython/cython
-    - cd cython
-    - CFLAGS="$CFLAGS -D CYTHON_CLINE_IN_TRACEBACK=0" python setup.py install
-    - cd ..
+
 
 install:
    - cd $TRAVIS_BUILD_DIR
