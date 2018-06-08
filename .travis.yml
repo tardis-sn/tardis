@@ -90,6 +90,10 @@ install:
    - cd $TRAVIS_BUILD_DIR
    - conda env create -f tardis_env27.yml
    - source activate tardis
+   - git clone https://github.com/cython/cython
+   - cd cython
+   - CFLAGS="$CFLAGS -D CYTHON_CLINE_IN_TRACEBACK=0" python setup.py install
+   - cd ..
 
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
