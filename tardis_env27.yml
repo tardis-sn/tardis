@@ -38,7 +38,6 @@ dependencies:
 - pytest-cov=2.2.1
 
 - pip:
-  - git+https://github.com/cython/cython
   - sphinx_bootstrap_theme
   - sphinxcontrib-bibtex
   - sphinxcontrib-tikz
