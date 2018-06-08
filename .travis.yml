@@ -11,7 +11,7 @@ virtualenv:
 cache:
   apt: true
 
-sudo: false
+sudo: true
 
 env:
     global:
@@ -21,7 +21,7 @@ env:
         - SETUP_CMD='test'
         - TEST_MODE='normal'
         - TARDIS_REF_DATA_URL='https://github.com/tardis-sn/tardis-refdata.git'
-        - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda-latest-Linux-x86_64.sh'
+        - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
         - SAVE_COVERAGE=false
 
 matrix:
@@ -56,6 +56,7 @@ addons:
   apt:
     packages:
     - clang
+    - gdb
 
 
 

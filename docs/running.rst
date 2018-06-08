@@ -14,15 +14,18 @@ To run TARDIS requires two files. The atomic database (for more info refer to
 Running TARDIS in the commandline
 =================================
 
-After installing TARDIS just download the `example directory
-<http://opensupernova.org/~ftsamis/tardis_example.tar.gz>`_
-and run TARDIS with:
+After installing TARDIS just download the configuration file and the standard
+atomic data set from the `tardis-refdata
+<https://github.com/tardis-sn/tardis-refdata>`_ repository and run TARDIS.
+Assuming you have ``wget``, you could follow the procedure:
 
 
 .. code-block:: none
 
-    tar zxvf tardis_example.tar.gz
+    mkdir tardis_example
     cd tardis_example
+    wget https://github.com/tardis-sn/tardis-refdata/raw/master/configs/examples/tardis_example.yml
+    wget https://github.com/tardis-sn/tardis-refdata/raw/master/atom_data/kurucz_cd23_chianti_H_He.h5
     tardis tardis_example.yml output_spectrum.dat
 
 
