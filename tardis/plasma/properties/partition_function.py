@@ -210,7 +210,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                 j_blues,
                 beta_sobolevs,
                 general_level_boltzmann_factor,
-                previous_electron_densities)
+                previous_electron_densities, g)
         return general_level_boltzmann_factor
 
     def _calculate_coronal_approximation(
@@ -226,7 +226,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         general_level_boltzmann_factor = self._main_nlte_calculation(
             atomic_data, nlte_data, t_electrons, j_blues,
             beta_sobolevs, general_level_boltzmann_factor,
-            previous_electron_densities)
+            previous_electron_densities, g)
         return general_level_boltzmann_factor
 
     def _calculate_general(
