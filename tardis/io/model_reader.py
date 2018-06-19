@@ -327,14 +327,13 @@ def read_simple_isotope_abundances(fname, delimiter='\s+'):
     """
     Reading an abundance file of the following structure (example; lines starting with hash will be ignored):
     The first line of abundances describe the abundances in the center of the model and are not used.
-    First 4 columns contain values related to velocity, density, electron_density and temperature.
-    From 5th column onwards, abundances of elements and isotopes begin.
+    Each column contains abundances of elements and isotopes begin.
     The file consists of a header row and next row contains unit of the respective attributes
     Since abundance fractions are unitless , its unit row is filled with ones
-    Example 
-    velocity...temperature C O Ni56
-    km/s.........K         1 1 1
-    ...................... 0.4 0.3 0.2
+    Example
+    C O Ni56
+    1 1 1
+    0.4 0.3 0.2
 
     Parameters
     ----------
@@ -347,7 +346,7 @@ def read_simple_isotope_abundances(fname, delimiter='\s+'):
 
     index: ~np.ndarray
     abundances: ~pandas.DataFrame
-    isotope_abundance: ~pandas.MultiIndex    
+    isotope_abundance: ~pandas.MultiIndex
     """
     df = pd.read_csv(fname, comment='#',
                      delimiter=delimiter, skiprows=[0, 2])
@@ -363,9 +362,8 @@ def read_simple_isotope_abundances(fname, delimiter='\s+'):
     isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
                                      index=isotope_index,
                                      dtype=np.float64)
-    
-    #First 4 columns related to density parser (e.g. velocity)
-    for element_symbol_string in df.index[4:]:
+
+    for element_symbol_string in df.index:
         if element_symbol_string in nucname.name_zz:
             z = nucname.name_zz[element_symbol_string]
             abundance.loc[z, :] = df.loc[element_symbol_string].tolist()[1:]
