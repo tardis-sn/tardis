@@ -190,7 +190,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                     else:
                         raise e
                 general_level_boltzmann_factor[i].ix[species] = \
-                    level_boltzmann_factor * g[species][0] / level_boltzmann_factor[0]
+                    level_boltzmann_factor * g.loc[species][0] / level_boltzmann_factor[0]
         return general_level_boltzmann_factor
 
     def _calculate_classical_nebular(
