@@ -37,10 +37,16 @@ Using Tardis
 * :doc:`Quickstart Guide <running>`
 * :doc:`Ejecta Model Setup <examples/modelconfig>`
 * :doc:`TARDIS Configuration <configuration/index>`
-* :doc:`Examples <examples/examples>`
 * :doc:`Storing simulations to HDF <to_hdf>`
 * :doc:`Helper Scripts <scripts/index>`
 * :doc:`Credit & Publication Policies <credits>`
+
+========
+Examples
+========
+
+.. toctree::
+    notebooks/integrator
 
 ======================
 Looking under the hood
