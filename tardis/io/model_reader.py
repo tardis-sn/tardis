@@ -364,11 +364,11 @@ def read_csv_composition(fname, delimiter='\s+'):
     """
 
     return read_csv_isotope_abundances(fname, delimiter=delimiter,
-                                       skip_columns=0, skip_rows=None)
+                                       skip_columns=0, skip_rows=[1])
 
 
 def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
-                                skip_rows=None):
+                                skip_rows=[1]):
     """
     A generic parser for a TARDIS composition stored as a CSV file
 
@@ -380,6 +380,8 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     It is expected that the first row of the date block (after skipping the
     rows specified in skip_rows) specifies the different elements and isotopes.
     Each row after contains the composition in the corresponding grid shell.
+    The first composition row describes the composition of the photosphere and
+    is essentially ignored (for the default value of skip_rows).
 
     Example
     C O Ni56
