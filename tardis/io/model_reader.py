@@ -1,5 +1,6 @@
 #reading different model files
 
+import warnings
 import numpy as np
 from numpy import recfromtxt, genfromtxt
 import pandas as pd
@@ -43,7 +44,7 @@ def read_density_file(filename, filetype):
     """
     file_parsers = {'artis': read_artis_density,
                     'simple_ascii': read_simple_ascii_density,
-                    'tardis_model': read_cmfgen_density}
+                    'cmfgen_model': read_cmfgen_density}
 
     electron_densities = None
     temperature = None
@@ -95,11 +96,12 @@ def read_abundances_file(abundance_filename, abundance_filetype,
 
     file_parsers = {'simple_ascii': read_simple_ascii_abundances,
                     'artis': read_simple_ascii_abundances,
-                    'tardis_model': read_simple_isotope_abundances}
+                    'cmfgen_model': read_cmfgen_composition,
+                    'custom_composition': read_csv_composition}
 
     isotope_abundance = pd.DataFrame()
-    if abundance_filetype == 'tardis_model':
-        index, abundances, isotope_abundance = read_simple_isotope_abundances(
+    if abundance_filetype in ["cmfgen_model", "custom_composition"]:
+        index, abundances, isotope_abundance = file_parsers[abundance_filetype](
             abundance_filename)
     else:
         index, abundances = file_parsers[abundance_filetype](
@@ -275,6 +277,9 @@ def read_cmfgen_density(fname):
     temperature: ~np.ndarray
 
     """
+    warnings.warn("The current CMFGEN model parser is deprecated",
+                  DeprecationWarning)
+
     df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=[0, 2])
 
     with open(fname) as fh:
@@ -323,13 +328,59 @@ def read_simple_ascii_abundances(fname):
     return index, abundances
 
 
-def read_simple_isotope_abundances(fname, delimiter='\s+'):
+def read_cmfgen_composition(fname, delimiter='\s+'):
+    """Read composition from a CMFGEN model file
+
+    The CMFGEN file format contains information about the ejecta state in the
+    first four columns and the following ones contain elemental and isotopic
+    abundances.
+
+    WARNING: deprecated
+
+    fname: str
+        filename of the csv file
     """
-    Reading an abundance file of the following structure (example; lines starting with hash will be ignored):
-    The first line of abundances describe the abundances in the center of the model and are not used.
-    Each column contains abundances of elements and isotopes begin.
-    The file consists of a header row and next row contains unit of the respective attributes
-    Since abundance fractions are unitless , its unit row is filled with ones
+
+    warnings.warn("The current CMFGEN model parser is deprecated",
+                  DeprecationWarning)
+
+    return read_csv_isotope_abundances(fname, delimiter=delimiter,
+                                       skip_columns=4, skip_rows=[0, 2])
+
+def read_csv_composition(fname, delimiter='\s+'):
+    """Read composition from a simple CSV file
+
+    The CSV file can contain specific isotopes or elemental abundances in the
+    different columns. The first row must contain the header in which the
+    contents of each column is specified by the elemental symbol (for elemental
+    abundances) or by the symbol plus mass number (for isotopic abundances).
+
+    Example: C O Fe Ni56 Co
+
+    The i-th row specifies the composition in the i-th shell
+
+    fname: str
+        filename of the csv file
+    """
+
+    return read_csv_isotope_abundances(fname, delimiter=delimiter,
+                                       skip_columns=0, skip_rows=None)
+
+
+def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
+                                skip_rows=None):
+    """
+    A generic parser for a TARDIS composition stored as a CSV file
+
+    The parser can read in both elemental and isotopic abundances. It also
+    allows for additional information to be stored in the first skip_columns
+    columns. These will be ignored if skip_columns > 0. Specific header lines
+    can be skipped by the skip_rows keyword argument
+
+    It is expected that the first row of the date block (after skipping the
+    rows specified in skip_rows) specifies the different elements and isotopes.
+    Each row after contains the composition in the corresponding grid shell.
+
     Example
     C O Ni56
     1 1 1
@@ -349,7 +400,7 @@ def read_simple_isotope_abundances(fname, delimiter='\s+'):
     isotope_abundance: ~pandas.MultiIndex
     """
     df = pd.read_csv(fname, comment='#',
-                     delimiter=delimiter, skiprows=[0, 2])
+                     delimiter=delimiter, skiprows=skip_rows)
     df = df.transpose()
 
     abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
@@ -363,7 +414,7 @@ def read_simple_isotope_abundances(fname, delimiter='\s+'):
                                      index=isotope_index,
                                      dtype=np.float64)
 
-    for element_symbol_string in df.index:
+    for element_symbol_string in df.index[skip_columns:]:
         if element_symbol_string in nucname.name_zz:
             z = nucname.name_zz[element_symbol_string]
             abundance.loc[z, :] = df.loc[element_symbol_string].tolist()[1:]
