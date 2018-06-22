@@ -48,7 +48,7 @@ def read_density_file(filename, filetype):
 
     electron_densities = None
     temperature = None
-    if filetype == 'tardis_model':
+    if filetype == 'cmfgen_model':
         (time_of_model, velocity,
          unscaled_mean_densities, electron_densities, temperature) = read_cmfgen_density(filename)
     else:
