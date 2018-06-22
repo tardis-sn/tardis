@@ -104,7 +104,7 @@ definitions:
           enum:
           - simple_ascii
           - artis
-          - tardis_model
+          - cmfgen_model
           description: file type
         v_inner_boundary:
           type: quantity
