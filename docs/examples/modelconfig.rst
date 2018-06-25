@@ -17,12 +17,15 @@ The density and composition may be specified independently in the following ways
 Specifying the density
 ======================
 
-* :doc:`using a power-law density profile <densitypow>`
-* :doc:`using an exponential density profile <densityexp>`
-* :doc:`using a custom density profile <densitycust>`
+.. toctree::
+    densitypow
+    densityexp
+    densitycust
+
 
 Specifying the composition
 ==========================
 
-* :doc:`using a uniform composition <abundanceuni>`
-* :doc:`using a custom stratified composition <abundancecust>`
+.. toctree::
+    abundanceuni
+    abundancecust
