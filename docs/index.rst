@@ -47,6 +47,8 @@ Looking under the hood
 ======================
 
 .. toctree::
+    :maxdepth: 2
+
     atomic
     physics/index
     montecarlo/index
