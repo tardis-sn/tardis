@@ -92,6 +92,13 @@ The example file shown here has three simple layers:
     :code:`Ni` and :code:`Ni56`. 
     Here, Ni will refer to the stable Nickel, i.e. (Z=26, A=58).
 
+
+.. note::
+  
+    As with the custom density file, the first row will be ignored. It is
+    supposed to give the composition below the photosphere. Thus, the first row
+    (after the header) can be filled with dummy values
+
 .. warning::
 
    The example given here is to show the format only. It is not a
