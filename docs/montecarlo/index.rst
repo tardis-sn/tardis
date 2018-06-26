@@ -18,12 +18,3 @@ can also be found in various papers by L. Lucy and in the main TARDIS publicatio
     virtualpackets
     sourceintegration
     randomsampling
-
-* :doc:`Basic Principles of Monte Carlo Radiative Transfer <basicprinciples>`
-* :doc:`Monte Carlo discretization <discretization>`
-* :doc:`Propagation of Monte Carlo quanta <propagation>`
-* :doc:`Line Interaction Modes <lineinteraction>`
-* :doc:`Reconstructing the Radiation Field - Volume-based Monte Carlo Estimators <estimators>`
-* :doc:`Spectrum calculation - Virtual Packet scheme <virtualpackets>`
-* :doc:`Spectrum calculation - Radiation field integration <sourceintegration>`
-* :doc:`Random Sampling Basics <randomsampling>`
