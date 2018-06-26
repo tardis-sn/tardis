@@ -64,10 +64,12 @@ In this format, both elemental and isotopic abundances may
 be specified on a per-cell basis via an external csv file. A csv file that could
 work on a mesh with ten cells should be formatted like this:
 
-.. csv-table:: Example
-    :file: tardis_model_abund.csv
-    :delim: space 
-    :header-rows: 1
+.. literalinclude:: tardis_model_abund.csv
+
+.. danger::
+
+    The header line for the isotopic abundance structure can under no
+    circumstances start with a '#'
 
 In this file:
 
