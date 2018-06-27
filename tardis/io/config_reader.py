@@ -30,9 +30,7 @@ def parse_convergence_section(convergence_section_dict):
         dictionary
     """
 
-
-    convergence_parameters = ['damping_constant', 'threshold', 'fraction',
-            'hold_iterations']
+    convergence_parameters = ['damping_constant', 'threshold']
 
     for convergence_variable in ['t_inner', 't_rad', 'w']:
         if convergence_variable not in convergence_section_dict:
@@ -260,9 +258,17 @@ class Configuration(ConfigurationNameSpace):
         validated_config_dict['config_dirname'] = config_dirname
 
         montecarlo_section = validated_config_dict['montecarlo']
-        montecarlo_section['convergence_strategy'] = (
-                parse_convergence_section(
-                    montecarlo_section['convergence_strategy']))
+        if montecarlo_section['convergence_strategy']['type'] == "damped":
+            montecarlo_section['convergence_strategy'] = (
+                    parse_convergence_section(
+                        montecarlo_section['convergence_strategy']))
+        elif montecarlo_section['convergence_strategy']['type'] == "custom":
+            raise NotImplementedError(
+                'convergence_strategy is set to "custom"; '
+                'you need to implement your specific convergence treatment')
+        else:
+            raise ValueError('convergence_strategy is not "damped" '
+                             'or "custom"')
 
         return cls(validated_config_dict)
 
