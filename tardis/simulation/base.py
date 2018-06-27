@@ -56,14 +56,19 @@ class Simulation(HDFWriterMixin):
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
-        if convergence_strategy.type in ('damped', 'specific'):
+        if convergence_strategy.type in ('damped'):
             self.convergence_strategy = convergence_strategy
             self.converged = False
             self.consecutive_converges_count = 0
+        elif convergence_strategy.type in ('custom'):
+            raise NotImplementedError(
+                'Convergence strategy type is custom; '
+                'you need to implement your specific treatment!'
+            )
         else:
             raise ValueError(
                     'Convergence strategy type is '
-                    'neither damped nor specific '
+                    'not damped or custom '
                     '- input is {0}'.format(convergence_strategy.type))
 
         self._callbacks = OrderedDict()
@@ -97,41 +102,37 @@ class Simulation(HDFWriterMixin):
         convergence_t_inner = (abs(t_inner - estimated_t_inner) /
                                estimated_t_inner).value
 
-        if self.convergence_strategy.type == 'specific':
-            fraction_t_rad_converged = (
-                np.count_nonzero(
-                    convergence_t_rad < self.convergence_strategy.t_rad.threshold)
-                / no_of_shells)
+        fraction_t_rad_converged = (
+            np.count_nonzero(
+                convergence_t_rad < self.convergence_strategy.t_rad.threshold)
+            / no_of_shells)
 
-            t_rad_converged = (
-                fraction_t_rad_converged > self.convergence_strategy.t_rad.threshold)
+        t_rad_converged = (
+            fraction_t_rad_converged > self.convergence_strategy.fraction)
 
-            fraction_w_converged = (
-                np.count_nonzero(
-                    convergence_w < self.convergence_strategy.w.threshold)
-                / no_of_shells)
+        fraction_w_converged = (
+            np.count_nonzero(
+                convergence_w < self.convergence_strategy.w.threshold)
+            / no_of_shells)
 
-            w_converged = (
-                fraction_w_converged > self.convergence_strategy.w.threshold)
+        w_converged = (
+            fraction_w_converged > self.convergence_strategy.fraction)
 
-            t_inner_converged = (
-                convergence_t_inner < self.convergence_strategy.t_inner.threshold)
+        t_inner_converged = (
+            convergence_t_inner < self.convergence_strategy.t_inner.threshold)
 
-            if np.all([t_rad_converged, w_converged, t_inner_converged]):
-                hold_iterations = self.convergence_strategy.hold_iterations
-                self.consecutive_converges_count += 1
-                logger.info("Iteration converged {0:d}/{1:d} consecutive "
-                            "times.".format(self.consecutive_converges_count,
-                                            hold_iterations + 1))
-                # If an iteration has converged, require hold_iterations more
-                # iterations to converge before we conclude that the Simulation
-                # is converged.
-                return self.consecutive_converges_count == hold_iterations + 1
-            else:
-                self.consecutive_converges_count = 0
-                return False
-
+        if np.all([t_rad_converged, w_converged, t_inner_converged]):
+            hold_iterations = self.convergence_strategy.hold_iterations
+            self.consecutive_converges_count += 1
+            logger.info("Iteration converged {0:d}/{1:d} consecutive "
+                        "times.".format(self.consecutive_converges_count,
+                                        hold_iterations + 1))
+            # If an iteration has converged, require hold_iterations more
+            # iterations to converge before we conclude that the Simulation
+            # is converged.
+            return self.consecutive_converges_count == hold_iterations + 1
         else:
+            self.consecutive_converges_count = 0
             return False
 
     def advance_state(self):
@@ -147,7 +148,8 @@ class Simulation(HDFWriterMixin):
         estimated_t_rad, estimated_w = (
             self.runner.calculate_radiationfield_properties())
         estimated_t_inner = self.estimate_t_inner(
-            self.model.t_inner, self.luminosity_requested)
+            self.model.t_inner, self.luminosity_requested,
+            t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent)
 
         converged = self._get_convergence_status(self.model.t_rad,
                                                  self.model.w,
@@ -163,9 +165,12 @@ class Simulation(HDFWriterMixin):
             self.convergence_strategy.t_rad.damping_constant)
         next_w = self.damped_converge(
             self.model.w, estimated_w, self.convergence_strategy.w.damping_constant)
-        next_t_inner = self.damped_converge(
-            self.model.t_inner, estimated_t_inner,
-            self.convergence_strategy.t_inner.damping_constant)
+        if (self.iterations_executed + 1) % self.convergence_strategy.lock_t_inner_cycles == 0:
+            next_t_inner = self.damped_converge(
+                self.model.t_inner, estimated_t_inner,
+                self.convergence_strategy.t_inner.damping_constant)
+        else:
+            next_t_inner = self.model.t_inner
 
         self.log_plasma_state(self.model.t_rad, self.model.w,
                               self.model.t_inner, next_t_rad, next_w,
@@ -211,10 +216,13 @@ class Simulation(HDFWriterMixin):
 
     def run(self):
         start_time = time.time()
-        while self.iterations_executed < self.iterations-1 and not self.converged:
+        while self.iterations_executed < self.iterations-1:
             self.iterate(self.no_of_packets)
             self.converged = self.advance_state()
             self._call_back()
+            if self.converged:
+                if self.convergence_strategy.stop_if_converged:
+                    break
         # Last iteration
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
 

@@ -42,6 +42,12 @@ montecarlo:
     iterations: 10
     last_no_of_packets: 1.0e+5
     no_of_virtual_packets: 5
+    convergence_strategy:
+      type: damped
+      damping_constant: 0.5
+      threshold: 0.05
+      lock_t_inner_cycles: 1
+      t_inner_update_exponent: -0.5
 
 spectrum:
     start: 500 angstrom
