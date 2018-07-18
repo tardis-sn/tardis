@@ -63,8 +63,7 @@ extensions += ['matplotlib.sphinxext.plot_directive',
 
 nbsphinx_prolog = """
 This notebook is available at 
-https://github.com/tardis-sn/tardis/tree/master/docs/notebooks/
-{{ env.doc2path(env.docname, base=None) }}
+https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
 ----
 """
 # -- General configuration ----------------------------------------------------
