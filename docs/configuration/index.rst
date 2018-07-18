@@ -15,11 +15,4 @@ and pages provide more details concerning the TARDIS configuration process.
 
   configuration
   config_validator
-
-.. warning::
-  The following section contains the old configuration description and will be deleted soon
-
-.. toctree::
-  :maxdepth: 1
-
-  configuration_old
+  
