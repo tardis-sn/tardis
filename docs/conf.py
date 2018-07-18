@@ -50,6 +50,8 @@ extensions = [
     'sphinx.ext.graphviz',
     'numpydoc',
     'nbsphinx',
+    'sphinx.ext.autodoc',
+    'sphinx-jsonschema'
 ]
 
 source_suffix = '.rst'

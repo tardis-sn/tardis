@@ -1,6 +1,6 @@
-********************
-TARDIS Configuration
-********************
+*************
+Configuration
+*************
 
 Overview
 ========
@@ -13,11 +13,6 @@ and pages provide more details concerning the TARDIS configuration process.
 
 Configuration Details
 =====================
-
-* :doc:`In depth description of config options <configuration_old>`
-* :doc:`Validation Process <config_validator>`
-* :doc:`Example Configuration with Default Values <configuration>`
-
 
 .. warning::
     We are currently in the process of overhauling the configuration system.
@@ -32,8 +27,9 @@ Configuration Details
   built-in. This validator uses a default validation file that already explains
   a lot about the required configuration items.
   
-  .. toctree::
-      :maxdepth: 1
-  
-      configuration
-      config_validator
+.. toctree::
+  :maxdepth: 1
+
+  configuration_old
+  configuration
+  config_validator
