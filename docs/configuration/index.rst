@@ -15,3 +15,4 @@ and pages provide more details concerning the TARDIS configuration process.
 
   configuration
   config_validator
+  read_configuration.ipynb
