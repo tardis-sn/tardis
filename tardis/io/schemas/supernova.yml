@@ -1,3 +1,4 @@
+$$target: supernova.yml
 type: object
 additionalProperties: false
 properties:

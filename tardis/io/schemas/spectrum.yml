@@ -1,3 +1,4 @@
+$$target: spectrum.yml
 type: object
 properties:
   start:

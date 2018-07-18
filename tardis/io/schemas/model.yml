@@ -1,3 +1,4 @@
+$$target: model.yml
 type: object
 additionalProperties: false
 properties:

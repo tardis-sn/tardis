@@ -151,6 +151,8 @@ override then the defaults.
 Spectrum
 --------
 
+.. jsonschema:: schemas/spectrum.yml
+
 Start and end are given as Quantities with units. If they are given in
 frequency space they are switched around if necessary. The number of bins is
 just an integer. Finally, the method option selects the final spectral synthesis mode. Currently, there are three options:
@@ -165,4 +167,3 @@ just an integer. Finally, the method option selects the final spectral synthesis
   interaction mode. Note also the limitations listed at the bottom of the
   dedicated page.
 
-.. jsonschema:: schemas/spectrum.yml

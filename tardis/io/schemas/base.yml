@@ -13,10 +13,13 @@ properties:
     description: path or filename to the Atomic Data HDF5 file
   plasma:
     $ref: plasma.yml
+    description: configuration of the plasma microphysics
   model:
     $ref: model.yml
+    description: defining the model
   montecarlo:
     $ref: montecarlo.yml
+    description: configuring the physics of the monte carlo radiative transfer
   spectrum:
     $ref: spectrum.yml
     description: Final spectrum sampling
