@@ -137,9 +137,11 @@ def assemble_plasma(config, model, atom_data=None):
 
     if config.plasma.helium_treatment == 'recomb-nlte':
         plasma_modules += helium_nlte_properties
-        if 'delta_treatment' in config.plasma:
-            property_kwargs[RadiationFieldCorrection] = dict(
-                delta_treatment=config.plasma.delta_treatment)
+
+    if 'delta_treatment' in config.plasma:
+        property_kwargs[RadiationFieldCorrection] = dict(
+            delta_treatment=config.plasma.delta_treatment)
+
     elif config.plasma.helium_treatment == 'numerical-nlte':
         plasma_modules += helium_numerical_nlte_properties
         # TODO: See issue #633
