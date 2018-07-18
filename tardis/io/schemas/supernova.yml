@@ -10,7 +10,7 @@ properties:
     description: time since explosion
   distance:
     type: quantity
-    description: distance to supernova
+    description: distance to supernova - **THIS IS DEPRECATED AND NOT IN USE**
   luminosity_wavelength_start:
     type: quantity
     default: 0 angstrom

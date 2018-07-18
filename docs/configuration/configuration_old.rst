@@ -1,8 +1,8 @@
 .. _config-file:
 
-******************
-Configuration File
-******************
+**********************
+Old Configuration File
+**********************
 
 .. :currentmodule:: tardis.config_reader
 
@@ -16,29 +16,31 @@ configuration file can be downloaded :download:`here
     One should note that currently floats in YAML need to be specified in a special format:
     any pure floats need to have a +/- after the e e.g. 2e+5
 
-Every configuration file begins with the most basic settings for the model:
+..
 
-.. code-block:: yaml
+    Every configuration file begins with the most basic settings for the model:
 
-    ---
-    #Currently only simple1d is allowed
-    config_type: simple1d
+    .. code-block:: yaml
 
-    #luminosity any astropy.unit convertible to erg/s
-    #special unit log_lsun(log(luminosity) - log(L_sun)
-    luminosity: 9.44 log_lsun
+        ---
+        #Currently only simple1d is allowed
+        config_type: simple1d
 
-    #time since explosion
-    time_explosion: 13 day
+        #luminosity any astropy.unit convertible to erg/s
+        #special unit log_lsun(log(luminosity) - log(L_sun)
+        luminosity: 9.44 log_lsun
 
-    atom_data: ../atom_data/kurucz_atom_chianti_many.h5
+        #time since explosion
+        time_explosion: 13 day
 
-The ``config_type`` currently only allows ``simple1d``, but might be expanded in future versions of TARDIS. Many
-parameters in the TARDIS configuration files make use of units. One can use any unit that is supported by
-`astropy units <http://docs.astropy.org/en/stable/units/index.html>`_ as well as the unit ``log_lsun``
-which is :math:`\log(L) - \log(L_\odot)`. Time since explosion just takes a normal time quantity. ``atom_data`` requires
-the path to the HDF5 file that contains the atomic data (more information about the HDF5 file can be found
-here :ref:`atomic-data`).
+        atom_data: ../atom_data/kurucz_atom_chianti_many.h5
+
+    The ``config_type`` currently only allows ``simple1d``, but might be expanded in future versions of TARDIS. Many
+    parameters in the TARDIS configuration files make use of units. One can use any unit that is supported by
+    `astropy units <http://docs.astropy.org/en/stable/units/index.html>`_ as well as the unit ``log_lsun``
+    which is :math:`\log(L) - \log(L_\odot)`. Time since explosion just takes a normal time quantity. ``atom_data`` requires
+    the path to the HDF5 file that contains the atomic data (more information about the HDF5 file can be found
+    here :ref:`atomic-data`).
 
 Plasma
 ^^^^^^

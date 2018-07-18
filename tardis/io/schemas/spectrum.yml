@@ -15,4 +15,3 @@ properties:
             - real
     default: virtual
     description: The method to generate the final spectrum
-  description: Final spectrum sampling

@@ -19,6 +19,7 @@ properties:
     $ref: montecarlo.yml
   spectrum:
     $ref: spectrum.yml
+    description: Final spectrum sampling
 required:
 - tardis_config_version
 - atom_data
