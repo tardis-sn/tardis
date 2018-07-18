@@ -4,9 +4,10 @@ additionalProperties: false
 properties:
   tardis_config_version:
     type: string
-    description: Version of the configuration file
+    description: Version of the configuration file. The current version is 1.0 and no other versions are allowed
   supernova:
     $ref: supernova.yml
+    description: a section pertaining to observations of the supernova
   atom_data:
     type: string
     description: path or filename to the Atomic Data HDF5 file
