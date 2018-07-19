@@ -1,3 +1,4 @@
+$$target: montecarlo.yml
 type: object
 additionalProperties: false
 properties:

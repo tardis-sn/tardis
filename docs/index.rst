@@ -38,6 +38,7 @@ Using Tardis
 
     installation
     running
+    configuration/index
     examples/index
     scripts/index
     credits

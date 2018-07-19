@@ -1,3 +1,4 @@
+$$target: plasma.yml
 type: object
 additionalProperties: false
 properties:
