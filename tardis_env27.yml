@@ -45,3 +45,4 @@ dependencies:
   - pytest-html==1.10.0
   - dokuwiki
   - dot2tex
+  - sphinx-jsonschema
