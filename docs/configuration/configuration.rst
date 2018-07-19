@@ -46,7 +46,7 @@ file type where the information is stored or a number of other sections.
 
 .. jsonschema:: schemas/model.yml
 
-All types of ``structure`` definitions have two keywords in common ``v_inner_boundary`` and ``v_outer_boundary``
+All types of ``structure`` definitions have two keywords in common ``v_inner_boundary`` and ``v_outer_boundary``.
 In the ``structure`` section, one can specify a ``file`` section containing a ``type`` parameter
 (currently only ``artis`` is supported``) and a ``name`` parameter giving a path top a file.
 
