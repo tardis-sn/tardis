@@ -5,7 +5,7 @@ Configuration File
 TARDIS uses the `YAML markup language <https://en.wikipedia.org/wiki/YAML>`_
 for its configuration files. There are several sections which allow different
 settings for the different aspects of the TARDIS calculation. An example
-configuration file can be downloaded :download:`here
+configuration file (with a small subset of the options that can be specified) can be downloaded :download:`here
 <../examples/tardis_example.yml>`.
 
 .. warning::
@@ -46,19 +46,13 @@ file type where the information is stored or a number of other sections.
 
 .. jsonschema:: schemas/model.yml
 
+All types of ``structure`` definitions have two keywords in common ``v_inner_boundary`` and ``v_outer_boundary``
 In the ``structure`` section, one can specify a ``file`` section containing a ``type`` parameter
-(currently only ``artis`` is supported``) and a ``name`` parameter giving a path top a file. For the ``artis`` type,
-one can specify the inner and outermost shell by giving a ``v_lowest`` and ``v_highest`` parameter. This will result in
-the selection of certain shells which will be obeyed in the abundance section as well if ``artis`` is selected there as
-well.
-
-.. warning::
-    If a ``file`` section is given, all other parameters and sections in the ``structure`` section are ignored!
+(currently only ``artis`` is supported``) and a ``name`` parameter giving a path top a file.
 
 If one doesn't specify a ``file`` section, the code requires two sections (``velocities`` and ``densities``) and a
 parameter ``no_of_shells``. ``no_of_shells`` is the requested number of shells for a model. The ``velocity`` section
-requires a ``type``. Currently, only ``linear`` is supported and needs two parameters ``v_inner`` and ``v_outer`` with
-velocity values for the inner most and outer most shell.
+requires a ``type``. Currently, only ``linear`` is supported.
 
 In the ``densities`` section the ``type`` parameter again decides on the parameters. The type ``uniform`` only needs a
  ``value`` parameter with a density compatible quantity. The type ``branch85_w7`` uses a seven order polynomial fit to
@@ -72,8 +66,6 @@ and a ``name`` parameter giving a path to a file containing the abundance inform
     In contrast to the ``structure`` section, the ``abundance`` section will not ignore abundances set in the rest of
     the section, but merely will overwrite the abundances given in the file section.
 
-In this section we also specify the species that will be calculated with our :ref:`nlte` formalism using the
-``nlte_species`` parameter (they are specified in a list using astrophysical notation, e.g. [Si2, Ca2, Mg2, H1]).
 The rest of the section can be used to configure uniform abundances for all shells, by giving the atom name and a
 relative abundance fraction. If it does not add up to 1., TARDIS will warn - but normalize the numbers.
 
@@ -84,9 +76,9 @@ Plasma
 
 .. jsonschema:: schemas/plasma.yml
 
-``inital_t_inner`` is temperature of the black-body on the inner boundary. ``initial_t_rad`` is the
-radiation temperature for all cells. For debugging purposes and to compare to :term:`synapps` calculations one can
-disable the electron scattering. TARDIS will issue a warning that this is not physical.
+``inital_t_inner`` is initial temperature (will be updated for most modes of TARDIS - see convergence section) of the black-body on the inner
+boundary. ``initial_t_rad`` is the initial radiation temperature (will be updated for most modes of TARDIS - see convergence section). For debugging purposes and to compare to
+:term:`synapps` calculations one can disable the electron scattering. TARDIS will issue a warning that this is not physical.
 There are currently two ``plasma_type`` options available: ``nebular`` and ``lte`` which tell TARDIS how to run the
 ionization equilibrium and level population calculations (see :ref:`plasmas` for more information).
 The radiative rates describe how to calculate the :math:`J_\textrm{blue}` needed for the :ref:`nlte` calculations and
@@ -121,31 +113,29 @@ normal operations.
 Monte Carlo
 -----------
 
-The ``montecarlo`` section describes the parameters for the MonteCarlo radiation transport and convergence criteria:
+The ``montecarlo`` section describes the parameters for the Monte Carlo radiation transport and convergence criteria:
 
 .. jsonschema:: schemas/montecarlo.yml
 
 The ``seed`` parameter seeds the random number generator first for the creation of the packets
-(:math:`\nu` and :math:`\mu`) and then the interactions in the actual MonteCarlo process.
+(:math:`\nu` and :math:`\mu`) and then the interactions in the actual Monte Carlo process.
 The ``no_of_packets`` parameter can take a float number for input convenience and gives the number of packets normally
-used in each MonteCarlo loop. The parameters ``last_no_of_packets`` and ``no_of_virtual_packets`` influence the last run
-of the MonteCarlo loop when the radiation field should have converged. ``last_no_of_packets`` is normally higher than
-``no_of_packets`` to create a less noisy output spectrum. ``no_of_virtual_packets`` can also be set to greater than 0 to
-use the Virtual Packet formalism (reference missing ?????). The ``iterations`` parameter describes the maximum number of
-MonteCarlo loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
+used in each Monte Carlo loop. The parameters ``last_no_of_packets`` and ``no_of_virtual_packets`` influence the last run
+of the Monte Carlo loop (which calculates the final spectrum!) when the radiation field should have converged. ``last_no_of_packets`` is normally higher than
+``no_of_packets`` to create a less noisy output spectrum. ``no_of_virtual_packets`` can also be set to greater than 0 (a useful number is 3) to
+use the Virtual Packet formalism. Increasing this number drasitcally increases computational costs(and memory requirements if they are logged)
+The ``iterations`` parameter describes the maximum number of Monte Carlo loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
 sooner when the convergence threshold has been reached.
 
-The ``convergence_criteria`` section again has a ``type`` keyword. Two types are allowed: ``damped`` and ``specific``.
+The ``convergence_criteria`` section again has a ``type`` keyword. Currently, one type is allowed: ``damped``.
 All convergence criteria can be specified separately for the three variables for which convergence can be checked
 (``t_inner``, ``t_rad``, ``ws``) by specifying subsections in the ``convergence_criteria`` of the same name. These
 override then the defaults.
 
 
-#. ``damped`` only has one parameter ``damping-constant`` and does not check for convergence.
+#. ``damped`` only has one parameter ``damping-constant`` and does not check for convergence. This can be used to fix the
+    temperature of the inner boundary (by increasing the ``convergence_criteria`` and
 
-#. ``specific`` checks for the convergence threshold specified in ``threshold``. For ``t_rad`` and ``w`` only a given
-    fraction (specified in ``fraction``) has to cross the ``threshold``. Once a convergence  threshold is read, the simulation
-    needs to hold this state for ``hold`` number of iterations.
 
 
 Spectrum
