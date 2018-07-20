@@ -372,10 +372,14 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     """
     A generic parser for a TARDIS composition stored as a CSV file
 
-    The parser can read in both elemental and isotopic abundances. It also
-    allows for additional information to be stored in the first skip_columns
-    columns. These will be ignored if skip_columns > 0. Specific header lines
-    can be skipped by the skip_rows keyword argument
+    The parser can read in both elemental and isotopic abundances. The first
+    column is always expected to contain a running index, labelling the grid
+    cells. The parser also allows for additional information to be stored in
+    the first skip_columns columns. These will be ignored if skip_columns > 0.
+    Note that the first column, containing the cell index is not taken into
+    account here.
+
+    Specific header lines can be skipped by the skip_rows keyword argument
 
     It is expected that the first row of the date block (after skipping the
     rows specified in skip_rows) specifies the different elements and isotopes.
@@ -383,10 +387,11 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     The first composition row describes the composition of the photosphere and
     is essentially ignored (for the default value of skip_rows).
 
-    Example
-    Index C O Ni56
-    0 1 1 1
-    1 0.4 0.3 0.2
+    Example:
+
+    Index C   O   Ni56
+    0     1   1   1
+    1     0.4 0.3 0.2
 
     Parameters
     ----------
@@ -401,6 +406,7 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     abundances: ~pandas.DataFrame
     isotope_abundance: ~pandas.MultiIndex
     """
+
     df = pd.read_csv(fname, comment='#',
                      sep=delimiter, skiprows=skip_rows, index_col=0)
     df = df.transpose()
