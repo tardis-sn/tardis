@@ -384,9 +384,9 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     is essentially ignored (for the default value of skip_rows).
 
     Example
-    C O Ni56
-    1 1 1
-    0.4 0.3 0.2
+    Index C O Ni56
+    0 1 1 1
+    1 0.4 0.3 0.2
 
     Parameters
     ----------
@@ -402,7 +402,7 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     isotope_abundance: ~pandas.MultiIndex
     """
     df = pd.read_csv(fname, comment='#',
-                     delimiter=delimiter, skiprows=skip_rows)
+                     sep=delimiter, skiprows=skip_rows, index_col=0)
     df = df.transpose()
 
     abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
