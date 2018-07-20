@@ -415,25 +415,25 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
                      sep=delimiter, skiprows=skip_rows, index_col=0)
     df = df.transpose()
 
-    abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
+    abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
                              index=pd.Index([],
                                             name='atomic_number'),
                              dtype=np.float64)
 
     isotope_index = pd.MultiIndex(
         [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
-    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
+    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
                                      index=isotope_index,
                                      dtype=np.float64)
 
     for element_symbol_string in df.index[skip_columns:]:
         if element_symbol_string in nucname.name_zz:
             z = nucname.name_zz[element_symbol_string]
-            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()[1:]
+            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
         else:
             z = nucname.znum(element_symbol_string)
             mass_no = nucname.anum(element_symbol_string)
             isotope_abundance.loc[(
-                z, mass_no), :] = df.loc[element_symbol_string].tolist()[1:]
+                z, mass_no), :] = df.loc[element_symbol_string].tolist()
 
     return abundance.index, abundance, isotope_abundance
