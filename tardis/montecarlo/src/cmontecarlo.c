@@ -140,7 +140,7 @@ binary_search (const double *x, double x_insert, int64_t imin,
 }
 
 void
-do_angle_aberration (rpacket_t *packet, const storage_model_t *storage)
+angle_aberration_CMF_to_LF (rpacket_t *packet, const storage_model_t *storage)
 {
   if (storage->full_relativity)
     {
@@ -159,7 +159,7 @@ do_angle_aberration (rpacket_t *packet, const storage_model_t *storage)
  * @return CMF direction cosine
  */
 double
-inverse_angle_aberration (rpacket_t *packet, const storage_model_t *storage, double mu)
+angle_aberration_LF_to_CMF (rpacket_t *packet, const storage_model_t *storage, double mu)
 {
   double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
   return (mu - beta) / (1.0 - beta * mu);
@@ -637,7 +637,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                   if (storage->full_relativity)
                     {
                       // Need to transform the angular size of the photosphere into the CMF
-                      mu_min = inverse_angle_aberration (&virt_packet, storage, mu_min);
+                      mu_min = angle_aberration_LF_to_CMF (&virt_packet, storage, mu_min);
                     }
                 }
               else
@@ -667,7 +667,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                   // I'm adding an exit() here to inform the compiler about the impossible path
                   exit(1);
                 }
-              do_angle_aberration (&virt_packet, storage);
+              angle_aberration_CMF_to_LF (&virt_packet, storage);
               double doppler_factor_ratio =
                 rpacket_doppler_factor (packet, storage) /
                 rpacket_doppler_factor (&virt_packet, storage);
@@ -795,7 +795,7 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   rpacket_reset_tau_event (packet, mt_state);
   storage->last_interaction_type[rpacket_get_id (packet)] = 1;
 
-  do_angle_aberration (packet, storage);
+  angle_aberration_CMF_to_LF (packet, storage);
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
@@ -963,7 +963,7 @@ line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_l
   rpacket_set_next_line_id (packet, emission_line_id + 1);
   rpacket_reset_tau_event (packet, mt_state);
 
-  do_angle_aberration (packet, storage);
+  angle_aberration_CMF_to_LF (packet, storage);
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
 	{
@@ -1015,7 +1015,7 @@ continuum_emission (rpacket_t * packet, storage_model_t * storage, rk_state *mt_
   rpacket_set_last_line (packet, last_line);
   rpacket_set_next_line_id (packet, current_line_id);
 
-  do_angle_aberration (packet, storage);
+  angle_aberration_CMF_to_LF (packet, storage);
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {

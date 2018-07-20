@@ -39,10 +39,10 @@ double rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *s
 double rpacket_inverse_doppler_factor (const rpacket_t *packet, const storage_model_t *storage);
 
 void
-do_angle_aberration (rpacket_t * packet, const storage_model_t * storage);
+angle_aberration_CMF_to_LF (rpacket_t * packet, const storage_model_t * storage);
 
 double
-inverse_angle_aberration (rpacket_t *packet, const storage_model_t *storage, double mu);
+angle_aberration_LF_to_CMF (rpacket_t *packet, const storage_model_t *storage, double mu);
 
 /** Calculate the distance to shell boundary.
  *
