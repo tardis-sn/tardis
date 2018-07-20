@@ -22,22 +22,6 @@ properties:
     type: number
     multipleOf: 1.0
     description: Number of maximum iterations
-  black_body_sampling:
-    type: object
-    default: {}
-    properties:
-      start:
-        type: quantity
-        default: 50 angstrom
-      stop:
-        type: quantity
-        default: 200000 angstrom
-      num:
-        type: number
-        multipleOf: 1.0
-        default: 1000000
-    description: Sampling of the black-body for energy packet creation (giving maximum
-      and minimum packet frequency)
   last_no_of_packets:
     type: number
     multipleOf: 1.0
