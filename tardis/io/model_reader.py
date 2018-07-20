@@ -349,7 +349,8 @@ def read_cmfgen_composition(fname, delimiter='\s+'):
                   DeprecationWarning)
 
     return read_csv_isotope_abundances(fname, delimiter=delimiter,
-                                       skip_columns=4, skip_rows=[0, 2])
+                                       skip_columns=4, skip_rows=[0, 2, 3])
+
 
 def read_csv_composition(fname, delimiter='\s+'):
     """Read composition from a simple CSV file
