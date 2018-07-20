@@ -35,11 +35,6 @@ montecarlo:
     seed: 23111963
     no_of_packets : 1.0e+5
     iterations: 20
-
-    black_body_sampling:
-        start: 1 angstrom
-        stop: 1000000 angstrom
-        num: 1.e+6
     last_no_of_packets: 1.e+5
     no_of_virtual_packets: 5
 
