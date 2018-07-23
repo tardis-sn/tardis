@@ -89,6 +89,7 @@ install:
    - source activate tardis
 
 script:
+    - python -c "import Cython; print Cython.__version__"
     - echo CC=$COMPILER python setup.py $SETUP_CMD
     - CC=$COMPILER python setup.py $SETUP_CMD
 
