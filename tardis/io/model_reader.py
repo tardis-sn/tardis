@@ -251,10 +251,14 @@ def read_cmfgen_density(fname):
     Reading a density file of the following structure (example; lines starting with a hash will be ignored):
     The first density describes the mean density in the center of the model and is not used.
     The file consists of a header row and next row contains unit of the respective attributes
-    velocity densities electron_densities temperature
-    km/s g/cm^3 /cm^3 K
-    871.66905 4.2537191e-09 2.5953807e+14 7.6395577
-    877.44269 4.2537191e-09 2.5953807e+14 7.6395577
+    Note that the first column has to contain a running index
+
+    Example:
+
+    index velocity densities electron_densities temperature
+    - km/s g/cm^3 /cm^3 K
+    0 871.66905 4.2537191e-09 2.5953807e+14 7.6395577
+    1 877.44269 4.2537191e-09 2.5953807e+14 7.6395577
 
     Rest columns contain abundances of elements and isotopes
 
@@ -290,11 +294,11 @@ def read_cmfgen_density(fname):
             elif row_index == 2:
                 quantities = line.split()
 
-    velocity = u.Quantity(df['velocity'].values, quantities[0]).to('cm/s')
-    temperature = u.Quantity(df['temperature'].values, quantities[1])[1:]
-    mean_density = u.Quantity(df['densities'].values, quantities[2])[1:]
+    velocity = u.Quantity(df['velocity'].values, quantities[1]).to('cm/s')
+    temperature = u.Quantity(df['temperature'].values, quantities[2])[1:]
+    mean_density = u.Quantity(df['densities'].values, quantities[3])[1:]
     electron_densities = u.Quantity(
-        df['electron_densities'].values, quantities[3])[1:]
+        df['electron_densities'].values, quantities[4])[1:]
 
     return time_of_model, velocity, mean_density, electron_densities, temperature
 
@@ -345,7 +349,8 @@ def read_cmfgen_composition(fname, delimiter='\s+'):
                   DeprecationWarning)
 
     return read_csv_isotope_abundances(fname, delimiter=delimiter,
-                                       skip_columns=4, skip_rows=[0, 2])
+                                       skip_columns=4, skip_rows=[0, 2, 3])
+
 
 def read_csv_composition(fname, delimiter='\s+'):
     """Read composition from a simple CSV file
@@ -372,10 +377,14 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     """
     A generic parser for a TARDIS composition stored as a CSV file
 
-    The parser can read in both elemental and isotopic abundances. It also
-    allows for additional information to be stored in the first skip_columns
-    columns. These will be ignored if skip_columns > 0. Specific header lines
-    can be skipped by the skip_rows keyword argument
+    The parser can read in both elemental and isotopic abundances. The first
+    column is always expected to contain a running index, labelling the grid
+    cells. The parser also allows for additional information to be stored in
+    the first skip_columns columns. These will be ignored if skip_columns > 0.
+    Note that the first column, containing the cell index is not taken into
+    account here.
+
+    Specific header lines can be skipped by the skip_rows keyword argument
 
     It is expected that the first row of the date block (after skipping the
     rows specified in skip_rows) specifies the different elements and isotopes.
@@ -383,10 +392,11 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     The first composition row describes the composition of the photosphere and
     is essentially ignored (for the default value of skip_rows).
 
-    Example
-    C O Ni56
-    1 1 1
-    0.4 0.3 0.2
+    Example:
+
+    Index C   O   Ni56
+    0     1   1   1
+    1     0.4 0.3 0.2
 
     Parameters
     ----------
@@ -401,29 +411,30 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
     abundances: ~pandas.DataFrame
     isotope_abundance: ~pandas.MultiIndex
     """
+
     df = pd.read_csv(fname, comment='#',
-                     delimiter=delimiter, skiprows=skip_rows)
+                     sep=delimiter, skiprows=skip_rows, index_col=0)
     df = df.transpose()
 
-    abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
+    abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
                              index=pd.Index([],
                                             name='atomic_number'),
                              dtype=np.float64)
 
     isotope_index = pd.MultiIndex(
         [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
-    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1] - 1),
+    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
                                      index=isotope_index,
                                      dtype=np.float64)
 
     for element_symbol_string in df.index[skip_columns:]:
         if element_symbol_string in nucname.name_zz:
             z = nucname.name_zz[element_symbol_string]
-            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()[1:]
+            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
         else:
             z = nucname.znum(element_symbol_string)
             mass_no = nucname.anum(element_symbol_string)
             isotope_abundance.loc[(
-                z, mass_no), :] = df.loc[element_symbol_string].tolist()[1:]
+                z, mass_no), :] = df.loc[element_symbol_string].tolist()
 
     return abundance.index, abundance, isotope_abundance

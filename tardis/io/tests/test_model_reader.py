@@ -56,9 +56,11 @@ def test_read_simple_isotope_abundances(csv_composition_fname):
         csv_composition_fname)
     assert np.isclose(abundances.loc[6, 8], 0.5, atol=1.e-12)
     assert np.isclose(abundances.loc[12, 5], 0.8, atol=1.e-12)
-    assert np.isclose(abundances.loc[14, 1], 0.3, atol=1.e-12)
-    assert np.isclose(isotope_abundance.loc[(28, 56), 0], 0.5, atol=1.e-12)
-    assert np.isclose(isotope_abundance.loc[(28, 58), 1], 0.7, atol=1.e-12)
+    assert np.isclose(abundances.loc[14, 1], 0.1, atol=1.e-12)
+    assert np.isclose(isotope_abundance.loc[(28, 56), 0], 0.4, atol=1.e-12)
+    assert np.isclose(isotope_abundance.loc[(28, 58), 2], 0.7, atol=1.e-12)
+    assert abundances.shape == (4, 10)
+    assert isotope_abundance.shape == (2, 10)
 
 
 def test_read_cmfgen_isotope_abundances(cmfgen_fname):
@@ -69,7 +71,8 @@ def test_read_cmfgen_isotope_abundances(cmfgen_fname):
     assert np.isclose(abundances.loc[14, 1], 0.3, atol=1.e-12)
     assert np.isclose(isotope_abundance.loc[(28, 56), 0], 0.5, atol=1.e-12)
     assert np.isclose(isotope_abundance.loc[(28, 58), 1], 0.7, atol=1.e-12)
-
+    assert abundances.shape == (4, 9)
+    assert isotope_abundance.shape == (2, 9)
 
 
 def test_read_uniform_abundances(isotope_uniform_abundance):

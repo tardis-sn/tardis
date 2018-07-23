@@ -66,6 +66,11 @@ work on a mesh with ten cells should be formatted like this:
 
 .. literalinclude:: tardis_model_abund.csv
 
+.. note::
+    
+    The file should always contain the cell index as a running index in the
+    first column.
+
 .. danger::
 
     The header line for the isotopic abundance structure can under no
@@ -75,6 +80,7 @@ In this file:
 
 - Header row contains element and isotopes symbol 
 - the remaining entries in each row give the set of elemental and isotopic abundances.
+- the first column contains a running index
 
 The abundances are specified as mass fractions (i.e. the sum of columns
 in each row should be 1.0). The mass fractions specified will be adopted directly in
