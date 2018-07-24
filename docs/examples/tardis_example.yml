@@ -1,4 +1,6 @@
+# Example YAML configuration for TARDIS
 tardis_config_version: v1.0
+
 supernova:
   luminosity_requested: 9.44 log_lsun
   time_explosion: 13 day
@@ -14,6 +16,7 @@ model:
       num: 20
     density:
       type: branch85_w7
+
   abundances:
     type: uniform
     O: 0.19
@@ -34,12 +37,19 @@ montecarlo:
   seed: 23111963
   no_of_packets: 4.0e+4
   iterations: 20
-  black_body_sampling:
-    start: 1 angstrom
-    stop: 1000000 angstrom
-    num: 1.e+6
+  nthreads: 1
+
   last_no_of_packets: 1.e+5
   no_of_virtual_packets: 10
+
+  convergence_strategy:
+    type: damped
+    damping_constant: 1.0
+    threshold: 0.05
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 1.0
 
 spectrum:
   start: 500 angstrom
