@@ -14,7 +14,8 @@ To run TARDIS requires two files. The atomic database (for more info refer to
 Running TARDIS in the commandline
 =================================
 
-After installing TARDIS just download the configuration file and the standard
+After installing TARDIS just download the configuration file from the
+`tardis-setups <https://github.com/tardis-sn/tardis-setups>`_ and the standard
 atomic data set from the `tardis-refdata
 <https://github.com/tardis-sn/tardis-refdata>`_ repository and run TARDIS.
 Assuming you have ``wget``, you could follow the procedure:
@@ -24,7 +25,7 @@ Assuming you have ``wget``, you could follow the procedure:
 
     mkdir tardis_example
     cd tardis_example
-    wget https://github.com/tardis-sn/tardis-refdata/raw/master/configs/examples/tardis_example.yml
+    wget https://github.com/tardis-sn/tardis-setups/raw/master/tardis-setups/2014/2014_kerzendorf_sim/appendix_A1/tardis_example.yml
     wget https://github.com/tardis-sn/tardis-refdata/raw/master/atom_data/kurucz_cd23_chianti_H_He.h5
     tardis tardis_example.yml output_spectrum.dat
 
