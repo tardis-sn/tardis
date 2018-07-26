@@ -10,7 +10,7 @@ DEFAULT_ATOM_DATA_UUID = '864f1753714343c41f99cb065710cace'
 @pytest.fixture(scope="session")
 def atomic_data_fname(tardis_ref_path):
     atomic_data_fname = os.path.join(
-        tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_wrong_H_He.h5')
+        tardis_ref_path, 'atom_data', 'kurucz_cd23_chianti_H_He.h5')
 
     atom_data_missing_str = ("{0} atomic datafiles "
                              "does not seem to exist".format(atomic_data_fname))
