@@ -64,7 +64,9 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         .. note:: TARDIS must be built with OpenMP support in order for
         `nthreads` to have effect.
     """
-    hdf_properties = ['model', 'plasma', 'runner']
+    hdf_properties = ['model', 'plasma', 'runner', 'iterations_w',
+                      'iterations_t_rad', 'iterations_electron_densities',
+                      'iterations_t_inner']
     hdf_name = 'simulation'
     def __init__(self, iterations, model, plasma, runner,
                  no_of_packets, no_of_virtual_packets, luminosity_nu_start,
