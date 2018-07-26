@@ -71,6 +71,10 @@ class Simulation(HDFWriterMixin):
                     'not damped or custom '
                     '- input is {0}'.format(convergence_strategy.type))
 
+        # containers to store plasma state (Tr, W, ne) for each iteration
+        self.iterations_W = np.zeros(
+            (self.iterations, self.model.no_of_shells))
+
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
 
@@ -217,6 +221,7 @@ class Simulation(HDFWriterMixin):
     def run(self):
         start_time = time.time()
         while self.iterations_executed < self.iterations-1:
+            self.iterations_W[self.iterations_executed, :] = self.model.w
             self.iterate(self.no_of_packets)
             self.converged = self.advance_state()
             self._call_back()
@@ -224,6 +229,7 @@ class Simulation(HDFWriterMixin):
                 if self.convergence_strategy.stop_if_converged:
                     break
         # Last iteration
+        self.iterations_W[self.iterations_executed, :] = self.model.w
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
 
         logger.info("Simulation finished in {0:d} iterations "
