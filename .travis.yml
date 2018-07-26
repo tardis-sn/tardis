@@ -48,7 +48,13 @@ matrix:
 #            - SETUP_CMD='test --args="--tardis-refdata=$HOME/tardis-refdata/"'
 #            - TEST_MODE='spectrum'
 #            - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
+# The OSX version does work if one builds cython on its own with a special CFLAGS
 
+#   - git clone https://github.com/cython/cython
+#   - cd cython
+#   - git checkout c485b1b77264c3c75d090a3c526de24966830d42
+#   - CFLAGS="$CFLAGS -D CYTHON_CLINE_IN_TRACEBACK=0" python setup.py install
+#   - cd ..
 
         - python: 2.7
           env: SETUP_CMD='test'
