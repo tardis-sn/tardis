@@ -72,7 +72,7 @@ class Simulation(HDFWriterMixin):
                     '- input is {0}'.format(convergence_strategy.type))
 
         # containers to store plasma state (Tr, W, ne) for each iteration
-        self.iterations_W = np.zeros(
+        self.iterations_w = np.zeros(
             (self.iterations, self.model.no_of_shells))
         self.iterations_t_rad =  np.zeros(
             (self.iterations, self.model.no_of_shells))
