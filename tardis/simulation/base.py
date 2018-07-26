@@ -74,9 +74,11 @@ class Simulation(HDFWriterMixin):
         # containers to store plasma state (Tr, W, ne) for each iteration
         self.iterations_w = np.zeros(
             (self.iterations, self.model.no_of_shells))
-        self.iterations_t_rad =  np.zeros(
+        self.iterations_t_rad = np.zeros(
+            (self.iterations, self.model.no_of_shells)) * u.K
+        self.iterations_t_inner = np.zeros(self.iterations) * u.K
+        self.iterations_electron_densities = np.zeros(
             (self.iterations, self.model.no_of_shells))
-        self.iterations_t_inner = np.zeros(self.iterations)
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
@@ -235,6 +237,8 @@ class Simulation(HDFWriterMixin):
         self.store_plasma_state(self.iterations_executed)
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
 
+        self.reshape_plasma_state_store(self.iterations_executed)
+
         logger.info("Simulation finished in {0:d} iterations "
                     "and took {1:.2f} s".format(
                         self.iterations_executed, time.time() - start_time))
@@ -244,7 +248,17 @@ class Simulation(HDFWriterMixin):
 
         self.iterations_w[i, :] = self.model.w
         self.iterations_t_rad[i, :] = self.model.t_rad
+        self.iterations_electron_densities[i, :] = \
+            self.plasma.electron_densities.values
         self.iterations_t_inner[i] = self.model.t_inner
+
+    def reshape_plasma_state_store(self, executed_iterations):
+
+        self.iterations_w = self.iterations_w[:executed_iterations+1, :]
+        self.iterations_t_rad = self.iterations_t_rad[:executed_iterations+1, :]
+        self.iterations_electron_densities = \
+            self.iterations_electron_densities[:executed_iterations+1, :]
+        self.iterations_t_inner = self.iterations_t_inner[:executed_iterations+1]
 
     def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
                          next_t_inner, log_sampling=5):
