@@ -37,6 +37,12 @@ def simulation_one_loop(
     if not generate_reference:
         return simulation
     else:
+        simulation.hdf_properties = [
+            'iterations_w',
+            'iterations_t_rad',
+            'iterations_electron_densities',
+            'iterations_t_inner',
+        ]
         simulation.model.hdf_properties = [
                 't_radiative',
                 'dilution_factor'
@@ -47,6 +53,11 @@ def simulation_one_loop(
                 'output_nu',
                 'output_energy'
                 ]
+        simulation.to_hdf(
+                tardis_ref_data,
+                '',
+                'test_simulation'
+        )
         simulation.model.to_hdf(
                 tardis_ref_data,
                 '',
@@ -78,6 +89,27 @@ def test_plasma_estimates(
             actual,
             refdata(name)
             )
+
+
+@pytest.mark.parametrize('name', [
+    'iterations_w', 'iterations_t_rad',
+    'iterations_electron_densities', 'iterations_t_inner'
+    ])
+def test_plasma_state_iterations(
+        simulation_one_loop, refdata, name):
+    actual = getattr(
+        simulation_one_loop, name)
+
+    try:
+        actual = pd.Series(actual)
+    except Exception:
+        actual = pd.DataFrame(actual)
+
+    pdt.assert_almost_equal(
+            actual,
+            refdata(name)
+            )
+
 
 #     assert_quantity_allclose(
 #             t_rad, simulation_compare_data['test1/t_rad'] * u.Unit('K'), atol=0.0 * u.Unit('K'))
