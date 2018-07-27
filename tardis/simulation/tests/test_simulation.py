@@ -111,5 +111,18 @@ def test_plasma_state_iterations(
             )
 
 
+def test_PlasmaStateStorer(atomic_data_fname, config):
+
+    config.atom_data = atomic_data_fname
+    config.montecarlo.iterations = 2
+    simulation = Simulation.from_config(config)
+
+    simulation.reshape_plasma_state_store(1)
+    assert simulation.iterations_t_rad.shape == (1, 20)
+    assert simulation.iterations_w.shape == (1, 20)
+    assert simulation.iterations_electron_densities.shape == (1, 20)
+    assert simulation.iterations_t_inner.shape == (1,)
+
+
 #     assert_quantity_allclose(
 #             t_rad, simulation_compare_data['test1/t_rad'] * u.Unit('K'), atol=0.0 * u.Unit('K'))
