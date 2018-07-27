@@ -117,7 +117,7 @@ def test_PlasmaStateStorer(atomic_data_fname, config):
     config.montecarlo.iterations = 2
     simulation = Simulation.from_config(config)
 
-    simulation.reshape_plasma_state_store(1)
+    simulation.reshape_plasma_state_store(0)
     assert simulation.iterations_t_rad.shape == (1, 20)
     assert simulation.iterations_w.shape == (1, 20)
     assert simulation.iterations_electron_densities.shape == (1, 20)
