@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 
 
 class PlasmaStateStorerMixin(object):
+    """Mixin class to provide the capability to the simulation object of
+    storing plasma information and the inner boundary temperature during each
+    MC iteration.
+
+    Currently, storage for the dilution factor, the radiation temperature and
+    the electron density in each cell is provided. Additionally, the
+    temperature at the inner boundary is saved.
+    """
     def __init__(self, iterations, no_of_shells):
 
         self.iterations_w = np.zeros(
@@ -25,7 +33,22 @@ class PlasmaStateStorerMixin(object):
         self.iterations_t_inner = np.zeros(iterations) * u.K
 
     def store_plasma_state(self, i, w, t_rad, electron_densities, t_inner):
+        """Store current plasma information and inner boundary temperature
+        used in iterated i.
 
+        Parameters
+        ----------
+        i : int
+            current iteration index (0 for the first)
+        w : np.ndarray
+            dilution factor
+        t_rad : astropy.units.Quantity
+            radiation temperature
+        electron_densities : np.ndarray
+            electron density
+        t_inner : astropy.units.Quantity
+            temperature of inner boundary
+        """
         self.iterations_w[i, :] = w
         self.iterations_t_rad[i, :] = t_rad
         self.iterations_electron_densities[i, :] = \
@@ -33,12 +56,21 @@ class PlasmaStateStorerMixin(object):
         self.iterations_t_inner[i] = t_inner
 
     def reshape_plasma_state_store(self, executed_iterations):
+        """Reshapes the storage arrays in case convergence was reached before
+        all specified iterations were executed.
 
+        Parameters
+        ----------
+        executed_iterations : int
+            iteration index, i.e. number of iterations executed minus one!
+        """
         self.iterations_w = self.iterations_w[:executed_iterations+1, :]
-        self.iterations_t_rad = self.iterations_t_rad[:executed_iterations+1, :]
+        self.iterations_t_rad = \
+            self.iterations_t_rad[:executed_iterations+1, :]
         self.iterations_electron_densities = \
             self.iterations_electron_densities[:executed_iterations+1, :]
-        self.iterations_t_inner = self.iterations_t_inner[:executed_iterations+1]
+        self.iterations_t_inner = \
+            self.iterations_t_inner[:executed_iterations+1]
 
 
 class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
