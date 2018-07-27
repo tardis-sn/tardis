@@ -50,7 +50,7 @@ Looking under the hood
 .. toctree::
     :maxdepth: 2
 
-    atomic
+    atomic/atomic_data
     physics/index
     montecarlo/index
 
