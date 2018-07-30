@@ -4,8 +4,10 @@ import pytest
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 
+import numpy as np
 import pandas as pd
 import pandas.util.testing as pdt
+import astropy.units as u
 
 
 @pytest.fixture(scope='module')
@@ -111,13 +113,40 @@ def test_plasma_state_iterations(
             )
 
 
-def test_PlasmaStateStorer(atomic_data_fname, config):
+@pytest.fixture(scope="module")
+def simulation_without_loop(atomic_data_fname, config):
 
     config.atom_data = atomic_data_fname
     config.montecarlo.iterations = 2
-    simulation = Simulation.from_config(config)
+    return Simulation.from_config(config)
 
+
+def test_plasma_state_storer_store(atomic_data_fname, config,
+                                   simulation_without_loop):
+
+    simulation = simulation_without_loop
+
+    w_test = np.linspace(0, 1, 20)
+    t_rad_test = np.linspace(12000, 9000, 20) * u.K
+    electron_densities_test = pd.Series(np.linspace(1e7, 1e6, 20))
+    t_inner_test = 12500 * u.K
+
+    simulation.store_plasma_state(1, w_test, t_rad_test,
+                                  electron_densities_test, t_inner_test)
+
+    np.testing.assert_allclose(simulation.iterations_w[1, :], w_test)
+    np.testing.assert_allclose(simulation.iterations_t_rad[1, :], t_rad_test)
+    np.testing.assert_allclose(simulation.iterations_electron_densities[1, :],
+                               electron_densities_test)
+    np.testing.assert_allclose(simulation.iterations_t_inner[1], t_inner_test)
+
+
+def test_plasma_state_storer_reshape(atomic_data_fname, config,
+                                     simulation_without_loop):
+
+    simulation = simulation_without_loop
     simulation.reshape_plasma_state_store(0)
+
     assert simulation.iterations_t_rad.shape == (1, 20)
     assert simulation.iterations_w.shape == (1, 20)
     assert simulation.iterations_electron_densities.shape == (1, 20)
