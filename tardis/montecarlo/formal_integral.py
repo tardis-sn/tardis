@@ -115,8 +115,8 @@ class FormalIntegrator(object):
         # the transition l->u
         Jbluelu = runner.j_blue_estimator * Jbluelu_norm_factor
 
-        upper_level_index = atomic_data.lines.set_index(['atomic_number', 'ion_number', 'level_number_upper']).index.copy()
-        e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)
+        upper_level_index = atomic_data.lines.index.droplevel('level_number_lower')
+	e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)
         e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
         e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
         transitions       = atomic_data.macro_atom_data[atomic_data.macro_atom_data.transition_type == -1].copy()
@@ -124,11 +124,12 @@ class FormalIntegrator(object):
         tmp  = plasma.transition_probabilities[(atomic_data.macro_atom_data.transition_type == -1).values]
         q_ul = tmp.set_index(transitions_index)
         t    = model.time_explosion.value
-        wave = atomic_data.lines.wavelength_cm[transitions.transition_line_id].values.reshape(-1,1)
-        att_S_ul =  ( wave * (q_ul * e_dot_u) * t  / (4*np.pi) )
+	lines = atomic_data.lines.set_index('line_id')
+        wave = lines.wavelength_cm.loc[transitions.transition_line_id].values.reshape(-1,1)
+	att_S_ul = (wave * (q_ul * e_dot_u) * t  / (4 * np.pi))
 
         result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
-        att_S_ul = result.ix[atomic_data.lines.index.values].values
+        att_S_ul = result.ix[lines.index.values].values
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
