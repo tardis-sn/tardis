@@ -1,6 +1,7 @@
 import warnings
 import numpy as np
 import pandas as pd
+import scipy.sparse as sp
 from astropy import units as u
 from astropy import constants as const
 
@@ -44,10 +45,11 @@ class FormalIntegrator(object):
                         'FormalIntegrator.'
                         )
 
-        if not self.runner.line_interaction_type == 'downbranch':
+        if not self.runner.line_interaction_type in ['downbranch', 'macroatom']:
             return raise_or_return(
                     'The FormalIntegrator currently only works for '
                     'line_interaction_type == "downbranch"'
+                    'and line_interaction_type == "macroatom"'
                     )
 
         return True
@@ -101,6 +103,29 @@ class FormalIntegrator(object):
         plasma = self.plasma
         runner = self.runner
         atomic_data = self.plasma.atomic_data
+        macro_ref = atomic_data.macro_atom_references
+        macro_data = atomic_data.macro_atom_data
+
+        no_lvls = len(atomic_data.levels)
+        no_shells = len(model.w)
+
+        if runner.line_interaction_type == 'macroatom':
+            ma_int_data = macro_data.query('transition_type >=0')
+            internal_jump_mask = (macro_data.transition_type >= 0).values
+            internal = plasma.transition_probabilities[internal_jump_mask]
+
+            source_level_index = pd.MultiIndex.from_arrays([
+                    ma_int_data['atomic_number'].values,
+                    ma_int_data['ion_number'].values,
+                    ma_int_data['source_level_number'].values]
+            )
+            destination_level_index = pd.MultiIndex.from_arrays([
+                    ma_int_data['atomic_number'].values,
+                    ma_int_data['ion_number'].values,
+                    ma_int_data['destination_level_number'].values]
+            )
+            source_level_idx = macro_ref.loc[source_level_index].references_idx.values
+            destination_level_idx = macro_ref.loc[destination_level_index].references_idx.values
 
         Edotlu_norm_factor = (1 / (runner.time_of_simulation * model.volume))
         exptau = 1 - np.exp(- plasma.tau_sobolevs)
@@ -118,6 +143,22 @@ class FormalIntegrator(object):
         upper_level_index = atomic_data.lines.index.droplevel('level_number_lower')
         e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)
         e_dot_u           = e_dot_lu.groupby(level=[0, 1, 2]).sum()
+        e_dot_u_src_idx = macro_ref.loc[e_dot_u.index].references_idx.values
+
+        if runner.line_interaction_type == 'macroatom':
+            C_frame = pd.DataFrame(
+                columns=np.arange(no_shells), index=macro_ref.index
+            )
+            q_indices = (source_level_idx, destination_level_idx)
+            for shell in range(no_shells):
+                Q = sp.coo_matrix(
+                        (internal[shell], q_indices), shape=(no_lvls, no_lvls)
+                )
+                inv_N = sp.identity(no_lvls) - Q
+                e_dot_u_vec = np.zeros(no_lvls)
+                e_dot_u_vec[e_dot_u_src_idx] = e_dot_u[shell].values
+                C_frame[shell] = sp.linalg.spsolve(inv_N.T, e_dot_u_vec)
+
         e_dot_u.index.names = ['atomic_number', 'ion_number', 'source_level_number'] # To make the q_ul e_dot_u product work, could be cleaner
         transitions       = atomic_data.macro_atom_data[atomic_data.macro_atom_data.transition_type == -1].copy()
         transitions_index = transitions.set_index(['atomic_number', 'ion_number', 'source_level_number']).index.copy()
@@ -126,6 +167,8 @@ class FormalIntegrator(object):
         t    = model.time_explosion.value
         lines = atomic_data.lines.set_index('line_id')
         wave = lines.wavelength_cm.loc[transitions.transition_line_id].values.reshape(-1,1)
+        if runner.line_interaction_type == 'macroatom':
+            e_dot_u = C_frame.loc[e_dot_u.index]
         att_S_ul = (wave * (q_ul * e_dot_u) * t  / (4 * np.pi))
 
         result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
