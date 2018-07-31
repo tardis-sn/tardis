@@ -4,7 +4,7 @@ from astropy import constants as const
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty, \
     DataFrameInput
-from tardis.util import intensity_black_body
+from tardis.util.base import intensity_black_body
 
 
 class JBluesBlackBody(ProcessingPlasmaProperty):

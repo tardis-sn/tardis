@@ -17,7 +17,7 @@ from numpy.ctypeslib import (
 
 import numpy.testing as ntest
 
-from tardis.util import intensity_black_body
+from tardis.util.base import intensity_black_body
 from tardis.montecarlo.struct import StorageModel
 
 

@@ -4,12 +4,10 @@ import os
 from astropy import units as u
 from io import StringIO
 
-from tardis.util import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError
-from tardis.util import (int_to_roman, roman_to_int, create_synpp_yaml,
-                         calculate_luminosity, intensity_black_body, savitzky_golay,
-                         species_tuple_to_string, species_string_to_tuple, parse_quantity,
-                         element_symbol2atomic_number, atomic_number2element_symbol,
-                         reformat_element_symbol, quantity_linspace, convert_abundances_format)
+from tardis.util.base import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError, int_to_roman, \
+    roman_to_int, calculate_luminosity, create_synpp_yaml, intensity_black_body, savitzky_golay, \
+    species_tuple_to_string, species_string_to_tuple, parse_quantity, element_symbol2atomic_number, \
+    atomic_number2element_symbol, reformat_element_symbol, quantity_linspace, convert_abundances_format
 
 data_path = os.path.join('tardis', 'io', 'tests', 'data')
 
