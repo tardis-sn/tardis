@@ -110,22 +110,12 @@ class FormalIntegrator(object):
         no_shells = len(model.w)
 
         if runner.line_interaction_type == 'macroatom':
-            ma_int_data = macro_data.query('transition_type >=0')
             internal_jump_mask = (macro_data.transition_type >= 0).values
+            ma_int_data = macro_data[internal_jump_mask]
             internal = plasma.transition_probabilities[internal_jump_mask]
 
-            source_level_index = pd.MultiIndex.from_arrays([
-                    ma_int_data['atomic_number'].values,
-                    ma_int_data['ion_number'].values,
-                    ma_int_data['source_level_number'].values]
-            )
-            destination_level_index = pd.MultiIndex.from_arrays([
-                    ma_int_data['atomic_number'].values,
-                    ma_int_data['ion_number'].values,
-                    ma_int_data['destination_level_number'].values]
-            )
-            source_level_idx = macro_ref.loc[source_level_index].references_idx.values
-            destination_level_idx = macro_ref.loc[destination_level_index].references_idx.values
+            source_level_idx = ma_int_data.source_level_idx.values
+            destination_level_idx = ma_int_data.destination_level_idx.values 
 
         Edotlu_norm_factor = (1 / (runner.time_of_simulation * model.volume))
         exptau = 1 - np.exp(- plasma.tau_sobolevs)
@@ -150,7 +140,7 @@ class FormalIntegrator(object):
                 columns=np.arange(no_shells), index=macro_ref.index
             )
             q_indices = (source_level_idx, destination_level_idx)
-            for shell in range(no_shells):
+            for shell in xrange(no_shells):
                 Q = sp.coo_matrix(
                         (internal[shell], q_indices), shape=(no_lvls, no_lvls)
                 )
