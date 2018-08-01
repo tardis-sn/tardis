@@ -2,6 +2,7 @@ import warnings
 import numpy as np
 import pandas as pd
 import scipy.sparse as sp
+from scipy.interpolate import interp1d
 from astropy import units as u
 from astropy import constants as const
 
@@ -54,12 +55,14 @@ class FormalIntegrator(object):
 
         return True
 
-    def calculate_spectrum(self, frequency, points=None, raises=True):
+    def calculate_spectrum(self, frequency, points=None,
+            interpolate_shells=-1, raises=True):
         # Very crude implementation
         # The c extension needs bin centers (or something similar)
         # while TARDISSpectrum needs bin edges
         self.check(raises)
         N = points or self.points
+        self.interpolate_shells = interpolate_shells
         frequency = frequency.to('Hz', u.spectral())
 
         luminosity = u.Quantity(
@@ -167,4 +170,44 @@ class FormalIntegrator(object):
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)
         Jredlu = Jbluelu * np.exp(-plasma.tau_sobolevs.values) + att_S_ul
+        if self.interpolate_shells > 0:
+            att_S_ul, Jredlu, Jbluelu, e_dot_u = self.interpolate_integrator_quantities(
+                    att_S_ul, Jredlu, Jbluelu, e_dot_u)
+        else:
+            runner.r_inner_i = runner.r_inner_cgs
+            runner.r_outer_i = runner.r_outer_cgs
+            runner.tau_sobolevs_integ = plasma.tau_sobolevs.values
+            runner.electron_densities_integ = plasma.electron_densities.values
+
+        return att_S_ul, Jredlu, Jbluelu, e_dot_u
+
+    def interpolate_integrator_quantities(self, att_S_ul, Jredlu,
+            Jbluelu, e_dot_u):
+        runner = self.runner
+        plasma = self.plasma
+        nshells = self.interpolate_shells
+        r_middle = (runner.r_inner_cgs + runner.r_outer_cgs) / 2.
+
+        r_integ = np.linspace(
+                runner.r_inner_cgs[0], runner.r_outer_cgs[-1], nshells
+        )
+        runner.r_inner_i = r_integ[:-1]
+        runner.r_outer_i = r_integ[1:]
+
+        r_middle_integ = (r_integ[:-1] + r_integ[1:]) / 2.
+
+        runner.electron_densities_integ = interp1d(
+                r_middle, plasma.electron_densities,
+                fill_value='extrapolate', kind='nearest')(r_middle_integ)
+        runner.tau_sobolevs_integ = interp1d(
+                r_middle, plasma.tau_sobolevs,
+                fill_value='extrapolate')(r_middle_integ)
+        att_S_ul = interp1d(
+                r_middle, att_S_ul, fill_value='extrapolate')(r_middle_integ)
+        Jredlu = interp1d(
+                r_middle, Jredlu, fill_value='extrapolate')(r_middle_integ)
+        Jbluelu = interp1d(
+                r_middle, Jbluelu, fill_value='extrapolate')(r_middle_integ)
+        e_dot_u = interp1d(
+                r_middle, e_dot_u, fill_value='extrapolate')(r_middle_integ)
         return att_S_ul, Jredlu, Jbluelu, e_dot_u
