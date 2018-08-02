@@ -3,7 +3,7 @@ Access information about individual iterations
 **********************************************
 
 Currently we store information about the plasma state and the inner boundary
-for each iteration. This is saved in the simulation object and can be accesses
+for each iteration. This is saved in the simulation object and can be accessed
 via
 
 .. code-block:: python
