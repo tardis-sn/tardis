@@ -7,7 +7,7 @@ from astropy import units as u, constants as const
 from scipy.special import zeta
 from spectrum import TARDISSpectrum
 
-from tardis.util import quantity_linspace
+from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.montecarlo.formal_integral import FormalIntegrator

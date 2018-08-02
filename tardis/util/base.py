@@ -1,18 +1,16 @@
-# Utilities for TARDIS
+import logging
+import os
+import re
+from collections import OrderedDict
 
-from astropy import units as u, constants
-from pyne import nucname
 import numexpr as ne
 import numpy as np
 import pandas as pd
-import os
 import yaml
-import re
+from astropy import constants, units as u
+from pyne import nucname
+
 import tardis
-import logging
-
-from collections import OrderedDict
-
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -20,8 +18,10 @@ h_cgs = constants.h.cgs.value
 m_e_cgs = constants.m_e.cgs.value
 e_charge_gauss = constants.e.gauss.value
 
+
 class MalformedError(Exception):
     pass
+
 
 class MalformedSpeciesError(MalformedError):
 
@@ -51,7 +51,6 @@ class MalformedQuantityError(MalformedError):
 
 
 logger = logging.getLogger(__name__)
-
 tardis_dir = os.path.realpath(tardis.__path__[0])
 
 
@@ -68,8 +67,6 @@ atomic_symbols_data = np.recfromtxt(get_data_path('atomic_symbols.dat'),
 symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
                                        atomic_symbols_data['atomic_number']))
 atomic_number2symbol = OrderedDict(atomic_symbols_data)
-
-
 synpp_default_yaml_fname = get_data_path('synpp_default.yaml')
 
 
@@ -195,6 +192,7 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
 
     return luminosity.value, wavelength.min(), wavelength.max()
 
+
 def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     logger.warning('Currently only works with Si and a special setup')
     if radial1d_mdl.atom_data.synpp_refs is not None:
@@ -265,6 +263,7 @@ def intensity_black_body(nu, T):
     intensity = ne.evaluate('coefficient * nu**3 / '
                             '(exp(h_cgs * nu * beta_rad) -1 )')
     return intensity
+
 
 def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     r"""Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
@@ -405,11 +404,13 @@ def element_symbol2atomic_number(element_string):
         raise MalformedElementSymbolError(element_string)
     return symbol2atomic_number[reformatted_element_string]
 
+
 def atomic_number2element_symbol(atomic_number):
     """
     Convert atomic number to string symbol
     """
     return atomic_number2symbol[atomic_number]
+
 
 def reformat_element_symbol(element_string):
     """

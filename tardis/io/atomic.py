@@ -375,7 +375,7 @@ class AtomData(object):
 
                 self.macro_atom_data.loc[:, 'destination_level_idx'] = self.macro_atom_references.loc[
                     tmp_macro_destination_level_idx, "references_idx"
-                ].astype(np.int64).values  # why it is named `destination_level_idx` ?! It is reference index
+                ].astype(np.int64).values
 
                 self.macro_atom_data.loc[:, 'source_level_idx'] = self.macro_atom_references.loc[
                     tmp_macro_source_level_idx, "references_idx"

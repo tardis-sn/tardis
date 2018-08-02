@@ -1,4 +1,7 @@
 import os
+
+import tardis.util.base
+
 if os.environ.get('QT_API', None)=='pyqt':
     from PyQt4 import QtGui, QtCore
 elif os.environ.get('QT_API', None)=='pyside':
@@ -969,7 +972,7 @@ class LineInteractionTables(QtGui.QWidget):
             'ion_number'])
         self.species_selected = sorted(
             line_interaction_species_group.groups.keys())
-        species_symbols = [util.species_tuple_to_string(item) for item in self.species_selected]
+        species_symbols = [tardis.util.base.species_tuple_to_string(item) for item in self.species_selected]
         species_table_model = self.createTable([species_symbols, ['Species']])
         species_abundances = (
             line_interaction_species_group.wavelength.count().astype(float) /
