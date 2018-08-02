@@ -9,16 +9,15 @@ from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
 
 
-@pytest.mark.parametrize('line_mode',
-                         ['downbranch',
-                          'macroatom'])
-@pytest.fixture(scope='module')
-def config(line_mode, atomic_data_fname):
+config_line_modes = ['downbranch', 'macroatom']
+
+
+@pytest.fixture(scope='module', params=config_line_modes)
+def config(request):
     config = Configuration.from_yaml(
         'tardis/io/tests/data/tardis_configv1_verysimple.yml')
 
-    config["atom_data"] = atomic_data_fname
-    config["plasma"]["line_interaction_type"] = line_mode
+    config["plasma"]["line_interaction_type"] = request.param
     config["montecarlo"]["no_of_packets"] = 4.0e+4
     config["montecarlo"]["last_no_of_packets"] = 1.0e+5
     config["montecarlo"]["no_of_virtual_packets"] = 0
@@ -35,10 +34,9 @@ class TestRunnerSimpleFormalInegral():
 
     @pytest.fixture(scope="class")
     def runner(
-            self, config,
+            self, config, atomic_data_fname,
             tardis_ref_data, generate_reference):
-        config = Configuration.from_yaml(
-                'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+        config.atom_data = atomic_data_fname
 
         simulation = Simulation.from_config(config)
         simulation.run()
