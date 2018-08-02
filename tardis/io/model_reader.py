@@ -11,7 +11,8 @@ import logging
 # Adding logging support
 logger = logging.getLogger(__name__)
 
-from tardis.util import parse_quantity
+from tardis.util.base import parse_quantity
+
 
 class ConfigurationError(Exception):
     pass
