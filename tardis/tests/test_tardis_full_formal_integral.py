@@ -9,6 +9,24 @@ from tardis.simulation.base import Simulation
 from tardis.io.config_reader import Configuration
 
 
+@pytest.mark.parametrize('line_mode',
+                         ['downbranch',
+                          'macroatom'])
+@pytest.fixture(scope='module')
+def config(line_mode, atomic_data_fname):
+    config = Configuration.from_yaml(
+        'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+
+    config["atom_data"] = atomic_data_fname
+    config["plasma"]["line_interaction_type"] = line_mode
+    config["montecarlo"]["no_of_packets"] = 4.0e+4
+    config["montecarlo"]["last_no_of_packets"] = 1.0e+5
+    config["montecarlo"]["no_of_virtual_packets"] = 0
+    config["spectrum"]["method"] = "integrated"
+
+    return config
+
+
 class TestRunnerSimpleFormalInegral():
     """
     Very simple run with the formal integral spectral synthesis method
@@ -17,14 +35,10 @@ class TestRunnerSimpleFormalInegral():
 
     @pytest.fixture(scope="class")
     def runner(
-            self, atomic_data_fname,
+            self, config,
             tardis_ref_data, generate_reference):
         config = Configuration.from_yaml(
                 'tardis/io/tests/data/tardis_configv1_verysimple.yml')
-        config['atom_data'] = atomic_data_fname
-        config["plasma"]["line_interaction_type"] = "downbranch"
-        config["montecarlo"]["no_of_virtual_packets"] = 0
-        config["spectrum"]["method"] = "integrated"
 
         simulation = Simulation.from_config(config)
         simulation.run()
@@ -65,9 +79,9 @@ class TestRunnerSimpleFormalInegral():
             runner.spectrum.luminosity,
             luminosity)
 
-    def test_virtual_integrated(self, runner, refdata):
+    def test_spectrum_integrated(self, runner, refdata):
         luminosity = u.Quantity(
-                refdata('spectrum_virtual/luminosity'), 'erg /s')
+                refdata('spectrum_integrated/luminosity'), 'erg /s')
 
         assert_quantity_allclose(
             runner.spectrum_integrated.luminosity,
