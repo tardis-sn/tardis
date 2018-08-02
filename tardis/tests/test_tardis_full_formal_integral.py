@@ -38,6 +38,9 @@ class TestRunnerSimpleFormalInegral():
             tardis_ref_data, generate_reference):
         config.atom_data = atomic_data_fname
 
+        self.name = (self.name +
+                     "_{:s}".format(config.plasma.line_interaction_type))
+
         simulation = Simulation.from_config(config)
         simulation.run()
 
