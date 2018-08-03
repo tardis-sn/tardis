@@ -13,7 +13,67 @@ from tardis.io.util import HDFWriterMixin
 logger = logging.getLogger(__name__)
 
 
-class Simulation(HDFWriterMixin):
+class PlasmaStateStorerMixin(object):
+    """Mixin class to provide the capability to the simulation object of
+    storing plasma information and the inner boundary temperature during each
+    MC iteration.
+
+    Currently, storage for the dilution factor, the radiation temperature and
+    the electron density in each cell is provided. Additionally, the
+    temperature at the inner boundary is saved.
+    """
+    def __init__(self, iterations, no_of_shells):
+
+        self.iterations_w = np.zeros(
+            (iterations, no_of_shells))
+        self.iterations_t_rad = np.zeros(
+            (iterations, no_of_shells)) * u.K
+        self.iterations_electron_densities = np.zeros(
+            (iterations, no_of_shells))
+        self.iterations_t_inner = np.zeros(iterations) * u.K
+
+    def store_plasma_state(self, i, w, t_rad, electron_densities, t_inner):
+        """Store current plasma information and inner boundary temperature
+        used in iterated i.
+
+        Parameters
+        ----------
+        i : int
+            current iteration index (0 for the first)
+        w : np.ndarray
+            dilution factor
+        t_rad : astropy.units.Quantity
+            radiation temperature
+        electron_densities : np.ndarray
+            electron density
+        t_inner : astropy.units.Quantity
+            temperature of inner boundary
+        """
+        self.iterations_w[i, :] = w
+        self.iterations_t_rad[i, :] = t_rad
+        self.iterations_electron_densities[i, :] = \
+            electron_densities.values
+        self.iterations_t_inner[i] = t_inner
+
+    def reshape_plasma_state_store(self, executed_iterations):
+        """Reshapes the storage arrays in case convergence was reached before
+        all specified iterations were executed.
+
+        Parameters
+        ----------
+        executed_iterations : int
+            iteration index, i.e. number of iterations executed minus one!
+        """
+        self.iterations_w = self.iterations_w[:executed_iterations+1, :]
+        self.iterations_t_rad = \
+            self.iterations_t_rad[:executed_iterations+1, :]
+        self.iterations_electron_densities = \
+            self.iterations_electron_densities[:executed_iterations+1, :]
+        self.iterations_t_inner = \
+            self.iterations_t_inner[:executed_iterations+1]
+
+
+class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     """A composite object containing all the required information for a
     simulation.
 
@@ -36,13 +96,18 @@ class Simulation(HDFWriterMixin):
         .. note:: TARDIS must be built with OpenMP support in order for
         `nthreads` to have effect.
     """
-    hdf_properties = ['model', 'plasma', 'runner']
+    hdf_properties = ['model', 'plasma', 'runner', 'iterations_w',
+                      'iterations_t_rad', 'iterations_electron_densities',
+                      'iterations_t_inner']
     hdf_name = 'simulation'
     def __init__(self, iterations, model, plasma, runner,
                  no_of_packets, no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
                  luminosity_requested, convergence_strategy,
                  nthreads):
+
+        super(Simulation, self).__init__(iterations, model.no_of_shells)
+
         self.converged = False
         self.iterations = iterations
         self.iterations_executed = 0
@@ -217,6 +282,10 @@ class Simulation(HDFWriterMixin):
     def run(self):
         start_time = time.time()
         while self.iterations_executed < self.iterations-1:
+            self.store_plasma_state(self.iterations_executed, self.model.w,
+                                    self.model.t_rad,
+                                    self.plasma.electron_densities,
+                                    self.model.t_inner)
             self.iterate(self.no_of_packets)
             self.converged = self.advance_state()
             self._call_back()
@@ -224,12 +293,19 @@ class Simulation(HDFWriterMixin):
                 if self.convergence_strategy.stop_if_converged:
                     break
         # Last iteration
+        self.store_plasma_state(self.iterations_executed, self.model.w,
+                                self.model.t_rad,
+                                self.plasma.electron_densities,
+                                self.model.t_inner)
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
+
+        self.reshape_plasma_state_store(self.iterations_executed)
 
         logger.info("Simulation finished in {0:d} iterations "
                     "and took {1:.2f} s".format(
                         self.iterations_executed, time.time() - start_time))
         self._call_back()
+
 
     def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
                          next_t_inner, log_sampling=5):

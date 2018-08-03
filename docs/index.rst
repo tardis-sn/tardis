@@ -37,8 +37,8 @@ Using Tardis
     :maxdepth: 2
 
     installation
-    running
-    configuration/index
+    quickstart
+    running/index
     examples/index
     scripts/index
     credits
