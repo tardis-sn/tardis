@@ -43,4 +43,10 @@ which are then acted upon.
 * close issue/partial PR and add to changelog.
 
 
-.. include:: release_workflow.rst
+.. toctree::
+
+    git_workflow
+    release_workflow
+    update_refdata
+
+
