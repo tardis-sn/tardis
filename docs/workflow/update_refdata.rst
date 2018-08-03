@@ -18,7 +18,7 @@ PR open.
 
 #. Change the following lines
 
-    .. code-block::
+    .. code-block:: None
 
         - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/<your TARDIS-refdata PR number; not the TARDIS PR number>/head:<some descriptive name>; fi
         - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout <some descriptive name>; fi```
@@ -27,7 +27,8 @@ PR open.
 #. Make sure that your TARDIS PR now passes on TRAVIS.
 #. Then merge the PR on tardis-refdata.
 #. Then change `.travis.yml` to
-    .. code-block::
+
+    .. code-block:: None
 
         - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
         - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi```
