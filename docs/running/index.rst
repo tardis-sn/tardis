@@ -8,4 +8,5 @@ Information regarding running and operating Tardis.
 
   ../configuration/index
   access
+  using_formal_integral
 
