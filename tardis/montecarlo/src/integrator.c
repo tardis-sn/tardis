@@ -230,7 +230,7 @@ _formal_integral(
 
               // initialize I_nu
               if (p <= R_ph)
-                I_nu[p_idx] = intensity_black_body(nu, iT);
+                I_nu[p_idx] = intensity_black_body(nu * z[0], iT);
               else
                 I_nu[p_idx] = 0;
 
