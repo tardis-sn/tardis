@@ -1,15 +1,17 @@
 #reading different model files
 
+import warnings
 import numpy as np
 from numpy import recfromtxt, genfromtxt
 import pandas as pd
 from astropy import units as u
+from pyne import nucname
 
 import logging
 # Adding logging support
 logger = logging.getLogger(__name__)
 
-from tardis.util import parse_quantity
+from tardis.util.base import parse_quantity
 
 
 class ConfigurationError(Exception):
@@ -42,12 +44,21 @@ def read_density_file(filename, filetype):
 
     """
     file_parsers = {'artis': read_artis_density,
-                    'simple_ascii': read_simple_ascii_density}
+                    'simple_ascii': read_simple_ascii_density,
+                    'cmfgen_model': read_cmfgen_density}
 
-    (time_of_model, velocity,
-     unscaled_mean_densities) = file_parsers[filetype](filename)
+    electron_densities = None
+    temperature = None
+    if filetype == 'cmfgen_model':
+        (time_of_model, velocity,
+         unscaled_mean_densities, electron_densities, temperature) = read_cmfgen_density(filename)
+    else:
+        (time_of_model, velocity,
+         unscaled_mean_densities) = file_parsers[filetype](filename)
+
     v_inner = velocity[:-1]
     v_outer = velocity[1:]
+
     invalid_volume_mask = (v_outer - v_inner) <= 0
     if invalid_volume_mask.sum() > 0:
         message = "\n".join(["cell {0:d}: v_inner {1:s}, v_outer "
@@ -59,7 +70,7 @@ def read_density_file(filename, filetype):
         raise ConfigurationError("Invalid volume of following cell(s):\n"
                                  "{:s}".format(message))
 
-    return time_of_model, velocity, unscaled_mean_densities
+    return time_of_model, velocity, unscaled_mean_densities, electron_densities, temperature
 
 def read_abundances_file(abundance_filename, abundance_filetype,
                          inner_boundary_index=None, outer_boundary_index=None):
@@ -85,9 +96,18 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     """
 
     file_parsers = {'simple_ascii': read_simple_ascii_abundances,
-                    'artis': read_simple_ascii_abundances}
+                    'artis': read_simple_ascii_abundances,
+                    'cmfgen_model': read_cmfgen_composition,
+                    'custom_composition': read_csv_composition}
 
-    index, abundances = file_parsers[abundance_filetype](abundance_filename)
+    isotope_abundance = pd.DataFrame()
+    if abundance_filetype in ["cmfgen_model", "custom_composition"]:
+        index, abundances, isotope_abundance = file_parsers[abundance_filetype](
+            abundance_filename)
+    else:
+        index, abundances = file_parsers[abundance_filetype](
+            abundance_filename)
+
     if outer_boundary_index is not None:
         outer_boundary_index_m1 = outer_boundary_index - 1
     else:
@@ -95,8 +115,52 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     index = index[inner_boundary_index:outer_boundary_index]
     abundances = abundances.ix[:, slice(inner_boundary_index, outer_boundary_index_m1)]
     abundances.columns = np.arange(len(abundances.columns))
-    return index, abundances
+    return index, abundances, isotope_abundance
 
+
+def read_uniform_abundances(abundances_section, no_of_shells):
+    """
+    Parameters
+    ----------
+
+    abundances_section: ~config.model.abundances
+    no_of_shells: int
+
+    Returns
+    -------
+    abundance: ~pandas.DataFrame
+    isotope_abundance: ~pandas.DataFrame
+    """
+    abundance = pd.DataFrame(columns=np.arange(no_of_shells),
+                             index=pd.Index(np.arange(1, 120),
+                                            name='atomic_number'),
+                             dtype=np.float64)
+
+    isotope_index = pd.MultiIndex(
+        [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
+    isotope_abundance = pd.DataFrame(columns=np.arange(no_of_shells),
+                                     index=isotope_index,
+                                     dtype=np.float64)
+
+    for element_symbol_string in abundances_section:
+        if element_symbol_string == 'type':
+            continue
+        try:
+            if element_symbol_string in nucname.name_zz:
+                z = nucname.name_zz[element_symbol_string]
+                abundance.ix[z] = float(
+                    abundances_section[element_symbol_string])
+            else:
+                mass_no = nucname.anum(element_symbol_string)
+                z = nucname.znum(element_symbol_string)
+                isotope_abundance.loc[(z, mass_no), :] = float(
+                    abundances_section[element_symbol_string])
+
+        except RuntimeError as err:
+            raise RuntimeError(
+                "Abundances are not defined properly in config file : {}".format(err.args))
+
+    return abundance, isotope_abundance
 
 def read_simple_ascii_density(fname):
     """
@@ -183,6 +247,61 @@ def read_artis_density(fname):
     return time_of_model, velocity, mean_density
 
 
+def read_cmfgen_density(fname):
+    """
+    Reading a density file of the following structure (example; lines starting with a hash will be ignored):
+    The first density describes the mean density in the center of the model and is not used.
+    The file consists of a header row and next row contains unit of the respective attributes
+    Note that the first column has to contain a running index
+
+    Example:
+
+    index velocity densities electron_densities temperature
+    - km/s g/cm^3 /cm^3 K
+    0 871.66905 4.2537191e-09 2.5953807e+14 7.6395577
+    1 877.44269 4.2537191e-09 2.5953807e+14 7.6395577
+
+    Rest columns contain abundances of elements and isotopes
+
+    Parameters
+    ----------
+
+    fname: str
+        filename or path with filename
+
+
+    Returns
+    -------
+
+    time_of_model: ~astropy.units.Quantity
+        time at which the model is valid
+
+    velocity: ~np.ndarray
+    mean_density: ~np.ndarray
+    electron_densities: ~np.ndarray
+    temperature: ~np.ndarray
+
+    """
+    warnings.warn("The current CMFGEN model parser is deprecated",
+                  DeprecationWarning)
+
+    df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=[0, 2])
+
+    with open(fname) as fh:
+        for row_index, line in enumerate(fh):
+            if row_index == 0:
+                time_of_model_string = line.strip().replace('t0:', '')
+                time_of_model = parse_quantity(time_of_model_string)
+            elif row_index == 2:
+                quantities = line.split()
+
+    velocity = u.Quantity(df['velocity'].values, quantities[1]).to('cm/s')
+    temperature = u.Quantity(df['temperature'].values, quantities[2])[1:]
+    mean_density = u.Quantity(df['densities'].values, quantities[3])[1:]
+    electron_densities = u.Quantity(
+        df['electron_densities'].values, quantities[4])[1:]
+
+    return time_of_model, velocity, mean_density, electron_densities, temperature
 
 def read_simple_ascii_abundances(fname):
     """
@@ -212,3 +331,111 @@ def read_simple_ascii_abundances(fname):
     abundances = pd.DataFrame(data[1:,1:].transpose(), index=np.arange(1, data.shape[1]))
 
     return index, abundances
+
+
+def read_cmfgen_composition(fname, delimiter='\s+'):
+    """Read composition from a CMFGEN model file
+
+    The CMFGEN file format contains information about the ejecta state in the
+    first four columns and the following ones contain elemental and isotopic
+    abundances.
+
+    WARNING: deprecated
+
+    fname: str
+        filename of the csv file
+    """
+
+    warnings.warn("The current CMFGEN model parser is deprecated",
+                  DeprecationWarning)
+
+    return read_csv_isotope_abundances(fname, delimiter=delimiter,
+                                       skip_columns=4, skip_rows=[0, 2, 3])
+
+
+def read_csv_composition(fname, delimiter='\s+'):
+    """Read composition from a simple CSV file
+
+    The CSV file can contain specific isotopes or elemental abundances in the
+    different columns. The first row must contain the header in which the
+    contents of each column is specified by the elemental symbol (for elemental
+    abundances) or by the symbol plus mass number (for isotopic abundances).
+
+    Example: C O Fe Ni56 Co
+
+    The i-th row specifies the composition in the i-th shell
+
+    fname: str
+        filename of the csv file
+    """
+
+    return read_csv_isotope_abundances(fname, delimiter=delimiter,
+                                       skip_columns=0, skip_rows=[1])
+
+
+def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
+                                skip_rows=[1]):
+    """
+    A generic parser for a TARDIS composition stored as a CSV file
+
+    The parser can read in both elemental and isotopic abundances. The first
+    column is always expected to contain a running index, labelling the grid
+    cells. The parser also allows for additional information to be stored in
+    the first skip_columns columns. These will be ignored if skip_columns > 0.
+    Note that the first column, containing the cell index is not taken into
+    account here.
+
+    Specific header lines can be skipped by the skip_rows keyword argument
+
+    It is expected that the first row of the date block (after skipping the
+    rows specified in skip_rows) specifies the different elements and isotopes.
+    Each row after contains the composition in the corresponding grid shell.
+    The first composition row describes the composition of the photosphere and
+    is essentially ignored (for the default value of skip_rows).
+
+    Example:
+
+    Index C   O   Ni56
+    0     1   1   1
+    1     0.4 0.3 0.2
+
+    Parameters
+    ----------
+
+    fname: str
+        filename or path with filename
+
+    Returns
+    -------
+
+    index: ~np.ndarray
+    abundances: ~pandas.DataFrame
+    isotope_abundance: ~pandas.MultiIndex
+    """
+
+    df = pd.read_csv(fname, comment='#',
+                     sep=delimiter, skiprows=skip_rows, index_col=0)
+    df = df.transpose()
+
+    abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
+                             index=pd.Index([],
+                                            name='atomic_number'),
+                             dtype=np.float64)
+
+    isotope_index = pd.MultiIndex(
+        [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
+    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
+                                     index=isotope_index,
+                                     dtype=np.float64)
+
+    for element_symbol_string in df.index[skip_columns:]:
+        if element_symbol_string in nucname.name_zz:
+            z = nucname.name_zz[element_symbol_string]
+            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
+        else:
+            z = nucname.znum(element_symbol_string)
+            mass_no = nucname.anum(element_symbol_string)
+            isotope_abundance.loc[(
+                z, mass_no), :] = df.loc[element_symbol_string].tolist()
+
+    return abundance.index, abundance, isotope_abundance

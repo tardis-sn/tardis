@@ -1,9 +1,9 @@
 import numpy as np
 
-from tardis.util import quantity_linspace
+from tardis.util.base import quantity_linspace
+from tardis.io.util import HDFWriterMixin
 
-
-class HomologousDensity(object):
+class HomologousDensity(HDFWriterMixin):
     """A class that holds an initial density and time
 
     Parameters
@@ -12,6 +12,8 @@ class HomologousDensity(object):
     time_0 : astropy.units.Quantity
 
     """
+    hdf_properties = ['density_0', 'time_0']
+    
     def __init__(self, density_0, time_0):
         self.density_0 = density_0
         self.time_0 = time_0

@@ -22,7 +22,10 @@ class PreviousElectronDensities(PreviousIterationProperty):
     outputs = ('previous_electron_densities',)
 
     def set_initial_value(self, kwargs):
-        initial_value = np.ones(len(kwargs['abundance'].columns))*1000000.0
+        initial_value = pd.Series(
+                1000000.0,
+                index=kwargs['abundance'].columns,
+                )
         self._set_initial_value(initial_value)
 
 class PreviousBetaSobolev(PreviousIterationProperty):
@@ -34,12 +37,11 @@ class PreviousBetaSobolev(PreviousIterationProperty):
     outputs = ('previous_beta_sobolev',)
 
     def set_initial_value(self, kwargs):
-        try:
-            lines = len(kwargs['atomic_data'].lines)
-        except:
-            lines = len(kwargs['atomic_data']._lines)
-        initial_value = np.ones((lines,
-            len(kwargs['abundance'].columns)))
+        initial_value = pd.DataFrame(
+                1.,
+                index=kwargs['atomic_data'].lines.index,
+                columns=kwargs['abundance'].columns,
+                )
         self._set_initial_value(initial_value)
 
 class HeliumNLTE(ProcessingPlasmaProperty):
@@ -61,7 +63,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         helium_population.ix[0,0] = 0.0
         #He II excited states
         he_two_population = level_boltzmann_factor.ix[2,1].mul(
-            (g.ix[2,1].ix[0]**(-1)))
+            (g.ix[2,1].ix[0]**(-1.0)))
         helium_population.ix[1].update(he_two_population)
         #He II ground state
         helium_population.ix[1,0] = 1.0
@@ -83,7 +85,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         """
         return level_boltzmann_factor.ix[2,0] * (1./(2*g.ix[2,1,0])) * \
             (1/g_electron) * (1/(w**2.)) * np.exp(
-            ionization_data.ionization_energy.ix[2,1] * beta_rad)
+            ionization_data.loc[2,1] * beta_rad)
 
     @staticmethod
     def calculate_helium_three(t_rad, w, zeta_data, t_electrons, delta,
@@ -94,7 +96,7 @@ class HeliumNLTE(ProcessingPlasmaProperty):
         zeta = PhiSahaNebular.get_zeta_values(zeta_data, 2, t_rad)[1]
         he_three_population = 2 * \
             (float(g.ix[2,2,0])/g.ix[2,1,0]) * g_electron * \
-            np.exp(-ionization_data.ionization_energy.ix[2,2] * beta_rad) \
+            np.exp(-ionization_data.loc[2,2] * beta_rad) \
             * w * (delta.ix[2,2] * zeta + w * (1. - zeta)) * \
             (t_electrons / t_rad) ** 0.5
         return he_three_population

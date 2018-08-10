@@ -1,15 +1,20 @@
 import pytest
 import numpy as np
+import os
 from astropy import units as u
 from io import StringIO
 
-from tardis.util import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError
-from tardis.util import (int_to_roman, roman_to_int, create_synpp_yaml,
-                         calculate_luminosity, intensity_black_body, savitzky_golay,
-                         species_tuple_to_string, species_string_to_tuple, parse_quantity,
-                         element_symbol2atomic_number, atomic_number2element_symbol,
-                         reformat_element_symbol, quantity_linspace)
+from tardis.util.base import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError, int_to_roman, \
+    roman_to_int, calculate_luminosity, create_synpp_yaml, intensity_black_body, savitzky_golay, \
+    species_tuple_to_string, species_string_to_tuple, parse_quantity, element_symbol2atomic_number, \
+    atomic_number2element_symbol, reformat_element_symbol, quantity_linspace, convert_abundances_format
 
+data_path = os.path.join('tardis', 'io', 'tests', 'data')
+
+
+@pytest.fixture
+def artis_abundances_fname():
+    return os.path.join(data_path, 'artis_abundances.dat')
 
 def test_malformed_species_error():
     malformed_species_error = MalformedSpeciesError('He')
@@ -203,3 +208,11 @@ def test_quantity_linspace(start, stop, num, expected):
 
     with pytest.raises(ValueError):
         quantity_linspace(u.Quantity(0.5, 'eV'), '0.6 eV', 3)
+
+
+def test_convert_abundances_format(artis_abundances_fname):
+    abundances = convert_abundances_format(artis_abundances_fname)
+    assert np.isclose(abundances.loc[3, 'O'], 1.240199e-08, atol=1.e-12)
+    assert np.isclose(abundances.loc[1, 'Co'], 2.306023e-05, atol=1.e-12)
+    assert np.isclose(abundances.loc[69, 'Ni'], 1.029928e-17, atol=1.e-12)
+    assert np.isclose(abundances.loc[2, 'C'], 4.425876e-09, atol=1.e-12)

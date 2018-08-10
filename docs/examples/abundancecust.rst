@@ -2,8 +2,8 @@
 Using a custom stratified composition
 *************************************
 
-Overview
-========
+ASCII Format
+=============
 
 To use a stratified ejecta composition in TARDIS, the elemental abundances may
 be specified on a per-cell basis via an external ascii file (similar to setting
@@ -46,8 +46,8 @@ The example file shown here has three simple layers:
    including details of how to develop your own dataset to suit your
    needs, please contact us.
 
-TARDIS input file
-=================
+TARDIS ascii input file
+=======================
 
 If you create a correctly formatted abundance profile file (called "abund.dat"
 in this example), you can use it in TARDIS by putting the following lines in
@@ -55,3 +55,82 @@ the model section of the yaml file:
 
 .. literalinclude:: tardis_configv1_abundance_cust_example.yml
     :language: yaml
+
+
+CSV Format
+==========
+
+In this format, both elemental and isotopic abundances may
+be specified on a per-cell basis via an external csv file. A csv file that could
+work on a mesh with ten cells should be formatted like this:
+
+.. literalinclude:: tardis_model_abund.csv
+
+.. note::
+    
+    The file should always contain the cell index as a running index in the
+    first column.
+
+.. danger::
+
+    The header line for the isotopic abundance structure can under no
+    circumstances start with a '#'
+
+In this file:
+
+- Header row contains element and isotopes symbol 
+- the remaining entries in each row give the set of elemental and isotopic abundances.
+- the first column contains a running index
+
+The abundances are specified as mass fractions (i.e. the sum of columns
+in each row should be 1.0). The mass fractions specified will be adopted directly in
+the TARDIS calculations.
+
+The example file shown here has three simple layers: 
+
+- an innermost region that is composed of Si and two Nickel Isotopes Ni56 and Ni58
+
+- a middle region that is composed of O and Mg
+
+- an outer region that is composed of C and O.
+
+.. note::
+    
+    Suppose you specify Elemental and Isotopic abundances for the same element. For ex-
+    :code:`Ni` and :code:`Ni56`. 
+    Here, Ni will refer to the stable Nickel, i.e. (Z=26, A=58).
+
+
+.. note::
+  
+    As with the custom density file, the first row will be ignored. It is
+    supposed to give the composition below the photosphere. Thus, the first row
+    (after the header) can be filled with dummy values
+
+.. warning::
+
+   The example given here is to show the format only. It is not a
+   realistic model. In any real calculation better resolution
+   (i.e. more grid points) should be used.
+
+TARDIS csv input file
+=====================
+
+If you create a correctly formatted abundance profile file (called "tardis_model_abund.csv"
+in this example), you can use it in TARDIS by putting the following lines in
+the model section of the yaml file:
+
+.. literalinclude:: tardis_configv1_isotope_abundance_cust_example.yml
+    :language: yaml   
+
+Convert ascii abundance file format to csv format
+=================================================
+
+If you want to convert an ASCII abundance file(say "abund.dat") to CSV format, you can use 
+:code:`convert_abundances_format` function for it. Here is an example to demonstrate this:
+
+.. code:: python
+
+    from tardis.util import convert_abundances_format
+    df = convert_abundances_format('abund.dat')
+    df.to_csv('converted_abund.csv', index=False, sep=' ')  

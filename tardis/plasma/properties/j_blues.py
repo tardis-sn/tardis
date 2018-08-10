@@ -4,7 +4,7 @@ from astropy import constants as const
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty, \
     DataFrameInput
-from tardis.util import intensity_black_body
+from tardis.util.base import intensity_black_body
 
 
 class JBluesBlackBody(ProcessingPlasmaProperty):
@@ -22,7 +22,7 @@ class JBluesBlackBody(ProcessingPlasmaProperty):
         j_blues = intensity_black_body(nu.values[np.newaxis].T, t_rad)
         j_blues = pd.DataFrame(j_blues, index=lines.index,
                                columns=np.arange(len(t_rad)))
-        return np.array(j_blues, copy=False)
+        return j_blues
 
 
 class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
@@ -34,7 +34,7 @@ class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
         j_blues = w * intensity_black_body(nu.values[np.newaxis].T, t_rad)
         j_blues = pd.DataFrame(j_blues, index=lines.index,
                                columns=np.arange(len(t_rad)))
-        return np.array(j_blues, copy=False)
+        return j_blues
 
 
 class JBluesDetailed(ProcessingPlasmaProperty):
@@ -63,7 +63,7 @@ class JBluesDetailed(ProcessingPlasmaProperty):
                     self.w_epsilon *
                     intensity_black_body(nu[zero_j_blues].values,
                                          t_rad[i]))
-            return np.array(j_blues, copy=False)
+            return j_blues
 
 
 class JBluesNormFactor(ProcessingPlasmaProperty):

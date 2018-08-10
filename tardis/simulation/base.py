@@ -8,12 +8,72 @@ from collections import OrderedDict
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
-
+from tardis.io.util import HDFWriterMixin
 # Adding logging support
 logger = logging.getLogger(__name__)
 
 
-class Simulation(object):
+class PlasmaStateStorerMixin(object):
+    """Mixin class to provide the capability to the simulation object of
+    storing plasma information and the inner boundary temperature during each
+    MC iteration.
+
+    Currently, storage for the dilution factor, the radiation temperature and
+    the electron density in each cell is provided. Additionally, the
+    temperature at the inner boundary is saved.
+    """
+    def __init__(self, iterations, no_of_shells):
+
+        self.iterations_w = np.zeros(
+            (iterations, no_of_shells))
+        self.iterations_t_rad = np.zeros(
+            (iterations, no_of_shells)) * u.K
+        self.iterations_electron_densities = np.zeros(
+            (iterations, no_of_shells))
+        self.iterations_t_inner = np.zeros(iterations) * u.K
+
+    def store_plasma_state(self, i, w, t_rad, electron_densities, t_inner):
+        """Store current plasma information and inner boundary temperature
+        used in iterated i.
+
+        Parameters
+        ----------
+        i : int
+            current iteration index (0 for the first)
+        w : np.ndarray
+            dilution factor
+        t_rad : astropy.units.Quantity
+            radiation temperature
+        electron_densities : np.ndarray
+            electron density
+        t_inner : astropy.units.Quantity
+            temperature of inner boundary
+        """
+        self.iterations_w[i, :] = w
+        self.iterations_t_rad[i, :] = t_rad
+        self.iterations_electron_densities[i, :] = \
+            electron_densities.values
+        self.iterations_t_inner[i] = t_inner
+
+    def reshape_plasma_state_store(self, executed_iterations):
+        """Reshapes the storage arrays in case convergence was reached before
+        all specified iterations were executed.
+
+        Parameters
+        ----------
+        executed_iterations : int
+            iteration index, i.e. number of iterations executed minus one!
+        """
+        self.iterations_w = self.iterations_w[:executed_iterations+1, :]
+        self.iterations_t_rad = \
+            self.iterations_t_rad[:executed_iterations+1, :]
+        self.iterations_electron_densities = \
+            self.iterations_electron_densities[:executed_iterations+1, :]
+        self.iterations_t_inner = \
+            self.iterations_t_inner[:executed_iterations+1]
+
+
+class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     """A composite object containing all the required information for a
     simulation.
 
@@ -36,11 +96,18 @@ class Simulation(object):
         .. note:: TARDIS must be built with OpenMP support in order for
         `nthreads` to have effect.
     """
+    hdf_properties = ['model', 'plasma', 'runner', 'iterations_w',
+                      'iterations_t_rad', 'iterations_electron_densities',
+                      'iterations_t_inner']
+    hdf_name = 'simulation'
     def __init__(self, iterations, model, plasma, runner,
                  no_of_packets, no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
                  luminosity_requested, convergence_strategy,
                  nthreads):
+
+        super(Simulation, self).__init__(iterations, model.no_of_shells)
+
         self.converged = False
         self.iterations = iterations
         self.iterations_executed = 0
@@ -54,14 +121,20 @@ class Simulation(object):
         self.luminosity_nu_end = luminosity_nu_end
         self.luminosity_requested = luminosity_requested
         self.nthreads = nthreads
-        if convergence_strategy.type in ('damped', 'specific'):
+        if convergence_strategy.type in ('damped'):
             self.convergence_strategy = convergence_strategy
             self.converged = False
             self.consecutive_converges_count = 0
+        elif convergence_strategy.type in ('custom'):
+            raise NotImplementedError(
+                'Convergence strategy type is custom; '
+                'you need to implement your specific treatment!'
+            )
         else:
-            raise ValueError('Convergence strategy type is '
-                             'neither damped nor specific '
-                             '- input is {0}'.format(convergence_strategy.type))
+            raise ValueError(
+                    'Convergence strategy type is '
+                    'not damped or custom '
+                    '- input is {0}'.format(convergence_strategy.type))
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
@@ -94,41 +167,37 @@ class Simulation(object):
         convergence_t_inner = (abs(t_inner - estimated_t_inner) /
                                estimated_t_inner).value
 
-        if self.convergence_strategy.type == 'specific':
-            fraction_t_rad_converged = (
-                np.count_nonzero(
-                    convergence_t_rad < self.convergence_strategy.t_rad.threshold)
-                / no_of_shells)
+        fraction_t_rad_converged = (
+            np.count_nonzero(
+                convergence_t_rad < self.convergence_strategy.t_rad.threshold)
+            / no_of_shells)
 
-            t_rad_converged = (
-                fraction_t_rad_converged > self.convergence_strategy.t_rad.threshold)
+        t_rad_converged = (
+            fraction_t_rad_converged > self.convergence_strategy.fraction)
 
-            fraction_w_converged = (
-                np.count_nonzero(
-                    convergence_w < self.convergence_strategy.w.threshold)
-                / no_of_shells)
+        fraction_w_converged = (
+            np.count_nonzero(
+                convergence_w < self.convergence_strategy.w.threshold)
+            / no_of_shells)
 
-            w_converged = (
-                fraction_w_converged > self.convergence_strategy.w.threshold)
+        w_converged = (
+            fraction_w_converged > self.convergence_strategy.fraction)
 
-            t_inner_converged = (
-                convergence_t_inner < self.convergence_strategy.t_inner.threshold)
+        t_inner_converged = (
+            convergence_t_inner < self.convergence_strategy.t_inner.threshold)
 
-            if np.all([t_rad_converged, w_converged, t_inner_converged]):
-                hold_iterations = self.convergence_strategy.hold_iterations
-                self.consecutive_converges_count += 1
-                logger.info("Iteration converged {0:d}/{1:d} consecutive "
-                            "times.".format(self.consecutive_converges_count,
-                                            hold_iterations + 1))
-                # If an iteration has converged, require hold_iterations more
-                # iterations to converge before we conclude that the Simulation
-                # is converged.
-                return self.consecutive_converges_count == hold_iterations + 1
-            else:
-                self.consecutive_converges_count = 0
-                return False
-
+        if np.all([t_rad_converged, w_converged, t_inner_converged]):
+            hold_iterations = self.convergence_strategy.hold_iterations
+            self.consecutive_converges_count += 1
+            logger.info("Iteration converged {0:d}/{1:d} consecutive "
+                        "times.".format(self.consecutive_converges_count,
+                                        hold_iterations + 1))
+            # If an iteration has converged, require hold_iterations more
+            # iterations to converge before we conclude that the Simulation
+            # is converged.
+            return self.consecutive_converges_count == hold_iterations + 1
         else:
+            self.consecutive_converges_count = 0
             return False
 
     def advance_state(self):
@@ -144,7 +213,8 @@ class Simulation(object):
         estimated_t_rad, estimated_w = (
             self.runner.calculate_radiationfield_properties())
         estimated_t_inner = self.estimate_t_inner(
-            self.model.t_inner, self.luminosity_requested)
+            self.model.t_inner, self.luminosity_requested,
+            t_inner_update_exponent=self.convergence_strategy.t_inner_update_exponent)
 
         converged = self._get_convergence_status(self.model.t_rad,
                                                  self.model.w,
@@ -160,9 +230,12 @@ class Simulation(object):
             self.convergence_strategy.t_rad.damping_constant)
         next_w = self.damped_converge(
             self.model.w, estimated_w, self.convergence_strategy.w.damping_constant)
-        next_t_inner = self.damped_converge(
-            self.model.t_inner, estimated_t_inner,
-            self.convergence_strategy.t_inner.damping_constant)
+        if (self.iterations_executed + 1) % self.convergence_strategy.lock_t_inner_cycles == 0:
+            next_t_inner = self.damped_converge(
+                self.model.t_inner, estimated_t_inner,
+                self.convergence_strategy.t_inner.damping_constant)
+        else:
+            next_t_inner = self.model.t_inner
 
         self.log_plasma_state(self.model.t_rad, self.model.w,
                               self.model.t_inner, next_t_rad, next_w,
@@ -208,18 +281,31 @@ class Simulation(object):
 
     def run(self):
         start_time = time.time()
-        while self.iterations_executed < self.iterations-1 and not self.converged:
+        while self.iterations_executed < self.iterations-1:
+            self.store_plasma_state(self.iterations_executed, self.model.w,
+                                    self.model.t_rad,
+                                    self.plasma.electron_densities,
+                                    self.model.t_inner)
             self.iterate(self.no_of_packets)
             self.converged = self.advance_state()
             self._call_back()
+            if self.converged:
+                if self.convergence_strategy.stop_if_converged:
+                    break
         # Last iteration
+        self.store_plasma_state(self.iterations_executed, self.model.w,
+                                self.model.t_rad,
+                                self.plasma.electron_densities,
+                                self.model.t_inner)
         self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
-        self.runner.legacy_update_spectrum(self.no_of_virtual_packets)
+
+        self.reshape_plasma_state_store(self.iterations_executed)
 
         logger.info("Simulation finished in {0:d} iterations "
                     "and took {1:.2f} s".format(
                         self.iterations_executed, time.time() - start_time))
         self._call_back()
+
 
     def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
                          next_t_inner, log_sampling=5):
@@ -269,34 +355,6 @@ class Simulation(object):
                     "Luminosity requested = {2:.5e}".format(
             emitted_luminosity, absorbed_luminosity,
             self.luminosity_requested))
-
-    def to_hdf(self, path_or_buf, path='simulation', plasma_properties=None,
-               suffix_count=True):
-        """
-        Store the simulation to an HDF structure.
-
-        Parameters
-        ----------
-        path_or_buf
-            Path or buffer to the HDF store
-        path : str
-            Path inside the HDF store to store the simulation
-        plasma_properties
-            `None` or a `PlasmaPropertyCollection` which will
-            be passed as the collection argument to the
-            plasma.to_hdf method.
-        suffix_count : bool
-            If True, the path inside the HDF will be suffixed with the
-            number of the iteration being stored.
-        Returns
-        -------
-        None
-        """
-        if suffix_count:
-            path += str(self.iterations_executed)
-        self.runner.to_hdf(path_or_buf, path)
-        self.model.to_hdf(path_or_buf, path)
-        self.plasma.to_hdf(path_or_buf, path, plasma_properties)
 
     def _call_back(self):
         for cb, args in self._callbacks.values():
@@ -409,4 +467,3 @@ class Simulation(object):
                    luminosity_requested=config.supernova.luminosity_requested.cgs,
                    convergence_strategy=config.montecarlo.convergence_strategy,
                    nthreads=config.montecarlo.nthreads)
-

@@ -11,9 +11,15 @@ TARDIS Code papers
 
 * :cite:`Kerzendorf2014`
 
-Works using TARDIS
+Studies using TARDIS
 ==================
 
+* :cite:`Smartt2017`
+* :cite:`Barna2017`
+* :cite:`Heringer2017`
+* :cite:`Magee2017`
+* :cite:`Boyle2017`
+* :cite:`Inserra2016`
 * :cite:`Magee2016`
 
 Monte Carlo Radiative Transfer Works

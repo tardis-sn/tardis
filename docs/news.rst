@@ -1,8 +1,15 @@
+GSOC 2017
+---------
+
+.. image:: https://developers.google.com/open-source/gsoc/resources/downloads/GSoC-logo-horizontal.svg
+  :target: https://summerofcode.withgoogle.com/organizations/4793296782098432/
+  :width: 458 px
+
+TARDIS participates in the Google Summer of Code 2017 program as part of the Python Software Foundation!
+
+
 SOCIS 2016
 ----------
-
-.. image:: http://sophia.estec.esa.int/socis2015/sites/default/files/images/esalogo.png
-  :target: http://sophia.estec.esa.int/socis/
 
 TARDIS is part of ESA's Summer of Code in Space 2016 program!
 

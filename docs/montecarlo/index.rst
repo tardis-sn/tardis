@@ -9,10 +9,12 @@ can also be found in various papers by L. Lucy and in the main TARDIS publicatio
 :cite:`Long2002`, :cite:`Lucy2002`, :cite:`Lucy2003`, :cite:`Lucy2005`,
 :cite:`Kerzendorf2014`)
 
-* :doc:`Basic Principles of Monte Carlo Radiative Transfer <basicprinciples>`
-* :doc:`Monte Carlo discretization <discretization>`
-* :doc:`Propagation of Monte Carlo quanta <propagation>`
-* :doc:`Line Interaction Modes <lineinteraction>`
-* :doc:`Reconstructing the Radiation Field - Volume-based Monte Carlo Estimators <estimators>`
-* :doc:`Spectrum calculation - Virtual Packet scheme <virtualpackets>`
-* :doc:`Random Sampling Basics <randomsampling>`
+.. toctree::
+    basicprinciples
+    discretization
+    propagation
+    lineinteraction
+    estimators
+    virtualpackets
+    sourceintegration
+    randomsampling

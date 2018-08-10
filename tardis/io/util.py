@@ -1,13 +1,14 @@
 #Utility functions for the IO part of TARDIS
 
 import os
+import re
 import pandas as pd
 import numpy as np
 import collections
 from collections import OrderedDict
 import yaml
 from astropy import constants, units as u
-from tardis.util import element_symbol2atomic_number
+from tardis.util.base import element_symbol2atomic_number
 
 import logging
 logger = logging.getLogger(__name__)
@@ -166,58 +167,176 @@ def check_equality(item1, item2):
         return True
 
 
-def to_hdf(path_or_buf, path, elements, complevel=9, complib='blosc'):
-    """
-    A function to uniformly store TARDIS data
-    to an HDF file.
+class HDFWriterMixin(object):
 
-    Scalars will be stored in a Series under path/scalars
-    1D arrays will be stored under path/property_name as distinct Series
-    2D arrays will be stored under path/property_name as distinct DataFrames
+    @staticmethod
+    def to_hdf_util(path_or_buf, path, elements, complevel=9, complib='blosc'):
+        """
+        A function to uniformly store TARDIS data
+        to an HDF file.
 
-    Units will be stored as their CGS value
+        Scalars will be stored in a Series under path/scalars
+        1D arrays will be stored under path/property_name as distinct Series
+        2D arrays will be stored under path/property_name as distinct DataFrames
 
-    Parameters
-    ----------
-    path_or_buf:
-        Path or buffer to the HDF store
-    path: str
-        Path inside the HDF store to store the `elements`
-    elements: dict
-        A dict of property names and their values to be
-        stored.
+        Units will be stored as their CGS value
 
-    Returns
-    -------
+        Parameters
+        ----------
+        path_or_buf:
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        elements: dict
+            A dict of property names and their values to be
+            stored.
 
-    """
-    scalars = {}
-    for key, value in elements.iteritems():
-        if hasattr(value, 'cgs'):
-            value = value.cgs.value
-        if np.isscalar(value):
-            scalars[key] = value
-        elif hasattr(value, 'shape'):
-            if value.ndim == 1:
-                # This try,except block is only for model.plasma.levels
-                try:
-                    pd.Series(value).to_hdf(path_or_buf,
-                                            os.path.join(path, key))
-                except NotImplementedError:
-                    pd.DataFrame(value).to_hdf(path_or_buf,
-                                               os.path.join(path, key))
+        Returns
+        -------
+
+        """
+        we_opened = False
+
+        try:
+            buf = pd.HDFStore(
+                    path_or_buf,
+                    complevel=complevel,
+                    complib=complib
+                    )
+        except TypeError as e:  # Already a HDFStore
+            if e.message == 'Expected bytes, got HDFStore':
+                buf = path_or_buf
             else:
-                pd.DataFrame(value).to_hdf(path_or_buf, os.path.join(path, key))
+                raise e
+        else:  # path_or_buf was a string and we opened the HDFStore
+            we_opened = True
+
+        if not buf.is_open:
+            buf.open()
+            we_opened = True
+
+        scalars = {}
+        for key, value in elements.iteritems():
+            if value is None:
+                value = 'none'
+            if hasattr(value, 'cgs'):
+                value = value.cgs.value
+            if np.isscalar(value):
+                scalars[key] = value
+            elif hasattr(value, 'shape'):
+                if value.ndim == 1:
+                    # This try,except block is only for model.plasma.levels
+                    try:
+                        pd.Series(value).to_hdf(buf,
+                                                os.path.join(path, key))
+                    except NotImplementedError:
+                        pd.DataFrame(value).to_hdf(buf,
+                                                   os.path.join(path, key))
+                else:
+                    pd.DataFrame(value).to_hdf(
+                        buf, os.path.join(path, key))
+            else:
+                try:
+                    value.to_hdf(buf, path, name=key)
+                except AttributeError:
+                    data = pd.DataFrame([value])
+                    data.to_hdf(buf, os.path.join(path, key))
+
+        if scalars:
+            scalars_series = pd.Series(scalars)
+
+            # Unfortunately, with to_hdf we cannot append, so merge beforehand
+            scalars_path = os.path.join(path, 'scalars')
+            try:
+                scalars_series = buf[scalars_path].append(scalars_series)
+            except KeyError:  # no scalars in HDFStore
+                pass
+            scalars_series.to_hdf(buf, os.path.join(path, 'scalars'))
+
+        if we_opened:
+            buf.close()
+
+    def get_properties(self):
+        data = {name: getattr(self, name) for name in self.hdf_properties}
+        return data
+
+    @staticmethod
+    def convert_to_snake_case(s):
+        s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', s)
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', s1).lower()
+
+    def to_hdf(self, file_path, path='', name=None):
+        """
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        name: str
+            Group inside the HDF store to which the `elements` need to be saved
+
+        Returns
+        -------
+
+        """
+        if name is None:
+            try:
+                name = self.hdf_name
+            except AttributeError:
+                name = self.convert_to_snake_case(self.__class__.__name__)
+
+        data = self.get_properties()
+        buff_path = os.path.join(path, name)
+        self.to_hdf_util(file_path, buff_path, data)
+
+
+class PlasmaWriterMixin(HDFWriterMixin):
+
+    def get_properties(self):
+        data = {}
+        if self.collection:
+            properties = [name for name in self.plasma_properties
+                          if isinstance(name, tuple(self.collection))]
         else:
-            data = pd.DataFrame([value])
-            data.to_hdf(path_or_buf, os.path.join(path, key))
+            properties = self.plasma_properties
+        for prop in properties:
+            for output in prop.outputs:
+                data[output] = getattr(prop, output)
+        data['atom_data_uuid'] = self.atomic_data.uuid1
+        if 'atomic_data' in data:
+            data.pop('atomic_data')
+        if 'nlte_data' in data:
+            logger.warning("nlte_data can't be saved")
+            data.pop('nlte_data')
+        return data
 
-    if scalars:
-        scalars_series = pd.Series(scalars)
+    def to_hdf(self, file_path, path='', name=None, collection=None):
+        '''
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        name: str
+            Group inside the HDF store to which the `elements` need to be saved
+        collection:
+            `None` or a `PlasmaPropertyCollection` of which members are
+            the property types which will be stored. If `None` then
+            all types of properties will be stored.
 
-        # Unfortunately, with to_hdf we cannot append, so merge beforehand
-        scalars_path = os.path.join(path, 'scalars')
-        with pd.HDFStore(path_or_buf, complevel=complevel, complib=complib) as store:
-            if scalars_path in store:
-                scalars_series = store[scalars_path].append(scalars_series)
-        scalars_series.to_hdf(path_or_buf, os.path.join(path, 'scalars'))
+            This acts like a filter, for example if a value of
+            `property_collections.basic_inputs` is given, only
+            those input parameters will be stored to the HDF store.
+
+        Returns
+        -------
+
+        '''
+        self.collection = collection
+        super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)
+
+
+
+

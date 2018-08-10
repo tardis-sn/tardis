@@ -33,33 +33,46 @@ acknowledge it by citing :cite:`Kerzendorf2014`.
 Using Tardis
 ============
 
-* :doc:`Installation <installation>`
-* :doc:`Quickstart Guide <running>`
-* :doc:`Ejecta Model Setup <examples/modelconfig>`
-* :doc:`TARDIS Configuration <configuration/index>`
-* :doc:`Examples <examples/examples>`
-* :doc:`Credit & Publication Policies <credits>`
+.. toctree::
+    :maxdepth: 2
+
+    installation
+    quickstart
+    running/index
+    examples/index
+    scripts/index
+    credits
 
 ======================
 Looking under the hood
 ======================
 
-* :doc:`Physics behind TARDIS <physics/index>`
-* :doc:`Monte Carlo Primer <montecarlo/index>`
+.. toctree::
+    :maxdepth: 2
+
+    atomic/atomic_data
+    physics/index
+    montecarlo/index
+
 
 =================
 Developing Tardis
 =================
 
-* :doc:`Reporting Issues <issues>`
-* :doc:`How to contribute <workflow/development_workflow>`
-* :doc:`Running tests <running_tests>`
+.. toctree::
+    :maxdepth: 2
+
+    issues
+    workflow/development_workflow
+    runnints_tests
+    changelog
 
 ==========
 References
 ==========
 
-* :doc:`TARDIS Papers and useful references <zreferences>`
+.. toctree::
+    zreferences
 
 ====
 News

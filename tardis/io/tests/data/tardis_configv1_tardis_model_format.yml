@@ -1,0 +1,36 @@
+tardis_config_version: v1.0
+
+supernova:
+    luminosity_requested: 2.8e9 solLum
+    time_explosion: 13 day
+
+atom_data: kurucz_cd23_chianti_H_He.h5
+model:
+
+    structure:
+        type: file
+        filename: cmfgen_model.csv
+        filetype: cmfgen_model
+
+    abundances:
+        type: file
+        filename: cmfgen_model.csv
+        filetype: cmfgen_model
+
+plasma:
+    ionization: lte
+    excitation: lte
+    radiative_rates_type: dilute-blackbody
+    line_interaction_type: macroatom
+
+montecarlo:
+    seed: 23111963
+    no_of_packets : 2.0e+5
+    iterations: 5
+    last_no_of_packets: 5.0e+5
+    no_of_virtual_packets: 5
+
+spectrum:
+    start: 500 angstrom
+    stop: 20000 angstrom
+    num: 10000

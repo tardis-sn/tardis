@@ -1,7 +1,10 @@
 import os
 
 from matplotlib import colors
-from tardis import atomic, plasma_array, util
+
+import tardis.util.base
+from tardis import util
+from tardis.io import atomic
 from matplotlib import pyplot as plt
 
 import numpy as np
@@ -19,7 +22,7 @@ ax2 = plt.figure(2).add_subplot(111)
 atom_fname = os.path.expanduser('~/.tardis/si_kurucz.h5')
 
 # reading in the HDF5 File
-atom_data = atomic.AtomData.from_hdf5(atom_fname)
+atom_data = atomic.AtomData.from_hdf(atom_fname)
 
 #The atom_data needs to be prepared to create indices. The Class needs to know which atomic numbers are needed for the
 #calculation and what line interaction is needed (for "downbranch" and "macroatom" the code creates special tables)
@@ -57,7 +60,7 @@ ion_colors = ['b', 'g', 'r', 'k']
 for ion_number in [0, 1, 2, 3]:
     current_ion_density = ion_number_densities.ix[14, ion_number]
     ax1.plot(current_ion_density.index, current_ion_density.values, '%s-' % ion_colors[ion_number],
-             label='Si %s W=1.0' % util.int_to_roman(ion_number + 1).upper())
+             label='Si %s W=1.0' % tardis.util.base.int_to_roman(ion_number + 1).upper())
 
 
 #only plotting every 5th radiation temperature
@@ -91,7 +94,7 @@ for ion_number in [0, 1, 2, 3]:
     print "w=0.5"
     current_ion_density = ion_number_densities.ix[14, ion_number]
     ax1.plot(current_ion_density.index, current_ion_density.values, '%s--' % ion_colors[ion_number],
-             label='Si %s W=0.5' % util.int_to_roman(ion_number + 1).upper())
+             label='Si %s W=0.5' % tardis.util.base.int_to_roman(ion_number + 1).upper())
 
 for t_rad in t_rads[::5]:
     ax2.plot(level_populations[t_rad].index, level_populations[t_rad].values, color=t_rad_color_map.to_rgba(t_rad),

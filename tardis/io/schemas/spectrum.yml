@@ -1,0 +1,18 @@
+$$target: spectrum.yml
+type: object
+properties:
+  start:
+    type: quantity
+  stop:
+    type: quantity
+  num:
+    type: number
+    multipleOf: 1.0
+  method:
+    type: string
+    enum:
+            - integrated
+            - virtual
+            - real
+    default: virtual
+    description: The method to generate the final spectrum

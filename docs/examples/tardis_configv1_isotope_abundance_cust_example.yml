@@ -1,0 +1,5 @@
+model:
+    abundances:
+        type: file
+        filename: tardis_model_abund.csv
+        filetype: custom_composition

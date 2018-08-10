@@ -60,11 +60,11 @@ if not RELEASE:
 # invoking any other functionality from distutils since it can potentially
 # modify distutils' behavior.
 cmdclassd = register_commands(PACKAGENAME, VERSION, RELEASE)
-add_command_option('install', 'with-openmp', 'compile TARDIS without OpenMP',
+add_command_option('install', 'with-openmp', 'compile TARDIS with OpenMP',
+                   is_bool=True, )
+add_command_option('build', 'with-openmp', 'compile TARDIS with OpenMP',
                    is_bool=True)
-add_command_option('build', 'with-openmp', 'compile TARDIS without OpenMP',
-                   is_bool=True)
-add_command_option('develop', 'with-openmp', 'compile TARDIS without OpenMP',
+add_command_option('develop', 'with-openmp', 'compile TARDIS with OpenMP',
                    is_bool=True)
 add_command_option('install', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
                    is_bool=True)
@@ -72,10 +72,6 @@ add_command_option('build', 'with-vpacket-logging', 'compile TARDIS with virtual
                    is_bool=True)
 add_command_option('develop', 'with-vpacket-logging', 'compile TARDIS with virtual packet logging',
                    is_bool=True)
-
-# Adjust the compiler in case the default on this platform is to use a
-# broken one.
-adjust_compiler(PACKAGENAME)
 
 # Freeze build information in version.py
 generate_version_py(PACKAGENAME, VERSION, RELEASE,
@@ -107,7 +103,8 @@ for hook in [('prereleaser', 'middle'), ('releaser', 'middle'),
     entry_points[hook_ep] = ['%s = %s' % (hook_name, hook_func)]
 
 entry_points['console_scripts'] = [
-    'tardis_test_runner = tardis.tests.integration_tests.runner:run_tests'
+    'tardis_test_runner = tardis.tests.integration_tests.runner:run_tests',
+    'cmfgen2tardis = tardis.scripts.cmfgen2tardis:main'
 ]
 
 #from Cython.Build import cythonize
@@ -140,4 +137,3 @@ setup(name=PACKAGENAME + '-sn',
       entry_points=entry_points,
       **package_info
 )
-
