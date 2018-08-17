@@ -103,11 +103,11 @@ class TestPlasma(object):
     @pytest.fixture(scope="class")
     def reference_fpath(self, tardis_ref_path):
         path = os.path.join(
-            tardis_ref_path, 'plasma_reference', 'reference_data.h5')
-        if pytest.config.getvalue("--generate-reference"):
-            if os.path.exists(path):
-                pytest.skip('Reference data {0} does exist and tests will not '
-                            'proceed generating new data'.format(path))
+            tardis_ref_path, 'unit_test_data.h5')
+        # if pytest.config.getvalue("--generate-reference"):
+        #     if os.path.exists(path):
+        #         pytest.skip('Reference data {0} does exist and tests will not '
+        #                     'proceed generating new data'.format(path))
         return path
 
     @pytest.fixture(
@@ -130,6 +130,7 @@ class TestPlasma(object):
             else:
                 config.plasma[prop] = value
                 hash_string = '_'.join((hash_string, str(value)))
+        hash_string = "plasma_unittest/" + hash_string
         setattr(config.plasma, 'save_path', hash_string)
         return config
 
