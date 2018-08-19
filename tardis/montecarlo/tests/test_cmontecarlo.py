@@ -47,6 +47,7 @@ import os
 import pytest
 import numpy as np
 import pandas as pd
+from astropy import constants as const
 from ctypes import (
         CDLL,
         byref,

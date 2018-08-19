@@ -78,8 +78,8 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
     # Use the following to get the ref-data from a specific pull request; 
-    # - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/10/head:formalintegral-ref; fi
-    # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout formalintegral-ref; fi
+    # - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/11/head:thomson-ref; fi
+    # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout thomson-ref; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/chianti_He.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="plasma_reference/" origin; fi
