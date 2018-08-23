@@ -8,9 +8,15 @@ PR open.
 #. clone tardis-refdata (`git clone tardis-refdata`; you need to have git lfs installed) then make a new branch named
     the same as your new tardis feature branch.
 #. Generate new reference data (in your tardis directory and right branch) offline using
-    `python setup.py test --args="--tardis-refdata=<path to refdata repo/with the right branch> --generate-reference"`
+
+    .. code-block:: None
+
+        python setup.py test --args="--tardis-refdata=<path to refdata repo/with the right branch> --generate-reference"
+
 #. Rerun the tests and see if it does not fail using
-    `python setup.py test --args="--tardis-refdata=<path to refdata repo/with the right branch>"`
+
+    .. code-block:: None
+        python setup.py test --args="--tardis-refdata=<path to refdata repo/with the right branch>"
 #. Switch to tardis-refdata. Commit the changed ref-data and open a PR on tardis-refdata
 #. Make a copy of the refdata comparer notebook provided in TARDIS-refdata to check if there are
     any unexpected changes in the updated reference data and the previous reference data
