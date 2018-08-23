@@ -91,6 +91,7 @@ install:
    - cd $TRAVIS_BUILD_DIR
    - conda env create -f tardis_env27.yml
    - source activate tardis
+   - conda install -y -c conda-forge codecov
    #trouble with building due to segfault at cython (https://github.com/cython/cython/issues/2199)
    #remove if we can get normal cython through conda
    - git clone https://github.com/cython/cython
@@ -104,7 +105,8 @@ script:
     - CC=$COMPILER python setup.py $SETUP_CMD
 
 after_success:
-    - if [[ "$SAVE_COVERAGE" = true ]]; then coveralls; fi
+    - if [[ "$SAVE_COVERAGE" = true ]]; then codecov -t a876d307-9ed5-4f5d-a6c4-e58291ac4111; fi
+
 
 after_failure:
     - cat /home/travis/.pip/pip.log
