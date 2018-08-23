@@ -41,7 +41,8 @@ class MontecarloRunner(HDFWriterMixin):
 
     def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
                  sigma_thomson, enable_reflective_inner_boundary,
-                 inner_boundary_albedo, line_interaction_type):
+                 inner_boundary_albedo, line_interaction_type,
+                 integrator_settings):
 
         self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
@@ -51,6 +52,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
         self.line_interaction_type = line_interaction_type
+        self.integrator_settings = integrator_settings
         self._integrator = None
         self._spectrum_integrated = None
 
@@ -138,7 +140,7 @@ class MontecarloRunner(HDFWriterMixin):
     def spectrum_integrated(self):
         if self._spectrum_integrated is None:
             self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1])
+                self.spectrum_frequency[:-1], **self.integrator_settings)
         return self._spectrum_integrated
 
     @property
@@ -407,5 +409,6 @@ class MontecarloRunner(HDFWriterMixin):
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
-                   line_interaction_type=config.plasma.line_interaction_type
+                   line_interaction_type=config.plasma.line_interaction_type,
+                   integrator_settings=config.spectrum.integrated
                    )
