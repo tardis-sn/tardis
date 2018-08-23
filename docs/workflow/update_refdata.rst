@@ -16,7 +16,9 @@ PR open.
 #. Rerun the tests and see if it does not fail using
 
     .. code-block:: None
+    
         python setup.py test --args="--tardis-refdata=<path to refdata repo/with the right branch>"
+
 #. Switch to tardis-refdata. Commit the changed ref-data and open a PR on tardis-refdata
 #. Make a copy of the refdata comparer notebook provided in TARDIS-refdata to check if there are
     any unexpected changes in the updated reference data and the previous reference data
