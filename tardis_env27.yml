@@ -35,7 +35,8 @@ dependencies:
 - docopt=0.6.2
 - pytest-cov=2.2.1
 - codecov
-
+#testing requirements
+- git-lfs=2.4
 - pip:
   - sphinx_bootstrap_theme
   - sphinxcontrib-bibtex
