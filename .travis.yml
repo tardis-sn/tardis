@@ -65,6 +65,7 @@ cache:
 before_install:
     # We do this to make sure we get the dependencies so pip works below
     - source ci-helpers/install_miniconda.sh
+    - source ci-helpers/fetch_reference_data.sh
 
 
 install:
