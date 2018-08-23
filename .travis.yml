@@ -91,7 +91,7 @@ install:
    - cd $TRAVIS_BUILD_DIR
    - conda env create -f tardis_env27.yml
    - source activate tardis
-   - conda install -c conda-forge codecov
+   - conda install -y -c conda-forge codecov
    #trouble with building due to segfault at cython (https://github.com/cython/cython/issues/2199)
    #remove if we can get normal cython through conda
    - git clone https://github.com/cython/cython
