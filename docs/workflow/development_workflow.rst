@@ -15,6 +15,9 @@ to the Astropy team for designing it.
 
     git_workflow
     release_workflow
+
+.. toctree::
+
     update_refdata
 
 
