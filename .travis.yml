@@ -67,8 +67,8 @@ before_install:
     - source ci-helpers/install_miniconda.sh
     - if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $HOME/tardis-refdata; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git clone https://github.com/tardis-sn/tardis-refdata.git $REF_DATA_HOME; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $REF_DATA_HOME; fi
 # Use the following to get the ref-data from the master;
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
