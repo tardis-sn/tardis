@@ -108,7 +108,7 @@ from tardis.tests.fixtures.atom_data import *
 @pytest.yield_fixture(scope="session")
 def tardis_ref_data(tardis_ref_path, generate_reference):
     if generate_reference:
-        mode = 'a'
+        mode = 'w'
     else:
         mode = 'r'
     with pd.HDFStore(
