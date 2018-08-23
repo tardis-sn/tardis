@@ -70,6 +70,13 @@ def idfn(fixture_value):
         '{}:{}'.format(k, v) for k, v in fixture_value.items()]))
 
 
+@pytest.fixture(scope='module')
+def refdata(tardis_ref_data):
+    def get_ref_data(key):
+        return tardis_ref_data[key]
+    return get_ref_data
+
+
 class TestPlasma(object):
 
     general_properties = ['beta_rad', 'g_electron', 'selected_atoms',
@@ -134,20 +141,8 @@ class TestPlasma(object):
         setattr(config.plasma, 'save_path', hash_string)
         return config
 
-    @pytest.yield_fixture(scope="class")
-    def reference(self, reference_fpath, generate_reference):
-        if generate_reference:
-            mode = 'a'
-        else:
-            mode = 'r'
-        with pd.HDFStore(
-                reference_fpath,
-                mode=mode
-                ) as store:
-            yield store
-
     @pytest.fixture(scope="class")
-    def plasma(self, chianti_he_db_fpath, config, reference_fpath, reference):
+    def plasma(self, chianti_he_db_fpath, config, reference_fpath):
         config['atom_data'] = chianti_he_db_fpath
         sim = Simulation.from_config(config)
         if pytest.config.getvalue("--generate-reference"):
@@ -156,43 +151,47 @@ class TestPlasma(object):
         return sim.plasma
 
     @pytest.mark.parametrize("attr", combined_properties)
-    def test_plasma_properties(self, plasma, reference, config, attr):
+    def test_plasma_properties(self, plasma, refdata, config, attr):
         if hasattr(plasma, attr):
             actual = getattr(plasma, attr)
             if actual.ndim == 1:
                 actual = pd.Series(actual)
             else:
                 actual = pd.DataFrame(actual)
-            expected = reference.select(os.path.join(
-                config.plasma.save_path, 'plasma', attr))
+            key = os.path.join(config.plasma.save_path, 'plasma', attr)
+            expected = refdata(key)
             pdt.assert_almost_equal(actual, expected)
         else:
             warnings.warn('Property "{}" not found'.format(attr))
 
-    def test_levels(self, plasma, reference, config):
+    def test_levels(self, plasma, refdata, config):
         actual = pd.DataFrame(plasma.levels)
-        expected = reference.select(os.path.join(
-            config.plasma.save_path, 'plasma', 'levels'))
+        key = os.path.join(
+            config.plasma.save_path, 'plasma', 'levels')
+        expected = refdata(key)
         pdt.assert_almost_equal(actual, expected)
 
     @pytest.mark.parametrize("attr", scalars_properties)
-    def test_scalars_properties(self, plasma, reference, config, attr):
+    def test_scalars_properties(self, plasma, refdata, config, attr):
         actual = getattr(plasma, attr)
         if hasattr(actual, 'cgs'):
             actual = actual.cgs.value
-        expected = reference.select(os.path.join(
-            config.plasma.save_path, 'plasma', 'scalars'))[attr]
+        key = os.path.join(
+            config.plasma.save_path, 'plasma', 'scalars')
+        expected = refdata(key)[attr]
         pdt.assert_almost_equal(actual, expected)
 
-    def test_helium_treatment(self, plasma, reference, config):
+    def test_helium_treatment(self, plasma, refdata, config):
         actual = plasma.helium_treatment
-        expected = reference.select(os.path.join(
-            config.plasma.save_path, 'plasma', 'scalars'))['helium_treatment']
+        key = os.path.join(
+            config.plasma.save_path, 'plasma', 'scalars')
+        expected = refdata(key)['helium_treatment']
         assert actual == expected
 
-    def test_zeta_data(self, plasma, reference, config):
+    def test_zeta_data(self, plasma, refdata, config):
         if hasattr(plasma, 'zeta_data'):
             actual = plasma.zeta_data
-            expected = reference.select(os.path.join(
-                config.plasma.save_path, 'plasma', 'zeta_data'))
+            key = os.path.join(
+                config.plasma.save_path, 'plasma', 'zeta_data')
+            expected = refdata(key)
             assert_almost_equal(actual, expected.values)
