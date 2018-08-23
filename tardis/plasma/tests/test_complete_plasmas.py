@@ -137,7 +137,7 @@ class TestPlasma(object):
     @pytest.yield_fixture(scope="class")
     def reference(self, reference_fpath, generate_reference):
         if generate_reference:
-            mode = 'w'
+            mode = 'a'
         else:
             mode = 'r'
         with pd.HDFStore(
