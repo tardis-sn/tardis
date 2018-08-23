@@ -1,5 +1,4 @@
 git lfs install
-
 if test -e $REF_DATA_HOME; then
     git clone https://github.com/tardis-sn/tardis-refdata.git $REF_DATA_HOME
 else
