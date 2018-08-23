@@ -120,7 +120,7 @@ class TestPlasma(object):
             else:
                 config.plasma[prop] = value
                 hash_string = '_'.join((hash_string, str(value)))
-        hash_string = "plasma_unittest/" + hash_string
+        hash_string = os.path.join("plasma_unittest", hash_string)
         setattr(config.plasma, 'save_path', hash_string)
         return config
 
