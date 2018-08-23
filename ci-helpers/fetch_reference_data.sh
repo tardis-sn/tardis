@@ -1,15 +1,16 @@
 git lfs install
 if test -e $REF_DATA_HOME; then
-    git clone https://github.com/tardis-sn/tardis-refdata.git $REF_DATA_HOME
+    echo "Ref data available"
 else
-    cd $REF_DATA_HOME
-    # Use the following to get the ref-data from the master;
-    git fetch origin
-    checkout origin/master
-    # Use the following to get the ref-data from a specific pull request
-    #git fetch origin pull/11/head:thomson-ref
-    git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
-    git lfs pull --include="atom_data/chianti_He.h5" origin
-    git lfs pull --include="plasma_reference/" origin
-    git lfs pull --include="unit_test_data.h5" origin
-    cd $TRAVIS_BUILD_DIR
+    git clone https://github.com/tardis-sn/tardis-refdata.git $REF_DATA_HOME
+cd $REF_DATA_HOME
+# Use the following to get the ref-data from the master;
+git fetch origin
+git checkout origin/master
+# Use the following to get the ref-data from a specific pull request
+#git fetch origin pull/11/head:thomson-ref
+git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
+git lfs pull --include="atom_data/chianti_He.h5" origin
+git lfs pull --include="plasma_reference/" origin
+git lfs pull --include="unit_test_data.h5" origin
+cd $TRAVIS_BUILD_DIR
