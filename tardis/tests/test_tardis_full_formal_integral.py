@@ -10,10 +10,11 @@ from tardis.io.config_reader import Configuration
 
 
 config_line_modes = ['downbranch', 'macroatom']
+interpolate_shells = [-1, 30]
 
 
 @pytest.fixture(scope='module', params=config_line_modes)
-def config(request):
+def base_config(request):
     config = Configuration.from_yaml(
         'tardis/io/tests/data/tardis_configv1_verysimple.yml')
 
@@ -22,15 +23,20 @@ def config(request):
     config["montecarlo"]["last_no_of_packets"] = 1.0e+5
     config["montecarlo"]["no_of_virtual_packets"] = 0
     config["spectrum"]["method"] = "integrated"
+    config["spectrum"]["integrated"]["points"] = 200
 
     return config
 
+@pytest.fixture(scope='module', params=interpolate_shells)
+def config(base_config, request):
+    base_config["spectrum"]["integrated"]["interpolate_shells"] = request.param
+    return base_config
 
 class TestRunnerSimpleFormalInegral():
     """
     Very simple run with the formal integral spectral synthesis method
     """
-    name = 'test_runner_simple_integral'
+    _name = 'test_runner_simple_integral'
 
     @pytest.fixture(scope="class")
     def runner(
@@ -38,8 +44,10 @@ class TestRunnerSimpleFormalInegral():
             tardis_ref_data, generate_reference):
         config.atom_data = atomic_data_fname
 
-        self.name = (self.name +
+        self.name = (self._name +
                      "_{:s}".format(config.plasma.line_interaction_type))
+        if config.spectrum.integrated.interpolate_shells > 0:
+            self.name += '_interp'
 
         simulation = Simulation.from_config(config)
         simulation.run()
