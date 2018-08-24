@@ -75,14 +75,13 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $HOME/tardis-refdata; fi
     # Use the following to get the ref-data from the master; 
-    # - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
-    # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
     # Use the following to get the ref-data from a specific pull request; 
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/14/head:update-ref; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout update-ref; fi
+    # - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/14/head:update-ref; fi
+    # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout update-ref; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/chianti_He.h5" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="plasma_reference/" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="unit_test_data.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then echo MD5 `md5sum unit_test_data.h5`; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
