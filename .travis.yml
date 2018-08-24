@@ -84,7 +84,7 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/chianti_He.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="plasma_reference/" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="unit_test_data.h5" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then echo MD5 `md5sum unit_test_data.h5`
+    - if [[ $TEST_MODE == 'spectrum' ]]; then echo MD5 `md5sum unit_test_data.h5`; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
 
 
