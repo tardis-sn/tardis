@@ -68,6 +68,7 @@ before_install:
     - source ci-helpers/install_miniconda.sh
     #- if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
+    - echo git clone $REF_DATA_GITHUBURL $REF_DATA_HOME
     - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $REF_DATA_GITHUBURL $HOME; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $REF_DATA_HOME; fi
 # Use the following to get the ref-data from the master;
