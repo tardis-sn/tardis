@@ -53,11 +53,13 @@ matrix:
             - TEST_MODE='spectrum'
             - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
 
-cache:
-  apt: true
-  directories:
-    - $HOME/miniconda
-    #- $REF_DATA_HOME
+
+
+              #cache:
+              #  apt: true
+              #  directories:
+              #    - $HOME/miniconda
+              #    #- $REF_DATA_HOME
 
 
 before_install:
