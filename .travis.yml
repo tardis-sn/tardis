@@ -8,8 +8,11 @@ python:
 virtualenv:
   system_site_packages: true
 
-cache:
-  apt: true
+addons:
+  apt:
+    packages:
+    - clang
+    - gdb
 
 sudo: true
 
@@ -20,23 +23,25 @@ env:
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
         - TEST_MODE='normal'
-        - TARDIS_REF_DATA_URL='https://github.com/tardis-sn/tardis-refdata.git'
+        - REF_DATA_HOME=$HOME/tardis-refdata
+        - REF_DATA_GITHUBURL='https://github.com/tardis-sn/tardis-refdata.git'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
         - SAVE_COVERAGE=false
+        - GIT_LFS_SKIP_SMUDGE=1
 
 matrix:
     include:
         - python: 2.7
           env:
             - COMPILER=gcc
-            - SETUP_CMD='test --coverage --args="--tardis-refdata=$HOME/tardis-refdata/"'
+            - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
             - TEST_MODE='spectrum'
             - SAVE_COVERAGE=true
 
         - python: 2.7
           env:
             - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$HOME/tardis-refdata/"'
+            - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
             - TEST_MODE='spectrum'
 
 #trouble with osx building due to segfault at cython (https://github.com/cython/cython/issues/2199)
@@ -44,37 +49,26 @@ matrix:
           language: generic
           env:
             - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$HOME/tardis-refdata/"'
+            - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
             - TEST_MODE='spectrum'
             - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
 
-
-        - python: 2.7
-          env: SETUP_CMD='test'
-
-addons:
-  apt:
-    packages:
-    - clang
-    - gdb
-
-
+cache:
+  apt: true
+  directories:
+    - $HOME/miniconda
+    #- $REF_DATA_HOME
 
 
 before_install:
     # We do this to make sure we get the dependencies so pip works below
-    - export PYTHONIOENCODING=UTF8
-    - wget $MINICONDA_URL -O miniconda.sh
-    - chmod +x miniconda.sh
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH=$HOME/miniconda/bin:$PATH
-    - hash -r
-    - conda update --yes conda
-    - if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
+    - source ci-helpers/install_miniconda.sh
+    #- if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $HOME/tardis-refdata; fi
-    # Use the following to get the ref-data from the master; 
+    - echo git clone $REF_DATA_GITHUBURL $REF_DATA_HOME
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $REF_DATA_GITHUBURL $REF_DATA_HOME; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $REF_DATA_HOME; fi
+# Use the following to get the ref-data from the master;
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
     # Use the following to get the ref-data from a specific pull request; 
@@ -86,19 +80,11 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then echo MD5 `md5sum unit_test_data.h5`; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
 
+#- source ci-helpers/fetch_reference_data.sh
+
 
 install:
-   - cd $TRAVIS_BUILD_DIR
-   - conda env create -f tardis_env27.yml
-   - source activate tardis
-   - conda install -y -c conda-forge codecov
-   #trouble with building due to segfault at cython (https://github.com/cython/cython/issues/2199)
-   #remove if we can get normal cython through conda
-   - git clone https://github.com/cython/cython
-   - cd cython
-   - git checkout c485b1b77264c3c75d090a3c526de24966830d42
-   - CFLAGS="$CFLAGS -D CYTHON_CLINE_IN_TRACEBACK=0" python setup.py install
-   - cd ..
+   - source ci-helpers/install_tardis_env.sh
 
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
