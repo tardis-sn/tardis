@@ -1,12 +1,3 @@
-stages:
-  - test
-  - integration
-
-jobs:
-  include:
-    - stage: integration
-      script:
-        - echo $COMPILER
 os:
   - linux
 language: python
@@ -105,3 +96,15 @@ after_success:
 
 after_failure:
     - cat /home/travis/.pip/pip.log
+
+
+stages:
+  - test
+  - integration
+
+jobs:
+  include:
+    - stage: test
+    - stage: integration
+      script:
+        - echo $COMPILER
