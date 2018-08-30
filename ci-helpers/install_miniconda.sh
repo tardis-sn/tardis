@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 export PYTHONIOENCODING=UTF8
 if test -e $HOME/miniconda/bin; then
     echo "miniconda already installed.";

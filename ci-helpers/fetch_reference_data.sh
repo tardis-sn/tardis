@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 git lfs install
 if test -e $REF_DATA_HOME; then
     echo "Ref data available"
