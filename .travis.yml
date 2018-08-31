@@ -29,11 +29,11 @@ env:
         - SAVE_COVERAGE=false
         - GIT_LFS_SKIP_SMUDGE=1
 
-              #cache:
-              #  apt: true
-              #  directories:
-              #    - $HOME/miniconda
-              #    #- $REF_DATA_HOME
+cache:
+  apt: true
+  directories:
+    - $HOME/miniconda
+    #- $REF_DATA_HOME
 
 
 before_install:
