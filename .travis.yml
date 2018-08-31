@@ -72,7 +72,9 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $REF_DATA_HOME; fi
 # Use the following to get the ref-data from the master;
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
+    # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
+    # workaround to avoid refdata mixup introduced by PR 15
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout ea89b9266d56de05fa84bc3d4bad62c09ce31486; fi
     # Use the following to get the ref-data from a specific pull request; 
     # - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/14/head:update-ref; fi
     # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout update-ref; fi
