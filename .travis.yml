@@ -29,30 +29,30 @@ env:
         - SAVE_COVERAGE=false
         - GIT_LFS_SKIP_SMUDGE=1
 
-matrix:
-    include:
-        - python: 2.7
-          env:
-            - COMPILER=gcc
-            - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
-            - TEST_MODE='spectrum'
-            - SAVE_COVERAGE=true
-
-        - python: 2.7
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
-            - TEST_MODE='spectrum'
-
-#trouble with osx building due to segfault at cython (https://github.com/cython/cython/issues/2199)
-        - os: osx
-          language: generic
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
-            - TEST_MODE='spectrum'
-            - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
-
+          #matrix:
+          #    include:
+          #        - python: 2.7
+          #          env:
+          #            - COMPILER=gcc
+          #            - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
+          #            - TEST_MODE='spectrum'
+          #            - SAVE_COVERAGE=true
+          #
+          #        - python: 2.7
+          #          env:
+          #            - COMPILER=clang
+          #            - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
+          #            - TEST_MODE='spectrum'
+          #
+          ##trouble with osx building due to segfault at cython (https://github.com/cython/cython/issues/2199)
+          #        - os: osx
+          #          language: generic
+          #          env:
+          #            - COMPILER=clang
+          #            - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
+          #            - TEST_MODE='spectrum'
+          #            - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
+          #
 
 
               #cache:
@@ -99,7 +99,6 @@ after_success:
 after_failure:
     - cat /home/travis/.pip/pip.log
 
-
 stages:
   - test
   - integration
@@ -113,33 +112,35 @@ jobs:
         - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
         - TEST_MODE='spectrum'
         - SAVE_COVERAGE=true
-      script:
-        - echo COMPILER=$COMPILER
-        - echo PANDAS_VERSION=$PANDAS_VERSION
-        - echo ASTROPY_USE_SYSTEM_PYTEST=$ASTROPY_USE_SYSTEM_PYTEST
-        - echo SETUP_CMD=$SETUP_CMD
-        - echo TEST_MODE=$TEST_MODE
-        - echo REF_DATA_HOME=$REF_DATA_HOME
-        - echo REF_DATA_GITHUBURL=$REF_DATA_GITHUBURL
-        - echo SAVE_COVERAGE=$SAVE_COVERAGE
-        - echo MINICONDA_URL=$MINICONDA_URL
-        - echo GIT_LFS_SKIP_SMUDGE=$GIT_LFS_SKIP_SMUDGE
+          #      script:
+          #        - echo COMPILER=$COMPILER
+          #        - echo PANDAS_VERSION=$PANDAS_VERSION
+          #        - echo ASTROPY_USE_SYSTEM_PYTEST=$ASTROPY_USE_SYSTEM_PYTEST
+          #        - echo SETUP_CMD=$SETUP_CMD
+          #        - echo TEST_MODE=$TEST_MODE
+          #        - echo REF_DATA_HOME=$REF_DATA_HOME
+          #        - echo REF_DATA_GITHUBURL=$REF_DATA_GITHUBURL
+          #        - echo SAVE_COVERAGE=$SAVE_COVERAGE
+          #        - echo MINICONDA_URL=$MINICONDA_URL
+          #        - echo GIT_LFS_SKIP_SMUDGE=$GIT_LFS_SKIP_SMUDGE
+          #        - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE
     - stage: test
       python: 2.7
       env:
         - COMPILER=clang
         - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
         - TEST_MODE='spectrum'
-      script:
-        - echo COMPILER=$COMPILER
-        - echo PANDAS_VERSION=$PANDAS_VERSION
-        - echo ASTROPY_USE_SYSTEM_PYTEST=$ASTROPY_USE_SYSTEM_PYTEST
-        - echo SETUP_CMD=$SETUP_CMD
-        - echo TEST_MODE=$TEST_MODE
-        - echo REF_DATA_HOME=$REF_DATA_HOME
-        - echo REF_DATA_GITHUBURL=$REF_DATA_GITHUBURL
-        - echo MINICONDA_URL=$MINICONDA_URL
-        - echo GIT_LFS_SKIP_SMUDGE=$GIT_LFS_SKIP_SMUDGE
+          #       script:
+          #         - echo COMPILER=$COMPILER
+          #         - echo PANDAS_VERSION=$PANDAS_VERSION
+          #         - echo ASTROPY_USE_SYSTEM_PYTEST=$ASTROPY_USE_SYSTEM_PYTEST
+          #         - echo SETUP_CMD=$SETUP_CMD
+          #         - echo TEST_MODE=$TEST_MODE
+          #         - echo REF_DATA_HOME=$REF_DATA_HOME
+          #         - echo REF_DATA_GITHUBURL=$REF_DATA_GITHUBURL
+          #         - echo MINICONDA_URL=$MINICONDA_URL
+          #         - echo GIT_LFS_SKIP_SMUDGE=$GIT_LFS_SKIP_SMUDGE
+          #         - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE
     - stage: test
       os: osx
       language: generic
@@ -148,16 +149,19 @@ jobs:
         - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
         - TEST_MODE='spectrum'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
-      script:
-        - echo COMPILER=$COMPILER
-        - echo PANDAS_VERSION=$PANDAS_VERSION
-        - echo ASTROPY_USE_SYSTEM_PYTEST=$ASTROPY_USE_SYSTEM_PYTEST
-        - echo SETUP_CMD=$SETUP_CMD
-        - echo TEST_MODE=$TEST_MODE
-        - echo REF_DATA_HOME=$REF_DATA_HOME
-        - echo REF_DATA_GITHUBURL=$REF_DATA_GITHUBURL
-        - echo MINICONDA_URL=$MINICONDA_URL
-        - echo GIT_LFS_SKIP_SMUDGE=$GIT_LFS_SKIP_SMUDGE
+          #      script:
+          #        - echo COMPILER=$COMPILER
+          #        - echo PANDAS_VERSION=$PANDAS_VERSION
+          #        - echo ASTROPY_USE_SYSTEM_PYTEST=$ASTROPY_USE_SYSTEM_PYTEST
+          #        - echo SETUP_CMD=$SETUP_CMD
+          #        - echo TEST_MODE=$TEST_MODE
+          #        - echo REF_DATA_HOME=$REF_DATA_HOME
+          #        - echo REF_DATA_GITHUBURL=$REF_DATA_GITHUBURL
+          #        - echo MINICONDA_URL=$MINICONDA_URL
+          #        - echo GIT_LFS_SKIP_SMUDGE=$GIT_LFS_SKIP_SMUDGE
+          #        - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE
     - stage: integration
+      if: type = cron
       script:
         - echo $COMPILER
+        - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE
