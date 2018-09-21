@@ -29,30 +29,6 @@ env:
         - SAVE_COVERAGE=false
         - GIT_LFS_SKIP_SMUDGE=1
 
-matrix:
-    include:
-        - python: 2.7
-          env:
-            - COMPILER=gcc
-            - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
-            - TEST_MODE='spectrum'
-            - SAVE_COVERAGE=true
-
-        - python: 2.7
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
-            - TEST_MODE='spectrum'
-
-#trouble with osx building due to segfault at cython (https://github.com/cython/cython/issues/2199)
-        - os: osx
-          language: generic
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
-            - TEST_MODE='spectrum'
-            - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
-
 cache:
   apt: true
   directories:
@@ -71,7 +47,9 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $REF_DATA_HOME; fi
 # Use the following to get the ref-data from the master;
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
+    # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
+    # workaround to avoid refdata mixup introduced by PR 15
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout ea89b9266d56de05fa84bc3d4bad62c09ce31486; fi
     # Use the following to get the ref-data from a specific pull request; 
     # - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/14/head:update-ref; fi
     # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout update-ref; fi
@@ -82,7 +60,6 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
 
 #- source ci-helpers/fetch_reference_data.sh
-
 
 install:
    - source ci-helpers/install_tardis_env.sh
@@ -97,3 +74,36 @@ after_success:
 
 after_failure:
     - cat /home/travis/.pip/pip.log
+
+stages:
+  - test
+  - integration
+
+jobs:
+  include:
+    - stage: test
+      python: 2.7
+      env:
+        - COMPILER=gcc
+        - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
+        - TEST_MODE='spectrum'
+        - SAVE_COVERAGE=true
+    - stage: test
+      python: 2.7
+      env:
+        - COMPILER=clang
+        - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
+        - TEST_MODE='spectrum'
+    - stage: test
+      os: osx
+      language: generic
+      env:
+        - COMPILER=clang
+        - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
+        - TEST_MODE='spectrum'
+        - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
+    - stage: integration
+      if: type = cron
+      script:
+        - echo $COMPILER
+        - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE
