@@ -159,19 +159,19 @@ class TestIntegration(object):
 
         ax = figure.add_subplot(111)
         ax.set_xlabel("Shell id")
-        ax.set_ylabel("t_rad")
+        ax.set_ylabel("t_radiative")
 
         result_line = ax.plot(
-            self.result.model.t_rad.cgs, color="blue", marker=".", label="Result"
+            self.result.model.t_radiative.cgs, color="blue", marker=".", label="Result"
         )
         reference_line = ax.plot(
-            self.reference['/simulation/model/t_rad'],
+            self.reference['/simulation/model/t_radiative'],
             color="green", marker=".", label="Reference"
         )
 
         error_ax = ax.twinx()
         error_line = error_ax.plot(
-            (1 - self.result.model.t_rad.cgs.value / self.reference['/simulation/model/t_rad']),
+            (1 - self.result.model.t_radiative.cgs.value / self.reference['/simulation/model/t_radiative']),
             color="red", marker=".", label="Rel. Error"
         )
         error_ax.set_ylabel("Relative error (1 - result / reference)")
@@ -187,16 +187,12 @@ class TestIntegration(object):
         plot_object.add(self.plot_spectrum(), "{0}_spectrum".format(self.name))
 
         assert_allclose(
-            self.reference['/simulation/runner/spectrum/luminosity_density_nu'],
-            self.result.runner.spectrum.luminosity_density_nu.cgs.value)
+            self.reference['/simulation/runner/spectrum/luminosity'],
+            self.result.runner.spectrum.luminosity.cgs.value)
 
         assert_allclose(
-            self.reference['/simulation/runner/spectrum/wavelength'],
-            self.result.runner.spectrum.wavelength.cgs.value)
-
-        assert_allclose(
-            self.reference['/simulation/runner/spectrum/luminosity_density_lambda'],
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value)
+            self.reference['/simulation/runner/spectrum/_frequency'],
+            self.result.runner.spectrum._frequency.cgs.value)
 
     def plot_spectrum(self):
 
@@ -209,28 +205,32 @@ class TestIntegration(object):
 
         spectrum_ax.set_ylabel("Flux [cgs]")
         deviation = 1 - (
-            self.result.runner.spectrum.luminosity_density_lambda.cgs.value /
+            self.result.runner.spectrum.luminosity.cgs.value /
             self.reference[
-                '/simulation/runner/spectrum/luminosity_density_lambda']
+                '/simulation/runner/spectrum/luminosity']
 
         )
 
+        reference_frequency = \
+            self.reference['/simulation/runner/spectrum/_frequency'].values
+        reference_frequency_mid = 0.5 * (reference_frequency[1:] +
+                                         reference_frequency[:-1])
 
         spectrum_ax.plot(
-            self.reference['/simulation/runner/spectrum/wavelength'],
+            reference_frequency_mid,
             self.reference[
-                '/simulation/runner/spectrum/luminosity_density_lambda'],
+                '/simulation/runner/spectrum/luminosity'],
             color="black"
         )
 
         spectrum_ax.plot(
-            self.reference['/simulation/runner/spectrum/wavelength'],
+            reference_frequency_mid,
             self.result.runner.spectrum.luminosity_density_lambda.cgs.value,
             color="red"
         )
         spectrum_ax.set_xticks([])
         deviation_ax = plt.subplot(gs[1])
-        deviation_ax.plot(self.reference['/simulation/runner/spectrum/wavelength'],
+        deviation_ax.plot(reference_frequency_mid,
                    deviation, color='black')
         deviation_ax.set_xlabel("Wavelength [Angstrom]")
 
