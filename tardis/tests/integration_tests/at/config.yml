@@ -11,10 +11,6 @@ model:
     v_inner_boundary: 12000.000 km/s
     v_outer_boundary: 35000.000 km/s
 montecarlo:
-  black_body_sampling:
-    num: 1000000
-    start: 1 angstrom
-    stop: 1000000 angstrom
   convergence_strategy:
     damping_constant: 1.0
     fraction: 0.8
@@ -22,7 +18,7 @@ montecarlo:
     t_inner:
       damping_constant: 1.0
     threshold: 0.05
-    type: specific
+    type: damped
   iterations: 20
   last_no_of_packets: 5.0e+5
   no_of_packets: 5.0e+4
