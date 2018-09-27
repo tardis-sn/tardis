@@ -49,13 +49,6 @@ plasma:
 
 
 montecarlo:
-  black_body_sampling:
-    start: 1 angstrom
-#    end: 1000000 angstrom
-    stop: 1000000 angstrom
-#    samples: 1.e+6
-    num: 1000000
-
   convergence_strategy:
     damping_constant: 1.0
     fraction: 1.0
@@ -66,7 +59,7 @@ montecarlo:
     threshold: -0.01
     lock_t_inner_cycles: 3
     t_inner_update_exponent: -0.5
-    type: specific
+    type: damped
 
   no_of_packets : 1.0e+7
   no_of_virtual_packets: 1
