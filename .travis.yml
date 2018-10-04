@@ -42,14 +42,19 @@ before_install:
     - source ci-helpers/install_tardis_env.sh
     #- if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs install --skip-smudge; fi
     - echo git clone $REF_DATA_GITHUBURL $REF_DATA_HOME
     - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $REF_DATA_GITHUBURL $REF_DATA_HOME; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git clone $REF_DATA_GITHUBURL $REF_DATA_HOME; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $REF_DATA_HOME; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then cd $REF_DATA_HOME; fi
 # Use the following to get the ref-data from the master;
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git fetch origin; fi
     # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
     # workaround to avoid refdata mixup introduced by PR 15
     - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout ea89b9266d56de05fa84bc3d4bad62c09ce31486; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git fetch origin pull/16/head:update-ref; fi
     # Use the following to get the ref-data from a specific pull request; 
     # - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/14/head:update-ref; fi
     # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout update-ref; fi
@@ -58,6 +63,11 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="unit_test_data.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then echo MD5 `md5sum unit_test_data.h5`; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then echo PWD $PWD; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then echo REF_DATA_HOME $REF_DATA_HOME; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then echo TRAVIS_BUILD_DIR $TRAVIS_BUILD_DIR; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then echo `find * `; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then cd $TRAVIS_BUILD_DIR; fi
 
 #- source ci-helpers/fetch_reference_data.sh
 
@@ -82,6 +92,7 @@ stages:
 jobs:
   include:
     - stage: test
+      if: type = cron
       python: 2.7
       env:
         - COMPILER=gcc
@@ -89,12 +100,14 @@ jobs:
         - TEST_MODE='spectrum'
         - SAVE_COVERAGE=true
     - stage: test
+      if: type = cron
       python: 2.7
       env:
         - COMPILER=clang
         - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
         - TEST_MODE='spectrum'
     - stage: test
+      if: type = cron
       os: osx
       language: generic
       env:
@@ -103,7 +116,11 @@ jobs:
         - TEST_MODE='spectrum'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
     - stage: integration
-      if: type = cron
+#      if: type = cron
+      python: 2.7
+      env:
+        - TEST_MODE='integration'
       script:
+        - echo $TEST_MODE
         - echo $COMPILER
         - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE
