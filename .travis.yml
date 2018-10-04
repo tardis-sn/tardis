@@ -128,8 +128,8 @@ jobs:
 #      if: type = cron
       python: 2.7
       env:
-        - SETUP_CMD='test --args="--integration-tests=$REF_DATA_HOME/integration/integration_lesspackets_travis.yml --less-packets"'
-        - SETUP_CMD='test --args="--integration-tests=/home/travis/tardis-refdata/integration/integration_lesspackets_travis.yml --less-packets"'
+        - SETUP_CMD='test --args="--integration=$REF_DATA_HOME/integration/integration_lesspackets_travis.yml -m integration --less-packets"'
+#        - SETUP_CMD='test --args="--integration-tests=/home/travis/tardis-refdata/integration/integration_lesspackets_travis.yml --less-packets"'
         - TEST_MODE='integration'
 #      script:
 #        - echo $TEST_MODE
