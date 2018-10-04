@@ -28,11 +28,11 @@ env:
         - SAVE_COVERAGE=false
         - GIT_LFS_SKIP_SMUDGE=1
 
-cache:
-  apt: true
-  directories:
-    - $HOME/miniconda
-    #- $REF_DATA_HOME
+# cache:
+#   apt: true
+#   directories:
+#     - $HOME/miniconda
+#     #- $REF_DATA_HOME
 
 
 before_install:
@@ -82,7 +82,9 @@ install:
    - source ci-helpers/install_tardis_env.sh
 
 script:
+    - echo PWD=$PWD
     - echo CC=$COMPILER python setup.py $SETUP_CMD
+    - echo `ls /home/travis/tardis-refdata/integration/integration_lesspackets_travis.yml`
     - CC=$COMPILER python setup.py $SETUP_CMD
 
 after_success:
@@ -127,6 +129,7 @@ jobs:
       python: 2.7
       env:
         - SETUP_CMD='test --args="--integration-tests=$REF_DATA_HOME/integration/integration_lesspackets_travis.yml --less-packets"'
+        - SETUP_CMD='test --args="--integration-tests=/home/travis/tardis-refdata/integration/integration_lesspackets_travis.yml --less-packets"'
         - TEST_MODE='integration'
 #      script:
 #        - echo $TEST_MODE
