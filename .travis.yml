@@ -39,21 +39,16 @@ before_install:
     # We do this to make sure we get the dependencies so pip works below
     - source ci-helpers/install_miniconda.sh
     - source ci-helpers/install_tardis_env.sh
+    - echo git clone $REF_DATA_GITHUBURL $REF_DATA_HOME
     #- if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
-    - if [[ $TEST_MODE == 'integration' ]]; then git lfs install --skip-smudge; fi
-    - echo git clone $REF_DATA_GITHUBURL $REF_DATA_HOME
     - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $REF_DATA_GITHUBURL $REF_DATA_HOME; fi
-    - if [[ $TEST_MODE == 'integration' ]]; then git clone $REF_DATA_GITHUBURL $REF_DATA_HOME; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $REF_DATA_HOME; fi
-    - if [[ $TEST_MODE == 'integration' ]]; then cd $REF_DATA_HOME; fi
 # Use the following to get the ref-data from the master;
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
-    - if [[ $TEST_MODE == 'integration' ]]; then git fetch origin; fi
     # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
     # workaround to avoid refdata mixup introduced by PR 15
     - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout ea89b9266d56de05fa84bc3d4bad62c09ce31486; fi
-    - if [[ $TEST_MODE == 'integration' ]]; then git fetch origin pull/16/head:update-ref; fi
     # Use the following to get the ref-data from a specific pull request; 
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/17/head:update-ref; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout update-ref; fi
@@ -63,6 +58,18 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="unit_test_data.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then echo MD5 `md5sum unit_test_data.h5`; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs install --skip-smudge; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git clone $REF_DATA_GITHUBURL $REF_DATA_HOME; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then cd $REF_DATA_HOME; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git fetch origin pull/16/head:update-ref; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git checkout update-ref; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs pull --include="atom_data/kurucz_atom_chianti_many.h5" origin; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs pull --include="integration/reference_lesspackets/at.h5" origin; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs pull --include="integration/reference_lesspackets/paper1_downbranch.h5" origin; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs pull --include="integration/reference_lesspackets/paper1_macroatom.h5" origin; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs pull --include="integration/reference_lesspackets/paper1_scatter.h5" origin; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then git lfs pull --include="integration/reference_lesspackets/w7.h5" origin; fi
     - if [[ $TEST_MODE == 'integration' ]]; then echo PWD $PWD; fi
     - if [[ $TEST_MODE == 'integration' ]]; then echo REF_DATA_HOME $REF_DATA_HOME; fi
     - if [[ $TEST_MODE == 'integration' ]]; then echo TRAVIS_BUILD_DIR $TRAVIS_BUILD_DIR; fi
@@ -119,8 +126,9 @@ jobs:
 #      if: type = cron
       python: 2.7
       env:
+        - SETUP_CMD='test --args="--integration=$REF_DATA_HOME/integration/integration_lesspackets_travis.yml -m integration --less-packets"
         - TEST_MODE='integration'
-      script:
-        - echo $TEST_MODE
-        - echo $COMPILER
-        - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE
+#      script:
+#        - echo $TEST_MODE
+#        - echo $COMPILER
+#        - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE
