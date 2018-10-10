@@ -25,7 +25,7 @@ Assuming you have ``wget``, you could follow the procedure:
 
     mkdir tardis_example
     cd tardis_example
-    wget https://github.com/tardis-sn/tardis-setups/raw/master/tardis-setups/2014/2014_kerzendorf_sim/appendix_A1/tardis_example.yml
+    wget https://raw.githubusercontent.com/tardis-sn/tardis-setups/master/2014/2014_kerzendorf_sim/appendix_A1/tardis_example.yml
     wget https://github.com/tardis-sn/tardis-refdata/raw/master/atom_data/kurucz_cd23_chianti_H_He.h5
     tardis tardis_example.yml output_spectrum.dat
 
