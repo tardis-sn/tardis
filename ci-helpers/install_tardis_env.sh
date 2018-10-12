@@ -8,6 +8,7 @@ else
    #trouble with building due to segfault at cython (https://github.com/cython/cython/issues/2199)
    #remove if we can get normal cython through conda
    source activate tardis
+   conda uninstall -y cython
    git clone https://github.com/cython/cython
    cd cython
    git checkout c485b1b77264c3c75d090a3c526de24966830d42
