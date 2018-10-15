@@ -24,11 +24,12 @@ dependencies:
 
 # RTD requirements
 - sphinx=1.5.1
-- nbconvert=4.2.0
+- nbconvert
 - numpydoc=0.8
 - docutils=0.13.1
-- nbformat=4.0.1
+- nbformat
 - nbsphinx
+- jupyter
 #Coverage requirements
 - coverage=3.7.1
 - requests=2.9.1
