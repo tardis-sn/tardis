@@ -16,7 +16,8 @@ simple TARDIS calculations.
 
 .. warning::
 
-    TARDIS is currently only compatible with Python 2.7.
+    TARDIS is currently only compatible with Python 2.7. Important Information:
+    Anaconda can run Python 2 and 3 at the same time in different environments.
 
 .. note::
     We strongly recommend to install TARDIS within an Anaconda environment and
