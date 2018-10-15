@@ -16,11 +16,11 @@ simple TARDIS calculations.
 
 .. warning::
 
-    TARDIS is currently only compatbile with Python 2.7.
+    TARDIS is currently only compatible with Python 2.7.
 
 .. note::
-    We strongly recommond to install TARDIS within an Anaconda environment and
-    to always use the lastest github development version.
+    We strongly recommend to install TARDIS within an Anaconda environment and
+    to always use the latest github development version.
 
 Requirements
 ============
