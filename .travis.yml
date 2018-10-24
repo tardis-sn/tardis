@@ -74,6 +74,7 @@ before_install:
     - if [[ $TEST_MODE == 'integration' ]]; then echo REF_DATA_HOME $REF_DATA_HOME; fi
     - if [[ $TEST_MODE == 'integration' ]]; then echo TRAVIS_BUILD_DIR $TRAVIS_BUILD_DIR; fi
     - if [[ $TEST_MODE == 'integration' ]]; then echo `find * `; fi
+    - if [[ $TEST_MODE == 'integration' ]]; then cat $REF_DATA_HOME/integration/integration_lesspackets_travis.yml; fi
     - if [[ $TEST_MODE == 'integration' ]]; then cd $TRAVIS_BUILD_DIR; fi
 
 #- source ci-helpers/fetch_reference_data.sh
@@ -128,7 +129,8 @@ jobs:
 #      if: type = cron
       python: 2.7
       env:
-        - SETUP_CMD='test --args="--integration=$REF_DATA_HOME/integration/integration_lesspackets_travis.yml -m integration --less-packets"'
+        #        - SETUP_CMD='test --args="--integration=$REF_DATA_HOME/integration/integration_lesspackets_travis.yml -m integration --less-packets"'
+        - SETUP_CMD='test --args="--integration=/home/travis/tardis-refdata/integration/integration_lesspackets_travis.yml -m integration --less-packets"'
 #        - SETUP_CMD='test --args="--integration-tests=/home/travis/tardis-refdata/integration/integration_lesspackets_travis.yml --less-packets"'
         - TEST_MODE='integration'
 #      script:
