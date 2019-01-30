@@ -12,7 +12,7 @@ from setuptools import setup
 if sys.version_info[0] >= 3:
     import builtins
 else:
-    import __builtin__ as builtins
+    import builtins as builtins
 builtins._ASTROPY_SETUP_ = True
 
 from astropy_helpers.setup_helpers import (register_commands, adjust_compiler,
@@ -23,7 +23,7 @@ from astropy_helpers.version_helpers import generate_version_py
 
 # Get some values from the setup.cfg
 try:
-    from ConfigParser import ConfigParser
+    from configparser import ConfigParser
 except ImportError:
     from configparser import ConfigParser
 
