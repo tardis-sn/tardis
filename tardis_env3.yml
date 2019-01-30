@@ -1,0 +1,54 @@
+name: tardis3
+
+channels:
+    - conda-forge
+    - main
+
+dependencies:
+- python=3
+- numpy
+- scipy
+- pandas
+- pytables
+- h5py
+- matplotlib
+- astropy
+- numexpr
+- Cython
+- networkx
+- pytest
+- pyyaml
+- jsonschema
+- pyne
+- jupyter
+- notebook
+
+- graphviz
+- pygraphviz
+
+# RTD requirements
+- sphinx
+- nbconvert
+- numpydoc
+- docutils
+- nbformat
+- nbsphinx
+
+#Coverage requirements
+#- coverage
+#- requests
+#- docopt
+#- pytest-cov
+#- codecov
+
+#testing requirements
+- git-lfs
+- pytest-html
+- pip:
+  - sphinx_bootstrap_theme
+  - sphinxcontrib-bibtex
+  - sphinxcontrib-tikz
+
+  - dokuwiki
+  - dot2tex
+  - sphinx-jsonschema
