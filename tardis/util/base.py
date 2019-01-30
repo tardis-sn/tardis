@@ -64,8 +64,8 @@ def get_tests_data_path(fname):
 
 atomic_symbols_data = np.recfromtxt(get_data_path('atomic_symbols.dat'),
                                     names=['atomic_number', 'symbol'])
-symbol2atomic_number = OrderedDict(zip(atomic_symbols_data['symbol'],
-                                       atomic_symbols_data['atomic_number']))
+symbol2atomic_number = OrderedDict(list(zip(atomic_symbols_data['symbol'],
+                                       atomic_symbols_data['atomic_number'])))
 atomic_number2symbol = OrderedDict(atomic_symbols_data)
 synpp_default_yaml_fname = get_data_path('synpp_default.yaml')
 
@@ -319,13 +319,13 @@ def savitzky_golay(y, window_size, order, deriv=0, rate=1):
     try:
         window_size = np.abs(np.int(window_size))
         order = np.abs(np.int(order))
-    except ValueError, msg:
+    except ValueError as msg:
         raise ValueError("window_size and order have to be of type int")
     if window_size % 2 != 1 or window_size < 1:
         raise TypeError("window_size size must be a positive odd number")
     if window_size < order + 2:
         raise TypeError("window_size is too small for the polynomials order")
-    order_range = range(order+1)
+    order_range = list(range(order+1))
     half_window = (window_size -1) // 2
     # precompute coefficients
     b = np.mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
@@ -377,7 +377,7 @@ def species_string_to_tuple(species_string):
 
 def parse_quantity(quantity_string):
 
-    if not isinstance(quantity_string, basestring):
+    if not isinstance(quantity_string, str):
         raise MalformedQuantityError(quantity_string)
 
     try:
