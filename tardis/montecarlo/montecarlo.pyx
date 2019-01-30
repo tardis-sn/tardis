@@ -52,15 +52,20 @@ cdef extern from "src/cmontecarlo.h":
         int_type_t *last_interaction_out_type
         int_type_t no_of_packets
         int_type_t no_of_shells
+        int_type_t no_of_shells_i
         double *r_inner
         double *r_outer
+        double *r_inner_i
+        double *r_outer_i
         double *v_inner
         double time_explosion
         double inverse_time_explosion
         double *electron_densities
+        double *electron_densities_i
         double *inverse_electron_densities
         double *line_list_nu
         double *line_lists_tau_sobolevs
+        double *line_lists_tau_sobolevs_i
         double *continuum_list_nu
         int_type_t line_lists_tau_sobolevs_nd
         double *line_lists_j_blues
@@ -310,6 +315,20 @@ def formal_integral(self, nu, N):
     initialize_storage_model(self.model, self.plasma, self.runner, &storage)
 
     res = self.make_source_function()
+
+    storage.no_of_shells_i = len(self.runner.r_inner_i)
+    storage.r_inner_i = <double*> PyArray_DATA(self.runner.r_inner_i)
+    storage.r_outer_i = <double*> PyArray_DATA(self.runner.r_outer_i)
+
+    storage.electron_densities_i = <double*> PyArray_DATA(
+        self.runner.electron_densities_integ)
+    self.runner.line_lists_tau_sobolevs_i = (
+            self.runner.tau_sobolevs_integ.flatten(order='F')
+            )
+    storage.line_lists_tau_sobolevs_i = <double*> PyArray_DATA(
+            self.runner.line_lists_tau_sobolevs_i
+            )
+
     att_S_ul = res[0].flatten(order='F')
     Jred_lu = res[1].flatten(order='F')
     Jblue_lu = res[2].flatten(order='F')

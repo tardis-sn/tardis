@@ -86,14 +86,14 @@ populate_z(const storage_model_t *storage, const double p, double *oz, int64_t *
 {
 
   // Abbreviations
-  double *r = storage->r_outer;
-  const int64_t N = storage->no_of_shells;
+  double *r = storage->r_outer_i;
+  const int64_t N = storage->no_of_shells_i;
   double inv_t = storage->inverse_time_explosion;
   double z = 0;
 
   int64_t i = 0, offset = N, i_low, i_up;
 
-  if (p <= storage->r_inner[0])
+  if (p <= storage->r_inner_i[0])
     {
       // Intersect the photosphere
       for(i = 0; i < N; ++i)
@@ -160,12 +160,12 @@ _formal_integral(
 
   // global read-only values
   int64_t size_line = storage->no_of_lines,
-          size_shell = storage->no_of_shells,
+          size_shell = storage->no_of_shells_i,
           size_tau = size_line * size_shell,
           finished_nus = 0;
 
-  double R_ph = storage->r_inner[0];
-  double R_max = storage->r_outer[size_shell - 1];
+  double R_ph = storage->r_inner_i[0];
+  double R_max = storage->r_outer_i[size_shell - 1];
   double pp[N];
   double *exp_tau = calloc(size_tau, sizeof(double));
 #pragma omp parallel firstprivate(L, exp_tau)
@@ -191,7 +191,7 @@ _formal_integral(
       double I_nu[N],
              //I_nu_b[N],
              //I_nu_r[N],
-             z[2 * storage->no_of_shells],
+             z[2 * storage->no_of_shells_i],
              p = 0,
              nu_start,
              nu_end,
@@ -201,16 +201,16 @@ _formal_integral(
              escat_contrib,
              escat_op,
              Jkkp;
-      int64_t shell_id[2 * storage->no_of_shells];
+      int64_t shell_id[2 * storage->no_of_shells_i];
 
       double *pexp_tau, *patt_S_ul, *pline, *pJred_lu, *pJblue_lu;
 
       // Prepare exp_tau
 #pragma omp for
       for (i = 0; i < size_tau; ++i) {
-          exp_tau[i] = exp( -storage->line_lists_tau_sobolevs[i]);
+          exp_tau[i] = exp( -storage->line_lists_tau_sobolevs_i[i]);
       }
-      calculate_p_values(storage->r_outer[storage->no_of_shells - 1], N, pp);
+      calculate_p_values(storage->r_outer_i[storage->no_of_shells_i - 1], N, pp);
       // Done with the initialization
 
       // Loop over wavelengths in spectrum
@@ -230,7 +230,7 @@ _formal_integral(
 
               // initialize I_nu
               if (p <= R_ph)
-                I_nu[p_idx] = intensity_black_body(nu, iT);
+                I_nu[p_idx] = intensity_black_body(nu * z[0], iT);
               else
                 I_nu[p_idx] = 0;
 
@@ -263,7 +263,7 @@ _formal_integral(
               // TODO: replace by number of intersections and remove break
               for (i = 0; i < size_z - 1; ++i)
                 {
-                  escat_op = storage->electron_densities[shell_id[i]] * storage->sigma_thomson;
+                  escat_op = storage->electron_densities_i[shell_id[i]] * storage->sigma_thomson;
                   nu_end = nu * z[i+1];
 
                   // TODO: e-scattering: in principle we also have to check
