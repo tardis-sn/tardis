@@ -6,49 +6,55 @@ channels:
 
 dependencies:
 - python=3
-- numpy
-- scipy
-- pandas
-- pytables
-- h5py
-- matplotlib
-- astropy
+- numpy=1.15
+- scipy=1.1
+- pandas=0.24
+- astropy=3
+
 - numexpr
-- Cython
+- Cython=0.29
+
+# Plasma
 - networkx
-- pytest
+
+# I/O
 - pyyaml
 - jsonschema
-- pyne
+- pyne=0.5
+- pytables
+- h5py
+
+# Analysis
 - jupyter
 - notebook
-
+- matplotlib
 - graphviz
 - pygraphviz
 
-# RTD requirements
+# Documentation
 - sphinx
 - nbconvert
 - numpydoc
 - docutils
 - nbformat
 - nbsphinx
+- sphinx_bootstrap_theme
+- sphinxcontrib-bibtex
 
-#Coverage requirements
-#- coverage
-#- requests
-#- docopt
-#- pytest-cov
-#- codecov
-
-#testing requirements
+#Test/Coverage requirements
 - git-lfs
+- pytest
 - pytest-html
-- pip:
-  - sphinx_bootstrap_theme
-  - sphinxcontrib-bibtex
-  - sphinxcontrib-tikz
+- requests
+- coverage
+- docopt
+- pytest-cov
+- codecov
 
+
+- pip:
+  # Documentation
+  - sphinxcontrib-tikz
   - dokuwiki
   - dot2tex
   - sphinx-jsonschema
