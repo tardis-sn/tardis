@@ -22,5 +22,5 @@ http://tardis.readthedocs.org.
 .. image:: https://badges.gitter.im/Join%20Chat.svg
   :target: https://gitter.im/tardis-sn/tardis
 
-
+A test grid can be found at https://zenodo.org/record/2557923/files/phoenix_t4000_10000_w3000_9000_r3000.h5?download=1. If you use this grid please make sure that the Phoenix grid is also cited
 
