@@ -108,3 +108,7 @@ from tardis/_compiler.c:1: /Users/yssavo/miniconda2/envs/tardis-show2/lib/gcc/x8
 **Solution:** Run on terminal: 
 
     open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+
+**Problem:** Symbol not found: _GOMP_parallel when compiling with `--with-openmp`
+
+**Solution:** Install gcc8 from macports and then install with these flags: `link_args = ['-fopenmp','-Wl,-rpath,/opt/local/lib/gcc8/']`
