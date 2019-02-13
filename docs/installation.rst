@@ -102,7 +102,7 @@ Go into the tardis/montecarlo directory and build montecarlo.c by hand::
 Then, ``python setup.py build`` should run without problems.
 
 
-**Problem:** when trying to set up CC=gcc-5 python setup.py develop --with-openmp the following error popped up: 
+**Problem:** when trying to set up CC=gcc python setup.py develop --with-openmp the following error popped up: 
 from tardis/_compiler.c:1: /Users/yssavo/miniconda2/envs/tardis-show2/lib/gcc/x86_64-apple-darwin13.4.0/5.2.0/include-fixed/limits.h:168:61: fatal error: limits.h: No such file or directory 
         
 **Solution:** Run on terminal: 
