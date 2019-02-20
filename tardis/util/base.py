@@ -62,121 +62,53 @@ def get_tests_data_path(fname):
     return os.path.join(tardis_dir, 'tests', 'data', fname)
 
 
-atomic_symbols_data = np.recfromtxt(get_data_path('atomic_symbols.dat'),
-                                    names=['atomic_number', 'symbol'])
-symbol2atomic_number = OrderedDict(list(zip(atomic_symbols_data['symbol'],
-                                       atomic_symbols_data['atomic_number'])))
-atomic_number2symbol = OrderedDict(atomic_symbols_data)
+ATOMIC_SYMBOLS_DATA = pd.read_csv(get_data_path('atomic_symbols.dat'), delim_whitespace=True,
+                                  names=['atomic_number', 'symbol']).set_index('atomic_number').squeeze()
+
+ATOMIC_NUMBER2SYMBOL = OrderedDict(ATOMIC_SYMBOLS_DATA.to_dict())
+SYMBOL2ATOMIC_NUMBER = OrderedDict((y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items())
+
 synpp_default_yaml_fname = get_data_path('synpp_default.yaml')
 
 
-def int_to_roman(int_input):
+NUMERAL_MAP = tuple(zip(
+    (1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1),
+    ('M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I')
+))
+
+def int_to_roman(i):
+    result = []
+    for integer, numeral in NUMERAL_MAP:
+        count = i // integer
+        result.append(numeral * count)
+        i -= integer * count
+    return ''.join(result)
+
+def roman_to_int(roman_string):
     """
-    from http://code.activestate.com/recipes/81611-roman-numerals/
-    Convert an integer to Roman numerals.
 
-    :param int_input: an integer between 1 and 3999
-    :returns result: roman equivalent string of passed :param{int_input}
+    Parameters
+    ----------
+    roman_string: str
 
-    Examples:
-    >>> int_to_roman(0)
-    Traceback (most recent call last):
-    ValueError: Argument must be between 1 and 3999
+    Returns
+    -------
+        : int
 
-    >>> int_to_roman(-1)
-    Traceback (most recent call last):
-    ValueError: Argument must be between 1 and 3999
-
-    >>> int_to_roman(1.5)
-    Traceback (most recent call last):
-    TypeError: expected integer, got <type 'float'>
-
-    >>> for i in range(1, 21): print int_to_roman(i),
-    ...
-    I II III IV V VI VII VIII IX X XI XII XIII XIV XV XVI XVII XVIII XIX XX
-    >>> print int_to_roman(2000)
-    MM
-    >>> print int_to_roman(1999)
-    MCMXCIX
     """
-    if not isinstance(int_input, int):
-        raise TypeError("Expected integer, got %s" % type(int_input))
-    if not 0 < int_input < 4000:
-        raise ValueError("Argument must be between 1 and 3999")
 
-    int_roman_tuples = [(1000, 'M'), (900, 'CM'), (500, 'D'), (400, 'CD'),
-                        (100 , 'C'), (90 , 'XC'), (50 , 'L'), (40 , 'XL'),
-                        (10  , 'X'), (9  , 'IX'), (5  , 'V'), (4  , 'IV'), (1, 'I')]
-
-    result = ''
-    for (integer, roman) in int_roman_tuples:
-        count = int(int_input / integer)
-        result += roman * count
-        int_input -= integer * count
+    NUMERALS_SET = set(list(zip(*NUMERAL_MAP))[1])
+    roman_string = roman_string.upper()
+    if len(set(list(roman_string.upper())) - NUMERALS_SET) != 0:
+        raise ValueError('{0} does not seem to be a roman numeral'.format(roman_string))
+    i = result = 0
+    for integer, numeral in NUMERAL_MAP:
+        while roman_string[i:i + len(numeral)] == numeral:
+            result += integer
+            i += len(numeral)
+    if result < 1:
+        raise ValueError('Can not interpret Roman Numeral {0}'.format(roman_string))
     return result
-
-
-def roman_to_int(roman_input):
-    """
-    from http://code.activestate.com/recipes/81611-roman-numerals/
-    Convert a roman numeral to an integer.
-
-    :param roman_input: a valid roman numeral string
-    :returns sum: equivalent integer of passed :param{roman_input}
-
-    >>> r = range(1, 4000)
-    >>> nums = [int_to_roman(i) for i in r]
-    >>> ints = [roman_to_int(n) for n in nums]
-    >>> print r == ints
-    1
-
-    >>> roman_to_int('VVVIV')
-    Traceback (most recent call last):
-     ...
-    ValueError: input is not a valid roman numeral: VVVIV
-    >>> roman_to_int(1)
-    Traceback (most recent call last):
-     ...
-    TypeError: expected string, got <type 'int'>
-    >>> roman_to_int('a')
-    Traceback (most recent call last):
-     ...
-    ValueError: input is not a valid roman numeral: A
-    >>> roman_to_int('IL')
-    Traceback (most recent call last):
-     ...
-    ValueError: input is not a valid roman numeral: IL
-    """
-    if not isinstance(roman_input, str):
-        raise TypeError("expected string, got %s" % type(roman_input))
-
-    roman_input = roman_input.upper()
-    nums = ['M', 'D', 'C', 'L', 'X', 'V', 'I']
-    ints = [1000, 500, 100, 50,  10,  5,   1]
-    places = []
-    for c in roman_input:
-        if not c in nums:
-            raise ValueError("input is not a valid roman numeral: %s" % roman_input)
-    for i in range(len(roman_input)):
-        c = roman_input[i]
-        value = ints[nums.index(c)]
-        # If the next place holds a larger number, this value is negative.
-        try:
-            nextvalue = ints[nums.index(roman_input[i +1])]
-            if nextvalue > value:
-                value *= -1
-        except IndexError:
-            # there is no next place.
-            pass
-        places.append(value)
-    result = 0
-    for n in places:
-        result += n
-    # Easiest test for validity...
-    if int_to_roman(result) == roman_input:
-        return result
-    else:
-        raise ValueError('input is not a valid roman numeral: %s' % roman_input)
 
 
 def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_unit=u.angstrom, flux_column=1,
@@ -265,87 +197,14 @@ def intensity_black_body(nu, T):
     return intensity
 
 
-def savitzky_golay(y, window_size, order, deriv=0, rate=1):
-    r"""Smooth (and optionally differentiate) data with a Savitzky-Golay filter.
-    The Savitzky-Golay filter removes high frequency noise from data.
-    It has the advantage of preserving the original shape and
-    features of the signal better than other types of filtering
-    approaches, such as moving averages techniques.
-    Parameters
-    ----------
-    y : array_like, shape (N,)
-        the values of the time history of the signal.
-    window_size : int
-        the length of the window. Must be an odd integer number.
-    order : int
-        the order of the polynomial used in the filtering.
-        Must be less then `window_size` - 1.
-    deriv: int
-        the order of the derivative to compute (default = 0 means only smoothing)
-    Returns
-    -------
-    ys : ndarray, shape (N)
-        the smoothed signal (or it's n-th derivative).
-    Notes
-    -----
-    The Savitzky-Golay is a type of low-pass filter, particularly
-    suited for smoothing noisy data. The main idea behind this
-    approach is to make for each point a least-square fit with a
-    polynomial of high order over a odd-sized window centered at
-    the point.
-    Examples
-    --------
-    t = np.linspace(-4, 4, 500)
-    y = np.exp( -t**2 ) + np.random.normal(0, 0.05, t.shape)
-    ysg = savitzky_golay(y, window_size=31, order=4)
-    import matplotlib.pyplot as plt
-    plt.plot(t, y, label='Noisy signal')
-    plt.plot(t, np.exp(-t**2), 'k', lw=1.5, label='Original signal')
-    plt.plot(t, ysg, 'r', label='Filtered signal')
-    plt.legend()
-    plt.show()
-    References
-    ----------
-    .. [1] A. Savitzky, M. J. E. Golay, Smoothing and Differentiation of
-       Data by Simplified Least Squares Procedures. Analytical
-       Chemistry, 1964, 36 (8), pp 1627-1639.
-    .. [2] Numerical Recipes 3rd Edition: The Art of Scientific Computing
-       W.H. Press, S.A. Teukolsky, W.T. Vetterling, B.P. Flannery
-       Cambridge University Press ISBN-13: 9780521880688
-    """
-    import numpy as np
-    from math import factorial
-
-    try:
-        window_size = np.abs(np.int(window_size))
-        order = np.abs(np.int(order))
-    except ValueError as msg:
-        raise ValueError("window_size and order have to be of type int")
-    if window_size % 2 != 1 or window_size < 1:
-        raise TypeError("window_size size must be a positive odd number")
-    if window_size < order + 2:
-        raise TypeError("window_size is too small for the polynomials order")
-    order_range = list(range(order+1))
-    half_window = (window_size -1) // 2
-    # precompute coefficients
-    b = np.mat([[k**i for i in order_range] for k in range(-half_window, half_window+1)])
-    m = np.linalg.pinv(b).A[deriv] * rate**deriv * factorial(deriv)
-    # pad the signal at the extremes with
-    # values taken from the signal itself
-    firstvals = y[0] - np.abs( y[1:half_window+1][::-1] - y[0] )
-    lastvals = y[-1] + np.abs(y[-half_window-1:-1][::-1] - y[-1])
-    y = np.concatenate((firstvals, y, lastvals))
-    return np.convolve( m[::-1], y, mode='valid')
-
-
 def species_tuple_to_string(species_tuple, roman_numerals=True):
     atomic_number, ion_number = species_tuple
-    element_symbol = atomic_number2symbol[atomic_number]
+    element_symbol = ATOMIC_NUMBER2SYMBOL[atomic_number]
     if roman_numerals:
         roman_ion_number = int_to_roman(ion_number+1)
-        return '%s %s' % (element_symbol, roman_ion_number)
+        return '{0} {1}'.format(str(element_symbol), roman_ion_number)
     else:
-        return '%s %d' % (element_symbol, ion_number)
+        return '{0} {1:d}'.format(element_symbol, ion_number)
 
 
 def species_string_to_tuple(species_string):
@@ -400,16 +259,16 @@ def parse_quantity(quantity_string):
 
 def element_symbol2atomic_number(element_string):
     reformatted_element_string = reformat_element_symbol(element_string)
-    if reformatted_element_string not in symbol2atomic_number:
+    if reformatted_element_string not in SYMBOL2ATOMIC_NUMBER:
         raise MalformedElementSymbolError(element_string)
-    return symbol2atomic_number[reformatted_element_string]
+    return SYMBOL2ATOMIC_NUMBER[reformatted_element_string]
 
 
 def atomic_number2element_symbol(atomic_number):
     """
     Convert atomic number to string symbol
     """
-    return atomic_number2symbol[atomic_number]
+    return ATOMIC_NUMBER2SYMBOL[atomic_number]
 
 
 def reformat_element_symbol(element_string):
