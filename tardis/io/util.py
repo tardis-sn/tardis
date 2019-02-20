@@ -7,7 +7,8 @@ import numpy as np
 import collections
 from collections import OrderedDict
 import yaml
-from astropy import constants, units as u
+from tardis import constants
+from astropy import units as u
 from tardis.util.base import element_symbol2atomic_number
 
 import logging

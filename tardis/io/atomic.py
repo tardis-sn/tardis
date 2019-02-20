@@ -8,7 +8,7 @@ import pandas as pd
 from scipy import interpolate
 from collections import OrderedDict
 from astropy import units as u
-from astropy import constants as const
+from tardis import constants as const
 from astropy.units import Quantity
 
 

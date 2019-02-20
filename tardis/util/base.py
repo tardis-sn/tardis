@@ -7,7 +7,8 @@ import numexpr as ne
 import numpy as np
 import pandas as pd
 import yaml
-from astropy import constants, units as u
+from tardis import constants
+from astropy import units as u
 from pyne import nucname
 
 import tardis
