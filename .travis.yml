@@ -19,7 +19,6 @@ sudo: true
 env:
     global:
         - COMPILER=gcc
-        - PANDAS_VERSION=0.16
         - ASTROPY_USE_SYSTEM_PYTEST=1
         - SETUP_CMD='test'
         - TEST_MODE='normal'
