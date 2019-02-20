@@ -88,14 +88,6 @@ from tardis.montecarlo.struct import (
 )
 
 
-
-# Wrap the shared object containing C methods, which are tested here.
-from tardis.montecarlo import montecarlo as montecarlo_so
-
-cmontecarlo_filepath = montecarlo_so.__file__
-cmontecarlo_methods = CDLL(cmontecarlo_filepath)
-
-
 @pytest.fixture(scope='module')
 def continuum_compare_data_fname():
     fname = 'continuum_compare_data.hdf'
