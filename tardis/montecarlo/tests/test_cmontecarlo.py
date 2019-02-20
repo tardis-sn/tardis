@@ -720,11 +720,7 @@ def test_montecarlo_continuum_event_handler(clib, continuum_status, expected, z_
 
     assert_equal(obtained, expected)
 
-"""
-This function causes problem with pytest
-"""
 
-'''
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ['nu', 'continuum_id', 'expected', 'bf_treatment'],
@@ -732,9 +728,8 @@ This function causes problem with pytest
      (3.25e14, 1, 0.75, BoundFreeTreatment.LIN_INTERPOLATION),
      (4.03e14, 0, 0.97, BoundFreeTreatment.LIN_INTERPOLATION),
      (4.10e14 + 1e-1, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION),
-     pytest.mark.xfail(reason="nu coincides with a supporting point")(
-         (4.1e14, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION)),
-
+     pytest.param(4.1e14, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION,
+                  marks=pytest.mark.xfail),
      (6.50e14, 0, 0.23304506144742834, BoundFreeTreatment.HYDROGENIC),
      (3.40e14, 2, 1.1170364339507428, BoundFreeTreatment.HYDROGENIC)]
 )
@@ -745,7 +740,7 @@ def test_bf_cross_section(clib, nu, continuum_id, model_w_edges, expected, bf_tr
     obtained = clib.bf_cross_section(byref(model_w_edges), continuum_id, c_double(nu))
 
     assert_almost_equal(obtained, expected)
-'''
+
 
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
