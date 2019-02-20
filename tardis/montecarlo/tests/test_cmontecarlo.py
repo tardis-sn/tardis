@@ -88,14 +88,6 @@ from tardis.montecarlo.struct import (
 )
 
 
-
-# Wrap the shared object containing C methods, which are tested here.
-from tardis.montecarlo import montecarlo as montecarlo_so
-
-cmontecarlo_filepath = montecarlo_so.__file__
-cmontecarlo_methods = CDLL(cmontecarlo_filepath)
-
-
 @pytest.fixture(scope='module')
 def continuum_compare_data_fname():
     fname = 'continuum_compare_data.hdf'
@@ -129,12 +121,12 @@ def expected_ff_emissivity(continuum_compare_data):
 
 @pytest.fixture(scope='module')
 def get_rkstate(continuum_compare_data):
-    pytest.skip('problem with porting the z2rkstate over')
-    data = continuum_compare_data['z2rkstate']
+    data = continuum_compare_data['z2rkstate_key']
+    pos_data = continuum_compare_data['z2rkstate_pos']
 
     def z2rkstate(z_random):
-        key = (c_ulong * 624)(*data.loc[z_random, 'key'])
-        pos = data.loc[z_random, 'pos']
+        key = (c_ulong * 624)(*data.loc[z_random].values)
+        pos = pos_data.loc[z_random]
         return RKState(
             key=key,
             pos=pos,
@@ -728,11 +720,7 @@ def test_montecarlo_continuum_event_handler(clib, continuum_status, expected, z_
 
     assert_equal(obtained, expected)
 
-"""
-This function causes problem with pytest
-"""
 
-'''
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
     ['nu', 'continuum_id', 'expected', 'bf_treatment'],
@@ -740,9 +728,8 @@ This function causes problem with pytest
      (3.25e14, 1, 0.75, BoundFreeTreatment.LIN_INTERPOLATION),
      (4.03e14, 0, 0.97, BoundFreeTreatment.LIN_INTERPOLATION),
      (4.10e14 + 1e-1, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION),
-     pytest.mark.xfail(reason="nu coincides with a supporting point")(
-         (4.1e14, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION)),
-
+     pytest.param(4.1e14, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION,
+                  marks=pytest.mark.xfail),
      (6.50e14, 0, 0.23304506144742834, BoundFreeTreatment.HYDROGENIC),
      (3.40e14, 2, 1.1170364339507428, BoundFreeTreatment.HYDROGENIC)]
 )
@@ -753,7 +740,7 @@ def test_bf_cross_section(clib, nu, continuum_id, model_w_edges, expected, bf_tr
     obtained = clib.bf_cross_section(byref(model_w_edges), continuum_id, c_double(nu))
 
     assert_almost_equal(obtained, expected)
-'''
+
 
 @pytest.mark.continuumtest
 @pytest.mark.parametrize(
