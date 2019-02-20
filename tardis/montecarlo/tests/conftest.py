@@ -9,7 +9,7 @@ from ctypes import (
         c_ulong,
         )
 
-from tardis import __path__ as path
+from tardis.montecarlo import montecarlo
 from tardis.montecarlo.struct import (
     RPacket, StorageModel, RKState,
     TARDIS_PACKET_STATUS_IN_PROCESS,
@@ -21,7 +21,7 @@ from tardis.montecarlo.struct import (
 # Wrap the shared object containing C methods, which are tested here.
 @pytest.fixture(scope='session')
 def clib():
-    return CDLL(os.path.join(path[0], 'montecarlo', 'montecarlo.so'))
+    return CDLL(os.path.join(montecarlo.__file__))
 
 
 @pytest.fixture(scope="function")
