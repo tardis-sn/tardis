@@ -129,12 +129,12 @@ def expected_ff_emissivity(continuum_compare_data):
 
 @pytest.fixture(scope='module')
 def get_rkstate(continuum_compare_data):
-    pytest.skip('problem with porting the z2rkstate over')
-    data = continuum_compare_data['z2rkstate']
+    data = continuum_compare_data['z2rkstate_key']
+    pos_data = continuum_compare_data['z2rkstate_pos']
 
     def z2rkstate(z_random):
-        key = (c_ulong * 624)(*data.loc[z_random, 'key'])
-        pos = data.loc[z_random, 'pos']
+        key = (c_ulong * 624)(*data.loc[z_random].values)
+        pos = pos_data.loc[z_random]
         return RKState(
             key=key,
             pos=pos,
