@@ -3,7 +3,8 @@
 import re
 import os
 
-from astropy import units as u, constants
+from astropy import units as u
+from tardis import constants
 import numpy as np
 import pandas as pd
 

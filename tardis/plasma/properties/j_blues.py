@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
-from astropy import constants as const
+from tardis import constants as const
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty, \
-    DataFrameInput
+from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
+                                           DataFrameInput)
 from tardis.util.base import intensity_black_body
 
 
