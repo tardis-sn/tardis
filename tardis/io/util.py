@@ -26,12 +26,17 @@ def quantity_from_str(text):
     -------
     `astropy.units.Quantity`
     """
-    value_str, unit = text.split(None, 1)
+    value_str, unit_str = text.split(None, 1)
     value = float(value_str)
-    if unit.strip() == 'log_lsun':
+    if unit_str.strip() == 'log_lsun':
         value = 10 ** (value + np.log10(constants.L_sun.cgs.value))
-        unit = 'erg/s'
-    return u.Quantity(value, unit)
+        unit_str = 'erg/s'
+
+    unit = u.Unit(unit_str)
+    if unit == u.L_sun:
+        return value * constants.L_sun
+
+    return u.Quantity(value, unit_str)
 
 
 class MockRegexPattern(object):
