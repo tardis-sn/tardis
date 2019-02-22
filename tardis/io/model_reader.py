@@ -148,7 +148,7 @@ def read_uniform_abundances(abundances_section, no_of_shells):
         try:
             if element_symbol_string in nucname.name_zz:
                 z = nucname.name_zz[element_symbol_string]
-                abundance.ix[z] = float(
+                abundance.loc[z] = float(
                     abundances_section[element_symbol_string])
             else:
                 mass_no = nucname.anum(element_symbol_string)

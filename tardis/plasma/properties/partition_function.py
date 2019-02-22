@@ -189,7 +189,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                                 'collision data?')
                     else:
                         raise e
-                general_level_boltzmann_factor[i].ix[species] = \
+                general_level_boltzmann_factor[i].loc[species] = \
                     level_boltzmann_factor
         return general_level_boltzmann_factor
 

@@ -21,7 +21,7 @@ class TestModelFromPaper1Config:
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
         assert_array_almost_equal(oxygen_abundance,
-                                  self.model.abundance.ix[8].values)
+                                  self.model.abundance.loc[8].values)
 
     def test_velocities(self):
         velocity = self.config.model.structure.velocity
@@ -54,7 +54,7 @@ class TestModelFromASCIIDensity:
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
         assert_array_almost_equal(oxygen_abundance,
-                                  self.model.abundance.ix[8].values)
+                                  self.model.abundance.loc[8].values)
 
 
 class TestModelFromArtisDensity:
@@ -70,7 +70,7 @@ class TestModelFromArtisDensity:
     def test_abundances(self):
         oxygen_abundance = self.config.model.abundances.O
         assert_array_almost_equal(oxygen_abundance,
-                                  self.model.abundance.ix[8].values)
+                                  self.model.abundance.loc[8].values)
 
 
 class TestModelFromArtisDensityAbundances:
@@ -87,7 +87,7 @@ class TestModelFromArtisDensityAbundances:
         assert_almost_equal(self.model.v_inner[0].value, 1.259375e+03 * 1e5)
 
     def test_abundances(self):
-        assert_almost_equal(self.model.abundance.ix[14, 54],
+        assert_almost_equal(self.model.abundance.loc[14, 54],
                             0.21864420000000001)
 
 
@@ -105,7 +105,7 @@ class TestModelFromArtisDensityAbundancesVSlice:
         assert_almost_equal(self.model.v_inner[0].to(u.km / u.s).value, 9000)
 
     def test_abundances(self):
-        assert_almost_equal(self.model.abundance.ix[14, 31], 2.156751e-01)
+        assert_almost_equal(self.model.abundance.loc[14, 31], 2.156751e-01)
 
 
 class TestModelFromUniformDensity:

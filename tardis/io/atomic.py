@@ -432,7 +432,7 @@ class NLTEData(object):
         self.g_ratio_matrices = {}
         collision_group = self.atom_data.collision_data.groupby(level=['atomic_number', 'ion_number'])
         for species in self.nlte_species:
-            no_of_levels = self.atom_data.levels.ix[species].energy.count()
+            no_of_levels = self.atom_data.levels.loc[species].energy.count()
             C_ul_matrix = np.zeros(
                     (
                         no_of_levels,
