@@ -1,7 +1,7 @@
 import os
 
-
 data_path = os.path.join('tardis', 'plasma', 'tests', 'data')
+
 
 def test_write_tex(tmpdir, simulation_verysimple):
     fname = str(tmpdir.mkdir('test_tex').join('plasma.tex'))
