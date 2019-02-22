@@ -48,8 +48,9 @@ before_install:
     - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi
     # Use the following to get the ref-data from a specific pull request; 
-    # - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/14/head:update-ref; fi
-    # - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout update-ref; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/17/head:update-ref; fi
+    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout update-ref; fi
+
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/chianti_He.h5" origin; fi
     - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="unit_test_data.h5" origin; fi
