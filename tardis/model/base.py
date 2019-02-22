@@ -9,7 +9,7 @@ from tardis.util.base import quantity_linspace
 from tardis.io.model_reader import read_density_file, read_abundances_file, read_uniform_abundances
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
-from density import HomologousDensity
+from tardis.model.density import HomologousDensity
 
 logger = logging.getLogger(__name__)
 
