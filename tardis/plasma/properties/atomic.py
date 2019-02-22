@@ -76,7 +76,7 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
                                  index=levels)
         lines_index = lines.index.droplevel('level_number_upper')
-        return np.array(levels_index.ix[lines_index])
+        return np.array(levels_index.loc[lines_index])
 
 class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
@@ -90,7 +90,7 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
                                  index=levels)
         lines_index = lines.index.droplevel('level_number_lower')
-        return np.array(levels_index.ix[lines_index])
+        return np.array(levels_index.loc[lines_index])
 
 class IonCXData(BaseAtomicDataProperty):
     outputs = ('ion_cx_data',)
