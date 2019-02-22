@@ -131,7 +131,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         """
         for species in nlte_data.nlte_species:
             logger.info('Calculating rates for species %s', species)
-            number_of_levels = atomic_data.levels.energy.ix[species].count()
+            number_of_levels = atomic_data.levels.energy.loc[species].count()
             lnl = nlte_data.lines_level_number_lower[species]
             lnu = nlte_data.lines_level_number_upper[species]
             lines_index, = nlte_data.lines_idx[species]
