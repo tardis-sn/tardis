@@ -58,3 +58,4 @@ dependencies:
   - dokuwiki
   - dot2tex
   - sphinx-jsonschema
+  - git+https://github.com/Naereen/dot2tex.git
