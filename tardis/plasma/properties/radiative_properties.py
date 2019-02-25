@@ -3,7 +3,8 @@ import logging
 import numpy as np
 import pandas as pd
 import numexpr as ne
-from astropy import units as u, constants as const
+from astropy import units as u
+from tardis import constants as const
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom

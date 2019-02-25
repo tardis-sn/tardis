@@ -2,7 +2,8 @@ import os
 import logging
 import warnings
 
-from astropy import units as u, constants as const
+from astropy import units as u
+from tardis import constants as const
 
 from scipy.special import zeta
 from spectrum import TARDISSpectrum

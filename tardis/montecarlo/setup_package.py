@@ -2,7 +2,7 @@
 from setuptools import Extension
 import numpy as np
 import os
-from astropy_helpers.setup_helpers import get_distutils_option
+from astropy_helpers.distutils_helpers import get_distutils_option
 from Cython.Build import cythonize
 
 from glob import glob

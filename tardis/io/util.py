@@ -7,7 +7,8 @@ import numpy as np
 import collections
 from collections import OrderedDict
 import yaml
-from astropy import constants, units as u
+from tardis import constants
+from astropy import units as u
 from tardis.util.base import element_symbol2atomic_number
 
 import logging
@@ -25,12 +26,17 @@ def quantity_from_str(text):
     -------
     `astropy.units.Quantity`
     """
-    value_str, unit = text.split(None, 1)
+    value_str, unit_str = text.split(None, 1)
     value = float(value_str)
-    if unit.strip() == 'log_lsun':
+    if unit_str.strip() == 'log_lsun':
         value = 10 ** (value + np.log10(constants.L_sun.cgs.value))
-        unit = 'erg/s'
-    return u.Quantity(value, unit)
+        unit_str = 'erg/s'
+
+    unit = u.Unit(unit_str)
+    if unit == u.L_sun:
+        return value * constants.L_sun
+
+    return u.Quantity(value, unit_str)
 
 
 class MockRegexPattern(object):
@@ -98,12 +104,15 @@ YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
 YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
                            YAMLLoader.mapping_constructor)
 
+
 def yaml_load_file(filename, loader=yaml.Loader):
     with open(filename) as stream:
         return yaml.load(stream, loader)
 
+
 def yaml_load_config_file(filename):
     return yaml_load_file(filename, YAMLLoader)
+
 
 def parse_abundance_dict_to_dataframe(abundance_dict):
     atomic_number_dict = dict([(element_symbol2atomic_number(symbol), abundance_dict[symbol])
@@ -114,7 +123,7 @@ def parse_abundance_dict_to_dataframe(abundance_dict):
 
     abundance_norm = abundances.sum()
     if abs(abundance_norm - 1) > 1e-12:
-        logger.warn('Given abundances don\'t add up to 1 (value = %g) - normalizing', abundance_norm)
+        logger.warning('Given abundances don\'t add up to 1 (value = %g) - normalizing', abundance_norm)
         abundances /= abundance_norm
 
     return abundances

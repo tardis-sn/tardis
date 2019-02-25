@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from astropy import constants as c
+from tardis import constants as c
 
 import ctypes
 from ctypes import (
