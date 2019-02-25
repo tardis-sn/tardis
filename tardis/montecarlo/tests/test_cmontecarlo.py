@@ -426,8 +426,8 @@ def test_move_packet(clib, packet_params, expected_params, packet, model):
     packet.energy = packet_params['energy']
     packet.r = packet_params['r']
 
-    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
-    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    clib.rpacket_doppler_factor.restype = c_double
+    doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
     clib.move_packet(byref(packet), byref(model), c_double(1.e13))
 
     assert_almost_equal(packet.mu, expected_params['mu'])
@@ -443,14 +443,38 @@ def test_move_packet(clib, packet_params, expected_params, packet, model):
     [({'nu': 0.30, 'energy': 0.30}, 0, 1.0),
      ({'nu': 0.20, 'energy': 1.e5}, 0, 5e5),
      ({'nu': 2e15, 'energy': 0.50}, 1, 2.5e-16),
-     ({'nu': 0.40, 'energy': 1e-7}, 1, 2.5e-7)]
+     ({'nu': 0.40, 'energy': 1e-7}, 1, 2.5e-7)],
+)
+def test_increment_j_blue_estimator_full_relativity(clib, packet_params,
+                                                    j_blue_idx, expected,
+                                                    packet, model):
+    packet.nu = packet_params['nu']
+    packet.energy = packet_params['energy']
+    model.full_relativity = True
+
+    clib.increment_j_blue_estimator(byref(packet), byref(model),
+                                    c_double(packet.d_line),
+                                    c_int64(j_blue_idx))
+
+    assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
+
+
+@pytest.mark.parametrize(
+    ['packet_params', 'j_blue_idx', 'expected'],
+    [({'nu': 0.1, 'mu': 0.3, 'r': 7.5e14}, 0, 8.998643292289723),
+     ({'nu': 0.2, 'mu': -.3, 'r': 7.7e14}, 0, 4.499971133976377),
+     ({'nu': 0.5, 'mu': 0.5, 'r': 7.9e14}, 1, 0.719988453650551),
+     ({'nu': 0.6, 'mu': -.5, 'r': 8.1e14}, 1, 0.499990378058792)]
 )
 def test_increment_j_blue_estimator(clib, packet_params, j_blue_idx, expected, packet, model):
     packet.nu = packet_params['nu']
-    packet.energy = packet_params['energy']
+    packet.mu = packet_params['mu']
+    packet.r = packet_params['r']
 
-    cmontecarlo_methods.increment_j_blue_estimator(byref(packet), byref(model),
-                                                   c_int64(j_blue_idx))
+    clib.compute_distance2line(byref(packet), byref(model))
+    clib.move_packet(byref(packet), byref(model), c_double(1.e13))
+    clib.increment_j_blue_estimator(byref(packet), byref(model),
+                                 c_double(packet.d_line), c_int64(j_blue_idx))
 
     assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
 
@@ -659,9 +683,9 @@ def test_sample_nu_free_free(clib, t_electron, packet, model, mt_state_seeded, e
         nu = clib.sample_nu_free_free(byref(packet), byref(model), byref(mt_state_seeded))
         nus.append(nu)
 
-    obtained_emissivity, _ = np.histogram(nus, normed=True, bins=nu_bins)
+    obtained_emissivity, _ = np.histogram(nus, density=True, bins=nu_bins)
 
-    assert_equal(obtained_emissivity, expected_emissivity)
+    assert_almost_equal(obtained_emissivity, expected_emissivity, decimal=10)
 
 
 @pytest.mark.continuumtest
@@ -941,18 +965,19 @@ def test_montecarlo_bound_free_scatter_continuum_selection(clib, packet, model_3
      (0.0, 7.5e14, 1 / 2.2e5, 1),
      (-0.7, 7.5e14, 1 / 5.2e5, 0)]
 )
-def test_frame_transformations(packet, model, mu, r, inv_t_exp, full_relativity):
+def test_frame_transformations(clib, packet, model, mu, r,
+                               inv_t_exp, full_relativity):
     packet.r = r
     packet.mu = mu
     model.inverse_time_explosion = inv_t_exp
     model.full_relativity = full_relativity
-    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
-    cmontecarlo_methods.rpacket_inverse_doppler_factor.restype = c_double
+    clib.rpacket_doppler_factor.restype = c_double
+    clib.rpacket_inverse_doppler_factor.restype = c_double
 
-    inverse_doppler_factor = cmontecarlo_methods.rpacket_inverse_doppler_factor(byref(packet), byref(model))
-    cmontecarlo_methods.do_angle_aberration(byref(packet), byref(model))
+    inverse_doppler_factor = clib.rpacket_inverse_doppler_factor(byref(packet), byref(model))
+    clib.angle_aberration_CMF_to_LF(byref(packet), byref(model))
 
-    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
 
     assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
 
@@ -966,15 +991,16 @@ def test_frame_transformations(packet, model, mu, r, inv_t_exp, full_relativity)
      (0.0, 7.5e14, 1 / 2.2e5),
      (-0.7, 7.5e14, 1 / 5.2e5)]
 )
-def test_angle_transformation_invariance(packet, model, mu, r, inv_t_exp):
+def test_angle_transformation_invariance(clib, packet, model,
+                                         mu, r, inv_t_exp):
     packet.r = r
     packet.mu = mu
     model.inverse_time_explosion = inv_t_exp
     model.full_relativity = 1
-    cmontecarlo_methods.inverse_angle_aberration.restype = c_double
+    clib.angle_aberration_LF_to_CMF.restype = c_double
 
-    cmontecarlo_methods.do_angle_aberration(byref(packet), byref(model))
-    mu_obtained = cmontecarlo_methods.inverse_angle_aberration(
+    clib.angle_aberration_CMF_to_LF(byref(packet), byref(model))
+    mu_obtained = clib.angle_aberration_LF_to_CMF(
         byref(packet), byref(model), c_double(packet.mu))
 
     assert_almost_equal(mu_obtained, mu)
@@ -994,7 +1020,8 @@ def test_angle_transformation_invariance(packet, model, mu, r, inv_t_exp):
      (-0.7, 7.5e14, 5.2e5, 1.0e15, 9.8e14),
      (-1.0, 6.3e14, 2.2e5, 6.0e12, 6.55e12)]
 )
-def test_compute_distance2line_relativistic(mu, r, t_exp, nu, nu_line, full_relativity, packet, model):
+def test_compute_distance2line_relativistic(clib, mu, r, t_exp, nu, nu_line,
+                                            full_relativity, packet, model):
     packet.r = r
     packet.mu = mu
     packet.nu = nu
@@ -1003,12 +1030,12 @@ def test_compute_distance2line_relativistic(mu, r, t_exp, nu, nu_line, full_rela
     model.time_explosion = t_exp
     model.full_relativity = full_relativity
 
-    cmontecarlo_methods.rpacket_doppler_factor.restype = c_double
+    clib.rpacket_doppler_factor.restype = c_double
 
-    cmontecarlo_methods.compute_distance2line(byref(packet), byref(model))
-    cmontecarlo_methods.move_packet(byref(packet), byref(model), c_double(packet.d_line))
+    clib.compute_distance2line(byref(packet), byref(model))
+    clib.move_packet(byref(packet), byref(model), c_double(packet.d_line))
 
-    doppler_factor = cmontecarlo_methods.rpacket_doppler_factor(byref(packet), byref(model))
+    doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
     comov_nu = packet.nu * doppler_factor
 
     assert_allclose(comov_nu, nu_line, rtol=1e-14)
