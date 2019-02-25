@@ -43,11 +43,13 @@ Please follow this design procedure while adding a new test:
   - Refer to method `test_rpacket_doppler_factor` below for description.
 """
 
+
 import os
 import pytest
 import numpy as np
 import pandas as pd
-from astropy import constants as const
+
+
 from ctypes import (
         CDLL,
         byref,
@@ -85,10 +87,6 @@ from tardis.montecarlo.struct import (
     BoundFreeTreatment
 )
 
-# Wrap the shared object containing C methods, which are tested here.
-cmontecarlo_filepath = os.path.join(path[0], 'montecarlo', 'montecarlo.so')
-cmontecarlo_methods = CDLL(cmontecarlo_filepath)
-
 
 @pytest.fixture(scope='module')
 def continuum_compare_data_fname():
@@ -123,11 +121,12 @@ def expected_ff_emissivity(continuum_compare_data):
 
 @pytest.fixture(scope='module')
 def get_rkstate(continuum_compare_data):
-    data = continuum_compare_data['z2rkstate']
+    data = continuum_compare_data['z2rkstate_key']
+    pos_data = continuum_compare_data['z2rkstate_pos']
 
     def z2rkstate(z_random):
-        key = (c_ulong * 624)(*data.loc[z_random, 'key'])
-        pos = data.loc[z_random, 'pos']
+        key = (c_ulong * 624)(*data.loc[z_random].values)
+        pos = pos_data.loc[z_random]
         return RKState(
             key=key,
             pos=pos,
@@ -195,7 +194,7 @@ def model_3lvlatom(model):
         0.0, 0.0, 1.00, 0.00, 0.0, 0.00, 0.0, 1.00, 0.0   # shell_id = 1
     ]
 
-    nd = len(transition_probabilities)/2
+    nd = len(transition_probabilities)//2
     model.transition_type = (c_int64 * nd)(*[1, 1, -1, 1, 0, 0, -1, -1, 0])
     model.destination_level_id = (c_int64 * nd)(*[1, 2, 0, 2, 0, 1, 1, 0, 0])
     model.transition_line_id = (c_int64 * nd)(*[0, 1, 1, 2, 1, 2, 2, 0, 0])
@@ -230,6 +229,8 @@ def d_boundary_setter(d_boundary, model, packet):
 
     r = np.sqrt(r_outer**2 - d_boundary**2)
     packet.r = r
+
+
 
 
 """
@@ -580,6 +581,7 @@ def test_macro_atom(clib, model_3lvlatom, packet, z_random, packet_params, get_r
     assert_equal(obtained_line_id, expected)
 
 
+
 """
 Simple Tests:
 ----------------
@@ -600,6 +602,7 @@ def test_increment_Edotlu_estimator(clib, packet_params, line_idx, expected, pac
 
     assert_almost_equal(model.line_lists_Edotlu[line_idx], expected)
 
+
 """
 Difficult Tests:
 ----------------
@@ -607,6 +610,7 @@ The tests written further are more complex than previous tests. They require
 proper design procedure. They are not taken up yet and intended to be
 completed together in future.
 """
+
 
 
 @pytest.mark.skipif(True, reason="Yet to be written.")
@@ -624,12 +628,14 @@ def test_montecarlo_main_loop(packet, model, mt_state):
     pass
 
 
+
 """
 Continuum Tests:
 ----------------
 The tests written further (till next block comment is encountered) are for the
 methods related to continuum interactions.
 """
+
 
 
 @pytest.mark.continuumtest
@@ -722,9 +728,8 @@ def test_montecarlo_continuum_event_handler(clib, continuum_status, expected, z_
      (3.25e14, 1, 0.75, BoundFreeTreatment.LIN_INTERPOLATION),
      (4.03e14, 0, 0.97, BoundFreeTreatment.LIN_INTERPOLATION),
      (4.10e14 + 1e-1, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION),
-     pytest.mark.xfail(reason="nu coincides with a supporting point")(
-         (4.1e14, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION)),
-
+     pytest.param(4.1e14, 0, 0.90, BoundFreeTreatment.LIN_INTERPOLATION,
+                  marks=pytest.mark.xfail),
      (6.50e14, 0, 0.23304506144742834, BoundFreeTreatment.HYDROGENIC),
      (3.40e14, 2, 1.1170364339507428, BoundFreeTreatment.HYDROGENIC)]
 )

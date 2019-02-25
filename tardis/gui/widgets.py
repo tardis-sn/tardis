@@ -376,11 +376,11 @@ class ConfigEditor(QtGui.QWidget):
 
 
                         else:
-                            print 'The selected and available options'
-                            print optionselected
-                            print options
-                            raise exceptions.IOError("An invalid option was"+
-                                " provided in the input file")
+                            print('The selected and available options')
+                            print(optionselected)
+                            print(options)
+                            raise IOError("An invalid option was"
+                                          " provided in the input file")
 
                 else:
                     dict2[key] = dict1[key]

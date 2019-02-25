@@ -8,7 +8,7 @@ import pandas as pd
 from scipy import interpolate
 from collections import OrderedDict
 from astropy import units as u
-from astropy import constants as const
+from tardis import constants as const
 from astropy.units import Quantity
 
 
@@ -152,12 +152,12 @@ class AtomData(object):
             atom_data = cls(**dataframes)
 
             try:
-                atom_data.uuid1 = store.root._v_attrs['uuid1']
+                atom_data.uuid1 = store.root._v_attrs['uuid1'].decode('ascii')
             except KeyError:
                 atom_data.uuid1 = None
 
             try:
-                atom_data.md5 = store.root._v_attrs['md5']
+                atom_data.md5 = store.root._v_attrs['md5'].decode('ascii')
             except KeyError:
                 atom_data.md5 = None
 
