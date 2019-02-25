@@ -119,7 +119,7 @@ may encounter the following error::
      TypeError: super() argument 1 must be type, not None
     
     ----------------------------------------
-``Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-req-build-wPB39p/``
+```Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-req-build-wPB39p/```
 
 
 **Solution:** The cause for this problem is sphinx , or sphinx version . It can be easily solved by installing sphinx 1.5.6.
