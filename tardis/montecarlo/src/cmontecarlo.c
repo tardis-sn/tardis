@@ -388,7 +388,11 @@ compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
 {
   double chi_continuum, d_continuum;
   double chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] *
-    storage->sigma_thomson * rpacket_doppler_factor (packet, storage);
+    storage->sigma_thomson;
+  if (storage->full_relativity)
+    {
+      chi_electron *= rpacket_doppler_factor (packet, storage);
+    }
 
   if (storage->cont_status == CONTINUUM_ON)
     {
@@ -579,32 +583,59 @@ increment_continuum_estimators (const rpacket_t * packet, storage_model_t * stor
     }
 }
 
+double
+get_increment_j_blue_estimator_energy (const rpacket_t * packet,
+                                       storage_model_t * storage,
+                                       double d_line, int64_t j_blue_idx)
+{
+  double energy;
+  if (storage->full_relativity)
+    {
+      // Accurate up to a factor 1 / gamma
+      energy = rpacket_get_energy (packet);
+    }
+  else
+    {
+      double r = rpacket_get_r (packet);
+      double r_interaction = sqrt (r * r + d_line * d_line +
+                                   2.0 * r * d_line * rpacket_get_mu (packet));
+      double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
+      double doppler_factor = 1.0 - mu_interaction * r_interaction *
+        storage->inverse_time_explosion * INVERSE_C;
+      energy = rpacket_get_energy (packet) * doppler_factor;
+    }
+  return energy;
+}
+
 void
 increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
-                            int64_t j_blue_idx)
+                            double d_line, int64_t j_blue_idx)
 {
   if (storage->line_lists_j_blues != NULL)
     {
-      // Accurate up to a factor 1 / gamma
-#ifdef WITHOPENMP
-#pragma omp atomic
-#endif
+      double energy = get_increment_j_blue_estimator_energy (packet, storage,
+                                                             d_line, j_blue_idx);
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
       storage->line_lists_j_blues[j_blue_idx] +=
-        rpacket_get_energy (packet) / rpacket_get_nu (packet);
+        energy / rpacket_get_nu (packet);
     }
 }
 
 void
-increment_Edotlu_estimator (const rpacket_t * packet, storage_model_t * storage, int64_t line_idx)
+increment_Edotlu_estimator (const rpacket_t * packet, storage_model_t * storage,
+                            double d_line, int64_t line_idx)
 {
   if (storage->line_lists_Edotlu != NULL)
     {
-      // Accurate up to a factor 1 / gamma
-#ifdef WITHOPENMP
-#pragma omp atomic
-#endif
+      double energy = get_increment_j_blue_estimator_energy (packet, storage,
+                                                             d_line, line_idx);
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
       storage->line_lists_j_blues[line_idx] +=
-        (rpacket_get_energy (packet) * rpacket_get_nu_line (packet)) / rpacket_get_nu (packet);
+        energy * rpacket_get_nu_line (packet) / rpacket_get_nu (packet);
     }
 }
 
@@ -891,8 +922,8 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
     storage->no_of_lines * rpacket_get_current_shell_id (packet);
   if (rpacket_get_virtual_packet (packet) == 0)
     {
-      increment_j_blue_estimator (packet, storage, line2d_idx);
-      increment_Edotlu_estimator (packet, storage, line2d_idx);
+      increment_j_blue_estimator (packet, storage, distance, line2d_idx);
+      increment_Edotlu_estimator (packet, storage, distance, line2d_idx);
     }
   double tau_line =
     storage->line_lists_tau_sobolevs[line2d_idx];
