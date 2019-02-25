@@ -2,13 +2,15 @@
 # cython: boundscheck=False
 # cython: wraparound=False
 # cython: cdivision=True
+# cython: cdivision=True
+# cython: language_level=3
 
 
 
 import numpy as np
 cimport numpy as np
 from numpy cimport PyArray_DATA
-from astropy import constants
+from tardis import constants
 from astropy import units
 from libc.stdlib cimport free
 

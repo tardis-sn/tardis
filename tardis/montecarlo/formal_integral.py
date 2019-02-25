@@ -4,7 +4,7 @@ import pandas as pd
 import scipy.sparse as sp
 from scipy.interpolate import interp1d
 from astropy import units as u
-from astropy import constants as const
+from tardis import constants as const
 
 from tardis.montecarlo.montecarlo import formal_integral
 from tardis.montecarlo.spectrum import TARDISSpectrum

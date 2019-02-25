@@ -95,7 +95,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
     @staticmethod
     def get_zeta_values(zeta_data, ion_index, t_rad):
         zeta_t_rad = zeta_data.columns.values.astype(np.float64)
-        zeta_values = zeta_data.ix[ion_index].values.astype(np.float64)
+        zeta_values = zeta_data.loc[ion_index].values.astype(np.float64)
         zeta = interpolate.interp1d(zeta_t_rad, zeta_values, bounds_error=False,
                                     fill_value=np.nan)(t_rad)
         zeta = zeta.astype(float)

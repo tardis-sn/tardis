@@ -242,11 +242,11 @@ class BasePlasma(PlasmaWriterMixin):
             texmode='raw'))
 
         for line in fileinput.input(fname_graph, inplace = 1):
-            print line.replace('\documentclass{article}',
-                '\documentclass[class=minimal,border=20pt]{standalone}'),
+            print(line.replace('\documentclass{article}',
+                '\documentclass[class=minimal,border=20pt]{standalone}'), end='')
 
         for line in fileinput.input(fname_graph, inplace = 1):
-            print line.replace('\enlargethispage{100cm}', ''),
+            print(line.replace('\enlargethispage{100cm}', ''), end='')
 
     def remove_hidden_properties(self, print_graph):
         for item in self.plasma_properties_dict.values():
