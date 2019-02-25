@@ -157,7 +157,7 @@ def model_w_edges(ion_edges, model):
     model.no_of_edges = no_of_edges
 
     estimator_size = model.no_of_shells * no_of_edges
-    estims = ['photo_ion_estimator', 'stim_recomb_estimator', 
+    estims = ['photo_ion_estimator', 'stim_recomb_estimator',
 	      'bf_heating_estimator', 'stim_recomb_cooling_estimator'
     ]
     for estimator in estims:
@@ -170,18 +170,18 @@ def model_w_edges(ion_edges, model):
 @pytest.fixture(scope='module')
 def ion_edges():
     return [
-        {'nu': [4.0e14, 4.1e14, 4.2e14, 4.3e14], 
+        {'nu': [4.0e14, 4.1e14, 4.2e14, 4.3e14],
 		'x_sect': [1.0, 0.9, 0.8, 0.7], 'no_of_points': 4},
-        {'nu': [3.0e14, 3.1e14, 3.2e14, 3.3e14, 3.4e14], 
+        {'nu': [3.0e14, 3.1e14, 3.2e14, 3.3e14, 3.4e14],
 		'x_sect': [1.0, 0.9, 0.8, 0.7, 0.6], 'no_of_points': 5},
-        {'nu': [2.8e14, 3.0e14, 3.2e14, 3.4e14], 
+        {'nu': [2.8e14, 3.0e14, 3.2e14, 3.4e14],
 		'x_sect': [2.0, 1.8, 1.6, 1.4], 'no_of_points': 4}
     ]
 
 
 @pytest.fixture(scope='module')
 def mock_sample_nu():
-    SAMPLE_NUFUNC = CFUNCTYPE(c_double, POINTER(RPacket), 
+    SAMPLE_NUFUNC = CFUNCTYPE(c_double, POINTER(RPacket),
 			POINTER(StorageModel), POINTER(RKState))
 
     def sample_nu_simple(packet, model, mt_state):
