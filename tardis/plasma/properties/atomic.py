@@ -76,7 +76,7 @@ class LinesLowerLevelIndex(HiddenPlasmaProperty):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
                                  index=levels)
         lines_index = lines.index.droplevel('level_number_upper')
-        return np.array(levels_index.ix[lines_index])
+        return np.array(levels_index.loc[lines_index])
 
 class LinesUpperLevelIndex(HiddenPlasmaProperty):
     """
@@ -90,7 +90,7 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
         levels_index = pd.Series(np.arange(len(levels), dtype=np.int64),
                                  index=levels)
         lines_index = lines.index.droplevel('level_number_lower')
-        return np.array(levels_index.ix[lines_index])
+        return np.array(levels_index.loc[lines_index])
 
 class IonCXData(BaseAtomicDataProperty):
     outputs = ('ion_cx_data',)
@@ -117,7 +117,7 @@ class AtomicMass(ProcessingPlasmaProperty):
         if getattr(self, self.outputs[0]) is not None:
             return getattr(self, self.outputs[0]),
         else:
-            return atomic_data.atom_data.ix[selected_atoms].mass
+            return atomic_data.atom_data.loc[selected_atoms].mass
 
 class IonizationData(BaseAtomicDataProperty):
     """
@@ -165,7 +165,7 @@ class ZetaData(BaseAtomicDataProperty):
         zeta_data['ion_number'] = zeta_data.index.labels[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
         zeta_data_check = counter(zeta_data.atomic_number.values)
-        keys = np.array(zeta_data_check.keys())
+        keys = np.array(list(zeta_data_check.keys()))
         values = np.array(zeta_data_check.values())
         if np.alltrue(keys + 1 == values):
             return zeta_data
@@ -187,9 +187,9 @@ class ZetaData(BaseAtomicDataProperty):
                 updated_index.transpose().astype(int)),
                 columns=zeta_data.columns)
             for value in range(len(zeta_data)):
-                updated_dataframe.ix[zeta_data.atomic_number.values[value]].ix[
+                updated_dataframe.loc[zeta_data.atomic_number.values[value],
                     zeta_data.ion_number.values[value]] = \
-                    zeta_data.ix[zeta_data.atomic_number.values[value]].ix[
+                    zeta_data.loc[zeta_data.atomic_number.values[value],
                         zeta_data.ion_number.values[value]]
             updated_dataframe = updated_dataframe.astype(float)
             updated_index = pd.DataFrame(updated_index)

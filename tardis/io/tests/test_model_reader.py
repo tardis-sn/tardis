@@ -48,7 +48,7 @@ def test_simple_read_artis_density(artis_density_fname):
 def test_read_simple_ascii_abundances(artis_abundances_fname):
     index, abundances = read_simple_ascii_abundances(artis_abundances_fname)
     assert len(abundances.columns) == 69
-    assert np.isclose(abundances[23].ix[2], 2.672351e-08 , atol=1.e-12)
+    assert np.isclose(abundances[23].loc[2], 2.672351e-08 , atol=1.e-12)
 
 
 def test_read_simple_isotope_abundances(csv_composition_fname):

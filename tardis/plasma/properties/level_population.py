@@ -30,7 +30,7 @@ class LevelNumberDensity(ProcessingPlasmaProperty):
     def _initialize_indices(self, levels, partition_function):
         indexer = pd.Series(np.arange(partition_function.shape[0]),
                             index=partition_function.index)
-        self._ion2level_idx = indexer.ix[levels.droplevel(2)].values
+        self._ion2level_idx = indexer.loc[levels.droplevel(2)].values
 
     def _calculate_dilute_lte(
             self, level_boltzmann_factor, ion_number_density,
@@ -77,5 +77,5 @@ class LevelNumberDensityHeNLTE(LevelNumberDensity):
             level_boltzmann_factor, ion_number_density, levels,
             partition_function)
         if helium_population_updated is not None:
-            level_number_density.ix[2].update(helium_population_updated)
+            level_number_density.loc[2].update(helium_population_updated)
         return level_number_density

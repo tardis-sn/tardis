@@ -143,7 +143,7 @@ class FormalIntegrator(object):
                 columns=np.arange(no_shells), index=macro_ref.index
             )
             q_indices = (source_level_idx, destination_level_idx)
-            for shell in xrange(no_shells):
+            for shell in range(no_shells):
                 Q = sp.coo_matrix(
                         (internal[shell], q_indices), shape=(no_lvls, no_lvls)
                 )
@@ -165,7 +165,7 @@ class FormalIntegrator(object):
         att_S_ul = (wave * (q_ul * e_dot_u) * t  / (4 * np.pi))
 
         result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
-        att_S_ul = result.ix[lines.index.values].values
+        att_S_ul = result.loc[lines.index.values].values
 
         # Jredlu should already by in the correct order, i.e. by wavelength of
         # the transition l->u (similar to Jbluelu)

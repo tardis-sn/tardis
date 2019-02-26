@@ -113,7 +113,7 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     else:
         outer_boundary_index_m1 = None
     index = index[inner_boundary_index:outer_boundary_index]
-    abundances = abundances.ix[:, slice(inner_boundary_index, outer_boundary_index_m1)]
+    abundances = abundances.loc[:, slice(inner_boundary_index, outer_boundary_index_m1)]
     abundances.columns = np.arange(len(abundances.columns))
     return index, abundances, isotope_abundance
 
@@ -148,7 +148,7 @@ def read_uniform_abundances(abundances_section, no_of_shells):
         try:
             if element_symbol_string in nucname.name_zz:
                 z = nucname.name_zz[element_symbol_string]
-                abundance.ix[z] = float(
+                abundance.loc[z] = float(
                     abundances_section[element_symbol_string])
             else:
                 mass_no = nucname.anum(element_symbol_string)

@@ -57,7 +57,7 @@ class JBluesDetailed(ProcessingPlasmaProperty):
                 index=lines.index,
                 columns=np.arange(len(t_rad)))
 
-            for i in xrange(len(t_rad)):
+            for i in range(len(t_rad)):
                 zero_j_blues = j_blues[i] == 0.0
                 j_blues[i][zero_j_blues] = (
                     self.w_epsilon *
