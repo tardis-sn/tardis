@@ -225,7 +225,7 @@ class HDFWriterMixin(object):
             we_opened = True
 
         scalars = {}
-        for key, value in elements.iteritems():
+        for key, value in elements.items():
             if value is None:
                 value = 'none'
             if hasattr(value, 'cgs'):

@@ -143,7 +143,7 @@ def model_w_edges(ion_edges, model):
 
     for i, edge in enumerate(ion_edges):
         x_sect_1level = PhotoXsect1level()
-        for key, value in edge.iteritems():
+        for key, value in edge.items():
             if key in ['nu', 'x_sect']:
                 value = (c_double * len(value))(*value)
             setattr(x_sect_1level, key, value)
@@ -841,7 +841,7 @@ def test_increment_continuum_estimators_bf_estimators(clib, packet, model_w_edge
     no_of_edges = model_w_edges.no_of_edges
     no_of_shells = model_w_edges.no_of_shells
 
-    for estim_name, expected_value in expected.iteritems():
+    for estim_name, expected_value in expected.items():
         obtained = np.ctypeslib.as_array(getattr(model_w_edges, estim_name + "_estimator"),
                                          shape=(no_of_edges * no_of_shells,))
         obtained = np.reshape(obtained, newshape=(no_of_shells, no_of_edges), order='F')
