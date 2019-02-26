@@ -117,7 +117,7 @@ class AtomicMass(ProcessingPlasmaProperty):
         if getattr(self, self.outputs[0]) is not None:
             return getattr(self, self.outputs[0]),
         else:
-            return atomic_data.atom_data.ix[selected_atoms].mass
+            return atomic_data.atom_data.loc[selected_atoms].mass
 
 class IonizationData(BaseAtomicDataProperty):
     """
@@ -187,9 +187,9 @@ class ZetaData(BaseAtomicDataProperty):
                 updated_index.transpose().astype(int)),
                 columns=zeta_data.columns)
             for value in range(len(zeta_data)):
-                updated_dataframe.ix[zeta_data.atomic_number.values[value]].ix[
+                updated_dataframe.loc[zeta_data.atomic_number.values[value],
                     zeta_data.ion_number.values[value]] = \
-                    zeta_data.ix[zeta_data.atomic_number.values[value]].ix[
+                    zeta_data.loc[zeta_data.atomic_number.values[value],
                         zeta_data.ion_number.values[value]]
             updated_dataframe = updated_dataframe.astype(float)
             updated_index = pd.DataFrame(updated_index)
