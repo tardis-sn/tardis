@@ -696,7 +696,7 @@ def test_sample_nu_free_free(clib, t_electron, packet, model, mt_state_seeded, e
 
     obtained_emissivity, _ = np.histogram(nus, density=True, bins=nu_bins)
 
-    assert_almost_equal(obtained_emissivity, expected_emissivity, decimal=10)
+    assert_allclose(obtained_emissivity, expected_emissivity, rtol=1e-10)
 
 
 @pytest.mark.continuumtest

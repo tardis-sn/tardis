@@ -90,9 +90,8 @@ void increment_Edotlu_estimator (const rpacket_t * packet,
                                  int64_t j_blue_idx);
 
 double get_increment_j_blue_estimator_energy (const rpacket_t * packet,
-                                              storage_model_t * storage,
-                                              double d_line,
-                                              int64_t j_blue_idx);
+                                              const storage_model_t * storage,
+                                              double d_line);
 
 void
 increment_continuum_estimators (const rpacket_t * packet, storage_model_t * storage, double distance,

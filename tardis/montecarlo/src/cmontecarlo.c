@@ -588,8 +588,8 @@ increment_continuum_estimators (const rpacket_t * packet, storage_model_t * stor
 
 double
 get_increment_j_blue_estimator_energy (const rpacket_t * packet,
-                                       storage_model_t * storage,
-                                       double d_line, int64_t j_blue_idx)
+                                       const storage_model_t * storage,
+                                       double d_line)
 {
   double energy;
   if (storage->full_relativity)
@@ -617,7 +617,7 @@ increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
   if (storage->line_lists_j_blues != NULL)
     {
       double energy = get_increment_j_blue_estimator_energy (packet, storage,
-                                                             d_line, j_blue_idx);
+                                                             d_line);
       #ifdef WITHOPENMP
       #pragma omp atomic
       #endif
@@ -633,7 +633,7 @@ increment_Edotlu_estimator (const rpacket_t * packet, storage_model_t * storage,
   if (storage->line_lists_Edotlu != NULL)
     {
       double energy = get_increment_j_blue_estimator_energy (packet, storage,
-                                                             d_line, line_idx);
+                                                             d_line);
       #ifdef WITHOPENMP
       #pragma omp atomic
       #endif
