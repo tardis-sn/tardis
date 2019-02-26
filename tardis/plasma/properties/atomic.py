@@ -165,7 +165,7 @@ class ZetaData(BaseAtomicDataProperty):
         zeta_data['ion_number'] = zeta_data.index.labels[1] + 1
         zeta_data = zeta_data[zeta_data.atomic_number.isin(selected_atoms)]
         zeta_data_check = counter(zeta_data.atomic_number.values)
-        keys = np.array(zeta_data_check.keys())
+        keys = np.array(list(zeta_data_check.keys()))
         values = np.array(zeta_data_check.values())
         if np.alltrue(keys + 1 == values):
             return zeta_data

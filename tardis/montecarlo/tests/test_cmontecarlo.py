@@ -649,7 +649,7 @@ def test_sample_nu_free_free(clib, t_electron, packet, model, mt_state_seeded, e
     nu_bins, expected_emissivity = expected_ff_emissivity(t_electron)
 
     nus = []
-    for _ in xrange(int(1e5)):
+    for _ in range(int(1e5)):
         nu = clib.sample_nu_free_free(byref(packet), byref(model), byref(mt_state_seeded))
         nus.append(nu)
 

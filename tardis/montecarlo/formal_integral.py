@@ -143,7 +143,7 @@ class FormalIntegrator(object):
                 columns=np.arange(no_shells), index=macro_ref.index
             )
             q_indices = (source_level_idx, destination_level_idx)
-            for shell in xrange(no_shells):
+            for shell in range(no_shells):
                 Q = sp.coo_matrix(
                         (internal[shell], q_indices), shape=(no_lvls, no_lvls)
                 )

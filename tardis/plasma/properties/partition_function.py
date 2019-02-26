@@ -172,12 +172,12 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                             species, t_electrons
                             ) * previous_electron_densities.values
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
-            for i in xrange(number_of_levels):
+            for i in range(number_of_levels):
                 rates_matrix[i, i] = -rates_matrix[:, i].sum(axis=0)
             rates_matrix[0, :, :] = 1.0
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
-            for i in xrange(len(t_electrons)):
+            for i in range(len(t_electrons)):
                 try:
                     level_boltzmann_factor = np.linalg.solve(
                             rates_matrix[:, :, i], x)
