@@ -637,8 +637,7 @@ increment_Edotlu_estimator (const rpacket_t * packet, storage_model_t * storage,
       #ifdef WITHOPENMP
       #pragma omp atomic
       #endif
-      storage->line_lists_j_blues[line_idx] +=
-        energy * rpacket_get_nu_line (packet) / rpacket_get_nu (packet);
+      storage->line_lists_Edotlu[line_idx] += energy;
     }
 }
 
