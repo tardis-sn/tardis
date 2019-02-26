@@ -288,8 +288,8 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
     def update_he_population(self, helium_population, n_electron,
                              number_density):
         helium_population_updated = helium_population.copy()
-        he_one_population = helium_population_updated.ix[0].mul(n_electron)
-        he_three_population = helium_population_updated.ix[2].mul(
+        he_one_population = helium_population_updated.loc[0].mul(n_electron)
+        he_three_population = helium_population_updated.loc[2].mul(
             1./n_electron)
         helium_population_updated.ix[0].update(he_one_population)
         helium_population_updated.ix[2].update(he_three_population)
