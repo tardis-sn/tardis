@@ -200,7 +200,7 @@ class Radial1DModel(HDFWriterMixin):
         if not self.raw_isotope_abundance.empty:
             self._abundance = self.raw_isotope_abundance.decay(
                 self.time_explosion).merge(self.raw_abundance)
-        abundance = self._abundance.ix[:, start:stop]
+        abundance = self._abundance.loc[:, start:stop]
         abundance.columns = range(len(abundance.columns))
         return abundance
 

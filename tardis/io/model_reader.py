@@ -113,7 +113,7 @@ def read_abundances_file(abundance_filename, abundance_filetype,
     else:
         outer_boundary_index_m1 = None
     index = index[inner_boundary_index:outer_boundary_index]
-    abundances = abundances.ix[:, slice(inner_boundary_index, outer_boundary_index_m1)]
+    abundances = abundances.loc[:, slice(inner_boundary_index, outer_boundary_index_m1)]
     abundances.columns = np.arange(len(abundances.columns))
     return index, abundances, isotope_abundance
 

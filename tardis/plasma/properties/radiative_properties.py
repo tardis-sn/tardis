@@ -32,14 +32,14 @@ class StimulatedEmissionFactor(ProcessingPlasmaProperty):
 
     def get_g_lower(self, g, lines_lower_level_index):
         if self._g_lower is None:
-            g_lower = np.array(g.ix[lines_lower_level_index],
+            g_lower = np.array(g.iloc[lines_lower_level_index],
                                      dtype=np.float64)
             self._g_lower = g_lower[np.newaxis].T
         return self._g_lower
 
     def get_g_upper(self, g, lines_upper_level_index):
         if self._g_upper is None:
-            g_upper = np.array(g.ix[lines_upper_level_index],
+            g_upper = np.array(g.iloc[lines_upper_level_index],
                                      dtype=np.float64)
             self._g_upper = g_upper[np.newaxis].T
         return self._g_upper

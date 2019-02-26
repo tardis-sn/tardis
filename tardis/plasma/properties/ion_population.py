@@ -291,10 +291,10 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
         he_one_population = helium_population_updated.loc[0].mul(n_electron)
         he_three_population = helium_population_updated.loc[2].mul(
             1./n_electron)
-        helium_population_updated.ix[0].update(he_one_population)
-        helium_population_updated.ix[2].update(he_three_population)
+        helium_population_updated.loc[0].update(he_one_population)
+        helium_population_updated.loc[2].update(he_three_population)
         unnormalised = helium_population_updated.sum()
-        normalised = helium_population_updated.mul(number_density.ix[2] /
+        normalised = helium_population_updated.mul(number_density.loc[2] /
             unnormalised)
         helium_population_updated.update(normalised)
         return helium_population_updated
@@ -312,12 +312,12 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
                         self.block_ids, self.ion_zero_threshold)
                 helium_population_updated = self.update_he_population(
                     helium_population, n_electron, number_density)
-                ion_number_density.ix[2].ix[0].update(helium_population_updated.ix[
+                ion_number_density.loc[2, 0].update(helium_population_updated.loc[
                                                         0].sum(axis=0))
-                ion_number_density.ix[2].ix[1].update(helium_population_updated.ix[
+                ion_number_density.loc[2, 1].update(helium_population_updated.loc[
                                                         1].sum(axis=0))
-                ion_number_density.ix[2].ix[2].update(helium_population_updated.ix[
-                                                        2].ix[0])
+                ion_number_density.loc[2, 2].update(helium_population_updated.loc[
+                                                        2, 0])
                 ion_numbers = ion_number_density.index.get_level_values(1).values
                 ion_numbers = ion_numbers.reshape((ion_numbers.shape[0], 1))
                 new_n_electron = (ion_number_density.values * ion_numbers).sum(
@@ -343,10 +343,10 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
 
             helium_population_updated = self.update_he_population(
                 helium_population, n_electron, number_density)
-            ion_number_density.ix[2].ix[0].update(helium_population_updated.ix[
+            ion_number_density.loc[2, 0].update(helium_population_updated.loc[
                                                       0].sum(axis=0))
-            ion_number_density.ix[2].ix[1].update(helium_population_updated.ix[
+            ion_number_density.loc[2, 1].update(helium_population_updated.loc[
                                                       1].sum(axis=0))
-            ion_number_density.ix[2].ix[2].update(helium_population_updated.ix[
-                                                      2].ix[0])
+            ion_number_density.loc[2, 2].update(helium_population_updated.loc[
+                                                      2, 0])
         return ion_number_density, n_electron, helium_population_updated
