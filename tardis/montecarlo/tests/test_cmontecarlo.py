@@ -182,7 +182,7 @@ def ion_edges():
 @pytest.fixture(scope='module')
 def mock_sample_nu():
     SAMPLE_NUFUNC = CFUNCTYPE(c_double, POINTER(RPacket),
-			POINTER(StorageModel), POINTER(RKState))
+                              POINTER(StorageModel), POINTER(RKState))
 
     def sample_nu_simple(packet, model, mt_state):
         return packet.contents.nu
@@ -410,6 +410,7 @@ def test_compute_distance2continuum(clib, packet_params, expected_params, packet
     assert_almost_equal(packet.d_cont, expected_params['d_cont'])
 
 
+@pytest.mark.parametrize('full_relativity', [1, 0])
 @pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
@@ -420,11 +421,13 @@ def test_compute_distance2continuum(clib, packet_params, expected_params, packet
       {'mu': -.4906548373534084, 'r': 805046582503149.2,
        'j': 5001298975563.031, 'nubar': 3001558973156.1387})]
 )
-def test_move_packet(clib, packet_params, expected_params, packet, model):
+def test_move_packet(clib, packet_params, expected_params,
+                     packet, model, full_relativity):
     packet.nu = packet_params['nu']
     packet.mu = packet_params['mu']
     packet.energy = packet_params['energy']
     packet.r = packet_params['r']
+    model.full_relativity = full_relativity
 
     clib.rpacket_doppler_factor.restype = c_double
     doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
@@ -433,8 +436,16 @@ def test_move_packet(clib, packet_params, expected_params, packet, model):
     assert_almost_equal(packet.mu, expected_params['mu'])
     assert_almost_equal(packet.r, expected_params['r'])
 
-    assert_almost_equal(model.js[packet.current_shell_id], expected_params['j'] * doppler_factor)
-    assert_allclose(model.nubars[packet.current_shell_id], expected_params['nubar'] * doppler_factor, rtol=1e-15)
+    expected_j = expected_params['j']
+    expected_nubar = expected_params['nubar']
+    if full_relativity:
+        expected_j *= doppler_factor
+        expected_nubar *= doppler_factor
+
+    assert_allclose(model.js[packet.current_shell_id],
+                    expected_j, rtol=5e-7)
+    assert_allclose(model.nubars[packet.current_shell_id],
+                    expected_nubar, rtol=5e-7)
 
 
 @pytest.mark.continuumtest

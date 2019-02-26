@@ -505,21 +505,24 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
         {
           double comov_energy = rpacket_get_energy (packet) * doppler_factor;
           double comov_nu = rpacket_get_nu (packet) * doppler_factor;
-          double comov_distance = distance * doppler_factor;
+          if (storage->full_relativity)
+            {
+              distance *= doppler_factor;
+            }
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
           storage->js[rpacket_get_current_shell_id (packet)] +=
-            comov_energy * comov_distance;
+            comov_energy * distance;
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
           storage->nubars[rpacket_get_current_shell_id (packet)] +=
-            comov_energy * comov_distance * comov_nu;
+            comov_energy * distance * comov_nu;
 
           if (storage->cont_status)
             {
-              increment_continuum_estimators(packet, storage, comov_distance, comov_nu, comov_energy);
+              increment_continuum_estimators(packet, storage, distance, comov_nu, comov_energy);
             }
         }
     }
