@@ -306,13 +306,13 @@ class AtomData(object):
         tmp_lines_lower2level_idx = self.lines.index.droplevel('level_number_upper')
 
         self.lines_lower2level_idx = (
-                self.levels_index.ix[tmp_lines_lower2level_idx].
+                self.levels_index.loc[tmp_lines_lower2level_idx].
                 astype(np.int64).values)
 
         tmp_lines_upper2level_idx = self.lines.index.droplevel('level_number_lower')
 
         self.lines_upper2level_idx = (
-                self.levels_index.ix[tmp_lines_upper2level_idx].
+                self.levels_index.loc[tmp_lines_upper2level_idx].
                 astype(np.int64).values)
 
         self.atom_ion_index = None
@@ -351,11 +351,11 @@ class AtomData(object):
 
             self.macro_atom_references.loc[:, "references_idx"] = np.arange(len(self.macro_atom_references))
 
-            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.ix[
+            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.loc[
                 self.macro_atom_data['transition_line_id']
             ].values
 
-            self.lines_upper2macro_reference_idx = self.macro_atom_references.ix[
+            self.lines_upper2macro_reference_idx = self.macro_atom_references.loc[
                 tmp_lines_upper2level_idx, 'references_idx'
             ].astype(np.int64).values
 
@@ -432,7 +432,7 @@ class NLTEData(object):
         self.g_ratio_matrices = {}
         collision_group = self.atom_data.collision_data.groupby(level=['atomic_number', 'ion_number'])
         for species in self.nlte_species:
-            no_of_levels = self.atom_data.levels.ix[species].energy.count()
+            no_of_levels = self.atom_data.levels.loc[species].energy.count()
             C_ul_matrix = np.zeros(
                     (
                         no_of_levels,

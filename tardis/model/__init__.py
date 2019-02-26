@@ -1,1 +1,1 @@
-from base import *
+from tardis.model.base import *
