@@ -112,3 +112,23 @@ from tardis/_compiler.c:1: /Users/yssavo/miniconda2/envs/tardis-show2/lib/gcc/x8
 **Problem:** Symbol not found: _GOMP_parallel when compiling with `--with-openmp`
 
 **Solution:** Install gcc8 from macports and then install with these flags: `link_args = ['-fopenmp','-Wl,-rpath,/opt/local/lib/gcc8/']`
+
+**Problem:** While building tardis(via python 2.7) via ``python setup.py`` build you
+may encounter the following error::
+
+     TypeError: super() argument 1 must be type, not None
+    
+    ----------------------------------------
+    Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-req-build-wPB39p/
+
+
+**Solution:** The cause for this problem is sphinx , or sphinx version . It can be easily solved by installing sphinx 1.5.6.
+              The command for the same is :
+
+    pip install sphinx==1.5.6
+    
+    or
+    
+    conda install sphinx==1.5.6
+
+Then, ``python setup.py build install`` should run without problems.
