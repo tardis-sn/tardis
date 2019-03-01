@@ -51,11 +51,15 @@ First, download the `environment definition file <https://raw.githubusercontent.
 
 To create the environment, change to the directory that you downloaded the environment definition file and run::
 
-    conda-env create -f tardis_env27.yml
+    conda env create -f tardis_env27.yml
 
 Then to activate this environment simply do::
 
     source activate tardis
+
+or the new method::
+
+    conda activate tardis
 
 and after you are done with TARDIS you can deactivate::
 
@@ -72,7 +76,25 @@ Alternatively, you can manually clone our repository and install TARDIS by
 
     git clone https://github.com/tardis-sn/tardis.git
     cd tardis
-    python setup.py build install
+    python setup.py install
+
+Manually, cloning the repository enables other options such as running the code in parallel (enabling OpenMP).
+In general we encourage to download the compilers from `conda` as we then can ensure that they work with TARDIS.
+Within the TARDIS conda environment do::
+
+    conda install -c conda-forge compilers
+
+For macOS::
+
+    conda install -c conda-forge llvm-openmp
+
+For Linux::
+
+    conda install -c conda-forge openmp
+
+To compile TARDIS for parallel execution:
+
+    python setup.py install --with-openmp
 
 
 .. _troubleshooting_inst_label:
