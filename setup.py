@@ -81,6 +81,7 @@ if not RELEASE:
 # invoking any other functionality from distutils since it can potentially
 # modify distutils' behavior.
 cmdclassd = register_commands(PACKAGENAME, VERSION, RELEASE)
+
 add_command_option('install', 'with-openmp', 'compile TARDIS with OpenMP',
                    is_bool=True, )
 add_command_option('build', 'with-openmp', 'compile TARDIS with OpenMP',
@@ -116,12 +117,6 @@ package_info['package_data'][PACKAGENAME].append('io/schemas/*')
 # Define entry points for command-line scripts
 entry_points = {}
 
-for hook in [('prereleaser', 'middle'), ('releaser', 'middle'),
-             ('postreleaser', 'before'), ('postreleaser', 'middle')]:
-    hook_ep = 'zest.releaser.' + '.'.join(hook)
-    hook_name = 'astropy.release.' + '.'.join(hook)
-    hook_func = 'astropy.utils.release:' + '_'.join(hook)
-    entry_points[hook_ep] = ['%s = %s' % (hook_name, hook_func)]
 
 entry_points['console_scripts'] = [
     'tardis_test_runner = tardis.tests.integration_tests.runner:run_tests',
@@ -140,6 +135,7 @@ for root, dirs, files in os.walk(PACKAGENAME):
             c_files.append(
                 os.path.join(
                     os.path.relpath(root, PACKAGENAME), filename))
+
 package_info['package_data'][PACKAGENAME].extend(c_files)
 
 setup(name=PACKAGENAME + '-sn',
@@ -154,7 +150,7 @@ setup(name=PACKAGENAME + '-sn',
       long_description=LONG_DESCRIPTION,
       cmdclass=cmdclassd,
       zip_safe=False,
-      use_2to3=True,
+      use_2to3=False,
       entry_points=entry_points,
       **package_info
 )
