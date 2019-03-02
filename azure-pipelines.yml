@@ -25,7 +25,10 @@ jobs:
       architecture: 'x64'
 
 
-  - script: cd tardis && source ci-helpers/install_tardis_env.sh
+  - script: |
+        pwd
+        ls
+        bash ./ci-helpers/install_tardis_env.sh
     displayName: 'Install TARDIS env'
 
   - script: python setup.py $SETUP_CMD
