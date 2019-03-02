@@ -25,7 +25,7 @@ jobs:
       architecture: 'x64'
 
   - script: |
-        conda update -y conda
+        # conda update -y conda
         bash /usr/share/miniconda/etc/profile.d/conda.sh
   - script: |
         pwd
