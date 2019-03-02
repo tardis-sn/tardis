@@ -7,7 +7,7 @@ else
    conda env create -f tardis_env3.yml
    #trouble with building due to segfault at cython (https://github.com/cython/cython/issues/2199)
    #remove if we can get normal cython through conda
-   source activate tardis3
+   conda activate tardis3
 fi
 
-source activate tardis3
+conda activate tardis3
