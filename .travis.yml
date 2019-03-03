@@ -27,6 +27,8 @@ env:
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
         - SAVE_COVERAGE=false
         - GIT_LFS_SKIP_SMUDGE=1
+        # Doctr deploy key for tardis-sn/tardis
+        - secure: "QxkYCXkDEcWyjvoDM+8mDWCaPasWSiqvPC5xkonblizqh4xxJkVr4HqZJOv9FNkSktcUTbio33KfdM31AeivjsOXTjhRDQ6lWlplu+YKf5PoSmoRjWigDHpSWtylpUR4nGHQMEtJl68IzXhtMFrAYd+k9eO5nF/fOpHbKbsW24g="
 
 cache:
   apt: true
@@ -48,6 +50,11 @@ install:
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
     - CC=$COMPILER python setup.py $SETUP_CMD
+    - set -e
+    - python setup.py build_docs
+    - pip install doctr
+    - doctr deploy --built-docs docs/_build/html .
+
 
 after_success:
     - if [[ "$SAVE_COVERAGE" = true ]]; then codecov -t a876d307-9ed5-4f5d-a6c4-e58291ac4111; fi
