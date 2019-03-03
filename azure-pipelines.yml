@@ -54,7 +54,7 @@ jobs:
     displayName: 'fetching reference data'
 
   - bash: |
-        source activate tardis3
+        source activate tardis
         python setup.py test
     displayName: 'TARDIS test'
 
