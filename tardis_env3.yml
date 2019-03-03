@@ -1,4 +1,4 @@
-name: tardis3
+name: tardis
 
 channels:
     - conda-forge

@@ -9,6 +9,9 @@ trigger:
 
 variables:
   System.Debug: 'true'
+  ref_data_home: '$(home)/tardis-refdata'
+  ref_data_githuburl: 'https://github.com/tardis-sn/tardis-refdata.git'
+
 
 jobs:
 
@@ -31,18 +34,26 @@ jobs:
           echo "##vso[task.prependpath]/usr/share/miniconda/bin"
 
     displayName: Add conda to PATH
-  - script: |
+  - bash: |
       pwd
       echo $AGENT_BUILDIRECTORY
       sudo chown -R $USER /usr/share/miniconda
       conda update -y conda
       . /usr/share/miniconda/etc/profile.d/conda.sh
 
-  - script: |
+  - bash: |
         conda env create -f tardis_env3.yml
     displayName: 'Install TARDIS env'
 
-  - script: |
+  - bash: |
+        echo $HOME
+        echo $AGENT_BUILD_DIRECTORY
+        echo $REF_DATA_HOME
+        echo $REF_DATA_GITHUBURL
+
+      displayName: 'fetching reference data'
+
+  - bash: |
         source activate tardis3
         python setup.py test
     displayName: 'TARDIS test'
