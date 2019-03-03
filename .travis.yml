@@ -28,7 +28,7 @@ env:
         - SAVE_COVERAGE=false
         - GIT_LFS_SKIP_SMUDGE=1
         # Doctr deploy key for tardis-sn/tardis
-        - secure: "QxkYCXkDEcWyjvoDM+8mDWCaPasWSiqvPC5xkonblizqh4xxJkVr4HqZJOv9FNkSktcUTbio33KfdM31AeivjsOXTjhRDQ6lWlplu+YKf5PoSmoRjWigDHpSWtylpUR4nGHQMEtJl68IzXhtMFrAYd+k9eO5nF/fOpHbKbsW24g="
+        - secure: "LrhEnB3RgZ/ZA4PruYSF7pkzlY+LrfF1GKpeU+wcG5v/BMIsoTGySO9C1T7XJfsCFMaKMiJoa7ZhJEXPlss9i9PzxFsvbBrBfwb5lPurTbQwqBN4qW/+u2V1kSLAwtVJIHzenVB25PevjkCz8TeAv6DWyHgBWBmImJaTC3d+1/Q="
 
 cache:
   apt: true
