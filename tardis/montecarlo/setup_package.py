@@ -8,7 +8,6 @@ from glob import glob
 
 
 if get_distutils_option('with_openmp', ['build', 'install', 'develop']) is not None:
-    print("WITH OPENMP"*20)
     compile_args = ['-fopenmp', '-W', '-Wall', '-Wmissing-prototypes', '-std=c99']
     link_args = ['-fopenmp']
     define_macros = [('WITHOPENMP', None)]
@@ -16,7 +15,6 @@ else:
     compile_args = ['-W', '-Wall', '-Wmissing-prototypes', '-std=c99']
     link_args = []
     define_macros = []
-    print("WITHOUT OPENMP"*20)
 
 
 if get_distutils_option('with_vpacket_logging', ['build', 'install', 'develop']) is not None:

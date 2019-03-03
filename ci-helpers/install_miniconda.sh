@@ -16,3 +16,5 @@ else
     hash -r
     conda update --yes conda
 fi
+
+source $HOME/miniconda/etc/profile.d/conda.sh
