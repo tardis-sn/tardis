@@ -11,8 +11,6 @@ jobs:
 - job: 'Test'
   pool:
     vmImage: 'Ubuntu-16.04'
-    - bash: echo "##vso[task.prependpath]/usr/share/miniconda/bin"
-      displayName: Add conda to PATH
   strategy:
     matrix:
       Python36:
@@ -25,11 +23,15 @@ jobs:
     inputs:
       versionSpec: '$(python.version)'
       architecture: 'x64'
-  - script: - bash: echo "##vso[task.prependpath]/usr/share/miniconda/bin"
-                displayName: Add conda to PATH
+  - bash: |
+          echo "##vso[task.prependpath]/usr/share/miniconda/bin"
+
+    displayName: Add conda to PATH
   - script: |
-        # conda update -y conda
-        bash /usr/share/miniconda/etc/profile.d/conda.sh
+      sudo chown -R $USER /usr/share/miniconda
+      conda update -y conda
+      . /usr/share/miniconda/etc/profile.d/conda.sh
+
   - script: |
         pwd
         ls ci-helpers
