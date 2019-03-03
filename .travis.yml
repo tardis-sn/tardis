@@ -53,6 +53,7 @@ script:
     - set -e
     - python setup.py build_docs
     - pip install doctr
+    - git lfs uninstall
     - doctr deploy --built-docs docs/_build/html .
 
 
