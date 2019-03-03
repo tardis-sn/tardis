@@ -40,6 +40,7 @@ dependencies:
 - nbsphinx
 - sphinx_bootstrap_theme
 - sphinxcontrib-bibtex
+- sphinx_rtd_theme
 
 #Test/Coverage requirements
 - git-lfs
@@ -55,6 +56,7 @@ dependencies:
 - pip:
   # Documentation
   - sphinxcontrib-tikz
+
   - dokuwiki
   - dot2tex
   - sphinx-jsonschema
