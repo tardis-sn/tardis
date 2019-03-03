@@ -3,6 +3,10 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
+variables:
+  - SETUP_CMD=true
+  - System.debug=true
+
 trigger:
 - master
 
@@ -35,10 +39,9 @@ jobs:
   - script: |
         conda env create -f tardis_env3.yml
         conda activate tardis3
-        bash ./ci-helpers/install_tardis_env.sh
     displayName: 'Install TARDIS env'
 
-  - script: python setup.py $SETUP_CMD
+  - script: python setup.py test
     displayName: 'TARDIS test'
 
   - task: PublishTestResults@2
