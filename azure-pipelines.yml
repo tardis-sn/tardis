@@ -33,8 +33,8 @@ jobs:
       . /usr/share/miniconda/etc/profile.d/conda.sh
 
   - script: |
-        pwd
-        ls ci-helpers
+        conda env create -f tardis_env3.yml
+        conda activate tardis3
         bash ./ci-helpers/install_tardis_env.sh
     displayName: 'Install TARDIS env'
 
