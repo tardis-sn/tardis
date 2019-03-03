@@ -1,0 +1,344 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Behind the scenes: Physics of TARDIS &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plasma" href="new_plasma.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="../atomic/current_public_table.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Behind the scenes: Physics of TARDIS</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html">Plasma</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#old-physics-section-of-the-tardis-docu-outdated">Old Physics Section of the TARDIS Docu (Outdated)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="physical_quantities.html">Accessing Physical Quantities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="montecarlo.html">Radiative Monte Carlo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="new_plasma.html">Plasma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plasma/index.html">Overview of plasma calculations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Behind the scenes: Physics of TARDIS</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/physics/index.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="behind-the-scenes-physics-of-tardis">
+<h1>Behind the scenes: Physics of TARDIS<a class="headerlink" href="#behind-the-scenes-physics-of-tardis" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This section of the TARDIS documentation is still incomplete</p>
+</div>
+<p>This part of the documentation is dedicated to providing some physical and
+astrophysical background for TARDIS. If you do not find the information you are
+looking for, consult the official TARDIS publications and the references therein.</p>
+<p>Eventually, information about the following topics will be provided</p>
+<ul class="simple">
+<li>Spectral Synthesis in SNe Ia ejecta</li>
+<li>Radiative Transfer Primer</li>
+<li>Reference Frames</li>
+<li>Nuclear Decay</li>
+<li>TARDIS Simulation Procedure</li>
+<li>Plasma State Calculation</li>
+</ul>
+<p>Currently some information are available for</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="new_plasma.html">Plasma</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html#the-plasma-graph">The Plasma Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html#updating-the-plasma">Updating the Plasma</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="old-physics-section-of-the-tardis-docu-outdated">
+<h2>Old Physics Section of the TARDIS Docu (Outdated)<a class="headerlink" href="#old-physics-section-of-the-tardis-docu-outdated" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The following entries reflects the physics section of the old TARDIS
+documentation. Even though this section of the documentation is partly
+outdated, many basic concepts are still applicable to the current TARDIS
+version.</p>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="physical_quantities.html">Accessing Physical Quantities</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="physical_quantities.html#runing-in-interactive-python-session">Runing in interactive Python session</a></li>
+<li class="toctree-l2"><a class="reference internal" href="physical_quantities.html#examples-of-finding-physical-quantities">Examples of finding physical quantities</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="montecarlo.html">Radiative Monte Carlo</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="montecarlo.html#montecarlo-packets">Montecarlo packets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="montecarlo.html#montecarlo-geometry">Montecarlo Geometry</a></li>
+<li class="toctree-l2"><a class="reference internal" href="montecarlo.html#radiationfield-estimators">Radiationfield estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="montecarlo.html#algorithm-flowchart">Algorithm Flowchart</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="new_plasma.html">Plasma</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html#the-plasma-graph">The Plasma Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html#updating-the-plasma">Updating the Plasma</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plasma/index.html">Overview of plasma calculations</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plasma/lte_plasma.html">LTE Plasma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plasma/lte_plasma.html#example-calculations">Example Calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plasma/nebular_plasma.html">Nebular Plasma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plasma/nebular_plasma.html#calculating-zeta">Calculating Zeta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plasma/nebular_plasma.html#calculating-delta">Calculating Delta</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plasma/nebular_plasma.html#example-calculations">Example Calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="plasma/macroatom.html">Macro Atom</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plasma/nlte.html">NLTE treatment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plasma/helium_nlte.html">Helium NLTE</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="plasma/helium_nlte.html#recombination-he-nlte">Recombination He NLTE</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plasma/helium_nlte.html#numerical-he-nlte">Numerical He NLTE</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="new_plasma.html" class="btn btn-neutral float-right" title="Plasma" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../atomic/current_public_table.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

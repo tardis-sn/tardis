@@ -1,0 +1,315 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Using a power law density profile &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Using an exponential density profile" href="densityexp.html" />
+    <link rel="prev" title="Ejecta Model Configuration" href="modelconfig.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Example Models</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="modelconfig.html">Ejecta Model Configuration</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="modelconfig.html#overview">Overview</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="modelconfig.html#specifying-the-density">Specifying the density</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Using a power law density profile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="densityexp.html">Using an exponential density profile</a></li>
+<li class="toctree-l4"><a class="reference internal" href="densitycust.html">Using a custom density profile</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="modelconfig.html#specifying-the-composition">Specifying the composition</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="tardis_example.html">tardis_example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#simple-parametrized-models">Simple Parametrized Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#api-demonstrations">API demonstrations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#detailed-explosion-models">Detailed Explosion Models</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Example Models</a> &raquo;</li>
+        
+          <li><a href="modelconfig.html">Ejecta Model Configuration</a> &raquo;</li>
+        
+      <li>Using a power law density profile</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/examples/densitypow.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="using-a-power-law-density-profile">
+<h1>Using a power law density profile<a class="headerlink" href="#using-a-power-law-density-profile" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>In this mode, the density profile (function of velocity and time since
+explosion) is assumed to follow a functional form:</p>
+<div class="math notranslate nohighlight">
+\[\rho (v, t_{exp}) = \rho_0 (t_{0} / t_{exp})^{3} ( v / v_{0})^{\rm exponent}\]</div>
+<p>This form is defined by reference density, velocity and time parameters, and the
+“exponent”, each of which is set in the input file (“structure”
+subsection of the “model” section, under the “density” heading; see
+example below).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In this mode, the velocity grid has to be explicitly defined in the yml file (see example below)</p>
+</div>
+</div>
+<div class="section" id="tardis-input-file-example">
+<h2>TARDIS input file example<a class="headerlink" href="#tardis-input-file-example" title="Permalink to this headline">¶</a></h2>
+<p>The following example shows the relevant sections of a TARDIS input yaml file,
+specifying a power law density:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">model</span><span class="p">:</span>
+    <span class="nt">structure</span><span class="p">:</span>
+        <span class="nt">type</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">specific</span>
+
+
+        <span class="nt">velocity</span><span class="p">:</span>
+            <span class="nt">start </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1.1e4 km/s</span>
+            <span class="nt">stop </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20000 km/s</span>
+            <span class="nt">num</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">20</span>
+
+
+        <span class="nt">density</span><span class="p">:</span>
+            <span class="nt">type </span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">power_law</span>
+            <span class="nt">time_0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">2 day</span>
+            <span class="nt">rho_0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1e-11 g/cm^3</span>
+            <span class="nt">v_0</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">11000 km/s</span>
+            <span class="nt">exponent</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">-5</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="densityexp.html" class="btn btn-neutral float-right" title="Using an exponential density profile" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="modelconfig.html" class="btn btn-neutral float-left" title="Ejecta Model Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

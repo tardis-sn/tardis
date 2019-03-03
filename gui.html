@@ -1,0 +1,302 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Graphical User Interface &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link href="_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Graphical User Interface</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/gui.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="graphical-user-interface">
+<span id="gui-explanation"></span><h1>Graphical User Interface<a class="headerlink" href="#graphical-user-interface" title="Permalink to this headline">¶</a></h1>
+<p>TARDIS uses the <a class="reference external" href="http://www.riverbankcomputing.com/software/pyqt/download">PyQt4 framework</a> for its cross-platform
+interface.</p>
+<p>The GUI runs through the <a class="reference external" href="http://ipython.org/install.html">IPython Interpreter</a> which should be started with the
+command <code class="docutils literal notranslate"><span class="pre">ipython</span> <span class="pre">--pylab=qt4</span></code>, so that it has acess to pylab.</p>
+<p>Creating an instance of the <code class="xref py py-class docutils literal notranslate"><span class="pre">ModelViewer</span></code>-class requires that PyQt4/PySide has already been initialized in
+IPython. The above command to start IPython accomplishes this.</p>
+<p>gui.py contains all the classes used to create the GUI for Tardis.</p>
+<p>This module must be imported inside IPython console started above. The console provides the event loop and the place
+to create/calculate the tardis model. So the module is basically a tool to visualize results.</p>
+<div class="section" id="running-instructions">
+<h2>Running Instructions<a class="headerlink" href="#running-instructions" title="Permalink to this headline">¶</a></h2>
+<p>Decide which Qt binding you want to use (PySide or PyQt) and
+accordingly set QT_API in shell:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">export</span> <span class="n">QT_API</span><span class="o">=</span><span class="n">pyside</span>
+<span class="ow">or</span><span class="p">:</span>
+<span class="n">export</span> <span class="n">QT_API</span><span class="o">=</span><span class="n">pyqt</span>
+</pre></div>
+</div>
+<p>Start the IPython console with eventloop integration:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ipython</span> <span class="o">--</span><span class="n">pylab</span><span class="o">=</span><span class="n">qt4</span>
+</pre></div>
+</div>
+<p>Display your model:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tardis</span> <span class="k">import</span> <span class="n">run_tardis</span>
+<span class="n">mdl</span> <span class="o">=</span> <span class="n">run_tardis</span><span class="p">(</span><span class="s1">&#39;yamlconfigfile.yml&#39;</span><span class="p">,</span> <span class="s1">&#39;atomdatafile.h5&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">tardis.gui</span> <span class="k">import</span> <span class="n">interface</span>
+<span class="n">interface</span><span class="o">.</span><span class="n">show</span><span class="p">(</span><span class="n">mdl</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>(WIP) You can also run a configuration from the shell. To do this first set
+QT_API in the shell. Then navigate to the tardis installation folder and go to
+tardis/tardis/gui. Then use the command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">interface</span><span class="o">.</span><span class="n">py</span> <span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">configuration</span><span class="o">-</span><span class="n">file</span> <span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">atomic</span><span class="o">-</span><span class="n">data</span><span class="o">-</span><span class="n">file</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="gui-layout-and-features">
+<h2>GUI Layout and Features<a class="headerlink" href="#gui-layout-and-features" title="Permalink to this headline">¶</a></h2>
+<p>When you launch the gui the first screen that you see will be something like the snapshot below.
+You can inspect the plot of shells on this window and use the toggle button to change between the
+plot of dilution factor and the radiation temperature in shells.</p>
+<a class="reference internal image-reference" href="_images/OpeningScreen.png"><img alt="_images/OpeningScreen.png" src="_images/OpeningScreen.png" style="width: 900px;" /></a>
+<div class="section" id="shell-info">
+<h3>Shell Info<a class="headerlink" href="#shell-info" title="Permalink to this headline">¶</a></h3>
+<p>To see the abundances in a shell double-click on the shell number in the table. You can follow a
+similar strategy in the tables that appear to bring up the ion and level populations for each shell.
+The snapshot below shows all the tables that you can bring up by successively clicking the horizontal
+table headers.</p>
+<a class="reference internal image-reference" href="_images/ShellInfo.png"><img alt="_images/ShellInfo.png" src="_images/ShellInfo.png" style="width: 900px;" /></a>
+</div>
+<div class="section" id="line-info">
+<h3>Line Info<a class="headerlink" href="#line-info" title="Permalink to this headline">¶</a></h3>
+<p>If you switch to the spectrum tab you can see the spectrum plot and a button to show line info.
+Once again you can double-click the table headers to get further information. The snapshot below
+shows all the tables that you can bring up in this window.</p>
+<a class="reference internal image-reference" href="_images/LineInfo.png"><img alt="_images/LineInfo.png" src="_images/LineInfo.png" style="width: 900px;" /></a>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

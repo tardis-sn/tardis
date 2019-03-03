@@ -1,0 +1,405 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Direct integration of the radiation field &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Random Sampling Basics" href="randomsampling.html" />
+    <link rel="prev" title="Spectrum Generation with Virtual Packets" href="virtualpackets.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Monte Carlo Primer</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basicprinciples.html">Monte Carlo Radiative Transfer - Basic Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="discretization.html">Monte Carlo Discretization - Energy Packets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="propagation.html">Packet Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lineinteraction.html">Line Interaction Treatments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html">Volume-based Monte Carlo Estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="virtualpackets.html">Spectrum Generation with Virtual Packets</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Direct integration of the radiation field</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#estimators">Estimators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integration">Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#implementation-details">Implementation Details</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#current-limitations">Current Limitations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="randomsampling.html">Random Sampling Basics</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Monte Carlo Primer</a> &raquo;</li>
+        
+      <li>Direct integration of the radiation field</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/montecarlo/sourceintegration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="direct-integration-of-the-radiation-field">
+<h1>Direct integration of the radiation field<a class="headerlink" href="#direct-integration-of-the-radiation-field" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference internal" href="../zreferences.html#lucy1999a" id="id1">[Lucy99b]</a> describes an alternative method for the generation of
+synthetic supernova spectra. Instead of using the frequency and energy of
+virtual Monte Carlo (MC) packets to create a spectrum through binning, one can
+formally integrate the line source functions which can be calculated from
+volume based estimators collected during the MC simulation. Spectra generated
+using this method are virtually noise-free. However, statistical fluctuations
+inherent to Monte Carlo calculations still affect the determination of the
+source functions and thus indirectly introduce an uncertainty in the spectral
+synthesis process.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The current implementation of the formal integral has several limitations.
+Please consult the corresponding section below to ensure that these
+limitations do not apply to your application.</p>
+</div>
+<div class="section" id="estimators">
+<h2>Estimators<a class="headerlink" href="#estimators" title="Permalink to this headline">¶</a></h2>
+<p>The procedure relies on determining line absorption rates, which are calculated
+during the Monte Carlo simulation by incrementing the volume-based estimator</p>
+<div class="math notranslate nohighlight">
+\[\dot E_{lu} = \frac{1}{\Delta t V} \left( 1- e^{-\tau_{lu}}\right) \sum
+\epsilon\]</div>
+<p>Here, the sum involves all packages in a given shell that come into resonance
+with the transition <span class="math notranslate nohighlight">\(u \rightarrow l\)</span>, <span class="math notranslate nohighlight">\(\epsilon\)</span> denotes the
+energy of one such packet, and <span class="math notranslate nohighlight">\(\tau_{lu}\)</span> the Sobolev optical depth of
+the line transition.</p>
+<p>After the Monte Carlo radiative transfer step, a level absorption estimator is
+calculated by summing up all absorption rates for transitions which lead to the
+target level</p>
+<div class="math notranslate nohighlight">
+\[\dot E_u = \sum_{i &lt; u} \dot E_{iu}\]</div>
+<p>Finally, the line source function for each transition can be derived with</p>
+<div class="math notranslate nohighlight">
+\[\left( 1- e^{-\tau_{lu}}\right) S_{ul} = \frac{\lambda_{ul} t}{4 \pi} q_{ul}
+\dot E_u\]</div>
+<p>Here, <span class="math notranslate nohighlight">\(\lambda_{ul}\)</span> is the wavelength of the line  <span class="math notranslate nohighlight">\(u \rightarrow
+l\)</span>, and <span class="math notranslate nohighlight">\(q_{ul}\)</span> is the corresponding branching ratio, i.e.the fraction
+of de-excitations of level <span class="math notranslate nohighlight">\(u\)</span> proceeding via the transition
+<span class="math notranslate nohighlight">\(u\rightarrow l\)</span>. For convenience, the attenuating factor is kept on the
+left hand side because it is the product of the two that will appear in later
+formulae.</p>
+<p>Finally, if the contribution by electron-scattering has to be taken into
+account, estimators for the diffuse radiation field in the blue and red wings
+of the different transitions are needed. These can again be determined with
+volume-based estimators according to</p>
+<div class="math notranslate nohighlight">
+\[J_{lu}^b = \frac{\lambda_{lu}}{4 \pi \Delta t V}  \sum \varepsilon\]</div>
+<p>and</p>
+<div class="math notranslate nohighlight">
+\[J_{lu}^r = J_{lu}^b e^{-\tau_{lu}} + S_{ul} (1 + e^{-\tau_{lu}})\]</div>
+</div>
+<div class="section" id="integration">
+<h2>Integration<a class="headerlink" href="#integration" title="Permalink to this headline">¶</a></h2>
+<p>Calculating the emergent spectrum proceeds by casting rays parallel to the line
+of sight to the observer through the ejecta. The distance along these rays will
+be measured by <span class="math notranslate nohighlight">\(z\)</span> and the offset to ejecta centre by the impact
+parameter <span class="math notranslate nohighlight">\(p\)</span>. The following figure illustrates this “impact geometry”:</p>
+<img alt="https://i.imgur.com/WwVHp5c.png" src="https://i.imgur.com/WwVHp5c.png" />
+<p>The emergent monochromatic luminosity can then be obtained by integrating over
+the limiting specific intensities of these rays</p>
+<div class="math notranslate nohighlight">
+\[L_\nu  = 8 \pi^2 \int_0^\infty I_\nu (p) p dp\]</div>
+<p>To obtain the limiting intensity, we have to consider the different line
+resonances along the ray and calculate how much radiation is added and removed.
+At the resonance point with the <span class="math notranslate nohighlight">\(k\)</span>-th line transition, the intensity
+increment is</p>
+<div class="math notranslate nohighlight">
+\[I_k^r = I_k^b e^{-\tau_k} + \left( 1- e^{-\tau_k}\right) S_{k}\]</div>
+<p>In the absence of continuum interactions, the relation</p>
+<div class="math notranslate nohighlight">
+\[I_{k+1}^b = I_k^r\]</div>
+<p>establishes the connection to the next resonance point. If electron-scattering
+is taken into account its contribution between successive resonances has to be
+considered</p>
+<div class="math notranslate nohighlight">
+\[I_{k+1}^b = I_k^r + \Delta \tau_k \left[ \frac 1 2(J_k^r + J_{k+1}^b) -
+I_k^r  \right]\]</div>
+<p>Thus, by recursively applying the above relations for all resonances occurring
+on the ray, the limiting specific intensity for the final integration can be
+calculated. The boundary conditions for this process are either <span class="math notranslate nohighlight">\(I_0^r =
+B_\nu(T)\)</span> if the ray intersects the photosphere or <span class="math notranslate nohighlight">\(I_0^r = 0\)</span> otherwise.</p>
+</div>
+<div class="section" id="implementation-details">
+<h2>Implementation Details<a class="headerlink" href="#implementation-details" title="Permalink to this headline">¶</a></h2>
+<p>We seek to integrate all emissions at a certain wavelength <span class="math notranslate nohighlight">\(\nu\)</span> along a
+ray with impact parameter <span class="math notranslate nohighlight">\(p\)</span>. Because the supernova ejecta is expanding
+homologously, the co-moving frame frequency is continuously shifted to longer
+wavelength due to the relativistic Doppler effect as the packet/photon
+propagates.</p>
+<p>To find out, which lines can shift into the target frequency, we need to
+calculate the maximum Doppler shift along a given ray. At any point, the
+Doppler effect in our coordinates is</p>
+<div class="math notranslate nohighlight">
+\[\nu = \nu_0 \left( 1 + \beta \mu \right)\]</div>
+<p>where <span class="math notranslate nohighlight">\(\beta = \frac v c\)</span>, and <span class="math notranslate nohighlight">\(\mu = \cos \theta\)</span>. Here
+<span class="math notranslate nohighlight">\(\theta\)</span> is the angle between the radial direction and the ray to the
+observer, as shown in the figure below. Because we are in the homologous
+expansion regime <span class="math notranslate nohighlight">\(v = \frac r t\)</span>. Solving for <span class="math notranslate nohighlight">\(\nu_0\)</span> in the above
+gives the relation we seek, but we require an expression for <span class="math notranslate nohighlight">\(\mu\)</span>.
+Examining the figure, we see that for positive <span class="math notranslate nohighlight">\(z\)</span> the angle
+<span class="math notranslate nohighlight">\(\theta_2\)</span> can be related to the <span class="math notranslate nohighlight">\(z\)</span> coordinate of the point C by</p>
+<div class="math notranslate nohighlight">
+\[\cos \theta_2 = \frac{z_c}{r} = \mu\]</div>
+<p>and in turn <span class="math notranslate nohighlight">\(z_c\)</span> can be given as</p>
+<div class="math notranslate nohighlight">
+\[z_c = \sqrt{r_c^2 + p_c^2}\]</div>
+<p>where the subscripts indicate the value at point C. By symmetry the
+intersection point for negative <span class="math notranslate nohighlight">\(z\)</span> is simply <span class="math notranslate nohighlight">\(-z_c\)</span>.</p>
+<p>Using the expression for <span class="math notranslate nohighlight">\(\mu\)</span>, <span class="math notranslate nohighlight">\(\beta\)</span> above leads to the
+dependence on <span class="math notranslate nohighlight">\(r\)</span> cancelling, and solving for <span class="math notranslate nohighlight">\(\nu_0\)</span> gives</p>
+<div class="math notranslate nohighlight">
+\[\nu_0 = \frac{\nu}{1 + \frac{z}{ct}}\]</div>
+<p>For any given shell and impact parameter we can thus find the maximum and
+minimum co-moving frequency that will give the specified lab frame frequency.
+This allows us to find the section of the line list with the transitions whose
+resonances have to be considered in the calculation of the limiting specific
+intensity.</p>
+</div>
+<div class="section" id="current-limitations">
+<h2>Current Limitations<a class="headerlink" href="#current-limitations" title="Permalink to this headline">¶</a></h2>
+<p>The current implementation of the formal integral has some limitations:</p>
+<ul class="simple">
+<li>once electron scattering is included, the scheme only produces accurate
+results when multiple resonances occur on the rays. This is simply because
+otherwise the <span class="math notranslate nohighlight">\(J^b\)</span> and <span class="math notranslate nohighlight">\(J^r\)</span> do not provide an accurate
+representation of the diffuse radiation field at the current location on the
+ray. Also, <span class="math notranslate nohighlight">\(d\tau\)</span> can become large which can create unphysical,
+negative intensities</li>
+</ul>
+<p>It is always advised to check the results of the formal integration against the
+spectrum constructed from the emerging Monte Carlo packets.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="randomsampling.html" class="btn btn-neutral float-right" title="Random Sampling Basics" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="virtualpackets.html" class="btn btn-neutral float-left" title="Spectrum Generation with Virtual Packets" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
