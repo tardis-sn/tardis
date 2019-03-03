@@ -38,13 +38,12 @@ cache:
 before_install:
     # We do this to make sure we get the dependencies so pip works below
     - source ci-helpers/install_miniconda.sh
-    - if [[ $TEST_MODE == 'spectrum' ]]; then source ci-helpers/fetch_reference_data.sh; fi
-    -
 
 #- source ci-helpers/fetch_reference_data.sh
 
 install:
    - source ci-helpers/install_tardis_env.sh
+   - source ci-helpers/fetch_reference_data.sh
 
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
