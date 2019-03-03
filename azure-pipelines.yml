@@ -37,14 +37,10 @@ jobs:
 
   - script: |
         conda env create -f tardis_env3.yml
-        source activate tardis3
     displayName: 'Install TARDIS env'
 
-  - script: python setup.py test
+  - script: |
+        source activate tardis3
+        python setup.py test
     displayName: 'TARDIS test'
 
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFiles: '**/test-results.xml'
-      testRunTitle: 'Python $(python.version)'
-    condition: succeededOrFailed()
