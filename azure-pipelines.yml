@@ -7,6 +7,9 @@
 trigger:
 - master
 
+variables:
+  System.Debug: 'true'
+
 jobs:
 
 - job: 'Test'
