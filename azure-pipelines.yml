@@ -32,14 +32,15 @@ jobs:
       architecture: 'x64'
   - bash: |
           echo "##vso[task.prependpath]/usr/share/miniconda/bin"
-
     displayName: Add conda to PATH
+
   - bash: |
       pwd
       echo $AGENT_BUILDIRECTORY
       sudo chown -R $USER /usr/share/miniconda
       conda update -y conda
       . /usr/share/miniconda/etc/profile.d/conda.sh
+    displayName: updating conda and activating
 
   - bash: |
         conda env create -f tardis_env3.yml
