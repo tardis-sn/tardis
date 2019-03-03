@@ -3,8 +3,15 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
+
 trigger:
 - master
+
+variables:
+  System.Debug: 'true'
+  ref_data_home: '$(home)/tardis-refdata'
+  ref_data_githuburl: 'https://github.com/tardis-sn/tardis-refdata.git'
+
 
 jobs:
 
@@ -13,14 +20,9 @@ jobs:
     vmImage: 'Ubuntu-16.04'
   strategy:
     matrix:
-      Python27:
-        python.version: '2.7'
-      Python35:
-        python.version: '3.5'
       Python36:
         python.version: '3.6'
-      Python37:
-        python.version: '3.7'
+
     maxParallel: 4
 
   steps:
@@ -28,31 +30,32 @@ jobs:
     inputs:
       versionSpec: '$(python.version)'
       architecture: 'x64'
+  - bash: |
+          echo "##vso[task.prependpath]/usr/share/miniconda/bin"
+    displayName: Add conda to PATH
 
-  - script: python -m pip install --upgrade pip && pip install -r requirements.txt
-    displayName: 'Install dependencies'
+  - bash: |
+      pwd
+      echo $AGENT_BUILDIRECTORY
+      sudo chown -R $USER /usr/share/miniconda
+      conda update -y conda
+      . /usr/share/miniconda/etc/profile.d/conda.sh
+    displayName: updating conda and activating
 
-  - script: |
-      pip install pytest
-      pytest tests --doctest-modules --junitxml=junit/test-results.xml
-    displayName: 'pytest'
+  - bash: |
+        conda env create -f tardis_env3.yml
+    displayName: 'Install TARDIS env'
 
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFiles: '**/test-results.xml'
-      testRunTitle: 'Python $(python.version)'
-    condition: succeededOrFailed()
+  - bash: |
+        echo $HOME
+        echo $AGENT_BUILD_DIRECTORY
+        echo $REF_DATA_HOME
+        echo $REF_DATA_GITHUBURL
 
-- job: 'Publish'
-  dependsOn: 'Test'
-  pool:
-    vmImage: 'Ubuntu-16.04'
+    displayName: 'fetching reference data'
 
-  steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.x'
-      architecture: 'x64'
+  - bash: |
+        source activate tardis
+        python setup.py test
+    displayName: 'TARDIS test'
 
-  - script: python setup.py sdist
-    displayName: 'Build sdist'
