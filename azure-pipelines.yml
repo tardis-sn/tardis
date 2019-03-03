@@ -51,7 +51,7 @@ jobs:
         echo $REF_DATA_HOME
         echo $REF_DATA_GITHUBURL
 
-      displayName: 'fetching reference data'
+    displayName: 'fetching reference data'
 
   - bash: |
         source activate tardis3
