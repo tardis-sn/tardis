@@ -3,9 +3,6 @@
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
-variables:
-  - SETUP_CMD: true
-  - System.Debug: true
 
 trigger:
 - master
@@ -32,13 +29,15 @@ jobs:
 
     displayName: Add conda to PATH
   - script: |
+      pwd
+      echo $AGENT_BUILDIRECTORY
       sudo chown -R $USER /usr/share/miniconda
       conda update -y conda
       . /usr/share/miniconda/etc/profile.d/conda.sh
 
   - script: |
         conda env create -f tardis_env3.yml
-        conda activate tardis3
+        source activate tardis3
     displayName: 'Install TARDIS env'
 
   - script: python setup.py test
