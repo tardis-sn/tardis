@@ -4,8 +4,8 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 variables:
-  - SETUP_CMD=true
-  - System.debug=true
+  - SETUP_CMD: true
+  - System.Debug: true
 
 trigger:
 - master
