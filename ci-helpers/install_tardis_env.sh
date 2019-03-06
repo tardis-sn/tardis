@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-cd $TRAVIS_BUILD_DIR
+cd $TARDIS_BUILD_DIR
 if test -e  $HOME/miniconda/envs/tardis; then
     echo "TARDIS env already installed.";
     # Also check for tardis_env3.yml change
