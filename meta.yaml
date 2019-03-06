@@ -1,18 +1,26 @@
 {% set setup_py = load_setup_py_data() %}
 package:
-    name: 'tardis'
+    name: tardis
     version: {{ setup_py.get('version') }}
 
 source:
     git_url: https://github.com/tardis-sn/tardis.git
-    git_tag: master
+    git_branch: master
 
 build:
-    script: python setup.py build install
+    script: python setup.py install --single-version-externally-managed --record record.txt
 
 requirements:
+    host:
+        - python=3.7.1
+        - setuptools
+        - numpy=1.15
+        - astropy=3
+        - Cython=0.29
+        - backports
+
     run:
-        - python=3
+        - python=3.7.1
         - numpy=1.15
         - scipy=1.1
         - pandas=0.24
@@ -22,7 +30,7 @@ requirements:
         - networkx
         - pyyaml
         - jsonschema
-        #- pyne=0.5
+        - pyne=0.5
         - pytables
         - h5py
         - jupyter
@@ -30,30 +38,28 @@ requirements:
         - matplotlib
         - graphviz
         - pygraphviz
-        #- sphinx
-        #- nbconvert
-        #- numpydoc
-        #- docutils
-        #- nbformat
-        #- nbsphinx
-        #- sphinx_bootstrap_theme
-        #- sphinxcontrib-bibtex
-        #- sphinx_rtd_theme
-        #- git-lfs
-        #- pytest
-        #- pytest-html
-        #- requests
-        #- coverage
-        #- docopt
-        #- pytest-cov
-        #- codecov
+        - sphinx
+        - nbconvert
+        - numpydoc
+        - docutils
+        - nbformat
+        - nbsphinx
+        - sphinx_bootstrap_theme
+        - sphinxcontrib-bibtex
+        - sphinx_rtd_theme
+        - git-lfs
+        - pytest
+        - pytest-html
+        - requests
+        - coverage
+        - docopt
+        - pytest-cov
+        - codecov
+        - backports
 
-    build:
-        - python
-        - setuptools
-        - numpy
-        - astropy
-        - Cython
+test:
+    imports:
+        - tardis
 
 about:
     license: {{ setup_py.get('license') }}
