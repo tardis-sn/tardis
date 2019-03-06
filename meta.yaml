@@ -12,15 +12,46 @@ build:
 
 requirements:
     host:
-        - python=3.7.1
         - setuptools
+        - python=3
         - numpy=1.15
+        - scipy=1.1
+        - pandas=0.24
         - astropy=3
+        - numexpr
         - Cython=0.29
+        - networkx
+        - pyyaml
+        - jsonschema
+        - pyne=0.5
+        - pytables
+        - h5py
+        - jupyter
+        - notebook
+        - matplotlib
+        - graphviz
+        - pygraphviz
+        - sphinx
+        - nbconvert
+        - numpydoc
+        - docutils
+        - nbformat
+        - nbsphinx
+        - sphinx_bootstrap_theme
+        - sphinxcontrib-bibtex
+        - sphinx_rtd_theme
+        - git-lfs
+        - pytest
+        - pytest-html
+        - requests
+        - coverage
+        - docopt
+        - pytest-cov
+        - codecov
         - backports
 
     run:
-        - python=3.7.1
+        - python=3
         - numpy=1.15
         - scipy=1.1
         - pandas=0.24
