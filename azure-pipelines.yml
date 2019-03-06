@@ -9,7 +9,7 @@ trigger:
 
 variables:
   System.Debug: 'true'
-  ref_data_home: '$(home)/tardis-refdat'
+  ref_data_home: '/tardis-refdat'
   ref_data_githuburl: 'https://github.com/tardis-sn/tardis-refdata.git'
 
 
@@ -33,6 +33,12 @@ jobs:
   - bash: |
           echo "##vso[task.prependpath]/usr/share/miniconda/bin"
     displayName: Add conda to PATH
+
+  - bash: |
+      echo $AGENT_BUILDDIRECTORY
+      echo $AGENT_HOMEDIRECTORY
+      echo $AGENT_BUILDDIRECTORY
+    displayName: trying variables
 
   - bash: |
       pwd
