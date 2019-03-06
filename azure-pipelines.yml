@@ -9,7 +9,8 @@ trigger:
 
 variables:
   system.debug: 'true'
-  ref.data.home: '$(Agent.HomeDirectory)/tardis-refdata'
+  ref.data.home: '$(Agent.BuildDirectory)/tardis-refdata'
+  miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
   ref.data.github.url: 'https://github.com/tardis-sn/tardis-refdata.git'
 
 
@@ -42,6 +43,7 @@ jobs:
       echo $REF_DATA_GITHUB_URL
       echo $REF_DATA_HOME
       echo $TARDIS_BUILD_DIR
+      echo $MINICONDA_URL
 
     displayName: trying variables
 

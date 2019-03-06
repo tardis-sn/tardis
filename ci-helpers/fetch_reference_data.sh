@@ -4,8 +4,8 @@ git lfs install --skip-smudge
 if test -e $REF_DATA_HOME; then
     echo "Ref data available"
 else
-    echo git clone $REF_DATA_GITHUBURL $REF_DATA_HOME
-    git clone $REF_DATA_GITHUBURL $REF_DATA_HOME
+    echo git clone $REF_DATA_GITHUB_URL $REF_DATA_HOME
+    git clone $REF_DATA_GITHUB_URL $REF_DATA_HOME
 
 cd $REF_DATA_HOME
 # Use the following to get the ref-data from the master;

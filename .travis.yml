@@ -23,7 +23,7 @@ env:
         - SETUP_CMD='test'
         - TEST_MODE='normal'
         - REF_DATA_HOME=$HOME/tardis-refdata
-        - REF_DATA_GITHUBURL='https://github.com/tardis-sn/tardis-refdata.git'
+        - REF_DATA_GITHUB_URL='https://github.com/tardis-sn/tardis-refdata.git'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
         - SAVE_COVERAGE=false
         - GIT_LFS_SKIP_SMUDGE=1
