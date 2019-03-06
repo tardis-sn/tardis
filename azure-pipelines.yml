@@ -32,6 +32,7 @@ jobs:
       architecture: 'x64'
   - bash: |
           echo "##vso[task.prependpath]/usr/share/miniconda/bin"
+          echo "##vso[task.setvariable tardis.build.dir]$(Agent.BuildDirectory)"
     displayName: Add conda to PATH
 
   - bash: |
@@ -40,6 +41,7 @@ jobs:
       echo $AGENT_BUILDDIRECTORY
       echo $REF_DATA_GITHUB_URL
       echo $REF_DATA_HOME
+      echo $TARDIS_BUILD_DIR
 
     displayName: trying variables
 
