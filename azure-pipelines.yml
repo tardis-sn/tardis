@@ -12,6 +12,7 @@ variables:
   ref.data.home: '$(Agent.BuildDirectory)/tardis-refdata'
   miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
   ref.data.github.url: 'https://github.com/tardis-sn/tardis-refdata.git'
+  tardis.build.dir: $(Build.Repository.LocalPath)
 
 
 jobs:
@@ -33,7 +34,6 @@ jobs:
       architecture: 'x64'
   - bash: |
           echo "##vso[task.prependpath]/usr/share/miniconda/bin"
-          echo "##vso[task.setvariable variable=tardis.build.dir]$(Build.Repository.LocalPath)"
     displayName: Add conda to PATH
 
   - bash: |
@@ -56,7 +56,7 @@ jobs:
     displayName: updating conda and activating
 
   - bash: |
-        ./ci-helpers/install_tardis_env.sh
+        sh ci-helpers/install_tardis_env.sh
     displayName: 'Install TARDIS env'
 
   - bash: |
