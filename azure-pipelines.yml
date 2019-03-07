@@ -19,13 +19,9 @@ variables:
 jobs:
 
 - job: 'Test'
-  pool:
-    vmImage: 'Ubuntu-16.04'
+  pool: Default
+#    vmImage: 'Ubuntu-16.04'
   strategy:
-    matrix:
-      Python36:
-        python.version: '3.6'
-
     maxParallel: 4
 
   steps:
@@ -38,19 +34,6 @@ jobs:
     displayName: Add conda to PATH
 
   - bash: |
-      echo $AGENT_BUILDDIRECTORY
-      echo $AGENT_HOMEDIRECTORY
-      echo $AGENT_BUILDDIRECTORY
-      echo $REF_DATA_GITHUB_URL
-      echo $REF_DATA_HOME
-      echo $TARDIS_BUILD_DIR
-      echo $MINICONDA_URL
-
-    displayName: trying variables
-
-  - bash: |
-      pwd
-      echo $AGENT_BUILDDIRECTORY
       sudo chown -R $USER /usr/share/miniconda
       conda update -y conda
       sh /usr/share/miniconda/etc/profile.d/conda.sh
@@ -63,15 +46,6 @@ jobs:
   - bash: |
         sh ci-helpers/fetch_reference_data.sh
     displayName: 'Fetch Reference Data'
-
-
-  - bash: |
-        echo $HOME
-        echo $AGENT_BUILD_DIRECTORY
-        echo $REF_DATA_HOME
-        echo $REF_DATA_GITHUBURL
-
-    displayName: 'fetching reference data'
 
   - bash: |
         source activate tardis
