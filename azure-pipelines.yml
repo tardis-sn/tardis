@@ -60,6 +60,11 @@ jobs:
     displayName: 'Install TARDIS env'
 
   - bash: |
+        ./ci-helpers/fetch_reference_data.sh
+    displayName: 'Fetch Reference Data'
+
+
+  - bash: |
         echo $HOME
         echo $AGENT_BUILD_DIRECTORY
         echo $REF_DATA_HOME
