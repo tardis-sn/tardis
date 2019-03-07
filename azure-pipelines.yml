@@ -52,7 +52,7 @@ jobs:
       echo $AGENT_BUILDDIRECTORY
       sudo chown -R $USER /usr/share/miniconda
       conda update -y conda
-      . /usr/share/miniconda/etc/profile.d/conda.sh
+      sh /usr/share/miniconda/etc/profile.d/conda.sh
     displayName: updating conda and activating
 
   - bash: |
