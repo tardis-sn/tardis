@@ -15,6 +15,7 @@ variables:
   tardis.build.dir: $(Build.Repository.LocalPath)
 
 
+
 jobs:
 
 - job: 'Test'
@@ -74,6 +75,6 @@ jobs:
 
   - bash: |
         source activate tardis
-        python setup.py test
+        python setup.py test --coverage --args="--tardis-refdata=$(ref.data.home)"
     displayName: 'TARDIS test'
 
