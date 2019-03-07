@@ -11,7 +11,7 @@ variables:
   system.debug: 'true'
   ref.data.home: '$(Agent.BuildDirectory)/tardis-refdata'
   miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
-  ref.data.github.url: 'http://github.com/tardis-sn/tardis-refdata.git'
+  ref.data.github.url: 'https://github.com/tardis-sn/tardis-refdata.git'
 
 
 jobs:
@@ -56,7 +56,7 @@ jobs:
     displayName: updating conda and activating
 
   - bash: |
-        conda env create -f tardis_env3.yml
+        ./ci-helpers/install_tardis_env.sh
     displayName: 'Install TARDIS env'
 
   - bash: |
