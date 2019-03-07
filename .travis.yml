@@ -46,6 +46,7 @@ before_install:
 
 install:
    - source ci-helpers/install_tardis_env.sh
+   - source activate tardis
    - source ci-helpers/fetch_reference_data.sh
 
 script:

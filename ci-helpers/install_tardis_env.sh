@@ -8,5 +8,3 @@ else
    #trouble with building due to segfault at cython (https://github.com/cython/cython/issues/2199)
    #remove if we can get normal cython through conda
 fi
-
-source activate tardis
