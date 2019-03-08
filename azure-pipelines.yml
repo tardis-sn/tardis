@@ -39,7 +39,6 @@ jobs:
   - bash: |
       sudo chown -R $USER /usr/share/miniconda
       conda update -y conda
-      sh /usr/share/miniconda/etc/profile.d/conda.sh
     displayName: updating conda and activating
 
   - bash: |
