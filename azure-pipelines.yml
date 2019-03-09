@@ -52,6 +52,24 @@ jobs:
 
   - bash: |
         source activate tardis
-        python setup.py test --coverage --args="--tardis-refdata=$(ref.data.home)"
+        python setup.py build_ext --inplace
+    displayName: 'TARDIS build'
+
+  - bash: |
+        source activate tardis
+        conda install -y pytest-cov
+        pytest tardis --tardis-refdata=$(ref.data.home) --junitxml=junit/test-results.xml --cov=tardis --cov-report=xml --cov-report=html
     displayName: 'TARDIS test'
 
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFiles: '**/test-*.xml'
+      testRunTitle: 'Publish test results for TARDIS'
+
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
