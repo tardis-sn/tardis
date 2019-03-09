@@ -52,11 +52,16 @@ jobs:
 
   - bash: |
         source activate tardis
-        python setup.py test --coverage --args="--tardis-refdata=$(ref.data.home)"
+        python setup.py test --coverage --args="--tardis-refdata=$(ref.data.home) --junitxml=`pwd`/junit/test-results.xml"
     displayName: 'TARDIS test'
 
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: Cobertura
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testResultsFiles: '**/test-*.xml'
+    testRunTitle: 'Publish test results for Python $(python.version)'
+#  - task: PublishCodeCoverageResults@1
+#    inputs:
+#      codeCoverageTool: Cobertura
       #summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
-      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
+#      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
