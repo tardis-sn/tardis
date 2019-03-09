@@ -55,3 +55,8 @@ jobs:
         python setup.py test --coverage --args="--tardis-refdata=$(ref.data.home)"
     displayName: 'TARDIS test'
 
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: Cobertura
+      #summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'
