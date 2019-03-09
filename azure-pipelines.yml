@@ -57,7 +57,7 @@ jobs:
 
   - bash: |
         source activate tardis
-        conda install pytest-cov
+        conda install -y pytest-cov
         pytest tardis --tardis-refdata=$(ref.data.home) --junitxml=junit/test-results.xml --cov=tardis --cov-report=xml --cov-report=html
     displayName: 'TARDIS test'
 
