@@ -23,10 +23,11 @@ env:
         - SETUP_CMD='test'
         - TEST_MODE='normal'
         - REF_DATA_HOME=$HOME/tardis-refdata
-        - REF_DATA_GITHUBURL='https://github.com/tardis-sn/tardis-refdata.git'
+        - REF_DATA_GITHUB_URL='https://github.com/tardis-sn/tardis-refdata.git'
         - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
         - SAVE_COVERAGE=false
         - GIT_LFS_SKIP_SMUDGE=1
+        - TARDIS_BUILD_DIR=$TRAVIS_BUILD_DIR
         # Doctr deploy key for tardis-sn/tardis
         - secure: "LrhEnB3RgZ/ZA4PruYSF7pkzlY+LrfF1GKpeU+wcG5v/BMIsoTGySO9C1T7XJfsCFMaKMiJoa7ZhJEXPlss9i9PzxFsvbBrBfwb5lPurTbQwqBN4qW/+u2V1kSLAwtVJIHzenVB25PevjkCz8TeAv6DWyHgBWBmImJaTC3d+1/Q="
 
@@ -45,6 +46,7 @@ before_install:
 
 install:
    - source ci-helpers/install_tardis_env.sh
+   - source activate tardis
    - source ci-helpers/fetch_reference_data.sh
 
 script:
