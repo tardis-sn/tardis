@@ -55,11 +55,11 @@ jobs:
         python setup.py test --coverage --args="--tardis-refdata=$(ref.data.home) --junitxml=`pwd`/junit/test-results.xml"
     displayName: 'TARDIS test'
 
-- task: PublishTestResults@2
-  condition: succeededOrFailed()
-  inputs:
-    testResultsFiles: '**/test-*.xml'
-    testRunTitle: 'Publish test results for Python $(python.version)'
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFiles: '**/test-*.xml'
+      testRunTitle: 'Publish test results for TARDIS'
 #  - task: PublishCodeCoverageResults@1
 #    inputs:
 #      codeCoverageTool: Cobertura
