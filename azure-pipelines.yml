@@ -8,54 +8,50 @@ trigger:
 - master
 
 variables:
-  System.Debug: 'true'
-  ref_data_home: '$(home)/tardis-refdata'
-  ref_data_githuburl: 'https://github.com/tardis-sn/tardis-refdata.git'
+  system.debug: 'true'
+  ref.data.home: '$(Agent.BuildDirectory)/tardis-refdata'
+
+  ref.data.github.url: 'https://github.com/tardis-sn/tardis-refdata.git'
+  tardis.build.dir: $(Build.Repository.LocalPath)
+
 
 
 jobs:
 
 - job: 'Test'
   pool:
-    vmImage: 'Ubuntu-16.04'
+    vmImage: $[variables.vm_Image]
+
   strategy:
     matrix:
-      Python36:
-        python.version: '3.6'
-
+      linux:
+        vm_Image: 'Ubuntu-16.04'
+        conda: '/usr/share/miniconda'
+      mac:
+        vm_Image: 'macOS-10.13'
+        miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
     maxParallel: 4
 
   steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
-      architecture: 'x64'
   - bash: |
-          echo "##vso[task.prependpath]/usr/share/miniconda/bin"
+          echo "##vso[task.prependpath]$CONDA/bin"
     displayName: Add conda to PATH
 
   - bash: |
-      pwd
-      echo $AGENT_BUILDIRECTORY
-      sudo chown -R $USER /usr/share/miniconda
+      sudo chown -R $USER $CONDA
       conda update -y conda
-      . /usr/share/miniconda/etc/profile.d/conda.sh
     displayName: updating conda and activating
 
   - bash: |
-        conda env create -f tardis_env3.yml
+        sh ci-helpers/install_tardis_env.sh
     displayName: 'Install TARDIS env'
 
   - bash: |
-        echo $HOME
-        echo $AGENT_BUILD_DIRECTORY
-        echo $REF_DATA_HOME
-        echo $REF_DATA_GITHUBURL
-
-    displayName: 'fetching reference data'
+        sh ci-helpers/fetch_reference_data.sh
+    displayName: 'Fetch Reference Data'
 
   - bash: |
         source activate tardis
-        python setup.py test
+        python setup.py test --coverage --args="--tardis-refdata=$(ref.data.home)"
     displayName: 'TARDIS test'
 
