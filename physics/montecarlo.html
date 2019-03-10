@@ -1,0 +1,385 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Radiative Monte Carlo &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Overview of plasma calculations" href="plasma/index.html" />
+    <link rel="prev" title="Accessing Physical Quantities" href="physical_quantities.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Behind the scenes: Physics of TARDIS</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html">Plasma</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#old-physics-section-of-the-tardis-docu-outdated">Old Physics Section of the TARDIS Docu (Outdated)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="physical_quantities.html">Accessing Physical Quantities</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Radiative Monte Carlo</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#montecarlo-packets">Montecarlo packets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#montecarlo-geometry">Montecarlo Geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#radiationfield-estimators">Radiationfield estimators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#algorithm-flowchart">Algorithm Flowchart</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="new_plasma.html">Plasma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plasma/index.html">Overview of plasma calculations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Behind the scenes: Physics of TARDIS</a> &raquo;</li>
+        
+      <li>Radiative Monte Carlo</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/physics/montecarlo.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="radiative-monte-carlo">
+<span id="montecarlo"></span><h1>Radiative Monte Carlo<a class="headerlink" href="#radiative-monte-carlo" title="Permalink to this headline">¶</a></h1>
+<p>We assume the supernova is in homologous expansion and we assume that
+there is photon injection from an inner boundary and we assume an outer boundary
+where these photons can leave the simulation again.</p>
+<div class="section" id="montecarlo-packets">
+<h2>Montecarlo packets<a class="headerlink" href="#montecarlo-packets" title="Permalink to this headline">¶</a></h2>
+<p>Montecarlo packets have a frequency, angle (<span class="math notranslate nohighlight">\(\mu=\cos{\theta}\)</span> )
+and an energy: <span class="math notranslate nohighlight">\(P(\nu, \mu, \epsilon)\)</span>. A large number <span class="math notranslate nohighlight">\(n\)</span> are generated
+at the start of each Montecarlo run in TARDIS by drawing <span class="math notranslate nohighlight">\(\nu\)</span> from a
+black-body distribution distribution with a <span class="math notranslate nohighlight">\(\mu\)</span> being drawn from a
+<span class="math notranslate nohighlight">\(\sqrt[2]{z}\)</span> distribution and an
+energy that is <span class="math notranslate nohighlight">\(1/n\)</span>.</p>
+<p>These packets are then launched into the simulation and there are two possible
+outcomes for each packet.</p>
+<blockquote>
+<div><ul class="simple">
+<li><dl class="first docutils">
+<dt><strong>packet leaves the simulation through the outer bound</strong> and count towards the</dt>
+<dd>spectrum</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt><strong>packet leaves the simulation through the inner boundary</strong> and are lost</dt>
+<dd>(reabsorbed)</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<p>The packets can gain and loose energy throughout the simulation. If these packets
+scatter (through the various mechanisms), we transform into the comoving frame at
+that position <span class="math notranslate nohighlight">\(v(r) = r / t_\textrm{explosion}\)</span>, where <span class="math notranslate nohighlight">\(t_explosion\)</span>
+is the time since explosion with the doppler factor
+<span class="math notranslate nohighlight">\(d_\textrm{rest \rightarrow comoving}\)</span> then change direction from
+<span class="math notranslate nohighlight">\(\mu_\textrm{in}\)</span> to <span class="math notranslate nohighlight">\(mu_\textrm{out}\)</span> and transform back and
+change the energy accordingly:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}d_\textrm{rest \rightarrow comoving} = 1 - \mu_\textrm{in} v(r) / c \\
+d_\textrm{rest \rightarrow comoving} = 1 - \mu_\textrm{out} v(r) / c \\
+E_\textrm{after scatter} = E_\textrm{before scatter} \times \frac{1 - \mu_\textrm{in} v(r) / c}{1 - \mu_\textrm{out} v(r) / c}\end{split}\]</div>
+<p>This way the montecarlo packets can gain or loose energy in the simulation:</p>
+<p>(<a class="reference external" href="../physics/pyplot/plot_mu_in_out_packet.py">Source code</a>, <a class="reference external" href="../physics/pyplot/plot_mu_in_out_packet.png">png</a>, <a class="reference external" href="../physics/pyplot/plot_mu_in_out_packet.hires.png">hires.png</a>, <a class="reference external" href="../physics/pyplot/plot_mu_in_out_packet.pdf">pdf</a>)</p>
+<div class="figure">
+<img alt="../_images/plot_mu_in_out_packet.png" src="../_images/plot_mu_in_out_packet.png" />
+</div>
+<p>The spectrum is then generated as a weighted histogram. For each bin with edges
+<span class="math notranslate nohighlight">\(\nu_{n}, \nu_{n+1}\)</span> we get all the packets that left the simulation through
+the outer boundary and add up their remaining energies.</p>
+</div>
+<div class="section" id="montecarlo-geometry">
+<h2>Montecarlo Geometry<a class="headerlink" href="#montecarlo-geometry" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Before any packet action is performed we calculate four different distances</dt>
+<dd>( <span class="math notranslate nohighlight">\(d_\textrm{inner}, d_\textrm{outer}, d_\textrm{line}, d_{\textrm{e}^{-}}\)</span> )</dd>
+</dl>
+<p>The calculations for the distance to the outer boundary:</p>
+<a class="reference internal image-reference" href="../_images/d_outer.png"><img alt="../_images/d_outer.png" src="../_images/d_outer.png" style="width: 400px;" /></a>
+<p>The calculations for the distance to the inner boundary:</p>
+<a class="reference internal image-reference" href="../_images/d_inner.png"><img alt="../_images/d_inner.png" src="../_images/d_inner.png" style="width: 400px;" /></a>
+</div>
+<div class="section" id="radiationfield-estimators">
+<h2>Radiationfield estimators<a class="headerlink" href="#radiationfield-estimators" title="Permalink to this headline">¶</a></h2>
+<p>During the monte-carlo run we collect two estimators for the radiation field:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}J_\textrm{estimator} &amp;= \sum{\epsilon l}\\
+\bar{\nu}_\textrm{estimator} &amp;=  \sum{\epsilon \nu l},\end{split}\]</div>
+<p>where <span class="math notranslate nohighlight">\(\epsilon, \nu\)</span> are comoving energy and comoving frequency of a packet respectively.</p>
+<p>To calculate the temperature and dilution factor we first calculate the mean intensity in each cell
+( <span class="math notranslate nohighlight">\(J = \frac{1}{4\pi\, \Delta t\, V} J_\textrm{estimator}\)</span> )., [2003A&amp;A...403..261L].</p>
+<p>The weighted mean frequency is used to obtain the radiation temperature. Specifically, the radiation temperature is chosen as the
+temperature of a black body that has the same weighted mean frequency as has been computed in the simulation. Accordingly,</p>
+<div class="math notranslate nohighlight">
+\[\frac{h \bar{\nu}}{k_{B} T_{R}} = \frac{h}{k_{B} T_{R}} \frac{\bar{\nu}_\textrm{estimator}}{J_\textrm{estimator}}
+  = 24 \zeta(5) \frac{15}{\pi^4},\]</div>
+<p>where the evaluation comes from the mean value of</p>
+<div class="math notranslate nohighlight">
+\[\bar{x} = \frac{ \int_0^{\infty} x^4 / (\exp{x} - 1)dx}{\int_0^{\infty} x^3 / (\exp{x} - 1)dx} =
+24 \zeta(5) \frac{15}{\pi^4} = 3.8322\dots\]</div>
+<p>and so</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}T_{R} &amp;= \frac{1}{\bar{x}} \frac{h}{k_{B}} \frac{\bar{\nu}_\textrm{estimator}}{J_\textrm{estimator}} \\
+&amp;= 0.260945 \frac{h}{k_{B}} \frac{\bar{\nu}_\textrm{estimator}}{J_\textrm{estimator}}.\end{split}\]</div>
+<p>With the radiation temperature known, we can then obtain our estimate for for the dilution factor. Our radiation field model in the
+nebular approximation is</p>
+<div class="math notranslate nohighlight">
+\[J = W B(T_{R}) = W \frac{\sigma_{SB}}{\pi} T_{R}^4,\]</div>
+<p>i.e. a dilute blackbody. Therefore we use our value of the mean intensity derrived from the estimator (above) to obtain the
+dilution factor</p>
+<div class="math notranslate nohighlight">
+\[W = \frac{\pi J}{\sigma_{SB} T_{R}^4} = \frac{1}{4\sigma_{SB} T_{R}^4\, \Delta t\, V} J_\textrm{estimator}.\]</div>
+<p>There endeth the lesson.</p>
+</div>
+<div class="section" id="algorithm-flowchart">
+<h2>Algorithm Flowchart<a class="headerlink" href="#algorithm-flowchart" title="Permalink to this headline">¶</a></h2>
+<div class="graphviz"><img src="../_images/graphviz-fffb5dc3d2781161ccd822eb93f42e171b86c2f9.png" alt="digraph g{
+  a -&gt; b -&gt; c
+  c -&gt; d [label=&quot;d_inner or \nd_outer&quot;]
+  c -&gt; e [label=&quot;d_line&quot;]
+  d -&gt; f [label=&quot;yes&quot;]
+  d -&gt; g [label=&quot;no&quot;]
+  g -&gt; a
+  e -&gt; a [label=&quot;no&quot;]
+  e -&gt; h [label=&quot;yes&quot;]
+  h -&gt; a
+  a [label=&quot;We have a packet.&quot;,shape=box,fillcolor=&quot;white&quot;,style=&quot;filled,rounded&quot;];
+  b [label=&quot;Calculate\nd_line, d_electron,\nd_inner and d_outer.&quot;,shape=box,fillcolor=&quot;white&quot;,style=&quot;filled,rounded&quot;];
+  c [label=&quot;Which distance\nis smallest?&quot;, shape=&quot;diamond&quot;, fillcolor=&quot;white&quot;, style=&quot;filled&quot;]
+  d [label=&quot;Are we leaving\nsimulation area?&quot;, shape=&quot;diamond&quot;, fillcolor=&quot;white&quot;, style=&quot;filled&quot;]
+  e [label=&quot;Does the\npacket interact?&quot;, shape=&quot;diamond&quot;, fillcolor=&quot;white&quot;, style=&quot;filled&quot;]
+  f [label=&quot;Packet is re-absorbed\nor emitted.\nThis ends the loop.&quot;, shape=&quot;box&quot;, fillcolor=&quot;white&quot;, style=&quot;filled,rounded&quot;]
+  g [label=&quot;Update line\nprobabilities.&quot;, shape=&quot;box&quot;, fillcolor=&quot;white&quot;, style=&quot;filled,rounded&quot;]
+  h [label=&quot;New random direction,\nupdated energy,\nmoving packet to current position,\nupdating event random number.&quot;, shape=&quot;box&quot;, fillcolor=&quot;white&quot;, style=&quot;filled,rounded&quot;]
+}" class="graphviz" /></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="plasma/index.html" class="btn btn-neutral float-right" title="Overview of plasma calculations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="physical_quantities.html" class="btn btn-neutral float-left" title="Accessing Physical Quantities" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

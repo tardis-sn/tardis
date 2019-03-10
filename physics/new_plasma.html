@@ -1,0 +1,322 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Plasma &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Accessing Physical Quantities" href="physical_quantities.html" />
+    <link rel="prev" title="Behind the scenes: Physics of TARDIS" href="index.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Behind the scenes: Physics of TARDIS</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Plasma</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#the-plasma-graph">The Plasma Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#updating-the-plasma">Updating the Plasma</a></li>
+</ul>
+</li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#old-physics-section-of-the-tardis-docu-outdated">Old Physics Section of the TARDIS Docu (Outdated)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="physical_quantities.html">Accessing Physical Quantities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="montecarlo.html">Radiative Monte Carlo</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Plasma</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#properties-inputs-and-outputs">Properties, Inputs and Outputs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#the-plasma-graph">The Plasma Graph</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#updating-the-plasma">Updating the Plasma</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="plasma/index.html">Overview of plasma calculations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Behind the scenes: Physics of TARDIS</a> &raquo;</li>
+        
+      <li>Plasma</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/physics/new_plasma.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="plasma">
+<h1>Plasma<a class="headerlink" href="#plasma" title="Permalink to this headline">¶</a></h1>
+<p>The role of the plasma module is to determine the ionisation and excitation states of the elements of the
+supernova ejecta, given the basic structure, including the elemental abundances, densities and radiation temperature.
+After the calculation of the plasma state, the <span class="math notranslate nohighlight">\(\tau_{\textrm{sobolev}}\)</span> values can be calculated.</p>
+<p>The Tardis plasma structure inherits from the <cite>BasePlasma class</cite>. The code currently uses the <cite>LegacyPlasmaArray</cite>
+for generating a plasma from the information provided by <cite>model</cite>. A variety of different plasmas can be generated
+depending on the options selected in the plasma section of the Tardis config. file. The options currently considered
+by the Legacy Plasma when creating the plasma calculation structure include:</p>
+<dl class="docutils">
+<dt>plasma:</dt>
+<dd><ul class="first last simple">
+<li>ionization: lte/nebular</li>
+<li>excitation: lte/dilute-lte</li>
+<li>line_interaction_type: scatter/downbranch/macroatom</li>
+<li>helium_treatment: dilute-lte/recomb-nlte</li>
+<li>nlte: [can provide list of ion species to be treated in NLTE, as well as specifying the use of the coronal_approximation/classical_nebular settings.</li>
+</ul>
+</dd>
+</dl>
+<p><cite>LegacyPlasmaArray</cite> uses these options to construct a map of the necessary plasma parameters that demonstrates how these parameters are dependent on one another (using networkx). Each time a particular parameter of the plasma is updated, all of the parameters dependent (directly or indirectly) on that particular one can be easily updated automatically, without requiring that all the plasma calculations are repeated.</p>
+<div class="section" id="properties-inputs-and-outputs">
+<h2>Properties, Inputs and Outputs<a class="headerlink" href="#properties-inputs-and-outputs" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>Each Tardis plasma possesses an array of plasma properties, which are used to calculate plasma parameter values. Most plasma properties have a single output, e.g.</dt>
+<dd><ul class="first last simple">
+<li><cite>GElectron</cite>: (<cite>g_electron</cite>,)</li>
+<li><cite>HeliumNLTE</cite>: (<cite>helium_population</cite>,)</li>
+</ul>
+</dd>
+<dt>but some have two or more, e.g.</dt>
+<dd><ul class="first last simple">
+<li><cite>IonNumberDensity</cite>: (<cite>ion_number_density</cite>, <cite>electron_densities</cite>)</li>
+<li><cite>Levels</cite>: (<cite>levels</cite>, <cite>excitation_energy</cite>, <cite>metastability</cite>, <cite>g</cite>)</li>
+</ul>
+</dd>
+</dl>
+<p>Every property has a <cite>calculate</cite> function that returns the values of its outputs. The arguments required for that function become the property inputs. Tardis will raise an error if it does not have all of the required inputs for a particular property. It will also raise an error if there is an output loop, i.e. if two properties are dependent on each other. Some different properties share output names, for example, <cite>PhiSahaLTE</cite> and <cite>PhiSahaNebular</cite> both have an output called <cite>phi</cite>. That is because the <cite>phi</cite> value is calculated differently depending on the ionization method selected, but once calculated both values interact in the same way with the rest of the plasma. Tardis will import only one of the <cite>phi</cite> properties when initialising the plasma.</p>
+</div>
+<div class="section" id="the-plasma-graph">
+<h2>The Plasma Graph<a class="headerlink" href="#the-plasma-graph" title="Permalink to this headline">¶</a></h2>
+<p>If the necessary Python modules (pygraphviz and dot2tex) are available, Tardis will automatically output a .tex file at the beginning of each run that can be compiled to produce a PDF image of the plasma module graph. The nodes on this graph are the names of plasma properties, e.g. <cite>Levels</cite>, <cite>TauSobolev</cite>, <cite>IonNumberDensity</cite>, along with a list of outputs from those properties and equations showing how they are calculated. These nodes are connected by arrows linking nodes with the sources of their inputs, and labelled with the name of the input/output linking the two properties, e.g. <cite>levels</cite>, <span class="math notranslate nohighlight">\(\tau_{\textrm{sobolev}}\)</span>, <span class="math notranslate nohighlight">\(n_{e}\)</span>.</p>
+</div>
+<div class="section" id="updating-the-plasma">
+<h2>Updating the Plasma<a class="headerlink" href="#updating-the-plasma" title="Permalink to this headline">¶</a></h2>
+<p>During each iteration of the main code, Tardis updates the plasma using the <cite>update_radiationfield</cite> function. This requires, at minimum, new values for <cite>t_rad</cite> (the radiation temperature), <cite>w</cite> (the dilution factor) and <cite>j_blues</cite> (the intensity in the blue part of each line).</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="physical_quantities.html" class="btn btn-neutral float-right" title="Accessing Physical Quantities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Behind the scenes: Physics of TARDIS" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,355 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Random Sampling Basics &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Reporting Issues" href="../issues.html" />
+    <link rel="prev" title="Direct integration of the radiation field" href="sourceintegration.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Monte Carlo Primer</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="basicprinciples.html">Monte Carlo Radiative Transfer - Basic Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="discretization.html">Monte Carlo Discretization - Energy Packets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="propagation.html">Packet Propagation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lineinteraction.html">Line Interaction Treatments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="estimators.html">Volume-based Monte Carlo Estimators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="virtualpackets.html">Spectrum Generation with Virtual Packets</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sourceintegration.html">Direct integration of the radiation field</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Random Sampling Basics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#inverse-transformation-method">Inverse transformation method</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#examples">Examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#isotropic-scattering">Isotropic Scattering</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#next-interaction-location">Next Interaction Location</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Monte Carlo Primer</a> &raquo;</li>
+        
+      <li>Random Sampling Basics</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/montecarlo/randomsampling.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="random-sampling-basics">
+<h1>Random Sampling Basics<a class="headerlink" href="#random-sampling-basics" title="Permalink to this headline">¶</a></h1>
+<p>Monte Carlo radiative transfer calculations require a probabilistic
+representation of the relevant physical processes. This involves assigning
+probabilities to the occurrence of certain events or properties. For example,
+finding a photon of an isotropic radiation field propagating into any given
+direction is equally likely. During the Monte Carlo simulation, assignments
+according to these probabilities have to be frequently performed, for example
+when initializing Monte Carlo packets. For this purpose, so-called Random
+Number Generators are available. These produce (pseudo-) random numbers
+<span class="math notranslate nohighlight">\(z\)</span> uniformly distributed on the interval <span class="math notranslate nohighlight">\([0,1]\)</span>. The challenge
+now lies in using these numbers to sample any physical process involved in the
+Radiative transfer calculation. From a probability theory point of view, this
+just implies finding mapping between the probability distribution governing the
+physical process and the one underlying the Random number generator. This
+process is typically referred to as random sampling.</p>
+<div class="section" id="inverse-transformation-method">
+<h2>Inverse transformation method<a class="headerlink" href="#inverse-transformation-method" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This is a very superficial and sloppy description Random sampling. More
+detailed and rigorous accounts are found in the standard literature, for
+example in <a class="reference internal" href="../zreferences.html#kalos2008" id="id1">[KalosWhitlock08]</a></p>
+</div>
+<p>The simplest and most used technique in Monte Carlo radiative transfer
+applications is referred to as the inverse transformation method and involves
+the cumulative distribution function. In general, a random process captured by
+the random variable <span class="math notranslate nohighlight">\(X\)</span> is governed by a probability density
+<span class="math notranslate nohighlight">\(\rho_X(x)\)</span> (the continuous counterpart to discrete probabilities), with
+<span class="math notranslate nohighlight">\(\rho_X(x) \mathrm{d}x\)</span> describing the probability of the variable taking
+values in the interval <span class="math notranslate nohighlight">\([x, x+\mathrm{d}x]\)</span>. The cumulative distribution
+function in turn describes, as the name suggests the probability of the
+variable taking the any value between <span class="math notranslate nohighlight">\(-\infty\)</span> and <span class="math notranslate nohighlight">\(x\)</span>:</p>
+<div class="math notranslate nohighlight">
+\[f_X(x) = \int_{-\infty}^x \mathrm{d}x \rho_X(x)\]</div>
+<p>Since the probability density is by definition always positive, the cumulative
+distribution function is monotonously increasing. This constitutes the basis
+for the inverse transformation function. Consider two random variables,
+<span class="math notranslate nohighlight">\(X\)</span> and <span class="math notranslate nohighlight">\(Y\)</span>. A mapping between those may be established by equating
+their cumulative distribution functions. Numbers <span class="math notranslate nohighlight">\(y\)</span> distributed
+according to one of the probability densities (in this case <span class="math notranslate nohighlight">\(\rho_Y(y)\)</span>)
+may then be used to sample the other process by</p>
+<div class="math notranslate nohighlight">
+\[x = f_X^{-1}\left(f_Y(y)\right).\]</div>
+<p>For the Random Number Generators described above, the cumulative distribution
+function is trivial, namely <span class="math notranslate nohighlight">\(f_Z(z) = z\)</span>. However, the inverse
+distribution sampling method relies on finding the analytic inverse function of
+the cumulative distribution function governing the physical processes to be
+sampled. If this is not possible, other sampling methods, such as von-Neumann
+rejection sampling techniques have to be used.</p>
+</div>
+<div class="section" id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<p>A few examples are provided to illustrate the random sampling process using the
+inverse transformation technique.</p>
+<div class="section" id="isotropic-scattering">
+<h3>Isotropic Scattering<a class="headerlink" href="#isotropic-scattering" title="Permalink to this headline">¶</a></h3>
+<p>Consider the case of an isotropic scattering.
+Here, all scattering angles are equally likely. Thus, the corresponding
+(normalized) probability density and the cumulative distribution function are given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho_{\mu}(\mu) &amp;= \frac{1}{2}\\
+f_{\mu}(\mu) &amp;= \frac{1}{2} (\mu - 1).\end{split}\]</div>
+<p>This leads to the sampling rule</p>
+<div class="math notranslate nohighlight">
+\[\mu = 2 z - 1.\]</div>
+</div>
+<div class="section" id="next-interaction-location">
+<h3>Next Interaction Location<a class="headerlink" href="#next-interaction-location" title="Permalink to this headline">¶</a></h3>
+<p>The probability of a packet interacting after covering an optical depth
+<span class="math notranslate nohighlight">\(\tau\)</span> is given by</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\rho_{\tau}(\tau) &amp;= \exp(-\tau)\\
+f_{\tau}(\tau) &amp;= 1 - \exp(-\tau).\end{split}\]</div>
+<p>With the inverse transformation method, the optical depth to the next interaction location may then be sampled by</p>
+<div class="math notranslate nohighlight">
+\[\tau = - \mathrm{ln}(1 - z)\]</div>
+<p>which is equivalent to</p>
+<div class="math notranslate nohighlight">
+\[\tau = - \mathrm{ln}z.\]</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../issues.html" class="btn btn-neutral float-right" title="Reporting Issues" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="sourceintegration.html" class="btn btn-neutral float-left" title="Direct integration of the radiation field" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

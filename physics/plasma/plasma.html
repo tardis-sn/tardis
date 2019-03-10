@@ -1,0 +1,297 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Plasma &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+      <li>Plasma</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/physics/plasma/plasma.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="plasma">
+<span id="plasmas"></span><h1>Plasma<a class="headerlink" href="#plasma" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This information (particularly code examples) is not up-to-date.</p>
+</div>
+<p>This module calculates the ionization balance and level populations in BasePlasma, give a abundance fraction, temperature
+and density. After calculating the state of the plasma, these classes are able to calculate <span class="math notranslate nohighlight">\(\tau_\textrm{sobolev}\)</span>
+for the supernova radiative transfer. The simplest BasePlasma (<code class="xref py py-class docutils literal notranslate"><span class="pre">BasePlasma</span></code>) only calculates the atom number densities, but serves
+as a base for all BasePlasma classes.&nbsp;The next more complex class is <cite>LTEPlasma</cite> which will calculate the aforementioned quantities in
+Local Thermal Equilibrium conditions (LTE). The <code class="xref py py-class docutils literal notranslate"><span class="pre">NebularPlasma</span></code>-class inherits from <cite>LTEPlasma</cite> and uses a more complex
+description of the BasePlasma (for details see <span class="xref std std-ref">nebular_plasma</span>).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In this documentation we use the indices <span class="math notranslate nohighlight">\(i, j, k\)</span> to mean atomic number, ion number and level number respectively.</p>
+</div>
+<p>All plasma calculations follow the same basic procedure in calculating the plasma state.
+This is always accomplished with the function <code class="docutils literal notranslate"><span class="pre">update_radiationfield</span></code>. This block diagram shows the basic procedure</p>
+<div class="section" id="base-plasma">
+<h2>Base Plasma<a class="headerlink" href="#base-plasma" title="Permalink to this headline">¶</a></h2>
+<p><cite>BasePlasma</cite> serves as the base class for all plasmas and can just calculate the atom number densities for a given input of
+abundance fraction.</p>
+<div class="math notranslate nohighlight">
+\[N_{atom} = \rho_\textrm{total} \times \textrm{Abundance fraction} / m_\textrm{atom}\]</div>
+<p>In the next step the line and level tables are purged of entries that are not represented in the
+abundance fractions are saved in <cite>BasePlasma.levels</cite> and <cite>BasePlasma.lines</cite>. Finally, the function <cite>BasePlasma.update_t_rad</cite> is called
+at the end of initialization to update the plasma conditions to a new <span class="math notranslate nohighlight">\(T_\textrm{radiation field}\)</span> (with the give t_rad).
+This function is the same in the other plasma classes and does the main part of the calculation. In the case of <cite>BasePlasma</cite> this is only
+setting <cite>BasePlasma.beta_rad</cite> to <span class="math notranslate nohighlight">\(\frac{1}{k_\textrm{B}T_\textrm{rad}}\)</span>.</p>
+<p>Here’s an example how to instantiate a simple base plasma:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tardis</span> <span class="k">import</span> <span class="n">plasma</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">tardis.io</span> <span class="k">import</span> <span class="n">atomic</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">atom_data</span> <span class="o">=</span> <span class="n">atomic</span><span class="o">.</span><span class="n">AtomData</span><span class="o">.</span><span class="n">from_hdf</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">my_plasma</span> <span class="o">=</span> <span class="n">plasma</span><span class="o">.</span><span class="n">BasePlasma</span><span class="p">({</span><span class="s1">&#39;Fe&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">,</span> <span class="s1">&#39;Ni&#39;</span><span class="p">:</span><span class="mf">0.5</span><span class="p">},</span> <span class="mi">10000</span><span class="p">,</span> <span class="mf">1e-13</span><span class="p">,</span> <span class="n">atom_data</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span> <span class="n">my_plasma</span><span class="o">.</span><span class="n">abundances</span>
+<span class="go">atomic_number abundance_fraction number_density</span>
+<span class="go">------------- ------------------ --------------</span>
+<span class="go">           28                0.5  513016973.936</span>
+<span class="go">           26                0.5  539183641.472</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="plasma-types">
+<h2>Plasma Types<a class="headerlink" href="#plasma-types" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="sobolev-optical-depth">
+<span id="tau-sobolev"></span><h2>Sobolev optical depth<a class="headerlink" href="#sobolev-optical-depth" title="Permalink to this headline">¶</a></h2>
+<p>This function calculates the Sobolev optical depth <span class="math notranslate nohighlight">\(\tau_\textrm{Sobolev}\)</span></p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}C_\textrm{Sobolev} = \frac{\pi e^2}{m_e c}\\\tau_\textrm{Sobolev} = C_\textrm{Sobolev}\,  \lambda\, f_{\textrm{lower}\rightarrow\textrm{upper}}\,
+    t_\textrm{explosion}\, N_\textrm{lower}
+    (1 - \frac{g_\textrm{lower}}{g_\textrm{upper}}\frac{N_\textrm{upper}}{N_\textrm{lower}})\end{aligned}\end{align} \]</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

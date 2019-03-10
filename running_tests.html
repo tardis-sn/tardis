@@ -1,0 +1,342 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Running tests &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link href="_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Running tests</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/running_tests.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="running-tests">
+<h1>Running tests<a class="headerlink" href="#running-tests" title="Permalink to this headline">¶</a></h1>
+<p>There are two basic categories of tests unit tests in TARDIS 1) the unit
+tests 2) integration tests. Unit tests check the outputs of individual functions
+while the integration tests check entire runs for different setups of TARDIS.</p>
+<p>The Unit tests run very quickly and thus are executed after every suggested change
+to TARDIS. The Integration tests are much more costly and thus are only executed
+every few days on a dedicated server.</p>
+<p>All of them are based on the excellent <code class="docutils literal notranslate"><span class="pre">astropy-setup-helpers</span></code> package and
+<code class="docutils literal notranslate"><span class="pre">pytest</span></code>.</p>
+<div class="section" id="running-the-unit-tests">
+<h2>Running the unit tests<a class="headerlink" href="#running-the-unit-tests" title="Permalink to this headline">¶</a></h2>
+<p>This is very straight forward to run on your own machine. For very simple unit
+tests you can run this with:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt; python setup.py <span class="nb">test</span>
+</pre></div>
+</div>
+<p>Running the more advanced unit tests requires Tardis Reference data that can be
+downloaded
+(<a class="reference external" href="https://github.com/tardis-sn/tardis-refdata">tardis_refdata</a>).</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt; python setup.py <span class="nb">test</span> --args<span class="o">=</span><span class="s2">&quot;--tardis-refdata=/path/to/tardis-refdata/&quot;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="generating-plasma-reference">
+<h2>Generating Plasma Reference<a class="headerlink" href="#generating-plasma-reference" title="Permalink to this headline">¶</a></h2>
+<p>You can generate Plasma Reference by the following command</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>&gt; pytest -rs tardis/plasma/tests/test_complete_plasmas.py
+--tardis-refdata<span class="o">=</span><span class="s2">&quot;/path/to/tardis-refdata/&quot;</span> --generate-reference
+</pre></div>
+</div>
+</div>
+<div class="section" id="running-the-integration-tests">
+<h2>Running the integration tests<a class="headerlink" href="#running-the-integration-tests" title="Permalink to this headline">¶</a></h2>
+<p>These tests require reference files against which the results of the various
+tardis runs are tested. So you first need to either download the current
+reference files (<a class="reference external" href="https://github.com/tardis-sn/tardis-refdata">here</a>)
+or generate new ones.</p>
+<p>Both of of these require a configuration file for the integration tests:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">atom_data_path</span><span class="p">:</span> <span class="s">&quot;~/projects/tardis/integration/&quot;</span>
+
+<span class="c1"># This section holds information about mechanism of saving the HTML</span>
+<span class="c1"># report of the tests.</span>
+<span class="c1"># &quot;save_mode&quot; is mandatory: It can be either &quot;local&quot; or &quot;remote&quot;.</span>
+<span class="nt">report</span><span class="p">:</span>
+  <span class="nt">save_mode</span><span class="p">:</span> <span class="s">&quot;local&quot;</span>
+
+  <span class="c1"># This section contains credentials for dokuwiki instance.</span>
+  <span class="c1"># It is mandatory if &quot;save_mode&quot; is &quot;remote&quot;, else can be removed.</span>
+  <span class="nt">dokuwiki</span><span class="p">:</span>
+    <span class="nt">url</span><span class="p">:</span> <span class="s">&quot;http://opensupernova.org/~karandesai96/integration/&quot;</span>
+    <span class="nt">username</span><span class="p">:</span> <span class="s">&quot;private&quot;</span>
+    <span class="nt">password</span><span class="p">:</span> <span class="s">&quot;private&quot;</span>
+
+  <span class="c1"># If &quot;save_mode&quot; is &quot;local&quot;, a sub directory will be made in this</span>
+  <span class="c1"># directory according to commit hash (shortened), and it will contain</span>
+  <span class="c1"># the complete report content.</span>
+  <span class="nt">reportpath</span><span class="p">:</span> <span class="s">&quot;~/projects/tardis/integration&quot;</span>
+
+
+<span class="c1"># Path to directory where reference HDF files will be generated and</span>
+<span class="c1"># saved during the test run. Use &quot;--generate-reference&quot; flag in command</span>
+<span class="c1"># line args for the purpose, for other cases this will denote path</span>
+<span class="c1"># to the directory containing reference HDF files.</span>
+<span class="nt">reference</span><span class="p">:</span> <span class="s">&quot;~/projects/tardis/integration/&quot;</span>
+
+
+<span class="c1"># Speeds up test execution by reducing amount of packets per iteration,</span>
+<span class="c1"># useful for debugging problems in testing infrastructure itself.</span>
+<span class="c1"># Use &quot;--less-packets&quot; in command line args, for other cases this will be</span>
+<span class="c1"># simply ignored. This section is not mandatory.</span>
+<span class="nt">less_packets</span><span class="p">:</span>
+  <span class="nt">no_of_packets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">400</span>
+  <span class="nt">last_no_of_packets</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">1000</span>
+</pre></div>
+</div>
+<p>Inside the atomic data directory there needs to be atomic data for each of
+the setups that are provided in the <code class="docutils literal notranslate"><span class="pre">test_integration</span></code> folder.
+If no references are given the first step is to generate them.
+The <code class="docutils literal notranslate"><span class="pre">--less-packets</span></code> option is useful for debugging purposes and will just
+use very few packets to generate the references and thus make the process much
+faster - THIS IS ONLY FOR DEBUGGING PURPOSES. The <code class="docutils literal notranslate"><span class="pre">-s</span></code> option ensures that
+TARDIS prints out the progress:</p>
+<p>To run the test after having run the <code class="docutils literal notranslate"><span class="pre">--generate-references</span></code> all that is
+needed is:</p>
+</div>
+<div class="section" id="setting-up-the-dokuwiki-report">
+<h2>Setting up the Dokuwiki report<a class="headerlink" href="#setting-up-the-dokuwiki-report" title="Permalink to this headline">¶</a></h2>
+<p>A normal dokuwiki installation is performed on the required server. Before the
+connection works one is requires to set the option remote access in the
+settings. If this is not done the <code class="docutils literal notranslate"><span class="pre">dokuwiki</span></code> python plugin will not connect
+with the warning <code class="docutils literal notranslate"><span class="pre">DokuWikiError:</span> <span class="pre">syntax</span> <span class="pre">error:</span> <span class="pre">line</span> <span class="pre">1,</span> <span class="pre">column</span> <span class="pre">0</span></code>. One also
+has to enable this for users (<code class="docutils literal notranslate"><span class="pre">remoteuser</span></code> option) otherwise the error:
+<code class="docutils literal notranslate"><span class="pre">ProtocolError</span> <span class="pre">for</span> <span class="pre">xmlrpc.php?p=xxxxxx&amp;u=tardistester:</span> <span class="pre">403</span> <span class="pre">Forbidden</span></code>
+will appear.</p>
+<p>Another important configuration option is to enable embedded html <code class="docutils literal notranslate"><span class="pre">htmlok</span></code>
+otherwise it won’t show nice html page reports.</p>
+<p>Finally, one has to call the <cite>python setup.py test</cite> with the <code class="docutils literal notranslate"><span class="pre">--remote-data</span></code>
+option to allow posting to an external dokuwiki server.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

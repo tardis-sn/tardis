@@ -1,0 +1,370 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Accessing Physical Quantities &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Radiative Monte Carlo" href="montecarlo.html" />
+    <link rel="prev" title="Plasma" href="new_plasma.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Behind the scenes: Physics of TARDIS</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="new_plasma.html">Plasma</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#old-physics-section-of-the-tardis-docu-outdated">Old Physics Section of the TARDIS Docu (Outdated)</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Accessing Physical Quantities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#runing-in-interactive-python-session">Runing in interactive Python session</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples-of-finding-physical-quantities">Examples of finding physical quantities</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="montecarlo.html">Radiative Monte Carlo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="new_plasma.html">Plasma</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plasma/index.html">Overview of plasma calculations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Behind the scenes: Physics of TARDIS</a> &raquo;</li>
+        
+      <li>Accessing Physical Quantities</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/physics/physical_quantities.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="accessing-physical-quantities">
+<span id="physical-quantities"></span><h1>Accessing Physical Quantities<a class="headerlink" href="#accessing-physical-quantities" title="Permalink to this headline">¶</a></h1>
+<p>In order to compute the synthetic spectrum, Tardis must either be told
+or must calculate many physical properties of the model. To understand and
+test the code it can be important to look at these values. One
+easy way to do this is to run Tardis in an interactive mode and then
+inspect the model properties.</p>
+<div class="section" id="runing-in-interactive-python-session">
+<h2>Runing in interactive Python session<a class="headerlink" href="#runing-in-interactive-python-session" title="Permalink to this headline">¶</a></h2>
+<p>With iPython installed launch a session using</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>ipython --pylab
+</pre></div>
+</div>
+<p>and then run your calculation, which is based on your “my_config.yml” file</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tardis</span> <span class="kn">import</span> <span class="n">run_tardis</span>
+
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">run_tardis</span><span class="p">(</span><span class="s1">&#39;myconfig.yml&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If all goes well, the simulation should run as usual. Afterwards, the
+information from the simulation will all exist in “radial1d” and
+can be examined. Some examples for useful/interesting quantities are
+given below (but much more information is available: contact us via
+<a class="reference external" href="http://groups.google.com/forum/#!forum/tardis-sn-users">tardis-sn-users</a> if you need
+further help).</p>
+</div>
+<div class="section" id="examples-of-finding-physical-quantities">
+<h2>Examples of finding physical quantities<a class="headerlink" href="#examples-of-finding-physical-quantities" title="Permalink to this headline">¶</a></h2>
+<p>For example, two of our important quantities are the parameters of the
+radiation field model, <span class="math notranslate nohighlight">\(T_{\rm rad}\)</span> and <span class="math notranslate nohighlight">\(W\)</span>. These exist
+as Astropy <a class="reference external" href="http://astropy.readthedocs.org/en/v0.2.1/_generated/astropy.units.quantity.Quantity.html">Quantities</a>. Thus</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">t_rad</span><span class="o">.</span><span class="n">cgs</span>
+</pre></div>
+</div>
+<p>will give you a list of the <span class="math notranslate nohighlight">\(T_{\rm rad}\)</span>-values for the model zones
+in cgs units. To obtain an array of the values (without units) use</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">t_rad</span><span class="o">.</span><span class="n">cgs</span><span class="o">.</span><span class="n">value</span>
+</pre></div>
+</div>
+<p>Similarly, the <span class="math notranslate nohighlight">\(W\)</span>-values can be accessed using</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">ws</span><span class="o">.</span><span class="n">cgs</span>
+</pre></div>
+</div>
+<p>Several important quantities that were setup when the model was defined
+by the configuration file are located in the “tardis_config”
+section. For example, the inner and outer velocity boundaries of the
+zones in the model</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">tardis_config</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">v_inner</span><span class="o">.</span><span class="n">cgs</span>
+<span class="n">model</span><span class="o">.</span><span class="n">tardis_config</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">v_outer</span><span class="o">.</span><span class="n">cgs</span>
+</pre></div>
+</div>
+<p>and the average density in the zones</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">tardis_config</span><span class="o">.</span><span class="n">structure</span><span class="o">.</span><span class="n">mean_densities</span><span class="o">.</span><span class="n">cgs</span>
+</pre></div>
+</div>
+<p>Many other interesting quantities are stored in the
+“plasma_array”. For example the calculated ion populations or level
+populations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plasma_array</span><span class="o">.</span><span class="n">ion_populations</span>
+<span class="n">model</span><span class="o">.</span><span class="n">plasma_array</span><span class="o">.</span><span class="n">level_populations</span>
+</pre></div>
+</div>
+<p>These are stored as Pandas <a class="reference external" href="http://pandas.pydata.org/pandas-docs/version/0.13.1/generated/pandas.DataFrame.html">DataFrames</a>.
+An index can be supplied to obtain the population in a particular
+zone. E.g., for the ion populations of the innermost zone (index = 0)</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plasma_array</span><span class="o">.</span><span class="n">ion_populations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Ion populations for a particular ionization stage of a particular
+element can be accessed by specifying an appropriate tuple <span class="math notranslate nohighlight">\((Z,C)\)</span>, which
+identifies the element (via atomic number <span class="math notranslate nohighlight">\(Z\)</span> ) and the charge
+(via the ion charge <span class="math notranslate nohighlight">\(C\)</span> ). Thus,</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plasma_array</span><span class="o">.</span><span class="n">ion_populations</span><span class="o">.</span><span class="n">ix</span><span class="p">[(</span><span class="mi">14</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>will identify the ion popuations for  Si II (<span class="math notranslate nohighlight">\(Z=14, C=1\)</span>) in all
+the zones. The above examples can be combined to obtain e.g. the Si II
+population in the innermost zone</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plasma_array</span><span class="o">.</span><span class="n">ion_populations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">ix</span><span class="p">[(</span><span class="mi">14</span><span class="p">,</span><span class="mi">1</span><span class="p">)]</span>
+</pre></div>
+</div>
+<p>The level populations are stored (and can be accessed) in a similar
+way - a third label can be used to pick out a particular atomic
+level. E.g., to pull out the population of the ground state (index 0)
+of Si II</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">model</span><span class="o">.</span><span class="n">plasma_array</span><span class="o">.</span><span class="n">level_populations</span><span class="o">.</span><span class="n">ix</span><span class="p">[(</span><span class="mi">14</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">)]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you prefer to work in SI units, all the astropy Quantities may
+instead by accessed with “xxx.si”.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Information that is not stored as astropy Quantities (e.g. the ion
+an level populations used in the example above) are usually stored
+in cgs units (i.e. <span class="math notranslate nohighlight">\({\rm cm}^{-3}\)</span> for the populations).</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="montecarlo.html" class="btn btn-neutral float-right" title="Radiative Monte Carlo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="new_plasma.html" class="btn btn-neutral float-left" title="Plasma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

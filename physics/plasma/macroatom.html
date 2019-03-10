@@ -1,0 +1,386 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Macro Atom &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="NLTE treatment" href="nlte.html" />
+    <link rel="prev" title="Nebular Plasma" href="nebular_plasma.html" />
+    <link href="../../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Behind the scenes: Physics of TARDIS</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../new_plasma.html">Plasma</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#old-physics-section-of-the-tardis-docu-outdated">Old Physics Section of the TARDIS Docu (Outdated)</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../physical_quantities.html">Accessing Physical Quantities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../montecarlo.html">Radiative Monte Carlo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../new_plasma.html">Plasma</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Overview of plasma calculations</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="lte_plasma.html">LTE Plasma</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nebular_plasma.html">Nebular Plasma</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Macro Atom</a></li>
+<li class="toctree-l4"><a class="reference internal" href="nlte.html">NLTE treatment</a></li>
+<li class="toctree-l4"><a class="reference internal" href="helium_nlte.html">Helium NLTE</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Behind the scenes: Physics of TARDIS</a> &raquo;</li>
+        
+          <li><a href="index.html">Overview of plasma calculations</a> &raquo;</li>
+        
+      <li>Macro Atom</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../../_sources/physics/plasma/macroatom.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="macro-atom">
+<h1>Macro Atom<a class="headerlink" href="#macro-atom" title="Permalink to this headline">¶</a></h1>
+<p>The macro atom is described in detail in [2002A&amp;A...384..725L]. The basic principal is that when an energy packet
+is absorbed that the macro atom is on a certain level. Three probabilities govern the next step the P<sub>up</sub>,
+P<sub>down</sub> and P<sub>down emission</sub> being the probability for going to a higher level, a lower level and a lower
+level and emitting a photon while doing this respectively (see Figure 1 in [2002A&amp;A...384..725L] ).</p>
+<p>The macro atom is the most complex idea to implement as a data structure. The setup is done in <cite>~tardisatomic</cite>, but
+we will nonetheless discuss it here (as <cite>~tardisatomic</cite> is even less documented than this one).</p>
+<p>For each level we look at the line list to see what transitions (upwards or downwards are possible). We create a two arrays,
+the first is a long one-dimensional array containing the probabilities. Each level contains a set of probabilities, The first
+part of each set contains the upwards probabilities (internal upward), the second part the downwards probabilities
+(internal downward), and the last part is the downward and emission probability.</p>
+<p>each set is stacked after the other one to make one long one dimensional <cite>~numpy.ndarray</cite>.</p>
+<p>The second array is for book-keeping it has exactly the length as levels (with an example for the Si II level 15):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="11%" />
+<col width="25%" />
+<col width="17%" />
+<col width="23%" />
+<col width="24%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Level ID</th>
+<th class="head">Probability index</th>
+<th class="head">N<sub>up</sub></th>
+<th class="head">N<sub>down</sub></th>
+<th class="head">N<sub>total</sub></th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>14001015</td>
+<td>???</td>
+<td>17</td>
+<td>5</td>
+<td>17 + 5*2 = 27</td>
+</tr>
+</tbody>
+</table>
+<p>We now will calculate the transition probabilites, using the radiative rates in Equation 20, 21, and 22
+in [2002A&amp;A...384..725L]. Then we calculate the downward emission probability from Equation 5, the downward and
+upward internal transition probabilities in [2003A&amp;A...403..261L].</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}p_\textrm{emission down}&amp;= {\cal R}_{\textrm{i}\rightarrow\textrm{lower}}\,(\epsilon_\textrm{upper} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
+p_\textrm{internal down}&amp;= {\cal R}_{\textrm{i}\rightarrow\textrm{lower}}\,\epsilon_\textrm{lower}/{\cal D}_{i}\\,
+p_\textrm{internal up}&amp;={\cal R}_{\textrm{i}\rightarrow\textrm{upper}}\,\epsilon_{i}/{\cal D}_{i}\\,\end{split}\]</div>
+<dl class="docutils">
+<dt>where <span class="math notranslate nohighlight">\(i\)</span> is the current level, <span class="math notranslate nohighlight">\(\epsilon\)</span> is the energy of the level, and <span class="math notranslate nohighlight">\({\cal R}\)</span> is the radiative</dt>
+<dd>rates.</dd>
+</dl>
+<p>We ignore the probability to emit a k-packet as TARDIS only works with photon packets.
+Next we calculate the radidative
+rates using equation 10 in [2003A&amp;A...403..261L].</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}{\cal R}_{\textrm{upper}\rightarrow\textrm{lower}} &amp;=
+A_{\textrm{upper}\rightarrow\textrm{lower}}\beta_\textrm{Sobolev}n_\textrm{upper}\\
+{\cal R}_{\textrm{lower}\rightarrow\textrm{upper}} &amp;=
+(B_{\textrm{lower}\rightarrow\textrm{upper}}n_\textrm{lower}-
+B_{\textrm{upper}\rightarrow\textrm{lower}}n_\textrm{upper})
+\beta_\textrm{Sobolev} J_{\nu}^{b}\\,\end{split}\]</div>
+<p>with <span class="math notranslate nohighlight">\(\beta_\textrm{Sobolev} = \frac{1}{\tau_\textrm{Sobolev}}(1-e^{-\tau_\textrm{Sobolev}})\)</span> .</p>
+<p>using the Einstein coefficients</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\begin{split}A_{\textrm{upper}\rightarrow\textrm{lower}} &amp;= \frac{8 \nu^2 \pi^2 e^2}{m_e c^3}~
+    \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}\\
+A_{\textrm{upper}\rightarrow\textrm{lower}} &amp;= \underbrace{\frac{4 \pi^2 e^2}{m_e c}}_{C_\textrm{Einstein}}~ \frac{2\nu^2}{c^2}
+        \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}\\
+B_{\textrm{lower}\rightarrow\textrm{upper}} &amp;= \frac{4\pi^2 e^2}{m_e h\nu c}\,f_{\textrm{lower}\rightarrow\textrm{upper}}\\
+B_{\textrm{lower}\rightarrow\textrm{upper}} &amp;= \underbrace{\frac{4 \pi^2 e^2}{m_e c}}_{C_\textrm{Einstein}}\frac{1}{h\nu} f_{\textrm{lower}\rightarrow\textrm{upper}}\\\end{split}\\\begin{split}B_{\textrm{upper}\rightarrow\textrm{lower}} &amp;= \frac{4\pi^2 e^2}{m_e h\nu c}\,f_{\textrm{lower}\rightarrow\textrm{upper}}\\
+B_{\textrm{upper}\rightarrow\textrm{lower}} &amp;= \underbrace{\frac{4 \pi^2 e^2}{m_e c}}_{C_\textrm{Einstein}}\frac{1}{h\nu}\frac{g_\textrm{lower}}{g_\textrm{upper}}f_{\textrm{lower}\rightarrow\textrm{upper}}\\\end{split}\end{aligned}\end{align} \]</div>
+<p>we get</p>
+<div class="math notranslate nohighlight">
+\[ \begin{align}\begin{aligned}\begin{split}{\cal R}_{\textrm{upper}\rightarrow\textrm{lower}} &amp;=
+    C_\textrm{Einstein} \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{upper}}~f_{\textrm{lower}\rightarrow\textrm{upper}}
+    \beta_\textrm{Sobolev}n_\textrm{upper}\\\end{split}\\\begin{split}{\cal R}_{\textrm{lower}\rightarrow\textrm{upper}} &amp;=
+        C_\textrm{Einstein}\frac{1}{h\nu} f_{\textrm{lower}\rightarrow\textrm{upper}}
+        (n_\textrm{lower}-\frac{g_\textrm{lower}}{g_\textrm{upper}}n_\textrm{upper})
+                    \beta_\textrm{Sobolev} J_{\nu}^{b}\\\end{split}\end{aligned}\end{align} \]</div>
+<p>This results in the transition probabilities:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}p_\textrm{emission down}&amp;= C_\textrm{Einstein} \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                   \beta_\textrm{Sobolev}n_\textrm{i}\,(\epsilon_\textrm{i} - \epsilon_\textrm{lower}) / {\cal D}_{i}\\
+p_\textrm{internal down}&amp;= C_\textrm{Einstein} \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                   \beta_\textrm{Sobolev}n_\textrm{i}\,\epsilon_\textrm{lower}/{\cal D}_{i}\\
+p_\textrm{internal up}&amp;=C_\textrm{Einstein}\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}
+                                    (n_\textrm{i}-\frac{g_\textrm{i}}{g_\textrm{upper}}n_\textrm{upper})
+                                                \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{i}/{\cal D}_{i}\\,\end{split}\]</div>
+<dl class="docutils">
+<dt>and as we will normalise the transition probabilities numerically later,  we can get rid of <span class="math notranslate nohighlight">\(C_\textrm{Einstein}\)</span>,</dt>
+<dd><span class="math notranslate nohighlight">\(\frac{1}{{\cal D}_i}\)</span> and number densities.</dd>
+</dl>
+<div class="math notranslate nohighlight">
+\[\begin{split}p_\textrm{emission down}&amp;= \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                   \beta_\textrm{Sobolev}\,(\epsilon_\textrm{i} - \epsilon_\textrm{lower})\\
+p_\textrm{internal down}&amp;=  \frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                   \beta_\textrm{Sobolev}\,\epsilon_\textrm{lower}\\
+p_\textrm{internal up}&amp;=\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}
+                                    \underbrace{(1-\frac{g_\textrm{i}}{g_\textrm{upper}}\frac{n_\textrm{upper}}{n_i})}
+                                    _\textrm{stimulated emission}
+                                                \beta_\textrm{Sobolev} J_{\nu}^{b}\,\epsilon_{i}\\,\end{split}\]</div>
+<p>There are two parts for each of the probabilities, one that is pre-computed by <cite>~tardisatomic</cite> and is in the HDF5 File,
+and one that is computed during the plasma calculations:</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}p_\textrm{emission down}&amp;= \underbrace{\frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                   (\epsilon_\textrm{i} - \epsilon_\textrm{lower})}_\textrm{pre-computed}
+                                   \,\beta_\textrm{Sobolev}\\
+p_\textrm{internal down} &amp;= \underbrace{\frac{2\nu^2}{c^2} \frac{g_\textrm{lower}}{g_\textrm{i}}~f_{\textrm{lower}\rightarrow\textrm{i}}
+                                   \epsilon_\textrm{lower}}_\textrm{pre-computed}\,\beta_\textrm{Sobolev}\\
+p_\textrm{internal up} &amp;= \underbrace{\frac{1}{h\nu} f_{\textrm{i}\rightarrow\textrm{upper}}}_\textrm{pre-computed}
+                                                \beta_\textrm{Sobolev} J_{\nu}^{b}\,
+                                                (1-\frac{g_\textrm{i}}{g_\textrm{upper}}\frac{n_\textrm{upper}}{n_i})
+                                                \,\epsilon_{i}.\end{split}\]</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="nlte.html" class="btn btn-neutral float-right" title="NLTE treatment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="nebular_plasma.html" class="btn btn-neutral float-left" title="Nebular Plasma" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

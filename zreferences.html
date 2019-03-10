@@ -1,0 +1,413 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TARDIS Papers and useful References &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Change Log" href="changelog.html" />
+    <link href="_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics/index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Change Log</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TARDIS Papers and useful References</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#tardis-code-papers">TARDIS Code papers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#studies-using-tardis">Studies using TARDIS</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#monte-carlo-radiative-transfer-works">Monte Carlo Radiative Transfer Works</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#references">References</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>TARDIS Papers and useful References</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/zreferences.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="tardis-papers-and-useful-references">
+<h1>TARDIS Papers and useful References<a class="headerlink" href="#tardis-papers-and-useful-references" title="Permalink to this headline">¶</a></h1>
+<p>In the following a number of important works describing or using TARDIS are
+provided together with a collection of works outlining important techniques on
+which TARDIS is built.</p>
+<div class="section" id="tardis-code-papers">
+<h2>TARDIS Code papers<a class="headerlink" href="#tardis-code-papers" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#kerzendorf2014" id="id1">[KerzendorfSim14]</a></li>
+</ul>
+</div>
+<div class="section" id="studies-using-tardis">
+<h2>Studies using TARDIS<a class="headerlink" href="#studies-using-tardis" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#smartt2017" id="id2">[SmarttChenJerkstrand+17]</a></li>
+<li><a class="reference internal" href="#barna2017" id="id3">[BarnaSzalaiKromer+17]</a></li>
+<li><a class="reference internal" href="#heringer2017" id="id4">[HeringervKerkwijkSimKerzendorf17]</a></li>
+<li><a class="reference internal" href="#magee2017" id="id5">[MageeKotakSim+17]</a></li>
+<li><a class="reference internal" href="#boyle2017" id="id6">[BoyleSimHachingerKerzendorf17]</a></li>
+<li><a class="reference internal" href="#inserra2016" id="id7">[InserraBullaSimSmartt16]</a></li>
+<li><a class="reference internal" href="#magee2016" id="id8">[MageeKotakSim+16]</a></li>
+</ul>
+</div>
+<div class="section" id="monte-carlo-radiative-transfer-works">
+<h2>Monte Carlo Radiative Transfer Works<a class="headerlink" href="#monte-carlo-radiative-transfer-works" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><a class="reference internal" href="#mazzali1993" id="id9">[MazzaliLucy93]</a></li>
+<li><a class="reference internal" href="#lucy1999" id="id10">[Lucy99a]</a></li>
+<li><a class="reference internal" href="#long2002" id="id11">[LongKnigge02]</a></li>
+<li><a class="reference internal" href="#lucy2002" id="id12">[Lucy02]</a></li>
+<li><a class="reference internal" href="#lucy2003" id="id13">[Lucy03]</a></li>
+</ul>
+</div>
+<div class="section" id="references">
+<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
+<p id="bibtex-bibliography-zreferences-0"><table class="docutils citation" frame="void" id="abbott1985" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[AbbottLucy85]</td><td>D.&nbsp;C. Abbott and L.&nbsp;B. Lucy. Multiline transfer and the dynamics of stellar winds. <em>Astrophysical Journal</em>, 288:679–693, January 1985. <a class="reference external" href="https://doi.org/10.1086/162834">doi:10.1086/162834</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="barna2017" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id3">[BarnaSzalaiKromer+17]</a></td><td>B.&nbsp;Barna, T.&nbsp;Szalai, M.&nbsp;Kromer, W.&nbsp;E. Kerzendorf, J.&nbsp;Vinkó, J.&nbsp;M. Silverman, G.&nbsp;H. Marion, and J.&nbsp;C. Wheeler. Abundance tomography of type iax sn 2011ay with tardis. <em>Monthly Notices of the RAS</em>, 471:4865–4877, November 2017. <a class="reference external" href="https://arxiv.org/abs/1707.07848">arXiv:1707.07848</a>, <a class="reference external" href="https://doi.org/10.1093/mnras/stx1894">doi:10.1093/mnras/stx1894</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="boyle2017" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id6">[BoyleSimHachingerKerzendorf17]</a></td><td>A.&nbsp;Boyle, S.&nbsp;A. Sim, S.&nbsp;Hachinger, and W.&nbsp;Kerzendorf. Helium in double-detonation models of type ia supernovae. <em>Astronomy and Astrophysics</em>, 599:A46, March 2017. <a class="reference external" href="https://arxiv.org/abs/1611.05938">arXiv:1611.05938</a>, <a class="reference external" href="https://doi.org/10.1051/0004-6361/201629712">doi:10.1051/0004-6361/201629712</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="carter1975" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[CarterCashwell75]</td><td>L.&nbsp;L. Carter and E.&nbsp;Cashwell. Particle-transport simulation with the Monte Carlo method. Technical Report, Los Alamos Scientific Laboratory, 1975. URL: <a class="reference external" href="http://www.iaea.org/inis/collection/NCLCollectionStore/_Public/07/227/7227109.pdf">http://www.iaea.org/inis/collection/NCLCollectionStore/_Public/07/227/7227109.pdf</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="heringer2017" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id4">[HeringervKerkwijkSimKerzendorf17]</a></td><td>E.&nbsp;Heringer, M.&nbsp;H. van Kerkwijk, S.&nbsp;A. Sim, and W.&nbsp;E. Kerzendorf. Spectral sequences of type ia supernovae. i. connecting normal and subluminous sne ia and the presence of unburned carbon. <em>Astrophysical Journal</em>, 846:15, September 2017. <a class="reference external" href="https://doi.org/10.3847/1538-4357/aa8309">doi:10.3847/1538-4357/aa8309</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="inserra2016" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id7">[InserraBullaSimSmartt16]</a></td><td>C.&nbsp;Inserra, M.&nbsp;Bulla, S.&nbsp;A. Sim, and S.&nbsp;J. Smartt. Spectropolarimetry of superluminous supernovae: insight into their geometry. <em>Astrophysical Journal</em>, 831:79, November 2016. <a class="reference external" href="https://arxiv.org/abs/1607.02353">arXiv:1607.02353</a>, <a class="reference external" href="https://doi.org/10.3847/0004-637X/831/1/79">doi:10.3847/0004-637X/831/1/79</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="kalos2008" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[KalosWhitlock08]</td><td>M.&nbsp;H. Kalos and P.&nbsp;A. Whitlock. <em>Monte Carlo Methods: Second Revised and Enlarged Edition</em>. Wiley-VCH Verlag, 2008.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="kerzendorf2014" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[KerzendorfSim14]</a></td><td>W.&nbsp;E. Kerzendorf and S.&nbsp;A. Sim. A spectral synthesis code for rapid modelling of supernovae. <em>Monthly Notices of the RAS</em>, 440:387–404, May 2014. <a class="reference external" href="https://arxiv.org/abs/1401.5469">arXiv:1401.5469</a>, <a class="reference external" href="https://doi.org/10.1093/mnras/stu055">doi:10.1093/mnras/stu055</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="long2002" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id11">[LongKnigge02]</a></td><td>K.&nbsp;S. Long and C.&nbsp;Knigge. Modeling the Spectral Signatures of Accretion Disk Winds: A New Monte Carlo Approach. <em>Astrophysical Journal</em>, 579:725–740, November 2002. <a class="reference external" href="https://arxiv.org/abs/arXiv:astro-ph/0208011">arXiv:arXiv:astro-ph/0208011</a>, <a class="reference external" href="https://doi.org/10.1086/342879">doi:10.1086/342879</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lucy1999" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id10">[Lucy99a]</a></td><td>L.&nbsp;B. Lucy. Computing radiative equilibria with Monte Carlo techniques. <em>Astronomy and Astrophysics</em>, 344:282–288, April 1999.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lucy1999a" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Lucy99b]</td><td>L.&nbsp;B. Lucy. Improved Monte Carlo techniques for the spectral synthesis of supernovae. <em>Astronomy and Astrophysics</em>, 345:211–220, May 1999.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lucy2002" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id12">[Lucy02]</a></td><td>L.&nbsp;B. Lucy. Monte Carlo transition probabilities. <em>Astronomy and Astrophysics</em>, 384:725–735, March 2002. <a class="reference external" href="https://arxiv.org/abs/arXiv:astro-ph/0107377">arXiv:arXiv:astro-ph/0107377</a>, <a class="reference external" href="https://doi.org/10.1051/0004-6361:20011756">doi:10.1051/0004-6361:20011756</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lucy2003" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id13">[Lucy03]</a></td><td>L.&nbsp;B. Lucy. Monte Carlo transition probabilities. II. <em>Astronomy and Astrophysics</em>, 403:261–275, May 2003. <a class="reference external" href="https://arxiv.org/abs/arXiv:astro-ph/0303202">arXiv:arXiv:astro-ph/0303202</a>, <a class="reference external" href="https://doi.org/10.1051/0004-6361:20030357">doi:10.1051/0004-6361:20030357</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="lucy2005" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Lucy05]</td><td>L.&nbsp;B. Lucy. Monte Carlo techniques for time-dependent radiative transfer in 3-D supernovae. <em>Astronomy and Astrophysics</em>, 429:19–30, January 2005. <a class="reference external" href="https://arxiv.org/abs/arXiv:astro-ph/0409249">arXiv:arXiv:astro-ph/0409249</a>, <a class="reference external" href="https://doi.org/10.1051/0004-6361:20041656">doi:10.1051/0004-6361:20041656</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="magee2016" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id8">[MageeKotakSim+16]</a></td><td>M.&nbsp;R. Magee, R.&nbsp;Kotak, S.&nbsp;A. Sim, M.&nbsp;Kromer, D.&nbsp;Rabinowitz, S.&nbsp;J. Smartt, C.&nbsp;Baltay, H.&nbsp;C. Campbell, T.-W. Chen, M.&nbsp;Fink, A.&nbsp;Gal-Yam, L.&nbsp;Galbany, W.&nbsp;Hillebrandt, C.&nbsp;Inserra, E.&nbsp;Kankare, L.&nbsp;Le Guillou, J.&nbsp;D. Lyman, K.&nbsp;Maguire, R.&nbsp;Pakmor, F.&nbsp;K. Röpke, A.&nbsp;J. Ruiter, I.&nbsp;R. Seitenzahl, M.&nbsp;Sullivan, S.&nbsp;Valenti, and D.&nbsp;R. Young. The type Iax supernova, SN 2015H. A white dwarf deflagration candidate. <em>Astronomy and Astrophysics</em>, 589:A89, April 2016. <a class="reference external" href="https://arxiv.org/abs/1603.04728">arXiv:1603.04728</a>, <a class="reference external" href="https://doi.org/10.1051/0004-6361/201528036">doi:10.1051/0004-6361/201528036</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="magee2017" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id5">[MageeKotakSim+17]</a></td><td>M.&nbsp;R. Magee, R.&nbsp;Kotak, S.&nbsp;A. Sim, D.&nbsp;Wright, S.&nbsp;J. Smartt, E.&nbsp;Berger, R.&nbsp;Chornock, R.&nbsp;J. Foley, D.&nbsp;A. Howell, N.&nbsp;Kaiser, E.&nbsp;A. Magnier, R.&nbsp;Wainscoat, and C.&nbsp;Waters. Growing evidence that sne iax are not a one-parameter family. the case of ps1-12bwh. <em>Astronomy and Astrophysics</em>, 601:A62, May 2017. <a class="reference external" href="https://arxiv.org/abs/1701.05459">arXiv:1701.05459</a>, <a class="reference external" href="https://doi.org/10.1051/0004-6361/201629643">doi:10.1051/0004-6361/201629643</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="mazzali1993" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id9">[MazzaliLucy93]</a></td><td>P.&nbsp;A. Mazzali and L.&nbsp;B. Lucy. The application of Monte Carlo methods to the synthesis of early-time supernovae spectra. <em>Astronomy and Astrophysics</em>, 279:447–456, November 1993.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="noebauer2014" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[Noebauer14]</td><td>U.&nbsp;M. Noebauer. <em>A Monte Carlo Approach to Radiation Hydrodynamics in Stellar Outflows</em>. PhD thesis, Technische Universität München, München, 2014. URL: <a class="reference external" href="http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8">http://nbn-resolving.de/urn/resolver.pl?urn:nbn:de:bvb:91-diss-20140731-1219398-0-8</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="sim2010" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[SimProgaMiller+10]</td><td>S.&nbsp;A. Sim, D.&nbsp;Proga, L.&nbsp;Miller, K.&nbsp;S. Long, and T.&nbsp;J. Turner. Multidimensional modelling of X-ray spectra for AGN accretion disc outflows - III. Application to a hydrodynamical simulation. <em>Monthly Notices of the RAS</em>, 408:1396–1408, November 2010. <a class="reference external" href="https://arxiv.org/abs/1006.3449">arXiv:1006.3449</a>, <a class="reference external" href="https://doi.org/10.1111/j.1365-2966.2010.17215.x">doi:10.1111/j.1365-2966.2010.17215.x</a>.</td></tr>
+</tbody>
+</table>
+<table class="docutils citation" frame="void" id="smartt2017" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id2">[SmarttChenJerkstrand+17]</a></td><td>S.&nbsp;J. Smartt, T.-W. Chen, A.&nbsp;Jerkstrand, M.&nbsp;Coughlin, E.&nbsp;Kankare, S.&nbsp;A. Sim, M.&nbsp;Fraser, C.&nbsp;Inserra, K.&nbsp;Maguire, K.&nbsp;C. Chambers, M.&nbsp;E. Huber, T.&nbsp;Krühler, G.&nbsp;Leloudas, M.&nbsp;Magee, L.&nbsp;J. Shingles, K.&nbsp;W. Smith, D.&nbsp;R. Young, J.&nbsp;Tonry, R.&nbsp;Kotak, A.&nbsp;Gal-Yam, J.&nbsp;D. Lyman, D.&nbsp;S. Homan, C.&nbsp;Agliozzo, J.&nbsp;P. Anderson, C.&nbsp;R. Angus, C.&nbsp;Ashall, C.&nbsp;Barbarino, F.&nbsp;E. Bauer, M.&nbsp;Berton, M.&nbsp;T. Botticella, M.&nbsp;Bulla, J.&nbsp;Bulger, G.&nbsp;Cannizzaro, Z.&nbsp;Cano, R.&nbsp;Cartier, A.&nbsp;Cikota, P.&nbsp;Clark, A.&nbsp;De Cia, M.&nbsp;Della Valle, L.&nbsp;Denneau, M.&nbsp;Dennefeld, L.&nbsp;Dessart, G.&nbsp;Dimitriadis, N.&nbsp;Elias-Rosa, R.&nbsp;E. Firth, H.&nbsp;Flewelling, A.&nbsp;Flörs, A.&nbsp;Franckowiak, C.&nbsp;Frohmaier, L.&nbsp;Galbany, S.&nbsp;González-Gaitán, J.&nbsp;Greiner, M.&nbsp;Gromadzki, A.&nbsp;N. Guelbenzu, C.&nbsp;P. Gutiérrez, A.&nbsp;Hamanowicz, L.&nbsp;Hanlon, J.&nbsp;Harmanen, K.&nbsp;E. Heintz, A.&nbsp;Heinze, M.-S. Hernandez, S.&nbsp;T. Hodgkin, I.&nbsp;M. Hook, L.&nbsp;Izzo, P.&nbsp;A. James, P.&nbsp;G. Jonker, W.&nbsp;E. Kerzendorf, S.&nbsp;Klose, Z.&nbsp;Kostrzewa-Rutkowska, M.&nbsp;Kowalski, M.&nbsp;Kromer, H.&nbsp;Kuncarayakti, A.&nbsp;Lawrence, T.&nbsp;B. Lowe, E.&nbsp;A. Magnier, I.&nbsp;Manulis, A.&nbsp;Martin-Carrillo, S.&nbsp;Mattila, O.&nbsp;McBrien, A.&nbsp;Müller, J.&nbsp;Nordin, D.&nbsp;O’Neill, F.&nbsp;Onori, J.&nbsp;T. Palmerio, A.&nbsp;Pastorello, F.&nbsp;Patat, G.&nbsp;Pignata, P.&nbsp;Podsiadlowski, M.&nbsp;L. Pumo, S.&nbsp;J. Prentice, A.&nbsp;Rau, A.&nbsp;Razza, A.&nbsp;Rest, T.&nbsp;Reynolds, R.&nbsp;Roy, A.&nbsp;J. Ruiter, K.&nbsp;A. Rybicki, L.&nbsp;Salmon, P.&nbsp;Schady, A.&nbsp;S.&nbsp;B. Schultz, T.&nbsp;Schweyer, I.&nbsp;R. Seitenzahl, M.&nbsp;Smith, J.&nbsp;Sollerman, B.&nbsp;Stalder, C.&nbsp;W. Stubbs, M.&nbsp;Sullivan, H.&nbsp;Szegedi, F.&nbsp;Taddia, S.&nbsp;Taubenberger, G.&nbsp;Terreran, B.&nbsp;van Soelen, J.&nbsp;Vos, R.&nbsp;J. Wainscoat, N.&nbsp;A. Walton, C.&nbsp;Waters, H.&nbsp;Weiland, M.&nbsp;Willman, P.&nbsp;Wiseman, D.&nbsp;E. Wright, Ł.&nbsp;Wyrzykowski, and O.&nbsp;Yaron. A kilonova as the electromagnetic counterpart to a gravitational-wave source. <em>Nature</em>, 551:75–79, November 2017. <a class="reference external" href="https://arxiv.org/abs/1710.05841">arXiv:1710.05841</a>, <a class="reference external" href="https://doi.org/10.1038/nature24303">doi:10.1038/nature24303</a>.</td></tr>
+</tbody>
+</table>
+</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="changelog.html" class="btn btn-neutral float-left" title="Change Log" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

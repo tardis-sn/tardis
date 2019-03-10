@@ -1,0 +1,1100 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Configuration File &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Configuration Validator" href="config_validator.html" />
+    <link rel="prev" title="Configuration" href="index.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../running/index.html">Running Tardis</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Configuration</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Configuration File</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configuration-schema">Configuration Schema</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="config_validator.html">Configuration Validator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="read_configuration.html">Reading the Configuration Files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../running/access.html">Accessing Physical Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../running/using_formal_integral.html">Spectral Synthesis with the Formal Integral Method</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../running/index.html">Running Tardis</a> &raquo;</li>
+        
+          <li><a href="index.html">Configuration</a> &raquo;</li>
+        
+      <li>Configuration File</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/configuration/configuration.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<div class="section" id="configuration-file">
+<span id="config-file"></span><h1>Configuration File<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h1>
+<p>TARDIS uses the <a class="reference external" href="https://en.wikipedia.org/wiki/YAML">YAML markup language</a>
+for its configuration files. There are several sections which allow different
+settings for the different aspects of the TARDIS calculation. An example
+configuration file (with a small subset of the options that can be specified) can be downloaded <a class="reference download internal" download="" href="../_downloads/6a9e98898d909ffa422ebbb4045adf11/tardis_example.yml"><code class="xref download docutils literal notranslate"><span class="pre">here</span></code></a>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">One should note that currently floats in YAML need to be specified in a special format:
+any pure floats need to have a +/- after the e e.g. 2e+5</p>
+</div>
+<p>The TARDIS configuration consists of multiple sections that pertain to certain parts of the code. We will use the
+schemas to show what options are available. Our schema mark-up defines names in bold-fat as required.
+can be seen here:</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The following shows all the options (and their default settings) that are available for TARDIS. No other options
+are allowed or available</p>
+</div>
+<div class="section" id="configuration-schema">
+<h2>Configuration Schema<a class="headerlink" href="#configuration-schema" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>object</em></td>
+</tr>
+<tr class="row-even"><td colspan="3">properties</td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li><strong>tardis_config_version</strong></li>
+</ul>
+</td>
+<td colspan="2">Version of the configuration file. The current version is 1.0 and no other versions are allowed</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td><em>string</em></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>supernova</li>
+</ul>
+</td>
+<td colspan="2">a section pertaining to observations of the supernova</td>
+</tr>
+<tr class="row-even"><td colspan="2"><a class="reference internal" href="#supernova.yml"><span class="std std-ref">supernova.yml</span></a></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li><strong>atom_data</strong></li>
+</ul>
+</td>
+<td colspan="2">path or filename to the Atomic Data HDF5 file</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td><em>string</em></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>plasma</li>
+</ul>
+</td>
+<td colspan="2">configuration of the plasma microphysics</td>
+</tr>
+<tr class="row-even"><td colspan="2"><a class="reference internal" href="#plasma.yml"><span class="std std-ref">plasma.yml</span></a></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>model</li>
+</ul>
+</td>
+<td colspan="2">defining the model</td>
+</tr>
+<tr class="row-even"><td colspan="2"><a class="reference internal" href="#model.yml"><span class="std std-ref">model.yml</span></a></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>montecarlo</li>
+</ul>
+</td>
+<td colspan="2">configuring the physics of the monte carlo radiative transfer</td>
+</tr>
+<tr class="row-even"><td colspan="2"><a class="reference internal" href="#montecarlo.yml"><span class="std std-ref">montecarlo.yml</span></a></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li><strong>spectrum</strong></li>
+</ul>
+</td>
+<td colspan="2">Final spectrum sampling</td>
+</tr>
+<tr class="row-even"><td colspan="2"><a class="reference internal" href="#spectrum.yml"><span class="std std-ref">spectrum.yml</span></a></td>
+</tr>
+<tr class="row-odd"><td>additionalProperties</td>
+<td colspan="2">False</td>
+</tr>
+</tbody>
+</table>
+<p>The base schema links to several other configuration parts</p>
+<div class="section" id="supernova">
+<h3>Supernova<a class="headerlink" href="#supernova" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils" id="supernova.yml">
+<colgroup>
+<col width="33%" />
+<col width="33%" />
+<col width="33%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>object</em></td>
+</tr>
+<tr class="row-even"><td colspan="3">properties</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li><strong>luminosity_requested</strong></li>
+</ul>
+</td>
+<td colspan="2">requested output luminosity for simulation</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td><em>quantity</em></td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td>1 solLum</td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="first last simple">
+<li><strong>time_explosion</strong></li>
+</ul>
+</td>
+<td colspan="2">time since explosion</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td><em>quantity</em></td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="first last simple">
+<li>distance</li>
+</ul>
+</td>
+<td colspan="2">distance to supernova - <strong>THIS IS DEPRECATED AND NOT IN USE</strong></td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td><em>quantity</em></td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li>luminosity_wavelength_start</li>
+</ul>
+</td>
+<td colspan="2">start of the integral needed for getting the luminosity right</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td><em>quantity</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td>0 angstrom</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li>luminosity_wavelength_end</li>
+</ul>
+</td>
+<td colspan="2">start of the integral needed for getting the luminosity right</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td><em>quantity</em></td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td>inf angstrom</td>
+</tr>
+<tr class="row-even"><td>additionalProperties</td>
+<td colspan="2">False</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="model">
+<h3>Model<a class="headerlink" href="#model" title="Permalink to this headline">¶</a></h3>
+<p>The next sections, describing the model, are very hierarchical. The base level is <code class="docutils literal notranslate"><span class="pre">model</span></code> and contains two subsections:
+<code class="docutils literal notranslate"><span class="pre">structure</span></code> and <code class="docutils literal notranslate"><span class="pre">abundances</span></code>. Both sections can either contain a <code class="docutils literal notranslate"><span class="pre">file</span></code> subsection which specifies a file and
+file type where the information is stored or a number of other sections.</p>
+<table border="1" class="docutils" id="model.yml">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>type</td>
+<td colspan="3"><em>object</em></td>
+</tr>
+<tr class="row-even"><td colspan="4">properties</td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>structure</li>
+</ul>
+</td>
+<td rowspan="2">oneOf</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><span class="xref std std-ref">#/definitions/structure/file</span></td>
+</tr>
+<tr class="row-even"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><span class="xref std std-ref">#/definitions/structure/specific</span></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>abundances</li>
+</ul>
+</td>
+<td rowspan="2">oneOf</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><span class="xref std std-ref">#/definitions/abundances/file</span></td>
+</tr>
+<tr class="row-even"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><span class="xref std std-ref">#/definitions/abundances/uniform</span></td>
+</tr>
+<tr class="row-odd"><td>additionalProperties</td>
+<td colspan="3">False</td>
+</tr>
+<tr class="row-even"><td colspan="4">definitions</td>
+</tr>
+<tr class="row-odd"><td colspan="4"><ul class="first last simple">
+<li>density</li>
+</ul>
+</td>
+</tr>
+<tr class="row-even"><td colspan="4"><ul class="first last simple">
+<li>structure</li>
+</ul>
+</td>
+</tr>
+<tr class="row-odd"><td colspan="4"><ul class="first last simple">
+<li>abundances</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>All types of <code class="docutils literal notranslate"><span class="pre">structure</span></code> definitions have two keywords in common <code class="docutils literal notranslate"><span class="pre">v_inner_boundary</span></code> and <code class="docutils literal notranslate"><span class="pre">v_outer_boundary</span></code>.
+In the <code class="docutils literal notranslate"><span class="pre">structure</span></code> section, one can specify a <code class="docutils literal notranslate"><span class="pre">file</span></code> section containing a <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter
+(currently only <code class="docutils literal notranslate"><span class="pre">artis</span></code> is supported``) and a <code class="docutils literal notranslate"><span class="pre">name</span></code> parameter giving a path top a file.</p>
+<p>If one doesn’t specify a <code class="docutils literal notranslate"><span class="pre">file</span></code> section, the code requires two sections (<code class="docutils literal notranslate"><span class="pre">velocities</span></code> and <code class="docutils literal notranslate"><span class="pre">densities</span></code>) and a
+parameter <code class="docutils literal notranslate"><span class="pre">no_of_shells</span></code>. <code class="docutils literal notranslate"><span class="pre">no_of_shells</span></code> is the requested number of shells for a model. The <code class="docutils literal notranslate"><span class="pre">velocity</span></code> section
+requires a <code class="docutils literal notranslate"><span class="pre">type</span></code>. Currently, only <code class="docutils literal notranslate"><span class="pre">linear</span></code> is supported.</p>
+<dl class="docutils">
+<dt>In the <code class="docutils literal notranslate"><span class="pre">densities</span></code> section the <code class="docutils literal notranslate"><span class="pre">type</span></code> parameter again decides on the parameters. The type <code class="docutils literal notranslate"><span class="pre">uniform</span></code> only needs a</dt>
+<dd><code class="docutils literal notranslate"><span class="pre">value</span></code> parameter with a density compatible quantity. The type <code class="docutils literal notranslate"><span class="pre">branch85_w7</span></code> uses a seven order polynomial fit to
+the W7 model and is parametrised by time since explosion. The parameters <code class="docutils literal notranslate"><span class="pre">time_0</span></code> and <code class="docutils literal notranslate"><span class="pre">density_coefficient</span></code> are set
+to sensible defaults and should not be changed.</dd>
+</dl>
+<p>The <code class="docutils literal notranslate"><span class="pre">abundance</span></code> section again has a possible <code class="docutils literal notranslate"><span class="pre">file</span></code> parameter with <code class="docutils literal notranslate"><span class="pre">type</span></code> (currently only <code class="docutils literal notranslate"><span class="pre">artis</span></code> is allowed)
+and a <code class="docutils literal notranslate"><span class="pre">name</span></code> parameter giving a path to a file containing the abundance information.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">In contrast to the <code class="docutils literal notranslate"><span class="pre">structure</span></code> section, the <code class="docutils literal notranslate"><span class="pre">abundance</span></code> section will not ignore abundances set in the rest of
+the section, but merely will overwrite the abundances given in the file section.</p>
+</div>
+<p>The rest of the section can be used to configure uniform abundances for all shells, by giving the atom name and a
+relative abundance fraction. If it does not add up to 1., TARDIS will warn - but normalize the numbers.</p>
+</div>
+<div class="section" id="plasma">
+<h3>Plasma<a class="headerlink" href="#plasma" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils" id="plasma.yml">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>type</td>
+<td colspan="3"><em>object</em></td>
+</tr>
+<tr class="row-even"><td colspan="4">properties</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li>initial_t_inner</li>
+</ul>
+</td>
+<td colspan="3">initial temperature of the inner boundary black body. If set to -1 K  will result in automatic calculation of boundary</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>quantity</em></td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td colspan="2">-1 K</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li>initial_t_rad</li>
+</ul>
+</td>
+<td colspan="3">initial radiative temperature in all cells. If set to -1 K will result in automtatic calculation of the initial temperatures</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>quantity</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">-1 K</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li>disable_electron_scattering</li>
+</ul>
+</td>
+<td colspan="3">disable electron scattering process in montecarlo part - non-physical only for tests</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>boolean</em></td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td colspan="2">False</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li><strong>ionization</strong></li>
+</ul>
+</td>
+<td colspan="3">ionization treatment mode</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>string</em></td>
+</tr>
+<tr class="row-even"><td>enum</td>
+<td colspan="2">nebular, lte</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li><strong>excitation</strong></li>
+</ul>
+</td>
+<td colspan="3">excitation treatment mode</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>string</em></td>
+</tr>
+<tr class="row-odd"><td>enum</td>
+<td colspan="2">lte, dilute-lte</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li><strong>radiative_rates_type</strong></li>
+</ul>
+</td>
+<td colspan="3">radiative rates treatment mode</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>string</em></td>
+</tr>
+<tr class="row-even"><td>enum</td>
+<td colspan="2">dilute-blackbody, detailed, blackbody</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li><strong>line_interaction_type</strong></li>
+</ul>
+</td>
+<td colspan="3">line interaction mode</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>string</em></td>
+</tr>
+<tr class="row-odd"><td>enum</td>
+<td colspan="2">scatter, downbranch, macroatom</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li>w_epsilon</li>
+</ul>
+</td>
+<td colspan="3">w to use when j_blues get numerically 0. - avoids numerical complications</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">1e-10</td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>delta_treatment</li>
+</ul>
+</td>
+<td colspan="3">In the saha calculation set delta equals to the number given in this configuration item. if set to None (default), normal delta treatment (as described in Mazzali &amp; Lucy 1993) will be applied</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-odd"><td rowspan="13"><ul class="first last simple">
+<li>nlte</li>
+</ul>
+</td>
+<td>type</td>
+<td colspan="2"><em>object</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">OrderedDict()</td>
+</tr>
+<tr class="row-odd"><td colspan="3">properties</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li>species</li>
+</ul>
+</td>
+<td colspan="2">Species that are requested to be NLTE treated in the format  [‘Si 2’, ‘Ca 1’, etc.]</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td><em>array</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td>[]</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li>coronal_approximation</li>
+</ul>
+</td>
+<td colspan="2">set all jblues=0.0</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td><em>boolean</em></td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td>False</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li>classical_nebular</li>
+</ul>
+</td>
+<td colspan="2">sets all beta_sobolevs to 1</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td><em>boolean</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td>False</td>
+</tr>
+<tr class="row-odd"><td>additionalProperties</td>
+<td colspan="2">False</td>
+</tr>
+<tr class="row-even"><td rowspan="4"><ul class="first last simple">
+<li>helium_treatment</li>
+</ul>
+</td>
+<td colspan="3">none to treat He as the other elements. recomb-nlte to treat with NLTE approximation.</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>string</em></td>
+</tr>
+<tr class="row-even"><td>enum</td>
+<td colspan="2">none, recomb-nlte, numerical-nlte</td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td colspan="2">none</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li>heating_rate_data_file</li>
+</ul>
+</td>
+<td colspan="3">Path to file containing heating rate/light curve data.</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>string</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">none</td>
+</tr>
+<tr class="row-odd"><td>additionalProperties</td>
+<td colspan="3">False</td>
+</tr>
+</tbody>
+</table>
+<p><code class="docutils literal notranslate"><span class="pre">inital_t_inner</span></code> is initial temperature (will be updated for most modes of TARDIS - see convergence section) of the black-body on the inner
+boundary. <code class="docutils literal notranslate"><span class="pre">initial_t_rad</span></code> is the initial radiation temperature (will be updated for most modes of TARDIS - see convergence section). For debugging purposes and to compare to
+<span class="xref std std-term">synapps</span> calculations one can disable the electron scattering. TARDIS will issue a warning that this is not physical.
+There are currently two <code class="docutils literal notranslate"><span class="pre">plasma_type</span></code> options available: <code class="docutils literal notranslate"><span class="pre">nebular</span></code> and <code class="docutils literal notranslate"><span class="pre">lte</span></code> which tell TARDIS how to run the
+ionization equilibrium and level population calculations (see <a class="reference internal" href="../physics/plasma/plasma.html#plasmas"><span class="std std-ref">Plasma</span></a> for more information).
+The radiative rates describe how to calculate the <span class="math notranslate nohighlight">\(J_\textrm{blue}\)</span> needed for the <span class="xref std std-ref">nlte</span> calculations and
+<span class="xref std std-ref">macroatom</span> calculations. There are three options for <code class="docutils literal notranslate"><span class="pre">radiative_rates_type</span></code>: 1) <code class="docutils literal notranslate"><span class="pre">lte</span></code> in which
+<span class="math notranslate nohighlight">\(J_\textrm{blue} = \textrm{Blackbody}(T_\textrm{rad})\)</span>, 2) <code class="docutils literal notranslate"><span class="pre">nebular</span></code> in which
+<span class="math notranslate nohighlight">\(J_\textrm{blue} = W \times \textrm{Blackbody}(T_\textrm{rad})\)</span>, 3) <code class="docutils literal notranslate"><span class="pre">detailed</span></code> in which the <span class="math notranslate nohighlight">\(J_\textrm{blue}\)</span>
+are calculated using an estimator (this is described in ??????).</p>
+<p>TARDIS currently supports three different kinds of line interaction: <code class="docutils literal notranslate"><span class="pre">scatter</span></code> - a resonance scattering implementation,
+<code class="docutils literal notranslate"><span class="pre">macroatom</span></code> - the most complex form of line interaction described in <span class="xref std std-ref">macroatom</span> and <code class="docutils literal notranslate"><span class="pre">downbranch</span></code> a simplified
+version of <code class="docutils literal notranslate"><span class="pre">macroatom</span></code> in which only downward transitions are allowed.</p>
+<p>Finally, <code class="docutils literal notranslate"><span class="pre">w_epsilon</span></code> describes the dilution factor to use to calculate <span class="math notranslate nohighlight">\(J_\textrm{blue}\)</span> that are 0, which
+causes problem with the code (so <span class="math notranslate nohighlight">\(J_\textrm{blue}\)</span> are set to a very small number).</p>
+<div class="section" id="nlte">
+<h4>NLTE<a class="headerlink" href="#nlte" title="Permalink to this headline">¶</a></h4>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">nlte</span><span class="p">:</span>
+    <span class="nt">coronal_approximation</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">True</span>
+    <span class="nt">classical_nebular</span><span class="p">:</span> <span class="l l-Scalar l-Scalar-Plain">False</span>
+</pre></div>
+</div>
+<p>The NLTE configuration currently allows setting <code class="docutils literal notranslate"><span class="pre">coronal_approximation</span></code> which sets all <span class="math notranslate nohighlight">\(J_\textrm{blue}\)</span> to 0.
+This is useful for debugging with <span class="xref std std-term">chianti</span> for example. Furthermore one can enable ‘classical_nebular’ to set all
+<span class="math notranslate nohighlight">\(\beta_\textrm{Sobolev}\)</span> to 1. Both options are used for checking with other codes and should not be enabled in
+normal operations.</p>
+</div>
+</div>
+<div class="section" id="monte-carlo">
+<h3>Monte Carlo<a class="headerlink" href="#monte-carlo" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">montecarlo</span></code> section describes the parameters for the Monte Carlo radiation transport and convergence criteria:</p>
+<table border="1" class="docutils" id="montecarlo.yml">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>type</td>
+<td colspan="3"><em>object</em></td>
+</tr>
+<tr class="row-even"><td colspan="4">properties</td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="first last simple">
+<li>nthreads</li>
+</ul>
+</td>
+<td colspan="3">The number of OpenMP threads. If set to 0, the value stored in the OMP_NUM_THREADS environment variable is used. If this variable is not set, the maximum number of available threads are used.</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-odd"><td>multipleOf</td>
+<td colspan="2">1.0</td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">0</td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="first last simple">
+<li>seed</li>
+</ul>
+</td>
+<td colspan="3">Seed for the random number generator</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-odd"><td>multipleOf</td>
+<td colspan="2">1.0</td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">23111963</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li><strong>no_of_packets</strong></li>
+</ul>
+</td>
+<td colspan="3">Seed for the random number generator</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-odd"><td>multipleOf</td>
+<td colspan="2">1.0</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li><strong>iterations</strong></li>
+</ul>
+</td>
+<td colspan="3">Number of maximum iterations</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-even"><td>multipleOf</td>
+<td colspan="2">1.0</td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="first last simple">
+<li>last_no_of_packets</li>
+</ul>
+</td>
+<td colspan="3">This can set the number of packets for the last run. If set negative it will remain the same as all other runs.</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-odd"><td>multipleOf</td>
+<td colspan="2">1.0</td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">-1</td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="first last simple">
+<li>no_of_virtual_packets</li>
+</ul>
+</td>
+<td colspan="3">Setting the number of virtual packets for the last iteration.</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-odd"><td>multipleOf</td>
+<td colspan="2">1.0</td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">0</td>
+</tr>
+<tr class="row-odd"><td rowspan="11"><ul class="first last simple">
+<li>virtual_spectrum_range</li>
+</ul>
+</td>
+<td colspan="3">Limits of virtual packet spectrum (giving maximum and minimum packet frequency)</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>object</em></td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td colspan="2">OrderedDict()</td>
+</tr>
+<tr class="row-even"><td colspan="3">properties</td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>start</li>
+</ul>
+</td>
+<td>type</td>
+<td><em>quantity</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td>50 angstrom</td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>stop</li>
+</ul>
+</td>
+<td>type</td>
+<td><em>quantity</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td>250000 angstrom</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li>num</li>
+</ul>
+</td>
+<td>type</td>
+<td><em>number</em></td>
+</tr>
+<tr class="row-even"><td>multipleOf</td>
+<td>1.0</td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td>1000000</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li>enable_reflective_inner_boundary</li>
+</ul>
+</td>
+<td colspan="3">experimental feature to enable a reflective boundary.</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td colspan="2"><em>boolean</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">False</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li>inner_boundary_albedo</li>
+</ul>
+</td>
+<td colspan="3">albedo of the reflective boundary</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td colspan="2">0.0</td>
+</tr>
+<tr class="row-even"><td rowspan="2"><ul class="first last simple">
+<li>convergence_strategy</li>
+</ul>
+</td>
+<td rowspan="2">oneOf</td>
+<td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><span class="xref std std-ref">#/definitions/convergence_strategy/damped</span></td>
+</tr>
+<tr class="row-odd"><td><ul class="first last simple">
+<li></li>
+</ul>
+</td>
+<td><span class="xref std std-ref">#/definitions/convergence_strategy/custom</span></td>
+</tr>
+<tr class="row-even"><td>additionalProperties</td>
+<td colspan="3">False</td>
+</tr>
+<tr class="row-odd"><td colspan="4">definitions</td>
+</tr>
+<tr class="row-even"><td colspan="4"><ul class="first last simple">
+<li>convergence_strategy</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>The <code class="docutils literal notranslate"><span class="pre">seed</span></code> parameter seeds the random number generator first for the creation of the packets
+(<span class="math notranslate nohighlight">\(\nu\)</span> and <span class="math notranslate nohighlight">\(\mu\)</span>) and then the interactions in the actual Monte Carlo process.
+The <code class="docutils literal notranslate"><span class="pre">no_of_packets</span></code> parameter can take a float number for input convenience and gives the number of packets normally
+used in each Monte Carlo loop. The parameters <code class="docutils literal notranslate"><span class="pre">last_no_of_packets</span></code> and <code class="docutils literal notranslate"><span class="pre">no_of_virtual_packets</span></code> influence the last run
+of the Monte Carlo loop (which calculates the final spectrum!) when the radiation field should have converged. <code class="docutils literal notranslate"><span class="pre">last_no_of_packets</span></code> is normally higher than
+<code class="docutils literal notranslate"><span class="pre">no_of_packets</span></code> to create a less noisy output spectrum. <code class="docutils literal notranslate"><span class="pre">no_of_virtual_packets</span></code> can also be set to greater than 0 (a useful number is 3) to
+use the Virtual Packet formalism. Increasing this number drasitcally increases computational costs(and memory requirements if they are logged)
+The <code class="docutils literal notranslate"><span class="pre">iterations</span></code> parameter describes the maximum number of Monte Carlo loops executed in a simulation before it ends. Convergence criteria can be used to make the simulation stop
+sooner when the convergence threshold has been reached.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">convergence_criteria</span></code> section again has a <code class="docutils literal notranslate"><span class="pre">type</span></code> keyword. Currently, one type is allowed: <code class="docutils literal notranslate"><span class="pre">damped</span></code>.
+All convergence criteria can be specified separately for the three variables for which convergence can be checked
+(<code class="docutils literal notranslate"><span class="pre">t_inner</span></code>, <code class="docutils literal notranslate"><span class="pre">t_rad</span></code>, <code class="docutils literal notranslate"><span class="pre">ws</span></code>) by specifying subsections in the <code class="docutils literal notranslate"><span class="pre">convergence_criteria</span></code> of the same name. These
+override then the defaults.</p>
+<ol class="arabic simple">
+<li><dl class="first docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">damped</span></code> only has one parameter <code class="docutils literal notranslate"><span class="pre">damping-constant</span></code> and does not check for convergence. This can be used to fix the</dt>
+<dd>temperature of the inner boundary (by increasing the <code class="docutils literal notranslate"><span class="pre">convergence_criteria</span></code> and</dd>
+</dl>
+</li>
+</ol>
+</div>
+<div class="section" id="spectrum">
+<h3>Spectrum<a class="headerlink" href="#spectrum" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils" id="spectrum.yml">
+<colgroup>
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+<col width="25%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td>type</td>
+<td colspan="3"><em>object</em></td>
+</tr>
+<tr class="row-even"><td colspan="4">properties</td>
+</tr>
+<tr class="row-odd"><td><ul class="first last simple">
+<li>start</li>
+</ul>
+</td>
+<td>type</td>
+<td colspan="2"><em>quantity</em></td>
+</tr>
+<tr class="row-even"><td><ul class="first last simple">
+<li>stop</li>
+</ul>
+</td>
+<td>type</td>
+<td colspan="2"><em>quantity</em></td>
+</tr>
+<tr class="row-odd"><td rowspan="2"><ul class="first last simple">
+<li>num</li>
+</ul>
+</td>
+<td>type</td>
+<td colspan="2"><em>number</em></td>
+</tr>
+<tr class="row-even"><td>multipleOf</td>
+<td colspan="2">1.0</td>
+</tr>
+<tr class="row-odd"><td rowspan="4"><ul class="first last simple">
+<li>method</li>
+</ul>
+</td>
+<td colspan="3">The method to generate the final spectrum</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td colspan="2"><em>string</em></td>
+</tr>
+<tr class="row-odd"><td>enum</td>
+<td colspan="2">integrated, virtual, real</td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">virtual</td>
+</tr>
+<tr class="row-odd"><td rowspan="10"><ul class="first last simple">
+<li>integrated</li>
+</ul>
+</td>
+<td>type</td>
+<td colspan="2"><em>object</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td colspan="2">OrderedDict()</td>
+</tr>
+<tr class="row-odd"><td colspan="3">properties</td>
+</tr>
+<tr class="row-even"><td rowspan="3"><ul class="first last simple">
+<li>points</li>
+</ul>
+</td>
+<td colspan="2">Number of impact parameters p used in the calculation of the integrated spectrum</td>
+</tr>
+<tr class="row-odd"><td>type</td>
+<td><em>number</em></td>
+</tr>
+<tr class="row-even"><td>default</td>
+<td>1000</td>
+</tr>
+<tr class="row-odd"><td rowspan="3"><ul class="first last simple">
+<li>interpolate_shells</li>
+</ul>
+</td>
+<td colspan="2">Number of shells on which the formal integral quantities are interpolated</td>
+</tr>
+<tr class="row-even"><td>type</td>
+<td><em>number</em></td>
+</tr>
+<tr class="row-odd"><td>default</td>
+<td>-1</td>
+</tr>
+<tr class="row-even"><td>additionalProperties</td>
+<td colspan="2">False</td>
+</tr>
+</tbody>
+</table>
+<p>Start and end are given as Quantities with units. If they are given in
+frequency space they are switched around if necessary. The number of bins is
+just an integer. Finally, the method option selects the final spectral synthesis mode. Currently, there are three options:</p>
+<ul class="simple">
+<li>real: construct spectrum from the real packet population alone</li>
+<li>virtual: use the <a class="reference internal" href="../montecarlo/virtualpackets.html"><span class="doc">virtual packet scheme</span></a> for spectral synthesis</li>
+<li>integrated: use the <a class="reference internal" href="../montecarlo/sourceintegration.html"><span class="doc">formal integral method</span></a> of Lucy 1999</li>
+</ul>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Currently, the “integrated” mode only works with the downbranching line
+interaction mode. Note also the limitations listed at the bottom of the
+dedicated page.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="config_validator.html" class="btn btn-neutral float-right" title="Configuration Validator" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Configuration" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

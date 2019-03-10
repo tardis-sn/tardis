@@ -1,0 +1,957 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Example to_hdf calls &mdash; TARDIS v3.0.dev69</title>
+  
+
+  
+  
+    <link rel="shortcut icon" href="../_static/tardis_logo.ico"/>
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+        <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link href="../_static/tardis.css" rel="stylesheet" type="text/css">
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> TARDIS
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                3.0.dev69
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quickstart Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../running/index.html">Running Tardis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../examples/index.html">Example Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../scripts/index.html">Helper Scripts</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../credits.html">Credits &amp; Publication Policies</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../atomic/atomic_data.html">Atomic Data for TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../physics/index.html">Behind the scenes: Physics of TARDIS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../montecarlo/index.html">Monte Carlo Primer</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../issues.html">Reporting Issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../workflow/development_workflow.html">Developer Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Change Log</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../zreferences.html">TARDIS Papers and useful References</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">TARDIS</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Example to_hdf calls</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/notebooks/to_hdf.ipynb.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  
+<style>
+/* CSS for nbsphinx extension */
+
+/* remove conflicting styling from Sphinx themes */
+div.nbinput,
+div.nbinput div.prompt,
+div.nbinput div.input_area,
+div.nbinput div[class*=highlight],
+div.nbinput div[class*=highlight] pre,
+div.nboutput,
+div.nbinput div.prompt,
+div.nbinput div.output_area,
+div.nboutput div[class*=highlight],
+div.nboutput div[class*=highlight] pre {
+    background: none;
+    border: none;
+    padding: 0 0;
+    margin: 0;
+    box-shadow: none;
+}
+
+/* avoid gaps between output lines */
+div.nboutput div[class*=highlight] pre {
+    line-height: normal;
+}
+
+/* input/output containers */
+div.nbinput,
+div.nboutput {
+    display: -webkit-flex;
+    display: flex;
+    align-items: flex-start;
+    margin: 0;
+    width: 100%;
+}
+@media (max-width: 540px) {
+    div.nbinput,
+    div.nboutput {
+        flex-direction: column;
+    }
+}
+
+/* input container */
+div.nbinput {
+    padding-top: 5px;
+}
+
+/* last container */
+div.nblast {
+    padding-bottom: 5px;
+}
+
+/* input prompt */
+div.nbinput div.prompt pre {
+    color: #307FC1;
+}
+
+/* output prompt */
+div.nboutput div.prompt pre {
+    color: #BF5B3D;
+}
+
+/* all prompts */
+div.nbinput div.prompt,
+div.nboutput div.prompt {
+    min-width: 5ex;
+    padding-top: 0.4em;
+    padding-right: 0.4em;
+    text-align: right;
+    flex: 0;
+}
+@media (max-width: 540px) {
+    div.nbinput div.prompt,
+    div.nboutput div.prompt {
+        text-align: left;
+        padding: 0.4em;
+    }
+    div.nboutput div.prompt.empty {
+        padding: 0;
+    }
+}
+
+/* disable scrollbars on prompts */
+div.nbinput div.prompt pre,
+div.nboutput div.prompt pre {
+    overflow: hidden;
+}
+
+/* input/output area */
+div.nbinput div.input_area,
+div.nboutput div.output_area {
+    padding: 0.4em;
+    -webkit-flex: 1;
+    flex: 1;
+    overflow: auto;
+}
+@media (max-width: 540px) {
+    div.nbinput div.input_area,
+    div.nboutput div.output_area {
+        width: 100%;
+    }
+}
+
+/* input area */
+div.nbinput div.input_area {
+    border: 1px solid #e0e0e0;
+    border-radius: 2px;
+    background: #f5f5f5;
+}
+
+/* override MathJax center alignment in output cells */
+div.nboutput div[class*=MathJax] {
+    text-align: left !important;
+}
+
+/* override sphinx.ext.imgmath center alignment in output cells */
+div.nboutput div.math p {
+    text-align: left;
+}
+
+/* standard error */
+div.nboutput div.output_area.stderr {
+    background: #fdd;
+}
+
+/* ANSI colors */
+.ansi-black-fg { color: #3E424D; }
+.ansi-black-bg { background-color: #3E424D; }
+.ansi-black-intense-fg { color: #282C36; }
+.ansi-black-intense-bg { background-color: #282C36; }
+.ansi-red-fg { color: #E75C58; }
+.ansi-red-bg { background-color: #E75C58; }
+.ansi-red-intense-fg { color: #B22B31; }
+.ansi-red-intense-bg { background-color: #B22B31; }
+.ansi-green-fg { color: #00A250; }
+.ansi-green-bg { background-color: #00A250; }
+.ansi-green-intense-fg { color: #007427; }
+.ansi-green-intense-bg { background-color: #007427; }
+.ansi-yellow-fg { color: #DDB62B; }
+.ansi-yellow-bg { background-color: #DDB62B; }
+.ansi-yellow-intense-fg { color: #B27D12; }
+.ansi-yellow-intense-bg { background-color: #B27D12; }
+.ansi-blue-fg { color: #208FFB; }
+.ansi-blue-bg { background-color: #208FFB; }
+.ansi-blue-intense-fg { color: #0065CA; }
+.ansi-blue-intense-bg { background-color: #0065CA; }
+.ansi-magenta-fg { color: #D160C4; }
+.ansi-magenta-bg { background-color: #D160C4; }
+.ansi-magenta-intense-fg { color: #A03196; }
+.ansi-magenta-intense-bg { background-color: #A03196; }
+.ansi-cyan-fg { color: #60C6C8; }
+.ansi-cyan-bg { background-color: #60C6C8; }
+.ansi-cyan-intense-fg { color: #258F8F; }
+.ansi-cyan-intense-bg { background-color: #258F8F; }
+.ansi-white-fg { color: #C5C1B4; }
+.ansi-white-bg { background-color: #C5C1B4; }
+.ansi-white-intense-fg { color: #A1A6B2; }
+.ansi-white-intense-bg { background-color: #A1A6B2; }
+
+.ansi-default-inverse-fg { color: #FFFFFF; }
+.ansi-default-inverse-bg { background-color: #000000; }
+
+.ansi-bold { font-weight: bold; }
+.ansi-underline { text-decoration: underline; }
+
+/* Some additional styling taken form the Jupyter notebook CSS */
+div.rendered_html table {
+  border: none;
+  border-collapse: collapse;
+  border-spacing: 0;
+  color: black;
+  font-size: 12px;
+  table-layout: fixed;
+}
+div.rendered_html thead {
+  border-bottom: 1px solid black;
+  vertical-align: bottom;
+}
+div.rendered_html tr,
+div.rendered_html th,
+div.rendered_html td {
+  text-align: right;
+  vertical-align: middle;
+  padding: 0.5em 0.5em;
+  line-height: normal;
+  white-space: normal;
+  max-width: none;
+  border: none;
+}
+div.rendered_html th {
+  font-weight: bold;
+}
+div.rendered_html tbody tr:nth-child(odd) {
+  background: #f5f5f5;
+}
+div.rendered_html tbody tr:hover {
+  background: rgba(66, 165, 245, 0.2);
+}
+
+/* CSS overrides for sphinx_rtd_theme */
+
+/* 24px margin */
+.nbinput.nblast,
+.nboutput.nblast {
+    margin-bottom: 19px;  /* padding has already 5px */
+}
+
+/* ... except between code cells! */
+.nblast + .nbinput {
+    margin-top: -19px;
+}
+
+.admonition > p:before {
+    margin-right: 4px;  /* make room for the exclamation icon */
+}
+
+/* Fix math alignment, see https://github.com/rtfd/sphinx_rtd_theme/pull/686 */
+.math {
+    text-align: unset;
+}
+</style>
+<p>This notebook is available at
+<a class="reference external" href="https://github.com/tardis-sn/tardis/tree/master/docs/notebooks/to_hdf.ipynb">https://github.com/tardis-sn/tardis/tree/master/docs/notebooks/to_hdf.ipynb</a>
+—-</p>
+<div class="section" id="Example-to_hdf-calls">
+<h1>Example to_hdf calls<a class="headerlink" href="#Example-to_hdf-calls" title="Permalink to this headline">¶</a></h1>
+<p>Initialize the simulation with the <code class="docutils literal notranslate"><span class="pre">tardis_example.yml</span></code> configuration file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">tardis.io.config_reader</span> <span class="kn">import</span> <span class="n">Configuration</span>
+<span class="kn">from</span> <span class="nn">tardis.simulation</span> <span class="kn">import</span> <span class="n">Simulation</span>
+
+<span class="c1"># Must have the tardis_example folder in the working directory.</span>
+<span class="n">config_fname</span> <span class="o">=</span> <span class="s1">&#39;tardis_example/tardis_example.yml&#39;</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="n">config_fname</span><span class="p">)</span>
+
+<span class="n">simulation</span> <span class="o">=</span> <span class="n">Simulation</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.plasma.standard_plasmas</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Reading Atomic Data from tardis_example/kurucz_cd23_chianti_H_He.h5 (<span class="ansi-bold">standard_plasmas.py</span>:72)
+tardis.plasma.standard_plasmas - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Reading Atomic Data from tardis_example/kurucz_cd23_chianti_H_He.h5
+tardis.atomic - INFO - Read Atom Data with UUID=5ca3035ca8b311e3bb684437e69d75d7 and MD5=21095dd25faa1683f4c90c911a00c3f8
+[<span class="ansi-bold">tardis.plasma.base  </span>][<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span>  ]  Updating modules in the following order: (<span class="ansi-bold">base.py</span>:197)
+tardis.plasma.base - <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> - Updating modules in the following order:
+[<span class="ansi-bold">tardis.montecarlo.base</span>][<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span>  ]  Electron scattering switched on (<span class="ansi-bold">base.py</span>:393)
+tardis.montecarlo.base - <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> - Electron scattering switched on
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/vaibhav/anaconda2/lib/python2.7/site-packages/astropy/units/equivalencies.py:74: RuntimeWarning: divide by zero encountered in double_scalars
+  (si.m, si.Hz, lambda x: _si.c.value / x),
+ (<span class="ansi-bold">equivalencies.py</span>:74)
+py.warnings - <span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> - /home/vaibhav/anaconda2/lib/python2.7/site-packages/astropy/units/equivalencies.py:74: RuntimeWarning: divide by zero encountered in double_scalars
+  (si.m, si.Hz, lambda x: _si.c.value / x),
+
+</pre></div></div>
+</div>
+<p>Run the simulation.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">simulation</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Starting iteration 1/5 (<span class="ansi-bold">base.py</span>:196)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Starting iteration 1/5
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Luminosity emitted = 8.10360e+42 erg / s Luminosity absorbed = 2.67587e+42 erg / s Luminosity requested = 1.07688e+43 erg / s (<span class="ansi-bold">base.py</span>:273)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Luminosity emitted = 8.10360e+42 erg / s Luminosity absorbed = 2.67587e+42 erg / s Luminosity requested = 1.07688e+43 erg / s
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Plasma stratification:
+                     t_rad    next_t_rad         w    next_w
+        Shell
+        0      9967.488442  10074.800724  0.400392  0.452516
+        5      9893.293062  10103.998786  0.211205  0.202916
+        10     9820.194102  10007.439423  0.142695  0.130205
+        15     9748.167438   9820.947309  0.104556  0.096257
+
+ (<span class="ansi-bold">base.py</span>:264)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Plasma stratification:
+                     t_rad    next_t_rad         w    next_w
+        Shell
+        0      9967.488442  10074.800724  0.400392  0.452516
+        5      9893.293062  10103.998786  0.211205  0.202916
+        10     9820.194102  10007.439423  0.142695  0.130205
+        15     9748.167438   9820.947309  0.104556  0.096257
+
+
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  t_inner 9974.969 K -- next t_inner 10736.934 K (<span class="ansi-bold">base.py</span>:266)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - t_inner 9974.969 K -- next t_inner 10736.934 K
+[<span class="ansi-bold">tardis.plasma.base  </span>][<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span>  ]  Updating modules in the following order: (<span class="ansi-bold">base.py</span>:197)
+tardis.plasma.base - <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> - Updating modules in the following order:
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Starting iteration 2/5 (<span class="ansi-bold">base.py</span>:196)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Starting iteration 2/5
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Luminosity emitted = 1.08633e+43 erg / s Luminosity absorbed = 3.60272e+42 erg / s Luminosity requested = 1.07688e+43 erg / s (<span class="ansi-bold">base.py</span>:273)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Luminosity emitted = 1.08633e+43 erg / s Luminosity absorbed = 3.60272e+42 erg / s Luminosity requested = 1.07688e+43 erg / s
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Plasma stratification:
+                      t_rad    next_t_rad         w    next_w
+        Shell
+        0      10074.800724  10480.642737  0.452516  0.485511
+        5      10103.998786  10542.429569  0.202916  0.203942
+        10     10007.439423  10413.108276  0.130205  0.127795
+        15      9820.947309  10179.669303  0.096257  0.094281
+
+ (<span class="ansi-bold">base.py</span>:264)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Plasma stratification:
+                      t_rad    next_t_rad         w    next_w
+        Shell
+        0      10074.800724  10480.642737  0.452516  0.485511
+        5      10103.998786  10542.429569  0.202916  0.203942
+        10     10007.439423  10413.108276  0.130205  0.127795
+        15      9820.947309  10179.669303  0.096257  0.094281
+
+
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  t_inner 10736.934 K -- next t_inner 10713.534 K (<span class="ansi-bold">base.py</span>:266)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - t_inner 10736.934 K -- next t_inner 10713.534 K
+[<span class="ansi-bold">tardis.plasma.base  </span>][<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span>  ]  Updating modules in the following order: (<span class="ansi-bold">base.py</span>:197)
+tardis.plasma.base - <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> - Updating modules in the following order:
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Starting iteration 3/5 (<span class="ansi-bold">base.py</span>:196)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Starting iteration 3/5
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Luminosity emitted = 1.08260e+43 erg / s Luminosity absorbed = 3.52022e+42 erg / s Luminosity requested = 1.07688e+43 erg / s (<span class="ansi-bold">base.py</span>:273)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Luminosity emitted = 1.08260e+43 erg / s Luminosity absorbed = 3.52022e+42 erg / s Luminosity requested = 1.07688e+43 erg / s
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Plasma stratification:
+                      t_rad    next_t_rad         w    next_w
+        Shell
+        0      10480.642737  10711.113330  0.485511  0.493541
+        5      10542.429569  10819.470987  0.203942  0.199112
+        10     10413.108276  10633.892704  0.127795  0.125270
+        15     10179.669303  10359.259776  0.094281  0.092971
+
+ (<span class="ansi-bold">base.py</span>:264)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Plasma stratification:
+                      t_rad    next_t_rad         w    next_w
+        Shell
+        0      10480.642737  10711.113330  0.485511  0.493541
+        5      10542.429569  10819.470987  0.203942  0.199112
+        10     10413.108276  10633.892704  0.127795  0.125270
+        15     10179.669303  10359.259776  0.094281  0.092971
+
+
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  t_inner 10713.534 K -- next t_inner 10699.352 K (<span class="ansi-bold">base.py</span>:266)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - t_inner 10713.534 K -- next t_inner 10699.352 K
+[<span class="ansi-bold">tardis.plasma.base  </span>][<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span>  ]  Updating modules in the following order: (<span class="ansi-bold">base.py</span>:197)
+tardis.plasma.base - <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> - Updating modules in the following order:
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Starting iteration 4/5 (<span class="ansi-bold">base.py</span>:196)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Starting iteration 4/5
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Luminosity emitted = 1.07886e+43 erg / s Luminosity absorbed = 3.48159e+42 erg / s Luminosity requested = 1.07688e+43 erg / s (<span class="ansi-bold">base.py</span>:273)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Luminosity emitted = 1.07886e+43 erg / s Luminosity absorbed = 3.48159e+42 erg / s Luminosity requested = 1.07688e+43 erg / s
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Plasma stratification:
+                      t_rad    next_t_rad         w    next_w
+        Shell
+        0      10711.113330  10866.508115  0.493541  0.489288
+        5      10819.470987  11017.147737  0.199112  0.192830
+        10     10633.892704  10795.422555  0.125270  0.121775
+        15     10359.259776  10499.976778  0.092971  0.090524
+
+ (<span class="ansi-bold">base.py</span>:264)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Plasma stratification:
+                      t_rad    next_t_rad         w    next_w
+        Shell
+        0      10711.113330  10866.508115  0.493541  0.489288
+        5      10819.470987  11017.147737  0.199112  0.192830
+        10     10633.892704  10795.422555  0.125270  0.121775
+        15     10359.259776  10499.976778  0.092971  0.090524
+
+
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  t_inner 10699.352 K -- next t_inner 10694.430 K (<span class="ansi-bold">base.py</span>:266)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - t_inner 10699.352 K -- next t_inner 10694.430 K
+[<span class="ansi-bold">tardis.plasma.base  </span>][<span class="ansi-blue-intense-fg ansi-bold">DEBUG</span>  ]  Updating modules in the following order: (<span class="ansi-bold">base.py</span>:197)
+tardis.plasma.base - <span class="ansi-blue-intense-fg ansi-bold">DEBUG</span> - Updating modules in the following order:
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Starting iteration 5/5 (<span class="ansi-bold">base.py</span>:196)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Starting iteration 5/5
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Luminosity emitted = 1.07897e+43 erg / s Luminosity absorbed = 3.45406e+42 erg / s Luminosity requested = 1.07688e+43 erg / s (<span class="ansi-bold">base.py</span>:273)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Luminosity emitted = 1.07897e+43 erg / s Luminosity absorbed = 3.45406e+42 erg / s Luminosity requested = 1.07688e+43 erg / s
+[<span class="ansi-bold">tardis.simulation.base</span>][<span class="ansi-white-intense-fg ansi-bold">INFO</span>   ]  Simulation finished in 5 iterations and took 50.01 s (<span class="ansi-bold">base.py</span>:223)
+tardis.simulation.base - <span class="ansi-white-intense-fg ansi-bold">INFO</span> - Simulation finished in 5 iterations and took 50.01 s
+</pre></div></div>
+</div>
+<p>You can now use <code class="docutils literal notranslate"><span class="pre">to_hdf</span></code> method, to save properties to a HDF file.</p>
+<div class="section" id="Parameters">
+<h2>Parameters<a class="headerlink" href="#Parameters" title="Permalink to this headline">¶</a></h2>
+<div class="line-block">
+<div class="line"><code class="docutils literal notranslate"><span class="pre">file_path</span></code>: Path where the HDF file should be stored. (Required)</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">path</span></code>: Path inside the HDF store to store the elements. (Optional)</div>
+<div class="line"><code class="docutils literal notranslate"><span class="pre">name</span></code>: Name of the group inside HDF store, under which properties will be saved.(Optional)</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">simulation</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="s1">&#39;/tmp/full_example.hdf&#39;</span><span class="p">)</span>
+<span class="c1">#simulation.to_hdf(file_path=&#39;/tmp/full_example.hdf&#39;, path=&#39;/&#39;, name=&#39;simulation&#39;)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/vaibhav/anaconda2/lib/python2.7/site-packages/pandas/core/generic.py:1299: PerformanceWarning:
+your performance may suffer as PyTables will pickle object types that it cannot
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;[0]]
+
+  return pytables.to_hdf(path_or_buf, key, self, **kwargs)
+ (<span class="ansi-bold">pytables.py</span>:2675)
+py.warnings - <span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> - /home/vaibhav/anaconda2/lib/python2.7/site-packages/pandas/core/generic.py:1299: PerformanceWarning:
+your performance may suffer as PyTables will pickle object types that it cannot
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;block0_values] [items-&gt;[0]]
+
+  return pytables.to_hdf(path_or_buf, key, self, **kwargs)
+
+[<span class="ansi-bold">py.warnings         </span>][<span class="ansi-yellow-intense-fg ansi-bold">WARNING</span>]  /home/vaibhav/anaconda2/lib/python2.7/site-packages/pandas/core/generic.py:1299: PerformanceWarning:
+your performance may suffer as PyTables will pickle object types that it cannot
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None]
+
+  return pytables.to_hdf(path_or_buf, key, self, **kwargs)
+ (<span class="ansi-bold">pytables.py</span>:2675)
+py.warnings - <span class="ansi-yellow-intense-fg ansi-bold">WARNING</span> - /home/vaibhav/anaconda2/lib/python2.7/site-packages/pandas/core/generic.py:1299: PerformanceWarning:
+your performance may suffer as PyTables will pickle object types that it cannot
+map directly to c-types [inferred_type-&gt;mixed,key-&gt;values] [items-&gt;None]
+
+  return pytables.to_hdf(path_or_buf, key, self, **kwargs)
+
+</pre></div></div>
+</div>
+<p>Open the stored HDF file with pandas and print its structure.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="kn">as</span> <span class="nn">pd</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="s1">&#39;/tmp/full_example.hdf&#39;</span><span class="p">)</span>
+<span class="k">print</span> <span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;class &#39;pandas.io.pytables.HDFStore&#39;&gt;
+File path: /tmp/full_example.hdf
+/simulation/model/homologous_density/density_0               series       (shape-&gt;[21])
+/simulation/model/homologous_density/scalars                 series       (shape-&gt;[1])
+/simulation/model/scalars                                    series       (shape-&gt;[1])
+/simulation/model/t_radiative                                series       (shape-&gt;[20])
+/simulation/model/v_inner                                    series       (shape-&gt;[20])
+/simulation/model/v_outer                                    series       (shape-&gt;[20])
+/simulation/model/w                                          series       (shape-&gt;[20])
+/simulation/plasma/abundance                                 frame        (shape-&gt;[6,20])
+/simulation/plasma/atomic_mass                               series       (shape-&gt;[6])
+/simulation/plasma/beta_rad                                  series       (shape-&gt;[20])
+/simulation/plasma/beta_sobolev                              frame        (shape-&gt;[29224,20])
+/simulation/plasma/density                                   series       (shape-&gt;[20])
+/simulation/plasma/electron_densities                        series       (shape-&gt;[20])
+/simulation/plasma/excitation_energy                         series       (shape-&gt;[4439])
+/simulation/plasma/f_lu                                      series       (shape-&gt;[29224])
+/simulation/plasma/g                                         series       (shape-&gt;[4439])
+/simulation/plasma/g_electron                                series       (shape-&gt;[20])
+/simulation/plasma/general_level_boltzmann_factor            frame        (shape-&gt;[4439,20])
+/simulation/plasma/ion_number_density                        frame        (shape-&gt;[94,20])
+/simulation/plasma/ionization_data                           frame        (shape-&gt;[88,1])
+/simulation/plasma/j_blues                                   frame        (shape-&gt;[29224,20])
+/simulation/plasma/level_boltzmann_factor                    frame        (shape-&gt;[4439,20])
+/simulation/plasma/level_number_density                      frame        (shape-&gt;[4439,20])
+/simulation/plasma/levels                                    frame        (shape-&gt;[1,1])
+/simulation/plasma/lines                                     frame        (shape-&gt;[29224,12])
+/simulation/plasma/lines_lower_level_index                   series       (shape-&gt;[29224])
+/simulation/plasma/lines_upper_level_index                   series       (shape-&gt;[29224])
+/simulation/plasma/metastability                             series       (shape-&gt;[4439])
+/simulation/plasma/nu                                        series       (shape-&gt;[29224])
+/simulation/plasma/number_density                            frame        (shape-&gt;[6,20])
+/simulation/plasma/partition_function                        frame        (shape-&gt;[94,20])
+/simulation/plasma/phi                                       frame        (shape-&gt;[88,20])
+/simulation/plasma/scalars                                   series       (shape-&gt;[1])
+/simulation/plasma/selected_atoms                            series       (shape-&gt;[6])
+/simulation/plasma/stimulated_emission_factor                frame        (shape-&gt;[29224,20])
+/simulation/plasma/t_electrons                               series       (shape-&gt;[20])
+/simulation/plasma/t_rad                                     series       (shape-&gt;[20])
+/simulation/plasma/tau_sobolevs                              frame        (shape-&gt;[29224,20])
+/simulation/plasma/transition_probabilities                  frame        (shape-&gt;[87672,20])
+/simulation/plasma/w                                         series       (shape-&gt;[20])
+/simulation/plasma/wavelength_cm                             series       (shape-&gt;[29224])
+/simulation/runner/j_estimator                               series       (shape-&gt;[20])
+/simulation/runner/last_interaction_in_nu                    series       (shape-&gt;[500000])
+/simulation/runner/last_interaction_type                     series       (shape-&gt;[500000])
+/simulation/runner/last_line_interaction_in_id               series       (shape-&gt;[500000])
+/simulation/runner/last_line_interaction_out_id              series       (shape-&gt;[500000])
+/simulation/runner/last_line_interaction_shell_id            series       (shape-&gt;[500000])
+/simulation/runner/montecarlo_virtual_luminosity             series       (shape-&gt;[10000])
+/simulation/runner/nu_bar_estimator                          series       (shape-&gt;[20])
+/simulation/runner/output_energy                             series       (shape-&gt;[500000])
+/simulation/runner/output_nu                                 series       (shape-&gt;[500000])
+/simulation/runner/packet_luminosity                         series       (shape-&gt;[500000])
+/simulation/runner/spectrum/_frequency                       series       (shape-&gt;[10001])
+/simulation/runner/spectrum/luminosity                       series       (shape-&gt;[10000])
+/simulation/runner/spectrum_reabsorbed/_frequency            series       (shape-&gt;[10001])
+/simulation/runner/spectrum_reabsorbed/luminosity            series       (shape-&gt;[10000])
+/simulation/runner/spectrum_virtual/_frequency               series       (shape-&gt;[10001])
+/simulation/runner/spectrum_virtual/luminosity               series       (shape-&gt;[10000])
+</pre></div></div>
+</div>
+<p>Access <code class="docutils literal notranslate"><span class="pre">model.homologous_density.density_0</span></code> under simulation, which is a one-dimensional array</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">print</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;/simulation/model/homologous_density/density_0&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0     1970.527174
+1       13.360318
+2       10.146658
+3        7.786621
+4        6.033444
+5        4.717122
+6        3.718946
+7        2.954982
+8        2.365191
+9        1.906156
+10       1.546154
+11       1.261789
+12       1.035646
+13       0.854653
+14       0.708918
+15       0.590901
+16       0.494811
+17       0.416168
+18       0.351490
+19       0.298047
+20       0.253691
+dtype: float64
+</pre></div></div>
+</div>
+<p>Scalars are stored in a <code class="docutils literal notranslate"><span class="pre">scalars</span></code> <code class="docutils literal notranslate"><span class="pre">pandas.Series</span></code> for every module. For example to access <code class="docutils literal notranslate"><span class="pre">model.t_inner</span></code> under simulation, one would need to do the following.</p>
+<p>Note: Quantities are always stored as their SI values.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="k">print</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;/simulation/model/scalars&#39;</span><span class="p">][</span><span class="s1">&#39;t_inner&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+10694.430019
+</pre></div></div>
+</div>
+</div>
+</div>
+<div class="section" id="Breakdown-of-the-various-to_hdf-methods">
+<h1>Breakdown of the various to_hdf methods<a class="headerlink" href="#Breakdown-of-the-various-to_hdf-methods" title="Permalink to this headline">¶</a></h1>
+<p>Every module in TARDIS has its own <code class="docutils literal notranslate"><span class="pre">to_hdf</span></code> method responsible to store its own data to an HDF file.</p>
+<p>The following call will store every plasma property to <code class="docutils literal notranslate"><span class="pre">/tmp/plasma_output.hdf</span></code> under <code class="docutils literal notranslate"><span class="pre">/parent/plasma</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">simulation</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="s1">&#39;/tmp/plasma_output.hdf&#39;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="s1">&#39;parent&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span>
+<span class="k">with</span> <span class="n">pandas</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="s1">&#39;/tmp/plasma_output.hdf&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;class &#39;pandas.io.pytables.HDFStore&#39;&gt;
+File path: /tmp/plasma_output.hdf
+/parent/plasma/abundance                                 frame        (shape-&gt;[6,20])
+/parent/plasma/atomic_mass                               series       (shape-&gt;[6])
+/parent/plasma/beta_rad                                  series       (shape-&gt;[20])
+/parent/plasma/beta_sobolev                              frame        (shape-&gt;[29224,20])
+/parent/plasma/density                                   series       (shape-&gt;[20])
+/parent/plasma/electron_densities                        series       (shape-&gt;[20])
+/parent/plasma/excitation_energy                         series       (shape-&gt;[4439])
+/parent/plasma/f_lu                                      series       (shape-&gt;[29224])
+/parent/plasma/g                                         series       (shape-&gt;[4439])
+/parent/plasma/g_electron                                series       (shape-&gt;[20])
+/parent/plasma/general_level_boltzmann_factor            frame        (shape-&gt;[4439,20])
+/parent/plasma/ion_number_density                        frame        (shape-&gt;[94,20])
+/parent/plasma/ionization_data                           frame        (shape-&gt;[88,1])
+/parent/plasma/j_blues                                   frame        (shape-&gt;[29224,20])
+/parent/plasma/level_boltzmann_factor                    frame        (shape-&gt;[4439,20])
+/parent/plasma/level_number_density                      frame        (shape-&gt;[4439,20])
+/parent/plasma/levels                                    frame        (shape-&gt;[1,1])
+/parent/plasma/lines                                     frame        (shape-&gt;[29224,12])
+/parent/plasma/lines_lower_level_index                   series       (shape-&gt;[29224])
+/parent/plasma/lines_upper_level_index                   series       (shape-&gt;[29224])
+/parent/plasma/metastability                             series       (shape-&gt;[4439])
+/parent/plasma/nu                                        series       (shape-&gt;[29224])
+/parent/plasma/number_density                            frame        (shape-&gt;[6,20])
+/parent/plasma/partition_function                        frame        (shape-&gt;[94,20])
+/parent/plasma/phi                                       frame        (shape-&gt;[88,20])
+/parent/plasma/scalars                                   series       (shape-&gt;[1])
+/parent/plasma/selected_atoms                            series       (shape-&gt;[6])
+/parent/plasma/stimulated_emission_factor                frame        (shape-&gt;[29224,20])
+/parent/plasma/t_electrons                               series       (shape-&gt;[20])
+/parent/plasma/t_rad                                     series       (shape-&gt;[20])
+/parent/plasma/tau_sobolevs                              frame        (shape-&gt;[29224,20])
+/parent/plasma/transition_probabilities                  frame        (shape-&gt;[87672,20])
+/parent/plasma/w                                         series       (shape-&gt;[20])
+/parent/plasma/wavelength_cm                             series       (shape-&gt;[29224])
+</pre></div></div>
+</div>
+<p>Plasma’s <code class="docutils literal notranslate"><span class="pre">to_hdf</span></code> method can also accept a <code class="docutils literal notranslate"><span class="pre">collection</span></code> parameter which can specify which types of plasma properties will be stored. For example if we wanted to only store Input plasma properties, we would do the following:</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">tardis.plasma.properties.base</span> <span class="kn">import</span> <span class="n">Input</span>
+<span class="n">simulation</span><span class="o">.</span><span class="n">plasma</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="s1">&#39;/tmp/plasma_input_output.hdf&#39;</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="p">[</span><span class="n">Input</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span>
+<span class="k">with</span> <span class="n">pandas</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="s1">&#39;/tmp/plasma_input_output.hdf&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;class &#39;pandas.io.pytables.HDFStore&#39;&gt;
+File path: /tmp/plasma_input_output.hdf
+/plasma/abundance            frame        (shape-&gt;[6,20])
+/plasma/density              series       (shape-&gt;[20])
+/plasma/scalars              series       (shape-&gt;[1])
+/plasma/t_rad                series       (shape-&gt;[20])
+/plasma/w                    series       (shape-&gt;[20])
+</pre></div></div>
+</div>
+<p>The following call will store properties of the <code class="docutils literal notranslate"><span class="pre">Radial1DModel</span></code> to <code class="docutils literal notranslate"><span class="pre">/tmp/model_output.hdf</span></code> under <code class="docutils literal notranslate"><span class="pre">/model</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">simulation</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="s1">&#39;/tmp/model_output.hdf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>The following call will store properties of the <code class="docutils literal notranslate"><span class="pre">MontecarloRunner</span></code> to <code class="docutils literal notranslate"><span class="pre">/tmp/runner_output.hdf</span></code> under <code class="docutils literal notranslate"><span class="pre">/runner</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="n">simulation</span><span class="o">.</span><span class="n">runner</span><span class="o">.</span><span class="n">to_hdf</span><span class="p">(</span><span class="s1">&#39;/tmp/runner_output.hdf&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython2 notranslate"><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">pandas</span>
+<span class="k">with</span> <span class="n">pandas</span><span class="o">.</span><span class="n">HDFStore</span><span class="p">(</span><span class="s1">&#39;/tmp/runner_output.hdf&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">data</span><span class="p">:</span>
+    <span class="k">print</span> <span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;class &#39;pandas.io.pytables.HDFStore&#39;&gt;
+File path: /tmp/runner_output.hdf
+/runner/j_estimator                               series       (shape-&gt;[20])
+/runner/last_interaction_in_nu                    series       (shape-&gt;[500000])
+/runner/last_interaction_type                     series       (shape-&gt;[500000])
+/runner/last_line_interaction_in_id               series       (shape-&gt;[500000])
+/runner/last_line_interaction_out_id              series       (shape-&gt;[500000])
+/runner/last_line_interaction_shell_id            series       (shape-&gt;[500000])
+/runner/montecarlo_virtual_luminosity             series       (shape-&gt;[10000])
+/runner/nu_bar_estimator                          series       (shape-&gt;[20])
+/runner/output_energy                             series       (shape-&gt;[500000])
+/runner/output_nu                                 series       (shape-&gt;[500000])
+/runner/packet_luminosity                         series       (shape-&gt;[500000])
+/runner/spectrum/_frequency                       series       (shape-&gt;[10001])
+/runner/spectrum/luminosity                       series       (shape-&gt;[10000])
+/runner/spectrum_reabsorbed/_frequency            series       (shape-&gt;[10001])
+/runner/spectrum_reabsorbed/luminosity            series       (shape-&gt;[10000])
+/runner/spectrum_virtual/_frequency               series       (shape-&gt;[10001])
+/runner/spectrum_virtual/luminosity               series       (shape-&gt;[10000])
+</pre></div></div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2013, TARDIS team
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
