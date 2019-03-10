@@ -56,7 +56,7 @@ script:
     - python setup.py build_docs
     - pip install doctr
     - git lfs uninstall
-    - ls docs/_build/html
+    - ls docs/_build/html/images
     - doctr deploy --built-docs docs/_build/html .
 
 
