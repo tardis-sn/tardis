@@ -2,11 +2,11 @@
   .. image:: graphics/tardis_logo.jpg
 
 .. the "raw" directive below is used to hide the title in favor of just the logo being visible
-.. raw:: html
+.. .. raw:: html
 
-    <style media="screen" type="text/css">
-      h1 { display:none; }
-    </style>
+..    <style media="screen" type="text/css">
+..      h1 { display:none; }
+..    </style>
 
 ##################################
 Tardis Core Package Documentation
@@ -25,9 +25,6 @@ for 1D models of supernova ejecta. It is designed for rapid spectral modelling
 of supernovae. If you use this code for any publications or presentations please
 acknowledge it by citing :cite:`Kerzendorf2014`.
 
-.. note::
-    This documentation is still under construction! 
-    
 
 ============
 Using Tardis
