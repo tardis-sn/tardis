@@ -153,6 +153,13 @@ class MontecarloRunner(HDFWriterMixin):
                     "The FormalIntegrator is not yet available."
                     "Please run the montecarlo simulation at least once.",
                     UserWarning)
+        if self.enable_full_relativity:
+            raise NotImplementedError(
+                    "The FormalIntegrator is not yet implemented for the full "
+                    "relativity mode. "
+                    "Please run with config option enable_full_relativity: "
+                    "False."
+            )
         return self._integrator
 
     def run(self, model, plasma, no_of_packets,
