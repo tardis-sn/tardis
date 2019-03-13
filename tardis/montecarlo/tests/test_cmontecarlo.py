@@ -157,7 +157,9 @@ def model_w_edges(ion_edges, model):
     model.no_of_edges = no_of_edges
 
     estimator_size = model.no_of_shells * no_of_edges
-    estims = ['photo_ion_estimator', 'stim_recomb_estimator', 'bf_heating_estimator', 'stim_recomb_cooling_estimator']
+    estims = ['photo_ion_estimator', 'stim_recomb_estimator',
+	      'bf_heating_estimator', 'stim_recomb_cooling_estimator'
+    ]
     for estimator in estims:
         setattr(model, estimator, (c_double * estimator_size)(*[0] * estimator_size))
 
@@ -168,15 +170,19 @@ def model_w_edges(ion_edges, model):
 @pytest.fixture(scope='module')
 def ion_edges():
     return [
-        {'nu': [4.0e14, 4.1e14, 4.2e14, 4.3e14], 'x_sect': [1.0, 0.9, 0.8, 0.7], 'no_of_points': 4},
-        {'nu': [3.0e14, 3.1e14, 3.2e14, 3.3e14, 3.4e14], 'x_sect': [1.0, 0.9, 0.8, 0.7, 0.6], 'no_of_points': 5},
-        {'nu': [2.8e14, 3.0e14, 3.2e14, 3.4e14], 'x_sect': [2.0, 1.8, 1.6, 1.4], 'no_of_points': 4}
+        {'nu': [4.0e14, 4.1e14, 4.2e14, 4.3e14],
+		'x_sect': [1.0, 0.9, 0.8, 0.7], 'no_of_points': 4},
+        {'nu': [3.0e14, 3.1e14, 3.2e14, 3.3e14, 3.4e14],
+		'x_sect': [1.0, 0.9, 0.8, 0.7, 0.6], 'no_of_points': 5},
+        {'nu': [2.8e14, 3.0e14, 3.2e14, 3.4e14],
+		'x_sect': [2.0, 1.8, 1.6, 1.4], 'no_of_points': 4}
     ]
 
 
 @pytest.fixture(scope='module')
 def mock_sample_nu():
-    SAMPLE_NUFUNC = CFUNCTYPE(c_double, POINTER(RPacket), POINTER(StorageModel), POINTER(RKState))
+    SAMPLE_NUFUNC = CFUNCTYPE(c_double, POINTER(RPacket),
+                              POINTER(StorageModel), POINTER(RKState))
 
     def sample_nu_simple(packet, model, mt_state):
         return packet.contents.nu
@@ -404,6 +410,7 @@ def test_compute_distance2continuum(clib, packet_params, expected_params, packet
     assert_almost_equal(packet.d_cont, expected_params['d_cont'])
 
 
+@pytest.mark.parametrize('full_relativity', [1, 0])
 @pytest.mark.parametrize(
     ['packet_params', 'expected_params'],
     [({'nu': 0.4, 'mu': 0.3, 'energy': 0.9, 'r': 7.5e14},
@@ -414,19 +421,53 @@ def test_compute_distance2continuum(clib, packet_params, expected_params, packet
       {'mu': -.4906548373534084, 'r': 805046582503149.2,
        'j': 5001298975563.031, 'nubar': 3001558973156.1387})]
 )
-def test_move_packet(clib, packet_params, expected_params, packet, model):
+def test_move_packet(clib, packet_params, expected_params,
+                     packet, model, full_relativity):
     packet.nu = packet_params['nu']
     packet.mu = packet_params['mu']
     packet.energy = packet_params['energy']
     packet.r = packet_params['r']
+    model.full_relativity = full_relativity
 
+    clib.rpacket_doppler_factor.restype = c_double
+    doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
     clib.move_packet(byref(packet), byref(model), c_double(1.e13))
 
     assert_almost_equal(packet.mu, expected_params['mu'])
     assert_almost_equal(packet.r, expected_params['r'])
 
-    assert_almost_equal(model.js[packet.current_shell_id], expected_params['j'])
-    assert_almost_equal(model.nubars[packet.current_shell_id], expected_params['nubar'])
+    expected_j = expected_params['j']
+    expected_nubar = expected_params['nubar']
+    if full_relativity:
+        expected_j *= doppler_factor
+        expected_nubar *= doppler_factor
+
+    assert_allclose(model.js[packet.current_shell_id],
+                    expected_j, rtol=5e-7)
+    assert_allclose(model.nubars[packet.current_shell_id],
+                    expected_nubar, rtol=5e-7)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['packet_params', 'j_blue_idx', 'expected'],
+    [({'nu': 0.30, 'energy': 0.30}, 0, 1.0),
+     ({'nu': 0.20, 'energy': 1.e5}, 0, 5e5),
+     ({'nu': 2e15, 'energy': 0.50}, 1, 2.5e-16),
+     ({'nu': 0.40, 'energy': 1e-7}, 1, 2.5e-7)],
+)
+def test_increment_j_blue_estimator_full_relativity(clib, packet_params,
+                                                    j_blue_idx, expected,
+                                                    packet, model):
+    packet.nu = packet_params['nu']
+    packet.energy = packet_params['energy']
+    model.full_relativity = True
+
+    clib.increment_j_blue_estimator(byref(packet), byref(model),
+                                    c_double(packet.d_line),
+                                    c_int64(j_blue_idx))
+
+    assert_almost_equal(model.line_lists_j_blues[j_blue_idx], expected)
 
 
 @pytest.mark.parametrize(
@@ -653,9 +694,9 @@ def test_sample_nu_free_free(clib, t_electron, packet, model, mt_state_seeded, e
         nu = clib.sample_nu_free_free(byref(packet), byref(model), byref(mt_state_seeded))
         nus.append(nu)
 
-    obtained_emissivity, _ = np.histogram(nus, normed=True, bins=nu_bins)
+    obtained_emissivity, _ = np.histogram(nus, density=True, bins=nu_bins)
 
-    assert_equal(obtained_emissivity, expected_emissivity)
+    assert_allclose(obtained_emissivity, expected_emissivity, rtol=1e-10)
 
 
 @pytest.mark.continuumtest
@@ -924,6 +965,91 @@ def test_montecarlo_bound_free_scatter_continuum_selection(clib, packet, model_3
 
     assert_equal(packet.current_continuum_id, expected)
     assert_equal(model_3lvlatom.last_line_interaction_in_id[packet.id], expected)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp', 'full_relativity'],
+    [(0.8, 7.5e14, 1 / 5.2e5, 1),
+     (-0.7, 7.5e14, 1 / 5.2e5, 1),
+     (0.3, 7.5e14, 1 / 2.2e5, 1),
+     (0.0, 7.5e14, 1 / 2.2e5, 1),
+     (-0.7, 7.5e14, 1 / 5.2e5, 0)]
+)
+def test_frame_transformations(clib, packet, model, mu, r,
+                               inv_t_exp, full_relativity):
+    packet.r = r
+    packet.mu = mu
+    model.inverse_time_explosion = inv_t_exp
+    model.full_relativity = full_relativity
+    clib.rpacket_doppler_factor.restype = c_double
+    clib.rpacket_inverse_doppler_factor.restype = c_double
+
+    inverse_doppler_factor = clib.rpacket_inverse_doppler_factor(byref(packet), byref(model))
+    clib.angle_aberration_CMF_to_LF(byref(packet), byref(model))
+
+    doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
+
+    assert_almost_equal(doppler_factor * inverse_doppler_factor, 1.0)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    ['mu', 'r', 'inv_t_exp'],
+    [(0.8, 7.5e14, 1 / 5.2e5),
+     (-0.7, 7.5e14, 1 / 5.2e5),
+     (0.3, 7.5e14, 1 / 2.2e5),
+     (0.0, 7.5e14, 1 / 2.2e5),
+     (-0.7, 7.5e14, 1 / 5.2e5)]
+)
+def test_angle_transformation_invariance(clib, packet, model,
+                                         mu, r, inv_t_exp):
+    packet.r = r
+    packet.mu = mu
+    model.inverse_time_explosion = inv_t_exp
+    model.full_relativity = 1
+    clib.angle_aberration_LF_to_CMF.restype = c_double
+
+    clib.angle_aberration_CMF_to_LF(byref(packet), byref(model))
+    mu_obtained = clib.angle_aberration_LF_to_CMF(
+        byref(packet), byref(model), c_double(packet.mu))
+
+    assert_almost_equal(mu_obtained, mu)
+
+
+@pytest.mark.continuumtest
+@pytest.mark.parametrize(
+    'full_relativity',
+    [1, 0]
+)
+@pytest.mark.parametrize(
+    ['mu', 'r', 't_exp', 'nu', 'nu_line'],
+    [(0.8, 7.5e14, 5.2e5, 1.0e15, 9.4e14),
+     (0.0, 6.3e14, 2.2e5, 6.0e12, 5.8e12),
+     (1.0, 9.0e14, 2.2e5, 4.0e8, 3.4e8),
+     (0.9, 9.0e14, 0.5e5, 1.0e15, 4.5e14),
+     (-0.7, 7.5e14, 5.2e5, 1.0e15, 9.8e14),
+     (-1.0, 6.3e14, 2.2e5, 6.0e12, 6.55e12)]
+)
+def test_compute_distance2line_relativistic(clib, mu, r, t_exp, nu, nu_line,
+                                            full_relativity, packet, model):
+    packet.r = r
+    packet.mu = mu
+    packet.nu = nu
+    packet.nu_line = nu_line
+    model.inverse_time_explosion = 1 / t_exp
+    model.time_explosion = t_exp
+    model.full_relativity = full_relativity
+
+    clib.rpacket_doppler_factor.restype = c_double
+
+    clib.compute_distance2line(byref(packet), byref(model))
+    clib.move_packet(byref(packet), byref(model), c_double(packet.d_line))
+
+    doppler_factor = clib.rpacket_doppler_factor(byref(packet), byref(model))
+    comov_nu = packet.nu * doppler_factor
+
+    assert_allclose(comov_nu, nu_line, rtol=1e-14)
 
 
 @pytest.mark.continuumtest

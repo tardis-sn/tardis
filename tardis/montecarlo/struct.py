@@ -125,7 +125,8 @@ class StorageModel(Structure):
         ('photo_ion_estimator_statistics', POINTER(c_int64)),
         ('bf_heating_estimator', POINTER(c_double)),
         ('ff_heating_estimator', POINTER(c_double)),
-        ('stim_recomb_cooling_estimator', POINTER(c_double))
+        ('stim_recomb_cooling_estimator', POINTER(c_double)),
+        ('full_relativity', c_int)
     ]
 
 
