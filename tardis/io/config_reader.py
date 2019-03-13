@@ -270,6 +270,18 @@ class Configuration(ConfigurationNameSpace):
             raise ValueError('convergence_strategy is not "damped" '
                              'or "custom"')
 
+        enable_full_relativity = montecarlo_section['enable_full_relativity']
+        spectrum_integrated = (
+            validated_config_dict['spectrum']['method'] == 'integrated'
+        )
+        if enable_full_relativity and spectrum_integrated:
+            raise NotImplementedError(
+                "The spectrum method is set to 'integrated' and "
+                "enable_full_relativity to 'True'.\n"
+                "The FormalIntegrator is not yet implemented for the full "
+                "relativity mode. "
+            )
+
         return cls(validated_config_dict)
 
 
