@@ -40,14 +40,14 @@ class BlackBodySimpleSource(object):
 
         Parameters
         ----------
-        T : ~float
+        T : float
             temperature
-        no_of_packets: ~int
+        no_of_packets: int
 
         Returns
         -------
 
-            : ~numpy.ndarray
+            : numpy.ndarray
             array of frequencies
         """
 
@@ -61,8 +61,8 @@ class BlackBodySimpleSource(object):
     def create_packet_mus(self, no_of_packets):
         """
         Create
-        :param no_of_packets:
-        :return:
+        :param no_of_packets
+        :return
         """
         return np.sqrt(np.random.random(no_of_packets))
 
