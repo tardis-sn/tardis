@@ -1,0 +1,76 @@
+{% set setup_py = load_setup_py_data() %}
+{% set name = "tardis" %}
+{% set version = {{ setup_py.get('version') }} %}
+
+package:
+  name: tardis
+  version: {{ setup_py.get('version') }}
+
+source:
+  git_url: https://github.com/tardis-sn/tardis.git
+  git_branch: master
+
+build:
+  number: 0
+  script: python setup.py install --single-version-externally-managed --record record.txt
+  
+requirements:
+  host:
+    - python=3.6
+    - numpy x.x
+    - scipy=1.1
+    - pandas=0.24
+    - astropy=3
+    
+  run:
+    - python=3
+    - numpy x.x
+    - scipy=1.1
+    - pandas=0.24
+    - astropy=3
+    - numexpr
+    - Cython=0.29
+    - networkx
+    - pyyaml
+    - jsonschema
+    - pyne=0.5
+    - pytables
+    - h5py
+    - jupyter
+    - notebook
+    - matplotlib
+    - graphviz
+    - pygraphviz
+    - sphinx
+    - nbconvert
+    - numpydoc
+    - docutils
+    - nbformat
+    - nbsphinx
+    - sphinx_bootstrap_theme
+    - sphinxcontrib-bibtex
+    - sphinx_rtd_theme
+    - git-lfs
+    - pytest
+    - pytest
+    - html
+    - requests
+    - coverage
+    - docopt
+    - pytest-cov
+    - codecov
+    
+test:
+    imports:
+        - tardis
+
+about:
+  home: https://github.com/tardis-sn/tardis
+  license: {{ setup_py.get('license') }}
+  license_file: LICENSE.rst
+  summary: Temperature And Radiative Diffusion In Supernovae 
+  doc_url: https://tardis.readthedocs.io/en/latest/quickstart.html
+
+extra:
+  recipe-maintainers:
+    -wkerzendorf
