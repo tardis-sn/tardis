@@ -3,7 +3,8 @@ os:
 language: python
 
 python:
-    - 2.7
+    - 3.6
+    - 3.7
 
 virtualenv:
   system_site_packages: true
@@ -73,14 +74,16 @@ stages:
 jobs:
   include:
     - stage: test
-      python: 2.7
+      python: 3.6
+      python: 3.7
       env:
         - COMPILER=gcc
         - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
         - TEST_MODE='spectrum'
         - SAVE_COVERAGE=true
     - stage: test
-      python: 2.7
+      python: 3.6
+      python: 3.7
       env:
         - COMPILER=clang
         - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
