@@ -109,9 +109,9 @@ class Node(object):
         None is returned in such cases.
 
         """
-        if i < self.num_children():
+        try:
             return self.children[i]
-        else:
+        except IndexError:
             return None
 
     def num_children(self):
