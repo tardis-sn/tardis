@@ -1,0 +1,47 @@
+atom_data: kurucz_cd23_chianti_H_He.h5
+model:
+  abundances:
+    filename: abundances.dat
+    filetype: simple_ascii
+    type: file
+  structure:
+    filename: densities.dat
+    filetype: simple_ascii
+    type: file
+    v_inner_boundary: 12000.000 km/s
+    v_outer_boundary: 35000.000 km/s
+montecarlo:
+  black_body_sampling:
+    num: 1000000
+    start: 1 angstrom
+    stop: 1000000 angstrom
+  convergence_strategy:
+    damping_constant: 1.0
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 1.0
+    threshold: 0.05
+    type: specific
+  iterations: 20
+  last_no_of_packets: 5.0e+5
+  no_of_packets: 5.0e+4
+  no_of_virtual_packets: 3
+  nthreads: 16
+  seed: 23111963
+plasma:
+  disable_electron_scattering: false
+  excitation: dilute-lte
+  ionization: nebular
+  line_interaction_type: downbranch
+  radiative_rates_type: dilute-blackbody
+spectrum:
+  num: 10000
+  start: 500 angstrom
+  stop: 20000 angstrom
+supernova:
+  luminosity_requested: 8.675 log_lsun
+  luminosity_wavelength_end: 6500.000 angstrom
+  luminosity_wavelength_start: 3500.000 angstrom
+  time_explosion: 6.800 day
+tardis_config_version: v1.0

@@ -1,0 +1,132 @@
+{
+  "build": "5_h6e990d7_netlib",
+  "build_number": 5,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "libblas 3.8.0.*",
+    "libgcc-ng >=7.3.0",
+    "libgfortran-ng >=7,<8.0a0"
+  ],
+  "extracted_package_dir": "/home/youssef/.conda/pkgs/libcblas-3.8.0-5_h6e990d7_netlib",
+  "features": "",
+  "files": [
+    "include/cblas.h",
+    "include/cblas_f77.h",
+    "include/cblas_mangling.h",
+    "include/cblas_test.h",
+    "lib/cmake/cblas-3.8.0/cblas-config-version.cmake",
+    "lib/cmake/cblas-3.8.0/cblas-config.cmake",
+    "lib/cmake/cblas-3.8.0/cblas-targets-release.cmake",
+    "lib/cmake/cblas-3.8.0/cblas-targets.cmake",
+    "lib/libcblas.so",
+    "lib/libcblas.so.3",
+    "lib/libcblas.so.3.8.0",
+    "lib/pkgconfig/cblas.pc"
+  ],
+  "fn": "libcblas-3.8.0-5_h6e990d7_netlib.tar.bz2",
+  "license": "BSD 3-Clause",
+  "link": {
+    "source": "/home/youssef/.conda/pkgs/libcblas-3.8.0-5_h6e990d7_netlib",
+    "type": 1
+  },
+  "md5": "3e605ec76657ecb2ae517b87964c07b3",
+  "name": "libcblas",
+  "package_tarball_full_path": "/home/youssef/.conda/pkgs/libcblas-3.8.0-5_h6e990d7_netlib.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "include/cblas.h",
+        "path_type": "hardlink",
+        "sha256": "04c17de7c7cc9de7a2c8b63f3c1afbf3be9c0fa115467767da1f6303e81fd417",
+        "sha256_in_prefix": "04c17de7c7cc9de7a2c8b63f3c1afbf3be9c0fa115467767da1f6303e81fd417",
+        "size_in_bytes": 29918
+      },
+      {
+        "_path": "include/cblas_f77.h",
+        "path_type": "hardlink",
+        "sha256": "b7bff17c35a96d24489f866ce63ede98c2a75585a7bf5e5bef6bd8bbb2dfd359",
+        "sha256_in_prefix": "b7bff17c35a96d24489f866ce63ede98c2a75585a7bf5e5bef6bd8bbb2dfd359",
+        "size_in_bytes": 21243
+      },
+      {
+        "_path": "include/cblas_mangling.h",
+        "path_type": "hardlink",
+        "sha256": "360f938651695396561760421bc2f812462606fa49de116fa3b4f30a329d538c",
+        "sha256_in_prefix": "360f938651695396561760421bc2f812462606fa49de116fa3b4f30a329d538c",
+        "size_in_bytes": 542
+      },
+      {
+        "_path": "include/cblas_test.h",
+        "path_type": "hardlink",
+        "sha256": "0c7dbabb1d3a697b67ba7d6682e24e999e415faeec601018ed7760f3cc1f209b",
+        "sha256_in_prefix": "0c7dbabb1d3a697b67ba7d6682e24e999e415faeec601018ed7760f3cc1f209b",
+        "size_in_bytes": 8051
+      },
+      {
+        "_path": "lib/cmake/cblas-3.8.0/cblas-config-version.cmake",
+        "path_type": "hardlink",
+        "sha256": "956f1a94c3368a47a3b254b070d7195c34e51f091da816b18ff9c501763796a3",
+        "sha256_in_prefix": "956f1a94c3368a47a3b254b070d7195c34e51f091da816b18ff9c501763796a3",
+        "size_in_bytes": 247
+      },
+      {
+        "_path": "lib/cmake/cblas-3.8.0/cblas-config.cmake",
+        "path_type": "hardlink",
+        "sha256": "b12a050ca86ceee79e247cfe34697a6802f21a76f16a981f31c43228192a1fab",
+        "sha256_in_prefix": "b12a050ca86ceee79e247cfe34697a6802f21a76f16a981f31c43228192a1fab",
+        "size_in_bytes": 803
+      },
+      {
+        "_path": "lib/cmake/cblas-3.8.0/cblas-targets-release.cmake",
+        "path_type": "hardlink",
+        "sha256": "265dd9cb37039edecd5240822c6fd023ddbcad16aba4022ddb8ac2a5902af92a",
+        "sha256_in_prefix": "265dd9cb37039edecd5240822c6fd023ddbcad16aba4022ddb8ac2a5902af92a",
+        "size_in_bytes": 790
+      },
+      {
+        "_path": "lib/cmake/cblas-3.8.0/cblas-targets.cmake",
+        "path_type": "hardlink",
+        "sha256": "76db8be3f9bba8f1b01ae0caa1ca883d09a297afc8b86d7a2f43356a0208584a",
+        "sha256_in_prefix": "76db8be3f9bba8f1b01ae0caa1ca883d09a297afc8b86d7a2f43356a0208584a",
+        "size_in_bytes": 3215
+      },
+      {
+        "_path": "lib/libcblas.so",
+        "path_type": "softlink",
+        "sha256": "2ec86576d9f312e3faf4ccc78736570815a7ac54e21d3669b0fdafca68bb9786",
+        "size_in_bytes": 131048
+      },
+      {
+        "_path": "lib/libcblas.so.3",
+        "path_type": "softlink",
+        "sha256": "2ec86576d9f312e3faf4ccc78736570815a7ac54e21d3669b0fdafca68bb9786",
+        "size_in_bytes": 131048
+      },
+      {
+        "_path": "lib/libcblas.so.3.8.0",
+        "path_type": "hardlink",
+        "sha256": "2ec86576d9f312e3faf4ccc78736570815a7ac54e21d3669b0fdafca68bb9786",
+        "sha256_in_prefix": "2ec86576d9f312e3faf4ccc78736570815a7ac54e21d3669b0fdafca68bb9786",
+        "size_in_bytes": 131048
+      },
+      {
+        "_path": "lib/pkgconfig/cblas.pc",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/opt/anaconda1anaconda2anaconda3",
+        "sha256": "80b6d34c6f400cd3a20c3877f13c4e9d51fa1cd8e7ebb39697e3d6df1f62e0ef",
+        "sha256_in_prefix": "28d904a7ad3f4d9e1f80d0f6b0a15ccf756aaa033d5ca08dcb9162f63a31aafb",
+        "size_in_bytes": 312
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 47722,
+  "subdir": "linux-64",
+  "timestamp": 1554043694401,
+  "track_features": "blas_netlib",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/libcblas-3.8.0-5_h6e990d7_netlib.tar.bz2",
+  "version": "3.8.0"
+}

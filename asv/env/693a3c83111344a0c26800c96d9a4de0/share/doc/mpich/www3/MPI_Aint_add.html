@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_Aint_add</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_Aint_add"><H1>MPI_Aint_add</H1></A>
+Returns the sum of base and disp 
+<H2>Synopsis</H2>
+<PRE>
+MPI_Aint MPI_Aint_add(MPI_Aint base, MPI_Aint disp)
+</PRE>
+<H2>Input Parameters</H2>
+<DL>
+<DT><B>base </B><DD>base address (integer)
+
+<DT><B>disp </B><DD>displacement (integer)
+</DL>
+<P>
+<H2>Return value</H2>
+Sum of the base and disp argument
+<P>
+<H2>Notes</H2>
+MPI_Aint_Add produces a new MPI_Aint value that is equivalent to the sum of the
+base and disp arguments, where base represents a base address returned by a call
+to MPI_GET_ADDRESS and disp represents a signed integer displacement. The resulting
+address is valid only at the process that generated base, and it must correspond
+to a location in the same object referenced by base. The addition is performed in
+a manner that results in the correct MPI_Aint representation of the output address,
+as if the process that originally produced base had called:
+<PRE>
+    MPI_Get_address((char *) base + disp, &amp;result)
+</PRE>
+
+<P>
+<H0>See Also</H0>
+ MPI_Aint_diff
+<br>
+</BODY></HTML>

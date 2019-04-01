@@ -1,0 +1,67 @@
+{
+  "build": "5_h6e990d7_netlib",
+  "build_number": 5,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "libgcc-ng >=7.3.0",
+    "libgfortran-ng >=7,<8.0a0"
+  ],
+  "extracted_package_dir": "/home/youssef/.conda/pkgs/libblas-3.8.0-5_h6e990d7_netlib",
+  "features": "",
+  "files": [
+    "lib/libblas.so",
+    "lib/libblas.so.3",
+    "lib/libblas.so.3.8.0",
+    "lib/pkgconfig/blas.pc"
+  ],
+  "fn": "libblas-3.8.0-5_h6e990d7_netlib.tar.bz2",
+  "license": "BSD 3-Clause",
+  "link": {
+    "source": "/home/youssef/.conda/pkgs/libblas-3.8.0-5_h6e990d7_netlib",
+    "type": 1
+  },
+  "md5": "42d86c45ca0b89ca631d929908dbded9",
+  "name": "libblas",
+  "package_tarball_full_path": "/home/youssef/.conda/pkgs/libblas-3.8.0-5_h6e990d7_netlib.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/libblas.so",
+        "path_type": "softlink",
+        "sha256": "01e3545ef256475a8016cf7730e10faa6c7ce1101f80b883b4367a0bdf4b6921",
+        "size_in_bytes": 464096
+      },
+      {
+        "_path": "lib/libblas.so.3",
+        "path_type": "softlink",
+        "sha256": "01e3545ef256475a8016cf7730e10faa6c7ce1101f80b883b4367a0bdf4b6921",
+        "size_in_bytes": 464096
+      },
+      {
+        "_path": "lib/libblas.so.3.8.0",
+        "path_type": "hardlink",
+        "sha256": "01e3545ef256475a8016cf7730e10faa6c7ce1101f80b883b4367a0bdf4b6921",
+        "sha256_in_prefix": "01e3545ef256475a8016cf7730e10faa6c7ce1101f80b883b4367a0bdf4b6921",
+        "size_in_bytes": 464096
+      },
+      {
+        "_path": "lib/pkgconfig/blas.pc",
+        "file_mode": "text",
+        "path_type": "hardlink",
+        "prefix_placeholder": "/opt/anaconda1anaconda2anaconda3",
+        "sha256": "2dd1ddc68b43f57d98817b602b5d3b49d29a392cdb2d333ffddd5d54891e010f",
+        "sha256_in_prefix": "9db6c76ec5313f505c7c80ea209468596ecb086528473d1c928a1bfe444ba130",
+        "size_in_bytes": 268
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 185135,
+  "subdir": "linux-64",
+  "timestamp": 1554043563947,
+  "track_features": "blas_netlib",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/libblas-3.8.0-5_h6e990d7_netlib.tar.bz2",
+  "version": "3.8.0"
+}

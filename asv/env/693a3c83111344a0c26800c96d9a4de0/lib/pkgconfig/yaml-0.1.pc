@@ -1,0 +1,10 @@
+prefix=/home/youssef/Tardis/Tardis/tardis/asv/env/693a3c83111344a0c26800c96d9a4de0
+exec_prefix=${prefix}
+includedir=${prefix}/include
+libdir=${exec_prefix}/lib
+
+Name: LibYAML
+Description: Library to parse and emit YAML
+Version: 0.1.7
+Cflags:
+Libs: -L${libdir} -lyaml

@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_Grequest_start</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_Grequest_start"><H1>MPI_Grequest_start</H1></A>
+Create and return a user-defined request 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_Grequest_start( MPI_Grequest_query_function *query_fn, 
+                      MPI_Grequest_free_function *free_fn, 
+                      MPI_Grequest_cancel_function *cancel_fn, 
+                      void *extra_state, MPI_Request *request )
+</PRE>
+<H2>Input Parameters</H2>
+<DL>
+<DT><B>query_fn </B><DD>callback function invoked when request status is queried (function)  
+
+<DT><B>free_fn </B><DD>callback function invoked when request is freed (function) 
+
+<DT><B>cancel_fn </B><DD>callback function invoked when request is cancelled (function) 
+
+<DT><B>extra_state </B><DD>Extra state passed to the above functions.
+</DL>
+<P>
+<H2>Output Parameters</H2>
+<DL><DT><B>request </B> <DD> Generalized request (handle)
+</DL>
+<P>
+<H2>Notes on the callback functions</H2>
+The return values from the callback functions must be a valid MPI error code
+or class.  This value may either be the return value from any MPI routine
+(with one exception noted below) or any of the MPI error classes.
+For portable programs, <tt>MPI_ERR_OTHER</tt> may be used; to provide more
+specific information, create a new MPI error class or code with
+<tt>MPI_Add_error_class</tt> or <tt>MPI_Add_error_code</tt> and return that value.
+<P>
+The MPI standard is not clear on the return values from the callback routines.
+However, there are notes in the standard that imply that these are MPI error
+codes.  For example, pages 169 line 46 through page 170, line 1 require that
+the <tt>free_fn</tt> return an MPI error code that may be used in the MPI completion
+functions when they return <tt>MPI_ERR_IN_STATUS</tt>.
+<P>
+The one special case is the error value returned by <tt>MPI_Comm_dup</tt> when
+the attribute callback routine returns a failure.  The MPI standard is not
+clear on what values may be used to indicate an error return.  Further,
+the Intel MPI test suite made use of non-zero values to indicate failure,
+and expected these values to be returned by the <tt>MPI_Comm_dup</tt> when the
+attribute routines encountered an error.  Such error values may not be valid
+MPI error codes or classes.  Because of this, it is the user's responsibility
+to either use valid MPI error codes in return from the attribute callbacks,
+if those error codes are to be returned by a generalized request callback,
+or to detect and convert those error codes to valid MPI error codes (recall
+that MPI error classes are valid error codes).
+<P>
+<H2>Thread and Interrupt Safety</H2>
+<P>
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as <tt>malloc
+</tt>or other non-MPICH runtime routines that are themselves not interrupt-safe.
+<P>
+<H2>Notes for Fortran</H2>
+All MPI routines in Fortran (except for <tt>MPI_WTIME</tt> and <tt>MPI_WTICK</tt>) have
+an additional argument <tt>ierr</tt> at the end of the argument list.  <tt>ierr
+</tt>is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+<tt>call</tt> statement.
+<P>
+All MPI objects (e.g., <tt>MPI_Datatype</tt>, <tt>MPI_Comm</tt>) are of type <tt>INTEGER
+</tt>in Fortran.
+<P>
+<H2>Errors</H2>
+<P>
+All MPI routines (except <tt>MPI_Wtime</tt> and <tt>MPI_Wtick</tt>) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with <tt>MPI_Comm_set_errhandler</tt> (for communicators),
+<tt>MPI_File_set_errhandler</tt> (for files), and <tt>MPI_Win_set_errhandler</tt> (for
+RMA windows).  The MPI-1 routine <tt>MPI_Errhandler_set</tt> may be used but
+its use is deprecated.  The predefined error handler
+<tt>MPI_ERRORS_RETURN</tt> may be used to cause error values to be returned.
+Note that MPI does <em>not</em> guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+<P>
+<DL><DT><B>MPI_SUCCESS </B> <DD> No error; MPI routine completed successfully.
+</DL>
+<DL><DT><B>MPI_ERR_ARG </B> <DD> Invalid argument.  Some argument is invalid and is not
+identified by a specific error class (e.g., <tt>MPI_ERR_RANK</tt>).
+</DL>
+</BODY></HTML>

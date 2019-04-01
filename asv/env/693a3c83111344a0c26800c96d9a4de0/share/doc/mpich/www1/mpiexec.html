@@ -1,0 +1,152 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>mpiexec</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="mpiexec"><H1>mpiexec</H1></A>
+Run an MPI program 
+<H2>Synopsis</H2>
+<PRE>
+</PRE>
+<PRE>
+    mpiexec args executable pgmargs [ : args executable pgmargs ... ]
+</PRE>
+
+where <tt>args</tt> are command line arguments for <tt>mpiexec</tt> (see below),
+<tt>executable</tt> is the name of an executable MPI program, and <tt>pgmargs
+</tt>are command line arguments for the executable.  Multiple executables
+can be specified by using the colon notation (for MPMD - Multiple Program
+Multiple Data applications).   For example, the following command will run
+the MPI program <tt>a.out</tt> on 4 processes:
+<PRE>
+    mpiexec -n 4 a.out
+</PRE>
+
+<P>
+The MPI standard specifies the following arguments and their meanings:
+<P>
+<DL>
+<DT><B>-n &lt;np&gt; </B><DD>Specify the number of processes to use
+
+<DT><B>-host &lt;hostname&gt; </B><DD>Name of host on which to run processes
+
+<DT><B>-arch &lt;architecture name&gt; </B><DD>Pick hosts with this architecture type
+
+<DT><B>-wdir &lt;working directory&gt; </B><DD>cd to this one <em>before</em> running executable
+
+<DT><B>-path &lt;pathlist&gt; </B><DD>use this to find the executable
+
+<DT><B>-soft &lt;triplets&gt; </B><DD>comma separated triplets that specify requested numbers
+of processes (see the MPI-2 specification for more details)
+
+<DT><B>-file &lt;name&gt; </B><DD>implementation-defined specification file
+
+<DT><B>-configfile &lt;name&gt; </B><DD>file containing specifications of host/program,
+one per line, with # as a comment indicator, e.g., the usual
+mpiexec input, but with ":" replaced with a newline.  That is,
+the configfile contains lines with -soft, -n etc.
+</DL>
+<P>
+Additional arguments that are specific to the MPICH implementation
+are discussed below.
+<P>
+Note that not all of these parameters are meaningful for all
+systems.  For example, the <tt>gforker</tt> version of <tt>mpiexec</tt> creates all
+processes on the same system on which it is running; in that case, the
+<tt>\-arch</tt> and <tt>\-host</tt> options are ignored.
+<P>
+The colon character (<tt>:</tt>) may be used to separate different executables
+for MPMD (multiple program multiple data) programming.  For example,
+to run the program <tt>ocean</tt> on 4 processes and <tt>air</tt> on 8 processes, use:
+<P>
+<PRE>
+    mpiexec -n 4 ocean : -n 8 air
+</PRE>
+
+<P>
+<P>
+<H2>MPICH-Specific Arguments</H2>
+<P>
+Many of the implementations of process managers in MPICH support the
+following arguments to <tt>mpiexec</tt>:
+<P>
+<DL>
+<DT><B>-np &lt;num&gt; </B><DD>A synonym for the standard <tt>\-n</tt> argument
+
+<DT><B>-env &lt;name&gt; &lt;value&gt; </B><DD>Set the environment variable <tt>&lt;name&gt;</tt> to <tt>&lt;value&gt;</tt> for
+the processes being run by <tt>mpiexec
+</tt>
+<DT><B>-envnone </B><DD>Pass no environment variables (other than ones specified with
+other <tt>\-env</tt> or <tt>\-genv</tt> arguments) to the processes being run by <tt>mpiexec</tt>.
+By default, all environment
+variables are provided to each MPI process (rationale: principle of
+least surprise for the user)
+
+<DT><B>-envlist &lt;list&gt; </B><DD>Pass the listed environment variables (names separated
+by commas), with their current values, to the processes being run by
+<tt>mpiexec</tt>.
+
+<DT><B>-genv &lt;name&gt; &lt;value&gt; </B><DD>The <tt>\-genv</tt> options have the same meaning as their
+corresponding <tt>\-env</tt> version, except they apply to all executables, not just
+the current executable (in the case that the colon syntax is used to specify
+multiple execuables).
+
+<DT><B>-genvnone </B><DD>Like <tt>\-envnone</tt>, but for all executables
+
+<DT><B>-genvlist &lt;list&gt; </B><DD>Like <tt>\-envlist</tt>, but for all executables
+
+<DT><B>-usize &lt;n&gt; </B><DD>Specify the value returned for the value of the attribute
+<tt>MPI_UNIVERSE_SIZE</tt>.
+
+<DT><B>-l </B><DD>Label standard out and standard error (<tt>stdout</tt> and <tt>stderr</tt>) with
+the rank of the process
+
+<DT><B>-maxtime &lt;n&gt; </B><DD>Set a timelimit of <tt>&lt;n&gt;</tt> seconds.
+
+<DT><B>-exitinfo </B><DD>Provide more information on the reason each process exited if
+there is an abnormal exit
+</DL>
+<P>
+<H2>Environment variables for mpiexec</H2>
+The following environment variables are understood by some versions of
+<tt>mpiexec</tt>.  The command line arguments have priority over these; that is,
+if both the environment variable and command line argument are used, the
+value specified by the command line argument is used.
+<P>
+<DL>
+<DT><B>MPIEXEC_TIMEOUT  </B><DD>Maximum running time in seconds.  <tt>mpiexec</tt> will
+terminate MPI programs that take longer than the value specified by
+<tt>MPIEXEC_TIMEOUT</tt>.  
+
+<DT><B>MPIEXEC_UNIVERSE_SIZE </B><DD>Set the universe size
+
+<DT><B>MPIEXEC_PORT_RANGE </B><DD>Set the range of ports that <tt>mpiexec</tt> will use 
+in communicating with the processes that it starts.  The format of 
+this is <tt>&lt;low&gt;:&lt;high&gt;</tt>.  For example, to specify any port between
+10000 and 10100, use <tt>10000:10100</tt>.  
+
+<DT><B>MPICH_PORT_RANGE </B><DD>Has the same meaning as <tt>MPIEXEC_PORT_RANGE</tt> and 
+is used if <tt>MPIEXEC_PORT_RANGE</tt> is not set.
+
+<DT><B>MPIEXEC_PREFIX_DEFAULT </B><DD>If this environment variable is set, output
+to standard output is prefixed by the rank in <tt>MPI_COMM_WORLD</tt> of the 
+process and output to standard error is prefixed by the rank and the 
+text <tt>(err)</tt>; both are followed by an angle bracket (<tt>&gt;</tt>).  If
+this variable is not set, there is no prefix.
+
+<DT><B>MPIEXEC_PREFIX_STDOUT </B><DD>Set the prefix used for lines sent to standard
+output.  A <tt>%d</tt> is replaced with the rank in <tt>MPI_COMM_WORLD</tt>; a <tt>%w</tt> is 
+replaced with an indication of which <tt>MPI_COMM_WORLD</tt> in MPI jobs that
+involve multiple <tt>MPI_COMM_WORLD</tt>s (e.g., ones that use <tt>MPI_Comm_spawn</tt> or
+<tt>MPI_Comm_connect</tt>).
+
+<DT><B>MPIEXEC_PREFIX_STDERR </B><DD>Like <tt>MPIEXEC_PREFIX_STDOUT</tt>, but for standard error.
+</DL>
+<P>
+<H2>Return Status</H2>
+<tt>mpiexec</tt> returns the maximum of the exit status values of all of the
+processes created by <tt>mpiexec</tt>.
+<P>
+</BODY></HTML>

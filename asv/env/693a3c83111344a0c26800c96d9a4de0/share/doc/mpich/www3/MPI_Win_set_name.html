@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_Win_set_name</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_Win_set_name"><H1>MPI_Win_set_name</H1></A>
+Set the print name for an MPI RMA window 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_Win_set_name(MPI_Win win, const char *win_name)
+</PRE>
+<H2>Input Parameters</H2>
+<DL>
+<DT><B>win </B><DD>window whose identifier is to be set (handle) 
+
+<DT><B>win_name </B><DD>the character string which is remembered as the name (string) 
+</DL>
+<P>
+<H2>Thread and Interrupt Safety</H2>
+<P>
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as <tt>malloc
+</tt>or other non-MPICH runtime routines that are themselves not interrupt-safe.
+<P>
+<H2>Notes for Fortran</H2>
+All MPI routines in Fortran (except for <tt>MPI_WTIME</tt> and <tt>MPI_WTICK</tt>) have
+an additional argument <tt>ierr</tt> at the end of the argument list.  <tt>ierr
+</tt>is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+<tt>call</tt> statement.
+<P>
+All MPI objects (e.g., <tt>MPI_Datatype</tt>, <tt>MPI_Comm</tt>) are of type <tt>INTEGER
+</tt>in Fortran.
+<P>
+<H2>Errors</H2>
+<P>
+All MPI routines (except <tt>MPI_Wtime</tt> and <tt>MPI_Wtick</tt>) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with <tt>MPI_Comm_set_errhandler</tt> (for communicators),
+<tt>MPI_File_set_errhandler</tt> (for files), and <tt>MPI_Win_set_errhandler</tt> (for
+RMA windows).  The MPI-1 routine <tt>MPI_Errhandler_set</tt> may be used but
+its use is deprecated.  The predefined error handler
+<tt>MPI_ERRORS_RETURN</tt> may be used to cause error values to be returned.
+Note that MPI does <em>not</em> guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+<P>
+<DL><DT><B>MPI_SUCCESS </B> <DD> No error; MPI routine completed successfully.
+</DL>
+<DL><DT><B>MPI_ERR_WIN </B> <DD> Invalid MPI window object
+</DL>
+<DL><DT><B>MPI_ERR_OTHER </B> <DD> Other error; use <tt>MPI_Error_string</tt> to get more information
+about this error code. 
+</DL>
+<DL><DT><B>MPI_ERR_ARG </B> <DD> Invalid argument.  Some argument is invalid and is not
+identified by a specific error class (e.g., <tt>MPI_ERR_RANK</tt>).
+</DL>
+</BODY></HTML>

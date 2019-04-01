@@ -1,0 +1,62 @@
+{
+    "benchmark_version": {
+        "benchmarks.Suite.time_number2element": "1a5d4ea3930f2183ed5c4301573b83b49213aa5297929759a4c35b1541ca51bc"
+    },
+    "commit_hash": "592cc80cc7b585a7eb654fe109d8a01da8ef15aa",
+    "date": 1552502650000,
+    "ended_at": {
+        "benchmarks.Suite.time_number2element": 1554102542085
+    },
+    "env_name": "conda-py3.6-Cython-astropy-numpy-pandas-pyne-pyyaml",
+    "params": {
+        "Cython": "",
+        "arch": "x86_64",
+        "astropy": "",
+        "cpu": "Intel(R) Core(TM) i7-4600U CPU @ 2.10GHz",
+        "machine": "youssef-Latitude-E7440",
+        "numpy": "",
+        "os": "Linux 4.15.0-46-generic",
+        "pandas": "",
+        "pyne": "",
+        "python": "3.6",
+        "pyyaml": "",
+        "ram": "16329656"
+    },
+    "profiles": {},
+    "python": "3.6",
+    "requirements": {
+        "Cython": "",
+        "astropy": "",
+        "numpy": "",
+        "pandas": "",
+        "pyne": "",
+        "pyyaml": ""
+    },
+    "results": {
+        "benchmarks.Suite.time_number2element": {
+            "result": [
+                4.974437044534412e-05
+            ],
+            "stats": [
+                {
+                    "ci_99": [
+                        4.3694777327935254e-05,
+                        5.8334761133603255e-05
+                    ],
+                    "max": 5.8334761133603255e-05,
+                    "mean": 4.988159716599191e-05,
+                    "min": 4.3694777327935254e-05,
+                    "number": 247,
+                    "q_25": 4.425990182186234e-05,
+                    "q_75": 5.4243711538461556e-05,
+                    "repeat": 10,
+                    "std": 5.464971746521136e-06
+                }
+            ]
+        }
+    },
+    "started_at": {
+        "benchmarks.Suite.time_number2element": 1554102541879
+    },
+    "version": 1
+}

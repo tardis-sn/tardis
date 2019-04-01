@@ -1,0 +1,377 @@
+# Version 4.9.1:
+## Features
+  * *PR #200*: MOAB now supports auto-download and configuration/installation of several dependencies (HDF5, NetCDF and Metis/ParMetis) out of the box; Use configuration options:
+    * ```--download-hdf5 --download-netcdf --download-metis``` etc
+    * We plan to add more dependency support in future releases.
+  * *PR #187*: Removal ##`qvdual`## tool from MOAB
+  * *PR #218*: Remove ##`txt`## Reader/Writer support (this was an empty shell class)                                                                                                               
+  * A configuration suggestion script (suggest_configuration.sh) that is part of MOAB repository.
+    This script simplifies options to be used for new users.
+## Enhancements
+  * Better support for OSX, Linux and LCF systems
+  * *PR #191*: Improve augmenting ghost entities with set information (remove parallel and memory bottlenecks)
+  * *PR #194*: Generate Fortran prototypes during configuration directly (no auto-generation during build)
+  * *PR #199*: Enhanced support for dealing with polygons and polyhedra with added functionality for VTK and Exodus formats
+  * *PR #202*: AHF support for high-order elements
+  * *PR #208*: The debian support now includes Fortran and Metis dependencies
+## Fixes
+  * Several key fixes found through cppcheck and Coverity (static analysis tools)
+  * Improvements in both autotools and CMake configuration systems
+  * *PR #214, #217*: Core::connect_iterate works with non congruently allocated cells of same type.
+
+# Version 4.9.0:
+## Features
+  * PR #109: Optimized AHF data structure and scalability of parallel uniform mesh refinement now available (Major)
+  * PR #140: Merge Lasso sources to MOAB completely (Major)
+  * PR #137: Debian builds are available for MOAB out-of-the-box now; Check the link for updates:
+             https://launchpad.net/~nschloe/+archive/ubuntu/moab-nightly/+packages (Major)
+  * PR #172: Updated support to load geometry representations (CGM 15.0 + Cubit 14.9/15.0)
+## Configuration
+  @ CMake
+    * PR #166: Missing file in CMakeLists.txt and remove exe flag from sources
+    * PR #154: Don't require METIS_DIR, PARMETIS_DIR to be set
+    * PR #150: Improve CMake HDF5 detection
+    * PR #146: Remove usage of MPI_DIR, remove config/FindMPI.cmake
+    * PR #135: CMake cleanup
+    * PR #124: CMake support for verdict, Metis/ParMetis
+  @ Autotools
+    * PR #168: Remove obsolete code related to netcdf workaround in moab_mpi.h
+    * PR #163: Prepare to use "make run" target in examples folder
+    * PR #149: Replace the deprecated finite routine (C99 standard)
+    * PR #148: Modify obb tests to not be run with regular suite
+    * PR #144: Fortran libs for imeshp test
+    * PR #129: Use correct linker flags for Fortran examples in debug mode
+    * PR #121: Fixes for examples and upgrade makefile with options to run targets
+    * PR #114: Fix compiler warnings related to HAVE_UNORDERED_MAP
+    * PR #122: Enable MOAB_HAVE_VSNPRINTF for ErrorOutput.cpp
+## Fixes
+  @ General
+    * PR #165: GenLargeExample tetra option fix       
+    * PR #157: Fix metis partitioner for serial builds
+    * PR #147: Rename __SDIR__ macro
+    * PR #132: CartVect duplicate removal
+    * PR #142: simplify CpuTimer
+    * PR #138: Updates to TestUtil and testMatrix3 to make sure eigenvectors (normalized) are checked correctly.
+    * PR #136: Add checks for dense double tags
+    * PR #130: Fix for the way Eigenvectors are returned in the Eigenvalue decomposition function.
+    * PR #133: Face-to-volume Sense Corrections (MOAB)
+    * PR #120: Fixed the test_adj.
+    * PR #126: Remove redundant definition of CpuTimer in WriteHDF5Parallel.cpp
+    * PR #123: Fix element_test issue due to missing mesh files
+    * PR #125: Bug in Coupler
+    * PR #119: Fix dual_test issue due to missing mesh file
+    * PR #169: Fix for quadratic pyramid adjacency creation
+  @ Parallel fixes
+    * PR #160: Fix hdf5 parallel reader if number of partitions is too small 
+    * PR #159: Run more parallel tests when built without HDF5
+    * PR #158: Add option to skip augmenting the default sets with ghosts
+    * PR #145: Factor in sequence manager for ghosting
+    * PR #141: Populate sets with ghost entities
+    * PR #131: Merge_all method added to merge mesh class
+  @ I/O
+    * PR #151: HDF5 parallel reader bug
+    * PR #128: HDF5 file with more than 2^32 entities
+  @ Memory leaks
+    * PR #156: Various fixes for memory leaks in serial and parallel examples
+    * PR #153: Valgrind fix for parallel_hdf5_test
+    * PR #127: Gen large mesh memory reduction
+    * PR #116: Major changes for large mesh example
+
+# Version 4.8.2:
+## Fixes
+  * PR #106: Ghosting polyhedra elements
+  * PR #107: AHF polyhedra fix (triggered when configured with --enable-ahf)
+  * PR #110: To fix attribute warning when loading an h5m file
+  * PR #108: Addresses issues raised by faceting on models that have point curves
+  * PR #113: Fix a ParallelComm issue in PGI optimization build
+  * PR #117: Side number should return failure when side is -1
+## Enhancement
+  * PR #89: Writing Dense tags in parallel (minor)
+  * PR #104: Install configuration header to decipher dependencies (major)
+  * PR #115: Partitioning with Metis (major)
+
+# Version 4.8.1:
+## Fixes
+  * PR #97: Support read and write of point clouds and free nodes in vtk format
+  * PR #103: Add explicitly created skin entities to the passed non-null meshset. Previously, this was only available from root set
+  * GMSH and VTK reader fixes
+  * Several minor compiler warnings removed
+## Enhancement
+  * PR #101: Support computation of surface normals for different entity types
+
+# Version 4.8.0:
+## Features
+  * UMR: Implemented the uniform mesh refinement capabilities for different entity types for degrees (2,3,5). Tools to load a MOAB mesh and uniformly refine it based on user inputs is now available
+  * Coupler: Improvements in scalability of the spatial coupler and improved capabilities to perform global and subset based conservation/normalization
+  * Verdict: A new set of API functions to measure quality metrics for MOAB entities (based on Verdict library)
+  * Enhanced error handling support with clean stack traces in both serial and parallel are now provided natively (examples included)
+## Build
+  * Considerably improved CMake-based build support for linux/OSX/Windows
+  * Updated autoconf based build system to address all warnings in different architectures and more robust configuration
+      @ Improved support for OSX Mavericks
+      @ Improved 32-bit handle support
+      @ Support for configuration on ALCF machines out of the box
+* Moved tools/mbzoltan/MBZoltan.* to src/ZoltanPartitioner.*
+* Several bug fixes and warning removals based on GNU, Clang, PGI and Intel compilers
+  - PR#59: ParallelComm - update the correct partition number when creating a part
+  - PR#54: WriteNCDF - minor bug when writing out side sets
+  - PR#94: Exodus Writer - fixes for variable length tags
+* Additional unit tests for testing several finer grained APIs
+* Several updates to the User and Developer guide in documentation to detail aspects of the new features (UMR, Verdict, Error handling)
+* Overall enhanced Windows support (VS2008) (contributions by Kitware)
+
+# Lasso
+* Several code restructuring to conform library better to SIGMA stack of tools
+* Updates to the autoconf build system to make it more robust
+* Warning fixes for Clang/PGI/GNU/Intel
+* Build in optimized mode by default
+
+# Version 4.7.0:
+* Implemented the Array-based Half Facet data structures in MOAB to improve adjacency querying and efficient traversals between related entities (use --enable-ahf during configure)
+* Co-developed (MOAB and PETSc) to introduce a new native MOAB-mesh based Discretization Manager (DM) implementation in PETSc that supports parallel solution to PDE problems on unstructured grids.
+* Remove memory leak for point-to-point communication (issue #7) caused due to reuse of MPIRequest structures
+* Reading sets in parallel (ticket 273)
+* Parallel mbconvert bug (ticket 274, material sets compromised before writing)
+* Fix memory leak for tracked sets (ticket 285)
+* Fix issue #8 for merging higher dimensional entities
+* Fix edge adjacency and skinner to operate on Polygon and Polyhedra
+* Eliminated miscellaneous compiler warnings (tested on GCC-4.6.3, clang-3.0, Intel-13.1, PGI-13.6)
+* New reader/writer formats (CGNS, MPAS, GCRM); Improve support for several existing formats (Climate-NC, HOMME, CAM-Euler, CAM-FV)
+* Introduce padded polygons option for lower memory fragmentation in MPAS and GCRM climate readers
+* Add climate data NC writer, in serial and parallel, for all data formats supported by the NC reader with options to append, read time-series with concatenation
+* Add Zoltan repartitioning for MPAS reader
+* Improvements in CUBIT reader for boundary conditions data, support CUBIT 14.0 format changes, endianness for BG/Q, variable length tags for saving block attributes and headers
+* Add TET4 as supported element in Exodus reader
+* Enhanced Doxygen-based documentation support for API, user guide, developer guide and examples.
+* Added several new examples to demonstrate the usage of the API for different applications; More to be added here.
+* Added robust CMake build support for MOAB; Preliminary fixes for Windows systems.
+* Enhancements and refactoring to support reading the CGM geometry models for DagMC
+* Parallelization of the MOAB based conservative intersection (CSLAM) algorithm for advection/transport applications
+* Refactoring of MBCoupler and refactoring to support dynamic usage of new search tree algorithms (Kd, BVH)
+* Update VTKReader Paraview plugin for MOAB; Removed the old vtkMOABReader and replaced it with vtkMOABReaderNew.
+* Added meshset argument for methods in ParallelComm and Skinner
+* New options for NC reader
+    - rename PARTITION_METHOD=TRIVIAL_PARTITION to PARTITION_METHOD=TRIVIAL
+    - add NO_MIXED_ELEMENTS option fo reading polygon data (it means padded)
+    - add NO_EDGES option for MPAS reader
+    - RENAME option for renaming a variable at writing an nc file
+    - TIMESTEP option for reading nc files
+* Changes in Core::list_entities to print dense tag information
+* Changes in memory evaluators, move from type long to type long long
+* Changes to ScdInterface, mostly to support new partitioning method (sqijk) but also to allow for periodic meshes in all 3 directions
+* Install TupleList for serial builds also
+* New method in MergeMesh that allows stitching a mesh based on an integer tag defined on vertices (GLOBAL_ID)
+* Introduced interface to delete entities in ParallelComm
+
+# Lasso
+* Miscellaneous warning fixes exposed through Buildbot
+* Fix some stack smashing bugs
+* Added [Doxygen support][http://ftp.mcs.anl.gov/pub/fathom/lasso-docs] with nightly API built from repository
+* Better flag determination during configuration
+
+# Version 4.6:
+* Removed deprecated functions from the Interface: (some overloaded variants of) query_interface, release_interface, 
+  tag_get_data, tag_set_data, tag_get_size.
+* Added Interface::adjacencies_iterate, whose behavior is much like tag_iterate.
+* Extended Interface::get_coords, to return entity centroids (avg vertex position) for non-vertex entities instead of failing
+* Added new iMeshP extension function iMeshP_getCommunicator, converting fortran integer to MPI C communicator
+* Various bug fixes and improvements of mbcoupler (parallel mesh to mesh transfer): handling of spectral elements, works in
+  serial now, better tolerancing for point searches
+* New conventions for handling spectral element types; see doc/metadata_info.doc for details
+* New options for mbsize, similar to those for mbconvert (allows user to specify parallel reading options, so mbsize can be
+  run as a parallel reading test)
+* Initial implementation of Damsel reader/writer
+* Major enhancements, efficiency improvements for NC data reader, including going mostly to a 2.5D representation, addition
+  of a HOMME data reader, bug fixes in representing periodic meshes in parallel
+* Initial implementation of a GCRM data reader, and a better ReadTemplate class (skeleton for writing new readers)
+* Add new metadata and properties handling to DAGMC
+* More extensive warning reporting when using GCC compilers, and many warning eliminations
+* Support for 1D in structured mesh interface
+* Improved doxygen developer documentation
+* Alternative vtkMOABReaderNew & paraview plugin (in tools directory)
+* Additions/improvements to examples
+* New performance tests that include direct tag access tests (in test/perf/perf.cpp)
+* Undeprecated one of the "tag_get_handle" functions for returning tag handle given tag name
+* Several conventional tags (GLOBAL_ID, MATERIAL_SET, others) now have conventional default 
+  values; see src/MBTagConventions.hpp for a list of default values and other conventional tag
+  characteristics.
+
+# Version 4.5:
+* ITAPS: added iMesh_stepEntIter, iMesh_stepEntArrIter, iMesh_tagIterate, iMesh_createTagWithOptions (see iMesh_extensions.h)
+* More partitioning options for structured mesh (see ScdInterface::compute_partition functions, and doc/metadata_info.doc)
+* Error class exposed in API, and query_interface now supports getting access to the moab::Core member of that class.
+* Added Interface::coords_iterate and Interface::connect_iterate, analogous to tag_iterate (allows direct access to
+  coordinate and connectivity memory for blocks of entity handles)
+* Added new iMeshP extension tag_reduce
+
+# Version 4.1:
+* Structured mesh API (see src/moab/ScdInterface.hpp)
+* Parallel read of netcdf-based .nc files using pnetcdf (see doc/metadata_info.pdf)
+* Updated ParaView plugin (see tools/vtkMOABReader/README for details)
+* Direct access to dense tag storage (see tag_iterate function in src/moab/Interface.hpp)
+* Add set iterators (see src/moab/SetIterator.hpp and usage in test/perf/perf.cpp)
+* Fix zoltan build on case-insensitive file systems (e.g. MacOS)
+* Fix netcdf build w/ required HDF5 in non-system path
+
+# Version 4.0.1:
+* Compatible with iMesh 1.2 (see README.IMESH for details on compliance testing)
+
+# Version 4.0:
+* Many improvements to parallel correctness and efficiency
+* Use of MPIO for parallel read of HDF5-based file format
+* Parallel import of file formats utilizing internal communication and/or partial read of files.
+* Partial read of HDF5-based files
+* Import files from: ABAQUS, IDEAS, MCNP5, NASTRAN, Sms, TetGen, Star-CCM+
+* String-based file options for controlling format-specific file options (see README.IO for a 
+  list of options.)
+* Mesh refinement tool
+* Compact storage of structured mesh data
+* Variable-length tag data
+* Alternate, cmake-based build system
+* Support for most recent ITAPS APIs
+* New data coupling tool
+* Python API based on ITAPS APIs
+* Many performance improvements (both runtime and memory), including entity sets, dense tag data, 
+  bit tag data, skinning, and entity deletion.
+* MOAB namespace 
+* Fixed bug in get_entities_by_type_and_tag for cases with non-zero
+  input set which has or doesn't have entities
+
+# Version 3.0.0 (SVN tag 3.0.0):
+- Updated QVDual to work with new versions of VTK and removed
+dependence on graphviz
+- Move ITAPS/TSTT interface implementation into tools/iMesh and make
+it work with configure system
+- Implement new version number system
+- Incorporate DagMC library (does fast facet-based
+ray tracing) into tools/dagmc
+- Prefer g++ to pgCC in configure scripts
+- Many improvements in kd tree functionality, performance
+- Move entity sets to be stored in sequences, better performance &
+functionality
+- Improved various file writers/readers, including:
+. Better performance of HDF5 file reader
+. Configuration with/without HDF5, netcdf
+. Vtk writer improvements
+- Added functions to MBInterface to get memory usage of MOAB
+- Fixes to various MBCN functions for 64-bit builds
+- Small changes to #defines of some tag names in MBTagConventions.hpp
+
+
+# Version 2.00 (CVS tag version_200):
+- New MBInterface method to get blocked coordinate data for vertices.
+- Speed up reading of entity sets in .h5m files.
+- Store sets in entity sequences
+- Remove use of virtual functions from MBMeshSet
+- Add API for quering total and break-down of memory use by MOAB.
+- Add initial Adaptive kD-tree implementation.
+- Add upper_bound method for MBRange.
+- Make parallel configuration (MPI rank and size) per-MOAB-instance values,
+  and add utility methods for querying/manipulating processor ID portion
+  of entity handles.
+- Fix allocation of handles such that they are allocated with the 
+  correct processor ID for parallel 
+- Remove MPI calls from MOAB constructor.  Make paralle config (MPI
+  rank and size) arguments to the MOAB constuctor.
+- Separate type definitions from interface definitions.  MBEntityType.h 
+  contains the definition of MBEntityType and MBTypes.h contains the
+  definitions of all other types and includes MBEntityType.h.  MBInterface 
+  now includes MBTypes.h rather than MBCN.hpp so some applications using
+  MBCN.hpp may have to add an explicit include.
+- Add methods to MBRange to check if all contained entities are of a given
+  type or dimension
+- Change internal storage of entity set parent/child lists so that we have
+  better behavior parent/child links become stale (don't try to delete/deref
+  stale pointers.)
+- Add lower_bound, upper_bound, equal_range methods that accept an MBEntityType
+  as input to MBRange.
+- Add front, back, pop_front and pop_back methods to MBRange
+- Change internal MBRange::PairNode definition so that the 
+  MBRange::const_pair_iterator::operator->() works correctly.
+- Added 'bool' value to tag_create, defaulting to false.  When true, tag_create
+  will return MB_SUCCESS if the tag already exists *and* matches the tag
+  creation parameters.
+- Fixed bugs saving/restoring of mesh and default values for tags containing 
+  MBEntityHandles to/from HDF5 files.
+- Allow special case null (zero) value for MBEntityHandle tags in HDF5 files
+- Added processor rank to entity handle, right below entity type and above id
+fields; width of this field is computed at initialization, and depends on the
+number of processors being used.  On serial versions, zero bits are used so
+handles are as before.
+- Added option to specify requested start id and processor id when creating
+a mesh set.
+- Added functionality (in MBParallelComm class) for passing mesh between processors.
+- Corrected set-related functions when inputting '0' (which is taken to mean 
+the interface set, i.e. the whole mesh); in this case, one can't add parent/child
+sets, but one can request them (return no sets in that case)
+- Added functions to support tag semantics 
+- Added num_hops argument for num_child_meshsets and num_parent_meshsets.
+- Removed default value for default value in tag_create function (this
+argument was making the choice between overloaded versions of this
+function ambiguous)
+- Fixed bug in MBCN::NumSubEntities when input d=0 (i.e. vertices)
+- Changed arguments to get_connectivity to take const MBEntityHandle* and size
+instead of std::vector, so single MBEntityHandle can be used as input
+- Added version of get_connectivity which returns results in an MBRange, 
+for convenience of calling code needing to do range-based logic
+- Added std::string MBInterface::get_error_string(const MBErrorCode) const, which
+returns a string for the error code passed in (usually just a string representation
+of the error code enum)
+- Added MBRange variants of get_parent_meshsets, get_child_meshsets
+- Added list_entity function to MBInterface
+- Fix bug writing global/default values for tags containing entity handles
+   to HDF5 files when using 64-bit handles.
+- Fix bugs in VTK I/O for structured mesh, polygons, quadratic elements, and
+   bit tags.
+
+# Version 1.01 (CVS tag version_101): 
+##New Capabilities:
+- Added support for polygons/polyhedra; polyhedra represented by
+storing polygon handles as connectivity array, otherwise poly elements
+similar to other entities in MOAB
+- Added DualTool, to compute mesh dual, and for hex meshes, dual
+surfaces/curves
+- Added support for new HDF5-based native MOAB reader/writer; this is
+the only format capable of storing any data represented in MOAB
+- Added writers for GMV, SLAC, Vtk (limited), and also a template for
+constructing new mesh writers WriteTemplate
+- Added tools/converter tool for mesh format conversion to/from any of
+the formats supported by MOAB
+- Added support for dynamically adding readers/writers and dynamically
+testing whether any in the list can read/write a given file; required
+substantial additions to MBWriteUtil
+- Added MBInterface::tag_get_default_value
+- Added MBRange functions subtract, lowerBound, operator+=, operator-=
+- Added rudimentary mesh joining capability, and a test for that to
+MBTest
+- Added "categories" tag, which represent broad category types on
+entity sets; used e.g. to indicate a set represents geometric
+vertex/edge/face/region, dual surface/curve, etc.; currently only
+supported by .cub file reader
+
+##Bug Fixes/Rearrangements:
+- Fixed bug getting up-adjacencies from entities having equivalent entities; 
+some adjacencies were being missed.
+- Fixed a bug in set_connectivity, where old vertices were put on the
+end of a scratch array instead of the beginning; symptom showed up as
+old vertices still being adjacent to the element whose connectivity
+was being set.
+- Changed error returned when tag_delete_data called for entity which can't be found,
+from MB_TAG_NOT_FOUND to MB_ENTITY_NOT_FOUND
+- Fixed bug in tag_get_tags, where tag handles weren't passed back properly
+- Improved efficiency of MOAB's TSTT mesh interface implementation in
+various ways
+- Extensive changes to performance tests (in test/perf) to test MOAB
+performance compared to that of cubit and of MOAB TSTT mesh interface
+- When requesting entities with a tag value equal to the (defined)
+default value for that tag, entities not having a tag are returned in
+the list
+- Move conventional tag names from MBInterface.hpp into
+MBTagConventions.hpp
+- renamed MBCN::SubEntityConn to MBCN::SubEntityVertexIndices, and added
+new function MBCN::SubEntityConn, which returns the actual
+connectivity of a subentity given the parent connectivity, and the
+subentity dimension and index
+
+# Version 1.00: 
+Initial release (woo-hoo!)

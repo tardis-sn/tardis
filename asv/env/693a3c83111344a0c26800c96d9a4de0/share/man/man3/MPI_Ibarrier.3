@@ -1,0 +1,92 @@
+.TH MPI_Ibarrier 3 "11/10/2017" " " "MPI"
+.SH NAME
+MPI_Ibarrier \-  Notifies the process that it has reached the barrier and returns immediately 
+.SH SYNOPSIS
+.nf
+int MPI_Ibarrier(MPI_Comm comm, MPI_Request *request)
+.fi
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B comm 
+- communicator (handle)
+.PD 1
+
+.SH OUTPUT PARAMETERS
+.PD 0
+.TP
+.B request 
+- communication request (handle)
+.PD 1
+
+.SH NOTES
+MPI_Ibarrier is a nonblocking version of MPI_barrier. By calling MPI_Ibarrier,
+a process notifies that it has reached the barrier. The call returns
+immediately, independent of whether other processes have called MPI_Ibarrier.
+The usual barrier semantics are enforced at the corresponding completion
+operation (test or wait), which in the intra-communicator case will complete
+only after all other processes in the communicator have called MPI_Ibarrier. In
+the intercommunicator case, it will complete when all processes in the remote
+group have called MPI_Ibarrier.
+
+.SH THREAD AND INTERRUPT SAFETY
+
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as 
+.I malloc
+or other non-MPICH runtime routines that are themselves not interrupt-safe.
+
+.SH NOTES FOR FORTRAN
+All MPI routines in Fortran (except for 
+.I MPI_WTIME
+and 
+.I MPI_WTICK
+) have
+an additional argument 
+.I ierr
+at the end of the argument list.  
+.I ierr
+is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+.I call
+statement.
+
+All MPI objects (e.g., 
+.I MPI_Datatype
+, 
+.I MPI_Comm
+) are of type 
+.I INTEGER
+in Fortran.
+
+.SH ERRORS
+
+All MPI routines (except 
+.I MPI_Wtime
+and 
+.I MPI_Wtick
+) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with 
+.I MPI_Comm_set_errhandler
+(for communicators),
+.I MPI_File_set_errhandler
+(for files), and 
+.I MPI_Win_set_errhandler
+(for
+RMA windows).  The MPI-1 routine 
+.I MPI_Errhandler_set
+may be used but
+its use is deprecated.  The predefined error handler
+.I MPI_ERRORS_RETURN
+may be used to cause error values to be returned.
+Note that MPI does 
+.B not
+guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+

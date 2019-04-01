@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_Compare_and_swap</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_Compare_and_swap"><H1>MPI_Compare_and_swap</H1></A>
+Perform one-sided atomic compare-and-swap. 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_Compare_and_swap(const void *origin_addr, const void *compare_addr,
+        void *result_addr, MPI_Datatype datatype, int target_rank,
+        MPI_Aint target_disp, MPI_Win win)
+</PRE>
+<P>
+This function compares one element of type datatype in the compare buffer
+compare_addr with the buffer at offset target_disp in the target window
+specified by target_rank and win and replaces the value at the target with the
+value in the origin buffer origin_addr if the compare buffer and the target
+buffer are identical. The original value at the target is returned in the
+buffer result_addr.
+<P>
+<H2>Input Parameters</H2>
+<DL>
+<DT><B>origin_addr </B><DD>initial address of buffer (choice)
+
+<DT><B>compare_addr </B><DD>initial address of compare buffer (choice)
+
+<DT><B>result_addr </B><DD>initial address of result buffer (choice)
+
+<DT><B>datatype </B><DD>datatype of the entry in origin, result, and target buffers (handle)
+
+<DT><B>target_rank </B><DD>rank of target (nonnegative integer)
+
+<DT><B>target_disp </B><DD>displacement from start of window to beginning of target buffer (non-negative integer)
+
+<DT><B>win </B><DD>window object (handle)
+</DL>
+<P>
+<H2>Notes</H2>
+This operation is atomic with respect to other "accumulate" operations.
+<P>
+The parameter datatype must belong to one of the following categories of
+predefined datatypes: C integer, Fortran integer, Logical, Multi-language
+types, or Byte as specified in Section 5.9.2 on page 176. The origin and result
+buffers (origin_addr and result_addr) must be disjoint.
+<P>
+<H2>Notes for Fortran</H2>
+All MPI routines in Fortran (except for <tt>MPI_WTIME</tt> and <tt>MPI_WTICK</tt>) have
+an additional argument <tt>ierr</tt> at the end of the argument list.  <tt>ierr
+</tt>is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+<tt>call</tt> statement.
+<P>
+All MPI objects (e.g., <tt>MPI_Datatype</tt>, <tt>MPI_Comm</tt>) are of type <tt>INTEGER
+</tt>in Fortran.
+<P>
+<H2>Errors</H2>
+<P>
+All MPI routines (except <tt>MPI_Wtime</tt> and <tt>MPI_Wtick</tt>) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with <tt>MPI_Comm_set_errhandler</tt> (for communicators),
+<tt>MPI_File_set_errhandler</tt> (for files), and <tt>MPI_Win_set_errhandler</tt> (for
+RMA windows).  The MPI-1 routine <tt>MPI_Errhandler_set</tt> may be used but
+its use is deprecated.  The predefined error handler
+<tt>MPI_ERRORS_RETURN</tt> may be used to cause error values to be returned.
+Note that MPI does <em>not</em> guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+<P>
+<DL><DT><B>MPI_SUCCESS </B> <DD> No error; MPI routine completed successfully.
+</DL>
+<DL><DT><B>MPI_ERR_ARG </B> <DD> Invalid argument.  Some argument is invalid and is not
+identified by a specific error class (e.g., <tt>MPI_ERR_RANK</tt>).
+</DL>
+<DL><DT><B>MPI_ERR_COUNT </B> <DD> Invalid count argument.  Count arguments must be 
+non-negative; a count of zero is often valid.
+</DL>
+<DL><DT><B>MPI_ERR_OP </B> <DD> Invalid operation.  MPI operations (objects of type <tt>MPI_Op</tt>)
+must either be one of the predefined operations (e.g., <tt>MPI_SUM</tt>) or
+created with <tt>MPI_Op_create</tt>.
+</DL>
+<DL><DT><B>MPI_ERR_RANK </B> <DD> Invalid source or destination rank.  Ranks must be between
+zero and the size of the communicator minus one; ranks in a receive
+(<tt>MPI_Recv</tt>, <tt>MPI_Irecv</tt>, <tt>MPI_Sendrecv</tt>, etc.) may also be <tt>MPI_ANY_SOURCE</tt>.
+</DL>
+<DL><DT><B>MPI_ERR_TYPE </B> <DD> Invalid datatype argument.  Additionally, this error can
+occur if an uncommitted MPI_Datatype (see <tt>MPI_Type_commit</tt>) is used
+in a communication call.
+</DL>
+<DL><DT><B>MPI_ERR_WIN </B> <DD> Invalid MPI window object
+</DL>
+</BODY></HTML>

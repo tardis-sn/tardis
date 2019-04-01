@@ -1,0 +1,124 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_Testall</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_Testall"><H1>MPI_Testall</H1></A>
+Tests for the completion of all previously initiated requests 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_Testall(int count, MPI_Request array_of_requests[], int *flag, 
+               MPI_Status array_of_statuses[])
+</PRE>
+<H2>Input Parameters</H2>
+<DL>
+<DT><B>count </B><DD>lists length (integer) 
+
+<DT><B>array_of_requests </B><DD>array of requests (array of handles) 
+</DL>
+<P>
+<H2>Output Parameters</H2>
+<DL>
+<DT><B>flag </B><DD>True if all requests have completed; false otherwise (logical) 
+
+<DT><B>array_of_statuses </B><DD>array of status objects (array of Status).  May be
+<tt>MPI_STATUSES_IGNORE</tt>.
+</DL>
+<P>
+<H2>Notes</H2>
+<tt>flag</tt> is true only if all requests have completed.  Otherwise, flag is
+false and neither the <tt>array_of_requests</tt> nor the <tt>array_of_statuses</tt> is
+modified.
+<P>
+If one or more of the requests completes with an error, <tt>MPI_ERR_IN_STATUS</tt> is
+returned.  An error value will be present is elements of <tt>array_of_status
+</tt>associated with the requests.  Likewise, the <tt>MPI_ERROR</tt> field in the status
+elements associated with requests that have successfully completed will be
+<tt>MPI_SUCCESS</tt>.  Finally, those requests that have not completed will have a
+value of <tt>MPI_ERR_PENDING</tt>.
+<P>
+While it is possible to list a request handle more than once in the
+<tt>array_of_requests</tt>, such an action is considered erroneous and may cause the
+program to unexecpectedly terminate or produce incorrect results.
+<P>
+<H2>Thread and Interrupt Safety</H2>
+<P>
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as <tt>malloc
+</tt>or other non-MPICH runtime routines that are themselves not interrupt-safe.
+<P>
+<H2>Notes on the MPI_Status argument</H2>
+<P>
+The <tt>MPI_ERROR</tt> field of the status return is only set if
+the return from the MPI routine is <tt>MPI_ERR_IN_STATUS</tt>.  That error class
+is only returned by the routines that take an array of status arguments
+(<tt>MPI_Testall</tt>, <tt>MPI_Testsome</tt>, <tt>MPI_Waitall</tt>, and <tt>MPI_Waitsome</tt>).  In
+all other cases, the value of the <tt>MPI_ERROR</tt> field in the status is
+unchanged.  See section 3.2.5 in the MPI-1.1 specification for the
+exact text.
+<P>
+For send operations, the only use of status is for <tt>MPI_Test_cancelled</tt> or
+in the case that there is an error in one of the four routines that
+may return the error class <tt>MPI_ERR_IN_STATUS</tt>, in which case the
+<tt>MPI_ERROR</tt> field of status will be set.  In that case, the value
+will be set to <tt>MPI_SUCCESS</tt> for any send or receive operation that completed
+successfully, or <tt>MPI_ERR_PENDING</tt> for any operation which has neither
+failed nor completed.
+<P>
+<H2>Notes for Fortran</H2>
+All MPI routines in Fortran (except for <tt>MPI_WTIME</tt> and <tt>MPI_WTICK</tt>) have
+an additional argument <tt>ierr</tt> at the end of the argument list.  <tt>ierr
+</tt>is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+<tt>call</tt> statement.
+<P>
+All MPI objects (e.g., <tt>MPI_Datatype</tt>, <tt>MPI_Comm</tt>) are of type <tt>INTEGER
+</tt>in Fortran.
+<P>
+<H2>Errors</H2>
+<P>
+All MPI routines (except <tt>MPI_Wtime</tt> and <tt>MPI_Wtick</tt>) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with <tt>MPI_Comm_set_errhandler</tt> (for communicators),
+<tt>MPI_File_set_errhandler</tt> (for files), and <tt>MPI_Win_set_errhandler</tt> (for
+RMA windows).  The MPI-1 routine <tt>MPI_Errhandler_set</tt> may be used but
+its use is deprecated.  The predefined error handler
+<tt>MPI_ERRORS_RETURN</tt> may be used to cause error values to be returned.
+Note that MPI does <em>not</em> guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+<P>
+<DL><DT><B>MPI_SUCCESS </B> <DD> No error; MPI routine completed successfully.
+</DL>
+<DL><DT><B>MPI_ERR_IN_STATUS </B> <DD> The actual error value is in the <tt>MPI_Status</tt> argument.
+This error class is returned only from the multiple-completion routines
+(<tt>MPI_Testall</tt>, <tt>MPI_Testany</tt>, <tt>MPI_Testsome</tt>, <tt>MPI_Waitall</tt>, <tt>MPI_Waitany</tt>,
+and <tt>MPI_Waitsome</tt>).  The field <tt>MPI_ERROR</tt> in the status argument
+contains the error value or <tt>MPI_SUCCESS</tt> (no error and complete) or
+<tt>MPI_ERR_PENDING</tt> to indicate that the request has not completed.
+</DL>
+The MPI Standard does not specify what the result of the multiple
+completion routines is when an error occurs.  For example, in an
+<tt>MPI_WAITALL</tt>, does the routine wait for all requests to either fail or
+complete, or does it return immediately (with the MPI definition of
+immediately, which means independent of actions of other MPI processes)?
+MPICH has chosen to make the return immediate (alternately, local in MPI
+terms), and to use the error class <tt>MPI_ERR_PENDING</tt> (introduced in MPI 1.1)
+to indicate which requests have not completed.  In most cases, only
+one request with an error will be detected in each call to an MPI routine
+that tests multiple requests.  The requests that have not been processed
+(because an error occured in one of the requests) will have their
+<tt>MPI_ERROR</tt> field marked with <tt>MPI_ERR_PENDING</tt>.
+<DL><DT><B>MPI_ERR_REQUEST </B> <DD> Invalid <tt>MPI_Request</tt>.  Either null or, in the case of a
+<tt>MPI_Start</tt> or <tt>MPI_Startall</tt>, not a persistent request.
+</DL>
+<DL><DT><B>MPI_ERR_ARG </B> <DD> Invalid argument.  Some argument is invalid and is not
+identified by a specific error class (e.g., <tt>MPI_ERR_RANK</tt>).
+</DL>
+</BODY></HTML>

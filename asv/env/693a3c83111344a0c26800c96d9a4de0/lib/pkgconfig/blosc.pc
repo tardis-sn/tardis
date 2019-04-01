@@ -1,0 +1,14 @@
+prefix=/home/youssef/Tardis/Tardis/tardis/asv/env/693a3c83111344a0c26800c96d9a4de0
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+sharedlibdir=${libdir}
+includedir=${prefix}/include
+
+Name: blosc
+Description: A blocking, shuffling and lossless compression library
+URL: http://blosc.org/
+Version: 1.16.3
+
+Requires:
+Libs: -L${libdir} -L${sharedlibdir} -lblosc
+Cflags: -I${includedir}

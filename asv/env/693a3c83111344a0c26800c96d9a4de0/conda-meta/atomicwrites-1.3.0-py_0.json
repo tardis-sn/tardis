@@ -1,0 +1,90 @@
+{
+  "build": "py_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/noarch",
+  "constrains": [],
+  "depends": [
+    "python"
+  ],
+  "extracted_package_dir": "/home/youssef/.conda/pkgs/atomicwrites-1.3.0-py_0",
+  "features": "",
+  "files": [
+    "lib/python3.6/site-packages/atomicwrites-1.3.0-py2.7.egg-info/PKG-INFO",
+    "lib/python3.6/site-packages/atomicwrites-1.3.0-py2.7.egg-info/SOURCES.txt",
+    "lib/python3.6/site-packages/atomicwrites-1.3.0-py2.7.egg-info/dependency_links.txt",
+    "lib/python3.6/site-packages/atomicwrites-1.3.0-py2.7.egg-info/installed-files.txt",
+    "lib/python3.6/site-packages/atomicwrites-1.3.0-py2.7.egg-info/top_level.txt",
+    "lib/python3.6/site-packages/atomicwrites/__init__.py",
+    "lib/python3.6/site-packages/atomicwrites/__pycache__/__init__.cpython-36.pyc"
+  ],
+  "fn": "atomicwrites-1.3.0-py_0.tar.bz2",
+  "license": "MIT",
+  "license_family": "MIT",
+  "link": {
+    "source": "/home/youssef/.conda/pkgs/atomicwrites-1.3.0-py_0",
+    "type": 1
+  },
+  "md5": "300ca2021ef2213151407e23ed4bfd9d",
+  "name": "atomicwrites",
+  "noarch": "python",
+  "package_tarball_full_path": "/home/youssef/.conda/pkgs/atomicwrites-1.3.0-py_0.tar.bz2",
+  "package_type": "noarch_python",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "site-packages/atomicwrites-1.3.0-py2.7.egg-info/PKG-INFO",
+        "path_type": "hardlink",
+        "sha256": "a3cb4097b804df97fef72f9c535f28f0e8983fcd99e0707239f61f8a7ab4e7df",
+        "sha256_in_prefix": "a3cb4097b804df97fef72f9c535f28f0e8983fcd99e0707239f61f8a7ab4e7df",
+        "size_in_bytes": 6530
+      },
+      {
+        "_path": "site-packages/atomicwrites-1.3.0-py2.7.egg-info/SOURCES.txt",
+        "path_type": "hardlink",
+        "sha256": "e70a4e66729a5606151fc6caae62989b22701c836a9fbf1f9176763041c16959",
+        "sha256_in_prefix": "e70a4e66729a5606151fc6caae62989b22701c836a9fbf1f9176763041c16959",
+        "size_in_bytes": 301
+      },
+      {
+        "_path": "site-packages/atomicwrites-1.3.0-py2.7.egg-info/dependency_links.txt",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      },
+      {
+        "_path": "site-packages/atomicwrites-1.3.0-py2.7.egg-info/installed-files.txt",
+        "path_type": "hardlink",
+        "sha256": "42650d2b7d9dffb8c55f03d3c7665a82c9bc31ff5798b27bb9037e6b85f233ae",
+        "sha256_in_prefix": "42650d2b7d9dffb8c55f03d3c7665a82c9bc31ff5798b27bb9037e6b85f233ae",
+        "size_in_bytes": 113
+      },
+      {
+        "_path": "site-packages/atomicwrites-1.3.0-py2.7.egg-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "92ceb8cca55492b97666bacfd38e82b32b5795219ff202c6f887285e93727a87",
+        "sha256_in_prefix": "92ceb8cca55492b97666bacfd38e82b32b5795219ff202c6f887285e93727a87",
+        "size_in_bytes": 13
+      },
+      {
+        "_path": "site-packages/atomicwrites/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "d340daa5d41bd38fa4efd2998f3cdfc2723543c9dfb221794cf79572a6c6570d",
+        "sha256_in_prefix": "d340daa5d41bd38fa4efd2998f3cdfc2723543c9dfb221794cf79572a6c6570d",
+        "size_in_bytes": 6562
+      },
+      {
+        "_path": "lib/python3.6/site-packages/atomicwrites/__pycache__/__init__.cpython-36.pyc",
+        "path_type": "pyc_file"
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 9454,
+  "subdir": "noarch",
+  "timestamp": 1549021101177,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/noarch/atomicwrites-1.3.0-py_0.tar.bz2",
+  "version": "1.3.0"
+}

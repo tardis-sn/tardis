@@ -1,0 +1,98 @@
+{
+  "build": "py36_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.6,<3.7.0a0"
+  ],
+  "extracted_package_dir": "/home/youssef/.conda/pkgs/certifi-2019.3.9-py36_0",
+  "features": "",
+  "files": [
+    "lib/python3.6/site-packages/certifi-2019.03.09-py3.6.egg-info",
+    "lib/python3.6/site-packages/certifi/__init__.py",
+    "lib/python3.6/site-packages/certifi/__main__.py",
+    "lib/python3.6/site-packages/certifi/__pycache__/__init__.cpython-36.pyc",
+    "lib/python3.6/site-packages/certifi/__pycache__/__main__.cpython-36.pyc",
+    "lib/python3.6/site-packages/certifi/__pycache__/core.cpython-36.pyc",
+    "lib/python3.6/site-packages/certifi/cacert.pem",
+    "lib/python3.6/site-packages/certifi/core.py"
+  ],
+  "fn": "certifi-2019.3.9-py36_0.tar.bz2",
+  "license": "ISC",
+  "link": {
+    "source": "/home/youssef/.conda/pkgs/certifi-2019.3.9-py36_0",
+    "type": 1
+  },
+  "md5": "b0c953cb583c5c3e64e49f3db2f8b61f",
+  "name": "certifi",
+  "package_tarball_full_path": "/home/youssef/.conda/pkgs/certifi-2019.3.9-py36_0.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/python3.6/site-packages/certifi-2019.03.09-py3.6.egg-info",
+        "path_type": "hardlink",
+        "sha256": "3a0bccb6f2c20a9f6d6c9805a577c6fbcfd3bc03a5c3058e34851d9cc47530aa",
+        "sha256_in_prefix": "3a0bccb6f2c20a9f6d6c9805a577c6fbcfd3bc03a5c3058e34851d9cc47530aa",
+        "size_in_bytes": 2918
+      },
+      {
+        "_path": "lib/python3.6/site-packages/certifi/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "f8cd66a1ea7d0fa8d99ce013d2a9ccd5da6810730f6a07bb3acbf9c4b44bc858",
+        "sha256_in_prefix": "f8cd66a1ea7d0fa8d99ce013d2a9ccd5da6810730f6a07bb3acbf9c4b44bc858",
+        "size_in_bytes": 52
+      },
+      {
+        "_path": "lib/python3.6/site-packages/certifi/__main__.py",
+        "path_type": "hardlink",
+        "sha256": "162398b75165b6cb7bc24f4345ae860a806bf2a054c65350bbf30a25fd3813ab",
+        "sha256_in_prefix": "162398b75165b6cb7bc24f4345ae860a806bf2a054c65350bbf30a25fd3813ab",
+        "size_in_bytes": 41
+      },
+      {
+        "_path": "lib/python3.6/site-packages/certifi/__pycache__/__init__.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "a1f8846f9828599ad82c6fd90aa1fae2c45f5a0b04fe693de7bec9c09a35abb4",
+        "sha256_in_prefix": "a1f8846f9828599ad82c6fd90aa1fae2c45f5a0b04fe693de7bec9c09a35abb4",
+        "size_in_bytes": 195
+      },
+      {
+        "_path": "lib/python3.6/site-packages/certifi/__pycache__/__main__.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "c9a6c77ce469f80cf327424500e96d3808c708a75a45f40d89aa25a6b9a4e03c",
+        "sha256_in_prefix": "c9a6c77ce469f80cf327424500e96d3808c708a75a45f40d89aa25a6b9a4e03c",
+        "size_in_bytes": 186
+      },
+      {
+        "_path": "lib/python3.6/site-packages/certifi/__pycache__/core.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "a4efb67c515e3bfebfbc0bb23d941cb3f213c524946e136ffc23045e0b136453",
+        "sha256_in_prefix": "a4efb67c515e3bfebfbc0bb23d941cb3f213c524946e136ffc23045e0b136453",
+        "size_in_bytes": 407
+      },
+      {
+        "_path": "lib/python3.6/site-packages/certifi/cacert.pem",
+        "path_type": "hardlink",
+        "sha256": "397b833e5acf89a2709b964401a9aca68d24b62349b72bbe38684e586aa07a27",
+        "sha256_in_prefix": "397b833e5acf89a2709b964401a9aca68d24b62349b72bbe38684e586aa07a27",
+        "size_in_bytes": 284518
+      },
+      {
+        "_path": "lib/python3.6/site-packages/certifi/core.py",
+        "path_type": "hardlink",
+        "sha256": "12e15cd81b13a06e4ed7eaacc780528d0d6bd7eed646d1fcedbd567e564e5a12",
+        "sha256_in_prefix": "12e15cd81b13a06e4ed7eaacc780528d0d6bd7eed646d1fcedbd567e564e5a12",
+        "size_in_bytes": 218
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 152418,
+  "subdir": "linux-64",
+  "timestamp": 1552136305989,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/certifi-2019.3.9-py36_0.tar.bz2",
+  "version": "2019.3.9"
+}

@@ -1,0 +1,177 @@
+.TH MPI_Win_create_dynamic 3 "11/10/2017" " " "MPI"
+.SH NAME
+MPI_Win_create_dynamic \-  Create an MPI Window object for one-sided communication.  This window allows memory to be dynamically exposed and un-exposed for RMA operations. 
+.SH SYNOPSIS
+.nf
+int MPI_Win_create_dynamic(MPI_Info info, MPI_Comm comm, MPI_Win *win)
+.fi
+
+This is a collective call executed by all processes in the group of comm. It
+returns a window win without memory attached. Existing process memory can be
+attached as described below. This routine returns a window object that can be
+used by these processes to perform RMA operations on attached memory. Because
+this window has special properties, it will sometimes be referred to as a
+dynamic window.  The info argument can be used to specify hints similar to the
+info argument for 
+.I MPI_Win_create
+\&.
+
+
+In the case of a window created with 
+.I MPI_Win_create_dynamic
+, the target_disp
+for all RMA functions is the address at the target; i.e., the effective
+window_base is 
+.I MPI_BOTTOM
+and the disp_unit is one. For dynamic windows, the
+target_disp argument to RMA communication operations is not restricted to
+non-negative values. Users should use 
+.I MPI_Get_address
+at the target process to
+determine the address of a target memory location and communicate this address
+to the origin process.
+
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B info 
+- info argument (handle)
+.PD 1
+.PD 0
+.TP
+.B comm 
+- communicator (handle)
+.PD 1
+
+.SH OUTPUT PARAMETERS
+.PD 0
+.TP
+.B win 
+- window object returned by the call (handle)
+.PD 1
+
+.SH NOTES
+
+Users are cautioned that displacement arithmetic can overflow in variables of
+type 
+.I MPI_Aint
+and result in unexpected values on some platforms. This issue may
+be addressed in a future version of MPI.
+
+Memory in this window may not be used as the target of one-sided accesses in
+this window until it is attached using the function 
+.I MPI_Win_attach
+\&.
+That is, in
+addition to using 
+.I MPI_Win_create_dynamic
+to create an MPI window, the user must
+use 
+.I MPI_Win_attach
+before any local memory may be the target of an MPI RMA
+operation. Only memory that is currently accessible may be attached.
+
+
+.SH THREAD AND INTERRUPT SAFETY
+
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as 
+.I malloc
+or other non-MPICH runtime routines that are themselves not interrupt-safe.
+.SH NOTES FOR FORTRAN
+All MPI routines in Fortran (except for 
+.I MPI_WTIME
+and 
+.I MPI_WTICK
+) have
+an additional argument 
+.I ierr
+at the end of the argument list.  
+.I ierr
+is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+.I call
+statement.
+
+All MPI objects (e.g., 
+.I MPI_Datatype
+, 
+.I MPI_Comm
+) are of type 
+.I INTEGER
+in Fortran.
+
+.SH ERRORS
+
+All MPI routines (except 
+.I MPI_Wtime
+and 
+.I MPI_Wtick
+) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with 
+.I MPI_Comm_set_errhandler
+(for communicators),
+.I MPI_File_set_errhandler
+(for files), and 
+.I MPI_Win_set_errhandler
+(for
+RMA windows).  The MPI-1 routine 
+.I MPI_Errhandler_set
+may be used but
+its use is deprecated.  The predefined error handler
+.I MPI_ERRORS_RETURN
+may be used to cause error values to be returned.
+Note that MPI does 
+.B not
+guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+
+.PD 0
+.TP
+.B MPI_SUCCESS 
+- No error; MPI routine completed successfully.
+.PD 1
+.PD 0
+.TP
+.B MPI_ERR_ARG 
+- Invalid argument.  Some argument is invalid and is not
+identified by a specific error class (e.g., 
+.I MPI_ERR_RANK
+).
+.PD 1
+.PD 0
+.TP
+.B MPI_ERR_COMM 
+- Invalid communicator.  A common error is to use a null
+communicator in a call (not even allowed in 
+.I MPI_Comm_rank
+).
+.PD 1
+.PD 0
+.TP
+.B MPI_ERR_INFO 
+- Invalid Info 
+.PD 1
+.PD 0
+.TP
+.B MPI_ERR_OTHER 
+- Other error; use 
+.I MPI_Error_string
+to get more information
+about this error code. 
+.PD 1
+.PD 0
+.TP
+.B MPI_ERR_SIZE 
+- 
+.PD 1
+
+.SH SEE ALSO
+MPI_Win_attach MPI_Win_detach MPI_Win_allocate MPI_Win_allocate_shared MPI_Win_create MPI_Win_free
+.br

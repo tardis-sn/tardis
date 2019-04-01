@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_Get_processor_name</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_Get_processor_name"><H1>MPI_Get_processor_name</H1></A>
+Gets the name of the processor 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_Get_processor_name( char *name, int *resultlen )
+</PRE>
+<H2>Output Parameters</H2>
+<DL>
+<DT><B>name </B><DD>A unique specifier for the actual (as opposed to virtual) node. This
+must be an array of size at least <tt>MPI_MAX_PROCESSOR_NAME</tt>.
+
+<DT><B>resultlen </B><DD>Length (in characters) of the name 
+</DL>
+<P>
+<H2>Notes</H2>
+The name returned should identify a particular piece of hardware;
+the exact format is implementation defined.  This name may or may not
+be the same as might be returned by <tt>gethostname</tt>, <tt>uname</tt>, or <tt>sysinfo</tt>.
+<P>
+<H2>Thread and Interrupt Safety</H2>
+<P>
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as <tt>malloc
+</tt>or other non-MPICH runtime routines that are themselves not interrupt-safe.
+<P>
+<H2>Notes for Fortran</H2>
+All MPI routines in Fortran (except for <tt>MPI_WTIME</tt> and <tt>MPI_WTICK</tt>) have
+an additional argument <tt>ierr</tt> at the end of the argument list.  <tt>ierr
+</tt>is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+<tt>call</tt> statement.
+<P>
+All MPI objects (e.g., <tt>MPI_Datatype</tt>, <tt>MPI_Comm</tt>) are of type <tt>INTEGER
+</tt>in Fortran.
+<P>
+In Fortran, the character argument should be declared as a character string
+of <tt>MPI_MAX_PROCESSOR_NAME</tt> rather than an array of dimension
+<tt>MPI_MAX_PROCESSOR_NAME</tt>.  That is,
+<PRE>
+   character*(MPI_MAX_PROCESSOR_NAME) name
+</PRE>
+
+rather than
+<PRE>
+   character name(MPI_MAX_PROCESSOR_NAME)
+</PRE>
+
+The two
+<P>
+<P>
+The sizes of MPI strings in Fortran are one less than the sizes of that
+string in C/C++ because the C/C++ versions provide room for the trailing
+null character required by C/C++.  For example, <tt>MPI_MAX_ERROR_STRING</tt> is
+<tt>mpif.h</tt> is one smaller than the same value in <tt>mpi.h</tt>.  See the MPI
+standard, sections 2.6.2 and 4.12.9.
+<P>
+<P>
+<H2>Errors</H2>
+<P>
+All MPI routines (except <tt>MPI_Wtime</tt> and <tt>MPI_Wtick</tt>) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with <tt>MPI_Comm_set_errhandler</tt> (for communicators),
+<tt>MPI_File_set_errhandler</tt> (for files), and <tt>MPI_Win_set_errhandler</tt> (for
+RMA windows).  The MPI-1 routine <tt>MPI_Errhandler_set</tt> may be used but
+its use is deprecated.  The predefined error handler
+<tt>MPI_ERRORS_RETURN</tt> may be used to cause error values to be returned.
+Note that MPI does <em>not</em> guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+<P>
+<DL><DT><B>MPI_SUCCESS </B> <DD> No error; MPI routine completed successfully.
+</DL>
+</BODY></HTML>

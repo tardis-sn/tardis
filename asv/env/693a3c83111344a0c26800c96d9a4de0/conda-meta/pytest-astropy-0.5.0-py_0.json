@@ -1,0 +1,89 @@
+{
+  "build": "py_0",
+  "build_number": 0,
+  "channel": "https://conda.anaconda.org/conda-forge/noarch",
+  "constrains": [],
+  "depends": [
+    "pytest >=3.1",
+    "pytest-arraydiff >=0.1",
+    "pytest-doctestplus >=0.2.0",
+    "pytest-openfiles >=0.3.1",
+    "pytest-remotedata >=0.3.1",
+    "python"
+  ],
+  "extracted_package_dir": "/home/youssef/.conda/pkgs/pytest-astropy-0.5.0-py_0",
+  "features": "",
+  "files": [
+    "lib/python3.6/site-packages/pytest_astropy-0.5.0.dist-info/INSTALLER",
+    "lib/python3.6/site-packages/pytest_astropy-0.5.0.dist-info/LICENSE.rst",
+    "lib/python3.6/site-packages/pytest_astropy-0.5.0.dist-info/METADATA",
+    "lib/python3.6/site-packages/pytest_astropy-0.5.0.dist-info/RECORD",
+    "lib/python3.6/site-packages/pytest_astropy-0.5.0.dist-info/WHEEL",
+    "lib/python3.6/site-packages/pytest_astropy-0.5.0.dist-info/top_level.txt"
+  ],
+  "fn": "pytest-astropy-0.5.0-py_0.tar.bz2",
+  "license": "BSD",
+  "link": {
+    "source": "/home/youssef/.conda/pkgs/pytest-astropy-0.5.0-py_0",
+    "type": 1
+  },
+  "md5": "bf8ca217609d229c538807e8502a8b4c",
+  "name": "pytest-astropy",
+  "noarch": "python",
+  "package_tarball_full_path": "/home/youssef/.conda/pkgs/pytest-astropy-0.5.0-py_0.tar.bz2",
+  "package_type": "noarch_python",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "site-packages/pytest_astropy-0.5.0.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+        "sha256_in_prefix": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+        "size_in_bytes": 4
+      },
+      {
+        "_path": "site-packages/pytest_astropy-0.5.0.dist-info/LICENSE.rst",
+        "path_type": "hardlink",
+        "sha256": "03712f43fede530155b72e3d4497bedcf6ac1c4d81b9f6e4d95e0876fec912da",
+        "sha256_in_prefix": "03712f43fede530155b72e3d4497bedcf6ac1c4d81b9f6e4d95e0876fec912da",
+        "size_in_bytes": 1496
+      },
+      {
+        "_path": "site-packages/pytest_astropy-0.5.0.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "0ac582893ffb83f88586fc046c04e667188153fc0941933a639356d47e629ca8",
+        "sha256_in_prefix": "0ac582893ffb83f88586fc046c04e667188153fc0941933a639356d47e629ca8",
+        "size_in_bytes": 3233
+      },
+      {
+        "_path": "site-packages/pytest_astropy-0.5.0.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "bfc621f89a1ddf7c46685028e0912f5b06e6222bd694e5fe914c75292f1b0a14",
+        "sha256_in_prefix": "bfc621f89a1ddf7c46685028e0912f5b06e6222bd694e5fe914c75292f1b0a14",
+        "size_in_bytes": 524
+      },
+      {
+        "_path": "site-packages/pytest_astropy-0.5.0.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "e52a4c9ea634a1c869ce3cb33e98d61027b294b1d4fd1182e8311948ffb78711",
+        "sha256_in_prefix": "e52a4c9ea634a1c869ce3cb33e98d61027b294b1d4fd1182e8311948ffb78711",
+        "size_in_bytes": 93
+      },
+      {
+        "_path": "site-packages/pytest_astropy-0.5.0.dist-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "sha256_in_prefix": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+        "size_in_bytes": 1
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 5875,
+  "subdir": "noarch",
+  "timestamp": 1544138490659,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/noarch/pytest-astropy-0.5.0-py_0.tar.bz2",
+  "version": "0.5.0"
+}

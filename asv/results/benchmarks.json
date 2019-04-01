@@ -1,0 +1,19 @@
+{
+    "benchmarks.Suite.time_number2element": {
+        "code": "class Suite:\n    def time_number2element(self):\n        for i in np.arange(1,100):\n            base.atomic_number2element_symbol(i)",
+        "min_run_count": 2,
+        "name": "benchmarks.Suite.time_number2element",
+        "number": 0,
+        "param_names": [],
+        "params": [],
+        "processes": 2,
+        "repeat": 0,
+        "sample_time": 0.01,
+        "timeout": 60.0,
+        "type": "time",
+        "unit": "seconds",
+        "version": "1a5d4ea3930f2183ed5c4301573b83b49213aa5297929759a4c35b1541ca51bc",
+        "warmup_time": -1
+    },
+    "version": 2
+}

@@ -1,0 +1,83 @@
+{
+  "build": "hdf63c60_1",
+  "build_number": 1,
+  "channel": "https://repo.anaconda.com/pkgs/main/linux-64",
+  "constrains": [],
+  "depends": [],
+  "extracted_package_dir": "/home/youssef/.conda/pkgs/libstdcxx-ng-8.2.0-hdf63c60_1",
+  "features": "",
+  "files": [
+    "lib/libstdc++.so",
+    "lib/libstdc++.so.6",
+    "lib/libstdc++.so.6.0.25",
+    "share/licenses/libstdc++/RUNTIME.LIBRARY.EXCEPTION",
+    "x86_64-conda_cos6-linux-gnu/sysroot/lib/libstdc++.so",
+    "x86_64-conda_cos6-linux-gnu/sysroot/lib/libstdc++.so.6",
+    "x86_64-conda_cos6-linux-gnu/sysroot/lib/libstdc++.so.6.0.25"
+  ],
+  "fn": "libstdcxx-ng-8.2.0-hdf63c60_1.tar.bz2",
+  "license": "GPL3 with runtime exception",
+  "link": {
+    "source": "/home/youssef/.conda/pkgs/libstdcxx-ng-8.2.0-hdf63c60_1",
+    "type": 1
+  },
+  "md5": "16e7bf6ac5207cc989841be16938a3cf",
+  "name": "libstdcxx-ng",
+  "package_tarball_full_path": "/home/youssef/.conda/pkgs/libstdcxx-ng-8.2.0-hdf63c60_1.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/libstdc++.so",
+        "path_type": "softlink",
+        "sha256": "e8281fd91f7f83782e71354fd829ae93a5e80d7774d530848010c857f586e58c",
+        "size_in_bytes": 9536208
+      },
+      {
+        "_path": "lib/libstdc++.so.6",
+        "path_type": "softlink",
+        "sha256": "e8281fd91f7f83782e71354fd829ae93a5e80d7774d530848010c857f586e58c",
+        "size_in_bytes": 9536208
+      },
+      {
+        "_path": "lib/libstdc++.so.6.0.25",
+        "path_type": "hardlink",
+        "sha256": "e8281fd91f7f83782e71354fd829ae93a5e80d7774d530848010c857f586e58c",
+        "sha256_in_prefix": "e8281fd91f7f83782e71354fd829ae93a5e80d7774d530848010c857f586e58c",
+        "size_in_bytes": 9536208
+      },
+      {
+        "_path": "share/licenses/libstdc++/RUNTIME.LIBRARY.EXCEPTION",
+        "path_type": "hardlink",
+        "sha256": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+        "sha256_in_prefix": "9d6b43ce4d8de0c878bf16b54d8e7a10d9bd42b75178153e3af6a815bdc90f74",
+        "size_in_bytes": 3324
+      },
+      {
+        "_path": "x86_64-conda_cos6-linux-gnu/sysroot/lib/libstdc++.so",
+        "path_type": "softlink",
+        "sha256": "e8281fd91f7f83782e71354fd829ae93a5e80d7774d530848010c857f586e58c",
+        "size_in_bytes": 9536208
+      },
+      {
+        "_path": "x86_64-conda_cos6-linux-gnu/sysroot/lib/libstdc++.so.6",
+        "path_type": "softlink",
+        "sha256": "e8281fd91f7f83782e71354fd829ae93a5e80d7774d530848010c857f586e58c",
+        "size_in_bytes": 9536208
+      },
+      {
+        "_path": "x86_64-conda_cos6-linux-gnu/sysroot/lib/libstdc++.so.6.0.25",
+        "path_type": "softlink",
+        "sha256": "e8281fd91f7f83782e71354fd829ae93a5e80d7774d530848010c857f586e58c",
+        "size_in_bytes": 9536208
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 3058753,
+  "subdir": "linux-64",
+  "timestamp": 1534516131602,
+  "track_features": "",
+  "url": "https://repo.anaconda.com/pkgs/main/linux-64/libstdcxx-ng-8.2.0-hdf63c60_1.tar.bz2",
+  "version": "8.2.0"
+}

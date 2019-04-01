@@ -1,0 +1,11 @@
+libdir=/home/youssef/Tardis/Tardis/tardis/asv/env/693a3c83111344a0c26800c96d9a4de0/lib
+includedir=/home/youssef/Tardis/Tardis/tardis/asv/env/693a3c83111344a0c26800c96d9a4de0/include
+version=0.2.20
+extralib=-lm -lpthread -lgfortran -lm -lpthread -lgfortran
+Name: openblas
+Description: OpenBLAS is an optimized BLAS library based on GotoBLAS2 1.13 BSD version
+Version: ${version}
+URL: https://github.com/xianyi/OpenBLAS
+Libs: -L${libdir} -lopenblas
+Libs.private: ${extralib}
+Cflags: -I${includedir}

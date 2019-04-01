@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_T_pvar_stop</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_T_pvar_stop"><H1>MPI_T_pvar_stop</H1></A>
+Stop a performance variable 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_T_pvar_stop(MPI_T_pvar_session session, MPI_T_pvar_handle handle)
+</PRE>
+<H2>Input Parameters</H2>
+<DL>
+<DT><B>session </B><DD>identifier of performance experiment session (handle)
+
+<DT><B>handle </B><DD>handle of a performance variable (handle)
+</DL>
+<P>
+<H2>Notes</H2>
+This functions stops the performance variable with the handle identified by the parameter
+handle in the session identified by the parameter session.
+<P>
+If the constant MPI_T_PVAR_ALL_HANDLES is passed in handle, the MPI implementation
+attempts to stop all variables within the session identified by the parameter session for
+which handles have been allocated. In this case, the routine returns MPI_SUCCESS if all
+variables are stopped successfully, otherwise MPI_T_ERR_PVAR_NO_STARTSTOP is returned.
+Continuous variables and variables that are already stopped are ignored when
+MPI_T_PVAR_ALL_HANDLES is specified.
+<P>
+<H2>Thread and Interrupt Safety</H2>
+<P>
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as <tt>malloc
+</tt>or other non-MPICH runtime routines that are themselves not interrupt-safe.
+<P>
+<H2>Errors</H2>
+<P>
+All MPI routines (except <tt>MPI_Wtime</tt> and <tt>MPI_Wtick</tt>) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with <tt>MPI_Comm_set_errhandler</tt> (for communicators),
+<tt>MPI_File_set_errhandler</tt> (for files), and <tt>MPI_Win_set_errhandler</tt> (for
+RMA windows).  The MPI-1 routine <tt>MPI_Errhandler_set</tt> may be used but
+its use is deprecated.  The predefined error handler
+<tt>MPI_ERRORS_RETURN</tt> may be used to cause error values to be returned.
+Note that MPI does <em>not</em> guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+<P>
+<DL><DT><B>MPI_SUCCESS </B> <DD> No error; MPI routine completed successfully.
+</DL>
+<DL><DT><B>MPI_T_ERR_NOT_INITIALIZED </B> <DD> The MPI tool information interface is not initialized.
+</DL>
+<DL><DT><B>MPI_T_ERR_INVALID_SESSION </B> <DD> Session argument is not valid.
+</DL>
+<DL><DT><B>MPI_T_ERR_INVALID_HANDLE </B> <DD> The handle is invalid.
+</DL>
+<DL><DT><B>MPI_T_ERR_PVAR_NO_STARTSTOP </B> <DD> The performance variable can not be started or stopped.
+</DL>
+</BODY></HTML>

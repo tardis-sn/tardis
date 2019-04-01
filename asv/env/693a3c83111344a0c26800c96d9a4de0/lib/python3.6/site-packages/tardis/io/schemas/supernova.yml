@@ -1,0 +1,25 @@
+$$target: supernova.yml
+type: object
+additionalProperties: false
+properties:
+  luminosity_requested:
+    type: quantity
+    default: 1 solLum
+    description: requested output luminosity for simulation
+  time_explosion:
+    type: quantity
+    description: time since explosion
+  distance:
+    type: quantity
+    description: distance to supernova - **THIS IS DEPRECATED AND NOT IN USE**
+  luminosity_wavelength_start:
+    type: quantity
+    default: 0 angstrom
+    description: start of the integral needed for getting the luminosity right
+  luminosity_wavelength_end:
+    type: quantity
+    default: inf angstrom
+    description: start of the integral needed for getting the luminosity right
+required:
+- luminosity_requested
+- time_explosion

@@ -1,0 +1,72 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_Win_post</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_Win_post"><H1>MPI_Win_post</H1></A>
+Start an RMA exposure epoch 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_Win_post(MPI_Group group, int assert, MPI_Win win)
+</PRE>
+<H2>Input Parameters</H2>
+<DL>
+<DT><B>group </B><DD>group of origin processes (handle) 
+
+<DT><B>assert </B><DD>Used to optimize this call; zero may be used as a default.
+See notes. (integer) 
+
+<DT><B>win </B><DD>window object (handle) 
+</DL>
+<P>
+<H2>Notes</H2>
+The <tt>assert</tt> argument is used to indicate special conditions for the
+fence that an implementation may use to optimize the <tt>MPI_Win_post
+</tt>operation.  The value zero is always correct.  Other assertion values
+may be or'ed together.  Assertions that are valid for <tt>MPI_Win_post</tt> are:
+<P>
+<DL>
+<DT><B>MPI_MODE_NOCHECK </B><DD>the matching calls to <tt>MPI_WIN_START</tt> have not yet 
+occurred on any origin processes when the call to <tt>MPI_WIN_POST</tt> is made. 
+The nocheck option can be specified by a post call if and only if it is 
+specified by each matching start call. 
+
+<DT><B>MPI_MODE_NOSTORE </B><DD>the local window was not updated by local stores (or 
+local get or receive calls) since last synchronization. This may avoid 
+the need for cache synchronization at the post call. 
+
+<DT><B>MPI_MODE_NOPUT </B><DD>the local window will not be updated by put or accumulate 
+calls after the post call, until the ensuing (wait) synchronization. This 
+may avoid the need for cache synchronization at the wait call. 
+</DL>
+<P>
+<H2>Notes for Fortran</H2>
+All MPI routines in Fortran (except for <tt>MPI_WTIME</tt> and <tt>MPI_WTICK</tt>) have
+an additional argument <tt>ierr</tt> at the end of the argument list.  <tt>ierr
+</tt>is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+<tt>call</tt> statement.
+<P>
+All MPI objects (e.g., <tt>MPI_Datatype</tt>, <tt>MPI_Comm</tt>) are of type <tt>INTEGER
+</tt>in Fortran.
+<P>
+<H2>Errors</H2>
+<P>
+All MPI routines (except <tt>MPI_Wtime</tt> and <tt>MPI_Wtick</tt>) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with <tt>MPI_Comm_set_errhandler</tt> (for communicators),
+<tt>MPI_File_set_errhandler</tt> (for files), and <tt>MPI_Win_set_errhandler</tt> (for
+RMA windows).  The MPI-1 routine <tt>MPI_Errhandler_set</tt> may be used but
+its use is deprecated.  The predefined error handler
+<tt>MPI_ERRORS_RETURN</tt> may be used to cause error values to be returned.
+Note that MPI does <em>not</em> guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+<P>
+<DL><DT><B>MPI_SUCCESS </B> <DD> No error; MPI routine completed successfully.
+</DL>
+</BODY></HTML>

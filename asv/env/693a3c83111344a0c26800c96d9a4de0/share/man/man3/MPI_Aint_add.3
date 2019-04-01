@@ -1,0 +1,38 @@
+.TH MPI_Aint_add 3 "11/10/2017" " " "MPI"
+.SH NAME
+MPI_Aint_add \-  Returns the sum of base and disp 
+.SH SYNOPSIS
+.nf
+MPI_Aint MPI_Aint_add(MPI_Aint base, MPI_Aint disp)
+.fi
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B base 
+- base address (integer)
+.PD 1
+.PD 0
+.TP
+.B disp 
+- displacement (integer)
+.PD 1
+
+.SH RETURN VALUE
+Sum of the base and disp argument
+
+.SH NOTES
+MPI_Aint_Add produces a new MPI_Aint value that is equivalent to the sum of the
+base and disp arguments, where base represents a base address returned by a call
+to MPI_GET_ADDRESS and disp represents a signed integer displacement. The resulting
+address is valid only at the process that generated base, and it must correspond
+to a location in the same object referenced by base. The addition is performed in
+a manner that results in the correct MPI_Aint representation of the output address,
+as if the process that originally produced base had called:
+.nf
+MPI_Get_address((char *) base + disp, &result)
+.fi
+
+
+.SH SEE ALSO
+MPI_Aint_diff
+.br

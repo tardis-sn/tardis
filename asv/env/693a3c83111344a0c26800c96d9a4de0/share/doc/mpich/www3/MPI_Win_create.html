@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_Win_create</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_Win_create"><H1>MPI_Win_create</H1></A>
+Create an MPI Window object for one-sided communication 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_Win_create(void *base, MPI_Aint size, int disp_unit, MPI_Info info, 
+                  MPI_Comm comm, MPI_Win *win)
+</PRE>
+<P>
+This is a collective call executed by all processes in the group of comm. It
+returns a window object that can be used by these processes to perform RMA
+operations. Each process specifies a window of existing memory that it exposes
+to RMA accesses by the processes in the group of comm. The window consists of
+size bytes, starting at address base. In C, base is the starting address of a
+memory region. In Fortran, one can pass the first element of a memory region or
+a whole array, which must be 'simply contiguous' (for 'simply contiguous', see
+also MPI 3.0, Section 17.1.12 on page 626). A process may elect to expose no
+memory by specifying size = 0.
+<P>
+<H2>Input Parameters</H2>
+<DL>
+<DT><B>base </B><DD>initial address of window (choice)
+
+<DT><B>size </B><DD>size of window in bytes (nonnegative integer)
+
+<DT><B>disp_unit </B><DD>local unit size for displacements, in bytes (positive integer)
+
+<DT><B>info </B><DD>info argument (handle)
+
+<DT><B>comm </B><DD>communicator (handle)
+</DL>
+<P>
+<H2>Output Parameters</H2>
+<DL><DT><B>win </B> <DD> window object returned by the call (handle)
+</DL>
+<P>
+<H2>Notes</H2>
+<P>
+The displacement unit argument is provided to facilitate address arithmetic in
+RMA operations: the target displacement argument of an RMA operation is scaled
+by the factor disp_unit specified by the target process, at window creation.
+<P>
+The info argument provides optimization hints to the runtime about the expected
+usage pattern of the window. The following info keys are predefined.
+<P>
+<DL><DT><B>no_locks </B> <DD> If set to true, then the implementation may assume that passive
+target synchronization (i.e., <tt>MPI_Win_lock</tt>, <tt>MPI_Win_lock_all</tt>) will not be used on
+the given window. This implies that this window is not used for 3-party
+communication, and RMA can be implemented with no (less) asynchronous agent
+activity at this process.
+</DL>
+<P>
+<DL><DT><B>accumulate_ordering </B> <DD> Controls the ordering of accumulate operations at the
+target.  The argument string should contain a comma-separated list of the
+following read/write ordering rules, where e.g. "raw" means read-after-write:
+"rar,raw,war,waw".
+</DL>
+<P>
+<DL><DT><B>accumulate_ops </B> <DD> If set to same_op, the implementation will assume that all
+concurrent accumulate calls to the same target address will use the same
+operation. If set to same_op_no_op, then the implementation will assume that
+all concurrent accumulate calls to the same target address will use the same
+operation or <tt>MPI_NO_OP</tt>. This can eliminate the need to protect access for
+certain operation types where the hardware can guarantee atomicity. The default
+is same_op_no_op.
+</DL>
+<P>
+<H2>Thread and Interrupt Safety</H2>
+<P>
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as <tt>malloc
+</tt>or other non-MPICH runtime routines that are themselves not interrupt-safe.
+<H2>Notes for Fortran</H2>
+All MPI routines in Fortran (except for <tt>MPI_WTIME</tt> and <tt>MPI_WTICK</tt>) have
+an additional argument <tt>ierr</tt> at the end of the argument list.  <tt>ierr
+</tt>is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+<tt>call</tt> statement.
+<P>
+All MPI objects (e.g., <tt>MPI_Datatype</tt>, <tt>MPI_Comm</tt>) are of type <tt>INTEGER
+</tt>in Fortran.
+<P>
+<H2>Errors</H2>
+<P>
+All MPI routines (except <tt>MPI_Wtime</tt> and <tt>MPI_Wtick</tt>) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with <tt>MPI_Comm_set_errhandler</tt> (for communicators),
+<tt>MPI_File_set_errhandler</tt> (for files), and <tt>MPI_Win_set_errhandler</tt> (for
+RMA windows).  The MPI-1 routine <tt>MPI_Errhandler_set</tt> may be used but
+its use is deprecated.  The predefined error handler
+<tt>MPI_ERRORS_RETURN</tt> may be used to cause error values to be returned.
+Note that MPI does <em>not</em> guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+<P>
+<DL><DT><B>MPI_SUCCESS </B> <DD> No error; MPI routine completed successfully.
+</DL>
+<DL><DT><B>MPI_ERR_ARG </B> <DD> Invalid argument.  Some argument is invalid and is not
+identified by a specific error class (e.g., <tt>MPI_ERR_RANK</tt>).
+</DL>
+<DL><DT><B>MPI_ERR_COMM </B> <DD> Invalid communicator.  A common error is to use a null
+communicator in a call (not even allowed in <tt>MPI_Comm_rank</tt>).
+</DL>
+<DL><DT><B>MPI_ERR_INFO </B> <DD> Invalid Info 
+</DL>
+<DL><DT><B>MPI_ERR_OTHER </B> <DD> Other error; use <tt>MPI_Error_string</tt> to get more information
+about this error code. 
+</DL>
+<DL><DT><B>MPI_ERR_SIZE </B> <DD> 
+</DL>
+<P>
+<H0>See Also</H0>
+ MPI_Win_allocate MPI_Win_allocate_shared MPI_Win_create_dynamic MPI_Win_free
+<br>
+</BODY></HTML>

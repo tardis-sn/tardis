@@ -1,0 +1,72 @@
+.TH MPI_T_pvar_session_free 3 "11/10/2017" " " "MPI"
+.SH NAME
+MPI_T_pvar_session_free \-  Free an existing performance variable session 
+.SH SYNOPSIS
+.nf
+int MPI_T_pvar_session_free(MPI_T_pvar_session *session)
+.fi
+.SH INPUT/OUTPUT PARAMETERS
+.PD 0
+.TP
+.B session 
+- identifier of performance experiment session (handle)
+.PD 1
+
+.SH NOTES
+Calls to the MPI tool information interface can no longer be made
+within the context of a session after it is freed. On a successful
+return, MPI sets the session identifier to MPI_T_PVAR_SESSION_NULL.
+
+.SH THREAD AND INTERRUPT SAFETY
+
+This routine is thread-safe.  This means that this routine may be
+safely used by multiple threads without the need for any user-provided
+thread locks.  However, the routine is not interrupt safe.  Typically,
+this is due to the use of memory allocation routines such as 
+.I malloc
+or other non-MPICH runtime routines that are themselves not interrupt-safe.
+
+.SH ERRORS
+
+All MPI routines (except 
+.I MPI_Wtime
+and 
+.I MPI_Wtick
+) return an error value;
+C routines as the value of the function and Fortran routines in the last
+argument.  Before the value is returned, the current MPI error handler is
+called.  By default, this error handler aborts the MPI job.  The error handler
+may be changed with 
+.I MPI_Comm_set_errhandler
+(for communicators),
+.I MPI_File_set_errhandler
+(for files), and 
+.I MPI_Win_set_errhandler
+(for
+RMA windows).  The MPI-1 routine 
+.I MPI_Errhandler_set
+may be used but
+its use is deprecated.  The predefined error handler
+.I MPI_ERRORS_RETURN
+may be used to cause error values to be returned.
+Note that MPI does 
+.B not
+guarentee that an MPI program can continue past
+an error; however, MPI implementations will attempt to continue whenever
+possible.
+
+.PD 0
+.TP
+.B MPI_SUCCESS 
+- No error; MPI routine completed successfully.
+.PD 1
+.PD 0
+.TP
+.B MPI_T_ERR_NOT_INITIALIZED 
+- The MPI tool information interface is not initialized.
+.PD 1
+.PD 0
+.TP
+.B MPI_T_ERR_INVALID_SESSION 
+- Session argument is not valid.
+.PD 1

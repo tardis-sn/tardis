@@ -1,0 +1,180 @@
+{
+  "build": "py36_1000",
+  "build_number": 1000,
+  "channel": "https://conda.anaconda.org/conda-forge/linux-64",
+  "constrains": [],
+  "depends": [
+    "python >=3.6,<3.7.0a0",
+    "six >=1.0.0,<2.0.0"
+  ],
+  "extracted_package_dir": "/home/youssef/.conda/pkgs/more-itertools-4.3.0-py36_1000",
+  "features": "",
+  "files": [
+    "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/INSTALLER",
+    "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/LICENSE",
+    "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/METADATA",
+    "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/RECORD",
+    "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/WHEEL",
+    "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/top_level.txt",
+    "lib/python3.6/site-packages/more_itertools/__init__.py",
+    "lib/python3.6/site-packages/more_itertools/__pycache__/__init__.cpython-36.pyc",
+    "lib/python3.6/site-packages/more_itertools/__pycache__/more.cpython-36.pyc",
+    "lib/python3.6/site-packages/more_itertools/__pycache__/recipes.cpython-36.pyc",
+    "lib/python3.6/site-packages/more_itertools/more.py",
+    "lib/python3.6/site-packages/more_itertools/recipes.py",
+    "lib/python3.6/site-packages/more_itertools/tests/__init__.py",
+    "lib/python3.6/site-packages/more_itertools/tests/__pycache__/__init__.cpython-36.pyc",
+    "lib/python3.6/site-packages/more_itertools/tests/__pycache__/test_more.cpython-36.pyc",
+    "lib/python3.6/site-packages/more_itertools/tests/__pycache__/test_recipes.cpython-36.pyc",
+    "lib/python3.6/site-packages/more_itertools/tests/test_more.py",
+    "lib/python3.6/site-packages/more_itertools/tests/test_recipes.py"
+  ],
+  "fn": "more-itertools-4.3.0-py36_1000.tar.bz2",
+  "license": "MIT",
+  "license_family": "MIT",
+  "link": {
+    "source": "/home/youssef/.conda/pkgs/more-itertools-4.3.0-py36_1000",
+    "type": 1
+  },
+  "md5": "941af71e79ed99db3c4f40c0f814d2d1",
+  "name": "more-itertools",
+  "package_tarball_full_path": "/home/youssef/.conda/pkgs/more-itertools-4.3.0-py36_1000.tar.bz2",
+  "paths_data": {
+    "paths": [
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/INSTALLER",
+        "path_type": "hardlink",
+        "sha256": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+        "sha256_in_prefix": "ceebae7b8927a3227e5303cf5e0f1f7b34bb542ad7250ac03fbcde36ec2f1508",
+        "size_in_bytes": 4
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/LICENSE",
+        "path_type": "hardlink",
+        "sha256": "09f1c8c9e941af3e584d59641ea9b87d83c0cb0fd007eb5ef391a7e2643c1a46",
+        "sha256_in_prefix": "09f1c8c9e941af3e584d59641ea9b87d83c0cb0fd007eb5ef391a7e2643c1a46",
+        "size_in_bytes": 1053
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/METADATA",
+        "path_type": "hardlink",
+        "sha256": "b147a7fd07cbfde354bb2998e843bafc173258b26aaaf862417f7a6311069679",
+        "sha256_in_prefix": "b147a7fd07cbfde354bb2998e843bafc173258b26aaaf862417f7a6311069679",
+        "size_in_bytes": 32924
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/RECORD",
+        "path_type": "hardlink",
+        "sha256": "a6819f05d2fb2c83d2274b1c8b51b06e89d42c9de3bf345e502c249dd7982a37",
+        "sha256_in_prefix": "a6819f05d2fb2c83d2274b1c8b51b06e89d42c9de3bf345e502c249dd7982a37",
+        "size_in_bytes": 1385
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/WHEEL",
+        "path_type": "hardlink",
+        "sha256": "cacec6d6c11d51e79ca5c7bfdc461dd179651a50c7e1cfd2fa8358b5af00d0f3",
+        "sha256_in_prefix": "cacec6d6c11d51e79ca5c7bfdc461dd179651a50c7e1cfd2fa8358b5af00d0f3",
+        "size_in_bytes": 93
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools-4.3.0.dist-info/top_level.txt",
+        "path_type": "hardlink",
+        "sha256": "7c0baa457bbd2cf871741f6e8c9a307053aed6b67cc334a9396f7f8e52a2b3a3",
+        "sha256_in_prefix": "7c0baa457bbd2cf871741f6e8c9a307053aed6b67cc334a9396f7f8e52a2b3a3",
+        "size_in_bytes": 15
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "4be9fa4bd37752996a537a7eec057ed599e5eb2270b97b09b6aae512af6d394c",
+        "sha256_in_prefix": "4be9fa4bd37752996a537a7eec057ed599e5eb2270b97b09b6aae512af6d394c",
+        "size_in_bytes": 87
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/__pycache__/__init__.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "4dbaf190d559fab1762363fb1dd87caa590c775ef2ff4a8badaa171af54a0834",
+        "sha256_in_prefix": "4dbaf190d559fab1762363fb1dd87caa590c775ef2ff4a8badaa171af54a0834",
+        "size_in_bytes": 207
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/__pycache__/more.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "2904f478cba5bcbe78ba49e0f3cba960f52d6131a6e6d577b56c71373725df49",
+        "sha256_in_prefix": "2904f478cba5bcbe78ba49e0f3cba960f52d6131a6e6d577b56c71373725df49",
+        "size_in_bytes": 67428
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/__pycache__/recipes.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "63b4484b577051c28b04bba5823315aa5bcf0569e3ff120a2932af781a185b57",
+        "sha256_in_prefix": "63b4484b577051c28b04bba5823315aa5bcf0569e3ff120a2932af781a185b57",
+        "size_in_bytes": 16031
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/more.py",
+        "path_type": "hardlink",
+        "sha256": "80e12f6c48f618352a55d10d4f26466ac8e5c6a30226bcdf57896e731a6e4b94",
+        "sha256_in_prefix": "80e12f6c48f618352a55d10d4f26466ac8e5c6a30226bcdf57896e731a6e4b94",
+        "size_in_bytes": 70020
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/recipes.py",
+        "path_type": "hardlink",
+        "sha256": "6312cd44701b32eff4c2847976d2600ad2a3a86c301c7f343f9eac6b41a37a25",
+        "sha256_in_prefix": "6312cd44701b32eff4c2847976d2600ad2a3a86c301c7f343f9eac6b41a37a25",
+        "size_in_bytes": 14960
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/tests/__init__.py",
+        "path_type": "hardlink",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "sha256_in_prefix": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "size_in_bytes": 0
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/tests/__pycache__/__init__.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "845689a22fb519ce5e6a75ac79f36b4062476ff4f5191db743c4904f6a0880a6",
+        "sha256_in_prefix": "845689a22fb519ce5e6a75ac79f36b4062476ff4f5191db743c4904f6a0880a6",
+        "size_in_bytes": 143
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/tests/__pycache__/test_more.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "12221bd5fa2bc35fd6a1a273d6810ae4f1e25652605b005381a0642f0fb781eb",
+        "sha256_in_prefix": "12221bd5fa2bc35fd6a1a273d6810ae4f1e25652605b005381a0642f0fb781eb",
+        "size_in_bytes": 97590
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/tests/__pycache__/test_recipes.cpython-36.pyc",
+        "path_type": "hardlink",
+        "sha256": "3d5057d4697300653a3f1941cbabf537e3ccc98d09e246e35a9d1d8b9816df99",
+        "sha256_in_prefix": "3d5057d4697300653a3f1941cbabf537e3ccc98d09e246e35a9d1d8b9816df99",
+        "size_in_bytes": 32429
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/tests/test_more.py",
+        "path_type": "hardlink",
+        "sha256": "7d69c5c3e6c83748798b94dad232def6ceead037adeda7d330be8b00797d2d8d",
+        "sha256_in_prefix": "7d69c5c3e6c83748798b94dad232def6ceead037adeda7d330be8b00797d2d8d",
+        "size_in_bytes": 70672
+      },
+      {
+        "_path": "lib/python3.6/site-packages/more_itertools/tests/test_recipes.py",
+        "path_type": "hardlink",
+        "sha256": "7d9c949d1864838a7129d77edd198cfe6698d3f73295622f06d29866fb1ee9eb",
+        "sha256_in_prefix": "7d9c949d1864838a7129d77edd198cfe6698d3f73295622f06d29866fb1ee9eb",
+        "size_in_bytes": 19837
+      }
+    ],
+    "paths_version": 1
+  },
+  "requested_spec": "None",
+  "size": 85172,
+  "subdir": "linux-64",
+  "timestamp": 1538595721403,
+  "track_features": "",
+  "url": "https://conda.anaconda.org/conda-forge/linux-64/more-itertools-4.3.0-py36_1000.tar.bz2",
+  "version": "4.3.0"
+}

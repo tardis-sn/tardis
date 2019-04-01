@@ -1,0 +1,129 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>mpifort</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="mpifort"><H1>mpifort</H1></A>
+Compiles and links MPI programs written in Fortran 90 
+<H2>Description</H2>
+This command can be used to compile and link MPI programs written in
+Fortran.  It provides the options and any special libraries that are
+needed to compile and link MPI programs.
+<P>
+It is important to use this command, particularly when linking programs,
+as it provides the necessary libraries.
+<P>
+<H2>Command line arguments</H2>
+<DL>
+<DT><B>-show      </B><DD>Show the commands that would be used without
+running them
+
+<DT><B>-help      </B><DD>Give short help
+
+<DT><B>-fc=name   </B><DD>Use compiler <tt>name</tt> instead of the default choice.  Use
+this only if the compiler is compatible with the MPICH
+library (see below)
+
+<DT><B>-config=name </B><DD>Load a configuration file for a particular compiler.
+This allows a single <tt>mpifort</tt> command to be used with
+multiple compilers.
+
+<DT><B>-compile_info </B><DD>Show the steps for compiling a program.  This option
+can be used to see what options and include paths are
+used by mpifort.
+
+<DT><B>-link_info </B><DD>Show the steps for linking a program.  This option
+can be used to see what options and libraries are used by
+mpifort.
+
+<DT><B>-profile=name </B><DD>Use the MPI profiling given by name.  See below for
+details
+
+<DT><B>-echo      </B><DD>Show exactly what this program is doing.
+This option should normally not be used.
+
+<DT><B>others     </B><DD>are passed to the compiler or linker.  For example, <tt>\-c
+</tt>causes files to be compiled, <tt>\-g</tt> selects compilation with
+debugging on most systems, and <tt>\-o name</tt> causes linking
+with the output executable given the name <tt>name</tt>.
+</DL>
+<P>
+<H2>Environment Variables</H2>
+The environment variables <tt>MPICH_FC</tt> may be used
+to select different Fortran compiler and linker.  Note that since
+MPICH is built with a particular C and Fortran compiler, change the
+compilers used can cause problems.  Use this only if you could intermix
+code compiled with the different compilers.
+<P>
+<H2>Compatible Compilers</H2>
+The MPI library may be used with any compiler that uses the same
+lengths for basic data objects (such as <tt>long double</tt>) and that
+uses compatible run-time libraries.  On many systems, the various
+compilers are compatible and may be used interchangably.  There are
+exceptions; if you use the <tt>MPICH_FC</tt> environment variable or the
+<tt>\-fc=name</tt> command-line argument to override the choice of compiler
+and encounter problems, try reconfiguring MPICH with the new compiler
+and installing MPICH in a separate location.  See the installation manual
+for more details.
+<P>
+<H2>Examples</H2>
+To compile a single file <tt>foo.f</tt>, use
+<PRE>
+   mpifort -c foo.f
+</PRE>
+
+<P>
+To link the output and make an executable, use
+<PRE>
+   mpifort -o foo foo.o
+</PRE>
+
+Combining compilation and linking in a single command
+<PRE>
+   mpifort -o foo foo.f
+</PRE>
+
+is a convenient way to build simple programs.
+<P>
+<H2>Selecting a Profiling Library</H2>
+The <tt>\-profile=name</tt> argument allows you to specify an MPI profiling
+library to be used.  <tt>name</tt> can have two forms:
+<P>
+<br>A library in the same directory as the MPI library
+<br>The name of a profile configuration file
+<br>
+<P>
+If <tt>name</tt> is a library, then this library is included before the MPI
+library.  This allows the simple use of libraries that make use of the
+MPI profiling interface and that are installed in the same directory as
+the MPI library.
+<P>
+If <tt>name.conf</tt> is the name of a file in the sysconfdir directory, then this
+is read and may define the following variables:
+<DL>
+<DT><B>PROFILE_PRELIB </B><DD>Libraries (and paths) to include before the MPI library
+
+<DT><B>PROFILE_POSTLIB </B><DD>Libraries to include after the MPI library
+
+<DT><B>PROFILE_INCPATHS </B><DD>C preprocessor arguments for any include files
+For example, to add <tt>/usr/local/myprof/include</tt> to the include path and
+the library <tt>libmyprof.a</tt> in <tt>/usr/local/myprof/lib</tt> to the link step,
+you could create the file <tt>myprof.conf</tt> with the lines
+</DL>
+<P>
+<PRE>
+    PROFILE_PRELIB="-L/usr/local/myprof/lib -lmyprof"
+    PROFILE_INCPATHS="-I/usr/local/myprof/include"
+</PRE>
+
+and place it in the sysconfdir directory (this directory is set at
+configure time when MPICH is built).  Then using the command-line
+argument <tt>\-profile=myprof</tt> will cause these
+definitions to be added to the relevant compile commands.
+<P>
+<H0>See Also</H0>
+ mpicc, mpicxx, mpifort, mpiexec
+<br>
+</BODY></HTML>

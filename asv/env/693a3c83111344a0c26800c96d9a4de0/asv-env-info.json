@@ -1,0 +1,12 @@
+{
+    "python": "3.6",
+    "requirements": {
+        "Cython": "",
+        "astropy": "",
+        "numpy": "",
+        "pandas": "",
+        "pyne": "",
+        "pyyaml": ""
+    },
+    "tool_name": "conda"
+}

@@ -1,0 +1,40 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML3.2 EN">
+<HTML>
+<HEAD>
+<META NAME="GENERATOR" CONTENT="DOCTEXT">
+<TITLE>MPI_File_iread_at</TITLE>
+</HEAD>
+<BODY BGCOLOR="FFFFFF">
+<A NAME="MPI_File_iread_at"><H1>MPI_File_iread_at</H1></A>
+Nonblocking read using explicit offset 
+<H2>Synopsis</H2>
+<PRE>
+int MPI_File_iread_at(MPI_File fh, MPI_Offset offset, void *buf, int count, MPI_Datatype datatype, 
+                      MPIO_Request *request)
+</PRE>
+<H2>Input Parameters</H2>
+<DL><DT><B>fh </B> <DD> file handle (handle)
+</DL>
+<DL><DT><B>offset </B> <DD> file offset (nonnegative integer)
+</DL>
+<DL><DT><B>count </B> <DD> number of elements in buffer (nonnegative integer)
+</DL>
+<DL><DT><B>datatype </B> <DD> datatype of each buffer element (handle)
+</DL>
+<P>
+<H2>Output Parameters</H2>
+<DL><DT><B>buf </B> <DD> initial address of buffer (choice)
+</DL>
+<DL><DT><B>request </B> <DD> request object (handle)
+</DL>
+<P>
+<H2>Notes for Fortran</H2>
+All MPI routines in Fortran (except for <tt>MPI_WTIME</tt> and <tt>MPI_WTICK</tt>) have
+an additional argument <tt>ierr</tt> at the end of the argument list.  <tt>ierr
+</tt>is an integer and has the same meaning as the return value of the routine
+in C.  In Fortran, MPI routines are subroutines, and are invoked with the
+<tt>call</tt> statement.
+<P>
+All MPI objects (e.g., <tt>MPI_Datatype</tt>, <tt>MPI_Comm</tt>) are of type <tt>INTEGER
+</tt>in Fortran.
+</BODY></HTML>

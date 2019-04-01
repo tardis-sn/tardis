@@ -1,0 +1,13 @@
+# See: man pkg-config
+prefix=/home/youssef/Tardis/Tardis/tardis/asv/env/693a3c83111344a0c26800c96d9a4de0
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: Python
+Description: Python library
+Requires: 
+Version: 3.6
+Libs.private: -lpthread -ldl  -lutil -lrt
+Libs: -L${libdir} -lpython3.6m
+Cflags: -I${includedir}/python3.6m

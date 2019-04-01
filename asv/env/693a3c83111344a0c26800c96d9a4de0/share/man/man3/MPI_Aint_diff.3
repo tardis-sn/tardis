@@ -1,0 +1,39 @@
+.TH MPI_Aint_diff 3 "11/10/2017" " " "MPI"
+.SH NAME
+MPI_Aint_diff \-  Returns the difference between addr1 and addr2 
+.SH SYNOPSIS
+.nf
+MPI_Aint MPI_Aint_diff(MPI_Aint addr1, MPI_Aint addr2)
+.fi
+.SH INPUT PARAMETERS
+.PD 0
+.TP
+.B addr1 
+- minuend address (integer)
+.PD 1
+.PD 0
+.TP
+.B addr2 
+- subtrahend address (integer)
+.PD 1
+
+.SH RETURN VALUE
+Difference between addr1 and addr2
+
+.SH NOTES
+MPI_Aint_diff produces a new MPI_Aint value that is equivalent to the difference
+between addr1 and addr2 arguments, where addr1 and addr2 represent addresses
+returned by calls to MPI_GET_ADDRESS. The resulting address is valid only at the
+process that generated addr1 and addr2, and addr1 and addr2 must correspond to
+locations in the same object in the same process. The difference is calculated
+in a manner that results the signed difference from addr1 to addr2, as if the
+process that originally produced the addresses had called
+.nf
+(char *) addr1 - (char *) addr2
+.fi
+
+on the addresses initially passed to MPI_GET_ADDRESS.
+
+.SH SEE ALSO
+MPI_Aint_add
+.br
