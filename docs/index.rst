@@ -1,5 +1,5 @@
+###########################
+THE DOCUMENTATION HAS MOVED!!!!!!
+###########################
 
-
-# THE DOCUMENTATION HAS MOVED #
-
-See tardis-sn.github.io/tardis
+See `<https://tardis-sn.github.io/tardis>`_
