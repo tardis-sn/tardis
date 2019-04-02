@@ -152,4 +152,8 @@ double sample_nu_free_bound(const rpacket_t * packet, const storage_model_t * st
 void continuum_emission(rpacket_t * packet, storage_model_t * storage, rk_state *mt_state,
                         pt2sample_nu sample_nu_continuum, int64_t emission_type_id);
 
+void
+create_vpacket (storage_model_t * storage, rpacket_t * packet,
+                rk_state *mt_state);
+
 #endif // TARDIS_CMONTECARLO_H

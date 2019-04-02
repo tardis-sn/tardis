@@ -120,6 +120,8 @@ cdef extern from "src/cmontecarlo.h":
         int full_relativity
         double survival_probability
         double tau_russian
+        double *tau_bias
+        int enable_biasing
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -259,6 +261,18 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
 
     storage.tau_russian = runner.v_packet_settings['tau_russian']
     storage.survival_probability = runner.v_packet_settings['survival_probability']
+    storage.enable_biasing = runner.v_packet_settings['enable_biasing']
+
+    if runner.v_packet_settings['enable_biasing']:
+        # Calculate the integrated electron scattering optical depth
+        # at all cell interfaces.
+        runner.tau_bias = np.zeros(len(runner.r_inner_cgs) + 1)
+        runner.tau_bias[:-1] = (
+            ((runner.r_outer_cgs - runner.r_inner_cgs) *
+            plasma.electron_densities.values *
+            runner.sigma_thomson.cgs.value)[::-1].cumsum()[::-1]
+        )
+        storage.tau_bias = <double*> PyArray_DATA(runner.tau_bias)
 
     # Data for continuum implementation
     cdef np.ndarray[double, ndim=1] t_electrons = plasma.t_electrons
