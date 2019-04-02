@@ -73,9 +73,9 @@ master_doc = 'index'
 
 import tardis
 # The short X.Y version.
-version = tardis.__version__.split('-', 1)[0]
+version = 'V-move-documentation'
 # The full version, including alpha/beta/rc tags.
-release = tardis.__version__
+release = 'V-move-documentation'
 
 
 # -- Options for HTML output ---------------------------------------------------
