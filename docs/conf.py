@@ -29,43 +29,20 @@ sys.path.insert(0, os.path.abspath('..'))
 # Load all of the global Astropy configuration
 
 intersphinx_mapping = {
-    'python': ('http://docs.python.org/', None),
-    'numpy': ('http://docs.scipy.org/doc/numpy/', None),
-    'scipy': ('http://docs.scipy.org/doc/scipy/reference/', None),
-    'matplotlib': ('http://matplotlib.sourceforge.net/', None),
-    'astropy': ('http://docs.astropy.org/en/stable/', None),
-    'h5py': ('http://docs.h5py.org/en/latest/', None),
-    'pandas': ('http://pandas.pydata.org/pandas-docs/dev/', None),
-    'astropy': ('http://docs.astropy.org/en/stable/', None)
 }
 
 # import sphinx_bootstrap_theme
 import sphinx_rtd_theme
 
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.todo',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.graphviz',
-    'numpydoc',
-    'nbsphinx',
-    'sphinx.ext.autodoc',
-    'sphinx-jsonschema'
 ]
 
 source_suffix = '.rst'
 ## get's rid of many toctree contains errors: see https://github.com/phn/pytpm/issues/3#issuecomment-12133978
 numpydoc_show_class_members = False
-extensions += ['matplotlib.sphinxext.plot_directive',
-               'sphinxcontrib.bibtex']
+extensions += []
 
 
-nbsphinx_prolog = """
-This notebook is available at 
-https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
-----
-"""
 # -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
