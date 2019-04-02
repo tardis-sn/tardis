@@ -1,9 +1,0 @@
-libdir=/home/youssef/Tardis/Tardis/tardis/asv/env/693a3c83111344a0c26800c96d9a4de0/lib
-includedir=/home/youssef/Tardis/Tardis/tardis/asv/env/693a3c83111344a0c26800c96d9a4de0/include
-
-Name: LAPACK
-Description: FORTRAN reference implementation of LAPACK Linear Algebra PACKage
-Version: 3.8.0
-URL: http://www.netlib.org/lapack/
-Libs: -L${libdir} -llapack
-Requires.private: blas

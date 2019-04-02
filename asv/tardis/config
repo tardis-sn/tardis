@@ -1,8 +1,0 @@
-[core]
-	repositoryformatversion = 0
-	filemode = true
-	bare = true
-[remote "origin"]
-	url = http://github.com/Youssef15015/tardis.git
-	fetch = +refs/*:refs/*
-	mirror = true
