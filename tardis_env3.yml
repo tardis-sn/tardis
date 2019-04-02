@@ -2,34 +2,10 @@ name: tardis
 
 channels:
     - conda-forge
-    - main
 
 dependencies:
 - python=3
-- numpy=1.15
-- scipy=1.1
-- pandas=0.24
-- astropy=3
 
-- numexpr
-- Cython=0.29
-
-# Plasma
-- networkx
-
-# I/O
-- pyyaml
-- jsonschema
-- pyne=0.5
-- pytables
-- h5py
-
-# Analysis
-- jupyter
-- notebook
-- matplotlib
-- graphviz
-- pygraphviz
 
 # Documentation
 - sphinx
