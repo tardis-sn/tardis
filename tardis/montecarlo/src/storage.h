@@ -93,6 +93,8 @@ typedef struct StorageModel
   double *ff_heating_estimator;
   double *stim_recomb_cooling_estimator;
   int full_relativity;
+  double survival_probability;
+  double tau_russian;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H
