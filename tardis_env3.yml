@@ -42,16 +42,6 @@ dependencies:
 - sphinxcontrib-bibtex
 - sphinx_rtd_theme
 
-#Test/Coverage requirements
-- git-lfs
-- pytest
-- pytest-html
-- requests
-- coverage
-- docopt
-- pytest-cov
-- codecov
-
 
 - pip:
   # Documentation
@@ -60,4 +50,3 @@ dependencies:
   - dokuwiki
   - dot2tex
   - sphinx-jsonschema
-  - git+https://github.com/Naereen/dot2tex.git
