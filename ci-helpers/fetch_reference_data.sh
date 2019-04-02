@@ -12,7 +12,8 @@ cd $REF_DATA_HOME
 git fetch origin
 git checkout origin/master
 # Use the following to get the ref-data from a specific pull request
-#git fetch origin pull/11/head:thomson-ref
+#git fetch origin pull/11/head:update-ref
+#git checkout origin/update-ref
 git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
 git lfs pull --include="atom_data/chianti_He.h5" origin
 git lfs pull --include="plasma_reference/" origin
