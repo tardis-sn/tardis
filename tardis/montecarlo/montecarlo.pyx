@@ -118,6 +118,8 @@ cdef extern from "src/cmontecarlo.h":
         double *ff_heating_estimator
         double *stim_recomb_cooling_estimator
         int full_relativity
+        double survival_probability
+        double tau_russian
 
     void montecarlo_main_loop(storage_model_t * storage, int_type_t virtual_packet_flag, int nthreads, unsigned long seed)
 
@@ -254,6 +256,10 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.reflective_inner_boundary = runner.enable_reflective_inner_boundary
     storage.inner_boundary_albedo = runner.inner_boundary_albedo
     storage.full_relativity = runner.enable_full_relativity
+
+    storage.tau_russian = runner.v_packet_settings['tau_russian']
+    storage.survival_probability = runner.v_packet_settings['survival_probability']
+
     # Data for continuum implementation
     cdef np.ndarray[double, ndim=1] t_electrons = plasma.t_electrons
     storage.t_electrons = <double*> t_electrons.data
