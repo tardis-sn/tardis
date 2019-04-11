@@ -31,3 +31,17 @@ properties:
         default: -1
         description: Number of shells on which the formal
             integral quantities are interpolated
+  virtual:
+    type: object
+    default: {}
+    additionalProperties: false
+    properties:
+      tau_russian:
+        type: number
+        default: 10.
+        description: For optical depths greater tau_russian russian rouletting
+            is used for the v-packets
+      survival_probability:
+        type: number
+        default: 0.0
+        description: Probability for not terminating the packet path

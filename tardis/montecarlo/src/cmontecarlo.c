@@ -1158,11 +1158,22 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
       double distance;
       get_event_handler (packet, storage, &distance, mt_state) (packet, storage,
                                                                 distance, mt_state);
-      if (virtual_packet > 0 && rpacket_get_tau_event (packet) > 10.0)
+      if (virtual_packet > 0 && rpacket_get_tau_event (packet) > storage->tau_russian)
         {
-          rpacket_set_tau_event (packet, 100.0);
-          rpacket_set_status (packet, TARDIS_PACKET_STATUS_EMITTED);
-        }
+            double event_random = rk_double (mt_state);
+            if (event_random > storage->survival_probability)
+              {
+                rpacket_set_energy(packet, 0.0);
+                rpacket_set_status (packet, TARDIS_PACKET_STATUS_EMITTED);
+              }
+            else
+              {
+                rpacket_set_energy(packet,
+                  rpacket_get_energy (packet) / storage->survival_probability *
+                  exp (-1.0 * rpacket_get_tau_event (packet)));
+                rpacket_set_tau_event (packet, 0.0);
+              }
+          }
     }
   if (virtual_packet > 0)
     {
