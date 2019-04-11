@@ -36,16 +36,12 @@ properties:
     default: {}
     additionalProperties: false
     properties:
-      enable_russian:
-          type: boolean
-          default: False
-          description: If True use russian rouletting for the v-packets
       tau_russian:
         type: number
-        default: 5
+        default: 10.
         description: For optical depths greater tau_russian russian rouletting
             is used for the v-packets
       survival_probability:
         type: number
-        default: 0.05
+        default: 0.0
         description: Probability for not terminating the packet path

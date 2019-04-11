@@ -257,12 +257,8 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     storage.inner_boundary_albedo = runner.inner_boundary_albedo
     storage.full_relativity = runner.enable_full_relativity
 
+    storage.tau_russian = runner.v_packet_settings['tau_russian']
     storage.survival_probability = runner.v_packet_settings['survival_probability']
-    if runner.v_packet_settings['enable_russian']:
-        storage.tau_russian = runner.v_packet_settings['tau_russian']
-    else:
-        # Set tau_russian to maximum possible value
-        storage.tau_russian = np.iinfo(np.int64).max - 1
 
     # Data for continuum implementation
     cdef np.ndarray[double, ndim=1] t_electrons = plasma.t_electrons
