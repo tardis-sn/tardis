@@ -9,5 +9,6 @@ def read_stella_data(filename):
     col_names = re.split('\s{3,}', col.strip())
     col_names = [re.sub('\s\(.+\)', '', col_name).replace(' ', '_') for col_name in col_names]
     data = pd.read_csv(filename, skiprows=7, delim_whitespace=True, names = col_names)
+    # drop last row of data
+    data = data.iloc[0:-1]
     return data
-    
