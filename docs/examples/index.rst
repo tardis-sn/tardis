@@ -20,7 +20,10 @@ Simple Parametrized Models
 
 These setups specify the ejecta solely via the YAML configuration file:
 
-* :doc:`tardis_example <tardis_example>`
+.. toctree::
+    :maxdepth: 2
+
+    tardis_example
 
 
 API demonstrations
@@ -28,7 +31,10 @@ API demonstrations
 
 An example on how to use the formal integrator with tardis:
 
-:ref:`notebooks/integrator.ipynb`
+.. toctree::
+    :maxdepth: 2
+
+    integrator.ipynb
 
 
 Detailed Explosion Models
