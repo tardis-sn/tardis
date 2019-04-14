@@ -14,10 +14,10 @@ command ``ipython --pylab=qt4``, so that it has acess to pylab.
 Creating an instance of the :class:`ModelViewer`-class requires that PyQt4/PySide has already been initialized in
 IPython. The above command to start IPython accomplishes this.
 
-gui.py contains all the classes used to create the GUI for Tardis.
+widgets.py in gui directory contains all the classes used to create the GUI for Tardis.
 
-This module must be imported inside IPython console started above. The console provides the event loop and the place
-to create/calculate the tardis model. So the module is basically a tool to visualize results. 
+The gui module must be imported inside IPython console started above. The console provides the event loop and the 
+place to create/calculate the tardis model. So the module is basically a tool to visualize results. 
 
 Running Instructions
 --------------------
