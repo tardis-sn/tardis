@@ -42,6 +42,13 @@ The values in the example here define a density profile that is dropping off wit
     taken as the outer boundaries of grid cells and the density is
     assumed to be uniform with each cell.
 
+Inner Boundary
+==============
+
+The first velocity-density pair in a custom density file (given by index 0) specifies the velocity of the inner boundary approximation to the photosphere. The density associated with this velocity is the density of the optically thick inner region, which does not affect TARDIS spectra. Therefore, the first density (5.4869692e-10 in the example above) can be replaced by a placeholder value. The user can choose to both specify a custom density fileAND specify v_inner_boundary and v_outer_boundary in the configuration YAML file for a TARDIS run. In this case, v_inner_boundary is ignored if it is less than the smallest velocity listed in the custom density file. Likewise, v_outer_boundary is ignored if it is larger than the largest velocity in the custom density file. If either of the YAML specified boundary velocities fall within the velocity range specified in the custom density file, then the boundary velocity is set equal to the number in the configuration YAML file. This has the effect of splitting a cell in the custom density file into two parts, a region within the boundary and a region outside the boundary.
+
+It is always a good idea to check the model velocities and abundances used in a TARDIS simulation after it has been successfully run.
+
 .. warning::
 
    The example given here is to show the format only. It is not a
