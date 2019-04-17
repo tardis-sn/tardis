@@ -256,6 +256,7 @@ class Radial1DModel(HDFWriterMixin):
                 raise ValueError('v_boundary_outer is outside of '
                                  'the model range.')
             if value >= self.raw_velocity[-1]:
+                logger.warning('User specified outer boundary velocity ignored. TARDIS grid established only using velocity and density information.')
                 value = None
         self._v_boundary_outer = value
         # Invalidate the cached cut-down velocity array
