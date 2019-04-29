@@ -1,6 +1,5 @@
 import os
 from pkg_resources import parse_version
-import exceptions
 
 import numpy as np
 import matplotlib
