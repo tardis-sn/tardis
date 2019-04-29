@@ -53,6 +53,9 @@ script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
     - CC=$COMPILER python setup.py $SETUP_CMD
     - set -e
+    - conda install -y -c conda-forge nodejs
+    - npm install -g github-changes
+    - github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.rst -k $GITHUB_CHANGES_OAUTH
     - python setup.py build_docs
     - pip install doctr
     - git lfs uninstall
