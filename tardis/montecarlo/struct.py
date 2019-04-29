@@ -34,7 +34,8 @@ class RPacket(Structure):
         ('chi_bf', c_double),
         ('chi_bf_tmp_partial', POINTER(c_double)),
         ('macro_atom_activation_level', c_int64),
-        ('compute_chi_bf', c_bool)
+        ('compute_chi_bf', c_bool),
+        ('vpacket_weight', c_double)
     ]
 
 
@@ -126,7 +127,11 @@ class StorageModel(Structure):
         ('bf_heating_estimator', POINTER(c_double)),
         ('ff_heating_estimator', POINTER(c_double)),
         ('stim_recomb_cooling_estimator', POINTER(c_double)),
-        ('full_relativity', c_int)
+        ('full_relativity', c_int),
+        ('survival_probability',c_double),
+        ('tau_russian', c_double),
+        ('tau_bias', POINTER(c_double)),
+        ('enable_biasing', c_int)
     ]
 
 

@@ -95,6 +95,8 @@ typedef struct StorageModel
   int full_relativity;
   double survival_probability;
   double tau_russian;
+  double *tau_bias;
+  int enable_biasing;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

@@ -50,5 +50,6 @@ rpacket_init (rpacket_t * packet, storage_model_t * storage, int packet_index,
   rpacket_set_virtual_packet_flag (packet, virtual_packet_flag);
   packet->chi_bf_tmp_partial = chi_bf_tmp_partial;
   packet->compute_chi_bf = true;
+  packet->vpacket_weight = 1.0;
   return ret_val;
 }

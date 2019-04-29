@@ -452,7 +452,7 @@ class NLTEData(object):
                 C_ul_matrix[level_number_lower, level_number_upper, :] = line.values[2:]
                 delta_E_matrix[level_number_lower, level_number_upper] = line['delta_e']
                 #TODO TARDISATOMIC fix change the g_ratio to be the otherway round - I flip them now here.
-                g_ratio_matrix[level_number_lower, level_number_upper] = line['g_ratio']
+                g_ratio_matrix[level_number_lower, level_number_upper] = 1/line['g_ratio']
             self.C_ul_interpolator[species] = interpolate.interp1d(
                     self.atom_data.collision_data_temperatures,
                     C_ul_matrix)
