@@ -11,6 +11,7 @@ dependencies:
 - pandas=0.24
 - astropy=3
 
+- numba=0.43
 - numexpr
 - Cython=0.29
 
