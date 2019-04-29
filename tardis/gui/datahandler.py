@@ -1,6 +1,5 @@
 import os
 from pkg_resources import parse_version
-import exceptions
 
 import numpy as np
 import matplotlib
@@ -24,7 +23,7 @@ from tardis.gui.widgets import LineInfo, LineInteractionTables
 if (parse_version(matplotlib.__version__) >= parse_version('1.4')):
     matplotlib.style.use('fivethirtyeight')
 else:
-    print "Please upgrade matplotlib to a version >=1.4 for best results!"
+    print("Please upgrade matplotlib to a version >=1.4 for best results!")
 matplotlib.rcParams['font.family'] = 'serif'
 matplotlib.rcParams['font.size'] = 10.0
 matplotlib.rcParams['lines.linewidth'] = 1.0 

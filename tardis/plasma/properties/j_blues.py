@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from astropy import constants as const
+from tardis import constants as const
 
-from tardis.plasma.properties.base import ProcessingPlasmaProperty, \
-    DataFrameInput
-from tardis.util import intensity_black_body
+from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
+                                           DataFrameInput)
+from tardis.util.base import intensity_black_body
 
 
 class JBluesBlackBody(ProcessingPlasmaProperty):
@@ -57,7 +57,7 @@ class JBluesDetailed(ProcessingPlasmaProperty):
                 index=lines.index,
                 columns=np.arange(len(t_rad)))
 
-            for i in xrange(len(t_rad)):
+            for i in range(len(t_rad)):
                 zero_j_blues = j_blues[i] == 0.0
                 j_blues[i][zero_j_blues] = (
                     self.w_epsilon *

@@ -30,9 +30,7 @@ def parse_convergence_section(convergence_section_dict):
         dictionary
     """
 
-
-    convergence_parameters = ['damping_constant', 'threshold', 'fraction',
-            'hold_iterations']
+    convergence_parameters = ['damping_constant', 'threshold']
 
     for convergence_variable in ['t_inner', 't_rad', 'w']:
         if convergence_variable not in convergence_section_dict:
@@ -116,7 +114,7 @@ class ConfigurationNameSpace(dict):
             for key in value:
                 self.__setitem__(key, value[key])
         else:
-            raise TypeError, 'expected dict'
+            raise (TypeError, 'expected dict')
 
     def __setitem__(self, key, value):
         if isinstance(value, dict) and not isinstance(value,
@@ -260,9 +258,29 @@ class Configuration(ConfigurationNameSpace):
         validated_config_dict['config_dirname'] = config_dirname
 
         montecarlo_section = validated_config_dict['montecarlo']
-        montecarlo_section['convergence_strategy'] = (
-                parse_convergence_section(
-                    montecarlo_section['convergence_strategy']))
+        if montecarlo_section['convergence_strategy']['type'] == "damped":
+            montecarlo_section['convergence_strategy'] = (
+                    parse_convergence_section(
+                        montecarlo_section['convergence_strategy']))
+        elif montecarlo_section['convergence_strategy']['type'] == "custom":
+            raise NotImplementedError(
+                'convergence_strategy is set to "custom"; '
+                'you need to implement your specific convergence treatment')
+        else:
+            raise ValueError('convergence_strategy is not "damped" '
+                             'or "custom"')
+
+        enable_full_relativity = montecarlo_section['enable_full_relativity']
+        spectrum_integrated = (
+            validated_config_dict['spectrum']['method'] == 'integrated'
+        )
+        if enable_full_relativity and spectrum_integrated:
+            raise NotImplementedError(
+                "The spectrum method is set to 'integrated' and "
+                "enable_full_relativity to 'True'.\n"
+                "The FormalIntegrator is not yet implemented for the full "
+                "relativity mode. "
+            )
 
         return cls(validated_config_dict)
 

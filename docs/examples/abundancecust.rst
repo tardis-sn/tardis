@@ -64,15 +64,23 @@ In this format, both elemental and isotopic abundances may
 be specified on a per-cell basis via an external csv file. A csv file that could
 work on a mesh with ten cells should be formatted like this:
 
-.. csv-table:: Example
-    :file: tardis_model_abund.csv
-    :delim: space 
-    :header-rows: 1
+.. literalinclude:: tardis_model_abund.csv
+
+.. note::
+    
+    The file should always contain the cell index as a running index in the
+    first column.
+
+.. danger::
+
+    The header line for the isotopic abundance structure can under no
+    circumstances start with a '#'
 
 In this file:
 
 - Header row contains element and isotopes symbol 
 - the remaining entries in each row give the set of elemental and isotopic abundances.
+- the first column contains a running index
 
 The abundances are specified as mass fractions (i.e. the sum of columns
 in each row should be 1.0). The mass fractions specified will be adopted directly in
@@ -91,6 +99,13 @@ The example file shown here has three simple layers:
     Suppose you specify Elemental and Isotopic abundances for the same element. For ex-
     :code:`Ni` and :code:`Ni56`. 
     Here, Ni will refer to the stable Nickel, i.e. (Z=26, A=58).
+
+
+.. note::
+  
+    As with the custom density file, the first row will be ignored. It is
+    supposed to give the composition below the photosphere. Thus, the first row
+    (after the header) can be filled with dummy values
 
 .. warning::
 

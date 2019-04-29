@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 from tardis.io import atomic
-from tardis.util import species_string_to_tuple
+from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
     basic_properties, lte_excitation_properties, lte_ionization_properties,
@@ -79,7 +79,7 @@ def assemble_plasma(config, model, atom_data=None):
         try:
             atom_data = atomic.AtomData.from_hdf(atom_data_fname)
         except TypeError as e:
-            print (e, 'Error might be from the use of an old-format of the atomic database, \n'
+            print(e, 'Error might be from the use of an old-format of the atomic database, \n'
                 'please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data'
                 ',for the most recent version.')
             raise
@@ -135,11 +135,12 @@ def assemble_plasma(config, model, atom_data=None):
     if config.plasma.line_interaction_type in ('downbranch', 'macroatom'):
         plasma_modules += macro_atom_properties
 
+    if 'delta_treatment' in config.plasma:
+        property_kwargs[RadiationFieldCorrection] = dict(
+            delta_treatment=config.plasma.delta_treatment)
+
     if config.plasma.helium_treatment == 'recomb-nlte':
         plasma_modules += helium_nlte_properties
-        if 'delta_treatment' in config.plasma:
-            property_kwargs[RadiationFieldCorrection] = dict(
-                delta_treatment=config.plasma.delta_treatment)
     elif config.plasma.helium_treatment == 'numerical-nlte':
         plasma_modules += helium_numerical_nlte_properties
         # TODO: See issue #633

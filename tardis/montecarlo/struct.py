@@ -61,16 +61,21 @@ class StorageModel(Structure):
         ('last_interaction_out_type', POINTER(c_int64)),
         ('no_of_packets', c_int64),
         ('no_of_shells', c_int64),
+        ('no_of_shells_i', c_int64),
         ('r_inner', POINTER(c_double)),
         ('r_outer', POINTER(c_double)),
+        ('r_inner_i', POINTER(c_double)),
+        ('r_outer_i', POINTER(c_double)),
         ('v_inner', POINTER(c_double)),
         ('time_explosion', c_double),
         ('inverse_time_explosion', c_double),
         ('electron_densities', POINTER(c_double)),
+        ('electron_densities_i', POINTER(c_double)),
         ('inverse_electron_densities', POINTER(c_double)),
         ('line_list_nu', POINTER(c_double)),
         ('continuum_list_nu', POINTER(c_double)),
         ('line_lists_tau_sobolevs', POINTER(c_double)),
+        ('line_lists_tau_sobolevs_i', POINTER(c_double)),
         ('line_lists_tau_sobolevs_nd', c_int64),
         ('line_lists_j_blues', POINTER(c_double)),
         ('line_lists_j_blues_nd', c_int64),
@@ -120,7 +125,8 @@ class StorageModel(Structure):
         ('photo_ion_estimator_statistics', POINTER(c_int64)),
         ('bf_heating_estimator', POINTER(c_double)),
         ('ff_heating_estimator', POINTER(c_double)),
-        ('stim_recomb_cooling_estimator', POINTER(c_double))
+        ('stim_recomb_cooling_estimator', POINTER(c_double)),
+        ('full_relativity', c_int)
     ]
 
 

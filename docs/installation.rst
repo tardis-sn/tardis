@@ -13,6 +13,11 @@ simple TARDIS calculations.
 
 .. _requirements_label:
 
+
+.. warning::
+
+    TARDIS is currently only compatbile with Python 2.7.
+
 .. note::
     We strongly recommond to install TARDIS within an Anaconda environment and
     to always use the lastest github development version.
@@ -46,11 +51,15 @@ First, download the `environment definition file <https://raw.githubusercontent.
 
 To create the environment, change to the directory that you downloaded the environment definition file and run::
 
-    conda-env create -f tardis_env27.yml
+    conda env create -f tardis_env27.yml
 
 Then to activate this environment simply do::
 
     source activate tardis
+
+or the new method::
+
+    conda activate tardis
 
 and after you are done with TARDIS you can deactivate::
 
@@ -67,7 +76,25 @@ Alternatively, you can manually clone our repository and install TARDIS by
 
     git clone https://github.com/tardis-sn/tardis.git
     cd tardis
-    python setup.py build install
+    python setup.py install
+
+Manually, cloning the repository enables other options such as running the code in parallel (enabling OpenMP).
+In general we encourage to download the compilers from `conda` as we then can ensure that they work with TARDIS.
+Within the TARDIS conda environment do::
+
+    conda install -c conda-forge compilers
+
+For macOS::
+
+    conda install -c conda-forge llvm-openmp
+
+For Linux::
+
+    conda install -c conda-forge openmp
+
+To compile TARDIS for parallel execution:
+
+    python setup.py install --with-openmp
 
 
 .. _troubleshooting_inst_label:
@@ -95,3 +122,35 @@ Go into the tardis/montecarlo directory and build montecarlo.c by hand::
     cython montecarlo.pyx
 
 Then, ``python setup.py build`` should run without problems.
+
+
+**Problem:** when trying to set up CC=gcc python setup.py develop --with-openmp the following error popped up: 
+from tardis/_compiler.c:1: /Users/yssavo/miniconda2/envs/tardis-show2/lib/gcc/x86_64-apple-darwin13.4.0/5.2.0/include-fixed/limits.h:168:61: fatal error: limits.h: No such file or directory 
+        
+**Solution:** Run on terminal: 
+
+    open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+
+**Problem:** Symbol not found: _GOMP_parallel when compiling with `--with-openmp`
+
+**Solution:** Install gcc8 from macports and then install with these flags: `link_args = ['-fopenmp','-Wl,-rpath,/opt/local/lib/gcc8/']`
+
+**Problem:** While building tardis(via python 2.7) via ``python setup.py`` build you
+may encounter the following error::
+
+     TypeError: super() argument 1 must be type, not None
+    
+    ----------------------------------------
+    Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-req-build-wPB39p/
+
+
+**Solution:** The cause for this problem is sphinx , or sphinx version . It can be easily solved by installing sphinx 1.5.6.
+              The command for the same is :
+
+    pip install sphinx==1.5.6
+    
+    or
+    
+    conda install sphinx==1.5.6
+
+Then, ``python setup.py build install`` should run without problems.

@@ -21,7 +21,8 @@ Eventually, information about the following topics will be provided
 
 Currently some information are available for
 
-* :doc:`Plasma State Calculation <new_plasma>`
+.. toctree::
+    new_plasma
 
 
 Old Physics Section of the TARDIS Docu (Outdated)
@@ -33,8 +34,10 @@ Old Physics Section of the TARDIS Docu (Outdated)
     outdated, many basic concepts are still applicable to the current TARDIS
     version.
 
-* :doc:`physical_quantities`
-* :doc:`montecarlo`
-* :doc:`new_plasma`
-* :doc:`plasma/index`
+
+.. toctree::
+    physical_quantities
+    montecarlo
+    new_plasma
+    plasma/index
 

@@ -1,7 +1,8 @@
 import logging
 
 import numpy as np
-from astropy import constants as const, units as u
+from astropy import units as u
+from tardis import constants as const
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 
@@ -56,7 +57,7 @@ class NumberDensity(ProcessingPlasmaProperty):
     @staticmethod
     def calculate(atomic_mass, abundance, density):
         number_densities = (abundance * density)
-        return number_densities.div(atomic_mass.ix[abundance.index], axis=0)
+        return number_densities.div(atomic_mass.loc[abundance.index], axis=0)
 
 class SelectedAtoms(ProcessingPlasmaProperty):
     """

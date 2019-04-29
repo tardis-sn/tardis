@@ -1,15 +1,40 @@
 .. _development-workflow:
 
-=======================
-Workflow for Developers
-=======================
+General Workflow to add a new feature
+=====================================
 
-In this document, we refer to the Tardis ``master`` branch as the *trunk*.
+In TARDIS we aim to stick to a test driven development. This uses the testing
+framework extensively starting with a test that shows this feature lacking via
+the implementation of the feature until the merging of the code to the main
+repository.
+
+In most cases we try to break down big features into small, quantifiable goals
+which are then acted upon.
+
+* Document feature to be added in an issue and maybe ask the mailing
+  list if this feature exists
+* Write a test that demonstrates what feature will be added.
+* Run the test to verify that it fails in the way you think it should.
+* If it fails in an unexpected way, your test may be wrong. This is a
+  great time to ask the group for guidance
+* If it passes, you are done! You just added test coverage to an
+  already existing feature, and that is great! (unlikely)
+* Add the feature (also known as "a simple matter of programming").
+* Run the test to verify that it passes.
+* Write documentation about your feature.
+* close issue/partial PR and add to changelog.
+
+
+Preparation and Working with Git
+================================
+
+In this document, we refer to the Tardis ``master`` branch as the *trunk*. The first step is to setup up a python environment. We recommend to use
+Anaconda for this purpose and refer to our :doc:`Installation guide <../installation>` which covers this topic.
 
 .. _forking:
 
 Creating a fork
-===============
+---------------
 
 You need to do this only once for each package you want to contribute to. The
 instructions here are very similar to the instructions at
@@ -110,7 +135,7 @@ In detail
    Your fork is now set up correctly, and you are ready to hack away.
 
 Installing TARDIS in develop mode
-==================================
+---------------------------------
 
 TARDIS is designed so that it can generally be used directly out of the source
 tree by using ``import `` when running Python in the source of an
@@ -127,7 +152,7 @@ TARDIS repository clone.
    interpreter and ``import tardis``.
 
 Workflow summary
-================
+----------------
 
 This section gives a summary of the workflow to follow once you have
 successfully forked the repository. The details for each of these steps are
@@ -174,7 +199,7 @@ see what you've done, and why you did it.
 See `linux git workflow`_ and `ipython git workflow`_ for some explanation.
 
 Deleting your master branch
-===========================
+---------------------------
 
 It may sound strange, but deleting your own ``master`` branch can help reduce
 confusion about which branch you are on.
@@ -182,7 +207,7 @@ confusion about which branch you are on.
 .. _update-mirror-trunk:
 
 Updating the mirror of trunk
-============================
+----------------------------
 
 From time to time you should fetch the upstream (trunk) changes from GitHub::
 
@@ -196,7 +221,7 @@ you last checked, ``upstream/master`` will change after you do the fetch.
 .. _make-feature-branch:
 
 Making a new feature branch
-===========================
+---------------------------
 
 When you are ready to make some changes to the code, you should start a new
 branch. Branches that are for a collection of related edits are often called
@@ -237,10 +262,10 @@ From now on git will know that ``my-new-feature`` is related to the
 .. _edit-flow:
 
 The editing workflow
-====================
+--------------------
 
 Overview
---------
+^^^^^^^^
 
 Make changes, test, and::
 
@@ -249,7 +274,7 @@ Make changes, test, and::
    git push
 
 In more detail
---------------
+^^^^^^^^^^^^^^
 
 #. Make some changes
 
@@ -307,7 +332,7 @@ In more detail
    `git push`_).
 
 Asking for your changes to be reviewed and/or merged
-====================================================
+----------------------------------------------------
 
 When you are ready to ask for someone to review your code and consider a merge:
 
@@ -335,7 +360,7 @@ When you are ready to ask for someone to review your code and consider a merge:
 .. _using-virtualenv:
 
 Making sure your Pull request stays up-to-date
-==============================================
+----------------------------------------------
 
 More often then not it will take a few days until a Pull Request is
 merged as the community gives feedback and/or you add new fixes. During this
@@ -345,7 +370,7 @@ To make sure that your changes are still working on the new master you want to
 
 
 Rebasing on trunk
------------------
+^^^^^^^^^^^^^^^^^
 
 Let's say you thought of some work you'd like to do. You
 :ref:`update-mirror-trunk` and :ref:`make-feature-branch` called
@@ -423,7 +448,7 @@ this would re-write commit history and thus cause problems for all others.
 .. _recovering-from-mess-up:
 
 Recovering from mess-ups
-------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^
 
 Sometimes, you mess up merges or rebases. Luckily, in git it is relatively
 straightforward to recover from such mistakes.
@@ -452,7 +477,7 @@ If you forgot to make a backup branch::
 
 
 Reviewing and helping others with Pull Requests
-===============================================
+-----------------------------------------------
 
 Github offers an extensive array of tools to comment on Pull Requests (line
 based, normal forum-like discussion, etc.). This system is described here in

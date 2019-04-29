@@ -1,6 +1,6 @@
 import pytest
 import numpy as np
-from astropy import constants as c
+from tardis import constants as c
 
 import ctypes
 from ctypes import (
@@ -17,7 +17,7 @@ from numpy.ctypeslib import (
 
 import numpy.testing as ntest
 
-from tardis.util import intensity_black_body
+from tardis.util.base import intensity_black_body
 from tardis.montecarlo.struct import StorageModel
 
 
@@ -96,10 +96,10 @@ TESTDATA = [
         params=TESTDATA)
 def formal_integral_model(request, model):
     r = request.param['r']
-    model.no_of_shells = r.shape[0] - 1
+    model.no_of_shells_i = r.shape[0] - 1
     model.inverse_time_explosion = c.c.cgs.value
-    model.r_outer.contents = as_ctypes(r[1:])
-    model.r_inner.contents = as_ctypes(r[:-1])
+    model.r_outer_i.contents = as_ctypes(r[1:])
+    model.r_inner_i.contents = as_ctypes(r[:-1])
     return model
 
 
@@ -121,9 +121,9 @@ def test_populate_z_photosphere(clib, formal_integral_model, p):
             ndpointer(dtype=np.int64)       # oshell_id
             ]
 
-    size = formal_integral_model.no_of_shells
-    r_inner = as_array(formal_integral_model.r_inner, (size,))
-    r_outer = as_array(formal_integral_model.r_outer, (size,))
+    size = formal_integral_model.no_of_shells_i
+    r_inner = as_array(formal_integral_model.r_inner_i, (size,))
+    r_outer = as_array(formal_integral_model.r_outer_i, (size,))
 
     p = r_inner[0] * p
     oz = np.zeros_like(r_inner)
@@ -166,9 +166,9 @@ def test_populate_z_shells(clib, formal_integral_model, p):
             ndpointer(dtype=np.int64)       # oshell_id
             ]
 
-    size = formal_integral_model.no_of_shells
-    r_inner = as_array(formal_integral_model.r_inner, (size,))
-    r_outer = as_array(formal_integral_model.r_outer, (size,))
+    size = formal_integral_model.no_of_shells_i
+    r_inner = as_array(formal_integral_model.r_inner_i, (size,))
+    r_outer = as_array(formal_integral_model.r_outer_i, (size,))
 
     p = r_inner[0] + (r_outer[-1] - r_inner[0]) * p
     idx = np.searchsorted(r_outer, p, side='right')

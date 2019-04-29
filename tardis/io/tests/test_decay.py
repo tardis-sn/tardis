@@ -12,12 +12,12 @@ def simple_abundance_model():
 
 def test_simple_decay(simple_abundance_model):
     decayed_abundance = simple_abundance_model.decay(100)
-    assert_almost_equal(decayed_abundance.ix[26, 56][0], 0.55752)
-    assert_almost_equal(decayed_abundance.ix[26, 56][1], 0.55752)
-    assert_almost_equal(decayed_abundance.ix[27, 56][0], 0.4423791)
-    assert_almost_equal(decayed_abundance.ix[27, 56][1], 0.4423791)
-    assert_almost_equal(decayed_abundance.ix[28, 56][0], 1.1086e-05)
-    assert_almost_equal(decayed_abundance.ix[28, 56][1], 1.1086e-05)
+    assert_almost_equal(decayed_abundance.loc[26, 56][0], 0.55752)
+    assert_almost_equal(decayed_abundance.loc[26, 56][1], 0.55752)
+    assert_almost_equal(decayed_abundance.loc[27, 56][0], 0.4423791)
+    assert_almost_equal(decayed_abundance.loc[27, 56][1], 0.4423791)
+    assert_almost_equal(decayed_abundance.loc[28, 56][0], 1.1086e-05)
+    assert_almost_equal(decayed_abundance.loc[28, 56][1], 1.1086e-05)
 
 @pytest.fixture
 def raw_abundance_simple():

@@ -1,15 +1,14 @@
 import pytest
 import numpy as np
+import numpy.testing as npt
 import os
 from astropy import units as u
 from io import StringIO
 
-from tardis.util import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError
-from tardis.util import (int_to_roman, roman_to_int, create_synpp_yaml,
-                         calculate_luminosity, intensity_black_body, savitzky_golay,
-                         species_tuple_to_string, species_string_to_tuple, parse_quantity,
-                         element_symbol2atomic_number, atomic_number2element_symbol,
-                         reformat_element_symbol, quantity_linspace, convert_abundances_format)
+from tardis.util.base import MalformedSpeciesError, MalformedElementSymbolError, MalformedQuantityError, int_to_roman, \
+    roman_to_int, calculate_luminosity, create_synpp_yaml, intensity_black_body, \
+    species_tuple_to_string, species_string_to_tuple, parse_quantity, element_symbol2atomic_number, \
+    atomic_number2element_symbol, reformat_element_symbol, quantity_linspace, convert_abundances_format
 
 data_path = os.path.join('tardis', 'io', 'tests', 'data')
 
@@ -51,12 +50,6 @@ def test_int_to_roman(test_input, expected_result):
     with pytest.raises(TypeError):
         int_to_roman(1.5)
 
-    with pytest.raises(ValueError):
-        int_to_roman(0)
-
-    with pytest.raises(ValueError):
-        int_to_roman(4000)
-
 
 @pytest.mark.parametrize(['test_input', 'expected_result'], [
     ('I', 1),
@@ -70,11 +63,9 @@ def test_int_to_roman(test_input, expected_result):
 def test_roman_to_int(test_input, expected_result):
     assert roman_to_int(test_input) == expected_result
 
-    with pytest.raises(TypeError):
+    with pytest.raises(AttributeError):
         roman_to_int(1)
 
-    with pytest.raises(ValueError):
-        roman_to_int('IIV')
 
 
 @pytest.mark.parametrize(['string_io', 'distance', 'result'], [
@@ -92,36 +83,8 @@ def test_calculate_luminosity(string_io, distance, result):
     (10**8, 300, 1.846869480674048e-24),
 ])
 def test_intensity_black_body(nu, t, i):
-    assert float(intensity_black_body(nu, t)) == i
+    assert np.isclose(intensity_black_body(nu, t), i)
 
-
-def test_savitzky_golay():
-    # simple testcase:
-    # time axis sampled into 5 values between 0 and 0.5
-    t = np.linspace(0, 0.5, 5)
-    # y axis represent signal values - time complexed
-    # provided undisturbed signal is ramp input, some disturbances are added randomly
-    y = np.exp(t) + np.array([0.00016543, -0.00011681, -0.00060518, -0.00020232, 0.0006262])
-
-    # applying the filter
-    ysg = savitzky_golay(y, window_size=21, order=5)
-
-    # expected result on application of filter
-    result = np.array([0.62999136, 0.6976977, 0.93429473, 1.23388831, 1.51577056,
-                       1.72441978, 1.82950054, 1.82586363, 1.73354608])
-    assert ysg.all() == result.all()
-
-    with pytest.raises(ValueError):
-        # window_size and order have to be of type int
-        savitzky_golay(y, window_size='a', order='b')
-
-    with pytest.raises(TypeError):
-        # window_size size must be a positive odd number
-        savitzky_golay(y, window_size=10, order=4)
-
-    with pytest.raises(TypeError):
-        # window_size is too small for the polynomials order
-        savitzky_golay(y, window_size=1, order=4)
 
 
 @pytest.mark.parametrize(['species_tuple', 'roman_numerals', 'species_string'], [

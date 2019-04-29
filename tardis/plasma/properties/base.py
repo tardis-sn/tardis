@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 import os
 
-class BasePlasmaProperty(object):
+class BasePlasmaProperty(object, metaclass=ABCMeta):
     """
     Attributes
     ----------
@@ -24,7 +24,6 @@ class BasePlasmaProperty(object):
     latex_name : String
                  Used to label nodes when plotting graphs
     """
-    __metaclass__ = ABCMeta
 
     @abstractproperty
     def outputs(self):
@@ -67,14 +66,13 @@ class BasePlasmaProperty(object):
 
 
 
-class ProcessingPlasmaProperty(BasePlasmaProperty):
+class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
     """
     Attributes
     ----------
     inputs : Tuple (strings)
              List of input parameters required to create the property
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, plasma_parent):
         super(ProcessingPlasmaProperty, self).__init__()
@@ -86,8 +84,8 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
         This function uses the CPython API to read the variable names from the
         `calculate`-function and makes the plasma routines easily programmable.
         """
-        calculate_call_signature = self.calculate.func_code.co_varnames[
-                                   :self.calculate.func_code.co_argcount]
+        calculate_call_signature = self.calculate.__code__.co_varnames[
+                                   :self.calculate.__code__.co_argcount]
         self.inputs = [
                 item for item in calculate_call_signature
                 if item != 'self']
@@ -116,24 +114,22 @@ class ProcessingPlasmaProperty(BasePlasmaProperty):
                                   'processing plasma modules')
 
 
-class HiddenPlasmaProperty(ProcessingPlasmaProperty):
+class HiddenPlasmaProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
     """
     Used for plasma properties that should not be displayed in the final graph (e.g. lines_lower_level_index).
     The code will automatically remove these property names from the graph and instead connect their inputs directly
     to their outputs.
     """
-    __metaclass__ = ABCMeta
 
     def __init__(self, plasma_parent):
         super(HiddenPlasmaProperty, self).__init__(plasma_parent)
 
 
-class BaseAtomicDataProperty(ProcessingPlasmaProperty):
+class BaseAtomicDataProperty(ProcessingPlasmaProperty, metaclass=ABCMeta):
     """
     Used for atomic data properties. Main feature is the ability to filter atomic data by the elements required for
     the simulation.
     """
-    __metaclass__ = ABCMeta
 
     inputs = ['atomic_data', 'selected_atoms']
 

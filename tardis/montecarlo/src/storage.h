@@ -27,16 +27,21 @@ typedef struct StorageModel
   int64_t *last_interaction_out_type;
   int64_t no_of_packets;
   int64_t no_of_shells;
+  int64_t no_of_shells_i;
   double *r_inner;
   double *r_outer;
+  double *r_inner_i;
+  double *r_outer_i;
   double *v_inner;
   double time_explosion;
   double inverse_time_explosion;
   double *electron_densities;
+  double *electron_densities_i;
   double *inverse_electron_densities;
   double *line_list_nu;
   double *continuum_list_nu;
   double *line_lists_tau_sobolevs;
+  double *line_lists_tau_sobolevs_i;
   int64_t line_lists_tau_sobolevs_nd;
   double *line_lists_j_blues;
   int64_t line_lists_j_blues_nd;
@@ -87,6 +92,9 @@ typedef struct StorageModel
   double *bf_heating_estimator;
   double *ff_heating_estimator;
   double *stim_recomb_cooling_estimator;
+  int full_relativity;
+  double survival_probability;
+  double tau_russian;
 } storage_model_t;
 
 #endif // TARDIS_STORAGE_H

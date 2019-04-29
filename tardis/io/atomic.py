@@ -8,7 +8,7 @@ import pandas as pd
 from scipy import interpolate
 from collections import OrderedDict
 from astropy import units as u
-from astropy import constants as const
+from tardis import constants as const
 from astropy.units import Quantity
 
 
@@ -152,12 +152,12 @@ class AtomData(object):
             atom_data = cls(**dataframes)
 
             try:
-                atom_data.uuid1 = store.root._v_attrs['uuid1']
+                atom_data.uuid1 = store.root._v_attrs['uuid1'].decode('ascii')
             except KeyError:
                 atom_data.uuid1 = None
 
             try:
-                atom_data.md5 = store.root._v_attrs['md5']
+                atom_data.md5 = store.root._v_attrs['md5'].decode('ascii')
             except KeyError:
                 atom_data.md5 = None
 
@@ -306,13 +306,13 @@ class AtomData(object):
         tmp_lines_lower2level_idx = self.lines.index.droplevel('level_number_upper')
 
         self.lines_lower2level_idx = (
-                self.levels_index.ix[tmp_lines_lower2level_idx].
+                self.levels_index.loc[tmp_lines_lower2level_idx].
                 astype(np.int64).values)
 
         tmp_lines_upper2level_idx = self.lines.index.droplevel('level_number_lower')
 
         self.lines_upper2level_idx = (
-                self.levels_index.ix[tmp_lines_upper2level_idx].
+                self.levels_index.loc[tmp_lines_upper2level_idx].
                 astype(np.int64).values)
 
         self.atom_ion_index = None
@@ -351,11 +351,11 @@ class AtomData(object):
 
             self.macro_atom_references.loc[:, "references_idx"] = np.arange(len(self.macro_atom_references))
 
-            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.ix[
+            self.macro_atom_data.loc[:, "lines_idx"] = self.lines_index.loc[
                 self.macro_atom_data['transition_line_id']
             ].values
 
-            self.lines_upper2macro_reference_idx = self.macro_atom_references.ix[
+            self.lines_upper2macro_reference_idx = self.macro_atom_references.loc[
                 tmp_lines_upper2level_idx, 'references_idx'
             ].astype(np.int64).values
 
@@ -367,9 +367,19 @@ class AtomData(object):
                     self.macro_atom_data['destination_level_number']
                 ])
 
+                tmp_macro_source_level_idx = pd.MultiIndex.from_arrays([
+                    self.macro_atom_data['atomic_number'],
+                    self.macro_atom_data['ion_number'],
+                    self.macro_atom_data['source_level_number']
+                ])
+
                 self.macro_atom_data.loc[:, 'destination_level_idx'] = self.macro_atom_references.loc[
                     tmp_macro_destination_level_idx, "references_idx"
-                ].astype(np.int64).values  # why it is named `destination_level_idx` ?! It is reference index
+                ].astype(np.int64).values
+
+                self.macro_atom_data.loc[:, 'source_level_idx'] = self.macro_atom_references.loc[
+                    tmp_macro_source_level_idx, "references_idx"
+                ].astype(np.int64).values
 
             elif line_interaction_type == 'downbranch':
                 # Sets all the destination levels to -1 to indicate that they
@@ -422,7 +432,7 @@ class NLTEData(object):
         self.g_ratio_matrices = {}
         collision_group = self.atom_data.collision_data.groupby(level=['atomic_number', 'ion_number'])
         for species in self.nlte_species:
-            no_of_levels = self.atom_data.levels.ix[species].energy.count()
+            no_of_levels = self.atom_data.levels.loc[species].energy.count()
             C_ul_matrix = np.zeros(
                     (
                         no_of_levels,
