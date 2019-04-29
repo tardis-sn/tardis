@@ -9,13 +9,13 @@ model:
 
     structure:
         type: file
-        filename: tardis_model_format.csv
-        filetype: tardis_model
+        filename: cmfgen_model.csv
+        filetype: cmfgen_model
 
     abundances:
         type: file
-        filename: tardis_model_format.csv
-        filetype: tardis_model
+        filename: cmfgen_model.csv
+        filetype: cmfgen_model
 
 plasma:
     ionization: lte

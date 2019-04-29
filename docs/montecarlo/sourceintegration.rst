@@ -178,7 +178,6 @@ Current Limitations
 
 The current implementation of the formal integral has some limitations:
 
-* it only works with the downbranching line interaction mode
 * once electron scattering is included, the scheme only produces accurate
   results when multiple resonances occur on the rays. This is simply because
   otherwise the :math:`J^b` and :math:`J^r` do not provide an accurate

@@ -7,8 +7,9 @@ import numpy as np
 import collections
 from collections import OrderedDict
 import yaml
-from astropy import constants, units as u
-from tardis.util import element_symbol2atomic_number
+from tardis import constants
+from astropy import units as u
+from tardis.util.base import element_symbol2atomic_number
 
 import logging
 logger = logging.getLogger(__name__)
@@ -25,12 +26,17 @@ def quantity_from_str(text):
     -------
     `astropy.units.Quantity`
     """
-    value_str, unit = text.split(None, 1)
+    value_str, unit_str = text.split(None, 1)
     value = float(value_str)
-    if unit.strip() == 'log_lsun':
+    if unit_str.strip() == 'log_lsun':
         value = 10 ** (value + np.log10(constants.L_sun.cgs.value))
-        unit = 'erg/s'
-    return u.Quantity(value, unit)
+        unit_str = 'erg/s'
+
+    unit = u.Unit(unit_str)
+    if unit == u.L_sun:
+        return value * constants.L_sun
+
+    return u.Quantity(value, unit_str)
 
 
 class MockRegexPattern(object):
@@ -98,12 +104,15 @@ YAMLLoader.add_implicit_resolver(u'tag:yaml.org,2002:float',
 YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
                            YAMLLoader.mapping_constructor)
 
+
 def yaml_load_file(filename, loader=yaml.Loader):
     with open(filename) as stream:
         return yaml.load(stream, loader)
 
+
 def yaml_load_config_file(filename):
     return yaml_load_file(filename, YAMLLoader)
+
 
 def parse_abundance_dict_to_dataframe(abundance_dict):
     atomic_number_dict = dict([(element_symbol2atomic_number(symbol), abundance_dict[symbol])
@@ -114,7 +123,7 @@ def parse_abundance_dict_to_dataframe(abundance_dict):
 
     abundance_norm = abundances.sum()
     if abs(abundance_norm - 1) > 1e-12:
-        logger.warn('Given abundances don\'t add up to 1 (value = %g) - normalizing', abundance_norm)
+        logger.warning('Given abundances don\'t add up to 1 (value = %g) - normalizing', abundance_norm)
         abundances /= abundance_norm
 
     return abundances
@@ -216,7 +225,7 @@ class HDFWriterMixin(object):
             we_opened = True
 
         scalars = {}
-        for key, value in elements.iteritems():
+        for key, value in elements.items():
             if value is None:
                 value = 'none'
             if hasattr(value, 'cgs'):
@@ -338,67 +347,5 @@ class PlasmaWriterMixin(HDFWriterMixin):
         super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)
 
 
-'''
-Code for Custom Logger Classes (ColoredFormatter and ColorLogger) and its helper function
-(formatter_message) is used from this thread
-http://stackoverflow.com/questions/384076/how-can-i-color-python-logging-output
-'''
-def formatter_message(message, use_color=True):
-    '''
-    Helper Function used for Coloring Log Output
-    '''
-    #These are the sequences need to get colored ouput
-    RESET_SEQ = "\033[0m"
-    BOLD_SEQ = "\033[1m"
-    if use_color:
-        message = message.replace(
-            "$RESET", RESET_SEQ).replace("$BOLD", BOLD_SEQ)
-    else:
-        message = message.replace("$RESET", "").replace("$BOLD", "")
-    return message
 
 
-class ColoredFormatter(logging.Formatter):
-    '''
-    Custom logger class for changing levels color
-    '''
-    def __init__(self, msg, use_color=True):
-        logging.Formatter.__init__(self, msg)
-        self.use_color = use_color
-
-    def format(self, record):
-        COLOR_SEQ = "\033[1;%dm"
-        RESET_SEQ = "\033[0m"
-        BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
-        COLORS = {
-            'WARNING': YELLOW,
-            'INFO': WHITE,
-            'DEBUG': BLUE,
-            'CRITICAL': YELLOW,
-            'ERROR': RED
-        }
-        levelname = record.levelname
-        if self.use_color and levelname in COLORS:
-            levelname_color = COLOR_SEQ % (
-                30 + COLORS[levelname]) + levelname + RESET_SEQ
-            record.levelname = levelname_color
-        return logging.Formatter.format(self, record)
-
-
-class ColoredLogger(logging.Logger):
-    '''
-    Custom logger class with multiple destinations
-    '''
-    FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
-    COLOR_FORMAT = formatter_message(FORMAT, True)
-
-    def __init__(self, name):
-        logging.Logger.__init__(self, name, logging.DEBUG)
-
-        color_formatter = ColoredFormatter(self.COLOR_FORMAT)
-
-        console = logging.StreamHandler()
-        console.setFormatter(color_formatter)
-
-        self.addHandler(console)
-        return

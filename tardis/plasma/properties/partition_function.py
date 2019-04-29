@@ -131,7 +131,7 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
         """
         for species in nlte_data.nlte_species:
             logger.info('Calculating rates for species %s', species)
-            number_of_levels = atomic_data.levels.energy.ix[species].count()
+            number_of_levels = atomic_data.levels.energy.loc[species].count()
             lnl = nlte_data.lines_level_number_lower[species]
             lnu = nlte_data.lines_level_number_upper[species]
             lines_index, = nlte_data.lines_idx[species]
@@ -172,12 +172,12 @@ class LevelBoltzmannFactorNLTE(ProcessingPlasmaProperty):
                             species, t_electrons
                             ) * previous_electron_densities.values
             rates_matrix = r_lu_matrix + r_ul_matrix + collision_matrix
-            for i in xrange(number_of_levels):
+            for i in range(number_of_levels):
                 rates_matrix[i, i] = -rates_matrix[:, i].sum(axis=0)
             rates_matrix[0, :, :] = 1.0
             x = np.zeros(rates_matrix.shape[0])
             x[0] = 1.0
-            for i in xrange(len(t_electrons)):
+            for i in range(len(t_electrons)):
                 try:
                     level_boltzmann_factor = np.linalg.solve(
                             rates_matrix[:, :, i], x)

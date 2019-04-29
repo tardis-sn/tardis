@@ -32,8 +32,8 @@ def test_simple_ascii_density_reader_data():
 
 def test_simple_ascii_abundance_reader():
     index, abundances = io.read_simple_ascii_abundances(data_path('artis_abundances.dat'))
-    npt.assert_almost_equal(abundances.ix[1, 0], 1.542953e-08)
-    npt.assert_almost_equal(abundances.ix[14, 54], 0.21864420000000001)
+    npt.assert_almost_equal(abundances.loc[1, 0], 1.542953e-08)
+    npt.assert_almost_equal(abundances.loc[14, 54], 0.21864420000000001)
 
 
 def test_ascii_reader_invalid_volumes():

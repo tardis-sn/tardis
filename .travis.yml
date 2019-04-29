@@ -8,98 +8,80 @@ python:
 virtualenv:
   system_site_packages: true
 
-cache:
-  apt: true
-
-sudo: true
-
-env:
-    global:
-        - COMPILER=gcc
-        - PANDAS_VERSION=0.16
-        - ASTROPY_USE_SYSTEM_PYTEST=1
-        - SETUP_CMD='test'
-        - TEST_MODE='normal'
-        - TARDIS_REF_DATA_URL='https://github.com/tardis-sn/tardis-refdata.git'
-        - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
-        - SAVE_COVERAGE=false
-
-matrix:
-    include:
-        - python: 2.7
-          env:
-            - COMPILER=gcc
-            - SETUP_CMD='test --coverage --args="--tardis-refdata=$HOME/tardis-refdata/"'
-            - TEST_MODE='spectrum'
-            - SAVE_COVERAGE=true
-
-        - python: 2.7
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$HOME/tardis-refdata/"'
-            - TEST_MODE='spectrum'
-
-#trouble with osx building due to segfault at cython (https://github.com/cython/cython/issues/2199)
-        - os: osx
-          language: generic
-          env:
-            - COMPILER=clang
-            - SETUP_CMD='test --args="--tardis-refdata=$HOME/tardis-refdata/"'
-            - TEST_MODE='spectrum'
-            - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
-
-
-        - python: 2.7
-          env: SETUP_CMD='test'
-
 addons:
   apt:
     packages:
     - clang
     - gdb
 
+sudo: true
 
+env:
+    global:
+        - COMPILER=gcc
+        - ASTROPY_USE_SYSTEM_PYTEST=1
+        - SETUP_CMD='test'
+        - TEST_MODE='normal'
+        - REF_DATA_HOME=$HOME/tardis-refdata
+        - REF_DATA_GITHUB_URL='https://github.com/tardis-sn/tardis-refdata.git'
+        - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-Linux-x86_64.sh'
+        - SAVE_COVERAGE=false
+        - GIT_LFS_SKIP_SMUDGE=1
+        - TARDIS_BUILD_DIR=$TRAVIS_BUILD_DIR
+        # Doctr deploy key for tardis-sn/tardis
+        - secure: "LrhEnB3RgZ/ZA4PruYSF7pkzlY+LrfF1GKpeU+wcG5v/BMIsoTGySO9C1T7XJfsCFMaKMiJoa7ZhJEXPlss9i9PzxFsvbBrBfwb5lPurTbQwqBN4qW/+u2V1kSLAwtVJIHzenVB25PevjkCz8TeAv6DWyHgBWBmImJaTC3d+1/Q="
+
+cache:
+  apt: true
+  directories:
+    - $HOME/miniconda
+    #- $REF_DATA_HOME
 
 
 before_install:
     # We do this to make sure we get the dependencies so pip works below
-    - export PYTHONIOENCODING=UTF8
-    - wget $MINICONDA_URL -O miniconda.sh
-    - chmod +x miniconda.sh
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH=$HOME/miniconda/bin:$PATH
-    - hash -r
-    - conda update --yes conda
-    - if [[ $TEST_MODE == 'spectrum' ]]; then conda install -c conda-forge git-lfs=2.2.1 -y; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs install --skip-smudge; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git clone $TARDIS_REF_DATA_URL $HOME/tardis-refdata; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $HOME/tardis-refdata; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin pull/3/head:carsus-ref; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout carsus-ref; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="atom_data/chianti_He.h5" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="plasma_reference/" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then git lfs pull --include="unit_test_data.h5" origin; fi
-    - if [[ $TEST_MODE == 'spectrum' ]]; then cd $TRAVIS_BUILD_DIR; fi
+    - source ci-helpers/install_miniconda.sh
 
+#- source ci-helpers/fetch_reference_data.sh
 
 install:
-   - cd $TRAVIS_BUILD_DIR
-   - conda env create -f tardis_env27.yml
+   - source ci-helpers/install_tardis_env.sh
    - source activate tardis
-   #trouble with building due to segfault at cython (https://github.com/cython/cython/issues/2199)
-   #remove if we can get normal cython through conda
-   - git clone https://github.com/cython/cython
-   - cd cython
-   - CFLAGS="$CFLAGS -D CYTHON_CLINE_IN_TRACEBACK=0" python setup.py install
-   - cd ..
+   - source ci-helpers/fetch_reference_data.sh
 
 script:
     - echo CC=$COMPILER python setup.py $SETUP_CMD
     - CC=$COMPILER python setup.py $SETUP_CMD
+    - set -e
+    - python setup.py build_docs
+    - pip install doctr
+    - git lfs uninstall
+    - ls docs/_build/html/_images
+    - doctr deploy --built-docs docs/_build/html .
+
 
 after_success:
-    - if [[ "$SAVE_COVERAGE" = true ]]; then coveralls; fi
+    - if [[ "$SAVE_COVERAGE" = true ]]; then codecov -t a876d307-9ed5-4f5d-a6c4-e58291ac4111; fi
+
 
 after_failure:
     - cat /home/travis/.pip/pip.log
+
+stages:
+  - test
+  - integration
+
+jobs:
+  include:
+    - stage: test
+      python: 2.7
+      env:
+        - COMPILER=gcc
+        - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
+        - TEST_MODE='spectrum'
+        - SAVE_COVERAGE=true
+    - stage: integration
+      if: type = cron
+      script:
+        - echo $COMPILER
+        - echo TRAVIS_EVENT_TYPE=$TRAVIS_EVENT_TYPE

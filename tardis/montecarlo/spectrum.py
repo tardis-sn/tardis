@@ -115,9 +115,9 @@ class TARDISSpectrum(HDFWriterMixin):
     def to_ascii(self, fname, mode='luminosity_density'):
         if mode == 'luminosity_density':
             np.savetxt(
-                    fname, zip(
+                    fname, list(zip(
                         self.wavelength.value,
-                        self.luminosity_density_lambda.value))
+                        self.luminosity_density_lambda.value)))
         elif mode == 'flux':
             np.savetxt(
                     fname,

@@ -2,12 +2,13 @@ import os
 import logging
 import warnings
 
-from astropy import units as u, constants as const
+from astropy import units as u
+from tardis import constants as const
 
 from scipy.special import zeta
-from spectrum import TARDISSpectrum
+from tardis.montecarlo.spectrum import TARDISSpectrum
 
-from tardis.util import quantity_linspace
+from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.montecarlo.formal_integral import FormalIntegrator
@@ -41,7 +42,9 @@ class MontecarloRunner(HDFWriterMixin):
 
     def __init__(self, seed, spectrum_frequency, virtual_spectrum_range,
                  sigma_thomson, enable_reflective_inner_boundary,
-                 inner_boundary_albedo, line_interaction_type):
+                 enable_full_relativity, inner_boundary_albedo,
+                 line_interaction_type, integrator_settings,
+                 v_packet_settings):
 
         self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
@@ -50,7 +53,10 @@ class MontecarloRunner(HDFWriterMixin):
         self.sigma_thomson = sigma_thomson
         self.enable_reflective_inner_boundary = enable_reflective_inner_boundary
         self.inner_boundary_albedo = inner_boundary_albedo
+        self.enable_full_relativity = enable_full_relativity
         self.line_interaction_type = line_interaction_type
+        self.integrator_settings = integrator_settings
+        self.v_packet_settings = v_packet_settings
         self._integrator = None
         self._spectrum_integrated = None
 
@@ -138,7 +144,7 @@ class MontecarloRunner(HDFWriterMixin):
     def spectrum_integrated(self):
         if self._spectrum_integrated is None:
             self._spectrum_integrated = self.integrator.calculate_spectrum(
-                self.spectrum_frequency[:-1])
+                self.spectrum_frequency[:-1], **self.integrator_settings)
         return self._spectrum_integrated
 
     @property
@@ -149,6 +155,13 @@ class MontecarloRunner(HDFWriterMixin):
                     "The FormalIntegrator is not yet available."
                     "Please run the montecarlo simulation at least once.",
                     UserWarning)
+        if self.enable_full_relativity:
+            raise NotImplementedError(
+                    "The FormalIntegrator is not yet implemented for the full "
+                    "relativity mode. "
+                    "Please run with config option enable_full_relativity: "
+                    "False."
+            )
         return self._integrator
 
     def run(self, model, plasma, no_of_packets,
@@ -391,10 +404,10 @@ class MontecarloRunner(HDFWriterMixin):
         """
         if config.plasma.disable_electron_scattering:
             logger.warn('Disabling electron scattering - this is not physical')
-            sigma_thomson = 1e-200 / (u.cm ** 2)
+            sigma_thomson = 1e-200 * (u.cm ** 2)
         else:
             logger.debug("Electron scattering switched on")
-            sigma_thomson = 6.652486e-25 / (u.cm ** 2)
+            sigma_thomson = const.sigma_T.cgs
 
         spectrum_frequency = quantity_linspace(
             config.spectrum.stop.to('Hz', u.spectral()),
@@ -407,5 +420,7 @@ class MontecarloRunner(HDFWriterMixin):
                    sigma_thomson=sigma_thomson,
                    enable_reflective_inner_boundary=config.montecarlo.enable_reflective_inner_boundary,
                    inner_boundary_albedo=config.montecarlo.inner_boundary_albedo,
-                   line_interaction_type=config.plasma.line_interaction_type
-                   )
+                   enable_full_relativity=config.montecarlo.enable_full_relativity,
+                   line_interaction_type=config.plasma.line_interaction_type,
+                   integrator_settings=config.spectrum.integrated,
+                   v_packet_settings=config.spectrum.virtual)

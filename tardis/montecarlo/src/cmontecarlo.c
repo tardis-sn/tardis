@@ -139,12 +139,58 @@ binary_search (const double *x, double x_insert, int64_t imin,
   return ret_val;
 }
 
+void
+angle_aberration_CMF_to_LF (rpacket_t *packet, const storage_model_t *storage)
+{
+  if (storage->full_relativity)
+    {
+      double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
+      double mu_0 = rpacket_get_mu (packet);
+      rpacket_set_mu (packet, (mu_0 + beta) / (1.0 + beta * mu_0));
+    }
+}
+
+/** Transform the lab frame direction cosine to the CMF
+ *
+ * @param packet
+ * @param storage
+ * @param mu lab frame direction cosine
+ *
+ * @return CMF direction cosine
+ */
+double
+angle_aberration_LF_to_CMF (rpacket_t *packet, const storage_model_t *storage, double mu)
+{
+  double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
+  return (mu - beta) / (1.0 - beta * mu);
+}
+
 double
 rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *storage)
 {
-  return 1.0 -
-    rpacket_get_mu (packet) * rpacket_get_r (packet) *
-    storage->inverse_time_explosion * INVERSE_C;
+  double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
+  if (!storage->full_relativity)
+    {
+      return 1.0 - rpacket_get_mu (packet) * beta;
+    }
+  else
+    {
+      return (1.0 - rpacket_get_mu (packet) * beta) / sqrt (1 - beta * beta);
+    }
+}
+
+double
+rpacket_inverse_doppler_factor (const rpacket_t *packet, const storage_model_t *storage)
+{
+  double beta = rpacket_get_r (packet) * storage->inverse_time_explosion * INVERSE_C;
+  if (!storage->full_relativity)
+    {
+      return 1.0 / (1.0 - rpacket_get_mu (packet) * beta);
+    }
+  else
+    {
+      return (1.0 + rpacket_get_mu (packet) * beta) / sqrt (1 - beta * beta);
+    }
 }
 
 double
@@ -218,7 +264,7 @@ void calculate_chi_bf (rpacket_t * packet, storage_model_t * storage)
       packet->chi_bf_tmp_partial[i] = bf_helper;
     }
 
-  rpacket_set_chi_boundfree(packet, bf_helper);
+  rpacket_set_chi_boundfree (packet, bf_helper);
 }
 
 void calculate_chi_ff (rpacket_t * packet, const storage_model_t * storage)
@@ -274,14 +320,21 @@ compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
       double nu = rpacket_get_nu (packet);
       double nu_line = rpacket_get_nu_line (packet);
       double distance, nu_diff;
-      double t_exp = storage->time_explosion;
-      double inverse_t_exp = storage->inverse_time_explosion;
-      int64_t cur_zone_id = rpacket_get_current_shell_id (packet);
-      double doppler_factor = 1.0 - mu * r * inverse_t_exp * INVERSE_C;
+      double ct = storage->time_explosion * C;
+      double doppler_factor = rpacket_doppler_factor (packet, storage);
       double comov_nu = nu * doppler_factor;
       if ( (nu_diff = comov_nu - nu_line) >= 0)
         {
-          distance = (nu_diff / nu) * C * t_exp;
+          if (!storage->full_relativity)
+            {
+              distance = (nu_diff / nu) * ct;
+            }
+          else
+            {
+              double nu_r = nu_line / nu;
+              distance = - mu * r + (ct - nu_r * nu_r * sqrt(ct * ct -
+                (1 + r * r * (1 - mu * mu) * (1 + pow (nu_r, -2))))) / (1 + nu_r * nu_r);
+            }
           rpacket_set_d_line (packet, distance);
           return TARDIS_ERROR_OK;
         }
@@ -319,7 +372,7 @@ compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
           fprintf (stderr, "mu = %f\n", mu);
           fprintf (stderr, "nu = %f\n", nu);
           fprintf (stderr, "doppler_factor = %f\n", doppler_factor);
-          fprintf (stderr, "cur_zone_id = %" PRIi64 "\n", cur_zone_id);
+          fprintf (stderr, "cur_zone_id = %" PRIi64 "\n", rpacket_get_current_shell_id (packet));
           return TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE;
         }
     }
@@ -334,7 +387,12 @@ void
 compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
 {
   double chi_continuum, d_continuum;
-  double chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] * storage->sigma_thomson;
+  double chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] *
+    storage->sigma_thomson;
+  if (storage->full_relativity)
+    {
+      chi_electron *= rpacket_doppler_factor (packet, storage);
+    }
 
   if (storage->cont_status == CONTINUUM_ON)
     {
@@ -347,7 +405,6 @@ compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
       {
         packet->compute_chi_bf=true;
       }
-      chi_electron *= rpacket_doppler_factor (packet, storage);
       chi_continuum = rpacket_get_chi_boundfree (packet) + rpacket_get_chi_freefree (packet) + chi_electron;
       d_continuum = rpacket_get_tau_event (packet) / chi_continuum;
     }
@@ -448,6 +505,10 @@ move_packet (rpacket_t * packet, storage_model_t * storage, double distance)
         {
           double comov_energy = rpacket_get_energy (packet) * doppler_factor;
           double comov_nu = rpacket_get_nu (packet) * doppler_factor;
+          if (storage->full_relativity)
+            {
+              distance *= doppler_factor;
+            }
 #ifdef WITHOPENMP
 #pragma omp atomic
 #endif
@@ -525,45 +586,58 @@ increment_continuum_estimators (const rpacket_t * packet, storage_model_t * stor
     }
 }
 
+double
+get_increment_j_blue_estimator_energy (const rpacket_t * packet,
+                                       const storage_model_t * storage,
+                                       double d_line)
+{
+  double energy;
+  if (storage->full_relativity)
+    {
+      // Accurate up to a factor 1 / gamma
+      energy = rpacket_get_energy (packet);
+    }
+  else
+    {
+      double r = rpacket_get_r (packet);
+      double r_interaction = sqrt (r * r + d_line * d_line +
+                                   2.0 * r * d_line * rpacket_get_mu (packet));
+      double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
+      double doppler_factor = 1.0 - mu_interaction * r_interaction *
+        storage->inverse_time_explosion * INVERSE_C;
+      energy = rpacket_get_energy (packet) * doppler_factor;
+    }
+  return energy;
+}
+
 void
 increment_j_blue_estimator (const rpacket_t * packet, storage_model_t * storage,
                             double d_line, int64_t j_blue_idx)
 {
   if (storage->line_lists_j_blues != NULL)
     {
-      double r = rpacket_get_r (packet);
-      double r_interaction =
-        sqrt (r * r + d_line * d_line +
-              2.0 * r * d_line * rpacket_get_mu (packet));
-      double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
-      double doppler_factor = 1.0 - mu_interaction * r_interaction *
-        storage->inverse_time_explosion * INVERSE_C;
-      double comov_energy = rpacket_get_energy (packet) * doppler_factor;
-#ifdef WITHOPENMP
-#pragma omp atomic
-#endif
+      double energy = get_increment_j_blue_estimator_energy (packet, storage,
+                                                             d_line);
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
       storage->line_lists_j_blues[j_blue_idx] +=
-        comov_energy / rpacket_get_nu (packet);
+        energy / rpacket_get_nu (packet);
     }
 }
 
 void
-increment_Edotlu_estimator (const rpacket_t * packet, storage_model_t * storage, double d_line, int64_t line_idx)
+increment_Edotlu_estimator (const rpacket_t * packet, storage_model_t * storage,
+                            double d_line, int64_t line_idx)
 {
   if (storage->line_lists_Edotlu != NULL)
     {
-    double r = rpacket_get_r (packet);
-    double r_interaction =
-      sqrt (r * r + d_line * d_line +
-            2.0 * r * d_line * rpacket_get_mu (packet));
-    double mu_interaction = (rpacket_get_mu (packet) * r + d_line) / r_interaction;
-    double doppler_factor = 1.0 - mu_interaction * r_interaction *
-      storage->inverse_time_explosion * INVERSE_C;
-    double comov_energy = rpacket_get_energy (packet) * doppler_factor;
-#ifdef WITHOPENMP
-#pragma omp atomic
-#endif
-    storage->line_lists_Edotlu[line_idx] +=  comov_energy;  //rpacket_get_energy (packet);
+      double energy = get_increment_j_blue_estimator_energy (packet, storage,
+                                                             d_line);
+      #ifdef WITHOPENMP
+      #pragma omp atomic
+      #endif
+      storage->line_lists_Edotlu[line_idx] += energy;
     }
 }
 
@@ -592,6 +666,12 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                     -1.0 * sqrt (1.0 -
                                  (storage->r_inner[0] / rpacket_get_r(&virt_packet)) *
                                  (storage->r_inner[0] / rpacket_get_r(&virt_packet)));
+
+                  if (storage->full_relativity)
+                    {
+                      // Need to transform the angular size of the photosphere into the CMF
+                      mu_min = angle_aberration_LF_to_CMF (&virt_packet, storage, mu_min);
+                    }
                 }
               else
                 {
@@ -620,6 +700,7 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                   // I'm adding an exit() here to inform the compiler about the impossible path
                   exit(1);
                 }
+              angle_aberration_CMF_to_LF (&virt_packet, storage);
               double doppler_factor_ratio =
                 rpacket_doppler_factor (packet, storage) /
                 rpacket_doppler_factor (&virt_packet, storage);
@@ -720,8 +801,9 @@ move_packet_across_shell_boundary (rpacket_t * packet,
       double doppler_factor = rpacket_doppler_factor (packet, storage);
       double comov_nu = rpacket_get_nu (packet) * doppler_factor;
       double comov_energy = rpacket_get_energy (packet) * doppler_factor;
+      // TODO: correct
       rpacket_set_mu (packet, rk_double (mt_state));
-      double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+      double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
       rpacket_set_nu (packet, comov_nu * inverse_doppler_factor);
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
       if (rpacket_get_virtual_packet_flag (packet) > 0)
@@ -740,11 +822,14 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
   double comov_nu = rpacket_get_nu (packet) * doppler_factor;
   double comov_energy = rpacket_get_energy (packet) * doppler_factor;
   rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
-  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
   rpacket_set_nu (packet, comov_nu * inverse_doppler_factor);
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   rpacket_reset_tau_event (packet, mt_state);
   storage->last_interaction_type[rpacket_get_id (packet)] = 1;
+
+  angle_aberration_CMF_to_LF (packet, storage);
+
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
       montecarlo_one_packet (storage, packet, 1, mt_state);
@@ -777,7 +862,7 @@ montecarlo_bound_free_scatter (rpacket_t * packet, storage_model_t * storage, do
   move_packet (packet, storage, distance);
   double old_doppler_factor = rpacket_doppler_factor (packet, storage);
   rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
-  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
   double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   storage->last_interaction_type[rpacket_get_id (packet)] = 3; // last interaction was a bf-absorption
@@ -800,7 +885,7 @@ montecarlo_free_free_scatter (rpacket_t * packet, storage_model_t * storage, dou
   move_packet (packet, storage, distance);
   double old_doppler_factor = rpacket_doppler_factor (packet, storage);
   rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
-  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
   double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
   rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
   storage->last_interaction_type[rpacket_get_id (packet)] = 4; // last interaction was a ff-absorption
@@ -864,7 +949,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
       move_packet (packet, storage, distance);
       double old_doppler_factor = rpacket_doppler_factor (packet, storage);
       rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
-      double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+      double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
       double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
       rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
       storage->last_interaction_in_nu[rpacket_get_id (packet)] =
@@ -898,7 +983,7 @@ montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
 void
 line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_line_id, rk_state *mt_state)
 {
-  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
   storage->last_line_interaction_out_id[rpacket_get_id (packet)] = emission_line_id;
   if (storage->cont_status == CONTINUUM_ON)
   {
@@ -910,6 +995,9 @@ line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_l
   rpacket_set_nu_line (packet, storage->line_list_nu[emission_line_id]);
   rpacket_set_next_line_id (packet, emission_line_id + 1);
   rpacket_reset_tau_event (packet, mt_state);
+
+  angle_aberration_CMF_to_LF (packet, storage);
+
   if (rpacket_get_virtual_packet_flag (packet) > 0)
 	{
 	  bool virtual_close_line = false;
@@ -945,7 +1033,7 @@ void
 continuum_emission (rpacket_t * packet, storage_model_t * storage, rk_state *mt_state,
                     pt2sample_nu sample_nu_continuum, int64_t emission_type_id)
 {
-  double inverse_doppler_factor = 1.0 / rpacket_doppler_factor (packet, storage);
+  double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
   double nu_comov = sample_nu_continuum (packet, storage, mt_state);
   rpacket_set_nu (packet, nu_comov * inverse_doppler_factor);
   rpacket_reset_tau_event (packet, mt_state);
@@ -959,6 +1047,8 @@ continuum_emission (rpacket_t * packet, storage_model_t * storage, rk_state *mt_
   bool last_line = (current_line_id == storage->no_of_lines);
   rpacket_set_last_line (packet, last_line);
   rpacket_set_next_line_id (packet, current_line_id);
+
+  angle_aberration_CMF_to_LF (packet, storage);
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
@@ -1068,11 +1158,22 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
       double distance;
       get_event_handler (packet, storage, &distance, mt_state) (packet, storage,
                                                                 distance, mt_state);
-      if (virtual_packet > 0 && rpacket_get_tau_event (packet) > 10.0)
+      if (virtual_packet > 0 && rpacket_get_tau_event (packet) > storage->tau_russian)
         {
-          rpacket_set_tau_event (packet, 100.0);
-          rpacket_set_status (packet, TARDIS_PACKET_STATUS_EMITTED);
-        }
+            double event_random = rk_double (mt_state);
+            if (event_random > storage->survival_probability)
+              {
+                rpacket_set_energy(packet, 0.0);
+                rpacket_set_status (packet, TARDIS_PACKET_STATUS_EMITTED);
+              }
+            else
+              {
+                rpacket_set_energy(packet,
+                  rpacket_get_energy (packet) / storage->survival_probability *
+                  exp (-1.0 * rpacket_get_tau_event (packet)));
+                rpacket_set_tau_event (packet, 0.0);
+              }
+          }
     }
   if (virtual_packet > 0)
     {

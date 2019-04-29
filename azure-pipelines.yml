@@ -1,0 +1,76 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+
+trigger:
+- master
+
+variables:
+  system.debug: 'true'
+  ref.data.home: '$(Agent.BuildDirectory)/tardis-refdata'
+
+  ref.data.github.url: 'https://github.com/tardis-sn/tardis-refdata.git'
+  tardis.build.dir: $(Build.Repository.LocalPath)
+
+
+
+jobs:
+
+- job: 'Test'
+  pool:
+    vmImage: $[variables.vm_Image]
+
+  strategy:
+    matrix:
+      linux:
+        vm_Image: 'Ubuntu-16.04'
+        conda: '/usr/share/miniconda'
+      mac:
+        vm_Image: 'macOS-10.13'
+        miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
+    maxParallel: 4
+
+  steps:
+  - bash: |
+          echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
+
+  - bash: |
+      sudo chown -R $USER $CONDA
+      conda update -y conda
+    displayName: updating conda and activating
+
+  - bash: |
+        sh ci-helpers/install_tardis_env.sh
+    displayName: 'Install TARDIS env'
+
+  - bash: |
+        sh ci-helpers/fetch_reference_data.sh
+    displayName: 'Fetch Reference Data'
+
+  - bash: |
+        source activate tardis
+        python setup.py build_ext --inplace
+    displayName: 'TARDIS build'
+
+  - bash: |
+        source activate tardis
+        conda install -y pytest-cov
+        pip install git+https://github.com/tonybaloney/pytest-azurepipelines.git
+        pytest tardis --tardis-refdata=$(ref.data.home) --test-run-title="TARDIS test $(vm_Image)" --cov=tardis --cov-report=xml --cov-report=html
+    displayName: 'TARDIS test'
+
+
+#  - task: PublishTestResults@2
+#    condition: succeededOrFailed()
+#    inputs:
+#      testResultsFiles: '**/test-*.xml'
+#      testRunTitle: 'Test results for TARDIS on $(vm_Image)'
+
+#  - task: PublishCodeCoverageResults@1
+#    inputs:
+#      codeCoverageTool: Cobertura
+#      summaryFileLocation: '$(System.DefaultWorkingDirectory)/**/coverage.xml'
+#      reportDirectory: '$(System.DefaultWorkingDirectory)/**/htmlcov'

@@ -2,7 +2,7 @@ import pytest
 
 from astropy.tests.helper import assert_quantity_allclose
 from astropy import units as u
-from astropy import constants as const
+from tardis import constants as const
 
 
 @pytest.fixture

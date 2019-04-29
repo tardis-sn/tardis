@@ -2,13 +2,14 @@ import os
 import logging
 import numpy as np
 import pandas as pd
-from astropy import constants, units as u
+from astropy import units as u
+from tardis import constants
 
-from tardis.util import quantity_linspace
+from tardis.util.base import quantity_linspace
 from tardis.io.model_reader import read_density_file, read_abundances_file, read_uniform_abundances
 from tardis.io.util import HDFWriterMixin
 from tardis.io.decay import IsotopeAbundances
-from density import HomologousDensity
+from tardis.model.density import HomologousDensity
 
 logger = logging.getLogger(__name__)
 
@@ -25,39 +26,47 @@ class Radial1DModel(HDFWriterMixin):
         .. note:: To access the entire, "uncut", velocity array,
         use `raw_velocity`
     homologous_density : HomologousDensity
-    density : astropy.units.quantity.Quantity
     abundance : pd.DataFrame
     time_explosion : astropy.units.Quantity
         Time since explosion
     t_inner : astropy.units.Quantity
+    luminosity_requested : astropy.units.quantity.Quantity
     t_radiative : astropy.units.Quantity
         Radiative temperature for the shells
     dilution_factor : np.ndarray
         If None, the dilution_factor will be initialized with the geometric
         dilution factor.
-    v_inner : astropy.units.Quantity
-    v_middle : astropy.units.Quantity
-    v_outer : astropy.units.Quantity
-    r_inner : astropy.units.Quantity
-    r_middle : astropy.units.Quantity
-    r_outer : astropy.units.Quantity
-    radius : astropy.units.Quantity
-    volume : astropy.units.Quantity
-    no_of_shells : int
-        The number of shells as formed by `v_boundary_inner` and
-        `v_boundary_outer`
-    no_of_raw_shells : int
     v_boundary_inner : astropy.units.Quantity
     v_boundary_outer : astropy.units.Quantity
     raw_velocity : np.ndarray
         The complete array of the velocities, without being cut by
         `v_boundary_inner` and `v_boundary_outer`
-    w : np.ndarray
+    electron_densities : astropy.units.quantity.Quantity
+
+    Attributes
+    ----------
+    
+    w : numpy.ndarray
         Shortcut for `dilution_factor`
-    t_rad : astropy.units.Quantity
+    t_rad : astropy.units.quantity.Quantity
         Shortcut for `t_radiative`
+    radius : astropy.units.quantity.Quantity
+    r_inner : astropy.units.quantity.Quantity
+    r_outer : astropy.units.quantity.Quantity
+    r_middle : astropy.units.quantity.Quantity
+    v_inner : astropy.units.quantity.Quantity
+    v_outer : astropy.units.quantity.Quantity
+    v_middle : astropy.units.quantity.Quantity
+    density : astropy.units.quantity.Quantity
+    volume : astropy.units.quantity.Quantity
+    no_of_shells : int
+        The number of shells as formed by `v_boundary_inner` and
+        `v_boundary_outer`
+    no_of_raw_shells : int
+
 
     """
+
     hdf_properties = ['t_inner', 'w', 't_radiative', 'v_inner', 'v_outer', 'homologous_density']
     hdf_name = 'model'
 
@@ -104,7 +113,6 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def w(self):
-        """Shortcut for `dilution_factor`"""
         return self.dilution_factor
 
     @w.setter
@@ -113,7 +121,6 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def t_rad(self):
-        """Shortcut for `t_radiative`"""
         return self.t_radiative
 
     @t_rad.setter
@@ -193,7 +200,7 @@ class Radial1DModel(HDFWriterMixin):
         if not self.raw_isotope_abundance.empty:
             self._abundance = self.raw_isotope_abundance.decay(
                 self.time_explosion).merge(self.raw_abundance)
-        abundance = self._abundance.ix[:, start:stop]
+        abundance = self._abundance.loc[:, start:stop]
         abundance.columns = range(len(abundance.columns))
         return abundance
 

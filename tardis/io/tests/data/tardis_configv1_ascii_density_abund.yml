@@ -11,7 +11,7 @@ supernova:
 atom_data: kurucz_atom_pure_simple.h5
 
 model:
-            
+
     structure:
         type: file
         filename: density.dat
@@ -35,37 +35,19 @@ montecarlo:
     seed: 23111963
     no_of_packets : 1.0e+5
     iterations: 20
-    
-    black_body_sampling:
-        start: 1 angstrom
-        stop: 1000000 angstrom
-        num: 1.e+6
     last_no_of_packets: 1.e+5
     no_of_virtual_packets: 5
 
     convergence_strategy:
-        type: specific
+        type: damped
         damping_constant: 1.0
         threshold: 0.05
         fraction: 0.8
         hold_iterations: 3
         t_inner:
             damping_constant: 1.0
-    
+
 spectrum:
     start : 500 angstrom
     stop : 20000 angstrom
     num: 10000
-    
-
-
-
-    
-    
-
-
-
-    
-
-
-

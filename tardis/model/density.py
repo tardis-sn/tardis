@@ -1,6 +1,6 @@
 import numpy as np
 
-from tardis.util import quantity_linspace
+from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
 
 class HomologousDensity(HDFWriterMixin):

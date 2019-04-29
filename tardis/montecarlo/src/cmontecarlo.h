@@ -34,7 +34,15 @@ tardis_error_t
 binary_search (const double *x, double x_insert,
                int64_t imin, int64_t imax, int64_t * result);
 
-double rpacket_doppler_factor(const rpacket_t *packet, const storage_model_t *storage);
+double rpacket_doppler_factor (const rpacket_t *packet, const storage_model_t *storage);
+
+double rpacket_inverse_doppler_factor (const rpacket_t *packet, const storage_model_t *storage);
+
+void
+angle_aberration_CMF_to_LF (rpacket_t * packet, const storage_model_t * storage);
+
+double
+angle_aberration_LF_to_CMF (rpacket_t *packet, const storage_model_t *storage, double mu);
 
 /** Calculate the distance to shell boundary.
  *
@@ -73,11 +81,17 @@ void move_packet (rpacket_t * packet, storage_model_t * storage,
 
 void increment_j_blue_estimator (const rpacket_t * packet,
                                  storage_model_t * storage,
-                                 double d_line, int64_t j_blue_idx);
+                                 double d_line,
+                                 int64_t j_blue_idx);
 
 void increment_Edotlu_estimator (const rpacket_t * packet,
                                  storage_model_t * storage,
-                                 double d_line, int64_t j_blue_idx);
+                                 double d_line,
+                                 int64_t j_blue_idx);
+
+double get_increment_j_blue_estimator_energy (const rpacket_t * packet,
+                                              const storage_model_t * storage,
+                                              double d_line);
 
 void
 increment_continuum_estimators (const rpacket_t * packet, storage_model_t * storage, double distance,

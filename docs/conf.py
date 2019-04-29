@@ -50,6 +50,8 @@ extensions = [
     'sphinx.ext.graphviz',
     'numpydoc',
     'nbsphinx',
+    'sphinx.ext.autodoc',
+    'sphinx-jsonschema'
 ]
 
 source_suffix = '.rst'
@@ -59,7 +61,11 @@ extensions += ['matplotlib.sphinxext.plot_directive',
                'sphinxcontrib.bibtex']
 
 
-
+nbsphinx_prolog = """
+This notebook is available at 
+https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname, base=None) }}
+----
+"""
 # -- General configuration ----------------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -117,6 +123,7 @@ html_theme_path = sphinx_rtd_theme.get_html_theme_path()
 
 # Custom sidebar templates, maps document names to template names.
 #html_sidebars = {}
+html_static_path = ['_static']
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32

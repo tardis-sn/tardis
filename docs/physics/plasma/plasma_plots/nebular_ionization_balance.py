@@ -1,6 +1,8 @@
 import os
 
 from matplotlib import colors
+
+import tardis.util.base
 from tardis import util
 from tardis.io import atomic
 from matplotlib import pyplot as plt
@@ -58,7 +60,7 @@ ion_colors = ['b', 'g', 'r', 'k']
 for ion_number in [0, 1, 2, 3]:
     current_ion_density = ion_number_densities.ix[14, ion_number]
     ax1.plot(current_ion_density.index, current_ion_density.values, '%s-' % ion_colors[ion_number],
-             label='Si %s W=1.0' % util.int_to_roman(ion_number + 1).upper())
+             label='Si %s W=1.0' % tardis.util.base.int_to_roman(ion_number + 1).upper())
 
 
 #only plotting every 5th radiation temperature
@@ -92,7 +94,7 @@ for ion_number in [0, 1, 2, 3]:
     print "w=0.5"
     current_ion_density = ion_number_densities.ix[14, ion_number]
     ax1.plot(current_ion_density.index, current_ion_density.values, '%s--' % ion_colors[ion_number],
-             label='Si %s W=0.5' % util.int_to_roman(ion_number + 1).upper())
+             label='Si %s W=0.5' % tardis.util.base.int_to_roman(ion_number + 1).upper())
 
 for t_rad in t_rads[::5]:
     ax2.plot(level_populations[t_rad].index, level_populations[t_rad].values, color=t_rad_color_map.to_rgba(t_rad),

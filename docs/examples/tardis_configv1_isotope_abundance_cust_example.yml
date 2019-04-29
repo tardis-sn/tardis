@@ -2,4 +2,4 @@ model:
     abundances:
         type: file
         filename: tardis_model_abund.csv
-        filetype: tardis_model
+        filetype: custom_composition

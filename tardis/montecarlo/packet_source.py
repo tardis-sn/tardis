@@ -1,6 +1,6 @@
 import numpy as np
 import numexpr as ne
-from astropy import constants as const
+from tardis import constants as const
 
 class BlackBodySimpleSource(object):
     """
