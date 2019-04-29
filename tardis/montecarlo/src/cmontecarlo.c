@@ -832,7 +832,7 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
-      montecarlo_one_packet (storage, packet, 1, mt_state);
+      create_vpacket (storage, packet, mt_state);
     }
 }
 
@@ -1011,7 +1011,7 @@ line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_l
 	  // QUESTIONABLE!!!
 	  bool old_close_line = rpacket_get_close_line (packet);
 	  rpacket_set_close_line (packet, virtual_close_line);
-	  montecarlo_one_packet (storage, packet, 1, mt_state);
+	  create_vpacket (storage, packet, mt_state);
 	  rpacket_set_close_line (packet, old_close_line);
 	  virtual_close_line = false;
     }
@@ -1052,7 +1052,7 @@ continuum_emission (rpacket_t * packet, storage_model_t * storage, rk_state *mt_
 
   if (rpacket_get_virtual_packet_flag (packet) > 0)
     {
-      montecarlo_one_packet (storage, packet, 1, mt_state);
+      create_vpacket (storage, packet, mt_state);
     }
 }
 
@@ -1263,4 +1263,29 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
 #endif
   print_progress(storage->no_of_packets, storage->no_of_packets);
   fprintf(stderr,"\n");
+}
+
+void
+create_vpacket (storage_model_t * storage, rpacket_t * packet,
+                rk_state *mt_state)
+{
+  if (storage->enable_biasing)
+    {
+      int64_t shell_id = rpacket_get_current_shell_id(packet);
+      double tau_bias = (storage->tau_bias[shell_id + 1] +
+          (storage->tau_bias[shell_id] - storage->tau_bias[shell_id + 1]) *
+          (storage->r_outer[shell_id] - rpacket_get_r (packet)) /
+          (storage->r_outer[shell_id] - storage->r_inner[shell_id]));
+      double vpacket_prob = exp(-tau_bias);
+      double event_random = rk_double (mt_state);
+      if (event_random < vpacket_prob)
+        {
+           packet->vpacket_weight = 1. / vpacket_prob;
+           montecarlo_one_packet (storage, packet, 1, mt_state);
+        }
+    }
+  else
+    {
+      montecarlo_one_packet (storage, packet, 1, mt_state);
+    }
 }

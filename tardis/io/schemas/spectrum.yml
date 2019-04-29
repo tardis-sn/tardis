@@ -45,3 +45,8 @@ properties:
         type: number
         default: 0.0
         description: Probability for not terminating the packet path
+      enable_biasing:
+        type: boolean
+        default: False
+        description: If True bias v-packet emission based on the electron
+            scattering optical depth
