@@ -34,6 +34,7 @@ Using Tardis
     :maxdepth: 2
 
     installation
+    CHANGELOG.md
     quickstart
     running/index
     examples/index
@@ -62,7 +63,6 @@ Developing Tardis
     issues
     workflow/development_workflow
     runnints_tests
-    changelog
 
 ==========
 References
