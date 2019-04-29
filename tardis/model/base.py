@@ -220,14 +220,14 @@ class Radial1DModel(HDFWriterMixin):
     def v_boundary_inner(self):
         if self._v_boundary_inner is None:
             return self.raw_velocity[0]
-        if self._v_boundary_inner < 0:
+        if self._v_boundary_inner < 0 * u.km/u.s:
             return self.raw_velocity[0]
         return self._v_boundary_inner
 
     @v_boundary_inner.setter
     def v_boundary_inner(self, value):
         if value is not None:
-            if value > 0:
+            if value > 0 * u.km/u.s:
                 value = u.Quantity(value, self.v_boundary_inner.unit)
                 if value > self.v_boundary_outer:
                     raise ValueError('v_boundary_inner must not be higher than '
@@ -236,7 +236,7 @@ class Radial1DModel(HDFWriterMixin):
                     raise ValueError('v_boundary_inner is outside of '
                                      'the model range.')
                 if value < self.raw_velocity[0]:
-                    raise ValueError('v_boundary_inner is outside of the model range.')
+                    raise ValueError('v_boundary_inner is lower than the lowest shell in the model.')
         self._v_boundary_inner = value
         # Invalidate the cached cut-down velocity array
         self._velocity = None
@@ -245,14 +245,14 @@ class Radial1DModel(HDFWriterMixin):
     def v_boundary_outer(self):
         if self._v_boundary_outer is None:
             return self.raw_velocity[-1]
-        if self._v_boundary_outer < 0:
+        if self._v_boundary_outer < 0 * u.km/u.s:
             return self.raw_velocity[-1]
         return self._v_boundary_outer
 
     @v_boundary_outer.setter
     def v_boundary_outer(self, value):
         if value is not None:
-            if value > 0:
+            if value > 0 * u.km/u.s:
                 value = u.Quantity(value, self.v_boundary_outer.unit)
                 if value < self.v_boundary_inner:
                     raise ValueError('v_boundary_outer must not be smaller than '
@@ -261,7 +261,7 @@ class Radial1DModel(HDFWriterMixin):
                     raise ValueError('v_boundary_outer is outside of '
                                      'the model range.')
                 if value > self.raw_velocity[-1]:
-                    raise ValueError('v_boundary_outer is outside of the model range.')
+                    raise ValueError('v_boundary_outer is larger than the largest shell in the model.')
         self._v_boundary_outer = value
         # Invalidate the cached cut-down velocity array
         self._velocity = None
