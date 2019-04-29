@@ -46,7 +46,8 @@ def packet():
         id=0,
         chi_cont=6.652486e-16,
         chi_bf_tmp_partial=(c_double * 2)(),
-        compute_chi_bf=True
+        compute_chi_bf=True,
+        vpacket_weight=1.0
     )
 
 
@@ -120,6 +121,11 @@ def model():
         bf_treatment=BoundFreeTreatment.LIN_INTERPOLATION.value,
         ff_heating_estimator=(c_double * 2)(*([0.0] * 2)),
         cont_edge2macro_level=(c_int64 * 6)(*([1] * 6)),
+
+        survival_probability=0.0,
+        tau_russian=10.0,
+        tau_bias=(c_double * 3)(*([5.0, 0.5, 0.0])),
+        enable_biasing=0
     )
 
 
