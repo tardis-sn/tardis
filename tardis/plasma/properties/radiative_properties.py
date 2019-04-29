@@ -5,6 +5,7 @@ import pandas as pd
 import numexpr as ne
 from astropy import units as u
 from tardis import constants as const
+from numba import jit, prange
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
 from tardis.plasma.properties.util import macro_atom
@@ -116,6 +117,7 @@ class TauSobolev(ProcessingPlasmaProperty):
         return pd.DataFrame(tau_sobolevs, index=lines.index,
             columns=np.array(level_number_density.columns))
 
+
 class BetaSobolev(ProcessingPlasmaProperty):
     """
     Attributes
@@ -137,10 +139,23 @@ class BetaSobolev(ProcessingPlasmaProperty):
                 columns=tau_sobolevs.columns
                 )
 
-        macro_atom.calculate_beta_sobolev(
-            tau_sobolevs.values.ravel(),
-            beta_sobolev.values.ravel())
+        self.calculate_beta_sobolev(tau_sobolevs.values.ravel(),
+                                    beta_sobolev.values.ravel())
         return beta_sobolev
+
+    @staticmethod
+    @jit(nopython=True, parallel=True)
+    def calculate_beta_sobolev(tau_sobolevs, beta_sobolevs):
+        for i in prange(len(tau_sobolevs)):
+            if tau_sobolevs[i] > 1e3:
+                beta_sobolevs[i] = tau_sobolevs[i]**-1
+            elif tau_sobolevs[i] < 1e-4:
+                beta_sobolevs[i] = 1 - 0.5 * tau_sobolevs[i]
+            else:
+                beta_sobolevs[i] = (1 - np.exp(-tau_sobolevs[i])) / (
+                    tau_sobolevs[i])
+        return beta_sobolevs
+
 
 class TransitionProbabilities(ProcessingPlasmaProperty):
     """
