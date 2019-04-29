@@ -1269,16 +1269,23 @@ void
 create_vpacket (storage_model_t * storage, rpacket_t * packet,
                 rk_state *mt_state)
 {
-  int64_t shell_id = rpacket_get_current_shell_id(packet);
-  double tau_bias = (storage->tau_bias[shell_id + 1] +
-      (storage->tau_bias[shell_id] - storage->tau_bias[shell_id + 1]) *
-      (storage->r_outer[shell_id] - rpacket_get_r (packet)) /
-      (storage->r_outer[shell_id] - storage->r_inner[shell_id]));
-  double vpacket_prob = exp(-tau_bias);
-  double event_random = rk_double (mt_state);
-  if (event_random < vpacket_prob)
+  if (storage->enable_biasing)
     {
-       packet->vpacket_weight = 1. / vpacket_prob;
-       montecarlo_one_packet (storage, packet, 1, mt_state);
+      int64_t shell_id = rpacket_get_current_shell_id(packet);
+      double tau_bias = (storage->tau_bias[shell_id + 1] +
+          (storage->tau_bias[shell_id] - storage->tau_bias[shell_id + 1]) *
+          (storage->r_outer[shell_id] - rpacket_get_r (packet)) /
+          (storage->r_outer[shell_id] - storage->r_inner[shell_id]));
+      double vpacket_prob = exp(-tau_bias);
+      double event_random = rk_double (mt_state);
+      if (event_random < vpacket_prob)
+        {
+           packet->vpacket_weight = 1. / vpacket_prob;
+           montecarlo_one_packet (storage, packet, 1, mt_state);
+        }
+    }
+  else
+    {
+      montecarlo_one_packet (storage, packet, 1, mt_state);
     }
 }
