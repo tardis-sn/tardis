@@ -41,6 +41,7 @@ dependencies:
 - sphinx_bootstrap_theme
 - sphinxcontrib-bibtex
 - sphinx_rtd_theme
+- recommonmark
 
 #Test/Coverage requirements
 - git-lfs
