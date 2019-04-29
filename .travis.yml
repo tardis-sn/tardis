@@ -56,6 +56,7 @@ script:
     - python setup.py build_docs
     - pip install doctr
     - git lfs uninstall
+    - ls docs/_build/html/_images
     - doctr deploy --built-docs docs/_build/html .
 
 
@@ -79,20 +80,6 @@ jobs:
         - SETUP_CMD='test --coverage --args="--tardis-refdata=$REF_DATA_HOME"'
         - TEST_MODE='spectrum'
         - SAVE_COVERAGE=true
-    - stage: test
-      python: 2.7
-      env:
-        - COMPILER=clang
-        - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
-        - TEST_MODE='spectrum'
-    - stage: test
-      os: osx
-      language: generic
-      env:
-        - COMPILER=clang
-        - SETUP_CMD='test --args="--tardis-refdata=$REF_DATA_HOME"'
-        - TEST_MODE='spectrum'
-        - MINICONDA_URL='http://repo.continuum.io/miniconda/Miniconda2-latest-MacOSX-x86_64.sh'
     - stage: integration
       if: type = cron
       script:
