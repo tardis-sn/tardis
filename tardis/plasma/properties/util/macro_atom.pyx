@@ -25,22 +25,6 @@ cdef double kb = constants.k_B.cgs.value
 cdef double inv_c2 = 1 / (c ** 2)
 
 
-def calculate_beta_sobolev(np.ndarray[double, ndim=1] tau_sobolevs, np.ndarray[double, ndim=1] beta_sobolevs):
-    cdef double beta_sobolev
-    cdef double tau_sobolev
-    cdef int i
-
-    for i in range(len(tau_sobolevs)):
-        tau_sobolev = tau_sobolevs[i]
-
-        if tau_sobolev > 1e3:
-            beta_sobolev = 1 / tau_sobolev
-        elif tau_sobolev < 1e-4:
-            beta_sobolev = 1 - 0.5 * tau_sobolev
-        else:
-            beta_sobolev = (1 - exp(-tau_sobolev)) / tau_sobolev
-        beta_sobolevs[i] = beta_sobolev
-
 def calculate_transition_probabilities(
         double [:] transition_probability_coef,
         double [:, ::1] beta_sobolev, double [:, ::1] j_blues,
