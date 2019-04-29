@@ -1,4 +1,9 @@
 from tqdm.autonotebook import tqdm
+from tardis import __path__ as TARDIS_PATH
+
+TARDIS_PATH == TARDIS_PATH[0]
+
+
 
 def download_from_url(url, dst):
     """
@@ -26,3 +31,18 @@ def download_from_url(url, dst):
                 pbar.update(1024)
     pbar.close()
     return file_size
+
+
+
+def download_atomic_data(atomic_data_name):
+    """
+    Download the atomic data from the repository
+    Parameters
+    ----------
+    atomic_data_name
+
+    Returns
+    -------
+        : None
+
+    """

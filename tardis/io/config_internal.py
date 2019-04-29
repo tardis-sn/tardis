@@ -21,7 +21,7 @@ def get_internal_configuration():
 
 def get_data_dir():
 
-    config = get_configuration()
+    config = get_internal_configuration()
     data_dir = config.get('data_dir', None)
     if data_dir is None:
         config_fpath = os.path.join(get_config_dir(), 'tardis_internal_config.yml')
@@ -31,7 +31,7 @@ def get_data_dir():
                          'YOU CAN CHANGE THIS AT ANY TIME IN {config_file} \n\n'
                          '{line_stars} \n\n'.format(line_stars='*'*80, config_file=config_fpath,
                                                      default_data_dir=DEFAULT_DATA_DIR))
-        if not os.path.exist(DEFAULT_DATA_DIR):
+        if not os.path.exists(DEFAULT_DATA_DIR):
             os.makedirs(DEFAULT_DATA_DIR)
         config['data_dir'] = DEFAULT_DATA_DIR
         yaml.dump(config, open(config_fpath, 'w'), default_flow_style=False)

@@ -2,6 +2,8 @@
 
 import os
 import re
+import logging
+
 import pandas as pd
 import numpy as np
 import collections
@@ -9,11 +11,24 @@ from collections import OrderedDict
 import yaml
 from tardis import constants
 from astropy import units as u
-from tardis.util.base import element_symbol2atomic_number
 
-import logging
+from tardis import __path__ as TARDIS_PATH
+
 logger = logging.getLogger(__name__)
 
+
+
+def get_internal_data_path(fname):
+    """
+    Get internal data path of TARDIS
+
+    Returns
+    -------
+        data_path: str
+            internal data path of TARDIS
+
+    """
+    return os.path.join(TARDIS_PATH[0], 'data', fname)
 
 def quantity_from_str(text):
     """
@@ -112,21 +127,6 @@ def yaml_load_file(filename, loader=yaml.Loader):
 
 def yaml_load_config_file(filename):
     return yaml_load_file(filename, YAMLLoader)
-
-
-def parse_abundance_dict_to_dataframe(abundance_dict):
-    atomic_number_dict = dict([(element_symbol2atomic_number(symbol), abundance_dict[symbol])
-                                   for symbol in abundance_dict])
-    atomic_numbers = sorted(atomic_number_dict.keys())
-
-    abundances = pd.Series([atomic_number_dict[z] for z in atomic_numbers], index=atomic_numbers)
-
-    abundance_norm = abundances.sum()
-    if abs(abundance_norm - 1) > 1e-12:
-        logger.warning('Given abundances don\'t add up to 1 (value = %g) - normalizing', abundance_norm)
-        abundances /= abundance_norm
-
-    return abundances
 
 
 def traverse_configs(base, other, func, *args):
