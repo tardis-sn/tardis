@@ -25,6 +25,7 @@ dependencies:
 - pytables
 - h5py
 - requests
+- tqdm
 
 # Analysis
 - jupyter
