@@ -92,18 +92,6 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
         lines_index = lines.index.droplevel('level_number_lower')
         return np.array(levels_index.loc[lines_index])
 
-class IonCXData(BaseAtomicDataProperty):
-    outputs = ('ion_cx_data',)
-
-    def _filter_atomic_property(self, ion_cx_data, selected_atoms):
-        return ion_cx_data[ion_cx_data.atomic_number.isin([selected_atoms]
-                                                          if np.isscalar(
-            selected_atoms)
-                                                          else selected_atoms)]
-
-    def _set_index(self, ion_cx_data):
-        return ion_cx_data.set_index(['atomic_number', 'ion_number',
-                                      'level_number'])
 
 class AtomicMass(ProcessingPlasmaProperty):
     """

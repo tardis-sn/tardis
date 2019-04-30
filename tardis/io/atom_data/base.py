@@ -76,8 +76,6 @@ class AtomData(object):
 
     zeta_data: ?
     synpp_refs: ?
-    ion_cx_tx_data: ?
-    ion_cx_sp_data: ?
 
     Attributes
     -------------
@@ -91,8 +89,6 @@ class AtomData(object):
     collision_data_temperatures: numpy.array
     zeta_data: pandas.DataFrame
     synpp_refs: pandas.DataFrame
-    ion_cx_tx_data: pandas.DataFrame
-    ion_cx_sp_data: pandas.DataFrame
     symbol2atomic_number: OrderedDict
     atomic_number2symbol OrderedDict
 
@@ -117,9 +113,8 @@ class AtomData(object):
             "zeta_data",
             "collision_data",
             "collision_data_temperatures",
-            "synpp_refs",
-            "ion_cx_th_data",
-            "ion_cx_sp_data"]
+            "synpp_refs"
+    ]
 
     # List of tuples of the related dataframes.
     # Either all or none of the related dataframes must be given
@@ -183,8 +178,7 @@ class AtomData(object):
             self, atom_data, ionization_data, levels=None, lines=None,
             macro_atom_data=None, macro_atom_references=None,
             zeta_data=None, collision_data=None,
-            collision_data_temperatures=None, synpp_refs=None,
-            ion_cx_th_data=None, ion_cx_sp_data=None):
+            collision_data_temperatures=None, synpp_refs=None):
 
         self.prepared = False
 
@@ -229,8 +223,6 @@ class AtomData(object):
         self.collision_data_temperatures = collision_data_temperatures
 
         self.synpp_refs = synpp_refs
-        self.ion_cx_th_data = ion_cx_th_data
-        self.ion_cx_sp_data = ion_cx_sp_data
 
         self._check_related()
 
