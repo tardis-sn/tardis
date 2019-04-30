@@ -34,7 +34,7 @@ def resolve_atom_data_fname(fname):
     if atom_data_name in atom_repo_config:
         raise IOError('Atom Data {0} not found in path or in TARDIS data repo - it is available as download:\n'
                       'from tardis.io.atom_data import download_atom_data\n'
-                      'download_atom_data('{1}')'.format(fname, atom_data_name))
+                      'download_atom_data(\'{1}\')'.format(fname, atom_data_name))
 
     raise IOError('Atom Data {0} is not found in current path or in TARDIS data repo. {1} is also not a standard known'
                   'TARDIS atom dataset.'.format(fname, atom_data_name))
