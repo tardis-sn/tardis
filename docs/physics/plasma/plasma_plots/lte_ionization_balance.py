@@ -3,11 +3,9 @@ from matplotlib import pyplot as plt
 from matplotlib import colors
 
 import tardis.util.base
-from tardis import util
-from tardis.io import atomic
+from tardis.io.atom_data import AtomData
 import numpy as np
 import pandas as pd
-from astropy import units as u
 
 #Making 2 Figures for ionization balance and level populations
 
@@ -18,10 +16,10 @@ plt.figure(2).clf()
 ax2 = plt.figure(2).add_subplot(111)
 
 # expanding the tilde to the users directory
-atom_fname = os.path.join(os.path.dirname(atomic.__file__), 'data', 'atom_data.h5')
+#atom_fname = os.path.join(os.path.dirname(base.__file__), 'data', 'atom_data.h5')
 
 # reading in the HDF5 File
-atom_data = atomic.AtomData.from_hdf(atom_fname)
+atom_data = AtomData.from_hdf(atom_fname)
 
 #The atom_data needs to be prepared to create indices. The Class needs to know which atomic numbers are needed for the
 #calculation and what line interaction is needed (for "downbranch" and "macroatom" the code creates special tables)
