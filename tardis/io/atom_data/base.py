@@ -309,9 +309,6 @@ class AtomData(object):
                 self.levels_index.loc[tmp_lines_upper2level_idx].
                 astype(np.int64).values)
 
-        self.atom_ion_index = None
-        self.levels_index2atom_ion_index = None
-
         if (
                 self.macro_atom_data_all is not None and
                 not line_interaction_type == 'scatter'):
