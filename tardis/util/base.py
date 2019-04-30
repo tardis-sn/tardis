@@ -56,9 +56,6 @@ logger = logging.getLogger(__name__)
 tardis_dir = os.path.realpath(tardis.__path__[0])
 
 
-def get_tests_data_path(fname):
-    return os.path.join(tardis_dir, 'tests', 'data', fname)
-
 
 ATOMIC_SYMBOLS_DATA = pd.read_csv(get_internal_data_path('atomic_symbols.dat'), delim_whitespace=True,
                                   names=['atomic_number', 'symbol']).set_index('atomic_number').squeeze()

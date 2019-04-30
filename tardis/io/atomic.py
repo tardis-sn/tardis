@@ -127,15 +127,15 @@ class AtomData(object):
                       ("collision_data", "collision_data_temperatures")]
 
     @classmethod
-    def from_hdf(cls, fname):
+    def from_hdf(cls, fname=None):
         """
-        Function to read all the atom data from the special Carsus HDFStore file.
+        Function to read the atom data from a TARDIS atom HDF Store
 
         Parameters
         ----------
 
         fname: str, optional
-            Path to the HDFStore file. Please contact the authors to get the up-to-date file.
+            Path to the HDFStore file or name of known atom data file
             (default: None)
         """
 

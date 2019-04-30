@@ -1,9 +1,17 @@
+import os
+import logging
+import requests
+
 from tqdm.autonotebook import tqdm
-from tardis import __path__ as TARDIS_PATH
+from tardis.io.util import get_internal_data_path
+from tardis.io.config_internal import get_data_dir
+import yaml
 
-TARDIS_PATH == TARDIS_PATH[0]
+logger = logging.getLogger(__name__)
 
-
+def get_atomic_repo_config():
+    atomic_repo_fname = get_internal_data_path('atomic_data_repo.yml')
+    return yaml.load(open(atomic_repo_fname))
 
 def download_from_url(url, dst):
     """
@@ -34,15 +42,27 @@ def download_from_url(url, dst):
 
 
 
-def download_atomic_data(atomic_data_name):
+def download_atomic_data(atomic_data_name=None):
     """
     Download the atomic data from the repository
     Parameters
     ----------
-    atomic_data_name
+    atomic_data_name: str
+        if None
 
     Returns
     -------
         : None
 
     """
+    atomic_repo = get_atomic_repo_config()
+
+    if atomic_data_name is None:
+        atomic_data_name = atomic_repo['default']
+
+    if atomic_data_name not in atomic_repo:
+        raise ValueError('Atomic Data name {0} not known'.format(atomic_data_name))
+    dst_dir = os.path.join(get_data_dir(), '{0}.h5'.format(atomic_data_name))
+    src_url = atomic_repo[atomic_data_name]['url']
+    logger.info('Downloading atomic data from {0} to {1}'.format(src_url, dst_dir))
+    download_from_url(src_url, dst_dir)
