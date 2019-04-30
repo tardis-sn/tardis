@@ -1,6 +1,6 @@
 # atomic model
 
-import os
+
 import logging
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ from collections import OrderedDict
 from astropy import units as u
 from tardis import constants as const
 from astropy.units import Quantity
-
+from tardis.io.atom_data.util import resolve_atom_data_fname
 
 class AtomDataNotPreparedError(Exception):
     pass
@@ -141,6 +141,8 @@ class AtomData(object):
 
         dataframes = dict()
         nonavailable = list()
+
+        fname = resolve_atom_data_fname(fname)
 
         with pd.HDFStore(fname, 'r') as store:
             for name in cls.hdf_names:
