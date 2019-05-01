@@ -1,172 +1,53 @@
 from numba import int64, float64
+from astropy import constants as const
 storage_model_spec = [
-    ('*packet_nus', double),
-    ('*packet_mus', double),
-    ('*packet_energies', double),
-    ('*output_nus', double),
-    ('*output_energies', double),
-    ('*last_interaction_in_nu', double),
-    ('*last_line_interaction_in_id', int64_t),
-    ('*last_line_interaction_out_id', int64_t),
-    ('*last_line_interaction_shell_id', int64_t),
-    ('*last_interaction_type', int64_t),
-    ('*last_interaction_out_type', int64_t),
-    ('no_of_packets', int64_t),
-    ('no_of_shells', int64_t),
-    ('no_of_shells_i', int64_t),
-    ('*r_inner', double),
-    ('*r_outer', double),
-    ('*r_inner_i', double),
-    ('*r_outer_i', double),
-    ('*v_inner', double),
-    ('time_explosion', double),
-    ('inverse_time_explosion', double),
-    ('*electron_densities', double),
-    ('*electron_densities_i', double),
-    ('*inverse_electron_densities', double),
-    ('*line_list_nu', double),
-    ('*continuum_list_nu', double),
-    ('*line_lists_tau_sobolevs', double),
-    ('*line_lists_tau_sobolevs_i', double),
-    ('line_lists_tau_sobolevs_nd', int64_t),
-    ('*line_lists_j_blues', double),
-    ('line_lists_j_blues_nd', int64_t),
-    ('*line_lists_Edotlu', double),
-    ('no_of_lines', int64_t),
-    ('no_of_edges', int64_t),
-    ('line_interaction_id', int64_t),
-    ('*transition_probabilities', double),
-    ('transition_probabilities_nd', int64_t),
-    ('*line2macro_level_upper', int64_t),
-    ('*macro_block_references', int64_t),
-    ('*transition_type', int64_t),
-    ('*destination_level_id', int64_t),
-    ('*transition_line_id', int64_t),
-    ('*js', double),
-    ('*nubars', double),
-    ('spectrum_start_nu', double),
-    ('spectrum_delta_nu', double),
-    ('spectrum_end_nu', double),
-    ('spectrum_virt_start_nu', double),
-    ('spectrum_virt_end_nu', double),
-    ('*spectrum_virt_nu', double),
-    ('sigma_thomson', double),
-    ('inverse_sigma_thomson', double),
-    ('inner_boundary_albedo', double),
-    ('reflective_inner_boundary', int64_t),
-    ('current_packet_id', int64_t),
-    photo_xsect_1level **photo_xsect;
-    ('*chi_ff_factor', double),
-    ('*t_electrons', double),
-    ('*l_pop', double),
-    ('*l_pop_r', double),
-    ContinuumProcessesStatus cont_status;
-    bound_free_treatment bf_treatment;
-    ('*virt_packet_nus', double),
-    ('*virt_packet_energies', double),
-    ('*virt_packet_last_interaction_in_nu', double),
-    ('*virt_packet_last_interaction_type', int64_t),
-    ('*virt_packet_last_line_interaction_in_id', int64_t),
-    ('*virt_packet_last_line_interaction_out_id', int64_t),
-    ('virt_packet_count', int64_t),
-    ('virt_array_size', int64_t),
-    ('kpacket2macro_level', int64_t),
-    ('*cont_edge2macro_level', int64_t),
-    ('*photo_ion_estimator', double),
-    ('*stim_recomb_estimator', double),
-    ('*photo_ion_estimator_statistics', int64_t),
-    ('*bf_heating_estimator', double),
-    ('*ff_heating_estimator', double),
-    ('*stim_recomb_cooling_estimator', double),
-    ('full_relativity', int),
-    ('survival_probability', double),
-    ('tau_russian', double),
-    ('*tau_bias', double),
-    ('enable_biasing', int),
+    ('packet_nus', float64[:]),
+    ('packet_mus', float64[:]),
+    ('packet_energies', float64[:]),
+    ('output_nus', float64[:]),
+    ('output_energies', float64[:]),
+    ('no_of_packets', int64),
+    ('no_of_shells', int64),
+    ('r_inner', float64[:]),
+    ('r_outer', float64[:]),
+    ('v_inner', float64[:]),
+    ('time_explosion', float64),
+    ('inverse_time_explosion', float64),
+    ('*electron_densities', float64),
+    ('*inverse_electron_densities', float64),
+    ('*line_list_nu', float64),
+    ('*line_lists_tau_sobolevs', float64),
+    ('line_lists_tau_sobolevs_nd', int64),
+    ('no_of_lines', int64),
+    ('no_of_edges', int64),
+    ('line_interaction_id', int64),
+#    ('*js', float64),
+#    ('*nubars', float64),
+    ('sigma_thomson', float64),
+    ('inverse_sigma_thomson', float64),
 ]
-typedef struct StorageModel
-{
-  double *packet_nus;
-  double *packet_mus;
-  double *packet_energies;
-  double *output_nus;
-  double *output_energies;
-  double *last_interaction_in_nu;
-  int64_t *last_line_interaction_in_id;
-  int64_t *last_line_interaction_out_id;
-  int64_t *last_line_interaction_shell_id;
-  int64_t *last_interaction_type;
-  int64_t *last_interaction_out_type;
-  int64_t no_of_packets;
-  int64_t no_of_shells;
-  int64_t no_of_shells_i;
-  double *r_inner;
-  double *r_outer;
-  double *r_inner_i;
-  double *r_outer_i;
-  double *v_inner;
-  double time_explosion;
-  double inverse_time_explosion;
-  double *electron_densities;
-  double *electron_densities_i;
-  double *inverse_electron_densities;
-  double *line_list_nu;
-  double *continuum_list_nu;
-  double *line_lists_tau_sobolevs;
-  double *line_lists_tau_sobolevs_i;
-  int64_t line_lists_tau_sobolevs_nd;
-  double *line_lists_j_blues;
-  int64_t line_lists_j_blues_nd;
-  double *line_lists_Edotlu;
-  int64_t no_of_lines;
-  int64_t no_of_edges;
-  int64_t line_interaction_id;
-  double *transition_probabilities;
-  int64_t transition_probabilities_nd;
-  int64_t *line2macro_level_upper;
-  int64_t *macro_block_references;
-  int64_t *transition_type;
-  int64_t *destination_level_id;
-  int64_t *transition_line_id;
-  double *js;
-  double *nubars;
-  double spectrum_start_nu;
-  double spectrum_delta_nu;
-  double spectrum_end_nu;
-  double spectrum_virt_start_nu;
-  double spectrum_virt_end_nu;
-  double *spectrum_virt_nu;
-  double sigma_thomson;
-  double inverse_sigma_thomson;
-  double inner_boundary_albedo;
-  int64_t reflective_inner_boundary;
-  int64_t current_packet_id;
-  photo_xsect_1level **photo_xsect;
-  double *chi_ff_factor;
-  double *t_electrons;
-  double *l_pop;
-  double *l_pop_r;
-  ContinuumProcessesStatus cont_status;
-  bound_free_treatment bf_treatment;
-  double *virt_packet_nus;
-  double *virt_packet_energies;
-  double *virt_packet_last_interaction_in_nu;
-  int64_t *virt_packet_last_interaction_type;
-  int64_t *virt_packet_last_line_interaction_in_id;
-  int64_t *virt_packet_last_line_interaction_out_id;
-  int64_t virt_packet_count;
-  int64_t virt_array_size;
-  int64_t kpacket2macro_level;
-  int64_t *cont_edge2macro_level;
-  double *photo_ion_estimator;
-  double *stim_recomb_estimator;
-  int64_t *photo_ion_estimator_statistics;
-  double *bf_heating_estimator;
-  double *ff_heating_estimator;
-  double *stim_recomb_cooling_estimator;
-  int full_relativity;
-  double survival_probability;
-  double tau_russian;
-  double *tau_bias;
-  int enable_biasing;
-} storage_model_t;
+
+class StorageModel(object):
+    def __init__(self, packet_nus, packet_mus, packet_energies, 
+    output_nus, output_energies, no_of_packets, no_of_shells, 
+    r_inner, r_outer, v_inner, time_explosion, electron_densities, line_list_nu, line_lists_tau_sobolevs, line_lists_tau_sobolevs_nd, 
+    no_of_lines, no_of_edges, line_interaction_id, 
+    inverse_sigma_thomson):
+        self.packet_nus = packet_nus
+        self.packet_mus = packet_mus
+        self.packet_energies = packet_energies
+        self.output_nus = output_nus
+        self.output_energies = output_energies
+        self.r_inner = r_inner
+        self.r_outer = r_outer
+        self.v_inner = v_inner
+        
+        self.time_explosion = time_explosion
+        self.inverse_time_explosion = 1 / time_explosion
+
+        self.electron_densities = electron_densities
+
+        self.inverse_electron_densities = 1 / electron_densities
+        
+        self.sigma_thomson = const.sigma_T.to('cm^2').value
+        self.inverse_sigma_thomson = 1 / self.sigma_thomson
