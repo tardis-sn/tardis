@@ -13,13 +13,11 @@ storage_model_spec = [
     ('v_inner', float64[:]),
     ('time_explosion', float64),
     ('inverse_time_explosion', float64),
-    ('*electron_densities', float64),
-    ('*inverse_electron_densities', float64),
-    ('*line_list_nu', float64),
-    ('*line_lists_tau_sobolevs', float64),
-    ('line_lists_tau_sobolevs_nd', int64),
+    ('electron_densities', float64[:]),
+    ('inverse_electron_densities', float64[:]), # Maybe remove the inverse things
+    ('line_list_nu', float64[:]),
+    ('line_lists_tau_sobolevs', float64[:]),
     ('no_of_lines', int64),
-    ('no_of_edges', int64),
     ('line_interaction_id', int64),
 #    ('*js', float64),
 #    ('*nubars', float64),
@@ -30,7 +28,7 @@ storage_model_spec = [
 class StorageModel(object):
     def __init__(self, packet_nus, packet_mus, packet_energies, 
     output_nus, output_energies, no_of_packets, no_of_shells, 
-    r_inner, r_outer, v_inner, time_explosion, electron_densities, line_list_nu, line_lists_tau_sobolevs, line_lists_tau_sobolevs_nd, 
+    r_inner, r_outer, v_inner, time_explosion, electron_densities, line_list_nu, line_lists_tau_sobolevs, 
     no_of_lines, no_of_edges, line_interaction_id, 
     inverse_sigma_thomson):
         self.packet_nus = packet_nus
@@ -51,3 +49,25 @@ class StorageModel(object):
         
         self.sigma_thomson = const.sigma_T.to('cm^2').value
         self.inverse_sigma_thomson = 1 / self.sigma_thomson
+
+def initialize_storage_model(model, plasma, runner):
+    storage_model_kwargs = {'packet_nus': runner.input_nu,
+    'packet_mus': runner.input_mu,
+    'packet_energies': runner.input_energy,
+    'output_nus': _output_nu,
+    'output_energies': _output_energy,
+    'no_of_packets': runner.input_nu.size,
+    'no_of_shells': model.no_of_shells,
+    'r_inner': runner.r_inner_cgs,
+    'r_outer': runner.r_outer_cgs,
+    'v_inner': runner.v_inner_cgs,
+    'time_explosion': model.time_explosion.to('s').value,
+    'electron_densities': plasma.electron_densities.values,
+    'line_list_nu': plasma.atomic_data.lines.nu.values,
+    'line_lists_tau_sobolevs': runner.line_lists_tau_sobolevs,
+    'no_of_lines': plasma.atomic_data.lines.nu.values.size,
+    'line_interaction_id': runner.get_line_interaction_id(
+        runner.line_interaction_type),
+    'inverse_sigma_thomson': 1.0 / storage.sigma_thomson}
+
+    return StorageModel(**storage_model_kwargs))
