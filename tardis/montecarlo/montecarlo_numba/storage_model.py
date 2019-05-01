@@ -1,4 +1,5 @@
 from numba import int64, float64, jitclass
+
 from astropy import constants as const
 storage_model_spec = [
     ('packet_nus', float64[:]),
@@ -41,7 +42,7 @@ class StorageModel(object):
         self.r_outer = r_outer
         self.v_inner = v_inner
         self.no_of_shells = len(self.v_inner)
-        
+
         self.time_explosion = time_explosion
         self.inverse_time_explosion = 1 / time_explosion
 
