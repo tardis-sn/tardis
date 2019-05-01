@@ -6,9 +6,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from numpy.testing import assert_allclose
-from astropy.tests.helper import assert_quantity_allclose
 
-from tardis.io.atomic import AtomData
+from tardis.io.atom_data.base import AtomData
 from tardis.simulation import Simulation
 from tardis.io.config_reader import Configuration
 

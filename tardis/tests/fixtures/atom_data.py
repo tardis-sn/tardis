@@ -3,7 +3,7 @@ from copy import deepcopy
 
 import pytest
 
-from tardis.io.atomic import AtomData
+from tardis.io.atom_data.base import AtomData
 
 DEFAULT_ATOM_DATA_UUID = '864f1753714343c41f99cb065710cace'
 

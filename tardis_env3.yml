@@ -24,6 +24,8 @@ dependencies:
 - pyne=0.5
 - pytables
 - h5py
+- requests
+- tqdm
 
 # Analysis
 - jupyter

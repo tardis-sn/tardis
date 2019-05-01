@@ -11,6 +11,19 @@ To run TARDIS requires two files. The atomic database (for more info refer to
 (``atom_data`` subfolder). We recommended to use the
 ``kurucz_cd23_chianti_H_He.h5`` dataset.
 
+
+Running TARDIS interactively in a Jupyter notebook (recommended)
+================================================================
+
+To get more information from each run of TARDIS one can run it interactively and
+have full access to the model properties (as described in :ref:`physical_quantities`)
+
+.. toctree::
+    :maxdepth: 1
+
+    examples/run_simple_example.ipynb
+
+
 Running TARDIS in the commandline
 =================================
 
@@ -40,21 +53,6 @@ Then plot the output_spectrum.dat with your favourite plotting program. Here's a
     >>> plot(tardis_spec[:,0], tardis_spec[:,1])
 
 More atomic datasets can be downloaded from :ref:`atomic-data-download`.
-
-
-Running TARDIS interactively (recommended)
-==========================================
-
-To get more information from each run of TARDIS one can run it interactively and
-have full access to the model properties
-
-.. code-block:: python
-
-    >>> from tardis import run_tardis
-    >>> model = run_tardis('myconfig.yml')
-
-This model can then be used for inspecting the run as described
-:ref:`physical_quantities`
 
 
 Graphical User Interface

@@ -2,9 +2,8 @@ import os
 import logging
 
 import pandas as pd
-import numpy as np
 
-from tardis.io import atomic
+from tardis.io.atom_data import AtomData
 from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
@@ -77,7 +76,7 @@ def assemble_plasma(config, model, atom_data=None):
         logger.info('Reading Atomic Data from %s', atom_data_fname)
 
         try:
-            atom_data = atomic.AtomData.from_hdf(atom_data_fname)
+            atom_data = AtomData.from_hdf(atom_data_fname)
         except TypeError as e:
             print(e, 'Error might be from the use of an old-format of the atomic database, \n'
                 'please see https://github.com/tardis-sn/tardis-refdata/tree/master/atom_data'

@@ -1,6 +1,6 @@
 # atomic model
 
-import os
+
 import logging
 import numpy as np
 import pandas as pd
@@ -10,7 +10,7 @@ from collections import OrderedDict
 from astropy import units as u
 from tardis import constants as const
 from astropy.units import Quantity
-
+from tardis.io.atom_data.util import resolve_atom_data_fname
 
 class AtomDataNotPreparedError(Exception):
     pass
@@ -127,20 +127,22 @@ class AtomData(object):
                       ("collision_data", "collision_data_temperatures")]
 
     @classmethod
-    def from_hdf(cls, fname):
+    def from_hdf(cls, fname=None):
         """
-        Function to read all the atom data from the special Carsus HDFStore file.
+        Function to read the atom data from a TARDIS atom HDF Store
 
         Parameters
         ----------
 
         fname: str, optional
-            Path to the HDFStore file. Please contact the authors to get the up-to-date file.
+            Path to the HDFStore file or name of known atom data file
             (default: None)
         """
 
         dataframes = dict()
         nonavailable = list()
+
+        fname = resolve_atom_data_fname(fname)
 
         with pd.HDFStore(fname, 'r') as store:
             for name in cls.hdf_names:
