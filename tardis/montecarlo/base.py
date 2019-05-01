@@ -16,6 +16,8 @@ from tardis.io.util import HDFWriterMixin
 from tardis.montecarlo import montecarlo, packet_source as source
 from tardis.montecarlo.formal_integral import FormalIntegrator
 
+from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
+
 import numpy as np
 
 logger = logging.getLogger(__name__)
@@ -219,7 +221,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets)
-
+        montecarlo_radial1d(model, plasma, self)
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,
