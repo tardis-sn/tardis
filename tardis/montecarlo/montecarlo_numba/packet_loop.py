@@ -3,8 +3,10 @@ import numpy as np
 from enum import Enum
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     ESCATTERING, BOUNDARY, LINE, IN_PROCESS, REABSORBED)
+from tardis.montecarlo.montecarlo_numba import njit_dict
 
-@njit
+
+@njit(**njit_dict)
 def one_packet_loop(storage_model, r_packet):
     r_packet.tau_event = 0.0
     r_packet.nu_line = 0.0
@@ -34,13 +36,7 @@ def one_packet_loop(storage_model, r_packet):
     #if virtual_packet > 0:
     #    packet.energy = packet.energy * np.exp(-1.0 * packet.tau_event)
 
-    if r_packet.status == REABSORBED:
-        return 1
-    else:
-        return 0
-
-
-@njit
+@njit(**njit_dict)
 def rpacket_interactions(r_packet, storage_model):
     r_packet.move_packet_across_shell_boundary(storage_model)
     #if packet.next_interaction == InteractionType.BOUNDARY:
