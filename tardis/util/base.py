@@ -12,6 +12,7 @@ from astropy import units as u
 from pyne import nucname
 
 import tardis
+from tardis.io.util import get_internal_data_path
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -55,21 +56,14 @@ logger = logging.getLogger(__name__)
 tardis_dir = os.path.realpath(tardis.__path__[0])
 
 
-def get_data_path(fname):
-    return os.path.join(tardis_dir, 'data', fname)
 
-
-def get_tests_data_path(fname):
-    return os.path.join(tardis_dir, 'tests', 'data', fname)
-
-
-ATOMIC_SYMBOLS_DATA = pd.read_csv(get_data_path('atomic_symbols.dat'), delim_whitespace=True,
+ATOMIC_SYMBOLS_DATA = pd.read_csv(get_internal_data_path('atomic_symbols.dat'), delim_whitespace=True,
                                   names=['atomic_number', 'symbol']).set_index('atomic_number').squeeze()
 
 ATOMIC_NUMBER2SYMBOL = OrderedDict(ATOMIC_SYMBOLS_DATA.to_dict())
 SYMBOL2ATOMIC_NUMBER = OrderedDict((y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items())
 
-synpp_default_yaml_fname = get_data_path('synpp_default.yaml')
+synpp_default_yaml_fname = get_internal_data_path('synpp_default.yaml')
 
 
 NUMERAL_MAP = tuple(zip(

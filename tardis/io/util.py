@@ -2,18 +2,37 @@
 
 import os
 import re
+import logging
+
 import pandas as pd
 import numpy as np
 import collections
 from collections import OrderedDict
+
+import requests
 import yaml
+from tqdm.autonotebook import tqdm
+
 from tardis import constants
 from astropy import units as u
-from tardis.util.base import element_symbol2atomic_number
 
-import logging
+from tardis import __path__ as TARDIS_PATH
+
 logger = logging.getLogger(__name__)
 
+
+
+def get_internal_data_path(fname):
+    """
+    Get internal data path of TARDIS
+
+    Returns
+    -------
+        data_path: str
+            internal data path of TARDIS
+
+    """
+    return os.path.join(TARDIS_PATH[0], 'data', fname)
 
 def quantity_from_str(text):
     """
@@ -112,21 +131,6 @@ def yaml_load_file(filename, loader=yaml.Loader):
 
 def yaml_load_config_file(filename):
     return yaml_load_file(filename, YAMLLoader)
-
-
-def parse_abundance_dict_to_dataframe(abundance_dict):
-    atomic_number_dict = dict([(element_symbol2atomic_number(symbol), abundance_dict[symbol])
-                                   for symbol in abundance_dict])
-    atomic_numbers = sorted(atomic_number_dict.keys())
-
-    abundances = pd.Series([atomic_number_dict[z] for z in atomic_numbers], index=atomic_numbers)
-
-    abundance_norm = abundances.sum()
-    if abs(abundance_norm - 1) > 1e-12:
-        logger.warning('Given abundances don\'t add up to 1 (value = %g) - normalizing', abundance_norm)
-        abundances /= abundance_norm
-
-    return abundances
 
 
 def traverse_configs(base, other, func, *args):
@@ -347,5 +351,29 @@ class PlasmaWriterMixin(HDFWriterMixin):
         super(PlasmaWriterMixin, self).to_hdf(file_path, path, name)
 
 
+def download_from_url(url, dst):
+    """
+    kindly used from https://gist.github.com/wy193777/0e2a4932e81afc6aa4c8f7a2984f34e2
+    @param: url to download file
+    @param: dst place to put the file
+    """
 
-
+    file_size = int(requests.head(url).headers["Content-Length"])
+    if os.path.exists(dst):
+        first_byte = os.path.getsize(dst)
+    else:
+        first_byte = 0
+    if first_byte >= file_size:
+        return file_size
+    header = {"Range": "bytes=%s-%s" % (first_byte, file_size)}
+    pbar = tqdm(
+        total=file_size, initial=first_byte,
+        unit='B', unit_scale=True, desc=url.split('/')[-1])
+    req = requests.get(url, headers=header, stream=True)
+    with(open(dst, 'ab')) as f:
+        for chunk in req.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+                pbar.update(1024)
+    pbar.close()
+    return file_size

@@ -20,7 +20,7 @@ def run_tardis(config, atom_data=None, simulation_callbacks=[]):
         [default=None]
     """
     from tardis.io.config_reader import Configuration
-    from tardis.io.atomic import AtomData
+    from tardis.io.atom_data.base import AtomData
     from tardis.simulation import Simulation
 
     if atom_data is not None:
