@@ -109,11 +109,11 @@ definitions:
           description: file type
         v_inner_boundary:
           type: quantity
-          default: 0 km/s
+          default: -1 km/s
           description: location of the inner boundary chosen from the model
         v_outer_boundary:
           type: quantity
-          default: inf km/s
+          default: -1 km/s
           description: location of the inner boundary chosen from the model
       required:
       - filename
