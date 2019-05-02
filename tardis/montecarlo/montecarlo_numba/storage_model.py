@@ -56,6 +56,7 @@ class StorageModel(object):
         self.inverse_sigma_thomson = 1 / self.sigma_thomson
         self.no_of_lines = no_of_lines
         self.line_list_nu = line_list_nu
+        self.line_lists_tau_sobolevs = line_lists_tau_sobolevs
 
 def initialize_storage_model(model, plasma, runner):
     storage_model_kwargs = {'packet_nus': runner.input_nu,

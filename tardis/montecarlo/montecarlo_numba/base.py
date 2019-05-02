@@ -14,9 +14,20 @@ def montecarlo_radial1d(model, plasma, runner):
 
 @njit(**njit_dict)#, parallel=True, nogil=True)
 def montecarlo_main_loop(storage_model):
+    """
+    This is the main loop of the MonteCarlo routine that generates packets 
+    and sends them through the ejecta. 
+
+    Parameters
+    ----------
+    storage_model : [type]
+        [description]
+    """
     output_nus = np.empty_like(storage_model.output_nus)
     output_energies = np.empty_like(storage_model.output_energies)
     for i in prange(storage_model.no_of_packets):
+        if i%1000 == 0:
+            print(i, end='')
         r_packet = RPacket(storage_model.r_inner[0],
                            storage_model.packet_mus[i],
                            storage_model.packet_nus[i],
@@ -25,8 +36,6 @@ def montecarlo_main_loop(storage_model):
         r_packet.compute_distances(storage_model)
         one_packet_loop(storage_model, r_packet)
         output_nus[i] = r_packet.nu
-        #print('!!!! THIS IS THE FINAL STATE !!!!!!!', r_packet_final_state)
-        #return
         if r_packet.status == REABSORBED:
             output_energies[i] = -r_packet.energy
         elif r_packet.status == EMITTED:
