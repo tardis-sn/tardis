@@ -47,6 +47,7 @@ def compute_distance2line(packet, storage_model):
         comov_nu = nu * doppler_factor
 
         nu_diff = comov_nu - nu_line
+        print('comov_nu', comov_nu, 'nu_line', nu_line, 'ct', ct)
         if nu_diff >= 0:
             distance = (nu_diff/nu) * ct
             #else:

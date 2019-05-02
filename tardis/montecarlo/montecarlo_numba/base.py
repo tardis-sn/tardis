@@ -21,6 +21,7 @@ def montecarlo_main_loop(storage_model):
                            storage_model.packet_mus[i],
                            storage_model.packet_nus[i],
                            storage_model.packet_energies[i])
+        r_packet.set_line(storage_model)
         r_packet.compute_distances(storage_model)
         one_packet_loop(storage_model, r_packet)
         output_nus[i] = r_packet.nu
