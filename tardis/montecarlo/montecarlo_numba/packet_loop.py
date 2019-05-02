@@ -32,10 +32,13 @@ def one_packet_loop(storage_model, r_packet):
     #    packet.energy = packet.energy * np.exp(-1.0 * packet.tau_event)
 @njit
 def rpacket_interactions(r_packet, storage_model):
+    print(r_packet.next_line_id)
+    r_packet.compute_distances(storage_model)
     if r_packet.next_interaction == BOUNDARY:
         r_packet.move_packet_across_shell_boundary(storage_model)
     else:
-        r_packet.line_scatter(storage_model) 
+        r_packet.line_scatter(storage_model)
+        
     #    pass
     #else:
     #    pass

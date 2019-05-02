@@ -113,14 +113,13 @@ class RPacket(object):
         inverse_line_list_nu = storage_model.line_list_nu[::-1]
         doppler_factor = self.get_doppler_factor(storage_model)
         comov_nu = self.nu * doppler_factor
-        return
-        next_line_id = np.searchsorted(inverse_line_list_nu, comov_nu)
-        next_line_id = len(storage_model.line_list_nu) - next_line_id
-        #print('packet nu', self.nu, 'next_line_nu', storage_model.line_list_nu[next_line_id-1:next_line_id+2])
-        print('packet nu', self.nu, 'next_line_id', next_line_id, 'next_line_nu', storage_model.line_list_nu[next_line_id-1:next_line_id+2])
+        next_line_id = storage_model.no_of_lines - np.searchsorted(inverse_line_list_nu, comov_nu)
+        print('in set line comov nu', comov_nu, 'next_line_nu', storage_model.line_list_nu[next_line_id-1:next_line_id+2])
+        #print('packet nu', self.nu, 'next_line_id', next_line_id, 'next_line_nu', storage_model.line_list_nu[next_line_id-1:next_line_id+2])
+        #self.next_line_id = 3000
         self.next_line_id = next_line_id
-
-        if self.next_line_id > len(storage_model.line_list_nu):
+        print('in set_line nextid and len', self.next_line_id, len(storage_model.line_list_nu))
+        if self.next_line_id > (storage_model.no_of_lines - 1):
             self.last_line = True
         else:
             self.nu_line = storage_model.line_list_nu[self.next_line_id]
@@ -145,21 +144,21 @@ class RPacket(object):
         self.energy = comov_energy * inverse_doppler_factor
 
     def line_scatter(self, storage_model):
-        print('Line Scattering')
+        #print('Line Scattering')
         next_line_id = self.next_line_id
-        tau_line = storage_model.line_lists_tau_sobolevs[next_line_id, self.current_shell_id]
-        #tau_line = 3.0
+        #tau_line = storage_model.line_lists_tau_sobolevs[next_line_id, self.current_shell_id]
+        tau_line = 3.0
         # TODO: Fixme
         tau_continuum = 0.0
         tau_combined = tau_line + tau_continuum
         
-        if (next_line_id + 1 == storage_model.no_of_lines):
+        if (next_line_id + 1) == storage_model.no_of_lines:
             self.last_line = True
         if (self.tau_event < tau_combined): # Line absorption occurs
             self.move_packet(storage_model, self.distance)
             self.transform_energy(storage_model)
             self.line_emission(storage_model)
-            print('rpacket scattered at', self.nu)
+            #print('rpacket scattered at', self.nu)
         else:
             self.tau_event -= tau_line
             self.next_line_id = next_line_id + 1
