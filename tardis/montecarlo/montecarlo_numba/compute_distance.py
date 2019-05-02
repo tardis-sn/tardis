@@ -47,7 +47,7 @@ def compute_distance2line(packet, storage_model):
         comov_nu = nu * doppler_factor
 
         nu_diff = comov_nu - nu_line
-        print('comov_nu', comov_nu, 'nu_line', nu_line, 'ct', ct)
+        print('in compute distance comov_nu', comov_nu, 'nu_line', nu_line, 'ct', ct)
         if nu_diff >= 0:
             distance = (nu_diff/nu) * ct
             #else:
@@ -57,26 +57,8 @@ def compute_distance2line(packet, storage_model):
             packet.d_line = distance
         else:
             raise Exception
-        #    if rpacket_get_next_line_id(packet) == storage.no_of_lines - 1:
-        #        print("last_line = {}".format(storage.line_list_nu[rpacket_get_next_line_id(packet) - 1]))
-        #        print("Last line in line list reached!")
-        #    elif rpacket_get_next_line_id(packet) == 0:
-        #        print("First line in line list!")
-        #        print("next_line = {}".format(storage.line_list_nu[rpacket_get_next_line_id(packet) + 1]))
-        #    else:
-        #        print("last_line = {}".format(storage.line_list_nu[rpacket_get_next_line_id(packet) - 1]))
-        #        print("next_line = {}".format(storage.line_list_nu[rpacket_get_next_line_id(packet) + 1]))
-        #    print("ERROR: Comoving nu less than nu_line!")
-        #    print("comov_nu = {}".format(comov_nu))
-        #    print("nu_line = {}".format(nu_line))
-        #    print("(comov_nu - nu_line) / nu_line = {}".format(comov_nu-nu_line/nu_line))
-        #    print("r = {}".format(r))
-        #    print("mu = {}".format(mu))
-        #    print("nu = {}".format(nu))
-        #    print("doppler_factor = {}".format(doppler_factor))
-        #    print("cur_zone_id = {}".format(rpacket_get_current_shell_id(packet))
-        #    #return TARDIS_ERROR_COMOV_NU_LESS_THAN_NU_LINE
     else:
+        print('last line is set - should be miss_distance')
         packet.d_line = MISS_DISTANCE
         #return TARDIS_ERROR_OK
 

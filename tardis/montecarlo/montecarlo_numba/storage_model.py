@@ -54,7 +54,7 @@ class StorageModel(object):
         self.sigma_thomson = sigma_thomson
 
         self.inverse_sigma_thomson = 1 / self.sigma_thomson
-
+        self.no_of_lines = no_of_lines
         self.line_list_nu = line_list_nu
 
 def initialize_storage_model(model, plasma, runner):
@@ -71,7 +71,7 @@ def initialize_storage_model(model, plasma, runner):
     'time_explosion': model.time_explosion.to('s').value,
     'electron_densities': plasma.electron_densities.values,
     'line_list_nu': plasma.atomic_data.lines.nu.values, 
-    'no_of_lines': plasma.atomic_data.lines.nu.values.size,
+    'no_of_lines': len(plasma.atomic_data.lines.nu.values),
     'line_interaction_id': runner.get_line_interaction_id(
         runner.line_interaction_type),
     'sigma_thomson': runner.sigma_thomson.cgs.value}
