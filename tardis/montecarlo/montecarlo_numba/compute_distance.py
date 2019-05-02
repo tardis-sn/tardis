@@ -29,14 +29,16 @@ def compute_distance2boundary(packet, storage):
             # miss inner boundary 
             packet.delta_shell_id = + 1
             distance = np.sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu)
-            
+    if distance < 0.0:
+        print('hello')
+        pass
     packet.d_boundary = distance
 
 
 
 @njit
 def compute_distance2line(packet, storage_model):
-    if not packet.last_line:
+    if not packet.last_line and not packet.close_line:
         r = packet.r
         mu = packet.mu
         nu = packet.nu

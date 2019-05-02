@@ -12,6 +12,7 @@ def one_packet_loop(storage_model, r_packet):
     
     # for a virtual packet tau_event is the sum of all the tau's that the packet passes 
     while r_packet.status == IN_PROCESS:
+
         rpacket_interactions(r_packet, storage_model)
         # Check if we are at the end of line list.
         #if not packet.last_line:
