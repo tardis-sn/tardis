@@ -26,8 +26,6 @@ def montecarlo_main_loop(storage_model):
     output_nus = np.empty_like(storage_model.output_nus)
     output_energies = np.empty_like(storage_model.output_energies)
     for i in prange(storage_model.no_of_packets):
-        if i%1000 == 0:
-            print(i, end='')
         r_packet = RPacket(storage_model.r_inner[0],
                            storage_model.packet_mus[i],
                            storage_model.packet_nus[i],

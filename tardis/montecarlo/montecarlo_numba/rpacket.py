@@ -79,10 +79,12 @@ class RPacket(object):
         storage : [type]
             [description]
         """
+
         if not self.close_line:
             compute_distance2line(self, storage)
         else:
             self.d_line = 0.0
+            self.close_line = False
         compute_distance2boundary(self, storage)
         if self.d_boundary < self.d_line:
             next_interaction = BOUNDARY
@@ -102,6 +104,10 @@ class RPacket(object):
     def move_packet(self, storage, distance):
         doppler_factor = self.get_doppler_factor(storage)
         r = self.r
+        if self.close_line:
+            if distance != 0.0:
+                print('hello')
+                pass
         if (distance > 0.0):
             new_r = np.sqrt(r * r + distance * distance +
                              2.0 * r * distance * self.mu)
@@ -148,8 +154,9 @@ class RPacket(object):
 
     def line_scatter(self, storage_model):
         next_line_id = self.next_line_id
-        tau_line = storage_model.line_lists_tau_sobolevs[
-            self.current_shell_id, next_line_id]
+        storage_model.line_lists_tau_sobolevs
+        tau_line = storage_model.line_lists_tau_sobolevs[next_line_id, 
+                        self.current_shell_id]
         tau_continuum = 0.0
         tau_combined = tau_line + tau_continuum
         
@@ -162,7 +169,10 @@ class RPacket(object):
         else:
             self.tau_event -= tau_line
             self.next_line_id = next_line_id + 1
-            self.nu_line = storage_model.line_list_nu[self.next_line_id]
+            if not self.last_line:
+                self.nu_line = storage_model.line_list_nu[self.next_line_id]
+        self.set_close_line(storage_model)
+
 
     def line_emission(self, storage_model):
         emission_line_id = self.next_line_id
@@ -172,7 +182,7 @@ class RPacket(object):
         self.next_line_id = emission_line_id + 1
         self.nu_line = storage_model.line_list_nu[self.next_line_id]
         self.tau_event = get_tau_event()
-        self.set_close_line(storage_model)
+        
 
 
     def set_close_line(self, storage_model, line_diff_threshold=1e-7):
@@ -184,6 +194,9 @@ class RPacket(object):
         ----------
         storage_model : StorageModel
         """
+        if self.last_line:
+            self.close_line = False
+            return
         
         frac_nu_diff = ((storage_model.line_list_nu[self.next_line_id] -
                         storage_model.line_list_nu[self.next_line_id - 1]) /
