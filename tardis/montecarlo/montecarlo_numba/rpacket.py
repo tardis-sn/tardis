@@ -63,13 +63,14 @@ class RPacket(object):
         self.delta_shell_id = 0
         self.d_boundary = -1.0
         self.d_electron = -1.0
-        self.d_line = -1.0
+        self.d_line = 1.e99
         self.distance = 0.0
-        #self.nu_line = nu_line
+        self.nu_line = -1e99
     
     def compute_distances(self, storage):
         compute_distance2line(self, storage)
         compute_distance2boundary(self, storage)
+        print('d_boundary', self.d_boundary, 'd_line', self.d_line)
         if self.d_boundary < self.d_line:
             next_interaction = BOUNDARY
             self.distance = self.d_boundary
@@ -108,13 +109,22 @@ class RPacket(object):
         else:
             self.status = REABSORBED
     
-    def set_line(self, storage):
-        packet.line_id = np.searchsorted(storage.line_list_nu, nu)
-        if packet.line_id > len(storage.line_list_nu):
-            packet.last_line = True
+    def set_line(self, storage_model):
+        inverse_line_list_nu = storage_model.line_list_nu[::-1]
+        doppler_factor = self.get_doppler_factor(storage_model)
+        comov_nu = self.nu * doppler_factor
+        return
+        next_line_id = np.searchsorted(inverse_line_list_nu, comov_nu)
+        next_line_id = len(storage_model.line_list_nu) - next_line_id
+        #print('packet nu', self.nu, 'next_line_nu', storage_model.line_list_nu[next_line_id-1:next_line_id+2])
+        print('packet nu', self.nu, 'next_line_id', next_line_id, 'next_line_nu', storage_model.line_list_nu[next_line_id-1:next_line_id+2])
+        self.next_line_id = next_line_id
+
+        if self.next_line_id > len(storage_model.line_list_nu):
+            self.last_line = True
         else:
-            packet.nu_line = storage.line_list_nu[packet.line_id]
-            packet.last_line = False
+            self.nu_line = storage_model.line_list_nu[self.next_line_id]
+            self.last_line = False
 
  # if (rpacket_get_virtual_packet (packet) > 0)
  #   {
@@ -135,19 +145,21 @@ class RPacket(object):
         self.energy = comov_energy * inverse_doppler_factor
 
     def line_scatter(self, storage_model):
+        print('Line Scattering')
         next_line_id = self.next_line_id
         tau_line = storage_model.line_lists_tau_sobolevs[next_line_id, self.current_shell_id]
+        #tau_line = 3.0
         # TODO: Fixme
         tau_continuum = 0.0
         tau_combined = tau_line + tau_continuum
         
-        if (next_line_id + 1 == storage.no_of_lines):
+        if (next_line_id + 1 == storage_model.no_of_lines):
             self.last_line = True
-        if (rpacket_get_tau_event (packet) < tau_combined): # Line absorption occurs
+        if (self.tau_event < tau_combined): # Line absorption occurs
             self.move_packet(storage_model, self.distance)
             self.transform_energy(storage_model)
-\            #TODO: Fixme
-            self.line_emission(storage)
+            self.line_emission(storage_model)
+            print('rpacket scattered at', self.nu)
         else:
             self.tau_event -= tau_line
             self.next_line_id = next_line_id + 1
@@ -156,10 +168,10 @@ class RPacket(object):
             #test_for_close_line (packet, storage);
 
     def line_emission(self, storage_model):
-        emission_line_id = packet.next_line_id
-        inverse_doppler_factor = self.get_doppler_factor(storage)
+        emission_line_id = self.next_line_id
+        inverse_doppler_factor = 1 / self.get_doppler_factor(storage_model)
         self.nu = storage_model.line_list_nu[emission_line_id] * inverse_doppler_factor 
-        #packet.nu_line =  storage->line_list_nu[emission_line_id]);
+        #self.nu_line =  storage->line_list_nu[emission_line_id]);
         self.next_line_id = emission_line_id + 1
         self.tau_event = get_tau_event()
 #void test_for_close_line (rpacket_t * packet, const storage_model_t * storage)

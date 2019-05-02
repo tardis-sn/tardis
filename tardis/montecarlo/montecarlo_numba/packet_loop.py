@@ -3,13 +3,10 @@ import numpy as np
 from enum import Enum
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     ESCATTERING, BOUNDARY, LINE, IN_PROCESS, REABSORBED)
-from tardis.montecarlo.montecarlo_numba import njit_dict
-
-
-@njit(**njit_dict)
+@njit
 def one_packet_loop(storage_model, r_packet):
     r_packet.tau_event = 0.0
-    r_packet.nu_line = 0.0
+    #r_packet.nu_line = 0.0
     #packet.virtual_packet = virtual_packet
     r_packet.status = IN_PROCESS
     # initializing tau_event if it's a real packet
@@ -25,23 +22,20 @@ def one_packet_loop(storage_model, r_packet):
         
     #    if virtual_packet > 0 and packet.tau_event > storage.tau_russian:
     #        event_random = rk_double(mt_state)
-
     #        if event_random > storage.survival_probability:
     #            packet.energy = 0.0
     #            packet.status = PacketStatus.EMITTED
     #        else:
     #            packet.energy = packet.energy / storage.survival_probability * \
     #              np.exp(-1.0 * packet.tau_event)
-
     #if virtual_packet > 0:
     #    packet.energy = packet.energy * np.exp(-1.0 * packet.tau_event)
-
-@njit(**njit_dict)
+@njit
 def rpacket_interactions(r_packet, storage_model):
-    r_packet.move_packet_across_shell_boundary(storage_model)
-    #if packet.next_interaction == InteractionType.BOUNDARY:
+    if r_packet.next_interaction == BOUNDARY:
+        r_packet.move_packet_across_shell_boundary(storage_model)
+    else:
+        r_packet.line_scatter(storage_model) 
     #    pass
     #else:
     #    pass
-
-

@@ -1,6 +1,7 @@
 from numba import int64, float64, jitclass
-
+import numpy as np
 from astropy import constants as const
+
 storage_model_spec = [
     ('packet_nus', float64[:]),
     ('packet_mus', float64[:]),
@@ -17,7 +18,7 @@ storage_model_spec = [
     ('electron_densities', float64[:]),
     ('inverse_electron_densities', float64[:]), # Maybe remove the inverse things
     ('line_list_nu', float64[:]),
-    ('line_lists_tau_sobolevs', float64[:]),
+    ('line_lists_tau_sobolevs', float64[:, :]),
     ('no_of_lines', int64),
     ('line_interaction_id', int64),
 #    ('*js', float64),
@@ -54,6 +55,8 @@ class StorageModel(object):
 
         self.inverse_sigma_thomson = 1 / self.sigma_thomson
 
+        self.line_list_nu = line_list_nu
+
 def initialize_storage_model(model, plasma, runner):
     storage_model_kwargs = {'packet_nus': runner.input_nu,
     'packet_mus': runner.input_mu,
@@ -67,11 +70,11 @@ def initialize_storage_model(model, plasma, runner):
     'v_inner': runner.v_inner_cgs,
     'time_explosion': model.time_explosion.to('s').value,
     'electron_densities': plasma.electron_densities.values,
-    'line_list_nu': plasma.atomic_data.lines.nu.values,
-    'line_lists_tau_sobolevs': plasma.tau_sobolevs.values.flatten(order='F'), 
+    'line_list_nu': plasma.atomic_data.lines.nu.values, 
     'no_of_lines': plasma.atomic_data.lines.nu.values.size,
     'line_interaction_id': runner.get_line_interaction_id(
         runner.line_interaction_type),
     'sigma_thomson': runner.sigma_thomson.cgs.value}
-
+    storage_model_kwargs['line_lists_tau_sobolevs']= np.ascontiguousarray(
+        plasma.tau_sobolevs.values.copy(), dtype=np.float64)
     return StorageModel(**storage_model_kwargs)
