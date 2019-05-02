@@ -68,7 +68,15 @@ class RPacket(object):
         self.nu_line = -1e99
         self.close_line = False
         self.last_line = False
-    
+        
+        self.comov_nu_history = []
+        self.radius_history = []
+        self.move_dist_history = []
+        self.next_interaction_history = []
+        self.mu_history = []
+        self.shell_id_history = []
+        self.next_line_id_history = []
+        
     def compute_distances(self, storage):
         """
         Compute all distances (d_line, d_boundary, ???), compare, 
@@ -80,11 +88,8 @@ class RPacket(object):
             [description]
         """
 
-        if not self.close_line:
-            compute_distance2line(self, storage)
-        else:
-            self.d_line = 0.0
-            self.close_line = False
+        
+        compute_distance2line(self, storage)
         compute_distance2boundary(self, storage)
         if self.d_boundary < self.d_line:
             next_interaction = BOUNDARY
@@ -104,15 +109,20 @@ class RPacket(object):
     def move_packet(self, storage, distance):
         doppler_factor = self.get_doppler_factor(storage)
         r = self.r
-        if self.close_line:
-            if distance != 0.0:
-                print('hello')
-                pass
         if (distance > 0.0):
             new_r = np.sqrt(r * r + distance * distance +
                              2.0 * r * distance * self.mu)
             self.mu = (self.mu * r + distance) / new_r
             self.r = new_r
+        
+        self.comov_nu_history.append(self.nu * doppler_factor)
+        self.radius_history.append(self.r)
+        self.move_dist_history.append(distance)
+        self.next_interaction_history.append(self.next_interaction)
+        self.mu_history.append(self.mu)
+        self.shell_id_history.append(self.current_shell_id)
+        self.next_line_id_history.append(self.next_line_id)
+        
 
     def move_packet_across_shell_boundary(self, storage):
         self.move_packet(storage, self.distance)
@@ -139,7 +149,7 @@ class RPacket(object):
             self.last_line = False
         
         ##### FIXME Add close line initializer in a sensible  - think about this!1
-        self.set_close_line(storage_model)
+        #self.set_close_line(storage_model)
 
     def transform_energy(self, storage_model):
         """
@@ -153,6 +163,8 @@ class RPacket(object):
         self.energy = comov_energy * inverse_doppler_factor
 
     def line_scatter(self, storage_model):
+        if self.distance == 0.0:
+            self.set_close_line(storage_model)
         next_line_id = self.next_line_id
         storage_model.line_lists_tau_sobolevs
         tau_line = storage_model.line_lists_tau_sobolevs[next_line_id, 
@@ -171,7 +183,7 @@ class RPacket(object):
             self.next_line_id = next_line_id + 1
             if not self.last_line:
                 self.nu_line = storage_model.line_list_nu[self.next_line_id]
-        self.set_close_line(storage_model)
+        
 
 
     def line_emission(self, storage_model):
@@ -182,7 +194,7 @@ class RPacket(object):
         self.next_line_id = emission_line_id + 1
         self.nu_line = storage_model.line_list_nu[self.next_line_id]
         self.tau_event = get_tau_event()
-        
+        self.set_close_line(storage_model)
 
 
     def set_close_line(self, storage_model, line_diff_threshold=1e-7):
@@ -194,6 +206,7 @@ class RPacket(object):
         ----------
         storage_model : StorageModel
         """
+        return
         if self.last_line:
             self.close_line = False
             return

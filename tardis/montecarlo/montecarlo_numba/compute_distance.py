@@ -29,9 +29,6 @@ def compute_distance2boundary(packet, storage):
             # miss inner boundary 
             packet.delta_shell_id = + 1
             distance = np.sqrt(r_outer * r_outer + ((mu * mu - 1.0) * r * r)) - (r * mu)
-    if distance < 0.0:
-        print('hello')
-        pass
     packet.d_boundary = distance
 
 
@@ -51,6 +48,8 @@ def compute_distance2line(packet, storage_model):
         nu_diff = comov_nu - nu_line
         
         if nu_diff >= 0:
+            if nu_diff / comov_nu < 1e-7:
+                nu_diff = 0.0
             distance = (nu_diff/nu) * ct
             #else:
             #    nu_r = nu_line / nu
@@ -59,6 +58,8 @@ def compute_distance2line(packet, storage_model):
             packet.d_line = distance
         else:
             raise Exception
+    elif packet.close_line:
+        packet.d_line = 0.0
     else:
         packet.d_line = MISS_DISTANCE
         #return TARDIS_ERROR_OK
