@@ -1,0 +1,50 @@
+---
+name: csvy_full
+description: Example csvy config file for TARDIS.
+tardis_config_version: v1.0
+atom_data: path/to/atom_data
+datatype:
+  fields:
+  - name: vel
+    unit: km/s
+    desc: velocities of shell outer bounderies.
+  - name: density
+    unit: g/cm^3
+    desc: density of shell.
+
+model:
+  - v_inner_boundary: 9000
+  - v_outer_boundary: 15000
+  - density:
+      type: uniform
+      value: 1e-40 g/cm^3
+  - abundances:
+      type: uniform
+      Si: 0.80
+      O: 0.20
+plasma:
+  - disable_electron_scattering: no
+  - ionization: lte
+  - excitation: lte
+  - radiative_rates_type: dilute-blackbody
+  - line_interaction_type: downbranch
+montecarlo:
+  - seed: 12345678
+  - no_of_packets: 4.0e+4
+  - iterations: 20
+  - nthreads: 8
+  - last_no_of_packets: 1.e+5
+  - no_of_virtual_packets: 10
+  - convergence_strategy:
+      type: damped
+      damping_constant: 1.0
+      threshold: 0.05
+      fraction: 0.8
+      hold_iterations: 3
+      t_inner:
+        damping_constant: 1.0
+spectrum:
+  - start: 500 angstrom
+  - stop: 20000 angstrom
+  - num: 10000
+---
