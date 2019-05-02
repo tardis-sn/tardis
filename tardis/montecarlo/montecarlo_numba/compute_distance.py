@@ -47,7 +47,7 @@ def compute_distance2line(packet, storage_model):
         comov_nu = nu * doppler_factor
 
         nu_diff = comov_nu - nu_line
-        print('in compute distance comov_nu', comov_nu, 'nu_line', nu_line, 'ct', ct)
+        
         if nu_diff >= 0:
             distance = (nu_diff/nu) * ct
             #else:
@@ -58,7 +58,6 @@ def compute_distance2line(packet, storage_model):
         else:
             raise Exception
     else:
-        print('last line is set - should be miss_distance')
         packet.d_line = MISS_DISTANCE
         #return TARDIS_ERROR_OK
 

@@ -29,6 +29,7 @@ rpacket_spec = [
     ('tau_event', float64),
     ('nu_line', float64),
     ('last_line', boolean),
+    ('close_line', boolean),
     ('next_line_id', int64),
     ('d_line', float64),  # Distance to line event. 
     ('d_electron', float64), #/**< Distance to line event. */
@@ -58,7 +59,6 @@ class RPacket(object):
         self.nu = nu
         self.energy = energy
         self.tau_event = get_tau_event()
-        #self.nu_line = line_search() # TODO: Implement this
         self.current_shell_id = 0
         self.delta_shell_id = 0
         self.d_boundary = -1.0
@@ -66,11 +66,24 @@ class RPacket(object):
         self.d_line = 1.e99
         self.distance = 0.0
         self.nu_line = -1e99
+        self.close_line = False
+        self.last_line = False
     
     def compute_distances(self, storage):
-        compute_distance2line(self, storage)
+        """
+        Compute all distances (d_line, d_boundary, ???), compare, 
+        and set interaction
+        
+        Parameters
+        ----------
+        storage : [type]
+            [description]
+        """
+        if not self.close_line:
+            compute_distance2line(self, storage)
+        else:
+            self.d_line = 0.0
         compute_distance2boundary(self, storage)
-        print('d_boundary', self.d_boundary, 'd_line', self.d_line)
         if self.d_boundary < self.d_line:
             next_interaction = BOUNDARY
             self.distance = self.d_boundary
@@ -85,8 +98,6 @@ class RPacket(object):
         beta = self.r * storage.inverse_time_explosion / C_SPEED_OF_LIGHT
         
         return 1.0 - self.mu * beta
-        #else:
-        #    return (1.0 - self.mu * beta) / np.sqrt(1 - beta*beta)
 
     def move_packet(self, storage, distance):
         doppler_factor = self.get_doppler_factor(storage)
@@ -114,24 +125,16 @@ class RPacket(object):
         doppler_factor = self.get_doppler_factor(storage_model)
         comov_nu = self.nu * doppler_factor
         next_line_id = storage_model.no_of_lines - np.searchsorted(inverse_line_list_nu, comov_nu)
-        print('in set line comov nu', comov_nu, 'next_line_nu', storage_model.line_list_nu[next_line_id-1:next_line_id+2])
-        #print('packet nu', self.nu, 'next_line_id', next_line_id, 'next_line_nu', storage_model.line_list_nu[next_line_id-1:next_line_id+2])
-        #self.next_line_id = 3000
         self.next_line_id = next_line_id
-        print('in set_line nextid and len', self.next_line_id, len(storage_model.line_list_nu))
         if self.next_line_id > (storage_model.no_of_lines - 1):
             self.last_line = True
         else:
             self.nu_line = storage_model.line_list_nu[self.next_line_id]
             self.last_line = False
+        
+        ##### FIXME Add close line initializer in a sensible  - think about this!1
+        self.set_close_line(storage_model)
 
- # if (rpacket_get_virtual_packet (packet) > 0)
- #   {
-#      rpacket_set_tau_event (packet,
-#                             rpacket_get_tau_event (packet) + tau_line);
-#      rpacket_set_next_line_id (packet, next_line_id + 1);
-#      test_for_close_line (packet, storage);
-#    } 
     def transform_energy(self, storage_model):
         """
         Transform from the LabFrame to the ComovingFrame. Then change the angle 
@@ -144,11 +147,9 @@ class RPacket(object):
         self.energy = comov_energy * inverse_doppler_factor
 
     def line_scatter(self, storage_model):
-        #print('Line Scattering')
         next_line_id = self.next_line_id
-        #tau_line = storage_model.line_lists_tau_sobolevs[next_line_id, self.current_shell_id]
-        tau_line = 3.0
-        # TODO: Fixme
+        tau_line = storage_model.line_lists_tau_sobolevs[
+            self.current_shell_id, next_line_id]
         tau_continuum = 0.0
         tau_combined = tau_line + tau_continuum
         
@@ -158,22 +159,40 @@ class RPacket(object):
             self.move_packet(storage_model, self.distance)
             self.transform_energy(storage_model)
             self.line_emission(storage_model)
-            #print('rpacket scattered at', self.nu)
         else:
             self.tau_event -= tau_line
             self.next_line_id = next_line_id + 1
-            # ???
-            self.nu_line = storage_model.line_list_nu[self.next_line_id] 
-            #test_for_close_line (packet, storage);
+            self.nu_line = storage_model.line_list_nu[self.next_line_id]
 
     def line_emission(self, storage_model):
         emission_line_id = self.next_line_id
         inverse_doppler_factor = 1 / self.get_doppler_factor(storage_model)
         self.nu = storage_model.line_list_nu[emission_line_id] * inverse_doppler_factor 
-        #self.nu_line =  storage->line_list_nu[emission_line_id]);
+        
         self.next_line_id = emission_line_id + 1
+        self.nu_line = storage_model.line_list_nu[self.next_line_id]
         self.tau_event = get_tau_event()
-#void test_for_close_line (rpacket_t * packet, const storage_model_t * storage)
+        self.set_close_line(storage_model)
+
+
+    def set_close_line(self, storage_model, line_diff_threshold=1e-7):
+        """
+        The Packet currently sits on next_line_id - 1 and we are checking if the
+        next line is closer than 1e-7 to set the close_line attribute
+
+        Parameters
+        ----------
+        storage_model : StorageModel
+        """
+        
+        frac_nu_diff = ((storage_model.line_list_nu[self.next_line_id] -
+                        storage_model.line_list_nu[self.next_line_id - 1]) /
+                         storage_model.line_list_nu[self.next_line_id])
+        
+        if not self.last_line and frac_nu_diff < line_diff_threshold:
+            self.close_line = True
+        else:
+            self.close_line = False
 #{
 #  if (!rpacket_get_last_line (packet) &&
 #      fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
