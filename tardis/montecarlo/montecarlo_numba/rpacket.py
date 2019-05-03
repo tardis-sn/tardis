@@ -111,6 +111,10 @@ class RPacket(object):
         else:
             return MISS_DISTANCE
 
+    def calculate_distance_continuum(self, storage):    
+        packet.d_electron = storage.inverse_electron_densities[packet.current_shell_id] * \
+                storage.inverse_sigma_thomson * packet.tau_event
+        
     def trace_packet(self, storage_model):
         r_inner = storage_model.r_inner[self.current_shell_id]
         r_outer = storage_model.r_outer[self.current_shell_id]
@@ -130,7 +134,7 @@ class RPacket(object):
         
         #d_continuum = f(tau_event)
         d_continuum = MISS_DISTANCE
-
+        #loop_checker = 0
         while True:
             if cur_line_id < storage_model.no_of_lines:
                 nu_line = storage_model.line_list_nu[cur_line_id]
@@ -139,6 +143,8 @@ class RPacket(object):
             else:
                 nu_line = 0.0
                 tau_trace_line = 0.0
+                interaction_type = BOUNDARY  # FIXME: does not work for e-scattering
+                break
             
             tau_trace_line_combined += tau_trace_line
             distance_trace = self.calculate_distance_line(comov_nu, nu_line, storage_model.ct)
@@ -146,16 +152,21 @@ class RPacket(object):
             
             if distance_trace > distance_boundary:
                 interaction_type = BOUNDARY # BOUNDARY
+                self.next_line_id = cur_line_id
                 break
             
             if distance_trace > d_continuum:
                 interaction_type = 10 #continuum
-                break
+                #break
             if tau_trace_combined > tau_event:
                 interaction_type = LINE #Line
                 break
             
             cur_line_id += 1
+            
+            #loop_checker +=1
+            #if loop_checker > 10000:
+            #    raise Exception
          
         return distance_trace, interaction_type, delta_shell
 
@@ -188,30 +199,45 @@ class RPacket(object):
         
         return 1.0 - self.mu * beta
 
-    def move_packet(self, storage, distance):
-        doppler_factor = self.get_doppler_factor(storage)
+    def move_packet(self, distance):
+        """Move packet a distance and recalculate the new angle mu
+        
+        Parameters
+        ----------
+        distance : float
+            distance in cm
+        """
+
         r = self.r
         if (distance > 0.0):
-            new_r = np.sqrt(r * r + distance * distance +
+            new_r = np.sqrt(r**2 + distance**2 +
                              2.0 * r * distance * self.mu)
             self.mu = (self.mu * r + distance) / new_r
             self.r = new_r
+
+    def move_packet_across_shell_boundary(self, distance, delta_shell, no_of_shells):
         """
-        self.comov_nu_history.append(self.nu * doppler_factor)
-        self.radius_history.append(self.r)
-        self.move_dist_history.append(distance)
-        self.next_interaction_history.append(self.next_interaction)
-        self.mu_history.append(self.mu)
-        self.shell_id_history.append(self.current_shell_id)
-        self.next_line_id_history.append(self.next_line_id)
+        Move packet across shell boundary - realizing if we are still in the simulation or have
+        moved out through the inner boundary or outer boundary and updating packet
+        status.
+        
+        Parameters
+        ----------
+        distance : float
+            distance to move to shell boundary
+            
+        delta_shell: int
+            is +1 if moving outward or -1 if moving inward
+
+        no_of_shells: int
+            number of shells in TARDIS simulation
         """
 
-    def move_packet_across_shell_boundary(self, storage):
-        self.move_packet(storage, self.distance)
-        if ((self.current_shell_id < storage.no_of_shells - 1 and self.delta_shell_id == 1) 
-            or (self.current_shell_id > 0 and self.delta_shell_id == -1)):
-            self.current_shell_id += self.delta_shell_id
-        elif self.delta_shell_id == 1:
+        self.move_packet(distance)
+        if ((self.current_shell_id < no_of_shells - 1 and delta_shell == 1) 
+            or (self.current_shell_id > 0 and delta_shell == -1)):
+            self.current_shell_id += delta_shell
+        elif delta_shell == 1:
             self.status = EMITTED
         else:
             self.status = REABSORBED

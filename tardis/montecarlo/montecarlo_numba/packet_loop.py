@@ -9,16 +9,20 @@ def one_packet_loop(storage_model, r_packet):
     r_packet.status = IN_PROCESS
     # initializing tau_event if it's a real packet
     while r_packet.status == IN_PROCESS:
-        rpacket_interactions(r_packet, storage_model)
-        distance, interaction_type, delta_ shell_id = r_packet.trace_packet(storage_model)
+        #rpacket_interactions(r_packet, storage_model)
+        distance, interaction_type, delta_shell = r_packet.trace_packet(storage_model)
         if interaction_type == BOUNDARY:
-            pass
-            #new_shell_id = r_packet.shell_id + delta_shell_id 
-            #if delta_shell_id == 1:  # Moving outwards
-            #    r_new = storage_model.r_inner[new_shell_id]
-            #else:  # Moving inwards
-            #    r_new = storage_model.r_outer[new_shell_id]
-            #r_packet.move_packet_across_shell_boundary(new_shell_id, r_new)
+            r_packet.move_packet_across_shell_boundary(distance, delta_shell, storage_model.no_of_shells)
+        elif interaction_type == LINE:
+            r_packet.move_packet(distance)
+            r_packet.transform_energy(storage_model)
+            r_packet.line_emission(storage_model)
+        #new_shell_id = r_packet.shell_id + delta_shell_id 
+        #if delta_shell_id == 1:  # Moving outwards
+        #    r_new = storage_model.r_inner[new_shell_id]
+        #else:  # Moving inwards
+        #    r_new = storage_model.r_outer[new_shell_id]
+        #r_packet.move_packet_across_shell_boundary(new_shell_id, r_new)
 
         #r_packet.move_packet(storage_model)
         #r_packet.interact()
