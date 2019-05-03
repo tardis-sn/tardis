@@ -6,9 +6,9 @@ from tardis.montecarlo.montecarlo_numba.rpacket import (
 
 @njit
 def single_packet_loop(storage_model, r_packet):
+    r_packet.initialize_line_id(storage_model)
+
     while r_packet.status == IN_PROCESS:
-        #rpacket_interactions(r_packet, storage_model)
-        r_packet.initialize_line_id(storage_model)
         distance, interaction_type, delta_shell = r_packet.trace_packet(storage_model)
         if interaction_type == BOUNDARY:
             r_packet.move_packet_across_shell_boundary(distance, delta_shell, storage_model.no_of_shells)

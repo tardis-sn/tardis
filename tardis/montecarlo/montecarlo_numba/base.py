@@ -32,6 +32,7 @@ def montecarlo_main_loop(storage_model):
                            storage_model.packet_energies[i])
         single_packet_loop(storage_model, r_packet)
         output_nus[i] = r_packet.nu
+
         if r_packet.status == REABSORBED:
             output_energies[i] = -r_packet.energy
         elif r_packet.status == EMITTED:
