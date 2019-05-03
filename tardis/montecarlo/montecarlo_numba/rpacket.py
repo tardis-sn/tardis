@@ -68,7 +68,7 @@ class RPacket(object):
         self.nu_line = -1e99
         self.close_line = False
         self.last_line = False
-        
+        """
         self.comov_nu_history = []
         self.radius_history = []
         self.move_dist_history = []
@@ -76,7 +76,7 @@ class RPacket(object):
         self.mu_history = []
         self.shell_id_history = []
         self.next_line_id_history = []
-        
+        """
     def compute_distances(self, storage):
         """
         Compute all distances (d_line, d_boundary, ???), compare, 
@@ -114,7 +114,7 @@ class RPacket(object):
                              2.0 * r * distance * self.mu)
             self.mu = (self.mu * r + distance) / new_r
             self.r = new_r
-        
+        """
         self.comov_nu_history.append(self.nu * doppler_factor)
         self.radius_history.append(self.r)
         self.move_dist_history.append(distance)
@@ -122,7 +122,7 @@ class RPacket(object):
         self.mu_history.append(self.mu)
         self.shell_id_history.append(self.current_shell_id)
         self.next_line_id_history.append(self.next_line_id)
-        
+        """
 
     def move_packet_across_shell_boundary(self, storage):
         self.move_packet(storage, self.distance)
