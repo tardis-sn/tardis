@@ -12,7 +12,7 @@ def montecarlo_radial1d(model, plasma, runner):
     storage_model = initialize_storage_model(model, plasma, runner)
     montecarlo_main_loop(storage_model)
 
-@njit(**njit_dict, nogil=True, parallel=True)
+@njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(storage_model):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
