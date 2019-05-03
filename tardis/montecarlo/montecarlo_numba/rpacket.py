@@ -9,6 +9,7 @@ from tardis.montecarlo.montecarlo_numba import njit_dict
 from astropy import constants as const
 
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
+MISS_DISTANCE = 1e99
 
 
 #class PacketStatus(Enum):
@@ -41,9 +42,6 @@ rpacket_spec = [
     ('distance', float64)
 ]
 
-@njit(**njit_dict)
-def get_tau_event():
-    return  np.random.exponential()
 
 
 @njit(**njit_dict)
@@ -58,7 +56,7 @@ class RPacket(object):
         self.mu = mu
         self.nu = nu
         self.energy = energy
-        self.tau_event = get_tau_event()
+        self.tau_event = np.random.exponential()
         self.current_shell_id = 0
         self.delta_shell_id = 0
         self.d_boundary = -1.0
@@ -77,6 +75,90 @@ class RPacket(object):
         self.shell_id_history = []
         self.next_line_id_history = []
         """
+
+    def calculate_distance_boundary(self, r_inner, r_outer):
+        delta_shell = 0
+        if (self.mu > 0.0):
+            # direction outward
+            distance = np.sqrt(r_outer * r_outer + ((self.mu**2 - 1.0) * self.r**2)) - (self.r * self.mu)
+            delta_shell = 1
+        else:
+            # going inward
+            check = r_inner**2 + (self.r**2 * (self.mu**2 - 1.0))
+
+            if (check >= 0.0):
+                # hit inner boundary 
+                distance = -self.r * self.mu - np.sqrt(check)
+                delta_shell = -1
+            else:
+                # miss inner boundary 
+                distance = np.sqrt(r_outer**2 + ((self.mu**2 - 1.0) * self.r**2)) - (self.r * self.mu)
+                delta_shell = 1
+        
+        return distance, delta_shell
+
+    def calculate_distance_line(self, comov_nu, nu_line, ct):
+        if not self.last_line:
+            nu_diff = comov_nu - nu_line
+
+            if np.abs(nu_diff / comov_nu) < 1e-7:
+                    nu_diff = 0.0
+            if nu_diff >= 0:                    
+                return (nu_diff/self.nu) * ct
+            else:
+                #return np.abs((nu_diff/self.nu) * ct)
+                raise Exception
+        else:
+            return MISS_DISTANCE
+
+    def trace_packet(self, storage_model):
+        r_inner = storage_model.r_inner[self.current_shell_id]
+        r_outer = storage_model.r_outer[self.current_shell_id]
+        
+        distance_boundary, delta_shell = self.calculate_distance_boundary(r_inner, r_outer)
+        
+        #defining start for stuff
+        cur_line_id = self.next_line_id
+        nu_line = 0.0
+        #defining taus
+        tau_event = np.random.exponential()
+        tau_trace_line = 0.0
+        tau_trace_line_combined = 0.0
+        doppler_factor = self.get_doppler_factor(storage_model)
+        comov_nu = self.nu * doppler_factor
+        distance_trace = 0.0
+        
+        #d_continuum = f(tau_event)
+        d_continuum = MISS_DISTANCE
+
+        while True:
+            if cur_line_id < storage_model.no_of_lines:
+                nu_line = storage_model.line_list_nu[cur_line_id]
+                tau_trace_line += storage_model.line_lists_tau_sobolevs[cur_line_id, 
+                        self.current_shell_id]
+            else:
+                nu_line = 0.0
+                tau_trace_line = 0.0
+            
+            tau_trace_line_combined += tau_trace_line
+            distance_trace = self.calculate_distance_line(comov_nu, nu_line, storage_model.ct)
+            tau_trace_combined = tau_trace_line_combined + 0 #tau_trace_electron electron scattering
+            
+            if distance_trace > distance_boundary:
+                interaction_type = BOUNDARY # BOUNDARY
+                break
+            
+            if distance_trace > d_continuum:
+                interaction_type = 10 #continuum
+                break
+            if tau_trace_combined > tau_event:
+                interaction_type = LINE #Line
+                break
+            
+            cur_line_id += 1
+         
+        return distance_trace, interaction_type, delta_shell
+
     def compute_distances(self, storage):
         """
         Compute all distances (d_line, d_boundary, ???), compare, 
@@ -126,8 +208,6 @@ class RPacket(object):
 
     def move_packet_across_shell_boundary(self, storage):
         self.move_packet(storage, self.distance)
-
-        get_tau_event()
         if ((self.current_shell_id < storage.no_of_shells - 1 and self.delta_shell_id == 1) 
             or (self.current_shell_id > 0 and self.delta_shell_id == -1)):
             self.current_shell_id += self.delta_shell_id
@@ -193,7 +273,7 @@ class RPacket(object):
         
         self.next_line_id = emission_line_id + 1
         self.nu_line = storage_model.line_list_nu[self.next_line_id]
-        self.tau_event = get_tau_event()
+        self.tau_event = np.random.exponential()
         self.set_close_line(storage_model)
 
 

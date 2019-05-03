@@ -3,18 +3,26 @@ import numpy as np
 from enum import Enum
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     ESCATTERING, BOUNDARY, LINE, IN_PROCESS, REABSORBED)
+
 @njit
 def one_packet_loop(storage_model, r_packet):
-    #r_packet.nu_line = 0.0
-    #packet.virtual_packet = virtual_packet
     r_packet.status = IN_PROCESS
     # initializing tau_event if it's a real packet
-    
-    # for a virtual packet tau_event is the sum of all the tau's that the packet passes 
     while r_packet.status == IN_PROCESS:
-        
-
         rpacket_interactions(r_packet, storage_model)
+        distance, interaction_type, delta_ shell_id = r_packet.trace_packet(storage_model)
+        if interaction_type == BOUNDARY:
+            pass
+            #new_shell_id = r_packet.shell_id + delta_shell_id 
+            #if delta_shell_id == 1:  # Moving outwards
+            #    r_new = storage_model.r_inner[new_shell_id]
+            #else:  # Moving inwards
+            #    r_new = storage_model.r_outer[new_shell_id]
+            #r_packet.move_packet_across_shell_boundary(new_shell_id, r_new)
+
+        #r_packet.move_packet(storage_model)
+        #r_packet.interact()
+
         # Check if we are at the end of line list.
         #if not packet.last_line:
         #    packet.nu_line = storeage.line_list_nu[packet.next_line_id]
@@ -31,6 +39,7 @@ def one_packet_loop(storage_model, r_packet):
     #              np.exp(-1.0 * packet.tau_event)
     #if virtual_packet > 0:
     #    packet.energy = packet.energy * np.exp(-1.0 * packet.tau_event)
+
 @njit
 def rpacket_interactions(r_packet, storage_model):
     r_packet.compute_distances(storage_model)
