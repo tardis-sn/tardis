@@ -2,6 +2,8 @@ from numba import int64, float64, jitclass
 import numpy as np
 from astropy import constants as const
 
+C_SPEED_OF_LIGHT = const.c.to('cm/s').value
+
 storage_model_spec = [
     ('packet_nus', float64[:]),
     ('packet_mus', float64[:]),
@@ -25,7 +27,9 @@ storage_model_spec = [
 #    ('*nubars', float64),
     ('sigma_thomson', float64),
     ('inverse_sigma_thomson', float64),
+    ('ct', float64),
 ]
+
 @jitclass(storage_model_spec)
 class StorageModel(object):
     def __init__(self, packet_nus, packet_mus, packet_energies, 
@@ -57,6 +61,7 @@ class StorageModel(object):
         self.no_of_lines = no_of_lines
         self.line_list_nu = line_list_nu
         self.line_lists_tau_sobolevs = line_lists_tau_sobolevs
+        self.ct = self.time_explosion * C_SPEED_OF_LIGHT
 
 def initialize_storage_model(model, plasma, runner):
     storage_model_kwargs = {'packet_nus': runner.input_nu,
