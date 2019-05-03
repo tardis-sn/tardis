@@ -1,7 +1,7 @@
 import numpy as np
 from enum import Enum
 from numba import int64, float64, boolean
-from numba import jitclass, njit
+from numba import jitclass, njit, gdb
 from tardis.montecarlo.montecarlo_numba.compute_distance import (compute_distance2boundary,
                                                                  compute_distance2continuum,
                                                                  compute_distance2line)
@@ -54,7 +54,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     return distance, delta_shell
 
 @njit(**njit_dict)
-def calculate_distance_line(nu, comov_nu, nu_line, ct):
+def calculate_distance_line(nu, comov_nu, nu_line, ct, i):
     if nu_line == 0.0:
         return MISS_DISTANCE
     nu_diff = comov_nu - nu_line
@@ -63,7 +63,7 @@ def calculate_distance_line(nu, comov_nu, nu_line, ct):
     if nu_diff >= 0:                    
         return (nu_diff / nu) * ct
     else:
-        #return np.abs((nu_diff/self.nu) * ct)
+        print('nu', nu, nu_diff, comov_nu, nu_line, ct, np.abs((nu_diff / nu) * ct), i)
         raise Exception
 
 @njit(**njit_dict)
@@ -107,14 +107,15 @@ class RPacket(object):
         tau_event = np.random.exponential()
         tau_trace_line = 0.0
         tau_trace_line_combined = 0.0
+        
         #Calculating doppler factor
         doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         comov_nu = self.nu * doppler_factor
         distance_trace = 0.0
         d_continuum = MISS_DISTANCE
-        
+
         while True:
-            if cur_line_id < storage_model.no_of_lines: # last_line
+            if cur_line_id < storage_model.no_of_lines: # not last_line
                 nu_line = storage_model.line_list_nu[cur_line_id]
                 tau_trace_line += storage_model.line_lists_tau_sobolevs[cur_line_id, 
                         self.current_shell_id]
@@ -123,10 +124,11 @@ class RPacket(object):
                 tau_trace_line = 0.0
                 interaction_type = BOUNDARY  # FIXME: does not work for e-scattering
                 distance = distance_boundary
+                self.next_line_id = cur_line_id
                 break
             
             tau_trace_line_combined += tau_trace_line
-            distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, storage_model.ct)
+            distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, storage_model.ct, i)
             tau_trace_combined = tau_trace_line_combined + 0 #tau_trace_electron electron scattering
             
             if distance_trace > distance_boundary:
@@ -135,9 +137,9 @@ class RPacket(object):
                 distance = distance_boundary
                 break
             
-            if distance_trace > d_continuum:
-                interaction_type = 10 #continuum
-                #break
+            #if distance_trace > d_continuum:
+            #    interaction_type = 10 #continuum
+            #    #break
             if tau_trace_combined > tau_event:
                 interaction_type = LINE #Line
                 self.next_line_id = cur_line_id
@@ -145,11 +147,7 @@ class RPacket(object):
                 break
             
             cur_line_id += 1
-            
-            #loop_checker +=1
-            #if loop_checker > 10000:
-            #    raise Exception
-         
+                     
         return distance, interaction_type, delta_shell
 
     def move_packet(self, distance):
