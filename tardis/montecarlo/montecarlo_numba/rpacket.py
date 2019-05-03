@@ -11,7 +11,6 @@ from astropy import constants as const
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
 
-
 #class PacketStatus(Enum):
 IN_PROCESS = 0
 EMITTED = 1
@@ -37,7 +36,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     delta_shell = 0
     if (mu > 0.0):
         # direction outward
-        distance = np.sqrt(r_outer * r_outer + ((mu**2 - 1.0) * r**2)) - (r * mu)
+        distance = np.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
         delta_shell = 1
     else:
         # going inward
@@ -56,8 +55,9 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
 
 @njit(**njit_dict)
 def calculate_distance_line(nu, comov_nu, nu_line, ct):
+    if nu_line == 0.0:
+        return MISS_DISTANCE
     nu_diff = comov_nu - nu_line
-
     if np.abs(nu_diff / comov_nu) < 1e-7:
             nu_diff = 0.0
     if nu_diff >= 0:                    
@@ -69,7 +69,6 @@ def calculate_distance_line(nu, comov_nu, nu_line, ct):
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, inverse_time_explosion):
     beta = (r * inverse_time_explosion) / C_SPEED_OF_LIGHT
-    
     return 1.0 - mu * beta
 
 
@@ -97,6 +96,8 @@ class RPacket(object):
         r_inner = storage_model.r_inner[self.current_shell_id]
         r_outer = storage_model.r_outer[self.current_shell_id]
         
+        distance = 0.0
+
         distance_boundary, delta_shell = calculate_distance_boundary(self.r, self.mu, r_inner, r_outer)
         
         #defining start for stuff
@@ -106,15 +107,14 @@ class RPacket(object):
         tau_event = np.random.exponential()
         tau_trace_line = 0.0
         tau_trace_line_combined = 0.0
+        #Calculating doppler factor
         doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         comov_nu = self.nu * doppler_factor
         distance_trace = 0.0
-        
-        #d_continuum = f(tau_event)
         d_continuum = MISS_DISTANCE
-        #loop_checker = 0
+        
         while True:
-            if cur_line_id < storage_model.no_of_lines:
+            if cur_line_id < storage_model.no_of_lines: # last_line
                 nu_line = storage_model.line_list_nu[cur_line_id]
                 tau_trace_line += storage_model.line_lists_tau_sobolevs[cur_line_id, 
                         self.current_shell_id]
@@ -122,6 +122,7 @@ class RPacket(object):
                 nu_line = 0.0
                 tau_trace_line = 0.0
                 interaction_type = BOUNDARY  # FIXME: does not work for e-scattering
+                distance = distance_boundary
                 break
             
             tau_trace_line_combined += tau_trace_line
@@ -131,6 +132,7 @@ class RPacket(object):
             if distance_trace > distance_boundary:
                 interaction_type = BOUNDARY # BOUNDARY
                 self.next_line_id = cur_line_id
+                distance = distance_boundary
                 break
             
             if distance_trace > d_continuum:
@@ -139,6 +141,7 @@ class RPacket(object):
             if tau_trace_combined > tau_event:
                 interaction_type = LINE #Line
                 self.next_line_id = cur_line_id
+                distance = distance_trace
                 break
             
             cur_line_id += 1
@@ -147,7 +150,7 @@ class RPacket(object):
             #if loop_checker > 10000:
             #    raise Exception
          
-        return distance_trace, interaction_type, delta_shell
+        return distance, interaction_type, delta_shell
 
     def move_packet(self, distance):
         """Move packet a distance and recalculate the new angle mu
@@ -206,13 +209,12 @@ class RPacket(object):
         """
         old_doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         self.mu = get_random_mu()
-        inverse_doppler_factor = 1. / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
+        inverse_new_doppler_factor = 1. / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         comov_energy = self.energy * old_doppler_factor
-        self.energy = comov_energy * inverse_doppler_factor
+        self.energy = comov_energy * inverse_new_doppler_factor
 
     def line_emission(self, storage_model):
         emission_line_id = self.next_line_id
         inverse_doppler_factor = 1 / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         self.nu = storage_model.line_list_nu[emission_line_id] * inverse_doppler_factor 
-        
         self.next_line_id = emission_line_id + 1
