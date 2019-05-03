@@ -54,7 +54,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     return distance, delta_shell
 
 @njit(**njit_dict)
-def calculate_distance_line(nu, comov_nu, nu_line, ct, i):
+def calculate_distance_line(nu, comov_nu, nu_line, ct):
     if nu_line == 0.0:
         return MISS_DISTANCE
     nu_diff = comov_nu - nu_line
@@ -63,7 +63,6 @@ def calculate_distance_line(nu, comov_nu, nu_line, ct, i):
     if nu_diff >= 0:                    
         return (nu_diff / nu) * ct
     else:
-        print('nu', nu, nu_diff, comov_nu, nu_line, ct, np.abs((nu_diff / nu) * ct), i)
         raise Exception
 
 @njit(**njit_dict)
@@ -128,7 +127,7 @@ class RPacket(object):
                 break
             
             tau_trace_line_combined += tau_trace_line
-            distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, storage_model.ct, i)
+            distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, storage_model.ct)
             tau_trace_combined = tau_trace_line_combined + 0 #tau_trace_electron electron scattering
             
             if distance_trace > distance_boundary:
