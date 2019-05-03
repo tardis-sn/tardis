@@ -67,6 +67,13 @@ def calculate_distance_line(nu, comov_nu, nu_line, ct):
         raise Exception
 
 @njit(**njit_dict)
+def get_doppler_factor(r, mu, inverse_time_explosion):
+    beta = (r * inverse_time_explosion) / C_SPEED_OF_LIGHT
+    
+    return 1.0 - mu * beta
+
+
+@njit(**njit_dict)
 def get_random_mu():
     return 2.0 * np.random.random() - 1.0
 
@@ -99,7 +106,7 @@ class RPacket(object):
         tau_event = np.random.exponential()
         tau_trace_line = 0.0
         tau_trace_line_combined = 0.0
-        doppler_factor = self.get_doppler_factor(storage_model)
+        doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         comov_nu = self.nu * doppler_factor
         distance_trace = 0.0
         
@@ -131,6 +138,7 @@ class RPacket(object):
                 #break
             if tau_trace_combined > tau_event:
                 interaction_type = LINE #Line
+                self.next_line_id = cur_line_id
                 break
             
             cur_line_id += 1
@@ -140,11 +148,6 @@ class RPacket(object):
             #    raise Exception
          
         return distance_trace, interaction_type, delta_shell
-    
-    def get_doppler_factor(self, storage):
-        beta = self.r * storage.inverse_time_explosion / C_SPEED_OF_LIGHT
-        
-        return 1.0 - self.mu * beta
 
     def move_packet(self, distance):
         """Move packet a distance and recalculate the new angle mu
@@ -191,7 +194,7 @@ class RPacket(object):
     
     def initialize_line_id(self, storage_model):
         inverse_line_list_nu = storage_model.line_list_nu[::-1]
-        doppler_factor = self.get_doppler_factor(storage_model)
+        doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         comov_nu = self.nu * doppler_factor
         next_line_id = storage_model.no_of_lines - np.searchsorted(inverse_line_list_nu, comov_nu)
         self.next_line_id = next_line_id
@@ -201,15 +204,15 @@ class RPacket(object):
         Transform from the LabFrame to the ComovingFrame. Then change the angle 
         and transform back conserving energy in the ComovingFrame.        
         """
-        old_doppler_factor = self.get_doppler_factor(storage_model)
+        old_doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         self.mu = get_random_mu()
-        inverse_doppler_factor = 1. / self.get_doppler_factor(storage_model)
+        inverse_doppler_factor = 1. / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         comov_energy = self.energy * old_doppler_factor
         self.energy = comov_energy * inverse_doppler_factor
 
     def line_emission(self, storage_model):
         emission_line_id = self.next_line_id
-        inverse_doppler_factor = 1 / self.get_doppler_factor(storage_model)
+        inverse_doppler_factor = 1 / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         self.nu = storage_model.line_list_nu[emission_line_id] * inverse_doppler_factor 
         
         self.next_line_id = emission_line_id + 1
