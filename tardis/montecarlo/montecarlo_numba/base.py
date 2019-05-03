@@ -2,7 +2,7 @@ from numba import prange, njit, config
 import numpy as np
 from tardis.montecarlo.montecarlo_numba.rpacket import RPacket, REABSORBED, EMITTED
 from tardis.montecarlo.montecarlo_numba.storage_model import StorageModel, initialize_storage_model
-from tardis.montecarlo.montecarlo_numba.packet_loop import one_packet_loop
+from tardis.montecarlo.montecarlo_numba.single_packet_loop import single_packet_loop
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
 #config.THREADING_LAYER = 'threadsafe'
@@ -12,7 +12,7 @@ def montecarlo_radial1d(model, plasma, runner):
     storage_model = initialize_storage_model(model, plasma, runner)
     montecarlo_main_loop(storage_model)
 
-@njit(**njit_dict, nogil=True)
+@njit(**njit_dict, nogil=True, parallel=True)
 def montecarlo_main_loop(storage_model):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
@@ -30,10 +30,7 @@ def montecarlo_main_loop(storage_model):
                            storage_model.packet_mus[i],
                            storage_model.packet_nus[i],
                            storage_model.packet_energies[i])
-        r_packet.set_line(storage_model)
-        r_packet.compute_distances(storage_model)
-        #r_packet.i = i
-        one_packet_loop(storage_model, r_packet)
+        single_packet_loop(storage_model, r_packet)
         output_nus[i] = r_packet.nu
         if r_packet.status == REABSORBED:
             output_energies[i] = -r_packet.energy

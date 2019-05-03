@@ -27,19 +27,9 @@ rpacket_spec = [
     ('mu', float64),
     ('nu', float64),
     ('energy', float64),
-    ('tau_event', float64),
-    ('nu_line', float64),
-    ('last_line', boolean),
-    ('close_line', boolean),
     ('next_line_id', int64),
-    ('d_line', float64),  # Distance to line event. 
-    ('d_electron', float64), #/**< Distance to line event. */
-    ('d_boundary', float64), # distance to boundary 
     ('current_shell_id', int64),
-    ('delta_shell_id', int64),
-    ('next_interaction', int64),
     ('status', int64),
-    ('distance', float64)
 ]
 
 
@@ -56,25 +46,9 @@ class RPacket(object):
         self.mu = mu
         self.nu = nu
         self.energy = energy
-        self.tau_event = np.random.exponential()
         self.current_shell_id = 0
-        self.delta_shell_id = 0
-        self.d_boundary = -1.0
-        self.d_electron = -1.0
-        self.d_line = 1.e99
-        self.distance = 0.0
-        self.nu_line = -1e99
-        self.close_line = False
-        self.last_line = False
-        """
-        self.comov_nu_history = []
-        self.radius_history = []
-        self.move_dist_history = []
-        self.next_interaction_history = []
-        self.mu_history = []
-        self.shell_id_history = []
-        self.next_line_id_history = []
-        """
+        self.status = IN_PROCESS
+        self.next_line_id = -1
 
     def calculate_distance_boundary(self, r_inner, r_outer):
         delta_shell = 0
@@ -98,19 +72,16 @@ class RPacket(object):
         return distance, delta_shell
 
     def calculate_distance_line(self, comov_nu, nu_line, ct):
-        if not self.last_line:
-            nu_diff = comov_nu - nu_line
+        nu_diff = comov_nu - nu_line
 
-            if np.abs(nu_diff / comov_nu) < 1e-7:
-                    nu_diff = 0.0
-            if nu_diff >= 0:                    
-                return (nu_diff/self.nu) * ct
-            else:
-                #return np.abs((nu_diff/self.nu) * ct)
-                raise Exception
+        if np.abs(nu_diff / comov_nu) < 1e-7:
+                nu_diff = 0.0
+        if nu_diff >= 0:                    
+            return (nu_diff/self.nu) * ct
         else:
-            return MISS_DISTANCE
-
+            #return np.abs((nu_diff/self.nu) * ct)
+            raise Exception
+        
     def calculate_distance_continuum(self, storage):    
         packet.d_electron = storage.inverse_electron_densities[packet.current_shell_id] * \
                 storage.inverse_sigma_thomson * packet.tau_event
@@ -169,30 +140,6 @@ class RPacket(object):
             #    raise Exception
          
         return distance_trace, interaction_type, delta_shell
-
-    def compute_distances(self, storage):
-        """
-        Compute all distances (d_line, d_boundary, ???), compare, 
-        and set interaction
-        
-        Parameters
-        ----------
-        storage : [type]
-            [description]
-        """
-
-        
-        compute_distance2line(self, storage)
-        compute_distance2boundary(self, storage)
-        if self.d_boundary < self.d_line:
-            next_interaction = BOUNDARY
-            self.distance = self.d_boundary
-        else:
-            next_interaction = LINE
-            self.distance = self.d_line
-
-        self.next_interaction = next_interaction
-
     
     def get_doppler_factor(self, storage):
         beta = self.r * storage.inverse_time_explosion / C_SPEED_OF_LIGHT
@@ -242,20 +189,12 @@ class RPacket(object):
         else:
             self.status = REABSORBED
     
-    def set_line(self, storage_model):
+    def initialize_line_id(self, storage_model):
         inverse_line_list_nu = storage_model.line_list_nu[::-1]
         doppler_factor = self.get_doppler_factor(storage_model)
         comov_nu = self.nu * doppler_factor
         next_line_id = storage_model.no_of_lines - np.searchsorted(inverse_line_list_nu, comov_nu)
         self.next_line_id = next_line_id
-        if self.next_line_id > (storage_model.no_of_lines - 1):
-            self.last_line = True
-        else:
-            self.nu_line = storage_model.line_list_nu[self.next_line_id]
-            self.last_line = False
-        
-        ##### FIXME Add close line initializer in a sensible  - think about this!1
-        #self.set_close_line(storage_model)
 
     def transform_energy(self, storage_model):
         """
@@ -268,69 +207,9 @@ class RPacket(object):
         comov_energy = self.energy * old_doppler_factor
         self.energy = comov_energy * inverse_doppler_factor
 
-    def line_scatter(self, storage_model):
-        if self.distance == 0.0:
-            self.set_close_line(storage_model)
-        next_line_id = self.next_line_id
-        storage_model.line_lists_tau_sobolevs
-        tau_line = storage_model.line_lists_tau_sobolevs[next_line_id, 
-                        self.current_shell_id]
-        tau_continuum = 0.0
-        tau_combined = tau_line + tau_continuum
-        
-        if (next_line_id + 1) == storage_model.no_of_lines:
-            self.last_line = True
-        if (self.tau_event < tau_combined): # Line absorption occurs
-            self.move_packet(storage_model, self.distance)
-            self.transform_energy(storage_model)
-            self.line_emission(storage_model)
-        else:
-            self.tau_event -= tau_line
-            self.next_line_id = next_line_id + 1
-            if not self.last_line:
-                self.nu_line = storage_model.line_list_nu[self.next_line_id]
-        
-
-
     def line_emission(self, storage_model):
         emission_line_id = self.next_line_id
         inverse_doppler_factor = 1 / self.get_doppler_factor(storage_model)
         self.nu = storage_model.line_list_nu[emission_line_id] * inverse_doppler_factor 
         
         self.next_line_id = emission_line_id + 1
-        self.nu_line = storage_model.line_list_nu[self.next_line_id]
-        self.tau_event = np.random.exponential()
-        self.set_close_line(storage_model)
-
-
-    def set_close_line(self, storage_model, line_diff_threshold=1e-7):
-        """
-        The Packet currently sits on next_line_id - 1 and we are checking if the
-        next line is closer than 1e-7 to set the close_line attribute
-
-        Parameters
-        ----------
-        storage_model : StorageModel
-        """
-        return
-        if self.last_line:
-            self.close_line = False
-            return
-        
-        frac_nu_diff = ((storage_model.line_list_nu[self.next_line_id] -
-                        storage_model.line_list_nu[self.next_line_id - 1]) /
-                         storage_model.line_list_nu[self.next_line_id])
-        
-        if not self.last_line and frac_nu_diff < line_diff_threshold:
-            self.close_line = True
-        else:
-            self.close_line = False
-#{
-#  if (!rpacket_get_last_line (packet) &&
-#      fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
-#            rpacket_get_nu_line (packet)) < (rpacket_get_nu_line (packet)*
-#                                             1e-7))
-#    {
-#      rpacket_set_close_line (packet, true);
-#    }
-#}
