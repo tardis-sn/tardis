@@ -116,7 +116,7 @@ class RPacket(object):
         while True:
             if cur_line_id < storage_model.no_of_lines: # not last_line
                 nu_line = storage_model.line_list_nu[cur_line_id]
-                tau_trace_line += storage_model.line_lists_tau_sobolevs[cur_line_id, 
+                tau_trace_line = storage_model.line_lists_tau_sobolevs[cur_line_id, 
                         self.current_shell_id]
             else:
                 nu_line = 0.0
