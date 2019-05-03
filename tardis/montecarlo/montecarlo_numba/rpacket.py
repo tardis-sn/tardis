@@ -32,7 +32,39 @@ rpacket_spec = [
     ('status', int64),
 ]
 
+@njit(**njit_dict)
+def calculate_distance_boundary(r, mu, r_inner, r_outer):
+    delta_shell = 0
+    if (mu > 0.0):
+        # direction outward
+        distance = np.sqrt(r_outer * r_outer + ((mu**2 - 1.0) * r**2)) - (r * mu)
+        delta_shell = 1
+    else:
+        # going inward
+        check = r_inner**2 + (r**2 * (mu**2 - 1.0))
 
+        if (check >= 0.0):
+            # hit inner boundary 
+            distance = -r * mu - np.sqrt(check)
+            delta_shell = -1
+        else:
+            # miss inner boundary 
+            distance = np.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
+            delta_shell = 1
+    
+    return distance, delta_shell
+
+@njit(**njit_dict)
+def calculate_distance_line(nu, comov_nu, nu_line, ct):
+    nu_diff = comov_nu - nu_line
+
+    if np.abs(nu_diff / comov_nu) < 1e-7:
+            nu_diff = 0.0
+    if nu_diff >= 0:                    
+        return (nu_diff / nu) * ct
+    else:
+        #return np.abs((nu_diff/self.nu) * ct)
+        raise Exception
 
 @njit(**njit_dict)
 def get_random_mu():
@@ -49,38 +81,6 @@ class RPacket(object):
         self.current_shell_id = 0
         self.status = IN_PROCESS
         self.next_line_id = -1
-
-    def calculate_distance_boundary(self, r_inner, r_outer):
-        delta_shell = 0
-        if (self.mu > 0.0):
-            # direction outward
-            distance = np.sqrt(r_outer * r_outer + ((self.mu**2 - 1.0) * self.r**2)) - (self.r * self.mu)
-            delta_shell = 1
-        else:
-            # going inward
-            check = r_inner**2 + (self.r**2 * (self.mu**2 - 1.0))
-
-            if (check >= 0.0):
-                # hit inner boundary 
-                distance = -self.r * self.mu - np.sqrt(check)
-                delta_shell = -1
-            else:
-                # miss inner boundary 
-                distance = np.sqrt(r_outer**2 + ((self.mu**2 - 1.0) * self.r**2)) - (self.r * self.mu)
-                delta_shell = 1
-        
-        return distance, delta_shell
-
-    def calculate_distance_line(self, comov_nu, nu_line, ct):
-        nu_diff = comov_nu - nu_line
-
-        if np.abs(nu_diff / comov_nu) < 1e-7:
-                nu_diff = 0.0
-        if nu_diff >= 0:                    
-            return (nu_diff/self.nu) * ct
-        else:
-            #return np.abs((nu_diff/self.nu) * ct)
-            raise Exception
         
     def calculate_distance_continuum(self, storage):    
         packet.d_electron = storage.inverse_electron_densities[packet.current_shell_id] * \
@@ -90,7 +90,7 @@ class RPacket(object):
         r_inner = storage_model.r_inner[self.current_shell_id]
         r_outer = storage_model.r_outer[self.current_shell_id]
         
-        distance_boundary, delta_shell = self.calculate_distance_boundary(r_inner, r_outer)
+        distance_boundary, delta_shell = calculate_distance_boundary(self.r, self.mu, r_inner, r_outer)
         
         #defining start for stuff
         cur_line_id = self.next_line_id
@@ -118,7 +118,7 @@ class RPacket(object):
                 break
             
             tau_trace_line_combined += tau_trace_line
-            distance_trace = self.calculate_distance_line(comov_nu, nu_line, storage_model.ct)
+            distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, storage_model.ct)
             tau_trace_combined = tau_trace_line_combined + 0 #tau_trace_electron electron scattering
             
             if distance_trace > distance_boundary:
