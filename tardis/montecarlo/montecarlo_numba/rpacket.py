@@ -2,24 +2,25 @@ import numpy as np
 from enum import Enum
 from numba import int64, float64, boolean
 from numba import jitclass, njit, gdb
-from tardis.montecarlo.montecarlo_numba.compute_distance import (compute_distance2boundary,
-                                                                 compute_distance2continuum,
-                                                                 compute_distance2line)
+from tardis.montecarlo.montecarlo_numba.compute_distance import (
+    compute_distance2boundary,
+    compute_distance2continuum,
+    compute_distance2line)
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from astropy import constants as const
 
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
-
+INVERSE_SIGMA_THOMSON = 1 / const.sigma_T.to('cm^2').value
 #class PacketStatus(Enum):
 IN_PROCESS = 0
 EMITTED = 1
 REABSORBED = 2
 
-#class InteractionType(Enum):
-ESCATTERING = 0
-BOUNDARY = 1
-LINE = 2
+class InteractionType(Enum):
+    ESCATTERING = 0
+    BOUNDARY = 1
+    LINE = 2
 
 rpacket_spec = [
     ('r', float64),
@@ -66,10 +67,15 @@ def calculate_distance_line(nu, comov_nu, nu_line, ct):
         raise Exception
 
 @njit(**njit_dict)
+def calculate_distance_electron(shell_id, inverse_electron_densities, tau_event):    
+    return (inverse_electron_densities[shell_id] * 
+    INVERSE_SIGMA_THOMSON * tau_event)
+
+
+@njit(**njit_dict)
 def get_doppler_factor(r, mu, inverse_time_explosion):
     beta = (r * inverse_time_explosion) / C_SPEED_OF_LIGHT
     return 1.0 - mu * beta
-
 
 @njit(**njit_dict)
 def get_random_mu():
@@ -87,9 +93,6 @@ class RPacket(object):
         self.status = IN_PROCESS
         self.next_line_id = -1
         
-    def calculate_distance_continuum(self, storage):    
-        packet.d_electron = storage.inverse_electron_densities[packet.current_shell_id] * \
-                storage.inverse_sigma_thomson * packet.tau_event
         
     def trace_packet(self, storage_model):
         r_inner = storage_model.r_inner[self.current_shell_id]
@@ -97,7 +100,8 @@ class RPacket(object):
         
         distance = 0.0
 
-        distance_boundary, delta_shell = calculate_distance_boundary(self.r, self.mu, r_inner, r_outer)
+        distance_boundary, delta_shell = calculate_distance_boundary(
+            self.r, self.mu, r_inner, r_outer)
         
         #defining start for stuff
         cur_line_id = self.next_line_id
@@ -108,10 +112,12 @@ class RPacket(object):
         tau_trace_line_combined = 0.0
         
         #Calculating doppler factor
-        doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
+        doppler_factor = get_doppler_factor(self.r, self.mu, 
+                                        storage_model.inverse_time_explosion)
         comov_nu = self.nu * doppler_factor
         distance_trace = 0.0
-        d_continuum = MISS_DISTANCE
+        d_electron = calculate_distance_electron(self.current_shell_id, 
+                            storage_model.inverse_electron_densities, tau_event)
 
         while True:
             if cur_line_id < storage_model.no_of_lines: # not last_line
@@ -121,7 +127,7 @@ class RPacket(object):
             else:
                 nu_line = 0.0
                 tau_trace_line = 0.0
-                interaction_type = BOUNDARY  # FIXME: does not work for e-scattering
+                interaction_type = InteractionType.BOUNDARY  # FIXME: does not work for e-scattering
                 distance = distance_boundary
                 self.next_line_id = cur_line_id
                 break
@@ -131,7 +137,7 @@ class RPacket(object):
             tau_trace_combined = tau_trace_line_combined + 0 #tau_trace_electron electron scattering
             
             if distance_trace > distance_boundary:
-                interaction_type = BOUNDARY # BOUNDARY
+                interaction_type = InteractionType.BOUNDARY # BOUNDARY
                 self.next_line_id = cur_line_id
                 distance = distance_boundary
                 break
@@ -140,7 +146,7 @@ class RPacket(object):
             #    interaction_type = 10 #continuum
             #    #break
             if tau_trace_combined > tau_event:
-                interaction_type = LINE #Line
+                interaction_type = InteractionType.LINE #Line
                 self.next_line_id = cur_line_id
                 distance = distance_trace
                 break
