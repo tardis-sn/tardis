@@ -13,10 +13,11 @@ C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
 SIGMA_THOMSON = const.sigma_T.to('cm^2').value
 INVERSE_SIGMA_THOMSON = 1 / SIGMA_THOMSON
-#class PacketStatus(Enum):
-IN_PROCESS = 0
-EMITTED = 1
-REABSORBED = 2
+
+class PacketStatus(Enum):
+    IN_PROCESS = 0
+    EMITTED = 1
+    REABSORBED = 2
 
 class InteractionType(Enum):
     BOUNDARY = 1
@@ -93,11 +94,12 @@ class RPacket(object):
         self.nu = nu
         self.energy = energy
         self.current_shell_id = 0
-        self.status = IN_PROCESS
+        self.status = PacketStatus.IN_PROCESS
         self.next_line_id = -1
         
         
     def trace_packet(self, storage_model):
+        
         r_inner = storage_model.r_inner[self.current_shell_id]
         r_outer = storage_model.r_outer[self.current_shell_id]
         
@@ -216,9 +218,9 @@ class RPacket(object):
             or (self.current_shell_id > 0 and delta_shell == -1)):
             self.current_shell_id += delta_shell
         elif delta_shell == 1:
-            self.status = EMITTED
+            self.status = PacketStatus.EMITTED
         else:
-            self.status = REABSORBED
+            self.status = PacketStatus.REABSORBED
     
     def initialize_line_id(self, storage_model):
         inverse_line_list_nu = storage_model.line_list_nu[::-1]
@@ -227,16 +229,6 @@ class RPacket(object):
         next_line_id = storage_model.no_of_lines - np.searchsorted(inverse_line_list_nu, comov_nu)
         self.next_line_id = next_line_id
 
-    def transform_energy(self, storage_model):
-        """
-        Transform from the LabFrame to the ComovingFrame. Then change the angle 
-        and transform back conserving energy in the ComovingFrame.        
-        """
-        old_doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
-        self.mu = get_random_mu()
-        inverse_new_doppler_factor = 1. / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
-        comov_energy = self.energy * old_doppler_factor
-        self.energy = comov_energy * inverse_new_doppler_factor
 
     def scatter(self, storage_model):
         """
@@ -259,9 +251,3 @@ class RPacket(object):
         inverse_new_doppler_factor = 1. / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         self.energy = comov_energy * inverse_new_doppler_factor
         self.nu = comov_nu * inverse_new_doppler_factor
-
-    def line_emission(self, storage_model):
-        emission_line_id = self.next_line_id
-        inverse_doppler_factor = 1 / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
-        self.nu = storage_model.line_list_nu[emission_line_id] * inverse_doppler_factor 
-        self.next_line_id = emission_line_id + 1

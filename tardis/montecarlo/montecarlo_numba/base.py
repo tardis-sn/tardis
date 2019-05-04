@@ -1,6 +1,6 @@
 from numba import prange, njit, config
 import numpy as np
-from tardis.montecarlo.montecarlo_numba.rpacket import RPacket, REABSORBED, EMITTED
+from tardis.montecarlo.montecarlo_numba.rpacket import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.storage_model import StorageModel, initialize_storage_model
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import single_packet_loop
 from tardis.montecarlo.montecarlo_numba import njit_dict
@@ -33,9 +33,9 @@ def montecarlo_main_loop(storage_model):
         single_packet_loop(storage_model, r_packet)
         output_nus[i] = r_packet.nu
 
-        if r_packet.status == REABSORBED:
+        if r_packet.status == PacketStatus.REABSORBED:
             output_energies[i] = -r_packet.energy
-        elif r_packet.status == EMITTED:
+        elif r_packet.status == PacketStatus.EMITTED:
             output_energies[i] = r_packet.energy
     storage_model.output_energies[:] = output_energies[:]
     storage_model.output_nus[:] = output_nus[:]
