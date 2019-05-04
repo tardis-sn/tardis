@@ -148,16 +148,19 @@ class RPacket(object):
                                                         distance_trace)
 
             tau_trace_combined = tau_trace_line_combined + tau_trace_electron
-            
-            if distance_trace > distance_boundary:
+
+            if (distance_boundary <= distance_trace) and (distance_boundary <= distance_electron):
                 interaction_type = InteractionType.BOUNDARY # BOUNDARY
                 self.next_line_id = cur_line_id
                 distance = distance_boundary
                 break
             
-            #if distance_trace > d_continuum:
-            #    interaction_type = 10 #continuum
-            #    #break
+            if (distance_electron < distance_trace) and (distance_electron < distance_boundary):
+                interaction_type = InteractionType.ESCATTERING
+                distance = distance_electron
+                self.next_line_id = cur_line_id
+                break
+            
             if tau_trace_combined > tau_event:
                 interaction_type = InteractionType.LINE #Line
                 self.next_line_id = cur_line_id
@@ -169,7 +172,6 @@ class RPacket(object):
             return distance, interaction_type, delta_shell
         else:
             if distance_electron < distance_boundary:
-                #return distance_boundary, InteractionType.BOUNDARY, delta_shell
                 return distance_electron, InteractionType.ESCATTERING, delta_shell
             else:
                 return distance_boundary, InteractionType.BOUNDARY, delta_shell
