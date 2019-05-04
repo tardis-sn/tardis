@@ -11,7 +11,8 @@ from astropy import constants as const
 
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
-INVERSE_SIGMA_THOMSON = 1 / const.sigma_T.to('cm^2').value
+SIGMA_THOMSON = const.sigma_T.to('cm^2')
+INVERSE_SIGMA_THOMSON = 1 / SIGMA_THOMSON
 #class PacketStatus(Enum):
 IN_PROCESS = 0
 EMITTED = 1
@@ -67,10 +68,12 @@ def calculate_distance_line(nu, comov_nu, nu_line, ct):
         raise Exception
 
 @njit(**njit_dict)
-def calculate_distance_electron(shell_id, inverse_electron_densities, tau_event):    
-    return (inverse_electron_densities[shell_id] * 
-    INVERSE_SIGMA_THOMSON * tau_event)
+def calculate_distance_electron(inverse_electron_density, tau_event):    
+    return inverse_electron_density * INVERSE_SIGMA_THOMSON * tau_event
 
+@njit(**njit_dict)
+def calculate_tau_electron(electron_density, distance):    
+    return electron_density * SIGMA_THOMSON 
 
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, inverse_time_explosion):
@@ -103,21 +106,28 @@ class RPacket(object):
         distance_boundary, delta_shell = calculate_distance_boundary(
             self.r, self.mu, r_inner, r_outer)
         
-        #defining start for stuff
+        #defining start for line interaction
         cur_line_id = self.next_line_id
         nu_line = 0.0
+
         #defining taus
         tau_event = np.random.exponential()
         tau_trace_line = 0.0
         tau_trace_line_combined = 0.0
         
+        #e scattering initialization
+
+        cur_electron_density = storage_model.electron_densities[shell_id]
+        cur_inverse_electron_density = 1 / cur_electron_density
+        d_electron = calculate_distance_electron(
+            inverse_electron_densities, tau_event)
+
+
         #Calculating doppler factor
         doppler_factor = get_doppler_factor(self.r, self.mu, 
                                         storage_model.inverse_time_explosion)
         comov_nu = self.nu * doppler_factor
         distance_trace = 0.0
-        d_electron = calculate_distance_electron(self.current_shell_id, 
-                            storage_model.inverse_electron_densities, tau_event)
 
         while True:
             if cur_line_id < storage_model.no_of_lines: # not last_line
@@ -133,8 +143,10 @@ class RPacket(object):
                 break
             
             tau_trace_line_combined += tau_trace_line
-            distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, storage_model.ct)
-            tau_trace_combined = tau_trace_line_combined + 0 #tau_trace_electron electron scattering
+            distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, 
+                                                        storage_model.ct)
+            tau_electron = calculate_tau_electron(electron_density, distance_trace)
+            tau_trace_combined = tau_trace_line_combined + tau_trace_electron #tau_trace_electron electron scattering
             
             if distance_trace > distance_boundary:
                 interaction_type = InteractionType.BOUNDARY # BOUNDARY
