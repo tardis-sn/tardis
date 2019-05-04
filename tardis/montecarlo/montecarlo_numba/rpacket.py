@@ -11,7 +11,7 @@ from astropy import constants as const
 
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
-SIGMA_THOMSON = const.sigma_T.to('cm^2')
+SIGMA_THOMSON = const.sigma_T.to('cm^2').value
 INVERSE_SIGMA_THOMSON = 1 / SIGMA_THOMSON
 #class PacketStatus(Enum):
 IN_PROCESS = 0
@@ -19,9 +19,9 @@ EMITTED = 1
 REABSORBED = 2
 
 class InteractionType(Enum):
-    ESCATTERING = 0
     BOUNDARY = 1
     LINE = 2
+    ESCATTERING = 3
 
 rpacket_spec = [
     ('r', float64),
@@ -73,7 +73,7 @@ def calculate_distance_electron(inverse_electron_density, tau_event):
 
 @njit(**njit_dict)
 def calculate_tau_electron(electron_density, distance):    
-    return electron_density * SIGMA_THOMSON 
+    return electron_density * SIGMA_THOMSON * distance
 
 @njit(**njit_dict)
 def get_doppler_factor(r, mu, inverse_time_explosion):
@@ -117,10 +117,11 @@ class RPacket(object):
         
         #e scattering initialization
 
-        cur_electron_density = storage_model.electron_densities[shell_id]
+        cur_electron_density = storage_model.electron_densities[
+            self.current_shell_id]
         cur_inverse_electron_density = 1 / cur_electron_density
-        d_electron = calculate_distance_electron(
-            inverse_electron_densities, tau_event)
+        distance_electron = calculate_distance_electron(
+            cur_inverse_electron_density, tau_event)
 
 
         #Calculating doppler factor
@@ -128,6 +129,7 @@ class RPacket(object):
                                         storage_model.inverse_time_explosion)
         comov_nu = self.nu * doppler_factor
         distance_trace = 0.0
+        last_line = False
 
         while True:
             if cur_line_id < storage_model.no_of_lines: # not last_line
@@ -135,18 +137,17 @@ class RPacket(object):
                 tau_trace_line = storage_model.line_lists_tau_sobolevs[cur_line_id, 
                         self.current_shell_id]
             else:
-                nu_line = 0.0
-                tau_trace_line = 0.0
-                interaction_type = InteractionType.BOUNDARY  # FIXME: does not work for e-scattering
-                distance = distance_boundary
+                last_line = True
                 self.next_line_id = cur_line_id
                 break
             
             tau_trace_line_combined += tau_trace_line
             distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, 
                                                         storage_model.ct)
-            tau_electron = calculate_tau_electron(electron_density, distance_trace)
-            tau_trace_combined = tau_trace_line_combined + tau_trace_electron #tau_trace_electron electron scattering
+            tau_trace_electron = calculate_tau_electron(cur_electron_density, 
+                                                        distance_trace)
+
+            tau_trace_combined = tau_trace_line_combined + tau_trace_electron
             
             if distance_trace > distance_boundary:
                 interaction_type = InteractionType.BOUNDARY # BOUNDARY
@@ -164,8 +165,15 @@ class RPacket(object):
                 break
             
             cur_line_id += 1
-                     
-        return distance, interaction_type, delta_shell
+        if not last_line:            
+            return distance, interaction_type, delta_shell
+        else:
+            if distance_electron < distance_boundary:
+                #return distance_boundary, InteractionType.BOUNDARY, delta_shell
+                return distance_electron, InteractionType.ESCATTERING, delta_shell
+            else:
+                return distance_boundary, InteractionType.BOUNDARY, delta_shell
+            
 
     def move_packet(self, distance):
         """Move packet a distance and recalculate the new angle mu
@@ -227,6 +235,28 @@ class RPacket(object):
         inverse_new_doppler_factor = 1. / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
         comov_energy = self.energy * old_doppler_factor
         self.energy = comov_energy * inverse_new_doppler_factor
+
+    def scatter(self, storage_model):
+        """
+        General scattering for lines as well as thomson. 1) Move packet 
+        2) get the doppler factor at that position with the old angle
+        3) convert the current energy and nu into the comoving frame with the old
+        mu
+        4) Scatter and draw new mu
+        5) Transform the comoving energy and nu back
+        
+        Parameters
+        ----------
+        distance : [type]
+            [description]
+        """
+        doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
+        comov_energy = self.energy * doppler_factor
+        comov_nu = self.nu * doppler_factor
+        self.mu = get_random_mu()
+        inverse_new_doppler_factor = 1. / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
+        self.energy = comov_energy * inverse_new_doppler_factor
+        self.nu = comov_nu * inverse_new_doppler_factor
 
     def line_emission(self, storage_model):
         emission_line_id = self.next_line_id
