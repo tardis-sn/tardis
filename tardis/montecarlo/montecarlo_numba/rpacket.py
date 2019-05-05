@@ -2,12 +2,9 @@ import numpy as np
 from enum import Enum
 from numba import int64, float64, boolean
 from numba import jitclass, njit, gdb
-from tardis.montecarlo.montecarlo_numba.compute_distance import (
-    compute_distance2boundary,
-    compute_distance2continuum,
-    compute_distance2line)
+
 from tardis.montecarlo.montecarlo_numba import njit_dict
-from astropy import constants as const
+from tardis import constants as const
 
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
@@ -136,8 +133,8 @@ class RPacket(object):
         while True:
             if cur_line_id < storage_model.no_of_lines: # not last_line
                 nu_line = storage_model.line_list_nu[cur_line_id]
-                tau_trace_line = storage_model.line_lists_tau_sobolevs[cur_line_id, 
-                        self.current_shell_id]
+                tau_trace_line = storage_model.line_lists_tau_sobolevs[
+                    cur_line_id, self.current_shell_id]
             else:
                 last_line = True
                 self.next_line_id = cur_line_id
@@ -151,13 +148,15 @@ class RPacket(object):
 
             tau_trace_combined = tau_trace_line_combined + tau_trace_electron
 
-            if (distance_boundary <= distance_trace) and (distance_boundary <= distance_electron):
+            if ((distance_boundary <= distance_trace) and
+                    (distance_boundary <= distance_electron)):
                 interaction_type = InteractionType.BOUNDARY # BOUNDARY
                 self.next_line_id = cur_line_id
                 distance = distance_boundary
                 break
             
-            if (distance_electron < distance_trace) and (distance_electron < distance_boundary):
+            if ((distance_electron < distance_trace) and
+                    (distance_electron < distance_boundary)):
                 interaction_type = InteractionType.ESCATTERING
                 distance = distance_electron
                 self.next_line_id = cur_line_id
@@ -174,7 +173,8 @@ class RPacket(object):
             return distance, interaction_type, delta_shell
         else:
             if distance_electron < distance_boundary:
-                return distance_electron, InteractionType.ESCATTERING, delta_shell
+                return (distance_electron, InteractionType.ESCATTERING,
+                        delta_shell)
             else:
                 return distance_boundary, InteractionType.BOUNDARY, delta_shell
             
