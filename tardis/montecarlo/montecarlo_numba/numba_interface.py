@@ -61,8 +61,15 @@ class PacketCollection(object):
         self.packets_output_energy = packets_output_energy
 
 
+estimators_spec = [
+    ('j_estimator', float64[:]),
+    ('nu_bar_estimator', float64[:]),
+]
 
-
+@jitclass(estimators_spec)
 class Estimators(object):
-    pass
+    def __init__(self, j_estimator, nu_bar_estimator):
+        self.j_estimator = j_estimator
+        self.nu_bar_estimator = nu_bar_estimator
+
 

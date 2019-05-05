@@ -2,7 +2,7 @@ from numba import prange, njit, config
 import numpy as np
 from tardis.montecarlo.montecarlo_numba.rpacket import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    PacketCollection, NumbaModel, NumbaPlasma)
+    PacketCollection, NumbaModel, NumbaPlasma, Estimators)
 
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop)
@@ -22,13 +22,15 @@ def montecarlo_radial1d(model, plasma, runner):
                                    plasma.tau_sobolevs.values.copy(),
                                    dtype=np.float64)
                                )
+    estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator)
 
-    #storage_model = initialize_storage_model(model, plasma, runner)
-    montecarlo_main_loop(packet_collection, numba_model, numba_plasma)
+    montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
+                         estimators)
 
 
 @njit(**njit_dict, nogil=True)
-def montecarlo_main_loop(packet_collection, numba_model, numba_plasma):
+def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
+                         estimators):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
     and sends them through the ejecta. 
@@ -47,7 +49,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma):
                            packet_collection.packets_input_nu[i],
                            packet_collection.packets_input_energy[i])
 
-        single_packet_loop(r_packet, numba_model, numba_plasma)
+        single_packet_loop(r_packet, numba_model, numba_plasma, estimators)
         output_nus[i] = r_packet.nu
 
         if r_packet.status == PacketStatus.REABSORBED:
