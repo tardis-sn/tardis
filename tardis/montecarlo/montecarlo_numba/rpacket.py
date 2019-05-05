@@ -190,7 +190,7 @@ class RPacket(object):
                 return distance_boundary, InteractionType.BOUNDARY, delta_shell
             
 
-    def move_packet(self, distance):
+    def move_packet(self, distance, time_explosion, numba_estimator):
         """Move packet a distance and recalculate the new angle mu
         
         Parameters
@@ -199,12 +199,23 @@ class RPacket(object):
             distance in cm
         """
 
+
+        doppler_factor = get_doppler_factor(self.r, self.mu, time_explosion)
+        comov_nu = self.nu * doppler_factor
+        comov_energy = self.energy * doppler_factor
+        numba_estimator.j_estimator[self.current_shell_id] += (
+                comov_energy * distance)
+        numba_estimator.nu_bar_estimator[self.current_shell_id] += (
+                comov_energy * distance * comov_nu)
+
         r = self.r
         if (distance > 0.0):
             new_r = np.sqrt(r**2 + distance**2 +
                              2.0 * r * distance * self.mu)
             self.mu = (self.mu * r + distance) / new_r
             self.r = new_r
+
+
 
     def move_packet_across_shell_boundary(self, distance, delta_shell,
                                           no_of_shells):
@@ -225,7 +236,6 @@ class RPacket(object):
             number of shells in TARDIS simulation
         """
 
-        self.move_packet(distance)
         if ((self.current_shell_id < no_of_shells - 1 and delta_shell == 1) 
             or (self.current_shell_id > 0 and delta_shell == -1)):
             self.current_shell_id += delta_shell
