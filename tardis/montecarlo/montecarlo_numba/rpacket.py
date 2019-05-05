@@ -1,5 +1,5 @@
 import numpy as np
-from enum import Enum
+from enum import IntEnum
 from numba import int64, float64, boolean
 from numba import jitclass, njit, gdb
 
@@ -11,12 +11,12 @@ MISS_DISTANCE = 1e99
 SIGMA_THOMSON = const.sigma_T.to('cm^2').value
 INVERSE_SIGMA_THOMSON = 1 / SIGMA_THOMSON
 
-class PacketStatus(Enum):
+class PacketStatus(IntEnum):
     IN_PROCESS = 0
     EMITTED = 1
     REABSORBED = 2
 
-class InteractionType(Enum):
+class InteractionType(IntEnum):
     BOUNDARY = 1
     LINE = 2
     ESCATTERING = 3
@@ -54,14 +54,14 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     return distance, delta_shell
 
 @njit(**njit_dict)
-def calculate_distance_line(nu, comov_nu, nu_line, ct):
+def calculate_distance_line(nu, comov_nu, nu_line, time_explosion):
     if nu_line == 0.0:
         return MISS_DISTANCE
     nu_diff = comov_nu - nu_line
     if np.abs(nu_diff / comov_nu) < 1e-7:
             nu_diff = 0.0
     if nu_diff >= 0:                    
-        return (nu_diff / nu) * ct
+        return (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
         raise Exception
 
@@ -74,8 +74,8 @@ def calculate_tau_electron(electron_density, distance):
     return electron_density * SIGMA_THOMSON * distance
 
 @njit(**njit_dict)
-def get_doppler_factor(r, mu, inverse_time_explosion):
-    beta = (r * inverse_time_explosion) / C_SPEED_OF_LIGHT
+def get_doppler_factor(r, mu, time_explosion):
+    beta = (r / time_explosion) / C_SPEED_OF_LIGHT
     return 1.0 - mu * beta
 
 @njit(**njit_dict)
@@ -95,10 +95,21 @@ class RPacket(object):
         self.next_line_id = -1
         
         
-    def trace_packet(self, storage_model):
+    def trace_packet(self, numba_model, numba_plasma):
+        """
+
+        Parameters
+        ----------
+        numba_model: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
+        numba_plasma: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+
+        Returns
+        -------
+
+        """
         
-        r_inner = storage_model.r_inner[self.current_shell_id]
-        r_outer = storage_model.r_outer[self.current_shell_id]
+        r_inner = numba_model.r_inner[self.current_shell_id]
+        r_outer = numba_model.r_outer[self.current_shell_id]
         
         distance = 0.0
 
@@ -116,7 +127,7 @@ class RPacket(object):
         
         #e scattering initialization
 
-        cur_electron_density = storage_model.electron_densities[
+        cur_electron_density = numba_plasma.electron_density[
             self.current_shell_id]
         cur_inverse_electron_density = 1 / cur_electron_density
         distance_electron = calculate_distance_electron(
@@ -125,15 +136,15 @@ class RPacket(object):
 
         #Calculating doppler factor
         doppler_factor = get_doppler_factor(self.r, self.mu, 
-                                        storage_model.inverse_time_explosion)
+                                        numba_model.time_explosion)
         comov_nu = self.nu * doppler_factor
         distance_trace = 0.0
         last_line = False
 
         while True:
-            if cur_line_id < storage_model.no_of_lines: # not last_line
-                nu_line = storage_model.line_list_nu[cur_line_id]
-                tau_trace_line = storage_model.line_lists_tau_sobolevs[
+            if cur_line_id < len(numba_plasma.line_list_nu): # not last_line
+                nu_line = numba_plasma.line_list_nu[cur_line_id]
+                tau_trace_line = numba_plasma.tau_sobolev[
                     cur_line_id, self.current_shell_id]
             else:
                 last_line = True
@@ -141,8 +152,8 @@ class RPacket(object):
                 break
             
             tau_trace_line_combined += tau_trace_line
-            distance_trace = calculate_distance_line(self.nu, comov_nu, nu_line, 
-                                                        storage_model.ct)
+            distance_trace = calculate_distance_line(
+                self.nu, comov_nu, nu_line, numba_model.time_explosion)
             tau_trace_electron = calculate_tau_electron(cur_electron_density, 
                                                         distance_trace)
 
@@ -195,7 +206,8 @@ class RPacket(object):
             self.mu = (self.mu * r + distance) / new_r
             self.r = new_r
 
-    def move_packet_across_shell_boundary(self, distance, delta_shell, no_of_shells):
+    def move_packet_across_shell_boundary(self, distance, delta_shell,
+                                          no_of_shells):
         """
         Move packet across shell boundary - realizing if we are still in the simulation or have
         moved out through the inner boundary or outer boundary and updating packet
@@ -222,32 +234,35 @@ class RPacket(object):
         else:
             self.status = PacketStatus.REABSORBED
     
-    def initialize_line_id(self, storage_model):
-        inverse_line_list_nu = storage_model.line_list_nu[::-1]
-        doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
+    def initialize_line_id(self, numba_plasma, numba_model):
+        inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
+        doppler_factor = get_doppler_factor(self.r, self.mu,
+                                            numba_model.time_explosion)
         comov_nu = self.nu * doppler_factor
-        next_line_id = storage_model.no_of_lines - np.searchsorted(inverse_line_list_nu, comov_nu)
+        next_line_id = (len(numba_plasma.line_list_nu) -
+                        np.searchsorted(inverse_line_list_nu, comov_nu))
         self.next_line_id = next_line_id
 
 
-    def scatter(self, storage_model):
+    def scatter(self, time_explosion):
         """
-        General scattering for lines as well as thomson. 1) Move packet 
+        General scattering for lines as well as thomson.
         2) get the doppler factor at that position with the old angle
-        3) convert the current energy and nu into the comoving frame with the old
-        mu
-        4) Scatter and draw new mu
-        5) Transform the comoving energy and nu back
+        3) convert the current energy and nu into the comoving
+            frame with the old mu
+        4) Scatter and draw new mu - update mu
+        5) Transform the comoving energy and nu back using the new mu
         
         Parameters
         ----------
         distance : [type]
             [description]
         """
-        doppler_factor = get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
+        doppler_factor = get_doppler_factor(self.r, self.mu, time_explosion)
         comov_energy = self.energy * doppler_factor
         comov_nu = self.nu * doppler_factor
         self.mu = get_random_mu()
-        inverse_new_doppler_factor = 1. / get_doppler_factor(self.r, self.mu, storage_model.inverse_time_explosion)
+        inverse_new_doppler_factor = 1. / get_doppler_factor(
+            self.r, self.mu, time_explosion)
         self.energy = comov_energy * inverse_new_doppler_factor
         self.nu = comov_nu * inverse_new_doppler_factor
