@@ -43,6 +43,7 @@ Using Tardis
     running/index
     examples/index
     scripts/index
+    team
     credits
 
 ======================
