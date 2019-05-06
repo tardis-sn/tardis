@@ -1,10 +1,11 @@
-from numba import float64, int64
+from numba import float64, int64, jitclass
 import numpy as np
 
 from
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     calculate_distance_boundary, calculate_distance_electron,
-    get_doppler_factor, calculate_distance_line, calculate_tau_electron)
+    get_doppler_factor, calculate_distance_line, calculate_tau_electron,
+    PacketStatus)
 
 vpacket_spec = [
     ('r', float64),
@@ -13,6 +14,7 @@ vpacket_spec = [
     ('energy', float64),
     ('next_line_id', int64),
     ('current_shell_id', int64),
+    ('status', int64)
 ]
 
 @jitclass(vpacket_spec)
@@ -24,6 +26,7 @@ class VPacket(object):
         self.energy = energy
         self.current_shell_id = -1
         self.next_line_id = -1
+        self.status = -1
 
     def trace_vpacket(self, storage_model):
         
