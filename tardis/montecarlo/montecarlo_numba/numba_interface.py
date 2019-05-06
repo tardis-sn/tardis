@@ -72,4 +72,11 @@ class Estimators(object):
         self.j_estimator = j_estimator
         self.nu_bar_estimator = nu_bar_estimator
 
+monte_carlo_configuration_spec = [
+    ('number_of_vpackets', int64)
+]
 
+@jitclass(monte_carlo_configuration_spec)
+class MonteCarloConfiguration(object):
+    def __init__(self, number_of_vpackets):
+        self.number_of_vpackets = number_of_vpackets

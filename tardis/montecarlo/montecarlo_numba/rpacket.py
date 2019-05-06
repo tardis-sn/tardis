@@ -92,7 +92,7 @@ class RPacket(object):
         self.energy = energy
         self.current_shell_id = 0
         self.status = PacketStatus.IN_PROCESS
-        self.next_line_id = -1
+
         
         
     def trace_packet(self, numba_model, numba_plasma):
@@ -243,7 +243,7 @@ class RPacket(object):
             self.status = PacketStatus.EMITTED
         else:
             self.status = PacketStatus.REABSORBED
-    
+
     def initialize_line_id(self, numba_plasma, numba_model):
         inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
         doppler_factor = get_doppler_factor(self.r, self.mu,
