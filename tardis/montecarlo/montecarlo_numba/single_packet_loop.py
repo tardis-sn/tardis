@@ -1,7 +1,8 @@
 from numba import njit
 
 from tardis.montecarlo.montecarlo_numba.rpacket import (
-    InteractionType, PacketStatus, get_doppler_factor)
+    InteractionType, PacketStatus, get_doppler_factor, trace_packet,
+    move_packet_across_shell_boundary, move_packet, scatter, initialize_line_id)
 
 @njit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators):
@@ -23,22 +24,22 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators):
                                         numba_model.time_explosion)
     r_packet.nu /= doppler_factor
     r_packet.energy /= doppler_factor
-    r_packet.initialize_line_id(numba_plasma, numba_model)
+    initialize_line_id(r_packet, numba_plasma, numba_model)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
-        distance, interaction_type, delta_shell = r_packet.trace_packet(
-            numba_model, numba_plasma)
+        distance, interaction_type, delta_shell = trace_packet(
+            r_packet, numba_model, numba_plasma)
         if interaction_type == InteractionType.BOUNDARY:
-            r_packet.move_packet(distance, numba_model.time_explosion,
+            move_packet(r_packet, distance, numba_model.time_explosion,
                                  estimators)
-            r_packet.move_packet_across_shell_boundary(distance, delta_shell,
+            move_packet_across_shell_boundary(r_packet, distance, delta_shell,
                                                        len(numba_model.r_inner))
         elif interaction_type == InteractionType.LINE:
-            r_packet.move_packet(distance, numba_model.time_explosion,
+            move_packet(r_packet, distance, numba_model.time_explosion,
                                  estimators)
-            r_packet.scatter(numba_model.time_explosion)
+            scatter(r_packet, numba_model.time_explosion)
             r_packet.next_line_id += 1
         elif interaction_type == InteractionType.ESCATTERING:
-            r_packet.move_packet(distance, numba_model.time_explosion,
+            move_packet(r_packet, distance, numba_model.time_explosion,
                                  estimators)
-            r_packet.scatter(numba_model.time_explosion)
+            scatter(r_packet, numba_model.time_explosion)
