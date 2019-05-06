@@ -1,8 +1,7 @@
 from numba import njit
-import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.rpacket import (
-    InteractionType, PacketStatus)
+    InteractionType, PacketStatus, get_doppler_factor)
 
 @njit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators):
@@ -19,6 +18,11 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators):
     -------
 
     """
+
+    doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
+                                        numba_model.time_explosion)
+    r_packet.nu /= doppler_factor
+    r_packet.energy /= doppler_factor
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
     while r_packet.status == PacketStatus.IN_PROCESS:
