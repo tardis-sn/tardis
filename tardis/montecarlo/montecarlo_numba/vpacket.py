@@ -1,6 +1,7 @@
 from numba import float64, int64
 import numpy as np
 
+from
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     calculate_distance_boundary, calculate_distance_electron,
     get_doppler_factor, calculate_distance_line, calculate_tau_electron)
@@ -64,7 +65,7 @@ class VPacket(object):
 
         tau_trace_combined = tau_trace_electron
 
-        while True:
+        while self.status == INPROCESS:
             if cur_line_id < storage_model.no_of_lines:  # not last_line
                 nu_line = storage_model.line_list_nu[cur_line_id]
                 tau_trace_line = storage_model.line_lists_tau_sobolevs[
@@ -81,9 +82,12 @@ class VPacket(object):
             tau_trace_combined = tau_trace_line_combined + tau_trace_electron
 
             if (distance_boundary <= distance_trace):
+                current_shell_id += delta
+                self.move_packet_across_shell_boundary(distance_boundary)
+                distance_trace =
                 distance_boundary, delta_shell = calculate_distance_boundary(
                     self.r, self.mu, r_inner, r_outer)
-                current_shell_id +=1
+
                 ## distance_boundary
                 #unless shell 
                 interaction_type = InteractionType.BOUNDARY # BOUNDARY
@@ -106,7 +110,7 @@ class VPacket(object):
             else:
                 return distance_boundary, InteractionType.BOUNDARY, delta_shell
 
-    def move_packet(self, distance, time_explosion, numba_estimator):
+    def move_vpacket(self, distance):
         """Move packet a distance and recalculate the new angle mu
 
         Parameters
@@ -114,15 +118,6 @@ class VPacket(object):
         distance : float
             distance in cm
         """
-
-        doppler_factor = get_doppler_factor(self.r, self.mu, time_explosion)
-        comov_nu = self.nu * doppler_factor
-        comov_energy = self.energy * doppler_factor
-        numba_estimator.j_estimator[self.current_shell_id] += (
-                comov_energy * distance)
-        numba_estimator.nu_bar_estimator[self.current_shell_id] += (
-                comov_energy * distance * comov_nu)
-
         r = self.r
         if (distance > 0.0):
             new_r = np.sqrt(r ** 2 + distance ** 2 +
