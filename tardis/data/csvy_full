@@ -5,17 +5,17 @@ tardis_config_version: v1.0
 atom_data: path/to/atom_data
 datatype:
   fields:
-    name: velocity
-    unit: km/s
-    desc: velocities of shell outer bounderies.
-    name: density
-    unit: g/cm^3
-    desc: density of shell.
+    -  name: velocity
+       unit: km/s
+       desc: velocities of shell outer bounderies.
+    -  name: density
+       unit: g/cm^3
+       desc: density of shell.
 
 model:
   v_inner_boundary: 9000 km/s
   v_outer_boundary: 15000 km/s
 ---
-vel,density
+velocity,density
 10000, 5e-9
 11000, 2e-9
