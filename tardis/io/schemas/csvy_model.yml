@@ -1,0 +1,28 @@
+$schema: http://json-schema.org/draft-04/schema#
+type: object
+additionalProperties: false
+properties:
+  name: 
+    type: string
+    description: name of the model being run
+
+  description:
+    type: string
+    description: description of the model being run
+
+  tardis_config_version:
+    type: string
+    description: Version of the configuration file
+
+  atom_data:
+    type: string
+    description: path to the atom data
+
+  required:
+  - name
+  - tardis_config_version
+  - atom_data
+
+definitions:
+  datatype:
+
