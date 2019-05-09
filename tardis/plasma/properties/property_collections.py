@@ -5,7 +5,7 @@ class PlasmaPropertyCollection(list):
 
 basic_inputs = PlasmaPropertyCollection([TRadiative, Abundance, Density,
     TimeExplosion, AtomicData, DilutionFactor, LinkTRadTElectron,
-    HeliumTreatment])
+    HeliumTreatment, ContinuumInteractionSpecies])
 basic_properties = PlasmaPropertyCollection([BetaRadiation,
     Levels, Lines, AtomicMass, PartitionFunction,
     GElectron, IonizationData, NumberDensity, LinesLowerLevelIndex,
@@ -36,3 +36,6 @@ detailed_j_blues_properties = PlasmaPropertyCollection([JBluesDetailed,
                                                         JBluesNormFactor,
                                                         LuminosityInner,
                                                         TimeSimulation])
+continuum_interaction_properties = PlasmaPropertyCollection(
+    [PhotoIonizationData]
+)

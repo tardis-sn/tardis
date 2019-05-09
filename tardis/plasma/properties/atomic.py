@@ -11,7 +11,8 @@ from tardis.plasma.exceptions import IncompleteAtomicData
 logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData']
+           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData',
+           'PhotoIonizationData']
 
 class Levels(BaseAtomicDataProperty):
     """
@@ -64,6 +65,34 @@ class Lines(BaseAtomicDataProperty):
     def _set_index(self, lines):
         # lines.set_index('line_id', inplace=True)
         return lines, lines['nu'], lines['f_lu'], lines['wavelength_cm']
+
+
+class PhotoIonizationData(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    photo_ion_cross_sections : Pandas DataFrame (nu, x_sect,
+                                                 index=['atomic_number',
+                                                        'ion_number',
+                                                        'level_number']),
+                                                 dtype float)
+                               Table of photoionization cross sections as a
+                               function of frequency.
+    """
+    outputs = ('photo_ion_cross_sections',)
+    latex_name = ('\\xi_{\\textrm{i}}(\\nu)',)
+
+    def calculate(self, atomic_data, continuum_interaction_species):
+        photoionization_data = atomic_data.photoionization_data.set_index(
+            ['atomic_number', 'ion_number', 'level_number']
+        )
+        selected_species_idx = pd.IndexSlice[
+            continuum_interaction_species.get_level_values('atomic_number'),
+            continuum_interaction_species.get_level_values('ion_number'),
+            slice(None)
+        ]
+        return photoionization_data.loc[selected_species_idx]
+
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """

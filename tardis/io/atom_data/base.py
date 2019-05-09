@@ -77,6 +77,11 @@ class AtomData(object):
     zeta_data: ?
     synpp_refs: ?
 
+    photoionization_data: pandas.DataFrame
+        A DataFrame containing the *photoionization data* with:
+            index: no index;
+            columns: atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
+
     Attributes
     -------------
     prepared: bool
@@ -91,6 +96,7 @@ class AtomData(object):
     synpp_refs: pandas.DataFrame
     symbol2atomic_number: OrderedDict
     atomic_number2symbol OrderedDict
+    photoionization_data: pandas.DataFrame
 
     Methods
     --------
@@ -113,7 +119,8 @@ class AtomData(object):
             "zeta_data",
             "collision_data",
             "collision_data_temperatures",
-            "synpp_refs"
+            "synpp_refs",
+            "photoionization_data"
     ]
 
     # List of tuples of the related dataframes.
@@ -174,11 +181,11 @@ class AtomData(object):
 
         return atom_data
 
-    def __init__(
-            self, atom_data, ionization_data, levels=None, lines=None,
-            macro_atom_data=None, macro_atom_references=None,
-            zeta_data=None, collision_data=None,
-            collision_data_temperatures=None, synpp_refs=None):
+    def __init__(self, atom_data, ionization_data, levels=None, lines=None,
+                 macro_atom_data=None, macro_atom_references=None,
+                 zeta_data=None, collision_data=None,
+                 collision_data_temperatures=None, synpp_refs=None,
+                 photoionization_data=None):
 
         self.prepared = False
 
@@ -223,6 +230,8 @@ class AtomData(object):
         self.collision_data_temperatures = collision_data_temperatures
 
         self.synpp_refs = synpp_refs
+
+        self.photoionization_data = photoionization_data
 
         self._check_related()
 

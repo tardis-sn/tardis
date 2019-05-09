@@ -1,6 +1,7 @@
 import logging
 
 import numpy as np
+import pandas as pd
 from astropy import units as u
 from tardis import constants as const
 
@@ -63,7 +64,7 @@ class SelectedAtoms(ProcessingPlasmaProperty):
     """
     Attributes
     ----------
-    selected_atoms : Numpy Array, dtype int
+    selected_atoms : Pandas Int64Index, dtype int
                      Atomic numbers of elements required for particular simulation
     """
     outputs = ('selected_atoms',)

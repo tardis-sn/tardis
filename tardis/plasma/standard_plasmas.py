@@ -11,7 +11,8 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     macro_atom_properties, dilute_lte_excitation_properties,
     nebular_ionization_properties, non_nlte_properties,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
-    helium_lte_properties, detailed_j_blues_properties, detailed_j_blues_inputs)
+    helium_lte_properties, detailed_j_blues_properties,
+    detailed_j_blues_inputs, continuum_interaction_properties)
 from tardis.plasma.exceptions import PlasmaConfigError
 
 from tardis.plasma.properties import (
@@ -25,20 +26,6 @@ from tardis.plasma.properties import (
         IonNumberDensity)
 
 logger = logging.getLogger(__name__)
-
-class LTEPlasma(BasePlasma):
-
-    def __init__(self, t_rad, abundance, density, time_explosion, atomic_data,
-        j_blues, link_t_rad_t_electron=0.9, delta_treatment=None):
-        plasma_modules = basic_inputs + basic_properties + \
-            lte_excitation_properties + lte_ionization_properties + \
-            non_nlte_properties
-
-        super(LTEPlasma, self).__init__(plasma_properties=plasma_modules,
-            t_rad=t_rad, abundance=abundance, atomic_data=atomic_data,
-            density=density, time_explosion=time_explosion, j_blues=j_blues,
-            w=None, link_t_rad_t_electron=link_t_rad_t_electron,
-            delta_input=delta_treatment, nlte_species=None)
 
 
 def assemble_plasma(config, model, atom_data=None):
@@ -62,6 +49,15 @@ def assemble_plasma(config, model, atom_data=None):
     # Convert the nlte species list to a proper format.
     nlte_species = [species_string_to_tuple(s) for s in
                     config.plasma.nlte.species]
+
+    # Convert the continuum interaction species list to a proper format.
+    continuum_interaction_species = [
+        species_string_to_tuple(s) for s in
+        config.plasma.continuum_interaction.species
+    ]
+    continuum_interaction_species = pd.MultiIndex.from_tuples(
+        continuum_interaction_species, names=['atomic_number', 'ion_number']
+    )
 
     if atom_data is None:
         if 'atom_data' in config:
@@ -91,10 +87,13 @@ def assemble_plasma(config, model, atom_data=None):
     kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
                   density=model.density, atomic_data=atom_data,
                   time_explosion=model.time_explosion,
-                  w=model.dilution_factor, link_t_rad_t_electron=0.9)
+                  w=model.dilution_factor, link_t_rad_t_electron=0.9,
+                  continuum_interaction_species=continuum_interaction_species)
 
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
+    if config.plasma.continuum_interaction.species:
+        plasma_modules += continuum_interaction_properties
     if config.plasma.radiative_rates_type == 'blackbody':
         plasma_modules.append(JBluesBlackBody)
     elif config.plasma.radiative_rates_type == 'dilute-blackbody':
