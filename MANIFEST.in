@@ -19,6 +19,7 @@ prune docs/_build
 prune docs/api
 
 recursive-include astropy_helpers *
+recursive-include astropy_helpers/astropy_helpers.egg-info *
 exclude astropy_helpers/.git
 exclude astropy_helpers/.gitignore
 
