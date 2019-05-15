@@ -39,6 +39,10 @@ jobs:
           echo "Hello world"
     displayName: Hello World
 
+  - bash: |
+          echo "Hello world2"
+    displayName: Hello World2
+
 
 
 #  - task: PublishTestResults@2
