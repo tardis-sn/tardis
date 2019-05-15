@@ -4,6 +4,7 @@ import logging
 import pandas as pd
 
 from tardis.io.atom_data import AtomData
+from tardis.io.config_reader import ConfigurationError
 from tardis.util.base import species_string_to_tuple
 from tardis.plasma import BasePlasma
 from tardis.plasma.properties.property_collections import (basic_inputs,
@@ -83,6 +84,18 @@ def assemble_plasma(config, model, atom_data=None):
         model.abundance.index,
         line_interaction_type=config.plasma.line_interaction_type,
         nlte_species=nlte_species)
+
+    # Check if continuum interaction species are in selected_atoms
+    continuum_atoms = continuum_interaction_species.get_level_values(
+        'atomic_number'
+    )
+    continuum_atoms_in_selected_atoms = np.all(
+        continuum_atoms.isin(atom_data.selected_atomic_numbers)
+    )
+    if not continuum_atoms_in_selected_atoms:
+        raise ConfigurationError('Not all continuum interaction species '
+                                 'belong to atoms that have been specified '
+                                 'in the configuration.')
 
     kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
                   density=model.density, atomic_data=atom_data,
