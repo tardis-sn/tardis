@@ -10,7 +10,7 @@ properties:
     type: string
     description: description of the model being run
 
-  tardis_config_version:
+  tardis_model_config_version:
     type: string
     description: Version of the configuration file
 
