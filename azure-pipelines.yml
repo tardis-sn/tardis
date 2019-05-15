@@ -38,6 +38,10 @@ jobs:
     displayName: Add conda to PATH
 
   - bash: |
+          echo "Hello world"
+    displayName: Hello World
+
+  - bash: |
       sudo chown -R $USER $CONDA
       conda update -y conda
     displayName: updating conda and activating
