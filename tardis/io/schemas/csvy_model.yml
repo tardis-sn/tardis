@@ -26,6 +26,18 @@ properties:
     type: quantity
     description: velocity of the outer boundary of the last shell
 
+  velocity:
+    type: object
+    properties:
+      start:
+        type: quantity
+      stop:
+        type: quantity
+      num:
+        type: number
+        multipleOf: 1.0
+
+
   structure:
     oneOf:
     - $ref: '#/definitions/structure/csvy'
