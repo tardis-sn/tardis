@@ -6,6 +6,7 @@
 
 trigger:
 - master
+- pipeline
 
 variables:
   system.debug: 'true'
