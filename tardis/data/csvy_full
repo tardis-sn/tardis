@@ -1,7 +1,7 @@
 ---
 name: csvy_full
 description: Example csvy config file for TARDIS.
-tardis_config_version: v1.0
+tardis_model_config_version: v1.0
 atom_data: path/to/atom_data
 datatype:
   fields:
@@ -11,11 +11,14 @@ datatype:
     -  name: density
        unit: g/cm^3
        desc: density of shell.
+    -  name: H
+       desc: fractional H abundance
+    -  name: He
+       desc: fractional He abundance
 
-model:
-  v_inner_boundary: 9000 km/s
-  v_outer_boundary: 15000 km/s
+v_inner_boundary: 9000 km/s
+v_outer_boundary: 15000 km/s
 ---
-velocity,density
-10000, 5e-9
-11000, 2e-9
+velocity,density,H,He
+10000, 5e-9, 0.3, 0.7
+11000, 2e-9, 0.6, 0.4
