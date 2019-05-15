@@ -37,23 +37,16 @@ properties:
         type: number
         multipleOf: 1.0
 
-
-  structure:
-    oneOf:
-    - $ref: '#/definitions/structure/csvy'
-    - $ref: '#/definitions/structure/specific'
+  density:
+    $ref: '#/definitions/structure/specific'
 
   abundance:
-    oneOf:
-    - $ref: '#/definitions/abundance/csvy'
-    - $ref: '#/definitions/abundance/uniform'
+    $ref: '#/definitions/abundance/uniform'
 
   required:
   - name
   - tardis_config_version
   - atom_data
-  - structure
-  - abundance
 
 definitions:
   density:
@@ -134,9 +127,6 @@ definitions:
       required:
       - value
   structure:
-    csvy:
-      additionalProperties: false
-
     specific:
       type: object
       additionalProperties: false
@@ -165,9 +155,6 @@ definitions:
       - velocity
       - density
   abundances:
-    csvy:
-      additionalProperties: false
-
     uniform:
       type: object
       additionalProperties: true
