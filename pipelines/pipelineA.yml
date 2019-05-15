@@ -7,7 +7,6 @@
 trigger:
 - master
 
-
 variables:
   system.debug: 'true'
   ref.data.home: '$(Agent.BuildDirectory)/tardis-refdata'
