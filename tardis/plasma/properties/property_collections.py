@@ -37,5 +37,7 @@ detailed_j_blues_properties = PlasmaPropertyCollection([JBluesDetailed,
                                                         LuminosityInner,
                                                         TimeSimulation])
 continuum_interaction_properties = PlasmaPropertyCollection(
-    [PhotoIonizationData]
+    [PhotoIonizationData, SpontRecombRateCoeff,
+     ThermalLevelBoltzmannFactorLTE, ThermalLTEPartitionFunction, BetaElectron,
+     ThermalGElectron, ThermalPhiSahaLTE, SahaFactor]
 )

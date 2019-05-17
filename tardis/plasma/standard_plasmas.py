@@ -1,6 +1,7 @@
 import os
 import logging
 
+import numpy as np
 import pandas as pd
 
 from tardis.io.atom_data import AtomData
