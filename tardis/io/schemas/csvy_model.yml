@@ -18,6 +18,13 @@ properties:
     type: string
     description: path to the atom data
 
+  datatype:
+    type: object
+    additionalProperties: False
+    properties:
+      fields:
+        type: array
+
   v_inner_boundary:
     type: quantity
     description: velocity of the inner boundary
