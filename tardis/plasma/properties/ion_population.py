@@ -1,6 +1,7 @@
 import logging
 import warnings
 
+import sys
 import numpy as np
 import pandas as pd
 import numexpr as ne
@@ -400,6 +401,8 @@ class SahaFactor(ProcessingPlasmaProperty):
         partition_function_index = get_ion_multi_index(boltzmann_factor.index,
                                                        next_higher=False)
         phi_saha = thermal_phi_lte.loc[phi_saha_index].values
+        # Replace zero values in phi_saha to avoid zero division in Saha factor
+        phi_saha[phi_saha == 0.0] = sys.float_info.min
         partition_function = thermal_lte_partition_function.loc[
             partition_function_index].values
         return boltzmann_factor / (phi_saha * partition_function)
