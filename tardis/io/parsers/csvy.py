@@ -17,7 +17,10 @@ def load_csvy(fname):
         else:
             raise ValueError('End YAML_DELIMITER not found') 
         yaml_dict = yaml.load(''.join(yaml_lines[1:-1]), YAMLLoader)
-        data = pd.read_csv(fname, skiprows=yaml_end_ind + 1)
+        try:
+            data = pd.read_csv(fname, skiprows=yaml_end_ind + 1)
+        except pd.io.common.EmptyDataError as e:
+            data = None
 
     return yaml_dict, data
 
