@@ -7,6 +7,7 @@ from astropy import units as u
 import tardis
 from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file
+from tardis.io.parsers.csvy import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -79,6 +80,26 @@ class ConfigurationNameSpace(dict):
             yaml_dict = yaml_load_file(fname)
         except IOError as e:
             logger.critical('No config file named: %s', fname)
+            raise e
+
+
+        return cls.from_config_dict(yaml_dict)
+
+    @classmethod
+    def from_csvy(cls, fname):
+        """
+        Read a configuration from a csvy file.
+
+        Parameters
+        ----------
+
+        fname: str
+            filename or path
+        """
+        try:
+            yaml_dict = load_yaml_from_csvy(fname)
+        except IOError as e:
+            logger.critical('No config file named: %s',fname)
             raise e
 
 
