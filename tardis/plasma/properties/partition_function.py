@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 __all__ = ['LevelBoltzmannFactorLTE', 'LevelBoltzmannFactorDiluteLTE',
            'LevelBoltzmannFactorNoNLTE', 'LevelBoltzmannFactorNLTE',
-           'PartitionFunction']
+           'PartitionFunction', 'ThermalLevelBoltzmannFactorLTE',
+           'ThermalLTEPartitionFunction']
 
 
 class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
@@ -19,8 +20,9 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     Attributes
     ----------
     general_level_boltzmann_factor : Pandas DataFrame, dtype float
-                             Level population proportionality values. Indexed
-                             by atomic number, ion number, level number.
+                             Level population proportionality values.
+                             Evaluated at the radiation temperature.
+                             Indexed by atomic number, ion number, level number.
                              Columns corresponding to zones. Does not consider
                              NLTE.
     """
@@ -39,6 +41,30 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
                                               columns=np.arange(len(beta_rad)),
                                               dtype=np.float64)
         return level_boltzmann_factor
+
+
+class ThermalLevelBoltzmannFactorLTE(LevelBoltzmannFactorLTE):
+    """
+    Attributes
+    ----------
+    thermal_lte_level_boltzmann_factor : Pandas DataFrame, dtype float
+                             Level population proportionality values for LTE.
+                             Evaluated at the temperature of the
+                             electron gas (thermal). Indexed
+                             by atomic number, ion number, level number.
+                             Columns corresponding to zones.
+    """
+    outputs = ('thermal_lte_level_boltzmann_factor',)
+    latex_name = ('bf_{i,j,k}^{\\textrm{LTE}}(T_e)',)
+    latex_formula = ('g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
+        \\textrm{B}}T_{\\textrm{electron}}}}',)
+
+    @staticmethod
+    def calculate(excitation_energy, g, beta_electron, levels):
+        return super(ThermalLevelBoltzmannFactorLTE,
+                     ThermalLevelBoltzmannFactorLTE).calculate(
+                         excitation_energy, g, beta_electron, levels
+                     )
 
 
 class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
@@ -275,3 +301,20 @@ class PartitionFunction(ProcessingPlasmaProperty):
     def calculate(self, level_boltzmann_factor):
         return level_boltzmann_factor.groupby(
             level=['atomic_number', 'ion_number']).sum()
+
+
+class ThermalLTEPartitionFunction(PartitionFunction):
+    """
+    Attributes
+    ----------
+    thermal_lte_partition_function : Pandas DataFrame, dtype float
+                                     Indexed by atomic number, ion number.
+                                     Columns are zones.
+    """
+    outputs = ('thermal_lte_partition_function',)
+    latex_name = ('Z_{i,j}(T_\\mathrm{e}',)
+
+    def calculate(self, thermal_lte_level_boltzmann_factor):
+        return super(ThermalLTEPartitionFunction, self).calculate(
+            thermal_lte_level_boltzmann_factor
+        )

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = ['BetaRadiation', 'GElectron', 'NumberDensity', 'SelectedAtoms',
            'ElectronTemperature', 'BetaElectron', 'LuminosityInner',
-           'TimeSimulation']
+           'TimeSimulation', 'ThermalGElectron']
 
 class BetaRadiation(ProcessingPlasmaProperty):
     """
@@ -44,6 +44,22 @@ class GElectron(ProcessingPlasmaProperty):
     def calculate(self, beta_rad):
         return ((2 * np.pi * const.m_e.cgs.value / beta_rad) /
                 (const.h.cgs.value ** 2)) ** 1.5
+
+
+class ThermalGElectron(GElectron):
+    """
+    Attributes
+    ----------
+    thermal_g_electron : Numpy Array, dtype float
+    """
+    outputs = ('thermal_g_electron',)
+    latex_name = ('g_{\\textrm{electron_thermal}}',)
+    latex_formula = ('\\Big(\\dfrac{2\\pi m_{e}/\
+                     \\beta_{\\textrm{electron}}}{h^2}\\Big)^{3/2}',)
+
+    def calculate(self, beta_electron):
+        return super(ThermalGElectron, self).calculate(beta_electron)
+
 
 class NumberDensity(ProcessingPlasmaProperty):
     """
