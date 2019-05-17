@@ -377,3 +377,12 @@ class Radial1DModel(HDFWriterMixin):
                    v_boundary_inner=structure.get('v_inner_boundary', None),
                    v_boundary_outer=structure.get('v_outer_boundary', None),
                    electron_densities=electron_densities)
+
+
+    @classmethod
+    def from_csvy(cls, csvy):
+
+        """
+        Create a new Radial1DModel instance from a csvy Configuration object.
+        """
+        return
