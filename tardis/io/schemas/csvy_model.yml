@@ -45,7 +45,11 @@ properties:
         multipleOf: 1.0
 
   density:
-    $ref: '#/definitions/structure/specific'
+    oneOf:
+    - $ref: '#/definitions/density/branch85_w7'
+    - $ref: '#/definitions/density/exponential'
+    - $ref: '#/definitions/density/power_law'
+    - $ref: '#/definitions/density/uniform'
 
   abundance:
     $ref: '#/definitions/abundance/uniform'
@@ -133,35 +137,7 @@ definitions:
           description: value for uniform density
       required:
       - value
-  structure:
-    specific:
-      type: object
-      additionalProperties: false
-      properties:
-        type:
-          enum:
-          - specific
-        velocity:
-          type: object
-          properties:
-            start:
-              type: quantity
-            stop:
-              type: quantity
-            num:
-              type: number
-              multipleOf: 1.0
-          description: description of the boundaries of the shells
-        density:
-          oneOf:
-          - $ref: '#/definitions/density/branch85_w7'
-          - $ref: '#/definitions/density/exponential'
-          - $ref: '#/definitions/density/power_law'
-          - $ref: '#/definitions/density/uniform'
-      required:
-      - velocity
-      - density
-  abundances:
+  abundance:
     uniform:
       type: object
       additionalProperties: true

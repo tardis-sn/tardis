@@ -8,8 +8,10 @@ velocity:
   start: 9000 km/s
   stop: 15000 km/s
   num: 10
-density: branch85_w7
-abundance: uniform
+density:
+  type: branch85_w7
+abundance:
+  type: uniform
 v_inner_boundary: 9000 km/s
 v_outer_boundary: 15000 km/s
 ---
