@@ -44,24 +44,24 @@ class AtomData(object):
 
     levels: pandas.DataFrame
         A DataFrame containing the *levels data* with:
-            index: no index;
+            index: numerical index;
             columns: atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
 
     lines: pandas.DataFrame
         A DataFrame containing the *lines data* with:
-            index: no index;
+            index: numerical index;
             columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
                 wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
     macro_atom_data:
         A DataFrame containing the *macro atom data* with:
-            index: no_index;
+            index: numerical index;
             columns: atomic_number, ion_number, source_level_number, destination_level_number,
                 transition_line_id, transition_type, transition_probability;
 
     macro_atom_references:
         A DataFrame containing  the *macro atom references* with:
-            index: no_index;
+            index: numerical index;
             columns: atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
 
         Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
@@ -79,7 +79,7 @@ class AtomData(object):
 
     photoionization_data: pandas.DataFrame
         A DataFrame containing the *photoionization data* with:
-            index: no index;
+            index: numerical index;
             columns: atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
 
     Attributes
