@@ -14,10 +14,7 @@ properties:
     type: string
     description: Version of the configuration file
 
-  atom_data:
-    type: string
-    description: path to the atom data
-
+# datatype name used for consistency with astropy ecsv files.
   datatype:
     type: object
     additionalProperties: False
