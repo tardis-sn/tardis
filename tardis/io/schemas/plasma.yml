@@ -70,6 +70,17 @@ properties:
         type: boolean
         default: false
         description: sets all beta_sobolevs to 1
+  continuum_interaction:
+    type: object
+    default: {}
+    additionalProperties: false
+    properties:
+      species:
+        type: array
+        default: []
+        description: Species that are requested to be treated with continuum
+            interactios (radiative/collisional ionization and recombination)
+            in the format ['Si II', 'Ca I', etc.]
   helium_treatment:
     type: string
     default: none
