@@ -2,7 +2,6 @@
 name: csvy_full
 description: Example csvy config file for TARDIS.
 tardis_model_config_version: v1.0
-atom_data: path/to/atom_data
 datatype:
   fields:
     -  name: velocity
