@@ -74,7 +74,14 @@ class AtomData(object):
     collision_data_temperatures: np.array
         An array with the collision temperatures.
 
-    zeta_data: ?
+    zeta_data:
+        A DataFrame containing the *zeta data* for the
+        nebular ionization calculation
+        (i.e., the fraction of recombinations that go directly to the
+        ground state) with:
+            index: atomic_number, ion_charge;
+            columns: temperatures[K]
+
     synpp_refs: ?
 
     photoionization_data: pandas.DataFrame
