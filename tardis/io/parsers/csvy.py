@@ -4,6 +4,21 @@ from tardis.io.util import YAMLLoader
 
 YAML_DELIMITER = '---'
 def load_csvy(fname):
+    """
+    Parameters
+    ----------
+
+    fname : string
+            Path to csvy file
+
+    Returns
+    -------
+    yaml_dict : dictionary
+                YAML part of the csvy file
+
+    data : pandas.dataframe
+           csv data from csvy file
+    """
     with open(fname) as fh:
         yaml_lines = []
         yaml_end_ind = -1
