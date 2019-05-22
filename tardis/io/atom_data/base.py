@@ -44,24 +44,24 @@ class AtomData(object):
 
     levels: pandas.DataFrame
         A DataFrame containing the *levels data* with:
-            index: no index;
+            index: numerical index;
             columns: atomic_number, ion_number, level_number, energy[eV], g[1], metastable.
 
     lines: pandas.DataFrame
         A DataFrame containing the *lines data* with:
-            index: no index;
+            index: numerical index;
             columns: line_id, atomic_number, ion_number, level_number_lower, level_number_upper,
                 wavelength[angstrom], nu[Hz], f_lu[1], f_ul[1], B_ul[?], B_ul[?], A_ul[1/s].
 
     macro_atom_data:
         A DataFrame containing the *macro atom data* with:
-            index: no_index;
+            index: numerical index;
             columns: atomic_number, ion_number, source_level_number, destination_level_number,
                 transition_line_id, transition_type, transition_probability;
 
     macro_atom_references:
         A DataFrame containing  the *macro atom references* with:
-            index: no_index;
+            index: numerical index;
             columns: atomic_number, ion_number, source_level_number, count_down, count_up, count_total.
 
         Refer to the docs: http://tardis.readthedocs.io/en/latest/physics/plasma/macroatom.html
@@ -74,10 +74,20 @@ class AtomData(object):
     collision_data_temperatures: np.array
         An array with the collision temperatures.
 
-    zeta_data: ?
+    zeta_data:
+        A DataFrame containing the *zeta data* for the
+        nebular ionization calculation
+        (i.e., the fraction of recombinations that go directly to the
+        ground state) with:
+            index: atomic_number, ion_charge;
+            columns: temperatures[K]
+
     synpp_refs: ?
-    ion_cx_tx_data: ?
-    ion_cx_sp_data: ?
+
+    photoionization_data: pandas.DataFrame
+        A DataFrame containing the *photoionization data* with:
+            index: numerical index;
+            columns: atomic_number, ion_number, level_number, nu[Hz], x_sect[cm^2]
 
     Attributes
     -------------
@@ -91,10 +101,9 @@ class AtomData(object):
     collision_data_temperatures: numpy.array
     zeta_data: pandas.DataFrame
     synpp_refs: pandas.DataFrame
-    ion_cx_tx_data: pandas.DataFrame
-    ion_cx_sp_data: pandas.DataFrame
     symbol2atomic_number: OrderedDict
     atomic_number2symbol OrderedDict
+    photoionization_data: pandas.DataFrame
 
     Methods
     --------
@@ -118,8 +127,8 @@ class AtomData(object):
             "collision_data",
             "collision_data_temperatures",
             "synpp_refs",
-            "ion_cx_th_data",
-            "ion_cx_sp_data"]
+            "photoionization_data"
+    ]
 
     # List of tuples of the related dataframes.
     # Either all or none of the related dataframes must be given
@@ -179,12 +188,11 @@ class AtomData(object):
 
         return atom_data
 
-    def __init__(
-            self, atom_data, ionization_data, levels=None, lines=None,
-            macro_atom_data=None, macro_atom_references=None,
-            zeta_data=None, collision_data=None,
-            collision_data_temperatures=None, synpp_refs=None,
-            ion_cx_th_data=None, ion_cx_sp_data=None):
+    def __init__(self, atom_data, ionization_data, levels=None, lines=None,
+                 macro_atom_data=None, macro_atom_references=None,
+                 zeta_data=None, collision_data=None,
+                 collision_data_temperatures=None, synpp_refs=None,
+                 photoionization_data=None):
 
         self.prepared = False
 
@@ -229,8 +237,8 @@ class AtomData(object):
         self.collision_data_temperatures = collision_data_temperatures
 
         self.synpp_refs = synpp_refs
-        self.ion_cx_th_data = ion_cx_th_data
-        self.ion_cx_sp_data = ion_cx_sp_data
+
+        self.photoionization_data = photoionization_data
 
         self._check_related()
 
@@ -316,9 +324,6 @@ class AtomData(object):
         self.lines_upper2level_idx = (
                 self.levels_index.loc[tmp_lines_upper2level_idx].
                 astype(np.int64).values)
-
-        self.atom_ion_index = None
-        self.levels_index2atom_ion_index = None
 
         if (
                 self.macro_atom_data_all is not None and

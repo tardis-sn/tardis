@@ -11,7 +11,8 @@ from tardis.plasma.exceptions import IncompleteAtomicData
 logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
-           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData']
+           'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData',
+           'PhotoIonizationData']
 
 class Levels(BaseAtomicDataProperty):
     """
@@ -65,6 +66,48 @@ class Lines(BaseAtomicDataProperty):
         # lines.set_index('line_id', inplace=True)
         return lines, lines['nu'], lines['f_lu'], lines['wavelength_cm']
 
+
+class PhotoIonizationData(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    photo_ion_cross_sections: Pandas DataFrame (nu, x_sect,
+                                                index=['atomic_number',
+                                                       'ion_number',
+                                                       'level_number']),
+                                                dtype float)
+                              Table of photoionization cross sections as a
+                              function of frequency.
+    photo_ion_block_references: One-dimensional Numpy Array, dtype int
+                              Indices where the photoionization data for
+                              a given level starts. Needed for calculation
+                              of recombination rates.
+    photo_ion_index: Pandas MultiIndex, dtype int
+                              Atomic, ion and level numbers for which
+                              photoionization data exists.
+    """
+    outputs = ('photo_ion_cross_sections', 'photo_ion_block_references',
+               'photo_ion_index')
+    latex_name = ('\\xi_{\\textrm{i}}(\\nu)', '', '')
+
+    def calculate(self, atomic_data, continuum_interaction_species):
+        photoionization_data = atomic_data.photoionization_data.set_index(
+            ['atomic_number', 'ion_number', 'level_number']
+        )
+        selected_species_idx = pd.IndexSlice[
+            continuum_interaction_species.get_level_values('atomic_number'),
+            continuum_interaction_species.get_level_values('ion_number'),
+            slice(None)
+        ]
+        photoionization_data = photoionization_data.loc[selected_species_idx]
+        phot_nus = photoionization_data['nu']
+        block_references = np.hstack(
+            [[0], phot_nus.groupby(level=[0,1,2]).count().values.cumsum()]
+        )
+        photo_ion_index = photoionization_data.index.unique()
+        return photoionization_data, block_references, photo_ion_index
+
+
 class LinesLowerLevelIndex(HiddenPlasmaProperty):
     """
     Attributes:
@@ -92,18 +135,6 @@ class LinesUpperLevelIndex(HiddenPlasmaProperty):
         lines_index = lines.index.droplevel('level_number_lower')
         return np.array(levels_index.loc[lines_index])
 
-class IonCXData(BaseAtomicDataProperty):
-    outputs = ('ion_cx_data',)
-
-    def _filter_atomic_property(self, ion_cx_data, selected_atoms):
-        return ion_cx_data[ion_cx_data.atomic_number.isin([selected_atoms]
-                                                          if np.isscalar(
-            selected_atoms)
-                                                          else selected_atoms)]
-
-    def _set_index(self, ion_cx_data):
-        return ion_cx_data.set_index(['atomic_number', 'ion_number',
-                                      'level_number'])
 
 class AtomicMass(ProcessingPlasmaProperty):
     """

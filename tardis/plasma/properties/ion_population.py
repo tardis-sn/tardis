@@ -1,6 +1,7 @@
 import logging
 import warnings
 
+import sys
 import numpy as np
 import pandas as pd
 import numexpr as ne
@@ -8,13 +9,15 @@ import numexpr as ne
 from scipy import interpolate
 
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
+from tardis.plasma.properties.continuum_processes import get_ion_multi_index
 from tardis.plasma.exceptions import PlasmaIonizationError
 
 
 logger = logging.getLogger(__name__)
 
 __all__ = ['PhiSahaNebular', 'PhiSahaLTE', 'RadiationFieldCorrection',
-           'IonNumberDensity', 'IonNumberDensityHeNLTE']
+           'IonNumberDensity', 'IonNumberDensityHeNLTE', 'SahaFactor',
+           'ThermalPhiSahaLTE']
 
 
 def calculate_block_ids_from_dataframe(dataframe):
@@ -27,7 +30,8 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
     """
     Attributes:
     phi : Pandas DataFrame, dtype float
-          Used for LTE ionization. Indexed by atomic number, ion number. Columns are zones.
+          Used for LTE ionization (at the radiation temperature).
+          Indexed by atomic number, ion number. Columns are zones.
     """
     outputs = ('phi',)
     latex_name = ('\\Phi',)
@@ -69,6 +73,28 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
     def _calculate_block_ids(partition_function):
         partition_function.index.get_level_values(0).unique()
 
+
+class ThermalPhiSahaLTE(PhiSahaLTE):
+    """
+    Attributes:
+    phi : Pandas DataFrame, dtype float
+          Used for LTE ionization (at the electron temperature).
+          Indexed by atomic number, ion number. Columns are zones.
+    """
+    outputs = ('thermal_phi_lte',)
+    latex_name = ('\\Phi^{*}(T_\\mathrm{e})',)
+    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
+                     \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{electron}}}{h^2}\
+                     \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
+                     \\textrm{electron}}}}',)
+
+    @staticmethod
+    def calculate(thermal_g_electron, beta_electron,
+                  thermal_lte_partition_function, ionization_data):
+        return super(ThermalPhiSahaLTE, ThermalPhiSahaLTE).calculate(
+            thermal_g_electron, beta_electron, thermal_lte_partition_function,
+            ionization_data
+        )
 
 
 class PhiSahaNebular(ProcessingPlasmaProperty):
@@ -350,3 +376,40 @@ class IonNumberDensityHeNLTE(ProcessingPlasmaProperty):
             ion_number_density.loc[2, 2].update(helium_population_updated.loc[
                                                       2, 0])
         return ion_number_density, n_electron, helium_population_updated
+
+
+class SahaFactor(ProcessingPlasmaProperty):
+    """
+    Calculates the 'Saha factor' Phi_ik = n_i* / (n_k* n_e), i.e.,
+    the ratio of the LTE level population n_i*, and the product of
+    the LTE ion density n_k* and the actual electron density n_e.
+
+    Attributes:
+    phi_ik: Pandas DataFrame, dtype float
+            Indexed by atom number, ion number, level number.
+            Columns are zones.
+    """
+    outputs = ('phi_ik',)
+    latex_name = ('\\Phi_{i,\\kappa}',)
+
+    def calculate(self, thermal_phi_lte, thermal_lte_level_boltzmann_factor,
+                  thermal_lte_partition_function):
+        boltzmann_factor = self._prepare_boltzmann_factor(
+            thermal_lte_level_boltzmann_factor
+        )
+        phi_saha_index = get_ion_multi_index(boltzmann_factor.index)
+        partition_function_index = get_ion_multi_index(boltzmann_factor.index,
+                                                       next_higher=False)
+        phi_saha = thermal_phi_lte.loc[phi_saha_index].values
+        # Replace zero values in phi_saha to avoid zero division in Saha factor
+        phi_saha[phi_saha == 0.0] = sys.float_info.min
+        partition_function = thermal_lte_partition_function.loc[
+            partition_function_index].values
+        return boltzmann_factor / (phi_saha * partition_function)
+
+    @staticmethod
+    def _prepare_boltzmann_factor(boltzmann_factor):
+        atomic_number = boltzmann_factor.index.get_level_values(0)
+        ion_number = boltzmann_factor.index.get_level_values(1)
+        selected_ions_mask = (atomic_number != ion_number)
+        return boltzmann_factor[selected_ions_mask]
