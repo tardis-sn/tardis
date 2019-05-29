@@ -113,7 +113,6 @@ package_info = get_package_info()
 package_info['package_data'].setdefault(PACKAGENAME, [])
 package_info['package_data'][PACKAGENAME].append('data/*')
 package_info['package_data'][PACKAGENAME].append('io/schemas/*')
-package_info['package_data'][PACKAGENAME].append('io/tests/data/*')
 
 # Define entry points for command-line scripts
 entry_points = {}
