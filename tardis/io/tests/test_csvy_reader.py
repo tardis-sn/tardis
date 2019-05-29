@@ -1,5 +1,7 @@
 import tardis
 from tardis.io.parsers import csvy
+from tardis.io.config_validator import validate_dict
+from jsonschema import exceptions as json_schema_exc
 import pytest
 import os
 from astropy import units as u
@@ -16,6 +18,10 @@ def csvy_full_fname():
 def csvy_nocsv_fname():
     return os.path.join(DATA_PATH, 'csvy_nocsv.csvy')
 
+@pytest.fixture
+def csvy_missing_fname():
+    return os.path.join(DATA_PATH, 'csvy_missing.csvy')
+
 def test_csvy_finds_csv_first_line(csvy_full_fname):
     yaml_dict, csv = csvy.load_csvy(csvy_full_fname)
     npt.assert_almost_equal(csv['velocity'][0],10000)
@@ -31,3 +37,11 @@ def test_csv_colnames_equiv_datatype_fields(csvy_full_fname):
 def test_csvy_nocsv_data_is_none(csvy_nocsv_fname):
     yaml_dict, csv = csvy.load_csvy(csvy_nocsv_fname)
     assert csv is None
+
+def test_missing_required_property(csvy_missing_fname):
+    yaml_dict, csv = csvy.load_csvy(csvy_missing_fname)
+    try:
+        vy = validate_dict(yaml_dict, schemapath=os.path.join(tardis.__path__[0], 'io', 'schemas', 'csvy_model.yml'))
+    except json_schema_exc.ValidationError as e:
+        return
+    assert vy != yaml_dict
