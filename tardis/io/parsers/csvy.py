@@ -40,6 +40,18 @@ def load_csvy(fname):
     return yaml_dict, data
 
 def load_yaml_from_csvy(fname):
+    """
+    Parameters
+    ----------
+
+    fname : string
+            Path to csvy file
+
+    Returns
+    -------
+    yaml_dict : dictionary
+                YAML part of the csvy file
+    """
     with open(fname) as fh:
         yaml_lines = []
         yaml_end_ind = -1
@@ -56,5 +68,17 @@ def load_yaml_from_csvy(fname):
     return yaml_dict
 
 def load_csv_from_csvy(fname):
+    """
+    Parameters
+    ----------
+
+    fname : string
+            Path to csvy file
+
+    Returns
+    -------
+    data : pandas.dataframe
+           csv data from csvy file
+    """
     yaml_dict, data = load_csvy(fname)
     return data
