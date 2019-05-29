@@ -40,8 +40,6 @@ def test_csvy_nocsv_data_is_none(csvy_nocsv_fname):
 
 def test_missing_required_property(csvy_missing_fname):
     yaml_dict, csv = csvy.load_csvy(csvy_missing_fname)
-    try:
-        vy = validate_dict(yaml_dict, schemapath=os.path.join(tardis.__path__[0], 'io', 'schemas', 'csvy_model.yml'))
-    except json_schema_exc.ValidationError as e:
-        return
-    assert vy != yaml_dict
+    with pytest.raises(Exception):
+        vy = validate_dict(yaml_dict, schemapath=os.path.join(tardis.__path__[0], 'io', 'schemas',
+ 'csvy_model.yml'))
