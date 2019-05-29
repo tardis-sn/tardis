@@ -10,15 +10,15 @@ DATA_PATH = os.path.join(tardis.__path__[0], 'io', 'tests', 'data')
 
 @pytest.fixture
 def csvy_full_fname():
-    return os.path.join(DATA_PATH, 'csvy_full.dat')
+    return os.path.join(DATA_PATH, 'csvy_full.csvy')
 
 @pytest.fixture
 def csvy_nocsv_fname():
-    return os.path.join(DATA_PATH, 'csvy_nocsv.dat')
+    return os.path.join(DATA_PATH, 'csvy_nocsv.csvy')
 
 def test_csvy_finds_csv_first_line(csvy_full_fname):
     yaml_dict, csv = csvy.load_csvy(csvy_full_fname)
-    assert csv['velocity'][0] == 10000
+    npt.assert_almost_equal(csv['velocity'][0],10000)
 
 def test_csv_colnames_equiv_datatype_fields(csvy_full_fname):
     yaml_dict, csv = csvy.load_csvy(csvy_full_fname)
