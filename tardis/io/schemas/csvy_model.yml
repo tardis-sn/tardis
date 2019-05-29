@@ -4,16 +4,20 @@ additionalProperties: false
 properties:
   name: 
     type: string
+    description: name of the model being run
 
   description:
     type: string
+    description: description of the model being run
 
   tardis_model_config_version:
     type: string
+    description: Version of the configuration file
 
 # datatype name used for consistency with astropy ecsv files.
   datatype:
     type: object
+    description: fields found in csv part of csvy file
     additionalProperties: False
     properties:
       fields:
@@ -21,9 +25,11 @@ properties:
 
   v_inner_boundary:
     type: quantity
+    description: velocity of the inner boundary
 
   v_outer_boundary:
     type: quantity
+    description: velocity of the outer boundary of the last shell
 
   velocity:
     type: object
@@ -48,7 +54,7 @@ properties:
 
   required:
   - name
-  - tardis_config_version
+  - tardis_model_config_version
 
 definitions:
   density:
