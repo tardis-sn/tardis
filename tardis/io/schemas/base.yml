@@ -5,6 +5,9 @@ properties:
   tardis_config_version:
     type: string
     description: Version of the configuration file. The current version is 1.0 and no other versions are allowed
+  csvy_model:
+    type: string
+    description: Path to the csvy model file.
   supernova:
     $ref: supernova.yml
     description: a section pertaining to observations of the supernova
