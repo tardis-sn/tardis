@@ -1,10 +1,9 @@
 from numba import float64, int64, jitclass
 import numpy as np
 
-from
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     calculate_distance_boundary, get_doppler_factor, calculate_distance_line,
-    calculate_tau_electron, PacketStatus)
+    calculate_tau_electron, PacketStatus, move_packet_across_shell_boundary)
 
 vpacket_spec = [
     ('r', float64),
@@ -26,69 +25,6 @@ class VPacket(object):
         self.current_shell_id = -1
         self.next_line_id = -1
         self.status = -1
-
-    def trace_vpacket(self, storage_model):
-        
-        r_inner = storage_model.r_inner[self.current_shell_id]
-        r_outer = storage_model.r_outer[self.current_shell_id]
-        
-        distance = 0.0
-
-        distance_boundary, delta_shell = calculate_distance_boundary(
-            self.r, self.mu, r_inner, r_outer)
-        
-        #defining start for line interaction
-        cur_line_id = self.next_line_id
-        nu_line = 0.0
-
-        #defining taus
-        tau_event = np.random.exponential()
-        tau_trace_line = 0.0
-        tau_trace_line_combined = 0.0
-        
-        #e scattering initialization
-
-        cur_electron_density = storage_model.electron_densities[
-            self.current_shell_id]
-
-        #Calculating doppler factor
-        doppler_factor = get_doppler_factor(self.r, self.mu, 
-                                        storage_model.inverse_time_explosion)
-        last_line = False
-
-        tau_trace_electron = calculate_tau_electron(cur_electron_density,
-                                                    distance_boundary)
-
-        tau_trace_combined = tau_trace_electron
-
-        while True:
-            if cur_line_id < storage_model.no_of_lines:  # not last_line
-                nu_line = storage_model.line_list_nu[cur_line_id]
-                tau_trace_line = storage_model.line_lists_tau_sobolevs[
-                    cur_line_id, self.current_shell_id]
-                tau_trace_combined += tau_trace_line
-                distance_trace = calculate_distance_line(self.nu, comov_nu,
-                                                         nu_line,
-                                                         storage_model.ct)
-                cur_line_id += 1
-            else:
-                distance_trace = distance_boundary + 1.0
-            
-
-
-
-            if distance_boundary <= distance_trace:
-                self.current_shell_id += delta_shell
-                self.move_packet_across_shell_boundary(distance_boundary)
-                if not self.status == PacketStatus.IN_PROCESS:
-                    break
-
-                comov_nu = self.nu * doppler_factor
-                tau_electron = calculate_tau_electron(cur_electron_density,
-                                                      distance_boundary)
-                tau_trace_combined += tau_electron
-
-            return tau_trace_combined
 
     def move_vpacket(self, distance):
         """Move packet a distance and recalculate the new angle mu
@@ -124,23 +60,78 @@ class VPacket(object):
             number of shells in TARDIS simulation
         """
 
-        if ((self.current_shell_id < no_of_shells - 1 and delta_shell == 1)
-                or (self.current_shell_id > 0 and delta_shell == -1)):
-            self.current_shell_id += delta_shell
-        elif delta_shell == 1:
-            self.status = PacketStatus.EMITTED
+        next_shell_id = r_packet.current_shell_id + delta_shell
+
+        if next_shell_id >= no_of_shells:
+            r_packet.status = PacketStatus.EMITTED
+        elif next_shell_id < 0:
+            r_packet.status = PacketStatus.REABSORBED
         else:
-            self.status = PacketStatus.REABSORBED
+            rpacket.current_shell_id = next_shell_id
 
 
-def create_single_vpacket():
+@njit(**njit_dict)
+def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
+    
+    r_inner = numba_model.r_inner[v_packet.current_shell_id]
+    r_outer = numba_model.r_outer[v_packet.current_shell_id]
 
-def create_volley_vpacket():
+    distance_boundary, delta_shell = calculate_distance_boundary(
+        v_packet.r, v_packet.mu, r_inner, r_outer)
 
-    if cur_r_packet.r > r_innerst:
-        mu_min = -np.sqrt(1 - r_innerst / cur_r_packet.r) ** 2
-    else:
-        mu_min = 0.0
+    # defining start for line interaction
+    start_line_id = v_packet.next_line_id
+
+    # defining taus
+    
+
+    # e scattering initialization
+    cur_electron_density = numba_plasma.electron_density[
+        v_packet.current_shell_id]
+    tau_electron = calculate_tau_electron(cur_electron_density, 
+                                            distance_boundary)
+    tau_trace_combined = tau_electron
+
+    # Calculating doppler factor
+    doppler_factor = get_doppler_factor(v_packet.r, v_packet.mu,
+                                        numba_model.time_explosion)
+    comov_nu = v_packet.nu * doppler_factor
+    cur_line_id = start_line_id
+
+    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+        nu_line = numba_plasma.line_list_nu[cur_line_id]
+        tau_trace_line = numba_plasma.tau_sobolev[
+            cur_line_id, v_packet.current_shell_id]
+
+        tau_trace_combined += tau_trace_line
+        distance_trace_line = calculate_distance_line(
+            v_packet.nu, comov_nu, nu_line, numba_model.time_explosion)
+
+        if (distance_boundary <= distance_trace_line):
+            v_packet.next_line_id = cur_line_id
+            break
+
+    v_packet.next_line_id = cur_line_id
+    return tau_trace_combined, distance_boundary, delta_shell
+
+
+def trace_vpacket(v_packet, numba_model, numba_plasma):
+    tau_trace_combined = 0.0
+    while True:
+        tau_trace_combined_shell, distance_boundary, delta_shell = trace_vpacket_within_shell(
+            v_packet, numba_model, numba_plasma
+        )
+        tau_trace_combined += tau_trace_combined_shell
+        move_packet_across_shell_boundary(v_packet, delta_shell,
+                                            no_of_shells)
+        if v_packet.status == PacketStatus.EMITTED:
+            break
+
+        # Moving the v_packet
+        new_r = np.sqrt(v_packet.r**2 + distance_boundary**2 +
+                         2.0 * v_packet.r * distance_boundary * v_packet.mu)
+        v_packet.mu = (v_packet.mu * v_packet.r + distance_boundary) / new_r
+        v_packet.r = new_r
 
     double
     mu_bin = (1.0 - mu_min) / rpacket_get_virtual_packet_flag(packet);
