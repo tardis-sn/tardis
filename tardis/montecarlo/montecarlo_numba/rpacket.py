@@ -6,6 +6,9 @@ from numba import jitclass, njit, gdb
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis import constants as const
 
+class MonteCarloException(ValueError):
+    pass
+
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
 SIGMA_THOMSON = const.sigma_T.to('cm^2').value
@@ -63,7 +66,7 @@ def calculate_distance_line(nu, comov_nu, nu_line, time_explosion):
     if nu_diff >= 0:                    
         return (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
-        raise Exception
+        raise MonteCarloException('nu difference is less than 0.0')
 
 @njit(**njit_dict)
 def calculate_distance_electron(electron_density, tau_event):
@@ -95,6 +98,17 @@ class RPacket(object):
         self.current_shell_id = 0
         self.status = PacketStatus.IN_PROCESS
 
+    def initialize_line_id(self, numba_plasma, numba_model):
+        inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
+        doppler_factor = get_doppler_factor(self.r, self.mu,
+                                            numba_model.time_explosion)
+        comov_nu = self.nu * doppler_factor
+        next_line_id = (len(numba_plasma.line_list_nu) -
+                        np.searchsorted(inverse_line_list_nu, comov_nu))
+        self.next_line_id = next_line_id
+
+
+
 @njit(**njit_dict)
 def trace_packet(r_packet, numba_model, numba_plasma):
     """
@@ -112,14 +126,11 @@ def trace_packet(r_packet, numba_model, numba_plasma):
     r_inner = numba_model.r_inner[r_packet.current_shell_id]
     r_outer = numba_model.r_outer[r_packet.current_shell_id]
 
-    distance = 0.0
-
     distance_boundary, delta_shell = calculate_distance_boundary(
         r_packet.r, r_packet.mu, r_inner, r_outer)
 
     # defining start for line interaction
-    cur_line_id = r_packet.next_line_id
-    nu_line = 0.0
+    start_line_id = r_packet.next_line_id
 
     # defining taus
     tau_event = np.random.exponential()
@@ -137,23 +148,17 @@ def trace_packet(r_packet, numba_model, numba_plasma):
                                         numba_model.time_explosion)
     comov_nu = r_packet.nu * doppler_factor
     last_line = False
-
-    while True:
-        if cur_line_id < len(numba_plasma.line_list_nu):  # not last_line
-            nu_line = numba_plasma.line_list_nu[cur_line_id]
-            tau_trace_line = numba_plasma.tau_sobolev[
-                cur_line_id, r_packet.current_shell_id]
-        else:
-            last_line = True
-            r_packet.next_line_id = cur_line_id
-            break
-
+    cur_line_id = start_line_id
+    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+        nu_line = numba_plasma.line_list_nu[cur_line_id]
+        tau_trace_line = numba_plasma.tau_sobolev[
+            cur_line_id, r_packet.current_shell_id]
+    
         tau_trace_line_combined += tau_trace_line
         distance_trace = calculate_distance_line(
             r_packet.nu, comov_nu, nu_line, numba_model.time_explosion)
         tau_trace_electron = calculate_tau_electron(cur_electron_density,
                                                     distance_trace)
-
         tau_trace_combined = tau_trace_line_combined + tau_trace_electron
 
         if ((distance_boundary <= distance_trace) and
@@ -175,21 +180,19 @@ def trace_packet(r_packet, numba_model, numba_plasma):
             r_packet.next_line_id = cur_line_id
             distance = distance_trace
             break
-
-        cur_line_id += 1
-
-    if not last_line:
-        return distance, interaction_type, delta_shell
-    else:
+    else:  # Executed when no break occurs in the for loop
         if distance_electron < distance_boundary:
-            return (distance_electron, InteractionType.ESCATTERING,
-                    delta_shell)
+            interaction_type = InteractionType.ESCATTERING
         else:
-            return distance_boundary, InteractionType.BOUNDARY, delta_shell
+            interaction_type = InteractionType.BOUNDARY
+
+    r_packet.next_line_id = cur_line_id
+
+    return distance, interaction_type, delta_shell
 
 
 @njit(**njit_dict)
-def move_packet(r_packet, distance, time_explosion, numba_estimator):
+def move_rpacket(r_packet, distance, time_explosion, numba_estimator):
     """Move packet a distance and recalculate the new angle mu
     
     Parameters
@@ -215,7 +218,7 @@ def move_packet(r_packet, distance, time_explosion, numba_estimator):
         r_packet.r = new_r
 
 @njit(**njit_dict)
-def move_packet_across_shell_boundary(r_packet, distance, delta_shell,
+def move_packet_across_shell_boundary(packet, distance, delta_shell,
                                       no_of_shells):
     """
     Move packet across shell boundary - realizing if we are still in the simulation or have
@@ -233,24 +236,14 @@ def move_packet_across_shell_boundary(r_packet, distance, delta_shell,
     no_of_shells: int
         number of shells in TARDIS simulation
     """
+    next_shell_id = packet.current_shell_id + delta_shell
 
-    if ((r_packet.current_shell_id < no_of_shells - 1 and delta_shell == 1) 
-        or (r_packet.current_shell_id > 0 and delta_shell == -1)):
-        r_packet.current_shell_id += delta_shell
-    elif delta_shell == 1:
-        r_packet.status = PacketStatus.EMITTED
+    if next_shell_id >= no_of_shells:
+        packet.status = PacketStatus.EMITTED
+    elif next_shell_id < 0:
+        packet.status = PacketStatus.REABSORBED
     else:
-        r_packet.status = PacketStatus.REABSORBED
-
-@njit(**njit_dict)
-def initialize_line_id(r_packet, numba_plasma, numba_model):
-    inverse_line_list_nu = numba_plasma.line_list_nu[::-1]
-    doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
-                                        numba_model.time_explosion)
-    comov_nu = r_packet.nu * doppler_factor
-    next_line_id = (len(numba_plasma.line_list_nu) -
-                    np.searchsorted(inverse_line_list_nu, comov_nu))
-    r_packet.next_line_id = next_line_id
+        packet.current_shell_id = next_shell_id
 
 @njit(**njit_dict)
 def scatter(r_packet, time_explosion):
