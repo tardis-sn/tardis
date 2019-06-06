@@ -1,4 +1,6 @@
 from numba import float64, int64, jitclass
+import numpy as np
+
 from tardis import constants as const
 
 
@@ -60,7 +62,24 @@ class PacketCollection(object):
         self.packets_output_nu = packets_output_nu
         self.packets_output_energy = packets_output_energy
 
+vpacket_collection_spec = [
+    ('spectrum_frequency', float64[:]),
+    ('nus', float64[:]),
+    ('energies', float64[:]),
+    ('idx', int64),
+    ('number_of_vpackets', int64)
+]
 
+@jitclass(vpacket_collection_spec)
+class VPacketCollection(object):
+    def __init__(self, spectrum_frequency, number_of_vpackets, initial_vpacket_bins):
+        self.spectrum_frequency = spectrum_frequency
+        self.nus = np.empty(initial_vpacket_bins, dtype=np.float64)
+        self.energies = np.empty(initial_vpacket_bins, dtype=np.float64)
+        self.number_of_vpackets = number_of_vpackets
+        self.idx = 0
+        
+        
 estimators_spec = [
     ('j_estimator', float64[:]),
     ('nu_bar_estimator', float64[:]),
