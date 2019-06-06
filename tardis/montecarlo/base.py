@@ -221,7 +221,8 @@ class MontecarloRunner(HDFWriterMixin):
 
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets)
-        montecarlo_radial1d(model, plasma, self)
+
+        montecarlo_radial1d(model, plasma, self, no_of_virtual_packets)
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,

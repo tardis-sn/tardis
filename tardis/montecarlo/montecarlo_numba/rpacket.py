@@ -9,6 +9,7 @@ from tardis import constants as const
 class MonteCarloException(ValueError):
     pass
 
+CLOSE_LINE_THRESHOLD = 1e-7
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
 MISS_DISTANCE = 1e99
 SIGMA_THOMSON = const.sigma_T.to('cm^2').value
@@ -61,11 +62,12 @@ def calculate_distance_line(nu, comov_nu, nu_line, time_explosion):
     if nu_line == 0.0:
         return MISS_DISTANCE
     nu_diff = comov_nu - nu_line
-    if np.abs(nu_diff / comov_nu) < 1e-7:
+    if np.abs(nu_diff / comov_nu) < CLOSE_LINE_THRESHOLD:
             nu_diff = 0.0
     if nu_diff >= 0:                    
         return (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
+        print('nu difference is less than 0.0', nu_diff, comov_nu, nu, nu_line, time_explosion)
         raise MonteCarloException('nu difference is less than 0.0')
 
 @njit(**njit_dict)
@@ -153,7 +155,7 @@ def trace_packet(r_packet, numba_model, numba_plasma):
         nu_line = numba_plasma.line_list_nu[cur_line_id]
         tau_trace_line = numba_plasma.tau_sobolev[
             cur_line_id, r_packet.current_shell_id]
-    
+            
         tau_trace_line_combined += tau_trace_line
         distance_trace = calculate_distance_line(
             r_packet.nu, comov_nu, nu_line, numba_model.time_explosion)
@@ -181,9 +183,14 @@ def trace_packet(r_packet, numba_model, numba_plasma):
             distance = distance_trace
             break
     else:  # Executed when no break occurs in the for loop
+        if cur_line_id == (len(numba_plasma.line_list_nu) - 1):
+            # Treatment for last line
+            cur_line_id += 1
         if distance_electron < distance_boundary:
+            distance = distance_electron
             interaction_type = InteractionType.ESCATTERING
         else:
+            distance = distance_boundary
             interaction_type = InteractionType.BOUNDARY
 
     r_packet.next_line_id = cur_line_id
@@ -218,7 +225,7 @@ def move_rpacket(r_packet, distance, time_explosion, numba_estimator):
         r_packet.r = new_r
 
 @njit(**njit_dict)
-def move_packet_across_shell_boundary(packet, distance, delta_shell,
+def move_packet_across_shell_boundary(packet, delta_shell,
                                       no_of_shells):
     """
     Move packet across shell boundary - realizing if we are still in the simulation or have
