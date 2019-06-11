@@ -103,7 +103,7 @@ class Radial1DModel(HDFWriterMixin):
             self._t_radiative = constants.b_wien / (lambda_wien_inner * (
                 1 + (self.v_middle - self.v_boundary_inner) / constants.c))
         else:
-            self._t_radiative = t_radiative[1:1 + self.no_of_shells]
+            self._t_radiative = t_radiative[self.v_boundary_inner_index + 1:self.v_boundary_outer_index]
 
         if dilution_factor is None:
             self.dilution_factor = 0.5 * (1 - np.sqrt(
