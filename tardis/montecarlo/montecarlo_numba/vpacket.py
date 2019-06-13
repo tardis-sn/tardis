@@ -135,6 +135,22 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
 
 @njit(**njit_dict)
 def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma):
+    """
+    Shoot a volley of vpackets (the vpacket collection specifies how many) 
+    from the current position of the rpacket. 
+    
+    Parameters
+    ----------
+    r_packet : [type]
+        [description]
+    vpacket_collection : [type]
+        [description]
+    numba_model : [type]
+        [description]
+    numba_plasma : [type]
+        [description]
+    """
+    
     if ((r_packet.nu < vpacket_collection.spectrum_frequency[0]) or 
         (r_packet.nu > vpacket_collection.spectrum_frequency[-1])):
         
