@@ -1,6 +1,9 @@
 import numpy as np
 from enum import IntEnum
 
+from numba import njit
+from tardis.montecarlo.montecarlo_numba import njit_dict
+
 class MacroAtomError(ValueError):
     pass
 
@@ -13,48 +16,52 @@ class MacroAtomTransitionType(IntEnum):
     ADIABATIC_COOLING = -4
 
 
-
-def macro_atom(r_packet, activation_level, numba_plasma):
+@njit(**njit_dict)
+def macro_atom(r_packet, numba_plasma):
     """
 
     Parameters
     ----------
     r_packet: tardis.montecarlo.montecarlo_numba.rpacket.RPacket
-    activation_level
-    numba_plasma
+    numba_plasma: tardis.montecarlo.numba_interface.numba_plasma
 
     Returns
     -------
 
     """
-
+    activation_level_id = numba_plasma.line2macro_level_upper[
+        r_packet.next_line_id]
     current_transition_type = 0
 
     while current_transition_type >= 0:
         probability = 0.0
         probability_event = np.random.random()
 
-        block_start, block_end = numba_plasma.macro_atom_block_references[
-            [activation_level, activate_level + 1]]
+        block_start = numba_plasma.macro_block_references[activation_level_id]
+        block_end = numba_plasma.macro_block_references[activation_level_id + 1]
 
-        current_transition_probabilities = (
-            numba_plasma.transition_probabilities[
-            block_start:block_end, r_packet.current_shell_id])
+        for transition_id in range(block_start, block_end):
 
-        for transition_probability in current_transition_probabilities:
+            transition_probability = numba_plasma.transition_probabilities[
+                transition_id, r_packet.current_shell_id]
+
             probability += transition_probability
             if probability > probability_event:
-                current_transition_type = transition_type[i]
-                activate_level = destination_level_id[i]
+                current_transition_type = numba_plasma.transition_type[
+                    transition_id]
                 break
+
         else:
             raise MacroAtomError(
                 'MacroAtom ran out of the block. This should not happen as the sum '
                 'of probabilities is normalized to 1 and the probability_event '
                 'should be less than 1')
 
-    if
-
+    if current_transition_type == MacroAtomTransitionType.BB_EMISSION:
+        return numba_plasma.transition_line_id[transition_id]
+    else:
+        raise MacroAtomError('MacroAtom currently only allows BB transitions')
+"""
 #void
 #macro_atom (rpacket_t * packet, const storage_model_t * storage, rk_state *mt_state)
 #{
@@ -104,3 +111,4 @@ def macro_atom(r_packet, activation_level, numba_plasma):
         exit(1);
     }
 }
+"""

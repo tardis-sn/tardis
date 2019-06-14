@@ -3,8 +3,8 @@ from numba import njit
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     InteractionType, PacketStatus, get_doppler_factor, trace_packet,
     move_packet_across_shell_boundary, move_rpacket)
-from tardis.montecarlo.montecarlo_numba.interaction import general_scatter, \
-    LineInteractionType
+from tardis.montecarlo.montecarlo_numba.interaction import (
+    general_scatter, LineInteractionType, line_scatter)
 
 from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 
@@ -32,7 +32,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators, vpacket_
 
     """
 
-    line_interaction_type = LineInteractionType.SCATTER
+    line_interaction_type = LineInteractionType.MACROATOM
 
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
                                         numba_model.time_explosion)
@@ -48,27 +48,22 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators, vpacket_
 
         if interaction_type == InteractionType.BOUNDARY:
             move_rpacket(r_packet, distance, numba_model.time_explosion,
-                                 estimators)
+                         estimators)
             move_packet_across_shell_boundary(r_packet, delta_shell,
                                                        len(numba_model.r_inner))
 
         elif interaction_type == InteractionType.LINE:
             move_rpacket(r_packet, distance, numba_model.time_explosion,
-                                 estimators)
+                         estimators)
+            line_scatter(r_packet, numba_model.time_explosion,
+                         line_interaction_type, numba_plasma)
 
-            if line_interaction_type == LineInteractionType.SCATTER:
-                general_scatter(r_packet, numba_model.time_explosion)
-                r_packet.next_line_id += 1
-
-            else:
-                pass
-
-            
-            trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma)
+            trace_vpacket_volley(
+                r_packet, vpacket_collection, numba_model, numba_plasma)
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_rpacket(r_packet, distance, numba_model.time_explosion,
-                                 estimators)
+                         estimators)
             general_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma)
