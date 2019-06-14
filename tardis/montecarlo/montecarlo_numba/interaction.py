@@ -1,11 +1,11 @@
 from enum import IntEnum
 
 from numba import njit
-
 from tardis.montecarlo.montecarlo_numba import njit_dict
-from tardis.montecarlo.montecarlo_numba.rpacket import get_doppler_factor, \
-    get_random_mu
 
+from tardis.montecarlo.montecarlo_numba.rpacket import (
+    get_doppler_factor, get_random_mu)
+from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
 class LineInteractionType(IntEnum):
     SCATTER = 0
     DOWNBRANCH = 1
@@ -61,6 +61,7 @@ montecarlo_thomson_scatter (rpacket_t * packet, storage_model_t * storage,
 
 """
 
+@njit(**njit_dict)
 def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
     #increment_j_blue_estimator(packet, storage, distance, line2d_idx);
     #increment_Edotlu_estimator(packet, storage, distance, line2d_idx);
@@ -70,8 +71,10 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
 
     if line_interaction_type == LineInteractionType.SCATTER:
         line_emission(r_packet, r_packet.next_line_id, time_explosion, numba_plasma)
-    else:
-        pass
+    else: # includes both macro atom and downbranch - encoded in the transition probabilities
+        emission_line_id = macro_atom(r_packet, numba_plasma)
+        line_emission(r_packet, emission_line_id, time_explosion,
+                      numba_plasma)
 """        
         line_emission()
 
@@ -89,8 +92,11 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
         macro_atom(packet, storage, mt_state);
 """
 
+@njit(**njit_dict)
 def line_emission(r_packet, emission_line_id, time_explosion,
                   numba_plasma):
+    if emission_line_id != r_packet.next_line_id:
+        pass
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
                                         time_explosion)
     r_packet.nu = numba_plasma.line_list_nu[
