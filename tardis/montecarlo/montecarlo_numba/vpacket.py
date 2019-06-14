@@ -30,33 +30,6 @@ class VPacket(object):
         self.next_line_id = next_line_id
         self.status = PacketStatus.IN_PROCESS
 
-    def move_packet_across_shell_boundary(self, distance, delta_shell,
-                                          no_of_shells):
-        """
-        Move packet across shell boundary - realizing if we are still in the simulation or have
-        moved out through the inner boundary or outer boundary and updating packet
-        status.
-
-        Parameters
-        ----------
-        distance : float
-            distance to move to shell boundary
-
-        delta_shell: int
-            is +1 if moving outward or -1 if moving inward
-
-        no_of_shells: int
-            number of shells in TARDIS simulation
-        """
-
-        next_shell_id = r_packet.current_shell_id + delta_shell
-
-        if next_shell_id >= no_of_shells:
-            r_packet.status = PacketStatus.EMITTED
-        elif next_shell_id < 0:
-            r_packet.status = PacketStatus.REABSORBED
-        else:
-            rpacket.current_shell_id = next_shell_id
 
 
 @njit(**njit_dict)
@@ -70,10 +43,8 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     # defining start for line interaction
     start_line_id = v_packet.next_line_id
 
-    # defining taus
-    
-
     # e scattering initialization
+
     cur_electron_density = numba_plasma.electron_density[
         v_packet.current_shell_id]
     tau_electron = calculate_tau_electron(cur_electron_density, 
@@ -97,7 +68,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
         distance_trace_line = calculate_distance_line(
             v_packet.nu, comov_nu, nu_line, numba_model.time_explosion)
 
-        if (distance_boundary <= distance_trace_line):
+        if distance_boundary <= distance_trace_line:
             break
         
         tau_trace_combined += tau_trace_line
@@ -113,6 +84,19 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
 
 @njit(**njit_dict)
 def trace_vpacket(v_packet, numba_model, numba_plasma):
+    """
+    Trace single vpacket.
+    Parameters
+    ----------
+    v_packet
+    numba_model
+    numba_plasma
+
+    Returns
+    -------
+
+    """
+
     tau_trace_combined = 0.0
     while True:
         tau_trace_combined_shell, distance_boundary, delta_shell = trace_vpacket_within_shell(
@@ -158,10 +142,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
     
     no_of_vpackets = vpacket_collection.number_of_vpackets
 
-    v_packets_nu = np.empty(vpacket_collection.number_of_vpackets)
-    v_packets_energy = np.empty(vpacket_collection.number_of_vpackets)
-
-    ### TODO theoretical check for r_packet nu within vpackets bins
+    ### TODO theoretical check for r_packet nu within vpackets bins - is done somewhere else I think
     if r_packet.r > numba_model.r_inner[0]: # not on inner_boundary
         mu_min = -np.sqrt(1 - (numba_model.r_inner[0] / r_packet.r) ** 2)
         v_packet_on_inner_boundary = False
@@ -174,25 +155,30 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
                                                  numba_model.time_explosion)
     for i in range(no_of_vpackets):
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
-        if v_packet_on_inner_boundary:
+
+        if v_packet_on_inner_boundary: # The weights are described in K&S 2014
             weight = 2 * v_packet_mu / no_of_vpackets
         else:
             weight = (1 - mu_min) / (2 * no_of_vpackets)
+
         v_packet_doppler_factor = get_doppler_factor(
             r_packet.r, v_packet_mu, numba_model.time_explosion)
+
         # transform between r_packet mu and v_packet_mu
         doppler_factor_ratio = (
             r_packet_doppler_factor / v_packet_doppler_factor)
+
         v_packet_nu = r_packet.nu * doppler_factor_ratio
         v_packet_energy = r_packet.energy * weight * doppler_factor_ratio
+
         v_packet = VPacket(r_packet.r, v_packet_mu, v_packet_nu, 
                            v_packet_energy, r_packet.current_shell_id, 
                            r_packet.next_line_id)
         
         tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
+        
         v_packet.energy *= np.exp(-tau_vpacket)
 
         vpacket_collection.nus[vpacket_collection.idx] = v_packet.nu
         vpacket_collection.energies[vpacket_collection.idx] = v_packet.energy
         vpacket_collection.idx += 1
-    

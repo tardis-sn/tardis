@@ -2,7 +2,7 @@ from numba import prange, njit, config, int64
 import numpy as np
 from tardis.montecarlo.montecarlo_numba.rpacket import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    PacketCollection, VPacketCollection, NumbaModel, NumbaPlasma, Estimators, MonteCarloConfiguration)
+    PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize, Estimators, MonteCarloConfiguration)
 
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop)
@@ -17,12 +17,7 @@ def montecarlo_radial1d(model, plasma, runner, no_of_virtual_packets):
     montecarlo_configuration = MonteCarloConfiguration(no_of_virtual_packets)
     numba_model = NumbaModel(runner.r_inner_cgs, runner.r_outer_cgs,
                              model.time_explosion.to('s').value)
-    numba_plasma = NumbaPlasma(plasma.electron_densities.values,
-                               plasma.atomic_data.lines.nu.values,
-                               np.ascontiguousarray(
-                                   plasma.tau_sobolevs.values.copy(),
-                                   dtype=np.float64)
-                               )
+    numba_plasma = numba_plasma_initialize(plasma)
     estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator)
 
     v_packets_energy_hist = montecarlo_main_loop(packet_collection, numba_model, numba_plasma, estimators, runner.spectrum_frequency.value, montecarlo_configuration)

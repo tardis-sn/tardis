@@ -34,14 +34,63 @@ numba_plasma_spec = [
     ('electron_density', float64[:]),
     ('line_list_nu', float64[:]),
     ('tau_sobolev', float64[:, :]),
+    ('transition_probabilities', float64[:, :]),
+    ('line2macro_level_upper', int64[:]),
+    ('macro_block_references', int64[:]),
+    ('transition_type', int64[:]),
+    ('destination_level_id', int64[:]),
+    ('transition_line_id', int64[:]),
+
 ]
 
 @jitclass(numba_plasma_spec)
 class NumbaPlasma(object):
-    def __init__(self, electron_density, line_list_nu, tau_sobolev):
+    def __init__(self, electron_density, line_list_nu, tau_sobolev,
+                 transition_probabilities, line2macro_level_upper,
+                 macro_block_references, transition_type, destination_level_id,
+                 transition_line_id):
+
         self.electron_density = electron_density
         self.line_list_nu = line_list_nu
         self.tau_sobolev = tau_sobolev
+
+        #### Macro Atom transition probabilities
+        self.transition_probabilities = transition_probabilities
+        self.line2macro_level_upper = line2macro_level_upper
+
+        self.macro_block_references = macro_block_references
+        self.transition_type = transition_type
+
+        # Destination level is not needed and/or generated for downbranch
+        self.destination_level_id = destination_level_id
+        self.transition_line_id = transition_line_id
+
+
+def numba_plasma_initialize(plasma):
+    electron_densities = plasma.electron_densities.values
+    line_list_nu = plasma.atomic_data.lines.nu.values
+    tau_sobolev = np.ascontiguousarray(plasma.tau_sobolevs.values.copy(),
+                                       dtype=np.float64)
+
+    transition_probabilities = np.ascontiguousarray(
+        plasma.transition_probabilities.values.copy(), dtype=np.float64)
+    line2macro_level_upper = plasma.atomic_data.lines_upper2macro_reference_idx
+    macro_block_references = plasma.atomic_data.macro_atom_references[
+        'block_references'].values
+
+    transition_type = plasma.atomic_data.macro_atom_data[
+        'transition_type'].values
+
+    # Destination level is not needed and/or generated for downbranch
+    destination_level_id = plasma.atomic_data.macro_atom_data[
+        'destination_level_idx'].values
+    transition_line_id = plasma.atomic_data.macro_atom_data[
+        'lines_idx'].values
+
+    return NumbaPlasma(electron_densities, line_list_nu, tau_sobolev,
+                       transition_probabilities, line2macro_level_upper,
+                       macro_block_references, transition_type,
+                       destination_level_id, transition_line_id)
 
 
 packet_collection_spec = [
