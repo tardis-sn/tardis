@@ -22,7 +22,7 @@ jobs:
   steps:
 # When setting up the azure pipeline for the first time, generate a ssh key locally
 # and add the generated public key to github as a deploy key through forked_repo_home/settings/deploy_key.
-# Use steps listed from: https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/install-ssh-key?view=azure-devops#example-setup-using-github.
+# Use steps listed from: https://developer.github.com/v3/guides/managing-deploy-keys/#deploy-keys.
 
 # Secure files stored in the azure server are encryped and again decrypted by the azure task that uses the file.
 # Download a secure file to a temporary location in the virtual machine.
@@ -30,7 +30,7 @@ jobs:
     inputs: 
       secureFile: 'id_azure_rsa'
 # Make sure you've added the generated private key file (named 'id_azure_rsa' here) to library & authorize it for all pipelines.
-# by using: https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops#how-do-i-authorize-a-secure-file-for-use-in-all-pipelines
+# by using: https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files?view=azure-devops#how-do-i-authorize-a-secure-file-for-use-in-all-pipelines.
 
 # Install an SSH key prior to a build or release.
 # This is needed to give azure access to deploy to github.
@@ -43,8 +43,9 @@ jobs:
      sshPublicKey: $(public_key)
      #sshPassphrase: $(Agent.TempDirectory)  # Optional - leave empty if it was left empty while generating the key.
      sshKeySecureFile: 'id_azure_rsa'
+# For more details, see: http://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/install-ssh-key?view=azure-devops#example-setup-using-github.
 # You can mask hostName & sshPublicKey values under secret variables (i.e. gh_host & public_key here) in your azure pipeline build page.
-# Follow these steps: https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables
+# Follow these steps: https://docs.microsoft.com/en-us/azure/devops/pipelines/process/variables?view=azure-devops&tabs=yaml%2Cbatch#secret-variables.
 
 # ##vso[task.prependpath] is a built-in logging command to add paths.
 # Add conda to the list of paths available from the terminal.

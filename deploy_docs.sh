@@ -15,15 +15,15 @@ SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
 SHA=`git rev-parse --verify HEAD`
 
 # Clone the existing gh-pages for this repo into out/
-# Create a new empty branch if gh-pages doesn't exist yet (should only happen on first deply)
 git clone $REPO out
 cd out
 
+# Create a new empty branch if gh-pages doesn't exist yet (should only happen on first deploy)
 git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
-cd ..
 
 # Clean out existing contents
-rm -rf out/sphinx_docs/ || exit 0
+git rm -rf . || exit 0
+cd ..
 
 # Pull from SOURCE_BRANCH again
 git pull $SSH_REPO $SOURCE_BRANCH
@@ -33,8 +33,8 @@ cd docs
 make html
 cd ../  
 
-mkdir -p out/sphinx_docs/
-mv -f docs/_build/html/* out/sphinx_docs/
+# Move it to the gh-pages branch
+mv -f docs/_build/html/* out/
 touch out/.nojekyll
 
 # Now let's go have some fun with the cloned repo
