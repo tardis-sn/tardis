@@ -1,7 +1,7 @@
 import numpy as np
 from enum import IntEnum
-from numba import int64, float64, boolean
-from numba import jitclass, njit, gdb
+from numba import int64, float64
+from numba import jitclass, njit
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
 from tardis import constants as const
@@ -15,15 +15,18 @@ MISS_DISTANCE = 1e99
 SIGMA_THOMSON = const.sigma_T.to('cm^2').value
 INVERSE_SIGMA_THOMSON = 1 / SIGMA_THOMSON
 
+
 class PacketStatus(IntEnum):
     IN_PROCESS = 0
     EMITTED = 1
     REABSORBED = 2
 
+
 class InteractionType(IntEnum):
     BOUNDARY = 1
     LINE = 2
     ESCATTERING = 3
+
 
 rpacket_spec = [
     ('r', float64),
@@ -252,26 +255,73 @@ def move_packet_across_shell_boundary(packet, delta_shell,
     else:
         packet.current_shell_id = next_shell_id
 
-@njit(**njit_dict)
-def scatter(r_packet, time_explosion):
+
+def line_emission(r_packet, emission_line_id, numba_plasma, time_explosion):
     """
-    General scattering for lines as well as thomson.
-    2) get the doppler factor at that position with the old angle
-    3) convert the current energy and nu into the comoving
-        frame with the old mu
-    4) Scatter and draw new mu - update mu
-    5) Transform the comoving energy and nu back using the new mu
-    
+
     Parameters
     ----------
-    distance : [type]
-        [description]
+    r_packet: tardis.montecarlo.montecarlo_numba.rpacket.RPacket
+    emission_line_id: int
+    numba_plasma
+    time_explosion
+
+    Returns
+    -------
+
     """
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
-    comov_energy = r_packet.energy * doppler_factor
-    comov_nu = r_packet.nu * doppler_factor
-    r_packet.mu = get_random_mu()
-    inverse_new_doppler_factor = 1. / get_doppler_factor(
-        r_packet.r, r_packet.mu, time_explosion)
-    r_packet.energy = comov_energy * inverse_new_doppler_factor
-    r_packet.nu = comov_nu * inverse_new_doppler_factor
+    r_packet.nu = numba_plasma.line_list_nu[emission_line_id] / doppler_factor
+    r_packet.next_line_id = emission_line_id + 1
+
+
+"""
+void
+line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_line_id, rk_state *mt_state)
+{
+  double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
+  storage->last_line_interaction_out_id[rpacket_get_id (packet)] = emission_line_id;
+  if (storage->cont_status == CONTINUUM_ON)
+  {
+    storage->last_interaction_out_type[rpacket_get_id (packet)] = 2;
+  }
+
+  rpacket_set_nu (packet,
+		      storage->line_list_nu[emission_line_id] * inverse_doppler_factor);
+  rpacket_set_nu_line (packet, storage->line_list_nu[emission_line_id]);
+  rpacket_set_next_line_id (packet, emission_line_id + 1);
+  rpacket_reset_tau_event (packet, mt_state);
+
+  angle_aberration_CMF_to_LF (packet, storage);
+
+  if (rpacket_get_virtual_packet_flag (packet) > 0)
+	{
+	  bool virtual_close_line = false;
+	  if (!rpacket_get_last_line (packet) &&
+	      fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
+		    rpacket_get_nu_line (packet)) <
+	      (rpacket_get_nu_line (packet)* 1e-7))
+	    {
+	      virtual_close_line = true;
+	    }
+	  // QUESTIONABLE!!!
+	  bool old_close_line = rpacket_get_close_line (packet);
+	  rpacket_set_close_line (packet, virtual_close_line);
+	  create_vpacket (storage, packet, mt_state);
+	  rpacket_set_close_line (packet, old_close_line);
+	  virtual_close_line = false;
+    }
+  test_for_close_line (packet, storage);
+}
+
+void test_for_close_line (rpacket_t * packet, const storage_model_t * storage)
+{
+  if (!rpacket_get_last_line (packet) &&
+      fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
+            rpacket_get_nu_line (packet)) < (rpacket_get_nu_line (packet)*
+                                             1e-7))
+    {
+      rpacket_set_close_line (packet, true);
+    }
+}
+"""
