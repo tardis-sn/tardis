@@ -4,6 +4,17 @@ from astropy import units as u
 
 class IsotopeAbundances(pd.DataFrame):
 
+    _metadata = ["time_0"]
+
+    def __init__(self, *args, **kwargs):
+        if 'time_0' in kwargs:
+            time_0 = kwargs['time_0']
+            kwargs.pop('time_0')
+        else:
+            time_0 = 0 * u.d
+        super(IsotopeAbundances, self).__init__(*args, **kwargs)
+        self.time_0 = time_0
+
     @property
     def _constructor(self):
         return IsotopeAbundances
@@ -80,7 +91,7 @@ class IsotopeAbundances(pd.DataFrame):
         """
 
         materials = self.to_materials()
-        t_second = u.Quantity(t, u.day).to(u.s).value
+        t_second = u.Quantity(t, u.day).to(u.s).value - self.time_0.to(u.s).value
         decayed_materials = [item.decay(t_second) for item in materials]
         for i in range(len(materials)):
             materials[i].update(decayed_materials[i])

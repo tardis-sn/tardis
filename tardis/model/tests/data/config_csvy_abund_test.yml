@@ -4,17 +4,18 @@ tardis_config_version: v1.0
 supernova:
   luminosity_requested: 8.770 log_lsun
   time_explosion: 16 day
+  distance: 8.32 Mpc
 
 # standard atomic data base; get it from the tardis-refdata repository
 atom_data: kurucz_cd23_chianti_H_He.h5
 
-csvy_model: csvy_full.csvy
+csvy_model: csvy_full_rad_abundance_test.csvy
 
 model:
   structure:
     #v_inner_boundary: 9500 km/s
     type: file
-    filename: test_density.txt
+    filename: density.dat
     filetype: simple_ascii
       # showing different configuration options separated by comments
       # simple uniform
@@ -33,10 +34,12 @@ model:
 
   abundances:
     type: file
-    filename: test_abund.dat
+    filename: abund.dat
     filetype: custom_composition
 
 plasma:
+  #initial_t_inner: 10000 K
+  initial_t_rad: 7000 K
   disable_electron_scattering: no
   ionization: lte
   excitation: lte
