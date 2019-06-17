@@ -67,7 +67,7 @@ Developing Tardis
 
     issues
     workflow/development_workflow
-    runnints_tests
+    running_tests
 
 ==========
 References
