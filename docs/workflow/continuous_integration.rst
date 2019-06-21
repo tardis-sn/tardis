@@ -210,8 +210,66 @@ Or if you prefer to use multiple virtual machines and specity the maximum that c
             vm_Image: 'macOS-10.13'
             miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
         maxParallel: 4
+        
+Installing and running a self hosted agent
+------------------------------------------
 
+Microsoft supplies multiple hosted agents for running virtual machines, but it is useful to create a self hosted
+agent for incremental builds and the dependancy on local environments.
 
+To add a new agent or agent pool, you must have administrator priveledges. See `agent pool security roles`_ to add a new administrator to an agent pool or for all the agent pools.
+
+You can view your current lists of agents for each agent pool from: https://dev.azure.com/{your_organization}/_settings/agentpools.
+
+First decide if you will add your agent to an already exiting agent pool, or if you wish to add a new pool, by clicking on Add pool.
+If you choose to add a new pool, make sure to click on securtiy and add permissions to your team/self (you cannot directly add your own account), as well as granting access permission to all pipelines, or a specific pipeline.
+The first pool "Default" is owned by azure pipelines, and you cannot add pools to it without having even further permissions.
+
+To give someone all security privileges:
+  - Go to http://dev.azure.com/{your_organization}/_settings/permissions
+  - Click on {your_organization}\Project Collection Administrators
+  - Click on Members
+  - Click Add members on the top right.
+
+Then, you must generate a `personal access token PAT`_, to add any downloaded self agents. 
+
+For the scope, make sure to select: Agent Pools (read, manage).
+
+To download the latest available agents, see `Azure pipelines agent releases`_.
+
+Create the agent (for Linux and Mac_OS)::
+
+    ~/$ mkdir myagent && cd myagent
+    ~/myagent$ tar zxvf ~/Downloads/download_agent.tar.gz
+
+and configure it::
+
+    ~/myagent$ ./config.sh
+
+Here, you will input your organization name (https://dev.azure.com/{your_organization}), your generated PAT, agent pool name, and agent name. 
+
+To run the session interactively::
+
+    ~/myagent$ ./run.sh
+
+To run, stop, or check the status non-interactively, create the service file::
+
+    ~/myagent$ sudo ./svc install
+
+Manage it through::
+
+    ~/myagent$ sudo ./svc start
+    ~/myagent$ sudo ./svc stop
+    ~/myagent$ sudo ./svc status
+
+To uninstall ::
+
+    ~/myagent$ sudo ./svc uninstall
+
+For adding environmental variables or editing the `service file`_, 
+see `self agent services`_ 
+
+For more details, see `Azure self hosted agents`_ 
 
 Additional references
 --------------------
