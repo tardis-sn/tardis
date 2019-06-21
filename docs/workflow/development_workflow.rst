@@ -20,4 +20,8 @@ to the Astropy team for designing it.
 
     update_refdata
 
+.. toctree::
+
+    continuous_integration
+
 
