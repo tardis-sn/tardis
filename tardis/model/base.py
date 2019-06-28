@@ -144,32 +144,27 @@ class Radial1DModel(HDFWriterMixin):
 
         return self._t_radiative[v_inner_ind + 1:v_outer_ind + 1]
 
-        #if len(self._t_radiative) > self.no_of_shells:
-        #    mask = np.logical_and(self.raw_velocity >= self.v_boundary_inner,
-        #                          self.raw_velocity <= self.v_boundary_outer)
-        #    t_rad_masked = self._t_radiative[mask]
-        #    return t_rad_masked[1:]
-        #else:
-        #    return self._t_radiative
-
-    #@property
-    #def t_radiative(self):
-    #    if len(self._t_radiative) > self.no_of_shells:
-    #        return self._t_radiative[self.v_boundary_inner_index:
-    #                                self.v_boundary_outer_index-1]
-    #    else:
-    #        return self._t_radiative
-
     @t_radiative.setter
     def t_radiative(self, value):
         if len(value) == len(self._t_radiative):
             self._t_radiative = value
         elif len(value) == self.no_of_shells:
-            self._t_radiative[self.v_boundary_inner_index:
-                              self.v_boundary_outer_index] = value
+            if self.v_boundary_inner in self.raw_velocity:
+                v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
+            else:
+                v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
+            if self.v_boundary_outer in self.raw_velocity:
+                v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
+            else:
+                v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
+            assert v_outer_ind - v_inner_ind == self.no_of_shells, "trad shape different from number of shells"
+            self._t_radiative[v_inner_ind+1:v_outer_ind+1] = value
         else:
             raise ValueError("Trying to set t_radiative for unmatching number"
                              "of shells.")
+
+
+
 
     @property
     def radius(self):
@@ -291,6 +286,10 @@ class Radial1DModel(HDFWriterMixin):
         # Invalidate the cached cut-down velocity array
         self._velocity = None
 
+
+
+
+
     @property
     def v_boundary_inner_index(self):
         if self.v_boundary_inner <= self.raw_velocity[0]:
@@ -304,6 +303,9 @@ class Radial1DModel(HDFWriterMixin):
                                                            self.raw_velocity[idx + 1]):
                 idx += 1
             return idx
+
+
+
 
     @property
     def v_boundary_outer_index(self):
