@@ -14,8 +14,8 @@ atom_data: /Users/marcwilliamson/Research/TARDIS/tardis-refdata/atom_data/kurucz
 
 model:
   structure:
-    v_inner_boundary: 3350 km/s
-    v_outer_boundary: 3750 km/s
+    v_inner_boundary: 2900 km/s
+    v_outer_boundary: 3850 km/s
     type: file
     filename: density.txt
     filetype: simple_ascii
