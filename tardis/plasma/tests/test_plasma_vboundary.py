@@ -25,7 +25,10 @@ def config_init_trad_fname():
                           (2950, 3900),
                           (3050, 3750),
                           (3050, 3850),
-                          (3050, 3900)])
+                          (3050, 3900),
+                          (3150, 3750),
+                          (3150, 3850),
+                          (3150, 3900)])
 def test_plasma_vboundary(config_init_trad_fname, v_inner_boundary, v_outer_boundary):
     tardis_config = Configuration.from_yaml(config_init_trad_fname)
     tardis_config.model.structure.v_inner_boundary = v_inner_boundary * u.km / u.s

@@ -130,11 +130,35 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def t_radiative(self):
-        if len(self._t_radiative) > self.no_of_shells:
-            return self._t_radiative[self.v_boundary_inner_index:
-                                     self.v_boundary_outer_index]
-        else:
+        if len(self._t_radiative) == self.no_of_shells:
             return self._t_radiative
+
+        if self.v_boundary_inner in self.raw_velocity:
+            v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
+        else:
+            v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
+        if self.v_boundary_outer in self.raw_velocity:
+            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
+        else:
+            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
+
+        return self._t_radiative[v_inner_ind + 1:v_outer_ind + 1]
+
+        #if len(self._t_radiative) > self.no_of_shells:
+        #    mask = np.logical_and(self.raw_velocity >= self.v_boundary_inner,
+        #                          self.raw_velocity <= self.v_boundary_outer)
+        #    t_rad_masked = self._t_radiative[mask]
+        #    return t_rad_masked[1:]
+        #else:
+        #    return self._t_radiative
+
+    #@property
+    #def t_radiative(self):
+    #    if len(self._t_radiative) > self.no_of_shells:
+    #        return self._t_radiative[self.v_boundary_inner_index:
+    #                                self.v_boundary_outer_index-1]
+    #    else:
+    #        return self._t_radiative
 
     @t_radiative.setter
     def t_radiative(self, value):
@@ -331,7 +355,7 @@ class Radial1DModel(HDFWriterMixin):
         if temperature:
             t_radiative = temperature
         elif config.plasma.initial_t_rad > 0 * u.K:
-            t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
+            t_radiative = np.ones(no_of_shells + 1) * config.plasma.initial_t_rad
         else:
             t_radiative = None
 
