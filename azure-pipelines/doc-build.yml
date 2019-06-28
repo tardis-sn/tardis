@@ -4,7 +4,7 @@ trigger:
 - master
 
 pr:
-- master
+- none
 
 # Variables we can reference later.
 variables:
@@ -39,7 +39,7 @@ jobs:
 # sshKeySecureFile is the downloaded secure file you generated.
   - task: InstallSSHKey@0
     inputs:
-     hostName: $(gh_host)
+     hostName: 
      sshPublicKey: $(public_key)
      #sshPassphrase: $(Agent.TempDirectory)  # Optional - leave empty if it was left empty while generating the key.
      sshKeySecureFile: 'id_azure_rsa'
