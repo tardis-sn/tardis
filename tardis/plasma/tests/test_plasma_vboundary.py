@@ -11,17 +11,17 @@ from tardis.simulation import Simulation
 
 DATA_PATH = os.path.join(tardis.__path__[0], 'plasma', 'tests', 'data')
 
-@pytest.fixture(scope="session")
-def tardis_ref_path():
-    tardis_ref_path = pytest.config.getvalue("tardis_refdata")
-    if tardis_ref_path is None:
-        pytest.skip('--tardis-refdata was not specified')
-    else:
-        return os.path.expandvars(os.path.expanduser(tardis_ref_path))
+#@pytest.fixture(scope="session")
+#def tardis_ref_path():
+#    tardis_ref_path = pytest.config.getvalue("tardis_refdata")
+#    if tardis_ref_path is None:
+#        pytest.skip('--tardis-refdata was not specified')
+#    else:
+#        return os.path.expandvars(os.path.expanduser(tardis_ref_path))
 
-@pytest.fixture
-def chianti_he_db_fpath(tardis_ref_path):
-    return os.path.abspath(os.path.join(tardis_ref_path, 'atom_data', 'chianti_He.h5'))
+#@pytest.fixture
+#def chianti_he_db_fpath(tardis_ref_path):
+#    return os.path.abspath(os.path.join(tardis_ref_path, 'atom_data', 'chianti_He.h5'))
 
 @pytest.fixture
 def config_init_trad_fname():
@@ -41,9 +41,9 @@ def config_init_trad_fname():
                           (3150, 3750),
                           (3150, 3850),
                           (3150, 3900)])
-def test_plasma_vboundary(config_init_trad_fname, v_inner_boundary, v_outer_boundary, chianti_he_db_fpath):
+def test_plasma_vboundary(config_init_trad_fname, v_inner_boundary, v_outer_boundary, atomic_data_fname):
     tardis_config = Configuration.from_yaml(config_init_trad_fname)
-    tardis_config.atom_data = chianti_he_db_fpath
+    tardis_config.atom_data = atomic_data_fname
     tardis_config.model.structure.v_inner_boundary = v_inner_boundary * u.km / u.s
     tardis_config.model.structure.v_outer_boundary = v_outer_boundary * u.km / u.s
     simulation = Simulation.from_config(tardis_config)
