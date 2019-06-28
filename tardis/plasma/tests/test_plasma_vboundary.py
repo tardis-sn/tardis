@@ -33,4 +33,4 @@ def test_plasma_vboundary(config_init_trad_fname, v_inner_boundary, v_outer_boun
     tardis_config = Configuration.from_yaml(config_init_trad_fname)
     tardis_config.model.structure.v_inner_boundary = v_inner_boundary * u.km / u.s
     tardis_config.model.structure.v_outer_boundary = v_outer_boundary * u.km / u.s
-    simulation = Simulation.from_config(tardis_config)
+    simulation = Simulation.from_config(tardis_config, atom_data='kurucz_cd23_chianti_H_He')
