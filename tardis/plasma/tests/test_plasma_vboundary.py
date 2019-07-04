@@ -11,18 +11,6 @@ from tardis.simulation import Simulation
 
 DATA_PATH = os.path.join(tardis.__path__[0], 'plasma', 'tests', 'data')
 
-#@pytest.fixture(scope="session")
-#def tardis_ref_path():
-#    tardis_ref_path = pytest.config.getvalue("tardis_refdata")
-#    if tardis_ref_path is None:
-#        pytest.skip('--tardis-refdata was not specified')
-#    else:
-#        return os.path.expandvars(os.path.expanduser(tardis_ref_path))
-
-#@pytest.fixture
-#def chianti_he_db_fpath(tardis_ref_path):
-#    return os.path.abspath(os.path.join(tardis_ref_path, 'atom_data', 'chianti_He.h5'))
-
 @pytest.fixture
 def config_init_trad_fname():
     return os.path.join(DATA_PATH, 'config_init_trad.yml')

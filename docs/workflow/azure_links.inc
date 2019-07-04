@@ -19,3 +19,4 @@
 .. |emdash| unicode:: U+02014
 
 .. vim: ft=rstS
+
