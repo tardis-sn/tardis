@@ -429,7 +429,10 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if 'model' in kwargs:
             model = kwargs['model']
         else:
-            model = Radial1DModel.from_config(config)
+            if hasattr(config, 'csvy_model'):
+                model = Radial1DModel.from_csvy(config)
+            else:
+                model = Radial1DModel.from_config(config)
         if 'plasma' in kwargs:
             plasma = kwargs['plasma']
         else:
