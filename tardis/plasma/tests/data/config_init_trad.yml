@@ -1,0 +1,79 @@
+# Example YAML configuration for TARDIS
+tardis_config_version: v1.0
+
+supernova:
+  #luminosity_requested: 8.770 log_lsun
+  luminosity_requested: 1.2264025510060545e+42 erg/s
+  luminosity_wavelength_start: 3000 angstrom
+  luminosity_wavelength_end: 9000 angstrom
+  time_explosion: 16 day
+  distance: 8.32 Mpc
+
+# standard atomic data base; get it from the tardis-refdata repository
+atom_data: kurucz_cd23_chianti_H_He.h5
+
+model:
+  structure:
+    v_inner_boundary: 3350 km/s
+    v_outer_boundary: 3750 km/s
+    type: file
+    filename: density.txt
+    filetype: simple_ascii
+      # showing different configuration options separated by comments
+      # simple uniform
+      #---------------
+      #type: uniform
+      #value: 1e-40 g/cm^3
+      #---------------
+      # branch85_w7 - fit of seven order polynomial to W7 (like Branch 85)
+      #---------------
+      #type: branch85_w7
+      # default, no need to change
+      #w7_time_0: 19.9999584 s
+      # default, no need to change
+      #w7_rho_0: 3e29 g/cm^3
+      #---------------
+
+  abundances:
+    type: file
+    filename: abund.dat
+    filetype: custom_composition
+
+plasma:
+  #initial_t_inner: 9000 K
+  initial_t_rad: 11000 K
+  disable_electron_scattering: no
+  ionization: lte
+  excitation: lte
+  # radiative_rates_type - currently supported are dilute-blackbody, detailed and blackbody
+  radiative_rates_type: dilute-blackbody
+  # line_interaction_type - currently supported are scatter, downbranch and macroatom
+  line_interaction_type: downbranch
+
+montecarlo:
+  seed: 23111963
+  no_of_packets: 4.0e+4
+  iterations: 20
+  # Number of threads used in OMP mode; uncomment if you want to control the
+  # OMP behaviour via the config; otherwise the maximum available number of
+  # threads is used or the number specified in the OMP_NUM_THREADS environment
+  # variable
+  # --------
+  nthreads: 16
+
+  last_no_of_packets: 1.e+5
+  no_of_virtual_packets: 10
+
+  convergence_strategy:
+    type: damped
+    damping_constant: 1.0
+    threshold: 0.05
+    fraction: 0.8
+    hold_iterations: 3
+    t_inner:
+      damping_constant: 1.0
+
+spectrum:
+  start: 500 angstrom
+  stop: 20000 angstrom
+  num: 10000
