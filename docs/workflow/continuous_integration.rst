@@ -75,6 +75,11 @@ For explicit details, see `git deploy key`_.
 Adding your key locally and copying the known host name
 -------------------------------------------------------
 
+**Instead of the method recommended by azure, you can add all the github hosts by copying this output, starting from: github.com ssh-rs...**
+[Default option suggested by wk]::
+
+    ssh-keyscan -t rsa github.com
+
 If you wish to deploy the documentation locally to gh-pages, you must add the generated key on your computer and clone your repository::
 
     $ eval "$(ssh-agent -s)"
@@ -90,11 +95,6 @@ It should look something like (should look something like [1]As3...=ssh-rsa ..) 
 
 It is generally advisable to leave a comment at the end of your added known host line to be able to identify it later, by simply inputting it at the end
 of the known host, such as: ([1]As3...=ssh-rsa AAA.. comment). If you already have it added from before, the portion after ssh-rsa should always start with AAAAB3NzaC1yc2EAAAABIwAAAQ...
-
-**Alternatively, instead of this method recommended by azure, you can add all the github hosts by copying this output, starting from: github.com ssh-rs...**::
-[Default option suggested by wj]
-
-    ssh-keyscan -t rsa github.com
 
 Setting up Azure services 
 =========================
@@ -196,7 +196,7 @@ selecting the three dots on the top right while editing that pipeline, as seen h
 
   .. image:: images/variables.png
 
-After defining the variable, one can encrypt it using this lock symbol:
+After defining the variable, one could optionally encrypt it using this lock symbol:
 
   .. image:: images/lock.png
 
@@ -292,6 +292,14 @@ For adding environmental variables or editing the `service file`_,
 see `self agent services`_ 
 
 For more details, see `Azure self hosted agents`_ 
+
+Carsus
+------
+
+"Carsus is a TARDIS support package for creating and working with atomic datasets" (Carsus_)
+
+Azure services are also set up on Carsus for automatic debugging. In addition to everything mentioned, the pipelines for
+Carsus also use `Azure condition statements`_, for activating a job, step, or stage upon a specific environment or case. 
 
 Debugging
 ---------

@@ -8,7 +8,8 @@
 .. _azure task: http://github.com/microsoft/azure-pipelines-tasks
 .. _azure pipelines agent releases: https://github.com/Microsoft/azure-pipelines-agent/releases
 .. _azure self hosted agents: https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/agents?view=azure-devops#install
--- _azure tutorial: https://docs.microsoft.com/en-us/azure/devops/pipelines/create-first-pipeline?view=azure-devops&tabs=tfs-2018-2
+.. _azure tutorial: https://docs.microsoft.com/en-us/azure/devops/pipelines/create-first-pipeline?view=azure-devops&tabs=tfs-2018-2
+.. _azure condition statements: https://docs.microsoft.com/en-us/azure/devops/pipelines/process/conditions?view=azure-devops&tabs=yaml
 .. _personal access token PAT: https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops
 .. _self agent services: https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/v2-linux?view=azure-devops#run-as-a-systemd-service
 .. _agent pool security roles: https://docs.microsoft.com/en-us/azure/devops/organizations/security/about-security-roles?view=azure-devops#agent-pool-security-roles-project-level
