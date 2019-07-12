@@ -33,6 +33,7 @@ dependencies:
 - matplotlib
 - graphviz
 - pygraphviz
+- pyqt=4
 
 # Documentation
 - sphinx
