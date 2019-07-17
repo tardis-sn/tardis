@@ -500,11 +500,6 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
     #Implementing methods mandatory for subclassing QAbstractTableModel
     def rowCount(self, parent=QtCore.QModelIndex()):
         """Return number of rows."""
-        #print(type(self.arraydata[0]))
-        #if type(self.arraydata) is map:
-        #    self.arraydata = [list(el) for el in self.arraydata]
-        #if type(self.arraydata[0]) is map:
-        #    self.arraydata = [list(el) for el in self.arraydata]
         return len(self.arraydata[0])
 
     def columnCount(self, parent=QtCore.QModelIndex()):
