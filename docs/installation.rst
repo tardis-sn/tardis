@@ -16,19 +16,19 @@ simple TARDIS calculations.
 
 .. warning::
 
-    TARDIS is currently only compatbile with Python 2.7.
+    TARDIS is only compatbile with Python >3.6
 
 .. note::
-    We strongly recommond to install TARDIS within an Anaconda environment and
+    We strongly recommend to install TARDIS within an Anaconda environment and
     to always use the lastest github development version.
 
 Requirements
 ============
 
-You can see a list of all the requirements of TARDIS in the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env27.yml>`_.
+You can see a list of all the requirements of TARDIS in the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_.
 
-TARDIS is using astropy's excellent installation helpers and thus uses similar
-instructions to astropy.
+TARDIS is using Astropy's excellent installation helpers and thus uses similar
+instructions to Astropy.
 
 .. _anaconda_inst_label:
 
@@ -45,13 +45,13 @@ machine. The next step is to create an environment for TARDIS that contains all
 of the necessary packages (this ensures that TARDIS requirements won't clash
 with any other python installs on disc::
 
-First, download the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env27.yml>`_ from::
+First, download the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_ from::
 
-    https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env27.yml
+    https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml
 
 To create the environment, change to the directory that you downloaded the environment definition file and run::
 
-    conda env create -f tardis_env27.yml
+    conda env create -f tardis_env3.yml
 
 Then to activate this environment simply do::
 

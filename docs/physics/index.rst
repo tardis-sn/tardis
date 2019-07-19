@@ -1,6 +1,6 @@
-************************************
-Behind the scenes: Physics of TARDIS
-************************************
+*****************
+Physics of TARDIS
+*****************
 
 .. warning::
 
@@ -23,10 +23,11 @@ Currently some information are available for
 
 .. toctree::
     new_plasma
+    montecarlo/index
 
 
 Old Physics Section of the TARDIS Docu (Outdated)
-======================================
+=================================================
 
 .. note::
     The following entries reflects the physics section of the old TARDIS
@@ -37,7 +38,6 @@ Old Physics Section of the TARDIS Docu (Outdated)
 
 .. toctree::
     physical_quantities
-    montecarlo
-    new_plasma
+    montecarlo_old
     plasma/index
 
