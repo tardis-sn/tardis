@@ -59,7 +59,9 @@ Physics of TARDIS
     :maxdepth: 2
     :caption: The Physics of TARDIS
 
-    physics/index
+    Physics overview <physics/index>
+    physics/plasma/index
+    physics/montecarlo/index
 
 ====
 Team
