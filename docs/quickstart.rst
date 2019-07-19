@@ -1,4 +1,4 @@
-.. _running:
+.. _quickstart:
 
 ****************
 Quickstart Guide
