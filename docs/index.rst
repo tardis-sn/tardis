@@ -32,15 +32,20 @@ assistance.
 
 
 
-============
-Using Tardis
-============
-
 .. toctree::
     :maxdepth: 2
 
     installation
-    CHANGELOG.md
+
+
+============
+Using TARDIS
+============
+
+.. toctree::
+    :maxdepth: 2
+    :caption: Using TARDIS
+
     quickstart
     running/index
     examples/index
@@ -52,10 +57,9 @@ Physics of TARDIS
 
 .. toctree::
     :maxdepth: 2
+    :caption: The Physics of TARDIS
 
-    atomic/atomic_data
     physics/index
-    montecarlo/index
 
 ====
 Team
@@ -63,26 +67,30 @@ Team
 
 .. toctree::
     :maxdepth: 2
+    :caption: Team & Credits
 
     team
     credits
 
-=================
-Developing Tardis
-=================
+================
+Developers Guide
+================
 
 .. toctree::
     :maxdepth: 2
+    :caption: Developers Guide
 
     issues
     workflow/development_workflow
     running_tests
+    CHANGELOG.md
 
 ==========
 References
 ==========
 
 .. toctree::
+    :caption: References
     zreferences
 
 ====
