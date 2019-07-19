@@ -36,7 +36,6 @@ intersphinx_mapping = {
     'astropy': ('http://docs.astropy.org/en/stable/', None),
     'h5py': ('http://docs.h5py.org/en/latest/', None),
     'pandas': ('http://pandas.pydata.org/pandas-docs/dev/', None),
-    'astropy': ('http://docs.astropy.org/en/stable/', None)
 }
 
 # import sphinx_bootstrap_theme
@@ -90,7 +89,7 @@ rst_epilog = """
 
 # This does not *have* to match the package name, but typically does
 project = u'TARDIS'
-author = u'TARDIS team'
+author = u'TARDIS collaboration'
 copyright = u'2013, ' + author
 
 master_doc = 'index'
