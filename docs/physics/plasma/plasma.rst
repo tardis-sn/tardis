@@ -95,5 +95,5 @@ This function calculates the Sobolev optical depth :math:`\tau_\textrm{Sobolev}`
 .. include:: plasma_doc/nlte.rst
 
 
-.. automodapi:: tardis.plasma_array
+.. .. automodapi:: tardis.plasma_array
 
