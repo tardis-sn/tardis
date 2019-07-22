@@ -52,7 +52,7 @@ or generate new ones.
 
 Both of of these require a configuration file for the integration tests:
 
-.. literalinclude:: yml_files/integration.yml
+.. literalinclude:: integration.yml
     :language: yaml
 
 Inside the atomic data directory there needs to be atomic data for each of

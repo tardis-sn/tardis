@@ -9,9 +9,9 @@ The TARDIS code needs three components to calculate spectra:
     :maxdepth: 1
     :numbered:
 
-    ../models/index.rst
-    ../configuration/index.rst
-    3. Atom Database <https://tardis-sn.github.io/carsus/>
+    ../models/index
+    ../configuration/index
+    ../atomic/atomic_data
 
 
 A quick start guide to run TARDIS can be found
@@ -25,21 +25,6 @@ A quick start guide to run TARDIS can be found
     commandline
     gui
     notebooks/index.rst
-
-.. _quickstart:
-
-
-Running TARDIS interactively in a Jupyter notebook (recommended)
-================================================================
-
-To get more information from each run of TARDIS one can run it interactively and
-have full access to the model properties (as described in :ref:`physical_quantities`)
-
-.. toctree::
-    :maxdepth: 1
-
-    examples/run_simple_example.ipynb
-
 
 
 
