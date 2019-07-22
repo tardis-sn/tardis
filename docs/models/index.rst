@@ -43,6 +43,13 @@ to define custom density and abundance profiles in separate files and reference
 these files directly in the main TARDIS configuration file. For further details,
 see the following links:
 
-* For general information: :ref:`modelconfig`
-* For defining a custom density file: :ref:`densitycust`
-* For defining a custom abundance file: :ref:`abundancecust`
+.. toctree::
+    :maxdepth: 1
+
+    examples/modelconfig
+    examples/densityexp
+    examples/densitypow
+    examples/densitycust
+    examples/abundanceuni
+    examples/abundancecust
+
