@@ -7,7 +7,6 @@ The TARDIS code needs three components to calculate spectra:
 
 .. toctree::
     :maxdepth: 1
-    :numbered:
 
     ../models/index
     ../configuration/index
@@ -24,7 +23,13 @@ A quick start guide to run TARDIS can be found
 
     commandline
     gui
-    notebooks/index.rst
+    interaction/index
+
+
+.. toctree::
+    :maxdepth: 2
+
+    converters/index
 
 
 
