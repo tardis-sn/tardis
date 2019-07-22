@@ -87,9 +87,7 @@ assistance.
     :caption: Developers Guide
     :hidden:
 
-    development/issues
-    development/development_workflow
-    running_tests
+    development/index
     CHANGELOG.md
 
 

@@ -11,8 +11,8 @@ and pages provide more details concerning the TARDIS configuration process.
 
 
 .. toctree::
-  :maxdepth: 3
+  :maxdepth: 2
 
   configuration
   config_validator
-  read_configuration.ipynb
+  read_configuration
