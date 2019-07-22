@@ -43,6 +43,7 @@ dependencies:
 - nbsphinx
 - sphinx_bootstrap_theme
 - sphinxcontrib-bibtex
+- sphinxcontrib-apidoc
 - sphinx_rtd_theme
 - recommonmark
 
