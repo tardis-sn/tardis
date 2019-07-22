@@ -56,6 +56,7 @@
 .. _ipython git workflow: http://mail.scipy.org/pipermail/ipython-dev/2010-October/006746.html
 .. other stuff
 .. _python: http://www.python.org
+.. _carsus: https://tardis-sn.github.io/carsus/
 
 .. |emdash| unicode:: U+02014
 
