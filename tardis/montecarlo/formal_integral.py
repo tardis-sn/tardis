@@ -164,7 +164,7 @@ class FormalIntegrator(object):
             e_dot_u = C_frame.loc[e_dot_u.index]
         att_S_ul = (wave * (q_ul * e_dot_u) * t  / (4 * np.pi))
 
-        result = pd.DataFrame(att_S_ul.as_matrix(), index=transitions.transition_line_id.values)
+        result = pd.DataFrame(att_S_ul.values, index=transitions.transition_line_id.values)
         att_S_ul = result.loc[lines.index.values].values
 
         # Jredlu should already by in the correct order, i.e. by wavelength of

@@ -4,9 +4,9 @@ Spectral Synthesis with the Formal Integral Method
 
 In addition to generating the final Monte Carlo spectrum from the population of
 Monte Carlo packets and the implemented variant of the "peeling-off" technique
-(see :doc:`../montecarlo/virtualpackets`), TARDIS supports spectral synthesis with
+(see :ref:`virtual_packets`), TARDIS supports spectral synthesis with
 so-called formal integral method by :cite:`Lucy1999a` (see a detailed
-description of the method at :doc:`../montecarlo/sourceintegration`)
+description of the method at :ref:`source_integration`)
 
 Using the Formal Integral Method
 ================================
@@ -23,4 +23,4 @@ Note that the integrated spectrum (``simulation.runner.spectrum_integrated``)
 is a lazy property so it will be only generated (and then cached) once it is
 accessed. The spectrum integration routine is Open-MP parallelized, so this
 process may be significantly sped-up if TARDIS is built with the
-``--with-openmp`` option and more then one threas is used.
+``--with-openmp`` option and more then one thread is used.
