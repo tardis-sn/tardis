@@ -1,15 +1,11 @@
-.. _gui_explanation:
+.. _gui:
 
 ************************
 Graphical User Interface
 ************************
 
-
 TARDIS uses the `PyQt4 framework <http://www.riverbankcomputing.com/software/pyqt/download>`_ for its cross-platform
 interface.
-
-The GUI runs through the `IPython Interpreter <http://ipython.org/install.html>`_ which should be started with the
-command ``ipython --pylab=qt4``, so that it has acess to pylab.
 
 Creating an instance of the :class:`ModelViewer`-class requires that PyQt4/PySide has already been initialized in
 IPython. The above command to start IPython accomplishes this.
@@ -17,7 +13,57 @@ IPython. The above command to start IPython accomplishes this.
 gui.py contains all the classes used to create the GUI for Tardis.
 
 This module must be imported inside IPython console started above. The console provides the event loop and the place
-to create/calculate the tardis model. So the module is basically a tool to visualize results. 
+to create/calculate the tardis model. So the module is basically a tool to visualize results.
+
+**To setup and run the GUI (under development) follow these steps:**
+
+The gui can use one of two python bindings for qt, namely PyQt4
+and PySide. You can choose which binding is used by setting the
+environment variable QT_API in your bash. Currently, the TARDIS team uses PyQT4
+
+**1**. Installing required packages
+
+.. code-block:: shell
+
+	conda activate tardis
+	conda install pyqt=4.8.7
+
+
+**2**. Choosing between PySide and PyQt4
+
+.. code-block:: shell
+
+	#To choose PySide
+	export QT_API=pyside
+
+	#To choose PyQt - this is what the TARDIS team does
+	export QT_API=pyqt
+
+**3**. An example of creating a model and GUI
+
+To show the gui from the ipython shell use the following commands.
+
+.. code-block:: shell
+
+	jupyter notebook
+
+.. code-block:: python
+
+	from tardis import run_tardis
+	from tardis.gui import interface
+	sim = run_tardis('yamlconfigfile.yml', 'atomdatafile.h5')
+
+	interface.show(sim)
+
+If you just want to run from a configuration file and show the results, you can
+do that outside the jupyter notebook. Navigate to the folder where you
+installed tardis and go to tardis/tardis/gui, and use the following command.
+
+.. code-block:: none
+
+    python interface.py path-to-yaml-configuration-file path-to-atomic-data-file
+
+
 
 Running Instructions
 --------------------
@@ -51,7 +97,7 @@ When you launch the gui the first screen that you see will be something like the
 You can inspect the plot of shells on this window and use the toggle button to change between the 
 plot of dilution factor and the radiation temperature in shells.
     
-.. image:: graphics/OpeningScreen.png
+.. image:: images/OpeningScreen.png
     :width: 900
 
 Shell Info
@@ -61,7 +107,7 @@ similar strategy in the tables that appear to bring up the ion and level populat
 The snapshot below shows all the tables that you can bring up by successively clicking the horizontal
 table headers. 
 
-.. image:: graphics/ShellInfo.png
+.. image:: images/ShellInfo.png
     :width: 900
 
 Line Info
@@ -70,5 +116,5 @@ If you switch to the spectrum tab you can see the spectrum plot and a button to 
 Once again you can double-click the table headers to get further information. The snapshot below
 shows all the tables that you can bring up in this window.
 
-.. image:: graphics/LineInfo.png
+.. image:: images/LineInfo.png
     :width: 900

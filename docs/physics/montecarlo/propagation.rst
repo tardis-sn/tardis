@@ -58,7 +58,7 @@ following sketch (taken from :cite:`Noebauer2014`):
 
 
 .. image::
-    ../graphics/spherical_symmetry.png
+    images/spherical_symmetry.png
     :width: 400
 
 
@@ -182,7 +182,7 @@ the sketch below (taken from :cite:`Noebauer2014`, adapted from
 :cite:`Mazzali1993`):
 
 .. image::
-    ../graphics/optical_depth_summation.png
+    images/optical_depth_summation.png
     :width: 400
 
 Three possible cases are highlighted. In the first case, the drawn optical

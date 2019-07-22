@@ -1,3 +1,5 @@
+.. _modelconfig:
+
 **************************
 Ejecta Model Configuration
 **************************

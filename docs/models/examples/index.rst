@@ -13,7 +13,7 @@ applications.
 
     modelconfig
     tardis_example
-    stella_to_tardis
+
 
 Simple Parametrized Models
 ==========================

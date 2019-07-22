@@ -52,7 +52,7 @@ or generate new ones.
 
 Both of of these require a configuration file for the integration tests:
 
-.. literalinclude:: yml_files/integration.yml
+.. literalinclude:: integration.yml
     :language: yaml
 
 Inside the atomic data directory there needs to be atomic data for each of
@@ -63,7 +63,7 @@ use very few packets to generate the references and thus make the process much
 faster - THIS IS ONLY FOR DEBUGGING PURPOSES. The ``-s`` option ensures that
 TARDIS prints out the progress:
 
-.. code-block::
+.. code-block:: shell
 
     > python setup.py test --args="--integration=integration.yml -m integration
     --generate-reference --less-packets"
@@ -71,7 +71,7 @@ TARDIS prints out the progress:
 To run the test after having run the ``--generate-references`` all that is
 needed is:
 
-.. code-block::
+.. code-block:: shell
 
     > python setup.py test --args="--integration=integration.yml -m integration
     --less-packets" --remote-data

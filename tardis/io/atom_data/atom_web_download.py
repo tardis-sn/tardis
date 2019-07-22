@@ -8,6 +8,15 @@ import yaml
 logger = logging.getLogger(__name__)
 
 def get_atomic_repo_config():
+    """
+    Get the repo configuration dictionary for the atomic data
+
+    Returns
+    -------
+        : dict
+
+    """
+
     atomic_repo_fname = get_internal_data_path('atomic_data_repo.yml')
     return yaml.load(open(atomic_repo_fname))
 
@@ -15,6 +24,7 @@ def get_atomic_repo_config():
 def download_atom_data(atomic_data_name=None):
     """
     Download the atomic data from the repository
+
     Parameters
     ----------
     atomic_data_name: str

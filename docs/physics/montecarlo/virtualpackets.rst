@@ -1,3 +1,5 @@
+.. _virtual_packets:
+
 ****************************************
 Spectrum Generation with Virtual Packets
 ****************************************

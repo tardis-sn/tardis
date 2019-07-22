@@ -1,3 +1,5 @@
+.. _densitycust:
+
 ******************************
 Using a custom density profile
 ******************************
