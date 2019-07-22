@@ -2,18 +2,29 @@
 Running TARDIS
 **************
 
-The TARDIS code needs three components to calculate spectra: 1) an atom database
-2) a model 3) a configuration file. The Atom Database is created by the
-`Carsus <https://tardis-sn.github.io/carsus/>`_ subpackage. A quick start guide
-to run TARDIS can be found :ref:`here <quickstart>`
+The TARDIS code needs three components to calculate spectra:
 
+
+.. toctree::
+    :maxdepth: 1
+    :numbered:
+
+    ../models/index.rst
+    ../configuration/index.rst
+    3. Atom Database <https://tardis-sn.github.io/carsus/>
+
+
+A quick start guide to run TARDIS can be found
+`here <../quickstart/quickstart.ipynb>`_.
 
 
 .. toctree::
     :maxdepth: 2
+    :caption: Running TARDIS and interactivity
 
     commandline
     gui
+    notebooks/index.rst
 
 .. _quickstart:
 
