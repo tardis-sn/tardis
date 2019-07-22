@@ -1,6 +1,8 @@
-******************************** 
+.. _source_integration:
+
+*****************************************
 Direct integration of the radiation field
-********************************
+*****************************************
 
 :cite:`Lucy1999a` describes an alternative method for the generation of
 synthetic supernova spectra. Instead of using the frequency and energy of

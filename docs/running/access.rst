@@ -9,7 +9,4 @@ use cases, can be accessed.
 
 .. toctree::
 
-  access_spectra
-  access_final_plasma
-  access_model
   access_iterations

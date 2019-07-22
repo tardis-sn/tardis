@@ -37,6 +37,7 @@ assistance.
     :hidden:
 
     installation
+    quickstart/quickstart
 
 
 
@@ -45,8 +46,11 @@ assistance.
     :caption: Using TARDIS
     :hidden:
 
-    quickstart
+
     running/index
+    running/configuration/configuration
+    atomic/atomic_data
+    models/index
     examples/index
     scripts/index
 

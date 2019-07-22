@@ -68,7 +68,8 @@ and after you are done with TARDIS you can deactivate::
 One does not need to recreate the environment, but simply activate it every time
 TARDIS is used.
 
-Since TARDIS has reached a mature state, we recommend always installing the latest development version::
+Since TARDIS has reached a mature state, we recommend always installing the
+latest development version::
 
     pip install git+https://github.com/tardis-sn/tardis
 
@@ -77,6 +78,12 @@ Alternatively, you can manually clone our repository and install TARDIS by
     git clone https://github.com/tardis-sn/tardis.git
     cd tardis
     python setup.py install
+
+
+.. _install_openmp:
+Enabling parallel execution with OpenMP
+---------------------------------------
+
 
 Manually, cloning the repository enables other options such as running the code in parallel (enabling OpenMP).
 In general we encourage to download the compilers from `conda` as we then can ensure that they work with TARDIS.
@@ -92,13 +99,12 @@ For Linux::
 
     conda install -c conda-forge openmp
 
-To compile TARDIS for parallel execution:
+To compile TARDIS for parallel execution::
 
     python setup.py install --with-openmp
 
 
 .. _troubleshooting_inst_label:
-
 Installation Troubles (FAQ)
 ===========================
 
