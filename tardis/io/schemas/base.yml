@@ -5,9 +5,6 @@ properties:
   tardis_config_version:
     type: string
     description: Version of the configuration file. The current version is 1.0 and no other versions are allowed
-  csvy_model:
-    type: string
-    description: Path to the csvy model file.
   supernova:
     $ref: supernova.yml
     description: a section pertaining to observations of the supernova
@@ -17,9 +14,13 @@ properties:
   plasma:
     $ref: plasma.yml
     description: configuration of the plasma microphysics
+  csvy_model:
+    type: string
+    $ref: csvy_model.yml
+    description: defining the model using csvy format
   model:
     $ref: model.yml
-    description: defining the model
+    description: defining the model in the config yaml file
   montecarlo:
     $ref: montecarlo.yml
     description: configuring the physics of the monte carlo radiative transfer

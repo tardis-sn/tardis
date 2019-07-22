@@ -1,6 +1,8 @@
-***********
-TARDIS Team
-***********
+.. _team:
+
+****
+Team
+****
 
 TARDIS is developed by a multidisciplinary team. We adhere to the AstroPy
 `code of conduct <https://www.astropy.org/code_of_conduct.html>`_.
@@ -41,6 +43,8 @@ Current and Former GSoC and SOCIS Students
  * Stefan Lietzau (GSoC 2017)
  * Mikhail Mishin (GSoC 2016)
  * Fotis Tsamis (GSoC 2016)
+ * Ezequiel Passaro (GSoC 2019)
+ * Jaladh Singhal (GSoC 2019)
 
 
 Contributors

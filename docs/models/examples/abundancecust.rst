@@ -1,3 +1,5 @@
+.. _abundancecust:
+
 *************************************
 Using a custom stratified composition
 *************************************

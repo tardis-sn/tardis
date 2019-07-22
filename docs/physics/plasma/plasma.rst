@@ -55,19 +55,13 @@ Here's an example how to instantiate a simple base plasma::
                28                0.5  513016973.936
                26                0.5  539183641.472
 
-
-
-
-
-
-
 Plasma Types
 ------------
 .. toctree::
     :maxdepth: 0
 
-    plasma_doc/lte_plasma.rst
-    plasma_doc/nebular_plasma.rst
+    lte_plasma.rst
+    nebular_plasma.rst
 
 
 .. _tau_sobolev:
@@ -90,10 +84,12 @@ This function calculates the Sobolev optical depth :math:`\tau_\textrm{Sobolev}`
 
 
 
+.. toctree::
+    :maxdepth: 1
 
-.. include:: plasma_doc/macroatom.rst
-.. include:: plasma_doc/nlte.rst
+    macroatom.rst
+    nlte.rst
 
 
-.. automodapi:: tardis.plasma_array
+.. .. automodapi:: tardis.plasma_array
 
