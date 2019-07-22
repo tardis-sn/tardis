@@ -19,7 +19,7 @@ TARDIS is an open-source Monte Carlo radiative-transfer spectral synthesis code
 for 1D models of supernova ejecta. It is designed for rapid spectral modelling
 of supernovae. It is developed and maintained by a :ref:`multi-disciplinary team <team>`
 including software engineers, computer scientists, statisticians,
-and astrophysicists .
+and astrophysicists. `--- dsfjsdlkfjsdlf`
 
 If you use this code for any publications or presentations please follow our
 citation guidelines in :ref:`tardiscredits`
@@ -42,17 +42,12 @@ assistance.
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
     :caption: Using TARDIS
     :hidden:
 
 
     running/index
-    running/configuration/configuration
-    atomic/atomic_data
-    models/index
-    examples/index
-    scripts/index
 
 
 .. toctree::
@@ -89,6 +84,14 @@ assistance.
 
     development/index
     CHANGELOG.md
+
+.. toctree::
+    :maxdepth: 2
+    :caption: API
+    :hidden:
+
+    api/modules
+
 
 
 .. toctree::

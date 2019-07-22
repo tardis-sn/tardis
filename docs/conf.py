@@ -47,11 +47,12 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.graphviz',
+    'sphinx.ext.viewcode',
     'numpydoc',
     'nbsphinx',
-    'sphinx.ext.autodoc',
     'sphinx-jsonschema',
-    'recommonmark'
+    'recommonmark',
+    'sphinxcontrib.apidoc'
 ]
 
 source_suffix = {
@@ -104,6 +105,12 @@ version = tardis.__version__.split('-', 1)[0]
 # The full version, including alpha/beta/rc tags.
 release = tardis.__version__
 
+
+# -- APIDoc configuration -----------------------------------------------------
+apidoc_module_dir = '../tardis'
+apidoc_output_dir = 'api'
+apidoc_excluded_paths = ['*tests*', '*setup_package*']
+apidoc_separate_modules = True
 
 # -- Options for HTML output ---------------------------------------------------
 
