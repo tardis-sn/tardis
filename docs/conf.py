@@ -152,6 +152,8 @@ html_title = '{0} v{1}'.format(project, release)
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'
 
+#html_extra_path = ['research/code_comparison/plasma_compare/tardis_example.yml']
+
 
 # -- Options for LaTeX output --------------------------------------------------
 

@@ -9,4 +9,5 @@ The first meeting is summarized
 .. toctree::
 
     toy_models/reading blondin toymodel
+    plasma_compare/plasma_compare
 
