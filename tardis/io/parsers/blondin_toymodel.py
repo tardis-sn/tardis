@@ -92,7 +92,7 @@ def read_blondin_toymodel(fname):
 
 def convert_blondin_toymodel(in_fname, out_fname, v_inner, v_outer):
     """
-    
+
     Parameters
     ----------
     in_fname
