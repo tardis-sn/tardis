@@ -8,7 +8,7 @@ supernova:
 
 atom_data: kurucz_cd23_chianti_H_He.h5
 
-csvy_model: blondin_compare.csvy
+csvy_model: blondin_compare_06.csvy
 
 plasma:
   disable_electron_scattering: no
