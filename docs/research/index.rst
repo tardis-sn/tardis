@@ -8,6 +8,6 @@ but also give an overview over our efforts.
 
 
 .. toctree::
-    :maxdepth: 2
+    :maxdepth: 3
 
     code_comparison/index
