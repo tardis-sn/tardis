@@ -499,7 +499,7 @@ class Radial1DModel(HDFWriterMixin):
         Radial1DModel
 
         """
-        CSVY_SUPPORTED_COLUMNS = ['velocity', 'density', 't_rad', 'dilution_factor']
+        CSVY_SUPPORTED_COLUMNS = {'velocity', 'density', 't_rad', 'dilution_factor'}
 
 
         if os.path.isabs(config.csvy_model):
@@ -511,16 +511,22 @@ class Radial1DModel(HDFWriterMixin):
         base_dir = os.path.abspath(os.path.dirname(__file__))
         schema_dir = os.path.join(base_dir, '..', 'io', 'schemas')
         csvy_schema_file = os.path.join(schema_dir, 'csvy_model.yml')
-        csvy_model_config  = Configuration(validate_dict(csvy_model_config, 
+        csvy_model_config = Configuration(validate_dict(csvy_model_config,
                                            schemapath=csvy_schema_file))
 
-        abund_names = [name for name in csvy_model_data.columns if nucname.iselement(name) or nucname.isnuclide(name)]
-        unsupported_columns = [name for name in csvy_model_data.columns
-                               if not (name in abund_names) and not (name in CSVY_SUPPORTED_COLUMNS)]
+        if hasattr(csvy_model_data, 'columns'):
+            abund_names = set([name for name in csvy_model_data.columns
+                           if nucname.iselement(name) or nucname.isnuclide(name)])
+            unsupported_columns = set(csvy_model_data.columns) - abund_names - CSVY_SUPPORTED_COLUMNS
 
-        if len(unsupported_columns) > 0:
-            logger.warning("The following columns are specified in the csvy"
-                           "model file, but are IGNORED by TARDIS: %s"%(str(unsupported_columns)))
+            field_names = set([field['name'] for field in csvy_model_config.datatype.fields])
+            assert set(csvy_model_data.columns) - field_names == set(),\
+                'CSVY columns exist without field descriptions'
+            assert field_names - set(csvy_model_data.columns) == set(),\
+                'CSVY field descriptions exist without corresponding csv data'
+            if unsupported_columns != set():
+                logger.warning("The following columns are specified in the csvy"
+                               "model file, but are IGNORED by TARDIS: %s"%(str(unsupported_columns)))
 
         time_explosion = config.supernova.time_explosion.cgs
 
