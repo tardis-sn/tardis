@@ -562,8 +562,8 @@ class Radial1DModel(HDFWriterMixin):
 
         dilution_factor = None
         if hasattr(csvy_model_data, 'columns'):
-            if 'w' in csvy_model_data.columns:
-                dilution_factor = csvy_model_data['w'].iloc[0:].to_numpy()
+            if 'dilution_factor' in csvy_model_data.columns:
+                dilution_factor = csvy_model_data['dilution_factor'].iloc[0:].to_numpy()
 
         elif config.plasma.initial_t_rad > 0 * u.K:
             t_radiative = np.ones(no_of_shells) * config.plasma.initial_t_rad
