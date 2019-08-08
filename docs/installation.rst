@@ -68,8 +68,12 @@ and after you are done with TARDIS you can deactivate::
 One does not need to recreate the environment, but simply activate it every time
 TARDIS is used.
 
-Since TARDIS has reached a mature state, we recommend always installing the
-latest development version::
+For TARDIS development purposes please follow the steps :ref:`here <forking>`
+until the step to install TARDIS in the development mode
+``python setup.py develop``.
+
+You can also install TARDIS for the latest development version
+(but this is only recommended for pure users)::
 
     pip install git+https://github.com/tardis-sn/tardis
 
