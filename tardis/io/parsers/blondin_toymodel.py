@@ -9,8 +9,6 @@ from astropy import units as u
 
 from tardis.util.base import parse_quantity
 
-
-
 PATTERN_REMOVE_BRACKET = re.compile('\[.+\]')
 T0_PATTERN = re.compile('tend = (.+)\n')
 
@@ -90,23 +88,41 @@ def read_blondin_toymodel(fname):
     return blondin_dict, blondin_csv
 
 
-def convert_blondin_toymodel(in_fname, out_fname, v_inner, v_outer):
+def convert_blondin_toymodel(in_fname, out_fname, v_inner, v_outer,
+                             conversion_t_electron_rad=None):
     """
 
     Parameters
     ----------
-    in_fname
-    out_fname
-    v_inner
-    v_outer
+    in_fname: str
+        input toymodel file
+    out_fname: str
+        output csvy file
 
-    Returns
-    -------
+    conversion_t_electron_rad: float or None
+        multiplicative conversion factor from t_electron to t_rad.
+        if `None` t_rad is not calculated
 
+    v_inner: float or astropy.unit.Quantity
+        inner boundary velocity. If float will be interpreted as km/s
+    v_outer: float or astropy.unit.Quantity
+        outer boundary velocity. If float will be interpreted as km/s
     """
     blondin_dict, blondin_csv = read_blondin_toymodel(in_fname)
     blondin_dict['v_inner_boundary'] = str(u.Quantity(v_inner, u.km / u.s))
     blondin_dict['v_outer_boundary'] = str(u.Quantity(v_outer, u.km / u.s))
+
+    if conversion_t_electron_rad is not None:
+        blondin_dict['datatype']['fields'].append({
+            'desc':
+                'converted radiation temperature '
+                'using multiplicative factor={0}'.format(
+                    conversion_t_electron_rad),
+            'name': 't_rad', 'unit': 'K'})
+
+        blondin_csv['t_rad'] = (conversion_t_electron_rad *
+                                blondin_csv.t_electron)
+
 
     csvy_file = '---\n{0}\n---\n{1}'.format(
         yaml.dump(blondin_dict, default_flow_style=False),
