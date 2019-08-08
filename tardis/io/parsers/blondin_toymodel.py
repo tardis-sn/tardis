@@ -107,13 +107,19 @@ def convert_blondin_toymodel(in_fname, out_fname, v_inner, v_outer,
         inner boundary velocity. If float will be interpreted as km/s
     v_outer: float or astropy.unit.Quantity
         outer boundary velocity. If float will be interpreted as km/s
-
     """
     blondin_dict, blondin_csv = read_blondin_toymodel(in_fname)
     blondin_dict['v_inner_boundary'] = str(u.Quantity(v_inner, u.km / u.s))
     blondin_dict['v_outer_boundary'] = str(u.Quantity(v_outer, u.km / u.s))
 
     if conversion_t_electron_rad is not None:
+        blondin_dict['datatype']['fields'].append({
+            'desc':
+                'converted radiation temperature '
+                'using multiplicative factor={0}'.format(
+                    conversion_t_electron_rad),
+            'name': 't_rad', 'unit': 'K'})
+
         blondin_csv['t_rad'] = (conversion_t_electron_rad *
                                 blondin_csv.t_electron)
 
