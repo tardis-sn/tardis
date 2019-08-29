@@ -59,10 +59,10 @@ def model_quantities(request):
 
 
 @pytest.fixture(scope='session')
-def get_config(request):
-    return request.config
+def integration_skip(request):
+    return request.config.getvalue("integration-tests")
 
-@pytest.mark.skipif(not get_config.getvalue("integration-tests"),
+@pytest.mark.skipif(not integration_skip,
                     reason="integration tests are not included in this run")
 @pytest.mark.integration
 class TestIntegration(object):
