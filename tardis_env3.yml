@@ -49,7 +49,7 @@ dependencies:
 
 #Test/Coverage requirements
 - git-lfs
-- pytest=5.0.1
+- pytest=4
 - pytest-html
 - requests
 - coverage
