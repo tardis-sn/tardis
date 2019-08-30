@@ -44,7 +44,7 @@ class MontecarloRunner(HDFWriterMixin):
                  sigma_thomson, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
-                 v_packet_settings):
+                 v_packet_settings, spectrum_method):
 
         self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
@@ -57,8 +57,11 @@ class MontecarloRunner(HDFWriterMixin):
         self.line_interaction_type = line_interaction_type
         self.integrator_settings = integrator_settings
         self.v_packet_settings = v_packet_settings
+        self.spectrum_method = spectrum_method
         self._integrator = None
         self._spectrum_integrated = None
+        if self.spectrum_method == 'integrated':
+            self.optional_hdf_properties.append('spectrum_integrated')
 
     def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
         """
@@ -423,4 +426,5 @@ class MontecarloRunner(HDFWriterMixin):
                    enable_full_relativity=config.montecarlo.enable_full_relativity,
                    line_interaction_type=config.plasma.line_interaction_type,
                    integrator_settings=config.spectrum.integrated,
-                   v_packet_settings=config.spectrum.virtual)
+                   v_packet_settings=config.spectrum.virtual,
+                   spectrum_method=config.spectrum.method)
