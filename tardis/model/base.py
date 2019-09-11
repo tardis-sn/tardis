@@ -533,15 +533,29 @@ class Radial1DModel(HDFWriterMixin):
         electron_densities = None
         temperature = None
 
-        if hasattr(csvy_model_config, 'v_inner_boundary'):
-            v_boundary_inner = csvy_model_config.v_inner_boundary
+        #if hasattr(csvy_model_config, 'v_inner_boundary'):
+        #    v_boundary_inner = csvy_model_config.v_inner_boundary
+        #else:
+        #    v_boundary_inner = None
+
+        #if hasattr(csvy_model_config, 'v_outer_boundary'):
+        #    v_boundary_outer = csvy_model_config.v_outer_boundary
+        #else:
+        #    v_boundary_outer = None
+
+        if hasattr(config, 'model'):
+            if hasattr(config.model, 'v_inner_boundary'):
+                v_boundary_inner = config.model.v_inner_boundary
+            else:
+                v_boundary_inner = None
+
+            if hasattr(config.model, 'v_outer_boundary'):
+                v_boundary_outer = config.model.v_outer_boundary
+            else:
+                v_boundary_outer = None
         else:
             v_boundary_inner = None
-
-        if hasattr(csvy_model_config, 'v_outer_boundary'):
-            v_boundary_outer = csvy_model_config.v_outer_boundary
-        else:
-            v_boundary_outer = None 
+            v_boundary_outer = None
 
         if hasattr(csvy_model_config, 'velocity'):
             velocity = quantity_linspace(csvy_model_config.velocity.start,

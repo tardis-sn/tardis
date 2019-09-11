@@ -11,31 +11,6 @@ atom_data: kurucz_cd23_chianti_H_He.h5
 
 csvy_model: csvy_full_rad.csvy
 
-model:
-  structure:
-    #v_inner_boundary: 9500 km/s
-    type: file
-    filename: density.dat
-    filetype: simple_ascii
-      # showing different configuration options separated by comments
-      # simple uniform
-      #---------------
-      #type: uniform
-      #value: 1e-40 g/cm^3
-      #---------------
-      # branch85_w7 - fit of seven order polynomial to W7 (like Branch 85)
-      #---------------
-      #type: branch85_w7
-      # default, no need to change
-      #w7_time_0: 19.9999584 s
-      # default, no need to change
-      #w7_rho_0: 3e29 g/cm^3
-      #---------------
-
-  abundances:
-    type: file
-    filename: abund.dat
-    filetype: custom_composition
 
 plasma:
   #initial_t_inner: 10000 K
