@@ -7,6 +7,7 @@ from astropy import units as u
 import tardis
 from tardis.io import config_validator
 from tardis.io.util import YAMLLoader, yaml_load_file
+from tardis.io.parsers.csvy import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -115,6 +116,22 @@ class ConfigurationNameSpace(dict):
                 self.__setitem__(key, value[key])
         else:
             raise (TypeError, 'expected dict')
+
+        if hasattr(self, 'csvy_model') and hasattr(self, 'model'):
+            raise ValueError('Cannot specify both model and csvy_model in main config file.')
+        if hasattr(self, 'csvy_model'):
+            model = dict()
+            csvy_model_path = os.path.join(self.config_dirname,self.csvy_model)
+            csvy_yml = load_yaml_from_csvy(csvy_model_path)
+            if 'v_inner_boundary' in csvy_yml:
+                model['v_inner_boundary'] = csvy_yml['v_inner_boundary']
+            if 'v_outer_boundary' in csvy_yml:
+                model['v_outer_boundary'] = csvy_yml['v_outer_boundary']
+
+            self.__setitem__('model',model)
+            for key in self.model:
+                self.model.__setitem__(key, self.model[key])
+
 
     def __setitem__(self, key, value):
         if isinstance(value, dict) and not isinstance(value,
