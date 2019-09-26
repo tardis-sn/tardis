@@ -12,8 +12,7 @@ properties:
 
   model_isotope_time_0:
     type: quantity
-    default: -1 day
-    description: initial time for isotope decay
+    description: Initial time for isotope decay. Set to 0 for no isotopes.
 
   description:
     type: string
@@ -63,6 +62,7 @@ properties:
 
 required:
 - tardis_model_config_version
+- model_isotope_time_0
 
 definitions:
   density:
