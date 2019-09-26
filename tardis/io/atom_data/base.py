@@ -290,6 +290,8 @@ class AtomData(object):
             raise AtomDataNotPreparedError("AtomData was already prepared")
         self.selected_atomic_numbers = selected_atomic_numbers
 
+        self._check_selected_atomic_numbers()
+
         self.nlte_species = nlte_species
 
         self.levels = self.levels[
@@ -394,6 +396,25 @@ class AtomData(object):
                 self.macro_atom_data.loc[:, 'destination_level_idx'] = -1
 
         self.nlte_data = NLTEData(self, nlte_species)
+
+    def _check_selected_atomic_numbers(self):
+        selected_atomic_numbers = self.selected_atomic_numbers
+        available_atomic_numbers = np.unique(
+            self.ionization_data.index.get_level_values(0)
+        )
+        atomic_number_check = np.isin(selected_atomic_numbers,
+                                      available_atomic_numbers)
+
+        if not all(atomic_number_check):
+            missing_atom_mask = np.logical_not(atomic_number_check)
+            missing_atomic_numbers = selected_atomic_numbers[missing_atom_mask]
+            missing_numbers_str = ','.join(
+                missing_atomic_numbers.astype('str')
+            )
+            msg = "For atomic numbers {} there is no atomic data.".format(
+                missing_numbers_str
+            )
+            raise AtomDataMissingError(msg)
 
     def __repr__(self):
         return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
