@@ -417,8 +417,9 @@ class AtomData(object):
             raise AtomDataMissingError(msg)
 
     def __repr__(self):
-        return "<Atomic Data UUID=%s MD5=%s Lines=%d Levels=%d>" % \
-               (self.uuid1, self.md5, self.lines.atomic_number.count(), self.levels.energy.count())
+        return "<Atomic Data UUID={} MD5={} Lines={:d} Levels={:d}>".format(
+            self.uuid1, self.md5, self.lines.line_id.count(),
+            self.levels.energy.count())
 
 
 class NLTEData(object):
