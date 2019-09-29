@@ -2,6 +2,8 @@ import os
 import logging
 import warnings
 
+from astropy_helpers.distutils_helpers import get_distutils_option
+
 from astropy import units as u
 from tardis import constants as const
 
