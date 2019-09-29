@@ -32,6 +32,10 @@ class MontecarloRunner(HDFWriterMixin):
                       'last_line_interaction_shell_id',
                       'packet_luminosity', 'spectrum',
                       'spectrum_virtual', 'spectrum_reabsorbed']
+    if get_distutils_option('with_vpacket_logging', ['build', 'install', 'develop']) is not None:
+        hdf_properties.extend(['virt_packet_last_interaction_in_nu', 'virt_packet_last_line_interaction_in_id'
+                                'virt_packet_last_line_interaction_out_id', 'virt_packet_last_interaction_in_nu'
+                                'virt_packet_nus', 'virt_packet_energies'])
     hdf_name = 'runner'
     w_estimator_constant = ((const.c ** 2 / (2 * const.h)) *
                             (15 / np.pi ** 4) * (const.h / const.k_B) ** 4 /
