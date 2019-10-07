@@ -977,7 +977,7 @@ class LineInteractionTables(QtGui.QWidget):
         species_abundances = (
             line_interaction_species_group.wavelength.count().astype(float) /
             line_interaction_analysis.last_line_in.wavelength.count()).astype(float).tolist()
-        species_abundances = map(float, species_abundances)
+        species_abundances = list(map(float, species_abundances))
         species_table_model.add_data(species_abundances)
         self.species_table.setModel(species_table_model)
 
