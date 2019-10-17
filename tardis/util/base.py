@@ -72,6 +72,20 @@ NUMERAL_MAP = tuple(zip(
 ))
 
 def int_to_roman(i):
+    """
+    Convert an integer i into its roman numeral representation.
+
+    Parameters
+    ----------
+    i: int
+        Integer to be converted into roman numerals
+
+    Returns
+    -------
+        : str
+        Returns roman numeral representation of i in str format.
+
+    """
     result = []
     for integer, numeral in NUMERAL_MAP:
         count = i // integer
