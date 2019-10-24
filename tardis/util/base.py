@@ -94,16 +94,16 @@ def int_to_roman(i):
 
 def roman_to_int(roman_string):
     """
-
-
+    Convert a roman numeral into its corresponding integer.
     Parameters
     ----------
     roman_string: str
+        Roman numeral to be converted into an integer
 
     Returns
     -------
         : int
-
+        Returns integer representation of roman_string
     """
 
     NUMERALS_SET = set(list(zip(*NUMERAL_MAP))[1])
@@ -122,7 +122,23 @@ def roman_to_int(roman_string):
 
 def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_unit=u.angstrom, flux_column=1,
                          flux_unit=u.Unit('erg / (Angstrom cm2 s)')):
+    """
 
+    Parameters
+    ----------
+    spec_fname
+    distance
+    wavelength_column: int, optional
+    wavelength_unit: float
+    flux_column
+    flux_unit
+
+    Returns
+    -------
+    luminosity.value
+    wavelength.min()
+    wavelength.max()
+    """
     #BAD STYLE change to parse quantity
     distance = u.Unit(distance)
 
@@ -135,6 +151,22 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
 
 
 def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
+
+    """
+
+    Parameters
+    ----------
+    radial1d_mdl
+    fname
+    shell
+    lines_db
+
+    Returns
+    -------
+
+
+    """
+
     logger.warning('Currently only works with Si and a special setup')
     if radial1d_mdl.atom_data.synpp_refs is not None:
         raise ValueError(
@@ -198,6 +230,17 @@ def intensity_black_body(nu, T):
         .. math::
             I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
+    Parameters
+    ----------
+    nu: int
+        Frequency of a wave of light
+    T: int
+        Temperature in kelvin
+
+    Returns
+    -------
+    Intensity: float
+        Approximates the intensity of electromagnetic radiation for the black body
     """
     beta_rad = 1 / (k_B_cgs * T)
     coefficient = 2 * h_cgs / c_cgs ** 2
@@ -207,6 +250,23 @@ def intensity_black_body(nu, T):
 
 
 def species_tuple_to_string(species_tuple, roman_numerals=True):
+    """
+    Parameters
+    ----------
+    species_tuple: tuple
+        Tuple of 2 values indicated atomic number and number of electrons(?)
+
+    roman_numerals: bool, optional
+        Indicates whether the returned ion number is in roman numerals
+
+    Returns
+    -------
+    roman_ion_number: str
+        Returns element symbol and
+    ion_number: int
+        Returns element symbol and
+
+    """
     atomic_number, ion_number = species_tuple
     element_symbol = ATOMIC_NUMBER2SYMBOL[atomic_number]
     if roman_numerals:
@@ -217,6 +277,23 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
 
 
 def species_string_to_tuple(species_string):
+    """
+
+    Parameters
+    ----------
+    species_string
+
+    Returns
+    ----------
+    atomic_number
+    ion number
+
+    Raises
+    ----------
+    AttributeError:
+    ValueError:
+
+    """
 
     try:
         element_symbol, ion_number_string = re.match('^(\w+)\s*(\d+)', species_string).groups()
@@ -244,6 +321,16 @@ def species_string_to_tuple(species_string):
 
 
 def parse_quantity(quantity_string):
+    """
+    Parameters
+    ----------
+    quantity_string
+
+    Returns
+    -------
+    q
+
+    """
 
     if not isinstance(quantity_string, str):
         raise MalformedQuantityError(quantity_string)
@@ -267,6 +354,20 @@ def parse_quantity(quantity_string):
 
 
 def element_symbol2atomic_number(element_string):
+    """
+    Takes an element symbol and returns its corresponding atomic number
+    Parameters
+    ----------
+    element_string: str
+        Inputted element symbol
+
+    Returns
+    -------
+    SYMBOL2ATOMIC_NUMBER[reformatted_element_string]: int
+        Returned atomic number
+
+
+    """
     reformatted_element_string = reformat_element_symbol(element_string)
     if reformatted_element_string not in SYMBOL2ATOMIC_NUMBER:
         raise MalformedElementSymbolError(element_string)
@@ -276,6 +377,19 @@ def element_symbol2atomic_number(element_string):
 def atomic_number2element_symbol(atomic_number):
     """
     Convert atomic number to string symbol
+
+    Parameters
+    ----------
+    atomic_number: int
+        Inputted atomic number
+
+
+    Returns
+    -------
+    ATOMIC_NUMBER2SYMBOL[atomic_number]: str
+       Returned corresponding element symbol
+
+
     """
     return ATOMIC_NUMBER2SYMBOL[atomic_number]
 
@@ -286,11 +400,15 @@ def reformat_element_symbol(element_string):
 
     Parameters
     ----------
-        element_symbol: str
+    element_string: str
+        Inputted element symbol
+
 
     Returns
     -------
-        reformated element symbol
+    reformatted element symbol: str
+        Returned reformatted element symbol
+
     """
 
     return element_string[0].upper() + element_string[1:].lower()
@@ -321,6 +439,17 @@ def quantity_linspace(start, stop, num, **kwargs):
 
 
 def convert_abundances_format(fname, delimiter='\s+'):
+    """
+    Parameters
+    ----------
+    fname: str
+    delimiter: str, optional
+
+    Returns
+    -------
+    df:
+
+    """
     df = pd.read_csv(fname, delimiter=delimiter, comment='#', header=None)
     #Drop shell index column
     df.drop(df.columns[0], axis=1, inplace=True)
