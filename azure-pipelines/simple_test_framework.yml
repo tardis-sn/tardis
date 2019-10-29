@@ -39,7 +39,7 @@ jobs:
 
   - bash: |
       sudo chown -R $USER $CONDA
-      conda update -y conda
+      # conda update -y conda
     displayName: updating conda and activating
 
   - bash: |
