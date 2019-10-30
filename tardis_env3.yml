@@ -6,7 +6,7 @@ channels:
 
 dependencies:
 - python=3
-- numpy=1.15
+- numpy=1.16
 - scipy=1.1
 - pandas=0.24
 - astropy=3
