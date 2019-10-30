@@ -95,6 +95,7 @@ def int_to_roman(i):
 def roman_to_int(roman_string):
     """
     Convert a roman numeral into its corresponding integer.
+
     Parameters
     ----------
     roman_string: str
@@ -123,7 +124,7 @@ def roman_to_int(roman_string):
 def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_unit=u.angstrom, flux_column=1,
                          flux_unit=u.Unit('erg / (Angstrom cm2 s)')):
     """
-    Calculates luminosity of star
+    Calculates luminosity of star.
 
     Parameters
     ----------
@@ -236,9 +237,9 @@ def intensity_black_body(nu, T):
 
     Parameters
     ----------
-    nu: int
-        Frequency of a wave of light
-    T: int
+    nu: flot
+        Frequency of light
+    T: float
         Temperature in kelvin
 
     Returns
@@ -289,12 +290,12 @@ def species_string_to_tuple(species_string):
         String containing element symbol and number of electrons missing
 
     Returns
-    ----------
+    -------
     atomic_number, ion_number: tuple
         Returns tuple of length 2 indicating atomic number and ion number
 
     Raises
-    ----------
+    ------
     MalformedSpeciesError
         If the inputted string does not match the species format
     """
@@ -376,7 +377,7 @@ def element_symbol2atomic_number(element_string):
 
     Returns
     -------
-        :int
+        : int
         Returned atomic number
     """
     reformatted_element_string = reformat_element_symbol(element_string)
@@ -396,7 +397,7 @@ def atomic_number2element_symbol(atomic_number):
 
     Returns
     -------
-        :str
+        : str
        Returned corresponding element symbol
     """
     return ATOMIC_NUMBER2SYMBOL[atomic_number]
