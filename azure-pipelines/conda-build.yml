@@ -62,10 +62,17 @@ jobs:
   - bash: |
         sh ci-helpers/install_tardis_env.sh     
     displayName: 'Install TARDIS env'
-# Activate the environment, tagging release.
+# Activate the environment, getting version number.
   - bash: |
         source activate tardis
         VERSION=$(python -c 'import tardis; print(tardis.__version__)')
-        git tag $VERSION
-    displayName: 'Tag current release'
-# See github.com/tardis-sn/tardis for the contents of these files.
+    displayName: 'Getting TARDIS version'
+# Create release
+  - task: GithubRelease@0 
+    displayName: 'Creating GitHub Release'      
+    inputs:
+      gitHubConnection: tardis-sn
+      repositoryName: tardis-sn/tardis
+      tagSource: manual
+      tag: $VERSION
+
