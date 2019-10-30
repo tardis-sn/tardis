@@ -24,7 +24,7 @@ dependencies:
 - pyyaml
 - jsonschema
 - pyne=0.5
-- pytables
+- pytables=3.5
 - h5py
 - requests
 - tqdm
