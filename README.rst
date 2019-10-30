@@ -6,6 +6,12 @@ TARDIS is a tool that creates synthetic observations (spectra) for exploding
 stars (supernovae). Documentation can be found at
 https://tardis-sn.github.io/tardis/.
 
+*************
+CREDIT TARDIS
+*************
+
+If you use TARDIS for your published research or presentations, please follow the Credits and Publication Policy: https://tardis-sn.github.io/tardis/credits.html
+
 .. image:: https://dev.azure.com/tardis-sn/TARDIS/_apis/build/status/tardis-sn.tardis?branchName=master
   :target: https://dev.azure.com/tardis-sn/TARDIS/_build/latest?definitionId=1&branchName=master
 
