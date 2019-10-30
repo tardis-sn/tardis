@@ -65,7 +65,7 @@ jobs:
 # Activate the environment, use sphinx to make the html documentation of the build, and deploy to gh-pages.
   - bash: |
         source activate tardis
-        npm install -g github-changes
+        sudo npm install -g github-changes
         github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k $GITHUB_CHANGES_OAUTH
         bash deploy_docs.sh
     displayName: 'TARDIS build and deployment to gh-pages'
