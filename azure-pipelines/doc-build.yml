@@ -66,7 +66,8 @@ jobs:
   - bash: |
         source activate tardis
         sudo npm install -g github-changes
-        github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k $GITHUB_CHANGES_OAUTH
+        echo github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k $(github_changes_oauth)
+        github-changes -o tardis-sn -r tardis --only-pulls --use-commit-body -f CHANGELOG.md -k $(github_changes_oauth)
         bash deploy_docs.sh
     displayName: 'TARDIS build and deployment to gh-pages'
 # See github.com/tardis-sn/tardis for the contents of these files.
