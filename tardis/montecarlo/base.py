@@ -1,8 +1,9 @@
+from tardis import __path__ as TARDIS_PATH
 import os
 import logging
 import warnings
 
-from astropy_helpers.distutils_helpers import get_distutils_option
+import yaml
 
 from astropy import units as u
 from tardis import constants as const
@@ -18,7 +19,7 @@ from tardis.montecarlo.formal_integral import FormalIntegrator
 import numpy as np
 
 logger = logging.getLogger(__name__)
-
+TARDIS_PATH = TARDIS_PATH[0]
 
 class MontecarloRunner(HDFWriterMixin):
     """
@@ -34,10 +35,14 @@ class MontecarloRunner(HDFWriterMixin):
                       'last_line_interaction_shell_id',
                       'packet_luminosity', 'spectrum',
                       'spectrum_virtual', 'spectrum_reabsorbed']
-    if get_distutils_option('with_vpacket_logging', ['build', 'install', 'develop']) is not None:
-        hdf_properties.extend(['virt_packet_last_interaction_in_nu', 'virt_packet_last_line_interaction_in_id'
-                                'virt_packet_last_line_interaction_out_id', 'virt_packet_last_interaction_in_nu'
-                                'virt_packet_nus', 'virt_packet_energies'])
+
+    vpacket_config_file_path = os.path.join(TARDIS_PATH, 'data', 'vpacket_config.yml')
+    vpacket_logging_config = yaml.load(open(vpacket_config_file_path))
+    if vpacket_logging_config['vpacket_logging']:
+        hdf_properties.extend(['virt_packet_last_interaction_in_nu', 'virt_packet_last_line_interaction_in_id',
+                                'virt_packet_last_line_interaction_out_id', 'virt_packet_nus',
+                                'virt_packet_energies'])
+
     hdf_name = 'runner'
     w_estimator_constant = ((const.c ** 2 / (2 * const.h)) *
                             (15 / np.pi ** 4) * (const.h / const.k_B) ** 4 /
@@ -68,6 +73,7 @@ class MontecarloRunner(HDFWriterMixin):
         self._spectrum_integrated = None
         if self.spectrum_method == 'integrated':
             self.optional_hdf_properties.append('spectrum_integrated')
+
 
     def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
         """
