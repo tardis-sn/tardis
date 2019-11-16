@@ -77,7 +77,9 @@ You can also install TARDIS for the latest development version
 
     pip install git+https://github.com/tardis-sn/tardis
 
-Alternatively, you can manually clone our repository and install TARDIS by
+Developement guidelines for TARDIS can be found `here <https://tardis-sn.github.io/tardis/development/index.html>`_.
+
+Alternatively, you can manually clone our repository and install TARDIS by::
 
     git clone https://github.com/tardis-sn/tardis.git
     cd tardis
