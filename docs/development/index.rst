@@ -21,6 +21,7 @@ to the Astropy team for designing it.
     :caption: Git and coding workflow
 
     git_workflow
+    git-lfs
 
 
 .. toctree::
