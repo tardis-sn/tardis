@@ -133,11 +133,11 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
     distance: float
         Distance to star
     wavelength_column: int, optional(default = 0)
-        #UNSURE
+        Column index in which the wavelength is stored
     wavelength_unit: float, optional(default = u.angstrom)
         Dictates units used for calculating wavelength.
     flux_column: int, optional(default = 1)
-        #UNSURE
+        Column index in which the flux is stored
     flux_unit: str, optional(default = u.Unit('erg / (Angstrom cm2 s)')
         Dictates units used for flux
 
@@ -163,13 +163,18 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
 
 def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     """
-    #UNSURE
+    Create a yaml file that is readable from syn++
+
     Parameters
     ----------
-    radial1d_mdl
-    fname
+    radial1d_mdl: Radial1DModel
+        Inputted object that will be read into YAML file
+    fname: str
+        File name for the synpp yaml
     shell_no: int, optional(default = 0)
-    lines_db:
+        Number of shells
+    lines_db: file, optional(default = None)
+        
     """
 
     logger.warning('Currently only works with Si and a special setup')
@@ -237,7 +242,7 @@ def intensity_black_body(nu, T):
 
     Parameters
     ----------
-    nu: flot
+    nu: float
         Frequency of light
     T: float
         Temperature in kelvin
@@ -287,7 +292,7 @@ def species_string_to_tuple(species_string):
     Parameters
     ----------
     species_string: str
-        String containing element symbol and number of electrons missing
+        String containing species symbol (e.g. Si II, Fe III)
 
     Returns
     -------
