@@ -72,6 +72,19 @@ NUMERAL_MAP = tuple(zip(
 ))
 
 def int_to_roman(i):
+    """
+    Convert an integer into its roman numeral representation.
+
+    Parameters
+    ----------
+    i: int
+        Integer to be converted into roman numerals
+
+    Returns
+    -------
+        : str
+        Returns roman numeral representation of i in str format.
+    """
     result = []
     for integer, numeral in NUMERAL_MAP:
         count = i // integer
@@ -81,15 +94,17 @@ def int_to_roman(i):
 
 def roman_to_int(roman_string):
     """
+    Convert a roman numeral into its corresponding integer.
 
     Parameters
     ----------
     roman_string: str
+        Roman numeral to be converted into an integer
 
     Returns
     -------
         : int
-
+        Returns integer representation of roman_string
     """
 
     NUMERALS_SET = set(list(zip(*NUMERAL_MAP))[1])
@@ -108,7 +123,33 @@ def roman_to_int(roman_string):
 
 def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_unit=u.angstrom, flux_column=1,
                          flux_unit=u.Unit('erg / (Angstrom cm2 s)')):
+    """
+    Calculates luminosity of star.
 
+    Parameters
+    ----------
+    spec_fname: file or str
+        File or file name to be read
+    distance: float
+        Distance to star
+    wavelength_column: int, optional(default = 0)
+        Column index in which the wavelength is stored
+    wavelength_unit: float, optional(default = u.angstrom)
+        Dictates units used for calculating wavelength.
+    flux_column: int, optional(default = 1)
+        Column index in which the flux is stored
+    flux_unit: str, optional(default = u.Unit('erg / (Angstrom cm2 s)')
+        Dictates units used for flux
+
+    Returns
+    -------
+    luminosity.value: float
+        Returned luminosity value of star.
+    wavelength.min()
+        Minimum value of wavelength of light
+    wavelength.max()
+        Maximum value of wavelength of light
+    """
     #BAD STYLE change to parse quantity
     distance = u.Unit(distance)
 
@@ -121,6 +162,21 @@ def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_u
 
 
 def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
+    """
+    Create a yaml file that is readable from syn++
+
+    Parameters
+    ----------
+    radial1d_mdl: Radial1DModel
+        Inputted object that will be read into YAML file
+    fname: str
+        File name for the synpp yaml
+    shell_no: int, optional(default = 0)
+        Number of shells
+    lines_db: file, optional(default = None)
+        
+    """
+
     logger.warning('Currently only works with Si and a special setup')
     if radial1d_mdl.atom_data.synpp_refs is not None:
         raise ValueError(
@@ -179,11 +235,22 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
 
 def intensity_black_body(nu, T):
     """
-        Calculate the intensity of a black-body according to the following formula
+    Calculate the intensity of a black-body according to the following formula
 
         .. math::
             I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
+    Parameters
+    ----------
+    nu: float
+        Frequency of light
+    T: float
+        Temperature in kelvin
+
+    Returns
+    -------
+    Intensity: float
+        Returns the intensity of the black body
     """
     beta_rad = 1 / (k_B_cgs * T)
     coefficient = 2 * h_cgs / c_cgs ** 2
@@ -193,6 +260,22 @@ def intensity_black_body(nu, T):
 
 
 def species_tuple_to_string(species_tuple, roman_numerals=True):
+    """
+    Convert a species tuple to its corresponding string representation.
+
+    Parameters
+    ----------
+    species_tuple: tuple
+        Tuple of 2 values indicated atomic number and number of electrons missing
+
+    roman_numerals: bool, optional(default = TRUE)
+        Indicates whether the returned ion number is in roman numerals
+
+    Returns
+    -------
+    element_symbol, roman_ion_number: str
+        Returns corresponding string representation of given tuple
+    """
     atomic_number, ion_number = species_tuple
     element_symbol = ATOMIC_NUMBER2SYMBOL[atomic_number]
     if roman_numerals:
@@ -203,6 +286,24 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
 
 
 def species_string_to_tuple(species_string):
+    """
+    Convert a species string to its corresponding tuple representation
+
+    Parameters
+    ----------
+    species_string: str
+        String containing species symbol (e.g. Si II, Fe III)
+
+    Returns
+    -------
+    atomic_number, ion_number: tuple
+        Returns tuple of length 2 indicating atomic number and ion number
+
+    Raises
+    ------
+    MalformedSpeciesError
+        If the inputted string does not match the species format
+    """
 
     try:
         element_symbol, ion_number_string = re.match('^(\w+)\s*(\d+)', species_string).groups()
@@ -230,6 +331,24 @@ def species_string_to_tuple(species_string):
 
 
 def parse_quantity(quantity_string):
+    """
+    Changes a string into it's corresponding astropy.Quantity object.
+
+    Parameters
+    ----------
+    quantity_string: str
+        String to be converted into astropy.Quantity
+
+    Returns
+    -------
+    q: ~u.Quantity
+        Corresponding astropy.Quantity object for passed string
+
+    Raises
+    ------
+    MalformedQuantitiyError
+        If string is not properly formatted for Astropy Quantity
+    """
 
     if not isinstance(quantity_string, str):
         raise MalformedQuantityError(quantity_string)
@@ -253,6 +372,19 @@ def parse_quantity(quantity_string):
 
 
 def element_symbol2atomic_number(element_string):
+    """
+    Takes an element symbol and returns its corresponding atomic number
+
+    Parameters
+    ----------
+    element_string: str
+        Inputted element symbol
+
+    Returns
+    -------
+        : int
+        Returned atomic number
+    """
     reformatted_element_string = reformat_element_symbol(element_string)
     if reformatted_element_string not in SYMBOL2ATOMIC_NUMBER:
         raise MalformedElementSymbolError(element_string)
@@ -261,22 +393,34 @@ def element_symbol2atomic_number(element_string):
 
 def atomic_number2element_symbol(atomic_number):
     """
-    Convert atomic number to string symbol
+    Convert atomic number to string
+
+    Parameters
+    ----------
+    atomic_number: int
+        Inputted atomic number
+
+    Returns
+    -------
+        : str
+       Returned corresponding element symbol
     """
     return ATOMIC_NUMBER2SYMBOL[atomic_number]
 
 
 def reformat_element_symbol(element_string):
     """
-    Reformat the string so the first letter is uppercase and all subsequent letters lowercase
+    Reformat the string so the first letter is uppercase and all subsequent letters lowercase.
 
     Parameters
     ----------
-        element_symbol: str
+    element_string: str
+        Inputted element symbol
 
     Returns
     -------
-        reformated element symbol
+        : str
+        Returned reformatted element symbol
     """
 
     return element_string[0].upper() + element_string[1:].lower()
@@ -284,20 +428,26 @@ def reformat_element_symbol(element_string):
 
 def quantity_linspace(start, stop, num, **kwargs):
     """
-    Calculate the linspace for a quantity start and stop.
-    Other than that essentially the same input parameters as linspace
+    Essentially the same input parameters as linspace, but calculated for an astropy quantity start and stop.
 
     Parameters
     ----------
     start: ~astropy.Quantity
+        Starting value of the sequence
     stop: ~astropy.Quantity
+        End value of the sequence
     num: ~int
+        Number of samples to generate
 
     Returns
     -------
         : ~astropy.Quantity
+        Returns num evenly spaced characters of type astropy.Quantity
 
-
+    Raises
+    ------
+    ValueError
+        If start and stop values have no unit attribute.
     """
     if not (hasattr(start, 'unit') and hasattr(stop, 'unit')):
         raise ValueError('Both start and stop need to be quantities with a '
@@ -307,6 +457,21 @@ def quantity_linspace(start, stop, num, **kwargs):
 
 
 def convert_abundances_format(fname, delimiter='\s+'):
+    """
+    Changes format of file containing abundances into data frame
+
+    Parameters
+    ----------
+    fname: file, str
+        File or file name that contains abundance info
+    delimiter: str, optional(default = '\s+')
+        Determines the separator for splitting file
+
+    Returns
+    -------
+        : DataFrame
+        Corresponding data frame
+    """
     df = pd.read_csv(fname, delimiter=delimiter, comment='#', header=None)
     #Drop shell index column
     df.drop(df.columns[0], axis=1, inplace=True)
