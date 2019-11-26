@@ -4,3 +4,4 @@ njit_dict = {'fastmath': True}
 
 from tardis.montecarlo.montecarlo_numba.rpacket import RPacket
 from tardis.montecarlo.montecarlo_numba.base import montecarlo_radial1d
+from tardis.montecarlo.montecarlo_numba.numba_interface import PacketCollection

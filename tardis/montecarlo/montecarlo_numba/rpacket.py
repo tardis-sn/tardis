@@ -36,6 +36,7 @@ rpacket_spec = [
     ('next_line_id', int64),
     ('current_shell_id', int64),
     ('status', int64),
+    ('index', int64)
 ]
 
 @njit(**njit_dict)
@@ -95,13 +96,14 @@ def get_random_mu():
 
 @jitclass(rpacket_spec)
 class RPacket(object):
-    def __init__(self, r, mu, nu, energy):
+    def __init__(self, r, mu, nu, energy, index=0):
         self.r = r
         self.mu = mu
         self.nu = nu
         self.energy = energy
         self.current_shell_id = 0
         self.status = PacketStatus.IN_PROCESS
+        self.index = index
 
     def initialize_line_id(self, numba_plasma, numba_model):
         inverse_line_list_nu = numba_plasma.line_list_nu[::-1]

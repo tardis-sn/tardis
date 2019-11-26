@@ -1,4 +1,5 @@
 from numba import njit
+import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     InteractionType, PacketStatus, get_doppler_factor, trace_packet,
@@ -12,7 +13,8 @@ from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 
 
 @njit
-def single_packet_loop(r_packet, numba_model, numba_plasma, estimators, vpacket_collection):
+def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
+                       vpacket_collection, track_rpackets=False):
     """
 
     Parameters
@@ -31,7 +33,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators, vpacket_
     and if virtual packets are requested - also updates the vpacket_collection
 
     """
-
+    np.random.seed(r_packet.index)
     line_interaction_type = LineInteractionType.MACROATOM
 
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
@@ -41,6 +43,13 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators, vpacket_
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
     trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma)
+    if track_rpackets:
+        rpacket_track_nu = [r_packet.nu]
+        rpacket_track_mu = [r_packet.mu]
+        rpacket_track_r = [r_packet.r]
+        rpacket_track_interaction = [InteractionType.BOUNDARY]
+        rpacket_track_distance = [0.]
+
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
@@ -67,4 +76,16 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators, vpacket_
             general_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma)
+
+        if track_rpackets:
+            rpacket_track_nu.append(r_packet.nu)
+            rpacket_track_mu.append(r_packet.mu)
+            rpacket_track_r.append(r_packet.r)
+            rpacket_track_interaction.append(interaction_type)
+            rpacket_track_distance.append(distance)
+
+
+    if track_rpackets is True:
+        return (rpacket_track_nu, rpacket_track_mu, rpacket_track_r,
+                rpacket_track_interaction, rpacket_track_distance)
 

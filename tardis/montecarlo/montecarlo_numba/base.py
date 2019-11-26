@@ -1,4 +1,4 @@
-from numba import prange, njit, config, int64
+from numba import prange, njit
 import numpy as np
 from tardis.montecarlo.montecarlo_numba.rpacket import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -27,7 +27,8 @@ def montecarlo_radial1d(model, plasma, runner, no_of_virtual_packets):
 
 @njit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
-                         estimators, spectrum_frequency, montecarlo_configuration):
+                         estimators, spectrum_frequency,
+                         montecarlo_configuration):
     """
     This is the main loop of the MonteCarlo routine that generates packets 
     and sends them through the ejecta. 
@@ -43,11 +44,13 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
 
+
     for i in prange(len(output_nus)):
         r_packet = RPacket(numba_model.r_inner[0],
                            packet_collection.packets_input_mu[i],
                            packet_collection.packets_input_nu[i],
-                           packet_collection.packets_input_energy[i])
+                           packet_collection.packets_input_energy[i],
+                           i)
         
         vpacket_collection = VPacketCollection(spectrum_frequency, montecarlo_configuration.number_of_vpackets, 20000)
         single_packet_loop(r_packet, numba_model, numba_plasma, estimators, vpacket_collection)
@@ -62,9 +65,13 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
         vpackets_nu = vpacket_collection.nus[:vpacket_collection.idx]
         vpackets_energy = vpacket_collection.energies[:vpacket_collection.idx]
 
-        v_packets_idx = np.floor((vpackets_nu - spectrum_frequency[0]) / delta_nu).astype(np.int64)
-        for i, idx in enumerate(v_packets_idx):
-            v_packets_energy_hist[idx] += vpackets_energy[i]
+        v_packets_idx = np.floor((vpackets_nu - spectrum_frequency[0]) /
+                                 delta_nu).astype(np.int64)
+        for j, idx in enumerate(v_packets_idx):
+            if ((vpackets_nu[j] < spectrum_frequency[0]) or
+                    (vpackets_nu[j] > spectrum_frequency[-1])):
+                continue
+            v_packets_energy_hist[idx] += vpackets_energy[j]
 
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
