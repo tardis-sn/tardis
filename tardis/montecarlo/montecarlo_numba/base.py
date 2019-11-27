@@ -20,7 +20,9 @@ def montecarlo_radial1d(model, plasma, runner, no_of_virtual_packets):
     numba_plasma = numba_plasma_initialize(plasma)
     estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator)
 
-    v_packets_energy_hist = montecarlo_main_loop(packet_collection, numba_model, numba_plasma, estimators, runner.spectrum_frequency.value, montecarlo_configuration)
+    v_packets_energy_hist = montecarlo_main_loop(
+        packet_collection, numba_model, numba_plasma, estimators,
+        runner.spectrum_frequency.value, montecarlo_configuration)
     
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
 

@@ -139,8 +139,12 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
         (r_packet.nu > vpacket_collection.spectrum_frequency[-1])):
         
         return
+
+
     
     no_of_vpackets = vpacket_collection.number_of_vpackets
+    if no_of_vpackets == 0:
+        return
 
     ### TODO theoretical check for r_packet nu within vpackets bins - is done somewhere else I think
     if r_packet.r > numba_model.r_inner[0]: # not on inner_boundary
