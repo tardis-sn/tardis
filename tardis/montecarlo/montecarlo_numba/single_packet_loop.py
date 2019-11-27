@@ -42,7 +42,9 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
     r_packet.energy /= doppler_factor
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
-    trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma)
+    trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
+                         numba_plasma)
+
     if track_rpackets:
         rpacket_track_nu = [r_packet.nu]
         rpacket_track_mu = [r_packet.mu]
@@ -75,7 +77,8 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                          estimators)
             general_scatter(r_packet, numba_model.time_explosion)
 
-            trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma)
+            trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
+                                 numba_plasma)
 
         if track_rpackets:
             rpacket_track_nu.append(r_packet.nu)
