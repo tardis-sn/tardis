@@ -121,12 +121,14 @@ vpacket_collection_spec = [
     ('number_of_vpackets', int64)
 ]
 
+
 @jitclass(vpacket_collection_spec)
 class VPacketCollection(object):
-    def __init__(self, spectrum_frequency, number_of_vpackets, initial_vpacket_bins):
+    def __init__(self, spectrum_frequency, number_of_vpackets,
+                 temporary_v_packet_bins):
         self.spectrum_frequency = spectrum_frequency
-        self.nus = np.empty(initial_vpacket_bins, dtype=np.float64)
-        self.energies = np.empty(initial_vpacket_bins, dtype=np.float64)
+        self.nus = np.empty(temporary_v_packet_bins, dtype=np.float64)
+        self.energies = np.empty(temporary_v_packet_bins, dtype=np.float64)
         self.number_of_vpackets = number_of_vpackets
         self.idx = 0
         
@@ -144,17 +146,22 @@ class Estimators(object):
 
 monte_carlo_configuration_spec = [
     ('line_interaction_type', int64),
-    ('number_of_vpackets', int64)
+    ('number_of_vpackets', int64),
+    ('temporary_v_packet_bins', int64)
 ]
+
 
 @jitclass(monte_carlo_configuration_spec)
 class MonteCarloConfiguration(object):
-    def __init__(self, number_of_vpackets, line_interaction_type):
+    def __init__(self, number_of_vpackets, line_interaction_type,
+                 temporary_v_packet_bins):
         self.line_interaction_type = line_interaction_type
         self.number_of_vpackets = number_of_vpackets
+        self.temporary_v_packet_bins = temporary_v_packet_bins
 
 
-def configuration_initialize(runner, number_of_vpackets):
+def configuration_initialize(runner, number_of_vpackets,
+                             temporary_v_packet_bins=20000):
     if runner.line_interaction_type == 'macroatom':
         line_interaction_type = LineInteractionType.MACROATOM
     elif runner.line_interaction_type == 'downbranch':
@@ -166,7 +173,8 @@ def configuration_initialize(runner, number_of_vpackets):
                          f'"downbranch", or "scatter" but is '
                          f'{runner.line_interaction_type}')
 
-    return MonteCarloConfiguration(number_of_vpackets, line_interaction_type)
+    return MonteCarloConfiguration(number_of_vpackets, line_interaction_type,
+                                   temporary_v_packet_bins)
 
 
 #class TrackRPacket(object):

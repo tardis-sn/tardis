@@ -1,7 +1,7 @@
 from numba import njit
 import numpy as np
 
-from tardis.montecarlo.montecarlo_numba.rpacket import (
+from tardis.montecarlo.montecarlo_numba.r_packet import (
     InteractionType, PacketStatus, get_doppler_factor, trace_packet,
     move_packet_across_shell_boundary, move_rpacket)
 from tardis.montecarlo.montecarlo_numba.interaction import (
@@ -12,8 +12,6 @@ from tardis.montecarlo.montecarlo_numba.numba_interface import \
 from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 
 
-
-
 @njit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                        vpacket_collection, montecarlo_configuration,
@@ -22,7 +20,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     Parameters
     ----------
-    r_packet: tardis.montecarlo.montecarlo_numba.rpacket.RPacket
+    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     numba_model: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
     numba_plasma: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
     estimators: tardis.montecarlo.montecarlo_numba.numba_interface.Estimators
@@ -34,8 +32,8 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     This function does not return anything but changes the r_packet object
     and if virtual packets are requested - also updates the vpacket_collection
-
     """
+
     np.random.seed(r_packet.index)
 
     line_interaction_type = montecarlo_configuration.line_interaction_type
@@ -50,12 +48,11 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                          numba_plasma)
 
     if track_rpackets:
-        rpacket_track_nu = [r_packet.nu]
-        rpacket_track_mu = [r_packet.mu]
-        rpacket_track_r = [r_packet.r]
-        rpacket_track_interaction = [InteractionType.BOUNDARY]
-        rpacket_track_distance = [0.]
-
+        r_packet_track_nu = [r_packet.nu]
+        r_packet_track_mu = [r_packet.mu]
+        r_packet_track_r = [r_packet.r]
+        r_packet_track_interaction = [InteractionType.BOUNDARY]
+        r_packet_track_distance = [0.]
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
@@ -85,14 +82,14 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                                  numba_plasma)
 
         if track_rpackets:
-            rpacket_track_nu.append(r_packet.nu)
-            rpacket_track_mu.append(r_packet.mu)
-            rpacket_track_r.append(r_packet.r)
-            rpacket_track_interaction.append(interaction_type)
-            rpacket_track_distance.append(distance)
+            r_packet_track_nu.append(r_packet.nu)
+            r_packet_track_mu.append(r_packet.mu)
+            r_packet_track_r.append(r_packet.r)
+            r_packet_track_interaction.append(interaction_type)
+            r_packet_track_distance.append(distance)
 
 
     if track_rpackets is True:
-        return (rpacket_track_nu, rpacket_track_mu, rpacket_track_r,
-                rpacket_track_interaction, rpacket_track_distance)
+        return (r_packet_track_nu, r_packet_track_mu, r_packet_track_r,
+                r_packet_track_interaction, r_packet_track_distance)
 

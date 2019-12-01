@@ -5,7 +5,7 @@ from tardis.montecarlo.montecarlo_numba import njit_dict
 
 import numpy as np
 
-from tardis.montecarlo.montecarlo_numba.rpacket import (
+from tardis.montecarlo.montecarlo_numba.r_packet import (
     calculate_distance_boundary, get_doppler_factor, calculate_distance_line,
     calculate_tau_electron, PacketStatus, move_packet_across_shell_boundary)
 

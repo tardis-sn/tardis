@@ -263,7 +263,7 @@ def line_emission(r_packet, emission_line_id, numba_plasma, time_explosion):
 
     Parameters
     ----------
-    r_packet: tardis.montecarlo.montecarlo_numba.rpacket.RPacket
+    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     emission_line_id: int
     numba_plasma
     time_explosion

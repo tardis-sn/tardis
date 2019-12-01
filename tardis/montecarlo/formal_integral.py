@@ -101,6 +101,7 @@ class FormalIntegrator(object):
         -------
         Numpy array containing ( 1 - exp(-tau_ul) ) S_ul ordered by wavelength of the transition u -> l
         """
+
         model = self.model
         plasma = self.plasma
         runner = self.runner

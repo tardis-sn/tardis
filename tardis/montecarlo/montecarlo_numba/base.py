@@ -1,6 +1,6 @@
 from numba import prange, njit
 import numpy as np
-from tardis.montecarlo.montecarlo_numba.rpacket import RPacket, PacketStatus
+from tardis.montecarlo.montecarlo_numba.r_packet import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize,
     Estimators, MonteCarloConfiguration, configuration_initialize)
@@ -57,7 +57,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
         
         vpacket_collection = VPacketCollection(
             spectrum_frequency, montecarlo_configuration.number_of_vpackets,
-            20000)
+            montecarlo_configuration.temporary_v_packet_bins)
         single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                            vpacket_collection, montecarlo_configuration)
 
