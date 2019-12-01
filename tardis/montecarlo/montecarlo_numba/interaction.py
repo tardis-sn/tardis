@@ -1,15 +1,13 @@
-from enum import IntEnum
-
 from numba import njit
 from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    LineInteractionType)
+
 
 from tardis.montecarlo.montecarlo_numba.rpacket import (
     get_doppler_factor, get_random_mu)
 from tardis.montecarlo.montecarlo_numba.macro_atom import macro_atom
-class LineInteractionType(IntEnum):
-    SCATTER = 0
-    DOWNBRANCH = 1
-    MACROATOM = 2
+
 
 @njit(**njit_dict)
 def general_scatter(r_packet, time_explosion):

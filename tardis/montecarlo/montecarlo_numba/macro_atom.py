@@ -40,6 +40,7 @@ def macro_atom(r_packet, numba_plasma):
         block_start = numba_plasma.macro_block_references[activation_level_id]
         block_end = numba_plasma.macro_block_references[activation_level_id + 1]
 
+        # looping through the transition probabilities
         for transition_id in range(block_start, block_end):
 
             transition_probability = numba_plasma.transition_probabilities[
@@ -48,17 +49,17 @@ def macro_atom(r_packet, numba_plasma):
             probability += transition_probability
 
             if probability > probability_event:
-              activation_level_id = numba_plasma.destination_level_id[
-                transition_id]
-              current_transition_type = numba_plasma.transition_type[
-                  transition_id]
-              break
+                activation_level_id = numba_plasma.destination_level_id[
+                    transition_id]
+                current_transition_type = numba_plasma.transition_type[
+                    transition_id]
+                break
 
         else:
             raise MacroAtomError(
-                'MacroAtom ran out of the block. This should not happen as the sum '
-                'of probabilities is normalized to 1 and the probability_event '
-                'should be less than 1')
+                'MacroAtom ran out of the block. This should not happen as '
+                'the sum of probabilities is normalized to 1 and '
+                'the probability_event should be less than 1')
 
     if current_transition_type == MacroAtomTransitionType.BB_EMISSION:
         return numba_plasma.transition_line_id[transition_id]

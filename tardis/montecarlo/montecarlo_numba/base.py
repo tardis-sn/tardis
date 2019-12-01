@@ -2,19 +2,20 @@ from numba import prange, njit
 import numpy as np
 from tardis.montecarlo.montecarlo_numba.rpacket import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
-    PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize, Estimators, MonteCarloConfiguration)
+    PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize,
+    Estimators, MonteCarloConfiguration, configuration_initialize)
 
 from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop)
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
 
-def montecarlo_radial1d(model, plasma, runner, no_of_virtual_packets):
+def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
     packet_collection = PacketCollection(
         runner.input_nu, runner.input_mu, runner.input_energy,
         runner._output_nu, runner._output_energy
     )
-    montecarlo_configuration = MonteCarloConfiguration(no_of_virtual_packets)
+
     numba_model = NumbaModel(runner.r_inner_cgs, runner.r_outer_cgs,
                              model.time_explosion.to('s').value)
     numba_plasma = numba_plasma_initialize(plasma)
@@ -40,12 +41,12 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     storage_model : [type]
         [description]
     """
+
     output_nus = np.empty_like(packet_collection.packets_output_nu)
     output_energies = np.empty_like(packet_collection.packets_output_nu)
 
     v_packets_energy_hist = np.zeros_like(spectrum_frequency)
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
-
 
     for i in prange(len(output_nus)):
         r_packet = RPacket(numba_model.r_inner[0],
@@ -54,8 +55,11 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                            packet_collection.packets_input_energy[i],
                            i)
         
-        vpacket_collection = VPacketCollection(spectrum_frequency, montecarlo_configuration.number_of_vpackets, 20000)
-        single_packet_loop(r_packet, numba_model, numba_plasma, estimators, vpacket_collection)
+        vpacket_collection = VPacketCollection(
+            spectrum_frequency, montecarlo_configuration.number_of_vpackets,
+            20000)
+        single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
+                           vpacket_collection, montecarlo_configuration)
 
         output_nus[i] = r_packet.nu
 

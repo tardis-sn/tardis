@@ -1,3 +1,5 @@
+from enum import IntEnum
+
 from numba import float64, int64, jitclass
 import numpy as np
 
@@ -141,13 +143,34 @@ class Estimators(object):
         self.nu_bar_estimator = nu_bar_estimator
 
 monte_carlo_configuration_spec = [
+    ('line_interaction_type', int64),
     ('number_of_vpackets', int64)
 ]
 
 @jitclass(monte_carlo_configuration_spec)
 class MonteCarloConfiguration(object):
-    def __init__(self, number_of_vpackets):
+    def __init__(self, number_of_vpackets, line_interaction_type):
+        self.line_interaction_type = line_interaction_type
         self.number_of_vpackets = number_of_vpackets
 
 
+def configuration_initialize(runner, number_of_vpackets):
+    if runner.line_interaction_type == 'macroatom':
+        line_interaction_type = LineInteractionType.MACROATOM
+    elif runner.line_interaction_type == 'downbranch':
+        line_interaction_type = LineInteractionType.DOWNBRANCH
+    elif runner.line_interaction_type == 'scatter':
+        line_interaction_type = LineInteractionType.SCATTER
+    else:
+        raise ValueError(f'Line interaction type must be one of "macroatom",'
+                         f'"downbranch", or "scatter" but is '
+                         f'{runner.line_interaction_type}')
+
+    return MonteCarloConfiguration(number_of_vpackets, line_interaction_type)
+
+
 #class TrackRPacket(object):
+class LineInteractionType(IntEnum):
+    SCATTER = 0
+    DOWNBRANCH = 1
+    MACROATOM = 2
