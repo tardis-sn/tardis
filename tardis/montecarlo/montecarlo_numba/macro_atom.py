@@ -22,7 +22,7 @@ def macro_atom(r_packet, numba_plasma):
 
     Parameters
     ----------
-    r_packet: tardis.montecarlo.montecarlo_numba.rpacket.RPacket
+    r_packet: tardis.montecarlo.montecarlo_numba.r_packet.RPacket
     numba_plasma: tardis.montecarlo.numba_interface.numba_plasma
 
     Returns
