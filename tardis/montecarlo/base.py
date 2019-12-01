@@ -17,6 +17,8 @@ from tardis.montecarlo import montecarlo, packet_source as source
 from tardis.montecarlo.formal_integral import FormalIntegrator
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
+from tardis.montecarlo.montecarlo_numba.numba_interface import (
+    configuration_initialize)
 
 import numpy as np
 
@@ -222,7 +224,10 @@ class MontecarloRunner(HDFWriterMixin):
         self._initialize_packets(model.t_inner.value,
                                  no_of_packets)
 
-        montecarlo_radial1d(model, plasma, self, no_of_virtual_packets)
+        montecarlo_configuration = configuration_initialize(
+            self, no_of_virtual_packets)
+
+        montecarlo_radial1d(model, plasma, self, montecarlo_configuration)
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,

@@ -5,7 +5,9 @@ from tardis.montecarlo.montecarlo_numba.rpacket import (
     InteractionType, PacketStatus, get_doppler_factor, trace_packet,
     move_packet_across_shell_boundary, move_rpacket)
 from tardis.montecarlo.montecarlo_numba.interaction import (
-    general_scatter, LineInteractionType, line_scatter)
+    general_scatter, line_scatter)
+from tardis.montecarlo.montecarlo_numba.numba_interface import \
+    LineInteractionType
 
 from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 
@@ -14,7 +16,8 @@ from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 
 @njit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
-                       vpacket_collection, track_rpackets=False):
+                       vpacket_collection, montecarlo_configuration,
+                       track_rpackets=False):
     """
 
     Parameters
@@ -34,7 +37,8 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     """
     np.random.seed(r_packet.index)
-    line_interaction_type = LineInteractionType.MACROATOM
+
+    line_interaction_type = montecarlo_configuration.line_interaction_type
 
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
                                         numba_model.time_explosion)
