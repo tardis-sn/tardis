@@ -154,18 +154,30 @@ def trace_packet(r_packet, numba_model, numba_plasma):
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu,
                                         numba_model.time_explosion)
     comov_nu = r_packet.nu * doppler_factor
-    last_line = False
+
     cur_line_id = start_line_id
+
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+        # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]
+
+        # Getting the tau for the next line
         tau_trace_line = numba_plasma.tau_sobolev[
             cur_line_id, r_packet.current_shell_id]
-            
+
+        # Adding it to the tau_trace_line_combined
         tau_trace_line_combined += tau_trace_line
+
+        # Calculating the distance until the current photons co-moving nu
+        # redshifts to the line frequency
         distance_trace = calculate_distance_line(
             r_packet.nu, comov_nu, nu_line, numba_model.time_explosion)
+
+        # calculating the tau electron of how far the trace has progressed
         tau_trace_electron = calculate_tau_electron(cur_electron_density,
                                                     distance_trace)
+
+        # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_electron
 
         if ((distance_boundary <= distance_trace) and
