@@ -180,6 +180,7 @@ def trace_packet(r_packet, numba_model, numba_plasma):
         # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_electron
 
+
         if ((distance_boundary <= distance_trace) and
                 (distance_boundary <= distance_electron)):
             interaction_type = InteractionType.BOUNDARY  # BOUNDARY
@@ -199,6 +200,12 @@ def trace_packet(r_packet, numba_model, numba_plasma):
             r_packet.next_line_id = cur_line_id
             distance = distance_trace
             break
+
+        # Recalculating distance_electron using tau_event -
+        # tau_trace_line_combined
+        distance_electron = calculate_distance_electron(
+            cur_electron_density, tau_event - tau_trace_line_combined)
+
     else:  # Executed when no break occurs in the for loop
         if cur_line_id == (len(numba_plasma.line_list_nu) - 1):
             # Treatment for last line
