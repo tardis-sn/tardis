@@ -20,42 +20,8 @@ h_cgs = constants.h.cgs.value
 m_e_cgs = constants.m_e.cgs.value
 e_charge_gauss = constants.e.gauss.value
 
-
-class MalformedError(Exception):
-    pass
-
-
-class MalformedSpeciesError(MalformedError):
-
-    def __init__(self, malformed_element_symbol):
-        self.malformed_element_symbol = malformed_element_symbol
-
-    def __str__(self):
-        return 'Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") - supplied %s' % self.malformed_element_symbol
-
-
-class MalformedElementSymbolError(MalformedError):
-
-    def __init__(self, malformed_element_symbol):
-        self.malformed_element_symbol = malformed_element_symbol
-
-    def __str__(self):
-        return 'Expecting an atomic symbol (e.g. Fe) - supplied %s' % self.malformed_element_symbol
-
-
-class MalformedQuantityError(MalformedError):
-
-    def __init__(self, malformed_quantity_string):
-        self.malformed_quantity_string = malformed_quantity_string
-
-    def __str__(self):
-        return 'Expecting a quantity string(e.g. "5 km/s") for keyword - supplied %s' % self.malformed_quantity_string
-
-
 logger = logging.getLogger(__name__)
 tardis_dir = os.path.realpath(tardis.__path__[0])
-
-
 
 ATOMIC_SYMBOLS_DATA = pd.read_csv(get_internal_data_path('atomic_symbols.dat'), delim_whitespace=True,
                                   names=['atomic_number', 'symbol']).set_index('atomic_number').squeeze()
@@ -70,6 +36,40 @@ NUMERAL_MAP = tuple(zip(
     (1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1),
     ('M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I')
 ))
+
+class MalformedError(Exception):
+    pass
+
+
+class MalformedSpeciesError(MalformedError):
+
+    def __init__(self, malformed_element_symbol):
+        self.malformed_element_symbol = malformed_element_symbol
+
+    def __str__(self):
+        return ('Expecting a species notation (e.g. "Si 2", "Si II", "Fe IV") '
+                '- supplied {0}'.format(self.malformed_element_symbol))
+
+
+class MalformedElementSymbolError(MalformedError):
+
+    def __init__(self, malformed_element_symbol):
+        self.malformed_element_symbol = malformed_element_symbol
+
+    def __str__(self):
+        return ('Expecting an atomic symbol (e.g. Fe) - supplied {0}').format(
+            self.malformed_element_symbol)
+
+
+class MalformedQuantityError(MalformedError):
+
+    def __init__(self, malformed_quantity_string):
+        self.malformed_quantity_string = malformed_quantity_string
+
+    def __str__(self):
+        return ('Expecting a quantity string(e.g. "5 km/s") for keyword '
+                '- supplied {0}').format(self.malformed_quantity_string)
+
 
 def int_to_roman(i):
     """
@@ -110,7 +110,8 @@ def roman_to_int(roman_string):
     NUMERALS_SET = set(list(zip(*NUMERAL_MAP))[1])
     roman_string = roman_string.upper()
     if len(set(list(roman_string.upper())) - NUMERALS_SET) != 0:
-        raise ValueError('{0} does not seem to be a roman numeral'.format(roman_string))
+        raise ValueError('{0} does not seem to be a roman numeral'.format(
+            roman_string))
     i = result = 0
     for integer, numeral in NUMERAL_MAP:
         while roman_string[i:i + len(numeral)] == numeral:
@@ -121,8 +122,10 @@ def roman_to_int(roman_string):
     return result
 
 
-def calculate_luminosity(spec_fname, distance, wavelength_column=0, wavelength_unit=u.angstrom, flux_column=1,
-                         flux_unit=u.Unit('erg / (Angstrom cm2 s)')):
+def calculate_luminosity(
+        spec_fname, distance, wavelength_column=0,
+        wavelength_unit=u.angstrom, flux_column=1,
+        flux_unit=u.Unit('erg / (Angstrom cm2 s)')):
     """
     Calculates luminosity of star.
 
@@ -180,7 +183,8 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     logger.warning('Currently only works with Si and a special setup')
     if radial1d_mdl.atom_data.synpp_refs is not None:
         raise ValueError(
-            'The current atom dataset does not contain the necesarry reference files (please contact the authors)')
+            'The current atom dataset does not contain the '
+            'necesarry reference files (please contact the authors)')
 
     radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] = -99.0
     for key, value in radial1d_mdl.atom_data.synpp_refs.iterrows():
@@ -191,7 +195,8 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
             pass
 
 
-    relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] > -50]
+    relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[
+        radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] > -50]
 
     with open(synpp_default_yaml_fname) as stream:
         yaml_reference = yaml.load(stream)
@@ -200,15 +205,19 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'lines')
         yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'refs.dat')
 
-    yaml_reference['output']['min_wl'] = float(radial1d_mdl.runner.spectrum.wavelength.to('angstrom').value.min())
-    yaml_reference['output']['max_wl'] = float(radial1d_mdl.runner.spectrum.wavelength.to('angstrom').value.max())
+    yaml_reference['output']['min_wl'] = float(
+        radial1d_mdl.runner.spectrum.wavelength.to('angstrom').value.min())
+    yaml_reference['output']['max_wl'] = float(
+        radial1d_mdl.runner.spectrum.wavelength.to('angstrom').value.max())
 
 
     #raise Exception("there's a problem here with units what units does synpp expect?")
-    yaml_reference['opacity']['v_ref'] = float((radial1d_mdl.tardis_config.structure.v_inner[0].to('km/s') /
-                                               (1000. * u.km / u.s)).value)
-    yaml_reference['grid']['v_outer_max'] = float((radial1d_mdl.tardis_config.structure.v_outer[-1].to('km/s') /
-                                                  (1000. * u.km / u.s)).value)
+    yaml_reference['opacity']['v_ref'] = float(
+        (radial1d_mdl.tardis_config.structure.v_inner[0].to('km/s') /
+         (1000. * u.km / u.s)).value)
+    yaml_reference['grid']['v_outer_max'] = float(
+        (radial1d_mdl.tardis_config.structure.v_outer[-1].to('km/s') /
+         (1000. * u.km / u.s)).value)
 
     #pdb.set_trace()
 
@@ -229,6 +238,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         yaml_setup['v_min'].append(yaml_reference['opacity']['v_ref'])
         yaml_setup['v_max'].append(yaml_reference['grid']['v_outer_max'])
         yaml_setup['aux'].append(1e200)
+
     with open(fname, 'w') as f:
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
@@ -237,8 +247,9 @@ def intensity_black_body(nu, T):
     """
     Calculate the intensity of a black-body according to the following formula
 
-        .. math::
-            I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}{e^{h\\nu \\beta_\\textrm{rad}} - 1}
+    .. math::
+        I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}
+        {e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
     Parameters
     ----------
@@ -266,7 +277,8 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
     Parameters
     ----------
     species_tuple: tuple
-        Tuple of 2 values indicated atomic number and number of electrons missing
+        Tuple of 2 values indicated atomic number and number of
+        electrons missing
 
     roman_numerals: bool, optional(default = TRUE)
         Indicates whether the returned ion number is in roman numerals
@@ -306,13 +318,15 @@ def species_string_to_tuple(species_string):
     """
 
     try:
-        element_symbol, ion_number_string = re.match('^(\w+)\s*(\d+)', species_string).groups()
+        element_symbol, ion_number_string = re.match(r'^(\w+)\s*(\d+)',
+                                                     species_string).groups()
     except AttributeError:
         try:
             element_symbol, ion_number_string = species_string.split()
         except ValueError:
-            raise MalformedSpeciesError('Species string "{0}" is not of format <element_symbol><number> '
-                                        '(e.g. Fe 2, Fe2, ..)'.format(species_string))
+            raise MalformedSpeciesError(
+                'Species string "{0}" is not of format <element_symbol><number>'
+                ' (e.g. Fe 2, Fe2, ..)'.format(species_string))
 
     atomic_number = element_symbol2atomic_number(element_symbol)
 
@@ -322,10 +336,13 @@ def species_string_to_tuple(species_string):
         try:
             ion_number = int(ion_number_string)
         except ValueError:
-            raise MalformedSpeciesError("Given ion number ('{}') could not be parsed ".format(ion_number_string))
+            raise MalformedSpeciesError(
+                "Given ion number ('{}') could not be parsed".format(
+                    ion_number_string))
 
     if ion_number > atomic_number:
-        raise ValueError('Species given does not exist: ion number > atomic number')
+        raise ValueError(
+            'Species given does not exist: ion number > atomic number')
 
     return atomic_number, ion_number - 1
 
@@ -410,7 +427,8 @@ def atomic_number2element_symbol(atomic_number):
 
 def reformat_element_symbol(element_string):
     """
-    Reformat the string so the first letter is uppercase and all subsequent letters lowercase.
+    Reformat the string so the first letter is uppercase and all subsequent
+     letters lowercase.
 
     Parameters
     ----------
@@ -428,7 +446,8 @@ def reformat_element_symbol(element_string):
 
 def quantity_linspace(start, stop, num, **kwargs):
     """
-    Essentially the same input parameters as linspace, but calculated for an astropy quantity start and stop.
+    Essentially the same input parameters as linspace, but
+    calculated for an astropy quantity start and stop.
 
     Parameters
     ----------
@@ -453,10 +472,11 @@ def quantity_linspace(start, stop, num, **kwargs):
         raise ValueError('Both start and stop need to be quantities with a '
                          'unit attribute')
 
-    return np.linspace(start.value, stop.to(start.unit).value, num, **kwargs) * start.unit
+    return (np.linspace(start.value, stop.to(start.unit).value, num, **kwargs)
+            * start.unit)
 
 
-def convert_abundances_format(fname, delimiter='\s+'):
+def convert_abundances_format(fname, delimiter=r'\s+'):
     """
     Changes format of file containing abundances into data frame
 
@@ -464,7 +484,7 @@ def convert_abundances_format(fname, delimiter='\s+'):
     ----------
     fname: file, str
         File or file name that contains abundance info
-    delimiter: str, optional(default = '\s+')
+    delimiter: str, optional(default = r'\s+')
         Determines the separator for splitting file
 
     Returns
@@ -473,9 +493,9 @@ def convert_abundances_format(fname, delimiter='\s+'):
         Corresponding data frame
     """
     df = pd.read_csv(fname, delimiter=delimiter, comment='#', header=None)
-    #Drop shell index column
+    # Drop shell index column
     df.drop(df.columns[0], axis=1, inplace=True)
-    #Assign header row
+    # Assign header row
     df.columns = [nucname.name(i)
                   for i in range(1, df.shape[1] + 1)]
     return df
