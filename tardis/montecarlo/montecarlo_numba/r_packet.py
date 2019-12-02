@@ -118,7 +118,8 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
     r_interaction = np.sqrt(r_packet.r**2 + distance_trace**2 +
                             2 * r_packet.r * distance_trace * r_packet.mu)
     mu_interaction = (r_packet.mu * r_packet.r + distance_trace) / r_interaction
-    doppler_factor = 1.0 - mu_interaction * r_interaction / time_explosion
+    doppler_factor = 1.0 - mu_interaction * r_interaction /
+    ( time_explosion * C)
     """
     doppler_factor = 1.0 - ((distance_trace + r_packet.mu * r_packet.r) /
                             (time_explosion * C_SPEED_OF_LIGHT))

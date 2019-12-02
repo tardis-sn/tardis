@@ -122,7 +122,7 @@ class FormalIntegrator(object):
 
         Edotlu_norm_factor = (1 / (runner.time_of_simulation * model.volume))
         exptau = 1 - np.exp(- plasma.tau_sobolevs)
-        Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
+        Edotlu = Edotlu_norm_factor * exptau * runner.edot_lu_estimator
 
         # The following may be achieved by calling the appropriate plasma
         # functions
@@ -131,7 +131,7 @@ class FormalIntegrator(object):
                                  model.volume)).to("1/(cm^2 s)").value
         # Jbluelu should already by in the correct order, i.e. by wavelength of
         # the transition l->u
-        Jbluelu = runner.j_blue_estimator * Jbluelu_norm_factor
+        Jbluelu = runner.j_b_lu_estimator * Jbluelu_norm_factor
 
         upper_level_index = atomic_data.lines.index.droplevel('level_number_lower')
         e_dot_lu          = pd.DataFrame(Edotlu, index=upper_level_index)

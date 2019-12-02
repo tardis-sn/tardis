@@ -140,10 +140,18 @@ cdef extern from "src/integrator.h":
 
 cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
     """
-    Initializing the storage struct.
+    
+    Parameters
+    ----------
+    model
+    plasma
+    runner: tardis.montecarlo.base.MontecarloRunner
+    storage
+
+    Returns
+    -------
 
     """
-
     storage.no_of_packets = runner.input_nu.size
     storage.packet_nus = <double*> PyArray_DATA(runner.input_nu)
     storage.packet_mus = <double*> PyArray_DATA(runner.input_mu)
@@ -195,10 +203,10 @@ cdef initialize_storage_model(model, plasma, runner, storage_model_t *storage):
             runner.line_lists_tau_sobolevs
             )
     storage.line_lists_j_blues = <double*> PyArray_DATA(
-            runner.j_blue_estimator)
+            runner.j_b_lu_estimator)
 
     storage.line_lists_Edotlu = <double*> PyArray_DATA(
-            runner.Edotlu_estimator)
+            runner.edot_lu_estimator)
 
     storage.line_interaction_id = runner.get_line_interaction_id(
         runner.line_interaction_type)
