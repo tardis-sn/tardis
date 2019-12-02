@@ -86,21 +86,22 @@ class MontecarloRunner(HDFWriterMixin):
             self.optional_hdf_properties.append('spectrum_integrated')
 
 
-    def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
+    def _initialize_estimator_arrays(self, tau_sobolev_shape):
         """
         Initialize the output arrays of the montecarlo simulation.
 
         Parameters
         ----------
 
-        model: ~Radial1DModel
+        tau_sobolev_shape: tuple
+            tuple for the tau_sobolev_shape
         """
 
         # Estimators
-        self.j_estimator = np.zeros(no_of_shells, dtype=np.float64)
-        self.nu_bar_estimator = np.zeros(no_of_shells, dtype=np.float64)
-        self.j_blue_estimator = np.zeros(tau_sobolev_shape)
-        self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
+        self.j_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
+        self.nu_bar_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
+        self.j_b_lu_estimator = np.zeros(tau_sobolev_shape)
+        self.edot_lu_estimator = np.zeros(tau_sobolev_shape)
 
     def _initialize_geometry_arrays(self, model):
         """
@@ -217,8 +218,10 @@ class MontecarloRunner(HDFWriterMixin):
                 self)
         self.time_of_simulation = self.calculate_time_of_simulation(model)
         self.volume = model.volume
-        self._initialize_estimator_arrays(self.volume.shape[0],
-                                          plasma.tau_sobolevs.shape)
+
+        # Initializing estimator array
+        self._initialize_estimator_arrays(plasma.tau_sobolevs.shape)
+
         self._initialize_geometry_arrays(model)
 
         self._initialize_packets(model.t_inner.value,
@@ -236,13 +239,13 @@ class MontecarloRunner(HDFWriterMixin):
         # Workaround so that j_blue_estimator is in the right ordering
         # They are written as an array of dimension (no_of_shells, no_of_lines)
         # but python expects (no_of_lines, no_of_shells)
-        self.j_blue_estimator = np.ascontiguousarray(
-                self.j_blue_estimator.flatten().reshape(
-                    self.j_blue_estimator.shape, order='F')
+        self.j_b_lu_estimator = np.ascontiguousarray(
+                self.j_b_lu_estimator.flatten().reshape(
+                    self.j_b_lu_estimator.shape, order='F')
                 )
-        self.Edotlu_estimator = np.ascontiguousarray(
-                self.Edotlu_estimator.flatten().reshape(
-                    self.Edotlu_estimator.shape, order='F')
+        self.edot_lu_estimator = np.ascontiguousarray(
+                self.edot_lu_estimator.flatten().reshape(
+                    self.edot_lu_estimator.shape, order='F')
                 )
 
     def legacy_return(self):

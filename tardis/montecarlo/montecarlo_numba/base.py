@@ -19,7 +19,8 @@ def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
     numba_model = NumbaModel(runner.r_inner_cgs, runner.r_outer_cgs,
                              model.time_explosion.to('s').value)
     numba_plasma = numba_plasma_initialize(plasma)
-    estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator)
+    estimators = Estimators(runner.j_estimator, runner.nu_bar_estimator,
+                            runner.j_b_lu_estimator, runner.edot_lu_estimator)
 
     v_packets_energy_hist = montecarlo_main_loop(
         packet_collection, numba_model, numba_plasma, estimators,

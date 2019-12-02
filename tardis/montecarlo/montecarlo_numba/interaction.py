@@ -73,22 +73,6 @@ def line_scatter(r_packet, time_explosion, line_interaction_type, numba_plasma):
         emission_line_id = macro_atom(r_packet, numba_plasma)
         line_emission(r_packet, emission_line_id, time_explosion,
                       numba_plasma)
-"""        
-        line_emission()
-
-    if (storage->line_interaction_id == 0)
-    {
-        line_emission(packet, storage, next_line_id, mt_state);
-    }
-    else if (storage->line_interaction_id >= 1)
-        {
-        rpacket_set_macro_atom_activation_level(packet,
-                                                    storage->
-        rpacket_set_macro_atom_activation_level(packet,
-                                                storage->line2macro_level_upper[
-            next_line_id]);
-        macro_atom(packet, storage, mt_state);
-"""
 
 @njit(**njit_dict)
 def line_emission(r_packet, emission_line_id, time_explosion,
@@ -101,68 +85,5 @@ def line_emission(r_packet, emission_line_id, time_explosion,
                       emission_line_id] / doppler_factor
     r_packet.next_line_id = emission_line_id + 1
 
-"""
-void
-montecarlo_line_scatter (rpacket_t * packet, storage_model_t * storage,
-                         double distance, rk_state *mt_state)
-{
-  uint64_t next_line_id = rpacket_get_next_line_id (packet);
-  uint64_t line2d_idx = next_line_id +
-    storage->no_of_lines * rpacket_get_current_shell_id (packet);
-  if (rpacket_get_virtual_packet (packet) == 0)
-    {
-    }
-  double tau_line =
-    storage->line_lists_tau_sobolevs[line2d_idx];
-  double tau_continuum = rpacket_get_chi_continuum(packet) * distance;
-  double tau_combined = tau_line + tau_continuum;
-  //rpacket_set_next_line_id (packet, rpacket_get_next_line_id (packet) + 1);
 
-  if (next_line_id + 1 == storage->no_of_lines)
-    {
-      rpacket_set_last_line (packet, true);
-    }
-  if (rpacket_get_virtual_packet (packet) > 0)
-    {
-      rpacket_set_tau_event (packet,
-                             rpacket_get_tau_event (packet) + tau_line);
-      rpacket_set_next_line_id (packet, next_line_id + 1);
-      test_for_close_line (packet, storage);
-    }
-  else if (rpacket_get_tau_event (packet) < tau_combined)
-    { // Line absorption occurs
-      move_packet (packet, storage, distance);
-      double old_doppler_factor = rpacket_doppler_factor (packet, storage);
-      rpacket_set_mu (packet, 2.0 * rk_double (mt_state) - 1.0);
-      double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
-      double comov_energy = rpacket_get_energy (packet) * old_doppler_factor;
-      rpacket_set_energy (packet, comov_energy * inverse_doppler_factor);
-      storage->last_interaction_in_nu[rpacket_get_id (packet)] =
-        rpacket_get_nu (packet);
-      storage->last_line_interaction_in_id[rpacket_get_id (packet)] =
-        next_line_id;
-      storage->last_line_interaction_shell_id[rpacket_get_id (packet)] =
-        rpacket_get_current_shell_id (packet);
-      storage->last_interaction_type[rpacket_get_id (packet)] = 2;
-      if (storage->line_interaction_id == 0)
-        {
-          line_emission (packet, storage, next_line_id, mt_state);
-        }
-      else if (storage->line_interaction_id >= 1)
-        {
-          rpacket_set_macro_atom_activation_level (packet,
-                                                   storage->line2macro_level_upper[next_line_id]);
-          macro_atom (packet, storage, mt_state);
-        }
-    }
-  else
-    { // Packet passes line without interacting
-      rpacket_set_tau_event (packet,
-                             rpacket_get_tau_event (packet) - tau_line);
-      rpacket_set_next_line_id (packet, next_line_id + 1);
-      packet->compute_chi_bf = false;
-      test_for_close_line (packet, storage);
-    }
-}
-"""
 

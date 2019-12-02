@@ -3,7 +3,7 @@ import numpy as np
 
 from tardis.montecarlo.montecarlo_numba.r_packet import (
     InteractionType, PacketStatus, get_doppler_factor, trace_packet,
-    move_packet_across_shell_boundary, move_rpacket)
+    move_packet_across_shell_boundary, move_r_packet)
 from tardis.montecarlo.montecarlo_numba.interaction import (
     general_scatter, line_scatter)
 from tardis.montecarlo.montecarlo_numba.numba_interface import \
@@ -59,14 +59,14 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
             r_packet, numba_model, numba_plasma)
 
         if interaction_type == InteractionType.BOUNDARY:
-            move_rpacket(r_packet, distance, numba_model.time_explosion,
-                         estimators)
+            move_r_packet(r_packet, distance, numba_model.time_explosion,
+                          estimators)
             move_packet_across_shell_boundary(r_packet, delta_shell,
                                                        len(numba_model.r_inner))
 
         elif interaction_type == InteractionType.LINE:
-            move_rpacket(r_packet, distance, numba_model.time_explosion,
-                         estimators)
+            move_r_packet(r_packet, distance, numba_model.time_explosion,
+                          estimators)
             line_scatter(r_packet, numba_model.time_explosion,
                          line_interaction_type, numba_plasma)
 
@@ -74,8 +74,8 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                 r_packet, vpacket_collection, numba_model, numba_plasma)
 
         elif interaction_type == InteractionType.ESCATTERING:
-            move_rpacket(r_packet, distance, numba_model.time_explosion,
-                         estimators)
+            move_r_packet(r_packet, distance, numba_model.time_explosion,
+                          estimators)
             general_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,

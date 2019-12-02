@@ -79,7 +79,7 @@ class TestRunnerSimpleFormalInegral():
         j_blue_estimator = refdata('j_blue_estimator').values
 
         npt.assert_allclose(
-                runner.j_blue_estimator,
+                runner.j_b_lu_estimator,
                 j_blue_estimator)
 
     def test_spectrum(self, runner, refdata):
