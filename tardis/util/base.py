@@ -484,7 +484,7 @@ def convert_abundances_format(fname, delimiter=r'\s+'):
     ----------
     fname: file, str
         File or file name that contains abundance info
-    delimiter: str, optional(default = r'\s+')
+    delimiter: str, optional(default = '\\s+')
         Determines the separator for splitting file
 
     Returns
