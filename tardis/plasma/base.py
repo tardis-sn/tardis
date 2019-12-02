@@ -242,8 +242,9 @@ class BasePlasma(PlasmaWriterMixin):
             texmode='raw'))
 
         for line in fileinput.input(fname_graph, inplace = 1):
-            print(line.replace('\documentclass{article}',
-                '\documentclass[class=minimal,border=20pt]{standalone}'), end='')
+            print(line.replace(r'\documentclass{article}',
+                r'\documentclass[class=minimal,border=20pt]{standalone}'),
+                  end='')
 
         for line in fileinput.input(fname_graph, inplace = 1):
             print(line.replace('\enlargethispage{100cm}', ''), end='')
@@ -254,8 +255,8 @@ class BasePlasma(PlasmaWriterMixin):
             if (issubclass(module, HiddenPlasmaProperty)):
                 output = module.outputs[0]
                 for value in self.plasma_properties_dict.keys():
-                    if output in getattr(self.plasma_properties_dict[value],
-                        'inputs', []):
+                    if output in getattr(
+                            self.plasma_properties_dict[value], 'inputs', []):
                         for input in self.plasma_properties_dict[
                             item.name].inputs:
                             try:
