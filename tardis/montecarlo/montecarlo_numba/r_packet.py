@@ -91,9 +91,6 @@ def get_doppler_factor(r, mu, time_explosion):
 def get_random_mu():
     return 2.0 * np.random.random() - 1.0
 
-
-
-
 @jitclass(rpacket_spec)
 class RPacket(object):
     def __init__(self, r, mu, nu, energy, index=0):
@@ -114,16 +111,33 @@ class RPacket(object):
                         np.searchsorted(inverse_line_list_nu, comov_nu))
         self.next_line_id = next_line_id
 
+@njit(**njit_dict)
+def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
+                           time_explosion):
+    """ Actual calculation - simplified below
+    r_interaction = np.sqrt(r_packet.r**2 + distance_trace**2 +
+                            2 * r_packet.r * distance_trace * r_packet.mu)
+    mu_interaction = (r_packet.mu * r_packet.r + distance_trace) / r_interaction
+    doppler_factor = 1.0 - mu_interaction * r_interaction / time_explosion
+    """
+    doppler_factor = 1.0 - ((distance_trace + r_packet.mu * r_packet.r) /
+                            (time_explosion * C_SPEED_OF_LIGHT))
+    energy = r_packet.energy * doppler_factor
 
+    estimators.j_b_lu_estimator[cur_line_id, r_packet.current_shell_id] += (
+            energy / r_packet.nu)
+    estimators.edot_lu_estimator[cur_line_id, r_packet.current_shell_id] += (
+        energy)
 
 @njit(**njit_dict)
-def trace_packet(r_packet, numba_model, numba_plasma):
+def trace_packet(r_packet, numba_model, numba_plasma, estimators):
     """
 
     Parameters
     ----------
     numba_model: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaModel
     numba_plasma: tardis.montecarlo.montecarlo_numba.numba_interface.NumbaPlasma
+    estimators: tardis.motnecarlo.montecarlo_numba.numba_interface.Estimators
 
     Returns
     -------
@@ -158,6 +172,7 @@ def trace_packet(r_packet, numba_model, numba_plasma):
     cur_line_id = start_line_id
 
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]
 
@@ -180,6 +195,10 @@ def trace_packet(r_packet, numba_model, numba_plasma):
         # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_electron
 
+        # Updating the J_b_lu and E_dot_lu
+        update_line_estimators(
+            estimators, r_packet, cur_line_id, distance_trace,
+            numba_model.time_explosion)
 
         if ((distance_boundary <= distance_trace) and
                 (distance_boundary <= distance_electron)):
@@ -240,7 +259,6 @@ def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
             comov_energy * distance)
     numba_estimator.nu_bar_estimator[r_packet.current_shell_id] += (
             comov_energy * distance * comov_nu)
-    #numba_estimator.edot_lu_estimator[] +=
 
     r = r_packet.r
     if (distance > 0.0):

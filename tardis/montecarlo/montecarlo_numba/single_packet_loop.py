@@ -56,7 +56,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
-            r_packet, numba_model, numba_plasma)
+            r_packet, numba_model, numba_plasma, estimators=estimators)
 
         if interaction_type == InteractionType.BOUNDARY:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
