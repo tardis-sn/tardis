@@ -257,7 +257,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # case it needs some extra kwargs.
         if 'j_blue_estimator' in self.plasma.outputs_dict:
             update_properties.update(t_inner=next_t_inner,
-                                 j_blue_estimator=self.runner.j_blue_estimator)
+                                     j_blue_estimator=self.runner.j_b_lu_estimator)
 
         self.plasma.update(**update_properties)
 

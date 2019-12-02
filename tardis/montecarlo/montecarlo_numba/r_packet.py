@@ -223,7 +223,7 @@ def trace_packet(r_packet, numba_model, numba_plasma):
 
 
 @njit(**njit_dict)
-def move_rpacket(r_packet, distance, time_explosion, numba_estimator):
+def move_r_packet(r_packet, distance, time_explosion, numba_estimator):
     """Move packet a distance and recalculate the new angle mu
     
     Parameters
@@ -240,6 +240,7 @@ def move_rpacket(r_packet, distance, time_explosion, numba_estimator):
             comov_energy * distance)
     numba_estimator.nu_bar_estimator[r_packet.current_shell_id] += (
             comov_energy * distance * comov_nu)
+    #numba_estimator.edot_lu_estimator[] +=
 
     r = r_packet.r
     if (distance > 0.0):
@@ -294,55 +295,3 @@ def line_emission(r_packet, emission_line_id, numba_plasma, time_explosion):
     doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, time_explosion)
     r_packet.nu = numba_plasma.line_list_nu[emission_line_id] / doppler_factor
     r_packet.next_line_id = emission_line_id + 1
-
-
-"""
-void
-line_emission (rpacket_t * packet, storage_model_t * storage, int64_t emission_line_id, rk_state *mt_state)
-{
-  double inverse_doppler_factor = rpacket_inverse_doppler_factor (packet, storage);
-  storage->last_line_interaction_out_id[rpacket_get_id (packet)] = emission_line_id;
-  if (storage->cont_status == CONTINUUM_ON)
-  {
-    storage->last_interaction_out_type[rpacket_get_id (packet)] = 2;
-  }
-
-  rpacket_set_nu (packet,
-		      storage->line_list_nu[emission_line_id] * inverse_doppler_factor);
-  rpacket_set_nu_line (packet, storage->line_list_nu[emission_line_id]);
-  rpacket_set_next_line_id (packet, emission_line_id + 1);
-  rpacket_reset_tau_event (packet, mt_state);
-
-  angle_aberration_CMF_to_LF (packet, storage);
-
-  if (rpacket_get_virtual_packet_flag (packet) > 0)
-	{
-	  bool virtual_close_line = false;
-	  if (!rpacket_get_last_line (packet) &&
-	      fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
-		    rpacket_get_nu_line (packet)) <
-	      (rpacket_get_nu_line (packet)* 1e-7))
-	    {
-	      virtual_close_line = true;
-	    }
-	  // QUESTIONABLE!!!
-	  bool old_close_line = rpacket_get_close_line (packet);
-	  rpacket_set_close_line (packet, virtual_close_line);
-	  create_vpacket (storage, packet, mt_state);
-	  rpacket_set_close_line (packet, old_close_line);
-	  virtual_close_line = false;
-    }
-  test_for_close_line (packet, storage);
-}
-
-void test_for_close_line (rpacket_t * packet, const storage_model_t * storage)
-{
-  if (!rpacket_get_last_line (packet) &&
-      fabs (storage->line_list_nu[rpacket_get_next_line_id (packet)] -
-            rpacket_get_nu_line (packet)) < (rpacket_get_nu_line (packet)*
-                                             1e-7))
-    {
-      rpacket_set_close_line (packet, true);
-    }
-}
-"""
