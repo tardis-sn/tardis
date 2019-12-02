@@ -136,7 +136,8 @@ class VPacketCollection(object):
 estimators_spec = [
     ('j_estimator', float64[:]),
     ('nu_bar_estimator', float64[:]),
-    ('edot_lu_estimator', float64[:]),
+    ('j_b_lu_estimator', float64[:, :]),
+    ('edot_lu_estimator', float64[:, :])
 ]
 
 @jitclass(estimators_spec)
