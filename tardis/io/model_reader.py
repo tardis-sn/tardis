@@ -285,7 +285,7 @@ def read_cmfgen_density(fname):
     warnings.warn("The current CMFGEN model parser is deprecated",
                   DeprecationWarning)
 
-    df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=[0, 2])
+    df = pd.read_csv(fname, comment='#', delimiter=r'\s+', skiprows=[0, 2])
 
     with open(fname) as fh:
         for row_index, line in enumerate(fh):
@@ -333,7 +333,7 @@ def read_simple_ascii_abundances(fname):
     return index, abundances
 
 
-def read_cmfgen_composition(fname, delimiter='\s+'):
+def read_cmfgen_composition(fname, delimiter=r'\s+'):
     """Read composition from a CMFGEN model file
 
     The CMFGEN file format contains information about the ejecta state in the
@@ -353,7 +353,7 @@ def read_cmfgen_composition(fname, delimiter='\s+'):
                                        skip_columns=4, skip_rows=[0, 2, 3])
 
 
-def read_csv_composition(fname, delimiter='\s+'):
+def read_csv_composition(fname, delimiter=r'\s+'):
     """Read composition from a simple CSV file
 
     The CSV file can contain specific isotopes or elemental abundances in the
@@ -373,7 +373,7 @@ def read_csv_composition(fname, delimiter='\s+'):
                                        skip_columns=0, skip_rows=[1])
 
 
-def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
+def read_csv_isotope_abundances(fname, delimiter=r'\s+', skip_columns=0,
                                 skip_rows=[1]):
     """
     A generic parser for a TARDIS composition stored as a CSV file
