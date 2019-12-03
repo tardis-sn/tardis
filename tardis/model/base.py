@@ -225,16 +225,8 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def velocity(self):
-#        if self.v_boundary_inner in self.raw_velocity:
-#            v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-#        else:
-#            v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-#        if self.v_boundary_outer in self.raw_velocity:
-#            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-#        else:
-#            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
 
-        if not self._velocity:
+        if self._velocity is not None:
             self._velocity = self.raw_velocity[self.v_boundary_inner_index:self.v_boundary_outer_index + 1]
             self._velocity[0] = self.v_boundary_inner
             self._velocity[-1] = self.v_boundary_outer
@@ -256,29 +248,11 @@ class Radial1DModel(HDFWriterMixin):
 
     @property
     def density(self):
-#        if self.v_boundary_inner in self.raw_velocity:
-#            v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-#        else:
-#            v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-#        if self.v_boundary_outer in self.raw_velocity:
-#            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-#        else:
-#            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
         density = self.homologous_density.calculate_density_at_time_of_simulation(self.time_explosion)
         return density[self.v_boundary_inner_index+1:self.v_boundary_outer_index+1]
 
     @property
     def abundance(self):
-#        if self.v_boundary_inner in self.raw_velocity:
-#            v_inner_ind = np.argwhere(self.raw_velocity == self.v_boundary_inner)[0][0]
-#        else:
-#            v_inner_ind = np.searchsorted(self.raw_velocity, self.v_boundary_inner) - 1
-#        if self.v_boundary_outer in self.raw_velocity:
-#            v_outer_ind = np.argwhere(self.raw_velocity == self.v_boundary_outer)[0][0]
-#        else:
-#            v_outer_ind = np.searchsorted(self.raw_velocity, self.v_boundary_outer)
-
         if not self.raw_isotope_abundance.empty:
             self._abundance = self.raw_isotope_abundance.decay(self.time_explosion).merge(self.raw_abundance)
         abundance = self._abundance.loc[:, self.v_boundary_inner_index:self.v_boundary_outer_index - 1]
