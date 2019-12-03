@@ -226,7 +226,7 @@ class Radial1DModel(HDFWriterMixin):
     @property
     def velocity(self):
 
-        if self._velocity is not None:
+        if self._velocity is None:
             self._velocity = self.raw_velocity[self.v_boundary_inner_index:self.v_boundary_outer_index + 1]
             self._velocity[0] = self.v_boundary_inner
             self._velocity[-1] = self.v_boundary_outer

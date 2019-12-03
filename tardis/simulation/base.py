@@ -2,7 +2,7 @@ import time
 import logging
 import numpy as np
 import pandas as pd
-from astropy import units as u
+from astropy import units as u, constants as const
 from collections import OrderedDict
 
 from tardis.montecarlo import MontecarloRunner
@@ -100,6 +100,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                       'iterations_t_rad', 'iterations_electron_densities',
                       'iterations_t_inner']
     hdf_name = 'simulation'
+
     def __init__(self, iterations, model, plasma, runner,
                  no_of_packets, no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
@@ -446,11 +447,13 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
                 u.Hz, u.spectral())
 
-        try:
-            luminosity_nu_end = config.supernova.luminosity_wavelength_start.to(
-                u.Hz, u.spectral())
-        except ZeroDivisionError:
+        if u.isclose(
+                config.supernova.luminosity_wavelength_start, 0 * u.angstrom):
             luminosity_nu_end = np.inf * u.Hz
+        else:
+            luminosity_nu_end = (
+                    const.c /
+                    config.supernova.luminosity_wavelength_start).to(u.Hz)
 
         last_no_of_packets = config.montecarlo.last_no_of_packets
         if last_no_of_packets is None or last_no_of_packets < 0:
