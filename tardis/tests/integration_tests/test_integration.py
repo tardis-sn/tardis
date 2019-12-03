@@ -84,7 +84,8 @@ class TestIntegration(object):
         # A quick hack to use atom data per setup. Atom data is ingested from
         # local HDF or downloaded and cached from a url, depending on data_path
         # keys.
-        atom_data_name = yaml.load(open(self.config_file))['atom_data']
+        atom_data_name = yaml.load(
+            open(self.config_file), Loader=yaml.CLoader)['atom_data']
 
         # Get the path to HDF file:
         atom_data_filepath = os.path.join(

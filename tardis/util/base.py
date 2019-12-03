@@ -199,7 +199,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] > -50]
 
     with open(synpp_default_yaml_fname) as stream:
-        yaml_reference = yaml.load(stream)
+        yaml_reference = yaml.load(stream, Loader=yaml.CLoader)
 
     if lines_db is not None:
         yaml_reference['opacity']['line_dir'] = os.path.join(lines_db, 'lines')

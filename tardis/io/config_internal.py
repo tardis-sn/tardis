@@ -15,7 +15,7 @@ def get_internal_configuration():
     if not os.path.exists(config_fpath):
         logger.warning("Configuration File {0} does not exist - creating new one from default".format(config_fpath))
         shutil.copy(DEFAULT_CONFIG_PATH, config_fpath)
-    return yaml.load(open(config_fpath))
+    return yaml.load(open(config_fpath), Loader=yaml.CLoader)
 
 
 

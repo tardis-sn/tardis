@@ -207,7 +207,7 @@ class ConfigEditor(QtGui.QWidget):
         super(ConfigEditor, self).__init__(parent)
 
         #Configurations from the input and template
-        configDict = yaml.load(open(yamlconfigfile))
+        configDict = yaml.load(open(yamlconfigfile),)
         templatedictionary ={'tardis_config_version':[True, 'v1.0'],
             'supernova':{ 'luminosity_requested':[True, '1 solLum'],
                           'time_explosion':[True, None],
