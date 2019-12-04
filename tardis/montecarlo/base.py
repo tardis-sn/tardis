@@ -236,17 +236,7 @@ class MontecarloRunner(HDFWriterMixin):
         #    virtual_packet_flag=no_of_virtual_packets,
         #    nthreads=nthreads,
         #    last_run=last_run)
-        # Workaround so that j_blue_estimator is in the right ordering
-        # They are written as an array of dimension (no_of_shells, no_of_lines)
-        # but python expects (no_of_lines, no_of_shells)
-        self.j_b_lu_estimator = np.ascontiguousarray(
-                self.j_b_lu_estimator.flatten().reshape(
-                    self.j_b_lu_estimator.shape, order='F')
-                )
-        self.edot_lu_estimator = np.ascontiguousarray(
-                self.edot_lu_estimator.flatten().reshape(
-                    self.edot_lu_estimator.shape, order='F')
-                )
+
 
     def legacy_return(self):
         return (self.output_nu, self.output_energy,
