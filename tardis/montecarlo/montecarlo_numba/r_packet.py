@@ -170,7 +170,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
                                         numba_model.time_explosion)
     comov_nu = r_packet.nu * doppler_factor
 
-    cur_line_id = start_line_id
+    cur_line_id = start_line_id # initializing varibale for Numba
+    # - do not remove
 
     for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
 
@@ -196,11 +197,6 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
         # calculating the trace
         tau_trace_combined = tau_trace_line_combined + tau_trace_electron
 
-        # Updating the J_b_lu and E_dot_lu
-        update_line_estimators(
-            estimators, r_packet, cur_line_id, distance_trace,
-            numba_model.time_explosion)
-
         if ((distance_boundary <= distance_trace) and
                 (distance_boundary <= distance_electron)):
             interaction_type = InteractionType.BOUNDARY  # BOUNDARY
@@ -215,6 +211,14 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             r_packet.next_line_id = cur_line_id
             break
 
+        # Updating the J_b_lu and E_dot_lu
+        # This means we are still looking for line interaction and have not
+        # been kicked out of the path by boundary or electron interaction
+
+        update_line_estimators(
+            estimators, r_packet, cur_line_id, distance_trace,
+            numba_model.time_explosion)
+
         if tau_trace_combined > tau_event:
             interaction_type = InteractionType.LINE  # Line
             r_packet.next_line_id = cur_line_id
@@ -227,6 +231,8 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators):
             cur_electron_density, tau_event - tau_trace_line_combined)
 
     else:  # Executed when no break occurs in the for loop
+        # We are beyond the line list now and the only next thing is to see
+        # if we are interacting with the boundary or electron scattering
         if cur_line_id == (len(numba_plasma.line_list_nu) - 1):
             # Treatment for last line
             cur_line_id += 1
