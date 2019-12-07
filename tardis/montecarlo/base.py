@@ -37,7 +37,9 @@ class MontecarloRunner(HDFWriterMixin):
                       'spectrum_virtual', 'spectrum_reabsorbed']
 
     vpacket_config_file_path = os.path.join(TARDIS_PATH, 'data', 'vpacket_config.yml')
-    vpacket_logging_config = yaml.load(open(vpacket_config_file_path))
+    with open(vpacket_config_file_path) as fh:
+        vpacket_logging_config = yaml.load(fh, Loader=yaml.CLoader)
+        
     if vpacket_logging_config['vpacket_logging']:
         hdf_properties.extend(['virt_packet_last_interaction_in_nu', 'virt_packet_last_line_interaction_in_id',
                                 'virt_packet_last_line_interaction_out_id', 'virt_packet_nus',

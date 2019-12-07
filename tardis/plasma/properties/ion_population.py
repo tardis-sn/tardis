@@ -59,8 +59,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
             phis[start_id - i:end_id - i - 1] = current_phis
 
         broadcast_ionization_energy = (
-            ionization_data.loc[
-                partition_function.index].dropna())
+            ionization_data[partition_function.index].dropna())
         phi_index = broadcast_ionization_energy.index
         broadcast_ionization_energy = broadcast_ionization_energy.values
 

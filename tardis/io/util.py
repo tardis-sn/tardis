@@ -126,7 +126,7 @@ YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
 
 def yaml_load_file(filename, loader=yaml.Loader):
     with open(filename) as stream:
-        return yaml.load(stream, loader)
+        return yaml.load(stream, Loader=loader)
 
 
 def yaml_load_config_file(filename):

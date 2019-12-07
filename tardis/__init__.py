@@ -1,5 +1,10 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import logging, sys
+import sys
+import logging
+import warnings
+
+import pyne.data
+
 from tardis.util.colored_logger import ColoredFormatter, formatter_message
 # Affiliated packages may add whatever they like to this file, but
 # should keep this content at the top.
@@ -9,6 +14,7 @@ from ._astropy_init import *
 
 from tardis.base import run_tardis
 from tardis.io.util import yaml_load_config_file as yaml_load
+warnings.filterwarnings('ignore', category=pyne.data.QAWarning)
 
 FORMAT = "[$BOLD%(name)-20s$RESET][%(levelname)-18s]  %(message)s ($BOLD%(filename)s$RESET:%(lineno)d)"
 COLOR_FORMAT = formatter_message(FORMAT, True)
