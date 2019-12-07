@@ -24,7 +24,7 @@ parser.add_argument("--less-packets", action="store_true", default=False,
 def run_tests():
     args = parser.parse_args()
 
-    integration_tests_config = yaml.load(open(args.yaml_filepath))
+    integration_tests_config = yaml.load(open(args.yaml_filepath), Loader=yaml.CLoader)
     doku_conn = dokuwiki.DokuWiki(
         url=integration_tests_config['dokuwiki']['url'],
         user=integration_tests_config['dokuwiki']['username'],
