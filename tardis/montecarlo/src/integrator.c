@@ -1,5 +1,6 @@
 #define _USE_MATH_DEFINES
 
+#include <inttypes.h>
 #include <string.h>
 #include <assert.h>
 #include <stdio.h>
@@ -10,6 +11,8 @@
 #include "storage.h"
 #include "integrator.h"
 #include "cmontecarlo.h"
+
+#include "omp_helper.h"
 
 #define NULEN   0
 #define LINELEN 1
@@ -166,10 +169,16 @@ _formal_integral(
   double R_max = storage->r_outer_i[size_shell - 1];
   double pp[N];
   double *exp_tau = calloc(size_tau, sizeof(double));
+#pragma omp parallel firstprivate(L, exp_tau)
     {
-        {
 
-          fprintf(stderr, "Doing the formal integral\nRunning without OpenMP\n");
+#pragma omp master
+        {
+          if (omp_get_num_threads() > 1) {
+              fprintf(stderr, "Doing the formal integral\nRunning with OpenMP - %d threads\n", omp_get_num_threads());
+          } else {
+              fprintf(stderr, "Doing the formal integral\nRunning without OpenMP\n");
+          }
           print_progress_fi(0, inu_size);
         }
 
@@ -198,6 +207,7 @@ _formal_integral(
       double *pexp_tau, *patt_S_ul, *pline, *pJred_lu, *pJblue_lu;
 
       // Prepare exp_tau
+#pragma omp for
       for (i = 0; i < size_tau; ++i) {
           exp_tau[i] = exp( -storage->line_lists_tau_sobolevs_i[i]);
       }
@@ -205,6 +215,7 @@ _formal_integral(
       // Done with the initialization
 
       // Loop over wavelengths in spectrum
+#pragma omp for
       for (int nu_idx = 0; nu_idx < inu_size ; ++nu_idx)
         {
           nu = inu[nu_idx];
@@ -318,9 +329,9 @@ _formal_integral(
             }
           // TODO: change integration to match the calculation of p values
           L[nu_idx] = 8 * M_PI * M_PI * trapezoid_integration(I_nu, R_max/N, N);
+#pragma omp atomic update
           ++finished_nus;
           if (finished_nus%10 == 0){
-              fprintf(stderr,"Kaushik, debug supposed to print progress in next line");
               print_progress_fi(finished_nus, inu_size);
           }
         }
