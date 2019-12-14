@@ -211,7 +211,7 @@ _formal_integral(
       for (i = 0; i < size_tau; ++i) {
           exp_tau[i] = exp( -storage->line_lists_tau_sobolevs_i[i]);
       }
-      calculate_p_values(storage->r_outer_i[storage->no_of_shells_i - 1], N, pp);
+      calculate_p_values(R_max, N, pp);
       // Done with the initialization
 
       // Loop over wavelengths in spectrum
@@ -336,6 +336,7 @@ _formal_integral(
           }
         }
       // Free everything allocated on heap
+      free(exp_tau);
       printf("\n");
     }
   return L;
