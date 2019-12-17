@@ -61,6 +61,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         self.seed = seed
         self.packet_source = packet_source.BlackBodySimpleSource(seed)
+        # inject different packets
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_range = virtual_spectrum_range
         self.sigma_thomson = sigma_thomson
