@@ -57,7 +57,8 @@ class MontecarloRunner(HDFWriterMixin):
                  sigma_thomson, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
-                 v_packet_settings, spectrum_method):
+                 v_packet_settings, spectrum_method,
+                 packet_source=None):
 
         self.seed = seed
         if packet_source is None:
@@ -410,7 +411,7 @@ class MontecarloRunner(HDFWriterMixin):
         pass
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config, packet_source=None):
         """
         Create a new MontecarloRunner instance from a Configuration object.
 
@@ -445,4 +446,5 @@ class MontecarloRunner(HDFWriterMixin):
                    line_interaction_type=config.plasma.line_interaction_type,
                    integrator_settings=config.spectrum.integrated,
                    v_packet_settings=config.spectrum.virtual,
-                   spectrum_method=config.spectrum.method)
+                   spectrum_method=config.spectrum.method,
+                   packet_source=packet_source)

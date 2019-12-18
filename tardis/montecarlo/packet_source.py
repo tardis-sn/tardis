@@ -7,6 +7,10 @@ from tardis import constants as const
 
 class BasePacketSource(abc.ABC):
 
+    def __init__(self, seed):
+        self.seed = seed
+        np.random.seed(seed)
+        
     @abc.abstractmethod
     def create_packets(self, seed=None, **kwargs):
         pass
