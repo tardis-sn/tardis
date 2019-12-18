@@ -26,6 +26,26 @@ class BasePacketSource(abc.ABC):
         return np.sqrt(np.random.random(no_of_packets))
 
     @staticmethod
+    def create_uniform_packet_energies(no_of_packets):
+        """
+        Uniformly distribute energy in arbitrary units where the ensemble of 
+        packets has energy of 1. 
+
+        
+        Parameters
+        ----------
+        no_of_packets : int
+            number of packets
+        
+        Returns
+        -------
+            : numpy.ndarray
+            energies for packets
+        """
+        return np.ones(no_of_packets) / no_of_packets
+
+
+    @staticmethod
     def create_blackbody_packet_nus(T, no_of_packets, l_samples=1000):
         """
 
@@ -82,12 +102,10 @@ class BlackBodySimpleSource(BasePacketSource):
     Simple packet source that generates Blackbody packets for the Montecarlo 
     part.
     """
-    def create_packet_energies(self, no_of_packets):
-        return np.ones(no_of_packets) / no_of_packets
 
     def create_packets(self, T, no_of_packets):
         nus = self.create_blackbody_packet_nus(T, no_of_packets)
         mus = self.create_zero_limb_darkening_packet_mus(no_of_packets)
-        energies = self.create_packet_energies(no_of_packets)
+        energies = self.create_uniform_packet_energies(no_of_packets)
 
         return nus, mus, energies
