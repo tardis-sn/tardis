@@ -24,6 +24,7 @@ A quick start guide to run TARDIS can be found
     commandline
     gui
     interaction/index
+    custom_source
 
 
 .. toctree::
