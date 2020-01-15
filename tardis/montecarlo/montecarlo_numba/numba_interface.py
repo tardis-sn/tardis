@@ -1,6 +1,6 @@
 from enum import IntEnum
 
-from numba import float64, int64, jitclass
+from numba import float64, int64, jitclass, boolean
 import numpy as np
 
 from tardis import constants as const
@@ -152,17 +152,19 @@ class Estimators(object):
 monte_carlo_configuration_spec = [
     ('line_interaction_type', int64),
     ('number_of_vpackets', int64),
-    ('temporary_v_packet_bins', int64)
+    ('temporary_v_packet_bins', int64),
+    ('full_relativity', boolean)
 ]
 
 
 @jitclass(monte_carlo_configuration_spec)
 class MonteCarloConfiguration(object):
     def __init__(self, number_of_vpackets, line_interaction_type,
-                 temporary_v_packet_bins):
+                 temporary_v_packet_bins, full_relativity=False):
         self.line_interaction_type = line_interaction_type
         self.number_of_vpackets = number_of_vpackets
         self.temporary_v_packet_bins = temporary_v_packet_bins
+        self.full_relativity = full_relativity
 
 
 def configuration_initialize(runner, number_of_vpackets,
