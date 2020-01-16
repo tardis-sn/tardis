@@ -1,7 +1,10 @@
 # Specify which branches you want to trigger for continuous deployment and/or applicable for pull requests.
 # Otherwise it triggers all of them.
-pr:
+trigger:
   - master
+
+pr:
+  - none
 
 # Variables we can reference later.
 variables:
