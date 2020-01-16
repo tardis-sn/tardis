@@ -73,6 +73,8 @@ jobs:
     inputs:
       gitHubConnection: tardis-sn
       repositoryName: tardis-sn/tardis
+      action: 'create'
+      target: '$(Build.SourceVersion)'
       tagSource: manual
       tag: $VERSION
 
