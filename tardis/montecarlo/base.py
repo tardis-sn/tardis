@@ -13,7 +13,7 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
-from tardis.montecarlo import montecarlo, packet_source
+from tardis.montecarlo import montecarlo, packet_source as source
 from tardis.montecarlo.formal_integral import FormalIntegrator
 
 import numpy as np
@@ -57,10 +57,15 @@ class MontecarloRunner(HDFWriterMixin):
                  sigma_thomson, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
-                 v_packet_settings, spectrum_method):
+                 v_packet_settings, spectrum_method,
+                 packet_source=None):
 
         self.seed = seed
-        self.packet_source = packet_source.BlackBodySimpleSource(seed)
+        if packet_source is None:
+            self.packet_source = source.BlackBodySimpleSource(seed)
+        else:
+            self.packet_source = packet_source
+        # inject different packets
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_range = virtual_spectrum_range
         self.sigma_thomson = sigma_thomson
@@ -406,7 +411,7 @@ class MontecarloRunner(HDFWriterMixin):
         pass
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config, packet_source=None):
         """
         Create a new MontecarloRunner instance from a Configuration object.
 
@@ -441,4 +446,5 @@ class MontecarloRunner(HDFWriterMixin):
                    line_interaction_type=config.plasma.line_interaction_type,
                    integrator_settings=config.spectrum.integrated,
                    v_packet_settings=config.spectrum.virtual,
-                   spectrum_method=config.spectrum.method)
+                   spectrum_method=config.spectrum.method,
+                   packet_source=packet_source)

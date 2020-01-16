@@ -13,7 +13,6 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 class IntegrationError(Exception):
     pass
 
-
 class FormalIntegrator(object):
 
     def __init__(self, model, plasma, runner, points=1000):
