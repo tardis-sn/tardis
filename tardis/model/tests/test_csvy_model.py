@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import numpy.testing as npt
 import tardis
 import os
@@ -43,3 +44,14 @@ def test_compare_models(filename):
             npt.assert_array_almost_equal(csvy_model_val, config_model_val)
 
 
+def test_csvy_abundance():
+    csvypath = os.path.join(DATA_PATH, 'config_v_filter.yml')
+    config = Configuration.from_yaml(csvypath)
+    csvy_model = Radial1DModel.from_csvy(config)
+    csvy_abund = csvy_model.abundance
+
+    ref_abund = pd.DataFrame(np.array([[0.35,0.3, 0.6, 0.4],[0.65,0.7,0.4,0.6]]))
+    ref_abund.index.name = 'atomic_number'
+    ref_abund.index = np.array([1, 2])
+
+    assert csvy_abund.equals(ref_abund)
