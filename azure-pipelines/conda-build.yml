@@ -4,7 +4,7 @@ trigger:
   - master
 
 pr:
-  - none
+  - master
 
 # Variables we can reference later.
 variables:
