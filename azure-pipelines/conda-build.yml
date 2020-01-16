@@ -1,8 +1,5 @@
 # Specify which branches you want to trigger for continuous deployment and/or applicable for pull requests.
 # Otherwise it triggers all of them.
-trigger:
-- master
-
 pr:
 - master
 
