@@ -69,7 +69,7 @@ jobs:
     displayName: 'Getting TARDIS version'
 # Create release
   - task: GithubRelease@0 
-    displayName: 'Creating GitHub Release'      
+    displayName: 'Creating GitHub Release'
     inputs:
       gitHubConnection: tardis-sn
       repositoryName: tardis-sn/tardis
