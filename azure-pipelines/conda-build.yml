@@ -64,12 +64,12 @@ jobs:
           VERSION=$(python -c 'import tardis; print(tardis.__version__)')
         displayName: "Getting TARDIS version"
       # Create release
-      - task: GithubRelease@0
-        displayName: "Creating GitHub Release"
-        inputs:
-          gitHubConnection: tardis-sn
-          repositoryName: tardis-sn/tardis
-          action: "create"
-          target: "$(Build.SourceVersion)"
-          tagSource: manual
-          tag: $VERSION
+      # - task: GithubRelease@0
+      #  displayName: "Creating GitHub Release"
+      #  inputs:
+      #    gitHubConnection: tardis-sn
+      #    repositoryName: tardis-sn/tardis
+      #    action: "create"
+      #    target: "$(Build.SourceVersion)"
+      #    tagSource: manual
+      #    tag: $VERSION
