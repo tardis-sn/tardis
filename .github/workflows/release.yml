@@ -1,0 +1,42 @@
+name: Release a new TARDIS version
+
+on:
+  push:
+    branches:
+      - master
+    
+jobs:
+  release:
+
+    name: Main job
+    runs-on: ubuntu-latest
+    steps:
+      # Every step starts with '-'
+      - uses: actions/checkout@v2
+      
+      - name: Create TARDIS environment 
+        uses: goanpeca/setup-miniconda@v1.0.2
+        with:
+           auto-update-conda:  True
+           activate-environment: tardis
+           environment-file: tardis_env3.yml
+           auto-activate-base: False
+        
+      - name: Build and install TARDIS   
+        shell: bash -l {0}
+        run: |
+          python setup.py install
+          
+      - name: Get TARDIS version number 
+        shell: bash -l {0}
+        run: |
+          # This is the only way I found to share variables across steps
+          echo "::set-env name=VERSION::$(python -c 'import tardis; print(tardis.__version__)')"
+
+      - name: Automatic Releases
+        uses: marvinpinto/action-automatic-releases@v0.2.2
+        with:
+           repo_token: ${{ secrets.GITHUB_TOKEN }}
+           automatic_release_tag: ${{ env.VERSION }}
+           prerelease: True
+           title: ${{ env.VERSION }}
