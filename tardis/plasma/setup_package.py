@@ -4,7 +4,7 @@ from astropy_helpers.distutils_helpers import get_distutils_option
 import numpy as np
 
 def get_package_data():
-    return {'tardis.plasma.tests':['data/*.dat', 'data/*.yml', 'data/*.h5', 'data/*.dot', 'data/*.tex']}
+    return {'tardis.plasma.tests':['data/*.dat', 'data/*.txt', 'data/*.yml', 'data/*.h5', 'data/*.dot', 'data/*.tex']}
 
 if get_distutils_option('with_openmp', ['build', 'install', 'develop']) is not None:
     compile_args = ['-fopenmp', '-W', '-Wall', '-Wmissing-prototypes', '-std=c99']
