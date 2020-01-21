@@ -1,3 +1,4 @@
+
 # Starter pipeline
 # Start with a minimal pipeline that you can customize to build and deploy your code.
 # Add steps that build, run tests, deploy, and more:
@@ -33,5 +34,12 @@ steps:
     displayName: 'Build & install TARDIS'
 
   - bash: |
+        source activate tardis
         python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
+    displayName: 'Update reference data'
 
+  - bash: |
+        source activate tardis
+        cd $(ref.data.home)
+        jupyter nbconvert ref_data_compare.ipynb --to html
+    displayName: 'Running Jupyter Notebook'
