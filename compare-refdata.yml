@@ -40,6 +40,6 @@ steps:
 
   - bash: |
         source activate tardis
-        cd $(ref.data.home)
+        cd $(ref.data.home); cd notebooks
         jupyter nbconvert ref_data_compare.ipynb --to html
     displayName: 'Running Jupyter Notebook'
