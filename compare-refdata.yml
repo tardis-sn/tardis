@@ -11,35 +11,38 @@ variables:
   ref.data.github.url: 'https://github.com/tardis-sn/tardis-refdata.git'
   tardis.build.dir: $(Build.Repository.LocalPath)
 
-pool:
-  vmImage: 'ubuntu-latest'
-
-steps:
-  - bash: |
-      echo "##vso[task.prependpath]$CONDA/bin"
-      sudo chown -R $USER $CONDA
-    displayName: 'Add CONDA to path'
-
-  - bash: |
-      sh ci-helpers/install_tardis_env.sh
-    displayName: 'Install TARDIS env'
-
-  - bash: |
-      sh ci-helpers/fetch_reference_data.sh
-    displayName: 'Fetch reference data'
-
-  - bash: |
-        source activate tardis
-        python setup.py build_ext --inplace
-    displayName: 'Build & install TARDIS'
-
-  - bash: |
-        source activate tardis
-        python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
-    displayName: 'Update reference data'
-
-  - bash: |
-        source activate tardis
-        cd $(ref.data.home); cd notebooks
-        jupyter nbconvert ref_data_compare.ipynb --to html
-    displayName: 'Running Jupyter Notebook'
+jobs:
+  - job: 'Reference data report'
+    pool:
+      vmImage: 'ubuntu-latest'
+  
+    steps:
+      - bash: |
+          echo "##vso[task.prependpath]$CONDA/bin"
+          sudo chown -R $USER $CONDA
+        displayName: 'Add CONDA to path'
+    
+      - bash: |
+          sh ci-helpers/install_tardis_env.sh
+        displayName: 'Install TARDIS env'
+    
+      - bash: |
+          sh ci-helpers/fetch_reference_data.sh
+        displayName: 'Fetch reference data'
+    
+      - bash: |
+            source activate tardis
+            python setup.py build_ext --inplace
+        displayName: 'Build & install TARDIS'
+    
+      - bash: |
+            source activate tardis
+            python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
+        displayName: 'Generate new reference data'
+    
+      - bash: |
+            source activate tardis
+            git fetch origin "+refs/pull/*/head:refs/remotes/upstream/pr/*"
+            cd $(ref.data.home); cd notebooks
+            jupyter nbconvert ref_data_compare.ipynb --to html
+        displayName: 'Running Jupyter Notebook'
