@@ -66,7 +66,7 @@ We assume that you have added the necessary changes to TARDIS and have an open p
         - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
         - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi```
 
-#. Ensure TARDIS pull request passes Travis-CI again and merge your PR to TARDIS master branch.
+#. Ensure TARDIS pull request passes Travis-CI again and pin someone to merge your PR to the TARDIS master branch.
 
 
 Congratulations! You have updated TARDIS to be better. Have a beer and steak (or Tofu if you are vegetarian/vegan)
