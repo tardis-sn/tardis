@@ -12,7 +12,7 @@ variables:
   tardis.build.dir: $(Build.Repository.LocalPath)
 
 jobs:
-  - job: 'Reference data report'
+  - job: report
     pool:
       vmImage: 'ubuntu-latest'
   
