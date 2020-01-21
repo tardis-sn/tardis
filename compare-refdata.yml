@@ -3,14 +3,35 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+variables:
+  system.debug: 'true'
+  ref.data.home: '$(Agent.BuildDirectory)/tardis-refdata'
+
+  ref.data.github.url: 'https://github.com/tardis-sn/tardis-refdata.git'
+  tardis.build.dir: $(Build.Repository.LocalPath)
+
 pool:
   vmImage: 'ubuntu-latest'
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+  - bash: |
+      echo "##vso[task.prependpath]$CONDA/bin"
+      sudo chown -R $USER $CONDA
+    displayName: 'Add CONDA to path'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+  - bash: |
+      sh ci-helpers/install_tardis_env.sh
+    displayName: 'Install TARDIS env'
+
+  - bash: |
+      sh ci-helpers/fetch_reference_data.sh
+    displayName: 'Fetch reference data'
+
+  - bash: |
+        source activate tardis
+        python setup.py build_ext --inplace
+    displayName: 'Build & install TARDIS'
+
+  - bash: |
+        python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
+
