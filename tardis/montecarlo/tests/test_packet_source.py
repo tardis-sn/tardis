@@ -12,10 +12,19 @@ from tardis.montecarlo.packet_source import BlackBodySimpleSource
 def data_path():
     return os.path.join(tardis.__path__[0], 'montecarlo', 'tests', 'data')
 
+@pytest.fixture
+def packet_unittest_fpath(tardis_ref_path):
+    return os.path.abspath(os.path.join(
+        tardis_ref_path, 'packet_unittest.h5'))
 
-def test_bb_packet_sampling(tardis_ref_data):
+def test_bb_packet_sampling(tardis_ref_data, packet_unittest_fpath):
     bb = BlackBodySimpleSource(2508)
     #ref_df = pd.read_hdf('test_bb_sampling.h5')
+    if pytest.config.getvalue("--generate-reference"):
+            ref_bb = pd.read_hdf(packet_unittest_fpath, key='/blackbody')
+            ref_bb.to_hdf(tardis_ref_data, key='/packet_unittest/blackbody', 
+                            mode='a')
+
     ref_df = tardis_ref_data['/packet_unittest/blackbody']
     nus = bb.create_blackbody_packet_nus(10000, 100)
     mus = bb.create_zero_limb_darkening_packet_mus(100)
