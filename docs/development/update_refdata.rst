@@ -57,16 +57,18 @@ We assume that you have added the necessary changes to TARDIS and have an open p
 
 #. Commit the ``.travis.yml`` to your pull request.
 
-#. Make sure that your TARDIS pull request now passes on Travis-CI and then merge the PR on ``tardis-refdata``.
+#. Make sure that your TARDIS pull request now passes all tests on Travis-CI.
 
-#. Then change ``.travis.yml`` to:
+#. Ask for review for your PR on ``tardis-refdata`` and wait for merge.
+
+#. Then change the ``.travis.yml`` in ``tardis`` directory to:
 
     .. code-block:: None
 
         - if [[ $TEST_MODE == 'spectrum' ]]; then git fetch origin; fi
         - if [[ $TEST_MODE == 'spectrum' ]]; then git checkout origin/master; fi```
 
-#. Ensure TARDIS pull request passes Travis-CI again and pin someone to merge your PR to the TARDIS master branch.
+#. Ensure TARDIS pull request passes Travis-CI again and ping someone to merge your PR to the TARDIS master branch.
 
 
 Congratulations! You have updated TARDIS to be better. Have a beer and steak (or Tofu if you are vegetarian/vegan)
