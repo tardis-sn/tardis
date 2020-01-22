@@ -6,7 +6,6 @@
 variables:
   system.debug: "true"
   ref.data.home: "$(Agent.BuildDirectory)/tardis-refdata"
-
   ref.data.github.url: "https://github.com/tardis-sn/tardis-refdata.git"
   tardis.build.dir: $(Build.Repository.LocalPath)
 
@@ -26,7 +25,12 @@ jobs:
         displayName: "Install TARDIS env"
 
       - bash: |
-          sh ci-helpers/fetch_reference_data.sh
+          source activate tardis
+          git clone https://github.com/tardis-refdata $(ref.data.home)
+          cd $(ref.data.home)
+          git lfs install
+          git lfs fetch
+          git lfs pull
         displayName: "Fetch reference data"
 
       - bash: |
