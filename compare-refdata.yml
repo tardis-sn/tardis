@@ -52,3 +52,9 @@ jobs:
           targetPath: "$(ref.data.home)/notebooks/ref_data_compare.html"
           artifact: "report"
           publishLocation: "pipeline"
+
+      - bash: |
+          ls -lR /tmp
+          echo '***********************************'
+          ls -lR /home/vsts/work/_temp
+        condition: succeededOrFailed()
