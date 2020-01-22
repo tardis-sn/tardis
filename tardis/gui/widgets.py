@@ -425,7 +425,6 @@ class ModelViewer(QtGui.QWidget):
         self.plotTabWidget.addTab(self.spectrumWidget, "S&pectrum")
 
         #Table widget
-        #self.tablemodel = self.createTable([['Shell: '], ["Rad. temp", "Ws"]],
         self.tablemodel = self.createTable([['Shell: '], ["Rad. temp", "Ws", "V"]],
                             (1, 0))
         self.tableview = QtGui.QTableView()
