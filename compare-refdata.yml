@@ -45,7 +45,7 @@ jobs:
             cd $(ref.data.home)
             git fetch origin "+refs/pull/*/head:refs/remotes/upstream/pr/*"
             cd notebooks
-            jupyter nbconvert ref_data_compare.ipynb --to html
+            jupyter nbconvert ref_data_compare.ipynb --to html --execute
         displayName: 'Generating report'
       - task: PublishPipelineArtifact@1
         inputs:
