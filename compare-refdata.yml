@@ -42,6 +42,8 @@ jobs:
       - bash: |
           source activate tardis
           cd $(ref.data.home)
+          git lfs fetch
+          git lfs pull
           git fetch origin "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           cd notebooks
           sed -i 's/upstream\/pr\/24/origin\/master/g' ref_data_compare.ipynb
