@@ -35,10 +35,10 @@ jobs:
             python setup.py build_ext --inplace
         displayName: 'Build & install TARDIS'
     
-      - bash: |
-            source activate tardis
-            python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
-        displayName: 'Generate new reference data'
+      #- bash: |
+      #      source activate tardis
+      #      python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
+      #  displayName: 'Generate new reference data'
     
       - bash: |
             source activate tardis
