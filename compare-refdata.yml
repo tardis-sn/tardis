@@ -47,10 +47,8 @@ jobs:
             cd notebooks
             jupyter nbconvert ref_data_compare.ipynb --to html
         displayName: 'Generating report'
-        
-      - task: DownloadBuildArtifacts@0
+      - task: PublishPipelineArtifact@1
         inputs:
-          buildType: 'current'
-          downloadType: 'specific'
-          itemPattern: '**/ref_data_compare.html'
-          downloadPath: '$(System.ArtifactsDirectory)'
+          targetPath: '$(ref.data.home)/notebooks/ref_data_compare.html'
+          artifact: 'report'
+          publishLocation: 'pipeline'
