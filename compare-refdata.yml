@@ -52,5 +52,5 @@ jobs:
         inputs:
           buildType: 'current'
           downloadType: 'specific'
-          itemPattern: '/**/ref_data_compare.html'
+          itemPattern: '**/ref_data_compare.html'
           downloadPath: '$(System.ArtifactsDirectory)'
