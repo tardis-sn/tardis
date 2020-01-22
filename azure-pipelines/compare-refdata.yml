@@ -44,7 +44,7 @@ jobs:
           cd $(ref.data.home)
           git fetch origin "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           cd notebooks
-          sed -i 's/upstream\/pr\/24/origin\/master/g' ref_data_compare.ipynb
+          sed -i "s/ref2_hash='upstream\/pr\/24'/ref1_hash='c998f44', ref2_hash='master'/g" ref_data_compare.ipynb 
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
         displayName: "Generating report"
 
