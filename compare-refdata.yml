@@ -34,16 +34,14 @@ jobs:
           python setup.py build_ext --inplace
         displayName: "Build & install TARDIS"
 
-      - bash: |
-          source activate tardis
-          python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
-        displayName: "Generate new reference data"
+      #- bash: |
+      #    source activate tardis
+      #    python setup.py test --args="--tardis-refdata=$(ref.data.home) --generate-reference"
+      #  displayName: "Generate new reference data"
 
       - bash: |
           source activate tardis
           cd $(ref.data.home)
-          git lfs fetch
-          git lfs pull
           git fetch origin "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           cd notebooks
           sed -i 's/upstream\/pr\/24/origin\/master/g' ref_data_compare.ipynb
@@ -58,5 +56,6 @@ jobs:
 
       - bash: |
           ls -lR /tmp
+          echo
         condition: succeededOrFailed()
         displayName: "Check files in /tmp"
