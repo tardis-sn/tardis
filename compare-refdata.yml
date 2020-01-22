@@ -47,6 +47,8 @@ jobs:
             touch /tmp/foo.txt
             mkdir -p /tmp/new_folder
             touch /tmp/new_folder/foo.txt
+            cd /tmp; ls -l
+            cd /home/vsts/work/_temp; ls -l
            # cd notebooks
            # jupyter nbconvert ref_data_compare.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
         displayName: 'Testing step' #'Generating report'
