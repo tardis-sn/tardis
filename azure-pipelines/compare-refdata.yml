@@ -26,11 +26,7 @@ jobs:
 
       - bash: |
           source activate tardis
-          git clone https://github.com/tardis-refdata $(ref.data.home)
-          cd $(ref.data.home)
-          git lfs install
-          git lfs fetch
-          git lfs pull
+          git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
         displayName: "Fetch reference data"
 
       - bash: |
