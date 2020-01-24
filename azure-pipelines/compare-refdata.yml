@@ -41,7 +41,7 @@ jobs:
 
       - bash: |
           source activate tardis
-          conda install bokeh -c conda-forge --no-update-deps
+          conda install bokeh -c conda-forge --no-update-deps --yes
         displayName: "Install Bokeh"
 
       - bash: |
