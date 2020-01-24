@@ -49,7 +49,7 @@ jobs:
           cd $(ref.data.home)
           git fetch origin "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           cd notebooks
-          jupyter nbconvert ref_data_compare.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+          jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
         displayName: "Generating report"
 
       - task: PublishPipelineArtifact@1
