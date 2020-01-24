@@ -25,7 +25,8 @@ jobs:
       - name: Build and install TARDIS   
         shell: bash -l {0}
         run: |
-          python setup.py install
+          git clone https://github.com/tardis.git tardis-repo-clone
+          cd tardis-repo-clone; python setup.py install
           
       - name: Get TARDIS version number 
         shell: bash -l {0}
@@ -37,6 +38,6 @@ jobs:
         uses: marvinpinto/action-automatic-releases@v0.2.2
         with:
            repo_token: ${{ secrets.GITHUB_TOKEN }}
-           automatic_release_tag: ${{ env.VERSION }}
+           automatic_release_tag: v${{ env.VERSION }}
            prerelease: True
-           title: ${{ env.VERSION }}
+           title: TARDIS v${{ env.VERSION }}
