@@ -25,7 +25,7 @@ jobs:
       - name: Build and install TARDIS   
         shell: bash -l {0}
         run: |
-          git clone https://github.com/tardis.git tardis-repo-clone
+          git clone https://github.com/tardis-sn/tardis.git tardis-repo-clone
           cd tardis-repo-clone; python setup.py install
           
       - name: Get TARDIS version number 
