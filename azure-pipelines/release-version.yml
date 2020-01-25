@@ -33,7 +33,7 @@ steps:
 
 - bash: |
     source activate tardis
-    echo "##vso[task.setvariable variable=version]python -c 'import tardis; print(tardis.__version__)'"
+    echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
   displayName: "Get TARDIS version number"
 
 - bash: |
