@@ -39,15 +39,14 @@ steps:
 - bash: |
     echo $(VERSION)
   displayName: "Recover TARDIS version number"
-
-#  - task: GitHubRelease@1
-#    inputs:
-#      repositoryName: '$(Build.Repository.Name)'
-#      action: 'create'
-#      target: '$(Build.SourceVersion)'
-#      tagSource: 'userSpecifiedTag'
-#      tag: '$VERSION'
-#      title: 'TARDIS v$VERSION'
-#      isPreRelease: true
-#      changeLogCompareToRelease: 'lastFullRelease'
-#      changeLogType: 'commitBased'
+- task: GitHubRelease@1
+  inputs:
+    repositoryName: '$(Build.Repository.Name)'
+    action: 'create'
+    target: '$(Build.SourceVersion)'
+    tagSource: 'userSpecifiedTag'
+    tag: '($VERSION)'
+    title: 'TARDIS v($VERSION)'
+    isPreRelease: true
+    changeLogCompareToRelease: 'lastFullRelease'
+    changeLogType: 'commitBased'
