@@ -33,11 +33,11 @@ steps:
 
 - bash: |
     source activate tardis
-    python -c 'import tardis; print(tardis.__version__)' > version.txt
+    echo "##vso[task.setvariable variable=version]python -c 'import tardis; print(tardis.__version__)'"
   displayName: "Get TARDIS version number"
 
 - bash: |
-    cat version.txt
+    echo $(VERSION)
   displayName: "Recover TARDIS version number"
 
 #  - task: GitHubRelease@1
