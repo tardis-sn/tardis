@@ -9,6 +9,10 @@ trigger:
     include:
     - master
 
+variables:
+  system.debug: 'true'
+  tardis.build.dir: $(Build.Repository.LocalPath)
+
 pool:
   vmImage: 'ubuntu-latest'
 
