@@ -47,9 +47,10 @@ jobs:
       - bash: |
           source activate tardis
           cd $(ref.data.home)
-          git fetch origin "+refs/pull/*/head:refs/remotes/upstream/pr/*"
+          git remote add upstream https://github.com/tardis-sn/tardis-refdata.git
+          git fetch upstream
+          git fetch upstream "+refs/pull/*/head:refs/remotes/upstream/pr/*"
           cd notebooks
-          sed -i "s/ref2_hash='upstream\/master'/ref2_hash='upstream\/pr\/24'/g" ref_data_compare.ipynb
           jupyter nbconvert ref_data_compare.ipynb --to html --execute --allow-errors --ExecutePreprocessor.timeout=6000
         displayName: "Generating report"
 
