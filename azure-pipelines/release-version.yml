@@ -3,11 +3,15 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-  batch: true
-  branches:
-    include:
-      - master
+trigger: none
+pr: none
+schedules:
+  - cron: "30 22 * * 0"
+    displayName: Weekly Sunday build
+    branches:
+      include:
+        - master
+    always: true
 
 variables:
   system.debug: "true"
