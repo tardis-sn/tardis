@@ -207,7 +207,7 @@ class ConfigEditor(QtGui.QWidget):
         super(ConfigEditor, self).__init__(parent)
 
         #Configurations from the input and template
-        configDict = yaml.load(open(yamlconfigfile))
+        configDict = yaml.load(open(yamlconfigfile), Loader=yaml.CLoader)
         templatedictionary ={'tardis_config_version':[True, 'v1.0'],
             'supernova':{ 'luminosity_requested':[True, '1 solLum'],
                           'time_explosion':[True, None],
@@ -425,7 +425,7 @@ class ModelViewer(QtGui.QWidget):
         self.plotTabWidget.addTab(self.spectrumWidget, "S&pectrum")
 
         #Table widget
-        self.tablemodel = self.createTable([['Shell: '], ["Rad. temp", "Ws"]],
+        self.tablemodel = self.createTable([['Shell: '], ["Rad. temp", "Ws", "V"]],
                             (1, 0))
         self.tableview = QtGui.QTableView()
         self.tableview.setMinimumWidth(200)
@@ -575,6 +575,7 @@ class ModelViewer(QtGui.QWidget):
         self.tablemodel.arraydata = []
         self.tablemodel.add_data(model.model.t_rad.value.tolist())
         self.tablemodel.add_data(model.model.w.tolist())
+        self.tablemodel.add_data(model.model.velocity.value.tolist())
 
     def change_spectrum_to_spec_virtual_flux_angstrom(self):
         """Change the spectrum data to the virtual spectrum."""
@@ -977,7 +978,7 @@ class LineInteractionTables(QtGui.QWidget):
         species_abundances = (
             line_interaction_species_group.wavelength.count().astype(float) /
             line_interaction_analysis.last_line_in.wavelength.count()).astype(float).tolist()
-        species_abundances = map(float, species_abundances)
+        species_abundances = list(map(float, species_abundances))
         species_table_model.add_data(species_abundances)
         self.species_table.setModel(species_table_model)
 

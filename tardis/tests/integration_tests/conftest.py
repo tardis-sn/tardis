@@ -16,7 +16,7 @@ def pytest_configure(config):
             os.path.expanduser(integration_tests_configpath)
         )
         config.integration_tests_config = yaml.load(
-            open(integration_tests_configpath))
+            open(integration_tests_configpath), Loader=yaml.CLoader)
 
         if not config.getoption("--generate-reference"):
             # Used by DokuReport class to show build environment details in report.

@@ -2,13 +2,14 @@ import time
 import logging
 import numpy as np
 import pandas as pd
-from astropy import units as u
+from astropy import units as u, constants as const
 from collections import OrderedDict
 
 from tardis.montecarlo import MontecarloRunner
 from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
+from tardis.io.config_reader import ConfigurationError
 # Adding logging support
 logger = logging.getLogger(__name__)
 
@@ -100,6 +101,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                       'iterations_t_rad', 'iterations_electron_densities',
                       'iterations_t_inner']
     hdf_name = 'simulation'
+
     def __init__(self, iterations, model, plasma, runner,
                  no_of_packets, no_of_virtual_packets, luminosity_nu_start,
                  luminosity_nu_end, last_no_of_packets,
@@ -407,7 +409,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
             return False
 
     @classmethod
-    def from_config(cls, config, **kwargs):
+    def from_config(cls, config, packet_source=None, **kwargs):
         """
         Create a new Simulation instance from a Configuration object.
 
@@ -429,25 +431,35 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         if 'model' in kwargs:
             model = kwargs['model']
         else:
-            model = Radial1DModel.from_config(config)
+            if hasattr(config, 'csvy_model'):
+                model = Radial1DModel.from_csvy(config)
+            else:
+                model = Radial1DModel.from_config(config)
         if 'plasma' in kwargs:
             plasma = kwargs['plasma']
         else:
             plasma = assemble_plasma(config, model,
                                      atom_data=kwargs.get('atom_data', None))
         if 'runner' in kwargs:
+            if packet_source is not None:
+                raise ConfigurationError(
+                    'Cannot specify packet_source and runner at the same time.'
+                )
             runner = kwargs['runner']
         else:
-            runner = MontecarloRunner.from_config(config)
+            runner = MontecarloRunner.from_config(config,
+                                                  packet_source=packet_source)
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
                 u.Hz, u.spectral())
 
-        try:
-            luminosity_nu_end = config.supernova.luminosity_wavelength_start.to(
-                u.Hz, u.spectral())
-        except ZeroDivisionError:
+        if u.isclose(
+                config.supernova.luminosity_wavelength_start, 0 * u.angstrom):
             luminosity_nu_end = np.inf * u.Hz
+        else:
+            luminosity_nu_end = (
+                    const.c /
+                    config.supernova.luminosity_wavelength_start).to(u.Hz)
 
         last_no_of_packets = config.montecarlo.last_no_of_packets
         if last_no_of_packets is None or last_no_of_packets < 0:

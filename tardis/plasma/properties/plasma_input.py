@@ -2,7 +2,9 @@ from tardis.plasma.properties.base import (Input, ArrayInput, DataFrameInput)
 
 __all__ = ['TRadiative', 'DilutionFactor', 'AtomicData', 'Abundance', 'Density',
            'TimeExplosion', 'JBlueEstimator', 'LinkTRadTElectron',
-           'HeliumTreatment', 'RInner', 'TInner', 'Volume']
+           'HeliumTreatment', 'RInner', 'TInner', 'Volume',
+           'ContinuumInteractionSpecies']
+
 
 class TRadiative(ArrayInput):
     """
@@ -12,6 +14,7 @@ class TRadiative(ArrayInput):
     """
     outputs = ('t_rad',)
     latex_name = ('T_{\\textrm{rad}}',)
+
 
 class DilutionFactor(ArrayInput):
     """
@@ -23,6 +26,7 @@ class DilutionFactor(ArrayInput):
     """
     outputs = ('w',)
     latex_name = ('W',)
+
 
 class AtomicData(Input):
     """
@@ -42,6 +46,7 @@ class Abundance(Input):
     """
     outputs = ('abundance',)
 
+
 class Density(ArrayInput):
     """
     Attributes
@@ -51,6 +56,7 @@ class Density(ArrayInput):
     """
     outputs = ('density',)
     latex_name = ('\\rho',)
+
 
 class TimeExplosion(Input):
     """
@@ -72,6 +78,7 @@ class JBlueEstimator(ArrayInput):
     outputs = ('j_blue_estimators',)
     latex_name = ('J_{\\textrm{blue-estimator}}',)
 
+
 class LinkTRadTElectron(Input):
     """
     Attributes
@@ -83,14 +90,29 @@ class LinkTRadTElectron(Input):
     outputs = ('link_t_rad_t_electron',)
     latex_name = ('T_{\\textrm{electron}}/T_{\\textrm{rad}}',)
 
+
 class HeliumTreatment(Input):
     outputs = ('helium_treatment',)
+
 
 class RInner(Input):
     outputs = ('r_inner',)
 
+
 class TInner(Input):
     outputs = ('t_inner',)
 
+
 class Volume(Input):
     outputs = ('volume',)
+
+
+class ContinuumInteractionSpecies(Input):
+    """
+    Attributes
+    ----------
+    continuum_interaction_species: Pandas MultiIndex, dtype int
+        Atomic and ion numbers of elements for which continuum interactions
+        (radiative/collisional ionization and recombination) are treated
+    """
+    outputs = ('continuum_interaction_species',)

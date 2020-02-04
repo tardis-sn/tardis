@@ -126,7 +126,7 @@ YAMLLoader.add_constructor(yaml.resolver.BaseResolver.DEFAULT_MAPPING_TAG,
 
 def yaml_load_file(filename, loader=yaml.Loader):
     with open(filename) as stream:
-        return yaml.load(stream, loader)
+        return yaml.load(stream, Loader=loader)
 
 
 def yaml_load_config_file(filename):
@@ -181,6 +181,11 @@ def check_equality(item1, item2):
 
 
 class HDFWriterMixin(object):
+    def __new__(cls, *args, **kwargs):
+        instance = super(HDFWriterMixin, cls).__new__(cls)
+        instance.optional_hdf_properties = []
+        instance.__init__(*args, **kwargs)
+        return instance
 
     @staticmethod
     def to_hdf_util(path_or_buf, path, elements, complevel=9, complib='blosc'):
@@ -270,8 +275,12 @@ class HDFWriterMixin(object):
             buf.close()
 
     def get_properties(self):
-        data = {name: getattr(self, name) for name in self.hdf_properties}
+        data = {name: getattr(self, name) for name in self.full_hdf_properties}
         return data
+
+    @property
+    def full_hdf_properties(self):
+        return self.optional_hdf_properties + self.hdf_properties
 
     @staticmethod
     def convert_to_snake_case(s):

@@ -7,8 +7,7 @@ Configuration File
 TARDIS uses the `YAML markup language <https://en.wikipedia.org/wiki/YAML>`_
 for its configuration files. There are several sections which allow different
 settings for the different aspects of the TARDIS calculation. An example
-configuration file (with a small subset of the options that can be specified) can be downloaded :download:`here
-<../examples/tardis_example.yml>`.
+configuration file (with a small subset of the options that can be specified) can be downloaded at `example_yml`_.
 
 .. warning::
     One should note that currently floats in YAML need to be specified in a special format:
@@ -23,6 +22,10 @@ can be seen here:
 
     The following shows all the options (and their default settings) that are available for TARDIS. No other options
     are allowed or available
+
+
+.. contents:: Overview
+    :local:
 
 Configuration Schema
 ====================
@@ -159,3 +162,5 @@ just an integer. Finally, the method option selects the final spectral synthesis
   interaction mode. Note also the limitations listed at the bottom of the
   dedicated page.
 
+
+.. include:: ../running/example_data.inc

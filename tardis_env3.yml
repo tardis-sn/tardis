@@ -2,14 +2,16 @@ name: tardis
 
 channels:
     - conda-forge
-    - main
+
 
 dependencies:
 - python=3
+- pip
 - numpy=1.15
 - scipy=1.1
 - pandas=0.24
-- astropy=3
+- astropy=3.2.1
+
 
 - numba=0.43
 - numexpr
@@ -21,7 +23,7 @@ dependencies:
 # I/O
 - pyyaml
 - jsonschema
-- pyne=0.5
+- pyne
 - pytables
 - h5py
 - requests
@@ -43,12 +45,13 @@ dependencies:
 - nbsphinx
 - sphinx_bootstrap_theme
 - sphinxcontrib-bibtex
+- sphinxcontrib-apidoc
 - sphinx_rtd_theme
 - recommonmark
 
 #Test/Coverage requirements
 - git-lfs
-- pytest
+- pytest=4
 - pytest-html
 - requests
 - coverage

@@ -36,7 +36,6 @@ intersphinx_mapping = {
     'astropy': ('http://docs.astropy.org/en/stable/', None),
     'h5py': ('http://docs.h5py.org/en/latest/', None),
     'pandas': ('http://pandas.pydata.org/pandas-docs/dev/', None),
-    'astropy': ('http://docs.astropy.org/en/stable/', None)
 }
 
 # import sphinx_bootstrap_theme
@@ -48,11 +47,12 @@ extensions = [
     'sphinx.ext.todo',
     'sphinx.ext.mathjax',
     'sphinx.ext.graphviz',
+    'sphinx.ext.viewcode',
     'numpydoc',
     'nbsphinx',
-    'sphinx.ext.autodoc',
     'sphinx-jsonschema',
-    'recommonmark'
+    'recommonmark',
+    'sphinxcontrib.apidoc'
 ]
 
 source_suffix = {
@@ -78,7 +78,7 @@ https://github.com/tardis-sn/tardis/tree/master/docs/{{ env.doc2path(env.docname
 templates_path = ['_templates']
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
-exclude_patterns = ['_build', '_templates']
+exclude_patterns = ['_build', '_templates',  '**.ipynb_checkpoints']
 #exclude_patterns.append('_templates')
 
 # This is added to the end of RST files - a good place to put substitutions to
@@ -90,7 +90,7 @@ rst_epilog = """
 
 # This does not *have* to match the package name, but typically does
 project = u'TARDIS'
-author = u'TARDIS team'
+author = u'TARDIS collaboration'
 copyright = u'2013, ' + author
 
 master_doc = 'index'
@@ -105,6 +105,12 @@ version = tardis.__version__.split('-', 1)[0]
 # The full version, including alpha/beta/rc tags.
 release = tardis.__version__
 
+
+# -- APIDoc configuration -----------------------------------------------------
+apidoc_module_dir = '../tardis'
+apidoc_output_dir = 'api'
+apidoc_excluded_paths = ['*tests*', '*setup_package*']
+apidoc_separate_modules = True
 
 # -- Options for HTML output ---------------------------------------------------
 
@@ -145,6 +151,8 @@ html_title = '{0} v{1}'.format(project, release)
 
 # Output file base name for HTML help builder.
 htmlhelp_basename = project + 'doc'
+
+#html_extra_path = ['research/code_comparison/plasma_compare/tardis_example.yml']
 
 
 # -- Options for LaTeX output --------------------------------------------------

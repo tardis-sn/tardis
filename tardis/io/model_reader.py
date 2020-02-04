@@ -285,7 +285,7 @@ def read_cmfgen_density(fname):
     warnings.warn("The current CMFGEN model parser is deprecated",
                   DeprecationWarning)
 
-    df = pd.read_csv(fname, comment='#', delimiter='\s+', skiprows=[0, 2])
+    df = pd.read_csv(fname, comment='#', delimiter=r'\s+', skiprows=[0, 2])
 
     with open(fname) as fh:
         for row_index, line in enumerate(fh):
@@ -333,7 +333,7 @@ def read_simple_ascii_abundances(fname):
     return index, abundances
 
 
-def read_cmfgen_composition(fname, delimiter='\s+'):
+def read_cmfgen_composition(fname, delimiter=r'\s+'):
     """Read composition from a CMFGEN model file
 
     The CMFGEN file format contains information about the ejecta state in the
@@ -353,7 +353,7 @@ def read_cmfgen_composition(fname, delimiter='\s+'):
                                        skip_columns=4, skip_rows=[0, 2, 3])
 
 
-def read_csv_composition(fname, delimiter='\s+'):
+def read_csv_composition(fname, delimiter=r'\s+'):
     """Read composition from a simple CSV file
 
     The CSV file can contain specific isotopes or elemental abundances in the
@@ -373,7 +373,7 @@ def read_csv_composition(fname, delimiter='\s+'):
                                        skip_columns=0, skip_rows=[1])
 
 
-def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
+def read_csv_isotope_abundances(fname, delimiter=r'\s+', skip_columns=0,
                                 skip_rows=[1]):
     """
     A generic parser for a TARDIS composition stored as a CSV file
@@ -429,6 +429,51 @@ def read_csv_isotope_abundances(fname, delimiter='\s+', skip_columns=0,
                                      dtype=np.float64)
 
     for element_symbol_string in df.index[skip_columns:]:
+        if element_symbol_string in nucname.name_zz:
+            z = nucname.name_zz[element_symbol_string]
+            abundance.loc[z, :] = df.loc[element_symbol_string].tolist()
+        else:
+            z = nucname.znum(element_symbol_string)
+            mass_no = nucname.anum(element_symbol_string)
+            isotope_abundance.loc[(
+                z, mass_no), :] = df.loc[element_symbol_string].tolist()
+
+    return abundance.index, abundance, isotope_abundance
+
+def parse_csv_abundances(csvy_data):
+    """
+    A parser for the csv data part of a csvy model file. This function filters out columns that are not abundances.
+
+    Parameters
+    ----------
+
+    csvy_data : pandas.DataFrame
+
+    Returns
+    -------
+
+    index : ~np.ndarray
+    abundances : ~pandas.DataFrame
+    isotope_abundance : ~pandas.MultiIndex
+    """
+
+    abundance_col_names = [name for name in csvy_data.columns if nucname.iselement(name) or nucname.isnuclide(name)]
+    df = csvy_data.loc[:, abundance_col_names]
+            
+    df = df.transpose()
+
+    abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
+                             index=pd.Index([],
+                                            name='atomic_number'),
+                             dtype=np.float64)
+
+    isotope_index = pd.MultiIndex(
+        [[]] * 2, [[]] * 2, names=['atomic_number', 'mass_number'])
+    isotope_abundance = pd.DataFrame(columns=np.arange(df.shape[1]),
+                                     index=isotope_index,
+                                     dtype=np.float64)
+
+    for element_symbol_string in df.index[0:]:
         if element_symbol_string in nucname.name_zz:
             z = nucname.name_zz[element_symbol_string]
             abundance.loc[z, :] = df.loc[element_symbol_string].tolist()

@@ -1,0 +1,2 @@
+.. _example_yml: https://github.com/tardis-sn/tardis-setups/blob/master/2014/2014_kerzendorf_sim/appendix_A1/tardis_example.yml
+.. _example_atomic_database: https://github.com/tardis-sn/tardis-refdata/raw/master/atom_data/kurucz_cd23_chianti_H_He.h5
