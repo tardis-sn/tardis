@@ -15,6 +15,7 @@ schedules:
 
 variables:
   system.debug: "true"
+  tardis.zenodo.home: "$(Agent.BuildDirectory)/tardis_zenodo"
   tardis.build.dir: $(Build.Repository.LocalPath)
 
 pool:
@@ -55,19 +56,25 @@ jobs:
 
       #- bash: |
       #    source activate zenodo
-      #    git clone git@github.com:tardis-sn/tardis_zenodo.git
+      #    git clone git@github.com:tardis-sn/tardis_zenodo.git $(tardis.zenodo.home)
       #  displayName: "Clone tardis_zenodo repo"
 
       - bash: |
           source activate zenodo
           cd ..; mkdir tardis_zenodo
-          cd tardis_zenodo; pwd
+          cd $(tardis.zenodo.home)
           wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/ae0d4ef5421ef150f43ef5ad5c85f38c3e9b866f/gather_data.ipynb
           cp $(zenodoSecretKey.secureFilePath) .
           cp $(authorOrder.secureFilePath) .
           cp $(nonCommitContributors.secureFilePath) .
           jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
-        displayName: "Running gather_data notebook"
+        displayName: "Running notebook"
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(tardis.zenodo.home)/.zenodo.json"
+          artifact: "report"
+          publishLocation: "pipeline"
 #- job: gh_release
 #  displayName: Upload GitHub release
 #  dependsOn: zenodo_json
