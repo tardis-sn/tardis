@@ -43,16 +43,6 @@ jobs:
       inputs:
         secureFile: 'non_commit_contributors.txt'
 
-    - task: DownloadSecureFile@1
-      inputs: 
-        secureFile: 'id_azure_rsa'
-  
-    - task: InstallSSHKey@0
-      inputs:
-       knownHostsEntry: $(gh_host)
-       sshPublicKey: $(public_key)
-       sshKeySecureFile: 'id_azure_rsa'
-
     - bash: |
         echo "##vso[task.prependpath]$CONDA/bin"
         sudo chown -R $USER $CONDA
@@ -67,14 +57,16 @@ jobs:
         conda install -c conda-forge orcid --yes --no-update-deps
       displayName: "Install ORCID package "
 
-    - bash: |
-        source activate tardis
-        git clone git@github.com:tardis-sn/tardis_zenodo.git
-      displayName: "Clone tardis_zenodo repo"
+    #- bash: |
+    #    source activate tardis
+    #    git clone git@github.com:tardis-sn/tardis_zenodo.git
+    #  displayName: "Clone tardis_zenodo repo"
 
     - bash: |
         source activate tardis
+        mkdir tardis_zenodo
         cd tardis_zenodo
+        wget https://gist.github.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8
         cp $(zenodoSecretKey.secureFilePath) .
         cp $(authorOrder.secureFilePath) .
         cp $(nonCommitContributors.secureFilePath) .
