@@ -20,39 +20,89 @@ variables:
 pool:
   vmImage: "ubuntu-latest"
 
-steps:
-  - bash: |
-      echo "##vso[task.prependpath]$CONDA/bin"
-      sudo chown -R $USER $CONDA
-    displayName: "Add CONDA to path"
+jobs:
+- job: zenodo_json
+  steps:
 
-  - bash: |
-      sh ci-helpers/install_tardis_env.sh
-    displayName: "Install TARDIS env"
+    - task: DownloadSecureFile@1
+      name: zenodoSecretKey
+      displayName: 'Download Zenodo secret key'
+      inputs:
+        secureFile: 'key_secret.json'
 
-  - bash: |
-      source activate tardis
-      python setup.py install
-    displayName: "Build & install TARDIS"
+    - task: DownloadSecureFile@1
+      name: authorOrder
+      displayName: 'Download author order file'
+      inputs:
+        secureFile: 'author_order.txt'
 
-  - bash: |
-      source activate tardis
-      echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
-    displayName: "Get TARDIS version number"
+    - task: DownloadSecureFile@1
+      name: nonCommitContributors
+      displayName: 'Download non commit contributors file'
+      inputs:
+        secureFile: 'non_commit_contributors.txt'
 
-  - bash: |
-      echo $(VERSION)
-    displayName: "Recover TARDIS version number"
+    - bash: |
+        echo "##vso[task.prependpath]$CONDA/bin"
+        sudo chown -R $USER $CONDA
+      displayName: "Add CONDA to path"
 
-  - task: GitHubRelease@1
-    inputs:
-      gitHubConnection: "wkerzendorf"
-      repositoryName: "$(Build.Repository.Name)"
-      action: "create"
-      target: "$(Build.SourceVersion)"
-      tagSource: "userSpecifiedTag"
-      tag: "$(VERSION)"
-      title: "TARDIS v$(VERSION)"
-      isPreRelease: true
-      changeLogCompareToRelease: "lastFullRelease"
-      changeLogType: "commitBased"
+    - bash: |
+        sh ci-helpers/install_tardis_env.sh
+      displayName: "Install TARDIS env"
+    
+    - bash: |
+        source activate tardis
+        conda install -c conda-forge orcid --yes --no-update-deps
+      displayName: "Install TARDIS env"
+
+    #- bash: |
+    #    source activate tardis
+    #    git clone https://github.com/tardis-sn/tardis_zenodo.git
+    #  displayName: "Clone tardis_zenodo repo"
+
+    - bash: |
+        mkdir tardis_zenodo
+        cp $(zenodoSecretKey) .
+        cp $(authorOrder) .
+        cp $(nonCommitContributors) .
+      displayName: "Copying secure files"
+
+- job: gh_release
+  dependsOn: zenodo_json
+  steps:
+    - bash: |
+        echo "##vso[task.prependpath]$CONDA/bin"
+        sudo chown -R $USER $CONDA
+      displayName: "Add CONDA to path"
+  
+    - bash: |
+        sh ci-helpers/install_tardis_env.sh
+      displayName: "Install TARDIS env"
+  
+    - bash: |
+        source activate tardis
+        python setup.py install
+      displayName: "Build & install TARDIS"
+  
+    - bash: |
+        source activate tardis
+        echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
+      displayName: "Get TARDIS version number"
+  
+    - bash: |
+        echo $(VERSION)
+      displayName: "Recover TARDIS version number"
+  
+    - task: GitHubRelease@1
+      inputs:
+        gitHubConnection: "wkerzendorf"
+        repositoryName: "$(Build.Repository.Name)"
+        action: "create"
+        target: "$(Build.SourceVersion)"
+        tagSource: "userSpecifiedTag"
+        tag: "$(VERSION)"
+        title: "TARDIS v$(VERSION)"
+        isPreRelease: true
+        changeLogCompareToRelease: "lastFullRelease"
+        changeLogType: "commitBased"
