@@ -49,15 +49,10 @@ jobs:
       displayName: "Add CONDA to path"
 
     - bash: |
-        conda create -n zenodo python=3.6
+        conda create -n zenodo python=3.6 --yes
         source activate zenodo
         conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
       displayName: "Create Zenodo env"
-    
-    - bash: |
-        source activate zenodo
-        conda install -c conda-forge orcid --yes --no-update-deps
-      displayName: "Install ORCID package "
 
     #- bash: |
     #    source activate zenodo
