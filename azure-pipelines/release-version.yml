@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger: none
-pr: none
+#pr: none
 schedules:
   - cron: "30 22 * * 0"
     displayName: Weekly Sunday build
