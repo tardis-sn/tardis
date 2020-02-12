@@ -21,55 +21,57 @@ pool:
   vmImage: "ubuntu-latest"
 
 jobs:
-- job: zenodo_json
-  displayName: Create Zenodo JSON file
-  steps:
+  - job: zenodo_json
+    displayName: Create Zenodo JSON file
+    steps:
+      - task: DownloadSecureFile@1
+        name: zenodoSecretKey
+        displayName: "Download Zenodo secret key"
+        inputs:
+          secureFile: "key_secret.json"
 
-    - task: DownloadSecureFile@1
-      name: zenodoSecretKey
-      displayName: 'Download Zenodo secret key'
-      inputs:
-        secureFile: 'key_secret.json'
+      - task: DownloadSecureFile@1
+        name: authorOrder
+        displayName: "Download author order file"
+        inputs:
+          secureFile: "author_order.txt"
 
-    - task: DownloadSecureFile@1
-      name: authorOrder
-      displayName: 'Download author order file'
-      inputs:
-        secureFile: 'author_order.txt'
+      - task: DownloadSecureFile@1
+        name: nonCommitContributors
+        displayName: "Download non commit contributors file"
+        inputs:
+          secureFile: "non_commit_contributors.txt"
 
-    - task: DownloadSecureFile@1
-      name: nonCommitContributors
-      displayName: 'Download non commit contributors file'
-      inputs:
-        secureFile: 'non_commit_contributors.txt'
+      - bash: |
+          echo "##vso[task.prependpath]$CONDA/bin"
+          sudo chown -R $USER $CONDA
+        displayName: "Add CONDA to path"
 
-    - bash: |
-        echo "##vso[task.prependpath]$CONDA/bin"
-        sudo chown -R $USER $CONDA
-      displayName: "Add CONDA to path"
+      - bash: |
+          ls -r *
+        displayName: "Test step"
 
-    - bash: |
-        conda create -n zenodo python=3.6 --yes
-        source activate zenodo
-        conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
-      displayName: "Create Zenodo env"
+      - bash: |
+          conda create -n zenodo python=3.6 --yes
+          source activate zenodo
+          conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
+        displayName: "Create Zenodo env"
 
-    #- bash: |
-    #    source activate zenodo
-    #    git clone git@github.com:tardis-sn/tardis_zenodo.git
-    #  displayName: "Clone tardis_zenodo repo"
+      #- bash: |
+      #    source activate zenodo
+      #    git clone git@github.com:tardis-sn/tardis_zenodo.git
+      #  displayName: "Clone tardis_zenodo repo"
 
-    - bash: |
-        source activate zenodo
-        mkdir tardis_zenodo; cd tardis_zenodo
-        wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/eb107bc1d4bc1f612d67841b6511da7c9920aa15/gather_data.ipynb
-        cp $(zenodoSecretKey.secureFilePath) .
-        cp $(authorOrder.secureFilePath) .
-        cp $(nonCommitContributors.secureFilePath) .
-        jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
-        cat .zenodo.json
-      displayName: "Running gather_data notebook"
-
+      - bash: |
+          source activate zenodo
+          mkdir tardis_zenodo; cd tardis_zenodo
+          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/eb107bc1d4bc1f612d67841b6511da7c9920aa15/gather_data.ipynb
+          cp $(zenodoSecretKey.secureFilePath) .
+          cp $(authorOrder.secureFilePath) .
+          cp $(nonCommitContributors.secureFilePath) .
+          jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+          cat .zenodo.json
+        displayName: "Running gather_data notebook"
 #- job: gh_release
 #  displayName: Upload GitHub release
 #  dependsOn: zenodo_json
@@ -78,25 +80,25 @@ jobs:
 #        echo "##vso[task.prependpath]$CONDA/bin"
 #        sudo chown -R $USER $CONDA
 #      displayName: "Add CONDA to path"
-#  
+#
 #    - bash: |
 #        sh ci-helpers/install_tardis_env.sh
 #      displayName: "Install TARDIS env"
-#  
+#
 #    - bash: |
 #        source activate tardis
 #        python setup.py install
 #      displayName: "Build & install TARDIS"
-#  
+#
 #    - bash: |
 #        source activate tardis
 #        echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
 #      displayName: "Get TARDIS version number"
-#  
+#
 #    - bash: |
 #        echo $(VERSION)
 #      displayName: "Recover TARDIS version number"
-#  
+#
 #    - task: GitHubRelease@1
 #      inputs:
 #        gitHubConnection: "wkerzendorf"
