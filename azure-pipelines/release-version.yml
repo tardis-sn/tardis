@@ -48,10 +48,6 @@ jobs:
         displayName: "Add CONDA to path"
 
       - bash: |
-          ls -r *
-        displayName: "Test step"
-
-      - bash: |
           conda create -n zenodo python=3.6 --yes
           source activate zenodo
           conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
@@ -64,8 +60,8 @@ jobs:
 
       - bash: |
           source activate zenodo
-          mkdir tardis_zenodo; cd tardis_zenodo
-          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/eb107bc1d4bc1f612d67841b6511da7c9920aa15/gather_data.ipynb
+          cd ..; mkdir tardis_zenodo; cd tardis_zenodo
+          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/ae0d4ef5421ef150f43ef5ad5c85f38c3e9b866f/gather_data.ipynb
           cp $(zenodoSecretKey.secureFilePath) .
           cp $(authorOrder.secureFilePath) .
           cp $(nonCommitContributors.secureFilePath) .
