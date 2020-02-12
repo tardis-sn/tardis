@@ -60,15 +60,13 @@ jobs:
 
       - bash: |
           source activate zenodo
-          cd ..; mkdir tardis_zenodo; 
-          ls -r * 
-          cd tardis_zenodo
+          cd ..; mkdir tardis_zenodo
+          cd tardis_zenodo; pwd
           wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/ae0d4ef5421ef150f43ef5ad5c85f38c3e9b866f/gather_data.ipynb
           cp $(zenodoSecretKey.secureFilePath) .
           cp $(authorOrder.secureFilePath) .
           cp $(nonCommitContributors.secureFilePath) .
           jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
-          cat .zenodo.json
         displayName: "Running gather_data notebook"
 #- job: gh_release
 #  displayName: Upload GitHub release
