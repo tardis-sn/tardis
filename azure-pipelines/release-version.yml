@@ -60,9 +60,14 @@ jobs:
     #  displayName: "Clone tardis_zenodo repo"
 
     - bash: |
+        echo $(zenodoSecretKey.secureFilePath)
+        echo $(authorOrder.secureFilePath)
+        echo $(nonCommitContributors.secureFilePath)
+      displayName: "Test step"
+
+    - bash: |
         source activate zenodo
-        mkdir tardis_zenodo
-        cd tardis_zenodo
+        mkdir tardis_zenodo; cd tardis_zenodo
         wget https://gist.github.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8
         cp $(zenodoSecretKey.secureFilePath) .
         cp $(authorOrder.secureFilePath) .
