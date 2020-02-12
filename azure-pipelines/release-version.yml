@@ -76,6 +76,13 @@ jobs:
           targetPath: "$(tardis.zenodo.home)/.zenodo.json"
           artifact: "zenodo_json"
           publishLocation: "pipeline"
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(tardis.zenodo.home)/gather_data.html"
+          artifact: "report"
+          publishLocation: "pipeline"
+        condition: succeededOrFailed()
 #- job: gh_release
 #  displayName: Upload GitHub release
 #  dependsOn: zenodo_json
