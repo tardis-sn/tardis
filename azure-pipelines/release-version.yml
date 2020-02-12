@@ -54,11 +54,11 @@ jobs:
     - bash: |
         source activate tardis
         conda install -c conda-forge orcid --yes --no-update-deps
-      displayName: "Install ORCID Python package "
+      displayName: "Install ORCID package "
 
     - bash: |
         source activate tardis
-        git clone https://github.com/tardis-sn/tardis_zenodo.git
+        git clone git@github.com:tardis-sn/tardis_zenodo.git
       displayName: "Clone tardis_zenodo repo"
 
     - bash: |
