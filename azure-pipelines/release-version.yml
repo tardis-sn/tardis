@@ -60,7 +60,9 @@ jobs:
 
       - bash: |
           source activate zenodo
-          cd ..; mkdir tardis_zenodo; cd tardis_zenodo
+          cd ..; mkdir tardis_zenodo; 
+          ls -r * 
+          cd tardis_zenodo
           wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/ae0d4ef5421ef150f43ef5ad5c85f38c3e9b866f/gather_data.ipynb
           cp $(zenodoSecretKey.secureFilePath) .
           cp $(authorOrder.secureFilePath) .
