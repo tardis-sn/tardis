@@ -49,28 +49,30 @@ jobs:
       displayName: "Add CONDA to path"
 
     - bash: |
-        sh ci-helpers/install_tardis_env.sh
-      displayName: "Install TARDIS env"
+        conda create -n zenodo python=3.6
+        source activate zenodo
+        conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
+      displayName: "Create Zenodo env"
     
     - bash: |
-        source activate tardis
+        source activate zenodo
         conda install -c conda-forge orcid --yes --no-update-deps
       displayName: "Install ORCID package "
 
     #- bash: |
-    #    source activate tardis
+    #    source activate zenodo
     #    git clone git@github.com:tardis-sn/tardis_zenodo.git
     #  displayName: "Clone tardis_zenodo repo"
 
     - bash: |
-        source activate tardis
+        source activate zenodo
         mkdir tardis_zenodo
         cd tardis_zenodo
         wget https://gist.github.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8
         cp $(zenodoSecretKey.secureFilePath) .
         cp $(authorOrder.secureFilePath) .
         cp $(nonCommitContributors.secureFilePath) .
-        jupyter nbconvert gather_data.ipynb --execute --ExecutePreprocessor.timeout=6000
+        jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
         cat .zenodo.json
       displayName: "Running gather_data notebook"
 
