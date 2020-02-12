@@ -63,10 +63,11 @@ jobs:
           source activate zenodo
           cd ..; mkdir tardis_zenodo
           cd $(tardis.zenodo.home)
-          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/ae0d4ef5421ef150f43ef5ad5c85f38c3e9b866f/gather_data.ipynb
+          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/d71ca46ca1816f6f46c768314c2da59ed017861e/gather_data.ipynb
           cp $(zenodoSecretKey.secureFilePath) .
           cp $(authorOrder.secureFilePath) .
           cp $(nonCommitContributors.secureFilePath) .
+          jupyter nbconvert gather_data.ipynb --to html --allow-errors --execute --ExecutePreprocessor.timeout=6000
           jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
         displayName: "Running notebook"
 
