@@ -62,7 +62,7 @@ jobs:
     - bash: |
         source activate zenodo
         mkdir tardis_zenodo; cd tardis_zenodo
-        wget https://gist.github.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8
+        wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/eb107bc1d4bc1f612d67841b6511da7c9920aa15/gather_data.ipynb
         cp $(zenodoSecretKey.secureFilePath) .
         cp $(authorOrder.secureFilePath) .
         cp $(nonCommitContributors.secureFilePath) .
