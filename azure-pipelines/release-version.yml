@@ -22,6 +22,7 @@ pool:
 
 jobs:
 - job: zenodo_json
+  displayName: Create Zenodo JSON file
   steps:
 
     - task: DownloadSecureFile@1
@@ -41,6 +42,16 @@ jobs:
       displayName: 'Download non commit contributors file'
       inputs:
         secureFile: 'non_commit_contributors.txt'
+
+    - task: DownloadSecureFile@1
+      inputs: 
+        secureFile: 'id_azure_rsa'
+  
+    - task: InstallSSHKey@0
+      inputs:
+       knownHostsEntry: $(gh_host)
+       sshPublicKey: $(public_key)
+       sshKeySecureFile: 'id_azure_rsa'
 
     - bash: |
         echo "##vso[task.prependpath]$CONDA/bin"
@@ -72,6 +83,7 @@ jobs:
       displayName: "Running gather_data notebook"
 
 #- job: gh_release
+#  displayName: Upload GitHub release
 #  dependsOn: zenodo_json
 #  steps:
 #    - bash: |
