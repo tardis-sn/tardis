@@ -7,7 +7,7 @@ trigger: none
 #pr: none
 schedules:
   - cron: "30 22 * * 0"
-    displayName: Weekly Sunday build
+    displayName: Weekly build
     branches:
       include:
         - master
@@ -75,8 +75,13 @@ jobs:
           source activate zenodo
           cd $(tardis.zenodo.home)
           jupyter nbconvert gather_data.ipynb --to html --allow-errors --execute --ExecutePreprocessor.timeout=6000
+        displayName: "Running notebook (allow errors)"
+
+      - bash: |
+          source activate zenodo
+          cd $(tardis.zenodo.home)
           jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
-        displayName: "Running notebook"
+        displayName: "Running notebook (not allow errors)"
 
       - task: PublishPipelineArtifact@1
         inputs:
