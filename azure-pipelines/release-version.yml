@@ -46,8 +46,8 @@ jobs:
       - task: DownloadSecureFile@1
         name: idAzureRSA
         inputs: 
+          secureFile: "id_azure_rsa"
         displayName: "Download Azure keys"
-          secureFile: 'id_azure_rsa'
 
       - task: InstallSSHKey@0
         inputs:
