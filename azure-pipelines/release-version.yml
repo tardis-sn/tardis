@@ -44,7 +44,6 @@ jobs:
           secureFile: "non_commit_contributors.txt"
 
       - task: DownloadSecureFile@1
-        name: idAzureRSA
         inputs: 
           secureFile: "id_azure_rsa"
         displayName: "Download Azure keys"
@@ -53,7 +52,7 @@ jobs:
         inputs:
          knownHostsEntry: $(gh_host)
          sshPublicKey: $(public_key)
-         sshKeySecureFile: idAzureRSA
+         sshKeySecureFile: "id_azure_rsa"
         displayName: "Install SSH keys"
 
       - bash: |
