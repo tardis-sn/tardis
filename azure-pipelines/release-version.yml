@@ -95,11 +95,6 @@ jobs:
           artifact: "report"
           publishLocation: "pipeline"
         condition: succeededOrFailed()
-
-      #- bash: |
-      #    git clone git@github.com:tardis-sn/tardis_zenodo.git temp
-      #  condition: succeededOrFailed()
-      #  displayName: "Test step"
         
 #- job: gh_release
 #  displayName: Upload GitHub release
