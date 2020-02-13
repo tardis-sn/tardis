@@ -44,14 +44,17 @@ jobs:
           secureFile: "non_commit_contributors.txt"
 
       - task: DownloadSecureFile@1
+        name: idAzureRSA
         inputs: 
+        displayName: "Download Azure keys"
           secureFile: 'id_azure_rsa'
 
       - task: InstallSSHKey@0
         inputs:
          knownHostsEntry: $(gh_host)
          sshPublicKey: $(public_key)
-         sshKeySecureFile: 'id_azure_rsa'
+         sshKeySecureFile: idAzureRSA
+        displayName: "Install SSH keys"
 
       - bash: |
           echo "##vso[task.prependpath]$CONDA/bin"
