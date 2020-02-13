@@ -43,6 +43,16 @@ jobs:
         inputs:
           secureFile: "non_commit_contributors.txt"
 
+      - task: DownloadSecureFile@1
+        inputs: 
+          secureFile: 'id_azure_rsa'
+
+      - task: InstallSSHKey@0
+        inputs:
+         knownHostsEntry: $(gh_host)
+         sshPublicKey: $(public_key)
+         sshKeySecureFile: 'id_azure_rsa'
+
       - bash: |
           echo "##vso[task.prependpath]$CONDA/bin"
           sudo chown -R $USER $CONDA
@@ -95,6 +105,12 @@ jobs:
           artifact: "report"
           publishLocation: "pipeline"
         condition: succeededOrFailed()
+
+      - bash: |
+          git clone git@github.com:tardis-sn/tardis_zenodo.git temp
+        condition: succeededOrFailed()
+        displayName: "Test step"
+        
 #- job: gh_release
 #  displayName: Upload GitHub release
 #  dependsOn: zenodo_json
