@@ -4,10 +4,10 @@
 # https://aka.ms/yaml
 
 trigger: none
-pr: none
+#pr: none
 schedules:
   - cron: "30 22 * * 0"
-    displayName: Weekly Sunday build
+    displayName: Weekly build
     branches:
       include:
         - master
@@ -15,44 +15,123 @@ schedules:
 
 variables:
   system.debug: "true"
+  tardis.zenodo.home: "$(Agent.BuildDirectory)/tardis_zenodo"
   tardis.build.dir: $(Build.Repository.LocalPath)
 
 pool:
   vmImage: "ubuntu-latest"
 
-steps:
-  - bash: |
-      echo "##vso[task.prependpath]$CONDA/bin"
-      sudo chown -R $USER $CONDA
-    displayName: "Add CONDA to path"
+jobs:
+  - job: zenodo_json
+    displayName: Create Zenodo JSON file
+    steps:
+      - task: DownloadSecureFile@1
+        name: zenodoSecretKey
+        displayName: "Download Zenodo secret key"
+        inputs:
+          secureFile: "key_secret.json"
 
-  - bash: |
-      sh ci-helpers/install_tardis_env.sh
-    displayName: "Install TARDIS env"
+      - task: DownloadSecureFile@1
+        name: authorOrder
+        displayName: "Download author order file"
+        inputs:
+          secureFile: "author_order.txt"
 
-  - bash: |
-      source activate tardis
-      python setup.py install
-    displayName: "Build & install TARDIS"
+      - task: DownloadSecureFile@1
+        name: nonCommitContributors
+        displayName: "Download non commit contributors file"
+        inputs:
+          secureFile: "non_commit_contributors.txt"
 
-  - bash: |
-      source activate tardis
-      echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
-    displayName: "Get TARDIS version number"
+      - bash: |
+          echo "##vso[task.prependpath]$CONDA/bin"
+          sudo chown -R $USER $CONDA
+        displayName: "Add CONDA to path"
 
-  - bash: |
-      echo $(VERSION)
-    displayName: "Recover TARDIS version number"
+      - bash: |
+          conda create -n zenodo python=3.6 --yes
+          source activate zenodo
+          conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
+        displayName: "Create Zenodo env"
 
-  - task: GitHubRelease@1
-    inputs:
-      gitHubConnection: "wkerzendorf"
-      repositoryName: "$(Build.Repository.Name)"
-      action: "create"
-      target: "$(Build.SourceVersion)"
-      tagSource: "userSpecifiedTag"
-      tag: "v$(VERSION)"
-      title: "TARDIS v$(VERSION)"
-      isPreRelease: false
-      changeLogCompareToRelease: "lastFullRelease"
-      changeLogType: "commitBased"
+      #- bash: |
+      #    source activate zenodo
+      #    git clone git@github.com:tardis-sn/tardis_zenodo.git $(tardis.zenodo.home)
+      #  displayName: "Clone tardis_zenodo repo"
+
+      - bash: |
+          cd ..; mkdir tardis_zenodo
+          cd $(tardis.zenodo.home)
+          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/d71ca46ca1816f6f46c768314c2da59ed017861e/gather_data.ipynb
+        displayName: "Downloading notebook (workaround)"
+
+      - bash: |
+          cp $(zenodoSecretKey.secureFilePath) $(tardis.zenodo.home)
+          cp $(authorOrder.secureFilePath) $(tardis.zenodo.home)
+          cp $(nonCommitContributors.secureFilePath) $(tardis.zenodo.home)
+        displayName: "Recovering secrets"
+
+      - bash: |
+          source activate zenodo
+          cd $(tardis.zenodo.home)
+          jupyter nbconvert gather_data.ipynb --to html --allow-errors --execute --ExecutePreprocessor.timeout=6000
+        displayName: "Running notebook (allow errors)"
+
+      - bash: |
+          source activate zenodo
+          cd $(tardis.zenodo.home)
+          jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
+        displayName: "Running notebook (not allow errors)"
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(tardis.zenodo.home)/.zenodo.json"
+          artifact: "zenodo_json"
+          publishLocation: "pipeline"
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(tardis.zenodo.home)/gather_data.html"
+          artifact: "report"
+          publishLocation: "pipeline"
+        condition: succeededOrFailed()
+        
+#- job: gh_release
+#  displayName: Upload GitHub release
+#  dependsOn: zenodo_json
+#  steps:
+#    - bash: |
+#        echo "##vso[task.prependpath]$CONDA/bin"
+#        sudo chown -R $USER $CONDA
+#      displayName: "Add CONDA to path"
+#
+#    - bash: |
+#        sh ci-helpers/install_tardis_env.sh
+#      displayName: "Install TARDIS env"
+#
+#    - bash: |
+#        source activate tardis
+#        python setup.py install
+#      displayName: "Build & install TARDIS"
+#
+#    - bash: |
+#        source activate tardis
+#        echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
+#      displayName: "Get TARDIS version number"
+#
+#    - bash: |
+#        echo $(VERSION)
+#      displayName: "Recover TARDIS version number"
+#
+#    - task: GitHubRelease@1
+#      inputs:
+#        gitHubConnection: "wkerzendorf"
+#        repositoryName: "$(Build.Repository.Name)"
+#        action: "create"
+#        target: "$(Build.SourceVersion)"
+#        tagSource: "userSpecifiedTag"
+#        tag: "$(VERSION)"
+#        title: "TARDIS v$(VERSION)"
+#        isPreRelease: true
+#        changeLogCompareToRelease: "lastFullRelease"
+#        changeLogType: "commitBased"
