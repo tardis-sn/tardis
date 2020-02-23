@@ -79,11 +79,17 @@ jobs:
           jupyter nbconvert gather_data.ipynb --to html --execute --ExecutePreprocessor.timeout=6000
         displayName: "Running notebook (not allow errors)"
 
+      # This step should fail if there are changes in .zenodo.json
+      - bash: |
+          diff $(tardis.zenodo.json)/.zenodo.json $(tardis.build.dir)/.zenodo.json
+        displayName: "Look for changes in JSON"
+
       - task: PublishPipelineArtifact@1
         inputs:
           targetPath: "$(tardis.zenodo.home)/.zenodo.json"
           artifact: "zenodo_json"
           publishLocation: "pipeline"
+        condition: succeededOrFailed()
 
       - task: PublishPipelineArtifact@1
         inputs:
