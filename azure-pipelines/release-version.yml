@@ -5,7 +5,7 @@
 
 trigger: none
 pr: 
-  - release-pipeline-fix-2
+  - master
 schedules:
   - cron: "30 22 * * 0"
     displayName: Weekly build
