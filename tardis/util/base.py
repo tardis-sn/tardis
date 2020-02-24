@@ -2,7 +2,7 @@ import logging
 import os
 import re
 from collections import OrderedDict
-
+import numexpr as ne
 import numpy as np
 import pandas as pd
 import yaml
@@ -12,7 +12,8 @@ from pyne import nucname
 
 import tardis
 from tardis.io.util import get_internal_data_path
-from numba import jit
+from numba import njit,float64
+import numba as nb
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -242,33 +243,33 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     with open(fname, 'w') as f:
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
-@jit
-def intensity_black_body(nu, T):
+@njit
+def intensity_black_body(nu, T,):
+    
     """
     Calculate the intensity of a black-body according to the following formula
 
     .. math::
-        I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}
-        {e^{h\\nu \\beta_\\textrm{rad}} - 1}
+	I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}
+	{e^{h\\nu \\beta_\\textrm{rad}} - 1}
 
     Parameters
     ----------
     nu: float
-        Frequency of light
+	Frequency of light
     T: float
-        Temperature in kelvin
+	Temperature in kelvin
 
     Returns
     -------
     Intensity: float
-        Returns the intensity of the black body
+	Returns the intensity of the black body
     """
-    beta_rad = 1 / (k_B_cgs * T)
-    coefficient = 2 * h_cgs / c_cgs ** 2
+    beta_rad = 1.0 / (k_B_cgs * T) 
+    coefficient = 2.0 * h_cgs / c_cgs ** 2
     intensity = coefficient * nu**3 / (np.exp(h_cgs * nu * beta_rad) -1 )
+
     return intensity
-
-
 def species_tuple_to_string(species_tuple, roman_numerals=True):
     """
     Convert a species tuple to its corresponding string representation.
