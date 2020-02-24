@@ -99,6 +99,10 @@ jobs:
           artifact: "report"
           publishLocation: "pipeline"
         condition: succeededOrFailed()
+
+      - bash: ls -r 
+        displayName: "Check file location"
+        condition: succeededOrFailed()
 #
 #  - job: gh_release
 #    displayName: Upload GitHub release
