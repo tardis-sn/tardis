@@ -4,8 +4,7 @@
 # https://aka.ms/yaml
 
 trigger: none
-pr: 
-  - master
+pr: none
 schedules:
   - cron: "30 22 * * 0"
     displayName: Weekly build
@@ -99,44 +98,42 @@ jobs:
           publishLocation: "pipeline"
         condition: succeededOrFailed()
 
-#
-#  - job: gh_release
-#    displayName: Upload GitHub release
-#    dependsOn: zenodo_json
-#    steps:
-#      - bash: |
-#          echo "##vso[task.prependpath]$CONDA/bin"
-#          sudo chown -R $USER $CONDA
-#        displayName: "Add CONDA to path"
-#
-#      - bash: |
-#          sh ci-helpers/install_tardis_env.sh
-#        displayName: "Install TARDIS env"
-#
-#      - bash: |
-#          source activate tardis
-#          python setup.py install
-#        displayName: "Build & install TARDIS"
-#
-#      - bash: |
-#          source activate tardis
-#          echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
-#        displayName: "Get TARDIS version number"
-#
-#      - bash: |
-#          echo $(VERSION)
-#        displayName: "Recover TARDIS version number"
-#
-#      - task: GitHubRelease@1
-#        inputs:
-#          gitHubConnection: "wkerzendorf"
-#          repositoryName: "$(Build.Repository.Name)"
-#          action: "create"
-#          target: "$(Build.SourceVersion)"
-#          tagSource: "userSpecifiedTag"
-#          tag: "v$(VERSION)"
-#          title: "TARDIS v$(VERSION)"
-#          isPreRelease: false
-#          changeLogCompareToRelease: "lastFullRelease"
-#          changeLogType: "commitBased"
-#
+  - job: gh_release
+    displayName: Upload GitHub release
+    dependsOn: zenodo_json
+    steps:
+      - bash: |
+          echo "##vso[task.prependpath]$CONDA/bin"
+          sudo chown -R $USER $CONDA
+        displayName: "Add CONDA to path"
+
+      - bash: |
+          sh ci-helpers/install_tardis_env.sh
+        displayName: "Install TARDIS env"
+
+      - bash: |
+          source activate tardis
+          python setup.py install
+        displayName: "Build & install TARDIS"
+
+      - bash: |
+          source activate tardis
+          echo "##vso[task.setvariable variable=version]$(python -c 'import tardis; print(tardis.__version__)')"
+        displayName: "Get TARDIS version number"
+
+      - bash: |
+          echo $(VERSION)
+        displayName: "Recover TARDIS version number"
+
+      - task: GitHubRelease@1
+        inputs:
+          gitHubConnection: "wkerzendorf"
+          repositoryName: "$(Build.Repository.Name)"
+          action: "create"
+          target: "$(Build.SourceVersion)"
+          tagSource: "userSpecifiedTag"
+          tag: "v$(VERSION)"
+          title: "TARDIS v$(VERSION)"
+          isPreRelease: false
+          changeLogCompareToRelease: "lastFullRelease"
+          changeLogType: "commitBased"
