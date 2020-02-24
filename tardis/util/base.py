@@ -265,8 +265,7 @@ def intensity_black_body(nu, T):
     """
     beta_rad = 1 / (k_B_cgs * T)
     coefficient = 2 * h_cgs / c_cgs ** 2
-    intensity = coefficient * nu**3 / 
-                            (np.exp(h_cgs * nu * beta_rad) -1 )
+    intensity = coefficient * nu**3 / (np.exp(h_cgs * nu * beta_rad) -1 )
     return intensity
 
 
