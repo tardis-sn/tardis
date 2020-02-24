@@ -2,7 +2,6 @@ import logging
 import os
 import re
 from collections import OrderedDict
-import numexpr as ne
 import numpy as np
 import pandas as pd
 import yaml
@@ -12,8 +11,7 @@ from pyne import nucname
 
 import tardis
 from tardis.io.util import get_internal_data_path
-from numba import njit,float64
-import numba as nb
+from numba import njit
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
@@ -270,6 +268,8 @@ def intensity_black_body(nu, T,):
     intensity = coefficient * nu**3 / (np.exp(h_cgs * nu * beta_rad) -1 )
 
     return intensity
+
+
 def species_tuple_to_string(species_tuple, roman_numerals=True):
     """
     Convert a species tuple to its corresponding string representation.
