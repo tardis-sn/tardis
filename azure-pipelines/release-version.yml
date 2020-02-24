@@ -16,7 +16,6 @@ schedules:
 
 variables:
   system.debug: "true"
-  tardis.repo.home: "$(Agent.BuildDirectory)/tardis"
   tardis.zenodo.home: "$(Agent.BuildDirectory)/tardis_zenodo"
   tardis.build.dir: $(Build.Repository.LocalPath)
 
@@ -83,7 +82,7 @@ jobs:
 
       # This step should fail if there are changes in .zenodo.json
       - bash: |
-          diff $(tardis.zenodo.json)/.zenodo.json $(tardis.repo.home)/.zenodo.json
+          diff $(tardis.zenodo.json)/.zenodo.json .zenodo.json
         displayName: "Look for changes in JSON"
 
       - task: PublishPipelineArtifact@1
@@ -100,7 +99,7 @@ jobs:
           publishLocation: "pipeline"
         condition: succeededOrFailed()
 
-      - bash: ls -r 
+      - bash: ls -r *
         displayName: "Check file location"
         condition: succeededOrFailed()
 #
