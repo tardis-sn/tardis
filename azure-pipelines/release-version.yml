@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger: none
-pr: none
+pr: release-pipeline-fix-2
 schedules:
   - cron: "30 22 * * 0"
     displayName: Weekly build
