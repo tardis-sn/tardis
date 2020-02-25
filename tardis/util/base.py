@@ -10,10 +10,10 @@ import yaml
 from tardis import constants
 from astropy import units as u
 from pyne import nucname
-from numba import jit
 
 import tardis
 from tardis.io.util import get_internal_data_path
+from numba import njit
 
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
