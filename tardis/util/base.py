@@ -241,7 +241,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     with open(fname, 'w') as f:
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
-@njit
+@njit(error_model='numpy')
 def intensity_black_body(nu, T,):
     
     """
