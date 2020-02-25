@@ -3,7 +3,7 @@ import os
 import re
 from collections import OrderedDict
 
-import numexpr as ne
+# import numexpr as ne
 import numpy as np
 import pandas as pd
 import yaml
@@ -243,7 +243,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     with open(fname, 'w') as f:
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
-@jit(nopython=True)
+@njit( error_model = 'numpy')
 def intensity_black_body(nu, T):
     """
     Calculate the intensity of a black-body according to the following formula
@@ -268,7 +268,7 @@ def intensity_black_body(nu, T):
     coefficient = 2 * h_cgs / c_cgs ** 2
     intensity = coefficient * nu ** 3 / 
                     (np.exp(h_cgs * nu * beta_rad) - 1)
-    
+
     return intensity
 
 
