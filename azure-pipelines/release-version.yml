@@ -81,7 +81,7 @@ jobs:
 
       # This step should fail if there are changes in .zenodo.json
       - bash: |
-          diff $(tardis.zenodo.json)/.zenodo.json $(tardis.build.dir)/.zenodo.json
+          diff $(tardis.zenodo.home)/.zenodo.json .zenodo.json
         displayName: "Look for changes in JSON"
 
       - task: PublishPipelineArtifact@1
