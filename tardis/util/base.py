@@ -122,7 +122,7 @@ def roman_to_int(roman_string):
         raise ValueError('Can not interpret Roman Numeral {0}'.format(roman_string))
     return result
 
-
+@njit(error_model = 'numpy')
 def calculate_luminosity(
         spec_fname, distance, wavelength_column=0,
         wavelength_unit=u.angstrom, flux_column=1,
