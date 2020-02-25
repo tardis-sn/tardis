@@ -3,13 +3,15 @@ import os
 import re
 from collections import OrderedDict
 
-import numexpr as ne
+# import numexpr as ne
 import numpy as np
 import pandas as pd
 import yaml
 from tardis import constants
 from astropy import units as u
 from pyne import nucname
+
+from numba import njit
 
 import tardis
 from tardis.io.util import get_internal_data_path
@@ -243,6 +245,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
 
+@njit
 def intensity_black_body(nu, T):
     """
     Calculate the intensity of a black-body according to the following formula
@@ -263,10 +266,9 @@ def intensity_black_body(nu, T):
     Intensity: float
         Returns the intensity of the black body
     """
-    beta_rad = 1 / (k_B_cgs * T)
-    coefficient = 2 * h_cgs / c_cgs ** 2
-    intensity = ne.evaluate('coefficient * nu**3 / '
-                            '(exp(h_cgs * nu * beta_rad) -1 )')
+    beta_rad = 1.0 / (k_B_cgs * T)
+    coefficient = 2.0 * h_cgs / c_cgs ** 2
+    intensity = coefficient * nu**3 / (np.exp(h_cgs * nu * beta_rad) - 1)
     return intensity
 
 
