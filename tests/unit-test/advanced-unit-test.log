@@ -1,0 +1,64 @@
+running test
+installing to temporary directory: /tmp/tardis-test-93o9wwj8
+============================= test session starts ==============================
+platform linux -- Python 3.6.7, pytest-4.6.4, py-1.8.1, pluggy-0.12.0 -- /home/ashwin/anaconda3/envs/tardis/bin/python
+cachedir: .pytest_cache
+
+Running tests with tardis version 3.0.dev3404.
+Running tests in tardis docs.
+
+Date: 2020-02-24T21:14:57
+
+Platform: Linux-4.15.0-88-generic-x86_64-with-debian-buster-sid
+
+Executable: /home/ashwin/anaconda3/envs/tardis/bin/python
+
+Full Python Version: 
+3.6.7 | packaged by conda-forge | (default, Nov  6 2019, 16:19:42) 
+[GCC 7.3.0]
+
+encodings: sys: utf-8, locale: UTF-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Numpy: 1.16.0
+Scipy: 1.2.1
+Matplotlib: 3.0.2
+h5py: 2.9.0
+Pandas: 0.24.0
+Astropy: 3.2.1
+Yaml: 5.1.2
+Cython: 0.29.15
+Ipython: 7.2.0
+astropy_helpers: 3.2.1
+Using Astropy options: remote_data: none.
+
+metadata: {'Python': '3.6.7', 'Platform': 'Linux-4.15.0-88-generic-x86_64-with-debian-buster-sid', 'Packages': {'pytest': '4.6.4', 'py': '1.8.1', 'pluggy': '0.12.0'}, 'Plugins': {'metadata': '1.8.0', 'cov': '2.8.1', 'arraydiff': '0.3', 'remotedata': '0.3.1', 'openfiles': '0.4.0', 'html': '1.22.0', 'doctestplus': '0.4.0', 'astropy-header': '0.1.2', 'hypothesis': '5.5.4'}, 'JAVA_HOME': '/usr/lib/jvm/jdk-11.0.1'}
+hypothesis profile 'default' -> database=DirectoryBasedExampleDatabase('/tmp/tardis-test-93o9wwj8/lib/python3.6/site-packages/.hypothesis/examples')
+rootdir: /tmp/tardis-test-93o9wwj8/lib/python3.6/site-packages, inifile: setup.cfg
+plugins: metadata-1.8.0, cov-2.8.1, arraydiff-0.3, remotedata-0.3.1, openfiles-0.4.0, html-1.22.0, doctestplus-0.4.0, astropy-header-0.1.2, hypothesis-5.5.4
+collecting ... collected 1382 items
+
+tardis/io/tests/test_HDFWriter.py::test_simple_write[1.5] PASSED
+tardis/io/tests/test_HDFWriter.py::test_simple_write[random_string] PASSED
+tardis/io/tests/test_HDFWriter.py::test_simple_write[42000000.0] PASSED
+tardis/io/tests/test_HDFWriter.py::test_complex_obj_write[attr0] PASSED
+tardis/io/tests/test_HDFWriter.py::test_complex_obj_write[attr1] PASSED
+tardis/io/tests/test_HDFWriter.py::test_complex_obj_write[attr2] PASSED
+tardis/io/tests/test_HDFWriter.py::test_MultiIndex_write PASSED
+tardis/io/tests/test_HDFWriter.py::test_quantity_objects_write[attr0] PASSED
+tardis/io/tests/test_HDFWriter.py::test_quantity_objects_write[attr1] PASSED
+tardis/io/tests/test_HDFWriter.py::test_scalar_quantity_objects_write[1.5] PASSED
+tardis/io/tests/test_HDFWriter.py::test_scalar_quantity_objects_write[42000000.0] PASSED
+tardis/io/tests/test_HDFWriter.py::test_none_write PASSED
+tardis/io/tests/test_HDFWriter.py::test_objects_write[attr0] PASSED
+tardis/io/tests/test_HDFWriter.py::test_objects_write[attr1] PASSED
+tardis/io/tests/test_HDFWriter.py::test_snake_case PASSED
+tardis/io/tests/test_ascii_readers.py::test_simple_ascii_density_reader_time PASSED
+tardis/io/tests/test_ascii_readers.py::test_simple_ascii_density_reader_data PASSED
+tardis/io/tests/test_ascii_readers.py::test_simple_ascii_abundance_reader PASSED
+tardis/io/tests/test_ascii_readers.py::test_ascii_reader_invalid_volumes PASSED
+tardis/io/tests/test_atomic.py::test_atom_data_basic_atom_data 
+
+! _pytest.outcomes.Exit: tardis-refdata-master/atom_data/kurucz_cd23_chianti_H_He.h5 atomic datafiles does not seem to exist !
+========================== 19 passed in 9.05 seconds ===========================

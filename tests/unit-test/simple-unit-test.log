@@ -1,0 +1,85 @@
+running test
+installing to temporary directory: /tmp/tardis-test-5exl6xmv
+============================= test session starts ==============================
+platform linux -- Python 3.6.7, pytest-4.6.4, py-1.8.1, pluggy-0.12.0
+
+Running tests with tardis version 3.0.dev3404.
+Running tests in tardis docs.
+
+Date: 2020-02-24T21:12:29
+
+Platform: Linux-4.15.0-88-generic-x86_64-with-debian-buster-sid
+
+Executable: /home/ashwin/anaconda3/envs/tardis/bin/python
+
+Full Python Version: 
+3.6.7 | packaged by conda-forge | (default, Nov  6 2019, 16:19:42) 
+[GCC 7.3.0]
+
+encodings: sys: utf-8, locale: UTF-8, filesystem: utf-8
+byteorder: little
+float info: dig: 15, mant_dig: 15
+
+Numpy: 1.16.0
+Scipy: 1.2.1
+Matplotlib: 3.0.2
+h5py: 2.9.0
+Pandas: 0.24.0
+Astropy: 3.2.1
+Yaml: 5.1.2
+Cython: 0.29.15
+Ipython: 7.2.0
+astropy_helpers: 3.2.1
+Using Astropy options: remote_data: none.
+
+rootdir: /tmp/tardis-test-5exl6xmv/lib/python3.6/site-packages, inifile: setup.cfg
+plugins: metadata-1.8.0, cov-2.8.1, arraydiff-0.3, remotedata-0.3.1, openfiles-0.4.0, html-1.22.0, doctestplus-0.4.0, astropy-header-0.1.2, hypothesis-5.5.4
+collected 1382 items
+
+tardis/io/tests/test_HDFWriter.py ...............                        [  1%]
+tardis/io/tests/test_ascii_readers.py ....                               [  1%]
+tardis/io/tests/test_atomic.py sssss                                     [  1%]
+tardis/io/tests/test_config_reader.py ..                                 [  1%]
+tardis/io/tests/test_configuration_namespace.py .........                [  2%]
+tardis/io/tests/test_csvy_reader.py ....                                 [  2%]
+tardis/io/tests/test_decay.py ..                                         [  2%]
+tardis/io/tests/test_model_reader.py ......                              [  3%]
+tardis/model/tests/test_base.py ssssssssssssssssssssssss                 [  5%]
+tardis/model/tests/test_csvy_model.py .......                            [  5%]
+tardis/model/tests/test_density.py ss                                    [  5%]
+tardis/montecarlo/tests/test_base.py sssssssssss                         [  6%]
+tardis/montecarlo/tests/test_cmontecarlo.py ............................ [  8%]
+...................ssssss..............x................................ [ 13%]
+............s                                                            [ 14%]
+tardis/montecarlo/tests/test_formal_integral.py .......s................ [ 16%]
+........                                                                 [ 17%]
+tardis/montecarlo/tests/test_packet_source.py s                          [ 17%]
+tardis/montecarlo/tests/test_spectrum.py ............................... [ 19%]
+..                                                                       [ 19%]
+tardis/plasma/tests/test_complete_plasmas.py sssssssssssssssssssssssssss [ 21%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 26%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 31%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 37%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 42%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 47%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 52%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 57%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 63%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 68%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 73%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 78%]
+sssssssssssssssssssssssssssssssssssssssss                                [ 81%]
+tardis/plasma/tests/test_hdf_plasma.py sssssssssssssssssssssssssssssssss [ 84%]
+sssssss                                                                  [ 84%]
+tardis/plasma/tests/test_plasma_vboundary.py sssssssssssss               [ 85%]
+tardis/plasma/tests/test_plasmas_full.py ssss                            [ 85%]
+tardis/plasma/tests/test_tardis_model_density_config.py ss               [ 86%]
+tardis/simulation/tests/test_simulation.py ssssssssssss                  [ 86%]
+tardis/tests/test_tardis_full.py ssss                                    [ 87%]
+tardis/tests/test_tardis_full_formal_integral.py ssssssssssss            [ 88%]
+tardis/tests/test_util.py .............................................  [ 91%]
+tardis/tests/integration_tests/test_integration.py sssssssssssssssssssss [ 92%]
+ssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss [ 98%]
+sssssssssssssssssssssssssss                                              [100%]
+
+============= 263 passed, 1118 skipped, 1 xfailed in 23.65 seconds =============
