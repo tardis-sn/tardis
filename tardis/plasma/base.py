@@ -211,16 +211,16 @@ class BasePlasma(PlasmaWriterMixin):
         print_graph = self.graph.copy()
         print_graph = self.remove_hidden_properties(print_graph)
         for node in print_graph:
-            print_graph.node[str(node)]['label'] = node
+            print_graph._node[str(node)]['label'] = node
             if hasattr(self.plasma_properties_dict[node],
                 'latex_formula'):
                 formulae = self.plasma_properties_dict[node].latex_formula
                 for output in range(0, len(formulae)):
                     formula = formulae[output]
                     label = formula.replace('\\', '\\\\')
-                    print_graph.node[str(node)]['label']+='\\n$'
-                    print_graph.node[str(node)]['label']+=label
-                    print_graph.node[str(node)]['label']+='$'
+                    print_graph._node[str(node)]['label']+='\$'
+                    print_graph._node[str(node)]['label']+=label
+                    print_graph._node[str(node)]['label']+='\$'
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
