@@ -34,6 +34,7 @@ assistance.
 
 .. toctree::
     :maxdepth: 2
+    :caption: Installation
     :hidden:
 
     installation

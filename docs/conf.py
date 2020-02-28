@@ -52,7 +52,9 @@ extensions = [
     'nbsphinx',
     'sphinx-jsonschema',
     'recommonmark',
-    'sphinxcontrib.apidoc'
+    'sphinxcontrib.apidoc',
+    'sphinx_copybutton',
+    'sphinx_rtd_theme'
 ]
 
 source_suffix = {
@@ -80,7 +82,7 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 exclude_patterns = ['_build', '_templates',  '**.ipynb_checkpoints']
 #exclude_patterns.append('_templates')
-
+nbsphinx_execute = 'never'
 # This is added to the end of RST files - a good place to put substitutions to
 # be used globally.
 rst_epilog = """
