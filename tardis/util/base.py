@@ -242,8 +242,8 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     with open(fname, 'w') as f:
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
-@njit(error_model = 'numpy')
-def intensity_black_body(nu, T):
+@njit(fastmath = True)
+def intensity_black_body_value(nu, T):
     """
     Calculate the intensity of a black-body according to the following formula
 
@@ -263,10 +263,16 @@ def intensity_black_body(nu, T):
     Intensity: float
         Returns the intensity of the black body
     """
-    beta_rad = 1 / (k_B_cgs * T)
-    coefficient = 2 * h_cgs / c_cgs ** 2
+    beta_rad = 1.0 / (k_B_cgs * T)
+    coefficient = 2.0 * h_cgs / c_cgs ** 2
     intensity = coefficient * nu**3 / (np.exp(h_cgs * nu * beta_rad) -1 )
     return intensity
+
+def intensity_black_body(nu, T):
+    try:
+        return intensity_black_body_value(nu, T)
+    except ZeroDivisionError:
+        return np.nan
 
 
 def species_tuple_to_string(species_tuple, roman_numerals=True):
