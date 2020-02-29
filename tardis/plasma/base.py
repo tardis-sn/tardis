@@ -10,9 +10,9 @@ import pandas as pd
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from tardis.plasma.properties.base import *
 from tardis.io.util import PlasmaWriterMixin
-
+import cProfile
 logger = logging.getLogger(__name__)
-
+cProfile.run('base.py')
 class BasePlasma(PlasmaWriterMixin):
 
     outputs_dict = {}
