@@ -28,8 +28,8 @@ class Levels(BaseAtomicDataProperty):
              Statistical weights of atomic levels
     """
     outputs = ('levels', 'excitation_energy', 'metastability', 'g')
-    latex_name = ('\\textrm{levels}', '\\epsilon_{\\textrm{k}}', '\\textrm{metastability}',
-        'g')
+    latex_name = ('{levels}', '\\epsilon_{k}', '{metastability}',
+        '{g}')
 
     def _filter_atomic_property(self, levels, selected_atoms):
         return levels
@@ -57,6 +57,7 @@ class Lines(BaseAtomicDataProperty):
     """
 # Would like for lines to just be the line_id values
     outputs = ('lines', 'nu', 'f_lu', 'wavelength_cm')
+    latex_name = ('lines','\\nu','f_lu')
 
     def _filter_atomic_property(self, lines, selected_atoms):
         # return lines[lines.atomic_number.isin(selected_atoms)]
@@ -88,7 +89,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
     """
     outputs = ('photo_ion_cross_sections', 'photo_ion_block_references',
                'photo_ion_index')
-    latex_name = ('\\xi_{\\textrm{i}}(\\nu)', '', '')
+    latex_name = ('\\xi_{i}(\\nu)', '', '')
 
     def calculate(self, atomic_data, continuum_interaction_species):
         photoionization_data = atomic_data.photoionization_data.set_index(

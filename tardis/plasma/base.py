@@ -87,7 +87,6 @@ class BasePlasma(PlasmaWriterMixin):
                     position = self.outputs_dict[input].outputs.index(input)
                     label = self.outputs_dict[input].latex_name[position]
                     label = '$' + label + '$'
-                    label = label.replace('\\', '\\\\')
                 except:
                     label = input.replace('_', '-')
                 self.graph.add_edge(self.outputs_dict[input].name,
@@ -265,7 +264,6 @@ class BasePlasma(PlasmaWriterMixin):
                                 label = self.outputs_dict[
                                     input].latex_name[position]
                                 label = '$' + label + '$'
-                                label = label.replace('\\', '\\\\')
                             except:
                                 label = input.replace('_', '-')
                             self.graph.add_edge(self.outputs_dict[input].name,

@@ -13,7 +13,7 @@ class TRadiative(ArrayInput):
     t_rad : Numpy Array, dtype float
     """
     outputs = ('t_rad',)
-    latex_name = ('T_{\\textrm{rad}}',)
+    latex_name = ('T_{rad}',)
 
 
 class DilutionFactor(ArrayInput):
@@ -66,7 +66,7 @@ class TimeExplosion(Input):
                      Time since explosion in seconds
     """
     outputs = ('time_explosion',)
-    latex_name = ('t_{\\textrm{exp}}',)
+    latex_name = ('t_{exp}',)
 
 
 class JBlueEstimator(ArrayInput):
@@ -76,7 +76,7 @@ class JBlueEstimator(ArrayInput):
     j_blue_estimators : Numpy array
     """
     outputs = ('j_blue_estimators',)
-    latex_name = ('J_{\\textrm{blue-estimator}}',)
+    latex_name = ('J_{blue-estimator}',)
 
 
 class LinkTRadTElectron(Input):
@@ -88,7 +88,7 @@ class LinkTRadTElectron(Input):
                             Default is 0.9.
     """
     outputs = ('link_t_rad_t_electron',)
-    latex_name = ('T_{\\textrm{electron}}/T_{\\textrm{rad}}',)
+    latex_name = ('T_{electron}/T_{rad}',)
 
 
 class HeliumTreatment(Input):

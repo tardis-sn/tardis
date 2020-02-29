@@ -74,7 +74,7 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
                The rate coefficient for spontaneous recombination.
     """
     outputs = ('alpha_sp',)
-    latex_name = ('\\alpha^{\\textrm{sp}}',)
+    latex_name = ('\\alpha^{sp}',)
 
     def calculate(self, photo_ion_cross_sections, t_electrons,
                   photo_ion_block_references, photo_ion_index, phi_ik):

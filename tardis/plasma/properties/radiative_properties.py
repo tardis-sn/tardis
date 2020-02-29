@@ -88,9 +88,8 @@ class TauSobolev(ProcessingPlasmaProperty):
                   Columns as zones.
     """
     outputs = ('tau_sobolevs',)
-    latex_name = ('\\tau_{\\textrm{sobolev}}',)
-    latex_formula = ('\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}\
-        n_{lower} \\Big(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\Big)',)
+    latex_name = ('\\tau_{sobolev}',)
+    latex_formula = ('\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}n_{lower} \\Big(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\Big)',)
 
     def __init__(self, plasma_parent):
         super(TauSobolev, self).__init__(plasma_parent)
@@ -125,7 +124,7 @@ class BetaSobolev(ProcessingPlasmaProperty):
     beta_sobolev : Numpy Array, dtype float
     """
     outputs = ('beta_sobolev',)
-    latex_name = ('\\beta_{\\textrm{sobolev}}',)
+    latex_name = ('\\beta_{soboslev}',)
 
     def calculate(self, tau_sobolevs):
         if getattr(self, 'beta_sobolev', None) is None:

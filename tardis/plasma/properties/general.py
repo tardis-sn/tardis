@@ -20,8 +20,8 @@ class BetaRadiation(ProcessingPlasmaProperty):
     beta_rad : Numpy Array, dtype float
     """
     outputs = ('beta_rad',)
-    latex_name = ('\\beta_{\\textrm{rad}}',)
-    latex_formula = ('\\dfrac{1}{k_{B} T_{\\textrm{rad}}}',)
+    latex_name = ('\\beta_{rad}',)
+    latex_formula = ('\\dfrac{1}{k_{B} T_{rad}}',)
 
     def __init__(self, plasma_parent):
         super(BetaRadiation, self).__init__(plasma_parent)
@@ -37,9 +37,8 @@ class GElectron(ProcessingPlasmaProperty):
     g_electron : Numpy Array, dtype float
     """
     outputs = ('g_electron',)
-    latex_name = ('g_{\\textrm{electron}}',)
-    latex_formula = ('\\Big(\\dfrac{2\\pi m_{e}/\
-                     \\beta_{\\textrm{rad}}}{h^2}\\Big)^{3/2}',)
+    latex_name = ('g_{electron}',)
+    latex_formula = ('\\Big(\\dfrac{2\\pi m_{e}/\\beta_{rad}{h^2}\\Big)^{3/2}',)
 
     def calculate(self, beta_rad):
         return ((2 * np.pi * const.m_e.cgs.value / beta_rad) /
@@ -53,9 +52,8 @@ class ThermalGElectron(GElectron):
     thermal_g_electron : Numpy Array, dtype float
     """
     outputs = ('thermal_g_electron',)
-    latex_name = ('g_{\\textrm{electron_thermal}}',)
-    latex_formula = ('\\Big(\\dfrac{2\\pi m_{e}/\
-                     \\beta_{\\textrm{electron}}}{h^2}\\Big)^{3/2}',)
+    latex_name = ('g_{electron_thermal}',)
+    latex_formula = ('\\Big(\\dfrac{2\\pi m_{e}/\\beta_{electron}{h^2}\\Big)^{3/2}',)
 
     def calculate(self, beta_electron):
         return super(ThermalGElectron, self).calculate(beta_electron)
@@ -95,8 +93,8 @@ class ElectronTemperature(ProcessingPlasmaProperty):
     t_electron : Numpy Array, dtype float
     """
     outputs = ('t_electrons',)
-    latex_name = ('T_{\\textrm{electron}}',)
-    latex_formula = ('\\textrm{const.}\\times T_{\\textrm{rad}}',)
+    latex_name = ('T_{electron}',)
+    latex_formula = ('{const.}\\times T_{rad}',)
 
     def calculate(self, t_rad, link_t_rad_t_electron):
         return t_rad * link_t_rad_t_electron
@@ -108,8 +106,8 @@ class BetaElectron(ProcessingPlasmaProperty):
     beta_electron : Numpy Array, dtype float
     """
     outputs = ('beta_electron',)
-    latex_name = ('\\beta_{\\textrm{electron}}',)
-    latex_formula = ('\\frac{1}{K_{B} T_{\\textrm{electron}}}',)
+    latex_name = ('\\beta_{electron}',)
+    latex_formula = ('\\frac{1}{K_{B} T_{electron}',)
 
     def __init__(self, plasma_parent):
         super(BetaElectron, self).__init__(plasma_parent)

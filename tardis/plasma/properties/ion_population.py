@@ -35,10 +35,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
     """
     outputs = ('phi',)
     latex_name = ('\\Phi',)
-    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
-                     \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{rad}}}{h^2}\
-                     \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
-                     \\textrm{rad}}}}',)
+    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\\dfrac{2\\pi m_{e}/\\beta_{rad}}{h^2}\\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{rad}}}',)
 
     broadcast_ionization_energy = None
 
@@ -81,11 +78,8 @@ class ThermalPhiSahaLTE(PhiSahaLTE):
           Indexed by atomic number, ion number. Columns are zones.
     """
     outputs = ('thermal_phi_lte',)
-    latex_name = ('\\Phi^{*}(T_\\mathrm{e})',)
-    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\
-                     \\dfrac{2\\pi m_{e}/\\beta_{\\textrm{electron}}}{h^2}\
-                     \\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{\
-                     \\textrm{electron}}}}',)
+    latex_name = ('\\Phi^{*}(T_{\\mathrm{e}})',)
+    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\\dfrac{2\\pi m_{e}/\\beta_{electron}}{h^2}\\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{electron}}}',)
 
     @staticmethod
     def calculate(thermal_g_electron, beta_electron,
@@ -104,9 +98,7 @@ class PhiSahaNebular(ProcessingPlasmaProperty):
     """
     outputs = ('phi',)
     latex_name = ('\\Phi',)
-    latex_formula = ('W(\\delta\\zeta_{i,j}+W(1-\\zeta_{i,j}))\\left(\
-                     \\dfrac{T_{\\textrm{electron}}}{T_{\\textrm{rad}}}\
-                     \\right)^{1/2}',)
+    latex_formula = ('W(\\delta\\zeta_{i,j}+W(1-\\zeta_{i,j}))\\left(\\dfrac{T_{electron}}{T_{rad}}\\right)^{1/2}',)
     @staticmethod
     def calculate(t_rad, w, zeta_data, t_electrons, delta,
             g_electron, beta_rad, partition_function, ionization_data):

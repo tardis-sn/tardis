@@ -28,8 +28,7 @@ class LevelBoltzmannFactorLTE(ProcessingPlasmaProperty):
     """
     outputs = ('general_level_boltzmann_factor',)
     latex_name = ('bf_{i,j,k}',)
-    latex_formula = ('g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
-        \\textrm{B}}T_{\\textrm{rad}}}}',)
+    latex_formula = ('g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{B}T_{rad}}}',)
 
     @staticmethod
     def calculate(excitation_energy, g, beta_rad, levels):
@@ -55,9 +54,8 @@ class ThermalLevelBoltzmannFactorLTE(LevelBoltzmannFactorLTE):
                              Columns corresponding to zones.
     """
     outputs = ('thermal_lte_level_boltzmann_factor',)
-    latex_name = ('bf_{i,j,k}^{\\textrm{LTE}}(T_e)',)
-    latex_formula = ('g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
-        \\textrm{B}}T_{\\textrm{electron}}}}',)
+    latex_name = ('bf_{i,j,k}^{LTE}(T_e)',)
+    latex_formula = ('g_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{B}T_{electron}}}',)
 
     @staticmethod
     def calculate(excitation_energy, g, beta_electron, levels):
@@ -81,8 +79,7 @@ class LevelBoltzmannFactorDiluteLTE(ProcessingPlasmaProperty):
     """
     outputs = ('general_level_boltzmann_factor',)
     latex_name = ('bf_{i,j,k}',)
-    latex_formula = ('Wg_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{\
-        \\textrm{B}}T_{\\textrm{rad}}}}',)
+    latex_formula = ('Wg_{i,j,k}e^{\\dfrac{-\\epsilon_{i,j,k}}{k_{B}T_{rad}}}',)
 
     def calculate(
             self, levels, g, excitation_energy, beta_rad, w,
