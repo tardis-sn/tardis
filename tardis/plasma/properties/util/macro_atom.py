@@ -7,7 +7,7 @@ c = constants.c.cgs.value
 kb = constants.k_B.cgs.value
 inv_c2 = 1 / (c ** 2)
 
-
+@numba.jit(nopython=True)
 def calculate_transition_probabilities(
         transition_probability_coef,
         beta_sobolev, j_blues,
