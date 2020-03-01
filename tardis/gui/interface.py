@@ -1,12 +1,12 @@
 import os
-#if os.environ.get('QT_API', None)=='pyqt':
-from PyQt5 import QtCore, QtWidgets
-#elif os.environ.get('QT_API', None)=='pyside':
-#from PySide import QtCore
-#else:
-#    raise ImportError('QT_API was not set! Please exit the IPython console\n'
-#        ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
-#        ' export QT_API=pyqt \n\n For more information refer to user guide.')
+if os.environ.get('QT_API', None)=='pyqt':
+    from PyQt5 import QtCore, QtWidgets
+elif os.environ.get('QT_API', None)=='pyside':
+    from PySide2 import QtCore,QtWidgets
+else:
+    raise ImportError('QT_API was not set! Please exit the IPython console\n'
+        ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
+        ' export QT_API=pyqt \n\n For more information refer to user guide.')
 import sys
 try:
     from IPython.lib.guisupport import get_app_qt4, start_event_loop_qt4
