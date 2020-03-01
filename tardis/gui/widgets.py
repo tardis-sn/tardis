@@ -2,14 +2,14 @@ import os
 
 import tardis.util.base
 
-if os.environ.get('QT_API', None)=='pyqt':
-    from PyQt5 import QtGui, QtCore, QtWidgets
-elif os.environ.get('QT_API', None)=='pyside':
-    from PySide import QtGui, QtCore
-else:
-    raise ImportError('QT_API was not set! Please exit the IPython console\n'
-        ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
-        ' export QT_API=pyqt \n\n For more information refer to user guide.')
+#if os.environ.get('QT_API', None)=='pyqt':
+from PyQt5 import QtGui, QtCore, QtWidgets
+#elif os.environ.get('QT_API', None)=='pyside':
+#    from PySide import QtGui, Qt
+#else:
+#    raise ImportError('QT_API was not set! Please exit the IPython console\n'
+#        ' and at the bash prompt use : \n\n export QT_API=pyside \n or\n'
+#        ' export QT_API=pyqt \n\n For more information refer to user guide.')
 
 import matplotlib
 from matplotlib.figure import *
