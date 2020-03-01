@@ -2,16 +2,6 @@ import numpy as np
 import numba
 from astropy import constants
 
-# cimport numpy as np
-
-# ctypedef np.int64_t int_type_t
-
-
-
-# cdef extern from "math.h":
-#     double exp(double)
-
-
 h_cgs = constants.h.cgs.value
 c = constants.c.cgs.value
 kb = constants.k_B.cgs.value
