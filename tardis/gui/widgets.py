@@ -429,11 +429,11 @@ class ModelViewer(QtWidgets.QWidget):
                             (1, 0))
         self.tableview = QtWidgets.QTableView()
         self.tableview.setMinimumWidth(200)
-        self.tableview.connect(self.tableview.verticalHeader(),
-            QtCore.SIGNAL('sectionClicked(int)'), self.graph.highlight_shell)
-        self.tableview.connect(self.tableview.verticalHeader(),
-            QtCore.SIGNAL('sectionDoubleClicked(int)'),
-            self.on_header_double_clicked)
+#        self.tableview.connect(self.tableview.verticalHeader(),
+#            QtCore.SIGNAL('sectionClicked(int)'), self.graph.highlight_shell)
+#        self.tableview.connect(self.tableview.verticalHeader(),
+#            QtCore.SIGNAL('sectionDoubleClicked(int)'),
+#            self.on_header_double_clicked)
 
         #Label for text output
         self.outputLabel = QtWidgets.QLabel()
