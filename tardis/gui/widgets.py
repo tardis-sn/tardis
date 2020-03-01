@@ -3,7 +3,7 @@ import os
 import tardis.util.base
 
 if os.environ.get('QT_API', None)=='pyqt':
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtGui, QtCore, QtWidgets
 elif os.environ.get('QT_API', None)=='pyside':
     from PySide import QtGui, QtCore
 else:
@@ -47,8 +47,8 @@ class MatplotlibWidget(FigureCanvas):
         self.span = None
 
         super(MatplotlibWidget, self).__init__(self.figure)
-        super(MatplotlibWidget, self).setSizePolicy(QtGui.QSizePolicy.Expanding,
-            QtGui.QSizePolicy.Expanding)
+        super(MatplotlibWidget, self).setSizePolicy(QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Expanding)
         super(MatplotlibWidget, self).updateGeometry()
         if fig != 'model':
             self.toolbar = NavigationToolbar(self, parent)
@@ -185,7 +185,7 @@ class Shell(matplotlib.patches.Wedge):
         self.r_inner = r_inner
         self.width = r_outer - r_inner
 
-class ConfigEditor(QtGui.QWidget):
+class ConfigEditor(QtWidgets.QWidget):
     """The configuration editor widget.
 
     This widget is added to the stacked widget that is the central widget of
@@ -299,11 +299,11 @@ class ConfigEditor(QtGui.QWidget):
             }
         self.match_dicts(configDict, templatedictionary)
 
-        self.layout = QtGui.QVBoxLayout()
+        self.layout = QtWidgets.QVBoxLayout()
 
         #Make tree
         self.trmodel = TreeModel(templatedictionary)
-        self.colView = QtGui.QColumnView()
+        self.colView = QtWidgets.QColumnView()
         self.colView.setModel(self.trmodel)
         #Five columns of width 256 each can be visible at once
         self.colView.setFixedWidth(256*5)
@@ -311,7 +311,7 @@ class ConfigEditor(QtGui.QWidget):
         self.layout.addWidget(self.colView)
 
         #Recalculate button
-        button = QtGui.QPushButton('Recalculate')
+        button = QtWidgets.QPushButton('Recalculate')
         button.setFixedWidth(90)
         self.layout.addWidget(button)
         button.clicked.connect(self.recalculate)
@@ -394,7 +394,7 @@ class ConfigEditor(QtGui.QWidget):
         """
         pass
 
-class ModelViewer(QtGui.QWidget):
+class ModelViewer(QtWidgets.QWidget):
     """The widget that holds all the plots and tables that visualize
     the data in the tardis model. This is also appended to the stacked
     widget in the top level window.
@@ -403,7 +403,7 @@ class ModelViewer(QtGui.QWidget):
 
     def __init__(self, tablecreator, parent=None):
         """Create all widgets that are children of ModelViewer."""
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
 
         #Data structures
         self.model = None
@@ -420,14 +420,14 @@ class ModelViewer(QtGui.QWidget):
         self.spectrumWidget = self.make_spectrum_widget()
 
         #Plot tab widget
-        self.plotTabWidget = QtGui.QTabWidget()
+        self.plotTabWidget = QtWidgets.QTabWidget()
         self.plotTabWidget.addTab(self.shellWidget,"&Shells")
         self.plotTabWidget.addTab(self.spectrumWidget, "S&pectrum")
 
         #Table widget
         self.tablemodel = self.createTable([['Shell: '], ["Rad. temp", "Ws", "V"]],
                             (1, 0))
-        self.tableview = QtGui.QTableView()
+        self.tableview = QtWidgets.QTableView()
         self.tableview.setMinimumWidth(200)
         self.tableview.connect(self.tableview.verticalHeader(),
             QtCore.SIGNAL('sectionClicked(int)'), self.graph.highlight_shell)
@@ -436,31 +436,31 @@ class ModelViewer(QtGui.QWidget):
             self.on_header_double_clicked)
 
         #Label for text output
-        self.outputLabel = QtGui.QLabel()
-        self.outputLabel.setFrameStyle(QtGui.QFrame.StyledPanel |
-            QtGui.QFrame.Sunken)
+        self.outputLabel = QtWidgets.QLabel()
+        self.outputLabel.setFrameStyle(QtWidgets.QFrame.StyledPanel |
+            QtWidgets.QFrame.Sunken)
         self.outputLabel.setStyleSheet("QLabel{background-color:white;}")
 
         #Group boxes
-        graphsBox = QtGui.QGroupBox("Visualized results")
-        textsBox = QtGui.QGroupBox("Model parameters")
-        tableBox = QtGui.QGroupBox("Tabulated results")
+        graphsBox = QtWidgets.QGroupBox("Visualized results")
+        textsBox = QtWidgets.QGroupBox("Model parameters")
+        tableBox = QtWidgets.QGroupBox("Tabulated results")
 
         #For textbox
-        textlayout = QtGui.QHBoxLayout()
+        textlayout = QtWidgets.QHBoxLayout()
         textlayout.addWidget(self.outputLabel)
 
-        tableslayout = QtGui.QVBoxLayout()
+        tableslayout = QtWidgets.QVBoxLayout()
         tableslayout.addWidget(self.tableview)
         tableBox.setLayout(tableslayout)
 
-        visualayout = QtGui.QVBoxLayout()
+        visualayout = QtWidgets.QVBoxLayout()
         visualayout.addWidget(self.plotTabWidget)
         graphsBox.setLayout(visualayout)
 
-        self.layout = QtGui.QHBoxLayout()
+        self.layout = QtWidgets.QHBoxLayout()
         self.layout.addWidget(graphsBox)
-        textntablelayout = QtGui.QVBoxLayout()
+        textntablelayout = QtWidgets.QVBoxLayout()
         textsBox.setLayout(textlayout)
         textntablelayout.addWidget(textsBox)
         textntablelayout.addWidget(tableBox)
@@ -495,26 +495,26 @@ class ModelViewer(QtGui.QWidget):
         """
         #Widgets for plot of shells
         self.graph = MatplotlibWidget(self.createTable, self, 'model')
-        self.graph_label = QtGui.QLabel('Select Property:')
-        self.graph_button = QtGui.QToolButton()
+        self.graph_label = QtWidgets.QLabel('Select Property:')
+        self.graph_button = QtWidgets.QToolButton()
         self.graph_button.setText('Rad. temp')
-        self.graph_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.graph_button.setMenu(QtGui.QMenu(self.graph_button))
+        self.graph_button.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
+        self.graph_button.setMenu(QtWidgets.QMenu(self.graph_button))
         self.graph_button.menu().addAction('Rad. temp').triggered.connect(
             self.change_graph_to_t_rads)
         self.graph_button.menu().addAction('Ws').triggered.connect(
             self.change_graph_to_ws)
 
         #Layouts: bottom up
-        self.graph_subsublayout = QtGui.QHBoxLayout()
+        self.graph_subsublayout = QtWidgets.QHBoxLayout()
         self.graph_subsublayout.addWidget(self.graph_label)
         self.graph_subsublayout.addWidget(self.graph_button)
 
-        self.graph_sublayout = QtGui.QVBoxLayout()
+        self.graph_sublayout = QtWidgets.QVBoxLayout()
         self.graph_sublayout.addLayout(self.graph_subsublayout)
         self.graph_sublayout.addWidget(self.graph)
 
-        containerWidget = QtGui.QWidget()
+        containerWidget = QtWidgets.QWidget()
         containerWidget.setLayout(self.graph_sublayout)
         return containerWidget
 
@@ -524,33 +524,33 @@ class ModelViewer(QtGui.QWidget):
 
         """
         self.spectrum = MatplotlibWidget(self.createTable, self)
-        self.spectrum_label = QtGui.QLabel('Select Spectrum:')
-        self.spectrum_button = QtGui.QToolButton()
+        self.spectrum_label = QtWidgets.QLabel('Select Spectrum:')
+        self.spectrum_button = QtWidgets.QToolButton()
         self.spectrum_button.setText('spec_flux_angstrom')
-        self.spectrum_button.setPopupMode(QtGui.QToolButton.MenuButtonPopup)
-        self.spectrum_button.setMenu(QtGui.QMenu(self.spectrum_button))
+        self.spectrum_button.setPopupMode(QtWidgets.QToolButton.MenuButtonPopup)
+        self.spectrum_button.setMenu(QtWidgets.QMenu(self.spectrum_button))
         self.spectrum_button.menu().addAction('spec_flux_angstrom'
             ).triggered.connect(self.change_spectrum_to_spec_flux_angstrom)
         self.spectrum_button.menu().addAction('spec_virtual_flux_angstrom'
             ).triggered.connect(self.change_spectrum_to_spec_virtual_flux_angstrom)
-        self.spectrum_span_button = QtGui.QPushButton('Show Wavelength Range')
+        self.spectrum_span_button = QtWidgets.QPushButton('Show Wavelength Range')
         self.spectrum_span_button.clicked.connect(self.spectrum.show_span)
-        self.spectrum_line_info_button = QtGui.QPushButton('Show Line Info')
+        self.spectrum_line_info_button = QtWidgets.QPushButton('Show Line Info')
         self.spectrum_line_info_button.hide()
         self.spectrum_line_info_button.clicked.connect(self.spectrum.show_line_info)
 
-        self.spectrum_subsublayout = QtGui.QHBoxLayout()
+        self.spectrum_subsublayout = QtWidgets.QHBoxLayout()
         self.spectrum_subsublayout.addWidget(self.spectrum_span_button)
         self.spectrum_subsublayout.addWidget(self.spectrum_label)
         self.spectrum_subsublayout.addWidget(self.spectrum_button)
 
-        self.spectrum_sublayout = QtGui.QVBoxLayout()
+        self.spectrum_sublayout = QtWidgets.QVBoxLayout()
         self.spectrum_sublayout.addLayout(self.spectrum_subsublayout)
         self.spectrum_sublayout.addWidget(self.spectrum_line_info_button)
         self.spectrum_sublayout.addWidget(self.spectrum)
         self.spectrum_sublayout.addWidget(self.spectrum.toolbar)
 
-        containerWidget = QtGui.QWidget()
+        containerWidget = QtWidgets.QWidget()
         containerWidget.setLayout(self.spectrum_sublayout)
         return containerWidget
 
@@ -715,7 +715,7 @@ class ModelViewer(QtGui.QWidget):
         """Callback to get counts for different Z from table."""
         self.shell_info[index] = ShellInfo(index, self.createTable, self)
 
-class ShellInfo(QtGui.QDialog):
+class ShellInfo(QtWidgets.QDialog):
     """Dialog to display Shell abundances."""
 
     def __init__(self, index, tablecreator, parent=None):
@@ -727,9 +727,9 @@ class ShellInfo(QtGui.QDialog):
         self.shell_index = index
         self.setGeometry(400, 150, 200, 400)
         self.setWindowTitle('Shell %d Abundances' % (self.shell_index + 1))
-        self.atomstable = QtGui.QTableView()
-        self.ionstable = QtGui.QTableView()
-        self.levelstable = QtGui.QTableView()
+        self.atomstable = QtWidgets.QTableView()
+        self.ionstable = QtWidgets.QTableView()
+        self.levelstable = QtWidgets.QTableView()
         self.atomstable.connect(self.atomstable.verticalHeader(),
             QtCore.SIGNAL('sectionClicked(int)'),
             self.on_atom_header_double_clicked)
@@ -745,7 +745,7 @@ class ShellInfo(QtGui.QDialog):
         self.atomsdata.add_data(self.table1_data.values.tolist())
         self.atomstable.setModel(self.atomsdata)
 
-        self.layout = QtGui.QHBoxLayout()
+        self.layout = QtWidgets.QHBoxLayout()
         self.layout.addWidget(self.atomstable)
         self.layout.addWidget(self.ionstable)
         self.layout.addWidget(self.levelstable)
@@ -814,7 +814,7 @@ class ShellInfo(QtGui.QDialog):
         self.setGeometry(400, 150, 200, 400)
         self.show()
 
-class LineInfo(QtGui.QDialog):
+class LineInfo(QtWidgets.QDialog):
     """Dialog to show the line info used by spectrum widget."""
     def __init__(self, parent, wavelength_start, wavelength_end, tablecreator):
         """Create the dialog and set data in it from the model.
@@ -825,7 +825,7 @@ class LineInfo(QtGui.QDialog):
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 250, 400)
         self.setWindowTitle('Line Interaction: %.2f - %.2f (A) ' % (
             wavelength_start, wavelength_end,))
-        self.layout = QtGui.QVBoxLayout()
+        self.layout = QtWidgets.QVBoxLayout()
         packet_nu_line_interaction = analysis.LastLineInteraction.from_model(
             self.parent.model)
         packet_nu_line_interaction.packet_filter_mode = 'packet_nu'
@@ -950,7 +950,7 @@ class LineInfo(QtGui.QDialog):
         self.setGeometry(180 + len(self.parent.line_info) * 20, 150, 750, 400)
         self.show()
 
-class LineInteractionTables(QtGui.QWidget):
+class LineInteractionTables(QtWidgets.QWidget):
     """Widget to hold the line interaction tables used by
     LineInfo which in turn is used by spectrum widget.
 
@@ -961,10 +961,10 @@ class LineInteractionTables(QtGui.QWidget):
         """Create the widget and set data."""
         super(LineInteractionTables, self).__init__()
         self.createTable = tablecreator
-        self.text_description = QtGui.QLabel(str(description))
-        self.species_table = QtGui.QTableView()
-        self.transitions_table = QtGui.QTableView()
-        self.layout = QtGui.QHBoxLayout()
+        self.text_description = QtWidgets.QLabel(str(description))
+        self.species_table = QtWidgets.QTableView()
+        self.transitions_table = QtWidgets.QTableView()
+        self.layout = QtWidgets.QHBoxLayout()
         self.line_interaction_analysis = line_interaction_analysis
         self.atom_data = atom_data
         self.lines_data = lines_data.reset_index().set_index('line_id')
@@ -1076,7 +1076,7 @@ class Tardis(QtGui.QMainWindow):
         # except ImportError:
         #     app.exec_()
 
-        QtGui.QMainWindow.__init__(self, parent)
+        QtWidgets.QMainWindow.__init__(self, parent)
 
         #path to icons folder
         self.path = os.path.join(tardis.__path__[0],'gui','images')
@@ -1089,22 +1089,22 @@ class Tardis(QtGui.QMainWindow):
         #Statusbar
         statusbr = self.statusBar()
         lblstr = '<font color="red"><b>Calculation did not converge</b></font>'
-        self.successLabel = QtGui.QLabel(lblstr)
-        self.successLabel.setFrameStyle(QtGui.QFrame.StyledPanel |
-            QtGui.QFrame.Sunken)
+        self.successLabel = QtWidgets.QLabel(lblstr)
+        self.successLabel.setFrameStyle(QtWidgets.QFrame.StyledPanel |
+            QtWidgets.QFrame.Sunken)
         statusbr.addPermanentWidget(self.successLabel)
-        self.modeLabel = QtGui.QLabel('Passive mode')
+        self.modeLabel = QtWidgets.QLabel('Passive mode')
         statusbr.addPermanentWidget(self.modeLabel)
         statusbr.showMessage(self.mode, 5000)
         statusbr.showMessage("Ready", 5000)
 
         #Actions
-        quitAction = QtGui.QAction("&Quit", self)
+        quitAction = QtWidgets.QAction("&Quit", self)
         quitAction.setIcon(QtGui.QIcon(os.path.join(self.path,
             'closeicon.png')))
         quitAction.triggered.connect(self.close)
 
-        self.viewMdv = QtGui.QAction("View &Model", self)
+        self.viewMdv = QtWidgets.QAction("View &Model", self)
         self.viewMdv.setIcon(QtGui.QIcon(os.path.join(self.path,
             'mdvswitch.png')))
         self.viewMdv.setCheckable(True)
@@ -1112,7 +1112,7 @@ class Tardis(QtGui.QMainWindow):
         self.viewMdv.setEnabled(False)
         self.viewMdv.triggered.connect(self.switch_to_mdv)
 
-        self.viewForm = QtGui.QAction("&Edit Model", self)
+        self.viewForm = QtWidgets.QAction("&Edit Model", self)
         self.viewForm.setIcon(QtGui.QIcon(os.path.join(self.path,
             'formswitch.png')))
         self.viewForm.setCheckable(True)
@@ -1138,7 +1138,7 @@ class Tardis(QtGui.QMainWindow):
         viewToolbar.addAction(self.viewForm)
 
         #Central Widget
-        self.stackedWidget = QtGui.QStackedWidget()
+        self.stackedWidget = QtWidgets.QStackedWidget()
         self.mdv = ModelViewer(tablemodel)
         self.stackedWidget.addWidget(self.mdv)
 
