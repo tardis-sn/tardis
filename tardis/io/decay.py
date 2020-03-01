@@ -29,21 +29,20 @@ class IsotopeAbundances(pd.DataFrame):
 
     @classmethod
     def from_materials(cls, materials):
-        multi_index_tuples = set([])
-        for material in materials:
-            multi_index_tuples.update([cls.id_to_tuple(key)
-                                       for key in material.keys()])
+        multi_index_tuples = {}
+        for i, material in enumerate(materials):
+            for key, value in material.items():
+                multi_index_tuples.setdefault(cls.id_to_tuple(key), []).append((i, value))
 
         index = pd.MultiIndex.from_tuples(
             multi_index_tuples, names=['atomic_number', 'mass_number'])
 
-
         abundances = pd.DataFrame(data=0.0, index=index, columns=range(len(materials)))
 
-        for i, material in enumerate(materials):
-            for key, value in material.items():
-                abundances.loc[cls.id_to_tuple(key), i] = value
-
+        for key in multi_index_tuples:
+            for col, value in multi_index_tuples[key]:
+                abundances.loc[key, col] = value
+        
         return cls(abundances)
 
 
@@ -66,13 +65,18 @@ class IsotopeAbundances(pd.DataFrame):
         :return:
         """
 
-        comp_dicts = [dict() for i in range(len(self.columns))]
-        for (atomic_number, mass_number), abundances in self.iterrows():
-            nuclear_symbol = '{0:s}{1:d}'.format(nucname.name(atomic_number),
-                                           mass_number)
-            for i in range(len(self.columns)):
-                comp_dicts[i][nuclear_symbol] = abundances[i]
-        return [material.Material(comp_dict) for comp_dict in comp_dicts]
+        comp_dicts = self.to_dict()
+        nuclear_symbol_dict = {}
+        for key in comp_dicts:
+            temp_dict = {}
+            for (atomic_number, mass_number), value in comp_dicts[key].items():
+                if (atomic_number, mass_number) not in nuclear_symbol_dict:
+                    nuclear_symbol = '{0:s}{1:d}'.format(nucname.name(atomic_number),
+                                                         mass_number)
+                    nuclear_symbol_dict[(atomic_number, mass_number)] = nuclear_symbol
+                temp_dict[nuclear_symbol_dict[(atomic_number, mass_number)]] = value
+            comp_dicts[key] = temp_dict
+        return [material.Material(comp_dicts[i]) for i in comp_dicts]
 
 
 
