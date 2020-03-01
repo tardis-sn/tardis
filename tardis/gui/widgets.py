@@ -1034,7 +1034,7 @@ class LineInteractionTables(QtWidgets.QWidget):
         last_line_in_model.add_data(last_line_count)
         self.transitions_table.setModel(last_line_in_model)
 
-class Tardis(QtGui.QMainWindow):
+class Tardis(QtWidgets.QMainWindow):
     """Create the top level window for the GUI and wait for call to
     display data.
 
