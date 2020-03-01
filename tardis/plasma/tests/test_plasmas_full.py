@@ -75,3 +75,8 @@ class TestPlasmas():
         old_t_rads = refdata('t_radiative')
         pdt.assert_almost_equal(
             new_t_rads, old_t_rads)
+
+    def test_write_to_dot(self,simulation):
+            fname = "temp.tex"
+            simulation.plasma.write_to_tex(fname)
+            os.remove(fname)
