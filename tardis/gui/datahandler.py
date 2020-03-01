@@ -7,7 +7,7 @@ import matplotlib.pylab as plt
 
 
 if os.environ.get('QT_API', None)=='pyqt':
-    from PyQt4 import QtGui, QtCore
+    from PyQt5 import QtGui, QtCore, QtWidgets#
 elif os.environ.get('QT_API', None)=='pyside':
     from PySide import QtGui, QtCore
 else:
@@ -416,14 +416,14 @@ class TreeModel(QtCore.QAbstractItemModel):
             return children[0].get_data(0)
 
 
-class TreeDelegate(QtGui.QStyledItemDelegate):
+class TreeDelegate(QtWidgets.QStyledItemDelegate):
     """Create a custom delegate to modify the columnview that displays the 
     TreeModel.
 
     """
     def __init__(self, parent=None):
         """Call the constructor of the superclass."""
-        QtGui.QStyledItemDelegate.__init__(self, parent)
+        QtWidgets.QStyledItemDelegate.__init__(self, parent)
     
     #Mandatory methods for subclassing
     def createEditor(self, parent, option, index):
@@ -435,7 +435,7 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
             combobox.setEditable(False)
             return combobox
         else:
-            editor =  QtGui.QLineEdit(parent)
+            editor =  QtWidgets.QLineEdit(parent)
             editor.setText(str(node.get_data(0)))
             editor.returnPressed.connect(self.close_and_commit)
             return editor
@@ -470,18 +470,18 @@ class TreeDelegate(QtGui.QStyledItemDelegate):
                 if nd in model.disabledNodes:
                     model.disabledNodes.remove(nd) 
 
-        elif isinstance(editor, QtGui.QLineEdit): 
+        elif isinstance(editor, QtWidgets.QLineEdit): 
             node.setData(0, str(editor.text()))
         else:
-            QtGui.QStyledItemDelegate.setModelData(self, editor, model, index)
+            QtWidgets.QStyledItemDelegate.setModelData(self, editor, model, index)
     
     #Custom methods
     def close_and_commit(self):
         """Saver for the line edits."""
         editor = self.sender()
-        if isinstance(editor, QtGui.QLineEdit):
+        if isinstance(editor, QtWidgets.QLineEdit):
             self.commitData.emit(editor)
-            self.closeEditor.emit(editor, QtGui.QAbstractItemDelegate.NoHint)
+            self.closeEditor.emit(editor, QtWidgets.QAbstractItemDelegate.NoHint)
 
 class SimpleTableModel(QtCore.QAbstractTableModel):
     """Create a table data structure for the table widgets."""
