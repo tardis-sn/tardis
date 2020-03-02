@@ -1,0 +1,22 @@
+Simple extension of the Pandas.DataFrame that keeps track of units for the dataframe.
+
+Basic information about methods of classes extention you can find here:
+https://docs.python.org/2/tutorial/classes.html#inheritance
+
+Basic information about methods of extention in pandas you can find here:
+https://pandas.pydata.org/docs/development/extending.html#extension-types
+
+Suitable example:
+pandas-dev/pandas#10349
+
+Much more suitable example:
+https://tardis-sn.github.io/tardis/running/interaction/isotope_pd_subclass.html?highlight=isotopeabundances
+
+As a base:
+https://stackoverflow.com/questions/47466255/subclassing-a-pandas-dataframe-updates/47468205#47468205
+
+Lib for pandas wich works with units:
+https://pint.readthedocs.io/en/0.10.1/
+
+Pandas docs for feature addition:
+https://pandas.pydata.org/pandas-docs/stable/development/extending.html#extending-subclassing-pandas
