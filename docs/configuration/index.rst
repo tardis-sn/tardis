@@ -13,6 +13,7 @@ and pages provide more details concerning the TARDIS configuration process.
 .. toctree::
   :maxdepth: 2
 
+  integrator
   configuration
   config_validator
   read_configuration

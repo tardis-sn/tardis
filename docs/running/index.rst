@@ -1,6 +1,6 @@
-**************
-Running TARDIS
-**************
+*************************
+TARDIS Configuration File
+*************************
 
 The TARDIS code needs three components to calculate spectra:
 

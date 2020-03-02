@@ -114,8 +114,8 @@ To compile TARDIS for parallel execution::
 Installation Troubles (FAQ)
 ===========================
 
-We highly encourage with any installation problems to try the recommended install
-method because this often fix problems. Here are some common problems when
+With any installation problems, we highly encourage you to try the recommended 
+installation method because this often fixes problems. Here are some common problems when
 installing and their fixes:
 
 **Problem:** While building tardis via ``python setup.py`` build you
