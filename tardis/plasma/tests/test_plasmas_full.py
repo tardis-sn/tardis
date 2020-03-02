@@ -77,5 +77,6 @@ class TestPlasmas():
             new_t_rads, old_t_rads)
 
     def test_write_to_dot(self,simulation,tmpdir):
-            fname = os.path.join(str(tmpdir), 'temp.tex')
-            simulation.plasma.write_to_tex(fname)
+
+        fname = os.path.join(str(tmpdir), 'temp.tex')
+        simulation.plasma.write_to_tex(fname)
