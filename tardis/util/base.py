@@ -243,7 +243,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
 
-@njit(parallel=True, error_model='numpy')
+@njit(fastmath=True, error_model='numpy')
 def intensity_black_body(nu, T):
     """
     Calculate the intensity of a black-body according to the following formula
