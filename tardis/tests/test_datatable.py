@@ -20,8 +20,6 @@ import pytest
 def test_datatable(df, unit):
     datatable = DataTable (df, units=unit) 
     
-    assert type(datatable.units) = type(unit)
-    
     assert unit.equals(datatable.units)
      
     datatable2 = datatable.copy()
