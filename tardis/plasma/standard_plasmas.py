@@ -66,7 +66,8 @@ def assemble_plasma(config, model, atom_data=None):
             if os.path.isabs(config.atom_data):
                 atom_data_fname = config.atom_data
             else:
-                raise IOError('Atom data path is not absolute')
+                atom_data_fname = os.path.join(os.getcwd(),
+                                               config.atom_data)
         else:
             raise ValueError('No atom_data option found in the configuration.')
 
