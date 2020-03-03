@@ -10,6 +10,7 @@ from tardis.model import Radial1DModel
 from tardis.plasma.standard_plasmas import assemble_plasma
 from tardis.io.util import HDFWriterMixin
 from tardis.io.config_reader import ConfigurationError
+
 # Adding logging support
 logger = logging.getLogger(__name__)
 
@@ -23,8 +24,8 @@ class PlasmaStateStorerMixin(object):
     the electron density in each cell is provided. Additionally, the
     temperature at the inner boundary is saved.
     """
-    def __init__(self, iterations, no_of_shells):
 
+    def __init__(self, iterations, no_of_shells):
         self.iterations_w = np.zeros(
             (iterations, no_of_shells))
         self.iterations_t_rad = np.zeros(
@@ -65,13 +66,13 @@ class PlasmaStateStorerMixin(object):
         executed_iterations : int
             iteration index, i.e. number of iterations executed minus one!
         """
-        self.iterations_w = self.iterations_w[:executed_iterations+1, :]
+        self.iterations_w = self.iterations_w[:executed_iterations + 1, :]
         self.iterations_t_rad = \
-            self.iterations_t_rad[:executed_iterations+1, :]
+            self.iterations_t_rad[:executed_iterations + 1, :]
         self.iterations_electron_densities = \
-            self.iterations_electron_densities[:executed_iterations+1, :]
+            self.iterations_electron_densities[:executed_iterations + 1, :]
         self.iterations_t_inner = \
-            self.iterations_t_inner[:executed_iterations+1]
+            self.iterations_t_inner[:executed_iterations + 1]
 
 
 class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
@@ -102,41 +103,50 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                       'iterations_t_inner']
     hdf_name = 'simulation'
 
-    def __init__(self, iterations, model, plasma, runner,
-                 no_of_packets, no_of_virtual_packets, luminosity_nu_start,
-                 luminosity_nu_end, last_no_of_packets,
-                 luminosity_requested, convergence_strategy,
-                 nthreads):
+    # def __init__(self, iterations, model, plasma, runner,
+    #              no_of_packets, no_of_virtual_packets, luminosity_nu_start,
+    #              luminosity_nu_end, last_no_of_packets,
+    #              luminosity_requested, convergence_strategy,
+    #              nthreads):
 
-        super(Simulation, self).__init__(iterations, model.no_of_shells)
+    def __init__(self, *args, **kwargs):
+        from tardis.io.config_reader import Configuration
+
+        tardis_config = Configuration.from_yaml('tardis_example.yml')
+
+        # if kwargs comes null because another simulation object creation by yield in dask then this will help 
+        kwargs = Simulation.get_config(tardis_config,
+                                       packet_source=None,
+                                       atom_data=None)
+        super(Simulation, self).__init__(kwargs['iterations'], kwargs['model'].no_of_shells)
 
         self.converged = False
-        self.iterations = iterations
+        self.iterations = kwargs['iterations']
         self.iterations_executed = 0
-        self.model = model
-        self.plasma = plasma
-        self.runner = runner
-        self.no_of_packets = no_of_packets
-        self.last_no_of_packets = last_no_of_packets
-        self.no_of_virtual_packets = no_of_virtual_packets
-        self.luminosity_nu_start = luminosity_nu_start
-        self.luminosity_nu_end = luminosity_nu_end
-        self.luminosity_requested = luminosity_requested
-        self.nthreads = nthreads
-        if convergence_strategy.type in ('damped'):
-            self.convergence_strategy = convergence_strategy
+        self.model = kwargs['model']
+        self.plasma = kwargs['plasma']
+        self.runner = kwargs['runner']
+        self.no_of_packets = kwargs['no_of_packets']
+        self.last_no_of_packets = kwargs['last_no_of_packets']
+        self.no_of_virtual_packets = kwargs['no_of_virtual_packets']
+        self.luminosity_nu_start = kwargs['luminosity_nu_start']
+        self.luminosity_nu_end = kwargs['luminosity_nu_end']
+        self.luminosity_requested = kwargs['luminosity_requested']
+        self.nthreads = kwargs['nthreads']
+        if kwargs['convergence_strategy'].type in ('damped'):
+            self.convergence_strategy = kwargs['convergence_strategy']
             self.converged = False
             self.consecutive_converges_count = 0
-        elif convergence_strategy.type in ('custom'):
+        elif kwargs['convergence_strategy'].type in ('custom'):
             raise NotImplementedError(
                 'Convergence strategy type is custom; '
                 'you need to implement your specific treatment!'
             )
         else:
             raise ValueError(
-                    'Convergence strategy type is '
-                    'not damped or custom '
-                    '- input is {0}'.format(convergence_strategy.type))
+                'Convergence strategy type is '
+                'not damped or custom '
+                '- input is {0}'.format(kwargs['convergence_strategy'].type))
 
         self._callbacks = OrderedDict()
         self._cb_next_id = 0
@@ -144,8 +154,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
     def estimate_t_inner(self, input_t_inner, luminosity_requested,
                          t_inner_update_exponent=-0.5):
         emitted_luminosity = self.runner.calculate_emitted_luminosity(
-                                self.luminosity_nu_start,
-                                self.luminosity_nu_end)
+            self.luminosity_nu_start,
+            self.luminosity_nu_end)
 
         luminosity_ratios = (
             (emitted_luminosity / luminosity_requested).to(1).value)
@@ -170,23 +180,23 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                                estimated_t_inner).value
 
         fraction_t_rad_converged = (
-            np.count_nonzero(
-                convergence_t_rad < self.convergence_strategy.t_rad.threshold)
-            / no_of_shells)
+                np.count_nonzero(
+                    convergence_t_rad < self.convergence_strategy.t_rad.threshold)
+                / no_of_shells)
 
         t_rad_converged = (
-            fraction_t_rad_converged > self.convergence_strategy.fraction)
+                fraction_t_rad_converged > self.convergence_strategy.fraction)
 
         fraction_w_converged = (
-            np.count_nonzero(
-                convergence_w < self.convergence_strategy.w.threshold)
-            / no_of_shells)
+                np.count_nonzero(
+                    convergence_w < self.convergence_strategy.w.threshold)
+                / no_of_shells)
 
         w_converged = (
-            fraction_w_converged > self.convergence_strategy.fraction)
+                fraction_w_converged > self.convergence_strategy.fraction)
 
         t_inner_converged = (
-            convergence_t_inner < self.convergence_strategy.t_inner.threshold)
+                convergence_t_inner < self.convergence_strategy.t_inner.threshold)
 
         if np.all([t_rad_converged, w_converged, t_inner_converged]):
             hold_iterations = self.convergence_strategy.hold_iterations
@@ -257,7 +267,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         # case it needs some extra kwargs.
         if 'j_blue_estimator' in self.plasma.outputs_dict:
             update_properties.update(t_inner=next_t_inner,
-                                 j_blue_estimator=self.runner.j_blue_estimator)
+                                     j_blue_estimator=self.runner.j_blue_estimator)
 
         self.plasma.update(**update_properties)
 
@@ -265,7 +275,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def iterate(self, no_of_packets, no_of_virtual_packets=0, last_run=False):
         logger.info('Starting iteration {0:d}/{1:d}'.format(
-                    self.iterations_executed + 1, self.iterations))
+            self.iterations_executed + 1, self.iterations))
         self.runner.run(self.model, self.plasma, no_of_packets,
                         no_of_virtual_packets=no_of_virtual_packets,
                         nthreads=self.nthreads, last_run=last_run)
@@ -283,7 +293,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
     def run(self):
         start_time = time.time()
-        while self.iterations_executed < self.iterations-1:
+        while self.iterations_executed < self.iterations - 1:
             self.store_plasma_state(self.iterations_executed, self.model.w,
                                     self.model.t_rad,
                                     self.plasma.electron_densities,
@@ -305,9 +315,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         logger.info("Simulation finished in {0:d} iterations "
                     "and took {1:.2f} s".format(
-                        self.iterations_executed, time.time() - start_time))
+            self.iterations_executed, time.time() - start_time))
         self._call_back()
-
 
     def log_plasma_state(self, t_rad, w, t_inner, next_t_rad, next_w,
                          next_t_inner, log_sampling=5):
@@ -333,8 +342,8 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
         """
 
         plasma_state_log = pd.DataFrame(index=np.arange(len(t_rad)),
-                                           columns=['t_rad', 'next_t_rad',
-                                                    'w', 'next_w'])
+                                        columns=['t_rad', 'next_t_rad',
+                                                 'w', 'next_w'])
         plasma_state_log['t_rad'] = t_rad
         plasma_state_log['next_t_rad'] = next_t_rad
         plasma_state_log['w'] = w
@@ -451,7 +460,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                                                   packet_source=packet_source)
 
         luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
-                u.Hz, u.spectral())
+            u.Hz, u.spectral())
 
         if u.isclose(
                 config.supernova.luminosity_wavelength_start, 0 * u.angstrom):
@@ -463,7 +472,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
 
         last_no_of_packets = config.montecarlo.last_no_of_packets
         if last_no_of_packets is None or last_no_of_packets < 0:
-            last_no_of_packets =  config.montecarlo.no_of_packets
+            last_no_of_packets = config.montecarlo.no_of_packets
         last_no_of_packets = int(last_no_of_packets)
 
         return cls(iterations=config.montecarlo.iterations,
@@ -479,3 +488,62 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                    luminosity_requested=config.supernova.luminosity_requested.cgs,
                    convergence_strategy=config.montecarlo.convergence_strategy,
                    nthreads=config.montecarlo.nthreads)
+
+    @classmethod
+    def get_config(cls, config, packet_source=None, **kwargs):
+        # Allow overriding some config structures. This is useful in some
+        # unit tests, and could be extended in all the from_config classmethods.
+        if 'model' in kwargs:
+            model = kwargs['model']
+        else:
+            if hasattr(config, 'csvy_model'):
+                model = Radial1DModel.from_csvy(config)
+            else:
+                model = Radial1DModel.from_config(config)
+        if 'plasma' in kwargs:
+            plasma = kwargs['plasma']
+        else:
+            plasma = assemble_plasma(config, model,
+                                     atom_data=kwargs.get('atom_data', None))
+        if 'runner' in kwargs:
+            if packet_source is not None:
+                raise ConfigurationError(
+                    'Cannot specify packet_source and runner at the same time.'
+                )
+            runner = kwargs['runner']
+        else:
+            runner = MontecarloRunner.from_config(config,
+                                                  packet_source=packet_source)
+
+        luminosity_nu_start = config.supernova.luminosity_wavelength_end.to(
+            u.Hz, u.spectral())
+
+        if u.isclose(
+                config.supernova.luminosity_wavelength_start, 0 * u.angstrom):
+            luminosity_nu_end = np.inf * u.Hz
+        else:
+            luminosity_nu_end = (
+                    const.c /
+                    config.supernova.luminosity_wavelength_start).to(u.Hz)
+
+        last_no_of_packets = config.montecarlo.last_no_of_packets
+        if last_no_of_packets is None or last_no_of_packets < 0:
+            last_no_of_packets = config.montecarlo.no_of_packets
+        last_no_of_packets = int(last_no_of_packets)
+
+        def return_config_as_kwargs(**kwargs):
+            return kwargs
+
+        return return_config_as_kwargs(iterations=config.montecarlo.iterations,
+                    model=model,
+                    plasma=plasma,
+                    runner=runner,
+                    no_of_packets=int(config.montecarlo.no_of_packets),
+                    no_of_virtual_packets=int(
+                        config.montecarlo.no_of_virtual_packets),
+                    luminosity_nu_start=luminosity_nu_start,
+                    luminosity_nu_end=luminosity_nu_end,
+                    last_no_of_packets=last_no_of_packets,
+                    luminosity_requested=config.supernova.luminosity_requested.cgs,
+                    convergence_strategy=config.montecarlo.convergence_strategy,
+                    nthreads=config.montecarlo.nthreads)
