@@ -544,9 +544,9 @@ class SimpleTableModel(QtCore.QAbstractTableModel):
         elif role != QtCore.Qt.EditRole:
             return False
         self.arraydata[index.column()][index.row()] = value
-        self.emit(QtCore.SIGNAL(
-            'dataChanged(const QModelIndex &, const QModelIndex &)'), 
-            index, index)
+        
+        self.dataChanged=QtCore.Signal(QtGui.QModelIndex(),QtGui.QModelIndex())
+        self.dataChanged.emit(index, index)
         return True
 
     #Methods used to inderact with the SimpleTableModel
