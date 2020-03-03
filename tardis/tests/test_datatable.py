@@ -17,10 +17,15 @@ import pytest
                                  columns = list('ABCED') ), 
                          pd.Series(['m', 's', 't', 'm/s', 'kg']) ] )
 
-
-def test_datatable(df, unit):
+def test_datatable():
+    unit = pd.Series(['m', 's', 't', 'm/s', 'kg'])
+    df = pd.DataFrame( 
+            data = pd.np.random.randint(0, 100, (10, 5)) , 
+            columns = list('ABCED') 
+            )
+    
     datatable = DataTable (df, units=['m', 's', 't', 'm/s', 'kg']) 
-
+    
     assert unit.equals(datatable.units)
 
     datatable2 = datatable.copy()
@@ -36,3 +41,5 @@ def test_datatable(df, unit):
 
     datatable[columns[3]] *= 2
     assert unit.equals(datatable.units)
+
+
