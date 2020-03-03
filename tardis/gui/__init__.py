@@ -1,1 +1,1 @@
-from tardis.simulation.base import Simulation
+import tardis.gui
