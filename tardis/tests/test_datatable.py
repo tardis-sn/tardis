@@ -7,7 +7,7 @@ created on Mar 3, 2020
 
 import numpy as np
 import pandas as pd
-from datatable import DataTable
+from tardis.datatable import DataTable
 import pytest
 
 
