@@ -429,11 +429,12 @@ class ModelViewer(QtWidgets.QWidget):
                             (1, 0))
         self.tableview = QtWidgets.QTableView()
         self.tableview.setMinimumWidth(200)
-#        self.tableview.connect(self.tableview.verticalHeader(),
-#            QtCore.SIGNAL('sectionClicked(int)'), self.graph.highlight_shell)
-#        self.tableview.connect(self.tableview.verticalHeader(),
-#            QtCore.SIGNAL('sectionDoubleClicked(int)'),
-#            self.on_header_double_clicked)
+
+        self.sectionClicked=QtCore.Signal(int)
+        self.tableview.verticalHeader().sectionClicked.connect(self.graph.highlight_shell)
+
+        self.sectionDoubleClicked=QtCore.Signal(int)
+        self.tableview.verticalHeader().sectionDoubleClicked.connect(self.on_header_double_clicked)
 
         #Label for text output
         self.outputLabel = QtWidgets.QLabel()
@@ -730,9 +731,8 @@ class ShellInfo(QtWidgets.QDialog):
         self.atomstable = QtWidgets.QTableView()
         self.ionstable = QtWidgets.QTableView()
         self.levelstable = QtWidgets.QTableView()
-        self.atomstable.connect(self.atomstable.verticalHeader(),
-            QtCore.SIGNAL('sectionClicked(int)'),
-            self.on_atom_header_double_clicked)
+        self.sectionClicked=QtCore.Signal(int)
+        self.atomstable.verticalHeader().sectionClicked.connect(self.on_atom_header_double_clicked)
 
 
         self.table1_data = self.parent.model.plasma.abundance[
@@ -773,8 +773,8 @@ class ShellInfo(QtWidgets.QDialog):
 
         self.ionsdata.add_data(normalized_data)
         self.ionstable.setModel(self.ionsdata)
-        self.ionstable.connect(self.ionstable.verticalHeader(), QtCore.SIGNAL(
-            'sectionClicked(int)'),self.on_ion_header_double_clicked)
+        self.sectionClicked=QtCore.Signal(int)
+        self.ionstable.verticalHeader().sectionClicked.connect(self.on_ion_header_double_clicked)
         self.levelstable.hide()
         self.ionstable.setColumnWidth(0, 120)
         self.ionstable.show()
@@ -985,8 +985,8 @@ class LineInteractionTables(QtWidgets.QWidget):
         line_interaction_species_group.wavelength.count()
         self.layout.addWidget(self.text_description)
         self.layout.addWidget(self.species_table)
-        self.species_table.connect(self.species_table.verticalHeader(),
-            QtCore.SIGNAL('sectionClicked(int)'), self.on_species_clicked)
+        self.sectionClicked=QtCore.Signal(int)
+        self.species_table.verticalHeader().sectionClicked.connect(self.on_species_clicked)
         self.layout.addWidget(self.transitions_table)
 
         self.setLayout(self.layout)
