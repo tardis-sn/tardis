@@ -35,7 +35,7 @@ class PhiSahaLTE(ProcessingPlasmaProperty):
     """
     outputs = ('phi',)
     latex_name = ('\\Phi',)
-    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\\dfrac{2\\pi m_{e}/\\beta_{rad}}{h^2}\\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{rad}}}',)
+    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\left(\\dfrac{2\\pi m_{e}/\\beta_{rad}}{h^2}\\right)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{rad}}}',)
 
     broadcast_ionization_energy = None
 
@@ -79,7 +79,7 @@ class ThermalPhiSahaLTE(PhiSahaLTE):
     """
     outputs = ('thermal_phi_lte',)
     latex_name = ('\\Phi^{*}(T_{\\mathrm{e}})',)
-    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\Big(\\dfrac{2\\pi m_{e}/\\beta_{electron}}{h^2}\\Big)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{electron}}}',)
+    latex_formula = ('\\dfrac{2Z_{i,j+1}}{Z_{i,j}}\\left(\\dfrac{2\\pi m_{e}/\\beta_{electron}}{h^2}\\right)^{3/2}e^{\\dfrac{-\\chi_{i,j}}{kT_{electron}}}',)
 
     @staticmethod
     def calculate(thermal_g_electron, beta_electron,

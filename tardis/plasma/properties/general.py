@@ -38,7 +38,7 @@ class GElectron(ProcessingPlasmaProperty):
     """
     outputs = ('g_electron',)
     latex_name = ('g_{electron}',)
-    latex_formula = ('\\Big(\\dfrac{2\\pi m_{e}/\\beta_{rad}{h^2}\\Big)^{3/2}',)
+    latex_formula = ('\\left(\\dfrac{2\\pi m_{e}}{\\beta_{rad}{h^2}}\\right)^{3/2}',)
 
     def calculate(self, beta_rad):
         return ((2 * np.pi * const.m_e.cgs.value / beta_rad) /
@@ -53,7 +53,7 @@ class ThermalGElectron(GElectron):
     """
     outputs = ('thermal_g_electron',)
     latex_name = ('g_{electron_thermal}',)
-    latex_formula = ('\\Big(\\dfrac{2\\pi m_{e}/\\beta_{electron}{h^2}\\Big)^{3/2}',)
+    latex_formula = ('\\left(\\dfrac{2\\pi m_{e}}{\\beta_{electron}{h^2}}\\right)^{3/2}',)
 
     def calculate(self, beta_electron):
         return super(ThermalGElectron, self).calculate(beta_electron)

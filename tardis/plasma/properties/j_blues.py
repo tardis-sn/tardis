@@ -69,8 +69,7 @@ class JBluesDetailed(ProcessingPlasmaProperty):
 class JBluesNormFactor(ProcessingPlasmaProperty):
 
     outputs = ('j_blues_norm_factor',)
-    latex = ('\\frac{c time_{simulation}}{4 \\pi '
-             'time_{simulation} volume}')
+    latex = ('\\frac{c time_{simulation}}{4 \\pi time_{simulation} volume}')
 
     @staticmethod
     def calculate(time_explosion, time_simulation, volume):

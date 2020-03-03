@@ -41,8 +41,8 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
         self.type_str = repr(type(self.value))
 
     def get_latex_label(self):
-        latex_template = r"""\textbf{{Name}} {name}
-\textbf{{Formula}} {formula}
+        latex_template = r"""\\textbf{{Name}} {name}
+\\textbf{{Formula}} {formula}
 {description}
 """
         outputs = self.outputs.replace('_', r'\_')

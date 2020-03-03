@@ -89,7 +89,7 @@ class TauSobolev(ProcessingPlasmaProperty):
     """
     outputs = ('tau_sobolevs',)
     latex_name = ('\\tau_{sobolev}',)
-    latex_formula = ('\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}n_{lower} \\Big(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\Big)',)
+    latex_formula = ('\\dfrac{\\pi e^{2}}{m_{e} c}f_{lu}\\lambda t_{exp}n_{lower} \\left(1-\\dfrac{g_{lower}n_{upper}}{g_{upper}n_{lower}}\\right)',)
 
     def __init__(self, plasma_parent):
         super(TauSobolev, self).__init__(plasma_parent)

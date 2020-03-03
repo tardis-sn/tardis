@@ -216,9 +216,9 @@ class BasePlasma(PlasmaWriterMixin):
                 formulae = self.plasma_properties_dict[node].latex_formula
                 for output in range(0, len(formulae)):
                     formula = formulae[output]
-                    label = formula.replace('\\', '\\\\')
-                    print_graph._node[str(node)]['label']+='\\n$'
-                    print_graph._node[str(node)]['label']+=label
+                    #label = formula.replace('\\', '\\\\')
+                    print_graph._node[str(node)]['label']+='$'
+                    print_graph._node[str(node)]['label']+=formula
                     print_graph._node[str(node)]['label']+='$'
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)

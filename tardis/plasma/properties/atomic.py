@@ -191,6 +191,7 @@ class ZetaData(BaseAtomicDataProperty):
         from the ionized state that go directly to the ground state.
     """
     outputs = ('zeta_data',)
+    latex_name = ('\\zeta',)
 
     def _filter_atomic_property(self, zeta_data, selected_atoms):
         zeta_data['atomic_number'] = zeta_data.index.labels[0] + 1
