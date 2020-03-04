@@ -6,6 +6,7 @@ import fileinput
 
 import networkx as nx
 import pandas as pd
+import matplotlib.pyplot as plt
 
 from tardis.plasma.exceptions import PlasmaMissingModule, NotInitializedModule
 from tardis.plasma.properties.base import *
@@ -247,6 +248,56 @@ class BasePlasma(PlasmaWriterMixin):
 
         for line in fileinput.input(fname_graph, inplace = 1):
             print(line.replace(r'\enlargethispage{100cm}', ''), end='')
+
+    def display_plasma_graph(self,node_size=2000,node_color='red',alpha=0.5,
+                                font_size=7,edge_labels_font_color='blue',connectionstyle=None,node_shape='o',edge_font_size=4):
+        """
+        TARDIS calculates the state of the gas of the exploding star in the plasma calculation. When the gas changes temperature, 
+        TARDIS can automatically calculate what properties of the gas change. It uses a network graph for this. This also allows us 
+        to visualize how the properties of the gas are calculated.
+        This method displays an interactive DiGraph which lets us see this process.
+
+        Parameters :
+        node_size : Default - 2000, this value sets the size of node
+        node_color : Default - 'red', Sets the color in which the node is displayed.
+        alpha : Default - 0.5, sets the transperancy level of node
+        font_size : Default - 7, font size of node and edge labels
+        edge_labels_font_color : Default - 'blue', Color of edge labels
+        edge_font_size : Default - 4, specify font size for edge labels
+        connectionstyle : Default : None, Specifies the shape of connecting arrows. Refer https://matplotlib.org/3.1.1/gallery/userdemo/connectionstyle_demo.html for more details.
+
+        Reference documentation : https://networkx.github.io/documentation/stable/reference/generated/networkx.drawing.nx_pylab.draw_networkx_labels.html#networkx.drawing.nx_pylab.draw_networkx_labels
+        """
+
+        try:
+            import pygraphviz as pgv
+        except:
+            logger.warn('pygraphviz missing. Plasma graph will not be '
+                        'generated.')
+
+        temp_fname = tempfile.NamedTemporaryFile().name
+        self.write_to_dot(temp_fname)
+        G = nx.DiGraph(pgv.AGraph(temp_fname))
+
+        nodes = G.nodes.data('label')._nodes
+        mapping = {}
+        for node in nodes:
+            mapping[node] = nodes[node]['label']
+        nx.relabel_nodes(G, mapping, copy=False)
+        edge_labels = {}
+        for u, v, d in G.edges(data=True):
+            edge_labels[(u,v)] = d['label']
+
+        layout = nx.nx_agraph.graphviz_layout(G, prog='dot')
+
+        fig = plt.gcf()
+        fig.set_size_inches(25,15)
+        edge_label_plot = nx.draw_networkx_edge_labels(G,layout,edge_labels=edge_labels,font_size=edge_font_size,font_color=edge_labels_font_color)
+        nx.draw_networkx_nodes(G,layout,node_size=node_size,node_color=node_color,alpha=alpha, node_shape=node_shape, min_source_margin=3,min_target_margin=3)
+        nx.draw_networkx_edges(G,layout,width=0.8,edge_color='black',connectionstyle=connectionstyle,arrows=True)
+        nx.draw_networkx_labels(G,layout,font_size=font_size,font_family='sans-serif',)
+        plt.axis('off')
+        plt.show()
 
     def remove_hidden_properties(self, print_graph):
         for item in self.plasma_properties_dict.values():
