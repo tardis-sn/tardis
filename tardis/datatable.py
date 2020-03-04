@@ -7,6 +7,7 @@ created on Mar 2, 2020
 
 import pandas as pd
 import numpy as np
+import astropy.units as u
 
 class DataTable(pd.DataFrame):
 
@@ -22,7 +23,7 @@ class DataTable(pd.DataFrame):
             in tabular form. It can be simply accessed by the name of the
             object.
             
-        units : Series
+        units : Series of astropy.units
             It contains the units where index of units coincides with
             index of column attribute. It is the metadata and hence remains 
             conserved during manipulation. 
@@ -33,7 +34,7 @@ class DataTable(pd.DataFrame):
                 data = pd.np.random.randint(0, 100, (10, 5)) , 
                 columns = list('ABCED') )
          
-         datatable = DataTable (df, units=['m', 's', 't', 'm/s', 'kg']) 
+         datatable = DataTable (df, units=[u.meter, u.second, u.kg, u.meter/u.second, u.Ohm]) 
          
          
     Example to set units afterwards
@@ -83,11 +84,8 @@ class DataTable(pd.DataFrame):
         
         """
         ind = list (self.columns).index(attr)
-        if len(self.units) > max (0 ,ind) :
-            if len (self.units[ind]) > 0 :
-                return self.units[ind]
-            else :
-                print( "The unit for the following attribute is not set." )
+        if len((self.units)) > max (0 ,ind) :
+            return self.units[ind]
         else :
             print( "The unit for the following attribute is not set." )
             
@@ -102,7 +100,7 @@ class DataTable(pd.DataFrame):
         const: int
             value of the scalar
             
-        unit: string
+        unit: astropy
             unit of the scalar
         
         attr: array of string or int
@@ -112,7 +110,7 @@ class DataTable(pd.DataFrame):
         new_units = []
         for i in range(len(self.units)):
             if( list(self.columns) [i] in attr):
-                new_units.append(self.units[i]+unit)
+                new_units.append(self.units[i]*unit)
             else:
                 new_units.append(self.units[i])
         
@@ -125,7 +123,56 @@ class DataTable(pd.DataFrame):
         self.units = pd.Series(new_units)   
         
         
-    def series_dot_product(self, series, unit, attr):
+    def __private_dot(self,series):
+        """
+        It is a private method that computes Matrix Multiplication.
+        
+        Parameters
+        ----------
+        series : Series, DataFrame or array-like
+            The other object to compute the matrix product with.
+        
+        Returns
+        -------
+        Series or DataFrame
+        Matrix product    
+        
+        """
+        if isinstance(series, (pd.Series, pd.DataFrame)):
+            common = self.columns.union(series.index)
+            if len(common) > len(self.columns) or len(common) > len(series.index):
+                raise ValueError("matrices are not aligned")
+
+            left = self.reindex(columns=common, copy=False)
+            right = series.reindex(index=common, copy=False)
+            lvals = left.values
+            rvals = right.values
+        else:
+            left = self
+            lvals = self.values
+            rvals = np.asarray(series)
+            if lvals.shape[1] != rvals.shape[0]:
+                raise ValueError(
+                    f"Dot product shape mismatch, {lvals.shape} vs {rvals.shape}"
+                )
+
+        if isinstance(series, pd.DataFrame):
+            return self._constructor(
+                np.dot(lvals, rvals), index=left.index, columns=series.columns
+            )
+        elif isinstance(series, pd.Series):
+            return pd.Series(np.dot(lvals, rvals), index=left.index)
+        elif isinstance(rvals, (np.ndarray, pd.Index)):
+            result = np.dot(lvals, rvals)
+            if result.ndim == 2:
+                return self._constructor(result, index=left.index)
+            else:
+                return pd.Series(result, index=left.index)
+        else:  # pragma: no cover
+            raise TypeError(f"unsupported type: {type(series)}")
+            
+      
+    def dot(self, series, unit, attr):
         
         """
         Multiplies a constant having unit to some columns of datatable
@@ -135,7 +182,7 @@ class DataTable(pd.DataFrame):
         series: Series or array
             values of the series
             
-        unit: string
+        unit: astropy.units
             unit of the scalar
             
         attr: array of string or int
@@ -149,27 +196,19 @@ class DataTable(pd.DataFrame):
         new_units = []
         for i in range(len(self.units)):
             if(list(self.columns)[i] in attr):
-                new_units.append(self.units[i]+unit)
+                new_units.append(self.units[i]*unit)
             else:
                 new_units.append(self.units[i])
         
-        if self.shape[0] != len(list(series)):
-            print("The series dimension is not correct")
-        
-        else:
-            data2 = []
-            for i in attr:
-                if(i not in self.columns):
-                    print("Wrong Attributes entered")
-                    break
-                else:
-                    res = 0
-                    for j in range(self.shape[0]):
-                        res += self[i][j]*series[j]
-                    data2.append(res)
-        
-            dataframe = pd.DataFrame(data = [data2] ,columns=self.columns)
+        flag=1
+        for i in attr:
+            if(i not in self.columns):
+                print("Wrong Attributes entered")
+                flag=0
+                break
+        if(flag): 
+            dataframe = self.__private_dot(series)
             result = DataTable(dataframe)
             result.units = pd.Series(new_units)
             return result
-        
+            
