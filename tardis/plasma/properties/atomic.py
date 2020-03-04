@@ -1,5 +1,6 @@
 import logging
 
+from numba import njit
 import numpy as np
 import pandas as pd
 from collections import Counter as counter
@@ -90,6 +91,7 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
                'photo_ion_index')
     latex_name = ('\\xi_{\\textrm{i}}(\\nu)', '', '')
 
+    @njit
     def calculate(self, atomic_data, continuum_interaction_species):
         photoionization_data = atomic_data.photoionization_data.set_index(
             ['atomic_number', 'ion_number', 'level_number']
