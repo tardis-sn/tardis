@@ -237,8 +237,8 @@ class BasePlasma(PlasmaWriterMixin):
 
         dot_string = open(temp_fname).read()
 
-        open(fname_graph, 'w').write(dot2tex.dot2tex(dot_string,
-            texmode='raw'))
+        open(fname_graph, 'w').write(dot2tex.dot2tex(dot_string,texmode='raw',format='tikz',tikzedgelabels=True))
+
 
         for line in fileinput.input(fname_graph, inplace = 1):
             print(line.replace(r'\documentclass{article}',
