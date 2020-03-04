@@ -1,13 +1,15 @@
 import os
-
 import pytest
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
-
-import numpy as np
-import pandas as pd
-import pandas.util.testing as pdt
 import astropy.units as u
+from tardis.gui import interface
+from tardis.gui.widgets import Tardis 
+from tardis.gui.datahandler import SimpleTableModel
+from PyQt5 import QtWidgets
+
+
+
 
 
 @pytest.fixture(scope='module')
@@ -36,10 +38,12 @@ def simulation_one_loop(
     simulation = Simulation.from_config(config)
     simulation.run()
 
-    returm simulation
+    return simulation
 
-
-
-def test_plasma_state_storer_store(simulation_one_loop)
-
+def test_gui(simulation_one_loop):
     simulation = simulation_one_loop
+    app = QtWidgets.QApplication([])
+    tablemodel = SimpleTableModel
+    win = Tardis(tablemodel)
+    win.show_model(simulation)
+    app.quit()
