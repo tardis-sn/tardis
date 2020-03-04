@@ -1,1 +1,1 @@
-import tardis.gui
+from tardis.gui import interface
