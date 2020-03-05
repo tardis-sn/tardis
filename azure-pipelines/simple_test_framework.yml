@@ -60,7 +60,8 @@ jobs:
         conda install -y pytest-cov
         pip install git+https://github.com/tonybaloney/pytest-azurepipelines.git
         export QT_API=pyqt
-        pytest -s tardis/tests/test_tardis_full_formal_integral.py --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
+        pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
+
     displayName: 'TARDIS test'
 
 
