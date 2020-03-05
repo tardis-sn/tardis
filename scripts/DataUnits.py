@@ -19,25 +19,31 @@ class DataUnits(pd.DataFrame):
         copy = DataUnits(self)                                 # Creating copy
         copy.units = self.units                                # assiging units to the copied object
         return copy                                             #returning the copied object to the called function
+    
     def ret_all_units(self):
     	return self.units
 
 
-    def get_data_unit(self, attr):                              #function for getting the unit of a given attribute
-        attr_list=[]                                            #creating a list of columns of the object
+    def get_data_unit(self, attrs):                              #function for getting the unit of a given attribute
+        attr_list=[]
+        units=[]                                            
         for i in self.columns:
-        	attr_list.append(i)                                 #apending the attributes in attr_list
-        index = attr_list.index(attr)                           # and finding the index of the attribute
-        print(index)
-        print(self.units)
-        print(len(self.units) )
-        if len(self.units) > max (0 ,index) :                      
-            if len (self.units[index]) > 0 :
-                return self.units[index]
+        	attr_list.append(i)  
+        for attr in attrs:
+        	index = attr_list.index(attr)
+        	if len(self.units) > max (0 ,index):
+        		if len (self.units[index]) > 0 :
+        			units.append(self.units[index])
+        		else :
+        			units.append("Unit Not set for Attribute"+str(attr) )
             else :
-                print("Attribute  Not set!!!!" )
-        else :
-            print("Attribute Not set!!!" )
+            	units.append("Unit Not set for Attribute"+str(attr) )
+        return units                               
+
+
+                                   
+        
+        
 
 """
 Test 
