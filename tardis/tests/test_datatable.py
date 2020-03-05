@@ -56,3 +56,18 @@ def test_datatable():
     s = pd.Series([1, 1, 2, 1])
     result = datatable3.dot(s, u.second, datatable3.columns)
     assert result.units.equals(pd.Series([u.meter*u.second, u.second*u.second]))
+    
+    """
+    Unit testing for add, replace and delete
+    """
+    datatable4.delete("E")
+    units2 = pd.Series([u.meter, u.second, u.kg, u.Ohm])
+    assert units2.equals(datatable4.units)
+    
+    units2 = pd.Series([u.meter, u.second, u.kg, u.Ohm,u.meter])
+    datatable4.add(pd.Series([1,2,3,4,5,1,2,3,4,5]),u.meter,"F")
+    assert datatable4.units.equals(units2)
+
+    units2 = pd.Series([u.second, u.second, u.kg, u.Ohm,u.meter])
+    datatable4.replace(pd.Series([1,2,3,4,5,1,2,3,4,5]),u.second,"A")
+    assert datatable4.units.equals(units2)
