@@ -13,7 +13,7 @@ import astropy.units as u
 
 
 def test_datatable():
-        """
+    """
     Creating datatable and checking various operations
     """
     df = pd.DataFrame( data = pd.np.random.randint(0, 100, (10, 5)) , columns = list('ABCED') )
@@ -72,3 +72,7 @@ def test_datatable():
     units2 = pd.Series([u.second, u.second, u.kg, u.Ohm,u.meter])
     datatable4.replace(pd.Series([1,2,3,4,5,1,2,3,4,5]),u.second,"A")
     assert datatable4.units.equals(units2)
+
+    
+
+test_datatable()
