@@ -37,6 +37,7 @@ assistance.
     :hidden:
 
     installation
+    development
     quickstart/quickstart
 
 

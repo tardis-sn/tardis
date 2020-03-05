@@ -1,168 +1,196 @@
-.. _installation:
+Installing TARDIS
+=================
 
-************
-Installation
-************
+Welcome to the Installation Guide for **TARDIS**. Please check the
+`requirements <file:///home/harpreet/Tardis_sn/tardis/docs/_build/html/installation.html#requirements>`__
+before the installation. You can read out the
+`Troubleshooting <file:///home/harpreet/Tardis_sn/tardis/docs/_build/html/installation.html#troubleshooting-installation-faq>`__
+section the **FAQ** as well for some common issues you might
+encounter during installation.
 
-Before installing TARDIS, please check its :ref:`requirements
-<requirements_label>`. We provide :ref:`instructions <anaconda_inst_label>` for installing TARDIS using 
-Anaconda. If you encounter problems, consult the
-:ref:`troubleshooting <troubleshooting_inst_label>` section. Once you have
-installed TARDIS, check out :doc:`running` for instructions of how to perform
-simple TARDIS calculations.
+.. note:: Consider these points before proceeding furthur:
 
-.. _requirements_label:
-
-
-.. warning::
-
-    TARDIS is only compatbile with Python >3.6
-
-.. note::
-    We strongly recommend to install TARDIS within an Anaconda environment and
-    to always use the lastest github development version.
+1. TARDIS is only compatbile with Python Version above 3.6
+2. Anaconda environment is strongly recommended to install TARDIS.
+3. Try to use the latest github development version of Anaconda.
+4. Linux is strongly recommended as TARDIS is not supported on Windows.
 
 Requirements
-============
+------------
 
-You can see a list of all the requirements of TARDIS in the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_.
+**Anaconda** is preffered for installing Tardis, You can follow these
+`instructions <https://docs.continuum.io/anaconda/install/>`__ to
+install anaconda.
 
-TARDIS is using Astropy's excellent installation helpers and thus uses similar
-instructions to Astropy.
+The **environment definition file** contains the list of all the
+requirements necessary for TARDIS. You can find the file
+`here <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`__.
 
-.. _anaconda_inst_label:
+TARDIS is using Astropy’s excellent installation helpers and thus uses
+similar instructions to **Astropy**.
 
 Installing TARDIS with Anaconda
-===============================
+-------------------------------
 
-We highly recommend using the Anaconda python environment to install TARDIS (or
-any other scientific packages for that matter). Anaconda has the advantage of
-being an isolated environment that can be set to be the default one, but by no
-means will mess with your other environments. It will also work on computers
-where ``root``-rights are not available. Use these `instructions
-<http://docs.continuum.io/anaconda/install.html>`_ to install Anaconda on your
-machine. The next step is to create an environment for TARDIS that contains all
-of the necessary packages (this ensures that TARDIS requirements won't clash
-with any other python installs on disc::
+Anaconda python environment is strongly recommended for the installation
+(or any other scientific packages for that matter). Anaconda benifits as
+an isolated environment that can be set to be the default one, but by no
+means will mess with your other environments. It will also work on
+computers where ``root-``\ rights are not available. You can use these
+instructions in order to install Anaconda on your local machine.
 
-First, download the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_ from::
+Step.1: Download the environment defination file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml
+You can get the environment defination file from
+`here <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`__.
 
-To create the environment, change to the directory that you downloaded the environment definition file and run::
+Step.2: Create the environment:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    conda env create -f tardis_env3.yml
+Change to the directory that you downloaded the environment definition
+file and run:
 
-Then to activate this environment simply do::
+::
 
-    source activate tardis
+   conda env create -f tardis_env3.yml
 
-or the new method::
+Sit back and wait till the system prompts you.
 
-    conda activate tardis
+Step.3: Activating the environment:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-and after you are done with TARDIS you can deactivate::
+Run either of the following commands to activate the environment
 
-    source deactivate
+::
 
-One does not need to recreate the environment, but simply activate it every time
-TARDIS is used.
+   source activate tardis
 
-For TARDIS development purposes please follow the steps :ref:`here <forking>`
-until the step to install TARDIS in the development mode
-``python setup.py develop``.
+or use the new command
 
-You can also install TARDIS for the latest development version
-(but this is only recommended for pure users)::
+::
 
-    pip install git+https://github.com/tardis-sn/tardis
+   conda activate tardis
 
-Development guidelines for TARDIS can be found `here <https://tardis-sn.github.io/tardis/development/index.html>`_.
+Step.4: Deactivating the environment:
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Alternatively, you can manually clone our repository and install TARDIS by::
+when you feel that you are done with TARDIS the deactivation can be done
+easily by running the following command
 
-    git clone https://github.com/tardis-sn/tardis.git
-    cd tardis
-    python setup.py install
+::
 
+   source deactivate
 
-.. _install_openmp:
-Enabling parallel execution with OpenMP
----------------------------------------
+You don’t need to recreate the environment next time you want to use
+Tardis. Just activate it again using the same command:
 
+::
 
-Manually, cloning the repository enables other options such as running the code in parallel (enabling OpenMP).
-In general we encourage to download the compilers from `conda` as we then can ensure that they work with TARDIS.
-Within the TARDIS conda environment do::
+   conda activate tardis    
 
-    conda install -c conda-forge compilers
+That’s all with the installation of TARDIS. Click Next for furthur
+instruction to **Develop TARDIS**
 
-For macOS::
+Troubleshooting Installation(FAQ)
+---------------------------------
 
-    conda install -c conda-forge llvm-openmp
+This section includes some of the common problems most prominent to be
+encountered during installation and their solutions. It’s adviced to use
+the recommended install method for any installation problem,
 
-For Linux::
+Problem: Could not find C file tardis/montecarlo/montecarlo.c
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    conda install -c conda-forge openmp
+While building tardis via ``python setup.py`` build you may encounter
+the following error:
 
-To compile TARDIS for parallel execution::
+::
 
-    python setup.py install --with-openmp
+   error: tardis/montecarlo/montecarlo.c: Could not find C file tardis/montecarlo/montecarlo.c for Cython file tardis/montecarlo/montecarlo.pyx when building extension tardis.montecarlo.montecarlo. Cython must be installed to build from a git checkout.
 
+Solution:
+~~~~~~~~~
 
-.. _troubleshooting_inst_label:
-Installation Troubles (FAQ)
-===========================
+The most obvious solution to this is a clean checkout. Try running the
+following commands:
 
-We highly encourage with any installation problems to try the recommended install
-method because this often fix problems. Here are some common problems when
-installing and their fixes:
+::
 
-**Problem:** While building tardis via ``python setup.py`` build you
-may encounter the following error::
+   python setup.py clean
 
-    error: tardis/montecarlo/montecarlo.c: Could not find C file tardis/montecarlo/montecarlo.c for Cython file tardis/montecarlo/montecarlo.pyx when building extension tardis.montecarlo.montecarlo. Cython must be installed to build from a git checkout.
+::
 
+   git clean -dfx
 
-**Solution:** There are several solutions to this problem. A clean checkout will
-help. To clean up your repository please try ``python setup.py clean`` and
-then ``git clean -dfx`` (**WARNING** will delete any non tardis file in that directory)
-This will often clean this problem. If it still persists:
+**WARNING** This will delete any non tardis file in that directory and
+will often clean this problem. If it still persists ``cd`` to
+``tardis/montecarlo`` and buils montecarlo.c manually:
 
-Go into the tardis/montecarlo directory and build montecarlo.c by hand::
+::
 
-    cython montecarlo.pyx
+   cython montecarlo.pyx
 
-Then, ``python setup.py build`` should run without problems.
+Now ``python setup.py build`` will run perfectly.
 
+Problem: limits.h: No such file or directory
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Problem:** when trying to set up CC=gcc python setup.py develop --with-openmp the following error popped up: 
-from tardis/_compiler.c:1: /Users/yssavo/miniconda2/envs/tardis-show2/lib/gcc/x86_64-apple-darwin13.4.0/5.2.0/include-fixed/limits.h:168:61: fatal error: limits.h: No such file or directory 
-        
-**Solution:** Run on terminal: 
+when trying to set up CC=gcc python setup.py develop –with-openmp the
+following error popped up: ``from tardis/_compiler.c:1``:
 
-    open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
+::
 
-**Problem:** Symbol not found: _GOMP_parallel when compiling with `--with-openmp`
+   /Users/user-name/miniconda2/envs/tardis-show2/lib/gcc/x86_64-apple-darwin13.4.0/5.2.0/include-fixed/limits.h:168:61: fatal error: limits.h: No such file or directory
 
-**Solution:** Install gcc8 from macports and then install with these flags: `link_args = ['-fopenmp','-Wl,-rpath,/opt/local/lib/gcc8/']`
+Solution:
+~~~~~~~~~
 
-**Problem:** While building tardis(via python 2.7) via ``python setup.py`` build you
-may encounter the following error::
+Try this Command:
 
-     TypeError: super() argument 1 must be type, not None
-    
-    ----------------------------------------
-    Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-req-build-wPB39p/
+::
 
+   open /Library/Developer/CommandLineTools/Packages/macOS_SDK_headers_for_macOS_10.14.pkg
 
-**Solution:** The cause for this problem is sphinx , or sphinx version . It can be easily solved by installing sphinx 1.5.6.
-              The command for the same is :
+Problem: Symbol not found: \_GOMP_parallel
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-    pip install sphinx==1.5.6
-    
-    or
-    
-    conda install sphinx==1.5.6
+Symbol not found: ``_GOMP_parallel`` when compiling with
+–with-``openmp``
 
-Then, ``python setup.py build install`` should run without problems.
+Solution:
+~~~~~~~~~
+
+Install ``gcc8`` from ``macports`` and then install with these flags:
+``link_args = [‘-fopenmp’,’-Wl,-rpath,/opt/local/lib/gcc8/’]``
+
+Problem: “python setup.py egg_info” failed with error code 1
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+While building tardis(via python 2.7) via ``python setup.py build`` you
+may encounter this error:
+
+::
+
+   TypeError: super() argument 1 must be type, not None
+
+   ----------------------------------------
+   Command "python setup.py egg_info" failed with error code 1 in /tmp/pip-req-build-wPB39p/
+
+Solution:
+~~~~~~~~~
+
+The cause for this problem is sphinx , or sphinx version . It can be
+easily solved by installing sphinx 1.5.6. try these commands:
+
+::
+
+   pip install sphinx==1.5.6
+
+or
+
+::
+
+   conda install sphinx==1.5.6
+
+You won’t face any errors in ``python setup.py build`` install now.
