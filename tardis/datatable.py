@@ -211,4 +211,100 @@ class DataTable(pd.DataFrame):
             result = DataTable(dataframe)
             result.units = pd.Series(new_units)
             return result
+    
+    def add(self, series, unit, attr):
+        
+        """
+        Add a column in datatable 
+        
+        Parameters
+        ----------
+        series: Series or array
+            values of the series
+            
+        unit: astropy.units
+            unit of the scalar
+            
+        attr: string or int 
+            name of the new attribute
+            
+        """
+        flag = 1
+        for i in self.columns:
+            if i == attr:
+                flag = 0
+        
+        if flag == 0 :
+            print("The attribute name already exists")
+            print("Kindly change the attribute name")
+            print("Or use replace function if you want to change the value")
+        else:
+            self [attr] = series
+            self . units = list(self.units)
+            self. units. append( unit ) 
+            self.units = pd.Series(self.units)
+            
+        
+    def delete(self, attr):
+        
+        """
+        Deletes a column
+        
+        Parameters
+        ----------
+        attr: string or int 
+            name of the new attribute
+            
+        """
+        flag = 1
+        index = 0
+        for i in self.columns:
+            if i == attr:
+                flag = 0
+            else:
+               index+=1
+        
+        if flag == 1 :
+            print("The attribute does not exists")
+            print("Kindly change the attribute name")
+        
+        else:
+            self.units = list(self.units)
+            del self.units[list(self.columns).index(attr)]
+            self.drop(columns = attr) 
+            self.units = pd.Series(self.units)
+        
+    def replace(self, series, unit, attr):
+        
+        """
+        Replace a column in datatable 
+        
+        Parameters
+        ----------
+        series: Series or array
+            values of the series
+            
+        unit: astropy.units
+            unit of the scalar
+            
+        attr: string or int 
+            name of the new attribute that needs to be replaced
+            
+        """
+        flag = 1
+        for i in self.columns:
+            if i == attr:
+                flag = 0
+    
+                
+        if flag == 1 :
+            print("The attribute does not exists")
+            print("Kindly change the attribute name")
+            print("Or use add function if you want to change the value")
+        else:
+            ind = list(self.columns).index(attr)
+            self [attr] = series
+            self . units = list(self.units)
+            self. units[ind] = unit  
+            self.units = pd.Series(self.units)
             
