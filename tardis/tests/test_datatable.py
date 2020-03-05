@@ -13,12 +13,13 @@ import astropy.units as u
 
 
 def test_datatable():
-    """
+        """
     Creating datatable and checking various operations
     """
     df = pd.DataFrame( data = pd.np.random.randint(0, 100, (10, 5)) , columns = list('ABCED') )
     unit = pd.Series([u.meter, u.second, u.kg, u.meter/u.second, u.Ohm])
     datatable = DataTable (df, units=[u.meter, u.second, u.kg, u.meter/u.second, u.Ohm]) 
+    datatable4 = datatable.copy()
     
     """
     Assertions for units while copying, slicing and get unit function
