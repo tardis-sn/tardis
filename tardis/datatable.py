@@ -308,3 +308,40 @@ class DataTable(pd.DataFrame):
             self. units[ind] = unit  
             self.units = pd.Series(self.units)
             
+    def join(self, othertable):
+        
+        """
+        Performs a join of self with othertable and returns the same.
+        Parameters
+        ----------
+        othertable: object of class DataTable
+            The table with which the join is to be taken
+            
+        Returns
+        ----------
+        object of class DataTable
+        DataTable that is the result of join of self with othertable
+            
+        """
+        columns1 = self.columns
+        columns2 = othertable.columns
+        common_columns = []
+        for i in columns1:
+            for j in columns2:
+                if i==j :
+                    common_columns.append(i)
+                    
+        resDf = pd.merge(self, othertable, on=common_columns)
+        print(resDf)
+        result = DataTable(resDf)
+        res_units = []
+        for i in list(resDf.columns):
+            if(i in self.columns):
+                ind = list(self.columns).index(i)
+                res_units.append(list(self.units)[ind])
+            elif(i in othertable.columns):
+                ind = list(othertable.columns).index(i)
+                res_units.append(list(othertable.units)[ind])
+        result.units = pd.Series(res_units)
+        return result
+        
