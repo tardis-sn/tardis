@@ -250,7 +250,7 @@ class BasePlasma(PlasmaWriterMixin):
             print(line.replace(r'\enlargethispage{100cm}', ''), end='')
 
     def display_plasma_graph(self,node_size=2000,node_color='red',alpha=0.5,
-                                font_size=7,edge_labels_font_color='blue',connectionstyle=None,node_shape='o',edge_font_size=4):
+                                font_size=7,edge_labels_font_color='blue',connectionstyle=None,node_shape='o',edge_font_size=4,pos='dot'):
         """
         TARDIS calculates the state of the gas of the exploding star in the plasma calculation. When the gas changes temperature, 
         TARDIS can automatically calculate what properties of the gas change. It uses a network graph for this. This also allows us 
@@ -288,7 +288,11 @@ class BasePlasma(PlasmaWriterMixin):
         for u, v, d in G.edges(data=True):
             edge_labels[(u,v)] = d['label']
 
-        layout = nx.nx_agraph.graphviz_layout(G, prog='dot')
+        try:
+            layout = nx.nx_agraph.graphviz_layout(G, prog=pos)
+        except :
+            print("Unable to get layout {}, defaulting to 'dot'".format(pos))
+            layout = nx.nx_agraph.graphviz_layout(G, prog='dot')
 
         fig = plt.gcf()
         fig.set_size_inches(25,15)
