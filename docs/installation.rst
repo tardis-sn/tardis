@@ -55,15 +55,18 @@ To create the environment, change to the directory that you downloaded the envir
 
 Then to activate this environment simply do::
 
-    source activate tardis
-
-or the new method::
-
     conda activate tardis
 
 and after you are done with TARDIS you can deactivate::
 
-    source deactivate
+    conda deactivate
+
+**Note:**:
+conda activate and conda deactivate only work on conda 4.6 and later versions. For conda versions prior to 4.6, run:
+
+Windows: activate or deactivate
+
+Linux and macOS: source activate or source deactivate
 
 One does not need to recreate the environment, but simply activate it every time
 TARDIS is used.
