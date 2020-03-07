@@ -158,7 +158,7 @@ may encounter the following error::
 **Solution:** The cause for this problem is sphinx , or sphinx version . It can be easily solved by installing sphinx 1.5.6.
               The command for the same is
 
-				pip install sphinx==1.5.6
+			pip install sphinx==1.5.6
     
     or
     
