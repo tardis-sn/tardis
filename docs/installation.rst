@@ -62,7 +62,7 @@ and after you are done with TARDIS you can deactivate::
     conda deactivate
 
 **Note:**
-``conda activate`` and ``conda deactivate`` only work on conda 4.6 and later versions. For conda versions prior to 4.6, run ``source activate`` or source deactivate``
+``conda activate`` and ``conda deactivate`` only work on conda 4.6 and later versions. For conda versions prior to 4.6, run ``source activate`` or ``source deactivate``
 
 One does not need to recreate the environment, but simply activate it every time
 TARDIS is used.
@@ -156,12 +156,12 @@ may encounter the following error::
 
 
 **Solution:** The cause for this problem is sphinx , or sphinx version . It can be easily solved by installing sphinx 1.5.6.
-              The command for the same is ::
+              The command for the same is
 
-    pip install sphinx==1.5.6
+				pip install sphinx==1.5.6
     
-    or:
+    or
     
-    conda install sphinx==1.5.6
+				conda install sphinx==1.5.6
 
 Then, ``python setup.py build install`` should run without problems.
