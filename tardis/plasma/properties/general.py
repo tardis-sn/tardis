@@ -4,8 +4,11 @@ import numpy as np
 import pandas as pd
 from astropy import units as u
 from tardis import constants as const
-
+from numba import njit
 from tardis.plasma.properties.base import ProcessingPlasmaProperty
+
+m_e_cgs = const.m_e.cgs.value
+h_cgs = const.h.cgs.value
 
 logger = logging.getLogger(__name__)
 
@@ -40,10 +43,10 @@ class GElectron(ProcessingPlasmaProperty):
     latex_name = ('g_{\\textrm{electron}}',)
     latex_formula = ('\\Big(\\dfrac{2\\pi m_{e}/\
                      \\beta_{\\textrm{rad}}}{h^2}\\Big)^{3/2}',)
-
-    def calculate(self, beta_rad):
-        return ((2 * np.pi * const.m_e.cgs.value / beta_rad) /
-                (const.h.cgs.value ** 2)) ** 1.5
+    @staticmethod
+    @njit
+    def calculate(beta_rad):
+        return ((2 * np.pi * m_e_cgs / beta_rad) /(h_cgs ** 2)) ** 1.5
 
 
 class ThermalGElectron(GElectron):
@@ -97,8 +100,10 @@ class ElectronTemperature(ProcessingPlasmaProperty):
     outputs = ('t_electrons',)
     latex_name = ('T_{\\textrm{electron}}',)
     latex_formula = ('\\textrm{const.}\\times T_{\\textrm{rad}}',)
-
-    def calculate(self, t_rad, link_t_rad_t_electron):
+    
+    @staticmethod
+    @njit
+    def calculate(t_rad, link_t_rad_t_electron):
         return t_rad * link_t_rad_t_electron
 
 class BetaElectron(ProcessingPlasmaProperty):
