@@ -8,6 +8,9 @@ created on Mar 2, 2020
 import pandas as pd
 import numpy as np
 import astropy.units as u
+import uuid
+from pandas import HDFStore
+import hashlib
 
 class DataTable(pd.DataFrame):
 
@@ -345,3 +348,28 @@ class DataTable(pd.DataFrame):
         result.units = pd.Series(res_units)
         return result
         
+    def writeToHDF5(self, path):
+        """
+        Write the content of current datatable into a HDF% file.
+        
+        Parameters
+        ----------
+        path: String
+            path of the HDF5 file
+            
+        """
+        with HDFStore(path) as store:
+            store.put("units", self.units)
+            md5_hash = hashlib.md5()
+            for key in store.keys():
+                tmp = np.ascontiguousarray(store[key].values.data)
+                md5_hash.update(tmp)
+            
+            uuid1 = uuid.uuid1().hex
+
+            print("Signing AtomData: \nMD5: {}\nUUID1: {}".format(
+                md5_hash.hexdigest(), uuid1))
+
+            store.root._v_attrs['md5'] = md5_hash.hexdigest().encode('ascii')
+            store.root._v_attrs['uuid1'] = uuid1.encode('ascii')
+            store.close()
