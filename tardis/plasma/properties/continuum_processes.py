@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 
 njit_dict = {'fastmath': False, 'parallel': False}
 
+@njit
+def _calculate(x_sect, nu):
+    alpha_sp = (8 * np.pi * x_sect * nu ** 2 / (const.c.cgs.value) ** 2)
+    alpha_sp = alpha_sp[:, np.newaxis]
+    boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons *
+                                  (const.h.cgs.value / const.k_B.cgs.value))
+    alpha_sp = alpha_sp * boltzmann_factor
+    return alpha_sp
 
 @njit(**njit_dict)
 def integrate_array_by_blocks(f, x, block_references):
@@ -78,14 +86,10 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
 
     def calculate(self, photo_ion_cross_sections, t_electrons,
                   photo_ion_block_references, photo_ion_index, phi_ik):
+        
         x_sect = photo_ion_cross_sections['x_sect'].values
         nu = photo_ion_cross_sections['nu'].values
-
-        alpha_sp = (8 * np.pi * x_sect * nu ** 2 / (const.c.cgs.value) ** 2)
-        alpha_sp = alpha_sp[:, np.newaxis]
-        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons *
-                                  (const.h.cgs.value / const.k_B.cgs.value))
-        alpha_sp = alpha_sp * boltzmann_factor
+        alpha_sp = _calculate(x_sect, nu)
         alpha_sp = integrate_array_by_blocks(alpha_sp, nu,
                                              photo_ion_block_references)
         alpha_sp = pd.DataFrame(alpha_sp, index=photo_ion_index)
