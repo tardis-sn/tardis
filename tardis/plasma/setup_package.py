@@ -1,5 +1,5 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-from setuptools import Extension
+#from setuptools import Extension
 from astropy_helpers.distutils_helpers import get_distutils_option
 import numpy as np
 
@@ -16,10 +16,10 @@ else:
     define_macros = []
 
 
-def get_extensions():
-    sources = ['tardis/plasma/properties/util/macro_atom.pyx']
-    return [Extension('tardis.plasma.properties.util.macro_atom', sources,
-                      include_dirs=['numpy'],
-                      extra_compile_args=compile_args,
-                      extra_link_args=link_args)]
+# def get_extensions():
+#     sources = ['tardis/plasma/properties/util/macro_atom.pyx']
+#     return [Extension('tardis.plasma.properties.util.macro_atom', sources,
+#                       include_dirs=['numpy'],
+#                       extra_compile_args=compile_args,
+#                       extra_link_args=link_args)]
 
