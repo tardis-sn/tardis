@@ -30,10 +30,34 @@ class UDataFrame(pd.DataFrame):
         def _c(*args, **kwargs):
             return UDataFrame(*args, **kwargs).__finalize__(self)
         return _c
+	
+    @property
+    def _constructor_sliced(self):
+        return USeries
+
 
     def __init__(self, *args, **kwargs):
         """
         Grab the keyword argument that is supposed to be units
         """
         self.units = pd.Series(kwargs.pop("units", None))
+        super().__init__(*args, **kwargs)
+
+
+class USeries(pd.Series):
+
+    _metadata = ['units']
+
+    @property
+    def _constructor(self):
+        def _c(*args, **kwargs):
+            return USeries(*args, **kwargs).__finalize__(self)
+        return _c
+
+    @property
+    def _constructor_expanddim(self):
+        return UDataFrame
+    
+    def __init__(self, *args, **kwargs):
+        self.units = kwargs.pop("units", None)
         super().__init__(*args, **kwargs)
