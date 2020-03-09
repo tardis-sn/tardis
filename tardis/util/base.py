@@ -77,12 +77,12 @@ def int_to_roman(i):
 
     Parameters
     ----------
-    i: int
+    i : int
         Integer to be converted into roman numerals
 
     Returns
     -------
-        : str
+    str
         Returns roman numeral representation of i in str format.
     """
     result = []
@@ -98,12 +98,12 @@ def roman_to_int(roman_string):
 
     Parameters
     ----------
-    roman_string: str
+    roman_string : str
         Roman numeral to be converted into an integer
 
     Returns
     -------
-        : int
+    int
         Returns integer representation of roman_string
     """
 
@@ -131,26 +131,26 @@ def calculate_luminosity(
 
     Parameters
     ----------
-    spec_fname: file or str
+    spec_fname : file or str
         File or file name to be read
-    distance: float
+    distance : float
         Distance to star
-    wavelength_column: int, optional(default = 0)
+    wavelength_column : int, optional(default = 0)
         Column index in which the wavelength is stored
-    wavelength_unit: float, optional(default = u.angstrom)
+    wavelength_unit : float, optional(default = u.angstrom)
         Dictates units used for calculating wavelength.
-    flux_column: int, optional(default = 1)
+    flux_column : int, optional(default = 1)
         Column index in which the flux is stored
-    flux_unit: str, optional(default = u.Unit('erg / (Angstrom cm2 s)')
+    flux_unit : str, optional(default = u.Unit('erg / (Angstrom cm2 s)')
         Dictates units used for flux
 
     Returns
     -------
-    luminosity.value: float
+    luminosity.value : float
         Returned luminosity value of star.
-    wavelength.min()
+    wavelength.min() : float
         Minimum value of wavelength of light
-    wavelength.max()
+    wavelength.max() : float
         Maximum value of wavelength of light
     """
     #BAD STYLE change to parse quantity
@@ -170,21 +170,25 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
 
     Parameters
     ----------
-    radial1d_mdl: Radial1DModel
+    radial1d_mdl : Radial1DModel
         Inputted object that will be read into YAML file
-    fname: str
+    fname : str
         File name for the synpp yaml
-    shell_no: int, optional(default = 0)
+    shell_no : int, optional(default = 0)
         Number of shells
-    lines_db: file, optional(default = None)
-        
+    lines_db : file, optional(default = None)
+
+    Raises
+    ------
+    ValueError
+        If the current dataset does not contain necessary reference files
     """
 
     logger.warning('Currently only works with Si and a special setup')
     if radial1d_mdl.atom_data.synpp_refs is not None:
         raise ValueError(
             'The current atom dataset does not contain the '
-            'necesarry reference files (please contact the authors)')
+            'necessary reference files (please contact the authors)')
 
     radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] = -99.0
     for key, value in radial1d_mdl.atom_data.synpp_refs.iterrows():
@@ -253,14 +257,14 @@ def intensity_black_body(nu, T):
 
     Parameters
     ----------
-    nu: float
+    nu : float
         Frequency of light
-    T: float
+    T : float
         Temperature in kelvin
 
     Returns
     -------
-    Intensity: float
+    Intensity : float
         Returns the intensity of the black body
     """
     beta_rad = 1 / (k_B_cgs * T)
@@ -276,16 +280,16 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
 
     Parameters
     ----------
-    species_tuple: tuple
+    species_tuple : tuple
         Tuple of 2 values indicated atomic number and number of
         electrons missing
 
-    roman_numerals: bool, optional(default = TRUE)
+    roman_numerals : bool, optional(default = TRUE)
         Indicates whether the returned ion number is in roman numerals
 
     Returns
     -------
-    element_symbol, roman_ion_number: str
+    element_symbol, roman_ion_number : str
         Returns corresponding string representation of given tuple
     """
     atomic_number, ion_number = species_tuple
@@ -303,12 +307,12 @@ def species_string_to_tuple(species_string):
 
     Parameters
     ----------
-    species_string: str
+    species_string : str
         String containing species symbol (e.g. Si II, Fe III)
 
     Returns
     -------
-    atomic_number, ion_number: tuple
+    atomic_number, ion_number : tuple
         Returns tuple of length 2 indicating atomic number and ion number
 
     Raises
@@ -353,17 +357,17 @@ def parse_quantity(quantity_string):
 
     Parameters
     ----------
-    quantity_string: str
+    quantity_string : str
         String to be converted into astropy.Quantity
 
     Returns
     -------
-    q: ~u.Quantity
+    q : ~u.Quantity
         Corresponding astropy.Quantity object for passed string
 
     Raises
     ------
-    MalformedQuantitiyError
+    MalformedQuantityError
         If string is not properly formatted for Astropy Quantity
     """
 
@@ -394,12 +398,12 @@ def element_symbol2atomic_number(element_string):
 
     Parameters
     ----------
-    element_string: str
+    element_string : str
         Inputted element symbol
 
     Returns
     -------
-        : int
+    int
         Returned atomic number
     """
     reformatted_element_string = reformat_element_symbol(element_string)
@@ -414,12 +418,12 @@ def atomic_number2element_symbol(atomic_number):
 
     Parameters
     ----------
-    atomic_number: int
+    atomic_number : int
         Inputted atomic number
 
     Returns
     -------
-        : str
+    str
        Returned corresponding element symbol
     """
     return ATOMIC_NUMBER2SYMBOL[atomic_number]
@@ -432,12 +436,12 @@ def reformat_element_symbol(element_string):
 
     Parameters
     ----------
-    element_string: str
+    element_string : str
         Inputted element symbol
 
     Returns
     -------
-        : str
+    str
         Returned reformatted element symbol
     """
 
@@ -451,16 +455,16 @@ def quantity_linspace(start, stop, num, **kwargs):
 
     Parameters
     ----------
-    start: ~astropy.Quantity
+    start : ~astropy.Quantity
         Starting value of the sequence
-    stop: ~astropy.Quantity
+    stop : ~astropy.Quantity
         End value of the sequence
-    num: ~int
+    num : int
         Number of samples to generate
 
     Returns
     -------
-        : ~astropy.Quantity
+    ~astropy.Quantity
         Returns num evenly spaced characters of type astropy.Quantity
 
     Raises
@@ -482,14 +486,14 @@ def convert_abundances_format(fname, delimiter=r'\s+'):
 
     Parameters
     ----------
-    fname: file, str
+    fname : file, str
         File or file name that contains abundance info
-    delimiter: str, optional(default = '\\s+')
+    delimiter : str, optional(default = '\\s+')
         Determines the separator for splitting file
 
     Returns
     -------
-        : DataFrame
+    DataFrame
         Corresponding data frame
     """
     df = pd.read_csv(fname, delimiter=delimiter, comment='#', header=None)
