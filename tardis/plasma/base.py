@@ -167,7 +167,7 @@ class BasePlasma(PlasmaWriterMixin):
     def _resolve_update_list(self, changed_properties):
         """
         Returns a list of all plasma models which are affected by the
-        changed_modules due to there dependency in the
+        changed_modules due to there dependency in
         the plasma_graph.
 
         Parameters
@@ -250,23 +250,30 @@ class BasePlasma(PlasmaWriterMixin):
             print(line.replace(r'\enlargethispage{100cm}', ''), end='')
 
     def display_plasma_graph(self,node_size=2000,node_color='red',alpha=0.5,
-                                font_size=7,edge_labels_font_color='blue',connectionstyle=None,node_shape='o',edge_font_size=4,pos='dot'):
+                                font_size=7,edge_font_color='blue',connectionstyle=None,node_shape='o',edge_font_size=4,pos='dot'):
         """
-        TARDIS calculates the state of the gas of the exploding star in the plasma calculation. When the gas changes temperature, 
-        TARDIS can automatically calculate what properties of the gas change. It uses a network graph for this. This also allows us 
-        to visualize how the properties of the gas are calculated.
-        This method displays an interactive DiGraph which lets us see this process.
+        Displays an interactive DiGraph which lets us see the flow of 
+        information during simulation.
+
+        Parameters
+        ----------
 
         Parameters :
-        node_size : Default - 2000, this value sets the size of node
-        node_color : Default - 'red', Sets the color in which the node is displayed.
-        alpha : Default - 0.5, sets the transperancy level of node
-        font_size : Default - 7, font size of node and edge labels
-        edge_labels_font_color : Default - 'blue', Color of edge labels
-        edge_font_size : Default - 4, specify font size for edge labels
-        connectionstyle : Default : None, Specifies the shape of connecting arrows. Refer https://matplotlib.org/3.1.1/gallery/userdemo/connectionstyle_demo.html for more details.
+        node_size : int optional
+            default - 2000
+        node_color : string optional
+            default - 'red'
+        alpha : float optional
+            default - 0.5, sets the transperancy level of node
+        font_size : int optional
+            default - 7, font size of node labels
+        edge_font_color : string optional
+            default - 'blue', Color of edge labels
+        edge_font_size : int optional
+            default - 4, specify font size for edge labels
+        connectionstyle : character optional
+            default : None, Specifies the shape of connecting arrows. Refer `here <https://matplotlib.org/3.1.1/gallery/userdemo/connectionstyle_demo.html>`_ for more details.
 
-        Reference documentation : https://networkx.github.io/documentation/stable/reference/generated/networkx.drawing.nx_pylab.draw_networkx_labels.html#networkx.drawing.nx_pylab.draw_networkx_labels
         """
 
         try:
