@@ -35,6 +35,7 @@ dependencies:
   - matplotlib
   - graphviz
   - pygraphviz
+  - pyside2
 
   # Documentation
   - sphinx
