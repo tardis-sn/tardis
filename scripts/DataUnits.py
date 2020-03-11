@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-class DataUnits(pd.DataFrame):
+class DataUnit(pd.DataFrame):
 
 
     _metadata = ['units']      #setting up the metadata, i.e units
@@ -36,8 +36,8 @@ class DataUnits(pd.DataFrame):
         			units.append(self.units[index])
         		else :
         			units.append("Unit Not set for Attribute"+str(attr) )
-            else :
-            	units.append("Unit Not set for Attribute"+str(attr) )
+        	else :
+        		units.append("Unit Not set for Attribute"+str(attr) )
         return units                               
 
 
