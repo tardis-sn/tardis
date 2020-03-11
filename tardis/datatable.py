@@ -124,58 +124,9 @@ class DataTable(pd.DataFrame):
             self[i] = const*self[i]
             
         self.units = pd.Series(new_units)   
-        
-        
-    def __private_dot(self,series):
-        """
-        It is a private method that computes Matrix Multiplication.
-        
-        Parameters
-        ----------
-        series : Series, DataFrame or array-like
-            The other object to compute the matrix product with.
-        
-        Returns
-        -------
-        Series or DataFrame
-        Matrix product    
-        
-        """
-        if isinstance(series, (pd.Series, pd.DataFrame)):
-            common = self.columns.union(series.index)
-            if len(common) > len(self.columns) or len(common) > len(series.index):
-                raise ValueError("matrices are not aligned")
-
-            left = self.reindex(columns=common, copy=False)
-            right = series.reindex(index=common, copy=False)
-            lvals = left.values
-            rvals = right.values
-        else:
-            left = self
-            lvals = self.values
-            rvals = np.asarray(series)
-            if lvals.shape[1] != rvals.shape[0]:
-                raise ValueError(
-                    f"Dot product shape mismatch, {lvals.shape} vs {rvals.shape}"
-                )
-
-        if isinstance(series, pd.DataFrame):
-            return self._constructor(
-                np.dot(lvals, rvals), index=left.index, columns=series.columns
-            )
-        elif isinstance(series, pd.Series):
-            return pd.Series(np.dot(lvals, rvals), index=left.index)
-        elif isinstance(rvals, (np.ndarray, pd.Index)):
-            result = np.dot(lvals, rvals)
-            if result.ndim == 2:
-                return self._constructor(result, index=left.index)
-            else:
-                return pd.Series(result, index=left.index)
-        else:  # pragma: no cover
-            raise TypeError(f"unsupported type: {type(series)}")
-            
-      
-    def dot(self, series, unit, attr):
+       
+    
+    def dot(self, series, unit):
         
         """
         Multiplies a constant having unit to some columns of datatable
@@ -187,33 +138,21 @@ class DataTable(pd.DataFrame):
             
         unit: astropy.units
             unit of the scalar
-            
-        attr: array of string or int
-            list of columns to which series is multiplied
-            
+
         Returns
         ----------
         object of class DataTable
         
         """
         new_units = []
-        for i in range(len(self.units)):
-            if(list(self.columns)[i] in attr):
-                new_units.append(self.units[i]*unit)
-            else:
-                new_units.append(self.units[i])
-        
-        flag=1
-        for i in attr:
-            if(i not in self.columns):
-                print("Wrong Attributes entered")
-                flag=0
-                break
-        if(flag): 
-            dataframe = self.__private_dot(series)
-            result = DataTable(dataframe)
-            result.units = pd.Series(new_units)
-            return result
+        for i in self.units:
+            new_units.append(i*unit)
+
+        dataframe = super(DataTable,self).dot(series)
+        result = DataTable(dataframe)
+        result.units = pd.Series(new_units)
+        return result
+    
     
     def add(self, series, unit, attr):
         
