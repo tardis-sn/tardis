@@ -55,7 +55,7 @@ def test_datatable():
     df = pd.DataFrame([[0, 1, -2, -1], [1, 1, 1, 1]])
     datatable3 = DataTable (df, units=[u.meter, u.second])
     s = pd.Series([1, 1, 2, 1])
-    result = datatable3.dot(s, u.second, datatable3.columns)
+    result = datatable3.dot(s, u.second)
     assert result.units.equals(pd.Series([u.meter*u.second, u.second*u.second]))
     
     """
