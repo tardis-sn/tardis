@@ -18,4 +18,7 @@ def test():
     df = np.log(df*2+1)
     assert units.equals(df.units)
 
+    ser_type = type(USeries())
+    assert ser_type == type(df.a)
+ 
 test()
