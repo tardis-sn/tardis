@@ -11,18 +11,17 @@ from tardis.io.util import PlasmaWriterMixin
 
 logger = logging.getLogger(__name__)
 
-
 class BasePlasma(PlasmaWriterMixin):
+
     outputs_dict = {}
     hdf_name = 'plasma'
-
     def __init__(self, plasma_properties, property_kwargs=None, **kwargs):
         self.outputs_dict = {}
         self.input_properties = []
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        property_kwargs, **kwargs)
         self._build_graph()
-        # self.write_to_tex('Plasma_Graph')
+#        self.write_to_tex('Plasma_Graph')
         self.update(**kwargs)
 
     def __getattr__(self, item):
@@ -42,13 +41,13 @@ class BasePlasma(PlasmaWriterMixin):
         attrs = [item for item in self.__dict__
                  if not item.startswith('_')]
         attrs += [item for item in self.__class__.__dict__
-                  if not item.startswith('_')]
+                 if not item.startswith('_')]
         attrs += self.outputs_dict.keys()
         return attrs
 
     @property
     def plasma_properties_dict(self):
-        return {item.name: item for item in self.plasma_properties}
+        return {item.name:item for item in self.plasma_properties}
 
     def get_value(self, item):
         return getattr(self.outputs_dict[item], item)
@@ -69,12 +68,12 @@ class BasePlasma(PlasmaWriterMixin):
                                    for plasma_property
                                    in self.plasma_properties])
 
-        # Flagging all input modules
+        #Flagging all input modules
         self.input_properties = [item for item in self.plasma_properties
-                                 if not hasattr(item, 'inputs')]
+                                if not hasattr(item, 'inputs')]
 
         for plasma_property in self.plasma_properties:
-            # Skipping any module that is an input module
+            #Skipping any module that is an input module
             if plasma_property in self.input_properties:
                 continue
 
@@ -92,7 +91,7 @@ class BasePlasma(PlasmaWriterMixin):
                 except:
                     label = input.replace('_', '-')
                 self.graph.add_edge(self.outputs_dict[input].name,
-                                    plasma_property.name, label=label)
+                    plasma_property.name, label = label)
 
     def _init_properties(self, plasma_properties, property_kwargs=None, **kwargs):
         """
@@ -129,12 +128,12 @@ class BasePlasma(PlasmaWriterMixin):
             elif issubclass(plasma_property, Input):
                 if not set(kwargs.keys()).issuperset(plasma_property.outputs):
                     missing_input_values = (set(plasma_property.outputs) -
-                                            set(kwargs.keys()))
+                    set(kwargs.keys()))
                     raise NotInitializedModule('Input {0} required for '
                                                'plasma but not given when '
                                                'instantiating the '
                                                'plasma'.format(
-                        missing_input_values))
+                                               missing_input_values))
                 current_property_object = plasma_property(
                     **property_kwargs.get(plasma_property, {}))
             else:
@@ -191,7 +190,7 @@ class BasePlasma(PlasmaWriterMixin):
         descendants_ob = list(set(descendants_ob))
         sort_order = list(nx.topological_sort(self.graph))
 
-        descendants_ob.sort(key=lambda val: sort_order.index(val))
+        descendants_ob.sort(key=lambda val: sort_order.index(val) )
 
         logger.debug('Updating modules in the following order: {}'.format(
             '->'.join(descendants_ob)))
@@ -199,7 +198,7 @@ class BasePlasma(PlasmaWriterMixin):
         return descendants_ob
 
     def write_to_dot(self, fname, latex_label=True):
-        #        self._update_module_type_str()
+#        self._update_module_type_str()
 
         try:
             import pygraphviz
@@ -212,14 +211,14 @@ class BasePlasma(PlasmaWriterMixin):
         for node in print_graph:
             print_graph.node[str(node)]['label'] = node
             if hasattr(self.plasma_properties_dict[node],
-                       'latex_formula'):
+                'latex_formula'):
                 formulae = self.plasma_properties_dict[node].latex_formula
                 for output in range(0, len(formulae)):
                     formula = formulae[output]
                     label = formula.replace('\\', '\\\\')
-                    print_graph.node[str(node)]['label'] += '\\n$'
-                    print_graph.node[str(node)]['label'] += label
-                    print_graph.node[str(node)]['label'] += '$'
+                    print_graph.node[str(node)]['label']+='\\n$'
+                    print_graph.node[str(node)]['label']+=label
+                    print_graph.node[str(node)]['label']+='$'
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
 
@@ -238,25 +237,26 @@ class BasePlasma(PlasmaWriterMixin):
         dot_string = open(temp_fname).read()
 
         open(fname_graph, 'w').write(dot2tex.dot2tex(dot_string,
-                                                     texmode='raw'))
+            texmode='raw'))
 
-        for line in fileinput.input(fname_graph, inplace=1):
+        for line in fileinput.input(fname_graph, inplace = 1):
             print(line.replace(r'\documentclass{article}',
-                               r'\documentclass[class=minimal,border=20pt]{standalone}'),
+                r'\documentclass[class=minimal,border=20pt]{standalone}'),
                   end='')
 
-        for line in fileinput.input(fname_graph, inplace=1):
+        for line in fileinput.input(fname_graph, inplace = 1):
             print(line.replace(r'\enlargethispage{100cm}', ''), end='')
 
     def remove_hidden_properties(self, print_graph):
         for item in self.plasma_properties_dict.values():
             module = self.plasma_properties_dict[item.name].__class__
-            if issubclass(module, HiddenPlasmaProperty):
+            if (issubclass(module, HiddenPlasmaProperty)):
                 output = module.outputs[0]
                 for value in self.plasma_properties_dict.keys():
                     if output in getattr(
                             self.plasma_properties_dict[value], 'inputs', []):
-                        for input in self.plasma_properties_dict[item.name].inputs:
+                        for input in self.plasma_properties_dict[
+                            item.name].inputs:
                             try:
                                 position = self.outputs_dict[
                                     input].outputs.index(input)
@@ -267,6 +267,6 @@ class BasePlasma(PlasmaWriterMixin):
                             except:
                                 label = input.replace('_', '-')
                             self.graph.add_edge(self.outputs_dict[input].name,
-                                                value, label=label)
+                                value, label = label)
                 print_graph.remove_node(str(item.name))
         return print_graph

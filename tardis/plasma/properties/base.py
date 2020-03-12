@@ -11,18 +11,17 @@ __all__ = ['BasePlasmaProperty', 'BaseAtomicDataProperty',
 
 logger = logging.getLogger(__name__)
 
-import os
 
 class BasePlasmaProperty(object, metaclass=ABCMeta):
     """
     Attributes
     ----------
     outputs : Tuple (strings)
-              List of output parameter names for particular property.
+        List of output parameter names for particular property.
     name : String
-           Class name
+        Class name
     latex_name : String
-                 Used to label nodes when plotting graphs
+        Used to label nodes when plotting graphs
     """
 
     @abstractproperty
@@ -64,14 +63,12 @@ class BasePlasmaProperty(object, metaclass=ABCMeta):
         return latex_label.replace('\\', r'\\')
 
 
-
-
 class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
     """
     Attributes
     ----------
     inputs : Tuple (strings)
-             List of input parameters required to create the property
+        List of input parameters required to create the property
     """
 
     def __init__(self, plasma_parent):
@@ -97,8 +94,6 @@ class ProcessingPlasmaProperty(BasePlasmaProperty, metaclass=ABCMeta):
         """
         Updates the processing Plasma by calling the `calculate`-method with
         the required inputs
-
-        :return:
         """
         if len(self.outputs) == 1:
             setattr(self, self.outputs[0], self.calculate(
