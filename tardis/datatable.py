@@ -93,7 +93,7 @@ class DataTable(pd.DataFrame):
             print( "The unit for the following attribute is not set." )
             
     
-    def scalar_mul(self, const, unit, attr):
+    def scalar_mul(self, const, unit):
         
         """
         Multiplies a constant having unit to entire datatable
@@ -106,25 +106,14 @@ class DataTable(pd.DataFrame):
         unit: astropy
             unit of the scalar
         
-        attr: array of string or int
-            list of columns to which scalar is multiplied
-        
         """        
         new_units = []
-        for i in range(len(self.units)):
-            if( list(self.columns) [i] in attr):
-                new_units.append(self.units[i]*unit)
-            else:
-                new_units.append(self.units[i])
+        for i in self.units:
+            new_units.append(i*unit)
         
-        for i in attr:
-            if(i not in self.columns):
-                print("Wrong Attributes entered")
-                break
-            self[i] = const*self[i]
-            
-        self.units = pd.Series(new_units)   
-       
+        self[i] = const*self[i]
+        self.units = pd.Series(new_units)          
+    
     
     def dot(self, series, unit):
         
@@ -286,6 +275,7 @@ class DataTable(pd.DataFrame):
                 res_units.append(list(othertable.units)[ind])
         result.units = pd.Series(res_units)
         return result
+        
         
     def writeToHDF5(self, path):
         """
