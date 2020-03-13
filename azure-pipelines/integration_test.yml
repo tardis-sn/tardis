@@ -1,1 +1,40 @@
+# python package
+# simple pipeline to run integration tests
 
+trigger:
+- master
+
+variables:
+  system.debug: "true"
+  ref.data.home: "$(Agent.BuildDirectory)/tardis-refdata"
+  ref.data.github.url: "https://github.com/tardis-sn/tardis-refdata.git"
+  tardis.build.dir: $(Build.Repository.LocalPath)
+
+jobs:
+  - job: integration-test
+    pool:
+      vmImage: "ubuntu-latest"
+
+  steps:
+  - bash: |
+          echo "##vso[task.prependpath]$CONDA/bin"
+    displayName: Add conda to PATH
+
+  - bash: |
+      sudo chown -R $USER $CONDA
+      # conda update -y conda
+    displayName: updating conda and activating
+
+  - bash: |
+        sh ci-helpers/install_tardis_env.sh
+    displayName: 'Install TARDIS env'
+
+  - bash: |
+        source activate tardis
+        git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
+    displayName: "Fetch ALL reference data"
+
+  - bash: |
+        source activate tardis
+        python setup.py build_ext --inplace
+    displayName: 'TARDIS build'
