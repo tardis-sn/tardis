@@ -11,30 +11,54 @@ variables:
   tardis.build.dir: $(Build.Repository.LocalPath)
 
 jobs:
-  - job: integration-test
+  - job: report
     pool:
       vmImage: "ubuntu-latest"
 
-  steps:
-  - bash: |
+    steps:
+      - bash: |
           echo "##vso[task.prependpath]$CONDA/bin"
-    displayName: Add conda to PATH
+          sudo chown -R $USER $CONDA
+        displayName: "Add CONDA to path"
 
-  - bash: |
-      sudo chown -R $USER $CONDA
-      # conda update -y conda
-    displayName: updating conda and activating
+      - bash: |
+          sh ci-helpers/install_tardis_env.sh
+        displayName: "Install TARDIS env"
 
-  - bash: |
-        sh ci-helpers/install_tardis_env.sh
-    displayName: 'Install TARDIS env'
+      - bash: |
+          source activate tardis
+          git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
+        displayName: "Fetch ALL reference data"
 
-  - bash: |
-        source activate tardis
-        git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
-    displayName: "Fetch ALL reference data"
+      - bash: |
+          source activate tardis
+          python setup.py build_ext --inplace
+        displayName: "Build & install TARDIS"
 
-  - bash: |
-        source activate tardis
-        python setup.py build_ext --inplace
-    displayName: 'TARDIS build'
+      - bash: |
+          source activate tardis
+          pytest tardis --integration=integration.yml -m integration --generate-reference --less-packets --html=report1.html
+        displayName: "Run integration tests and generate reference"
+        
+      - bash: |
+          source activate tardis
+          pytest tardis --integration=integration.yml -m integration --less-packets --html=report2.html
+        displayName: "Run integration tests with generated reference"
+
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(ref.data.home)/report1.html"
+          artifact: "report1"
+          publishLocation: "pipeline"
+          
+      - task: PublishPipelineArtifact@1
+        inputs:
+          targetPath: "$(ref.data.home)/report2.html"
+          artifact: "report2"
+          publishLocation: "pipeline"
+
+      - bash: |
+          ls -lR /tmp
+          echo
+        condition: succeededOrFailed()
+        displayName: "Check files in /tmp"
