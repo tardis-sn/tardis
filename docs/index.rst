@@ -46,8 +46,9 @@ assistance.
     :caption: Using TARDIS
     :hidden:
 
-
+    interactive/interactive
     running/index
+
 
 
 .. toctree::
@@ -105,4 +106,3 @@ News
 ====
 
 .. include:: news.rst
-
