@@ -5,6 +5,7 @@ import sys
 import numpy as np
 import pandas as pd
 import numexpr as ne
+from numba import njit, jit
 
 from scipy import interpolate
 
@@ -248,6 +249,7 @@ class IonNumberDensity(ProcessingPlasmaProperty):
     def _calculate_block_ids(phi):
         return calculate_block_ids_from_dataframe(phi)
 
+    @jit(parallel=True)
     def calculate(self, phi, partition_function, number_density):
         if self._electron_densities is None:
             n_e_convergence_threshold = 0.05

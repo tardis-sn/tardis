@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from tardis import constants as const
+from numba import jit, njit
 
 from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
                                            DataFrameInput)
@@ -30,6 +31,7 @@ class JBluesDiluteBlackBody(ProcessingPlasmaProperty):
     latex_name = ('J_{\\textrm{blue}}')
 
     @staticmethod
+    @jit(parallel=True, cache=True)
     def calculate(lines, nu, t_rad, w):
         j_blues = w * intensity_black_body(nu.values[np.newaxis].T, t_rad)
         j_blues = pd.DataFrame(j_blues, index=lines.index,
