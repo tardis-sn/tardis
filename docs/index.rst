@@ -39,14 +39,17 @@ assistance.
     installation
     quickstart/quickstart
 
+.. toctree::
+    :maxdepth: 2
+    :hidden:
 
+    interactive/interactive_plotting
 
 .. toctree::
     :maxdepth: 3
     :caption: Using TARDIS
     :hidden:
 
-    interactive/interactive
     running/index
 
 
