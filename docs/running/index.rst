@@ -22,6 +22,7 @@ A quick start guide to run TARDIS can be found
     :caption: Running TARDIS and interactivity
 
     commandline
+    docker
     gui
     interaction/index
     custom_source
