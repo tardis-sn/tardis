@@ -6,7 +6,7 @@ trigger:
 
 variables:
   system.debug: "true"
-  ref.data.home: "$(Agent.BuildDirectory)/tardis-refdata"
+  ref.data.home: "tardis-refdata"
   ref.data.github.url: "https://github.com/tardis-sn/tardis-refdata.git"
   tardis.build.dir: $(Build.Repository.LocalPath)
 
@@ -22,13 +22,12 @@ jobs:
         displayName: "Add CONDA to path"
 
       - bash: |
-          sh ci-helpers/install_tardis_env.sh
-        displayName: "Install TARDIS env"
+          git clone https://github.com/tardis-sn/tardis-refdata.git
+        displayName: "fetch all ref-data"
 
       - bash: |
-          source activate tardis
-          git clone https://github.com/tardis-sn/tardis-refdata.git $(ref.data.home)
-        displayName: "Fetch ALL reference data"
+          sh ci-helpers/install_tardis_env.sh
+        displayName: "Install TARDIS env"
 
       - bash: |
           source activate tardis
@@ -37,24 +36,15 @@ jobs:
 
       - bash: |
           source activate tardis
-          pytest tardis --integration=integration.yml -m integration --generate-reference --less-packets --html=report1.html
-        displayName: "Run integration tests and generate reference"
-        
-      - bash: |
-          source activate tardis
-          pytest tardis --integration=integration.yml -m integration --less-packets --html=report2.html
-        displayName: "Run integration tests with generated reference"
+          export QT_API=pyqt
+          sh ci-helpers/fetch_reference_data.sh
+          pytest tardis --integration=azure-pipelines/integration.yml  -m integration --less-packets --generate-reference --html=report.html
+        displayName: "Run integration tests "
 
       - task: PublishPipelineArtifact@1
         inputs:
-          targetPath: "$(ref.data.home)/report1.html"
-          artifact: "report1"
-          publishLocation: "pipeline"
-          
-      - task: PublishPipelineArtifact@1
-        inputs:
-          targetPath: "$(ref.data.home)/report2.html"
-          artifact: "report2"
+          targetPath: "$(Agent.BuildDirectory)/report.html"
+          artifact: "report"
           publishLocation: "pipeline"
 
       - bash: |
