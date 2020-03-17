@@ -3,6 +3,8 @@ import os
 import re
 from collections import OrderedDict
 
+from numba import jit
+import numba
 import numexpr as ne
 import numpy as np
 import pandas as pd
@@ -246,7 +248,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     with open(fname, 'w') as f:
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
-
+@jit(numba.float64(numba.float64, numba.float64), nopython=True, parallel=True, cache=True)
 def intensity_black_body(nu, T):
     """
     Calculate the intensity of a black-body according to the following formula
