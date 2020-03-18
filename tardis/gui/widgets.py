@@ -14,8 +14,8 @@ else:
 import matplotlib
 from matplotlib.figure import *
 import matplotlib.gridspec as gridspec
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import colors
 from matplotlib.patches import Circle
 import matplotlib.pylab as plt
