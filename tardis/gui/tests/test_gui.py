@@ -3,11 +3,8 @@ import pytest
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 import astropy.units as u
-import tardis.gui
-#from tardis.gui import interface
-#from tardis.gui.widgets import Tardis 
-#from tardis.gui.datahandler import SimpleTableModel
-#from PyQt5 import QtWidgets
+import tardis.gui as gui
+from PyQt5 import QtWidgets
 
 
 
@@ -41,12 +38,12 @@ def simulation_one_loop(
 
     return simulation
 
-@pytest.mark.skip('test')#if('QT_API' not in os.environ, reason="enviroment variable QT_API is not set")
+@pytest.mark.skipif('QT_API' not in os.environ, reason="enviroment variable QT_API is not set")
 def test_gui(simulation_one_loop):
 
     simulation = simulation_one_loop
     app = QtWidgets.QApplication([])
-    tablemodel = SimpleTableModel
-    win = Tardis(tablemodel)
+    tablemodel = gui.datahandler.SimpleTableModel
+    win = gui.widgets.Tardis(tablemodel)
     win.show_model(simulation)
     app.quit()
