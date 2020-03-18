@@ -21,7 +21,7 @@ A quick start guide to run TARDIS can be found
     :maxdepth: 2
     :caption: Running TARDIS and interactivity
 
-    Widget_Documentation
+    widget_documentation
     commandline
     gui
     interaction/index
