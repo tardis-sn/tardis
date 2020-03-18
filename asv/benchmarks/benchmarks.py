@@ -2,9 +2,9 @@
 # See "Writing benchmarks" in the asv docs for more information.
 
 import numpy as np
-from tardis.tests import montecarlo_test_wrappers as montecarlo
+from .wrappers import montecarlo_test_wrappers as montecarlo
 
-LINE_SIZE = 10000000
+LINE_SIZE = 1000
 
 class TimeSuite:
     """
@@ -18,6 +18,7 @@ class TimeSuite:
         for _ in range(LINE_SIZE):
             montecarlo.binary_search_wrapper(self.line, np.random.random() * LINE_SIZE, 0, LINE_SIZE - 1)
 
+    """
     def time_compute_distance2outer(self):
         for _ in range(1000000):
             montecarlo.compute_distance2outer_wrapper(0.0, 0.5, 1.0)
@@ -40,3 +41,4 @@ class TimeSuite:
     def time_compute_distance2electron(self):
         for _ in range(1000000):
             montecarlo.compute_distance2electron_wrapper(0.0, 0.0, 2.0, 2.0)
+    """

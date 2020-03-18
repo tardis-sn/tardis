@@ -2,10 +2,25 @@
     "version": 1,
     "project": "tardis",
     "project_url": "https://github.com/tardis-sn/tardis",
-    "repo": "https://github.com/tardis-sn/tardis.git",
+    "repo": "..",
+    "dvcs": "git",
+    "environment_type": "conda",
+    "conda_channels": ["conda-forge", "defaults"],
     "matrix": {
         "numpy": [],
-	"astropy": [],
-	"Cython": []
+        "astropy": [],
+        "Cython": [],
+        "pandas": [],
+        "numba": [],
+        "numexpr" : [],
+        "pyne": [],
+        "h5py" : [],
+        "tqdm" : [],
+        "pyyaml" : [],
+        "requests" : [],
+        "jsonschema" : [],
+        "pytables" : [],
+        "networkx": []
+
     }
 }
