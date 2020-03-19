@@ -18,7 +18,7 @@ Team (in alphabetical order)
  * Yssa Camacho-Neves
  * Alice Harpole
  * Vytautas Jancauskas
- * Stuart Sim
+ * Stuart Sim - Co-Founder
  * Christian Vogl - Lead Type II supernovae
  * Marc Williamson
 
@@ -45,14 +45,3 @@ Current and Former GSoC and SOCIS Students
  * Fotis Tsamis (GSoC 2016)
  * Ezequiel Passaro (GSoC 2019)
  * Jaladh Singhal (GSoC 2019)
-
-
-Contributors
-------------
-
- * Maryam Patel (documentation, test environment)
- * Adam Suban-Loewen (GUI, profiling and parallelization)
- * Chris Sasaki and Mike Reid (Logo)
- * Knox Long & Christian Knigge (comparisons with "Python" and ionization data)
- * Erik Bray (help with incorporating Astropy's setuphelpers)
- * Robert Ryans (testing installation process)

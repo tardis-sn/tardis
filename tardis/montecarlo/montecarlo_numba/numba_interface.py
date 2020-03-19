@@ -152,7 +152,7 @@ class Estimators(object):
 monte_carlo_configuration_spec = [
     ('line_interaction_type', int64),
     ('number_of_vpackets', int64),
-    ('temporary_v_packet_bins', int64)
+    ('temporary_v_packet_bins', int64),
     ('full_relativity', boolean)
 ]
 
