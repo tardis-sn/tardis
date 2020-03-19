@@ -92,7 +92,6 @@ class DataTable(pd.DataFrame):
         else :
             print( "The unit for the following attribute is not set." )
             
-    
     def scalar_mul(self, const, unit):
         
         """
@@ -106,13 +105,18 @@ class DataTable(pd.DataFrame):
         unit: astropy
             unit of the scalar
         
+        Returns
+        ----------
+        object of class DataTable
         """        
         new_units = []
         for i in self.units:
             new_units.append(i*unit)
+            
+        result = DataTable(const*self)
+        result.units = pd.Series(new_units)
         
-        self[i] = const*self[i]
-        self.units = pd.Series(new_units)          
+        return result    
     
     
     def dot(self, series, unit):
