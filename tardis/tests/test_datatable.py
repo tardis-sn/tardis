@@ -47,10 +47,11 @@ def test_datatable():
     Unit testing for scalar and series multiplication 
     """
     
-    datatable.scalar_mul(2,u.second)
-    assert datatable.units.equals(pd.Series([u.meter*u.second, u.second*u.second, u.kg*u.second,
-                                          u.meter*u.second/u.second, u.Ohm*u.second]))
-    assert datatable.shape == datatable2.shape
+    datatable5 = datatable.scalar_mul(2, u.second)
+    assert datatable5.units.equals(pd.Series([u.meter*u.second, u.second*u.second, u.kg*u.second,
+                                         u.meter*u.second/u.second, u.Ohm * u.second]))
+    
+    assert datatable5.shape == datatable2.shape
     
     df = pd.DataFrame([[0, 1, -2, -1], [1, 1, 1, 1]])
     datatable3 = DataTable (df, units=[u.meter, u.second])
@@ -74,5 +75,3 @@ def test_datatable():
     assert datatable4.units.equals(units2)
 
     
-
-test_datatable()
