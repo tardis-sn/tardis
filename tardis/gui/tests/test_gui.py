@@ -40,7 +40,7 @@ def simulation_one_loop(
 
     return simulation
 
-@pytest.mark.skip('test')#if('QT_API' not in os.environ, reason="enviroment variable QT_API is not set")
+@pytest.mark.skipif('QT_API' not in os.environ, reason="enviroment variable QT_API is not set")
 def test_gui(simulation_one_loop):
     simulation = simulation_one_loop
     app = QtWidgets.QApplication([])
