@@ -14,6 +14,8 @@ from pyne import nucname
 import tardis
 from tardis.io.util import get_internal_data_path
 
+from numba import njit, prange, jit, float64, vectorize
+
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
 h_cgs = constants.h.cgs.value
@@ -246,7 +248,30 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     with open(fname, 'w') as f:
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
+def old_intensity_black_body(nu, T):
+    """
+    Calculate the intensity of a black-body according to the following formula
+    .. math::
+        I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}
+        {e^{h\\nu \\beta_\\textrm{rad}} - 1}
+    Parameters
+    ----------
+    nu: float
+        Frequency of light
+    T: float
+        Temperature in kelvin
+    Returns
+    -------
+    Intensity: float
+        Returns the intensity of the black body
+    """
+    beta_rad = 1 / (k_B_cgs * T)
+    coefficient = 2 * h_cgs / c_cgs ** 2
+    intensity = ne.evaluate('coefficient * nu**3 / '
+                            '(exp(h_cgs * nu * beta_rad) -1 )')
+    return intensity
 
+@vectorize([float64(float64, float64)])
 def intensity_black_body(nu, T):
     """
     Calculate the intensity of a black-body according to the following formula
@@ -269,10 +294,8 @@ def intensity_black_body(nu, T):
     """
     beta_rad = 1 / (k_B_cgs * T)
     coefficient = 2 * h_cgs / c_cgs ** 2
-    intensity = ne.evaluate('coefficient * nu**3 / '
-                            '(exp(h_cgs * nu * beta_rad) -1 )')
+    intensity = (coefficient * nu**3) / (np.exp(h_cgs * nu * beta_rad) -1 )
     return intensity
-
 
 def species_tuple_to_string(species_tuple, roman_numerals=True):
     """
