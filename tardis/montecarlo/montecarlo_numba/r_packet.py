@@ -1,7 +1,7 @@
 import numpy as np
 from enum import IntEnum
 from numba import int64, float64
-from numba import jitclass, njit
+from numba import jitclass, njit, vectorize, guvectorize
 
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
@@ -40,8 +40,8 @@ rpacket_spec = [
     ('index', int64)
 ]
 
-@njit(**njit_dict)
-def calculate_distance_boundary(r, mu, r_inner, r_outer):
+@vectorize([float64(float64, float64, float64, float64, int64)])
+def temp_calculate_distance_boundary(r, mu, r_inner, r_outer, flag):
     delta_shell = 0
     if (mu > 0.0):
         # direction outward
@@ -59,11 +59,21 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
             # miss inner boundary 
             distance = np.sqrt(r_outer**2 + ((mu**2 - 1.0) * r**2)) - (r * mu)
             delta_shell = 1
-    
-    return distance, delta_shell
+
+    if flag == 1:
+        return distance
+    else:
+        return delta_shell
+    return 1
+
 
 @njit(**njit_dict)
-def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
+def calculate_distance_boundary(r, mu, r_inner, r_outer):
+    return temp_calculate_distance_boundary(r, mu, r_inner, r_outer, 1), int(temp_calculate_distance_boundary(r, mu, r_inner, r_outer, 2))
+
+
+@njit(**njit_dict)
+def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion, 
                             montecarlo_configuration):
     """
 
@@ -79,9 +89,19 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
     -------
 
     """
-
+    # Extracting useful params
     nu = r_packet.nu
+    mu = r_packet.mu
+    r = r_packet.r
+    flag = 0
+    if montecarlo_configuration.full_relativity:
+        flag = 1
 
+    ret = temp_calculate_distance_line(mu, nu, r, comov_nu, nu_line, time_explosion, flag)
+    return ret
+
+@vectorize([float64(float64, float64, float64, float64, float64, float64, int64)])
+def temp_calculate_distance_line(mu, nu, r, comov_nu, nu_line, time_explosion, flag):
     if nu_line == 0.0:
         return MISS_DISTANCE
 
@@ -92,12 +112,12 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
         print('nu difference is less than 0.0', nu_diff, comov_nu, nu, nu_line, time_explosion)
         raise MonteCarloException('nu difference is less than 0.0')
 
-    if montecarlo_configuration.full_relativity:
+    if flag == 1:
         nu_r = nu_line / nu
         ct = C_SPEED_OF_LIGHT * time_explosion
-        distance = -r_packet.mu * r_packet.r + (
+        distance = -mu * r + (
                 ct - nu_r**2 * np.sqrt(
-            ct**2 - (1 + r_packet**2 * (1 - r_packet.mu**2) *
+            ct**2 - (1 + r**2 * (1 - mu**2) *
                      (1 + 1 / nu_r**2)))) / (1 + nu_r**3)
     else:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
@@ -105,15 +125,15 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
     return distance
 
 
-@njit(**njit_dict)
+@vectorize([float64(float64, float64)])
 def calculate_distance_electron(electron_density, tau_event):
     return tau_event / (electron_density * SIGMA_THOMSON)
 
-@njit(**njit_dict)
+@vectorize([float64(float64, float64)])
 def calculate_tau_electron(electron_density, distance):    
     return electron_density * SIGMA_THOMSON * distance
 
-@njit(**njit_dict)
+@vectorize([float64(float64, float64, float64)])
 def get_doppler_factor(r, mu, time_explosion):
     beta = (r / time_explosion) / C_SPEED_OF_LIGHT
     return 1.0 - mu * beta
