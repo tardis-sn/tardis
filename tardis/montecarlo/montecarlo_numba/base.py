@@ -29,7 +29,7 @@ def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
 
 
-@njit(**njit_dict, nogil=True)
+@njit(**njit_dict, nogil=True, parallel=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                          estimators, spectrum_frequency,
                          montecarlo_configuration):

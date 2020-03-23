@@ -1,7 +1,6 @@
 import numpy as np
 from enum import IntEnum
-from numba import int64, float64
-from numba import jitclass, njit
+from numba import int64, float64, jitclass, njit
 
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
@@ -179,7 +178,7 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
     estimators.edot_lu_estimator[cur_line_id, r_packet.current_shell_id] += (
         energy)
 
-@njit(**njit_dict)
+@njit(**njit_dict, parallel=True)
 def trace_packet(r_packet, numba_model, numba_plasma, estimators,
                  montecarlo_configuration):
     """
@@ -224,7 +223,7 @@ def trace_packet(r_packet, numba_model, numba_plasma, estimators,
     cur_line_id = start_line_id # initializing varibale for Numba
     # - do not remove
 
-    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+    for cur_line_id in prange(start_line_id, len(numba_plasma.line_list_nu)):
 
         # Going through the lines
         nu_line = numba_plasma.line_list_nu[cur_line_id]

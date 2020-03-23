@@ -1,5 +1,4 @@
-from numba import float64, int64
-from numba import jitclass, njit, gdb
+from numba import float64, int64, jitclass, njit, gdb
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
@@ -32,7 +31,7 @@ class VPacket(object):
 
 
 
-@njit(**njit_dict)
+@njit(**njit_dict, parallel=True)
 def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     
     r_inner = numba_model.r_inner[v_packet.current_shell_id]
@@ -57,7 +56,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     comov_nu = v_packet.nu * doppler_factor
     cur_line_id = start_line_id
 
-    for cur_line_id in range(start_line_id, len(numba_plasma.line_list_nu)):
+    for cur_line_id in prange(start_line_id, len(numba_plasma.line_list_nu)):
         if tau_trace_combined > 10: ### FIXME ?????
             break
 
@@ -82,7 +81,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
         
     return tau_trace_combined, distance_boundary, delta_shell
 
-@njit(**njit_dict)
+@njit(**njit_dict, parallel=True)
 def trace_vpacket(v_packet, numba_model, numba_plasma):
     """
     Trace single vpacket.
@@ -98,7 +97,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
     """
 
     tau_trace_combined = 0.0
-    while True:
+    for _ in prange(start_line_id, len(numba_plasma.line_list_nu)):
         tau_trace_combined_shell, distance_boundary, delta_shell = trace_vpacket_within_shell(
             v_packet, numba_model, numba_plasma
         )
@@ -117,7 +116,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
         v_packet.r = new_r
     return tau_trace_combined
 
-@njit(**njit_dict)
+@njit(**njit_dict, parallel=True)
 def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many) 
@@ -157,7 +156,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
     mu_bin = (1.0 - mu_min) / no_of_vpackets
     r_packet_doppler_factor = get_doppler_factor(r_packet.r, r_packet.mu, 
                                                  numba_model.time_explosion)
-    for i in range(no_of_vpackets):
+    for i in prange(no_of_vpackets):
         v_packet_mu = mu_min + i * mu_bin + np.random.random() * mu_bin
 
         if v_packet_on_inner_boundary: # The weights are described in K&S 2014

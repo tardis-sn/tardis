@@ -1,9 +1,10 @@
 from enum import IntEnum
 
-from numba import float64, int64, jitclass, boolean
+from numba import float64, int64, jitclass, boolean, njit
 import numpy as np
 
 from tardis import constants as const
+from tardis.montecarlo.montecarlo_numba import njit_dict
 
 
 C_SPEED_OF_LIGHT = const.c.to('cm/s').value
@@ -166,7 +167,7 @@ class MonteCarloConfiguration(object):
         self.temporary_v_packet_bins = temporary_v_packet_bins
         self.full_relativity = full_relativity
 
-
+@njit(**njit_dict)
 def configuration_initialize(runner, number_of_vpackets,
                              temporary_v_packet_bins=20000):
     if runner.line_interaction_type == 'macroatom':

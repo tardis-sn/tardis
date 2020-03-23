@@ -16,7 +16,7 @@ class MacroAtomTransitionType(IntEnum):
     ADIABATIC_COOLING = -4
 
 
-@njit(**njit_dict)
+@njit(**njit_dict, parallel=True)
 def macro_atom(r_packet, numba_plasma):
     """
 
@@ -41,7 +41,7 @@ def macro_atom(r_packet, numba_plasma):
         block_end = numba_plasma.macro_block_references[activation_level_id + 1]
 
         # looping through the transition probabilities
-        for transition_id in range(block_start, block_end):
+        for transition_id in prange(block_start, block_end):
 
             transition_probability = numba_plasma.transition_probabilities[
                 transition_id, r_packet.current_shell_id]
