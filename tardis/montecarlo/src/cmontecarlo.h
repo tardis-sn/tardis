@@ -156,4 +156,9 @@ void
 create_vpacket (storage_model_t * storage, rpacket_t * packet,
                 rk_state *mt_state);
 
+void montecarlo_main_loop_test(storage_model_t * storage,
+                          int64_t virtual_packet_flag,
+                          int nthreads,
+                          unsigned long seed);
+
 #endif // TARDIS_CMONTECARLO_H

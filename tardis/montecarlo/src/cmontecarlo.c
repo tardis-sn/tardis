@@ -313,6 +313,8 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
 tardis_error_t
 compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
 {
+  fprintf(stderr, "computing compute_distance2line: : %" PRId64 "\n", rpacket_get_last_line (packet));
+  //fprintf(stderr, "")
   if (!rpacket_get_last_line (packet))
     {
       double r = rpacket_get_r (packet);
@@ -646,9 +648,11 @@ int64_t
 montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                        int64_t virtual_mode, rk_state *mt_state)
 {
+
   int64_t reabsorbed=-1;
   if (virtual_mode == 0)
     {
+      
       reabsorbed = montecarlo_one_packet_loop (storage, packet, 0, mt_state);
     }
   else
@@ -1060,6 +1064,7 @@ static void
 montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
 {
   // Check if the last line was the same nu as the current line.
+  // fprintf(stderr, "Entered montecarlo_compute_distances: %" PRId64 "\n", rpacket_get_close_line (packet));
   if (rpacket_get_close_line (packet))
     {
       // If so set the distance to the line to 0.0
@@ -1106,12 +1111,12 @@ get_event_handler (rpacket_t * packet, storage_model_t * storage,
 montecarlo_event_handler_t
 montecarlo_continuum_event_handler (rpacket_t * packet, storage_model_t * storage, rk_state *mt_state)
 {
+
   if (storage->cont_status)
     {
       double zrand_x_chi_cont = rk_double (mt_state) * rpacket_get_chi_continuum (packet);
       double chi_th = rpacket_get_chi_electron (packet);
       double chi_bf = rpacket_get_chi_boundfree (packet);
-
       if (zrand_x_chi_cont < chi_th)
         {
           return &montecarlo_thomson_scatter;
@@ -1155,11 +1160,13 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
                                line_list_nu[rpacket_get_next_line_id
                                (packet)]);
         }
+
       double distance;
       get_event_handler (packet, storage, &distance, mt_state) (packet, storage,
                                                                 distance, mt_state);
       if (virtual_packet > 0 && rpacket_get_tau_event (packet) > storage->tau_russian)
         {
+
             double event_random = rk_double (mt_state);
             if (event_random > storage->survival_probability)
               {
@@ -1189,6 +1196,8 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
 void
 montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
 {
+  fprintf(stderr, "Inside montecarlo_main_loop");
+  print_storage_model_to_file(storage);
   int64_t finished_packets = 0;
   storage->virt_packet_count = 0;
 #ifdef WITH_VPACKET_LOGGING
@@ -1221,8 +1230,10 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
       rk_seed (seed, &mt_state);
       fprintf(stderr, "Running without OpenMP\n");
 #endif
+      // fprintf(stderr, "Kaushik: checking chi_bf_tmp_size before\n");
       int64_t chi_bf_tmp_size = (storage->cont_status) ? storage->no_of_edges : 0;
-      double *chi_bf_tmp_partial = safe_malloc(sizeof(double) * chi_bf_tmp_size);
+      double *chi_bf_tmp_partial = safe_malloc(sizeof(double) * chi_bf_tmp_size);\
+      // fprintf(stderr, "Kaushik: checking chi_bf_tmp_size after %d\n", storage->no_of_packets);
 
       #pragma omp for
       for (int64_t packet_index = 0; packet_index < storage->no_of_packets; ++packet_index)
@@ -1288,4 +1299,146 @@ create_vpacket (storage_model_t * storage, rpacket_t * packet,
     {
       montecarlo_one_packet (storage, packet, 1, mt_state);
     }
+}
+
+void
+montecarlo_main_loop_test(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
+{
+  fprintf(stderr, "Inside montecarlo_main_loop");
+  //print_storage_model_to_file(storage);
+}
+// Methods by Kaushik to debug montecarlo loops
+int print_storage_model_to_file (storage_model_t * storage) {
+
+  FILE *fp;
+  fp = fopen("/Users/ghost/Desktop/tardis/tardis/data/storage_model.yml", "w");
+  int i;
+  int packet_nus_size = sizeof(storage->packet_nus)/sizeof(storage->packet_nus[0]);
+  fprintf(fp, "packet_nus:\n");
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->packet_nus[i]);
+  }
+  int packet_mus_size = sizeof(storage->packet_mus)/sizeof(storage->packet_mus[0]);
+  fprintf(fp, "packet_mus:\n", packet_mus_size);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->packet_mus[i]);
+  }
+  fprintf(fp, "packet_energies:\n");
+  int packet_energies_size = sizeof(storage->packet_energies)/sizeof(storage->packet_energies[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->packet_energies[i]);
+  }
+  
+  int last_line_interaction_in_id_size = sizeof(storage->last_line_interaction_in_id)/sizeof(storage->last_line_interaction_in_id[0]);
+  fprintf(fp, "last_line_interaction_in_id:\n", last_line_interaction_in_id_size);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %" PRId64 "\n", storage->last_line_interaction_in_id[i]);
+  }
+  fprintf(fp, "last_interaction_type:\n");
+  int last_interaction_type_size = sizeof(storage->last_interaction_type)/sizeof(storage->last_interaction_type[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %" PRId64 "\n", storage->last_interaction_type[i]);
+  }
+  fprintf(fp, "last_interaction_out_type:\n");
+  int last_interaction_out_type_size = sizeof(storage->last_interaction_out_type)/sizeof(storage->last_interaction_out_type[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %" PRId64 "\n", storage->last_interaction_out_type[i]);
+  }
+  fprintf(fp, "no_of_packets: %d\n", storage->no_of_packets);
+  fprintf(fp, "no_of_shells: %d\n", storage->no_of_shells);
+
+  //
+  fprintf(fp, "time_explosion: %lf\n", storage->time_explosion);
+  fprintf(fp, "inverse_time_explosion: %lf\n", storage->inverse_time_explosion);
+  fprintf(fp, "no_of_lines: %d\n", storage->no_of_lines);
+  fprintf(fp, "tau_russian: %lf\n", storage->tau_russian);
+  fprintf(fp, "spectrum_start_nu: %lf\n", storage->spectrum_start_nu);
+  fprintf(fp, "spectrum_end_nu: %lf\n", storage->spectrum_end_nu);
+  // fprintf(fp, "sigma_thomson: %lf\n", storage->sigma_thomson);
+  // fprintf(fp, "inverse_sigma_thomson: %lf\n", storage->inverse_sigma_thomson);
+  fprintf(fp, "spectrum_virt_start_nu: %lf\n", storage->spectrum_virt_start_nu);
+  fprintf(fp, "spectrum_virt_end_nu: %lf\n", storage->spectrum_virt_end_nu);
+  fprintf(fp, "spectrum_delta_nu: %lf\n", storage->spectrum_delta_nu);
+  fprintf(fp, "no_of_edges: %" PRId64 "\n", storage->no_of_edges);
+  fprintf(fp, "inner_boundary_albedo: %lf\n", storage->inner_boundary_albedo);
+  fprintf(fp, "storage->full_relativity: %d\n", storage->full_relativity);
+  //
+  fprintf(fp, "reflective_inner_boundary: %" PRId64 "\n", storage->reflective_inner_boundary);
+  //
+  // fprintf(fp, "r_inner:\n");
+  // int r_inner_size = sizeof(storage->r_inner)/sizeof(storage->r_inner[0]);
+  // for(i=0;i<r_inner_size;i++) {
+  //   fprintf(fp, "  %lf\n", storage->r_inner[i]);
+  // }
+  // fprintf(fp, "r_outer:\n");
+  // int r_outer_size = sizeof(storage->r_outer)/sizeof(storage->r_outer[0]);
+  // for(i=0;i<r_outer_size;i++) {
+  //   fprintf(fp, "  %lf\n", storage->r_outer[i]);
+  // }
+  fprintf(fp, "electron_densities:\n");
+  int electron_densities_size = sizeof(storage->electron_densities)/sizeof(storage->electron_densities[0]);
+  fprintf(fp, "electron_densities: %d\n", electron_densities_size);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->electron_densities[i]);
+  }
+  fprintf(fp, "line_lists_tau_sobolevs:\n");
+  // int l_pop_size = sizeof(storage->l_pop)/sizeof(storage->l_pop[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->line_lists_tau_sobolevs[i]);
+  }
+  fprintf(fp, "r_inner:\n");
+  int r_inner_size = sizeof(storage->r_inner)/sizeof(storage->r_inner[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->r_inner[i]);
+  }
+  fprintf(fp, "js:\n");
+  int js_size = sizeof(storage->js)/sizeof(storage->js[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->js[i]);
+  }
+  fprintf(fp, "nubars:\n");
+  int nubars_size = sizeof(storage->nubars)/sizeof(storage->nubars[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->nubars[i]);
+  }
+  fprintf(fp, "r_outer:\n");
+  int r_outer_size = sizeof(storage->r_outer)/sizeof(storage->r_outer[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->r_outer[i]);
+  }
+  fprintf(fp, "line_lists_tau_sobolevs:\n");
+  int line_lists_tau_sobolevs_size = sizeof(storage->line_lists_tau_sobolevs)/sizeof(storage->line_lists_tau_sobolevs[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->line_lists_tau_sobolevs[i]);
+  }
+  fprintf(fp, "line_list_nu:\n");
+  int line_list_nu_size = sizeof(storage->line_list_nu)/sizeof(storage->line_list_nu[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->line_list_nu[i]);
+  }
+  fprintf(fp, "spectrum_virt_nu:\n");
+  int spectrum_virt_nu_size = sizeof(storage->spectrum_virt_nu)/sizeof(storage->spectrum_virt_nu[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->spectrum_virt_nu[i]);
+  }
+  fprintf(fp, "last_line_interaction_shell_id:\n");
+  int last_line_interaction_shell_id_size = sizeof(storage->last_line_interaction_shell_id)/sizeof(storage->last_line_interaction_shell_id[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %" PRId64 "\n", storage->last_line_interaction_shell_id[i]);
+  }
+  fprintf(fp, "line_lists_j_blues:\n");
+  int line_lists_j_blues_size = sizeof(storage->line_lists_j_blues)/sizeof(storage->line_lists_j_blues[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->line_lists_j_blues[i]);
+  }
+  fprintf(fp, "tau_bias:\n");
+  int tau_bias_size = sizeof(storage->tau_bias)/sizeof(storage->tau_bias[0]);
+  for(i=0;i<storage->no_of_packets;i++) {
+    fprintf(fp, "  %lf\n", storage->tau_bias[i]);
+  }
+  fprintf(fp, "no_of_lines:\n");
+  fprintf(fp, "  %" PRId64 "\n", storage->no_of_lines);
+  fprintf(fp, "inverse_sigma_thomson:\n");
+  fprintf(fp, "  %lf \n", storage->inverse_sigma_thomson);
+  fclose(fp);
 }
