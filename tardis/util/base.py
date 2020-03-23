@@ -14,6 +14,8 @@ from pyne import nucname
 import tardis
 from tardis.io.util import get_internal_data_path
 
+from numba import njit, float64
+
 k_B_cgs = constants.k_B.cgs.value
 c_cgs = constants.c.cgs.value
 h_cgs = constants.h.cgs.value
@@ -31,11 +33,11 @@ SYMBOL2ATOMIC_NUMBER = OrderedDict((y, x) for x, y in ATOMIC_NUMBER2SYMBOL.items
 
 synpp_default_yaml_fname = get_internal_data_path('synpp_default.yaml')
 
-
 NUMERAL_MAP = tuple(zip(
     (1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1),
     ('M', 'CM', 'D', 'CD', 'C', 'XC', 'L', 'XL', 'X', 'IX', 'V', 'IV', 'I')
 ))
+
 
 class MalformedError(Exception):
     pass
@@ -91,6 +93,7 @@ def int_to_roman(i):
         result.append(numeral * count)
         i -= integer * count
     return ''.join(result)
+
 
 def roman_to_int(roman_string):
     """
@@ -153,13 +156,13 @@ def calculate_luminosity(
     wavelength.max() : float
         Maximum value of wavelength of light
     """
-    #BAD STYLE change to parse quantity
+    # BAD STYLE change to parse quantity
     distance = u.Unit(distance)
 
     wavelength, flux = np.loadtxt(spec_fname, usecols=(wavelength_column, flux_column), unpack=True)
 
     flux_density = np.trapz(flux, wavelength) * (flux_unit * wavelength_unit)
-    luminosity = (flux_density * 4 * np.pi * distance**2).to('erg/s')
+    luminosity = (flux_density * 4 * np.pi * distance ** 2).to('erg/s')
 
     return luminosity.value, wavelength.min(), wavelength.max()
 
@@ -198,7 +201,6 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         except KeyError:
             pass
 
-
     relevant_synpp_refs = radial1d_mdl.atom_data.synpp_refs[
         radial1d_mdl.atom_data.synpp_refs['ref_log_tau'] > -50]
 
@@ -214,8 +216,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
     yaml_reference['output']['max_wl'] = float(
         radial1d_mdl.runner.spectrum.wavelength.to('angstrom').value.max())
 
-
-    #raise Exception("there's a problem here with units what units does synpp expect?")
+    # raise Exception("there's a problem here with units what units does synpp expect?")
     yaml_reference['opacity']['v_ref'] = float(
         (radial1d_mdl.tardis_config.structure.v_inner[0].to('km/s') /
          (1000. * u.km / u.s)).value)
@@ -223,7 +224,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         (radial1d_mdl.tardis_config.structure.v_outer[-1].to('km/s') /
          (1000. * u.km / u.s)).value)
 
-    #pdb.set_trace()
+    # pdb.set_trace()
 
     yaml_setup = yaml_reference['setups'][0]
     yaml_setup['ions'] = []
@@ -247,7 +248,7 @@ def create_synpp_yaml(radial1d_mdl, fname, shell_no=0, lines_db=None):
         yaml.dump(yaml_reference, stream=f, explicit_start=True)
 
 
-def intensity_black_body(nu, T):
+def cython_intensity_black_body(nu, T):
     """
     Calculate the intensity of a black-body according to the following formula
 
@@ -274,6 +275,33 @@ def intensity_black_body(nu, T):
     return intensity
 
 
+@njit(float64(float64,float64), parallel=True)
+def intensity_black_body(nu, T):
+    """
+    Calculate the intensity of a black-body according to the following formula
+
+    .. math::
+        I(\\nu, T) = \\frac{2h\\nu^3}{c^2}\frac{1}
+        {e^{h\\nu \\beta_\\textrm{rad}} - 1}
+
+    Parameters
+    ----------
+    nu : float
+        Frequency of light
+    T : float
+        Temperature in kelvin
+
+    Returns
+    -------
+    Intensity : float
+        Returns the intensity of the black body
+    """
+    beta_rad = 1 / (k_B_cgs * T)
+    coefficient = 2 * h_cgs / c_cgs ** 2
+    intensity = (coefficient * nu ** 3) / (np.exp(h_cgs * nu * beta_rad) - 1)
+    return intensity
+
+
 def species_tuple_to_string(species_tuple, roman_numerals=True):
     """
     Convert a species tuple to its corresponding string representation.
@@ -295,7 +323,7 @@ def species_tuple_to_string(species_tuple, roman_numerals=True):
     atomic_number, ion_number = species_tuple
     element_symbol = ATOMIC_NUMBER2SYMBOL[atomic_number]
     if roman_numerals:
-        roman_ion_number = int_to_roman(ion_number+1)
+        roman_ion_number = int_to_roman(ion_number + 1)
         return '{0} {1}'.format(str(element_symbol), roman_ion_number)
     else:
         return '{0} {1:d}'.format(element_symbol, ion_number)
