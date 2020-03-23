@@ -167,7 +167,7 @@ def montecarlo_main_loop_model():
         last_interaction_type=(c_int64 * 10)(*([-1] * 10)),
         last_interaction_out_type=(c_int64 * 10)(*([5] * 10)),
 
-        no_of_shells=20,
+        no_of_shells=10,
         no_of_packets=10,
 
         r_inner=(c_double * 10)(*[
@@ -268,7 +268,7 @@ def montecarlo_main_loop_model():
         chi_ff_factor=(c_double * 10)(*([1.0] * 2)),
         t_electrons=(c_double * 10)(*([1.0e4] * 2)),
 
-        l_pop=(c_double * 1)(*([0.0] * 1)),
+        l_pop=(c_double * 10)(*([0.0] * 10)),
         # l_pop_r=(c_double * 20000)(*([3.0] * 20000)),
         cont_status=CONTINUUM_OFF,
         bf_treatment=BoundFreeTreatment.LIN_INTERPOLATION.value,
@@ -278,7 +278,11 @@ def montecarlo_main_loop_model():
         survival_probability=0.0,
         tau_russian=10.000000,
         tau_bias=(c_double * 10)(*([0.0] * 10)),
-        enable_biasing=0
+        enable_biasing=0,
+
+        # output energies for storage
+        output_energies=(c_double * 10)(*([0.0] * 10)),
+        output_nus=(c_double * 10)(*([0.0] * 10))
     )
 
 @pytest.fixture(scope="function")
