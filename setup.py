@@ -54,7 +54,7 @@ elif os.path.exists('LONG_DESCRIPTION.rst'):
         LONG_DESCRIPTION = f.read()
 
 elif len(glob.glob(readme_glob)) > 0:
-    with open(glob.glob(readme_glob)[0]) as f:
+    with open(glob.glob(readme_glob)[0], encoding='utf-8') as f:
         LONG_DESCRIPTION = f.read()
 
 else:
