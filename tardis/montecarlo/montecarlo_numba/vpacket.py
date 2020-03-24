@@ -1,4 +1,4 @@
-from numba import float64, int64, jitclass, njit, gdb
+from numba import float64, int64, jitclass, njit, gdb, prange
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
@@ -97,7 +97,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
     """
 
     tau_trace_combined = 0.0
-    for _ in prange(start_line_id, len(numba_plasma.line_list_nu)):
+    while True:
         tau_trace_combined_shell, distance_boundary, delta_shell = trace_vpacket_within_shell(
             v_packet, numba_model, numba_plasma
         )

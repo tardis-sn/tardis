@@ -167,9 +167,8 @@ class MonteCarloConfiguration(object):
         self.temporary_v_packet_bins = temporary_v_packet_bins
         self.full_relativity = full_relativity
 
-@njit(**njit_dict)
 def configuration_initialize(runner, number_of_vpackets,
-                             temporary_v_packet_bins=20000):
+                             temporary_v_packet_bins=20000, full_relativity=False):
     if runner.line_interaction_type == 'macroatom':
         line_interaction_type = LineInteractionType.MACROATOM
     elif runner.line_interaction_type == 'downbranch':
@@ -182,7 +181,7 @@ def configuration_initialize(runner, number_of_vpackets,
                          f'{runner.line_interaction_type}')
 
     return MonteCarloConfiguration(number_of_vpackets, line_interaction_type,
-                                   temporary_v_packet_bins)
+                                   temporary_v_packet_bins, full_relativity)
 
 
 #class TrackRPacket(object):
