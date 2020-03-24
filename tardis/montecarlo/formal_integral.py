@@ -13,7 +13,6 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 class IntegrationError(Exception):
     pass
 
-
 class FormalIntegrator(object):
 
     def __init__(self, model, plasma, runner, points=1000):
@@ -199,9 +198,11 @@ class FormalIntegrator(object):
         runner.electron_densities_integ = interp1d(
                 r_middle, plasma.electron_densities,
                 fill_value='extrapolate', kind='nearest')(r_middle_integ)
+        # Assume tau_sobolevs to be constant within a shell
+        # (as in the MC simulation)
         runner.tau_sobolevs_integ = interp1d(
                 r_middle, plasma.tau_sobolevs,
-                fill_value='extrapolate')(r_middle_integ)
+                fill_value='extrapolate', kind='nearest')(r_middle_integ)
         att_S_ul = interp1d(
                 r_middle, att_S_ul, fill_value='extrapolate')(r_middle_integ)
         Jredlu = interp1d(
@@ -210,4 +211,10 @@ class FormalIntegrator(object):
                 r_middle, Jbluelu, fill_value='extrapolate')(r_middle_integ)
         e_dot_u = interp1d(
                 r_middle, e_dot_u, fill_value='extrapolate')(r_middle_integ)
+
+        # Set negative values from the extrapolation to zero
+        att_S_ul = att_S_ul.clip(0.)
+        Jbluelu = Jbluelu.clip(0.)
+        Jredlu = Jredlu.clip(0.)
+        e_dot_u = e_dot_u.clip(0.)
         return att_S_ul, Jredlu, Jbluelu, e_dot_u

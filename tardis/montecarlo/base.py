@@ -1,6 +1,9 @@
+from tardis import __path__ as TARDIS_PATH
 import os
 import logging
 import warnings
+
+import yaml
 
 from astropy import units as u
 from tardis import constants as const
@@ -10,13 +13,13 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
-from tardis.montecarlo import montecarlo, packet_source
+from tardis.montecarlo import montecarlo, packet_source as source
 from tardis.montecarlo.formal_integral import FormalIntegrator
 
 import numpy as np
 
 logger = logging.getLogger(__name__)
-
+TARDIS_PATH = TARDIS_PATH[0]
 
 class MontecarloRunner(HDFWriterMixin):
     """
@@ -32,6 +35,16 @@ class MontecarloRunner(HDFWriterMixin):
                       'last_line_interaction_shell_id',
                       'packet_luminosity', 'spectrum',
                       'spectrum_virtual', 'spectrum_reabsorbed']
+
+    vpacket_config_file_path = os.path.join(TARDIS_PATH, 'data', 'vpacket_config.yml')
+    with open(vpacket_config_file_path) as fh:
+        vpacket_logging_config = yaml.load(fh, Loader=yaml.CLoader)
+        
+    if vpacket_logging_config['vpacket_logging']:
+        hdf_properties.extend(['virt_packet_last_interaction_in_nu', 'virt_packet_last_line_interaction_in_id',
+                                'virt_packet_last_line_interaction_out_id', 'virt_packet_nus',
+                                'virt_packet_energies'])
+
     hdf_name = 'runner'
     w_estimator_constant = ((const.c ** 2 / (2 * const.h)) *
                             (15 / np.pi ** 4) * (const.h / const.k_B) ** 4 /
@@ -44,10 +57,15 @@ class MontecarloRunner(HDFWriterMixin):
                  sigma_thomson, enable_reflective_inner_boundary,
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
-                 v_packet_settings, spectrum_method):
+                 v_packet_settings, spectrum_method,
+                 packet_source=None):
 
         self.seed = seed
-        self.packet_source = packet_source.BlackBodySimpleSource(seed)
+        if packet_source is None:
+            self.packet_source = source.BlackBodySimpleSource(seed)
+        else:
+            self.packet_source = packet_source
+        # inject different packets
         self.spectrum_frequency = spectrum_frequency
         self.virtual_spectrum_range = virtual_spectrum_range
         self.sigma_thomson = sigma_thomson
@@ -62,6 +80,7 @@ class MontecarloRunner(HDFWriterMixin):
         self._spectrum_integrated = None
         if self.spectrum_method == 'integrated':
             self.optional_hdf_properties.append('spectrum_integrated')
+
 
     def _initialize_estimator_arrays(self, no_of_shells, tau_sobolev_shape):
         """
@@ -394,7 +413,7 @@ class MontecarloRunner(HDFWriterMixin):
         pass
 
     @classmethod
-    def from_config(cls, config):
+    def from_config(cls, config, packet_source=None):
         """
         Create a new MontecarloRunner instance from a Configuration object.
 
@@ -429,4 +448,5 @@ class MontecarloRunner(HDFWriterMixin):
                    line_interaction_type=config.plasma.line_interaction_type,
                    integrator_settings=config.spectrum.integrated,
                    v_packet_settings=config.spectrum.virtual,
-                   spectrum_method=config.spectrum.method)
+                   spectrum_method=config.spectrum.method,
+                   packet_source=packet_source)

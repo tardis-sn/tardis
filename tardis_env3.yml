@@ -1,68 +1,70 @@
 name: tardis
 
 channels:
-    - conda-forge
-    - main
+  - conda-forge
 
 dependencies:
-- python=3
-- numpy=1.15
-- scipy=1.1
-- pandas=0.24
-- astropy=3
+  - python=3
+  - pip
+  - numpy=1.15
+  - scipy=1.1
+  - pandas=0.24
+  - astropy=3.2.1
 
-- numba=0.43
-- numexpr
-- Cython=0.29
+  - numba=0.43
+  - numexpr
+  - Cython=0.29
 
-# Plasma
-- networkx
+  - compilers
 
-# I/O
-- pyyaml
-- jsonschema
-- pyne=0.5
-- pytables
-- h5py
-- requests
-- tqdm
+  # Plasma
+  - networkx
 
-# Analysis
-- jupyter
-- notebook
-- matplotlib
-- graphviz
-- pygraphviz
+  # I/O
+  - pyyaml
+  - jsonschema
+  - pyne
+  - pytables
+  - h5py
+  - requests
+  - tqdm
 
-# Documentation
-- sphinx
-- nbconvert
-- numpydoc
-- docutils
-- nbformat
-- nbsphinx
-- sphinx_bootstrap_theme
-- sphinxcontrib-bibtex
-- sphinxcontrib-apidoc
-- sphinx_rtd_theme
-- recommonmark
+  # Analysis
+  - jupyter
+  - notebook
+  - matplotlib
+  - graphviz
+  - pygraphviz
+  - pyside2
 
-#Test/Coverage requirements
-- git-lfs
-- pytest=4
-- pytest-html
-- requests
-- coverage
-- docopt
-- pytest-cov
-- codecov
-
-
-- pip:
   # Documentation
-  - sphinxcontrib-tikz
+  - sphinx
+  - nbconvert
+  - numpydoc
+  - docutils
+  - nbformat
+  - nbsphinx
+  - sphinx_bootstrap_theme
+  - sphinxcontrib-bibtex
+  - sphinxcontrib-apidoc
+  - sphinx_rtd_theme
+  - recommonmark
 
-  - dokuwiki
-  - dot2tex
-  - sphinx-jsonschema
-  - git+https://github.com/Naereen/dot2tex.git
+  #Test/Coverage requirements
+  - git-lfs
+  - pytest=4
+  - pytest-html
+  - requests
+  - coverage
+  - docopt
+  - pytest-cov
+  - codecov
+
+  - pip:
+      # Documentation
+      - sphinxcontrib-tikz
+
+      - dokuwiki
+      - dot2tex
+      - sphinx-jsonschema
+      - git+https://github.com/Naereen/dot2tex.git

@@ -9,8 +9,9 @@ from astropy import units as u
 
 from tardis.util.base import parse_quantity
 
-PATTERN_REMOVE_BRACKET = re.compile('\[.+\]')
+PATTERN_REMOVE_BRACKET = re.compile(r'\[.+\]')
 T0_PATTERN = re.compile('tend = (.+)\n')
+
 
 def read_blondin_toymodel(fname):
     """
@@ -30,7 +31,6 @@ def read_blondin_toymodel(fname):
 
     blondin_csv: pandas.DataFrame
         DataFrame containing the csv part of the toymodel
-
     """
     with open(fname, 'r') as fh:
         for line in fh:

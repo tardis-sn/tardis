@@ -18,7 +18,7 @@ def get_atomic_repo_config():
     """
 
     atomic_repo_fname = get_internal_data_path('atomic_data_repo.yml')
-    return yaml.load(open(atomic_repo_fname))
+    return yaml.load(open(atomic_repo_fname), Loader=yaml.CLoader)
 
 
 def download_atom_data(atomic_data_name=None):

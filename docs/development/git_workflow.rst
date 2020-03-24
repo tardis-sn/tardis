@@ -476,6 +476,8 @@ If you forgot to make a backup branch::
    git reset --hard cool-feature@{2}
 
 
+.. _reviewing-and-helping-with-pr:
+
 Reviewing and helping others with Pull Requests
 -----------------------------------------------
 
