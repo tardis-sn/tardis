@@ -313,8 +313,7 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
 tardis_error_t
 compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
 {
-  fprintf(stderr, "computing compute_distance2line: %" PRId64 "\n", rpacket_get_last_line (packet));
-  //fprintf(stderr, "")
+  // fprintf(stderr, "computing compute_distance2line: %" PRId64 "\n", rpacket_get_last_line (packet));
   if (!rpacket_get_last_line (packet))
     {
       double r = rpacket_get_r (packet);
@@ -388,7 +387,7 @@ compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
 void
 compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
 {
-  fprintf (stderr, "current shell id = %" PRIi64 "\n", rpacket_get_current_shell_id (packet));
+  // fprintf (stderr, "current shell id = %" PRIi64 "\n", rpacket_get_current_shell_id (packet));
   double chi_continuum, d_continuum;
   double chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] *
     storage->sigma_thomson;
@@ -649,11 +648,9 @@ int64_t
 montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                        int64_t virtual_mode, rk_state *mt_state)
 {
-
   int64_t reabsorbed=-1;
   if (virtual_mode == 0)
     {
-      
       reabsorbed = montecarlo_one_packet_loop (storage, packet, 0, mt_state);
     }
   else
@@ -713,7 +710,6 @@ montecarlo_one_packet (storage_model_t * storage, rpacket_t * packet,
                                  rpacket_get_energy (packet) * doppler_factor_ratio);
               rpacket_set_nu(&virt_packet,rpacket_get_nu (packet) * doppler_factor_ratio);
               reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1, mt_state);
-              fprintf(stderr, "We finished reabsorbed = montecarlo_one_packet_loop (storage, &virt_packet, 1, mt_state); \n");
 #ifdef WITH_VPACKET_LOGGING
 #ifdef WITHOPENMP
 #pragma omp critical
@@ -1113,9 +1109,6 @@ get_event_handler (rpacket_t * packet, storage_model_t * storage,
 montecarlo_event_handler_t
 montecarlo_continuum_event_handler (rpacket_t * packet, storage_model_t * storage, rk_state *mt_state)
 {
-
-  fprintf(stderr, "Entered montecarlo_continuum_event_handler: %" PRId64 "\n", rpacket_get_chi_continuum (packet));
-
   if (storage->cont_status)
     {
       double zrand_x_chi_cont = rk_double (mt_state) * rpacket_get_chi_continuum (packet);
@@ -1164,13 +1157,11 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
                                line_list_nu[rpacket_get_next_line_id
                                (packet)]);
         }
-
       double distance;
       get_event_handler (packet, storage, &distance, mt_state) (packet, storage,
                                                                 distance, mt_state);
       if (virtual_packet > 0 && rpacket_get_tau_event (packet) > storage->tau_russian)
         {
-
             double event_random = rk_double (mt_state);
             if (event_random > storage->survival_probability)
               {
@@ -1200,8 +1191,8 @@ montecarlo_one_packet_loop (storage_model_t * storage, rpacket_t * packet,
 void
 montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
 {
-  fprintf(stderr, "Inside montecarlo_main_loop");
-  print_storage_model_to_file(storage);
+  // uncomment the next line to print storage model at this time
+  // print_storage_model_to_file(storage);
   int64_t finished_packets = 0;
   storage->virt_packet_count = 0;
 #ifdef WITH_VPACKET_LOGGING
@@ -1234,9 +1225,8 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
       rk_seed (seed, &mt_state);
       fprintf(stderr, "Running without OpenMP\n");
 #endif
-      // fprintf(stderr, "Kaushik: checking chi_bf_tmp_size before\n");
       int64_t chi_bf_tmp_size = (storage->cont_status) ? storage->no_of_edges : 0;
-      double *chi_bf_tmp_partial = safe_malloc(sizeof(double) * chi_bf_tmp_size);\
+      double *chi_bf_tmp_partial = safe_malloc(sizeof(double) * chi_bf_tmp_size);
 
       #pragma omp for
       for (int64_t packet_index = 0; packet_index < storage->no_of_packets; ++packet_index)
@@ -1250,10 +1240,7 @@ montecarlo_main_loop(storage_model_t * storage, int64_t virtual_packet_flag, int
               reabsorbed = montecarlo_one_packet(storage, &packet, -1, &mt_state);
             }
           reabsorbed = montecarlo_one_packet(storage, &packet, 0, &mt_state);
-          fprintf(stderr, "Kaushik: checking chi_bf_tmp_size after %d\n", packet_index);
           storage->output_nus[packet_index] = rpacket_get_nu(&packet);
-          fprintf(stderr, "Kaushik: checking chi_bf_tmp_size after storage->output_nus[packet_index] %d\n", storage->no_of_packets);
-
           if (reabsorbed == 1)
             {
               storage->output_energies[packet_index] = -rpacket_get_energy(&packet);
@@ -1307,13 +1294,8 @@ create_vpacket (storage_model_t * storage, rpacket_t * packet,
     }
 }
 
-void
-montecarlo_main_loop_test(storage_model_t * storage, int64_t virtual_packet_flag, int nthreads, unsigned long seed)
-{
-  fprintf(stderr, "Inside montecarlo_main_loop");
-  //print_storage_model_to_file(storage);
-}
-// Methods by Kaushik to debug montecarlo loops
+// Methods to debug montecarlo loops
+// prints storage model at any time to a file
 int print_storage_model_to_file (storage_model_t * storage) {
 
   FILE *fp;

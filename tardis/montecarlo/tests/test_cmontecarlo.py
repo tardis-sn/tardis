@@ -87,7 +87,7 @@ from tardis.montecarlo.struct import (
     INVERSE_C,
     BoundFreeTreatment
 )
-# Kaushik: to test the montecarlo_main_loop
+# To test the montecarlo_main_loop
 from tardis.montecarlo import montecarlo, packet_source
 from tardis.model import Radial1DModel
 from tardis.io.config_reader import Configuration

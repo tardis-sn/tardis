@@ -23,7 +23,6 @@ def base_config(request):
     config["montecarlo"]["no_of_virtual_packets"] = 0
     config["spectrum"]["method"] = "integrated"
     config["spectrum"]["integrated"]["points"] = 200
-    print("config", config)
 
     return config
 
@@ -92,7 +91,6 @@ class TestRunnerSimpleFormalInegral():
         luminosity = u.Quantity(
                 refdata('spectrum_integrated/luminosity'), 'erg /s')
 
-        print("actual, desired: ", luminosity, runner.spectrum_integrated.luminosity)
         assert_quantity_allclose(
             runner.spectrum_integrated.luminosity,
             luminosity)

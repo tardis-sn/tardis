@@ -62,7 +62,6 @@ def model():
         last_interaction_type=(c_int64 * 2)(*([2])),
         last_interaction_out_type=(c_int64 * 1)(*([0])),
 
-        no_of_packets=2,
         no_of_shells=2,
 
         r_inner=(c_double * 2)(*[6.912e14, 8.64e14]),
