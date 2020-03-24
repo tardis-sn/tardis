@@ -620,6 +620,7 @@ def test_macro_atom(clib, model_3lvlatom, packet, z_random, packet_params, get_r
     packet.macro_atom_activation_level = packet_params['activation_level']
     packet.current_shell_id = packet_params['shell_id']
     rkstate = get_rkstate(z_random)
+
     clib.macro_atom(byref(packet), byref(model_3lvlatom), byref(rkstate))
     obtained_line_id = model_3lvlatom.last_line_interaction_out_id[packet.id]
 
@@ -648,13 +649,13 @@ def test_increment_Edotlu_estimator(clib, packet_params, line_idx, expected, pac
     assert_almost_equal(model.line_lists_Edotlu[line_idx], expected)
 
 
-# """
-# Difficult Tests:
-# ----------------
-# The tests written further are more complex than previous tests. They require
-# proper design procedure. They are not taken up yet and intended to be
-# completed together in future.
-# """
+"""
+Difficult Tests:
+----------------
+The tests written further are more complex than previous tests. They require
+proper design procedure. They are not taken up yet and intended to be
+completed together in future.
+"""
 
 
 
