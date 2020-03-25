@@ -11,7 +11,7 @@ from numpy.testing import assert_almost_equal
 from tardis.montecarlo.spectrum import (
         TARDISSpectrum,
         )
-
+from mock import patch
 BIN = 5
 
 TESTDATA = [
@@ -202,3 +202,34 @@ def test_creat_from_J(spectrum):
             )
 
     compare_spectra(actual, spectrum)
+
+###
+# Test plotting functions
+###
+
+
+def test_plot(spectrum):
+
+    from matplotlib.pyplot import gca
+
+    with patch.object(gca(),'set_ylabel') as mock_plot:
+        spectrum.plot()
+
+    mock_plot.assert_called()
+
+###
+# Test save functions
+###
+
+
+def test_to_ascii(spectrum):
+
+    import numpy as np
+
+    with patch.object(np, 'savetxt') as mock_save:
+        spectrum.to_ascii(fname='test', mode='luminosity_density')
+
+    mock_save.assert_called()
+
+
+
