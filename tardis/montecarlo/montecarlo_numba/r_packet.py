@@ -62,7 +62,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     
     return distance, delta_shell
 
-@njit(**njit_dict)
+# @njit(**njit_dict)
 def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
                             montecarlo_configuration):
     """
@@ -95,10 +95,7 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
     if montecarlo_configuration.full_relativity:
         nu_r = nu_line / nu
         ct = C_SPEED_OF_LIGHT * time_explosion
-        distance = -r_packet.mu * r_packet.r + (
-                ct - nu_r**2 * np.sqrt(
-            ct**2 - (1 + r_packet**2 * (1 - r_packet.mu**2) *
-                     (1 + 1 / nu_r**2)))) / (1 + nu_r**3)
+        distance = -r_packet.mu * r_packet.r + (ct - nu_r**2 * np.sqrt(ct**2 - (1 + r_packet**2 * (1 - r_packet.mu**2) *(1 + 1 / nu_r**2)))) / (1 + nu_r**3)
     else:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
 
@@ -179,7 +176,7 @@ def update_line_estimators(estimators, r_packet, cur_line_id, distance_trace,
     estimators.edot_lu_estimator[cur_line_id, r_packet.current_shell_id] += (
         energy)
 
-@njit(**njit_dict)
+# @njit(**njit_dict)
 def trace_packet(r_packet, numba_model, numba_plasma, estimators,
                  montecarlo_configuration):
     """

@@ -152,7 +152,7 @@ class Estimators(object):
 monte_carlo_configuration_spec = [
     ('line_interaction_type', int64),
     ('number_of_vpackets', int64),
-    ('temporary_v_packet_bins', int64)
+    ('temporary_v_packet_bins', int64),
     ('full_relativity', boolean)
 ]
 
@@ -160,7 +160,7 @@ monte_carlo_configuration_spec = [
 @jitclass(monte_carlo_configuration_spec)
 class MonteCarloConfiguration(object):
     def __init__(self, number_of_vpackets, line_interaction_type,
-                 temporary_v_packet_bins, full_relativity=False):
+                 temporary_v_packet_bins, full_relativity):
         self.line_interaction_type = line_interaction_type
         self.number_of_vpackets = number_of_vpackets
         self.temporary_v_packet_bins = temporary_v_packet_bins
@@ -168,7 +168,7 @@ class MonteCarloConfiguration(object):
 
 
 def configuration_initialize(runner, number_of_vpackets,
-                             temporary_v_packet_bins=20000):
+                             temporary_v_packet_bins=20000, full_relativity=False):
     if runner.line_interaction_type == 'macroatom':
         line_interaction_type = LineInteractionType.MACROATOM
     elif runner.line_interaction_type == 'downbranch':
@@ -181,7 +181,7 @@ def configuration_initialize(runner, number_of_vpackets,
                          f'{runner.line_interaction_type}')
 
     return MonteCarloConfiguration(number_of_vpackets, line_interaction_type,
-                                   temporary_v_packet_bins)
+                                   temporary_v_packet_bins, full_relativity)
 
 
 #class TrackRPacket(object):

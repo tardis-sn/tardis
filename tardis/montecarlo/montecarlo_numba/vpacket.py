@@ -117,7 +117,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
         v_packet.r = new_r
     return tau_trace_combined
 
-@njit(**njit_dict)
+# @njit(**njit_dict)
 def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many) 
