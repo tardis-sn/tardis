@@ -67,6 +67,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
         elif interaction_type == InteractionType.LINE:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
                           estimators, montecarlo_configuration)
+
             line_scatter(r_packet, numba_model.time_explosion,
                          line_interaction_type, numba_plasma)
 
@@ -76,6 +77,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
                           estimators, montecarlo_configuration)
+
             general_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,

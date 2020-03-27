@@ -184,6 +184,7 @@ def configuration_initialize(runner, number_of_vpackets,
                                    temporary_v_packet_bins, full_relativity)
 
 
+
 #class TrackRPacket(object):
 class LineInteractionType(IntEnum):
     SCATTER = 0

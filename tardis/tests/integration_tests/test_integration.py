@@ -120,8 +120,8 @@ class TestIntegration(object):
         # We now do a run with prepared config and get the simulation object.
         self.result = Simulation.from_config(tardis_config,
                                              atom_data=self.atom_data)
+        capmanager.suspend_global_capture(True)
 
-        capmanager.suspendcapture(True)
         # If current test run is just for collecting reference data, store the
         # output model to HDF file, save it at specified path. Skip all tests.
         # Else simply perform the run and move further for performing
@@ -139,7 +139,7 @@ class TestIntegration(object):
             pytest.skip("Reference data saved at {0}".format(
                 data_path['reference_path']
             ))
-        capmanager.resumecapture()
+        capmanager.resume_global_capture()
 
         # Get the reference data through the fixture.
         self.reference = reference
