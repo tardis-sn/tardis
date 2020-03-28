@@ -138,7 +138,7 @@ Installing TARDIS in develop mode
 ---------------------------------
 
 TARDIS is designed so that it can generally be used directly out of the source
-tree by using ``import `` when running Python in the source of an
+tree by using ``import`` when running Python in the source of an
 TARDIS repository clone.
 
 #. Install TARDIS_ in develop mode::
