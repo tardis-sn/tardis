@@ -23,7 +23,7 @@ class BasePlasma(PlasmaWriterMixin):
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        property_kwargs, **kwargs)
         self._build_graph()
-#        self.write_to_tex('Plasma_Graph')
+        self.write_to_tex('Plasma_Graph')
         self.update(**kwargs)
 
     def __getattr__(self, item):
@@ -211,18 +211,41 @@ class BasePlasma(PlasmaWriterMixin):
         print_graph = self.graph.copy()
         print_graph = self.remove_hidden_properties(print_graph)
         for node in print_graph:
-            print_graph.node[str(node)]['label'] = node
+            print_graph.nodes[str(node)]['label'] = node
             if hasattr(self.plasma_properties_dict[node],
                 'latex_formula'):
                 formulae = self.plasma_properties_dict[node].latex_formula
                 for output in range(0, len(formulae)):
                     formula = formulae[output]
                     label = formula.replace('\\', '\\\\')
-                    print_graph.node[str(node)]['label']+='\\n$'
-                    print_graph.node[str(node)]['label']+=label
-                    print_graph.node[str(node)]['label']+='$'
+                    print_graph.nodes[str(node)]['label']+='\\n$'
+                    print_graph.nodes[str(node)]['label']+=label
+                    print_graph.nodes[str(node)]['label']+='$'
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
+
+    def visualize_dotfile(self,fname_graph,png_filename):
+        '''
+        creates a png image of the dotfile passed as the Parameters
+
+        Parameters
+        -----------
+        1)fname_graph : a dot file
+        2)png_filename : the name for the png image
+
+
+        '''
+        try:
+            from graphviz import Source
+        except:
+            logger.warn('graphviz missing. Plasma graph will not be '
+                        'generated.')
+            return
+        f=open(fname_graph, 'r')
+        dot_string=f.read().strip()
+        f.close()
+        graph_file = Source(dot_string, filename=png_filename, format="png")
+        graph_file.view()
 
     def write_to_tex(self, fname_graph):
         try:
@@ -237,9 +260,7 @@ class BasePlasma(PlasmaWriterMixin):
         self.write_to_dot(temp_fname)
 
         dot_string = open(temp_fname).read()
-
-        open(fname_graph, 'w').write(dot2tex.dot2tex(dot_string,
-            texmode='raw'))
+        open(fname_graph, 'w').write(dot_string)#dot2tex.dot2tex(dot_string,texmode='raw'))
 
         for line in fileinput.input(fname_graph, inplace = 1):
             print(line.replace(r'\documentclass{article}',
@@ -248,6 +269,8 @@ class BasePlasma(PlasmaWriterMixin):
 
         for line in fileinput.input(fname_graph, inplace = 1):
             print(line.replace(r'\enlargethispage{100cm}', ''), end='')
+
+        self.visualize_dotfile(fname_graph,"Plasma Graph")
 
     def remove_hidden_properties(self, print_graph):
         for item in self.plasma_properties_dict.values():
