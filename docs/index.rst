@@ -38,6 +38,7 @@ assistance.
 
     installation
     quickstart/quickstart
+    quickstart/quickstart-demo 
 
 
 
