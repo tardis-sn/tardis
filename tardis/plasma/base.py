@@ -199,6 +199,24 @@ class BasePlasma(PlasmaWriterMixin):
 
         return descendants_ob
 
+
+    def _get_print_graph(self):
+        print_graph = self.graph.copy()
+        print_graph = self.remove_hidden_properties(print_graph)
+        for node in print_graph:
+            print_graph.nodes[str(node)]['label'] = node
+            if hasattr(self.plasma_properties_dict[node],
+                'latex_formula'):
+                formulae = self.plasma_properties_dict[node].latex_formula
+                for output in range(0, len(formulae)):
+                    formula = formulae[output]
+                    label = formula.replace('\\', '\\\\')
+                    print_graph.nodes[str(node)]['label']+='\\n$'
+                    print_graph.nodes[str(node)]['label']+=label
+                    print_graph.nodes[str(node)]['label']+='$'
+        return print_graph
+
+
     def write_to_dot(self, fname, latex_label=True):
 #        self._update_module_type_str()
 
@@ -208,21 +226,21 @@ class BasePlasma(PlasmaWriterMixin):
             logger.warn('pygraphviz missing. Plasma graph will not be '
                         'generated.')
             return
-        print_graph = self.graph.copy()
-        print_graph = self.remove_hidden_properties(print_graph)
-        for node in print_graph:
-            print_graph.node[str(node)]['label'] = node
-            if hasattr(self.plasma_properties_dict[node],
-                'latex_formula'):
-                formulae = self.plasma_properties_dict[node].latex_formula
-                for output in range(0, len(formulae)):
-                    formula = formulae[output]
-                    label = formula.replace('\\', '\\\\')
-                    print_graph.node[str(node)]['label']+='\\n$'
-                    print_graph.node[str(node)]['label']+=label
-                    print_graph.node[str(node)]['label']+='$'
-
+        print_graph = self._get_print_graph()
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
+
+
+    def write_to_png(self): 
+        try:
+            import pygraphviz
+        except:
+            logger.warn('pygraphviz missing. Plasma graph will not be '
+                        'generated.')
+            return
+        print_graph = self._get_print_graph()
+        agraph = nx.nx_agraph.to_agraph(print_graph)
+        return agraph.draw(format='png', prog='dot')
+
 
     def write_to_tex(self, fname_graph):
         try:
