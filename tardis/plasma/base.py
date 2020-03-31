@@ -23,6 +23,7 @@ class BasePlasma(PlasmaWriterMixin):
         self.plasma_properties = self._init_properties(plasma_properties,
                                                        property_kwargs, **kwargs)
         self._build_graph()
+        #self.write_to_dot(tempfile.NamedTemporaryFile().name)
         self.write_to_tex('Plasma_Graph')
         self.update(**kwargs)
 
@@ -223,6 +224,29 @@ class BasePlasma(PlasmaWriterMixin):
                     print_graph.nodes[str(node)]['label']+='$'
 
         nx.drawing.nx_agraph.write_dot(print_graph, fname)
+        self.visualize_using_matplotlib(print_graph,"Plasma Graph2.png")
+
+    def visualize_using_matplotlib(self,g,filename):
+        '''
+        creates a png image of the Digraph passed as the Parameters
+
+        Parameters
+        -----------
+        1)g :a graph of type: Digraph
+        2)filename : the name for the png image
+
+
+        '''
+        try:
+            import matplotlib.pyplot as plt
+        except:
+            logger.warn('matplotlib missing. Plasma graph2 will not be '
+                        'generated.')
+            return
+        nx.draw_shell(g,with_labels=True)
+        plt.savefig(filename)
+        #plt.show()
+
 
     def visualize_dotfile(self,fname_graph,png_filename):
         '''
@@ -236,16 +260,15 @@ class BasePlasma(PlasmaWriterMixin):
 
         '''
         try:
-            from graphviz import Source
+            import pygraphviz as pgv
         except:
-            logger.warn('graphviz missing. Plasma graph will not be '
+            logger.warn('pygraphviz missing. Plasma graph will not be '
                         'generated.')
             return
-        f=open(fname_graph, 'r')
-        dot_string=f.read().strip()
-        f.close()
-        graph_file = Source(dot_string, filename=png_filename, format="png")
-        graph_file.view()
+        G=pgv.AGraph(fname_graph)
+        G.layout(prog='dot')
+        G.draw(png_filename+".png")
+
 
     def write_to_tex(self, fname_graph):
         try:
@@ -269,6 +292,7 @@ class BasePlasma(PlasmaWriterMixin):
 
         for line in fileinput.input(fname_graph, inplace = 1):
             print(line.replace(r'\enlargethispage{100cm}', ''), end='')
+
 
         self.visualize_dotfile(fname_graph,"Plasma Graph")
 
