@@ -313,7 +313,6 @@ compute_distance2boundary (rpacket_t * packet, const storage_model_t * storage)
 tardis_error_t
 compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
 {
-  // fprintf(stderr, "computing compute_distance2line: %" PRId64 "\n", rpacket_get_last_line (packet));
   if (!rpacket_get_last_line (packet))
     {
       double r = rpacket_get_r (packet);
@@ -387,7 +386,6 @@ compute_distance2line (rpacket_t * packet, const storage_model_t * storage)
 void
 compute_distance2continuum (rpacket_t * packet, storage_model_t * storage)
 {
-  // fprintf (stderr, "current shell id = %" PRIi64 "\n", rpacket_get_current_shell_id (packet));
   double chi_continuum, d_continuum;
   double chi_electron = storage->electron_densities[rpacket_get_current_shell_id(packet)] *
     storage->sigma_thomson;
@@ -1062,7 +1060,6 @@ static void
 montecarlo_compute_distances (rpacket_t * packet, storage_model_t * storage)
 {
   // Check if the last line was the same nu as the current line.
-  // fprintf(stderr, "Entered montecarlo_compute_distances: %" PRId64 "\n", rpacket_get_close_line (packet));
   if (rpacket_get_close_line (packet))
     {
       // If so set the distance to the line to 0.0
@@ -1114,6 +1111,7 @@ montecarlo_continuum_event_handler (rpacket_t * packet, storage_model_t * storag
       double zrand_x_chi_cont = rk_double (mt_state) * rpacket_get_chi_continuum (packet);
       double chi_th = rpacket_get_chi_electron (packet);
       double chi_bf = rpacket_get_chi_boundfree (packet);
+
       if (zrand_x_chi_cont < chi_th)
         {
           return &montecarlo_thomson_scatter;
