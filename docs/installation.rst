@@ -121,7 +121,7 @@ We highly encourage with any installation problems to try the recommended instal
 method because this often fix problems. Here are some common problems when
 installing and their fixes:
 
-**Problem:** While building tardis via ``python setup.py`` build you
+**Problem:** While building tardis via ``python setup.py build`` you
 may encounter the following error::
 
     error: tardis/montecarlo/montecarlo.c: Could not find C file tardis/montecarlo/montecarlo.c for Cython file tardis/montecarlo/montecarlo.pyx when building extension tardis.montecarlo.montecarlo. Cython must be installed to build from a git checkout.
