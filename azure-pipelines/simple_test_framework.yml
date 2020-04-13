@@ -1,4 +1,4 @@
-# Python package
+ # Python package
 # Create and test a Python package on multiple Python versions.
 # Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
@@ -28,7 +28,7 @@ jobs:
         vm_Image: 'Ubuntu-16.04'
         conda: '/usr/share/miniconda'
       mac:
-        vm_Image: 'macOS-10.13'
+        vm_Image: 'macOS-10.14'
         miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
     maxParallel: 4
 
