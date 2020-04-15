@@ -16,6 +16,7 @@ schedules:
 variables:
   system.debug: "true"
   tardis.zenodo.home: "$(Agent.BuildDirectory)/tardis_zenodo"
+  tardis.zenodo.access: $(epassaro_pat)
   tardis.build.dir: $(Build.Repository.LocalPath)
 
 pool:
@@ -67,7 +68,7 @@ jobs:
 
       - bash: |
           cd ..
-          git clone git@github.com:tardis-sn/tardis_zenodo.git
+          git clone https://$(tardis.zenodo.access)@github.com/tardis-sn/tardis_zenodo.git
         displayName: "Clone tardis_zenodo repo"
 
       - bash: |
