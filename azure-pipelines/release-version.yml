@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger: none
-pr: none
+pr: [ master ]
 schedules:
   - cron: "30 22 * * 0"
     displayName: Weekly build
@@ -25,6 +25,17 @@ jobs:
   - job: zenodo_json
     displayName: Create Zenodo JSON file
     steps:
+
+      - task: DownloadSecureFile@1
+        inputs: 
+          secureFile: 'id_azure_rsa'
+
+      - task: InstallSSHKey@0
+        inputs:
+         knownHostsEntry: $(gh_host)
+         sshPublicKey: $(public_key)
+         sshKeySecureFile: 'id_azure_rsa'
+
       - task: DownloadSecureFile@1
         name: zenodoSecretKey
         displayName: "Download Zenodo secret key"
@@ -54,12 +65,10 @@ jobs:
           conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
         displayName: "Create Zenodo env"
 
-      # Actually this is a workaround. We need to grab this from `tardis_zenodo` private repo.
       - bash: |
-          cd ..; mkdir tardis_zenodo
-          cd $(tardis.zenodo.home)
-          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/d71ca46ca1816f6f46c768314c2da59ed017861e/gather_data.ipynb
-        displayName: "Downloading notebook (workaround)"
+          cd ..
+          git clone git@github.com:tardis-sn/tardis_zenodo.git
+        displayName: "Clone tardis_zenodo repo"
 
       - bash: |
           cp $(zenodoSecretKey.secureFilePath) $(tardis.zenodo.home)
