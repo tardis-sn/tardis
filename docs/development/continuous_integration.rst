@@ -203,7 +203,7 @@ After defining the variable, one could optionally encrypt it using this lock sym
 Variables are referenced as $(variable_name), as seen in the InstallSSHKey@0 task in the hostName and sshPublicKey inputs.
 
 Azure provides a list of agent hosts that can run the pipeline on a virtual machine. In our pipelines, we
-use the vm_Images: Ubuntu 16.04 and macOs-10.13.
+use the vm_Images: Ubuntu 16.04 and macOs-10.14.
 
 In a job, you can list a single vm as::
 
@@ -224,7 +224,7 @@ addition to specifying variables as key value pairs such as conda and miniconda.
             vmImage: "Ubuntu 16.04"
             conda: '/usr/share/miniconda'
           mac:
-            vm_Image: 'macOS-10.13'
+            vm_Image: 'macOS-10.14'
             miniconda.url: 'http://repo.continuum.io/miniconda/Miniconda2-latest-mac-x86_64.sh'
         maxParallel: 2
       pool:
