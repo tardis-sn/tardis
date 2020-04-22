@@ -56,17 +56,17 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
     while r_packet.status == PacketStatus.IN_PROCESS:
         distance, interaction_type, delta_shell = trace_packet(
-            r_packet, numba_model, numba_plasma, estimators=estimators)
+            r_packet, numba_model, numba_plasma, estimators, montecarlo_configuration)
 
         if interaction_type == InteractionType.BOUNDARY:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
-                          estimators)
+                          estimators, montecarlo_configuration)
             move_packet_across_shell_boundary(r_packet, delta_shell,
                                                        len(numba_model.r_inner))
 
         elif interaction_type == InteractionType.LINE:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
-                          estimators)
+                          estimators, montecarlo_configuration)
             line_scatter(r_packet, numba_model.time_explosion,
                          line_interaction_type, numba_plasma)
 
@@ -75,7 +75,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
-                          estimators)
+                          estimators, montecarlo_configuration)
             general_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
