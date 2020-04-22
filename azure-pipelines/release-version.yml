@@ -90,9 +90,27 @@ jobs:
         displayName: "Running notebook (not allow errors)"
 
       # This step should fail if there are changes in .zenodo.json
+      #- bash: |
+      #    diff $(tardis.zenodo.home)/.zenodo.json .zenodo.json
+      #  displayName: "Look for changes in JSON"
+
       - bash: |
-          diff $(tardis.zenodo.home)/.zenodo.json .zenodo.json
-        displayName: "Look for changes in JSON"
+          REPO=`git config remote.origin.url`
+          SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
+
+          git config --local user.name "Azure Pipelines"
+          git config --local user.email "azuredevops@microsoft.com"
+          git add zenodo.json
+
+          if git diff --staged --quiet; then
+             echo "Exiting with no changes"
+             exit 0
+          else
+            git commit -m "Update zenodo.json"
+            git push $SSH_REPO master
+          fi
+
+        displayName: "Push zenodo.json to master branch"
 
       - task: PublishPipelineArtifact@1
         inputs:
