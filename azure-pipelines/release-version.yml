@@ -100,7 +100,8 @@ jobs:
 
           git config --local user.name "Azure Pipelines"
           git config --local user.email "azuredevops@microsoft.com"
-          git add zenodo.json
+          cp $(tardis.zenodo.home)/.zenodo.json .zenodo.json
+          git add .zenodo.json
 
           if git diff --staged --quiet; then
              echo "Exiting with no changes"
