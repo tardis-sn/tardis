@@ -42,8 +42,7 @@ omit =
    tardis/analysis.py
 
    # Omit all version and __init__.py files 
-   tardis/version.py
-   tardis/cython_version.py
+   *version*
    *__init__*
    
 
