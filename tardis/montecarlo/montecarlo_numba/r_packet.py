@@ -97,7 +97,7 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
         ct = C_SPEED_OF_LIGHT * time_explosion
         distance = -r_packet.mu * r_packet.r + (
                 ct - nu_r**2 * np.sqrt(
-            ct**2 - (1 + r_packet**2 * (1 - r_packet.mu**2) *
+            ct**2 - (1 + r_packet.r**2 * (1 - r_packet.mu**2) *
                      (1 + 1 / nu_r**2)))) / (1 + nu_r**3)
     else:
         distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
