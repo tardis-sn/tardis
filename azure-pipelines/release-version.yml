@@ -95,9 +95,12 @@ jobs:
       #  displayName: "Look for changes in JSON"
 
       - bash: |
-          REPO=`git config remote.origin.url`
-          SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
+          set -e
 
+          cd ..
+          git clone git@github.com:tardis-sn/tardis.git out
+          cd out
+          
           git config --local user.name "Azure Pipelines"
           git config --local user.email "azuredevops@microsoft.com"
           cp $(tardis.zenodo.home)/.zenodo.json .zenodo.json
@@ -108,9 +111,8 @@ jobs:
              exit 0
           else
             git commit -m "Update zenodo.json"
-            git push $SSH_REPO master
-          fi
-
+            git push origin master
+          fi  
         displayName: "Push zenodo.json to master branch"
 
       - task: PublishPipelineArtifact@1
