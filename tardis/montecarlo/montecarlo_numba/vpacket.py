@@ -33,7 +33,7 @@ class VPacket(object):
 
 
 @njit(**njit_dict)
-def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
+def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma, montecarlo_configuration):
     
     r_inner = numba_model.r_inner[v_packet.current_shell_id]
     r_outer = numba_model.r_outer[v_packet.current_shell_id]
@@ -66,7 +66,8 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
             cur_line_id, v_packet.current_shell_id]
 
         distance_trace_line = calculate_distance_line(
-            v_packet.nu, comov_nu, nu_line, numba_model.time_explosion)
+            v_packet, comov_nu, nu_line, numba_model.time_explosion,
+            montecarlo_configuration)
 
         if distance_boundary <= distance_trace_line:
             break
@@ -83,7 +84,7 @@ def trace_vpacket_within_shell(v_packet, numba_model, numba_plasma):
     return tau_trace_combined, distance_boundary, delta_shell
 
 @njit(**njit_dict)
-def trace_vpacket(v_packet, numba_model, numba_plasma):
+def trace_vpacket(v_packet, numba_model, numba_plasma, montecarlo_configuration):
     """
     Trace single vpacket.
     Parameters
@@ -100,7 +101,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
     tau_trace_combined = 0.0
     while True:
         tau_trace_combined_shell, distance_boundary, delta_shell = trace_vpacket_within_shell(
-            v_packet, numba_model, numba_plasma
+            v_packet, numba_model, numba_plasma, montecarlo_configuration
         )
         tau_trace_combined += tau_trace_combined_shell
         if tau_trace_combined > 10:
@@ -118,7 +119,7 @@ def trace_vpacket(v_packet, numba_model, numba_plasma):
     return tau_trace_combined
 
 @njit(**njit_dict)
-def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma):
+def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma, montecarlo_configuration):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many) 
     from the current position of the rpacket. 
@@ -139,7 +140,6 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
         (r_packet.nu > vpacket_collection.spectrum_frequency[-1])):
         
         return
-
 
     
     no_of_vpackets = vpacket_collection.number_of_vpackets
@@ -179,7 +179,7 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
                            v_packet_energy, r_packet.current_shell_id, 
                            r_packet.next_line_id)
         
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma)
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma, montecarlo_configuration)
         
         v_packet.energy *= np.exp(-tau_vpacket)
 
