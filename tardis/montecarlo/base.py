@@ -228,7 +228,7 @@ class MontecarloRunner(HDFWriterMixin):
                                  no_of_packets)
 
         montecarlo_configuration = configuration_initialize(
-            self, no_of_virtual_packets, self.enable_full_relativity)
+            self, no_of_virtual_packets, full_relativity=self.enable_full_relativity)
 
         montecarlo_radial1d(model, plasma, self, montecarlo_configuration)
         #montecarlo.montecarlo_radial1d(
