@@ -45,7 +45,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
     r_packet.initialize_line_id(numba_plasma, numba_model)
 
     trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                         numba_plasma)
+                         numba_plasma, montecarlo_configuration)
 
     if track_rpackets:
         r_packet_track_nu = [r_packet.nu]
@@ -71,7 +71,8 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                          line_interaction_type, numba_plasma)
 
             trace_vpacket_volley(
-                r_packet, vpacket_collection, numba_model, numba_plasma)
+                r_packet, vpacket_collection, numba_model, numba_plasma,
+                montecarlo_configuration)
 
         elif interaction_type == InteractionType.ESCATTERING:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
@@ -79,7 +80,7 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
             general_scatter(r_packet, numba_model.time_explosion)
 
             trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
-                                 numba_plasma)
+                                 numba_plasma, montecarlo_configuration)
 
         if track_rpackets:
             r_packet_track_nu.append(r_packet.nu)
