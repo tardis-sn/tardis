@@ -11,7 +11,7 @@ from collections import OrderedDict
 
 import requests
 import yaml
-from tqdm.autonotebook import tqdm
+from tqdm.auto import tqdm
 
 from tardis import constants
 from astropy import units as u
