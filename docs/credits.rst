@@ -78,7 +78,7 @@ The following bibtex entries are needed for the references.
     }
 
 
-    @misc{kerzendorf_wolfgang_2019_2590539,
+    @software{kerzendorf_wolfgang_2019_2590539,
       author       = {Kerzendorf, Wolfgang and
                       Nöbauer, Ulrich and
                       Sim, Stuart and
