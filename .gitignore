@@ -67,3 +67,6 @@ distribute-*.tar.gz
 
 # Mac OSX
 .DS_Store
+
+# Jupyter checkpoints
+.ipynb_checkpoints
