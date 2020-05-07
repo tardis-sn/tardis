@@ -110,7 +110,7 @@ jobs:
              echo "Exiting with no changes"
              exit 0
           else
-            git commit -m "Update zenodo.json"
+            git commit -m "Update zenodo.json [skip ci]"
             git push origin master
           fi  
         displayName: "Push zenodo.json to master branch"
