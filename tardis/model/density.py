@@ -197,7 +197,7 @@ def calculate_density_after_time(densities, time_0, time_explosion):
     scale the density from an initial time of the model to the
     time of the explosion by ^-3
 
-    Parameters:
+    Parameters
     -----------
 
     densities: ~astropy.units.Quantity
@@ -209,7 +209,7 @@ def calculate_density_after_time(densities, time_0, time_explosion):
     time_explosion: ~astropy.units.Quantity
         time to be scaled to
 
-    Returns:
+    Returns
     --------
 
     scaled_density
