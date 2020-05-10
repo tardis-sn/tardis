@@ -42,7 +42,7 @@ def simulation_one_loop(
 def test_gui(simulation_one_loop):
     simulation = simulation_one_loop
     app = QtWidgets.QApplication([])
-    tablemodel =gui.datahandler.SimpleTableModel
-    win = gui.widgets.Tardis(tablemodel)
+    tablemodel = SimpleTableModel
+    win = Tardis(tablemodel)
     win.show_model(simulation)
     app.quit()
