@@ -4,7 +4,7 @@
 # https://aka.ms/yaml
 
 trigger: none
-#pr: none
+pr: none
 schedules:
   - cron: "30 22 * * 5"
     displayName: Weekly update
@@ -26,16 +26,15 @@ jobs:
   - job: zenodo_json
     displayName: Create Zenodo JSON file
     steps:
-
       - task: DownloadSecureFile@1
-        inputs: 
-          secureFile: 'id_azure_rsa'
+        inputs:
+          secureFile: "id_azure_rsa"
 
       - task: InstallSSHKey@0
         inputs:
-         knownHostsEntry: $(gh_host)
-         sshPublicKey: $(public_key)
-         sshKeySecureFile: 'id_azure_rsa'
+          knownHostsEntry: $(gh_host)
+          sshPublicKey: $(public_key)
+          sshKeySecureFile: "id_azure_rsa"
 
       - task: DownloadSecureFile@1
         name: zenodoSecretKey
@@ -100,7 +99,7 @@ jobs:
           cd ..
           git clone git@github.com:tardis-sn/tardis.git out
           cd out
-          
+
           git config --local user.name "Azure Pipelines"
           git config --local user.email "azuredevops@microsoft.com"
           cp $(tardis.zenodo.home)/.zenodo.json .zenodo.json
@@ -112,7 +111,7 @@ jobs:
           else
             git commit -m "Update zenodo.json [skip ci]"
             git push origin master
-          fi  
+          fi
         displayName: "Push zenodo.json to master branch"
 
       - task: PublishPipelineArtifact@1
