@@ -36,8 +36,14 @@ detailed_j_blues_properties = PlasmaPropertyCollection([JBluesDetailed,
                                                         JBluesNormFactor,
                                                         LuminosityInner,
                                                         TimeSimulation])
+continuum_interaction_inputs = PlasmaPropertyCollection(
+    [StimRecombRateCoeffEstimator, PhotoIonRateCoeffEstimator, RInner, TInner,
+     Volume]
+)
 continuum_interaction_properties = PlasmaPropertyCollection(
-    [PhotoIonizationData, SpontRecombRateCoeff,
+    [PhotoIonizationData, SpontRecombRateCoeff, PhotoIonRateCoeff,
      ThermalLevelBoltzmannFactorLTE, ThermalLTEPartitionFunction, BetaElectron,
-     ThermalGElectron, ThermalPhiSahaLTE, SahaFactor]
+     ThermalGElectron, ThermalPhiSahaLTE, SahaFactor, TimeSimulation,
+     PhotoIonEstimatorsNormFactor, LuminosityInner, StimRecombRateCoeff,
+     CorrPhotoIonRateCoeff]
 )

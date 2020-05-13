@@ -14,7 +14,8 @@ from tardis.plasma.properties.property_collections import (basic_inputs,
     nebular_ionization_properties, non_nlte_properties,
     nlte_properties, helium_nlte_properties, helium_numerical_nlte_properties,
     helium_lte_properties, detailed_j_blues_properties,
-    detailed_j_blues_inputs, continuum_interaction_properties)
+    detailed_j_blues_inputs, continuum_interaction_properties,
+    continuum_interaction_inputs)
 from tardis.plasma.exceptions import PlasmaConfigError
 
 from tardis.plasma.properties import (
@@ -108,6 +109,12 @@ def assemble_plasma(config, model, atom_data=None):
     property_kwargs = {}
     if config.plasma.continuum_interaction.species:
         plasma_modules += continuum_interaction_properties
+        plasma_modules += continuum_interaction_inputs
+        kwargs.update(gamma_estimator=None,
+                      alpha_stim_estimator=None,
+                      volume=model.volume,
+                      r_inner=model.r_inner,
+                      t_inner=model.t_inner)
     if config.plasma.radiative_rates_type == 'blackbody':
         plasma_modules.append(JBluesBlackBody)
     elif config.plasma.radiative_rates_type == 'dilute-blackbody':
