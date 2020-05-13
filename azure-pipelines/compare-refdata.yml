@@ -3,6 +3,9 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
+trigger: none
+pr: none
+
 variables:
   system.debug: "true"
   ref.data.home: "$(Agent.BuildDirectory)/tardis-refdata"
