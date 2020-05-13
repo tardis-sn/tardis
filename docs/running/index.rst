@@ -23,6 +23,7 @@ A quick start guide to run TARDIS can be found
 
     commandline
     gui
+    jupyter-widgets
     interaction/index
     custom_source
 
