@@ -14,8 +14,8 @@ else:
 import matplotlib
 from matplotlib.figure import *
 import matplotlib.gridspec as gridspec
-from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt4 import NavigationToolbar2QT as NavigationToolbar
+from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from matplotlib.backends.backend_qt5 import NavigationToolbar2QT as NavigationToolbar
 from matplotlib import colors
 from matplotlib.patches import Circle
 import matplotlib.pylab as plt
@@ -1066,13 +1066,13 @@ class Tardis(QtWidgets.QMainWindow):
         """
 
         #assumes that qt has already been initialized by starting IPython
-        #with the flag "--pylab=qt"
+        #with the flag "--pylab=qt"gut
         # app = QtCore.QCoreApplication.instance()
         # if app is None:
         #     app = QtGui.QApplication([])
         # try:
-        #     from IPython.lib.guisupport import start_event_loop_qt4
-        #     start_event_loop_qt4(app)
+        #     from IPython.lib.guisupport import start_event_loop_qt5
+        #     start_event_loop_qt5(app)
         # except ImportError:
         #     app.exec_()
 
