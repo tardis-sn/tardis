@@ -6,21 +6,24 @@ from numpy.testing import assert_almost_equal
 from tardis.plasma.properties import property_collections
 
 ###
-# Save and Load
+# saving and loading of plasma properties
 ###
+
 
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_buffer(hdf_file_path, simulation_verysimple):
     simulation_verysimple.plasma.to_hdf(hdf_file_path)
 
 
-plasma_properties_list = ['number_density', 'beta_rad', 'general_level_boltzmann_factor', 'level_boltzmann_factor',
-                          'stimulated_emission_factor', 't_electrons', 'wavelength_cm', 'lines_lower_level_index',
-                          'ionization_data', 'density', 'atomic_mass', 'level_number_density', 'lines_upper_level_index',
-                          'nu', 'beta_sobolev', 'transition_probabilities', 'phi',
-                          'electron_densities', 't_rad', 'selected_atoms', 'ion_number_density', 'partition_function',
-                          'abundance', 'g_electron', 'g', 'lines',  'f_lu', 'tau_sobolevs', 'j_blues',
-                          'metastability', 'w', 'excitation_energy']
+plasma_properties_list = [
+    'number_density', 'beta_rad', 'general_level_boltzmann_factor',
+    'level_boltzmann_factor', 'stimulated_emission_factor', 't_electrons',
+    'wavelength_cm', 'lines_lower_level_index', 'ionization_data', 'density',
+    'atomic_mass', 'level_number_density', 'lines_upper_level_index', 'nu',
+    'beta_sobolev', 'transition_probabilities', 'phi', 'electron_densities',
+    't_rad', 'selected_atoms', 'ion_number_density', 'partition_function',
+    'abundance', 'g_electron', 'g', 'lines',  'f_lu', 'tau_sobolevs',
+    'j_blues', 'metastability', 'w', 'excitation_energy']
 
 
 @pytest.mark.parametrize("attr", plasma_properties_list)
@@ -69,12 +72,15 @@ def test_atomic_data_uuid(hdf_file_path, simulation_verysimple):
     expected = pd.read_hdf(hdf_file_path, path)['atom_data_uuid']
     assert actual == expected
 
+
 @pytest.fixture(scope="module", autouse=True)
 def to_hdf_collection_buffer(hdf_file_path, simulation_verysimple):
     simulation_verysimple.plasma.to_hdf(
         hdf_file_path, name='collection', collection=property_collections.basic_inputs)
 
+
 collection_properties = ['t_rad', 'w', 'density']
+
 
 @pytest.mark.parametrize("attr", collection_properties)
 def test_collection(hdf_file_path, simulation_verysimple, attr):
