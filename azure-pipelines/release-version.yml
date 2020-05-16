@@ -16,6 +16,7 @@ schedules:
 variables:
   system.debug: "true"
   tardis.zenodo.home: "$(Agent.BuildDirectory)/tardis_zenodo"
+  tardis.zenodo.access: $(epassaro_pat)
   tardis.build.dir: $(Build.Repository.LocalPath)
 
 pool:
@@ -25,6 +26,17 @@ jobs:
   - job: zenodo_json
     displayName: Create Zenodo JSON file
     steps:
+
+      - task: DownloadSecureFile@1
+        inputs: 
+          secureFile: 'id_azure_rsa'
+
+      - task: InstallSSHKey@0
+        inputs:
+         knownHostsEntry: $(gh_host)
+         sshPublicKey: $(public_key)
+         sshKeySecureFile: 'id_azure_rsa'
+
       - task: DownloadSecureFile@1
         name: zenodoSecretKey
         displayName: "Download Zenodo secret key"
@@ -54,12 +66,10 @@ jobs:
           conda install jupyter nbconvert numpy pandas orcid -c conda-forge --yes
         displayName: "Create Zenodo env"
 
-      # Actually this is a workaround. We need to grab this from `tardis_zenodo` private repo.
       - bash: |
-          cd ..; mkdir tardis_zenodo
-          cd $(tardis.zenodo.home)
-          wget https://gist.githubusercontent.com/epassaro/12364cd3b33e4b2923ff1861d80ef6d8/raw/d71ca46ca1816f6f46c768314c2da59ed017861e/gather_data.ipynb
-        displayName: "Downloading notebook (workaround)"
+          cd ..
+          git clone https://$(tardis.zenodo.access)@github.com/tardis-sn/tardis_zenodo.git
+        displayName: "Clone tardis_zenodo repo"
 
       - bash: |
           cp $(zenodoSecretKey.secureFilePath) $(tardis.zenodo.home)
@@ -80,9 +90,30 @@ jobs:
         displayName: "Running notebook (not allow errors)"
 
       # This step should fail if there are changes in .zenodo.json
+      #- bash: |
+      #    diff $(tardis.zenodo.home)/.zenodo.json .zenodo.json
+      #  displayName: "Look for changes in JSON"
+
       - bash: |
-          diff $(tardis.zenodo.home)/.zenodo.json .zenodo.json
-        displayName: "Look for changes in JSON"
+          set -e
+
+          cd ..
+          git clone git@github.com:tardis-sn/tardis.git out
+          cd out
+          
+          git config --local user.name "Azure Pipelines"
+          git config --local user.email "azuredevops@microsoft.com"
+          cp $(tardis.zenodo.home)/.zenodo.json .zenodo.json
+          git add .zenodo.json
+
+          if git diff --staged --quiet; then
+             echo "Exiting with no changes"
+             exit 0
+          else
+            git commit -m "Update zenodo.json"
+            git push origin master
+          fi  
+        displayName: "Push zenodo.json to master branch"
 
       - task: PublishPipelineArtifact@1
         inputs:
