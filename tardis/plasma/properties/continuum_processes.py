@@ -48,8 +48,7 @@ def integrate_array_by_blocks(f, x, block_references):
 
 def get_ion_multi_index(multi_index_full, next_higher=True):
     """
-    Integrates a function f defined at locations x over blocks
-    given in block_references.
+    Calculates the corresponding ion MultiIndex for a level MultiIndex.
 
     Parameters
     ----------
