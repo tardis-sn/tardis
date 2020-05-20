@@ -22,11 +22,11 @@ including software engineers, computer scientists, statisticians,
 and astrophysicists.
 
 If you use this code for any publications or presentations please follow our
-citation guidelines in :ref:`tardiscredits`
+citation guidelines in :ref:`tardiscredits`.
 
 User modifications and additions that lead to publications **need to be handed
 back to the community** by incorporating them into TARDIS.
-Please contact the TARDIS team via the `github page
+Please contact the TARDIS team via the `GitHub page
 <https://github.com/tardis-sn/tardis>`_ if you have questions or need
 assistance.
 
