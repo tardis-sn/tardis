@@ -95,9 +95,9 @@ def assemble_plasma(config, model, atom_data=None):
         continuum_atoms.isin(atom_data.selected_atomic_numbers)
     )
     if not continuum_atoms_in_selected_atoms:
-        raise ConfigurationError('Not all continuum interaction species '
-                                 'belong to atoms that have been specified '
-                                 'in the configuration.')
+        raise PlasmaConfigError('Not all continuum interaction species '
+                                'belong to atoms that have been specified '
+                                'in the configuration.')
 
     kwargs = dict(t_rad=model.t_radiative, abundance=model.abundance,
                   density=model.density, atomic_data=atom_data,
@@ -108,6 +108,13 @@ def assemble_plasma(config, model, atom_data=None):
     plasma_modules = basic_inputs + basic_properties
     property_kwargs = {}
     if config.plasma.continuum_interaction.species:
+        line_interaction_type = config.plasma.line_interaction_type
+        if line_interaction_type != 'macroatom':
+            raise PlasmaConfigError(
+                'Continuum interactions require line_interaction_type '
+                'macroatom (instead of {}).'.format(line_interaction_type)
+            )
+
         plasma_modules += continuum_interaction_properties
         plasma_modules += continuum_interaction_inputs
         kwargs.update(gamma_estimator=None,
