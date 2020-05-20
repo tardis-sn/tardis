@@ -14,7 +14,7 @@ ejecta density and its composition have to be specified on a velocity grid.
 
    Since homology is implicitly assumed, the velocity grid immediately translates into a radial mesh
 
-The density and composition may be specified independently in the following ways
+The density and composition may be specified independently in the following ways:
 
 Specifying the density
 ======================
