@@ -35,7 +35,7 @@ instructions to AstroPy.
 Installing TARDIS with Anaconda
 ===============================
 
-We highly recommend using the Anaconda python environment to install TARDIS (or
+We highly recommend using the Anaconda Python environment to install TARDIS (or
 any other scientific packages for that matter). Anaconda has the advantage of
 being an isolated environment that can be set to be the default one, but by no
 means will mess with your other environments. It will also work on computers
@@ -43,7 +43,7 @@ where ``root``-rights are not available. Use these `instructions
 <http://docs.continuum.io/anaconda/install.html>`_ to install Anaconda on your
 machine. The next step is to create an environment for TARDIS that contains all
 of the necessary packages (this ensures that TARDIS requirements won't clash
-with any other python installs on disc)::
+with any other Python installs on disc)::
 
 First, download the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_ from::
 
