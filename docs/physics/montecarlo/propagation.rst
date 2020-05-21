@@ -7,7 +7,7 @@ determining the propagation history of the different packets. After a packet is
 initialised, it is launched and may then perform interactions with the
 surrounding material. This occurs again in a probabilistic manner. The packet
 propagation is followed until it escapes through the outer boundary of the
-computational domain at which point the packet contributes to the synthetic
+computational domain, at which point the packet contributes to the synthetic
 spectrum, the main product of a TARDIS calculation. The different spectral
 features are simply a combined product of the changes in the packet properties
 induced in the radiation-matter interactions.
@@ -93,7 +93,7 @@ interaction into a physical distance is not straight-forward in the presence of
 frequency-dependent interaction process such as atomic line interactions. The
 detailed procedure is outlined in the following section.
 
-In addition to the physical processes, numerical events which are a consequence
+In addition to the physical processes, numerical events that are a consequence
 of the spatial discretization of the computational domain require interrupting
 the propagating process. In TARDIS, as in many other numerical codes, physical
 quantities are stored on a discrete mesh. Within the different cells, which in
@@ -105,7 +105,7 @@ new state of the ambient material. Thus, during the packet propagation, the
 distance to the next radial shell is tracked to predict when the packet crosses
 into a new shell. Special care is taken at the edges of the computational
 domain. If a packet crosses back into the photosphere, it is discarded. Its
-propagation is stopped and it is no longer considered. Instead processing the
+propagation is stopped and it is no longer considered. Instead, processing the
 next packet of the population is started. Similarly, the propagation is stopped
 if the packet escapes through the outer surface of the domain. However, in this
 case the packet contributes to the final emergent spectrum (see :doc:`Spectrum
@@ -123,8 +123,7 @@ supernovae.
 
 Since the main focus of TARDIS is to calculate optical spectra,
 electron-scatterings are treated in the elastic low-energy limit as classical
-Thomson scatterings. In this case, the electron scattering process is frequency
-independent. It's opacity only depends on the number density of free electrons
+Thomson scatterings. In this case, the electron scattering process is frequency-independent. Its opacity only depends on the number density of free electrons
 :math:`n_e`
 
 .. math::
@@ -140,7 +139,7 @@ Thomson scattering according to
 
     \Delta \tau = \sigma_{\mathrm{T}} l.
 
-The situation is complicated by the inclusion of frequency dependent
+The situation is complicated by the inclusion of frequency-dependent
 bound-bound interactions, i.e. interactions with atomic line transitions.
 Photons and thus Monte Carlo packets can only interact with a line transition
 if their frequency in the co-moving frame (see :doc:`Reference Frames
@@ -148,12 +147,12 @@ if their frequency in the co-moving frame (see :doc:`Reference Frames
 atomic levels linked by the transition, i.e. if it comes into resonance. As a
 photon/packet propagates through the homologously expanding ejecta, its
 co-moving frame frequency is continuously red-shifted. Thus, during its
-propagation through the SN ejecta, a photon/packet may come into resonance with
+propagation through the supernova ejecta, a photon/packet may come into resonance with
 many line transitions. This and the fact that line transitions have a finite
 width given by the line profile function (in the case at hand, this width is
 mainly given by thermal broadening) would render the determination of the line
 optical depth accumulated along the photon/packet trajectory a complicated
-task.  Fortunately, the typical conditions in supernova ejecta warrant the use
+task. Fortunately, the typical conditions in supernova ejecta warrant the use
 of the so-called Sobolev approximation (see :doc:`Sobolev Approximation
 <../physics/sobolev>`). Roughly speaking, this approximation replaces the line
 profile function with a :math:`\delta` distribution around the natural line
@@ -167,16 +166,16 @@ With these assumptions, the calculation of the optical depth a packet
 accumulates along its trajectory currently adopted in TARDIS proceeds according
 to the following scheme (which was originally introduced by :cite:`Mazzali1993`): 
 given the current lab-frame frequency of the packet, the distance to the next
-Sobolev point (i.e. to the next line resonance) is calculated
+Sobolev point (i.e. to the next line resonance) is calculated.
 
 Until this location, the packet continuously accumulates optical depth due to
 electron-scattering. At the Sobolev point, the accumulated optical depth is
 instantaneously incremented by the full line optical depth. Afterwards, the
-procedure is repeated, now with respect to next transition in the
+procedure is repeated, now with respect to the next transition in the
 frequency-ordered list of all possible atomic line transitions. The point at
 which the accumulated optical depth surpasses the value determined in the
 random number experiment described above (determining the distance to the next
-physical interaction), determines the type of interaction the packet performs
+physical interaction) determines the type of interaction the packet performs
 and at which location in the spatial mesh. The entire process is summarized in
 the sketch below (taken from :cite:`Noebauer2014`, adapted from
 :cite:`Mazzali1993`):
@@ -206,7 +205,7 @@ sampled according to
 
     \mu_f = 2 z - 1.
 
-In addition, energy conservation has in the local co-moving frame has to be
+In addition, energy conservation in the local co-moving frame has to be
 obeyed. Thus, the packets energy and frequency in the lab-frame suffer from the
 relativistic Doppler shift
 
@@ -223,7 +222,7 @@ Line interactions proceed in a similar fashion. Since we assume that the
 re-emission process occurs isotropically as well, the same directional sampling
 as described above is used. Energy conservation again dictates how the packet
 energy after the line interaction event is determined. The important difference
-is the assignment of the post interaction frequency. This depends on the
+is the assignment of the post-interaction frequency. This depends on the
 selected line interaction mode (see :doc:`Line Interaction Modes
 <lineinteraction>`).
 
@@ -232,7 +231,7 @@ selected line interaction mode (see :doc:`Line Interaction Modes
     Note that the inclusion of special relativistic effects in TARDIS is at
     best to first order in :math:`\beta`. 
 
-Implementation: Main Propagation loop
+Implementation: Main Propagation Loop
 =====================================
 
 In summary of the concepts outlined above, the main Monte Carlo process within
@@ -246,8 +245,8 @@ radiation field emitted by the photosphere in the following way:
     * the packet covers the shorter of these two distances:
        * if the new shell is reached first, propagate into the shell and recalculate both distances
        * if the packet has crossed through the inner domain boundary (photosphere), terminate propagation
-       * likewise in case the packet escapes through outer boundary (ejecta surface): account for contribution to emergent spectrum and terminate propagation
-       * if the interaction location is reached first, propagated to this location, perform interaction and recalculate both distances
+       * likewise, in case the packet escapes through the outer boundary (ejecta surface): account for contribution to emergent spectrum and terminate propagation
+       * if the interaction location is reached first, propagate to this location, perform interaction and recalculate both distances
     * repeat this procedure until one of the two termination events occurs
 
 The following flow chart summarizes this process again:
