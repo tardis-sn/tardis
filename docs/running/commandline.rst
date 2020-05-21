@@ -6,7 +6,7 @@ Running TARDIS in the commandline
     This option will be removed in the next versions of TARDIS
 
 
-After installing TARDIS just download the configuration file from the
+After installing TARDIS, just download the configuration file from the
 `tardis-setups <https://github.com/tardis-sn/tardis-setups>`_ and the standard
 atomic data set from the `tardis-refdata
 <https://github.com/tardis-sn/tardis-refdata>`_ repository and run TARDIS.
@@ -22,8 +22,8 @@ Assuming you have ``wget``, you could follow the procedure:
     tardis tardis_example.yml output_spectrum.dat
 
 
-Then plot the output_spectrum.dat with your favourite plotting program. Here's an example how to do this with python.
-(The only thing you need to install is ipython and matplotlib - in addition to TARDIS's requirements)
+Then plot the output_spectrum.dat with your favourite plotting program. Here's an example of how to do this with python
+(the only thing you need to install is ipython and matplotlib --- in addition to TARDIS's requirements).
 
 .. code-block:: python
 
