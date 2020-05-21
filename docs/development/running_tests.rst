@@ -50,7 +50,7 @@ tardis runs are tested. So you first need to either download the current
 reference files (`here <https://github.com/tardis-sn/tardis-refdata>`_)
 or generate new ones.
 
-Both of of these require a configuration file for the integration tests:
+Both of these require a configuration file for the integration tests:
 
 .. literalinclude:: integration.yml
     :language: yaml
@@ -88,8 +88,8 @@ has to enable this for users (``remoteuser`` option) otherwise the error:
 ``ProtocolError for xmlrpc.php?p=xxxxxx&u=tardistester: 403 Forbidden``
 will appear.
 
-Another important configuration option is to enable embedded html ``htmlok``
-otherwise it won't show nice html page reports.
+Another important configuration option is to enable embedded html ``htmlok``;
+otherwise, it won't show nice html page reports.
 
 Finally, one has to call the `python setup.py test` with the ``--remote-data``
 option to allow posting to an external DokuWiki server.
