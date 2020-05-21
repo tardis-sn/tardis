@@ -127,9 +127,9 @@ There are two datasets for using the macro atom and branching line interactions.
 The ``macro_atom_data`` contains blocks of transition probabilities, several indices and flags. The Transition Type flag
 has three states:
 
-- -1 for downwards emitting
-- 0 for downwards internal
-- 1 for upwards internal (for more explanations, please
+* -1 for downwards emitting
+* 0 for downwards internal
+* 1 for upwards internal (for more explanations, please
 refer to :ref:`macroatom`).
 
 Macro Atom Data
