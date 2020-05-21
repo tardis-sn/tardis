@@ -10,7 +10,7 @@ This part of the documentation is dedicated to providing some physical and
 astrophysical background for TARDIS. If you do not find the information you are
 looking for, consult the official TARDIS publications and the references therein.
 
-Eventually, information about the following topics will be provided
+Eventually, information about the following topics will be provided:
 
 * Spectral Synthesis in SNe Ia ejecta
 * Radiative Transfer Primer
