@@ -176,11 +176,12 @@ Next, we will group the stimulated emission and stimulated absorption terms, as 
 
 .. math::
 
-    \frac{dn_2}{dt} &= n_1 (B_{12} \bar{J}_{12} \\
-\underbrace{(1 - \frac{n_2}{n_1}\frac{B_{21}}{B_{12}})}_\textrm{stimulated emission term}\\ 
-+ C_{12} n_e) - n_2 (A_{21} + C_{23} n_e + n_2 B_{23} \bar{J}_{23} \\
-\underbrace{(1 - \frac{n_3}{n_2}\frac{B_{32}}{B_{23}})}_\textrm{stimulated emission term})\\
-                    + n_3 (A_{32} + C_{32} n_e)
+    \frac{dn_2}{dt} &= n_1 \bigg{(}B_{12} \bar{J}_{12}
+                        \underbrace{\bigg{(}1 - \frac{n_2}{n_1}\frac{B_{21}}{B_{12}}\bigg{)}}_\text{stimulated emission term}
+                        + C_{12} n_e\bigg{)}\\
+                        - n_2 \bigg{(}A_{21} + C_{23} n_e + n_2 B_{23} \bar{J}_{23}
+                        \underbrace{\bigg{(}1 - \frac{n_3}{n_2}\frac{B_{32}}{B_{23}}\bigg{)}}_\text{stimulated emission term}\bigg{)}
+                        + n_3 (A_{32} + C_{32} n_e)
 
 
 
