@@ -9,7 +9,7 @@
 ..    </style>
 
 ##################################
-Tardis Core Package Documentation
+TARDIS Core Package Documentation
 ##################################
 
 .. image:: graphics/tardis_banner.svg
@@ -57,7 +57,6 @@ assistance.
 
     Physics overview <physics/index>
     physics/plasma/index
-    physics/montecarlo/index
 
 
 .. toctree::
