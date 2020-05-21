@@ -31,7 +31,7 @@ outcomes for each packet.
 
 The packets can gain and lose energy throughout the simulation. If these packets
 scatter (through the various mechanisms), we transform into the co-moving frame at
-that position :math:`v(r) = r / t_\textrm{explosion}`, where :math:`t_explosion`
+that position :math:`v(r) = r / t_\textrm{explosion}`, where :math:`t_\textrm{explosion}`
 is the time since explosion with the Doppler factor
 :math:`d_\textrm{rest \rightarrow comoving}`, then change direction from
 :math:`\mu_\textrm{in}` to :math:`mu_\textrm{out}` and transform back and
