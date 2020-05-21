@@ -10,15 +10,15 @@ level and emitting a photon while doing this respectively (see Figure 1 in :cite
 The macro atom is the most complex idea to implement as a data structure. The setup is done in `~tardisatomic`, but
 we will nonetheless discuss it here (as `~tardisatomic` is even less documented than this one).
 
-For each level we look at the line list to see what transitions (upwards or downwards are possible). We create a two arrays,
-the first is a long one-dimensional array containing the probabilities. Each level contains a set of probabilities, The first
+For each level,                                                                                               we look at the line list to see what transitions (upwards or downwards are possible). We create a two arrays,
+the first is a long one-dimensional array containing the probabilities. Each level contains a set of probabilities. The first
 part of each set contains the upwards probabilities (internal upward), the second part the downwards probabilities
 (internal downward), and the last part is the downward and emission probability.
 
 
 each set is stacked after the other one to make one long one dimensional `~numpy.ndarray`.
 
-The second array is for book-keeping it has exactly the length as levels (with an example for the Si II level 15):
+The second array is for book-keeping; it has exactly the length as levels (with an example for the Si II level 15):
 
 +--------+------------------+------------+----------------+-----------------+
 |Level ID| Probability index|N\ :sub:`up`| N\ :sub:`down` | N\ :sub:`total` |
@@ -41,7 +41,7 @@ where :math:`i` is the current level, :math:`\epsilon` is the energy of the leve
 
 
 We ignore the probability to emit a k-packet as TARDIS only works with photon packets.
-Next we calculate the radidative
+Next we calculate the radiative
 rates using equation 10 in :cite:`2003A&A...403..261L`.
 
 .. math::
