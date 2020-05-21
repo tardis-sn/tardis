@@ -8,7 +8,7 @@ Before installing TARDIS, please check its :ref:`requirements
 <requirements_label>`. We provide :ref:`instructions <anaconda_inst_label>` for installing TARDIS using 
 Anaconda. If you encounter problems, consult the
 :ref:`troubleshooting <troubleshooting_inst_label>` section. Once you have
-installed TARDIS, check out :doc:`running` for instructions of how to perform
+installed TARDIS, check out :doc:`running` for instructions regarding how to perform
 simple TARDIS calculations.
 
 .. _requirements_label:
@@ -19,7 +19,7 @@ simple TARDIS calculations.
     TARDIS is only compatible with Python >3.6
 
 .. note::
-    We strongly recommend to install TARDIS within an Anaconda environment and
+    We strongly recommend installing TARDIS within an Anaconda environment and
     to always use the latest GitHub development version.
 
 Requirements
