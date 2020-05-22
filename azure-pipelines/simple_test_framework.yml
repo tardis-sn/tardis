@@ -61,15 +61,8 @@ jobs:
         pip install git+https://github.com/tonybaloney/pytest-azurepipelines.git
         export QT_API=pyqt
         pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
-        export QT_API=pyqt
     displayName: 'TARDIS test'
 
   - script: |
       bash <(curl -s https://codecov.io/bash)
     displayName: 'Upload to codecov.io'
-
-  - task: PublishTestResults@2
-    condition: succeededOrFailed()
-    inputs:
-      testResultsFiles: '**/test-*.xml'
-      testRunTitle: 'Publish test results'
