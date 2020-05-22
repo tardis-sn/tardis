@@ -1,5 +1,6 @@
 from numba import prange, njit
 import numpy as np
+import random
 from tardis.montecarlo.montecarlo_numba.r_packet import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize,
@@ -55,7 +56,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                            packet_collection.packets_input_nu[i],
                            packet_collection.packets_input_energy[i],
                            i)
-        
+        random.seed(r_packet.index)
         vpacket_collection = VPacketCollection(
             spectrum_frequency, montecarlo_configuration.number_of_vpackets,
             montecarlo_configuration.temporary_v_packet_bins)
