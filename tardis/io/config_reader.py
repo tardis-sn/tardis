@@ -2,11 +2,12 @@ import os
 import logging
 import copy
 import pprint
+import re
 from astropy import units as u
 
 import tardis
 from tardis.io import config_validator
-from tardis.io.util import YAMLLoader, yaml_load_file
+from tardis.io.util import YAMLLoader, yaml_load_file, HDFWriterMixin
 from tardis.io.parsers.csvy import load_yaml_from_csvy
 
 pp = pprint.PrettyPrinter(indent=4)
@@ -304,3 +305,26 @@ class Configuration(ConfigurationNameSpace):
 
     def __init__(self, config_dict):
         super(Configuration, self).__init__(config_dict)
+
+    
+    def to_hdf(self, file_path, path='', name=None):
+        """
+        Parameters
+        ----------
+        file_path: str
+            Path or buffer to the HDF store
+        path: str
+            Path inside the HDF store to store the `elements`
+        name: str
+            Group inside the HDF store to which the `elements` need to be saved
+
+        Returns
+        -------
+
+        """
+        if name is None:
+            name = 'config_data.hdf'
+
+        data = self.model
+        buff_path = os.path.join(path, name)
+        HDFWriterMixin.to_hdf_util(file_path, buff_path, data)
