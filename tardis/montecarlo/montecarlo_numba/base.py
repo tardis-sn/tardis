@@ -1,4 +1,4 @@
-from numba import prange, njit
+from numba import prange, njit, jit
 import numpy as np
 from tardis.montecarlo.montecarlo_numba.r_packet import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
@@ -29,7 +29,7 @@ def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
     runner._montecarlo_virtual_luminosity.value[:] = v_packets_energy_hist
 
 
-@njit(**njit_dict, nogil=True)
+@jit(**njit_dict, nogil=True)
 def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                          estimators, spectrum_frequency,
                          montecarlo_configuration):
