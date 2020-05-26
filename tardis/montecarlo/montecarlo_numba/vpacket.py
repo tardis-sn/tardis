@@ -21,7 +21,8 @@ vpacket_spec = [
 
 @jitclass(vpacket_spec)
 class VPacket(object):
-    def __init__(self, r, mu, nu, energy, current_shell_id, next_line_id):
+    def __init__(self, r, mu, nu, energy, current_shell_id, next_line_id,
+                 index=0):
         self.r = r
         self.mu = mu
         self.nu = nu
@@ -29,6 +30,7 @@ class VPacket(object):
         self.current_shell_id = current_shell_id
         self.next_line_id = next_line_id
         self.status = PacketStatus.IN_PROCESS
+        self.index = index
 
 
 
@@ -119,7 +121,8 @@ def trace_vpacket(v_packet, numba_model, numba_plasma, montecarlo_configuration)
     return tau_trace_combined
 
 @njit(**njit_dict)
-def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma, montecarlo_configuration):
+def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
+                         numba_plasma, montecarlo_configuration):
     """
     Shoot a volley of vpackets (the vpacket collection specifies how many) 
     from the current position of the rpacket. 
@@ -177,9 +180,12 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model, numba_plasma
 
         v_packet = VPacket(r_packet.r, v_packet_mu, v_packet_nu, 
                            v_packet_energy, r_packet.current_shell_id, 
-                           r_packet.next_line_id)
+                           r_packet.next_line_id, i)
+        np.random.seed(v_packet.index)
+
         
-        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma, montecarlo_configuration)
+        tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma,
+                                    montecarlo_configuration)
         
         v_packet.energy *= np.exp(-tau_vpacket)
 
