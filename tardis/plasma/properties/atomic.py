@@ -14,6 +14,7 @@ __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
            'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData',
            'PhotoIonizationData']
 
+
 class Levels(BaseAtomicDataProperty):
     """
     Attributes
@@ -40,6 +41,7 @@ class Levels(BaseAtomicDataProperty):
         #                          'level_number'])
         return (levels.index, levels['energy'], levels['metastable'],
             levels['g'])
+
 
 class Lines(BaseAtomicDataProperty):
     """
@@ -94,15 +96,12 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
         photoionization_data = atomic_data.photoionization_data.set_index(
             ['atomic_number', 'ion_number', 'level_number']
         )
-        selected_species_idx = pd.IndexSlice[
-            continuum_interaction_species.get_level_values('atomic_number'),
-            continuum_interaction_species.get_level_values('ion_number'),
-            slice(None)
-        ]
-        photoionization_data = photoionization_data.loc[selected_species_idx]
+        mask_selected_species = photoionization_data.index.droplevel(
+            'level_number').isin(continuum_interaction_species)
+        photoionization_data = photoionization_data[mask_selected_species]
         phot_nus = photoionization_data['nu']
         block_references = np.hstack(
-            [[0], phot_nus.groupby(level=[0,1,2]).count().values.cumsum()]
+            [[0], phot_nus.groupby(level=[0, 1, 2]).count().values.cumsum()]
         )
         photo_ion_index = photoionization_data.index.unique()
         return photoionization_data, block_references, photo_ion_index
