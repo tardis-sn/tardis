@@ -384,7 +384,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
          The callback ID
         """
         cb_id = self._cb_next_id
-        self._callbacks[cb_id] = (cb_func, args)
+        self._callbacks[cb_id] = (cb_func, (self,)+args)
         self._cb_next_id += 1
         return cb_id
 
