@@ -19,6 +19,7 @@ from tardis.montecarlo.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize)
+from tardis.montecarlo.montecarlo_numba.base import plot_single_packet
 
 import numpy as np
 
@@ -62,7 +63,7 @@ class MontecarloRunner(HDFWriterMixin):
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
                  v_packet_settings, spectrum_method,
-                 packet_source=None):
+                 packet_source=None, debug_single_packet=False):
 
         self.seed = seed
         if packet_source is None:
@@ -82,6 +83,7 @@ class MontecarloRunner(HDFWriterMixin):
         self.spectrum_method = spectrum_method
         self._integrator = None
         self._spectrum_integrated = None
+        self.debug_single_packet = debug_single_packet
         if self.spectrum_method == 'integrated':
             self.optional_hdf_properties.append('spectrum_integrated')
 
@@ -228,9 +230,12 @@ class MontecarloRunner(HDFWriterMixin):
                                  no_of_packets)
 
         montecarlo_configuration = configuration_initialize(
-            self, no_of_virtual_packets, full_relativity=self.enable_full_relativity)
-
-        montecarlo_radial1d(model, plasma, self, montecarlo_configuration)
+            self, no_of_virtual_packets,
+            full_relativity=self.enable_full_relativity)
+        if self.debug_single_packet:
+            plot_single_packet(self, model, plasma, no_of_virtual_packets)
+        else:
+            montecarlo_radial1d(model, plasma, self, montecarlo_configuration)
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
         #    virtual_packet_flag=no_of_virtual_packets,
@@ -450,4 +455,5 @@ class MontecarloRunner(HDFWriterMixin):
                    integrator_settings=config.spectrum.integrated,
                    v_packet_settings=config.spectrum.virtual,
                    spectrum_method=config.spectrum.method,
-                   packet_source=packet_source)
+                   packet_source=packet_source,
+                   debug_single_packet=config.montecarlo.debug_single_packet)

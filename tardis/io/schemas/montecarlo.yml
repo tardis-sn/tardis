@@ -68,6 +68,10 @@ properties:
     default: false
     description: Enables a more complete treatment of relativitic effects. This includes
       angle aberration as well as use of the fully general Doppler formula.
+  debug_single_packet:
+    type: boolean
+    default: false
+    description: Decide whether to go into single-packet debugging mode.
 
 required:
 - no_of_packets

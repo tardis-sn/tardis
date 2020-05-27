@@ -299,7 +299,7 @@ class Simulation(PlasmaStateStorerMixin, HDFWriterMixin):
                                 self.model.t_rad,
                                 self.plasma.electron_densities,
                                 self.model.t_inner)
-        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, True)
+        self.iterate(self.last_no_of_packets, self.no_of_virtual_packets, last_run=True)
 
         self.reshape_plasma_state_store(self.iterations_executed)
 
