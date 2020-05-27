@@ -16,7 +16,7 @@ git checkout origin/master
 #git checkout update-ref
 git lfs pull --include="atom_data/kurucz_cd23_chianti_H_He.h5" origin
 git lfs pull --include="atom_data/chianti_He.h5" origin
-git lfs pull --include="plasma_reference/" origin
+git lfs pull --include="packet_unittest.h5" origin
 git lfs pull --include="unit_test_data.h5" origin
 echo MD5 `md5sum unit_test_data.h5`; fi
 cd $TARDIS_BUILD_DIR
