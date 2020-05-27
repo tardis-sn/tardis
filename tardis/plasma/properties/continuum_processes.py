@@ -14,7 +14,8 @@ from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
 __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'PhotoIonEstimatorsNormFactor', 'PhotoIonRateCoeffEstimator',
            'StimRecombRateCoeffEstimator', 'CorrPhotoIonRateCoeff',
-           'BfHeatingRateCoeffEstimator']
+           'BfHeatingRateCoeffEstimator', 'SpontRecombCoolingRateCoeff',
+           'BaseRecombTransProbs', 'BasePhotoIonTransProbs']
 
 logger = logging.getLogger(__name__)
 
@@ -92,6 +93,25 @@ def get_ground_state_multi_index(multi_index_full):
     return pd.MultiIndex.from_arrays([atomic_number, ion_number, level_number])
 
 
+class IndexSetterMixin(object):
+    @staticmethod
+    def set_index(p, photo_ion_idx, transition_type=0, reverse=True):
+        idx = photo_ion_idx.loc[p.index]
+        transition_type = transition_type * np.ones_like(
+            idx.destination_level_idx
+        )
+        transition_type = pd.Series(transition_type, name='transition_type')
+        idx_arrays = [idx.source_level_idx, idx.destination_level_idx]
+        if reverse:
+            idx_arrays = idx_arrays[::-1]
+        idx_arrays.append(transition_type)
+        index = pd.MultiIndex.from_arrays(idx_arrays)
+        if reverse:
+            index.names = index.names[:-1][::-1] + [index.names[-1]]
+        p = p.set_index(index, drop=True)
+        return p
+
+
 class SpontRecombRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
@@ -108,6 +128,34 @@ class SpontRecombRateCoeff(ProcessingPlasmaProperty):
         nu = photo_ion_cross_sections['nu'].values
 
         alpha_sp = (8 * np.pi * x_sect * nu ** 2 / (const.c.cgs.value) ** 2)
+        alpha_sp = alpha_sp[:, np.newaxis]
+        boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons *
+                                  (const.h.cgs.value / const.k_B.cgs.value))
+        alpha_sp = alpha_sp * boltzmann_factor
+        alpha_sp = integrate_array_by_blocks(alpha_sp, nu,
+                                             photo_ion_block_references)
+        alpha_sp = pd.DataFrame(alpha_sp, index=photo_ion_index)
+        return alpha_sp * phi_ik.loc[alpha_sp.index]
+
+
+class SpontRecombCoolingRateCoeff(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    c_fb_sp : Pandas DataFrame, dtype float
+              The rate coefficient for cooling by
+              spontaneous recombination.
+    """
+    outputs = ('c_fb_sp',)
+    latex_name = ('ca^{\\textrm{sp}}_{\\textrm{fb}}',)
+
+    def calculate(self, photo_ion_cross_sections, t_electrons,
+                  photo_ion_block_references, photo_ion_index, phi_ik, nu_i):
+        x_sect = photo_ion_cross_sections['x_sect'].values
+        nu = photo_ion_cross_sections['nu'].values
+        factor = (1 - nu_i / photo_ion_cross_sections['nu']).values
+        alpha_sp = (8 * np.pi * x_sect * factor * nu ** 3 /
+                    (const.c.cgs.value) ** 2)
         alpha_sp = alpha_sp[:, np.newaxis]
         boltzmann_factor = np.exp(-nu[np.newaxis].T / t_electrons *
                                   (const.h.cgs.value / const.k_B.cgs.value))
@@ -201,6 +249,46 @@ class StimRecombRateCoeff(ProcessingPlasmaProperty):
                                                photo_ion_block_references)
         alpha_stim = pd.DataFrame(alpha_stim, index=photo_ion_index)
         return alpha_stim
+
+
+class BaseRecombTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
+    """
+    Attributes
+    ----------
+    p_recomb : Pandas DataFrame, dtype float
+               The unnormalized transition probabilities for
+               spontaneous recombination.
+    """
+    outputs = ('p_recomb', )
+    latex_name = ('\\p^{\\textrm{recomb}}', '')
+
+    def calculate(self, alpha_sp, nu_i, energy_i, photo_ion_idx):
+        p_recomb_deac = alpha_sp.multiply(nu_i, axis=0) * const.h.cgs.value
+        p_recomb_deac = self.set_index(p_recomb_deac, photo_ion_idx,
+                                       transition_type=-1)
+
+        p_recomb_internal = alpha_sp.multiply(energy_i, axis=0)
+        p_recomb_internal = self.set_index(p_recomb_internal, photo_ion_idx,
+                                           transition_type=0)
+        p_recomb = pd.concat([p_recomb_deac, p_recomb_internal])
+        return p_recomb
+
+
+class BasePhotoIonTransProbs(ProcessingPlasmaProperty, IndexSetterMixin):
+    """
+    Attributes
+    ----------
+    p_photo_ion : Pandas DataFrame, dtype float
+                  The unnormalized transition probabilities for
+                  radiative ionization.
+    """
+    outputs = ('p_photo_ion', )
+    latex_name = ('\\p^{\\textrm{photo_ion}}', )
+
+    def calculate(self, gamma_corr, nu_i, photo_ion_idx):
+        p_photo_ion = gamma_corr.multiply(nu_i, axis=0) * const.h.cgs.value
+        p_photo_ion = self.set_index(p_photo_ion, photo_ion_idx, reverse=False)
+        return p_photo_ion
 
 
 class CorrPhotoIonRateCoeff(ProcessingPlasmaProperty):

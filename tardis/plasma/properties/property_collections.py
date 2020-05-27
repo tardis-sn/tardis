@@ -45,5 +45,6 @@ continuum_interaction_properties = PlasmaPropertyCollection(
      ThermalLevelBoltzmannFactorLTE, ThermalLTEPartitionFunction, BetaElectron,
      ThermalGElectron, ThermalPhiSahaLTE, SahaFactor, TimeSimulation,
      PhotoIonEstimatorsNormFactor, LuminosityInner, StimRecombRateCoeff,
-     CorrPhotoIonRateCoeff]
+     CorrPhotoIonRateCoeff, SpontRecombCoolingRateCoeff, BaseRecombTransProbs,
+     BasePhotoIonTransProbs, BaseRadBoundBoundTransProbs]
 )
