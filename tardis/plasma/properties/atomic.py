@@ -7,6 +7,8 @@ from collections import Counter as counter
 from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
     HiddenPlasmaProperty, BaseAtomicDataProperty)
 from tardis.plasma.exceptions import IncompleteAtomicData
+from tardis.plasma.properties.continuum_processes import (
+    get_ground_state_multi_index)
 
 logger = logging.getLogger(__name__)
 
@@ -89,8 +91,9 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
                               photoionization data exists.
     """
     outputs = ('photo_ion_cross_sections', 'photo_ion_block_references',
-               'photo_ion_index')
-    latex_name = ('\\xi_{\\textrm{i}}(\\nu)', '', '')
+               'photo_ion_index', 'nu_i', 'energy_i', 'photo_ion_idx')
+    latex_name = ('\\xi_{\\textrm{i}}(\\nu)', '', '', '\\nu_i',
+                  '\\epsilon_i', '')
 
     def calculate(self, atomic_data, continuum_interaction_species):
         photoionization_data = atomic_data.photoionization_data.set_index(
@@ -104,7 +107,20 @@ class PhotoIonizationData(ProcessingPlasmaProperty):
             [[0], phot_nus.groupby(level=[0, 1, 2]).count().values.cumsum()]
         )
         photo_ion_index = photoionization_data.index.unique()
-        return photoionization_data, block_references, photo_ion_index
+        nu_i = photoionization_data.groupby(level=[0, 1, 2]).first().nu
+        energy_i = atomic_data.levels.loc[photo_ion_index].energy
+
+        source_idx = atomic_data.macro_atom_references.loc[
+            photo_ion_index].references_idx
+        destination_idx = atomic_data.macro_atom_references.loc[
+            get_ground_state_multi_index(photo_ion_index)].references_idx
+        photo_ion_idx = pd.DataFrame(
+            {'source_level_idx': source_idx.values,
+             'destination_level_idx': destination_idx.values},
+            index=photo_ion_index
+        )
+        return (photoionization_data, block_references, photo_ion_index, nu_i,
+                energy_i, photo_ion_idx)
 
 
 class LinesLowerLevelIndex(HiddenPlasmaProperty):

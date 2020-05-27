@@ -70,6 +70,27 @@ def get_ion_multi_index(multi_index_full, next_higher=True):
     return pd.MultiIndex.from_arrays([atomic_number, ion_number])
 
 
+def get_ground_state_multi_index(multi_index_full):
+    """
+    Calculates the level MultiIndex for the ground state of the next higher
+    ion.
+
+    Parameters
+    ----------
+    multi_index_full : Pandas MultiIndex (atomic_number, ion_number,
+                                          level_number)
+
+    Returns
+    -------
+    multi_index : Pandas MultiIndex (atomic_number, ion_number)
+
+    """
+    atomic_number = multi_index_full.get_level_values(0)
+    ion_number = multi_index_full.get_level_values(1) + 1
+    level_number = np.zeros_like(ion_number)
+    return pd.MultiIndex.from_arrays([atomic_number, ion_number, level_number])
+
+
 class SpontRecombRateCoeff(ProcessingPlasmaProperty):
     """
     Attributes
