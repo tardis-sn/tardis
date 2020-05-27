@@ -216,9 +216,6 @@ class AtomData(object):
         # Convert energy to CGS
         levels.loc[:, "energy"] = Quantity(levels["energy"].values, 'eV').cgs
 
-        # Sort the dataframe before indexing to improve performance
-        lines.sort_index(inplace=True)
-
         # Create a new columns with wavelengths in the CGS units
         lines.loc[:, 'wavelength_cm'] = Quantity(
                 lines['wavelength'], 'angstrom').cgs
