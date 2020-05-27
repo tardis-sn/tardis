@@ -53,13 +53,9 @@ jobs:
 
       - bash: |
           source activate tardis
-          echo "##vso[task.setvariable variable=qt_api]pyqt"
-        displayName: "Set QT_API variable"
-
-      - bash: |
-          source activate tardis
           conda install -y pytest-cov
           pip install git+https://github.com/tonybaloney/pytest-azurepipelines.git
+          export QT_API=pyqt
           pytest tardis --tardis-refdata=$(ref.data.home) --cov=tardis --cov-report=xml --cov-report=html
 
         displayName: "TARDIS test"
