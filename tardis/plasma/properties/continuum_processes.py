@@ -13,7 +13,8 @@ from tardis.plasma.properties.j_blues import JBluesDiluteBlackBody
 
 __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'PhotoIonEstimatorsNormFactor', 'PhotoIonRateCoeffEstimator',
-           'StimRecombRateCoeffEstimator', 'CorrPhotoIonRateCoeff']
+           'StimRecombRateCoeffEstimator', 'CorrPhotoIonRateCoeff',
+           'BfHeatingRateCoeffEstimator']
 
 logger = logging.getLogger(__name__)
 

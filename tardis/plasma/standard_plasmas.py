@@ -118,6 +118,7 @@ def assemble_plasma(config, model, atom_data=None):
         plasma_modules += continuum_interaction_properties
         plasma_modules += continuum_interaction_inputs
         kwargs.update(gamma_estimator=None,
+                      bf_heating_coeff_estimator=None,
                       alpha_stim_estimator=None,
                       volume=model.volume,
                       r_inner=model.r_inner,
