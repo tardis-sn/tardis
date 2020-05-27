@@ -3,8 +3,7 @@ import pytest
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 import astropy.units as u
-from tardis.gui.widgets import Tardis 
-from tardis.gui.datahandler import SimpleTableModel
+import tardis.gui as gui
 from PyQt5 import QtWidgets
 
 
@@ -43,7 +42,7 @@ def simulation_one_loop(
 def test_gui(simulation_one_loop):
     simulation = simulation_one_loop
     app = QtWidgets.QApplication([])
-    tablemodel = SimpleTableModel
-    win = Tardis(tablemodel)
+    tablemodel =gui.datahandler.SimpleTableModel
+    win = gui.widgets.Tardis(tablemodel)
     win.show_model(simulation)
     app.quit()
