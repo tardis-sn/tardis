@@ -32,7 +32,8 @@ def calculate_transition_probabilities(
         int_type_t [:] transition_type,
         int_type_t [:] lines_idx,
         int_type_t [:] block_references,
-        double [:, ::1] transition_probabilities):
+        double [:, ::1] transition_probabilities,
+        normalize):
 
     cdef int i, j, k, line_idx
     cdef np.ndarray[double, ndim=1] norm_factor = np.zeros(transition_probabilities.shape[1])
@@ -45,17 +46,18 @@ def calculate_transition_probabilities(
             for j in range(transition_probabilities.shape[1]):
                 transition_probabilities[i, j] *= stimulated_emission_factor[line_idx, j] * j_blues[line_idx, j]
 
-    for i in range(block_references.shape[0] - 1):
-        for k in range(transition_probabilities.shape[1]):
-            norm_factor[k] = 0.0
-        for j in range(block_references[i], block_references[i + 1]):
+    if normalize:
+        for i in range(block_references.shape[0] - 1):
             for k in range(transition_probabilities.shape[1]):
-                norm_factor[k] += transition_probabilities[j, k]
-        for k in range(transition_probabilities.shape[1]):
-            if norm_factor[k] != 0.0:
-                norm_factor[k] = 1 / norm_factor[k]
-            else:
-                norm_factor[k] = 1.0
-        for j in range(block_references[i], block_references[i + 1]):
-            for k in range(0, transition_probabilities.shape[1]):
-                transition_probabilities[j, k] *= norm_factor[k]
+                norm_factor[k] = 0.0
+            for j in range(block_references[i], block_references[i + 1]):
+                for k in range(transition_probabilities.shape[1]):
+                    norm_factor[k] += transition_probabilities[j, k]
+            for k in range(transition_probabilities.shape[1]):
+                if norm_factor[k] != 0.0:
+                    norm_factor[k] = 1 / norm_factor[k]
+                else:
+                    norm_factor[k] = 1.0
+            for j in range(block_references[i], block_references[i + 1]):
+                for k in range(0, transition_probabilities.shape[1]):
+                    transition_probabilities[j, k] *= norm_factor[k]
