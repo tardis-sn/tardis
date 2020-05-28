@@ -2,6 +2,7 @@ import logging
 
 import numpy as np
 import pandas as pd
+from scipy import sparse as sp
 
 from numba import prange, njit
 from astropy import constants as const
@@ -15,7 +16,8 @@ __all__ = ['SpontRecombRateCoeff', 'StimRecombRateCoeff', 'PhotoIonRateCoeff',
            'PhotoIonEstimatorsNormFactor', 'PhotoIonRateCoeffEstimator',
            'StimRecombRateCoeffEstimator', 'CorrPhotoIonRateCoeff',
            'BfHeatingRateCoeffEstimator', 'SpontRecombCoolingRateCoeff',
-           'BaseRecombTransProbs', 'BasePhotoIonTransProbs']
+           'BaseRecombTransProbs', 'BasePhotoIonTransProbs',
+           'MarkovChainTransProbs']
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +112,32 @@ class IndexSetterMixin(object):
             index.names = index.names[:-1][::-1] + [index.names[-1]]
         p = p.set_index(index, drop=True)
         return p
+
+
+class SpMatrixSeriesConverterMixin(object):
+    @staticmethod
+    def series2matrix(series, idx_2_reduced_idx):
+        q_indices = (series.index.get_level_values(0),
+                     series.index.get_level_values(1))
+        q_indices = (idx_2_reduced_idx.loc[q_indices[0]].values,
+                     idx_2_reduced_idx.loc[q_indices[1]].values)
+        max_idx = idx_2_reduced_idx.max() + 1
+        matrix = sp.coo_matrix((series, q_indices), shape=(max_idx, max_idx))
+        return matrix
+
+    @staticmethod
+    def matrix2series(matrix, idx_2_reduced_idx, names=None):
+        reduced_idx_2_idx = pd.Series(idx_2_reduced_idx.index,
+                                      index=idx_2_reduced_idx)
+        matrix = matrix.tocoo()
+        index = pd.MultiIndex.from_arrays(
+            [reduced_idx_2_idx.loc[matrix.row],
+             reduced_idx_2_idx.loc[matrix.col]]
+        )
+        series = pd.Series(matrix.data, index=index)
+        if names:
+            series.index.names = names
+        return series
 
 
 class SpontRecombRateCoeff(ProcessingPlasmaProperty):
@@ -324,6 +352,51 @@ class PhotoIonEstimatorsNormFactor(ProcessingPlasmaProperty):
     @staticmethod
     def calculate(time_simulation, volume):
         return (time_simulation * volume * const.h.cgs.value)**-1
+
+
+class MarkovChainTransProbs(ProcessingPlasmaProperty,
+                            SpMatrixSeriesConverterMixin):
+    outputs = ('N', 'R', 'B', 'p_deac')
+
+    def calculate(self, p_rad_bb, p_recomb, p_photo_ion):
+        p = pd.concat([p_rad_bb, p_recomb, p_photo_ion])
+        p = self.normalize_trans_probs(p)
+        p_internal = p.xs(0, level='transition_type')
+        p_deac = self.normalize_trans_probs(p.xs(-1, level='transition_type'))
+
+        unique_idxs = np.unique(p_internal.index.get_level_values(0))
+        idx_2_redidx = pd.Series(np.arange(len(unique_idxs)),
+                                 index=unique_idxs)
+
+        N = pd.DataFrame(columns=p_internal.columns)
+        B = pd.DataFrame(columns=p_internal.columns)
+        R = pd.DataFrame(columns=p_internal.columns,
+                         index=idx_2_redidx.index)
+        R.index.name = 'source_level_idx'
+        for column in p_internal:
+            Q = self.series2matrix(p_internal[column], idx_2_redidx)
+            inv_N = sp.identity(Q.shape[0]) - Q
+            N1 = sp.linalg.inv(inv_N.tocsc())
+            R1 = (1 - np.asarray(Q.sum(axis=1))).flatten()
+            B1 = N1.multiply(R1)
+            N1 = self.matrix2series(N1, idx_2_redidx,
+                                    names=p_internal.index.names)
+            B1 = self.matrix2series(B1, idx_2_redidx,
+                                    names=p_internal.index.names)
+            N[column] = N1
+            B[column] = B1
+            R[column] = R1
+        N = N.sort_index()
+        B = B.sort_index()
+        return N, R, B, p_deac
+
+    @staticmethod
+    def normalize_trans_probs(p):
+        p_summed = p.groupby(level=0).sum()
+        index = p.index.get_level_values('source_level_idx')
+        p_norm = p / p_summed.loc[index].values
+        p_norm = p_norm.fillna(0.0)
+        return p_norm
 
 
 class PhotoIonRateCoeffEstimator(Input):
