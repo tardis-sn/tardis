@@ -1,28 +1,27 @@
+from PyQt5 import QtWidgets
 import os
 import pytest
 from tardis.io.config_reader import Configuration
 from tardis.simulation import Simulation
 import astropy.units as u
-from tardis.gui.widgets import Tardis 
-from tardis.gui.datahandler import SimpleTableModel
-from PyQt5 import QtWidgets
 
-
-
+if 'QT_API' in os.environ:
+    from tardis.gui.widgets import Tardis
+    from tardis.gui.datahandler import SimpleTableModel
 
 
 @pytest.fixture(scope='module')
 def refdata(tardis_ref_data):
     def get_ref_data(key):
         return tardis_ref_data[os.path.join(
-                'test_simulation', key)]
+            'test_simulation', key)]
     return get_ref_data
 
 
 @pytest.fixture(scope='module')
 def config():
     return Configuration.from_yaml(
-            'tardis/io/tests/data/tardis_configv1_verysimple.yml')
+        'tardis/io/tests/data/tardis_configv1_verysimple.yml')
 
 
 @pytest.fixture(scope='module')
@@ -38,7 +37,8 @@ def simulation_one_loop(
     simulation.run()
 
     return simulation
-    
+
+
 @pytest.mark.skipif('QT_API' not in os.environ, reason="enviroment variable QT_API is not set")
 def test_gui(simulation_one_loop):
     simulation = simulation_one_loop
