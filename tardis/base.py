@@ -39,7 +39,7 @@ def run_tardis(config, atom_data=None, packet_source=None,
                                         packet_source=packet_source,
                                         atom_data=atom_data)
     for cb in simulation_callbacks:
-        simulation.add_callback(cb)
+        simulation.add_callback(*cb)
 
     simulation.run()
 
