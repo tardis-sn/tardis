@@ -5,6 +5,7 @@ from numba import jitclass, njit
 
 
 from tardis.montecarlo.montecarlo_numba import njit_dict
+from tardis.montecarlo.montecarlo_numba.montecarlo_logger import log_decorator
 from tardis import constants as const
 
 class MonteCarloException(ValueError):
@@ -62,6 +63,8 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     
     return distance, delta_shell
 
+
+@log_decorator
 @njit(**njit_dict)
 def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
                             montecarlo_configuration):
@@ -86,11 +89,6 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
         return MISS_DISTANCE
 
     nu_diff = comov_nu - nu_line
-    # print('current '
-    #       f'packet nu={r_packet.nu}, ' \
-    #       f'packet seed={r_packet.index}, ' \
-    #       f'nu line: {nu_line}',
-    #       f'shell id: {r_packet.current_shell_id}')
     if np.abs(nu_diff / comov_nu) < CLOSE_LINE_THRESHOLD:
         nu_diff = 0.0
     if nu_diff <= 0:
