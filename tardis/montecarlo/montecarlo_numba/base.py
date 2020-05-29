@@ -112,14 +112,20 @@ def log_decorator(func):
     :return: either the function itself, if debug_mode is true, or
     """
     if DEBUG_MODE:
-        # first check that the output file exists
-        logging.basicConfig(level=logging.DEBUG,
-                                format='%(levelname)s:%(message)s')
+        logger.setLevel(logging.DEBUG)
+        console_handler = logging.StreamHandler()
+        console_handler.setLevel(logging.DEBUG)
+        console_formatter = logging.Formatter(
+            '%(name)s - %(levelname)s - %(message)s')
+        console_handler.setFormatter(console_formatter)
+        logger.addHandler(console_handler)
+
         def wrapper(*args, **kwargs):
             logger.debug(f'Func: {func}. Input: {(args, kwargs)}')
             result = func(*args)
             logger.debug(f'Output: {result}.')
             return result
+
         return wrapper
     else:
         return func
