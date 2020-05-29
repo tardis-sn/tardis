@@ -12,7 +12,7 @@ sim = run_tardis('tardis_example.yml')  # TODO: Make the file path work
 
 
 class ShellInfoData():
-    def __init__(self, sim_model=sim):
+    def __init__(self, sim_model):
         self.sim_model = sim_model
 
     def shells_data(self):
@@ -52,7 +52,9 @@ class ShellInfoData():
 
 
 class ShellInfoWidget():
-    def __init__(self):
+    def __init__(self, sim_model=sim):
+        self.data = ShellInfoData(sim_model)
+
         # TODO: Chunk-ify the code in more functions
 
         # Setting the layout options to be used by table widgets
@@ -60,8 +62,7 @@ class ShellInfoWidget():
             'sortable': False,
             'filterable': False,
             'editable': False,
-            'minVisibleRows': 2,
-            'maxVisibleRows': max_rows
+            'minVisibleRows': 2
         }
         column_options = {
             'minWidth': None,
@@ -84,6 +85,7 @@ class ShellInfoWidget():
                     for col_name, col_width in zip(cols_with_index, col_widths)}
 
         # Creating the shells data table widget
+        shells_data = self.data.shells_data()
         self.shells_table = qgrid.show_grid(shells_data,
                                             grid_options=grid_options,
                                             column_options=column_options,
@@ -93,7 +95,7 @@ class ShellInfoWidget():
                                             ))
 
         # Creating the Z count table widget
-        Z_count_shell1 = Z_count(1)
+        Z_count_shell1 = self.data.Z_count(1)
         Z_column_widths_definitions = column_widths_definitions(
             Z_count_shell1,
             Z_count_col_widths
@@ -107,7 +109,7 @@ class ShellInfoWidget():
                                              column_definitions=Z_column_widths_definitions)
 
         # Creating the ion count table widget
-        ion_count_Z8_shell1 = ion_count(8, 1)
+        ion_count_Z8_shell1 = self.data.ion_count(8, 1)
         ion_column_widths_definitions = column_widths_definitions(
             ion_count_Z8_shell1,
             ion_count_col_widths
@@ -121,7 +123,7 @@ class ShellInfoWidget():
                                                column_definitions=ion_column_widths_definitions)
 
         # Creating the level count table widget
-        level_count_ion0_Z8_shell1 = level_count(0, 8, 1)
+        level_count_ion0_Z8_shell1 = self.data.level_count(0, 8, 1)
         level_column_widths_definitions = column_widths_definitions(
             level_count_ion0_Z8_shell1,
             level_count_col_widths
@@ -139,7 +141,7 @@ class ShellInfoWidget():
         shell_num = event['new'][0]+1
 
         # Update data in Z_count_table
-        self.Z_count_table.df = Z_count(shell_num)
+        self.Z_count_table.df = self.data.Z_count(shell_num)
 
         # Get Z of 0th row of Z_count_table
         Z0 = self.Z_count_table.df.index[0]
@@ -161,7 +163,7 @@ class ShellInfoWidget():
         Z = self.Z_count_table.df.index[event['new'][0]]
 
         # Update data in ion_count_table
-        self.ion_count_table.df = ion_count(Z, shell_num)
+        self.ion_count_table.df = self.data.ion_count(Z, shell_num)
 
         # Also update next table (level counts) by triggering its event listener
         ion0 = self.ion_count_table.df.index[0]
@@ -181,39 +183,42 @@ class ShellInfoWidget():
         ion = self.ion_count_table.df.index[event['new'][0]]
 
         # Update data in level_count_table
-        self.level_count_table.df = level_count(ion, Z, shell_num)
+        self.level_count_table.df = self.data.level_count(ion, Z, shell_num)
 
-    def display(tables_container_layout=ipw.Layout(display='flex',
+    def display(self,
+                tables_container_layout=ipw.Layout(display='flex',
                                                    align_items='flex-start',
                                                    justify_content='space-between'),
                 shells_table_width='32%',
                 Z_count_table_width='24%',
                 ion_count_table_width='24%',
-                level_count_table_width='18%',
-                model_param_info=modelparam
+                level_count_table_width='18%'
                 ):
 
         # Setting tables' widths
-        shells_table.layout.width = shells_table_width
-        Z_count_table.layout.width = Z_count_table_width
-        ion_count_table.layout.width = ion_count_table_width
-        level_count_table.layout.width = level_count_table_width
+        self.shells_table.layout.width = shells_table_width
+        self.Z_count_table.layout.width = Z_count_table_width
+        self.ion_count_table.layout.width = ion_count_table_width
+        self.level_count_table.layout.width = level_count_table_width
 
         # Attach event listeners to tables
-        self.shells_table.on('selection_changed', update_Z_count_table)
-        self.Z_count_table.on('selection_changed', update_ion_count_table)
-        self.ion_count_table.on('selection_changed', update_level_count_table)
+        self.shells_table.on('selection_changed', self.update_Z_count_table)
+        self.Z_count_table.on('selection_changed', self.update_ion_count_table)
+        self.ion_count_table.on('selection_changed',
+                                self.update_level_count_table)
 
         # Putting all tables in a container styled with tables_container_layout
         shell_info_tables_container = ipw.Box(
-            [shells_table, Z_count_table, ion_count_table, level_count_table],
+            [self.shells_table, self.Z_count_table,
+                self.ion_count_table, self.level_count_table],
             layout=tables_container_layout)
-        shells_table.change_selection([1])
+        self.shells_table.change_selection([1])
 
         # Key to Abbreviation text
         text = ipw.HTML(
-            '<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all values sum to 1)<br>'
-            '<b>W</b> denotes <i>Dilution Factor</i> and <b>Rad. Temp.</b> is <i>Radiative Temperatire (in K)</i>'
+            '<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all '
+            'values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and '
+            '<b>Rad. Temp.</b> is <i>Radiative Temperature (in K)</i>'
         )
 
         # Put text horizontally before shell info container
