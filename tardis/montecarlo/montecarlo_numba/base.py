@@ -98,25 +98,27 @@ def log_decorator(func):
     `@jit'd and `@njit`'d functions, but with a significant speed
     penalty.
 
+    Questions:
+        - stdout or print to file?
+
     TODO: How do log *args?
     TODO: How to pass kwargs to @jit, @njit?
     TODO: in nopython mode: do I need a context manager?
     TODO: Buffer?
-    TODO: Move this to tardis/io? Or should this be kept in
-        montecarlo_numba?
     TODO: make numpy docstring.
+    TODO: have this know debug_mode from the config.
 
     :param func: function to be logged.
     :return: either the function itself, if debug_mode is true, or
     """
     if DEBUG_MODE:
+        # first check that the output file exists
         logging.basicConfig(level=logging.DEBUG,
-                                filename='myapp.log',
-                                format='%(asctime)s %(levelname)s:%(message)s')
+                                format='%(levelname)s:%(message)s')
         def wrapper(*args):
-            logging.debug(*args)
+            logger.debug(*args)
             result = func(*args)
-            logging.debug(result)
+            logger.debug(result)
             return result
         return wrapper
     else:
