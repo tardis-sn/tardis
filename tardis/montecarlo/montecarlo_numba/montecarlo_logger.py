@@ -20,7 +20,7 @@ def log_decorator(func):
     :param func: function to be logged.
     :return: either the function itself, if debug_mode is true, or
     """
-    if __init__.DEBUG_MODE:
+    if DEBUG_MODE:
         logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.DEBUG)
