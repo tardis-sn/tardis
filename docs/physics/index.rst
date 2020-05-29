@@ -5,7 +5,7 @@ Physics of TARDIS
 .. warning::
 
     This section of the TARDIS documentation is still `incomplete
-<https://github.com/tardis-sn/tardis/projects/7>'_.
+<https://github.com/tardis-sn/tardis/projects/7>`_.
 
 This part of the documentation is dedicated to providing some physical and
 astrophysical background for TARDIS. If you do not find the information you are
