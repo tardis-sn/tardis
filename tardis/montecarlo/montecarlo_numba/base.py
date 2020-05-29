@@ -115,10 +115,10 @@ def log_decorator(func):
         # first check that the output file exists
         logging.basicConfig(level=logging.DEBUG,
                                 format='%(levelname)s:%(message)s')
-        def wrapper(*args):
-            logger.debug(*args)
+        def wrapper(*args, **kwargs):
+            logger.debug(f'Func: {func}. Input: {(args, kwargs)}')
             result = func(*args)
-            logger.debug(result)
+            logger.debug(f'Output: {result}.')
             return result
         return wrapper
     else:
