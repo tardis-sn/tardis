@@ -44,7 +44,7 @@ class ShellInfoData():
         ion_num_density = self.sim_model.plasma.ion_number_density[shell_num-1].loc[Z, ion]
         level_count_data = level_num_density/ion_num_density  # Normalization
         level_count_data.index.name = 'Level'
-        level_count_data.name = 'Frac. Ab. (Ion {})'.format(ion)
+        level_count_data.name = 'Frac. Ab. (Ion={})'.format(ion)
         return level_count_data.map('{:.6e}'.format, na_action='ignore').to_frame()
 
 
@@ -52,9 +52,48 @@ class ShellInfoWidget():
     def __init__(self, sim_model):
         self.data = ShellInfoData(sim_model)
 
-        # TODO: Chunk-ify the code in more functions
+        # Creating the shells data table widget
+        self.shells_table = self.create_table_widget(
+            self.data.shells_data(),
+            [30, 35, 35]
+        )
 
-        # Setting the layout options to be used by table widgets
+        # Creating the Z count table widget
+        self.Z_count_table = self.create_table_widget(
+            self.data.Z_count(self.shells_table.df.index[0]),
+            [15, 30, 55],
+            -1,  # since last column will change names
+            # Shells table index will give all possible shell numbers
+            ['Frac. Ab. (Shell {})'.format(shell_num)
+             for shell_num in self.shells_table.df.index]
+        )
+
+        # Creating the ion count table widget
+        self.ion_count_table = self.create_table_widget(
+            self.data.ion_count(self.Z_count_table.df.index[0],
+                                self.shells_table.df.index[0]),
+            [20, 30, 50],
+            -1,
+            # Since Z are same for each shell thus previous table (Z counts
+            # for shell 1) will give all possible Z
+            ['Frac. Ab. (Z={})'.format(Z) for Z in self.Z_count_table.df.index]
+        )
+
+        # Creating the level count table widget
+        self.level_count_table = self.create_table_widget(
+            self.data.level_count(self.ion_count_table.df.index[0],
+                                  self.Z_count_table.df.index[0],
+                                  self.shells_table.df.index[0]),
+            [30, 70],
+            -1,
+            # Ion values range from 0 to maximum Z present in Z counts table
+            ['Frac. Ab. (Ion={})'.format(ion)
+             for ion in range(0, self.Z_count_table.df.index.max()+1)]
+        )
+
+    def create_table_widget(self, data, col_widths, changeable_col_idx=None,
+                            other_col_names=None):
+        # Setting the options to be used for creating table widgets
         grid_options = {
             'sortable': False,
             'filterable': False,
@@ -64,74 +103,35 @@ class ShellInfoWidget():
         column_options = {
             'minWidth': None,
         }
-        # Since forceFitColumns is enabled by default in grid_options,
+
+        # Check whether passed col_widths list is correct or not
+        if len(col_widths) != data.shape[1]+1:
+            raise ValueError('Size of column widths list do not match with '
+                             'number of columns + 1 (index) in dataframe')
+
+        # Note: Since forceFitColumns is enabled by default in grid_options,
         # the column widths (when all specified) get applied in proportions,
-        # despite their original unit is px (all values below sum to 100)
-        shells_col_widths = [30, 35, 35]
-        Z_count_col_widths = [15, 30, 55]
-        ion_count_col_widths = [20, 30, 50]
-        level_count_col_widths = [30, 70]
+        # despite their original unit is px thus it's better they sum to 100
+        if sum(col_widths) != 100:
+            raise ValueError('Column widths are not proportions of 100 (i.e. '
+                             'they do not sum to 100)')
 
-        def column_widths_definitions(df, col_widths):
-            '''
-            Generate column definition dictionary from the widths specified for 
-            each column (col_widths) including index as a column, in a dataframe (df)
-            '''
-            cols_with_index = [df.index.name] + df.columns.to_list()
-            return {col_name: {'width': col_width}
-                    for col_name, col_width in zip(cols_with_index, col_widths)}
+        # Preparing dictionary that defines column widths
+        cols_with_index = [data.index.name] + data.columns.to_list()
+        column_widths_definitions = {col_name: {'width': col_width}
+                                     for col_name, col_width in zip(cols_with_index, col_widths)}
 
-        # Creating the shells data table widget
-        shells_data = self.data.shells_data()
-        self.shells_table = qgrid.show_grid(shells_data,
-                                            grid_options=grid_options,
-                                            column_options=column_options,
-                                            column_definitions=column_widths_definitions(
-                                                shells_data,
-                                                shells_col_widths
-                                            ))
+        # We also need to define widths for different names of changeable column
+        if changeable_col_idx:
+            column_widths_definitions.update(
+                {col_name: {'width': col_widths[changeable_col_idx]}
+                 for col_name in other_col_names})
 
-        # Creating the Z count table widget
-        Z_count_shell1 = self.data.Z_count(1)
-        Z_column_widths_definitions = column_widths_definitions(
-            Z_count_shell1,
-            Z_count_col_widths
-        )
-        for shell_num in range(1, 21):
-            Z_column_widths_definitions['Frac. Ab. (Shell {})'.format(
-                shell_num)] = {'width': Z_count_col_widths[-1]}
-        self.Z_count_table = qgrid.show_grid(Z_count_shell1,
-                                             grid_options=grid_options,
-                                             column_options=column_options,
-                                             column_definitions=Z_column_widths_definitions)
-
-        # Creating the ion count table widget
-        ion_count_Z8_shell1 = self.data.ion_count(8, 1)
-        ion_column_widths_definitions = column_widths_definitions(
-            ion_count_Z8_shell1,
-            ion_count_col_widths
-        )
-        for Z in Z_count_shell1.index:
-            ion_column_widths_definitions['Frac. Ab. (Z={})'.format(
-                Z)] = {'width': ion_count_col_widths[-1]}
-        self.ion_count_table = qgrid.show_grid(ion_count_Z8_shell1,
-                                               grid_options=grid_options,
-                                               column_options=column_options,
-                                               column_definitions=ion_column_widths_definitions)
-
-        # Creating the level count table widget
-        level_count_ion0_Z8_shell1 = self.data.level_count(0, 8, 1)
-        level_column_widths_definitions = column_widths_definitions(
-            level_count_ion0_Z8_shell1,
-            level_count_col_widths
-        )
-        for level in range(0, 21):
-            level_column_widths_definitions['Frac. Ab. (Ion {})'.format(
-                level)] = {'width': level_count_col_widths[-1]}
-        self.level_count_table = qgrid.show_grid(level_count_ion0_Z8_shell1,
-                                                 grid_options=grid_options,
-                                                 column_options=column_options,
-                                                 column_definitions=level_column_widths_definitions)
+        # Create the table widget using qgrid
+        return qgrid.show_grid(data,
+                               grid_options=grid_options,
+                               column_options=column_options,
+                               column_definitions=column_widths_definitions)
 
     def update_Z_count_table(self, event, qgrid_widget):
         # Get shell number from row selected in shells_table
@@ -186,9 +186,9 @@ class ShellInfoWidget():
                 tables_container_layout=ipw.Layout(display='flex',
                                                    align_items='flex-start',
                                                    justify_content='space-between'),
-                shells_table_width='32%',
-                Z_count_table_width='24%',
-                ion_count_table_width='24%',
+                shells_table_width='30%',
+                Z_count_table_width='24%',  # 25%
+                ion_count_table_width='24%',  # 25%
                 level_count_table_width='18%'
                 ):
 
@@ -211,7 +211,7 @@ class ShellInfoWidget():
             layout=tables_container_layout)
         self.shells_table.change_selection([1])
 
-        # Key to Abbreviation text
+        # Notes text explaining how to interpret tables
         text = ipw.HTML(
             '<b>Frac. Ab.</b> denotes <i>Fractional Abundances</i> (i.e all '
             'values sum to 1)<br><b>W</b> denotes <i>Dilution Factor</i> and '
