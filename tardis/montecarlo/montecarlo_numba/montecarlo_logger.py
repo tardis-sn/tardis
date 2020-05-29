@@ -1,4 +1,5 @@
 import logging
+from functools import wraps
 
 DEBUG_MODE = True
 
@@ -22,6 +23,8 @@ def log_decorator(func):
     :param func: function to be logged.
     :return: either the function itself, if debug_mode is true, or
     """
+
+    # to ensure that calling `help` on the decorated function still works
     if DEBUG_MODE:
         logger = logging.getLogger(__name__)
 
@@ -33,8 +36,9 @@ def log_decorator(func):
         console_handler.setFormatter(console_formatter)
         logger.addHandler(console_handler)
 
+        @wraps(func)
         def wrapper(*args, **kwargs):
-            logger.debug(f'Func: {func}. Input: {(args, kwargs)}')
+            logger.debug(f'Func: {func.__name__}. Input: {(args, kwargs)}')
             result = func(*args, **kwargs)
             logger.debug(f'Output: {result}.')
             return result
