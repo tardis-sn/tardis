@@ -1,0 +1,1 @@
+from tardis.widgets.base import ShellInfoWidget
