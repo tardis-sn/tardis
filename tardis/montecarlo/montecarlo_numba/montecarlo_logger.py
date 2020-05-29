@@ -25,6 +25,13 @@ def log_decorator(func):
     """
 
     # to ensure that calling `help` on the decorated function still works
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        logger.debug(f'Func: {func.__name__}. Input: {(args, kwargs)}')
+        result = func(*args, **kwargs)
+        logger.debug(f'Output: {result}.')
+        return result
+
     if DEBUG_MODE:
         logger = logging.getLogger(__name__)
 
@@ -35,14 +42,6 @@ def log_decorator(func):
             '%(name)s - %(levelname)s - %(message)s')
         console_handler.setFormatter(console_formatter)
         logger.addHandler(console_handler)
-
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            logger.debug(f'Func: {func.__name__}. Input: {(args, kwargs)}')
-            result = func(*args, **kwargs)
-            logger.debug(f'Output: {result}.')
-            return result
-
         return wrapper
     else:
         return func
