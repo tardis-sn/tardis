@@ -13,8 +13,6 @@ def log_decorator(func):
     Questions:
         - stdout or print to file?
 
-    TODO: How do log *args?
-    TODO: How to pass kwargs to @jit, @njit?
     TODO: in nopython mode: do I need a context manager?
     TODO: Buffer?
     TODO: make numpy docstring.
