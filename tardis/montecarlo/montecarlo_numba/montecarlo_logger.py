@@ -34,7 +34,6 @@ def log_decorator(func):
 
     if DEBUG_MODE:
         logger = logging.getLogger(__name__)
-
         logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.DEBUG)
