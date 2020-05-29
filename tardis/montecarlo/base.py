@@ -13,7 +13,7 @@ from tardis.montecarlo.spectrum import TARDISSpectrum
 
 from tardis.util.base import quantity_linspace
 from tardis.io.util import HDFWriterMixin
-from tardis.montecarlo import montecarlo, packet_source as source
+from tardis.montecarlo import montecarlo, __init__, packet_source as source
 from tardis.montecarlo.formal_integral import FormalIntegrator
 
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
@@ -83,7 +83,9 @@ class MontecarloRunner(HDFWriterMixin):
         self.spectrum_method = spectrum_method
         self._integrator = None
         self._spectrum_integrated = None
-        self.debug_single_packet = debug_single_packet
+
+        __init__.DEBUG_MODE = debug_single_packet # should rename this
+
         if self.spectrum_method == 'integrated':
             self.optional_hdf_properties.append('spectrum_integrated')
 
@@ -232,8 +234,6 @@ class MontecarloRunner(HDFWriterMixin):
         montecarlo_configuration = configuration_initialize(
             self, no_of_virtual_packets,
             full_relativity=self.enable_full_relativity)
-        if self.debug_single_packet:
-            plot_single_packet(self, model, plasma, no_of_virtual_packets)
         else:
             montecarlo_radial1d(model, plasma, self, montecarlo_configuration)
         #montecarlo.montecarlo_radial1d(
