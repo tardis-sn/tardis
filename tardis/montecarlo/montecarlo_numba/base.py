@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import logging
 import numpy as np
+
+from tardis.montecarlo import __init__
 from tardis.montecarlo.montecarlo_numba.r_packet import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize,
@@ -111,7 +113,7 @@ def log_decorator(func):
     :param func: function to be logged.
     :return: either the function itself, if debug_mode is true, or
     """
-    if DEBUG_MODE:
+    if __init__.DEBUG_MODE:
         logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.DEBUG)
