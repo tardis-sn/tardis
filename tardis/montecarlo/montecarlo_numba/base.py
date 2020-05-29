@@ -11,8 +11,6 @@ from tardis.montecarlo.montecarlo_numba.single_packet_loop import (
     single_packet_loop)
 from tardis.montecarlo.montecarlo_numba import njit_dict
 
-logger = logging.getLogger('tardis-montecarlo-numba-debug-logger')
-
 
 def montecarlo_radial1d(model, plasma, runner, montecarlo_configuration):
     packet_collection = PacketCollection(
