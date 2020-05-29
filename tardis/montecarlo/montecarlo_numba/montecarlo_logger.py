@@ -1,4 +1,6 @@
-DEBUG_MODE = False
+import logging
+
+DEBUG_MODE = True
 
 def log_decorator(func):
     """
@@ -21,6 +23,8 @@ def log_decorator(func):
     :return: either the function itself, if debug_mode is true, or
     """
     if DEBUG_MODE:
+        logger = logging.getLogger(__name__)
+
         logger.setLevel(logging.DEBUG)
         console_handler = logging.StreamHandler()
         console_handler.setLevel(logging.DEBUG)
@@ -31,7 +35,7 @@ def log_decorator(func):
 
         def wrapper(*args, **kwargs):
             logger.debug(f'Func: {func}. Input: {(args, kwargs)}')
-            result = func(*args)
+            result = func(*args, **kwargs)
             logger.debug(f'Output: {result}.')
             return result
 
