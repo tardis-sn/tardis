@@ -12,6 +12,7 @@ variables:
 
   ref.data.github.url: "https://github.com/tardis-sn/tardis-refdata.git"
   tardis.build.dir: $(Build.Repository.LocalPath)
+  codecov.toke: "a876d307-9ed5-4f5d-a6c4-e58291ac4111"
 
 jobs:
   - job: "Test"
