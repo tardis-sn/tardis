@@ -1,10 +1,8 @@
 from numba import prange, njit, jit
-import matplotlib.pyplot as plt
-import matplotlib as mpl
 import logging
 import numpy as np
 
-from tardis.montecarlo import __init__
+# from tardis.montecarlo import __init__
 from tardis.montecarlo.montecarlo_numba.r_packet import RPacket, PacketStatus
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     PacketCollection, VPacketCollection, NumbaModel, numba_plasma_initialize,
