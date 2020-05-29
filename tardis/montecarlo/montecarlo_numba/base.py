@@ -102,6 +102,9 @@ def log_decorator(func):
     TODO: How to pass kwargs to @jit, @njit?
     TODO: in nopython mode: do I need a context manager?
     TODO: Buffer?
+    TODO: Move this to tardis/io? Or should this be kept in
+        montecarlo_numba?
+    TODO: make numpy docstring.
 
     :param func: function to be logged.
     :return: either the function itself, if debug_mode is true, or
@@ -110,11 +113,10 @@ def log_decorator(func):
         logging.basicConfig(level=logging.DEBUG,
                                 filename='myapp.log',
                                 format='%(asctime)s %(levelname)s:%(message)s')
-        def wrapper(A):
-    #         logging.debug(*args)
-            result = func(A)
-            if A % 10 == 0:
-                logging.debug(result)
+        def wrapper(*args):
+            logging.debug(*args)
+            result = func(*args)
+            logging.debug(result)
             return result
         return wrapper
     else:
