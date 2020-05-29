@@ -7,9 +7,6 @@ import numpy as np
 import qgrid
 import ipywidgets as ipw
 
-# TODO: Fetch saved Simulation object from memory
-sim = run_tardis('tardis_example.yml')  # TODO: Make the file path work
-
 
 class ShellInfoData():
     def __init__(self, sim_model):
@@ -52,7 +49,7 @@ class ShellInfoData():
 
 
 class ShellInfoWidget():
-    def __init__(self, sim_model=sim):
+    def __init__(self, sim_model):
         self.data = ShellInfoData(sim_model)
 
         # TODO: Chunk-ify the code in more functions
