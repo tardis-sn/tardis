@@ -19,7 +19,6 @@ from tardis.montecarlo.formal_integral import FormalIntegrator
 from tardis.montecarlo.montecarlo_numba import montecarlo_radial1d
 from tardis.montecarlo.montecarlo_numba.numba_interface import (
     configuration_initialize)
-from tardis.montecarlo.montecarlo_numba.base import plot_single_packet
 
 import numpy as np
 
