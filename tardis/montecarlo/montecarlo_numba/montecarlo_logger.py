@@ -16,7 +16,8 @@ def log_decorator(func):
     TODO: in nopython mode: do I need a context manager?
     TODO: Buffer?
     TODO: make numpy docstring.
-    TODO: have this know debug_mode from the config.
+    TODO: have this know debug_mode from the config; the decorator is evaluated
+        as soon as the decorated function is imported.
 
     :param func: function to be logged.
     :return: either the function itself, if debug_mode is true, or
