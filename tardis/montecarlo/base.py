@@ -63,7 +63,8 @@ class MontecarloRunner(HDFWriterMixin):
                  enable_full_relativity, inner_boundary_albedo,
                  line_interaction_type, integrator_settings,
                  v_packet_settings, spectrum_method,
-                 packet_source=None, debug_single_packet=False):
+                 packet_source=None, debug_single_packet=False,
+                 logger_buffer=1):
 
         self.seed = seed
         if packet_source is None:
@@ -84,7 +85,8 @@ class MontecarloRunner(HDFWriterMixin):
         self._integrator = None
         self._spectrum_integrated = None
 
-        mc_logger.DEBUG_MODE = debug_single_packet # should rename this
+        mc_logger.DEBUG_MODE = debug_single_packet  # should rename this
+        mc_logger.BUFFER = logger_buffer
 
         if self.spectrum_method == 'integrated':
             self.optional_hdf_properties.append('spectrum_integrated')
@@ -455,4 +457,5 @@ class MontecarloRunner(HDFWriterMixin):
                    v_packet_settings=config.spectrum.virtual,
                    spectrum_method=config.spectrum.method,
                    packet_source=packet_source,
-                   debug_single_packet=config.montecarlo.debug_single_packet)
+                   debug_single_packet=config.montecarlo.debug_single_packet,
+                   logger_buffer=config.montecarlo.logger_buffer)
