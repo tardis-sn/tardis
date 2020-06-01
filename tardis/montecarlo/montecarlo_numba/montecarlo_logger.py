@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 DEBUG_MODE = False
-BUFFER = 10
+BUFFER = 16000
 ticker = 1
 
 def log_decorator(func):
@@ -16,7 +16,6 @@ def log_decorator(func):
         - stdout or print to file?
 
     TODO: in nopython mode: do I need a context manager?
-    TODO: Buffer?
     TODO: make numpy docstring.
     TODO: have this know debug_mode from the config; the decorator is evaluated
         as soon as the decorated function is imported.
@@ -29,22 +28,20 @@ def log_decorator(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         result = func(*args, **kwargs)
-        global ticker
-        ticker += 1
-        if ticker % BUFFER == 0:  # without a buffer, performance suffers
-            logger.debug(f'Func: {func.__name__}. Input: {(args, kwargs)}')
-            logger.debug(f'Output: {result}.')
+        if DEBUG_MODE:
+            global ticker
+            ticker += 1
+            if ticker % BUFFER == 0:  # without a buffer, performance suffers
+                logger.debug(f'Func: {func.__name__}. Input: {(args, kwargs)}')
+                logger.debug(f'Output: {result}.')
         return result
 
-    if DEBUG_MODE:
-        logger = logging.getLogger(__name__)
-        logger.setLevel(logging.DEBUG)
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(logging.DEBUG)
-        console_formatter = logging.Formatter(
-            '%(name)s - %(levelname)s - %(message)s')
-        console_handler.setFormatter(console_formatter)
-        logger.addHandler(console_handler)
-        return wrapper
-    else:
-        return func
+    logger = logging.getLogger(__name__)
+    logger.setLevel(logging.DEBUG)
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_formatter = logging.Formatter(
+        '%(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+    return wrapper
