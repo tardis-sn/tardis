@@ -31,7 +31,7 @@ Container
 For more complex configurations with dependencies, you can use the containers that allow branching in the configuration. A container is declared in the default configuration file by setting the  ``property_type`` to container property and specifying the properties of the container with keyword type. The ``property_type`` of this section is container-declaration that allows you to specify the possible container items with the keyword container. For every specified container item, the code expects the declaration of all sub items. The keywords for this are “_“ + “name of the container item”.
 If the type declaration for this container is finished, you can specify all container items like normal items. Here is an example for a container configuration with two branches:
 
-..source: yaml
+.. source: yaml
 - container_example:
         - property_type: container-property
         - type:
