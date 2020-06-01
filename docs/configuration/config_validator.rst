@@ -2,12 +2,12 @@
 Configuration Validator
 ***********************
 
-The default config validator takes a user configuration and a default configuration and creates a consistent and valid configuration for TARDIS based on the constraints given in the default configuration. Both input data are normally given as a YAML dictionary with a consistent hierarchical structure, i.e. for every item in the user configuration there has to be a declaration in the default configuration  at the same hierarchical level. This declaration can be either an unspecific empty level declaration like:
+The default config validator takes a user configuration and a default configuration and creates a consistent and valid configuration for TARDIS based on the constraints given in the default configuration. Both input data are normally given as a YAML dictionary with a consistent hierarchical structure, i.e. for every item in the user configuration there has to be a declaration in the default configuration at the same hierarchical level. This declaration can be either an unspecific empty level declaration like:
 - Main_level:
 	- Second_level:
 		- Third_level:
 			…
-or a declaration of  a configuration item like:
+or a declaration of a configuration item like:
 - item:
         - property_type: int
         - default: 1
