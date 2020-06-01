@@ -27,8 +27,8 @@ Requirements
 
 You can see a list of all the requirements of TARDIS in the `environment definition file <https://raw.githubusercontent.com/tardis-sn/tardis/master/tardis_env3.yml>`_.
 
-TARDIS is using AstroPy's excellent installation helpers and thus uses similar
-instructions to AstroPy.
+TARDIS is using Astropy's excellent installation helpers and thus uses similar
+instructions to Astropy.
 
 .. _anaconda_inst_label:
 

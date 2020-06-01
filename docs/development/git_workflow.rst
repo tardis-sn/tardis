@@ -54,7 +54,7 @@ the `Generating SSH keys
 Create your own fork of a repository
 ------------------------------------
 
-The following example shows how to fork the core ``AstroPy`` repository, but
+The following example shows how to fork the core ``Astropy`` repository, but
 the same applies to other packages:
 
 #. Log into your GitHub_ account.
@@ -279,7 +279,7 @@ In more detail
 #. Make some changes
 
 #. Once you are a bit further along, test your changes do not lead to
-   regressions, and add new tests (see the AstroPy :ref:`testing-guidelines` we follow).::
+   regressions, and add new tests (see the Astropy :ref:`testing-guidelines` we follow).::
 
      python setup.py test
 
@@ -289,7 +289,7 @@ In more detail
      python setup.py build_sphinx
 
    The last line should just state ``build succeeded``, and should not mention
-   any warnings.  (For more details, see the AstroPy
+   any warnings.  (For more details, see the Astropy
    :ref:`documentation-guidelines` we follow.)
 
 #. See which files have changed with ``git status`` (see `git status`_).
@@ -442,7 +442,7 @@ remote called ``origin``, you use this command to force-push::
 
 Note that this will overwrite the branch on GitHub, i.e. this is one of the few
 ways you can actually lose commits with git. Also note that it is never allowed
-to force push to the main AstroPy repo (typically called ``upstream``), because
+to force push to the main Astropy repo (typically called ``upstream``), because
 this would re-write commit history and thus cause problems for all others.
 
 .. _recovering-from-mess-up:
