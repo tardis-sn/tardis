@@ -72,6 +72,10 @@ properties:
     type: boolean
     default: false
     description: Decide whether to go into single-packet debugging mode.
+  logger_buffer:
+    type: number
+    default: 1
+    description: Provides option to not log every line.
 
 required:
 - no_of_packets
