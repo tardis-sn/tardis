@@ -12,17 +12,32 @@ def log_decorator(func):
     `@jit'd and `@njit`'d functions, but with a significant speed
     penalty.
 
-
     TODO: in nopython mode: do I need a context manager?
-    TODO: make numpy docstring.
 
-    :param func: function to be logged.
-    :return: either the function itself, if debug_mode is true, or
+    Input:
+        func : (function) function to be logged.
+
+    Output:
+        wrapper : (function) wrapper to the function being logged.
     """
 
     # to ensure that calling `help` on the decorated function still works
     @wraps(func)
     def wrapper(*args, **kwargs):
+        """
+        Wrapper to the log_decorator.
+
+        When called, it has the side effect of
+        logging every `BUFFER` input and output to `func`, if `DEBUG_MODE` is
+        `True`.
+
+        Input:
+            *args : arguments to be passed to `func`.
+            **kwargs : keyword arguments to be passed to `func`.
+
+        Output:
+            result : result of calling `func` on `*args` and `**kwargs`.
+        """
         result = func(*args, **kwargs)
         if DEBUG_MODE:
             global ticker
