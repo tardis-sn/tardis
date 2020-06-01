@@ -8,20 +8,26 @@ import qgrid
 import ipywidgets as ipw
 
 
-class ShellInfoData():
-    def __init__(self, sim_model):
-        self.sim_model = sim_model
+class BaseShellInfo():
+    def __init__(self, t_radiative, w, abundance, number_density,
+                 ion_number_density, level_number_density):
+        self.t_radiative = t_radiative
+        self.w = w
+        self.abundance = abundance
+        self.number_density = number_density
+        self.ion_number_density = ion_number_density
+        self.level_number_density = level_number_density
 
     def shells_data(self):
-        shells_temp_w = pd.DataFrame({'Rad. Temp.': self.sim_model.model.t_rad,
-                                      'W': self.sim_model.model.w},
-                                     index=range(1, 21))
+        shells_temp_w = pd.DataFrame({'Rad. Temp.': self.t_radiative,
+                                      'W': self.w},
+                                     index=range(1, len(self.t_radiative)+1))
         shells_temp_w.index.name = 'Shell No.'
         # Format to string to make qgrid show values in scientific notations
         return shells_temp_w.applymap(lambda x: '{:.6e}'.format(x))
 
     def Z_count(self, shell_num):
-        Z_count_data = self.sim_model.plasma.abundance[shell_num-1]
+        Z_count_data = self.abundance[shell_num-1]
         Z_count_data.index.name = 'Z'
         return pd.DataFrame({
             'Element': Z_count_data.index.map(atomic_number2element_symbol),
@@ -30,8 +36,8 @@ class ShellInfoData():
         })
 
     def ion_count(self, Z, shell_num):
-        ion_num_density = self.sim_model.plasma.ion_number_density[shell_num-1].loc[Z]
-        Z_num_density = self.sim_model.plasma.number_density.loc[Z, shell_num-1]
+        ion_num_density = self.ion_number_density[shell_num-1].loc[Z]
+        Z_num_density = self.number_density.loc[Z, shell_num-1]
         ion_count_data = ion_num_density/Z_num_density  # Normalization
         ion_count_data.index.name = 'Ion'
         return pd.DataFrame({
@@ -40,17 +46,42 @@ class ShellInfoData():
         })
 
     def level_count(self, ion, Z, shell_num):
-        level_num_density = self.sim_model.plasma.level_number_density[shell_num-1].loc[Z, ion]
-        ion_num_density = self.sim_model.plasma.ion_number_density[shell_num-1].loc[Z, ion]
+        level_num_density = self.level_number_density[shell_num-1].loc[Z, ion]
+        ion_num_density = self.ion_number_density[shell_num-1].loc[Z, ion]
         level_count_data = level_num_density/ion_num_density  # Normalization
         level_count_data.index.name = 'Level'
         level_count_data.name = 'Frac. Ab. (Ion={})'.format(ion)
         return level_count_data.map('{:.6e}'.format, na_action='ignore').to_frame()
 
 
+class SimulationShellInfo(BaseShellInfo):
+    def __init__(self, sim_model):
+        super().__init__(
+            sim_model.model.t_radiative,
+            sim_model.model.w,
+            sim_model.plasma.abundance,
+            sim_model.plasma.number_density,
+            sim_model.plasma.ion_number_density,
+            sim_model.plasma.level_number_density
+        )
+
+
+class HDFShellInfo(BaseShellInfo):
+    def __init__(self, hdf_fpath):
+        with pd.HDFStore(hdf_fpath, 'r') as sim_data:
+            super().__init__(
+                sim_data['/simulation/model/t_radiative'],
+                sim_data['/simulation/model/w'],
+                sim_data['/simulation/plasma/abundance'],
+                sim_data['/simulation/plasma/number_density'],
+                sim_data['/simulation/plasma/ion_number_density'],
+                sim_data['/simulation/plasma/level_number_density']
+            )
+
+
 class ShellInfoWidget():
     def __init__(self, sim_model):
-        self.data = ShellInfoData(sim_model)
+        self.data = SimulationShellInfo(sim_model)
 
         # Creating the shells data table widget
         self.shells_table = self.create_table_widget(
