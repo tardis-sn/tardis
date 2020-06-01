@@ -2,7 +2,7 @@ import logging
 from functools import wraps
 
 DEBUG_MODE = False
-BUFFER = 16000
+BUFFER = 1
 ticker = 1
 
 def log_decorator(func):
