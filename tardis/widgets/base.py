@@ -31,6 +31,7 @@ class BaseShellInfo():
     def Z_count(self, shell_num):
         Z_count_data = self.abundance[shell_num-1]
         Z_count_data.index.name = 'Z'
+        Z_count_data.fillna(0, inplace=True)
         return pd.DataFrame({
             'Element': Z_count_data.index.map(atomic_number2element_symbol),
             # Format to string to show in scientific notation
@@ -42,9 +43,10 @@ class BaseShellInfo():
         Z_num_density = self.number_density.loc[Z, shell_num-1]
         ion_count_data = ion_num_density/Z_num_density  # Normalization
         ion_count_data.index.name = 'Ion'
+        ion_count_data.fillna(0, inplace=True)
         return pd.DataFrame({
             'Species': ion_count_data.index.map(lambda x: species_tuple_to_string((Z, x))),
-            'Frac. Ab. (Z={})'.format(Z): ion_count_data.map('{:.6e}'.format, na_action='ignore')
+            'Frac. Ab. (Z={})'.format(Z): ion_count_data.map('{:.6e}'.format)
         })
 
     def level_count(self, ion, Z, shell_num):
@@ -53,7 +55,8 @@ class BaseShellInfo():
         level_count_data = level_num_density/ion_num_density  # Normalization
         level_count_data.index.name = 'Level'
         level_count_data.name = 'Frac. Ab. (Ion={})'.format(ion)
-        return level_count_data.map('{:.6e}'.format, na_action='ignore').to_frame()
+        level_count_data.fillna(0, inplace=True)
+        return level_count_data.map('{:.6e}'.format).to_frame()
 
 
 class SimulationShellInfo(BaseShellInfo):
