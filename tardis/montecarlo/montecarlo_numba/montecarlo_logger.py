@@ -5,6 +5,15 @@ DEBUG_MODE = False
 BUFFER = 1
 ticker = 1
 
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+console_handler = logging.StreamHandler()
+console_handler.setLevel(logging.DEBUG)
+console_formatter = logging.Formatter(
+    '%(name)s - %(levelname)s - %(message)s')
+console_handler.setFormatter(console_formatter)
+logger.addHandler(console_handler)
+
 def log_decorator(func):
     """
     Decorator to log functions while in debug mode, i.e., when
@@ -47,12 +56,4 @@ def log_decorator(func):
                 logger.debug(f'Output: {result}.')
         return result
 
-    logger = logging.getLogger(__name__)
-    logger.setLevel(logging.DEBUG)
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-    console_formatter = logging.Formatter(
-        '%(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
     return wrapper
