@@ -2,12 +2,18 @@ import logging
 from functools import wraps
 
 DEBUG_MODE = False
+LOG_FILE = 'montecarlo_log.log'
 BUFFER = 1
 ticker = 1
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-console_handler = logging.StreamHandler()
+
+if LOG_FILE:
+    console_handler = logging.FileHandler(LOG_FILE)
+else:
+    console_handler = logging.StreamHandler()
+
 console_handler.setLevel(logging.DEBUG)
 console_formatter = logging.Formatter(
     '%(name)s - %(levelname)s - %(message)s')
