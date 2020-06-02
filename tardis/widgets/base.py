@@ -1,6 +1,7 @@
 from tardis.base import run_tardis
 from tardis.io.atom_data.util import download_atom_data
 from tardis.util.base import atomic_number2element_symbol, species_tuple_to_string
+from tardis.simulation import Simulation
 
 import pandas as pd
 import numpy as np
@@ -20,8 +21,9 @@ class BaseShellInfo():
 
     def shells_data(self):
         shells_temp_w = pd.DataFrame({'Rad. Temp.': self.t_radiative,
-                                      'W': self.w},
-                                     index=range(1, len(self.t_radiative)+1))
+                                      'W': self.w})
+        shells_temp_w.index = range(
+            1, len(self.t_radiative)+1)  # Overwrite index
         shells_temp_w.index.name = 'Shell No.'
         # Format to string to make qgrid show values in scientific notations
         return shells_temp_w.applymap(lambda x: '{:.6e}'.format(x))
@@ -80,8 +82,16 @@ class HDFShellInfo(BaseShellInfo):
 
 
 class ShellInfoWidget():
-    def __init__(self, sim_model):
-        self.data = SimulationShellInfo(sim_model)
+    def __init__(self, sim_obj_or_path):
+        if isinstance(sim_obj_or_path, Simulation):
+            self.data = SimulationShellInfo(sim_obj_or_path)
+        elif isinstance(sim_obj_or_path, str):
+            self.data = HDFShellInfo(sim_obj_or_path)
+        else:
+            raise TypeError(
+                "Passed argument is of invalid type: {}\nOnly "
+                "tardis.simulation.Simulation object or a path to simulation "
+                "HDF file (str object) is allowed!".format(type(sim_obj_or_path)))
 
         # Creating the shells data table widget
         self.shells_table = self.create_table_widget(
