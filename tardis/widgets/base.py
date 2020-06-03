@@ -29,7 +29,7 @@ class BaseShellInfo():
         return shells_temp_w.applymap(lambda x: '{:.6e}'.format(x))
 
     def Z_count(self, shell_num):
-        Z_count_data = self.abundance[shell_num-1]
+        Z_count_data = self.abundance[shell_num-1].copy()
         Z_count_data.index.name = 'Z'
         Z_count_data.fillna(0, inplace=True)
         return pd.DataFrame({
