@@ -10,8 +10,32 @@ import ipywidgets as ipw
 
 
 class BaseShellInfo():
+    """The simulation information that is used by shell info widget
+    """
+
     def __init__(self, t_radiative, w, abundance, number_density,
                  ion_number_density, level_number_density):
+        """Initialize the object with all simulation properties in use
+
+        Parameters
+        ----------
+        t_radiative : array_like
+            Radiative Temperature of each shell of simulation
+        w : array_like
+            Dilution Factor (W) of each shell of simulation model
+        abundance : pandas.DataFrame
+            Fractional abundance of elements where row labels are atomic number 
+            and column labels are shell number
+        number_density : pandas.DataFrame
+            Number densities of elements where row labels are atomic number and
+            column labels are shell numbers
+        ion_number_density : pandas.DataFrame
+            Number densities of ions where rows are multi-indexed with (atomic
+            number, ion number) and column labels are shell number
+        level_number_density : pandas.DataFrame
+            Number densities of levels where rows are multi-indexed with (atomic
+            number, ion number, level number) and column labels are shell number
+        """
         self.t_radiative = t_radiative
         self.w = w
         self.abundance = abundance
@@ -20,6 +44,14 @@ class BaseShellInfo():
         self.level_number_density = level_number_density
 
     def shells_data(self):
+        """Generates shells data in a form that can be used by a table widget
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe containing Rad. Temp. and W against each shell of
+            simulation model
+        """
         shells_temp_w = pd.DataFrame({'Rad. Temp.': self.t_radiative,
                                       'W': self.w})
         shells_temp_w.index = range(
@@ -29,27 +61,83 @@ class BaseShellInfo():
         return shells_temp_w.applymap(lambda x: '{:.6e}'.format(x))
 
     def element_count(self, shell_num):
+        """Generates fractional abundance of elements present in a specific
+        shell in a form that can be used by a table widget
+
+        Parameters
+        ----------
+        shell_num : int
+            Shell number (note: starts from 1, not 0 which is what simulation
+            model use)
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe containing element symbol and fractional abundance in a
+            specific shell, against each atomic number
+        """
         element_count_data = self.abundance[shell_num-1].copy()
         element_count_data.index.name = 'Z'
         element_count_data.fillna(0, inplace=True)
         return pd.DataFrame({
-            'Element': element_count_data.index.map(atomic_number2element_symbol),
+            'Element': element_count_data.index.map(
+                atomic_number2element_symbol),
             # Format to string to show in scientific notation
-            'Frac. Ab. (Shell {})'.format(shell_num): element_count_data.map('{:.6e}'.format)
+            'Frac. Ab. (Shell {})'.format(shell_num): element_count_data.map(
+                '{:.6e}'.format)
         })
 
     def ion_count(self, atomic_num, shell_num):
+        """Generates fractional abundance of ions of a specific element and
+        shell, in a form that can be used by a table widget
+
+        Parameters
+        ----------
+        atomic_num : int
+            Atomic number of element
+        shell_num : int
+            Shell number (note: starts from 1, not 0 which is what simulation
+            model use)
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe containing ion specie and fractional abundance for a
+            specific element, against each ion number
+        """
         ion_num_density = self.ion_number_density[shell_num-1].loc[atomic_num]
         element_num_density = self.number_density.loc[atomic_num, shell_num-1]
         ion_count_data = ion_num_density/element_num_density  # Normalization
         ion_count_data.index.name = 'Ion'
         ion_count_data.fillna(0, inplace=True)
         return pd.DataFrame({
-            'Species': ion_count_data.index.map(lambda x: species_tuple_to_string((atomic_num, x))),
-            'Frac. Ab. (Z={})'.format(atomic_num): ion_count_data.map('{:.6e}'.format)
+            'Species': ion_count_data.index.map(
+                lambda x: species_tuple_to_string((atomic_num, x))),
+            'Frac. Ab. (Z={})'.format(atomic_num): ion_count_data.map(
+                '{:.6e}'.format)
         })
 
     def level_count(self, ion, atomic_num, shell_num):
+        """Generates fractional abundance of levels of a specific ion, element
+        and shell, in a form that can be used by a table widget
+
+        Parameters
+        ----------
+        ion : int
+            Ion number (note: starts from 0, same what is used by simulation
+            model)
+        atomic_num : int
+            Atomic number of element
+        shell_num : int
+            Shell number (note: starts from 1, not 0 which is what simulation
+            model use)
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe containing fractional abundance for a specific ion,
+            against each level number
+        """
         level_num_density = self.level_number_density[shell_num -
                                                       1].loc[atomic_num, ion]
         ion_num_density = self.ion_number_density[shell_num -
@@ -62,7 +150,18 @@ class BaseShellInfo():
 
 
 class SimulationShellInfo(BaseShellInfo):
+    """The simulation information that is used by shell info widget, obtained
+    from a TARDIS Simulation object
+    """
+
     def __init__(self, sim_model):
+        """Initialize the object with TARDIS Simulation object
+
+        Parameters
+        ----------
+        sim_model : tardis.simulation.Simulation
+            TARDIS Simulation object produced by running a simulation
+        """
         super().__init__(
             sim_model.model.t_radiative,
             sim_model.model.w,
@@ -74,7 +173,20 @@ class SimulationShellInfo(BaseShellInfo):
 
 
 class HDFShellInfo(BaseShellInfo):
+    """The simulation information that is used by shell info widget, obtained
+    from a simulation HDF file
+    """
+
     def __init__(self, hdf_fpath):
+        """Initialize the object with a simulation HDF file
+
+        Parameters
+        ----------
+        hdf_fpath : str
+            A valid path to a simulation HDF file (HDF file must be created
+            from a TARDIS Simulation object using `to_hdf` method with default 
+            arguments)
+        """
         with pd.HDFStore(hdf_fpath, 'r') as sim_data:
             super().__init__(
                 sim_data['/simulation/model/t_radiative'],
@@ -87,7 +199,16 @@ class HDFShellInfo(BaseShellInfo):
 
 
 class ShellInfoWidget():
+    """The Shell Info Widget to explore abundances in different shells. 
+
+    It consists of four interlinked table widgets - shells table; element count,
+    ion count and level count tables - allowing to explore fractional abundances
+    all the way from elements, to ions, to levels by clicking on the rows of
+    tables.
+    """
+
     def __init__(self, sim_obj_or_path):
+
         if isinstance(sim_obj_or_path, Simulation):
             self.data = SimulationShellInfo(sim_obj_or_path)
         elif isinstance(sim_obj_or_path, str):
@@ -140,6 +261,31 @@ class ShellInfoWidget():
 
     def create_table_widget(self, data, col_widths, changeable_col_idx=None,
                             other_col_names=None):
+        """Creates table widget object for a dataset
+
+        Parameters
+        ----------
+        data : pandas.DataFrame
+            Data you want to display in table widget
+        col_widths : list
+            A list containing width of each column of data in order (including 
+            the index as 1st column). The width values must be proportions of
+            100 i.e. they must sum to 100.
+        changeable_col_idx : int, optional
+            Index location of the column which will change its name when data
+            in generated table widget updates. Default value None assumes that
+            there is no such column.
+        other_col_names : list, optional
+            A list of all possible column names that the changeable column
+            (specified by `changeable_col_index`) will get when data in
+            generated table widget updates
+            by default None
+
+        Returns
+        -------
+        qgrid.QgridWidget
+            Table widget object which supports interaction and updating the data
+        """
         # Setting the options to be used for creating table widgets
         grid_options = {
             'sortable': False,
@@ -166,7 +312,10 @@ class ShellInfoWidget():
         # Preparing dictionary that defines column widths
         cols_with_index = [data.index.name] + data.columns.to_list()
         column_widths_definitions = {col_name: {'width': col_width}
-                                     for col_name, col_width in zip(cols_with_index, col_widths)}
+                                     for col_name, col_width in zip(
+                                         cols_with_index, col_widths)}
+
+        if changeable_col_idx is None
 
         # We also need to define widths for different names of changeable column
         if changeable_col_idx:
