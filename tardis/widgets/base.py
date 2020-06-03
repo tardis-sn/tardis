@@ -28,30 +28,32 @@ class BaseShellInfo():
         # Format to string to make qgrid show values in scientific notations
         return shells_temp_w.applymap(lambda x: '{:.6e}'.format(x))
 
-    def Z_count(self, shell_num):
-        Z_count_data = self.abundance[shell_num-1].copy()
-        Z_count_data.index.name = 'Z'
-        Z_count_data.fillna(0, inplace=True)
+    def element_count(self, shell_num):
+        element_count_data = self.abundance[shell_num-1].copy()
+        element_count_data.index.name = 'Z'
+        element_count_data.fillna(0, inplace=True)
         return pd.DataFrame({
-            'Element': Z_count_data.index.map(atomic_number2element_symbol),
+            'Element': element_count_data.index.map(atomic_number2element_symbol),
             # Format to string to show in scientific notation
-            'Frac. Ab. (Shell {})'.format(shell_num): Z_count_data.map('{:.6e}'.format)
+            'Frac. Ab. (Shell {})'.format(shell_num): element_count_data.map('{:.6e}'.format)
         })
 
-    def ion_count(self, Z, shell_num):
-        ion_num_density = self.ion_number_density[shell_num-1].loc[Z]
-        Z_num_density = self.number_density.loc[Z, shell_num-1]
-        ion_count_data = ion_num_density/Z_num_density  # Normalization
+    def ion_count(self, atomic_num, shell_num):
+        ion_num_density = self.ion_number_density[shell_num-1].loc[atomic_num]
+        element_num_density = self.number_density.loc[atomic_num, shell_num-1]
+        ion_count_data = ion_num_density/element_num_density  # Normalization
         ion_count_data.index.name = 'Ion'
         ion_count_data.fillna(0, inplace=True)
         return pd.DataFrame({
-            'Species': ion_count_data.index.map(lambda x: species_tuple_to_string((Z, x))),
-            'Frac. Ab. (Z={})'.format(Z): ion_count_data.map('{:.6e}'.format)
+            'Species': ion_count_data.index.map(lambda x: species_tuple_to_string((atomic_num, x))),
+            'Frac. Ab. (Z={})'.format(atomic_num): ion_count_data.map('{:.6e}'.format)
         })
 
-    def level_count(self, ion, Z, shell_num):
-        level_num_density = self.level_number_density[shell_num-1].loc[Z, ion]
-        ion_num_density = self.ion_number_density[shell_num-1].loc[Z, ion]
+    def level_count(self, ion, atomic_num, shell_num):
+        level_num_density = self.level_number_density[shell_num -
+                                                      1].loc[atomic_num, ion]
+        ion_num_density = self.ion_number_density[shell_num -
+                                                  1].loc[atomic_num, ion]
         level_count_data = level_num_density/ion_num_density  # Normalization
         level_count_data.index.name = 'Level'
         level_count_data.name = 'Frac. Ab. (Ion={})'.format(ion)
@@ -102,9 +104,9 @@ class ShellInfoWidget():
             [30, 35, 35]
         )
 
-        # Creating the Z count table widget
-        self.Z_count_table = self.create_table_widget(
-            self.data.Z_count(self.shells_table.df.index[0]),
+        # Creating the element count table widget
+        self.element_count_table = self.create_table_widget(
+            self.data.element_count(self.shells_table.df.index[0]),
             [15, 30, 55],
             -1,  # since last column will change names
             # Shells table index will give all possible shell numbers
@@ -114,25 +116,26 @@ class ShellInfoWidget():
 
         # Creating the ion count table widget
         self.ion_count_table = self.create_table_widget(
-            self.data.ion_count(self.Z_count_table.df.index[0],
+            self.data.ion_count(self.element_count_table.df.index[0],
                                 self.shells_table.df.index[0]),
             [20, 30, 50],
             -1,
-            # Since Z are same for each shell thus previous table (Z counts
-            # for shell 1) will give all possible Z
-            ['Frac. Ab. (Z={})'.format(Z) for Z in self.Z_count_table.df.index]
+            # Since element are same for each shell thus previous table (element counts
+            # for shell 1) will give all possible elements
+            ['Frac. Ab. (Z={})'.format(atomic_num)
+             for atomic_num in self.element_count_table.df.index]
         )
 
         # Creating the level count table widget
         self.level_count_table = self.create_table_widget(
             self.data.level_count(self.ion_count_table.df.index[0],
-                                  self.Z_count_table.df.index[0],
+                                  self.element_count_table.df.index[0],
                                   self.shells_table.df.index[0]),
             [30, 70],
             -1,
-            # Ion values range from 0 to maximum Z present in Z counts table
+            # Ion values range from 0 to max atomic_num present in element count table
             ['Frac. Ab. (Ion={})'.format(ion)
-             for ion in range(0, self.Z_count_table.df.index.max()+1)]
+             for ion in range(0, self.element_count_table.df.index.max()+1)]
         )
 
     def create_table_widget(self, data, col_widths, changeable_col_idx=None,
@@ -177,34 +180,34 @@ class ShellInfoWidget():
                                column_options=column_options,
                                column_definitions=column_widths_definitions)
 
-    def update_Z_count_table(self, event, qgrid_widget):
+    def update_element_count_table(self, event, qgrid_widget):
         # Get shell number from row selected in shells_table
         shell_num = event['new'][0]+1
 
-        # Update data in Z_count_table
-        self.Z_count_table.df = self.data.Z_count(shell_num)
+        # Update data in element_count_table
+        self.element_count_table.df = self.data.element_count(shell_num)
 
-        # Get Z of 0th row of Z_count_table
-        Z0 = self.Z_count_table.df.index[0]
+        # Get atomic_num of 0th row of element_count_table
+        atomic_num0 = self.element_count_table.df.index[0]
 
         # Also update next table (ion counts) by triggering its event listener
-        # Listener won't trigger if last row selected in Z_count_table was also 0th
-        if self.Z_count_table.get_selected_rows() == [0]:
-            self.Z_count_table.change_selection([])  # Unselect rows
+        # Listener won't trigger if last row selected in element_count_table was also 0th
+        if self.element_count_table.get_selected_rows() == [0]:
+            self.element_count_table.change_selection([])  # Unselect rows
         # Select 0th row in count table which will trigger update_ion_count_table
-        self.Z_count_table.change_selection([Z0])
+        self.element_count_table.change_selection([atomic_num0])
 
     def update_ion_count_table(self, event, qgrid_widget):
         # Don't execute function if no row was selected, implicitly i.e. by api
         if event['new'] == [] and event['source'] == 'api':
             return
 
-        # Get shell no. & Z from rows selected in previous tables
+        # Get shell no. & atomic_num from rows selected in previous tables
         shell_num = self.shells_table.get_selected_rows()[0]+1
-        Z = self.Z_count_table.df.index[event['new'][0]]
+        atomic_num = self.element_count_table.df.index[event['new'][0]]
 
         # Update data in ion_count_table
-        self.ion_count_table.df = self.data.ion_count(Z, shell_num)
+        self.ion_count_table.df = self.data.ion_count(atomic_num, shell_num)
 
         # Also update next table (level counts) by triggering its event listener
         ion0 = self.ion_count_table.df.index[0]
@@ -217,40 +220,43 @@ class ShellInfoWidget():
         if event['new'] == [] and event['source'] == 'api':
             return
 
-        # Get shell no., Z, ion from selected rows in previous tables
+        # Get shell no., atomic_num, ion from selected rows in previous tables
         shell_num = self.shells_table.get_selected_rows()[0]+1
-        Z = self.Z_count_table.df.index[self.Z_count_table.get_selected_rows()[
-            0]]
+        atomic_num = self.element_count_table.df.index[
+            self.element_count_table.get_selected_rows()[0]]
         ion = self.ion_count_table.df.index[event['new'][0]]
 
         # Update data in level_count_table
-        self.level_count_table.df = self.data.level_count(ion, Z, shell_num)
+        self.level_count_table.df = self.data.level_count(
+            ion, atomic_num, shell_num)
 
     def display(self,
                 tables_container_layout=ipw.Layout(display='flex',
                                                    align_items='flex-start',
                                                    justify_content='space-between'),
                 shells_table_width='30%',
-                Z_count_table_width='24%',  # 25%
+                element_count_table_width='24%',  # 25%
                 ion_count_table_width='24%',  # 25%
                 level_count_table_width='18%'
                 ):
 
         # Setting tables' widths
         self.shells_table.layout.width = shells_table_width
-        self.Z_count_table.layout.width = Z_count_table_width
+        self.element_count_table.layout.width = element_count_table_width
         self.ion_count_table.layout.width = ion_count_table_width
         self.level_count_table.layout.width = level_count_table_width
 
         # Attach event listeners to tables
-        self.shells_table.on('selection_changed', self.update_Z_count_table)
-        self.Z_count_table.on('selection_changed', self.update_ion_count_table)
+        self.shells_table.on('selection_changed',
+                             self.update_element_count_table)
+        self.element_count_table.on(
+            'selection_changed', self.update_ion_count_table)
         self.ion_count_table.on('selection_changed',
                                 self.update_level_count_table)
 
         # Putting all tables in a container styled with tables_container_layout
         shell_info_tables_container = ipw.Box(
-            [self.shells_table, self.Z_count_table,
+            [self.shells_table, self.element_count_table,
                 self.ion_count_table, self.level_count_table],
             layout=tables_container_layout)
         self.shells_table.change_selection([1])
