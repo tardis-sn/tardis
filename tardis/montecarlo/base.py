@@ -64,7 +64,7 @@ class MontecarloRunner(HDFWriterMixin):
                  line_interaction_type, integrator_settings,
                  v_packet_settings, spectrum_method,
                  packet_source=None, debug_packets=False,
-                 logger_buffer=1):
+                 logger_buffer=1, single_packet_seed=None):
 
         self.seed = seed
         if packet_source is None:
@@ -87,6 +87,7 @@ class MontecarloRunner(HDFWriterMixin):
 
         mc_logger.DEBUG_MODE = debug_packets  # should rename this
         mc_logger.BUFFER = logger_buffer
+        self.single_packet_seed = single_packet_seed
 
         if self.spectrum_method == 'integrated':
             self.optional_hdf_properties.append('spectrum_integrated')
@@ -235,7 +236,8 @@ class MontecarloRunner(HDFWriterMixin):
 
         montecarlo_configuration = configuration_initialize(
             self, no_of_virtual_packets,
-            full_relativity=self.enable_full_relativity)
+            full_relativity=self.enable_full_relativity,
+            single_packet_seed=self.single_packet_seed)
         montecarlo_radial1d(model, plasma, self, montecarlo_configuration)
         #montecarlo.montecarlo_radial1d(
         #    model, plasma, self,
@@ -458,4 +460,5 @@ class MontecarloRunner(HDFWriterMixin):
                    spectrum_method=config.spectrum.method,
                    packet_source=packet_source,
                    debug_packets=config.montecarlo.debug_packets,
-                   logger_buffer=config.montecarlo.logger_buffer)
+                   logger_buffer=config.montecarlo.logger_buffer,
+                   single_packet_seed=config.montecarlo.single_packet_seed)
