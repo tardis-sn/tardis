@@ -24,7 +24,7 @@ class BaseShellInfo():
         w : array_like
             Dilution Factor (W) of each shell of simulation model
         abundance : pandas.DataFrame
-            Fractional abundance of elements where row labels are atomic number 
+            Fractional abundance of elements where row labels are atomic number
             and column labels are shell number
         number_density : pandas.DataFrame
             Number densities of elements where row labels are atomic number and
@@ -184,7 +184,7 @@ class HDFShellInfo(BaseShellInfo):
         ----------
         hdf_fpath : str
             A valid path to a simulation HDF file (HDF file must be created
-            from a TARDIS Simulation object using `to_hdf` method with default 
+            from a TARDIS Simulation object using `to_hdf` method with default
             arguments)
         """
         with pd.HDFStore(hdf_fpath, 'r') as sim_data:
@@ -199,7 +199,7 @@ class HDFShellInfo(BaseShellInfo):
 
 
 class ShellInfoWidget():
-    """The Shell Info Widget to explore abundances in different shells. 
+    """The Shell Info Widget to explore abundances in different shells.
 
     It consists of four interlinked table widgets - shells table; element count,
     ion count and level count tables - allowing to explore fractional abundances
@@ -229,10 +229,12 @@ class ShellInfoWidget():
         self.element_count_table = self.create_table_widget(
             self.data.element_count(self.shells_table.df.index[0]),
             [15, 30, 55],
-            -1,  # since last column will change names
-            # Shells table index will give all possible shell numbers
-            ['Frac. Ab. (Shell {})'.format(shell_num)
-             for shell_num in self.shells_table.df.index]
+            changeable_col={
+                'index': -1,  # since last column will change names
+                # Shells table index will give all possible shell numbers
+                'other_names': ['Frac. Ab. (Shell {})'.format(shell_num)
+                                for shell_num in self.shells_table.df.index]
+            }
         )
 
         # Creating the ion count table widget
@@ -240,11 +242,13 @@ class ShellInfoWidget():
             self.data.ion_count(self.element_count_table.df.index[0],
                                 self.shells_table.df.index[0]),
             [20, 30, 50],
-            -1,
-            # Since element are same for each shell thus previous table (element counts
-            # for shell 1) will give all possible elements
-            ['Frac. Ab. (Z={})'.format(atomic_num)
-             for atomic_num in self.element_count_table.df.index]
+            changeable_col={
+                'index': -1,
+                # Since element are same for each shell thus previous table
+                # (element counts for shell 1) will give all possible elements
+                'other_names': ['Frac. Ab. (Z={})'.format(atomic_num)
+                                for atomic_num in self.element_count_table.df.index]
+            }
         )
 
         # Creating the level count table widget
@@ -253,38 +257,39 @@ class ShellInfoWidget():
                                   self.element_count_table.df.index[0],
                                   self.shells_table.df.index[0]),
             [30, 70],
-            -1,
-            # Ion values range from 0 to max atomic_num present in element count table
-            ['Frac. Ab. (Ion={})'.format(ion)
-             for ion in range(0, self.element_count_table.df.index.max()+1)]
+            changeable_col={
+                'index': -1,
+                # Ion values range from 0 to max atomic_num present in
+                # element count table
+                'other_names': ['Frac. Ab. (Ion={})'.format(ion) for ion in
+                                range(0, self.element_count_table.df.index.max()+1)]
+            }
         )
 
-    def create_table_widget(self, data, col_widths, changeable_col_idx=None,
-                            other_col_names=None):
-        """Creates table widget object for a dataset
+    def create_table_widget(self, data, col_widths, changeable_col=None):
+        """Creates table widget object which supports interaction and updating
+        the data
 
         Parameters
         ----------
         data : pandas.DataFrame
             Data you want to display in table widget
         col_widths : list
-            A list containing width of each column of data in order (including 
+            A list containing width of each column of data in order (including
             the index as 1st column). The width values must be proportions of
             100 i.e. they must sum to 100.
-        changeable_col_idx : int, optional
-            Index location of the column which will change its name when data
-            in generated table widget updates. Default value None assumes that
-            there is no such column.
-        other_col_names : list, optional
-            A list of all possible column names that the changeable column
-            (specified by `changeable_col_index`) will get when data in
-            generated table widget updates
-            by default None
+        changeable_col : dict, optional
+            A dictionary to specify the information about column which will
+            change its name when data in generated table widget updates. It
+            must have two keys - `index` to specify index of changeable column
+            in dataframe `data` as an integer, and `other_names` to specify
+            all possible names changeable column will get as a list of strings.
+            Default value `None` indicates that there is no changable column.
 
         Returns
         -------
         qgrid.QgridWidget
-            Table widget object which supports interaction and updating the data
+            Table widget object
         """
         # Setting the options to be used for creating table widgets
         grid_options = {
@@ -315,13 +320,15 @@ class ShellInfoWidget():
                                      for col_name, col_width in zip(
                                          cols_with_index, col_widths)}
 
-        if changeable_col_idx is None
-
         # We also need to define widths for different names of changeable column
-        if changeable_col_idx:
-            column_widths_definitions.update(
-                {col_name: {'width': col_widths[changeable_col_idx]}
-                 for col_name in other_col_names})
+        if changeable_col:
+            if {'index', 'other_names'}.issubset(set(changeable_col.keys())):
+                column_widths_definitions.update(
+                    {col_name: {'width': col_widths[changeable_col['index']]}
+                     for col_name in changeable_col['col_names']})
+            else:
+                raise ValueError("Changeable column dictionary does not contain "
+                                 "'index' or 'other_names' key")
 
         # Create the table widget using qgrid
         return qgrid.show_grid(data,
