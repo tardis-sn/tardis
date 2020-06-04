@@ -58,8 +58,10 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                            packet_collection.packets_input_nu[i],
                            packet_collection.packets_input_energy[i],
                            i)
-        if single_packet_seed:  # We want to set the seed correctly per user
-            np.random.seed(single_packet_seed)
+
+        # We want to set the seed correctly per user; otherwise, random.
+        if montecarlo_configuration.single_packet_seed:
+            np.random.seed(montecarlo_configuration.single_packet_seed)
         else:
             np.random.seed(r_packet.index)
         vpacket_collection = VPacketCollection(
@@ -89,7 +91,8 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
-        if single_packet_seed:  # if we're only in a single-packet mode
+        # if we're only in a single-packet mode
+        if montecarlo_configuration.single_packet_seed:
             break
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
