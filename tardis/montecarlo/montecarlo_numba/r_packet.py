@@ -64,7 +64,7 @@ def calculate_distance_boundary(r, mu, r_inner, r_outer):
     return distance, delta_shell
 
 
-@log_decorator
+# @log_decorator
 @njit(**njit_dict)
 def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
                             montecarlo_configuration):
