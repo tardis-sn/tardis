@@ -37,7 +37,6 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
     and if virtual packets are requested - also updates the vpacket_collection
     """
     flag = None
-    np.random.seed(r_packet.index)
 
     line_interaction_type = montecarlo_configuration.line_interaction_type
 
@@ -61,8 +60,9 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
         try:
             distance, interaction_type, delta_shell = trace_packet(
                 r_packet, numba_model, numba_plasma, estimators, montecarlo_configuration)
-        except MonteCarloException:
+        except MonteCarloException as e:
             flag = 'stop'
+            print(e)
             break
 
         if interaction_type == InteractionType.BOUNDARY:
