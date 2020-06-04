@@ -84,15 +84,15 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
 
         v_packets_idx = np.floor((vpackets_nu - spectrum_frequency[0]) /
                                  delta_nu).astype(np.int64)
+        # if we're only in a single-packet mode
+        if montecarlo_configuration.single_packet_seed:
+            break
         for j, idx in enumerate(v_packets_idx):
             if ((vpackets_nu[j] < spectrum_frequency[0]) or
                     (vpackets_nu[j] > spectrum_frequency[-1])):
                 continue
             v_packets_energy_hist[idx] += vpackets_energy[j]
 
-        # if we're only in a single-packet mode
-        if montecarlo_configuration.single_packet_seed:
-            break
     packet_collection.packets_output_energy[:] = output_energies[:]
     packet_collection.packets_output_nu[:] = output_nus[:]
     
