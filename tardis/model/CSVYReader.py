@@ -4,10 +4,8 @@ import astropy.units as u
 
 from collections import OrderedDict
 from pyne import nucname
-from tardis.montecarlo.spectrum import TARDISSpectrum
 from tardis.io.parsers import csvy
 
-#TEST
 class CSVYReader():
 
     def __init__(self, csvy_path):
@@ -58,65 +56,19 @@ class CSVYReader():
         self.yml['datatype']['fields'].insert(loc, yml_odict)
         return
 
-    def calculate_shell_masses(self):
-        time = self.yml['model_density_time_0'].to('s')
-
-        velocity_field_index = [field['name'] for field in self.yml['datatype']['fields']].index('velocity')
-        velocity_unit = u.Unit(self.yml['datatype']['fields'][velocity_field_index]['unit'])
-        velocity = self.csv['velocity'].values * velocity_unit
-
-        density_field_index = [field['name'] for field in self.yml['datatype']['fields']].index('density')
-        density_unit = u.Unit(self.yml['datatype']['fields'][density_field_index]['unit'])
-        density = self.csv['density'].values * density_unit
-        density = density.cgs
-        density = density[1:]
-
-        v_inner = velocity[:-1].cgs
-        v_outer = velocity[1:].cgs
-        r_inner = time * v_inner
-        r_outer = time * v_outer
-        volume = ((4. / 3) * np.pi * (r_outer ** 3 - r_inner ** 3)).cgs
-        shell_masses = volume * density
-        shell_masses = shell_masses.to('Msun')
-        return shell_masses
 
     def inject_element(self, element, mass):
         abund_names = [name for name in self.csv.columns
                        if nucname.iselement(name) or nucname.isnuclide(name)]
-        #abundances = self.csv.loc[:,abund_names]
 
         element_Z = nucname.name_zz[element]
 
         if not element in abund_names:
             self.add_field_to_csv(fieldname=element, desc=element+' abundance', unit=None, loc=None)
 
-        time = self.yml['model_density_time_0'].to('s')
-
-        velocity_field_index = [field['name'] for field in self.yml['datatype']['fields']].index('velocity')
-        velocity_unit = u.Unit(self.yml['datatype']['fields'][velocity_field_index]['unit'])
-        velocity = self.csv['velocity'].values * velocity_unit
-        print(velocity.shape)
-        print(velocity)
-        #velocity = velocity[1:]
-
-        density_field_index = [field['name'] for field in self.yml['datatype']['fields']].index('density')
-        density_unit = u.Unit(self.yml['datatype']['fields'][density_field_index]['unit'])
-        density = self.csv['density'].values * density_unit
-        density = density.cgs
-        density = density[1:]
-        print(density.shape)
-        print(density)
-
-        v_inner = velocity[:-1].cgs
-        v_outer = velocity[1:].cgs
-        r_inner = time * v_inner
-        r_outer = time * v_outer
-        volume = ((4. / 3) * np.pi * (r_outer ** 3 - r_inner ** 3)).cgs
-        shell_masses = volume * density
-        shell_masses = shell_masses.to('Msun')
 
         injected_mass = 0 * u.Msun
-        injection_index = self.csv.shape[1] - 1
+        injection_index = self.csv.shape[0] - 1
 
         # check if converting the next shell to desired element
         # will not yet reach the desired injection mass. If so,
@@ -126,15 +78,17 @@ class CSVYReader():
         # a fraction of the next shell must be converted and
         # the velocity structure modified.
 
-        while (injected_mass.value + shell_masses[injection_index].value < mass.value):
+        while (injected_mass.value + self.shell_masses[injection_index - 1].value < mass.value):
             # modify the abundance dataframe
             print(injection_index)
 
-            self.csv.loc[:,abund_names].iloc[injection_index] = np.zeros(len(abundances.iloc[injection_index]))
-            self.csv.loc[:,abund_names].iloc[injection_index].loc[element] = 1.0
+            for el in abund_names:
+                self.csv.loc[injection_index, el] = 0.0
+            self.csv.loc[injection_index, element] = 1.0
+
 
             #update the injected mass
-            injected_mass = injected_mass + shell_masses[injection_index]
+            injected_mass = injected_mass + self.shell_masses[injection_index - 1]
 
             # update the injection index
             injection_index = injection_index - 1
@@ -142,19 +96,69 @@ class CSVYReader():
         # handle the edge case of the last shell where
         # only a fraction of the shell is converted to
         # injection element.
-        last_density = density[injection_index]
-        last_r_outer = r_outer[injection_index]
-        last_v_outer = v_outer[injection_index]
+        last_density = self.csv['density'][injection_index] * self.shell_density.unit
+        last_v_outer = self.velocity[injection_index]
+        last_r_outer = self.time * last_v_outer
+
         mass_diff = mass - injected_mass
 
         new_r_outer = (last_r_outer**3 - 3 / (4 * np.pi * last_density) * mass_diff.to('g'))**(1.0/3.0)
-        new_v_outer = new_r_outer / time
-        new_v_outer = new_v_outer.to(velocity_unit)
+        new_v_outer = new_r_outer / self.time
+        new_v_outer = new_v_outer.to(self.velocity.unit)
 
-        print(new_v_outer)
         self.csv['velocity'][injection_index] = new_v_outer
         self.insert_shell_to_csv(last_v_outer.value)
         self.csv.iloc[injection_index + 1] = self.csv.iloc[injection_index].values
         self.csv.iloc[injection_index + 1]['velocity'] = last_v_outer.value
 
+        for el in abund_names:
+            self.csv.loc[injection_index + 1, el] = 0.0
+        self.csv.loc[injection_index + 1, element] = 1.0
+
         return
+
+
+    @property
+    def velocity(self):
+        velocity_field_index = [field['name'] for field in self.yml['datatype']['fields']].index('velocity')
+        velocity_unit = u.Unit(self.yml['datatype']['fields'][velocity_field_index]['unit'])
+        velocity = self.csv['velocity'].values * velocity_unit
+        return velocity
+
+    @property
+    def v_outer(self):
+        return self.velocity[1:]
+
+    @property
+    def v_inner(self):
+        return self.velocity[:-1]
+
+    @property
+    def shell_density(self):
+        density_field_index = [field['name'] for field in self.yml['datatype']['fields']].index('density')
+        density_unit = u.Unit(self.yml['datatype']['fields'][density_field_index]['unit'])
+        density = self.csv['density'].values * density_unit
+        density = density[1:]
+        return density
+
+    @property
+    def time(self):
+        return self.yml['model_density_time_0'].to('s')
+
+    @property
+    def r_inner(self):
+        return self.time * self.v_inner
+
+    @property
+    def r_outer(self):
+        return self.time * self.v_outer
+
+    @property
+    def shell_volumes(self):
+        return ((4. / 3) * np.pi * (self.r_outer ** 3 - self.r_inner ** 3)).cgs
+
+    @property
+    def shell_masses(self):
+        shell_masses = self.shell_volumes * self.shell_density
+        shell_masses = shell_masses.to('Msun')
+        return shell_masses
