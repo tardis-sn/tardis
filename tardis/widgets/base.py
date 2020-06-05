@@ -207,17 +207,17 @@ class ShellInfoWidget():
     tables.
     """
 
-    def __init__(self, sim_obj_or_path):
+    def __init__(self, shell_info_data):
+        """Initialize the object with the shell information of a simulation
+        model
 
-        if isinstance(sim_obj_or_path, Simulation):
-            self.data = SimulationShellInfo(sim_obj_or_path)
-        elif isinstance(sim_obj_or_path, str):
-            self.data = HDFShellInfo(sim_obj_or_path)
-        else:
-            raise TypeError(
-                "Passed argument is of invalid type: {}\nOnly "
-                "tardis.simulation.Simulation object or a path to simulation "
-                "HDF file (str object) is allowed!".format(type(sim_obj_or_path)))
+        Parameters
+        ----------
+        shell_info_data : subclass of BaseShellInfo
+            Shell information object constructed from Simulation object or HDF
+            file
+        """
+        self.data = shell_info_data
 
         # Creating the shells data table widget
         self.shells_table = self.create_table_widget(
@@ -325,7 +325,7 @@ class ShellInfoWidget():
             if {'index', 'other_names'}.issubset(set(changeable_col.keys())):
                 column_widths_definitions.update(
                     {col_name: {'width': col_widths[changeable_col['index']]}
-                     for col_name in changeable_col['col_names']})
+                     for col_name in changeable_col['other_names']})
             else:
                 raise ValueError("Changeable column dictionary does not contain "
                                  "'index' or 'other_names' key")
@@ -510,3 +510,37 @@ class ShellInfoWidget():
 # TODO: Class for model parameters and other stuff
 
 # TODO class for main tab widget
+
+
+def shell_info_from_simulation(sim_model):
+    """Create shell info widget from a TARDIS simulation object
+
+    Parameters
+    ----------
+    sim_model : tardis.simulation.Simulation
+        TARDIS Simulation object produced by running a simulation
+
+    Returns
+    -------
+    ShellInfoWidget
+    """
+    shell_info_data = SimulationShellInfo(sim_model)
+    return ShellInfoWidget(shell_info_data)
+
+
+def shell_info_from_hdf(hdf_fpath):
+    """Create shell info widget from a simulation HDF file
+
+    Parameters
+    ----------
+    hdf_fpath : str
+        A valid path to a simulation HDF file (HDF file must be created
+        from a TARDIS Simulation object using `to_hdf` method with default
+        arguments)
+
+    Returns
+    -------
+    ShellInfoWidget
+    """
+    shell_info_data = HDFShellInfo(hdf_fpath)
+    return ShellInfoWidget(shell_info_data)
