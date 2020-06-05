@@ -79,8 +79,7 @@ properties:
   single_packet_seed:
     type:
       - number
-      - boolean
-    default: false
+    default: -1
     description: If debug_packets is true, this is the seed for the only packet.
 
 required:
