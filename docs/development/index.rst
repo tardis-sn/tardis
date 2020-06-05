@@ -13,6 +13,7 @@ to the Astropy team for designing it.
 
     running_tests
     issues
+    debug_numba
 
 
 
