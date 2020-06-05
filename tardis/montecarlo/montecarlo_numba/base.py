@@ -53,7 +53,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
     delta_nu = spectrum_frequency[1] - spectrum_frequency[0]
 
     for i in prange(len(output_nus)):
-        if montecarlo_configuration.single_packet_seed:
+        if montecarlo_configuration.single_packet_seed != -1:
             i = montecarlo_configuration.single_packet_seed
         r_packet = RPacket(numba_model.r_inner[0],
                            packet_collection.packets_input_mu[i],
@@ -85,7 +85,7 @@ def montecarlo_main_loop(packet_collection, numba_model, numba_plasma,
         v_packets_idx = np.floor((vpackets_nu - spectrum_frequency[0]) /
                                  delta_nu).astype(np.int64)
         # if we're only in a single-packet mode
-        if montecarlo_configuration.single_packet_seed:
+        if montecarlo_configuration.single_packet_seed != -1:
             break
         for j, idx in enumerate(v_packets_idx):
             if ((vpackets_nu[j] < spectrum_frequency[0]) or
