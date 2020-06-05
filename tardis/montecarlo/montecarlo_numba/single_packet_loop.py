@@ -14,7 +14,7 @@ from tardis.montecarlo.montecarlo_numba.vpacket import trace_vpacket_volley
 
 from tardis.montecarlo.montecarlo_numba.montecarlo_logger import log_decorator
 
-@log_decorator
+# @log_decorator
 @jit
 def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
                        vpacket_collection, montecarlo_configuration,
@@ -57,13 +57,8 @@ def single_packet_loop(r_packet, numba_model, numba_plasma, estimators,
         r_packet_track_distance = [0.]
 
     while r_packet.status == PacketStatus.IN_PROCESS:
-        try:
-            distance, interaction_type, delta_shell = trace_packet(
-                r_packet, numba_model, numba_plasma, estimators, montecarlo_configuration)
-        except MonteCarloException as e:
-            flag = 'stop'
-            print(e)
-            break
+        distance, interaction_type, delta_shell = trace_packet(
+            r_packet, numba_model, numba_plasma, estimators, montecarlo_configuration)
 
         if interaction_type == InteractionType.BOUNDARY:
             move_r_packet(r_packet, distance, numba_model.time_explosion,
