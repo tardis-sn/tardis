@@ -16,7 +16,8 @@ vpacket_spec = [
     ('energy', float64),
     ('next_line_id', int64),
     ('current_shell_id', int64),
-    ('status', int64)
+    ('status', int64),
+    ('index', int64)
 ]
 
 @jitclass(vpacket_spec)
