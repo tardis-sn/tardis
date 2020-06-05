@@ -91,12 +91,7 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
     nu_diff = comov_nu - nu_line
 
     if nu_diff <= 0:
-        raise MonteCarloException(f'nu difference is less than 0.0; current '
-                                  f'packet nu={r_packet.nu}, '
-                                  f'packet seed={r_packet.index}, '
-                                  f'nu line: {nu_line}',
-                                  f'shell id: {r_packet.current_shell_id}',
-                                  f'packet = {r_packet}')
+        raise MonteCarloException
 
     # for numerical reasons, if line is too close we set the distance to 0.
     if np.abs(nu_diff / comov_nu) < CLOSE_LINE_THRESHOLD:
