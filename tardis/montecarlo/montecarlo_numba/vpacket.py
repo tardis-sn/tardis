@@ -182,7 +182,6 @@ def trace_vpacket_volley(r_packet, vpacket_collection, numba_model,
         v_packet = VPacket(r_packet.r, v_packet_mu, v_packet_nu, 
                            v_packet_energy, r_packet.current_shell_id, 
                            r_packet.next_line_id, i)
-        np.random.seed(v_packet.index)
 
         
         tau_vpacket = trace_vpacket(v_packet, numba_model, numba_plasma,
