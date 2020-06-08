@@ -87,15 +87,18 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
 
     if nu_line == 0.0:
         return MISS_DISTANCE
-
     nu_diff = comov_nu - nu_line
-
-    if nu_diff < 0:
-        raise MonteCarloException
 
     # for numerical reasons, if line is too close, we set the distance to 0.
     if np.abs(nu_diff / comov_nu) < CLOSE_LINE_THRESHOLD:
         nu_diff = 0.0
+
+    if nu_diff >= 0:
+        return (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
+    else:
+        raise MonteCarloException('nu difference is less than 0.0')
+
+
     if montecarlo_configuration.full_relativity:
         nu_r = nu_line / nu
         ct = C_SPEED_OF_LIGHT * time_explosion
