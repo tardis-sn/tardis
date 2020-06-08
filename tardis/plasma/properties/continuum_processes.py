@@ -116,23 +116,59 @@ class IndexSetterMixin(object):
 
 class SpMatrixSeriesConverterMixin(object):
     @staticmethod
-    def series2matrix(series, idx_2_reduced_idx):
+    def series2matrix(series, idx2reduced_idx):
+        """
+        Converts a Pandas Series to a sparse matrix and re-indexes it.
+
+        Parameters
+        ----------
+        series : Pandas Series
+            Rates or transition probabilities. Indexed by
+            source_level_idx, destination_level_idx.
+        idx2reduced_idx: Pandas Series
+            Values of (compact) matrix index. Indexed by references_idx.
+            Maps the references_idx of a level to the index
+            used in the sparse matrix.
+
+        Returns
+        -------
+        matrix : scipy.sparse.coo.coo_matrix
+            Sparse matrix of rates or transition probabilites.
+        """
         q_indices = (series.index.get_level_values(0),
                      series.index.get_level_values(1))
-        q_indices = (idx_2_reduced_idx.loc[q_indices[0]].values,
-                     idx_2_reduced_idx.loc[q_indices[1]].values)
-        max_idx = idx_2_reduced_idx.max() + 1
+        q_indices = (idx2reduced_idx.loc[q_indices[0]].values,
+                     idx2reduced_idx.loc[q_indices[1]].values)
+        max_idx = idx2reduced_idx.max() + 1
         matrix = sp.coo_matrix((series, q_indices), shape=(max_idx, max_idx))
         return matrix
 
     @staticmethod
-    def matrix2series(matrix, idx_2_reduced_idx, names=None):
-        reduced_idx_2_idx = pd.Series(idx_2_reduced_idx.index,
-                                      index=idx_2_reduced_idx)
+    def matrix2series(matrix, idx2reduced_idx, names=None):
+        """
+        Converts a sparse matrix to a Pandas Series and indexes it.
+
+        Parameters
+        ----------
+        matrix : scipy.sparse.coo.coo_matrix
+            Sparse matrix of rates or transition probabilites.
+        idx2reduced_idx: Pandas Series
+            Values of (compact) matrix index. Indexed by references_idx.
+            Maps the references_idx of a level to the index
+            used in the sparse matrix.
+
+        Returns
+        -------
+        series : Pandas Series
+            Rates or transition probabilities. Indexed by
+            source_level_idx, destination_level_idx.
+        """
+        reduced_idx2idx = pd.Series(idx2reduced_idx.index,
+                                    index=idx2reduced_idx)
         matrix = matrix.tocoo()
         index = pd.MultiIndex.from_arrays(
-            [reduced_idx_2_idx.loc[matrix.row],
-             reduced_idx_2_idx.loc[matrix.col]]
+            [reduced_idx2idx.loc[matrix.row],
+             reduced_idx2idx.loc[matrix.col]]
         )
         series = pd.Series(matrix.data, index=index)
         if names:
