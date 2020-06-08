@@ -94,7 +94,7 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
         nu_diff = 0.0
 
     if nu_diff >= 0:
-        return (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
+        distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
     else:
         raise MonteCarloException('nu difference is less than 0.0')
 
@@ -106,8 +106,6 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
                 ct - nu_r**2 * np.sqrt(
             ct**2 - (1 + r_packet.r**2 * (1 - r_packet.mu**2) *
                      (1 + 1 / nu_r**2)))) / (1 + nu_r**3)
-    else:
-        distance = (nu_diff / nu) * C_SPEED_OF_LIGHT * time_explosion
 
     return distance
 
