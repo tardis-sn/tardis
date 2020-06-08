@@ -107,8 +107,9 @@ class MontecarloRunner(HDFWriterMixin):
         # Estimators
         self.j_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
         self.nu_bar_estimator = np.zeros(tau_sobolev_shape[1], dtype=np.float64)
-        self.j_b_lu_estimator = np.zeros(tau_sobolev_shape)
-        self.edot_lu_estimator = np.zeros(tau_sobolev_shape)
+        self.j_blue_estimator = np.zeros(tau_sobolev_shape)
+        self.Edotlu_estimator = np.zeros(tau_sobolev_shape)
+        # TODO: this is the wrong attribute naming style.
 
     def _initialize_geometry_arrays(self, model):
         """

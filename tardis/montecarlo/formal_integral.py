@@ -122,7 +122,7 @@ class FormalIntegrator(object):
 
         Edotlu_norm_factor = (1 / (runner.time_of_simulation * model.volume))
         exptau = 1 - np.exp(- plasma.tau_sobolevs)
-        Edotlu = Edotlu_norm_factor * exptau * runner.edot_lu_estimator
+        Edotlu = Edotlu_norm_factor * exptau * runner.Edotlu_estimator
 
         # The following may be achieved by calling the appropriate plasma
         # functions
