@@ -90,10 +90,10 @@ def calculate_distance_line(r_packet, comov_nu, nu_line, time_explosion,
 
     nu_diff = comov_nu - nu_line
 
-    if nu_diff <= 0:
+    if nu_diff < 0:
         raise MonteCarloException
 
-    # for numerical reasons, if line is too close we set the distance to 0.
+    # for numerical reasons, if line is too close, we set the distance to 0.
     if np.abs(nu_diff / comov_nu) < CLOSE_LINE_THRESHOLD:
         nu_diff = 0.0
     if montecarlo_configuration.full_relativity:
