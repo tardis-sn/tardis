@@ -1,4 +1,6 @@
 import pytest
+import numpy as np
+
 from tardis.widgets.base import BaseShellInfo, SimulationShellInfo, HDFShellInfo
 
 
@@ -26,12 +28,47 @@ def hdf_shell_info(hdf_file_path, simulation_verysimple):
 class TestBaseShellInfo:
     def test_shells_data(self, base_shell_info, simulation_verysimple):
         shells_data = base_shell_info.shells_data()
-        assert shells_data.shape[0] == len(
-            simulation_verysimple.model.t_radiative)
+        assert shells_data.shape == (len(
+            simulation_verysimple.model.t_radiative), 2)
+        assert np.allclose(shells_data.iloc[:, 0].map(np.float),
+                           simulation_verysimple.model.t_radiative.value)
+        assert np.allclose(shells_data.iloc[:, 1].map(np.float),
+                           simulation_verysimple.model.w)
 
-    def test_element_count_data(self, base_shell_info, simulation_verysimple):
+    @pytest.mark.parametrize('shell_num', [1, 20])
+    def test_element_count_data(self, base_shell_info, simulation_verysimple,
+                                shell_num):
         element_count_data = base_shell_info.element_count(1)
-        assert element_count_data.shape[0] == simulation_verysimple.plasma.abundance.shape[0]
+        assert element_count_data.shape == (len(simulation_verysimple.plasma.abundance[
+            shell_num-1]), 2)
+        assert np.allclose(element_count_data.iloc[:, -1].map(np.float),
+                           simulation_verysimple.plasma.abundance[shell_num-1])
+
+    @pytest.mark.parametrize(('atomic_num', 'shell_num'), [(12, 1), (20, 20)])
+    def test_ion_count_data(self, base_shell_info, simulation_verysimple,
+                            atomic_num, shell_num):
+        ion_count_data = base_shell_info.ion_count(atomic_num, shell_num)
+        sim_ion_number_density = simulation_verysimple.plasma.ion_number_density[
+            shell_num-1].loc[atomic_num]
+        sim_element_number_density = simulation_verysimple.plasma.number_density.loc[
+            atomic_num, shell_num-1]
+        assert ion_count_data.shape == (len(sim_ion_number_density), 2)
+        assert np.allclose(ion_count_data.iloc[:, -1].map(np.float),
+                           sim_ion_number_density / sim_element_number_density)
+
+    @pytest.mark.parametrize(('ion_num', 'atomic_num', 'shell_num'),
+                             [(2, 12, 1), (3, 20, 20)])
+    def test_ion_count_data(self, base_shell_info, simulation_verysimple,
+                            ion_num, atomic_num, shell_num):
+        level_count_data = base_shell_info.level_count(
+            ion_num, atomic_num, shell_num)
+        sim_level_number_density = simulation_verysimple.plasma.level_number_density[
+            shell_num - 1].loc[atomic_num, ion_num]
+        sim_ion_number_density = simulation_verysimple.plasma.ion_number_density[
+            shell_num - 1].loc[atomic_num, ion_num]
+        assert level_count_data.shape == (len(sim_level_number_density), 1)
+        assert np.allclose(level_count_data.iloc[:, 0].map(np.float),
+                           sim_level_number_density / sim_ion_number_density)
 
 
 class TestSimulationShellInfo(TestBaseShellInfo):
