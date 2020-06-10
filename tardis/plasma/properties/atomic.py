@@ -2,7 +2,10 @@ import logging
 
 import numpy as np
 import pandas as pd
+from scipy.special import expn
+from scipy.interpolate import PchipInterpolator
 from collections import Counter as counter
+from astropy import constants as const
 
 from tardis.plasma.properties.base import (ProcessingPlasmaProperty,
     HiddenPlasmaProperty, BaseAtomicDataProperty)
@@ -14,7 +17,7 @@ logger = logging.getLogger(__name__)
 
 __all__ = ['Levels', 'Lines', 'LinesLowerLevelIndex', 'LinesUpperLevelIndex',
            'AtomicMass', 'IonizationData', 'ZetaData', 'NLTEData',
-           'PhotoIonizationData']
+           'PhotoIonizationData', 'YgData', 'YgInterpolator']
 
 
 class Levels(BaseAtomicDataProperty):
@@ -260,3 +263,97 @@ class NLTEData(ProcessingPlasmaProperty):
             return (getattr(self, self.outputs[0]),)
         else:
             return atomic_data.nlte_data
+
+
+class YgData(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    yg_data : Pandas DataFrame
+        Table of thermally averaged effective collision strengths
+        (divided by the statistical weight of the lower level) Y_ij / g_i .
+        Columns are temperatures.
+    t_yg : Numpy Array
+        Temperatures at which collision strengths are tabulated.
+    yg_index : Pandas MultiIndex
+    delta_E_yg : Pandas DataFrame
+        Energy difference between upper and lower levels coupled by collisions.
+    yg_idx : Pandas DataFrame
+        Source_level_idx and destination_level_idx of collision transitions.
+        Indexed by atomic_number, ion_number, level_number_lower,
+        level_number_upper.
+    """
+    outputs = ('yg_data', 't_yg', 'yg_index', 'delta_E_yg', 'yg_idx')
+    latex_name = ('\\frac{Y_{ij}}{g_i}', 'T_\\textrm{Yg}',
+                  '\\textrm{yg_index}', '\\delta E_{ij}', '\\textrm{yg_idx}')
+
+    def calculate(self, atomic_data, continuum_interaction_species):
+        yg_data = atomic_data.yg_data
+
+        t_yg = yg_data.columns.values.astype(float)
+        yg_data.columns = t_yg
+        approximate_yg_data = self.calculate_yg_van_regemorter(
+            atomic_data, t_yg, continuum_interaction_species
+        )
+
+        yg_data = yg_data.combine_first(approximate_yg_data)
+
+        energies = atomic_data.levels.energy
+        index = yg_data.index
+        lu_index = index.droplevel('level_number_lower')
+        ll_index = index.droplevel('level_number_upper')
+        delta_E = energies.loc[lu_index].values - energies.loc[ll_index].values
+        delta_E = pd.Series(delta_E, index=index)
+
+        source_idx = atomic_data.macro_atom_references.loc[
+            ll_index].references_idx
+        destination_idx = atomic_data.macro_atom_references.loc[
+            lu_index].references_idx
+        yg_idx = pd.DataFrame(
+            {'source_level_idx': source_idx.values,
+             'destination_level_idx': destination_idx.values}, index=index
+        )
+        return yg_data, t_yg, index, delta_E, yg_idx
+
+    @staticmethod
+    def calculate_yg_van_regemorter(atomic_data, t_electrons,
+                                    continuum_interaction_species):
+        I_H = atomic_data.ionization_data.loc[(1, 1)]
+
+        mask_selected_species = atomic_data.lines.index.droplevel(
+           ['level_number_lower', 'level_number_upper']).isin(
+               continuum_interaction_species)
+        lines_filtered = atomic_data.lines[mask_selected_species]
+        f_lu = lines_filtered.f_lu.values
+        nu_lines = lines_filtered.nu.values
+
+        yg = f_lu * (I_H / (const.h.cgs.value * nu_lines)) ** 2
+        yg = 14.5 * 5.465e-11 * t_electrons * yg[:, np.newaxis]
+
+        u0 = nu_lines[np.newaxis].T / t_electrons * (
+            const.h.cgs.value / const.k_B.cgs.value)
+        gamma = 0.276 * np.exp(u0) * expn(1, u0)
+        gamma[gamma < 0.2] = 0.2
+
+        yg *= u0 * gamma / 8.629e-6
+        yg = pd.DataFrame(yg, index=lines_filtered.index, columns=t_electrons)
+
+        return yg
+
+
+class YgInterpolator(ProcessingPlasmaProperty):
+    """
+    Attributes
+    ----------
+    yg_interp : scipy.interpolate.PchipInterpolator
+        Interpolates the thermally averaged effective collision strengths
+        (divided by the statistical weight of the lower level) Y_ij / g_i as
+        a function of electron temperature.
+    """
+    outputs = ('yg_interp',)
+    latex_name = ('\\frac{Y_ij}{g_i}_{\\textrm{interp}}',)
+
+    def calculate(self, yg_data, t_yg):
+        yg_interp = PchipInterpolator(t_yg, yg_data, axis=1,
+                                      extrapolate=True)
+        return yg_interp
